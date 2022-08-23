@@ -1,18 +1,28 @@
 import { FC } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { removeTodoByTodoId } from '../../api/todos';
 
 type Props = {
   todo: Todo,
+  handleError: (errorMsg: string) => void,
+  handleUpdate: (bool: boolean) => void,
 };
 
-export const TodoItem: FC<Props> = ({ todo }) => {
+export const TodoItem: FC<Props> = ({ todo, handleError, handleUpdate }) => {
+  const { id, completed } = todo;
+  const handleRemoveTodo = () => {
+    removeTodoByTodoId(id)
+      .then(() => handleUpdate(true))
+      .catch(() => handleError('Unable to delete a todo'));
+  };
+
   return (
     <div
       data-cy="Todo"
       className={classNames(
         'todo',
-        { completed: todo.completed },
+        { completed },
       )}
     >
       <label className="todo__status-label">
@@ -29,6 +39,7 @@ export const TodoItem: FC<Props> = ({ todo }) => {
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
+        onClick={handleRemoveTodo}
       >
         ×
       </button>

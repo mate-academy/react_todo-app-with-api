@@ -8,6 +8,7 @@ import { addTodo, getTodos } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoItem } from './components/TodoItem';
 import { Loader } from './components/Loader';
+import { TodoFooter } from './components/TodoFooter';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,12 +20,6 @@ export const App: React.FC = () => {
   const [isUpdateNeeded, setIsUpdateNeeded] = useState(false);
   const [userId, setUserId] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if (user) {
-      setUserId(user.id);
-    }
-  }, [user]);
 
   const handleError = useCallback(
     (er: string) => {
@@ -43,16 +38,20 @@ export const App: React.FC = () => {
       newTodoField.current.focus();
     }
 
-    setIsLoading(true);
-    setErrorMessage('');
+    if (user) {
+      setUserId(user.id);
 
-    getTodos(userId)
-      .then(setTodos)
-      .catch(handleError)
-      .finally(() => {
-        setIsLoading(false);
-        setIsUpdateNeeded(false);
-      });
+      setIsLoading(true);
+      setErrorMessage('');
+
+      getTodos(user.id)
+        .then(setTodos)
+        .catch(handleError)
+        .finally(() => {
+          setIsLoading(false);
+          setIsUpdateNeeded(false);
+        });
+    }
   }, [user, isUpdateNeeded]);
 
   const handleAddTodo = (event: FormEvent) => {
@@ -69,7 +68,8 @@ export const App: React.FC = () => {
       userId,
       completed: false,
     }).then(() => setIsUpdateNeeded(true))
-      .catch(() => handleError('Unable to add a todo'));
+      .catch(() => handleError('Unable to add a todo'))
+      .finally(() => setNewTodoTitle(''));
   };
 
   return (
@@ -102,7 +102,12 @@ export const App: React.FC = () => {
 
           <section className="todoapp__main" data-cy="TodoList">
             {todos.map(todo => (
-              <TodoItem todo={todo} key={todo.id} />
+              <TodoItem
+                todo={todo}
+                key={todo.id}
+                handleError={handleError}
+                handleUpdate={setIsUpdateNeeded}
+              />
             ))}
 
             <div data-cy="Todo" className="todo">
@@ -131,44 +136,7 @@ export const App: React.FC = () => {
             </div>
           </section>
 
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="todosCounter">
-              4 items left
-            </span>
-
-            <nav className="filter" data-cy="Filter">
-              <a
-                data-cy="FilterLinkAll"
-                href="#/"
-                className="filter__link selected"
-              >
-                All
-              </a>
-
-              <a
-                data-cy="FilterLinkActive"
-                href="#/active"
-                className="filter__link"
-              >
-                Active
-              </a>
-              <a
-                data-cy="FilterLinkCompleted"
-                href="#/completed"
-                className="filter__link"
-              >
-                Completed
-              </a>
-            </nav>
-
-            <button
-              data-cy="ClearCompletedButton"
-              type="button"
-              className="todoapp__clear-completed"
-            >
-              Clear completed
-            </button>
-          </footer>
+          <TodoFooter todos={todos} />
         </div>
       )}
 
@@ -181,6 +149,7 @@ export const App: React.FC = () => {
             data-cy="HideErrorButton"
             type="button"
             className="delete"
+            onClick={() => setErrorMessage('')}
           />
           {errorMessage}
         </div>
