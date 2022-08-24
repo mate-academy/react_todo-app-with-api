@@ -37,6 +37,7 @@ export const TodoItem: FC<Props> = memo(({
     setIsLoading(true);
 
     updateTodoByTodoId(id, data)
+      .then(() => handleUpdate(true))
       .catch(() => handleError('Unable to update a todo'))
       .finally(() => setIsLoading(false));
   };
