@@ -105,7 +105,7 @@ export const TodoItem: FC<Props> = memo(({
       ) : (
         <>
           <button
-            type={'button'}
+            type="button"
             data-cy="TodoTitle"
             className="todo__title"
             onClick={(event) => {
