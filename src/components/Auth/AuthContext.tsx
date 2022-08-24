@@ -13,13 +13,11 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
   return (
     <>
-      {!user ? (
-        <AuthForm onLogin={setUser} />
-      ) : (
-        <AuthContext.Provider value={user}>
-          {children}
-        </AuthContext.Provider>
-      )}
+      {!user
+        ? (<AuthForm onLogin={setUser} />)
+        : (<AuthContext.Provider value={user}>
+            {children}
+          </AuthContext.Provider>)}
     </>
   );
 };
