@@ -15,9 +15,11 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     <>
       {!user
         ? (<AuthForm onLogin={setUser} />)
-        : (<AuthContext.Provider value={user}>
+        : (
+          <AuthContext.Provider value={user}>
             {children}
-          </AuthContext.Provider>)}
+          </AuthContext.Provider>
+        )}
     </>
   );
 };

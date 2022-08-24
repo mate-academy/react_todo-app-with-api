@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
   FC, FormEvent, memo, useEffect, useState,
 } from 'react';
@@ -104,8 +105,7 @@ export const TodoItem: FC<Props> = memo(({
         </form>
       ) : (
         <>
-          <button
-            type="button"
+          <span
             data-cy="TodoTitle"
             className="todo__title"
             onClick={(event) => {
@@ -113,9 +113,10 @@ export const TodoItem: FC<Props> = memo(({
                 setIsDoubleClicked(true);
               }
             }}
+            onKeyDown={() => {}}
           >
             {todo.title}
-          </button>
+          </span>
           <button
             type="button"
             className="todo__remove"

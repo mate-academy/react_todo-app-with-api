@@ -16,6 +16,8 @@ import { Loader } from './components/Loader';
 import { TodoFooter } from './components/TodoFooter';
 import { FilterType } from './types/FilterType';
 
+import './styles/index.scss';
+
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
