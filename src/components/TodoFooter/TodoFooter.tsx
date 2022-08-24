@@ -76,16 +76,16 @@ export const TodoFooter: FC<Props> = memo(({
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleRemoveCompletedTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={handleRemoveCompletedTodos}
+        disabled={completedTodos.length === 0}
+      >
+        Clear completed
+      </button>
+
     </footer>
   );
 });

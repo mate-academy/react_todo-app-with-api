@@ -20,17 +20,24 @@ export const TodoItem: FC<Props> = memo(({
   const { id, completed, title } = todo;
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(todo.title);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRemoveTodo = () => {
+    setIsLoading(true);
+
     removeTodoByTodoId(id)
       .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to delete a todo'));
+      .catch(() => handleError('Unable to delete a todo'))
+      .finally(() => setIsLoading(false));
   };
 
   const handleTodoChange = (data: {}) => {
+    setIsLoading(true);
+
     updateTodoByTodoId(id, data)
       .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to update a todo'));
+      .catch(() => handleError('Unable to update a todo'))
+      .finally(() => setIsLoading(false));
   };
 
   const handleTodoStatusChange = () => {
@@ -115,7 +122,7 @@ export const TodoItem: FC<Props> = memo(({
             }}
             onKeyDown={() => {}}
           >
-            {todo.title}
+            {currentTitle}
           </span>
           <button
             type="button"
@@ -125,13 +132,19 @@ export const TodoItem: FC<Props> = memo(({
           >
             ×
           </button>
+
+          <div
+            data-cy="TodoLoader"
+            className={classNames(
+              'modal overlay',
+              { 'is-active': isLoading }
+            )}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </>
       )}
-
-      <div data-cy="TodoLoader" className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
     </div>
   );
 });

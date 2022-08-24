@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   FormEvent, useCallback,
-  useContext, useEffect, useMemo, useRef, useState,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -12,7 +12,6 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoItem } from './components/TodoItem';
-import { Loader } from './components/Loader';
 import { TodoFooter } from './components/TodoFooter';
 import { FilterType } from './types/FilterType';
 
@@ -21,9 +20,7 @@ import './styles/index.scss';
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isUpdateNeeded, setIsUpdateNeeded] = useState(false);
   const [userId, setUserId] = useState(0);
@@ -42,24 +39,14 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     if (user) {
       setUserId(user.id);
-
-      setIsLoading(true);
       setErrorMessage('');
 
       getTodos(user.id)
         .then(setTodos)
         .catch(handleError)
-        .finally(() => {
-          setIsLoading(false);
-          setIsUpdateNeeded(false);
-        });
+        .finally(() => setIsUpdateNeeded(false));
     }
   }, [user, isUpdateNeeded]);
 
@@ -135,7 +122,6 @@ export const App: React.FC = () => {
           <input
             data-cy="NewTodoField"
             type="text"
-            ref={newTodoField}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={newTodoTitle}
@@ -149,8 +135,8 @@ export const App: React.FC = () => {
           <section className="todoapp__main" data-cy="TodoList">
             {visibleTodos.map(todo => (
               <TodoItem
-                todo={todo}
                 key={todo.id}
+                todo={todo}
                 handleError={handleError}
                 handleUpdate={setIsUpdateNeeded}
               />
@@ -166,8 +152,6 @@ export const App: React.FC = () => {
           />
         </div>
       )}
-
-      {isLoading && <Loader />}
 
       {errorMessage && (
         <div
