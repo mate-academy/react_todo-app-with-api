@@ -26,6 +26,7 @@ export const App: React.FC = () => {
   const [userId, setUserId] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState(FilterType.All);
+  const [todosUpdateStatus, setTodosUpdateStatus] = useState<boolean[]>([]);
 
   const handleError = useCallback(
     (er: string) => {
@@ -46,7 +47,10 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(setTodos)
         .catch(handleError)
-        .finally(() => setIsUpdateNeeded(false));
+        .finally(() => {
+          setIsUpdateNeeded(false);
+          setTodosUpdateStatus(prev => [...prev].fill(false));
+        });
     }
   }, [user, isUpdateNeeded]);
 
@@ -69,11 +73,26 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    let todosForToggle = [...todos];
+    const todosForToggle: Todo[] = [];
+    const updateStatuses: boolean[] = [];
 
     if (todos.some(todo => !todo.completed)) {
-      todosForToggle = todosForToggle.filter(todo => !todo.completed);
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          todosForToggle.push(todo);
+          updateStatuses.push(true);
+        } else {
+          updateStatuses.push(false);
+        }
+      });
+    } else {
+      todos.forEach(todo => {
+        todosForToggle.push(todo);
+        updateStatuses.push(true);
+      });
     }
+
+    setTodosUpdateStatus(updateStatuses);
 
     const requests = Promise.all(
       todosForToggle.map(todo => (
@@ -133,12 +152,13 @@ export const App: React.FC = () => {
       {todos.length > 0 && (
         <div className="todoapp__content">
           <section className="todoapp__main" data-cy="TodoList">
-            {visibleTodos.map(todo => (
+            {visibleTodos.map((todo, index) => (
               <TodoItem
                 key={todo.id}
                 todo={todo}
                 handleError={handleError}
                 handleUpdate={setIsUpdateNeeded}
+                updateStatus={todosUpdateStatus[index]}
               />
             ))}
           </section>

@@ -10,12 +10,14 @@ type Props = {
   todo: Todo,
   handleError: (errorMsg: string) => void,
   handleUpdate: (bool: boolean) => void,
+  updateStatus?: boolean,
 };
 
 export const TodoItem: FC<Props> = memo(({
   todo,
   handleError,
   handleUpdate,
+  updateStatus,
 }) => {
   const { id, completed, title } = todo;
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
@@ -35,7 +37,6 @@ export const TodoItem: FC<Props> = memo(({
     setIsLoading(true);
 
     updateTodoByTodoId(id, data)
-      .then(() => handleUpdate(true))
       .catch(() => handleError('Unable to update a todo'))
       .finally(() => setIsLoading(false));
   };
@@ -137,7 +138,7 @@ export const TodoItem: FC<Props> = memo(({
             data-cy="TodoLoader"
             className={classNames(
               'modal overlay',
-              { 'is-active': isLoading }
+              { 'is-active': isLoading || updateStatus },
             )}
           >
             <div className="modal-background has-background-white-ter" />
