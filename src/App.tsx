@@ -169,6 +169,7 @@ export const App: React.FC = () => {
             handleUpdate={setIsUpdateNeeded}
             filterType={filterType}
             handleFilterTypeChange={setFilterType}
+            handleUpdateStatuses={setTodosUpdateStatus}
           />
         </div>
       )}

@@ -10,6 +10,7 @@ type Props = {
   handleUpdate: (bool: boolean) => void,
   filterType: FilterType
   handleFilterTypeChange: (filterType: FilterType) => void,
+  handleUpdateStatuses: (statuses: boolean[]) => void,
 };
 
 export const TodoFooter: FC<Props> = memo(({
@@ -18,7 +19,9 @@ export const TodoFooter: FC<Props> = memo(({
   handleUpdate,
   filterType,
   handleFilterTypeChange,
+  handleUpdateStatuses,
 }) => {
+  const statuses = todos.map(todo => todo.completed);
   const completedTodos = useMemo(() => (
     todos.filter(todo => todo.completed)
   ), [todos]);
@@ -27,6 +30,8 @@ export const TodoFooter: FC<Props> = memo(({
     const requests = Promise.all(
       completedTodos.map(todo => removeTodoByTodoId(todo.id)),
     );
+
+    handleUpdateStatuses(statuses);
 
     requests
       .then(() => handleUpdate(true))
