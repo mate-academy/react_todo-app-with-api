@@ -99,7 +99,7 @@ export const App: React.FC = () => {
 
     requests
       .then(() => setIsUpdateNeeded(true))
-      .catch(() => handleError('Unable to delete completed todos'))
+      .catch(() => handleError('Unable to update todos'))
       .finally(() => setTodosUpdateStatus(prev => [...prev].fill(false)));
   };
 
