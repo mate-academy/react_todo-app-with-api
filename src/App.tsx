@@ -29,7 +29,9 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isError, setIsError] = useState(false);
+
   const newTodoField = useRef<HTMLInputElement>(null);
+
   const [searchParams] = useSearchParams();
   const filterBy = searchParams.get('filterBy');
 
@@ -40,9 +42,15 @@ export const App: React.FC = () => {
     }
   }, [user]);
 
+  let timerId: ReturnType<typeof setTimeout> | null = null;
+
   const setErrorWithTimer = useCallback(() => {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
     setIsError(true);
-    setTimeout(() => setIsError(false), 3000);
+    timerId = setTimeout(() => setIsError(false), 3000);
   }, []);
 
   const addHandler = useCallback((title: string) => {
@@ -115,7 +123,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleSubmit = useCallback((event: FormEvent) => {
+  const addNewTodoHandler = useCallback((event: FormEvent) => {
     event.preventDefault();
     if (todoTitle) {
       if (newTodoField.current) {
@@ -173,7 +181,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={addNewTodoHandler}>
             <input
               data-cy="NewTodoField"
               type="text"
