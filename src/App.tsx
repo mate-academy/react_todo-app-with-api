@@ -20,11 +20,12 @@ import {
 import { TodoItem } from './components/TodoItem';
 import { filterTodos } from './utils/filterTodos';
 import { Footer } from './components/Footer';
+import { replaceTodo } from './utils/replaceTodo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todoTitle, setTodoTitle] = useState('');
+  const [newTodoTitle, setTodoTitle] = useState('');
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isError, setIsError] = useState(false);
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
 
   const addHandler = useCallback((title: string) => {
     if (user) {
+      const newTodoId = Math.random();
       const newTodo = {
         userId: user.id,
         title,
@@ -62,13 +64,26 @@ export const App: React.FC = () => {
       };
 
       setIsError(false);
+      setLoadingTodoIds(prev => [...prev, newTodoId]);
+      setTodos(prev => [...prev, {
+        ...newTodo,
+        id: newTodoId,
+      }]);
+
+      const newTodoIndex = todos.findIndex(({ id }) => id === newTodoId);
 
       addTodo(newTodo)
-        .then((addedTodo) => setTodos(prev => [...prev, addedTodo]))
+        .then((addedTodo) => setTodos(prev => (
+          replaceTodo(prev, newTodoIndex, addedTodo)
+        )))
         .catch(() => {
           setErrorWithTimer('Unable to create a todo');
+          setTodos(prev => (
+            replaceTodo(prev, newTodoIndex)
+          ));
         })
         .finally(() => {
+          setLoadingTodoIds(prev => prev.filter(id => id === newTodoId));
           setTodoTitle('');
           if (newTodoField.current) {
             newTodoField.current.disabled = false;
@@ -79,8 +94,8 @@ export const App: React.FC = () => {
   }, []);
 
   const deleteHandler = useCallback((todoId: number) => {
-    setLoadingTodoIds(prev => [...prev, todoId]);
     setIsError(false);
+    setLoadingTodoIds(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -116,16 +131,16 @@ export const App: React.FC = () => {
 
   const addNewTodoHandler = useCallback((event: FormEvent) => {
     event.preventDefault();
-    if (todoTitle) {
+    if (newTodoTitle) {
       if (newTodoField.current) {
         newTodoField.current.disabled = true;
       }
 
-      addHandler(todoTitle);
+      addHandler(newTodoTitle);
     } else {
       setErrorWithTimer('Title can\'t be empty');
     }
-  }, [addHandler, newTodoField, todoTitle]);
+  }, [addHandler, newTodoField, newTodoTitle]);
 
   const completeAll = useCallback(() => {
     const newCompleted = todos.some(({ completed }) => !completed);
@@ -178,7 +193,7 @@ export const App: React.FC = () => {
               ref={newTodoField}
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
-              value={todoTitle}
+              value={newTodoTitle}
               onChange={(event) => setTodoTitle(event.target.value)}
             />
           </form>
