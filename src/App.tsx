@@ -25,7 +25,6 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoTitle, setTodoTitle] = useState('');
-  const [todoToAdd, setTodoToAdd] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isError, setIsError] = useState(false);
@@ -44,11 +43,12 @@ export const App: React.FC = () => {
 
   let timerId: ReturnType<typeof setTimeout> | null = null;
 
-  const setErrorWithTimer = useCallback(() => {
+  const setErrorWithTimer = useCallback((title: string) => {
     if (timerId) {
       clearTimeout(timerId);
     }
 
+    setErrorMessage(title);
     setIsError(true);
     timerId = setTimeout(() => setIsError(false), 3000);
   }, []);
@@ -61,21 +61,14 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setTodoToAdd({
-        ...newTodo,
-        id: Math.random(),
-      });
-
       setIsError(false);
 
       addTodo(newTodo)
         .then((addedTodo) => setTodos(prev => [...prev, addedTodo]))
         .catch(() => {
-          setErrorMessage('Unable to create a todo');
-          setErrorWithTimer();
+          setErrorWithTimer('Unable to create a todo');
         })
         .finally(() => {
-          setTodoToAdd(null);
           setTodoTitle('');
           if (newTodoField.current) {
             newTodoField.current.disabled = false;
@@ -94,8 +87,7 @@ export const App: React.FC = () => {
         setTodos(prev => prev.filter(({ id }) => id !== todoId));
       })
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-        setErrorWithTimer();
+        setErrorWithTimer('Unable to delete a todo');
       })
       .finally(() => {
         setLoadingTodoIds(prev => prev.filter(el => el !== todoId));
@@ -115,8 +107,7 @@ export const App: React.FC = () => {
         }));
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
-        setErrorWithTimer();
+        setErrorWithTimer('Unable to update a todo');
       })
       .finally(() => {
         setLoadingTodoIds(prev => prev.filter(el => el !== todoId));
@@ -132,8 +123,7 @@ export const App: React.FC = () => {
 
       addHandler(todoTitle);
     } else {
-      setErrorMessage('Title can\'t be empty');
-      setErrorWithTimer();
+      setErrorWithTimer('Title can\'t be empty');
     }
   }, [addHandler, newTodoField, todoTitle]);
 
@@ -204,10 +194,6 @@ export const App: React.FC = () => {
               onUpdate={updateHandler}
             />
           ))}
-
-          {todoToAdd !== null && (
-            <TodoItem todo={todoToAdd} isLoading />
-          )}
         </section>
 
         {todos.length > 0 && (
