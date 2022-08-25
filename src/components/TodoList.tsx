@@ -1,4 +1,6 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
 import { getTodos } from '../api/todos';
 import { Maybe } from '../types/Maybe';
 import { Todo } from '../types/Todo';
@@ -29,12 +31,13 @@ export const TodoList: React.FC = React.memo(() => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos && todos.length > 0 && (
+      {todos && todos.length > 0 && todos.map(todo => (
         <TodoItem
-          todos={todos}
+          key={todo.id}
+          todo={todo}
           onDelete={onDelete}
         />
-      )}
+      ))}
       <div data-cy="Todo" className="todo completed">
         <label className="todo__status-label">
           <input
