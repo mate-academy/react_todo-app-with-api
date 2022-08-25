@@ -47,10 +47,7 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(setTodos)
         .catch(handleError)
-        .finally(() => {
-          setIsUpdateNeeded(false);
-          setTodosUpdateStatus(prev => [...prev].fill(false));
-        });
+        .finally(() => setIsUpdateNeeded(false));
     }
   }, [user, isUpdateNeeded]);
 
@@ -102,7 +99,8 @@ export const App: React.FC = () => {
 
     requests
       .then(() => setIsUpdateNeeded(true))
-      .catch(() => handleError('Unable to delete completed todos'));
+      .catch(() => handleError('Unable to delete completed todos'))
+      .finally(() => setTodosUpdateStatus(prev => [...prev].fill(false)));
   };
 
   const isAllCompleted = useMemo(() => (

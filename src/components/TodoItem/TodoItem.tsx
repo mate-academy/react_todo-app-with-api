@@ -29,7 +29,10 @@ export const TodoItem: FC<Props> = memo(({
 
     removeTodoByTodoId(id)
       .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to delete a todo'))
+      .catch(() => {
+        handleError('Unable to delete a todo');
+        setCurrentTitle(title);
+      })
       .finally(() => setIsLoading(false));
   };
 
@@ -38,7 +41,10 @@ export const TodoItem: FC<Props> = memo(({
 
     updateTodoByTodoId(id, data)
       .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to update a todo'))
+      .catch(() => {
+        handleError('Unable to update a todo');
+        setCurrentTitle(title);
+      })
       .finally(() => setIsLoading(false));
   };
 

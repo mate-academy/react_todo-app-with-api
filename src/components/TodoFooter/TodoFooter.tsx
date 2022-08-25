@@ -35,7 +35,8 @@ export const TodoFooter: FC<Props> = memo(({
 
     requests
       .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to delete completed todos'));
+      .catch(() => handleError('Unable to delete completed todos'))
+      .finally(() => handleUpdateStatuses([...statuses].fill(false)));
   };
 
   return (
