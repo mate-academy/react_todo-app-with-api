@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import { useState, createContext, ReactNode } from 'react';
 import { User } from '../../types/User';
 import { AuthForm } from './AuthForm';
 
-export const AuthContext = React.createContext<User | null>(null);
+export const AuthContext = createContext<User | null>(null);
 
-type Props = {
-  children: React.ReactNode;
-};
+interface Props {
+  children: ReactNode;
+}
 
-export const AuthProvider: React.FC<Props> = ({ children }) => {
+export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
 
-  if (!user) {
-    return <AuthForm onLogin={setUser} />;
-  }
-
   return (
-    <AuthContext.Provider value={user}>
-      {children}
-    </AuthContext.Provider>
+    <>
+      {user ? (
+        <AuthContext.Provider value={user}>
+          {children}
+        </AuthContext.Provider>
+      ) : (
+        <AuthForm onLogin={setUser} />
+      )}
+    </>
   );
 };
