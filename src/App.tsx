@@ -1,11 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  FormEvent,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -21,16 +19,16 @@ import { TodoItem } from './components/TodoItem';
 import { filterTodos } from './utils/filterTodos';
 import { Footer } from './components/Footer';
 import { replaceTodo } from './utils/replaceTodo';
+import { AddTodoForm } from './components/AddTodoForm';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodoTitle, setTodoTitle] = useState('');
+  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isError, setIsError] = useState(false);
-
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
 
   const [searchParams] = useSearchParams();
   const filterBy = searchParams.get('filterBy');
@@ -64,6 +62,7 @@ export const App: React.FC = () => {
       };
 
       setIsError(false);
+      setIsFormDisabled(true);
       setLoadingTodoIds(prev => [...prev, newTodoId]);
       setTodos(prev => [...prev, {
         ...newTodo,
@@ -84,11 +83,8 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setLoadingTodoIds(prev => prev.filter(id => id === newTodoId));
-          setTodoTitle('');
-          if (newTodoField.current) {
-            newTodoField.current.disabled = false;
-            newTodoField.current.focus();
-          }
+          setNewTodoTitle('');
+          setIsFormDisabled(false);
         });
     }
   }, []);
@@ -128,19 +124,6 @@ export const App: React.FC = () => {
         setLoadingTodoIds(prev => prev.filter(el => el !== todoId));
       });
   }, []);
-
-  const handleSubmit = useCallback((event: FormEvent) => {
-    event.preventDefault();
-    if (newTodoTitle) {
-      if (newTodoField.current) {
-        newTodoField.current.disabled = true;
-      }
-
-      addHandler(newTodoTitle);
-    } else {
-      setErrorWithTimer('Title can\'t be empty');
-    }
-  }, [addHandler, newTodoField, newTodoTitle]);
 
   const completeAll = useCallback(() => {
     const newCompleted = todos.some(({ completed }) => !completed);
@@ -186,17 +169,13 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={newTodoTitle}
-              onChange={(event) => setTodoTitle(event.target.value)}
-            />
-          </form>
+          <AddTodoForm
+            onAdd={addHandler}
+            newTodoTitle={newTodoTitle}
+            setNewTodoTitle={setNewTodoTitle}
+            isDisabled={isFormDisabled}
+            setErrorWithTimer={setErrorWithTimer}
+          />
         </header>
 
         <section className="todoapp__main" data-cy="TodoList">
