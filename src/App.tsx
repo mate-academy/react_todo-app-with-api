@@ -129,7 +129,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const addNewTodoHandler = useCallback((event: FormEvent) => {
+  const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
     if (newTodoTitle) {
       if (newTodoField.current) {
@@ -186,7 +186,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={addNewTodoHandler}>
+          <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"
               type="text"
