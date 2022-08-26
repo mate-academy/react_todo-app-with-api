@@ -1,18 +1,46 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { getTodos } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
+import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
+import { Maybe } from './types/Maybe';
+import { Todo } from './types/Todo';
+import { User } from './types/User';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const user = useContext(AuthContext) as User;
+
+  const [todos, setTodos] = useState<Maybe<Todo[]>>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
+    getTodos(user.id)
+      .then(loadedTodos => setTodos(loadedTodos));
+  }, []);
+
+  const onDelete = useCallback((todoId: number) => {
+    setTodos((prev) => {
+      if (prev) {
+        return prev.filter((todo) => todo.id !== todoId);
+      }
+
+      return prev;
+    });
+  }, []);
+
+  const onAdd = useCallback((newTodo: Todo) => {
+    setTodos((prev) => {
+      if (prev) {
+        return [...prev, newTodo];
+      }
+
+      return prev;
+    });
   }, []);
 
   return (
@@ -20,25 +48,9 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-          />
+        <Header onAdd={onAdd} />
 
-          <form>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-            />
-          </form>
-        </header>
-
-        <TodoList />
+        <TodoList todos={todos} onDelete={onDelete} />
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
