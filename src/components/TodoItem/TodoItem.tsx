@@ -105,7 +105,7 @@ export const TodoItem: FC<Props> = memo((props) => {
             }}
             onKeyDown={() => {}}
           >
-            {currentTitle}
+            {title}
           </span>
           <button
             type="button"
