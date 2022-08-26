@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo, UpdateTodoframent } from '../types/Todo';
 
@@ -13,6 +13,10 @@ export const TodoItem: React.FC<Props> = (props) => {
   const { todo, onDelete, onUpdate } = props;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isTitleUpdating, setIsTitleUpdating] = useState(false);
+  const [updatingTitle, setUpdatingTitle] = useState('');
+
+  const updateTodoField = useRef<HTMLInputElement>(null);
 
   const handleDelete = (todoId: number) => {
     setIsLoading(true);
@@ -38,10 +42,54 @@ export const TodoItem: React.FC<Props> = (props) => {
       .finally(() => setIsLoading(false));
   };
 
+  const checkBeforeUpdate = () => {
+    if (updatingTitle.length === 0) {
+      handleDelete(todo.id);
+
+      return;
+    }
+
+    if (updatingTitle !== todo.title) {
+      handleUpdate(todo.id, { title: updatingTitle });
+    }
+
+    setIsTitleUpdating(false);
+    setUpdatingTitle('');
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      updateTodoField.current
+      && !updateTodoField.current.contains(event.target as HTMLElement)
+    ) {
+      document.removeEventListener('mousedown', handleClickOutside);
+      checkBeforeUpdate();
+    }
+  };
+
+  useEffect(() => {
+    if (isTitleUpdating) {
+      setUpdatingTitle(todo.title);
+    }
+
+    if (updateTodoField.current) {
+      updateTodoField.current.focus();
+    }
+  }, [isTitleUpdating]);
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [updateTodoField, updatingTitle]);
+
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed: todo.completed })}
+      onDoubleClick={() => setIsTitleUpdating(true)}
     >
       <label className="todo__status-label">
         <input
@@ -53,15 +101,31 @@ export const TodoItem: React.FC<Props> = (props) => {
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => handleDelete(todo.id)}
-      >
-        ×
-      </button>
+      {isTitleUpdating ? (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={updatingTitle}
+            onChange={(event) => setUpdatingTitle(event.target.value)}
+            ref={updateTodoField}
+          />
+        </form>
+      ) : (
+        <>
+          <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => handleDelete(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"
