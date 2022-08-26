@@ -215,7 +215,18 @@ export const App: React.FC = () => {
     }
   };
 
-  const handlerUpdateTitle = (newTitle: string) => {
+  const handlerUpdateTitle = (newTitle: string, titleBefore: string) => {
+    if (newTitle.length === 0) {
+      handelDeleteTodo(selectId);
+      setOpenPachForm(false);
+    }
+
+    if (newTitle === titleBefore) {
+      setOpenPachForm(false);
+
+      return;
+    }
+
     if (newTitle) {
       setIsLoaded(true);
 
