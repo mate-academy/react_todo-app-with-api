@@ -13,6 +13,12 @@ export const PatchForm: FC<Props> = React.memo((props) => {
   const [todoTitle, setTodoTitle] = useState('');
   const newTodoField = useRef< HTMLInputElement >(null);
 
+  const handelCloseInputUpdate = (event: KeyboardEvent) => {
+    if (event.code === 'Escape') {
+      closeInput();
+    }
+  };
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
@@ -20,18 +26,18 @@ export const PatchForm: FC<Props> = React.memo((props) => {
     }
 
     setTodoTitle(titleBefore);
+
+    window.addEventListener('keyup', handelCloseInputUpdate);
+
+    return () => {
+      window.removeEventListener('keyup', handelCloseInputUpdate);
+    };
   }, []);
 
   const handleSubmitPutchTodo = (event: FormEvent) => {
     event.preventDefault();
 
     handlerUpdateTitle(todoTitle, titleBefore);
-  };
-
-  const handelCloseInputPuch = (event) => {
-    if (event.code === 'Escape') {
-      closeInput();
-    }
   };
 
   return (
@@ -45,11 +51,10 @@ export const PatchForm: FC<Props> = React.memo((props) => {
         ref={newTodoField}
         value={todoTitle}
         onChange={(event) => setTodoTitle(event.target.value)}
-        onKeyDown={handelCloseInputPuch}
-        // onBlur={() => {
-        //   handlerUpdateTitle(todoTitle, titleBefore);
-        //   closeInput();
-        // }}
+        onBlur={() => {
+          handlerUpdateTitle(todoTitle, titleBefore);
+          closeInput();
+        }}
       />
       <button
         type="submit"

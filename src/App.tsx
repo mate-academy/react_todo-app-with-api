@@ -1,4 +1,6 @@
 import React, {
+  // AnchorHTMLAttributes,
+  // DetailedHTMLProps,
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import cn from 'classnames';
@@ -18,26 +20,22 @@ export const App: React.FC = () => {
   // const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filtredTodos, setFiltredTodos] = useState<Todo[]>([]);
+
   const [isErrorLoadedNewTodo, setIsErrorLoadedNewTodo] = useState(false);
   const [isErrorDeletedTodo, setIsErrorDeletedTodo] = useState(false);
   const [isErrorUpdate, setIsErrorUpdate] = useState(false);
-  const [checkedCompliteTodo, setCheckedCompliteTodo] = useState(false);
-  const [isLoadedUpdate, setIsLoadedUpdate] = useState(false);
-  const [selectId, setSelectId] = useState(0);
-  const [openPachForm, setOpenPachForm] = useState(false);
   const [isEmptyTitle, setIsEmptyTitle] = useState(false);
 
-  const [isSelectedAll, setIsSeSelectedAll] = useState(true);
-  const [isSelectedActive, setIsSelectedActive] = useState(false);
-  const [isSelectedComplited, setIsSelectedComplited] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [selectId, setSelectId] = useState(0);
+  const [openPachForm, setOpenPachForm] = useState(false);
+  const [filter, setFilter] = useState('All');
 
   useEffect(() => {
     if (user) {
       getTodos(user.id)
         .then((res) => {
           setTodos(res);
-          setFiltredTodos(res);
         });
     }
   }, []);
@@ -47,10 +45,36 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  let activeTodos = useMemo(
+  const activeTodos = useMemo(
     () => todos.filter(todo => todo.completed !== true),
     [todos],
   );
+
+  let filtredTodos: Todo[] = todos;
+
+  useMemo(
+    () => {
+      filtredTodos = filtredTodos.filter(todo => {
+        if (filter === 'Completed') {
+          return todo.completed === true;
+        }
+
+        if (filter === 'Active') {
+          return todo.completed !== true;
+        }
+
+        return todo;
+      });
+    },
+    [todos, filter, filtredTodos],
+  );
+
+  const handelFiltredTodos = (
+    // event: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>>,
+    event: any,
+  ) => {
+    setFilter(event.target.textContent);
+  };
 
   const handelCloseError = () => {
     setIsErrorLoadedNewTodo(false);
@@ -59,16 +83,14 @@ export const App: React.FC = () => {
     setIsEmptyTitle(false);
   };
 
-  const handleChange = (todoID: number) => {
+  const handleChange = (todoID: number, completedTodo: boolean) => {
     const updateStatus: UpdateStatus = {
-      completed: !checkedCompliteTodo,
+      completed: !completedTodo,
     };
 
     handelCloseError();
 
-    setCheckedCompliteTodo((prev) => !prev);
-
-    setIsLoadedUpdate(true);
+    setIsLoaded(true);
 
     setSelectId(todoID);
 
@@ -86,7 +108,6 @@ export const App: React.FC = () => {
         });
 
         setTodos(updateTodos);
-        setFiltredTodos(updateTodos);
       })
       .catch(() => {
         setIsErrorUpdate(true);
@@ -94,16 +115,40 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setSelectId(0);
-        setIsLoadedUpdate(false);
+        setIsLoaded(false);
       });
   };
 
   const handelAllActiveReverse = () => {
-    if (activeTodos.length > 0) {
-      activeTodos.forEach(activeTodo => handleChange(activeTodo.id));
-      activeTodos = [];
-    } else {
-      todos.forEach(activeTodo => handleChange(activeTodo.id));
+    if (activeTodos.length > 0
+      && completedTodos.length !== filtredTodos.length) {
+      filtredTodos = filtredTodos.map(todo => {
+        if (!todo.completed) {
+          // console.log('completed firs');
+          handleChange(todo.id, todo.completed);
+        }
+
+        // console.log('first');
+
+        return ({
+          ...todo,
+          completed: true,
+        });
+      });
+    }
+
+    if (completedTodos.length === 0
+      || completedTodos.length === filtredTodos.length
+    ) {
+      filtredTodos = filtredTodos.map(activeTodo => {
+        handleChange(activeTodo.id, activeTodo.completed);
+        // console.log('second');
+
+        return ({
+          ...activeTodo,
+          completed: !activeTodo.completed,
+        });
+      });
     }
   };
 
@@ -129,7 +174,6 @@ export const App: React.FC = () => {
 
     createTodo(newTodo)
       .then((todo) => {
-        setFiltredTodos((prev) => [...prev, todo]);
         setTodos((prev) => [...prev, todo]);
       })
       .catch(() => {
@@ -139,7 +183,7 @@ export const App: React.FC = () => {
   };
 
   const handelDeleteTodo = (todoId: number) => {
-    setIsLoadedUpdate(true);
+    setIsLoaded(true);
     setSelectId(todoId);
     handelCloseError();
     deleteTodo(todoId)
@@ -147,8 +191,7 @@ export const App: React.FC = () => {
         const filtered = filtredTodos.filter(item => item.id !== todoId);
 
         setTodos(filtered);
-        setFiltredTodos(filtered);
-        setIsLoadedUpdate(false);
+        setIsLoaded(false);
       })
 
       .catch(() => {
@@ -160,6 +203,7 @@ export const App: React.FC = () => {
   const handelClearAllComplered = () => {
     if (completedTodos.length > 0) {
       completedTodos.forEach(compTodo => handelDeleteTodo(compTodo.id));
+      filtredTodos = filtredTodos.filter(todo => !todo.completed);
     }
   };
 
@@ -173,7 +217,7 @@ export const App: React.FC = () => {
 
   const handlerUpdateTitle = (newTitle: string) => {
     if (newTitle) {
-      setIsLoadedUpdate(true);
+      setIsLoaded(true);
 
       const updateTitle: UpdateTitle = {
         title: newTitle,
@@ -193,7 +237,6 @@ export const App: React.FC = () => {
           });
 
           setTodos(updateTodos);
-          setFiltredTodos(updateTodos);
         })
         .catch(() => {
           setTimeout(handelCloseError, 3000);
@@ -201,7 +244,7 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setSelectId(0);
-          setIsLoadedUpdate(false);
+          setIsLoaded(false);
         });
     }
 
@@ -211,27 +254,6 @@ export const App: React.FC = () => {
   const closeInput = useCallback(() => {
     setOpenPachForm(false);
   }, []);
-
-  const handelFiltredCompleted = () => {
-    setFiltredTodos(completedTodos);
-    setIsSelectedComplited(true);
-    setIsSelectedActive(false);
-    setIsSeSelectedAll(false);
-  };
-
-  const handelFiltredAll = () => {
-    setFiltredTodos(todos);
-    setIsSeSelectedAll(true);
-    setIsSelectedComplited(false);
-    setIsSelectedActive(false);
-  };
-
-  const handelFiltredActive = () => {
-    setFiltredTodos(activeTodos);
-    setIsSelectedActive(true);
-    setIsSeSelectedAll(false);
-    setIsSelectedComplited(false);
-  };
 
   return (
     <div className="todoapp">
@@ -270,12 +292,12 @@ export const App: React.FC = () => {
                   data-cy="TodoStatus"
                   type="checkbox"
                   className="todo__status"
-                  checked={checkedCompliteTodo}
-                  onChange={() => handleChange(todo.id)}
+                  checked={todo.completed}
+                  onChange={() => handleChange(todo.id, todo.completed)}
                 />
               </label>
 
-              {openPachForm
+              {openPachForm && selectId === todo.id
                 ? (
                   <PatchForm
                     titleBefore={todo.title}
@@ -301,7 +323,7 @@ export const App: React.FC = () => {
                   </span>
                 )}
 
-              {isLoadedUpdate
+              {isLoaded
                 && selectId === todo.id
                 && (
                   <div data-cy="TodoLoader" className="modal overlay is-active">
@@ -322,129 +344,6 @@ export const App: React.FC = () => {
               )}
             </div>
           ))}
-
-          {/* <div data-cy="Todo" className="todo completed">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                defaultChecked
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">HTML</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">CSS</span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <form>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                defaultValue="JS"
-              />
-            </form>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">React</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">Redux</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background" />
-              <div className="loader" />
-            </div>
-          </div> */}
         </section>
 
         {(todos.length > 0) && (
@@ -459,9 +358,9 @@ export const App: React.FC = () => {
                 href="#/"
                 className={cn(
                   'filter__link',
-                  { selected: isSelectedAll },
+                  { selected: filter === 'All' },
                 )}
-                onClick={handelFiltredAll}
+                onClick={handelFiltredTodos}
               >
                 All
               </a>
@@ -471,9 +370,9 @@ export const App: React.FC = () => {
                 href="#/active"
                 className={cn(
                   'filter__link',
-                  { selected: isSelectedActive },
+                  { selected: filter === 'Active' },
                 )}
-                onClick={handelFiltredActive}
+                onClick={handelFiltredTodos}
               >
                 Active
               </a>
@@ -482,9 +381,9 @@ export const App: React.FC = () => {
                 href="#/completed"
                 className={cn(
                   'filter__link',
-                  { selected: isSelectedComplited },
+                  { selected: filter === 'Completed' },
                 )}
-                onClick={handelFiltredCompleted}
+                onClick={handelFiltredTodos}
               >
                 Completed
               </a>
