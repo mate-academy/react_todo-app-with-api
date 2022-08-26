@@ -1,14 +1,17 @@
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import {
+  ChangeEvent,
+  KeyboardEvent, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
-import { updateTodoById } from '../../api/todos';
 
 interface Props {
   todo: Todo;
-  selectedTodoId: number;
+  selectedTodoId: number | null;
   onDeleteTodo: (todoId: number) => void;
-  onError: (errorTitle: string) => void;
-  handleUpdate: (isUpdated: boolean) => void;
+  onUpdateTodo: (todoId: number, data: {}) => void;
+  isLoading: boolean;
+  changedTodosId: number[];
 }
 
 export const TodoItem = (props: Props) => {
@@ -16,71 +19,63 @@ export const TodoItem = (props: Props) => {
     todo,
     selectedTodoId,
     onDeleteTodo,
-    onError,
-    handleUpdate,
+    onUpdateTodo,
+    isLoading,
+    changedTodosId,
   } = props;
 
+  const titleField = useRef<HTMLInputElement>(null);
   const [isDblClicked, setIsDblClicked] = useState(false);
-  const [title, setTitle] = useState(todo.title);
-  const [isChecked, setIsChecked] = useState(todo.completed);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedTodoById, setSelectedTodoById] = useState(selectedTodoId);
+  const [newTitle, setTitle] = useState(todo.title);
 
   useEffect(() => {
-    setIsLoading(true);
+    if (titleField.current) {
+      titleField.current.focus();
+    }
+  }, [isDblClicked]);
 
-    setTimeout(() => setIsLoading(false), 500);
-  }, [setIsLoading]);
+  const handleChangeChecked = (e: ChangeEvent<HTMLInputElement>) => {
+    onUpdateTodo(todo.id, { completed: e.target.checked });
+  };
 
-  const updateTodo = (todoId: number, data: {}) => {
-    setIsLoading(true);
-    setSelectedTodoById(todoId);
+  const handleBlurEffect = () => {
+    setIsDblClicked(false);
+    onUpdateTodo(todo.id, { title: newTitle });
+  };
 
-    updateTodoById(todoId, data)
-      .then(() => handleUpdate(true))
-      .catch(() => onError('Unable to update a todo'))
-      .finally(() => setIsLoading(false));
+  const handleOnKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      handleBlurEffect();
+    }
   };
 
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: isChecked })}
+      className={classNames('todo', { completed: todo.completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={isChecked}
-          onChange={(e) => {
-            setIsChecked(e.target.checked);
-            updateTodo(todo.id, { completed: e.target.checked });
-          }}
+          defaultChecked={todo.completed}
+          onChange={handleChangeChecked}
         />
       </label>
 
       {isDblClicked ? (
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          updateTodo(todo.id, { title });
-        }}
-        >
+        <form>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            defaultValue={title}
-            onBlur={(e) => {
-              e.preventDefault();
-              setIsDblClicked(false);
-              setIsLoading(true);
-              updateTodo(todo.id, { title });
-            }}
-            onChange={(e) => {
-              setTitle(e.target.value);
-            }}
+            defaultValue={newTitle}
+            ref={titleField}
+            onBlur={handleBlurEffect}
+            onKeyDown={handleOnKeyDown}
+            onChange={e => setTitle(e.target.value)}
           />
         </form>
       ) : (
@@ -99,7 +94,6 @@ export const TodoItem = (props: Props) => {
               data-cy="TodoDeleteButton"
               onClick={() => {
                 onDeleteTodo(todo.id);
-                setIsLoading(true);
               }}
             >
               ×
@@ -108,18 +102,20 @@ export const TodoItem = (props: Props) => {
         </>
       )}
 
-      {todo.id === selectedTodoById && (
-        <div
-          data-cy="TodoLoader"
-          className={classNames(
-            'modal overlay',
-            { 'is-active': isLoading },
-          )}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      {((todo.id === selectedTodoId && isLoading)
+          || changedTodosId.includes(todo.id))
+        && (
+          <div
+            data-cy="TodoLoader"
+            className={classNames(
+              'modal overlay',
+              { 'is-active': isLoading },
+            )}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        )}
     </div>
   );
 };

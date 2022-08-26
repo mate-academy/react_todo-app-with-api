@@ -3,10 +3,11 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[];
-  selectedTodoId: number;
+  selectedTodoId: number | null;
   onDeleteTodo: (todoId: number) => void;
-  onError: (errorTitle: string) => void;
-  handleUpdate: (isUpdate: boolean) => void;
+  onUpdateTodo: (todoId: number, data: {}) => void;
+  isLoading: boolean;
+  changedTodosId: number[];
 }
 
 export const TodoList = (props: Props) => {
@@ -14,8 +15,9 @@ export const TodoList = (props: Props) => {
     todos,
     selectedTodoId,
     onDeleteTodo,
-    onError,
-    handleUpdate,
+    onUpdateTodo,
+    isLoading,
+    changedTodosId,
   } = props;
 
   return (
@@ -26,8 +28,9 @@ export const TodoList = (props: Props) => {
           todo={todo}
           selectedTodoId={selectedTodoId}
           onDeleteTodo={onDeleteTodo}
-          onError={onError}
-          handleUpdate={handleUpdate}
+          onUpdateTodo={onUpdateTodo}
+          isLoading={isLoading}
+          changedTodosId={changedTodosId}
         />
       ))}
     </section>
