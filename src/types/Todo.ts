@@ -5,4 +5,5 @@ export interface Todo {
   completed: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export type addedTodo = Pick<Todo, 'userId' | 'title' | 'completed'>;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -6,12 +6,39 @@ type Props = {
   todos: Todo[];
   changeTodoStatus: (id: number, status: boolean) => void,
   isLoading: boolean,
+  deleteTodo: (id: number) => void
+  updateTitle: (id: number, title: string) => void,
 };
 
 export const TodoList: React.FC<Props> = (props) => {
-  const { todos, changeTodoStatus, isLoading } = props;
+  const {
+    todos,
+    changeTodoStatus,
+    isLoading,
+    deleteTodo,
+    updateTitle,
+  } = props;
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState('');
+  const [allowedToEditId, setAllowedToEditId] = useState<number | null>(null);
+
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
+
+  const changeTitle = (todoId: number) => {
+    if (newTitle) {
+      updateTitle(todoId, newTitle);
+    } else {
+      deleteTodo(todoId);
+    }
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -29,16 +56,49 @@ export const TodoList: React.FC<Props> = (props) => {
               checked={todo.completed}
               onChange={() => {
                 changeTodoStatus(todo.id, todo.completed);
-                setSelectedId(todo.id);
+                setSelectedTodoId(todo.id);
               }}
             />
           </label>
+          {allowedToEditId === todo.id ? (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                changeTitle(todo.id);
+                setAllowedToEditId(null);
+                setSelectedTodoId(todo.id);
+              }}
+            >
+              <input
+                data-cy="TodoTitleField"
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                value={newTitle}
+                onChange={(event) => setNewTitle(event.target.value)}
+              />
+            </form>
+          ) : (
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setAllowedToEditId(todo.id);
+                setNewTitle(todo.title);
+              }}
+            >
+              {todo.title}
+            </span>
+          )}
 
-          <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
+            onClick={() => {
+              deleteTodo(todo.id);
+              setSelectedTodoId(todo.id);
+            }}
           >
             ×
           </button>
@@ -46,7 +106,7 @@ export const TodoList: React.FC<Props> = (props) => {
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
-              'is-active': isLoading && todo.id === selectedId,
+              'is-active': isLoading && todo.id === selectedTodoId,
             })}
           >
             <div className="modal-background has-background-white-ter" />
@@ -54,129 +114,6 @@ export const TodoList: React.FC<Props> = (props) => {
           </div>
         </div>
       ))}
-
-      <div data-cy="Todo" className="todo completed">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            defaultChecked
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">HTML</span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-        >
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">CSS</span>
-
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-        >
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <form>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            defaultValue="JS"
-          />
-        </form>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">React</span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-        >
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">Redux</span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-        >
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
     </section>
   );
 };

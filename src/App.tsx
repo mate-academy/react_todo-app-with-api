@@ -9,26 +9,34 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import {
   addTodo,
-  changeTodoStatus,
-  getTodos,
+  changeTodo,
+  getTodos, removeTodo,
 } from './api/todos';
 import { AddTodoForm } from './components/AddTodoForm/AddTodoForm';
+import { Loader } from './components/Loader/Loader';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [getDataFlag, setGetDataFlag] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
+      setIsLoading(true);
       getTodos(user.id)
-        .then(setTodos);
+        .then(setTodos)
+        .finally(() => setIsLoading(false));
     }
-  }, [getDataFlag]);
+  }, []);
 
   // eslint-disable-next-line no-console
   console.log(todos);
+
+  const onAddTodo = (todo: Todo) => {
+    setTodos((prevTodos) => (
+      [...prevTodos, todo]
+    ));
+  };
 
   const handlerAddTodo = (title: string) => {
     if (user) {
@@ -39,15 +47,51 @@ export const App: React.FC = () => {
       };
 
       addTodo(newTodo)
-        .finally(() => setGetDataFlag(!getDataFlag));
+        .then(addedTodo => onAddTodo(addedTodo));
     }
+  };
+
+  const onTodosUpdate = (changedTodo: Todo) => {
+    const newTodoList = [...todos].map(todo => {
+      if (todo.id === changedTodo.id) {
+        return changedTodo;
+      }
+
+      return todo;
+    });
+
+    setTodos(newTodoList);
   };
 
   const handlerTodoStatusToggle = (id: number, status: boolean) => {
     setIsLoading(true);
-    changeTodoStatus(id, { completed: !status })
+    changeTodo(id, { completed: !status })
+      .then(changedTodo => onTodosUpdate(changedTodo))
       .finally(() => {
-        setGetDataFlag(!getDataFlag);
+        setIsLoading(false);
+      });
+  };
+
+  const handlerTodoTitleUpdate = (id: number, title: string) => {
+    setIsLoading(true);
+    changeTodo(id, { title })
+      .then(changedTodo => onTodosUpdate(changedTodo))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const onDeleteTodo = (deletedTodoId: number) => {
+    const newTodoList = [...todos].filter(todo => todo.id !== deletedTodoId);
+
+    setTodos(newTodoList);
+  };
+
+  const handlerDeleteTodo = (todoId:number) => {
+    setIsLoading(true);
+    removeTodo(todoId)
+      .then(() => onDeleteTodo(todoId))
+      .finally(() => {
         setIsLoading(false);
       });
   };
@@ -67,11 +111,17 @@ export const App: React.FC = () => {
           <AddTodoForm addNewTodo={handlerAddTodo} />
         </header>
 
-        <TodoList
-          todos={todos}
-          changeTodoStatus={handlerTodoStatusToggle}
-          isLoading={isLoading}
-        />
+        {todos.length > 0 ? (
+          <TodoList
+            todos={todos}
+            changeTodoStatus={handlerTodoStatusToggle}
+            isLoading={isLoading}
+            deleteTodo={handlerDeleteTodo}
+            updateTitle={handlerTodoTitleUpdate}
+          />
+        ) : (
+          <Loader />
+        )}
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">

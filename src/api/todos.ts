@@ -6,11 +6,11 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (data: addedTodo) => {
-  return client.post<Todo[]>('/todos', data);
+  return client.post<Todo>('/todos', data);
 };
 
-export const changeTodoStatus = (todoId: number, data:{}) => {
-  return client.patch<Todo[]>(`/todos/${todoId}`, data);
+export const changeTodo = (todoId: number, data:{}) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
 
 export const removeTodo = (todoId: number) => {
