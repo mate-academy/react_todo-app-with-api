@@ -56,7 +56,11 @@ export const Footer: FC<Props> = memo(({
         type="button"
         className="todoapp__clear-completed"
         onClick={clearCompleted}
-        hidden={completedTodosAmount === 0}
+        style={{
+          visibility: completedTodosAmount > 0
+            ? 'visible'
+            : 'hidden',
+        }}
       >
         Clear completed
       </button>
