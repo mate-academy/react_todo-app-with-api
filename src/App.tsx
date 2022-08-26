@@ -228,12 +228,21 @@ export const App: React.FC = () => {
             </a>
           </nav>
 
-          {!(lengthCompleted === 0 && filteredBy === 'All') && (
+          {lengthCompleted > 0 ? (
             <button
               data-cy="ClearCompletedButton"
               type="button"
               className="todoapp__clear-completed"
               onClick={clearCompleted}
+            >
+              Clear completed
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              style={{ opacity: 0, cursor: 'auto' }}
+              disabled
             >
               Clear completed
             </button>
