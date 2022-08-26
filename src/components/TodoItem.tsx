@@ -1,20 +1,21 @@
 import classNames from 'classnames';
 import { useState } from 'react';
-import { deleteTodo } from '../api/todos';
-import { Todo } from '../types/Todo';
+import { deleteTodo, updateTodo } from '../api/todos';
+import { Todo, UpdateTodoframent } from '../types/Todo';
 
 interface Props {
   todo: Todo;
   onDelete: (todoId: number) => void;
+  onUpdate: (todoId: number, data: UpdateTodoframent) => void;
 }
 
 export const TodoItem: React.FC<Props> = (props) => {
-  const { todo, onDelete } = props;
+  const { todo, onDelete, onUpdate } = props;
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = (todoId: number) => {
-    setIsDeleting(true);
+    setIsLoading(true);
 
     deleteTodo(todoId)
       .then(res => {
@@ -22,7 +23,19 @@ export const TodoItem: React.FC<Props> = (props) => {
           onDelete(todoId);
         }
       })
-      .finally(() => setIsDeleting(false));
+      .finally(() => setIsLoading(false));
+  };
+
+  const handleUpdate = (todoId: number, data: UpdateTodoframent) => {
+    setIsLoading(true);
+
+    updateTodo(todoId, data)
+      .then(res => {
+        if (res) {
+          onUpdate(todoId, data);
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -36,6 +49,7 @@ export const TodoItem: React.FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
+          onClick={() => handleUpdate(todo.id, { completed: !todo.completed })}
         />
       </label>
 
@@ -51,7 +65,7 @@ export const TodoItem: React.FC<Props> = (props) => {
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', { 'is-active': isDeleting })}
+        className={classNames('modal overlay', { 'is-active': isLoading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

@@ -6,3 +6,5 @@ export interface Todo {
 }
 
 export type CreateTodoFragment = Pick<Todo, 'title' | 'userId' | 'completed'>;
+
+export type UpdateTodoframent = Partial<Omit<Todo, 'id' | 'userId'>>;

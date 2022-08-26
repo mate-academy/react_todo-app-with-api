@@ -19,8 +19,8 @@ export const Header: React.FC<Props> = (props) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const { id } = useContext(AuthContext) as User;
+  const { todoTitle, isSavingTodo } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
-  const { todoTitle } = useContext(StateContext);
 
   const handleKeyup = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && todoTitle.trim()) {
@@ -38,7 +38,7 @@ export const Header: React.FC<Props> = (props) => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [isSavingTodo]);
 
   return (
     <header className="todoapp__header">
@@ -61,6 +61,7 @@ export const Header: React.FC<Props> = (props) => {
             { type: 'setTitle', peyload: event.target.value },
           )}
           onKeyUp={handleKeyup}
+          disabled={isSavingTodo}
         />
       </form>
     </header>

@@ -1,16 +1,17 @@
 import React, { useContext } from 'react';
 import { Maybe } from '../types/Maybe';
-import { Todo } from '../types/Todo';
+import { Todo, UpdateTodoframent } from '../types/Todo';
 import { StateContext } from './StateContext';
 import { TodoItem } from './TodoItem';
 
 interface Props {
   todos: Maybe<Todo[]>;
   onDelete: (todoId: number) => void;
+  onUpdate: (todoId: number, data: UpdateTodoframent) => void;
 }
 
 export const TodoList: React.FC<Props> = React.memo((props) => {
-  const { todos, onDelete } = props;
+  const { todos, onDelete, onUpdate } = props;
 
   const { isSavingTodo, todoTitle } = useContext(StateContext);
 
@@ -21,6 +22,7 @@ export const TodoList: React.FC<Props> = React.memo((props) => {
           key={todo.id}
           todo={todo}
           onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       ))}
       {isSavingTodo && (

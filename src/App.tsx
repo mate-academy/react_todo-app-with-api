@@ -10,7 +10,7 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Maybe } from './types/Maybe';
-import { Todo } from './types/Todo';
+import { Todo, UpdateTodoframent } from './types/Todo';
 import { User } from './types/User';
 
 export const App: React.FC = () => {
@@ -43,6 +43,25 @@ export const App: React.FC = () => {
     });
   }, []);
 
+  const onUpdate = useCallback((todoId: number, data: UpdateTodoframent) => {
+    setTodos((prev) => {
+      if (prev) {
+        return prev.map(todo => {
+          if (todo.id === todoId) {
+            return {
+              ...todo,
+              ...data,
+            };
+          }
+
+          return todo;
+        });
+      }
+
+      return prev;
+    });
+  }, []);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -50,7 +69,11 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header onAdd={onAdd} />
 
-        <TodoList todos={todos} onDelete={onDelete} />
+        <TodoList
+          todos={todos}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+        />
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">

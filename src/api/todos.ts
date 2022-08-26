@@ -1,4 +1,4 @@
-import { CreateTodoFragment, Todo } from '../types/Todo';
+import { CreateTodoFragment, Todo, UpdateTodoframent } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -11,4 +11,8 @@ export const deleteTodo = (todoId: number) => {
 
 export const postTodo = (data: CreateTodoFragment) => {
   return client.post<Todo>('/todos', data);
+};
+
+export const updateTodo = (todoId: number, data: UpdateTodoframent) => {
+  return client.patch(`/todos/${todoId}`, data);
 };
