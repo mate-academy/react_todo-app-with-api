@@ -31,6 +31,12 @@ export const AddTodoForm: FC<Props> = memo(({
     }
   }, [isDisabled]);
 
+  useEffect(() => {
+    if (newTodoField.current && !isDisabled) {
+      newTodoField.current.blur();
+    }
+  }, []);
+
   const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
     if (newTodoTitle) {
