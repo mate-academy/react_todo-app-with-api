@@ -4,52 +4,27 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { removeTodoByTodoId, updateTodoByTodoId } from '../../api/todos';
 
 type Props = {
   todo: Todo,
-  handleError: (errorMsg: string) => void,
-  handleUpdate: (bool: boolean) => void,
-  updateStatus?: boolean,
+  handleRemoveTodo: (todoId: number) => void,
+  handleUpdate: (id: number, data: {}) => void,
+  isLoading: boolean,
 };
 
-export const TodoItem: FC<Props> = memo(({
-  todo,
-  handleError,
-  handleUpdate,
-  updateStatus,
-}) => {
+export const TodoItem: FC<Props> = memo((props) => {
+  const {
+    todo,
+    handleRemoveTodo,
+    handleUpdate,
+    isLoading,
+  } = props;
   const { id, completed, title } = todo;
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(todo.title);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleRemoveTodo = () => {
-    setIsLoading(true);
-
-    removeTodoByTodoId(id)
-      .then(() => handleUpdate(true))
-      .catch(() => {
-        handleError('Unable to delete a todo');
-        setCurrentTitle(title);
-      })
-      .finally(() => setIsLoading(false));
-  };
-
-  const handleTodoChange = (data: {}) => {
-    setIsLoading(true);
-
-    updateTodoByTodoId(id, data)
-      .then(() => handleUpdate(true))
-      .catch(() => {
-        handleError('Unable to update a todo');
-        setCurrentTitle(title);
-      })
-      .finally(() => setIsLoading(false));
-  };
 
   const handleTodoStatusChange = () => {
-    handleTodoChange({ completed: !completed });
+    handleUpdate(id, { completed: !completed });
   };
 
   const handleTitleChange = () => {
@@ -60,12 +35,12 @@ export const TodoItem: FC<Props> = memo(({
     }
 
     if (!currentTitle) {
-      handleRemoveTodo();
+      handleRemoveTodo(id);
 
       return;
     }
 
-    handleTodoChange({ title: currentTitle });
+    handleUpdate(id, { title: currentTitle });
   };
 
   const handleSubmit = (event: FormEvent) => {
@@ -136,7 +111,7 @@ export const TodoItem: FC<Props> = memo(({
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={handleRemoveTodo}
+            onClick={() => handleRemoveTodo(id)}
           >
             ×
           </button>
@@ -145,7 +120,7 @@ export const TodoItem: FC<Props> = memo(({
             data-cy="TodoLoader"
             className={classNames(
               'modal overlay',
-              { 'is-active': isLoading || updateStatus },
+              { 'is-active': isLoading },
             )}
           >
             <div className="modal-background has-background-white-ter" />

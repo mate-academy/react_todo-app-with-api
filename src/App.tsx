@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
   addTodo,
-  getTodos,
+  getTodos, removeTodoByTodoId,
   updateTodoByTodoId,
 } from './api/todos';
 import { Todo } from './types/Todo';
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const [userId, setUserId] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState(FilterType.All);
-  const [todosUpdateStatus, setTodosUpdateStatus] = useState<boolean[]>([]);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const handleError = useCallback(
     (er: string) => {
@@ -64,43 +64,47 @@ export const App: React.FC = () => {
       title: newTodoTitle,
       userId,
       completed: false,
-    }).then(() => setIsUpdateNeeded(true))
+    }).then((newTodo: Todo) => setTodos((prev) => [...prev, newTodo]))
       .catch(() => handleError('Unable to add a todo'))
       .finally(() => setNewTodoTitle(''));
   };
 
+  const handleRemoveTodo = useCallback(
+    (todoId: number) => {
+      setLoadingIds(prev => [...prev, todoId]);
+
+      removeTodoByTodoId(todoId)
+        .then(() => setTodos(prev => prev.filter(({ id }) => id !== todoId)))
+        .catch(() => handleError('Unable to delete a todo'))
+        .finally(() => setLoadingIds(prev => prev.filter(el => el !== todoId)));
+    },
+    [],
+  );
+
+  const handleTodoChange = useCallback(
+    (todoId: number, data: {}) => {
+      setLoadingIds(prev => [...prev, todoId]);
+
+      updateTodoByTodoId(todoId, data)
+        .then(updatedTodo => {
+          setTodos(prev => (
+            prev.map(todo => (todo.id === todoId ? updatedTodo : todo))
+          ));
+        })
+        .catch(() => handleError('Unable to update a todo'))
+        .finally(() => setLoadingIds(prev => prev.filter(el => el !== todoId)));
+    },
+    [],
+  );
+
   const handleToggleAll = () => {
-    const todosForToggle: Todo[] = [];
-    const updateStatuses: boolean[] = [];
+    const newCompleted = todos.some(({ completed }) => !completed);
 
-    if (todos.some(todo => !todo.completed)) {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          todosForToggle.push(todo);
-          updateStatuses.push(true);
-        } else {
-          updateStatuses.push(false);
-        }
-      });
-    } else {
-      todos.forEach(todo => {
-        todosForToggle.push(todo);
-        updateStatuses.push(true);
-      });
-    }
-
-    setTodosUpdateStatus(updateStatuses);
-
-    const requests = Promise.all(
-      todosForToggle.map(todo => (
-        updateTodoByTodoId(todo.id, { completed: !todo.completed })
-      )),
-    );
-
-    requests
-      .then(() => setIsUpdateNeeded(true))
-      .catch(() => handleError('Unable to update todos'))
-      .finally(() => setTodosUpdateStatus(prev => [...prev].fill(false)));
+    todos.forEach(todo => {
+      if (todo.completed !== newCompleted) {
+        handleTodoChange(todo.id, { completed: newCompleted });
+      }
+    });
   };
 
   const isAllCompleted = useMemo(() => (
@@ -150,24 +154,22 @@ export const App: React.FC = () => {
       {todos.length > 0 && (
         <div className="todoapp__content">
           <section className="todoapp__main" data-cy="TodoList">
-            {visibleTodos.map((todo, index) => (
+            {visibleTodos.map(todo => (
               <TodoItem
                 key={todo.id}
                 todo={todo}
-                handleError={handleError}
-                handleUpdate={setIsUpdateNeeded}
-                updateStatus={todosUpdateStatus[index]}
+                handleRemoveTodo={handleRemoveTodo}
+                handleUpdate={handleTodoChange}
+                isLoading={loadingIds.includes(todo.id)}
               />
             ))}
           </section>
 
           <TodoFooter
             todos={todos}
-            handleError={handleError}
-            handleUpdate={setIsUpdateNeeded}
             filterType={filterType}
             handleFilterTypeChange={setFilterType}
-            handleUpdateStatuses={setTodosUpdateStatus}
+            handleRemoveTodo={handleRemoveTodo}
           />
         </div>
       )}

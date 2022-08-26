@@ -1,42 +1,33 @@
 import { FC, memo, useMemo } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { removeTodoByTodoId } from '../../api/todos';
 import { FilterType } from '../../types/FilterType';
 
 type Props = {
   todos: Todo[],
-  handleError: (errorMsg: string) => void,
-  handleUpdate: (bool: boolean) => void,
   filterType: FilterType
   handleFilterTypeChange: (filterType: FilterType) => void,
-  handleUpdateStatuses: (statuses: boolean[]) => void,
+  handleRemoveTodo: (id: number) => void,
 };
 
-export const TodoFooter: FC<Props> = memo(({
-  todos,
-  handleError,
-  handleUpdate,
-  filterType,
-  handleFilterTypeChange,
-  handleUpdateStatuses,
-}) => {
-  const statuses = todos.map(todo => todo.completed);
+export const TodoFooter: FC<Props> = memo((props) => {
+  const {
+    todos,
+    filterType,
+    handleFilterTypeChange,
+    handleRemoveTodo,
+  } = props;
+
   const completedTodos = useMemo(() => (
     todos.filter(todo => todo.completed)
   ), [todos]);
 
   const handleRemoveCompletedTodos = () => {
-    const requests = Promise.all(
-      completedTodos.map(todo => removeTodoByTodoId(todo.id)),
-    );
-
-    handleUpdateStatuses(statuses);
-
-    requests
-      .then(() => handleUpdate(true))
-      .catch(() => handleError('Unable to delete completed todos'))
-      .finally(() => handleUpdateStatuses([...statuses].fill(false)));
+    todos.forEach(todo => {
+      if (todo.completed) {
+        handleRemoveTodo(todo.id);
+      }
+    });
   };
 
   return (
