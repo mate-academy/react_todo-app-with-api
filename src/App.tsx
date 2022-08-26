@@ -1,6 +1,5 @@
 import React, {
-  useCallback,
-  useContext, useEffect, useMemo, useState,
+  useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import cn from 'classnames';
 import {
@@ -67,7 +66,7 @@ export const App: React.FC = () => {
 
     handelCloseError();
 
-    setCheckedCompliteTodo(!checkedCompliteTodo);
+    setCheckedCompliteTodo((prev) => !prev);
 
     setIsLoadedUpdate(true);
 
@@ -240,11 +239,15 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
+
           <button
             data-cy="ToggleAllButton"
             aria-label="Mute volume"
             type="button"
-            className="todoapp__toggle-all active"
+            className={cn(
+              'todoapp__toggle-all',
+              { active: activeTodos.length > 0 },
+            )}
             onClick={handelAllActiveReverse}
           />
 

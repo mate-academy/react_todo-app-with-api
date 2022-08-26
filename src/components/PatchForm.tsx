@@ -28,6 +28,12 @@ export const PatchForm: FC<Props> = React.memo((props) => {
     handlerUpdateTitle(todoTitle, titleBefore);
   };
 
+  const handelCloseInputPuch = (event) => {
+    if (event.code === 'Escape') {
+      closeInput();
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmitPutchTodo}
@@ -39,12 +45,17 @@ export const PatchForm: FC<Props> = React.memo((props) => {
         ref={newTodoField}
         value={todoTitle}
         onChange={(event) => setTodoTitle(event.target.value)}
+        onKeyDown={handelCloseInputPuch}
         // onBlur={() => {
         //   handlerUpdateTitle(todoTitle, titleBefore);
         //   closeInput();
         // }}
       />
-      <button type="submit" aria-label="Save" style={{ display: 'none' }} />
+      <button
+        type="submit"
+        aria-label="Save"
+        style={{ display: 'none' }}
+      />
     </form>
   );
 });
