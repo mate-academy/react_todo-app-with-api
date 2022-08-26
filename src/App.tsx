@@ -10,15 +10,15 @@ import {
   getTodos, removeTodoByTodoId,
   updateTodoByTodoId,
 } from './api/todos';
-import { Todo } from './types/Todo';
 import { TodoItem } from './components/TodoItem';
 import { TodoFooter } from './components/TodoFooter';
+import { Notification } from './components/Notification';
+import { Todo, TodoUpdateFields } from './types/Todo';
 import { FilterType } from './types/FilterType';
 
 import './styles/index.scss';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
   );
 
   const handleTodoChange = useCallback(
-    (todoId: number, data: {}) => {
+    (todoId: number, data: TodoUpdateFields) => {
       setLoadingIds(prev => [...prev, todoId]);
 
       updateTodoByTodoId(todoId, data)
@@ -173,18 +173,7 @@ export const App: React.FC = () => {
       )}
 
       {errorMessage && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setErrorMessage('')}
-          />
-          {errorMessage}
-        </div>
+        <Notification message={errorMessage} setMessage={setErrorMessage} />
       )}
     </div>
   );

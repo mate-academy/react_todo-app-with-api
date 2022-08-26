@@ -3,12 +3,12 @@ import {
   FC, FormEvent, memo, useEffect, useState,
 } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
+import { Todo, TodoUpdateFields } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
   handleRemoveTodo: (todoId: number) => void,
-  handleUpdate: (id: number, data: {}) => void,
+  handleUpdate: (id: number, data: TodoUpdateFields) => void,
   isLoading: boolean,
 };
 

@@ -7,4 +7,4 @@ export interface Todo {
 
 export type NewTodo = Omit<Todo, 'id'>;
 
-export type TodoUpdateFields = Omit<Todo, 'id'>;
+export type TodoUpdateFields = Partial<Omit<Todo, 'id'>>;
