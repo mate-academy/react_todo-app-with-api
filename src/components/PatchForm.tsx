@@ -4,7 +4,7 @@ import React, {
 
 interface Props {
   titleBefore: string;
-  handlerUpdateTitle: (newTitle: string) => void;
+  handlerUpdateTitle: (newTitle: string, titleBefore: string) => void;
   closeInput: () => void;
 }
 
@@ -24,16 +24,13 @@ export const PatchForm: FC<Props> = React.memo((props) => {
 
   const handleSubmitPutchTodo = (event: FormEvent) => {
     event.preventDefault();
-    handlerUpdateTitle(todoTitle);
+
+    handlerUpdateTitle(todoTitle, titleBefore);
   };
 
   return (
     <form
       onSubmit={handleSubmitPutchTodo}
-      onBlur={() => {
-        closeInput();
-        handlerUpdateTitle(todoTitle);
-      }}
     >
       <input
         data-cy="NewTodoField"
@@ -42,6 +39,10 @@ export const PatchForm: FC<Props> = React.memo((props) => {
         ref={newTodoField}
         value={todoTitle}
         onChange={(event) => setTodoTitle(event.target.value)}
+        // onBlur={() => {
+        //   handlerUpdateTitle(todoTitle, titleBefore);
+        //   closeInput();
+        // }}
       />
       <button type="submit" aria-label="Save" style={{ display: 'none' }} />
     </form>

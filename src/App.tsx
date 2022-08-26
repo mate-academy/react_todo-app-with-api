@@ -140,6 +140,8 @@ export const App: React.FC = () => {
   };
 
   const handelDeleteTodo = (todoId: number) => {
+    setIsLoadedUpdate(true);
+    setSelectId(todoId);
     handelCloseError();
     deleteTodo(todoId)
       .then(() => {
@@ -147,6 +149,7 @@ export const App: React.FC = () => {
 
         setTodos(filtered);
         setFiltredTodos(filtered);
+        setIsLoadedUpdate(false);
       })
 
       .catch(() => {
