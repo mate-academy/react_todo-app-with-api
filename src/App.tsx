@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext,
   useEffect,
@@ -13,18 +12,28 @@ import {
   getTodos, removeTodo,
 } from './api/todos';
 import { AddTodoForm } from './components/AddTodoForm/AddTodoForm';
-import { Loader } from './components/Loader/Loader';
+import { Footer } from './components/Footer/Footer';
+import {
+  ErrorNotification,
+} from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAllTodoDone, setIsAllTodoDone] = useState(false);
+  const [sortType, setSortType] = useState<boolean | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const activeTodosQty = todos.filter(todo => !todo.completed).length;
+  const isAllDeleteButtonActive = todos.some(todo => todo.completed);
 
   useEffect(() => {
     if (user) {
       setIsLoading(true);
       getTodos(user.id)
         .then(setTodos)
+        .catch((msg) => setErrorMessage(msg))
         .finally(() => setIsLoading(false));
     }
   }, []);
@@ -39,7 +48,7 @@ export const App: React.FC = () => {
   };
 
   const handlerAddTodo = (title: string) => {
-    if (user) {
+    if (user && title) {
       const newTodo = {
         userId: user.id,
         title,
@@ -47,7 +56,10 @@ export const App: React.FC = () => {
       };
 
       addTodo(newTodo)
-        .then(addedTodo => onAddTodo(addedTodo));
+        .then(addedTodo => onAddTodo(addedTodo))
+        .catch(() => setErrorMessage('Unable to add a todo'));
+    } else if (!title) {
+      setErrorMessage('Title can\'t be empty');
     }
   };
 
@@ -67,6 +79,7 @@ export const App: React.FC = () => {
     setIsLoading(true);
     changeTodo(id, { completed: !status })
       .then(changedTodo => onTodosUpdate(changedTodo))
+      .catch(() => setErrorMessage('Unable to update a todo'))
       .finally(() => {
         setIsLoading(false);
       });
@@ -76,6 +89,7 @@ export const App: React.FC = () => {
     setIsLoading(true);
     changeTodo(id, { title })
       .then(changedTodo => onTodosUpdate(changedTodo))
+      .catch(() => setErrorMessage('Unable to update a todo'))
       .finally(() => {
         setIsLoading(false);
       });
@@ -91,10 +105,53 @@ export const App: React.FC = () => {
     setIsLoading(true);
     removeTodo(todoId)
       .then(() => onDeleteTodo(todoId))
+      .catch(() => setErrorMessage('Unable to delete a todo'))
       .finally(() => {
         setIsLoading(false);
       });
   };
+
+  const allTodoStatusToggle = () => {
+    const newTodoList = [...todos].map(todo => {
+      changeTodo(todo.id, { completed: !isAllTodoDone })
+        .catch(() => setErrorMessage('Unable to update a todo'));
+
+      return {
+        ...todo,
+        completed: !isAllTodoDone,
+      };
+    });
+
+    setTodos(newTodoList);
+    setIsAllTodoDone((prev) => !prev);
+  };
+
+  const delAllCompletedTodo = () => {
+    const newTodoList: Todo[] = [];
+
+    todos.forEach(todo => {
+      if (todo.completed) {
+        removeTodo(todo.id)
+          .catch(() => {
+            setErrorMessage('Unable to delete a todos');
+          });
+      } else {
+        newTodoList.push(todo);
+      }
+    });
+
+    setTodos(newTodoList);
+  };
+
+  const prepareTodos = () => {
+    if (sortType === null) {
+      return todos;
+    }
+
+    return [...todos].filter(todo => todo.completed === sortType);
+  };
+
+  const preparedTodos = prepareTodos();
 
   return (
     <div className="todoapp">
@@ -102,83 +159,40 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
+          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
           <button
             data-cy="ToggleAllButton"
             type="button"
             className="todoapp__toggle-all active"
+            onClick={allTodoStatusToggle}
           />
 
           <AddTodoForm addNewTodo={handlerAddTodo} />
         </header>
 
-        {todos.length > 0 ? (
-          <TodoList
-            todos={todos}
-            changeTodoStatus={handlerTodoStatusToggle}
-            isLoading={isLoading}
-            deleteTodo={handlerDeleteTodo}
-            updateTitle={handlerTodoTitleUpdate}
-          />
-        ) : (
-          <Loader />
-        )}
-
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            4 items left
-          </span>
-
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-            >
-              All
-            </a>
-
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-            >
-              Completed
-            </a>
-          </nav>
-
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-          >
-            Clear completed
-          </button>
-        </footer>
-      </div>
-
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
+        <TodoList
+          todos={preparedTodos}
+          changeTodoStatus={handlerTodoStatusToggle}
+          isLoading={isLoading}
+          deleteTodo={handlerDeleteTodo}
+          updateTitle={handlerTodoTitleUpdate}
         />
 
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
+        {todos.length > 0 && (
+          <Footer
+            activeTodosQty={activeTodosQty}
+            setSortType={setSortType}
+            clearBtnActive={isAllDeleteButtonActive}
+            deleteCompletedTodos={delAllCompletedTodo}
+          />
+        )}
       </div>
+      {errorMessage && (
+        <ErrorNotification
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
+      )}
     </div>
   );
 };
