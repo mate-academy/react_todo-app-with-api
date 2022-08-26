@@ -22,7 +22,6 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [isUpdateNeeded, setIsUpdateNeeded] = useState(false);
   const [userId, setUserId] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState(FilterType.All);
@@ -46,10 +45,9 @@ export const App: React.FC = () => {
 
       getTodos(user.id)
         .then(setTodos)
-        .catch(handleError)
-        .finally(() => setIsUpdateNeeded(false));
+        .catch(handleError);
     }
-  }, [user, isUpdateNeeded]);
+  }, [user]);
 
   const handleAddTodo = (event: FormEvent) => {
     event.preventDefault();

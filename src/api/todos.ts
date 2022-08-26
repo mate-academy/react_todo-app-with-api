@@ -1,4 +1,4 @@
-import { NewTodo, Todo } from '../types/Todo';
+import { NewTodo, Todo, TodoUpdateFields } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -6,13 +6,16 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (todo: NewTodo): Promise<Todo> => {
-  return client.post('/todos', todo);
+  return client.post<Todo>('/todos', todo);
 };
 
 export const removeTodoByTodoId = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodoByTodoId = (todoId: number, data: {}): Promise<Todo> => {
-  return client.patch(`/todos/${todoId}`, data);
+export const updateTodoByTodoId = (
+  todoId: number,
+  data: Partial<TodoUpdateFields>
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
