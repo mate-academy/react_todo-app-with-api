@@ -96,15 +96,20 @@ export const App: React.FC = () => {
   };
 
   const onDeleteTodo = (deletedTodoId: number) => {
-    const newTodoList = [...todos].filter(todo => todo.id !== deletedTodoId);
-
-    setTodos(newTodoList);
+    setTodos((prev) => prev.filter(todo => todo.id !== deletedTodoId));
   };
 
   const handlerDeleteTodo = (todoId:number) => {
     setIsLoading(true);
     removeTodo(todoId)
-      .then(() => onDeleteTodo(todoId))
+      .then((res) => {
+        console.log(res)
+        if (res === 1) {
+          onDeleteTodo(todoId);
+        } else {
+          setErrorMessage('Unable to delete a todo');
+        }
+      })
       .catch(() => setErrorMessage('Unable to delete a todo'))
       .finally(() => {
         setIsLoading(false);
@@ -127,20 +132,11 @@ export const App: React.FC = () => {
   };
 
   const delAllCompletedTodo = () => {
-    const newTodoList: Todo[] = [];
-
     todos.forEach(todo => {
       if (todo.completed) {
-        removeTodo(todo.id)
-          .catch(() => {
-            setErrorMessage('Unable to delete a todos');
-          });
-      } else {
-        newTodoList.push(todo);
+        handlerDeleteTodo(todo.id);
       }
     });
-
-    setTodos(newTodoList);
   };
 
   const prepareTodos = () => {
