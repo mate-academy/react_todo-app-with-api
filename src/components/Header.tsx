@@ -1,7 +1,9 @@
+import classNames from 'classnames';
 import {
   useRef,
   useEffect,
   useContext,
+  useState,
 } from 'react';
 import { postTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
@@ -11,10 +13,13 @@ import { DispatchContext, StateContext } from './StateContext';
 
 interface Props {
   onAdd: (newTodo: Todo) => void;
+  toggleCompletedAll: (isAllCompleted: boolean) => void;
 }
 
 export const Header: React.FC<Props> = (props) => {
-  const { onAdd } = props;
+  const { onAdd, toggleCompletedAll } = props;
+
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
 
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -34,6 +39,14 @@ export const Header: React.FC<Props> = (props) => {
     }
   };
 
+  const handleCompletedAllToggle = () => {
+    setIsAllCompleted((prev) => {
+      toggleCompletedAll(!prev);
+
+      return !prev;
+    });
+  };
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -45,8 +58,12 @@ export const Header: React.FC<Props> = (props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: isAllCompleted },
+        )}
         aria-label="ToggleAllButton"
+        onClick={handleCompletedAllToggle}
       />
 
       <form onSubmit={(event) => event.preventDefault()}>

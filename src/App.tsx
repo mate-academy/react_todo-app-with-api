@@ -5,9 +5,10 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { getTodos } from './api/todos';
+import { getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Header } from './components/Header';
+import { DispatchContext } from './components/StateContext';
 import { TodoList } from './components/TodoList';
 import { Maybe } from './types/Maybe';
 import { Todo, UpdateTodoframent } from './types/Todo';
@@ -17,6 +18,8 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext) as User;
 
   const [todos, setTodos] = useState<Maybe<Todo[]>>(null);
+
+  const dispatch = useContext(DispatchContext);
 
   useEffect(() => {
     getTodos(user.id)
@@ -62,12 +65,28 @@ export const App: React.FC = () => {
     });
   }, []);
 
+  const toggleCompletedAll = useCallback((isAllCompleted: boolean) => {
+    todos?.forEach(todo => {
+      const data = { completed: isAllCompleted };
+
+      dispatch({ type: 'startSave', peyload: '' });
+
+      updateTodo(todo.id, data)
+        .then(res => {
+          if (res) {
+            onUpdate(todo.id, data);
+          }
+        })
+        .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
+    });
+  }, [todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header onAdd={onAdd} />
+        <Header onAdd={onAdd} toggleCompletedAll={toggleCompletedAll} />
 
         <TodoList
           todos={todos}

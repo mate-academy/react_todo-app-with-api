@@ -1,7 +1,8 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo, UpdateTodoframent } from '../types/Todo';
+import { StateContext } from './StateContext';
 
 interface Props {
   todo: Todo;
@@ -12,7 +13,9 @@ interface Props {
 export const TodoItem: React.FC<Props> = (props) => {
   const { todo, onDelete, onUpdate } = props;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const { isSavingTodo } = useContext(StateContext);
+
+  const [isLoading, setIsLoading] = useState(isSavingTodo);
   const [isTitleUpdating, setIsTitleUpdating] = useState(false);
   const [updatingTitle, setUpdatingTitle] = useState('');
 
@@ -84,6 +87,10 @@ export const TodoItem: React.FC<Props> = (props) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [updateTodoField, updatingTitle]);
+
+  useEffect(() => {
+    setIsLoading(isSavingTodo);
+  }, [isSavingTodo]);
 
   return (
     <div
