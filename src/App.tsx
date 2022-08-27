@@ -13,16 +13,15 @@ import { Header } from './components/Header';
 import { DispatchContext } from './components/StateContext';
 import { TodoList } from './components/TodoList';
 import { FilterTypes } from './types/Filter';
-import { Maybe } from './types/Maybe';
 import { Todo, UpdateTodoframent } from './types/Todo';
 import { User } from './types/User';
 
 export const App: React.FC = () => {
-  const user = useContext(AuthContext) as User;
-
-  const [todos, setTodos] = useState<Maybe<Todo[]>>(null);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState(FilterTypes.All);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
 
+  const user = useContext(AuthContext) as User;
   const dispatch = useContext(DispatchContext);
 
   useEffect(() => {
@@ -30,9 +29,21 @@ export const App: React.FC = () => {
       .then(loadedTodos => setTodos(loadedTodos));
   }, []);
 
+  useEffect(() => {
+    const allTodosCompleted = (
+      todos.length && todos.every(todo => todo.completed)
+    );
+
+    setIsAllCompleted(false);
+
+    if (allTodosCompleted) {
+      setIsAllCompleted(true);
+    }
+  }, [todos]);
+
   const onDelete = useCallback((todoId: number) => {
     setTodos((prev) => {
-      return prev?.filter((todo) => todo.id !== todoId) || prev;
+      return prev.filter((todo) => todo.id !== todoId);
     });
   }, []);
 
@@ -48,7 +59,7 @@ export const App: React.FC = () => {
 
   const onUpdate = useCallback((todoId: number, data: UpdateTodoframent) => {
     setTodos((prev) => {
-      return prev?.map(todo => {
+      return prev.map(todo => {
         if (todo.id === todoId) {
           return {
             ...todo,
@@ -57,13 +68,13 @@ export const App: React.FC = () => {
         }
 
         return todo;
-      }) || prev;
+      });
     });
   }, []);
 
-  const toggleCompletedAll = useCallback((isAllCompleted: boolean) => {
-    todos?.forEach(todo => {
-      const data = { completed: isAllCompleted };
+  const toggleCompletedAll = useCallback((isCompleted: boolean) => {
+    todos.forEach(todo => {
+      const data = { completed: isCompleted };
 
       dispatch({ type: 'startSave', peyload: '' });
 
@@ -77,6 +88,14 @@ export const App: React.FC = () => {
     });
   }, [todos]);
 
+  const onToggleCompletedAll = () => {
+    setIsAllCompleted((prev) => {
+      toggleCompletedAll(!prev);
+
+      return !prev;
+    });
+  };
+
   const onFilterTypeChange = useCallback((type: FilterTypes) => {
     if (filterType !== type) {
       setFilterType(type);
@@ -84,9 +103,9 @@ export const App: React.FC = () => {
   }, [filterType]);
 
   const itemsLeft = useMemo(() => {
-    return todos?.reduce((completedCount, { completed }) => (
+    return todos.reduce((completedCount, { completed }) => (
       completed ? completedCount : completedCount + 1
-    ), 0) || 0;
+    ), 0);
   }, [todos]);
 
   const filteredTodos = useMemo(() => {
@@ -109,9 +128,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header onAdd={onAdd} toggleCompletedAll={toggleCompletedAll} />
+        <Header
+          onAdd={onAdd}
+          onToggleCompletedAll={onToggleCompletedAll}
+          isAllCompleted={isAllCompleted}
+        />
 
-        {todos && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={filteredTodos}
