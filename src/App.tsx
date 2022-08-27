@@ -3,13 +3,16 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
+import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { DispatchContext } from './components/StateContext';
 import { TodoList } from './components/TodoList';
+import { FilterTypes } from './types/Filter';
 import { Maybe } from './types/Maybe';
 import { Todo, UpdateTodoframent } from './types/Todo';
 import { User } from './types/User';
@@ -18,6 +21,7 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext) as User;
 
   const [todos, setTodos] = useState<Maybe<Todo[]>>(null);
+  const [filterType, setFilterType] = useState(FilterTypes.All);
 
   const dispatch = useContext(DispatchContext);
 
@@ -81,6 +85,37 @@ export const App: React.FC = () => {
     });
   }, [todos]);
 
+  const onFilterTypeChange = useCallback((type: FilterTypes) => {
+    if (filterType !== type) {
+      setFilterType(type);
+    }
+  }, [filterType]);
+
+  const itemsLeft = useMemo(() => {
+    if (todos) {
+      return todos.reduce((completedCount, { completed }) => (
+        completed ? completedCount : completedCount + 1
+      ), 0);
+    }
+
+    return null;
+  }, [todos]);
+
+  const filteredTodos = useMemo(() => {
+    return todos?.filter(todo => {
+      switch (filterType) {
+        case FilterTypes.Active:
+          return !todo.completed;
+
+        case FilterTypes.Completed:
+          return todo.completed;
+
+        default:
+          return true;
+      }
+    }) || null;
+  }, [filterType, todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -89,49 +124,16 @@ export const App: React.FC = () => {
         <Header onAdd={onAdd} toggleCompletedAll={toggleCompletedAll} />
 
         <TodoList
-          todos={todos}
+          todos={filteredTodos}
           onDelete={onDelete}
           onUpdate={onUpdate}
         />
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            4 items left
-          </span>
-
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-            >
-              All
-            </a>
-
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-            >
-              Completed
-            </a>
-          </nav>
-
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-          >
-            Clear completed
-          </button>
-        </footer>
+        <Footer
+          itemsLeft={itemsLeft}
+          onFilterTypeChange={onFilterTypeChange}
+          filterType={filterType}
+        />
       </div>
 
       <div

@@ -1,5 +1,7 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo, UpdateTodoframent } from '../types/Todo';
 import { StateContext } from './StateContext';
