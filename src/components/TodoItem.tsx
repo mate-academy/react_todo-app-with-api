@@ -62,16 +62,6 @@ export const TodoItem: React.FC<Props> = (props) => {
     setUpdatingTitle('');
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      updateTodoField.current
-      && !updateTodoField.current.contains(event.target as HTMLElement)
-    ) {
-      document.removeEventListener('mousedown', handleClickOutside);
-      checkBeforeUpdate();
-    }
-  };
-
   useEffect(() => {
     if (isTitleUpdating) {
       setUpdatingTitle(todo.title);
@@ -81,14 +71,6 @@ export const TodoItem: React.FC<Props> = (props) => {
       updateTodoField.current.focus();
     }
   }, [isTitleUpdating]);
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [updateTodoField, updatingTitle]);
 
   useEffect(() => {
     setIsLoading(isSavingTodo);
@@ -119,6 +101,7 @@ export const TodoItem: React.FC<Props> = (props) => {
             placeholder="Empty todo will be deleted"
             value={updatingTitle}
             onChange={(event) => setUpdatingTitle(event.target.value)}
+            onBlur={checkBeforeUpdate}
             ref={updateTodoField}
           />
         </form>
