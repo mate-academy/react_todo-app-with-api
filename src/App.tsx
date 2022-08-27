@@ -32,11 +32,7 @@ export const App: React.FC = () => {
 
   const onDelete = useCallback((todoId: number) => {
     setTodos((prev) => {
-      if (prev) {
-        return prev.filter((todo) => todo.id !== todoId);
-      }
-
-      return prev;
+      return prev?.filter((todo) => todo.id !== todoId) || prev;
     });
   }, []);
 
@@ -52,20 +48,16 @@ export const App: React.FC = () => {
 
   const onUpdate = useCallback((todoId: number, data: UpdateTodoframent) => {
     setTodos((prev) => {
-      if (prev) {
-        return prev.map(todo => {
-          if (todo.id === todoId) {
-            return {
-              ...todo,
-              ...data,
-            };
-          }
+      return prev?.map(todo => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            ...data,
+          };
+        }
 
-          return todo;
-        });
-      }
-
-      return prev;
+        return todo;
+      }) || prev;
     });
   }, []);
 
@@ -92,13 +84,9 @@ export const App: React.FC = () => {
   }, [filterType]);
 
   const itemsLeft = useMemo(() => {
-    if (todos) {
-      return todos.reduce((completedCount, { completed }) => (
-        completed ? completedCount : completedCount + 1
-      ), 0);
-    }
-
-    return null;
+    return todos?.reduce((completedCount, { completed }) => (
+      completed ? completedCount : completedCount + 1
+    ), 0) || 0;
   }, [todos]);
 
   const filteredTodos = useMemo(() => {
@@ -123,17 +111,21 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header onAdd={onAdd} toggleCompletedAll={toggleCompletedAll} />
 
-        <TodoList
-          todos={filteredTodos}
-          onDelete={onDelete}
-          onUpdate={onUpdate}
-        />
+        {todos && (
+          <>
+            <TodoList
+              todos={filteredTodos}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+            />
 
-        <Footer
-          itemsLeft={itemsLeft}
-          onFilterTypeChange={onFilterTypeChange}
-          filterType={filterType}
-        />
+            <Footer
+              itemsLeft={itemsLeft}
+              onFilterTypeChange={onFilterTypeChange}
+              filterType={filterType}
+            />
+          </>
+        )}
       </div>
 
       <div
