@@ -6,7 +6,7 @@ type Props = {
   setErrorMessage: CallableFunction,
 };
 
-export const ErrorNotification: React.FC<Props> = (props) => {
+export const ErrorNotification: React.FC<Props> = React.memo((props) => {
   const { errorMessage, setErrorMessage } = props;
 
   const [isShowed, setIsShowed] = useState(false);
@@ -38,4 +38,4 @@ export const ErrorNotification: React.FC<Props> = (props) => {
       {errorMessage}
     </div>
   );
-};
+});

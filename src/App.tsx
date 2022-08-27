@@ -1,6 +1,7 @@
 import React, {
+  useCallback,
   useContext,
-  useEffect,
+  useEffect, useMemo,
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -26,8 +27,12 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isAllCheckedLoading, setIsAllCheckedLoading] = useState(false);
 
-  const activeTodosQty = todos.filter(todo => !todo.completed).length;
-  const isAllDeleteButtonActive = todos.some(todo => todo.completed);
+  const activeTodosQty = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
+
+  const isAllDeleteButtonActive
+    = useMemo(() => todos.some(todo => todo.completed), [todos]);
 
   useEffect(() => {
     if (user) {
@@ -37,10 +42,7 @@ export const App: React.FC = () => {
         .catch((msg) => setErrorMessage(msg))
         .finally(() => setIsLoading(false));
     }
-  }, []);
-
-  // eslint-disable-next-line no-console
-  console.log(todos);
+  }, [user]);
 
   const onAddTodo = (todo: Todo) => {
     setTodos((prevTodos) => (
@@ -48,7 +50,7 @@ export const App: React.FC = () => {
     ));
   };
 
-  const handlerAddTodo = (title: string) => {
+  const handlerAddTodo = useCallback((title: string) => {
     if (user && title) {
       const newTodo = {
         userId: user.id,
@@ -62,9 +64,9 @@ export const App: React.FC = () => {
     } else if (!title) {
       setErrorMessage('Title can\'t be empty');
     }
-  };
+  }, [user]);
 
-  const onTodosUpdate = (changedTodo: Todo) => {
+  const onTodosUpdate = useCallback((changedTodo: Todo) => {
     const newTodoList = [...todos].map(todo => {
       if (todo.id === changedTodo.id) {
         return changedTodo;
@@ -74,9 +76,9 @@ export const App: React.FC = () => {
     });
 
     setTodos(newTodoList);
-  };
+  }, [todos]);
 
-  const handlerTodoStatusToggle = (id: number, status: boolean) => {
+  const handlerTodoStatusToggle = useCallback((id: number, status: boolean) => {
     setIsLoading(true);
     changeTodo(id, { completed: !status })
       .then(changedTodo => onTodosUpdate(changedTodo))
@@ -84,9 +86,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
+  }, [onTodosUpdate]);
 
-  const handlerTodoTitleUpdate = (id: number, title: string) => {
+  const handlerTodoTitleUpdate = useCallback((id: number, title: string) => {
     setIsLoading(true);
     changeTodo(id, { title })
       .then(changedTodo => onTodosUpdate(changedTodo))
@@ -94,13 +96,13 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
+  }, [onTodosUpdate]);
 
   const onDeleteTodo = (deletedTodoId: number) => {
     setTodos((prev) => prev.filter(todo => todo.id !== deletedTodoId));
   };
 
-  const handlerDeleteTodo = (todoId:number) => {
+  const handlerDeleteTodo = useCallback((todoId:number) => {
     setIsLoading(true);
     removeTodo(todoId)
       .then((res) => {
@@ -115,9 +117,9 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setIsAllCheckedLoading(false);
       });
-  };
+  }, []);
 
-  const allTodoStatusToggle = () => {
+  const allTodoStatusToggle = useCallback(() => {
     setIsLoading(true);
     setIsAllCheckedLoading(true);
     const newTodoList = [...todos].map(todo => {
@@ -136,9 +138,9 @@ export const App: React.FC = () => {
 
     setTodos(newTodoList);
     setIsAllTodoDone((prev) => !prev);
-  };
+  }, [isAllTodoDone, todos]);
 
-  const delAllCompletedTodo = () => {
+  const delAllCompletedTodoHandler = useCallback(() => {
     setIsAllCheckedLoading(true);
 
     todos.forEach(todo => {
@@ -146,7 +148,7 @@ export const App: React.FC = () => {
         handlerDeleteTodo(todo.id);
       }
     });
-  };
+  }, [handlerDeleteTodo, todos]);
 
   const prepareTodos = () => {
     if (sortType === null) {
@@ -189,7 +191,7 @@ export const App: React.FC = () => {
             activeTodosQty={activeTodosQty}
             setSortType={setSortType}
             clearBtnActive={isAllDeleteButtonActive}
-            deleteCompletedTodos={delAllCompletedTodo}
+            deleteCompletedTodos={delAllCompletedTodoHandler}
           />
         )}
       </div>

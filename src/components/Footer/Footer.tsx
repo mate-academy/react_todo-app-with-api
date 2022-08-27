@@ -8,7 +8,7 @@ type Props = {
   deleteCompletedTodos: CallableFunction,
 };
 
-export const Footer: React.FC<Props> = (props) => {
+export const Footer: React.FC<Props> = React.memo((props) => {
   const {
     activeTodosQty,
     setSortType,
@@ -90,4 +90,4 @@ export const Footer: React.FC<Props> = (props) => {
 
     </footer>
   );
-};
+});

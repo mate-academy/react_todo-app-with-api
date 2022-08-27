@@ -11,7 +11,7 @@ type Props = {
   isAllCheckedLoading: boolean;
 };
 
-export const TodoList: React.FC<Props> = (props) => {
+export const TodoList: React.FC<Props> = React.memo((props) => {
   const {
     todos,
     changeTodoStatus,
@@ -126,11 +126,11 @@ export const TodoList: React.FC<Props> = (props) => {
                   && todo.id === selectedTodoId
                   && !isAllCheckedLoading
                 )
-              || (
-                isLoading
+                || (
+                  isLoading
                   && todo.completed
                   && isAllCheckedLoading
-              )),
+                )),
             })}
           >
             <div className="modal-background has-background-white-ter" />
@@ -140,4 +140,4 @@ export const TodoList: React.FC<Props> = (props) => {
       ))}
     </section>
   );
-};
+});
