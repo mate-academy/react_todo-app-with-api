@@ -24,6 +24,7 @@ export const App: React.FC = () => {
   const [isAllTodoDone, setIsAllTodoDone] = useState(false);
   const [sortType, setSortType] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isAllCheckedLoading, setIsAllCheckedLoading] = useState(false);
 
   const activeTodosQty = todos.filter(todo => !todo.completed).length;
   const isAllDeleteButtonActive = todos.some(todo => todo.completed);
@@ -103,7 +104,6 @@ export const App: React.FC = () => {
     setIsLoading(true);
     removeTodo(todoId)
       .then((res) => {
-        console.log(res)
         if (res === 1) {
           onDeleteTodo(todoId);
         } else {
@@ -113,13 +113,20 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage('Unable to delete a todo'))
       .finally(() => {
         setIsLoading(false);
+        setIsAllCheckedLoading(false);
       });
   };
 
   const allTodoStatusToggle = () => {
+    setIsLoading(true);
+    setIsAllCheckedLoading(true);
     const newTodoList = [...todos].map(todo => {
       changeTodo(todo.id, { completed: !isAllTodoDone })
-        .catch(() => setErrorMessage('Unable to update a todo'));
+        .catch(() => setErrorMessage('Unable to update a todo'))
+        .finally(() => {
+          setIsLoading(false);
+          setIsAllCheckedLoading(false);
+        });
 
       return {
         ...todo,
@@ -132,6 +139,8 @@ export const App: React.FC = () => {
   };
 
   const delAllCompletedTodo = () => {
+    setIsAllCheckedLoading(true);
+
     todos.forEach(todo => {
       if (todo.completed) {
         handlerDeleteTodo(todo.id);
@@ -172,6 +181,7 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           deleteTodo={handlerDeleteTodo}
           updateTitle={handlerTodoTitleUpdate}
+          isAllCheckedLoading={isAllCheckedLoading}
         />
 
         {todos.length > 0 && (

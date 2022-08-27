@@ -8,6 +8,7 @@ type Props = {
   isLoading: boolean,
   deleteTodo: (id: number) => void
   updateTitle: (id: number, title: string) => void,
+  isAllCheckedLoading: boolean;
 };
 
 export const TodoList: React.FC<Props> = (props) => {
@@ -17,6 +18,7 @@ export const TodoList: React.FC<Props> = (props) => {
     isLoading,
     deleteTodo,
     updateTitle,
+    isAllCheckedLoading,
   } = props;
 
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
@@ -30,14 +32,25 @@ export const TodoList: React.FC<Props> = (props) => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setAllowedToEditId(null);
+      }
+    });
   }, []);
 
-  const changeTitle = (todoId: number) => {
-    if (newTitle) {
+  const changeTitleHandler = (todoId: number, title: string) => {
+    if (newTitle && title !== newTitle) {
       updateTitle(todoId, newTitle);
-    } else {
+    }
+
+    if (!newTitle) {
       deleteTodo(todoId);
     }
+
+    setAllowedToEditId(null);
+    setSelectedTodoId(todoId);
   };
 
   return (
@@ -64,9 +77,7 @@ export const TodoList: React.FC<Props> = (props) => {
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                changeTitle(todo.id);
-                setAllowedToEditId(null);
-                setSelectedTodoId(todo.id);
+                changeTitleHandler(todo.id, todo.title);
               }}
             >
               <input
@@ -75,6 +86,7 @@ export const TodoList: React.FC<Props> = (props) => {
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
+                onBlur={() => changeTitleHandler(todo.id, todo.title)}
                 onChange={(event) => setNewTitle(event.target.value)}
               />
             </form>
@@ -85,28 +97,40 @@ export const TodoList: React.FC<Props> = (props) => {
               onDoubleClick={() => {
                 setAllowedToEditId(todo.id);
                 setNewTitle(todo.title);
+                setSelectedTodoId(null);
               }}
             >
               {todo.title}
             </span>
           )}
-
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => {
-              deleteTodo(todo.id);
-              setSelectedTodoId(todo.id);
-            }}
-          >
-            ×
-          </button>
+          {allowedToEditId !== todo.id && (
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => {
+                deleteTodo(todo.id);
+                setSelectedTodoId(todo.id);
+              }}
+            >
+              ×
+            </button>
+          )}
 
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay', {
-              'is-active': isLoading && todo.id === selectedTodoId,
+              'is-active': (
+                (
+                  isLoading
+                  && todo.id === selectedTodoId
+                  && !isAllCheckedLoading
+                )
+              || (
+                isLoading
+                  && todo.completed
+                  && isAllCheckedLoading
+              )),
             })}
           >
             <div className="modal-background has-background-white-ter" />
