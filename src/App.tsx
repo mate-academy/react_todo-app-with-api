@@ -12,30 +12,37 @@ import { FormCreateTodo } from './components/FormCreateTodo';
 import {
   Todo, CreateTodoFragment, UpdateStatus, UpdateTitle,
 } from './types/Todo';
-import { PatchForm } from './components/PatchForm';
+// import { PatchForm } from './components/PatchForm';
+import { ErrorNotification } from './components/ErrorNotification';
+import { FiltersTodos } from './components/FiltersTodos';
+import { TodosList } from './components/TodosList';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   // const newTodoField = useRef<HTMLInputElement>(null);
 
+  // const [todos, setTodos] = useState<Todo[]>([]);
+  const [filtredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
-
-  const [isErrorLoadedNewTodo, setIsErrorLoadedNewTodo] = useState(false);
-  const [isErrorDeletedTodo, setIsErrorDeletedTodo] = useState(false);
-  const [isErrorUpdate, setIsErrorUpdate] = useState(false);
-  const [isEmptyTitle, setIsEmptyTitle] = useState(false);
+  const [typeError, setTypeError] = useState('');
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectId, setSelectId] = useState(0);
   const [openPachForm, setOpenPachForm] = useState(false);
+  // const [filter, setFilter] = useState('All');
+
+  // const [reverse, setReverse] = useState(false);
   const [filter, setFilter] = useState('All');
+
+  // let todos: Todo[] | [] = [];
 
   useEffect(() => {
     if (user) {
       getTodos(user.id)
         .then((res) => {
           setTodos(res);
+          setFilteredTodos(res);
         });
     }
   }, []);
@@ -50,11 +57,9 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  let filtredTodos: Todo[] = todos;
-
   useMemo(
     () => {
-      filtredTodos = filtredTodos.filter(todo => {
+      const filtred = todos.filter(todo => {
         if (filter === 'Completed') {
           return todo.completed === true;
         }
@@ -65,23 +70,22 @@ export const App: React.FC = () => {
 
         return todo;
       });
+
+      setFilteredTodos(filtred);
     },
-    [todos, filter, filtredTodos],
+    [filter],
   );
 
-  const handelFiltredTodos = (
-    // event: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>>,
-    event: any,
-  ) => {
-    setFilter(event.target.textContent);
-  };
+  // const handelFiltredTodos = (
+  //   // event: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>>,
+  //   event: any,
+  // ) => {
+  //   setFilter(event.target.textContent);
+  // };
 
-  const handelCloseError = () => {
-    setIsErrorLoadedNewTodo(false);
-    setIsErrorDeletedTodo(false);
-    setIsErrorUpdate(false);
-    setIsEmptyTitle(false);
-  };
+  const handelCloseError = useCallback(() => {
+    setTypeError('');
+  }, []);
 
   const handleChange = (todoID: number, completedTodo: boolean) => {
     const updateStatus: UpdateStatus = {
@@ -96,7 +100,7 @@ export const App: React.FC = () => {
 
     patchTodo(todoID, updateStatus)
       .then(() => {
-        const updateTodos = filtredTodos.map(todo => {
+        setFilteredTodos((prev) => prev.map(todo => {
           if (todo.id === todoID) {
             return ({
               ...todo,
@@ -105,12 +109,20 @@ export const App: React.FC = () => {
           }
 
           return todo;
-        });
+        }));
+        setTodos((prev) => prev.map(todo => {
+          if (todo.id === todoID) {
+            return ({
+              ...todo,
+              completed: !todo.completed,
+            });
+          }
 
-        setTodos(updateTodos);
+          return todo;
+        }));
       })
       .catch(() => {
-        setIsErrorUpdate(true);
+        setTypeError('ErrorUpdate');
         setTimeout(handelCloseError, 3000);
       })
       .finally(() => {
@@ -119,35 +131,55 @@ export const App: React.FC = () => {
       });
   };
 
+  // useEffect(() => {
+  //   const promises: Promise<Todo>[] = [];
+
+  //   todos.forEach(todo => {
+  //     const updateStatus: UpdateStatus = {
+  //       completed: todo.completed === reverse ? !reverse : reverse,
+  //     };
+
+  //     if (reverse !== todo.completed) {
+  //       promises.push(patchTodo(todo.id, updateStatus));
+  //     }
+  //   });
+
+  //   Promise.all(promises)
+  //     .then(() => {
+  //       // filtredTodos = filtredTodos.map((todo) => {
+  //       //   if (reverse !== todo.completed) {
+  //       //     return ({
+  //       //       ...todo,
+  //       //       completed: !reverse,
+  //       //     });
+  //       //   }
+
+  //       //   return todo;
+  //       // });
+  //       getTodos(user.id)
+  //         .then((res) => {
+  //           setFilteredTodos(res);
+  //         });
+  //     });
+  // }, [reverse]);
+
   const handelAllActiveReverse = () => {
+    // setReverse(!reverse);
+
     if (activeTodos.length > 0
       && completedTodos.length !== filtredTodos.length) {
-      filtredTodos = filtredTodos.map(todo => {
+      completedTodos.forEach(todo => {
         if (!todo.completed) {
-          // console.log('completed firs');
           handleChange(todo.id, todo.completed);
         }
-
-        // console.log('first');
-
-        return ({
-          ...todo,
-          completed: true,
-        });
       });
     }
 
-    if (completedTodos.length === 0
+    if (!completedTodos.length
       || completedTodos.length === filtredTodos.length
     ) {
-      filtredTodos = filtredTodos.map(activeTodo => {
+      filtredTodos.forEach(activeTodo => {
         handleChange(activeTodo.id, activeTodo.completed);
-        // console.log('second');
-
-        return ({
-          ...activeTodo,
-          completed: !activeTodo.completed,
-        });
       });
     }
   };
@@ -167,43 +199,45 @@ export const App: React.FC = () => {
 
     if (newTodo.title.length < 1) {
       setTimeout(handelCloseError, 3000);
-      setIsEmptyTitle(true);
+      setTypeError('EmptyTitle');
 
       return;
     }
 
     createTodo(newTodo)
       .then((todo) => {
+        setFilteredTodos((prev) => [...prev, todo]);
         setTodos((prev) => [...prev, todo]);
       })
       .catch(() => {
-        setIsErrorLoadedNewTodo(true);
+        setTypeError('ErrorLoadedNewTodo');
         setTimeout(handelCloseError, 3000);
       });
   };
 
-  const handelDeleteTodo = (todoId: number) => {
+  const handelDeleteTodo = useCallback((todoId: number) => {
     setIsLoaded(true);
     setSelectId(todoId);
     handelCloseError();
-    deleteTodo(todoId)
-      .then(() => {
-        const filtered = filtredTodos.filter(item => item.id !== todoId);
 
-        setTodos(filtered);
-        setIsLoaded(false);
+    return deleteTodo(todoId)
+      .then(() => {
+        setFilteredTodos((prev) => prev.filter(item => item.id !== todoId));
+        setTodos((prev) => prev.filter(item => item.id !== todoId));
       })
 
       .catch(() => {
         setTimeout(handelCloseError, 3000);
-        setIsErrorDeletedTodo(true);
-      });
-  };
+        setTypeError('ErrorDeletedTodo');
+      })
+      .finally(() => setIsLoaded(false));
+  }, [filtredTodos, todos]);
 
   const handelClearAllComplered = () => {
     if (completedTodos.length > 0) {
-      completedTodos.forEach(compTodo => handelDeleteTodo(compTodo.id));
-      filtredTodos = filtredTodos.filter(todo => !todo.completed);
+      completedTodos.forEach(compTodo => {
+        handelDeleteTodo(compTodo.id);
+      });
     }
   };
 
@@ -247,11 +281,11 @@ export const App: React.FC = () => {
             return todo;
           });
 
-          setTodos(updateTodos);
+          setFilteredTodos(updateTodos);
         })
         .catch(() => {
           setTimeout(handelCloseError, 3000);
-          setIsErrorUpdate(true);
+          setTypeError('ErrorUpdate');
         })
         .finally(() => {
           setSelectId(0);
@@ -288,156 +322,41 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main" data-cy="TodoList">
-          {filtredTodos.map(todo => (
-            <div
-              data-cy="Todo"
-              key={todo.id}
-              className={
-                cn('todo',
-                  { completed: todo.completed })
-              }
-            >
 
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                  checked={todo.completed}
-                  onChange={() => handleChange(todo.id, todo.completed)}
-                />
-              </label>
+          <TodosList
+            filtredTodos={filtredTodos}
+            selectId={selectId}
+            isLoaded={isLoaded}
+            openPachForm={openPachForm}
+            handlerUpdateTitle={handlerUpdateTitle}
+            closeInput={closeInput}
+            handleChange={handleChange}
+            handelDubleClick={handelDubleClick}
+            handelDeleteTodo={handelDeleteTodo}
+            handelCreateTodo={handelCreateTodo}
+          />
 
-              {openPachForm && selectId === todo.id
-                ? (
-                  <PatchForm
-                    titleBefore={todo.title}
-                    handlerUpdateTitle={handlerUpdateTitle}
-                    closeInput={closeInput}
-                  />
-                )
-                : (
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                    role="button"
-                    onClick={
-                      // React.MouseEvent<HTMLButtonElement>
-                      (event: any): void => (
-                        handelDubleClick(event, todo.id)
-                      )
-                    }
-                    tabIndex={0}
-                    aria-hidden="true"
-                  >
-                    {todo.title}
-                  </span>
-                )}
-
-              {isLoaded
-                && selectId === todo.id
-                && (
-                  <div data-cy="TodoLoader" className="modal overlay is-active">
-                    <div className="modal-background" />
-                    <div className="loader" />
-                  </div>
-                )}
-
-              {!openPachForm && (
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDeleteButton"
-                  onClick={() => handelDeleteTodo(todo.id)}
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
         </section>
 
-        {(todos.length > 0) && (
+        { (todos.length > 0) && (
           <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="todosCounter">
-              {`${todos.length - completedTodos.length} items left`}
-            </span>
 
-            <nav className="filter" data-cy="Filter">
-              <a
-                data-cy="FilterLinkAll"
-                href="#/"
-                className={cn(
-                  'filter__link',
-                  { selected: filter === 'All' },
-                )}
-                onClick={handelFiltredTodos}
-              >
-                All
-              </a>
+            <FiltersTodos
+              todos={todos}
+              completedTodos={completedTodos}
+              handelClearAllComplered={handelClearAllComplered}
+              filter={filter}
+              setFilter={setFilter}
+            />
 
-              <a
-                data-cy="FilterLinkActive"
-                href="#/active"
-                className={cn(
-                  'filter__link',
-                  { selected: filter === 'Active' },
-                )}
-                onClick={handelFiltredTodos}
-              >
-                Active
-              </a>
-              <a
-                data-cy="FilterLinkCompleted"
-                href="#/completed"
-                className={cn(
-                  'filter__link',
-                  { selected: filter === 'Completed' },
-                )}
-                onClick={handelFiltredTodos}
-              >
-                Completed
-              </a>
-            </nav>
-
-            {completedTodos.length > 0
-         && (
-           <button
-             data-cy="ClearCompletedButton"
-             type="button"
-             className="todoapp__clear-completed"
-             onClick={handelClearAllComplered}
-           >
-             Clear completed
-           </button>
-         )}
           </footer>
         )}
       </div>
 
-      {(isErrorLoadedNewTodo
-     || isErrorDeletedTodo
-     || isErrorUpdate
-     || isEmptyTitle)
-     && (
-       <div
-         data-cy="ErrorNotification"
-         className="notification is-danger is-light has-text-weight-normal"
-       >
-         <button
-           data-cy="HideErrorButton"
-           aria-label="Mute volume"
-           type="button"
-           className="delete"
-           onClick={handelCloseError}
-         />
-
-         {isErrorLoadedNewTodo && 'Unable to add a todo'}
-         {isErrorDeletedTodo && 'Unable to delete a todo'}
-         {isErrorUpdate && 'Unable to update a todo'}
-         {isEmptyTitle && "Title can't be empty"}
-       </div>
-     )}
+      <ErrorNotification
+        typeError={typeError}
+        handelCloseError={handelCloseError}
+      />
     </div>
   );
 };

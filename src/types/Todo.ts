@@ -1,8 +1,8 @@
 export interface Todo {
-  id: number;
-  userId: number;
-  title: string;
-  completed: boolean;
+  id: number,
+  userId: number,
+  title: string,
+  completed: boolean,
 }
 
 export type CreateTodoFragment = {
@@ -17,4 +17,9 @@ export interface UpdateStatus {
 
 export interface UpdateTitle {
   title: string,
+}
+
+export interface ErrorType {
+  title: string,
+  message: string,
 }

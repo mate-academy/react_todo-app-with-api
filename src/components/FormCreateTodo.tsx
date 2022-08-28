@@ -4,8 +4,9 @@ interface Props {
   handelCreateTodo: (title: string) => void;
 }
 export const FormCreateTodo: React.FC<Props> = React.memo((props) => {
-  const [todoCreateTitle, setTodoCreateTitle] = useState('');
   const { handelCreateTodo } = props;
+
+  const [todoCreateTitle, setTodoCreateTitle] = useState('');
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
