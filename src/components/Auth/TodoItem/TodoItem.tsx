@@ -1,4 +1,3 @@
-import { title } from 'process';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../../types/Todo';
 
@@ -32,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (title) {
+    if (newTitle) {
       onPatch({ ...todo, title: newTitle });
     } else {
       onDelete(todo.id);
@@ -72,8 +71,8 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="NewTodoField"
               type="text"
               ref={editField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onBlur={save}
