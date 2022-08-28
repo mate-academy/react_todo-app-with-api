@@ -2,7 +2,6 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import './App.css';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import * as api from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -181,7 +180,7 @@ export const App: React.FC = () => {
         {(todos.length > 0 || isCreating) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
-              4 items left
+              {`${activeTodos.length} items left`}
             </span>
 
             <nav className="filter" data-cy="Filter">
