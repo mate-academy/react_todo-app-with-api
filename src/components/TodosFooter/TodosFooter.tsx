@@ -9,7 +9,7 @@ interface Props {
   isSomeCompleted: boolean,
 }
 
-export const TodosFooter: React.FC<Props> = ({
+export const TodosFooter: React.FC<Props> = React.memo(({
   itemsLeft,
   filterBy,
   setFilterBy,
@@ -62,4 +62,4 @@ export const TodosFooter: React.FC<Props> = ({
 
     </footer>
   );
-};
+});

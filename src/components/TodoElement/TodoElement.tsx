@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import cn from 'classnames';
 import { EditTodo } from '../EditTodo';
 import { Todo } from '../../types/Todo';
@@ -8,26 +8,28 @@ interface Props {
   isLoading: boolean,
   handleRemoveTodo: (id: number) => void,
   handleChangeTodo: (id: number, data: {}) => void,
+  isLoadingSomeTodo: boolean,
 }
 
-export const TodoElement: React.FC<Props> = ({
+export const TodoElement: React.FC<Props> = React.memo(({
   todo,
   isLoading,
   handleRemoveTodo,
   handleChangeTodo,
+  isLoadingSomeTodo,
 }) => {
   const { id, title, completed } = todo;
 
   const [isDoubleClick, setIsDoubleClick] = useState(false);
 
-  const handleActionTodo = (newTitle: string) => {
+  const handleActionTodo = useCallback((newTitle: string) => {
     setIsDoubleClick(false);
     if (!newTitle) {
       handleRemoveTodo(id);
     } else if (newTitle !== todo.title) {
       handleChangeTodo(id, { title: newTitle });
     }
-  };
+  }, [handleRemoveTodo, handleChangeTodo]);
 
   return (
     <div
@@ -51,7 +53,7 @@ export const TodoElement: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsDoubleClick(true)}
+            onDoubleClick={() => setIsDoubleClick(!isLoadingSomeTodo)}
           >
             {title}
           </span>
@@ -76,4 +78,4 @@ export const TodoElement: React.FC<Props> = ({
       )}
     </div>
   );
-};
+});

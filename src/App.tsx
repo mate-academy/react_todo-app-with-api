@@ -3,10 +3,10 @@ import React, {
   useState,
   useContext,
   useEffect,
-  useRef,
   useCallback,
   useMemo,
 } from 'react';
+import cn from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import {
@@ -17,6 +17,7 @@ import {
 } from './api/todos';
 import { TodoElement } from './components/TodoElement';
 import { TodosFooter } from './components/TodosFooter';
+import { TodoForm } from './components/TodoForm';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,7 +27,6 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [filterBy, setFilterBy] = useState('all');
   const [isLoadingTodos, setIsLoadingTodos] = useState<number[]>([]);
-  const newTodoField = useRef<HTMLInputElement>(null);
 
   const qtyNotCompletedTodos = useMemo(
     () => todos.filter(({ completed }) => !completed).length,
@@ -40,11 +40,6 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     if (user) {
       setErrMsg('');
       getTodos(user.id)
@@ -59,7 +54,7 @@ export const App: React.FC = () => {
     setTimeout(() => setErrMsg(''), 3000);
   }, []);
 
-  const handleCreateNewTodo = () => {
+  const handleCreateNewTodo = useCallback(() => {
     if (!newTodoTitle) {
       handleErrMsg('Title can\'t be empty');
 
@@ -77,6 +72,7 @@ export const App: React.FC = () => {
     setTodos(prevTodos => [...prevTodos, { ...newTodo, id: -1 }]);
     createNewTodo(newTodo)
       .then(res => {
+        setNewTodoTitle('');
         setTodos(prevTodos => prevTodos.map(todo => {
           if (todo.id === -1) {
             return { ...res as Todo };
@@ -89,13 +85,10 @@ export const App: React.FC = () => {
         handleErrMsg('Unable to add a todo');
         setTodos(prevTodos => prevTodos.slice(0, -1));
       })
-      .finally(() => {
-        setNewTodoTitle('');
-        setIsLoadingTodos(prev => prev.filter(n => n !== -1));
-      });
-  };
+      .finally(() => setIsLoadingTodos(prev => prev.filter(n => n !== -1)));
+  }, [newTodoTitle, user]);
 
-  const handleRemoveTodo = (id: number) => {
+  const handleRemoveTodo = useCallback((id: number) => {
     setErrMsg('');
     setIsLoadingTodos(prev => [...prev, id]);
     removeTodo(id)
@@ -108,9 +101,9 @@ export const App: React.FC = () => {
       })
       .catch(() => handleErrMsg('Unable to delete a todo'))
       .finally(() => setIsLoadingTodos(prev => prev.filter(n => n !== id)));
-  };
+  }, []);
 
-  const handleChangeTodo = (id: number, data:{}) => {
+  const handleChangeTodo = useCallback((id: number, data:{}) => {
     setErrMsg('');
     setIsLoadingTodos(prev => [...prev, id]);
     updateTodo(id, data)
@@ -126,9 +119,9 @@ export const App: React.FC = () => {
       })
       .catch(() => handleErrMsg('Unable to update a todo'))
       .finally(() => setIsLoadingTodos(prev => prev.filter(n => n !== id)));
-  };
+  }, []);
 
-  const completeAll = () => {
+  const completeAll = useCallback(() => {
     if (todos.every(({ completed }) => completed)) {
       todos.forEach(
         ({ id }) => handleChangeTodo(id, { completed: false }),
@@ -140,15 +133,15 @@ export const App: React.FC = () => {
         }
       });
     }
-  };
+  }, [todos]);
 
-  const clearCompleted = () => {
+  const clearCompleted = useCallback(() => {
     todos.forEach(({ completed, id }) => {
       if (completed) {
         handleRemoveTodo(id);
       }
     });
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -160,27 +153,22 @@ export const App: React.FC = () => {
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className="todoapp__toggle-all active"
+              className={cn('todoapp__toggle-all',
+                {
+                  active: !isLoadingTodos.length
+                  && qtyNotCompletedTodos === 0,
+                })}
               onClick={completeAll}
+              disabled={!!isLoadingTodos.length}
             />
           )}
 
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleCreateNewTodo();
-            }}
-          >
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={newTodoTitle}
-              onChange={({ target }) => setNewTodoTitle(target.value)}
-            />
-          </form>
+          <TodoForm
+            isLoadingSomeTodo={!!isLoadingTodos.length}
+            handleCreateNewTodo={handleCreateNewTodo}
+            newTodoTitle={newTodoTitle}
+            setNewTodoTitle={setNewTodoTitle}
+          />
         </header>
 
         { todos.length > 0 && (
@@ -192,6 +180,7 @@ export const App: React.FC = () => {
                 isLoading={isLoadingTodos.includes(todo.id)}
                 handleRemoveTodo={handleRemoveTodo}
                 handleChangeTodo={handleChangeTodo}
+                isLoadingSomeTodo={!!isLoadingTodos.length}
               />
             ))}
           </section>

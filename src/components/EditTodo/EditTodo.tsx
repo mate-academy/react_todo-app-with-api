@@ -5,8 +5,12 @@ interface Props {
   handleActionTodo: (newTitle: string) => void,
 }
 
-export const EditTodo: React.FC<Props> = ({ title, handleActionTodo }) => {
+export const EditTodo: React.FC<Props> = ({
+  title,
+  handleActionTodo,
+}) => {
   const todoField = useRef<HTMLInputElement>(null);
+
   const [newTodoTitle, setNewTodoTitle] = useState(title);
 
   useEffect(() => {
