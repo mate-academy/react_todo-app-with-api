@@ -11,13 +11,15 @@ type Props = {
 export const AuthProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  if (!user) {
-    return <AuthForm onLogin={setUser} />;
-  }
-
   return (
-    <AuthContext.Provider value={user}>
-      {children}
-    </AuthContext.Provider>
+    <>
+      {user ? (
+        <AuthContext.Provider value={user}>
+          {children}
+        </AuthContext.Provider>
+      ) : (
+        <AuthForm onLogin={setUser} />
+      )}
+    </>
   );
 };
