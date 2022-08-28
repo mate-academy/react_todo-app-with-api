@@ -69,10 +69,13 @@ export const App: React.FC = () => {
 
                 const promises: Promise<TodoType>[] = [];
 
+                setError('');
+
                 todos.forEach(currentTodo => {
                   if (currentTodo.completed === toggler) {
                     promises
-                      .push(updateTodo(currentTodo.id, !toggler));
+                      .push(updateTodo(currentTodo.id,
+                        !toggler, currentTodo.title));
                   }
                 });
 
@@ -127,6 +130,8 @@ export const App: React.FC = () => {
                 ...currentTodos,
                 newTodo,
               ]);
+
+              setError('');
 
               postTodo(user.id, newTodoField).then(response => {
                 setNewTodoField('');
@@ -257,6 +262,8 @@ export const App: React.FC = () => {
                 }));
 
                 const promises: Promise<number>[] = [];
+
+                setError('');
 
                 todos.forEach(currentTodo => {
                   if (currentTodo.completed) {

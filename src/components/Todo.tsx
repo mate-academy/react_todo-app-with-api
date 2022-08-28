@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import React, { useState } from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo as TodoType } from '../types/Todo';
 
@@ -15,6 +16,88 @@ export const Todo: React.FC<Props> = ({
   setTodos,
   setError,
 }) => {
+  const [typing, setTyping] = useState(false);
+  const [input, setInput] = useState('');
+
+  const remove = () => {
+    setTodos(todos.map(currentTodo => {
+      if (currentTodo.id === todo.id) {
+        return {
+          ...currentTodo,
+          loading: true,
+        };
+      }
+
+      return { ...currentTodo };
+    }));
+
+    setError('');
+
+    deleteTodo(todo.id).then(() => setTodos(todos
+      .filter(currentTodo => currentTodo.id !== todo.id)))
+      .catch(() => {
+        setError('delete');
+
+        setTodos(todos.map(currentTodo => ({
+          ...currentTodo,
+          loading: false,
+        })));
+      });
+  };
+
+  const update = (newTitle: string, newCompleted: boolean) => {
+    setTodos(todos.map(currentTodo => {
+      if (currentTodo.id === todo.id) {
+        return {
+          ...currentTodo,
+          loading: true,
+        };
+      }
+
+      return { ...currentTodo };
+    }));
+
+    setError('');
+
+    updateTodo(todo.id, newCompleted, newTitle).then(() => setTodos(todos
+      .map(currentTodo => {
+        if (currentTodo.id === todo.id) {
+          return {
+            ...currentTodo,
+            title: newTitle,
+            completed: newCompleted,
+            loading: false,
+          };
+        }
+
+        return { ...currentTodo };
+      }))).catch(() => {
+      setError('update');
+
+      setTodos(todos.map(currentTodo => ({
+        ...currentTodo,
+        loading: false,
+      })));
+    });
+  };
+
+  const handleSubmit = (event: React.FormEvent | React.FocusEvent): void => {
+    event.preventDefault();
+
+    if (!input) {
+      remove();
+
+      return;
+    }
+
+    if (input !== todo.title) {
+      update(input, todo.completed);
+    }
+
+    setInput('');
+    setTyping(false);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -31,82 +114,55 @@ export const Todo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo?.completed}
-          onChange={() => {
-            if (!todo) {
-              return;
-            }
-
-            setTodos(todos.map(currentTodo => {
-              if (currentTodo.id === todo.id) {
-                return {
-                  ...currentTodo,
-                  loading: true,
-                };
-              }
-
-              return { ...currentTodo };
-            }));
-
-            updateTodo(todo.id, !todo.completed).then(() => setTodos(todos
-              .map(currentTodo => {
-                if (currentTodo.id === todo.id) {
-                  return {
-                    ...currentTodo,
-                    completed: !currentTodo.completed,
-                    loading: false,
-                  };
-                }
-
-                return { ...currentTodo };
-              }))).catch(() => {
-              setError('update');
-
-              setTodos(todos.map(currentTodo => ({
-                ...currentTodo,
-                loading: false,
-              })));
-            });
-          }}
+          onChange={() => update(todo.title, !todo.completed)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo?.title}
-      </span>
+      {typing
+        ? (
+          <form
+            onBlur={handleSubmit}
+            onSubmit={handleSubmit}
+          >
+            <input
+              data-cy="NewTodoField"
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="Empty todo will be deleted"
+              value={input}
+              onChange={event => setInput(event.target.value)}
+              onKeyDown={event => {
+                if (event.key === 'Escape') {
+                  setInput('');
+                  setTyping(false);
+                }
+              }}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setInput(todo.title);
+                setTyping(true);
+              }}
+            >
+              {todo?.title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => {
-          if (!todo) {
-            return;
-          }
-
-          setTodos(todos.map(currentTodo => {
-            if (currentTodo.id === todo.id) {
-              return {
-                ...currentTodo,
-                loading: true,
-              };
-            }
-
-            return { ...currentTodo };
-          }));
-
-          deleteTodo(todo.id).then(() => setTodos(todos
-            .filter(currentTodo => currentTodo.id !== todo.id))).catch(() => {
-            setError('delete');
-
-            setTodos(todos.map(currentTodo => ({
-              ...currentTodo,
-              loading: false,
-            })));
-          });
-        }}
-      >
-        x
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={remove}
+            >
+              x
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"
