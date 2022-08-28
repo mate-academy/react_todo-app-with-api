@@ -166,9 +166,9 @@ export const App: React.FC = () => {
   const handelAllActiveReverse = () => {
     // setReverse(!reverse);
 
-    if (activeTodos.length > 0
+    if (completedTodos.length > 0
       && completedTodos.length !== filtredTodos.length) {
-      completedTodos.forEach(todo => {
+      activeTodos.forEach(todo => {
         if (!todo.completed) {
           handleChange(todo.id, todo.completed);
         }
