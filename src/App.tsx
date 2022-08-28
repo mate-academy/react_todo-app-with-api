@@ -118,12 +118,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={toggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className="todoapp__toggle-all active"
+              onClick={toggleAll}
+            />
+          )}
 
           <form onSubmit={(e) => {
             e.preventDefault();
