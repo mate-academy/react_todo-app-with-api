@@ -1,16 +1,23 @@
 import classNames from 'classnames';
 import React from 'react';
 import { FilterTypes } from '../types/Filter';
-import { Maybe } from '../types/Maybe';
 
 interface Props {
-  itemsLeft: Maybe<number>;
+  itemsLeft: number;
   filterType: FilterTypes;
+  complitedTodos: number;
   onFilterTypeChange: (type: FilterTypes) => void;
+  onClearCompleted: () => void
 }
 
 export const Footer: React.FC<Props> = React.memo((props) => {
-  const { itemsLeft, filterType, onFilterTypeChange } = props;
+  const {
+    itemsLeft,
+    filterType,
+    complitedTodos,
+    onFilterTypeChange,
+    onClearCompleted,
+  } = props;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -59,6 +66,8 @@ export const Footer: React.FC<Props> = React.memo((props) => {
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
+        disabled={complitedTodos < 1}
+        onClick={onClearCompleted}
       >
         Clear completed
       </button>

@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { getTodos, updateTodo } from './api/todos';
+import { deleteTodo, getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  const toggleCompletedAll = useCallback((isCompleted: boolean) => {
+  const toggleCompletedAll = (isCompleted: boolean) => {
     todos.forEach(todo => {
       const data = { completed: isCompleted };
 
@@ -86,15 +86,31 @@ export const App: React.FC = () => {
         })
         .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
     });
-  }, [todos]);
+  };
 
-  const onToggleCompletedAll = () => {
+  const onToggleCompletedAll = useCallback(() => {
     setIsAllCompleted((prev) => {
       toggleCompletedAll(!prev);
 
       return !prev;
     });
-  };
+  }, [todos]);
+
+  const onClearCompleted = useCallback(() => {
+    todos.forEach(todo => {
+      dispatch({ type: 'startSave', peyload: '' });
+
+      if (todo.completed) {
+        deleteTodo(todo.id)
+          .then(res => {
+            if (res) {
+              onDelete(todo.id);
+            }
+          })
+          .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
+      }
+    });
+  }, [todos]);
 
   const onFilterTypeChange = useCallback((type: FilterTypes) => {
     if (filterType !== type) {
@@ -107,6 +123,10 @@ export const App: React.FC = () => {
       completed ? completedCount : completedCount + 1
     ), 0);
   }, [todos]);
+
+  const complitedTodos = useMemo(() => {
+    return todos.length - itemsLeft;
+  }, [itemsLeft]);
 
   const filteredTodos = useMemo(() => {
     return todos?.filter(todo => {
@@ -146,6 +166,8 @@ export const App: React.FC = () => {
               itemsLeft={itemsLeft}
               onFilterTypeChange={onFilterTypeChange}
               filterType={filterType}
+              complitedTodos={complitedTodos}
+              onClearCompleted={onClearCompleted}
             />
           </>
         )}
