@@ -35,21 +35,24 @@ export const ErrorNotification: FC<Props> = memo((props) => {
   const errorFinde = typeErrors.find(error => error.title === typeError);
 
   return (
-    (typeError !== '')
-    && (
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-      >
-        <button
-          data-cy="HideErrorButton"
-          aria-label="Mute volume"
-          type="button"
-          className="delete"
-          onClick={handelCloseError}
-        />
+    <>
+      {(typeError !== '')
+      && (
+        <div
+          data-cy="ErrorNotification"
+          className="notification is-danger is-light has-text-weight-normal"
+        >
+          <button
+            data-cy="HideErrorButton"
+            aria-label="Mute volume"
+            type="button"
+            className="delete"
+            onClick={handelCloseError}
+          />
 
-        {errorFinde && errorFinde.message}
-      </div>
-    ));
+          {errorFinde && errorFinde.message}
+        </div>
+      )}
+    </>
+  );
 });

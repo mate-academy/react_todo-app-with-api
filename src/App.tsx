@@ -1,6 +1,4 @@
 import React, {
-  // AnchorHTMLAttributes,
-  // DetailedHTMLProps,
   useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import cn from 'classnames';
@@ -12,7 +10,7 @@ import { FormCreateTodo } from './components/FormCreateTodo';
 import {
   Todo, CreateTodoFragment, UpdateStatus, UpdateTitle,
 } from './types/Todo';
-// import { PatchForm } from './components/PatchForm';
+
 import { ErrorNotification } from './components/ErrorNotification';
 import { FiltersTodos } from './components/FiltersTodos';
 import { TodosList } from './components/TodosList';
@@ -20,9 +18,7 @@ import { TodosList } from './components/TodosList';
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-  // const newTodoField = useRef<HTMLInputElement>(null);
 
-  // const [todos, setTodos] = useState<Todo[]>([]);
   const [filtredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [typeError, setTypeError] = useState('');
@@ -30,9 +26,7 @@ export const App: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectId, setSelectId] = useState(0);
   const [openPachForm, setOpenPachForm] = useState(false);
-  // const [filter, setFilter] = useState('All');
 
-  // const [reverse, setReverse] = useState(false);
   const [filter, setFilter] = useState('All');
 
   // let todos: Todo[] | [] = [];
@@ -75,13 +69,6 @@ export const App: React.FC = () => {
     },
     [filter],
   );
-
-  // const handelFiltredTodos = (
-  //   // event: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>>,
-  //   event: any,
-  // ) => {
-  //   setFilter(event.target.textContent);
-  // };
 
   const handelCloseError = useCallback(() => {
     setTypeError('');
@@ -131,41 +118,7 @@ export const App: React.FC = () => {
       });
   };
 
-  // useEffect(() => {
-  //   const promises: Promise<Todo>[] = [];
-
-  //   todos.forEach(todo => {
-  //     const updateStatus: UpdateStatus = {
-  //       completed: todo.completed === reverse ? !reverse : reverse,
-  //     };
-
-  //     if (reverse !== todo.completed) {
-  //       promises.push(patchTodo(todo.id, updateStatus));
-  //     }
-  //   });
-
-  //   Promise.all(promises)
-  //     .then(() => {
-  //       // filtredTodos = filtredTodos.map((todo) => {
-  //       //   if (reverse !== todo.completed) {
-  //       //     return ({
-  //       //       ...todo,
-  //       //       completed: !reverse,
-  //       //     });
-  //       //   }
-
-  //       //   return todo;
-  //       // });
-  //       getTodos(user.id)
-  //         .then((res) => {
-  //           setFilteredTodos(res);
-  //         });
-  //     });
-  // }, [reverse]);
-
   const handelAllActiveReverse = () => {
-    // setReverse(!reverse);
-
     if (completedTodos.length > 0
       && completedTodos.length !== filtredTodos.length) {
       activeTodos.forEach(todo => {
