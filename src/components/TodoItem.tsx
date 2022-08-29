@@ -10,6 +10,7 @@ interface Props {
   todos: Todo[],
   newTodoField: LegacyRef<HTMLInputElement> | undefined,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
+  todoTitle: string,
 }
 
 export const TodoItem: FC<Props> = (props) => {
@@ -18,6 +19,7 @@ export const TodoItem: FC<Props> = (props) => {
     todos,
     newTodoField,
     setTodos,
+    todoTitle,
   } = props;
 
   const [editedTodoTitle, setEditedTodoTitle] = useState(todo.title);
@@ -89,7 +91,7 @@ export const TodoItem: FC<Props> = (props) => {
         />
       </label>
 
-      {!isEditMode && (
+      {(!isEditMode) && (
         <>
           <span
             data-cy="TodoTitle"
@@ -125,9 +127,9 @@ export const TodoItem: FC<Props> = (props) => {
             placeholder="Empty todo will be deleted"
             ref={newTodoField}
             value={editedTodoTitle}
-            onChange={
-              (event) => setEditedTodoTitle(event.target.value)
-            }
+            onChange={(event) => {
+              setEditedTodoTitle(event.target.value);
+            }}
           />
         </form>
       )}
@@ -136,7 +138,7 @@ export const TodoItem: FC<Props> = (props) => {
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
-          { isLoading: 'is-active' },
+          { 'is-active': todoTitle === todo.title },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -6,12 +6,13 @@ import { TodoErrorPanel } from './components/TodoErrorPanel';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodoStatusBar } from './components/TodoStatusBar';
-import { FilterType, Todo } from './types/Todo';
+import { FilterType, Todo, TodoOptimistic } from './types/Todo';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<TodoOptimistic[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [errorMessages, setErrorMessages] = useState<string []>([]);
+  const [todoTitle, setTodoTitle] = useState('');
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -29,6 +30,14 @@ export const App: React.FC = () => {
 
   const onAdd = useCallback((newTodo: Todo) => {
     setTodos((prevTodos) => [...prevTodos, newTodo]);
+  }, []);
+
+  const onAddOptimistic = useCallback((todoOptimistic: TodoOptimistic) => {
+    setTodos((prevTodos) => [...prevTodos, todoOptimistic]);
+  }, []);
+
+  const deleteOptimistic = useCallback(() => {
+    setTodos((prevTodos) => prevTodos.filter(prevTodo => prevTodo.id));
   }, []);
 
   const filteredTodos = useMemo(() => {
@@ -61,7 +70,11 @@ export const App: React.FC = () => {
               newTodoField={newTodoField}
               user={user}
               onAdd={onAdd}
+              onAddOptimistic={onAddOptimistic}
+              deleteOptimistic={deleteOptimistic}
               setErrorMessages={setErrorMessages}
+              todoTitle={todoTitle}
+              setTodoTitle={setTodoTitle}
             />
 
             <TodoList
@@ -70,6 +83,7 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               setTodos={setTodos}
               setErrorMessages={setErrorMessages}
+              todoTitle={todoTitle}
             />
           </>
         )}
