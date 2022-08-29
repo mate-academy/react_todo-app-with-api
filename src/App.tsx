@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import {
@@ -14,13 +15,14 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [changedTodosId, setChangedTodosId] = useState<number[]>([]);
-  const [filteredBy, setFilteredBy] = useState('All');
+  const [filteredBy, setFilteredBy] = useState<string | null>(null);
 
   const onError = useCallback((errorTitle: string) => {
     setErrorMessage(errorTitle);
@@ -39,31 +41,39 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (user) {
       setErrorMessage('');
+      setIsLoading(true);
 
       getTodos(user.id)
         .then(res => {
-          const filteredTodos = res.filter(todo => {
-            switch (filteredBy) {
-              case 'All':
-                return todo;
-              case 'Active':
-                return !todo.completed;
-              case 'Completed':
-                return todo.completed;
-              default:
-                return todo;
-            }
-          });
-
-          setTodos(filteredTodos);
+          setTodos(res);
+          setTodosFromServer(res);
         })
         .catch(onError)
         .finally(() => {
           setShouldUpdate(false);
           setChangedTodosId([]);
+          setIsLoading(false);
         });
     }
-  }, [user, shouldUpdate, filteredBy]);
+  }, [user, errorMessage, shouldUpdate]);
+
+  useEffect(() => {
+    switch (filteredBy) {
+      case 'Active':
+        setTodos(todosFromServer.filter(todo => !todo.completed));
+
+        break;
+      case 'Completed':
+        setTodos(todosFromServer.filter(todo => todo.completed));
+
+        break;
+      case 'All':
+      default:
+        setTodos(todosFromServer);
+
+        break;
+    }
+  }, [filteredBy]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -79,13 +89,34 @@ export const App: React.FC = () => {
     }
 
     if (user) {
+      const newTodo = {
+        id: -Infinity,
+        userId: user.id,
+        title: newTitle,
+        completed: false,
+      };
+
+      setSelectedTodoId(newTodo.id);
       setIsLoading(true);
+      setTodos(prev => [...prev, newTodo]);
       createTodo(newTitle, user.id, false)
         .then((res) => {
-          setTodos(prev => [...prev, res]);
+          setTodos(prev => prev
+            .map(todo => {
+              const result = todo;
+
+              if (todo === newTodo) {
+                result.id = res.id;
+              }
+
+              return result;
+            }));
           setSelectedTodoId(res.id);
         })
-        .catch(() => onError('Unable to add a todo'))
+        .catch(() => {
+          setTodos(prev => prev.slice(0, -1));
+          onError('Unable to add a todo');
+        })
         .finally(() => {
           setNewTitle('');
           setIsLoading(false);
@@ -136,6 +167,7 @@ export const App: React.FC = () => {
       });
     }
 
+    setSelectedTodoId(null);
     setChangedTodosId(changedTodoId);
   };
 
@@ -195,59 +227,70 @@ export const App: React.FC = () => {
           changedTodosId={changedTodosId}
         />
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            {`${lengthActive} items left`}
-          </span>
+        {(todos.length > 0 || (!todos.length && filteredBy !== 'All')) && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="todosCounter">
+              {`${lengthActive} items left`}
+            </span>
 
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-              onClick={() => setFilteredBy('All')}
-            >
-              All
-            </a>
+            <nav className="filter" data-cy="Filter">
+              <a
+                data-cy="FilterLinkAll"
+                href="#/"
+                className={(classNames(
+                  'filter__link',
+                  { selected: filteredBy === 'All' },
+                ))}
+                onClick={() => setFilteredBy('All')}
+              >
+                All
+              </a>
 
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-              onClick={() => setFilteredBy('Active')}
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-              onClick={() => setFilteredBy('Completed')}
-            >
-              Completed
-            </a>
-          </nav>
+              <a
+                data-cy="FilterLinkActive"
+                href="#/active"
+                className={(classNames(
+                  'filter__link',
+                  { selected: filteredBy === 'Active' },
+                ))}
+                onClick={() => setFilteredBy('Active')}
+              >
+                Active
+              </a>
+              <a
+                data-cy="FilterLinkCompleted"
+                href="#/completed"
+                className={(classNames(
+                  'filter__link',
+                  { selected: filteredBy === 'Completed' },
+                ))}
+                onClick={() => setFilteredBy('Completed')}
+              >
+                Completed
+              </a>
+            </nav>
 
-          {lengthCompleted > 0 ? (
-            <button
-              data-cy="ClearCompletedButton"
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={clearCompleted}
-            >
-              Clear completed
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              style={{ opacity: 0, cursor: 'auto' }}
-              disabled
-            >
-              Clear completed
-            </button>
-          )}
-        </footer>
+            {lengthCompleted > 0 ? (
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={clearCompleted}
+              >
+                Clear completed
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                style={{ opacity: 0, cursor: 'auto' }}
+                disabled
+              >
+                Clear completed
+              </button>
+            )}
+          </footer>
+        )}
       </div>
 
       {errorMessage && (

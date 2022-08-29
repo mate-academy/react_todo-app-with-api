@@ -26,7 +26,7 @@ export const TodoItem = (props: Props) => {
 
   const titleField = useRef<HTMLInputElement>(null);
   const [isDblClicked, setIsDblClicked] = useState(false);
-  const [newTitle, setTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(todo.title);
 
   useEffect(() => {
     if (titleField.current) {
@@ -40,7 +40,10 @@ export const TodoItem = (props: Props) => {
 
   const handleBlurEffect = () => {
     setIsDblClicked(false);
-    onUpdateTodo(todo.id, { title: newTitle });
+
+    if (todo.title !== newTitle) {
+      onUpdateTodo(todo.id, { title: newTitle });
+    }
   };
 
   const handleOnKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -61,6 +64,7 @@ export const TodoItem = (props: Props) => {
           className="todo__status"
           defaultChecked={todo.completed}
           onChange={handleChangeChecked}
+          disabled={isLoading}
         />
       </label>
 
@@ -73,9 +77,16 @@ export const TodoItem = (props: Props) => {
             placeholder="Empty todo will be deleted"
             defaultValue={newTitle}
             ref={titleField}
+            disabled={isLoading}
             onBlur={handleBlurEffect}
             onKeyDown={handleOnKeyDown}
-            onChange={e => setTitle(e.target.value)}
+            onChange={({ target }) => {
+              const { value } = target;
+
+              if (newTitle !== value) {
+                setNewTitle(value);
+              }
+            }}
           />
         </form>
       ) : (
