@@ -1,10 +1,11 @@
-import classNames from 'classnames';
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo, UpdateTodoframent } from '../types/Todo';
 import { StateContext } from './StateContext';
+import { useHideError, useShowError } from '../utils/hooks';
 
 interface Props {
   todo: Todo;
@@ -23,27 +24,39 @@ export const TodoItem: React.FC<Props> = (props) => {
 
   const updateTodoField = useRef<HTMLInputElement>(null);
 
+  const showError = useShowError();
+
+  const hideError = useHideError();
+
   const handleDelete = (todoId: number) => {
     setIsLoading(true);
+    hideError();
 
     deleteTodo(todoId)
       .then(res => {
-        if (res) {
-          onDelete(todoId);
+        if (!res) {
+          throw Error();
         }
+
+        onDelete(todoId);
       })
+      .catch(() => showError('Unable to delete a todo'))
       .finally(() => setIsLoading(false));
   };
 
   const handleUpdate = (todoId: number, data: UpdateTodoframent) => {
     setIsLoading(true);
+    hideError();
 
     updateTodo(todoId, data)
       .then(res => {
-        if (res) {
-          onUpdate(todoId, data);
+        if (!res) {
+          throw Error();
         }
+
+        onUpdate(todoId, data);
       })
+      .catch(() => showError('Unable to update a todo'))
       .finally(() => setIsLoading(false));
   };
 

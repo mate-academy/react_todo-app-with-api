@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { deleteTodo, getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
+import { ErrorNotification } from './components/ErrorNotification';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { DispatchContext } from './components/StateContext';
@@ -15,6 +16,7 @@ import { TodoList } from './components/TodoList';
 import { FilterTypes } from './types/Filter';
 import { Todo, UpdateTodoframent } from './types/Todo';
 import { User } from './types/User';
+import { useHideError, useShowError } from './utils/hooks';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -23,6 +25,9 @@ export const App: React.FC = () => {
 
   const user = useContext(AuthContext) as User;
   const dispatch = useContext(DispatchContext);
+
+  const showError = useShowError();
+  const hideError = useHideError();
 
   useEffect(() => {
     getTodos(user.id)
@@ -73,6 +78,8 @@ export const App: React.FC = () => {
   }, []);
 
   const toggleCompletedAll = (isCompleted: boolean) => {
+    hideError();
+
     todos.forEach(todo => {
       const data = { completed: isCompleted };
 
@@ -80,10 +87,13 @@ export const App: React.FC = () => {
 
       updateTodo(todo.id, data)
         .then(res => {
-          if (res) {
-            onUpdate(todo.id, data);
+          if (!res) {
+            throw Error();
           }
+
+          onUpdate(todo.id, data);
         })
+        .catch(() => showError('Unable to update a todo'))
         .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
     });
   };
@@ -97,16 +107,21 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const onClearCompleted = useCallback(() => {
+    hideError();
+
     todos.forEach(todo => {
       dispatch({ type: 'startSave', peyload: '' });
 
       if (todo.completed) {
         deleteTodo(todo.id)
           .then(res => {
-            if (res) {
-              onDelete(todo.id);
+            if (!res) {
+              throw Error();
             }
+
+            onDelete(todo.id);
           })
+          .catch(() => showError('Unable to delete a todo'))
           .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
       }
     });
@@ -126,7 +141,7 @@ export const App: React.FC = () => {
 
   const complitedTodos = useMemo(() => {
     return todos.length - itemsLeft;
-  }, [itemsLeft]);
+  }, [itemsLeft, todos]);
 
   const filteredTodos = useMemo(() => {
     return todos?.filter(todo => {
@@ -173,22 +188,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-        />
-
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
-      </div>
+      <ErrorNotification />
     </div>
   );
 };

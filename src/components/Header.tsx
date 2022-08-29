@@ -7,6 +7,7 @@ import {
 import { postTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
+import { useHideError, useShowError } from '../utils/hooks';
 import { AuthContext } from './Auth/AuthContext';
 import { DispatchContext, StateContext } from './StateContext';
 
@@ -25,16 +26,27 @@ export const Header: React.FC<Props> = (props) => {
   const { todoTitle, isSavingTodo } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
-  const handleKeyup = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && todoTitle.trim()) {
-      dispatch({ type: 'startSave', peyload: '' });
-      postTodo({ title: todoTitle, userId: id, completed: false })
-        .then((res) => onAdd(res))
-        .finally(() => {
-          dispatch({ type: 'setTitle', peyload: '' });
-          dispatch({ type: 'finishSave', peyload: '' });
-        });
+  const showError = useShowError();
+  const hideError = useHideError();
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    hideError();
+
+    if (!todoTitle.trim()) {
+      showError('Title can\'t be empty');
+
+      return;
     }
+
+    dispatch({ type: 'startSave', peyload: '' });
+    postTodo({ title: todoTitle, userId: id, completed: false })
+      .then((res) => onAdd(res))
+      .catch(() => showError('Unable to add a todo'))
+      .finally(() => {
+        dispatch({ type: 'setTitle', peyload: '' });
+        dispatch({ type: 'finishSave', peyload: '' });
+      });
   };
 
   useEffect(() => {
@@ -56,7 +68,7 @@ export const Header: React.FC<Props> = (props) => {
         onClick={onToggleCompletedAll}
       />
 
-      <form onSubmit={(event) => event.preventDefault()}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
@@ -67,7 +79,6 @@ export const Header: React.FC<Props> = (props) => {
           onChange={(event) => dispatch(
             { type: 'setTitle', peyload: event.target.value },
           )}
-          onKeyUp={handleKeyup}
           disabled={isSavingTodo}
         />
       </form>

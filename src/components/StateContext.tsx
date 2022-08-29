@@ -3,10 +3,11 @@ import React, { Dispatch, useReducer } from 'react';
 interface State {
   isSavingTodo: boolean;
   todoTitle: string;
+  errorMessage: string;
 }
 
 interface Action {
-  type: 'startSave' | 'finishSave' | 'setTitle',
+  type: 'startSave' | 'finishSave' | 'setTitle' | 'showError',
   peyload: string,
 }
 
@@ -30,6 +31,12 @@ const reducer = (state: State, action: Action) => {
         todoTitle: action.peyload,
       };
 
+    case 'showError':
+      return {
+        ...state,
+        errorMessage: action.peyload,
+      };
+
     default:
       return state;
   }
@@ -38,6 +45,7 @@ const reducer = (state: State, action: Action) => {
 const initialState = {
   isSavingTodo: false,
   todoTitle: '',
+  errorMessage: '',
 };
 
 export const DispatchContext = React.createContext<Dispatch<Action>>(() => {});
