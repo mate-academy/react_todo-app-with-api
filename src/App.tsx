@@ -52,7 +52,7 @@ export const App: React.FC = () => {
   const handleAddTodo = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!newTodoTitle) {
+    if (!newTodoTitle.trim()) {
       handleError('Title can\'t be empty');
 
       return;
@@ -117,8 +117,7 @@ export const App: React.FC = () => {
       )))
       .catch(() => handleError('Unable to update todos'))
       .finally(() => setLoadingIds(prev => (
-        prev.filter(id => loadingIds.includes(id)))
-      ));
+        prev.filter(id => loadingIds.includes(id)))));
   };
 
   const isAllCompleted = useMemo(() => (

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
-  FC, FormEvent, memo, useEffect, useState,
+  FC, FormEvent, memo, useEffect, useState, useRef
 } from 'react';
 import classNames from 'classnames';
 import { Todo, TodoUpdateFields } from '../../types/Todo';
@@ -22,6 +22,13 @@ export const TodoItem: FC<Props> = memo((props) => {
   const { id, completed, title } = todo;
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(todo.title);
+  const editField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editField.current) {
+      editField.current.focus();
+    }
+  }, [isDoubleClicked]);
 
   const handleTodoStatusChange = () => {
     handleUpdate(id, { completed: !completed });
@@ -89,6 +96,7 @@ export const TodoItem: FC<Props> = memo((props) => {
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={currentTitle}
+            ref={editField}
             onChange={(event) => setCurrentTitle(event.target.value)}
             onBlur={handleSubmit}
           />
@@ -101,6 +109,9 @@ export const TodoItem: FC<Props> = memo((props) => {
             onClick={(event) => {
               if (event.detail === 2) {
                 setIsDoubleClicked(true);
+              }
+              if (editField.current) {
+                editField.current.focus();
               }
             }}
             onKeyDown={() => {}}
