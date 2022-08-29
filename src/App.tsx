@@ -54,13 +54,13 @@ export const App: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (newTodoTitle.length === 0) {
+    if (newTodoTitle.trim().length === 0) {
       changeError('empty');
 
       return;
     }
 
-    if (newTodoTitle.length > 0) {
+    if (newTodoTitle.trim().length > 0) {
       postTodos({
         userId,
         title: newTodoTitle,
