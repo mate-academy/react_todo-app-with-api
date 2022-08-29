@@ -136,11 +136,24 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const clearCompleted = useCallback(() => {
-    todos.forEach(({ id, completed }) => {
-      if (completed) {
-        deleteHandler(id);
-      }
-    });
+    setIsError(false);
+    const completedTodos = todos
+      .filter(({ completed }) => completed).map(({ id }) => id);
+
+    setLoadingTodoIds(completedTodos);
+
+    Promise.all(completedTodos.map(id => deleteTodo(id)))
+      .then(() => {
+        setTodos(prev => prev.filter(({ id }) => !completedTodos.includes(id)));
+      })
+      .catch(() => {
+        setErrorWithTimer('Unable to delete a todo');
+      })
+      .finally(() => {
+        setLoadingTodoIds(prev => (
+          prev.filter(id => !completedTodos.includes(id))
+        ));
+      });
   }, [todos]);
 
   const filteredTodos = useMemo(() => (
