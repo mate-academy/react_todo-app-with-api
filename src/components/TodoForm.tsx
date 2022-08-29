@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC, LegacyRef, useState } from 'react';
+import {
+  Dispatch, FC, LegacyRef, SetStateAction, useState,
+} from 'react';
 import { createTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
@@ -8,17 +10,25 @@ interface Props {
   newTodoField: LegacyRef<HTMLInputElement> | undefined,
   user: User,
   onAdd: (todo: Todo) => void;
+  setErrorMessages: Dispatch<SetStateAction<string []>>,
 }
 
 export const TodoForm: FC<Props> = (props) => {
-  const { newTodoField, user, onAdd } = props;
-  const [todoTitle, setTodoTitle] = useState('');
+  const {
+    newTodoField, user, onAdd, setErrorMessages,
+  } = props;
 
-  console.log(todoTitle);
+  const [todoTitle, setTodoTitle] = useState('');
 
   const clearInput = () => setTodoTitle('');
 
   const submitHandler = () => {
+    if (!todoTitle.length) {
+      setErrorMessages((prev: string []) => [...prev, 'Title can\'t be empty']);
+
+      return;
+    }
+
     createTodo({
       title: todoTitle,
       userId: user.id,

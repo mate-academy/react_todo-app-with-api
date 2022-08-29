@@ -8,3 +8,9 @@ export interface Todo {
 export type CreateTodoFragment = Omit<Todo, 'id'>;
 
 export type EditedTodoFragment = Partial<Omit<Todo, 'id'>>;
+
+export enum FilterType {
+  All,
+  Active,
+  Completed,
+}

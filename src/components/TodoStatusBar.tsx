@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { FC, useMemo } from 'react';
-import { FilterType } from '../App';
-import { Todo } from '../types/Todo';
+import { FilterType, Todo } from '../types/Todo';
 
 interface Props {
   todos: Todo [],
@@ -11,7 +10,9 @@ interface Props {
 }
 
 export const TodoStatusBar: FC<Props> = (props) => {
-  const { todos, changeFilter, filterType, clearCompleted } = props;
+  const {
+    todos, changeFilter, filterType, clearCompleted,
+  } = props;
 
   const itemsLeft = useMemo(() => {
     const todosLeft = [...todos];

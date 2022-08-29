@@ -6,17 +6,12 @@ import { TodoErrorPanel } from './components/TodoErrorPanel';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodoStatusBar } from './components/TodoStatusBar';
-import { Todo } from './types/Todo';
-
-export enum FilterType {
-  All,
-  Active,
-  Completed,
-}
+import { FilterType, Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
+  const [errorMessages, setErrorMessages] = useState<string []>([]);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -26,7 +21,7 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [newTodoField]);
 
   const changeFilter = useCallback((selectedFilter: FilterType) => {
     setFilterType(selectedFilter);
@@ -35,9 +30,6 @@ export const App: React.FC = () => {
   const onAdd = useCallback((newTodo: Todo) => {
     setTodos((prevTodos) => [...prevTodos, newTodo]);
   }, []);
-
-  console.log(`userId: ${user?.id}`);
-  //useContext
 
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -69,6 +61,7 @@ export const App: React.FC = () => {
               newTodoField={newTodoField}
               user={user}
               onAdd={onAdd}
+              setErrorMessages={setErrorMessages}
             />
 
             <TodoList
@@ -76,6 +69,7 @@ export const App: React.FC = () => {
               user={user}
               todos={filteredTodos}
               setTodos={setTodos}
+              setErrorMessages={setErrorMessages}
             />
           </>
         )}
@@ -88,7 +82,11 @@ export const App: React.FC = () => {
         />
       </div>
 
-      <TodoErrorPanel />
+      <TodoErrorPanel
+        errorMessages={errorMessages}
+        setErrorMessages={setErrorMessages}
+      />
+
     </div>
   );
 };
