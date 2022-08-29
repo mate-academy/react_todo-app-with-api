@@ -15,7 +15,6 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [isSubmit, setIsSubmit] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -46,7 +45,6 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(res => {
           setTodos(res);
-          setTodosFromServer(res);
         })
         .catch(onError)
         .finally(() => {
@@ -56,23 +54,17 @@ export const App: React.FC = () => {
     }
   }, [user, shouldUpdate]);
 
-  useEffect(() => {
+  const filteredTodos = useMemo(() => {
     switch (filteredBy) {
       case 'Active':
-        setTodos(todosFromServer.filter(todo => !todo.completed));
-
-        break;
+        return todos.filter(todo => !todo.completed);
       case 'Completed':
-        setTodos(todosFromServer.filter(todo => todo.completed));
-
-        break;
+        return todos.filter(todo => todo.completed);
       case 'All':
       default:
-        setTodos(todosFromServer);
-
-        break;
+        return todos;
     }
-  }, [filteredBy]);
+  }, [filteredBy, todos]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -270,7 +262,7 @@ export const App: React.FC = () => {
         </header>
 
         <TodoList
-          todos={todos}
+          todos={filteredTodos}
           selectedTodoId={selectedTodoId}
           onDeleteTodo={removeTodo}
           onUpdateTodo={updateTodo}
@@ -278,7 +270,7 @@ export const App: React.FC = () => {
           changedTodosId={changedTodosId}
         />
 
-        {(todos.length > 0 || (!todos.length && filteredBy !== 'All')) && (
+        {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
               {`${lengthActive} items left`}
