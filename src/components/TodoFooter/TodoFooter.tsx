@@ -6,16 +6,13 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { FilterType } from '../../types/FilterType';
 import { removeTodoById } from '../../api/todos';
+import { Navbar } from '../Navbar';
 
 type Props = {
   todos: Todo[],
   setTodos: Dispatch<SetStateAction<Todo[]>>,
-  filterType: FilterType,
-  handleFilterTypeChange: (filterType: FilterType) => void,
   handleError: (msg: string) => void,
   setLoadingIds: Dispatch<SetStateAction<number[]>>,
 };
@@ -24,8 +21,6 @@ export const TodoFooter: FC<Props> = memo((props) => {
   const {
     todos,
     setTodos,
-    filterType,
-    handleFilterTypeChange,
     handleError,
     setLoadingIds,
   } = props;
@@ -36,16 +31,14 @@ export const TodoFooter: FC<Props> = memo((props) => {
 
   const handleRemoveCompletedTodos = useCallback(
     () => {
-      const loadingIds = completedTodosIds;
-
-      setLoadingIds(prev => [...prev, ...loadingIds]);
-      const requests = loadingIds.map(id => removeTodoById(id));
+      setLoadingIds(prev => [...prev, ...completedTodosIds]);
+      const requests = completedTodosIds.map(id => removeTodoById(id));
 
       Promise.all(requests)
         .then(() => setTodos(prev => prev.filter(todo => !todo.completed)))
         .catch(() => handleError('Unable to delete todos'))
         .finally(() => setLoadingIds(prev => (
-          prev.filter(id => !loadingIds.includes(id)))));
+          prev.filter(id => !completedTodosIds.includes(id)))));
     },
     [completedTodosIds],
   );
@@ -56,42 +49,7 @@ export const TodoFooter: FC<Props> = memo((props) => {
         {`${todos.length - completedTodosIds.length} items left`}
       </span>
 
-      <nav className="filter" data-cy="Filter">
-        <a
-          data-cy="FilterLinkAll"
-          href="#/"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.All },
-          )}
-          onClick={() => handleFilterTypeChange(FilterType.All)}
-        >
-          All
-        </a>
-
-        <a
-          data-cy="FilterLinkActive"
-          href="#/active"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.Active },
-          )}
-          onClick={() => handleFilterTypeChange(FilterType.Active)}
-        >
-          Active
-        </a>
-        <a
-          data-cy="FilterLinkCompleted"
-          href="#/completed"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.Completed },
-          )}
-          onClick={() => handleFilterTypeChange(FilterType.Completed)}
-        >
-          Completed
-        </a>
-      </nav>
+      <Navbar />
 
       <button
         data-cy="ClearCompletedButton"

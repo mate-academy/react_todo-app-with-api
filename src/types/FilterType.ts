@@ -1,5 +1,4 @@
 export enum FilterType {
-  All,
-  Active,
-  Completed,
+  Active = 'active',
+  Completed = 'completed',
 }

@@ -17,6 +17,7 @@ import { Todo, TodoUpdateFields } from './types/Todo';
 import { FilterType } from './types/FilterType';
 
 import './styles/index.scss';
+import { useParams } from 'react-router-dom';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -24,8 +25,9 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [userId, setUserId] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterType, setFilterType] = useState(FilterType.All);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const { filterType } = useParams()
+
 
   const handleError = useCallback(
     (er: string) => {
@@ -181,8 +183,6 @@ export const App: React.FC = () => {
           <TodoFooter
             todos={todos}
             setTodos={setTodos}
-            filterType={filterType}
-            handleFilterTypeChange={setFilterType}
             handleError={handleError}
             setLoadingIds={setLoadingIds}
           />

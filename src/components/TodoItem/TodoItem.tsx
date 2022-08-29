@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
-  FC, FormEvent, memo, useEffect, useState, useRef
+  FC, FormEvent, memo, useEffect, useState, useRef,
 } from 'react';
 import classNames from 'classnames';
 import { Todo, TodoUpdateFields } from '../../types/Todo';
@@ -109,9 +109,6 @@ export const TodoItem: FC<Props> = memo((props) => {
             onClick={(event) => {
               if (event.detail === 2) {
                 setIsDoubleClicked(true);
-              }
-              if (editField.current) {
-                editField.current.focus();
               }
             }}
             onKeyDown={() => {}}
