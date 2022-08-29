@@ -13,17 +13,23 @@ interface Props {
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessages: Dispatch<SetStateAction<string []>>,
   newTodoField: LegacyRef<HTMLInputElement> | undefined,
+  todoTitle: string,
 }
 
 export const TodoList: FC<Props> = (props) => {
   const {
-    user, todos, setTodos, setErrorMessages, newTodoField,
+    user,
+    todos,
+    setTodos,
+    setErrorMessages,
+    newTodoField,
+    todoTitle,
   } = props;
 
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoadingTodoList, setIsLoadingTodoList] = useState(false);
 
   useEffect(() => {
-    setIsloading(true);
+    setIsLoadingTodoList(true);
     setErrorMessages([]);
 
     getTodos(user.id)
@@ -31,12 +37,12 @@ export const TodoList: FC<Props> = (props) => {
       .catch((error) => {
         setErrorMessages((prev: string []) => [...prev, error.message]);
       })
-      .finally(() => setIsloading(false));
+      .finally(() => setIsLoadingTodoList(false));
   }, [setErrorMessages, setTodos, user]);
 
   return (
     <>
-      {!isLoading && (
+      {!isLoadingTodoList && (
         <section className="todoapp__main" data-cy="TodoList">
           {todos.map(todo => (
             <TodoItem
@@ -45,32 +51,9 @@ export const TodoList: FC<Props> = (props) => {
               todos={todos}
               newTodoField={newTodoField}
               setTodos={setTodos}
+              todoTitle={todoTitle}
             />
           ))}
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">Redux</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
         </section>
       )}
     </>
