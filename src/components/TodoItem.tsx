@@ -6,6 +6,7 @@ import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo, UpdateTodoframent } from '../types/Todo';
 import { StateContext } from './StateContext';
 import { useHideError, useShowError } from '../utils/hooks';
+import { Loader } from './Loader';
 
 interface Props {
   todo: Todo;
@@ -144,13 +145,7 @@ export const TodoItem: React.FC<Props> = (props) => {
         </>
       )}
 
-      <div
-        data-cy="TodoLoader"
-        className={classNames('modal overlay', { 'is-active': isLoading })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isLoading && <Loader />}
     </div>
   );
 };
