@@ -39,12 +39,12 @@ export const AddTodoForm: FC<Props> = memo(({
 
   const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
-    if (newTodoTitle) {
+    if (newTodoTitle.trim()) {
       if (newTodoField.current) {
         newTodoField.current.disabled = true;
       }
 
-      onAdd(newTodoTitle);
+      onAdd(newTodoTitle.trim());
     } else {
       setErrorWithTimer('Title can\'t be empty');
     }
