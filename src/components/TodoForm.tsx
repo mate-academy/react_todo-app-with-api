@@ -32,12 +32,16 @@ export const TodoForm: FC<Props> = (props) => {
   const clearInput = () => setTodoTitle('');
 
   const submitHandler = () => {
+    setErrorMessages([]);
+
     onAddOptimistic({
       title: todoTitle,
     });
 
-    if (!todoTitle.length) {
+    if (!todoTitle.trim().length) {
       setErrorMessages((prev: string []) => [...prev, 'Title can\'t be empty']);
+      deleteOptimistic();
+      clearInput();
 
       return;
     }
@@ -48,6 +52,11 @@ export const TodoForm: FC<Props> = (props) => {
       completed: false,
     })
       .then(onAdd)
+      .catch(() => {
+        setErrorMessages(
+          (prev: string []) => [...prev, 'Unable to add a todo'],
+        );
+      })
       .finally(() => {
         deleteOptimistic();
         clearInput();

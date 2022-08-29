@@ -1,33 +1,34 @@
 import {
-  Dispatch, FC, LegacyRef, SetStateAction, useState,
+  Dispatch, FC, SetStateAction, useRef, useState, useEffect,
 } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
+import { Todo, TodoOptimistic } from '../types/Todo';
 import { deleteTodo, editTodo } from '../api/todos';
 
 interface Props {
-  todo: Todo,
-  todos: Todo[],
-  newTodoField: LegacyRef<HTMLInputElement> | undefined,
-  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  todo: TodoOptimistic,
+  todos: TodoOptimistic[],
+  setTodos: Dispatch<SetStateAction<TodoOptimistic[]>>,
   todoTitle: string,
+  setErrorMessages: Dispatch<SetStateAction<string []>>,
+
 }
 
 export const TodoItem: FC<Props> = (props) => {
   const {
     todo,
     todos,
-    newTodoField,
     setTodos,
     todoTitle,
+    setErrorMessages,
   } = props;
 
-  const [editedTodoTitle, setEditedTodoTitle] = useState(todo.title);
+  const [editedTodoTitle, setEditedTodoTitle] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   const onEdit = (editedTodo: Todo) => {
-    setTodos((prevTodos: Todo[]) => prevTodos.map(
+    setTodos((prevTodos) => prevTodos.map(
       (prevtodo) => (prevtodo.id === editedTodo.id ? editedTodo : prevtodo),
     ));
   };
@@ -36,9 +37,27 @@ export const TodoItem: FC<Props> = (props) => {
     setTodos((prevTodos) => prevTodos.filter(prevTodo => prevTodo.id !== id));
   };
 
+  const deleteTodoHandler = (id: number) => {
+    setErrorMessages([]);
+
+    deleteTodo(id)
+      .then(responce => {
+        if (responce) {
+          onDelete(id);
+        }
+      })
+      .catch(() => {
+        setErrorMessages(
+          (prev: string []) => [...prev, 'Unable to delete a todo'],
+        );
+      });
+  };
+
   const editTodoTitleHandler = (id: number) => {
-    if (!editedTodoTitle.length) {
-      onDelete(id);
+    setErrorMessages([]);
+
+    if (!editedTodoTitle?.trim().length) {
+      deleteTodoHandler(id);
 
       return;
     }
@@ -47,11 +66,18 @@ export const TodoItem: FC<Props> = (props) => {
       title: editedTodoTitle,
     })
       .then(onEdit)
+      .catch(() => {
+        setErrorMessages(
+          (prev: string []) => [...prev, 'Unable to update a todo'],
+        );
+      })
       .finally(() => setIsEditMode(false));
   };
 
   const editTodoStatusHandler = (id: number) => {
-    const editedTodo: Todo | null = todos.find(
+    setErrorMessages([]);
+
+    const editedTodo: TodoOptimistic | null = todos.find(
       everyTodo => everyTodo.id === id,
     ) || null;
 
@@ -60,18 +86,22 @@ export const TodoItem: FC<Props> = (props) => {
         completed: !editedTodo.completed,
       })
         .then(onEdit)
+        .catch(() => {
+          setErrorMessages(
+            (prev: string []) => [...prev, 'Unable to update a todo'],
+          );
+        })
         .finally(() => setIsChecked((prev) => !prev));
     }
   };
 
-  const deleteTodoHandler = (id: number) => {
-    deleteTodo(id)
-      .then(responce => {
-        if (responce) {
-          onDelete(id);
-        }
-      });
-  };
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isEditMode]);
 
   return (
     <div
@@ -87,7 +117,11 @@ export const TodoItem: FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           checked={isChecked}
-          onChange={() => editTodoStatusHandler(todo.id)}
+          onChange={() => {
+            if (todo.id) {
+              editTodoStatusHandler(todo.id);
+            }
+          }}
         />
       </label>
 
@@ -98,6 +132,9 @@ export const TodoItem: FC<Props> = (props) => {
             className="todo__title"
             onDoubleClick={() => {
               setIsEditMode(true);
+              if (todo.title) {
+                setEditedTodoTitle(todo.title);
+              }
             }}
           >
             {todo.title}
@@ -107,7 +144,11 @@ export const TodoItem: FC<Props> = (props) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={() => deleteTodoHandler(todo.id)}
+            onClick={() => {
+              if (todo.id) {
+                deleteTodoHandler(todo.id);
+              }
+            }}
           >
             ×
           </button>
@@ -117,7 +158,9 @@ export const TodoItem: FC<Props> = (props) => {
       {isEditMode && (
         <form onSubmit={(event) => {
           event.preventDefault();
-          editTodoTitleHandler(todo.id);
+          if (todo.id) {
+            editTodoTitleHandler(todo.id);
+          }
         }}
         >
           <input
@@ -130,6 +173,7 @@ export const TodoItem: FC<Props> = (props) => {
             onChange={(event) => {
               setEditedTodoTitle(event.target.value);
             }}
+            onBlur={() => setIsEditMode(false)}
           />
         </form>
       )}

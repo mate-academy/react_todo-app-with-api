@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import { FC, useMemo } from 'react';
-import { FilterType, Todo } from '../types/Todo';
+import { FilterType, TodoOptimistic } from '../types/Todo';
 
 interface Props {
-  todos: Todo [],
+  todos: TodoOptimistic[],
   changeFilter: (filterType: FilterType) => void,
   filterType: FilterType,
   clearCompleted: () => void;
