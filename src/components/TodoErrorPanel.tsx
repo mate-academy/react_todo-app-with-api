@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 
 interface Props {
   errorMessages: string [],
@@ -11,19 +11,20 @@ interface Props {
 export const TodoErrorPanel: FC<Props> = (props) => {
   const { errorMessages, setErrorMessages } = props;
 
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      setErrorMessages([]);
-    }, 3000);
+  // useEffect(() => {
+  //   const timerId = setTimeout(() => {
+  //     setErrorMessages([]);
+  //   }, 3000);
+  //   console.log(timerId);
 
-    return (
-      () => {
-        clearTimeout(timerId);
-      }
-    );
-  }, [setErrorMessages]);
+  //   return (
+  //     () => {
+  //       clearTimeout(timerId);
+  //     }
+  //   );
+  // }, [setErrorMessages]);
 
-  const newErrorMessages = errorMessages.map(message => (
+  const errorMessagesWithKeys = errorMessages.map(message => (
     {
       id: uuidv4(),
       body: message,
@@ -44,20 +45,12 @@ export const TodoErrorPanel: FC<Props> = (props) => {
         className="delete"
         onClick={() => setErrorMessages([])}
       />
-      {newErrorMessages.map(message => (
+      {errorMessagesWithKeys.map(message => (
         <React.Fragment key={message.id}>
           {message.body}
           <br />
         </React.Fragment>
       ))}
-
-      {/* Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo
-      <br />
-      {'Title can\'t be empty'} */}
     </div>
   );
 };

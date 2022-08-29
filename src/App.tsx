@@ -18,7 +18,6 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -78,7 +77,6 @@ export const App: React.FC = () => {
             />
 
             <TodoList
-              newTodoField={newTodoField}
               user={user}
               todos={filteredTodos}
               setTodos={setTodos}
@@ -101,6 +99,9 @@ export const App: React.FC = () => {
         setErrorMessages={setErrorMessages}
       />
 
+      {!!errorMessages.length && (
+        <img src="https://i.gifer.com/40Oj.gif" alt="Travolta" />
+      )}
     </div>
   );
 };

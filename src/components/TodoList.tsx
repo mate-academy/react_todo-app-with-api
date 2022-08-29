@@ -1,18 +1,17 @@
 import {
   Dispatch,
-  FC, LegacyRef, SetStateAction, useEffect, useState,
+  FC, SetStateAction, useEffect, useState,
 } from 'react';
 import { getTodos } from '../api/todos';
-import { Todo } from '../types/Todo';
+import { TodoOptimistic } from '../types/Todo';
 import { User } from '../types/User';
 import { TodoItem } from './TodoItem';
 
 interface Props {
   user: User,
-  todos: Todo[],
-  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  todos: TodoOptimistic[],
+  setTodos: Dispatch<SetStateAction<TodoOptimistic[]>>,
   setErrorMessages: Dispatch<SetStateAction<string []>>,
-  newTodoField: LegacyRef<HTMLInputElement> | undefined,
   todoTitle: string,
 }
 
@@ -22,7 +21,6 @@ export const TodoList: FC<Props> = (props) => {
     todos,
     setTodos,
     setErrorMessages,
-    newTodoField,
     todoTitle,
   } = props;
 
@@ -34,8 +32,10 @@ export const TodoList: FC<Props> = (props) => {
 
     getTodos(user.id)
       .then(setTodos)
-      .catch((error) => {
-        setErrorMessages((prev: string []) => [...prev, error.message]);
+      .catch(() => {
+        setErrorMessages(
+          (prev: string []) => [...prev, 'No todos'],
+        );
       })
       .finally(() => setIsLoadingTodoList(false));
   }, [setErrorMessages, setTodos, user]);
@@ -49,9 +49,9 @@ export const TodoList: FC<Props> = (props) => {
               key={todo.id}
               todo={todo}
               todos={todos}
-              newTodoField={newTodoField}
               setTodos={setTodos}
               todoTitle={todoTitle}
+              setErrorMessages={setErrorMessages}
             />
           ))}
         </section>
