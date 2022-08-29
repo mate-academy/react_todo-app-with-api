@@ -6,7 +6,7 @@ import { client } from '../utils/fetchClient';
 type Props = {
   todo: Todo;
   removeOneTodo: (id: number) => void;
-  hasUpdateError: () => void;
+  hasUpdateError: (condition: boolean) => void;
   isRemoving: boolean;
   isRemovingAll: boolean;
 };
@@ -22,14 +22,48 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [deletedItem, setDeletedItem] = useState(0);
+  const [isDoubleClicked, setIsDoubleClicked] = useState(false);
+  const [changedTodoValue, setChangedTodoValue] = useState(todo.title);
 
-  const updateOneTodo = (item: Todo) => {
+  const updateOneTodoCompleted = (item: Todo) => {
     setIsLoading(true);
     client.patch<Todo>(`/todos/${item.id}`, {
       completed: !item.completed,
     })
-      .catch(hasUpdateError)
+      .catch(() => hasUpdateError(true))
       .finally(() => setIsLoading(false));
+  };
+
+  const updateOneTodoTitle = (item: Todo) => {
+    setIsLoading(true);
+    client.patch<Todo>(`/todos/${item.id}`, {
+      title: changedTodoValue,
+    })
+      .catch(() => hasUpdateError(true))
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const changeValueOfTodoWithEnter = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter'
+    && changedTodoValue !== ''
+    && changedTodoValue !== todo.title) {
+      updateOneTodoTitle(todo);
+      setIsDoubleClicked(false);
+    } else if ((event.key === 'Enter' && changedTodoValue !== '')
+    || event.key === 'Escape') {
+      setIsDoubleClicked(false);
+    }
+  };
+
+  const changeValueOfTodoWithBlur = () => {
+    if (changedTodoValue !== ''
+    && changedTodoValue !== todo.title) {
+      updateOneTodoTitle(todo);
+    }
+
+    setIsDoubleClicked(false);
   };
 
   return (
@@ -43,27 +77,53 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
-          onClick={() => updateOneTodo(todo)}
+          onClick={() => updateOneTodoCompleted(todo)}
         />
       </label>
 
-      <span
-        data-cy="TodoTitle"
-        className="todo__title"
-      >
-        {todo.title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => {
-          removeOneTodo(todo.id);
-          setDeletedItem(todo.id);
-        }}
-      >
-        ×
-      </button>
+      {isDoubleClicked
+        ? (
+          <form
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={changedTodoValue}
+              onChange={(event) => {
+                setChangedTodoValue(event.target.value);
+              }}
+              onKeyDown={changeValueOfTodoWithEnter}
+              onBlur={changeValueOfTodoWithBlur}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setIsDoubleClicked(true);
+              }}
+            >
+              {changedTodoValue}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => {
+                removeOneTodo(todo.id);
+                setDeletedItem(todo.id);
+              }}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       {((isLoading
         || (isRemoving && deletedItem === todo.id))

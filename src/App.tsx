@@ -166,7 +166,10 @@ export const App: React.FC = () => {
     setHideErrors(true);
   };
 
-  const hasUpdateError = useCallback(() => setHasUpdateTodoError(true), []);
+  const hasUpdateError = useCallback(
+    (condition: boolean) => setHasUpdateTodoError(condition),
+    [],
+  );
 
   return (
     <div className="todoapp">
