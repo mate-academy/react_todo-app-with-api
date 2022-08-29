@@ -83,18 +83,22 @@ export const App: React.FC = () => {
     todos.forEach(todo => {
       const data = { completed: isCompleted };
 
-      dispatch({ type: 'startSave', peyload: '' });
+      if (todo.completed !== isCompleted) {
+        dispatch({ type: 'startSave', peyload: String(todo.id) });
 
-      updateTodo(todo.id, data)
-        .then(res => {
-          if (!res) {
-            throw Error();
-          }
+        updateTodo(todo.id, data)
+          .then(res => {
+            if (!res) {
+              throw Error();
+            }
 
-          onUpdate(todo.id, data);
-        })
-        .catch(() => showError('Unable to update a todo'))
-        .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
+            onUpdate(todo.id, data);
+          })
+          .catch(() => showError('Unable to update a todo'))
+          .finally(() => dispatch(
+            { type: 'finishSave', peyload: String(todo.id) },
+          ));
+      }
     });
   };
 
@@ -110,9 +114,8 @@ export const App: React.FC = () => {
     hideError();
 
     todos.forEach(todo => {
-      dispatch({ type: 'startSave', peyload: '' });
-
       if (todo.completed) {
+        dispatch({ type: 'startSave', peyload: String(todo.id) });
         deleteTodo(todo.id)
           .then(res => {
             if (!res) {
@@ -122,7 +125,9 @@ export const App: React.FC = () => {
             onDelete(todo.id);
           })
           .catch(() => showError('Unable to delete a todo'))
-          .finally(() => dispatch({ type: 'finishSave', peyload: '' }));
+          .finally(() => dispatch(
+            { type: 'finishSave', peyload: String(todo.id) },
+          ));
       }
     });
   }, [todos]);
@@ -169,22 +174,19 @@ export const App: React.FC = () => {
           isAllCompleted={isAllCompleted}
         />
 
+        <TodoList
+          todos={filteredTodos}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+        />
         {todos.length > 0 && (
-          <>
-            <TodoList
-              todos={filteredTodos}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-            />
-
-            <Footer
-              itemsLeft={itemsLeft}
-              onFilterTypeChange={onFilterTypeChange}
-              filterType={filterType}
-              complitedTodos={complitedTodos}
-              onClearCompleted={onClearCompleted}
-            />
-          </>
+          <Footer
+            itemsLeft={itemsLeft}
+            onFilterTypeChange={onFilterTypeChange}
+            filterType={filterType}
+            complitedTodos={complitedTodos}
+            onClearCompleted={onClearCompleted}
+          />
         )}
       </div>
 

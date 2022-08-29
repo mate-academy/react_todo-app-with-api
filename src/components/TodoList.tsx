@@ -13,7 +13,7 @@ interface Props {
 export const TodoList: React.FC<Props> = React.memo((props) => {
   const { todos, onDelete, onUpdate } = props;
 
-  const { isSavingTodo } = useContext(StateContext);
+  const { isCreatingTodo } = useContext(StateContext);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -25,7 +25,7 @@ export const TodoList: React.FC<Props> = React.memo((props) => {
           onUpdate={onUpdate}
         />
       ))}
-      {isSavingTodo && <TodoItemPreview />}
+      {isCreatingTodo && <TodoItemPreview />}
     </section>
   );
 });

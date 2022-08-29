@@ -17,9 +17,11 @@ interface Props {
 export const TodoItem: React.FC<Props> = (props) => {
   const { todo, onDelete, onUpdate } = props;
 
-  const { isSavingTodo } = useContext(StateContext);
+  const { updatingTodoIds } = useContext(StateContext);
 
-  const [isLoading, setIsLoading] = useState(isSavingTodo);
+  const [isLoading, setIsLoading] = useState(
+    updatingTodoIds.includes(String(todo.id)),
+  );
   const [isTitleUpdating, setIsTitleUpdating] = useState(false);
   const [updatingTitle, setUpdatingTitle] = useState('');
 
@@ -94,8 +96,8 @@ export const TodoItem: React.FC<Props> = (props) => {
   }, [isTitleUpdating]);
 
   useEffect(() => {
-    setIsLoading(isSavingTodo);
-  }, [isSavingTodo]);
+    setIsLoading(updatingTodoIds.includes(String(todo.id)));
+  }, [updatingTodoIds]);
 
   return (
     <div

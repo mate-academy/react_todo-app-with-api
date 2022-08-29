@@ -2,12 +2,14 @@ import React, { Dispatch, useReducer } from 'react';
 
 interface State {
   isSavingTodo: boolean;
+  isCreatingTodo: boolean;
   todoTitle: string;
   errorMessage: string;
+  updatingTodoIds: string[];
 }
 
 interface Action {
-  type: 'startSave' | 'finishSave' | 'setTitle' | 'showError',
+  type: string,
   peyload: string,
 }
 
@@ -17,12 +19,29 @@ const reducer = (state: State, action: Action) => {
       return {
         ...state,
         isSavingTodo: true,
+        updatingTodoIds: [...state.updatingTodoIds, action.peyload],
       };
 
     case 'finishSave':
       return {
         ...state,
         isSavingTodo: false,
+        updatingTodoIds: [
+          ...state.updatingTodoIds
+            .filter((id) => id !== action.peyload),
+        ],
+      };
+
+    case 'startCreate':
+      return {
+        ...state,
+        isCreatingTodo: true,
+      };
+
+    case 'finishCreate':
+      return {
+        ...state,
+        isCreatingTodo: false,
       };
 
     case 'setTitle':
@@ -44,8 +63,10 @@ const reducer = (state: State, action: Action) => {
 
 const initialState = {
   isSavingTodo: false,
+  isCreatingTodo: false,
   todoTitle: '',
   errorMessage: '',
+  updatingTodoIds: [] as string[],
 };
 
 export const DispatchContext = React.createContext<Dispatch<Action>>(() => {});

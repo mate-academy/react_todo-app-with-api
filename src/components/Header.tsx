@@ -39,13 +39,13 @@ export const Header: React.FC<Props> = (props) => {
       return;
     }
 
-    dispatch({ type: 'startSave', peyload: '' });
+    dispatch({ type: 'startCreate', peyload: '' });
     postTodo({ title: todoTitle, userId: id, completed: false })
       .then((res) => onAdd(res))
       .catch(() => showError('Unable to add a todo'))
       .finally(() => {
         dispatch({ type: 'setTitle', peyload: '' });
-        dispatch({ type: 'finishSave', peyload: '' });
+        dispatch({ type: 'finishCreate', peyload: '' });
       });
   };
 
