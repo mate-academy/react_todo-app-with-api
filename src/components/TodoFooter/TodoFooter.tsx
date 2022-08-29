@@ -1,39 +1,59 @@
-import { FC, memo, useMemo } from 'react';
+import {
+  Dispatch,
+  FC,
+  memo,
+  SetStateAction,
+  useCallback,
+  useMemo,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
+import { removeTodoById } from '../../api/todos';
 
 type Props = {
   todos: Todo[],
-  filterType: FilterType
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  filterType: FilterType,
   handleFilterTypeChange: (filterType: FilterType) => void,
-  handleRemoveTodo: (id: number) => void,
+  handleError: (msg: string) => void,
+  setLoadingIds: Dispatch<SetStateAction<number[]>>,
 };
 
 export const TodoFooter: FC<Props> = memo((props) => {
   const {
     todos,
+    setTodos,
     filterType,
     handleFilterTypeChange,
-    handleRemoveTodo,
+    handleError,
+    setLoadingIds,
   } = props;
 
-  const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed)
+  const completedTodosIds = useMemo(() => (
+    todos.filter(todo => todo.completed).map(todo => todo.id)
   ), [todos]);
 
-  const handleRemoveCompletedTodos = () => {
-    todos.forEach(todo => {
-      if (todo.completed) {
-        handleRemoveTodo(todo.id);
-      }
-    });
-  };
+  const handleRemoveCompletedTodos = useCallback(
+    () => {
+      const loadingIds = completedTodosIds;
+
+      setLoadingIds(prev => [...prev, ...loadingIds]);
+      const requests = loadingIds.map(id => removeTodoById(id));
+
+      Promise.all(requests)
+        .then(() => setTodos(prev => prev.filter(todo => !todo.completed)))
+        .catch(() => handleError('Unable to delete todos'))
+        .finally(() => setLoadingIds(prev => (
+          prev.filter(id => !loadingIds.includes(id)))));
+    },
+    [completedTodosIds],
+  );
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todos.length - completedTodos.length} items left`}
+        {`${todos.length - completedTodosIds.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -78,7 +98,7 @@ export const TodoFooter: FC<Props> = memo((props) => {
         type="button"
         className="todoapp__clear-completed"
         onClick={handleRemoveCompletedTodos}
-        disabled={completedTodos.length === 0}
+        disabled={completedTodosIds.length === 0}
       >
         Clear completed
       </button>

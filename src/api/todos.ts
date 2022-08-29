@@ -9,11 +9,11 @@ export const addTodo = (todo: NewTodo): Promise<Todo> => {
   return client.post<Todo>('/todos', todo);
 };
 
-export const removeTodoByTodoId = (todoId: number) => {
+export const removeTodoById = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodoByTodoId = (
+export const updateTodoById = (
   todoId: number,
   data: TodoUpdateFields,
 ) => {

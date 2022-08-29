@@ -7,8 +7,8 @@ import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
   addTodo,
-  getTodos, removeTodoByTodoId,
-  updateTodoByTodoId,
+  getTodos, removeTodoById,
+  updateTodoById,
 } from './api/todos';
 import { TodoItem } from './components/TodoItem';
 import { TodoFooter } from './components/TodoFooter';
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
     (todoId: number) => {
       setLoadingIds(prev => [...prev, todoId]);
 
-      removeTodoByTodoId(todoId)
+      removeTodoById(todoId)
         .then(() => setTodos(prev => prev.filter(({ id }) => id !== todoId)))
         .catch(() => handleError('Unable to delete a todo'))
         .finally(() => setLoadingIds(prev => prev.filter(el => el !== todoId)));
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
     (todoId: number, data: TodoUpdateFields) => {
       setLoadingIds(prev => [...prev, todoId]);
 
-      updateTodoByTodoId(todoId, data)
+      updateTodoById(todoId, data)
         .then(updatedTodo => {
           setTodos(prev => (
             prev.map(todo => (todo.id === todoId ? updatedTodo : todo))
@@ -97,12 +97,28 @@ export const App: React.FC = () => {
 
   const handleToggleAll = () => {
     const newCompleted = todos.some(({ completed }) => !completed);
+    const idsForUpdate: number[] = [];
 
     todos.forEach(todo => {
       if (todo.completed !== newCompleted) {
-        handleTodoChange(todo.id, { completed: newCompleted });
+        idsForUpdate.push(todo.id);
+        // handleTodoChange(todo.id, { completed: newCompleted });
       }
     });
+
+    setLoadingIds(prev => [...prev, ...idsForUpdate]);
+    const requests = idsForUpdate.map(id => (
+      updateTodoById(id, { completed: newCompleted })
+    ));
+
+    Promise.all(requests)
+      .then((res) => setTodos(prev => (
+        [...prev.filter(todo => !idsForUpdate.includes(todo.id)), ...res]
+      )))
+      .catch(() => handleError('Unable to update todos'))
+      .finally(() => setLoadingIds(prev => (
+        prev.filter(id => loadingIds.includes(id)))
+      ));
   };
 
   const isAllCompleted = useMemo(() => (
@@ -165,9 +181,11 @@ export const App: React.FC = () => {
 
           <TodoFooter
             todos={todos}
+            setTodos={setTodos}
             filterType={filterType}
             handleFilterTypeChange={setFilterType}
-            handleRemoveTodo={handleRemoveTodo}
+            handleError={handleError}
+            setLoadingIds={setLoadingIds}
           />
         </div>
       )}
