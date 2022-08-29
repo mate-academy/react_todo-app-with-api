@@ -75,6 +75,13 @@ export const TodoItem: React.FC<Props> = (props) => {
     setUpdatingTitle('');
   };
 
+  const cancelUpdate = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsTitleUpdating(false);
+      setUpdatingTitle('');
+    }
+  };
+
   useEffect(() => {
     if (isTitleUpdating) {
       setUpdatingTitle(todo.title);
@@ -106,7 +113,11 @@ export const TodoItem: React.FC<Props> = (props) => {
       </label>
 
       {isTitleUpdating ? (
-        <form>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          checkBeforeUpdate();
+        }}
+        >
           <input
             data-cy="TodoTitleField"
             type="text"
@@ -116,6 +127,7 @@ export const TodoItem: React.FC<Props> = (props) => {
             onChange={(event) => setUpdatingTitle(event.target.value)}
             onBlur={checkBeforeUpdate}
             ref={updateTodoField}
+            onKeyDown={cancelUpdate}
           />
         </form>
       ) : (

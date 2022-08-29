@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
-import { DispatchContext, StateContext } from './StateContext';
+import { useHideError } from '../utils/hooks';
+import { StateContext } from './StateContext';
 
 export const ErrorNotification: React.FC = React.memo(() => {
   const { errorMessage } = useContext(StateContext);
-  const dispatch = useContext(DispatchContext);
 
-  const hideError = () => {
-    dispatch({ type: 'showError', peyload: '' });
-  };
+  const hideError = useHideError();
 
   return (
     <>
