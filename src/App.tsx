@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [newTitle, setNewTitle] = useState('');
+  const [isSubmit, setIsSubmit] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [shouldUpdate, setShouldUpdate] = useState(false);
@@ -41,7 +42,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (user) {
       setErrorMessage('');
-      setIsLoading(true);
 
       getTodos(user.id)
         .then(res => {
@@ -52,10 +52,9 @@ export const App: React.FC = () => {
         .finally(() => {
           setShouldUpdate(false);
           setChangedTodosId([]);
-          setIsLoading(false);
         });
     }
-  }, [user, errorMessage, shouldUpdate]);
+  }, [user, shouldUpdate]);
 
   useEffect(() => {
     switch (filteredBy) {
@@ -81,8 +80,8 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const addTodo = () => {
-    if (!newTitle) {
+  const addTodo = useCallback(() => {
+    if (!newTitle.trim()) {
       onError('Title can\'t be empty');
 
       return;
@@ -120,58 +119,93 @@ export const App: React.FC = () => {
         .finally(() => {
           setNewTitle('');
           setIsLoading(false);
+          setIsSubmit(false);
         });
     }
-  };
+  }, [isSubmit]);
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
     setIsLoading(true);
 
     deleteTodo(todoId)
       .then(res => {
         if (res) {
-          setShouldUpdate(true);
+          setTodos(prev => (
+            prev.filter(todo => todo.id !== todoId)
+          ));
         }
       })
       .catch(() => onError('Unable to delete a todo'))
       .finally(() => setIsLoading(false));
-  };
+  }, []);
 
-  const updateTodo = (todoId: number, data: {}) => {
-    setSelectedTodoId(todoId);
-    setIsLoading(true);
+  const updateTodo = useCallback(
+    (todoId: number, data: {}) => {
+      setSelectedTodoId(todoId);
+      setIsLoading(true);
 
-    updateTodoById(todoId, data)
-      .then(() => setShouldUpdate(true))
-      .catch(() => onError('Unable to update a todo'))
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+      updateTodoById(todoId, data)
+        .then(res => setTodos(prev => (
+          prev.map(todo => {
+            if (todo.id === res.id) {
+              return res;
+            }
 
-  const toggleAllTodo = () => {
+            return todo;
+          })
+        )))
+        .catch(() => onError('Unable to update a todo'))
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }, [],
+  );
+
+  const toggleAllTodo = useCallback(() => {
     const changedTodoId: number[] = [];
+    const toggled = todos.some(todo => !todo.completed);
 
-    if (todos.some(todo => !todo.completed)) {
+    if (toggled) {
       todos.forEach(todo => {
         if (!todo.completed) {
-          updateTodo(todo.id, { completed: true });
           changedTodoId.push(todo.id);
         }
       });
     } else {
       todos.forEach(todo => {
-        updateTodo(todo.id, { completed: false });
         changedTodoId.push(todo.id);
       });
     }
 
+    const requests = changedTodoId.map(id => (
+      updateTodoById(id, { completed: toggled })
+    ));
+
     setSelectedTodoId(null);
     setChangedTodosId(changedTodoId);
-  };
+    setIsLoading(true);
 
-  const clearCompleted = () => {
+    Promise.all(requests)
+      .then((res) => setTodos(prev => (
+        prev.map(todo => {
+          if (changedTodoId.includes(todo.id)) {
+            const newTodo = res.find(resTodo => resTodo.id === todo.id);
+
+            return newTodo || todo;
+          }
+
+          return todo;
+        })
+      )))
+      .catch(() => onError('Unable to update a todo'))
+      .finally(() => {
+        setIsLoading(false);
+        setChangedTodosId([]);
+      });
+  }, [todos]);
+
+  const clearCompleted = useCallback(() => {
     const changedTodoId: number[] = [];
 
     todos.forEach(todo => {
@@ -180,10 +214,22 @@ export const App: React.FC = () => {
       }
     });
 
-    setChangedTodosId(changedTodoId);
+    const requests = changedTodoId.map(id => deleteTodo(id));
 
-    todos.forEach(todo => todo.completed && removeTodo(todo.id));
-  };
+    setSelectedTodoId(null);
+    setChangedTodosId(changedTodoId);
+    setIsLoading(true);
+
+    Promise.all(requests)
+      .then(() => setTodos(prev => (
+        prev.filter(todo => !changedTodoId.includes(todo.id))
+      )))
+      .catch(() => onError('Unable to delete a todo'))
+      .finally(() => {
+        setIsLoading(false);
+        setChangedTodosId([]);
+      });
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -213,6 +259,11 @@ export const App: React.FC = () => {
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               value={newTitle}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setIsSubmit(true);
+                }
+              }}
               onChange={(e) => setNewTitle(e.target.value)}
             />
           </form>
