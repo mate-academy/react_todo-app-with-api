@@ -40,14 +40,15 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handlerChangedCheked = () => {
+    setCheked((state) => !state);
+
     const newData = {
       ...todo,
-      completed: cheked,
+      completed: !cheked,
     };
 
     patchTodo(todo.id, newData)
       .then(() => {
-        setOnChangeTitle(true);
         changedTodos(newData);
       }).catch(() => setErrorMessage('Unable to update a todo'));
   };
@@ -65,7 +66,6 @@ export const TodoItem: React.FC<Props> = ({
           checked={cheked}
           onChange={() => {
             handlerChangedCheked();
-            setCheked((state) => !state);
           }}
         />
       </label>

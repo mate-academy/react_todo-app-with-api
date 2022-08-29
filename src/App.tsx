@@ -24,14 +24,14 @@ export const App: React.FC = () => {
   const [filterTodos, setFilterTodos] = useState('all');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handlerDeleteTodo = useCallback((element: Todo) => {
+  const handlerDeleteTodo = (element: Todo) => {
     deleteTodo(element.id)
       .then(() => todos.filter(todo => todo.id !== element.id))
       .then(res => {
         setTodos(res);
         setValue('');
       }).catch(() => setErrorMessage('Unable to delete a todo'));
-  }, [todos]);
+  };
 
   const deleteCompleted = () => {
     todos.map(todo => {
@@ -77,7 +77,6 @@ export const App: React.FC = () => {
     newTodos.map(todo => {
       patchTodo(todo.id, todo).then(() => {
         setTodos(newTodos);
-        setAllCompleted(true);
       });
     });
   };
