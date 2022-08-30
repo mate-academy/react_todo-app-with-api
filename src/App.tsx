@@ -26,8 +26,6 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [hidden, setHidden] = useState(true);
   const [sortBy, setSortBy] = useState('');
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [selectedTodoId, setSelectedTodoId] = useState(0);
   const [isToggle, setIsToggle] = useState(false);
   const [loadingTodosId, setLoadingTodosId] = useState<number[]>([]);
 
@@ -49,7 +47,6 @@ export const App: React.FC = () => {
 
   const addTodo = async (event: FormEvent) => {
     event.preventDefault();
-    // setIsLoading(true);
 
     if (!todoTitle) {
       switchError('Title cant be empty');
@@ -70,7 +67,6 @@ export const App: React.FC = () => {
     };
 
     setTodos(prev => [...prev, newTodo]);
-    // setSelectedTodoId(newTodoId);
     setLoadingTodosId(prev => [...prev, newTodoId]);
 
     try {
@@ -89,14 +85,11 @@ export const App: React.FC = () => {
     }
 
     setTodoTitle('');
-    // setIsLoading(false);
     setLoadingTodosId(prev => prev.filter(curr => curr !== newTodo.id));
   };
 
   const removeTodo = useCallback(async (todoId: number) => {
     setLoadingTodosId(prev => [...prev, todoId]);
-    // setIsLoading(true);
-    // setSelectedTodoId(todoId);
 
     try {
       await deleteTodo(todoId);
@@ -107,13 +100,10 @@ export const App: React.FC = () => {
       switchError('Unable to delete todo');
     }
 
-    // setIsLoading(false);
     setLoadingTodosId(todosId => todosId.filter(curr => curr !== todoId));
   }, [deleteTodo]);
 
   const changeTodo = useCallback(async (id: number, data: any) => {
-    // setIsLoading(true);
-    // setSelectedTodoId(id);
     setLoadingTodosId(todosId => [...todosId, id]);
 
     const updatedTodo = await updateTodo(id, data);
@@ -126,7 +116,6 @@ export const App: React.FC = () => {
       return todo;
     }));
 
-    // setIsLoading(false);
     setLoadingTodosId(todosId => todosId.filter(curr => curr !== id));
   }, [updateTodo]);
 
@@ -193,8 +182,6 @@ export const App: React.FC = () => {
               key={todo.id}
               removeTodo={removeTodo}
               changeTodo={changeTodo}
-              // isLoading={isLoading}
-              // selectedTodoId={selectedTodoId}
               loadingTodosId={loadingTodosId}
             />
           ))}
