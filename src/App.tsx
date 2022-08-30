@@ -1,16 +1,27 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import React, {
+  useCallback,
+  useContext, useEffect, useRef, useState,
+} from 'react';
+import {
+  addTodo,
+  changeComplete,
+  getTodos,
+  removeTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
-import { addTodo, getTodos, removeTodo } from './api/todos';
 
 type ErrorStr = (
   'Unable to add a todo'
   | 'Unable to delete a todo'
   | 'Unable to update a todo'
   | "Title can't be empty"
+  | null
   );
+
+// const errorArr = [null, 'Unable to add a todo', 'Unable to delete a todo', 'Unable to update a todo', "Title can't be empty"]
 
 export const App: React.FC<{}> = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -19,9 +30,11 @@ export const App: React.FC<{}> = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [query, setQuery] = useState('');
-  const [error, setError] = useState<ErrorStr | null>(null);
+  const [error, setError] = useState<ErrorStr>(null);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
-  // const [isComplited, setIsComplited] =
+  const [isComplited, setIsComplited] = useState(true);
+  const [isToggle, setIsToggle] = useState(false);
+  // const [visibleTodos, setVisibleTodos] = useState(todos);
 
   useEffect(() => {
     if (user) {
@@ -37,12 +50,14 @@ export const App: React.FC<{}> = () => {
     }
   }, []);
 
-  const errorMsg = (msg: ErrorStr) => {
+  const errorMsg = useCallback((msg: ErrorStr) => {
     setError(msg);
     setTimeout(() => setError(null), 3000);
-  };
+  }, []);
 
   const handleSubmit = () => {
+    setError(null);
+
     if (query === '') {
       errorMsg("Title can't be empty");
 
@@ -57,14 +72,21 @@ export const App: React.FC<{}> = () => {
       };
 
       addTodo(newTodo)
-        .then(res => setTodos((prev) => [...prev, res]))
+        .then(res => {
+          setLoadingTodo(res.id);
+          setTodos((prev) => [...prev, res]);
+        })
         .catch(() => errorMsg('Unable to add a todo'))
-        .finally(() => setQuery(''));
+        .finally(() => {
+          setLoadingTodo(null);
+          setQuery('');
+        });
     }
   };
 
-  const deleteTodo = (id: number) => {
+  const deleteTodo = useCallback((id: number) => {
     setLoadingTodo(id);
+    setError(null);
 
     removeTodo(id)
       .then(() => {
@@ -72,7 +94,56 @@ export const App: React.FC<{}> = () => {
       })
       .catch(() => errorMsg('Unable to delete a todo'))
       .finally(() => setLoadingTodo(null));
+  }, [todos]);
+
+  const clearCompleted = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+      }
+    });
   };
+
+  const handleComplite = useCallback((todoId: number, status: boolean) => {
+    setLoadingTodo(todoId);
+    const newCompleted = !status;
+
+    changeComplete(todoId, { completed: newCompleted })
+      .then((res: Todo) => {
+        setTodos((prev) => (
+          prev.map(item => (item.id === todoId ? res : item))
+        ));
+      })
+      .catch(() => errorMsg('Unable to update a todo'))
+      .finally(() => setLoadingTodo(null));
+  }, []);
+
+  const toggleAll = useCallback(async () => {
+    setIsToggle(prev => !prev);
+
+    const toggled = await Promise.all(
+      todos.map(todo => {
+        if (todo.completed !== isComplited) {
+          setLoadingTodo(todo.id);
+          handleComplite(todo.id, todo.completed);
+        }
+
+        return todo;
+      }),
+    );
+
+    setTodos(toggled);
+
+    setIsComplited(prev => !prev);
+  }, [todos]);
+
+  // const filteredTodos = useMemo((data: boolean) => {
+
+  //     const arr = [...prev];
+
+  //     return arr.filter(todo => todo.completed === data);
+
+  // }, []);
 
   return (
     <div className="todoapp">
@@ -83,7 +154,8 @@ export const App: React.FC<{}> = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames('todoapp__toggle-all', { active: isToggle })}
+            onClick={toggleAll}
           />
 
           <form onSubmit={(e) => {
@@ -107,7 +179,7 @@ export const App: React.FC<{}> = () => {
           {todos.map(todo => (
             <div
               data-cy="Todo"
-              className="todo completed"
+              className={classNames('todo', { completed: todo.completed })}
               key={todo.id}
             >
               <label className="todo__status-label">
@@ -115,8 +187,8 @@ export const App: React.FC<{}> = () => {
                   data-cy="TodoStatus"
                   type="checkbox"
                   className="todo__status"
-                  checked={todo.completed}
-                  onClick={handleComplite}
+                  checked={false}
+                  onChange={() => handleComplite(todo.id, todo.completed)}
                 />
               </label>
 
@@ -248,66 +320,72 @@ export const App: React.FC<{}> = () => {
           </div> */}
         </section>
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            {`${todos.length} items left`}
-          </span>
+        {todos.length !== 0 && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="todosCounter">
+              {`${todos.length} items left`}
+            </span>
 
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-            >
-              All
-            </a>
+            <nav className="filter" data-cy="Filter">
+              <a
+                data-cy="FilterLinkAll"
+                href="#/"
+                className="filter__link selected"
+              >
+                All
+              </a>
 
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-            >
-              Completed
-            </a>
-          </nav>
+              <a
+                data-cy="FilterLinkActive"
+                href="#/active"
+                className="filter__link"
+                // onClick={() => filter(false)}
+              >
+                Active
+              </a>
+              <a
+                data-cy="FilterLinkCompleted"
+                href="#/completed"
+                className="filter__link"
+                // onClick={() => filter(true)}
+              >
+                Completed
+              </a>
+            </nav>
 
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-          >
-            Clear completed
-          </button>
-        </footer>
+            <button
+              data-cy="ClearCompletedButton"
+              type="button"
+              className="todoapp__clear-completed"
+              onClick={clearCompleted}
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
       </div>
 
-      {error && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setError(null)}
-          />
+      <div
+        data-cy="ErrorNotification"
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !error },
+        )}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setError(null)}
+        />
 
-          {/* Unable to add a todo
-          <br />
-          Unable to delete a todo
-          <br />
-          Unable to update a todo */}
-          {error}
-        </div>
-      )}
+        {/* Unable to add a todo
+        <br />
+        Unable to delete a todo
+        <br />
+        Unable to update a todo */}
+        {error}
+      </div>
     </div>
   );
 };
