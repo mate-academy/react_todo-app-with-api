@@ -8,6 +8,7 @@ interface Props {
   openPachForm: boolean,
   isLoaded: boolean,
   selectId: number,
+  loadTodoId: number[],
   handelCreateTodo: (title: string) => void,
   handlerUpdateTitle: (newTitle: string, titleBefore: string) => void,
   closeInput: () => void,
@@ -25,6 +26,7 @@ export const TodosList: FC<Props> = memo((props) => {
     openPachForm,
     selectId,
     isLoaded,
+    loadTodoId,
     handelDubleClick,
     handelDeleteTodo,
   } = props;
@@ -77,8 +79,8 @@ export const TodosList: FC<Props> = memo((props) => {
               </span>
             )}
 
-          {isLoaded
-          && selectId === todo.id
+          {((isLoaded
+          && selectId === todo.id) || loadTodoId.includes(todo.id))
           && (
             <div data-cy="TodoLoader" className="modal overlay is-active">
               <div className="modal-background" />

@@ -24,6 +24,7 @@ export const App: React.FC = () => {
   const [typeError, setTypeError] = useState('');
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadTodoId, setLoadTodoId] = useState<number[]>([]);
   const [selectId, setSelectId] = useState(0);
   const [openPachForm, setOpenPachForm] = useState(false);
 
@@ -113,6 +114,7 @@ export const App: React.FC = () => {
         setTimeout(handelCloseError, 3000);
       })
       .finally(() => {
+        setLoadTodoId([]);
         setSelectId(0);
         setIsLoaded(false);
       });
@@ -121,6 +123,7 @@ export const App: React.FC = () => {
   const handelAllActiveReverse = () => {
     if (completedTodos.length > 0
       && completedTodos.length !== filtredTodos.length) {
+      setLoadTodoId(activeTodos.map(todo => todo.id));
       activeTodos.forEach(todo => {
         if (!todo.completed) {
           handleChange(todo.id, todo.completed);
@@ -131,6 +134,7 @@ export const App: React.FC = () => {
     if (!completedTodos.length
       || completedTodos.length === filtredTodos.length
     ) {
+      setLoadTodoId(filtredTodos.map(todo => todo.id));
       filtredTodos.forEach(activeTodo => {
         handleChange(activeTodo.id, activeTodo.completed);
       });
@@ -183,12 +187,16 @@ export const App: React.FC = () => {
         setTimeout(handelCloseError, 3000);
         setTypeError('ErrorDeletedTodo');
       })
-      .finally(() => setIsLoaded(false));
+      .finally(() => {
+        setLoadTodoId([]);
+        setIsLoaded(false);
+      });
   }, [filtredTodos, todos]);
 
   const handelClearAllComplered = () => {
     if (completedTodos.length > 0) {
-      completedTodos.forEach(compTodo => {
+      setLoadTodoId(completedTodos.map(todo => todo.id));
+      completedTodos.forEach((compTodo) => {
         handelDeleteTodo(compTodo.id);
       });
     }
@@ -287,6 +295,7 @@ export const App: React.FC = () => {
             handelDubleClick={handelDubleClick}
             handelDeleteTodo={handelDeleteTodo}
             handelCreateTodo={handelCreateTodo}
+            loadTodoId={loadTodoId}
           />
 
         </section>
