@@ -1,16 +1,22 @@
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { HashRouter } from 'react-router-dom';
+import { setupStore } from 'store';
+import { SnackbarProvider } from 'notistack';
+import App from './App';
 
-import 'bulma/css/bulma.css';
-import '@fortawesome/fontawesome-free/css/all.css';
-import './styles/index.scss';
+import 'index.css';
 
-import { App } from './App';
-import { AuthProvider } from './components/Auth/AuthContext';
+const store = setupStore();
 
 const Root = () => (
-  <AuthProvider>
-    <App />
-  </AuthProvider>
+  <HashRouter>
+    <SnackbarProvider maxSnack={3}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </SnackbarProvider>
+  </HashRouter>
 );
 
 createRoot(document.getElementById('root') as HTMLDivElement)
