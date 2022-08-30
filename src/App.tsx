@@ -2,11 +2,17 @@
 import classNames from 'classnames';
 import React, {
   FormEvent,
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { createTodo, getTodos } from './api/todos';
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoItem } from './components/Todo/TodoItem';
 import { Todo } from './types/Todo';
@@ -19,8 +25,11 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [error, setError] = useState('');
   const [hidden, setHidden] = useState(true);
-  const [shouldUpdate, setShouldUpdate] = useState(false);
   const [sortBy, setSortBy] = useState('');
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [selectedTodoId, setSelectedTodoId] = useState(0);
+  const [isToggle, setIsToggle] = useState(false);
+  const [loadingTodosId, setLoadingTodosId] = useState<number[]>([]);
 
   const filteredTodos = todos.filter(todo => {
     switch (sortBy) {
@@ -38,8 +47,9 @@ export const App: React.FC = () => {
     setTimeout(() => setError(''), 3000);
   };
 
-  const handleSubmit = (event: FormEvent) => {
+  const addTodo = async (event: FormEvent) => {
     event.preventDefault();
+    // setIsLoading(true);
 
     if (!todoTitle) {
       switchError('Title cant be empty');
@@ -51,15 +61,74 @@ export const App: React.FC = () => {
       return;
     }
 
-    createTodo(user.id, todoTitle)
-      .then(res => setTodos(prev => [
-        ...prev,
-        res,
-      ]))
-      .catch(() => switchError('Unable to add a todo'));
+    const newTodoId = -(todos.length);
+    const newTodo = {
+      id: newTodoId,
+      userId: user.id,
+      title: todoTitle,
+      completed: false,
+    };
+
+    setTodos(prev => [...prev, newTodo]);
+    // setSelectedTodoId(newTodoId);
+    setLoadingTodosId(prev => [...prev, newTodoId]);
+
+    try {
+      const createdTodo = await createTodo(user.id, todoTitle);
+
+      setTodos(prev => prev.map(todo => {
+        if (todo.id === newTodoId) {
+          return createdTodo;
+        }
+
+        return todo;
+      }));
+    } catch {
+      setTodos(prev => prev.filter(todo => todo.id !== newTodoId));
+      switchError('Unable to add todo');
+    }
 
     setTodoTitle('');
+    // setIsLoading(false);
+    setLoadingTodosId(prev => prev.filter(curr => curr !== newTodo.id));
   };
+
+  const removeTodo = useCallback(async (todoId: number) => {
+    setLoadingTodosId(prev => [...prev, todoId]);
+    // setIsLoading(true);
+    // setSelectedTodoId(todoId);
+
+    try {
+      await deleteTodo(todoId);
+      setTodos(prevTodos => prevTodos.filter(
+        currentTodo => currentTodo.id !== todoId,
+      ));
+    } catch {
+      switchError('Unable to delete todo');
+    }
+
+    // setIsLoading(false);
+    setLoadingTodosId(todosId => todosId.filter(curr => curr !== todoId));
+  }, [deleteTodo]);
+
+  const changeTodo = useCallback(async (id: number, data: any) => {
+    // setIsLoading(true);
+    // setSelectedTodoId(id);
+    setLoadingTodosId(todosId => [...todosId, id]);
+
+    const updatedTodo = await updateTodo(id, data);
+
+    setTodos(prev => prev.map(todo => {
+      if (todo.id === id) {
+        return updatedTodo;
+      }
+
+      return todo;
+    }));
+
+    // setIsLoading(false);
+    setLoadingTodosId(todosId => todosId.filter(curr => curr !== id));
+  }, [updateTodo]);
 
   const closeNotification = () => {
     setHidden(prev => !prev);
@@ -73,7 +142,7 @@ export const App: React.FC = () => {
 
     getTodos(user.id)
       .then(setTodos);
-  }, [user, shouldUpdate]);
+  }, [user]);
 
   return (
     <div className="todoapp">
@@ -85,11 +154,24 @@ export const App: React.FC = () => {
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className="todoapp__toggle-all"
+              onClick={() => {
+                setIsToggle(prev => !prev);
+
+                todos.map(todo => (
+                  changeTodo(todo.id, {
+                    completed: isToggle, loading: isToggle,
+                  })
+                ));
+              }}
+              className={classNames('todoapp__toggle-all', {
+                active: todos.filter(
+                  todo => todo.completed,
+                ).length === todos.length,
+              })}
             />
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={addTodo}>
             <input
               data-cy="NewTodoField"
               type="text"
@@ -109,9 +191,11 @@ export const App: React.FC = () => {
             <TodoItem
               todo={todo}
               key={todo.id}
-              todos={todos}
-              setTodos={setTodos}
-              setShouldUpdate={setShouldUpdate}
+              removeTodo={removeTodo}
+              changeTodo={changeTodo}
+              // isLoading={isLoading}
+              // selectedTodoId={selectedTodoId}
+              loadingTodosId={loadingTodosId}
             />
           ))}
         </section>
@@ -156,13 +240,24 @@ export const App: React.FC = () => {
               </a>
             </nav>
 
-            {/* <button
+            <button
               data-cy="ClearCompletedButton"
               type="button"
               className="todoapp__clear-completed"
+              hidden={todos.filter(todo => todo.completed).length === 0}
+              onClick={() => {
+                setIsToggle(prev => !prev);
+                setTodos(prev => prev.filter(todo => {
+                  if (todo.completed) {
+                    removeTodo(todo.id);
+                  }
+
+                  return todo;
+                }));
+              }}
             >
               Clear completed
-            </button> */}
+            </button>
           </footer>
         )}
       </div>
