@@ -87,7 +87,11 @@ export const Footer: React.FC<Props> = (
         type="button"
         className="todoapp__clear-completed"
         onClick={() => deleteAllCompleted()}
-        disabled={todos.some(todo => todo.completed)}
+        style={{
+          visibility: todos.some(todo => todo.completed)
+            ? 'visible'
+            : 'hidden',
+        }}
       >
         Clear completed
       </button>
