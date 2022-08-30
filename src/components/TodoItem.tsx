@@ -1,11 +1,8 @@
-import cn from 'classnames';
+import classNames from 'classnames';
 import {
   FC, useState,
-  // memo,
-//   useCallback,
-//   useState,
 } from 'react';
-import { deleteTodo, updateTodo } from '../api/todos';
+import { updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 
 interface Props {
@@ -13,36 +10,42 @@ interface Props {
   todos: Todo[],
   setTodos(todos: Todo[]): void,
   setError(error: string): void,
+  loading: boolean,
+  activeTodoId: number | null,
+  remove(todoId: number): void,
 }
 
 export const TodoItem: FC<Props> = ({
   todo,
   todos,
   setTodos,
-  setError
+  setError,
+  loading,
+  activeTodoId,
+  remove,
 }) => {
-  const { completed, id, title } = todo;
+  const { title, id, completed } = todo;
 
   const [typing, setTyping] = useState(false);
   const [input, setInput] = useState('');
 
-
-  const update = (newTitle: string, newCompleted: boolean) => {
+  const update = async (newTitle: string, newCompleted: boolean) => {
     setTodos(todos.map(currentTodo => {
       if (currentTodo.id === id) {
         return {
           ...currentTodo,
           completed: newCompleted,
-          title: newTitle
+          title: newTitle,
         };
       }
 
       return { ...currentTodo };
-  }))
+    }));
 
-  updateTodo(id, newCompleted, newTitle).then(() => 
-    setTodos(todos
-      .map(currentTodo => {
+    try {
+      await updateTodo(id, newCompleted, newTitle);
+
+      const myTodo = todos.map(currentTodo => {
         if (currentTodo.id === id) {
           return {
             ...currentTodo,
@@ -52,16 +55,39 @@ export const TodoItem: FC<Props> = ({
         }
 
         return { ...currentTodo };
-      }))).catch(() => {
+      });
+
+      setTodos(myTodo);
+    } catch {
       setError('update');
-    });
+    }
+
+    // await updateTodo(id, newCompleted, newTitle)
+    //   .then(() => {
+    //     setTodos(todos
+    //       .map(currentTodo => {
+    //         if (currentTodo.id === id) {
+    //           return {
+    //             ...currentTodo,
+    //             title: newTitle,
+    //             completed: newCompleted,
+    //           };
+    //         }
+
+    //         return { ...currentTodo };
+    //       }),
+    //     ),
+    //   })
+    //   .catch(() => {
+    //     setError('update');
+    //   });
   };
 
   const handleSubmit = (event: React.FormEvent | React.FocusEvent): void => {
     event.preventDefault();
 
     if (!input) {
-      remove();
+      remove(id);
 
       return;
     }
@@ -75,24 +101,10 @@ export const TodoItem: FC<Props> = ({
     setTyping(false);
   };
 
-  const remove = () => {
-
-    setTodos(todos
-      .filter(currentTodo => currentTodo.id !== id));
-
-    setError('');
-  
-    deleteTodo(todo.id).then(() => setTodos(todos
-      .filter(currentTodo => currentTodo.id !== id)))
-      .catch(() => {
-        setError('delete');;
-      });
-  }
-
   return (
     <div
       data-cy="Todo"
-      className={cn('todo',
+      className={classNames('todo',
         { completed })}
     >
       <label className="todo__status-label">
@@ -144,7 +156,7 @@ export const TodoItem: FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={remove}
+              onClick={() => remove(id)}
             >
               x
             </button>
@@ -153,7 +165,10 @@ export const TodoItem: FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={cn('modal overlay')}
+        className={classNames(
+          'modal overlay',
+          { 'is-active': loading && id === activeTodoId },
+        )}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

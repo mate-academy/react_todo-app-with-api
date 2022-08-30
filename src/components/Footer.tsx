@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import { Todo } from "../types/Todo";
+import classNames from 'classnames';
+import { Todo } from '../types/Todo';
 
 type FilteredTodos = 'all' | 'completed' | 'active';
 
@@ -10,83 +10,87 @@ interface Props {
   deleteAllCompleted(): void,
 }
 
-export const Footer: React.FC<Props> = ({ todos, filter, setFilter, deleteAllCompleted }) => {
+export const Footer: React.FC<Props> = (
+  {
+    todos, filter, setFilter, deleteAllCompleted,
+  },
+) => {
   return (
     <>
       <span className="todo-count" data-cy="todosCounter">
-            {`${todos.length} items left`}
-          </span>
+        {`${todos.length} items left`}
+      </span>
 
-          <nav className="filter" data-cy="Filter">
-              <a
-                data-cy="FilterLinkAll"
-                href="#/"
-                className={classNames(
-                  'filter__link',
-                  {
-                    selected: filter === 'all',
-                  },
-                )}
-                onClick={event => {
-                  event.preventDefault();
+      <nav className="filter" data-cy="Filter">
+        <a
+          data-cy="FilterLinkAll"
+          href="#/"
+          className={classNames(
+            'filter__link',
+            {
+              selected: filter === 'all',
+            },
+          )}
+          onClick={event => {
+            event.preventDefault();
 
-                  if (filter !== 'all') {
-                    setFilter('all');
-                  }
-                }}
-              >
-                All
-              </a>
+            if (filter !== 'all') {
+              setFilter('all');
+            }
+          }}
+        >
+          All
+        </a>
 
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className={classNames(
-                'filter__link',
-                {
-                  selected: filter === 'active',
-                },
-              )}
-              onClick={event => {
-                event.preventDefault();
+        <a
+          data-cy="FilterLinkActive"
+          href="#/active"
+          className={classNames(
+            'filter__link',
+            {
+              selected: filter === 'active',
+            },
+          )}
+          onClick={event => {
+            event.preventDefault();
 
-                if (filter !== 'active') {
-                  setFilter('active');
-                }
-              }}
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className={classNames(
-                'filter__link',
-                {
-                  selected: filter === 'completed',
-                },
-              )}
-              onClick={event => {
-                event.preventDefault();
+            if (filter !== 'active') {
+              setFilter('active');
+            }
+          }}
+        >
+          Active
+        </a>
+        <a
+          data-cy="FilterLinkCompleted"
+          href="#/completed"
+          className={classNames(
+            'filter__link',
+            {
+              selected: filter === 'completed',
+            },
+          )}
+          onClick={event => {
+            event.preventDefault();
 
-                if (filter !== 'completed') {
-                  setFilter('completed');
-                }
-              }}
-            >
-              Completed
-            </a>
-          </nav>
+            if (filter !== 'completed') {
+              setFilter('completed');
+            }
+          }}
+        >
+          Completed
+        </a>
+      </nav>
 
-          {todos.some(todo => todo.completed) && <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={() => deleteAllCompleted()}
-          >
-            Clear completed
-          </button>}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => deleteAllCompleted()}
+        disabled={todos.some(todo => todo.completed)}
+      >
+        Clear completed
+      </button>
     </>
-  )
-}
-
+  );
+};

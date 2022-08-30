@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent, useEffect, useRef, useState,
+} from 'react';
 
 interface Props {
   handleCreateTodo: (title: string) => void;
@@ -14,7 +16,7 @@ export const AddTodoForm: React.FC<Props> = React.memo((props) => {
     }
   }, []);
 
-  const handleSubmitNewTodo = (event: any) => {
+  const handleSubmitNewTodo = (event: FormEvent) => {
     event.preventDefault();
     handleCreateTodo(todoCreateTitle);
     setTodoCreateTitle('');

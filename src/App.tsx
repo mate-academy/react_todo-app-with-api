@@ -1,13 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
+import React, {
+  useCallback, useContext, useEffect, useState,
+} from 'react';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { AddTodoForm } from './components/AddTodoForm';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer';
 import { TodoItem } from './components/TodoItem';
 import { Todo } from './types/Todo';
-
 
 type FilteredTodos = 'all' | 'active' | 'completed';
 
@@ -19,6 +22,8 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilteredTodos>('all');
   const [error, setError] = useState('');
   const [isAllTodoDone, setIsAllTodoDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [activeTodoId, setActiveTodoId] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -27,7 +32,7 @@ export const App: React.FC = () => {
           setTodos(res);
         });
     }
-  }, []);
+  }, [user]);
 
   const onAddTodo = (todo: Todo) => {
     setTodos((prevTodos) => (
@@ -35,25 +40,59 @@ export const App: React.FC = () => {
     ));
   };
 
-  const handlerAddTodo = useCallback((title: string) => {
-    if (user && title) {
-      const newTodo = {
-        userId: user.id,
-        title,
-        completed: false,
-      };
+  const handlerAddTodo = useCallback(async (title: string) => {
+    setLoading(true);
 
-      addTodo(newTodo)
-        .then(addedTodo => onAddTodo(addedTodo))
-        .catch(() => setError('Unable to add a todo'));
-     } 
-    else if (!title) {
-      setError('Title can\'t be empty');
+    if (!user) {
+      return;
     }
-  }, [user]);
 
-  const getFilteredTodos = useCallback((filter: FilteredTodos) => {
-    switch (filter) {
+    if (!title.trim()) {
+      setError('Please add title');
+
+      return;
+    }
+
+    const optimisticResponseId = -(todos.length);
+
+    const newTodo = {
+      id: optimisticResponseId,
+      userId: user.id,
+      title,
+      completed: false,
+    };
+
+    onAddTodo(newTodo);
+    setActiveTodoId(optimisticResponseId);
+
+    try {
+      const createdTodo = await addTodo({
+        title,
+        userId: user.id,
+        completed: false,
+      });
+
+      setTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id === optimisticResponseId) {
+          return createdTodo;
+        }
+
+        return todo;
+      }));
+    } catch {
+      setTodos(
+        prevTodos => prevTodos.filter(todo => todo.id !== optimisticResponseId),
+      );
+
+      setError('Unable to add a todo');
+    }
+
+    setLoading(false);
+    setError('');
+  }, [user, todos.length]);
+
+  const getFilteredTodos = useCallback((filterType: FilteredTodos) => {
+    switch (filterType) {
       case 'active':
         return todos.filter(todo => !todo.completed);
       case 'completed':
@@ -63,31 +102,36 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  const onDeleteTodo = (deletedTodoId: number) => {
-    setTodos((prev) => prev.filter(todo => todo.id !== deletedTodoId));
-  };
+  const removeTodo = useCallback(async (todoId: number) => {
+    setLoading(true);
+    setActiveTodoId(todoId);
 
-  const handlerDeleteTodo = useCallback((todoId:number) => {
-    deleteTodo(todoId)
-      .then(() => {
-          onDeleteTodo(todoId);
-      })
-      .catch(() => setError('Unable to delete a todo'))
-  }, []);
+    if (!user) {
+      return;
+    }
+
+    try {
+      await deleteTodo(todoId);
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+    } catch {
+      setError('Unable to delete a todo');
+    }
+
+    setLoading(false);
+  }, [user]);
 
   const delAllCompletedTodoHandler = useCallback(() => {
-
     todos.forEach(todo => {
       if (todo.completed) {
-        handlerDeleteTodo(todo.id);
+        removeTodo(todo.id);
       }
     });
-  }, [handlerDeleteTodo, todos]);
+  }, [removeTodo, todos]);
 
   const changeStatusTodos = useCallback(() => {
     const newTodoList = [...todos].map(todo => {
-      updateTodo(todo.id, !isAllTodoDone, todo.title )
-        .catch(() => setError('Unable to update a todo'))
+      updateTodo(todo.id, !isAllTodoDone, todo.title)
+        .catch(() => setError('Unable to update a todo'));
 
       return {
         ...todo,
@@ -98,7 +142,7 @@ export const App: React.FC = () => {
     setTodos(newTodoList);
     setIsAllTodoDone((prev) => !prev);
   }, [isAllTodoDone, todos]);
-  
+
   const filteredTodos = getFilteredTodos(filter);
 
   return (
@@ -125,23 +169,26 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main" data-cy="TodoList">
-        {filteredTodos.map(todo => (
+          {filteredTodos.map(todo => (
             <TodoItem
               todo={todo}
               todos={todos}
               setTodos={setTodos}
               key={todo.id}
               setError={setError}
+              loading={loading}
+              activeTodoId={activeTodoId}
+              remove={removeTodo}
             />
           ))}
         </section>
 
         <footer className="todoapp__footer" data-cy="Footer">
-          <Footer 
-            todos={todos} 
-            filter={filter} 
-            setFilter={setFilter} 
-            deleteAllCompleted={delAllCompletedTodoHandler} 
+          <Footer
+            todos={todos}
+            filter={filter}
+            setFilter={setFilter}
+            deleteAllCompleted={delAllCompletedTodoHandler}
           />
         </footer>
       </div>
