@@ -24,20 +24,24 @@ export const App: React.FC = () => {
   const [changedTodosId, setChangedTodosId] = useState<number[]>([]);
   const [filteredBy, setFilteredBy] = useState<string | null>(null);
 
+  // ** Error handler ** //
   const onError = useCallback((errorTitle: string) => {
     setErrorMessage(errorTitle);
 
     setTimeout(() => setErrorMessage(''), 3000);
   }, []);
 
+  // ++ Array length only with active todo, created for counter active todo in footer ** //
   const lengthActive = useMemo(() => (
     todos.filter(todo => !todo.completed).length
   ), [todos]);
 
+  // ** Array length only with completed todo, created for showing clear button ** //
   const lengthCompleted = useMemo(() => (
     todos.length - lengthActive
   ), [todos, lengthActive]);
 
+  // ** request to the server to get all todos ** //
   useEffect(() => {
     if (user) {
       setErrorMessage('');
@@ -54,6 +58,7 @@ export const App: React.FC = () => {
     }
   }, [user, shouldUpdate]);
 
+  // ** filtering todo when click on button in footer ** //
   const filteredTodos = useMemo(() => {
     switch (filteredBy) {
       case 'Active':
@@ -66,15 +71,18 @@ export const App: React.FC = () => {
     }
   }, [filteredBy, todos]);
 
+  // ** as soon as start the application immediately focuses on the newTodoField ** //
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
   }, []);
 
+  // ** creating new todo and sending it to the server ** //
   const addTodo = useCallback(() => {
     if (!newTitle.trim()) {
       onError('Title can\'t be empty');
+      setIsSubmit(false);
 
       return;
     }
@@ -116,6 +124,7 @@ export const App: React.FC = () => {
     }
   }, [isSubmit]);
 
+  // ** deleting todo by id ** //
   const removeTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
     setIsLoading(true);
@@ -132,6 +141,7 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, []);
 
+  // ** updating todo field like completed or title by id ** //
   const updateTodo = useCallback(
     (todoId: number, data: {}) => {
       setSelectedTodoId(todoId);
@@ -154,6 +164,7 @@ export const App: React.FC = () => {
     }, [],
   );
 
+  // ** toggle all todo completed or uncompleted **//
   const toggleAllTodo = useCallback(() => {
     const changedTodoId: number[] = [];
     const toggled = todos.some(todo => !todo.completed);
@@ -197,6 +208,7 @@ export const App: React.FC = () => {
       });
   }, [todos]);
 
+  // ** clear all completed todo ** //
   const clearCompleted = useCallback(() => {
     const changedTodoId: number[] = [];
 

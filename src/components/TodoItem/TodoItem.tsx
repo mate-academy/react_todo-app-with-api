@@ -28,16 +28,19 @@ export const TodoItem = (props: Props) => {
   const [isDblClicked, setIsDblClicked] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
+  // ** as soon as appear the editing field immediately focuses on this field ** //
   useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
     }
   }, [isDblClicked]);
 
+  // ** toggle completing todo ** //
   const handleChangeChecked = (e: ChangeEvent<HTMLInputElement>) => {
     onUpdateTodo(todo.id, { completed: e.target.checked });
   };
 
+  // ** set new title when field unfocused ** //
   const handleBlurEffect = () => {
     setIsDblClicked(false);
 
@@ -46,9 +49,15 @@ export const TodoItem = (props: Props) => {
     }
   };
 
+  // ** when key down 'Enter' set new title for todo, but if key down 'Escape' deleted changing and unfocused editing field ** //
   const handleOnKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
+    if (e.key === 'Enter') {
       handleBlurEffect();
+    }
+
+    if (e.key === 'Escape') {
+      setIsDblClicked(false);
+      setNewTitle(todo.title);
     }
   };
 
