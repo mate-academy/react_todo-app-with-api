@@ -68,7 +68,7 @@ export const App: React.FC = () => {
 
       setFilteredTodos(filtred);
     },
-    [filter],
+    [filter, todos],
   );
 
   const handelCloseError = useCallback(() => {

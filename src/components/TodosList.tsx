@@ -83,7 +83,7 @@ export const TodosList: FC<Props> = memo((props) => {
           && selectId === todo.id) || loadTodoId.includes(todo.id))
           && (
             <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background" />
+              <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>
           )}
