@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [changedTodoTitle, setChangedTodoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isHiddenTodoChange, setIsHiddenTodoChange] = useState(false);
+  const [openerTodos, setOpenerTodos] = useState(true);
   const [filterType, setFilterType] = useState<FilteredTodos>('all');
   const [todoId, setTodoId] = useState(0);
   const [error, setErorr] = useState('');
@@ -121,7 +122,10 @@ export const App: React.FC = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={todos.length > 0
+              ? 'todoapp__toggle-all active'
+              : 'todoapp__toggle-all'}
+            onClick={() => setOpenerTodos(prev => !prev)}
           />
 
           <form onSubmit={handleSubmit}>
@@ -137,96 +141,99 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos.map(todo => (
-            <div
-              data-cy="Todo"
-              className={todo.completed
-                ? 'todo completed'
-                : 'todo'}
-              key={todo.id}
-            >
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                  onClick={() => {
-                    setIsLoading(prev => !prev);
-                    setTodoId(todo.id);
-                    patchTodos(todo.id, { completed: !todo.completed })
-                      .then(() => {
-                        setTriger(prev => !prev);
-                      })
-                      .catch(() => changeError('patchError'));
-                  }}
-                />
-
-              </label>
-
-              {isHiddenTodoChange && todo.id === todoId && !todo.completed
-                ? (
-                  <form
-                    onSubmit={(e) => handleChangeTodos(e, todo)}
-                  >
-                    <input
-                      data-cy="TodoTitleField"
-                      type="text"
-                      className="todo__title-field"
-                      placeholder="Empty todo will be deleted"
-                      value={changedTodoTitle}
-                      onChange={(event) => {
-                        setChangedTodoTitle(event.target.value);
-                      }}
-                    />
-                  </form>
-                )
-                : (
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                    onDoubleClick={() => {
-                      setTodoId(todo.id);
-                      setIsHiddenTodoChange(true);
-                      setChangedTodoTitle(todo.title);
-                    }}
-                  >
-                    {todo.title}
-                  </span>
-                )}
-
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDeleteButton"
-                onClick={() => {
-                  setTodoId(todo.id);
-                  setIsLoading(prev => !prev);
-                  deleteTodos(todo.id)
-                    .then(() => setTriger(prev => !prev))
-                    .catch(() => changeError('deleteError'));
-                }}
-              >
-                ×
-              </button>
-
+        {openerTodos
+        && (
+          <section className="todoapp__main" data-cy="TodoList">
+            {filteredTodos.map(todo => (
               <div
-                data-cy="TodoLoader"
-                className={
-                  classNames('modal', 'overlay',
-                    {
-                      'is-active':
+                data-cy="Todo"
+                className={todo.completed
+                  ? 'todo completed'
+                  : 'todo'}
+                key={todo.id}
+              >
+                <label className="todo__status-label">
+                  <input
+                    data-cy="TodoStatus"
+                    type="checkbox"
+                    className="todo__status"
+                    onClick={() => {
+                      setIsLoading(prev => !prev);
+                      setTodoId(todo.id);
+                      patchTodos(todo.id, { completed: !todo.completed })
+                        .then(() => {
+                          setTriger(prev => !prev);
+                        })
+                        .catch(() => changeError('patchError'));
+                    }}
+                  />
+
+                </label>
+
+                {isHiddenTodoChange && todo.id === todoId && !todo.completed
+                  ? (
+                    <form
+                      onSubmit={(e) => handleChangeTodos(e, todo)}
+                    >
+                      <input
+                        data-cy="TodoTitleField"
+                        type="text"
+                        className="todo__title-field"
+                        placeholder="Empty todo will be deleted"
+                        value={changedTodoTitle}
+                        onChange={(event) => {
+                          setChangedTodoTitle(event.target.value);
+                        }}
+                      />
+                    </form>
+                  )
+                  : (
+                    <span
+                      data-cy="TodoTitle"
+                      className="todo__title"
+                      onDoubleClick={() => {
+                        setTodoId(todo.id);
+                        setIsHiddenTodoChange(true);
+                        setChangedTodoTitle(todo.title);
+                      }}
+                    >
+                      {todo.title}
+                    </span>
+                  )}
+
+                <button
+                  type="button"
+                  className="todo__remove"
+                  data-cy="TodoDeleteButton"
+                  onClick={() => {
+                    setTodoId(todo.id);
+                    setIsLoading(prev => !prev);
+                    deleteTodos(todo.id)
+                      .then(() => setTriger(prev => !prev))
+                      .catch(() => changeError('deleteError'));
+                  }}
+                >
+                  ×
+                </button>
+
+                <div
+                  data-cy="TodoLoader"
+                  className={
+                    classNames('modal', 'overlay',
+                      {
+                        'is-active':
                     ((todo.id === todoId && isLoading)
                     || (isLoading && completedTodos.includes(todo))),
-                    })
-                }
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
+                      })
+                  }
+                >
+                  <div className="modal-background has-background-white-ter" />
+                  <div className="loader" />
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
 
         {todos.length > 0
         && (
@@ -282,7 +289,10 @@ export const App: React.FC = () => {
               data-cy="ClearCompletedButton"
               type="button"
               className="todoapp__clear-completed"
-              hidden={completedTodos.length === 0}
+              style={completedTodos.length === 0
+                ? { visibility: 'hidden' }
+                : { visibility: 'visible' }}
+              // hidden={completedTodos.length === 0}
               onClick={() => {
                 todos.forEach((todo) => {
                   if (todo.completed) {
