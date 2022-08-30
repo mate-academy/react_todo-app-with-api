@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
+import {
   useCallback,
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
@@ -11,7 +11,7 @@ import {
 } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 
-export const App: React.FC = () => {
+export const App = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -27,11 +27,16 @@ export const App: React.FC = () => {
   // ** Error handler ** //
   const onError = useCallback((errorTitle: string) => {
     setErrorMessage(errorTitle);
-
-    setTimeout(() => setErrorMessage(''), 3000);
   }, []);
 
-  // ++ Array length only with active todo, created for counter active todo in footer ** //
+  // ** set timer for auto deleting error message **//
+  useEffect(() => {
+    const timer = setTimeout(() => setErrorMessage(''), 3000);
+
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
+  // ** Array length only with active todo, created for counter active todo in footer ** //
   const lengthActive = useMemo(() => (
     todos.filter(todo => !todo.completed).length
   ), [todos]);
@@ -98,7 +103,11 @@ export const App: React.FC = () => {
       setSelectedTodoId(newTodo.id);
       setIsLoading(true);
       setTodos(prev => [...prev, newTodo]);
-      createTodo(newTitle, user.id, false)
+      createTodo({
+        title: newTitle,
+        userId: user.id,
+        completed: false,
+      })
         .then((res) => {
           setTodos(prev => prev
             .map(todo => {
@@ -280,6 +289,7 @@ export const App: React.FC = () => {
           onUpdateTodo={updateTodo}
           isLoading={isLoading}
           changedTodosId={changedTodosId}
+          errorMessage={errorMessage}
         />
 
         {todos.length > 0 && (

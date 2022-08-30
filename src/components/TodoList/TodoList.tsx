@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
 
@@ -8,9 +9,10 @@ interface Props {
   onUpdateTodo: (todoId: number, data: {}) => void;
   isLoading: boolean;
   changedTodosId: number[];
+  errorMessage: string;
 }
 
-export const TodoList = (props: Props) => {
+export const TodoList = memo<Props>((props) => {
   const {
     todos,
     selectedTodoId,
@@ -18,6 +20,7 @@ export const TodoList = (props: Props) => {
     onUpdateTodo,
     isLoading,
     changedTodosId,
+    errorMessage,
   } = props;
 
   return (
@@ -31,8 +34,9 @@ export const TodoList = (props: Props) => {
           onUpdateTodo={onUpdateTodo}
           isLoading={isLoading}
           changedTodosId={changedTodosId}
+          errorMessage={errorMessage}
         />
       ))}
     </section>
   );
-};
+});

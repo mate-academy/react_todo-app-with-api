@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import {
   ChangeEvent,
-  KeyboardEvent, useEffect, useRef, useState,
+  KeyboardEvent, memo, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
 
@@ -12,9 +12,10 @@ interface Props {
   onUpdateTodo: (todoId: number, data: {}) => void;
   isLoading: boolean;
   changedTodosId: number[];
+  errorMessage: string;
 }
 
-export const TodoItem = (props: Props) => {
+export const TodoItem = memo<Props>((props) => {
   const {
     todo,
     selectedTodoId,
@@ -22,6 +23,7 @@ export const TodoItem = (props: Props) => {
     onUpdateTodo,
     isLoading,
     changedTodosId,
+    errorMessage,
   } = props;
 
   const titleField = useRef<HTMLInputElement>(null);
@@ -34,6 +36,13 @@ export const TodoItem = (props: Props) => {
       titleField.current.focus();
     }
   }, [isDblClicked]);
+
+  // ** reset editing field to default condition if didn't update ** //
+  useEffect(() => {
+    if (errorMessage === 'Unable to update a todo') {
+      setNewTitle(todo.title);
+    }
+  }, [errorMessage]);
 
   // ** toggle completing todo ** //
   const handleChangeChecked = (e: ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +73,12 @@ export const TodoItem = (props: Props) => {
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
+      className={classNames(
+        'todo',
+        {
+          completed: todo.completed,
+        },
+      )}
     >
       <label className="todo__status-label">
         <input
@@ -138,4 +152,4 @@ export const TodoItem = (props: Props) => {
         )}
     </div>
   );
-};
+});
