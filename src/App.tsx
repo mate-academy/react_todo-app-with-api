@@ -1,11 +1,18 @@
+/* eslint-disable no-console */
+/* eslint-disable object-curly-newline */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useCallback } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
+import { AuthForm } from './components/Auth/AuthForm';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  const onLogin = useCallback(() => {
+    console.log('logined');
+  }, []);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -13,6 +20,12 @@ export const App: React.FC = () => {
       newTodoField.current.focus();
     }
   }, []);
+
+  if (user) {
+    return (
+      <AuthForm onLogin={onLogin} />
+    );
+  }
 
   return (
     <div className="todoapp">
