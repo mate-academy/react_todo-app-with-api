@@ -18,6 +18,12 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo, CreateTodoFragment, UpdateTodoFragment } from './types/Todo';
 
+enum FilterTodosStatus {
+  All,
+  Active,
+  Completed,
+};
+
 export const App: FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -27,6 +33,10 @@ export const App: FC = () => {
   const [isAddError, setIsAddError] = useState(false);
   const [isUpdateError, setIsUpdateError] = useState(false);
   const [isDeleteError, setIsDeleteError] = useState(false);
+  const [
+    filterTodosStatus,
+    setFilterTodosStatus,
+  ] = useState<FilterTodosStatus>(FilterTodosStatus.All);
 
   const hasError = useMemo(() => (
     isAddError || isUpdateError || isDeleteError
@@ -54,22 +64,19 @@ export const App: FC = () => {
     }
   }, []);
 
-  const onStatusChange = useCallback(
-    (todoId: number, status: UpdateTodoFragment) => {
-      editTodo(todoId, status)
-        .then(updatedTodo => {
-          setTodos(prev => prev.map(currentTodo => (
-            currentTodo.id === updatedTodo.id
-              ? { ...currentTodo, completed: !currentTodo.completed }
-              : currentTodo
-          )));
-        })
-        .catch(() => setIsUpdateError(true));
-    },
-    [todos],
-  );
+  const updateStatus = (todoId: number, status: UpdateTodoFragment) => {
+    editTodo(todoId, status)
+      .then(updatedTodo => {
+        setTodos(prev => prev.map(currentTodo => (
+          currentTodo.id === updatedTodo.id
+            ? { ...currentTodo, completed: !currentTodo.completed }
+            : currentTodo
+        )));
+      })
+      .catch(() => setIsUpdateError(true));
+  };
 
-  const onDeleteTodo = useCallback((todoId: number) => {
+  const removeTodoItem = (todoId: number) => {
     removeTodo(todoId)
       .then((res) => {
         if (res === 1) {
@@ -77,7 +84,17 @@ export const App: FC = () => {
         }
       })
       .catch(() => setIsDeleteError(true));
-  }, [todos]);
+  };
+
+  const onStatusChange = useCallback(
+    updateStatus,
+    [todos],
+  );
+
+  const onDeleteTodo = useCallback(
+    removeTodoItem,
+    [todos],
+  );
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -102,13 +119,24 @@ export const App: FC = () => {
 
   const getIncompletedTodosLength = useCallback((): number => {
     const completedTodos = todos
-      .map(currentTodo => (
-        currentTodo.completed === true
-      ))
-      .filter(Boolean);
+      .filter(currentTodo => currentTodo.completed);
 
     return todos.length - completedTodos.length;
   }, [todos]);
+
+  const filterTodosByStatus = (todoFilterStatus: FilterTodosStatus): Todo[] => {
+    switch (todoFilterStatus) {
+      case FilterTodosStatus.Active:
+        return todos.filter(todo => !todo.completed);
+
+      case FilterTodosStatus.Completed:
+        return todos.filter(todo => todo.completed);
+
+      case FilterTodosStatus.All:
+      default:
+        return todos;
+    }
+  };
 
   return (
     <div className="todoapp">
@@ -136,7 +164,7 @@ export const App: FC = () => {
         </header>
 
         <TodoList
-          todos={todos}
+          todos={filterTodosByStatus(filterTodosStatus)}
           onChange={onStatusChange}
           onDelete={onDeleteTodo}
         />
@@ -151,6 +179,7 @@ export const App: FC = () => {
               data-cy="FilterLinkAll"
               href="#/"
               className="filter__link selected"
+              onClick={() => setFilterTodosStatus(FilterTodosStatus.All)}
             >
               All
             </a>
@@ -159,6 +188,7 @@ export const App: FC = () => {
               data-cy="FilterLinkActive"
               href="#/active"
               className="filter__link"
+              onClick={() => setFilterTodosStatus(FilterTodosStatus.Active)}
             >
               Active
             </a>
@@ -166,6 +196,7 @@ export const App: FC = () => {
               data-cy="FilterLinkCompleted"
               href="#/completed"
               className="filter__link"
+              onClick={() => setFilterTodosStatus(FilterTodosStatus.Completed)}
             >
               Completed
             </a>
