@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -9,7 +9,7 @@ type Props = {
   setSelectedTodo: (todo: Todo | null) => void,
   handleDeleteTodo: (todoId: number) => void,
   handleUpdateTodoStatus: (todo: Todo) => void,
-  handleRenameTodo: (todoId: number, title: string) => void,
+  handleRenameTodo: (todo: Todo, title: string) => void,
   isLoading: boolean,
 };
 
@@ -24,11 +24,19 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [title, setTitle] = useState(todo.title);
 
+  const editField = useRef<HTMLInputElement>(null);
+
   const isChanging = selectedTodo?.id === todo.id;
+
+  useEffect(() => {
+    if (editField.current) {
+      editField.current.focus();
+    }
+  }, [isChanging]);
 
   const handleSubmitForm = () => {
     setSelectedTodo(null);
-    handleRenameTodo(todo.id, title);
+    handleRenameTodo(todo, title);
   };
 
   return (
@@ -78,10 +86,10 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            // defaultValue={todo.title}
-            value={title}
+            defaultValue={todo.title}
             onChange={(event) => setTitle(event.target.value)}
             onBlur={handleSubmitForm}
+            ref={editField}
           />
         </form>
       )}

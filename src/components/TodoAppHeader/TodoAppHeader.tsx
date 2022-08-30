@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -17,8 +17,8 @@ export const TodoAppHeader: React.FC<Props> = (props) => {
 
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
-  const handleFormSubmit = () => {
-    handleCreateTodo(newTodoTitle);
+  const handleFormSubmit = (event: FormEvent) => {
+    handleCreateTodo(event, newTodoTitle);
     setNewTodoTitle('');
   };
 
@@ -43,7 +43,6 @@ export const TodoAppHeader: React.FC<Props> = (props) => {
         <input
           data-cy="NewTodoField"
           type="text"
-          // ref={newTodoField}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={newTodoTitle}

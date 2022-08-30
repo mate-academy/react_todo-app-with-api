@@ -1,45 +1,54 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { TodoAppHeader } from '../TodoAppHeader/TodoAppHeader';
 import { TodoAppMain } from '../TodoAppMain/TodoAppMain';
 import { TodoAppFooter } from '../TodoAppFooter/TodoAppFooter';
 import { Todo } from '../../types/Todo';
 import { User } from '../../types/User';
 import { createTodo, deleteTodo, updateTodo } from '../../api/todos';
+import { ErrorType } from '../../Enums/ErrorType';
 
 type Props = {
+  isLoading: boolean,
   todos: Todo[],
+  allTodos: Todo[],
   setTodos: CallableFunction,
   user: User,
   sortBy: number,
   setSortBy: CallableFunction,
-  isLoading: boolean,
+  setErrorType: CallableFunction,
 };
 
 export const TodoApp: React.FC<Props> = (props) => {
   const {
+    isLoading,
     todos,
+    allTodos,
     setTodos,
     user,
     sortBy,
     setSortBy,
-    isLoading,
+    setErrorType,
   } = props;
 
   const [loadingTodosID, setLoadingTodosID] = useState<number[]>([]);
 
   const handleDeleteTodo = (todoId: number): void => {
+    setErrorType(ErrorType.Default);
+
     setLoadingTodosID(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
         setTodos((prev: Todo[]) => prev.filter(todo => todo.id !== todoId));
       })
-      .finally(() => {
-        setLoadingTodosID(prev => prev.filter(item => item !== todoId));
+      .catch(() => {
+        setErrorType(ErrorType.Delete);
       });
   };
 
   const handleUpdateTodoStatus = (todo: Todo): void => {
+    setErrorType(ErrorType.Default);
+
     setLoadingTodosID(prev => [...prev, todo.id]);
 
     updateTodo(todo.id, {
@@ -57,68 +66,103 @@ export const TodoApp: React.FC<Props> = (props) => {
           return oldTodo;
         }));
       })
+      .catch(() => {
+        setErrorType(ErrorType.Update);
+      })
       .finally(() => {
         setLoadingTodosID(prev => prev.filter(item => item !== todo.id));
       });
   };
 
-  const handleRenameTodo = (todoId: number, title: string): void => {
-    setLoadingTodosID(prev => [...prev, todoId]);
+  const handleRenameTodo = (todo: Todo, title: string): void => {
+    setErrorType(ErrorType.Default);
 
-    updateTodo(todoId, {
-      title,
-    })
-      .then(() => {
-        setTodos((prev: Todo[]) => prev.map(oldTodo => {
-          if (oldTodo.id === todoId) {
-            return {
-              ...oldTodo,
-              title,
-            };
-          }
+    if (todo.title === title) {
+      return;
+    }
 
-          return oldTodo;
-        }));
+    if (title.trim().length <= 0) {
+      handleDeleteTodo(todo.id);
+    } else {
+      setLoadingTodosID(prev => [...prev, todo.id]);
+
+      updateTodo(todo.id, {
+        title,
       })
-      .finally(() => {
-        setLoadingTodosID(prev => prev.filter(item => item !== todoId));
-      });
+        .then(() => {
+          setTodos((prev: Todo[]) => prev.map(oldTodo => {
+            if (oldTodo.id === todo.id) {
+              return {
+                ...oldTodo,
+                title,
+              };
+            }
+
+            return oldTodo;
+          }));
+        })
+        .catch(() => {
+          setErrorType(ErrorType.Update);
+        })
+        .finally(() => {
+          setLoadingTodosID(prev => prev.filter(item => item !== todo.id));
+        });
+    }
   };
 
-  const handleCreateTodo = (title: string): void => {
-    createTodo({
+  const handleCreateTodo = async (event: FormEvent, title: string) => {
+    setErrorType(ErrorType.Default);
+
+    event.preventDefault();
+
+    if (title.trim().length <= 0) {
+      setErrorType(ErrorType.WrongTitle);
+
+      return;
+    }
+
+    const optimisticResponseId = -(todos.length);
+    const optimisticTodo = {
+      id: optimisticResponseId,
+      title,
+      userId: user.id,
+      completed: false,
+    };
+
+    setTodos((prev: Todo[]) => [...prev, optimisticTodo]);
+    setLoadingTodosID(prev => [...prev, optimisticResponseId]);
+
+    const createdTodo = await createTodo({
       title,
       userId: user.id,
       completed: false,
     })
-      .then((newTodo) => {
-        setTodos((prev: Todo[]) => [...prev, newTodo]);
+      .catch(() => {
+        setErrorType(ErrorType.Create);
       });
+
+    setTodos((prev: Todo[]) => prev.map(todo => {
+      return todo.id === optimisticResponseId
+        ? createdTodo
+        : todo;
+    }));
   };
 
   const handleUpdateAllTodosStatus = (): void => {
-    setLoadingTodosID([...todos.map(todo => todo.id)]);
-
     const isAllCompleted = todos.every(todo => todo.completed);
-    // const uncompletedTodos = todos.filter(todo => !todo.completed);
 
-    todos.forEach(todo => {
-      updateTodo(todo.id, { completed: !isAllCompleted })
-        .then(() => {
-          setTodos((prev: Todo[]) => prev.map(oldTodo => {
-            return {
-              ...oldTodo,
-              completed: !isAllCompleted,
-            };
-          }));
-        })
-        .finally(() => {
-          setLoadingTodosID([]);
-        });
-    });
+    if (isAllCompleted) {
+      todos.forEach(todo => handleUpdateTodoStatus(todo));
+    } else {
+      todos.forEach(todo => {
+        if (todo.completed === false) {
+          handleUpdateTodoStatus(todo);
+        }
+      });
+    }
   };
 
-  const handleTodosClear = () => {
+  const handleCompletedTodosClear = (): void => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => handleDeleteTodo(todo.id));
@@ -131,21 +175,24 @@ export const TodoApp: React.FC<Props> = (props) => {
         handleUpdateAllTodosStatus={handleUpdateAllTodosStatus}
         handleCreateTodo={handleCreateTodo}
       />
-      {!isLoading && todos.length > 0 && (
+
+      {!isLoading && allTodos.length > 0 && (
         <>
-          <TodoAppMain
-            todos={todos}
-            handleDeleteTodo={handleDeleteTodo}
-            handleRenameTodo={handleRenameTodo}
-            handleUpdateTodoStatus={handleUpdateTodoStatus}
-            loadingTodosID={loadingTodosID}
-          />
+          {todos.length > 0 && (
+            <TodoAppMain
+              todos={todos}
+              handleDeleteTodo={handleDeleteTodo}
+              handleRenameTodo={handleRenameTodo}
+              handleUpdateTodoStatus={handleUpdateTodoStatus}
+              loadingTodosID={loadingTodosID}
+            />
+          )}
 
           <TodoAppFooter
             todos={todos}
             sortBy={sortBy}
             setSortBy={setSortBy}
-            handleTodosClear={handleTodosClear}
+            handleCompletedTodosClear={handleCompletedTodosClear}
           />
         </>
       )}

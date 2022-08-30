@@ -8,7 +8,7 @@ type Props = {
   todos: Todo[],
   sortBy: number,
   setSortBy: CallableFunction,
-  handleTodosClear: CallableFunction,
+  handleCompletedTodosClear: CallableFunction,
 };
 
 export const TodoAppFooter: React.FC<Props> = (props) => {
@@ -16,15 +16,12 @@ export const TodoAppFooter: React.FC<Props> = (props) => {
     todos,
     sortBy,
     setSortBy,
-    handleTodosClear,
+    handleCompletedTodosClear,
   } = props;
 
   const todosLeft = () => todos.filter(todo => !todo.completed).length;
   const completedTodos = () => todos.filter(todo => todo.completed).length;
-
-  const handleSortBy = (sortByNumber: number) => {
-    setSortBy(sortByNumber);
-  };
+  const handleSortBy = (sortByNumber: number) => setSortBy(sortByNumber);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -79,7 +76,7 @@ export const TodoAppFooter: React.FC<Props> = (props) => {
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={() => handleTodosClear()}
+        onClick={() => handleCompletedTodosClear()}
         style={{
           opacity: completedTodos() > 0 ? '100%' : '0%',
           cursor: completedTodos() > 0 ? 'pointer' : 'auto',

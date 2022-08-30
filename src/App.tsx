@@ -1,7 +1,6 @@
 import React, {
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -12,13 +11,14 @@ import {
 import { Todo } from './types/Todo';
 import { getTodos } from './api/todos';
 import { SortBy } from './Enums/SortBy';
+import { ErrorType } from './Enums/ErrorType';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState(0);
+  const [errorType, setErrorType] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -27,11 +27,6 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(setTodos)
         .finally(() => setIsLoading(false));
-    }
-
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
     }
   }, []);
 
@@ -52,17 +47,26 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       {user && (
-        <TodoApp
-          isLoading={isLoading}
-          todos={selectedTodos()}
-          setTodos={setTodos}
-          user={user}
-          setSortBy={setSortBy}
-          sortBy={sortBy}
-        />
-      )}
+        <>
+          <TodoApp
+            isLoading={isLoading}
+            todos={selectedTodos()}
+            setTodos={setTodos}
+            allTodos={todos}
+            user={user}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            setErrorType={setErrorType}
+          />
 
-      <ErrorNotification />
+          {errorType !== ErrorType.Default && (
+            <ErrorNotification
+              errorType={errorType}
+              setErrorType={setErrorType}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
