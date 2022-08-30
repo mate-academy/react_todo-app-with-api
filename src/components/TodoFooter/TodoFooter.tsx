@@ -80,7 +80,6 @@ export const TodoFooter: React.FC<Props> = React.memo(({
       >
         Clear completed
       </button>
-
     </footer>
   );
 });
