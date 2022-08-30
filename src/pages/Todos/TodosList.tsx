@@ -11,9 +11,9 @@ import { fetchTodos } from 'store/todos/todosAsync';
 import { selectFilteredTodos } from 'store/todos/todosSelectors';
 import { selectCurrentUser } from 'store/users/usersSelectors';
 // Components
-import { Box, LinearProgress } from '@mui/material';
 import TodoItem from './TodoItem';
 // MUI
+import { Box, LinearProgress } from '@mui/material';
 
 const TodosList:React.FC = () => {
   const dispatch = useAppDispatch();

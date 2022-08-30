@@ -117,7 +117,9 @@ const TodoItem:React.FC<Props> = ({ todo }) => {
             onKeyDown={handleKeyDown}
           />
         ) : (
-          <Typography className={classes.title}>
+          <Typography className={classes.title} sx={{
+            color: todo.completed ? '#999' : '#222', textDecoration: todo.completed ? 'line-through' : 'none'
+          }}>
             {todo.title}
           </Typography>
         )}
