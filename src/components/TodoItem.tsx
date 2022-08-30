@@ -9,6 +9,7 @@ type Props = {
   hasUpdateError: (condition: boolean) => void;
   isRemoving: boolean;
   isRemovingAll: boolean;
+  updateStateTodos: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = React.memo((props) => {
@@ -18,6 +19,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     hasUpdateError,
     isRemoving,
     isRemovingAll,
+    updateStateTodos,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +32,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     client.patch<Todo>(`/todos/${item.id}`, {
       completed: !item.completed,
     })
+      .then(res => updateStateTodos(res))
       .catch(() => hasUpdateError(true))
       .finally(() => setIsLoading(false));
   };

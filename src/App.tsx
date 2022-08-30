@@ -41,11 +41,6 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    // if (newTodoField.current) {
-    //   newTodoField.current.focus();
-    // }
-
     if (user) {
       getTodos(user.id)
         .then(res => setTodos(res.map(todo => ({
@@ -56,7 +51,7 @@ export const App: React.FC = () => {
         }))))
         .catch(() => setHasLoadingTodoError(true));
     }
-  }, [todos]);
+  }, []);
 
   let preparedTodosToShow: Todo[] = [...todos];
 
@@ -90,11 +85,11 @@ export const App: React.FC = () => {
     }
   });
 
-  const canAdd = user !== null && inputDataOfTodo !== '' && !isLoading;
+  const canAdd = user !== null && inputDataOfTodo.trim() !== '' && !isLoading;
 
   const addingTodoToList = (event: React.KeyboardEvent) => {
     if (
-      event.key === 'Enter' && user && inputDataOfTodo === '') {
+      event.key === 'Enter' && user && inputDataOfTodo.trim() === '') {
       setErrorMsgTodo(true);
       setHideErrors(false);
       closeErrors();
@@ -128,28 +123,28 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateAllTodos = () => {
-    const listOfTodos = [...todos];
+  const updateAllTodos = async () => {
+    const updatedTodos = await Promise.all(
+      todos.map((todo) => client.patch<Todo>(`/todos/${todo.id}`, { completed: !areAllCompleted })),
+    );
 
-    listOfTodos.forEach(todo => (
-      client.patch<Todo>(`/todos/${todo.id}`, {
-        completed: !areAllCompleted,
-      })
-        .catch(() => setHasUpdateTodoError(true))));
+    setTodos(updatedTodos);
   };
 
   const removeOneTodo = useCallback((id: number) => {
     setIsRemoveOneTodoLoading(true);
-    client.delete<Todo>(`/todos/${id}`)
-      .then(res => {
-        setTodos(prev => prev
-          .filter(prevTodo => prevTodo.id !== res.id));
-      })
+    client.delete(`/todos/${id}`)
       .catch(() => {
         setHasDeleteTodoError(true);
         setHideErrors(false);
       })
-      .finally(() => setIsRemoveOneTodoLoading(false));
+      .finally(() => {
+        setIsRemoveOneTodoLoading(false);
+        if (!hasDeleteTodoError) {
+          setTodos(prev => prev
+            .filter(prevTodo => prevTodo.id !== id));
+        }
+      });
   }, []);
 
   const removeAllDoneTodo = () => {
@@ -157,7 +152,14 @@ export const App: React.FC = () => {
       if (todo.completed) {
         setIsRemovingAllDone(true);
         client.delete(`/todos/${todo.id}`)
-          .finally(() => setIsRemovingAllDone(false));
+          .catch(() => setHasDeleteTodoError(true))
+          .finally(() => {
+            setIsRemovingAllDone(false);
+            if (!hasDeleteTodoError) {
+              setTodos(prev => prev
+                .filter(prevTodo => prevTodo.id !== todo.id));
+            }
+          });
       }
     });
   };
@@ -170,6 +172,20 @@ export const App: React.FC = () => {
     (condition: boolean) => setHasUpdateTodoError(condition),
     [],
   );
+
+  const updateStateTodos = (todo: Todo) => {
+    setTodos(prev => prev.map(prevTodo => {
+      if (prevTodo.id === todo.id) {
+        // eslint-disable-next-line no-param-reassign
+        prevTodo = {
+          ...prevTodo,
+          completed: todo.completed,
+        };
+      }
+
+      return prevTodo;
+    }));
+  };
 
   return (
     <div className="todoapp">
@@ -214,6 +230,7 @@ export const App: React.FC = () => {
               hasUpdateError={hasUpdateError}
               isRemoving={isRemoveOneTodoLoading}
               isRemovingAll={isRemovingAllDone}
+              updateStateTodos={updateStateTodos}
             />
           ))}
 
