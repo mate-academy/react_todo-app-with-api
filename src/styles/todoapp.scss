@@ -132,6 +132,7 @@
 
     &:disabled {
       opacity: 0;
+      cursor: default;
     }
   }
 }

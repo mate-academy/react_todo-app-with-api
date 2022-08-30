@@ -103,6 +103,8 @@ export const App: React.FC = () => {
           setLoadingTodosId(prev => prev.filter(curr => curr !== newTodo.id))
         ));
     }
+
+    setInputtext('');
   };
 
   const changeTodoStatusHandler = (todo: Todo) => {
