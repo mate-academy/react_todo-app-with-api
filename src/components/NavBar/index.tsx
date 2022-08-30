@@ -14,9 +14,9 @@ const NavBar:React.FC = () => {
   const isAuthorization:boolean | null = useSelector(selectIsAuthorization);
 
   return (
-    <AppBar position="relative" elevation={0} sx={{ background: 'linear-gradient(315deg, #3D98BF 0%, #53B8E0 100%)' }}>
+    <AppBar position="relative" elevation={0}>
       <Toolbar>
-        <Typography sx={{ fontSize: '24px' }}>Todos List</Typography>
+        <Typography sx={{ fontSize: '24px', color: '#fff' }}>Todos List</Typography>
         <Box flexGrow={1} />
         <Box sx={{ display: 'flex', gap: 2 }}>
           {isAuthorization && <UserMenu />}

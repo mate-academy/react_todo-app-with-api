@@ -5,6 +5,8 @@ import { v4 as uuid } from 'uuid';
 import { useAppDispatch } from 'hooks/useAppDispatch';
 // Models
 import ITodo from 'models/Todo';
+// Types
+import FilterTypes from 'types/FilterTypes';
 // Async
 import { deleteTodo } from 'store/todos/todosAsync';
 // Actions
@@ -27,7 +29,7 @@ const TodosActions:React.FC = () => {
   const completedTodos: ITodo[] | null = useSelector(selectCompletedTodos);
   const activeFilter = useSelector(selectFilter);
 
-  const handleFilter = (filter: string | null) => {
+  const handleFilter = (filter: FilterTypes | null) => {
     dispatch(todosActions.setFilter(filter));
   }
 
@@ -56,15 +58,15 @@ const TodosActions:React.FC = () => {
           >All</Button>
           <Button
             size="small"
-            color={activeFilter === 'active' ? 'primary' : 'inherit'}
-            variant={activeFilter === 'active' ? 'contained' : 'outlined'}
-            onClick={() => handleFilter('active')}
+            color={activeFilter === FilterTypes.Active ? 'primary' : 'inherit'}
+            variant={activeFilter === FilterTypes.Active ? 'contained' : 'outlined'}
+            onClick={() => handleFilter(FilterTypes.Active)}
           >Active</Button>
           <Button
             size="small"
-            color={activeFilter === 'completed' ? 'primary' : 'inherit'}
-            variant={activeFilter === 'completed' ? 'contained' : 'outlined'}
-            onClick={() => handleFilter('completed')}
+            color={activeFilter === FilterTypes.Completed ? 'primary' : 'inherit'}
+            variant={activeFilter === FilterTypes.Completed ? 'contained' : 'outlined'}
+            onClick={() => handleFilter(FilterTypes.Completed)}
           >Completed</Button>
         </ButtonGroup>
       </Box>

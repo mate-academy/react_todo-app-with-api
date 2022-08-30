@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 // Models
 import ITodo from 'models/Todo';
+// Types
+import FilterTypes from 'types/FilterTypes';
 // Async
 import { createTodo, deleteTodo, fetchTodos, updateTodo } from './todosAsync';
 
 interface IUsersState {
   todos: ITodo[] | null;
-  filter: string | null;
+  filter: FilterTypes | null;
 }
 
 const initialState: IUsersState = {
@@ -18,7 +20,7 @@ const todosSlice = createSlice({
   name: 'todos',
   initialState,
   reducers: {
-    setFilter: (state, action:PayloadAction<string | null>) => {
+    setFilter: (state, action:PayloadAction<FilterTypes | null>) => {
       state.filter = action.payload;
     }
   },
