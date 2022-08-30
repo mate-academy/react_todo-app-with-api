@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../../types/Todo';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
   onPatch?: (todo: Todo) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDelete = () => {},
   isProcessed,
@@ -103,4 +103,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

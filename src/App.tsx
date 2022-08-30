@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext, useEffect, useRef, useState,
 } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -39,6 +40,23 @@ export const App: React.FC = () => {
     setProcessing(prevstate => prevstate.filter(item => item !== id));
   };
 
+  const onDelete = useCallback((id: number) => {
+    addProcessing(id);
+    api.deleteTodo(id).then(() => {
+      setTodos(prevstate => prevstate.filter(todo => todo.id !== id));
+    }).catch(() => setError('Failed to delete'))
+      .finally(() => removeProcessing(id));
+  }, [todos]);
+
+  const patchTodo = useCallback((newTodo: Todo) => {
+    addProcessing(newTodo.id);
+    api.patchTodo(newTodo).then(() => {
+      setTodos(prevstate => prevstate
+        .map(todo => (todo.id === newTodo.id ? newTodo : todo)));
+    }).catch(() => setError('Failed to update'))
+      .finally(() => removeProcessing(newTodo.id));
+  }, [todos]);
+
   if (!user) {
     return <p>Please Login</p>;
   }
@@ -58,23 +76,6 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
-  const onDelete = (id: number) => {
-    addProcessing(id);
-    api.deleteTodo(id).then(() => {
-      setTodos(prevstate => prevstate.filter(todo => todo.id !== id));
-    }).catch(() => setError('Failed to delete'))
-      .finally(() => removeProcessing(id));
-  };
-
-  const patchTodo = (newTodo: Todo) => {
-    addProcessing(newTodo.id);
-    api.patchTodo(newTodo).then(() => {
-      setTodos(prevstate => prevstate
-        .map(todo => (todo.id === newTodo.id ? newTodo : todo)));
-    }).catch(() => setError('Failed to update'))
-      .finally(() => removeProcessing(newTodo.id));
-  };
-
   const toggleAll = () => {
     let toToggle;
 
@@ -90,13 +91,13 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    completedTodos.forEach(todo => {
-      onDelete(todo.id);
-    });
+    Promise.all(completedTodos.map(todo => {
+      return onDelete(todo.id);
+    }));
   };
 
   const onSubmit = () => {
-    if (todoTitle.length === 0) {
+    if (todoTitle.trim().length === 0) {
       return;
     }
 
