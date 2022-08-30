@@ -69,17 +69,15 @@ export const FiltersTodos: React.FC<Props> = (props) => {
         </a>
       </nav>
 
-      {completedTodos.length > 0
-         && (
-           <button
-             data-cy="ClearCompletedButton"
-             type="button"
-             className="todoapp__clear-completed"
-             onClick={handelClearAllComplered}
-           >
-             Clear completed
-           </button>
-         )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={handelClearAllComplered}
+        style={{ visibility: completedTodos.length > 0 ? 'visible' : 'hidden' }}
+      >
+        Clear completed
+      </button>
     </>
   );
 };
