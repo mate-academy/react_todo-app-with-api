@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [inputDataOfTodo, setInputDataOfTodo] = useState('');
 
   const [isLoading, setIsLoadind] = useState(false);
+  const [isLoadingAll, setIsLoadingAll] = useState(false);
 
   const [errorMsgTodo, setErrorMsgTodo] = useState(false);
 
@@ -129,16 +130,23 @@ export const App: React.FC = () => {
   };
 
   const updateAllTodos = async () => {
+    setIsLoadingAll(true);
     const updatedTodos = await Promise.all(
       todos.map((todo) => client.patch<Todo>(`/todos/${todo.id}`, { completed: !areAllCompleted })),
     );
 
     setTodos(updatedTodos);
+    setIsLoadingAll(false);
   };
 
   const removeOneTodo = useCallback((id: number) => {
     setIsRemoveOneTodoLoading(true);
     client.delete(`/todos/${id}`)
+      .then(res => {
+        if (!res) {
+          setHasDeleteTodoError(true);
+        }
+      })
       .catch(() => {
         setHasDeleteTodoError(true);
         setHideErrors(false);
@@ -157,6 +165,11 @@ export const App: React.FC = () => {
       if (todo.completed) {
         setIsRemovingAllDone(true);
         client.delete(`/todos/${todo.id}`)
+          .then(res => {
+            if (!res) {
+              setHasDeleteTodoError(true);
+            }
+          })
           .catch(() => setHasDeleteTodoError(true))
           .finally(() => {
             setIsRemovingAllDone(false);
@@ -238,6 +251,7 @@ export const App: React.FC = () => {
               isRemoving={isRemoveOneTodoLoading}
               isRemovingAll={isRemovingAllDone}
               updateStateTodos={updateStateTodos}
+              isLoadingAll={isLoadingAll}
             />
           ))}
 

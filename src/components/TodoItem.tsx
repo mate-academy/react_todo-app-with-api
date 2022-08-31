@@ -10,6 +10,7 @@ type Props = {
   isRemoving: boolean;
   isRemovingAll: boolean;
   updateStateTodos: (todo: Todo) => void;
+  isLoadingAll: boolean;
 };
 
 export const TodoItem: React.FC<Props> = React.memo((props) => {
@@ -20,6 +21,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     isRemoving,
     isRemovingAll,
     updateStateTodos,
+    isLoadingAll,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,6 +44,11 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     client.patch<Todo>(`/todos/${item.id}`, {
       title: changedTodoValue,
     })
+      .then(res => {
+        if (!res) {
+          hasUpdateError(true);
+        }
+      })
       .catch(() => hasUpdateError(true))
       .finally(() => {
         setIsLoading(false);
@@ -57,6 +64,8 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     } else if ((event.key === 'Enter' && changedTodoValue !== '')
     || event.key === 'Escape') {
       setIsDoubleClicked(false);
+    } else if ((event.key === 'Enter' && changedTodoValue === '')) {
+      removeOneTodo(todo.id);
     }
   };
 
@@ -64,6 +73,8 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
     if (changedTodoValue !== ''
     && changedTodoValue !== todo.title) {
       updateOneTodoTitle(todo);
+    } else if (changedTodoValue === '') {
+      removeOneTodo(todo.id);
     }
 
     setIsDoubleClicked(false);
@@ -139,7 +150,8 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
 
       {((isLoading
         || (isRemoving && deletedItem === todo.id))
-        || (isRemovingAll && todo.completed))
+        || (isRemovingAll && todo.completed)
+        || (isLoadingAll))
         && (
           <div data-cy="TodoLoader" className="modal overlay is-active">
             <div className="modal-background has-background-white-ter" />
