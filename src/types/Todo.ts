@@ -14,5 +14,3 @@ export enum FilterType {
   Active,
   Completed,
 }
-
-export type TodoOptimistic = Partial<Todo>;

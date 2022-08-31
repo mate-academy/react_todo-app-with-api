@@ -1,17 +1,27 @@
 import classNames from 'classnames';
-import { FC, useMemo } from 'react';
-import { FilterType, TodoOptimistic } from '../types/Todo';
+import {
+  Dispatch, FC, SetStateAction, useMemo,
+} from 'react';
+import { deleteTodo } from '../api/todos';
+import { FilterType, Todo } from '../types/Todo';
 
 interface Props {
-  todos: TodoOptimistic[],
+  todos: Todo[],
   changeFilter: (filterType: FilterType) => void,
   filterType: FilterType,
-  clearCompleted: () => void;
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
+  setErrorMessages: Dispatch<SetStateAction<string []>>,
+  setSelectedTodoIds: Dispatch<React.SetStateAction<number[]>>,
 }
 
 export const TodoStatusBar: FC<Props> = (props) => {
   const {
-    todos, changeFilter, filterType, clearCompleted,
+    todos,
+    changeFilter,
+    filterType,
+    setTodos,
+    setErrorMessages,
+    setSelectedTodoIds,
   } = props;
 
   const itemsLeft = useMemo(() => {
@@ -19,6 +29,38 @@ export const TodoStatusBar: FC<Props> = (props) => {
 
     return todosLeft.filter(todo => todo.completed === false).length;
   }, [todos]);
+
+  const displayClearCompleted = todos.some(todo => todo.completed);
+
+  const onDelete = (id: number) => {
+    setTodos((prevTodos) => prevTodos.filter(prevTodo => prevTodo.id !== id));
+  };
+
+  const clearCompletedHandler = (todosToDelete: Todo[]) => {
+    const ids = todosToDelete.map(todo => todo.id);
+
+    setErrorMessages([]);
+    setSelectedTodoIds(prev => [...prev, ...ids]);
+
+    todosToDelete.forEach(element => {
+      deleteTodo(element.id)
+        .then(responce => {
+          if (responce) {
+            onDelete(element.id);
+          }
+        })
+        .catch(() => {
+          setErrorMessages(
+            (prev: string []) => [...prev, 'Unable to delete a todo'],
+          );
+        })
+        .finally(() => {
+          setSelectedTodoIds(prev => prev.filter(
+            someId => someId !== element.id,
+          ));
+        });
+    });
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -34,9 +76,7 @@ export const TodoStatusBar: FC<Props> = (props) => {
             'filter__link',
             { selected: filterType === FilterType.All },
           )}
-          onClick={() => {
-            changeFilter(FilterType.All);
-          }}
+          onClick={() => changeFilter(FilterType.All)}
         >
           All
         </a>
@@ -65,14 +105,19 @@ export const TodoStatusBar: FC<Props> = (props) => {
         </a>
       </nav>
 
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={clearCompleted}
-      >
-        Clear completed
-      </button>
+      {displayClearCompleted && (
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={() => clearCompletedHandler(
+            todos.filter(todo => todo.completed),
+          )}
+        >
+          Clear completed
+        </button>
+      )}
+
     </footer>
   );
 };

@@ -3,16 +3,17 @@ import {
   FC, SetStateAction, useEffect, useState,
 } from 'react';
 import { getTodos } from '../api/todos';
-import { TodoOptimistic } from '../types/Todo';
+import { Todo } from '../types/Todo';
 import { User } from '../types/User';
 import { TodoItem } from './TodoItem';
 
 interface Props {
   user: User,
-  todos: TodoOptimistic[],
-  setTodos: Dispatch<SetStateAction<TodoOptimistic[]>>,
+  todos: Todo[],
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessages: Dispatch<SetStateAction<string []>>,
-  todoTitle: string,
+  selectedTodoIds: number[],
+  setSelectedTodoIds: Dispatch<React.SetStateAction<number[]>>,
 }
 
 export const TodoList: FC<Props> = (props) => {
@@ -21,7 +22,8 @@ export const TodoList: FC<Props> = (props) => {
     todos,
     setTodos,
     setErrorMessages,
-    todoTitle,
+    selectedTodoIds,
+    setSelectedTodoIds,
   } = props;
 
   const [isLoadingTodoList, setIsLoadingTodoList] = useState(false);
@@ -50,8 +52,9 @@ export const TodoList: FC<Props> = (props) => {
               todo={todo}
               todos={todos}
               setTodos={setTodos}
-              todoTitle={todoTitle}
               setErrorMessages={setErrorMessages}
+              selectedTodoIds={selectedTodoIds}
+              setSelectedTodoIds={setSelectedTodoIds}
             />
           ))}
         </section>

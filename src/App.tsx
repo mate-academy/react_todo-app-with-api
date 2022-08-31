@@ -6,13 +6,14 @@ import { TodoErrorPanel } from './components/TodoErrorPanel';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodoStatusBar } from './components/TodoStatusBar';
-import { FilterType, Todo, TodoOptimistic } from './types/Todo';
+import { FilterType, Todo } from './types/Todo';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<TodoOptimistic[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [errorMessages, setErrorMessages] = useState<string []>([]);
   const [todoTitle, setTodoTitle] = useState('');
+  const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -25,18 +26,6 @@ export const App: React.FC = () => {
 
   const changeFilter = useCallback((selectedFilter: FilterType) => {
     setFilterType(selectedFilter);
-  }, []);
-
-  const onAdd = useCallback((newTodo: Todo) => {
-    setTodos((prevTodos) => [...prevTodos, newTodo]);
-  }, []);
-
-  const onAddOptimistic = useCallback((todoOptimistic: TodoOptimistic) => {
-    setTodos((prevTodos) => [...prevTodos, todoOptimistic]);
-  }, []);
-
-  const deleteOptimistic = useCallback(() => {
-    setTodos((prevTodos) => prevTodos.filter(prevTodo => prevTodo.id));
   }, []);
 
   const filteredTodos = useMemo(() => {
@@ -54,10 +43,6 @@ export const App: React.FC = () => {
     });
   }, [filterType, todos]);
 
-  const clearCompleted = useCallback(() => {
-    setTodos((prevTodos) => prevTodos.filter(todo => !todo.completed));
-  }, []);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -68,12 +53,13 @@ export const App: React.FC = () => {
             <TodoForm
               newTodoField={newTodoField}
               user={user}
-              onAdd={onAdd}
-              onAddOptimistic={onAddOptimistic}
-              deleteOptimistic={deleteOptimistic}
               setErrorMessages={setErrorMessages}
               todoTitle={todoTitle}
               setTodoTitle={setTodoTitle}
+              todos={todos}
+              setTodos={setTodos}
+              setSelectedTodoIds={setSelectedTodoIds}
+              selectedTodoIds={selectedTodoIds}
             />
 
             <TodoList
@@ -81,23 +67,31 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               setTodos={setTodos}
               setErrorMessages={setErrorMessages}
-              todoTitle={todoTitle}
+              setSelectedTodoIds={setSelectedTodoIds}
+              selectedTodoIds={selectedTodoIds}
             />
           </>
         )}
 
-        <TodoStatusBar
-          todos={todos}
-          changeFilter={changeFilter}
-          filterType={filterType}
-          clearCompleted={clearCompleted}
-        />
+        {!!todos.length && (
+          <TodoStatusBar
+            todos={todos}
+            changeFilter={changeFilter}
+            filterType={filterType}
+            setTodos={setTodos}
+            setErrorMessages={setErrorMessages}
+            setSelectedTodoIds={setSelectedTodoIds}
+          />
+        )}
+
       </div>
 
-      <TodoErrorPanel
-        errorMessages={errorMessages}
-        setErrorMessages={setErrorMessages}
-      />
+      {!!errorMessages.length && (
+        <TodoErrorPanel
+          errorMessages={errorMessages}
+          setErrorMessages={setErrorMessages}
+        />
+      )}
 
       {!!errorMessages.length && (
         <img src="https://i.gifer.com/40Oj.gif" alt="Travolta" />

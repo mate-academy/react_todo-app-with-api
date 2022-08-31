@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 
 interface Props {
   errorMessages: string [],
@@ -9,20 +9,22 @@ interface Props {
 }
 
 export const TodoErrorPanel: FC<Props> = (props) => {
-  const { errorMessages, setErrorMessages } = props;
+  const {
+    errorMessages,
+    setErrorMessages,
+  } = props;
 
-  // useEffect(() => {
-  //   const timerId = setTimeout(() => {
-  //     setErrorMessages([]);
-  //   }, 3000);
-  //   console.log(timerId);
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setErrorMessages([]);
+    }, 3000);
 
-  //   return (
-  //     () => {
-  //       clearTimeout(timerId);
-  //     }
-  //   );
-  // }, [setErrorMessages]);
+    return (
+      () => {
+        clearTimeout(timerId);
+      }
+    );
+  }, [setErrorMessages]);
 
   const errorMessagesWithKeys = errorMessages.map(message => (
     {
