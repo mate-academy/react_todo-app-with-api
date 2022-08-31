@@ -16,22 +16,22 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isAllTodosCompleted, setAllTodosCompleted] = useState(false);
+  const [isAllTodosCompleted, setIsAllTodosCompleted] = useState(false);
   const [filter, setFilter] = useState<Filter>(Filter.all);
-  const [isFooterVisible, setFooterVisible] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [todoLoaded, setTodoLoaded]
-    = useState<LoadedTodo>({ todoId: 0, loaded: true });
+    = useState<LoadedTodo>({ todoId: 0, loaded: false });
 
   function filterTodos(filterType: Filter, todosList: Todo[]): Todo[] {
     switch (filterType) {
       case Filter.active:
-        setFooterVisible((todosList.length > todosList
+        setIsFooterVisible((todosList.length > todosList
           .filter(todo => todo.completed === false).length));
 
         return todosList.filter(todo => todo.completed === false);
 
       case Filter.completed:
-        setFooterVisible(todosList.length > todosList
+        setIsFooterVisible(todosList.length > todosList
           .filter(todo => todo.completed === true).length);
 
         return todosList.filter(todo => todo.completed === true);
@@ -54,12 +54,12 @@ export const App: React.FC = () => {
 
   function checkTodos() {
     if (todos.every(todo => todo.completed === true)) {
-      setAllTodosCompleted(true);
+      setIsAllTodosCompleted(true);
 
       return;
     }
 
-    setAllTodosCompleted(false);
+    setIsAllTodosCompleted(false);
   }
 
   useEffect(() => {
@@ -68,27 +68,27 @@ export const App: React.FC = () => {
   }, [todos]);
 
   useEffect(() => {
-    if (errorMessage) {
-      setTimeout(() => setErrorMessage(''), 3000);
-    }
+    setTimeout(() => setErrorMessage(''), 3000);
   }, [errorMessage]);
 
   function addNewTodo() {
-    if (user) {
-      const newTodo = {
-        userId: user.id,
-        title,
-        completed: false,
-      };
-
-      addTodo(newTodo)
-        .then(result => {
-          setTodos((prevTodos) => (
-            [...prevTodos, result]
-          ));
-        })
-        .catch(() => setErrorMessage('Unable to add a todo'));
+    if (!user) {
+      return;
     }
+
+    const newTodo = {
+      userId: user.id,
+      title,
+      completed: false,
+    };
+
+    addTodo(newTodo)
+      .then(result => {
+        setTodos((prevTodos) => (
+          [...prevTodos, result]
+        ));
+      })
+      .catch(() => setErrorMessage('Unable to add a todo'));
   }
 
   const handleTodoRemove = (id: number) => {
@@ -104,17 +104,15 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    const completedTodo: Todo[] = todos.filter(todo => todo.completed === true);
+    const deletedTodo = todos.map(todo => (todo.completed === true
+      ? deleteTodo(todo.id)
+      : todo));
 
-    for (let i = 0; i < completedTodo.length; i += 1) {
-      setTimeout(() => deleteTodo(completedTodo[i].id));
-    }
-
-    setFooterVisible((todos.length > completedTodo.length));
+    setIsFooterVisible((todos.length > deletedTodo.length));
   };
 
   const handleToggleBtnClick = () => {
-    setAllTodosCompleted(!isAllTodosCompleted);
+    setIsAllTodosCompleted(!isAllTodosCompleted);
     todos.map(todo => {
       return handleTodoChange(todo.id, { completed: !isAllTodosCompleted });
     });

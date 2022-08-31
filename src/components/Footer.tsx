@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[],
   onClearCompletedTodos: () => void,
   filter: Filter,
-  setFilter: (filter: Filter) => void,
+  setFilter: React.Dispatch<React.SetStateAction<Filter>>,
   isFooterVisible: boolean,
 };
 
@@ -17,7 +17,7 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   isFooterVisible,
 }) => {
-  const allActiveTodo = todos.filter(todo => todo.completed === false).length;
+  const allActiveTodos = todos.filter(todo => todo.completed === false).length;
   const existСompletedTodo = todos.some(todo => todo.completed === true);
 
   return (
@@ -25,7 +25,7 @@ export const Footer: React.FC<Props> = ({
       ? (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
-            {`${allActiveTodo} items left`}
+            {`${allActiveTodos} items left`}
           </span>
 
           <nav className="filter" data-cy="Filter">

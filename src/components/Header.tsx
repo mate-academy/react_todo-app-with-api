@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todos: Todo[],
   title: string,
-  setTitle: (title: string) => void,
+  setTitle: React.Dispatch<React.SetStateAction<string>>,
   isAllTodosCompleted: boolean,
   onToggleBtnClick: () => void,
   onNewTodoFormSubmit: (e: React.FormEvent) => void,

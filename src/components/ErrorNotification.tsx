@@ -1,6 +1,6 @@
 type Props = {
   errorMessage: string,
-  setErrorMessage: (message: string) => void,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
 };
 
 export const ErrorNotification: React.FC<Props> = ({

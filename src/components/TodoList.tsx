@@ -8,7 +8,7 @@ type Props = {
   onTodoRemove: (id: number) => void,
   onTodoChange: (id: number, data: any) => void,
   todoLoaded: LoadedTodo,
-  setTodoLoaded: ({ todoId: number, loaded }: LoadedTodo) => void,
+  setTodoLoaded: React.Dispatch<React.SetStateAction<LoadedTodo>>,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const TodoList: React.FC<Props> = ({
   setTodoLoaded,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
-  const [isTodoEdit, setTodoEdit] = useState(false);
+  const [isTodoEdit, setIsTodoEdit] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [currentTodo, setCurrentTodo] = useState(0);
 
@@ -31,12 +31,12 @@ export const TodoList: React.FC<Props> = ({
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      setTodoEdit(false);
+      setIsTodoEdit(false);
     }
   });
 
   function editTodo(id: number, title: string) {
-    setTodoEdit(false);
+    setIsTodoEdit(false);
 
     if (newTitle === '') {
       setTimeout(() => onTodoRemove(id), 1000);
@@ -75,7 +75,7 @@ export const TodoList: React.FC<Props> = ({
   };
 
   const handleTodoTitleSpanDoubleClick = (id: number, title: string) => {
-    setTodoEdit(true);
+    setIsTodoEdit(true);
     setCurrentTodo(id);
     setNewTitle(title.trim());
   };
