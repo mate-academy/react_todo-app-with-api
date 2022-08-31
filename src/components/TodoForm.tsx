@@ -101,7 +101,15 @@ export const TodoForm: FC<Props> = (props) => {
     setSelectedTodoIds(prev => [...prev, ...todosToChange]);
     const updateTodos = (responce: Todo[]) => (
       setTodos(prev => (
-        [...prev.filter(todo => !todosToChange.includes(todo.id)), ...responce]
+        prev.map(todo => {
+          if (todosToChange.includes(todo.id)) {
+            const newTodo = responce.find(resTodo => resTodo.id === todo.id);
+
+            return newTodo || todo;
+          }
+
+          return todo;
+        })
       ))
     );
 
@@ -122,12 +130,14 @@ export const TodoForm: FC<Props> = (props) => {
 
   return (
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className="todoapp__toggle-all active"
-        onClick={changeAllTodosStatus}
-      />
+      {!!todos.length && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className="todoapp__toggle-all active"
+          onClick={changeAllTodosStatus}
+        />
+      )}
 
       <form onSubmit={(event) => {
         event.preventDefault();
