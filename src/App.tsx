@@ -1,5 +1,5 @@
-import React, {
-  useCallback, useContext, useEffect, useMemo, useRef, useState,
+import {
+  FC, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoErrorPanel } from './components/TodoErrorPanel';
@@ -8,7 +8,7 @@ import { TodoList } from './components/TodoList';
 import { TodoStatusBar } from './components/TodoStatusBar';
 import { FilterType, Todo } from './types/Todo';
 
-export const App: React.FC = () => {
+export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [errorMessages, setErrorMessages] = useState<string []>([]);
