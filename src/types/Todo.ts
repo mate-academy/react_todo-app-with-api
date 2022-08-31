@@ -4,3 +4,9 @@ export interface Todo {
   title: string;
   completed: boolean;
 }
+
+export type NewTodo = Omit<Todo, 'id'>;
+
+export type Compete = Pick<Todo, 'completed'>;
+
+export type Edit = Pick<Todo, 'title'>;
