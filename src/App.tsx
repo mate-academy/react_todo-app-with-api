@@ -22,13 +22,10 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isLoadingTodos, setIsLoadingTodos] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState('all');
+  const [isAllTodoDone, setIsAllTodoDone] = useState(false);
 
+  const completedTodos = todos.filter(todo => todo.completed);
   const notCompletedTodos = todos.filter(todo => !todo.completed).length;
-
-  const ShowErrorMessage = (message: string) => {
-    setErrorMessage(message);
-    setTimeout(() => ShowErrorMessage(''), 3000);
-  };
 
   useEffect(() => {
     if (!user) {
@@ -38,6 +35,11 @@ export const App: React.FC = () => {
     getTodos(user.id)
       .then(setTodos);
   }, [user]);
+
+  const ShowErrorMessage = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => ShowErrorMessage(''), 3000);
+  };
 
   const addNewTodo = async (event: FormEvent) => {
     event.preventDefault();
@@ -127,17 +129,40 @@ export const App: React.FC = () => {
     }
   });
 
+  const clearCompleted = () => {
+    Promise.all(completedTodos.map(todo => {
+      return removeTodo(todo.id);
+    }));
+  };
+
+  const completeAllTodos = useCallback(() => {
+    const newTodoList = [...todos].map(todo => {
+      updateTodo(todo.id, !isAllTodoDone);
+
+      return {
+        ...todo,
+        completed: !isAllTodoDone,
+      };
+    });
+
+    setTodos(newTodoList);
+    setIsAllTodoDone((prev) => !prev);
+  }, [isAllTodoDone, todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-          />
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className="todoapp__toggle-all active"
+              onClick={completeAllTodos}
+            />
+          )}
 
           <form onSubmit={addNewTodo}>
             <input
@@ -211,6 +236,7 @@ export const App: React.FC = () => {
               data-cy="ClearCompletedButton"
               type="button"
               className="todoapp__clear-completed"
+              onClick={clearCompleted}
             >
               Clear completed
             </button>
