@@ -70,11 +70,6 @@ export const TodoItem: React.FC<Props> = (props) => {
     }
   };
 
-  // const handleSubmit = (todoId: number) => {
-  //   renameTodo(todoId);
-  //   handleBlur();
-  // };
-
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
       <label className="todo__status-label">
@@ -89,7 +84,6 @@ export const TodoItem: React.FC<Props> = (props) => {
 
       {isDoubleClicked
         ? (
-          // <form onSubmit={() => handleSubmit(todo.id)}>
           <form>
             <input
               data-cy="TodoTitleField"
@@ -102,7 +96,6 @@ export const TodoItem: React.FC<Props> = (props) => {
                 renameTodo(todo.id);
                 handleBlur();
               }}
-              // onBlur={() => handleSubmit(todo.id)}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => handleKeyPress(e, todo.id)}
             />
