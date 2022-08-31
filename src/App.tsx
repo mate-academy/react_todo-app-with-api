@@ -21,7 +21,6 @@ export const App: React.FC = () => {
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isToggled, setIsToggled] = useState(false);
   const [changedTodosId, setChangedTodosId] = useState<number[]>([]);
   const [filteredBy, setFilteredBy] = useState<string | null>(null);
 
@@ -156,7 +155,8 @@ export const App: React.FC = () => {
 
         return todo;
       })))
-      .catch(() => onError('Unable to update a todo')).finally(() => {
+      .catch(() => onError('Unable to update a todo'))
+      .finally(() => {
         setIsLoading(false);
       });
   }, []);
@@ -172,12 +172,10 @@ export const App: React.FC = () => {
           changedTodoId.push(todo.id);
         }
       });
-      setIsToggled(true);
     } else {
       todos.forEach(todo => {
         changedTodoId.push(todo.id);
       });
-      setIsToggled(false);
     }
 
     const requests = changedTodoId.map(id => updateTodoById(id, {
@@ -197,7 +195,8 @@ export const App: React.FC = () => {
 
         return todo;
       })))
-      .catch(() => onError('Unable to update a todo')).finally(() => {
+      .catch(() => onError('Unable to update a todo'))
+      .finally(() => {
         setIsLoading(false);
         setChangedTodosId([]);
       });
@@ -235,15 +234,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && !isLoading && (
+          {todos.length > 0 && (
             <button
               data-cy="ToggleAllButton"
               type="button"
               className={classNames(
                 'todoapp__toggle-all',
-                { active: isToggled },
+                { active: todos.length === lengthCompleted },
               )}
               onClick={toggleAllTodo}
+              disabled={isLoading}
             />
           )}
 

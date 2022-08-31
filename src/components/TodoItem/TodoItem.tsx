@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import {
-  ChangeEvent,
   KeyboardEvent, memo, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
@@ -44,14 +43,13 @@ export const TodoItem = memo<Props>((props) => {
     }
   }, [errorMessage]);
 
-  // ** toggle completing todo ** //
-  const handleChangeChecked = (e: ChangeEvent<HTMLInputElement>) => {
-    onUpdateTodo(todo.id, { completed: e.target.checked });
-  };
-
   // ** set new title when field unfocused ** //
   const handleBlurEffect = () => {
     setIsDblClicked(false);
+
+    if (newTitle === '') {
+      onDeleteTodo(todo.id);
+    }
 
     if (todo.title !== newTitle) {
       onUpdateTodo(todo.id, { title: newTitle });
@@ -81,7 +79,7 @@ export const TodoItem = memo<Props>((props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
-          onChange={handleChangeChecked}
+          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
           disabled={isLoading}
         />
       </label>
