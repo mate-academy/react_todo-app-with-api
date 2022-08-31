@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
+import { ErrorMessage } from '../types/ErrorMessage';
 
 interface Props {
   errorMessages: string [],
@@ -26,12 +27,16 @@ export const TodoErrorPanel: FC<Props> = (props) => {
     );
   }, [setErrorMessages]);
 
-  const errorMessagesWithKeys = errorMessages.map(message => (
-    {
-      id: uuidv4(),
-      body: message,
-    }
-  ));
+  const errorMessagesWithKeys = useMemo<ErrorMessage []>(() => {
+    const messagesWithKeys = errorMessages.map(message => (
+      {
+        id: uuidv4(),
+        body: message,
+      }
+    ));
+
+    return messagesWithKeys;
+  }, [errorMessages]);
 
   return (
     <div

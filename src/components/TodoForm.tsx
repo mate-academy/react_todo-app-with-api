@@ -33,21 +33,21 @@ export const TodoForm: FC<Props> = (props) => {
 
   const clearInput = () => setTodoTitle('');
 
-  const onAdd = useCallback((newTodo: Todo) => {
+  const onAdd = (newTodo: Todo) => {
     setTodos((prevTodos) => [...prevTodos, newTodo]);
-  }, [setTodos]);
+  };
 
-  const onAddOptimistic = useCallback((todoOptimistic: Todo) => {
+  const onAddOptimistic = (todoOptimistic: Todo) => {
     setTodos((prevTodos) => [...prevTodos, todoOptimistic]);
-  }, [setTodos]);
+  };
 
   const optimisticId = 0;
 
-  const deleteOptimistic = useCallback(() => {
+  const deleteOptimistic = () => {
     setTodos((prevTodos) => prevTodos.filter(
       prevTodo => prevTodo.id !== optimisticId,
     ));
-  }, [setTodos]);
+  };
 
   const submitHandler = () => {
     setErrorMessages([]);

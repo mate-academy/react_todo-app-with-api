@@ -30,7 +30,9 @@ export const TodoStatusBar: FC<Props> = (props) => {
     return todosLeft.filter(todo => todo.completed === false).length;
   }, [todos]);
 
-  const displayClearCompleted = todos.some(todo => todo.completed);
+  const displayClearCompleted = useMemo<boolean>(() => {
+    return todos.some(todo => todo.completed);
+  }, [todos]);
 
   const onDelete = (id: number) => {
     setTodos((prevTodos) => prevTodos.filter(prevTodo => prevTodo.id !== id));
