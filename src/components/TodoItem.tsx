@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import classNames from 'classnames';
-import React from 'react';
-import {
-  FC, useEffect, useRef, useState
+import React, {
+  FC, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 
@@ -10,7 +11,7 @@ type Props = {
   removeTodo: (n: number) => void,
   changeTodo: (id: number, data: any) => void,
   loadingTodosId: number[],
-}
+};
 
 export const TodoItem: FC<Props> = ({
   todo,

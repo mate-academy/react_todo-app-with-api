@@ -1,8 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, {
   FormEvent,
   useCallback, useContext, useEffect, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
   createTodo, deleteTodo, getTodos, updateTodo,
@@ -11,7 +14,6 @@ import { Todo } from './types/Todo';
 import { TodoItem } from './components/TodoItem';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -19,14 +21,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [todoTitle, setTodoTitle] = useState('');
   const [isLoadingTodos, setIsLoadingTodos] = useState<number[]>([]);
-  const [sortBy, setSortBy] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
 
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
+  const notCompletedTodos = todos.filter(todo => !todo.completed).length;
 
   const ShowErrorMessage = (message: string) => {
     setErrorMessage(message);
@@ -120,7 +117,7 @@ export const App: React.FC = () => {
   }, [updateTodo]);
 
   const visibleTodos = todos.filter(todo => {
-    switch (sortBy) {
+    switch (filterBy) {
       case 'active':
         return !todo.completed;
       case 'completed':
@@ -170,61 +167,76 @@ export const App: React.FC = () => {
           ))}
         </section>
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            4 items left
-          </span>
+        { todos.length > 0 && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="todosCounter">
+              {`${notCompletedTodos} items left`}
+            </span>
 
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-            >
-              All
-            </a>
+            <nav className="filter" data-cy="Filter">
+              <a
+                data-cy="FilterLinkAll"
+                href="#/"
+                className={classNames('filter__link', {
+                  selected: filterBy === 'all',
+                })}
+                onClick={() => setFilterBy('all')}
+              >
+                All
+              </a>
 
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-            >
-              Completed
-            </a>
-          </nav>
+              <a
+                data-cy="FilterLinkActive"
+                href="#/active"
+                className={classNames('filter__link', {
+                  selected: filterBy === 'active',
+                })}
+                onClick={() => setFilterBy('active')}
+              >
+                Active
+              </a>
+              <a
+                data-cy="FilterLinkCompleted"
+                href="#/completed"
+                className={classNames('filter__link', {
+                  selected: filterBy === 'completed',
+                })}
+                onClick={() => setFilterBy('completed')}
+              >
+                Completed
+              </a>
+            </nav>
 
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-          >
-            Clear completed
-          </button>
-        </footer>
+            <button
+              data-cy="ClearCompletedButton"
+              type="button"
+              className="todoapp__clear-completed"
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
       </div>
 
       <div
         data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
+        className={classNames(
+          'notification',
+          'is-danger',
+          'is-light',
+          'has-text-weight-normal',
+          {
+            hidden: errorMessage === '',
+          },
+        )}
       >
         <button
           data-cy="HideErrorButton"
           type="button"
           className="delete"
+          onClick={() => setErrorMessage('')}
         />
-
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
+        {errorMessage}
       </div>
     </div>
   );
