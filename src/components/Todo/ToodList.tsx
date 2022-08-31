@@ -4,17 +4,21 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[],
+  isComplete: boolean,
   isLoading: boolean,
   setIsLoading: (loading: boolean) => void,
   handlerCheckBox: (todo: Todo) => void,
+  deleteTodo: (todo:Todo) => void,
 }
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
     todos,
+    isComplete,
     isLoading,
     setIsLoading,
     handlerCheckBox,
+    deleteTodo,
   } = props;
 
   return (
@@ -30,6 +34,7 @@ export const TodoList: React.FC<Props> = (props) => {
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
+              checked={isComplete}
               onChange={() => handlerCheckBox(todo)}
             />
           </label>
@@ -39,6 +44,7 @@ export const TodoList: React.FC<Props> = (props) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
+            onClick={() => deleteTodo(todo)}
           >
             ×
           </button>

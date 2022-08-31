@@ -9,7 +9,7 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/Todo/ToodList';
 import { NewTodo, Todo } from './types/Todo';
 import { Footer } from './components/Footer/footer';
-import {addTodos, getTodos, updateTodos} from './api/todos';
+import {addTodos, deleteTodo, getTodos, updateTodos} from './api/todos';
 import { InputForm } from './components/Header/addForm';
 
 export const App: React.FC = () => {
@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -65,28 +66,41 @@ export const App: React.FC = () => {
       selectedTodo.completed = !selectedTodo.completed;
 
       updateTodos(selectedTodo.id, selectedTodo.completed)
-        .then(() => setIsLoading(true));
+        .then(() => setIsLoading(true))
+        .finally(() => (setIsComplete(prevState => !prevState)));
     }
   };
 
-  const filteredToDo = useMemo(() => (
-    todos.filter(todo => {
-      const queryFilter = todo.title.toLowerCase().includes(
-        searchQuery.toLowerCase(),
-      );
+  const handlerDelete = (todo:Todo) => {
+    const selectedTodo = findTodoById(todo.id);
 
-      switch (completedFilter) {
-        case FilterBy.ACTIVE:
-          return queryFilter && !todo.completed;
+    if (typeof selectedTodo !== 'undefined') {
+      selectedTodo.completed = !selectedTodo.completed;
 
-        case FilterBy.COMPLETED:
-          return queryFilter && todo.completed;
+      deleteTodo(todo.id)
+        .then(() => setTodos(prevTodo => prevTodo.filter((visibleTodo) => (
+          visibleTodo.id !== todo.id))));
+    }
+  };
 
-        default:
-          return queryFilter;
-      }
-    })
-  ), [searchQuery, todos, completedFilter]);
+  // const filteredToDo = useMemo(() => (
+  //   todos.filter(todo => {
+  //     const queryFilter = todo.title.toLowerCase().includes(
+  //       searchQuery.toLowerCase(),
+  //     );
+  //
+  //     switch (completedFilter) {
+  //       case FilterBy.ACTIVE:
+  //         return queryFilter && !todo.completed;
+  //
+  //       case FilterBy.COMPLETED:
+  //         return queryFilter && todo.completed;
+  //
+  //       default:
+  //         return queryFilter;
+  //     }
+  //   })
+  // ), [searchQuery, todos, completedFilter]);
 
   return (
     <div className="todoapp">
@@ -100,11 +114,13 @@ export const App: React.FC = () => {
         />
         <TodoList
           todos={todos}
+          isComplete={isComplete}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           handlerCheckBox={handlerCheckBox}
+          deleteTodo={handlerDelete}
         />
-        <Footer todos={todos} filteredTodo={filteredToDo}  />
+        <Footer  />
       </div>
 
       <div
