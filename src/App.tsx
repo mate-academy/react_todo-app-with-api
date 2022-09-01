@@ -13,11 +13,8 @@ import { client } from './utils/fetchClient';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   // const [isLoading, setIsLoading] = useState(false);
-  const [newTodo, setNewTodo] = useState('');
-  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
-  const [isAllActive, setisAllActive] = useState(false);
+
   const [filterBy, setfilterBy] = useState('');
-  const [todoTitle, setTodoTitle] = useState('');
   const [unableAddTodo, setUnableAddTodo] = useState(false);
   const [unableDeleteTodo, setunableDeleteTodo] = useState(false);
   const [unableUpdateTodo, setUnableUpdateTodo] = useState(false);
@@ -31,31 +28,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const addTodo = useCallback(() => {
-    if (user && newTodo.trim().length) {
-      client.post<Todo>('/todos', {
-        title: newTodo,
-        userId: user?.id,
-        completed: false,
-      })
-        .then(res => setTodos(prev => [...prev, res]))
-        .catch(() => setUnableAddTodo(true));
-    }
-
-    setNewTodo('');
-  }, [newTodo]);
-
-  const updateAllTodoStatus = useCallback(() => {
-    setisAllActive(!isAllActive);
-
-    todos.map(todo => client.patch(`/todos/${todo.id}`, { completed: isAllActive }));
-
-    setTodos(prev => prev.map(todo => ({
-      ...todo,
-      completed: isAllActive,
-    })));
-  }, [isAllActive, todos]);
-
   const deleteCompletedTodos = useCallback(() => {
     todos.map(todo => (todo.completed ? client.delete(`/todos/${todo.id}`) : todo));
     setTodos(prev => prev.filter(todo => !todo.completed));
@@ -67,10 +39,9 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          addTodo={addTodo}
-          updateAllTodoStatus={updateAllTodoStatus}
-          newTodo={newTodo}
-          setNewTodo={setNewTodo}
+          todos={todos}
+          setTodos={setTodos}
+          setUnableAddTodo={setUnableAddTodo}
         />
 
         <TodosList
@@ -79,10 +50,6 @@ export const App: React.FC = () => {
           setUnableUpdateTodo={setUnableUpdateTodo}
           setunableDeleteTodo={setunableDeleteTodo}
           filterBy={filterBy}
-          setSelectedTodoId={setSelectedTodoId}
-          setTodoTitle={setTodoTitle}
-          selectedTodoId={selectedTodoId}
-          todoTitle={todoTitle}
         />
 
         {todos.length > 0 && (

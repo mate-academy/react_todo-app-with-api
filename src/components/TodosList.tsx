@@ -13,12 +13,8 @@ type Props = {
   todos: Todo[],
   filterBy: string,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setSelectedTodoId: React.Dispatch<React.SetStateAction<number | null>>,
-  setTodoTitle: React.Dispatch<React.SetStateAction<string>>,
   setUnableUpdateTodo: React.Dispatch<React.SetStateAction<boolean>>,
   setunableDeleteTodo: React.Dispatch<React.SetStateAction<boolean>>,
-  selectedTodoId: number | null,
-  todoTitle: string,
 };
 
 export const TodosList: React.FC<Props> = (props) => {
@@ -28,13 +24,11 @@ export const TodosList: React.FC<Props> = (props) => {
     setTodos,
     setUnableUpdateTodo,
     setunableDeleteTodo,
-    setSelectedTodoId,
-    setTodoTitle,
-    selectedTodoId,
-    todoTitle,
   } = props;
 
   const [editTodo, setEditTodo] = useState(false);
+  const [todoTitle, setTodoTitle] = useState('');
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   const editTodoField = useRef<HTMLInputElement>(null);
 

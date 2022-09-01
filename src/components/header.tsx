@@ -1,22 +1,58 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Todo } from '../types/Todo';
+import { client } from '../utils/fetchClient';
+import { AuthContext } from './Auth/AuthContext';
 
 type Props = {
-  addTodo: () => void,
-  updateAllTodoStatus: () => void
-  newTodo: string,
-  setNewTodo: React.Dispatch<React.SetStateAction<string>>
+  todos: Todo[],
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  setUnableAddTodo: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
 export const Header: React.FC<Props> = (props) => {
   const {
-    addTodo,
-    updateAllTodoStatus,
-    newTodo,
-    setNewTodo,
+    todos,
+    setTodos,
+    setUnableAddTodo,
   } = props;
 
+  const [isAllActive, setisAllActive] = useState(false);
+  const [newTodo, setNewTodo] = useState('');
+
+  const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  const addTodo = useCallback(() => {
+    if (user && newTodo.trim().length) {
+      client.post<Todo>('/todos', {
+        title: newTodo,
+        userId: user?.id,
+        completed: false,
+      })
+        .then(res => setTodos(prev => [...prev, res]))
+        .catch(() => setUnableAddTodo(true));
+    }
+
+    setNewTodo('');
+  }, [newTodo]);
+
+  const updateAllTodoStatus = useCallback(() => {
+    setisAllActive(!isAllActive);
+
+    todos.map(todo => client.patch(`/todos/${todo.id}`, { completed: isAllActive }));
+
+    setTodos(prev => prev.map(todo => ({
+      ...todo,
+      completed: isAllActive,
+    })));
+  }, [isAllActive, todos]);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
