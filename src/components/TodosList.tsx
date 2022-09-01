@@ -32,19 +32,6 @@ export const TodosList: React.FC<Props> = (props) => {
 
   const editTodoField = useRef<HTMLInputElement>(null);
 
-  const visibleTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filterBy) {
-        case 'active':
-          return !todo.completed;
-        case 'completed':
-          return todo.completed;
-        default:
-          return todo;
-      }
-    });
-  }, [filterBy, todos]);
-
   const updateTodoStatus = useCallback(
     (todoId: number, todoComleted: boolean) => {
       setSelectedTodoId(todoId);
@@ -69,13 +56,6 @@ export const TodosList: React.FC<Props> = (props) => {
       .catch(() => setunableDeleteTodo(true));
   }, []);
 
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (editTodo) {
-      editTodoField.current?.focus();
-    }
-  }, [editTodo]);
-
   const updateTodoTitle = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
     client.patch<Todo>(`/todos/${todoId}`, { title: todoTitle })
@@ -88,6 +68,26 @@ export const TodosList: React.FC<Props> = (props) => {
     setTodoTitle('');
     setEditTodo(false);
   }, [todoTitle]);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (editTodo) {
+      editTodoField.current?.focus();
+    }
+  }, [editTodo]);
+
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filterBy) {
+        case 'active':
+          return !todo.completed;
+        case 'completed':
+          return todo.completed;
+        default:
+          return todo;
+      }
+    });
+  }, [filterBy, todos]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

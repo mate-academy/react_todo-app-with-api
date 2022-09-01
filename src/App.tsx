@@ -16,8 +16,9 @@ export const App: React.FC = () => {
 
   const [filterBy, setfilterBy] = useState('');
   const [unableAddTodo, setUnableAddTodo] = useState(false);
-  const [unableDeleteTodo, setunableDeleteTodo] = useState(false);
+  const [unableDeleteTodo, setUnableDeleteTodo] = useState(false);
   const [unableUpdateTodo, setUnableUpdateTodo] = useState(false);
+  const [unableEmptyTitle, setUnableEmptyTitle] = useState(false);
 
   const user = useContext(AuthContext);
 
@@ -42,13 +43,14 @@ export const App: React.FC = () => {
           todos={todos}
           setTodos={setTodos}
           setUnableAddTodo={setUnableAddTodo}
+          setUnableEmptyTitle={setUnableEmptyTitle}
         />
 
         <TodosList
           todos={todos}
           setTodos={setTodos}
           setUnableUpdateTodo={setUnableUpdateTodo}
-          setunableDeleteTodo={setunableDeleteTodo}
+          setunableDeleteTodo={setUnableDeleteTodo}
           filterBy={filterBy}
         />
 
@@ -112,7 +114,10 @@ export const App: React.FC = () => {
       </div>
 
       {
-        (unableAddTodo || unableDeleteTodo || unableUpdateTodo) && (
+        (unableAddTodo
+          || unableDeleteTodo
+          || unableUpdateTodo
+          || unableEmptyTitle) && (
           <div
             data-cy="ErrorNotification"
             className="notification is-danger is-light has-text-weight-normal"
@@ -121,8 +126,14 @@ export const App: React.FC = () => {
               data-cy="HideErrorButton"
               type="button"
               className="delete"
+              onClick={() => {
+                setUnableAddTodo(false);
+                setUnableEmptyTitle(false);
+                setUnableDeleteTodo(false);
+                setUnableUpdateTodo(false);
+              }}
             />
-            {unableAddTodo && 'Unable to add a todo'}
+            {(unableAddTodo || unableEmptyTitle) && 'Unable to add a todo'}
             {unableDeleteTodo && 'Unable to delete a todo'}
             {unableUpdateTodo && 'Unable to update a todo'}
           </div>

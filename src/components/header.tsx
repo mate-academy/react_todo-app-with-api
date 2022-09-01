@@ -14,6 +14,7 @@ type Props = {
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setUnableAddTodo: React.Dispatch<React.SetStateAction<boolean>>,
+  setUnableEmptyTitle: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
 export const Header: React.FC<Props> = (props) => {
@@ -21,6 +22,7 @@ export const Header: React.FC<Props> = (props) => {
     todos,
     setTodos,
     setUnableAddTodo,
+    setUnableEmptyTitle,
   } = props;
 
   const [isAllActive, setisAllActive] = useState(false);
@@ -38,6 +40,8 @@ export const Header: React.FC<Props> = (props) => {
       })
         .then(res => setTodos(prev => [...prev, res]))
         .catch(() => setUnableAddTodo(true));
+    } else if (!newTodo.trim().length) {
+      setUnableEmptyTitle(true);
     }
 
     setNewTodo('');
