@@ -112,6 +112,7 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
+              placeholder="Empty todo will be deleted"
               // placeholder={changedTodoValue}
               value={changedTodoValue}
               ref={updateTodoField}
