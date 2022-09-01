@@ -53,7 +53,7 @@ export const App: React.FC = () => {
     }
   }, [user, shouldUpdate, isAllToggled]);
 
-  const addNewTodo = useCallback(((event: FormEvent) => {
+  const addNewTodo = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     if (!todoTitle.trim()) {
@@ -74,9 +74,9 @@ export const App: React.FC = () => {
           setIsLoading(false);
         });
     }
-  }), [todoTitle, user]);
+  }, [todoTitle, user]);
 
-  const updateTodoById = (todoId: number, data: {}) => {
+  const updateTodoById = useCallback((todoId: number, data: {}) => {
     setSelectedTodoId(todoId);
     setIsUpdateLoading(true);
     updateTodo(todoId, data)
@@ -88,29 +88,18 @@ export const App: React.FC = () => {
         setIsUpdateLoading(false);
         setIsAllToggled(false);
       });
-  };
+  }, []);
 
-  const toggleAllCompleted = () => {
+  const toggleAllCompleted = useCallback(() => {
+    const areAllCompleted = todos.every(todo => todo.completed === true);
+
     setIsAllToggled(true);
+    todos.forEach((todo) => updateTodoById(
+      todo.id, { completed: !areAllCompleted },
+    ));
+  }, [todos]);
 
-    if (todos.some(todo => !todo.completed)) {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          updateTodoById(todo.id, { completed: true });
-          setIsUpdateLoading(true);
-        }
-      });
-    } else {
-      todos.forEach(todo => {
-        updateTodoById(todo.id, { completed: false });
-        setIsUpdateLoading(true);
-      });
-    }
-
-    setShouldUpdate(true);
-  };
-
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
     setIsRemoveLoading(true);
 
@@ -122,9 +111,9 @@ export const App: React.FC = () => {
       })
       .catch(() => errorSwitcher('Unable to delete a todo'))
       .finally(() => setIsRemoveLoading(false));
-  };
+  }, []);
 
-  let visibleTodos: Todo[] = useMemo(() => {
+  const visibleTodos: Todo[] = useMemo(() => {
     return todos.filter(todo => {
       if (todosState === 'completed') {
         return todo.completed === true;
@@ -138,12 +127,15 @@ export const App: React.FC = () => {
     });
   }, [todosState, todos]);
 
-  const clearCompletedTodos = () => {
-    visibleTodos = todos.filter(todo => todo.completed);
+  const clearCompletedTodos = useCallback(
+    () => {
+      const todosToDelete = todos.filter(todo => todo.completed);
 
-    visibleTodos.forEach(todo => deleteTodo(todo.id));
-    setShouldUpdate(true);
-  };
+      todosToDelete.map(todo => deleteTodo(todo.id));
+
+      setShouldUpdate(true);
+    }, [todos],
+  );
 
   return (
     <div className="todoapp">
@@ -225,7 +217,7 @@ export const App: React.FC = () => {
               className="todoapp__clear-completed"
               onClick={() => clearCompletedTodos()}
               style={todos.some(todo => todo.completed)
-                ? { opacity: 100 }
+                ? { opacity: 1 }
                 : { opacity: 0 }}
             >
               Clear completed

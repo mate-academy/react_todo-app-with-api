@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import {
+import React, {
   KeyboardEvent,
   useEffect,
   useRef,
@@ -17,130 +17,132 @@ type Props = {
   isAllToggled: boolean;
 };
 
-export const TodoItem: React.FC<Props> = (props) => {
-  const {
-    todo,
-    removeTodo,
-    selectedTodoId,
-    isRemoveLoading,
-    updateTodoById,
-    isUpdateLoading,
-    isAllToggled,
-  } = props;
+export const TodoItem: React.FC<Props> = React.memo(
+  (props) => {
+    const {
+      todo,
+      removeTodo,
+      selectedTodoId,
+      isRemoveLoading,
+      updateTodoById,
+      isUpdateLoading,
+      isAllToggled,
+    } = props;
 
-  const [isDoubleClicked, setIsDoubleClicked] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
+    const [isDoubleClicked, setIsDoubleClicked] = useState(false);
+    const [newTitle, setNewTitle] = useState(todo.title);
 
-  const newTodoField = useRef<HTMLInputElement>(null);
+    const newTodoField = useRef<HTMLInputElement>(null);
 
-  const isLoading = ((isRemoveLoading && selectedTodoId === todo.id)
-    || (isUpdateLoading && selectedTodoId === todo.id)
-    || (isAllToggled));
+    const isLoading = ((isRemoveLoading && selectedTodoId === todo.id)
+      || (isUpdateLoading && selectedTodoId === todo.id)
+      || (isAllToggled));
 
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [isDoubleClicked]);
+    useEffect(() => {
+      if (newTodoField.current) {
+        newTodoField.current.focus();
+      }
+    }, [isDoubleClicked]);
 
-  const handleBlur = () => setIsDoubleClicked(false);
+    const handleBlur = () => setIsDoubleClicked(false);
 
-  const changeCompleteStatus = () => {
-    updateTodoById(todo.id, { completed: !todo.completed });
-  };
+    const changeCompleteStatus = () => {
+      updateTodoById(todo.id, { completed: !todo.completed });
+    };
 
-  const renameTodo = (todoId: number) => {
-    if (!newTitle) {
-      removeTodo(todo.id);
+    const renameTodo = (todoId: number) => {
+      if (!newTitle) {
+        removeTodo(todo.id);
 
-      return;
-    }
+        return;
+      }
 
-    updateTodoById(todoId, { title: newTitle });
-    setIsDoubleClicked(false);
-  };
+      updateTodoById(todoId, { title: newTitle });
+      setIsDoubleClicked(false);
+    };
 
-  const handleKeyPress = (
-    event: KeyboardEvent<HTMLInputElement>,
-    todoId: number,
-  ) => {
-    if (event.key === 'Escape') {
-      handleBlur();
-      setNewTitle(todo.title);
-    }
+    const handleKeyPress = (
+      event: KeyboardEvent<HTMLInputElement>,
+      todoId: number,
+    ) => {
+      if (event.key === 'Escape') {
+        handleBlur();
+        setNewTitle(todo.title);
+      }
 
-    if (event.key === 'Enter') {
-      renameTodo(todoId);
-      handleBlur();
-    }
-  };
+      if (event.key === 'Enter') {
+        renameTodo(todoId);
+        handleBlur();
+      }
+    };
 
-  return (
-    <div
-      data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
-    >
-      <label className="todo__status-label">
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          checked={todo.completed}
-          onChange={changeCompleteStatus}
-        />
-      </label>
+    return (
+      <div
+        data-cy="Todo"
+        className={classNames('todo', { completed: todo.completed })}
+      >
+        <label className="todo__status-label">
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            checked={todo.completed}
+            onChange={changeCompleteStatus}
+          />
+        </label>
 
-      {isDoubleClicked
-        ? (
-          <form>
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              defaultValue={newTitle}
-              ref={newTodoField}
-              onBlur={() => {
-                renameTodo(todo.id);
-                handleBlur();
-              }}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => handleKeyPress(e, todo.id)}
-            />
-          </form>
-        )
-        : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => setIsDoubleClicked(true)}
-            >
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => {
-                removeTodo(todo.id);
-              }}
-            >
-              ×
-            </button>
-          </>
+        {isDoubleClicked
+          ? (
+            <form>
+              <input
+                data-cy="TodoTitleField"
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                defaultValue={newTitle}
+                ref={newTodoField}
+                onBlur={() => {
+                  renameTodo(todo.id);
+                  handleBlur();
+                }}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onKeyDown={(e) => handleKeyPress(e, todo.id)}
+              />
+            </form>
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setIsDoubleClicked(true)}
+              >
+                {todo.title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => {
+                  removeTodo(todo.id);
+                }}
+              >
+                ×
+              </button>
+            </>
+          )}
+
+        {isLoading && (
+          <div
+            data-cy="TodoLoader"
+            className={classNames('modal overlay',
+              { 'is-active': (isRemoveLoading || isUpdateLoading) })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         )}
-
-      {isLoading && (
-        <div
-          data-cy="TodoLoader"
-          className={classNames('modal overlay',
-            { 'is-active': (isRemoveLoading || isUpdateLoading) })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  },
+);
