@@ -113,7 +113,6 @@ export const TodoItem: React.FC<Props> = React.memo((props) => {
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              // placeholder={changedTodoValue}
               value={changedTodoValue}
               ref={updateTodoField}
               onChange={(event) => {
