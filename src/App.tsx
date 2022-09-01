@@ -16,7 +16,7 @@ export const App: React.FC = () => {
   const [filterBy, setfilterBy] = useState('');
   const [editTodo, setEditTodo] = useState(false);
   // eslint-disable-next-line max-len
-  const [todoTitle, setTodoTitle] = useState(todos.find(todo => todo.id === selectedTodoId)?.title);
+  const [todoTitle, setTodoTitle] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -64,10 +64,18 @@ export const App: React.FC = () => {
       setSelectedTodoId(null);
     }, [selectedTodoId],
   );
-  
-  // const updateTodoTitle = useCallback(() => {
 
-  // }, []);
+  const updateTodoTitle = useCallback((todoId: number) => {
+    setSelectedTodoId(todoId);
+    client.patch<Todo>(`/todos/${todoId}`, { title: todoTitle })
+      .then(res => {
+        setTodos(prev => [...prev
+          .slice(0, prev.findIndex(todo => todo.id === res.id)), res, ...prev
+          .slice(prev.findIndex(todo => todo.id === res.id) + 1)]);
+      });
+    setSelectedTodoId(null);
+    setTodoTitle('');
+  }, [todoTitle]);
 
   const deleteTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
@@ -94,10 +102,10 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
-    if (editTodoField.current) {
-      editTodoField.current.focus();
+    if (editTodo) {
+      editTodoField.current?.focus();
     }
-  }, []);
+  }, [editTodo]);
 
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -164,18 +172,24 @@ export const App: React.FC = () => {
                 className="todo__title"
                 onDoubleClick={() => {
                   setSelectedTodoId(todo.id);
+                  setTodoTitle(todo.title);
                   setEditTodo(true);
                 }}
               >
                 {(editTodo && todo.id === selectedTodoId)
                   ? (
-                    <form>
+                    <form onSubmit={(event) => {
+                      event.preventDefault();
+                      updateTodoTitle(todo.id);
+                    }}
+                    >
                       <input
                         type="text"
                         ref={editTodoField}
                         className="todoapp__edit-todo"
                         value={todoTitle}
                         onChange={(event) => setTodoTitle(event.target.value)}
+                        onBlur={() => updateTodoTitle(todo.id)}
                       />
                     </form>
                   )
@@ -244,8 +258,12 @@ export const App: React.FC = () => {
           <button
             data-cy="ClearCompletedButton"
             type="button"
-            className="todoapp__clear-completed"
+            className={classNames(
+              'todoapp__clear-completed',
+              { hidden: !todos.some(todo => todo.completed) },
+            )}
             onClick={() => deleteCompletedTodos()}
+            disabled={!todos.some(todo => todo.completed)}
           >
             Clear completed
           </button>
