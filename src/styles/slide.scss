@@ -1,0 +1,19 @@
+.slide-enter {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.slide-enter-active {
+  max-height: 58px;
+  transition: max-height 300ms ease-in-out;
+}
+
+.slide-exit {
+  max-height: 58px;
+  overflow: hidden;
+}
+
+.slide-exit-active {
+  max-height: 0;
+  transition: max-height 300ms ease-in-out;
+}
