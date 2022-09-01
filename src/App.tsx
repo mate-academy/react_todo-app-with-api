@@ -3,17 +3,20 @@ import React, {
   useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
+import { NavLink, useParams } from 'react-router-dom';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
   createTodo, deleteTodo, getTodos, updateTodoById,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
+import { FilterType } from './types/FilterType';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const { filteredBy } = useParams();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [isSubmit, setIsSubmit] = useState(false);
@@ -22,7 +25,6 @@ export const App: React.FC = () => {
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [changedTodosId, setChangedTodosId] = useState<number[]>([]);
-  const [filteredBy, setFilteredBy] = useState<string | null>(null);
 
   // ** Error handler ** //
   const onError = useCallback((errorTitle: string) => {
@@ -64,15 +66,15 @@ export const App: React.FC = () => {
   // ** filtering todo when click on button in footer ** //
   const filteredTodos = useMemo(() => {
     switch (filteredBy) {
-      case 'Active':
+      case FilterType.active:
         return todos.filter(todo => !todo.completed);
 
-      case 'Completed':
+      case FilterType.completed:
         return todos.filter(todo => todo.completed);
 
-      case 'All':
+      case FilterType.all:
       default:
-        return todos;
+        return [...todos];
     }
   }, [filteredBy, todos]);
 
@@ -286,40 +288,37 @@ export const App: React.FC = () => {
             </span>
 
             <nav className="filter" data-cy="Filter">
-              <a
+              <NavLink
                 data-cy="FilterLinkAll"
-                href="#/"
-                className={classNames(
+                to="/all"
+                className={({ isActive }) => classNames(
                   'filter__link',
-                  { selected: filteredBy === 'All' },
+                  { selected: isActive },
                 )}
-                onClick={() => setFilteredBy('All')}
               >
                 All
-              </a>
+              </NavLink>
 
-              <a
+              <NavLink
                 data-cy="FilterLinkActive"
-                href="#/active"
-                className={classNames(
+                to="/active"
+                className={({ isActive }) => classNames(
                   'filter__link',
-                  { selected: filteredBy === 'Active' },
+                  { selected: isActive },
                 )}
-                onClick={() => setFilteredBy('Active')}
               >
                 Active
-              </a>
-              <a
+              </NavLink>
+              <NavLink
                 data-cy="FilterLinkCompleted"
-                href="#/completed"
-                className={classNames(
+                to="/completed"
+                className={({ isActive }) => classNames(
                   'filter__link',
-                  { selected: filteredBy === 'Completed' },
+                  { selected: isActive },
                 )}
-                onClick={() => setFilteredBy('Completed')}
               >
                 Completed
-              </a>
+              </NavLink>
             </nav>
 
             {lengthCompleted > 0 ? (
