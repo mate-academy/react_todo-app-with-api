@@ -8,7 +8,7 @@ interface Props {
   selectedTodoId: number | null;
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (todoId: number, data: {}) => void;
-  isLoading: boolean;
+  loading: boolean;
   changedTodosId: number[];
   errorMessage: string;
 }
@@ -19,7 +19,7 @@ export const TodoList = memo<Props>((props) => {
     selectedTodoId,
     onDeleteTodo,
     onUpdateTodo,
-    isLoading,
+    loading,
     changedTodosId,
     errorMessage,
   } = props;
@@ -38,7 +38,7 @@ export const TodoList = memo<Props>((props) => {
               selectedTodoId={selectedTodoId}
               onDeleteTodo={onDeleteTodo}
               onUpdateTodo={onUpdateTodo}
-              isLoading={isLoading}
+              loading={loading}
               changedTodosId={changedTodosId}
               errorMessage={errorMessage}
             />

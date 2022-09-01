@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import {
+  ChangeEvent,
   KeyboardEvent, memo, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
@@ -9,7 +10,7 @@ interface Props {
   selectedTodoId: number | null;
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (todoId: number, data: {}) => void;
-  isLoading: boolean;
+  loading: boolean;
   changedTodosId: number[];
   errorMessage: string;
 }
@@ -20,14 +21,16 @@ export const TodoItem = memo<Props>((props) => {
     selectedTodoId,
     onDeleteTodo,
     onUpdateTodo,
-    isLoading,
+    loading,
     changedTodosId,
     errorMessage,
   } = props;
 
+  const { id, title, completed } = todo;
+
   const titleField = useRef<HTMLInputElement>(null);
   const [isDblClicked, setIsDblClicked] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(title);
 
   // ** as soon as appear the editing field immediately focuses on this field ** //
   useEffect(() => {
@@ -39,7 +42,7 @@ export const TodoItem = memo<Props>((props) => {
   // ** reset editing field to default condition if didn't update ** //
   useEffect(() => {
     if (errorMessage === 'Unable to update a todo') {
-      setNewTitle(todo.title);
+      setNewTitle(title);
     }
   }, [errorMessage]);
 
@@ -48,39 +51,53 @@ export const TodoItem = memo<Props>((props) => {
     setIsDblClicked(false);
 
     if (newTitle === '') {
-      onDeleteTodo(todo.id);
+      onDeleteTodo(id);
     }
 
-    if (todo.title !== newTitle) {
-      onUpdateTodo(todo.id, { title: newTitle });
+    if (title !== newTitle) {
+      onUpdateTodo(id, { title: newTitle });
     }
   };
 
   // ** when key down 'Enter' set new title for todo, but if key down 'Escape' deleted changing and unfocused editing field ** //
-  const handleOnKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleOnKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
       handleBlurEffect();
     }
 
-    if (e.key === 'Escape') {
+    if (event.key === 'Escape') {
       setIsDblClicked(false);
-      setNewTitle(todo.title);
+      setNewTitle(title);
     }
   };
+
+  // ** toggle todo to completed condition or uncompleted ** //
+  const toggleCompleted = () => onUpdateTodo(id, { completed: !completed });
+
+  const handleChangedTitle = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    if (newTitle !== value) {
+      setNewTitle(value);
+    }
+  };
+
+  const isLoading = (id === selectedTodoId && loading)
+    || changedTodosId.includes(id);
 
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo', { completed: todo.completed })}
+      className={classNames('todo', { completed })}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
-          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
-          disabled={isLoading}
+          defaultChecked={completed}
+          onClick={toggleCompleted}
+          disabled={loading}
         />
       </label>
 
@@ -93,16 +110,10 @@ export const TodoItem = memo<Props>((props) => {
             placeholder="Empty todo will be deleted"
             defaultValue={newTitle}
             ref={titleField}
-            disabled={isLoading}
+            disabled={loading}
             onBlur={handleBlurEffect}
             onKeyDown={handleOnKeyDown}
-            onChange={({ target }) => {
-              const { value } = target;
-
-              if (newTitle !== value) {
-                setNewTitle(value);
-              }
-            }}
+            onChange={handleChangedTitle}
           />
         </form>
       ) : (
@@ -112,16 +123,14 @@ export const TodoItem = memo<Props>((props) => {
             className="todo__title"
             onDoubleClick={() => setIsDblClicked(true)}
           >
-            {todo.title}
+            {title}
           </span>
-          {!isLoading && (
+          {!loading && (
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => {
-                onDeleteTodo(todo.id);
-              }}
+              onClick={() => onDeleteTodo(id)}
             >
               ×
             </button>
@@ -129,20 +138,18 @@ export const TodoItem = memo<Props>((props) => {
         </>
       )}
 
-      {((todo.id === selectedTodoId && isLoading)
-          || changedTodosId.includes(todo.id))
-        && (
-          <div
-            data-cy="TodoLoader"
-            className={classNames(
-              'modal overlay',
-              { 'is-active': isLoading },
-            )}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+      {isLoading && (
+        <div
+          data-cy="TodoLoader"
+          className={classNames(
+            'modal overlay',
+            { 'is-active': loading },
+          )}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 });
