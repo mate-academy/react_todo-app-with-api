@@ -12,6 +12,7 @@ import { AuthContext } from './Auth/AuthContext';
 
 type Props = {
   todos: Todo[],
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setUnableAddTodo: React.Dispatch<React.SetStateAction<boolean>>,
   setUnableEmptyTitle: React.Dispatch<React.SetStateAction<boolean>>,
@@ -20,6 +21,7 @@ type Props = {
 export const Header: React.FC<Props> = (props) => {
   const {
     todos,
+    setIsLoading,
     setTodos,
     setUnableAddTodo,
     setUnableEmptyTitle,
@@ -32,6 +34,7 @@ export const Header: React.FC<Props> = (props) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const addTodo = useCallback(() => {
+    setIsLoading(true);
     if (user && newTodo.trim().length) {
       client.post<Todo>('/todos', {
         title: newTodo,
@@ -39,8 +42,10 @@ export const Header: React.FC<Props> = (props) => {
         completed: false,
       })
         .then(res => setTodos(prev => [...prev, res]))
-        .catch(() => setUnableAddTodo(true));
+        .catch(() => setUnableAddTodo(true))
+        .finally(() => setIsLoading(false));
     } else if (!newTodo.trim().length) {
+      setIsLoading(false);
       setUnableEmptyTitle(true);
     }
 

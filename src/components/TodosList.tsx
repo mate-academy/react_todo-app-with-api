@@ -11,6 +11,8 @@ import { client } from '../utils/fetchClient';
 
 type Props = {
   todos: Todo[],
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  isLoading: boolean,
   filterBy: string,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setUnableUpdateTodo: React.Dispatch<React.SetStateAction<boolean>>,
@@ -20,6 +22,8 @@ type Props = {
 export const TodosList: React.FC<Props> = (props) => {
   const {
     todos,
+    setIsLoading,
+    isLoading,
     filterBy,
     setTodos,
     setUnableUpdateTodo,
@@ -34,18 +38,23 @@ export const TodosList: React.FC<Props> = (props) => {
 
   const updateTodoStatus = useCallback(
     (todoId: number, todoComleted: boolean) => {
+      setIsLoading(true);
       setSelectedTodoId(todoId);
       client.patch<Todo>(`/todos/${todoId}`, { completed: !todoComleted })
         .then(res => setTodos(prev => [...prev
           .slice(0, prev.findIndex(todo => todo.id === res.id)), res, ...prev
-          .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
-        .catch(() => setUnableUpdateTodo(true));
+            .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
+        .catch(() => setUnableUpdateTodo(true))
+        .finally(() => setIsLoading(false));
       setSelectedTodoId(null);
     }, [selectedTodoId],
   );
 
   const deleteTodo = useCallback((todoId: number) => {
-    setSelectedTodoId(todoId);
+    if (selectedTodoId === todoId) {
+      setIsLoading(true);
+    }
+
     client.delete(`/todos/${todoId}`)
       .then(res => {
         if (res === 1) {
@@ -53,8 +62,9 @@ export const TodosList: React.FC<Props> = (props) => {
           setSelectedTodoId(null);
         }
       })
-      .catch(() => setunableDeleteTodo(true));
-  }, []);
+      .catch(() => setunableDeleteTodo(true))
+      .finally(() => setIsLoading(false));
+  }, [selectedTodoId]);
 
   const updateTodoTitle = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
@@ -141,25 +151,29 @@ export const TodosList: React.FC<Props> = (props) => {
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => deleteTodo(todo.id)}
+              onClick={() => {
+                setSelectedTodoId(todo.id);
+                deleteTodo(todo.id);
+              }}
             >
               ×
             </button>
           )}
-
-          <div
-            data-cy="TodoLoader"
-            className={classNames(
-              'modal overlay', { 'is-active': false },
-            )}
-          >
+          {isLoading && (
             <div
-              className="modal-background has-background-white-ter"
-            />
-            <div className="loader" />
-          </div>
+              data-cy="TodoLoader"
+              className="modal overlay is-active"
+            >
+              <div
+                className="modal-background has-background-white-ter"
+              />
+              <div className="loader" />
+            </div>
+          )}
+
         </div>
       ))}
+
     </section>
   );
 };

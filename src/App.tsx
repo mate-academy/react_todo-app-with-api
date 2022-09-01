@@ -19,6 +19,7 @@ export const App: React.FC = () => {
   const [unableDeleteTodo, setUnableDeleteTodo] = useState(false);
   const [unableUpdateTodo, setUnableUpdateTodo] = useState(false);
   const [unableEmptyTitle, setUnableEmptyTitle] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const user = useContext(AuthContext);
 
@@ -41,6 +42,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={todos}
+          setIsLoading={setIsLoading}
           setTodos={setTodos}
           setUnableAddTodo={setUnableAddTodo}
           setUnableEmptyTitle={setUnableEmptyTitle}
@@ -48,6 +50,8 @@ export const App: React.FC = () => {
 
         <TodosList
           todos={todos}
+          setIsLoading={setIsLoading}
+          isLoading={isLoading}
           setTodos={setTodos}
           setUnableUpdateTodo={setUnableUpdateTodo}
           setunableDeleteTodo={setUnableDeleteTodo}
@@ -131,6 +135,7 @@ export const App: React.FC = () => {
                 setUnableEmptyTitle(false);
                 setUnableDeleteTodo(false);
                 setUnableUpdateTodo(false);
+                setIsLoading(false);
               }}
             />
             {(unableAddTodo || unableEmptyTitle) && 'Unable to add a todo'}
