@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type Props = {
   addTodo: () => void,
   updateAllTodoStatus: () => void
-  newTodoField: React.RefObject<HTMLInputElement>
   newTodo: string,
   setNewTodo: React.Dispatch<React.SetStateAction<string>>
 };
@@ -13,10 +12,18 @@ export const Header: React.FC<Props> = (props) => {
   const {
     addTodo,
     updateAllTodoStatus,
-    newTodoField,
     newTodo,
     setNewTodo,
   } = props;
+
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
 
   return (
     <header className="todoapp__header">

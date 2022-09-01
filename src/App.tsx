@@ -2,7 +2,7 @@
 import classNames from 'classnames';
 import React, {
   useCallback,
-  useContext, useEffect, useMemo, useRef, useState,
+  useContext, useEffect, useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Header } from './components/header';
@@ -17,15 +17,12 @@ export const App: React.FC = () => {
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [isAllActive, setisAllActive] = useState(false);
   const [filterBy, setfilterBy] = useState('');
-  const [editTodo, setEditTodo] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
   const [unableAddTodo, setUnableAddTodo] = useState(false);
   const [unableDeleteTodo, setunableDeleteTodo] = useState(false);
   const [unableUpdateTodo, setUnableUpdateTodo] = useState(false);
 
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
-  const editTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -59,74 +56,10 @@ export const App: React.FC = () => {
     })));
   }, [isAllActive, todos]);
 
-  const updateTodoStatus = useCallback(
-    (todoId: number, todoComleted: boolean) => {
-      setSelectedTodoId(todoId);
-      client.patch<Todo>(`/todos/${todoId}`, { completed: !todoComleted })
-        .then(res => setTodos(prev => [...prev
-          .slice(0, prev.findIndex(todo => todo.id === res.id)), res, ...prev
-          .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
-        .catch(() => setUnableUpdateTodo(true));
-      setSelectedTodoId(null);
-    }, [selectedTodoId],
-  );
-
-  const updateTodoTitle = useCallback((todoId: number) => {
-    setSelectedTodoId(todoId);
-    client.patch<Todo>(`/todos/${todoId}`, { title: todoTitle })
-      .then(res => {
-        setTodos(prev => [...prev.slice(0, prev
-          .findIndex(todo => todo.id === res.id)), res, ...prev.slice(prev
-          .findIndex(todo => todo.id === res.id) + 1)]);
-      });
-    setSelectedTodoId(null);
-    setTodoTitle('');
-    setEditTodo(false);
-  }, [todoTitle]);
-
-  const deleteTodo = useCallback((todoId: number) => {
-    setSelectedTodoId(todoId);
-    client.delete(`/todos/${todoId}`)
-      .then(res => {
-        if (res === 1) {
-          setTodos(prev => prev.filter(todo => todo.id !== todoId));
-          setSelectedTodoId(null);
-        }
-      })
-      .catch(() => setunableDeleteTodo(true));
-  }, []);
-
   const deleteCompletedTodos = useCallback(() => {
     todos.map(todo => (todo.completed ? client.delete(`/todos/${todo.id}`) : todo));
     setTodos(prev => prev.filter(todo => !todo.completed));
   }, [todos]);
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (editTodo) {
-      editTodoField.current?.focus();
-    }
-  }, [editTodo]);
-
-  const visibleTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filterBy) {
-        case 'active':
-          return !todo.completed;
-        case 'completed':
-          return todo.completed;
-        default:
-          return todo;
-      }
-    });
-  }, [filterBy, todos]);
 
   return (
     <div className="todoapp">
@@ -136,22 +69,19 @@ export const App: React.FC = () => {
         <Header
           addTodo={addTodo}
           updateAllTodoStatus={updateAllTodoStatus}
-          newTodoField={newTodoField}
           newTodo={newTodo}
           setNewTodo={setNewTodo}
         />
 
         <TodosList
-          visibleTodos={visibleTodos}
-          updateTodoStatus={updateTodoStatus}
+          todos={todos}
+          setTodos={setTodos}
+          setUnableUpdateTodo={setUnableUpdateTodo}
+          setunableDeleteTodo={setunableDeleteTodo}
+          filterBy={filterBy}
           setSelectedTodoId={setSelectedTodoId}
           setTodoTitle={setTodoTitle}
-          setEditTodo={setEditTodo}
-          editTodo={editTodo}
           selectedTodoId={selectedTodoId}
-          updateTodoTitle={updateTodoTitle}
-          deleteTodo={deleteTodo}
-          editTodoField={editTodoField}
           todoTitle={todoTitle}
         />
 

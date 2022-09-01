@@ -1,34 +1,99 @@
 import classNames from 'classnames';
+import {
+  useCallback,
+  useEffect, useMemo,
+  useRef,
+  useState,
+}
+  from 'react';
 import { Todo } from '../types/Todo';
+import { client } from '../utils/fetchClient';
 
 type Props = {
-  visibleTodos: Todo[],
-  updateTodoStatus: (todoId: number, todoComleted: boolean) => void,
+  todos: Todo[],
+  filterBy: string,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setSelectedTodoId: React.Dispatch<React.SetStateAction<number | null>>,
   setTodoTitle: React.Dispatch<React.SetStateAction<string>>,
-  setEditTodo: React.Dispatch<React.SetStateAction<boolean>>,
-  editTodo: boolean,
+  setUnableUpdateTodo: React.Dispatch<React.SetStateAction<boolean>>,
+  setunableDeleteTodo: React.Dispatch<React.SetStateAction<boolean>>,
   selectedTodoId: number | null,
-  updateTodoTitle: (todoId: number) => void,
-  deleteTodo: (todoId: number) => void
-  editTodoField: React.RefObject<HTMLInputElement>,
   todoTitle: string,
 };
 
 export const TodosList: React.FC<Props> = (props) => {
   const {
-    visibleTodos,
-    updateTodoStatus,
+    todos,
+    filterBy,
+    setTodos,
+    setUnableUpdateTodo,
+    setunableDeleteTodo,
     setSelectedTodoId,
     setTodoTitle,
-    setEditTodo,
-    editTodo,
     selectedTodoId,
-    updateTodoTitle,
-    deleteTodo,
-    editTodoField,
     todoTitle,
   } = props;
+
+  const [editTodo, setEditTodo] = useState(false);
+
+  const editTodoField = useRef<HTMLInputElement>(null);
+
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filterBy) {
+        case 'active':
+          return !todo.completed;
+        case 'completed':
+          return todo.completed;
+        default:
+          return todo;
+      }
+    });
+  }, [filterBy, todos]);
+
+  const updateTodoStatus = useCallback(
+    (todoId: number, todoComleted: boolean) => {
+      setSelectedTodoId(todoId);
+      client.patch<Todo>(`/todos/${todoId}`, { completed: !todoComleted })
+        .then(res => setTodos(prev => [...prev
+          .slice(0, prev.findIndex(todo => todo.id === res.id)), res, ...prev
+          .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
+        .catch(() => setUnableUpdateTodo(true));
+      setSelectedTodoId(null);
+    }, [selectedTodoId],
+  );
+
+  const deleteTodo = useCallback((todoId: number) => {
+    setSelectedTodoId(todoId);
+    client.delete(`/todos/${todoId}`)
+      .then(res => {
+        if (res === 1) {
+          setTodos(prev => prev.filter(todo => todo.id !== todoId));
+          setSelectedTodoId(null);
+        }
+      })
+      .catch(() => setunableDeleteTodo(true));
+  }, []);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (editTodo) {
+      editTodoField.current?.focus();
+    }
+  }, [editTodo]);
+
+  const updateTodoTitle = useCallback((todoId: number) => {
+    setSelectedTodoId(todoId);
+    client.patch<Todo>(`/todos/${todoId}`, { title: todoTitle })
+      .then(res => {
+        setTodos(prev => [...prev.slice(0, prev
+          .findIndex(todo => todo.id === res.id)), res, ...prev.slice(prev
+          .findIndex(todo => todo.id === res.id) + 1)]);
+      });
+    setSelectedTodoId(null);
+    setTodoTitle('');
+    setEditTodo(false);
+  }, [todoTitle]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
