@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   FormEvent,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
@@ -51,7 +53,7 @@ export const App: React.FC = () => {
     }
   }, [user, shouldUpdate, isAllToggled]);
 
-  const addNewTodo = (event: FormEvent) => {
+  const addNewTodo = useCallback(((event: FormEvent) => {
     event.preventDefault();
 
     if (!todoTitle.trim()) {
@@ -72,12 +74,11 @@ export const App: React.FC = () => {
           setIsLoading(false);
         });
     }
-  };
+  }), [todoTitle, user]);
 
   const updateTodoById = (todoId: number, data: {}) => {
     setSelectedTodoId(todoId);
     setIsUpdateLoading(true);
-
     updateTodo(todoId, data)
       .then(() => {
         setShouldUpdate(true);
@@ -90,19 +91,17 @@ export const App: React.FC = () => {
   };
 
   const toggleAllCompleted = () => {
-    const todosToUpdate = [...todos];
-
     setIsAllToggled(true);
 
-    if (todosToUpdate.some(todo => !todo.completed)) {
-      todosToUpdate.forEach(todo => {
+    if (todos.some(todo => !todo.completed)) {
+      todos.forEach(todo => {
         if (!todo.completed) {
           updateTodoById(todo.id, { completed: true });
           setIsUpdateLoading(true);
         }
       });
     } else {
-      todosToUpdate.forEach(todo => {
+      todos.forEach(todo => {
         updateTodoById(todo.id, { completed: false });
         setIsUpdateLoading(true);
       });
@@ -125,17 +124,19 @@ export const App: React.FC = () => {
       .finally(() => setIsRemoveLoading(false));
   };
 
-  let visibleTodos: Todo[] = todos.filter(todo => {
-    if (todosState === 'completed') {
-      return todo.completed === true;
-    }
+  let visibleTodos: Todo[] = useMemo(() => {
+    return todos.filter(todo => {
+      if (todosState === 'completed') {
+        return todo.completed === true;
+      }
 
-    if (todosState === 'active') {
-      return todo.completed === false;
-    }
+      if (todosState === 'active') {
+        return todo.completed === false;
+      }
 
-    return todo;
-  });
+      return todo;
+    });
+  }, [todosState, todos]);
 
   const clearCompletedTodos = () => {
     visibleTodos = todos.filter(todo => todo.completed);

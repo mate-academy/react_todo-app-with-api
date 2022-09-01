@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import {
   KeyboardEvent,
   useEffect,
@@ -32,6 +33,10 @@ export const TodoItem: React.FC<Props> = (props) => {
 
   const newTodoField = useRef<HTMLInputElement>(null);
 
+  const isLoading = ((isRemoveLoading && selectedTodoId === todo.id)
+    || (isUpdateLoading && selectedTodoId === todo.id)
+    || (isAllToggled));
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -56,29 +61,32 @@ export const TodoItem: React.FC<Props> = (props) => {
   };
 
   const handleKeyPress = (
-    e: KeyboardEvent<HTMLInputElement>,
+    event: KeyboardEvent<HTMLInputElement>,
     todoId: number,
   ) => {
-    if (e.key === 'Escape') {
+    if (event.key === 'Escape') {
       handleBlur();
       setNewTitle(todo.title);
     }
 
-    if (e.key === 'Enter') {
+    if (event.key === 'Enter') {
       renameTodo(todoId);
       handleBlur();
     }
   };
 
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={classNames('todo', { completed: todo.completed })}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
-          onClick={changeCompleteStatus}
+          checked={todo.completed}
+          onChange={changeCompleteStatus}
         />
       </label>
 
@@ -123,15 +131,16 @@ export const TodoItem: React.FC<Props> = (props) => {
           </>
         )}
 
-      {((isRemoveLoading && selectedTodoId === todo.id)
-        || (isUpdateLoading && selectedTodoId === todo.id)
-        || (isAllToggled))
-        && (
-          <div data-cy="TodoLoader" className={`modal overlay ${(isRemoveLoading || isUpdateLoading) ? 'is-active' : ''}`}>
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+      {isLoading && (
+        <div
+          data-cy="TodoLoader"
+          className={classNames('modal overlay',
+            { 'is-active': (isRemoveLoading || isUpdateLoading) })}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };
