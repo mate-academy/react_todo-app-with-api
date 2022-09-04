@@ -12,14 +12,14 @@ export type CreateTodoFragment = {
 };
 
 export interface UpdateStatus {
-  completed: boolean,
+  completed: boolean;
 }
 
 export interface UpdateTitle {
-  title: string,
+  title: string;
 }
 
 export interface ErrorType {
-  title: string,
-  message: string,
+  title: string;
+  message: string;
 }
