@@ -17,6 +17,10 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
+  // const [filterOption, setFilterOption] = useState('All');
+  const [addError, setAddError] = useState(false);
+  const [deleteError] = useState(false);
+  const [updateError] = useState(false);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -31,6 +35,8 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const anyError = addError || deleteError || updateError;
+
   const onAdd = (todo: Todo) => {
     setTodos(prevTodos => [...prevTodos, todo]);
   };
@@ -41,6 +47,12 @@ export const App: React.FC = () => {
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
+    if (title.trim() === '') {
+      setAddError(true);
+
+      return;
+    }
+
     const newTodo = {
       title,
       userId: user?.id,
@@ -57,6 +69,17 @@ export const App: React.FC = () => {
   const onLogin = useCallback((newUser: User) => {
     console.log(newUser);
   }, []);
+
+  /*   const getFilteredTodos = useCallback((option: string) => {
+    switch (option) {
+      case 'active':
+        return todos.filter(todo => todo.completed === false);
+      case 'completed':
+        return todos.filter(todo => todo.completed === true);
+      default:
+        return todos;
+    }
+  }, [todos]); */
 
   if (!user) {
     return (
@@ -134,22 +157,24 @@ export const App: React.FC = () => {
         </footer>
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-        />
+      { anyError && (
+        <div
+          data-cy="ErrorNotification"
+          className="notification is-danger is-light has-text-weight-normal"
+        >
+          <button
+            data-cy="HideErrorButton"
+            type="button"
+            className="delete"
+          />
 
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
-      </div>
+          {addError && 'Unable to add a todo'}
+          <br />
+          {deleteError && 'Unable to delete a todo'}
+          <br />
+          {updateError && 'Unable to update a todo'}
+        </div>
+      )}
     </div>
   );
 };

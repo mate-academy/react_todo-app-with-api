@@ -26,8 +26,7 @@ export const TodoCard: FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           onClick={() => {
-            client.patch(`/todos/${todo.id}`, { completed: true });
-            console.log('changed', todo.completed);
+            client.patch(`/todos/${todo.id}`, { completed: !todo.completed });
           }}
         />
       </label>
