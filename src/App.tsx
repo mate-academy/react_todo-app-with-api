@@ -1,18 +1,61 @@
+/* eslint-disable no-console */
+/* eslint-disable object-curly-newline */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import React,
+{ FormEvent,
+  useCallback, useContext, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
+import { AuthForm } from './components/Auth/AuthForm';
+import { User } from './types/User';
+import { Todo } from './types/Todo';
+import { getTodos } from './api/todos';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [title, setTitle] = useState('');
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (user) {
+      getTodos(user?.id)
+        .then(gotTodos => setTodos(gotTodos));
+    }
+
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
   }, []);
+
+  const onAdd = (todo: Todo) => {
+    setTodos(prevTodos => [...prevTodos, todo]);
+  };
+
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const newTodo = {
+      id: todos.length + 1,
+      title: `${title}`,
+      userId: user?.id || 0,
+      completed: false,
+    };
+
+    onAdd(newTodo);
+    setTitle('');
+  };
+
+  const onLogin = useCallback((newUser: User) => {
+    console.log(newUser);
+  }, []);
+
+  if (!user) {
+    return (
+      <AuthForm onLogin={onLogin} />
+    );
+  }
 
   return (
     <div className="todoapp">
@@ -26,10 +69,14 @@ export const App: React.FC = () => {
             className="todoapp__toggle-all active"
           />
 
-          <form>
+          <form
+            onSubmit={onSubmit}
+          >
             <input
               data-cy="NewTodoField"
               type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
               ref={newTodoField}
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
@@ -57,38 +104,49 @@ export const App: React.FC = () => {
               ×
             </button>
 
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
+            {todos.length === 0 && (
+              <div data-cy="TodoLoader" className="modal overlay">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            )}
           </div>
 
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">CSS</span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
+          {todos.map(todo => (
+            <div
+              data-cy="Todo"
+              // eslint-disable-next-line quote-props
+              className={classNames('todo', { 'completed': todo.completed })}
+              key={todo.id}
             >
-              ×
-            </button>
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                />
+              </label>
 
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
+              <span data-cy="TodoTitle" className="todo__title">
+                {todo.title}
+              </span>
+
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+              >
+                ×
+              </button>
+
+              <div data-cy="TodoLoader" className="modal overlay">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
             </div>
-          </div>
+          ))}
 
-          <div data-cy="Todo" className="todo">
+          {/*           <div data-cy="Todo" className="todo">
             <label className="todo__status-label">
               <input
                 data-cy="TodoStatus"
@@ -159,12 +217,12 @@ export const App: React.FC = () => {
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>
-          </div>
+          </div> */}
         </section>
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
-            4 items left
+            {`${todos.length} items left`}
           </span>
 
           <nav className="filter" data-cy="Filter">
@@ -196,6 +254,7 @@ export const App: React.FC = () => {
             data-cy="ClearCompletedButton"
             type="button"
             className="todoapp__clear-completed"
+            disabled={!todos.some(todo => todo.completed)}
           >
             Clear completed
           </button>
