@@ -4,12 +4,13 @@
 import React,
 { FormEvent,
   useCallback, useContext, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { AuthForm } from './components/Auth/AuthForm';
 import { User } from './types/User';
 import { Todo } from './types/Todo';
 import { getTodos } from './api/todos';
+import { TodosList } from './components/TodosList';
+import { client } from './utils/fetchClient';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,16 +35,22 @@ export const App: React.FC = () => {
     setTodos(prevTodos => [...prevTodos, todo]);
   };
 
+  const onDelete = (todo: Todo) => {
+    setTodos(prevTodos => prevTodos.filter(prevTodo => prevTodo !== todo));
+  };
+
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     const newTodo = {
-      id: todos.length + 1,
-      title: `${title}`,
-      userId: user?.id || 0,
+      title,
+      userId: user?.id,
       completed: false,
     };
 
-    onAdd(newTodo);
+    client.post<Todo>('/todos', newTodo)
+      .then(todo => {
+        onAdd(todo);
+      });
     setTitle('');
   };
 
@@ -84,141 +91,7 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <section className="todoapp__main" data-cy="TodoList">
-          <div data-cy="Todo" className="todo completed">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                defaultChecked
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">HTML</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            {todos.length === 0 && (
-              <div data-cy="TodoLoader" className="modal overlay">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            )}
-          </div>
-
-          {todos.map(todo => (
-            <div
-              data-cy="Todo"
-              // eslint-disable-next-line quote-props
-              className={classNames('todo', { 'completed': todo.completed })}
-              key={todo.id}
-            >
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                />
-              </label>
-
-              <span data-cy="TodoTitle" className="todo__title">
-                {todo.title}
-              </span>
-
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDeleteButton"
-              >
-                ×
-              </button>
-
-              <div data-cy="TodoLoader" className="modal overlay">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            </div>
-          ))}
-
-          {/*           <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <form>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                defaultValue="JS"
-              />
-            </form>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">React</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">Redux</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div> */}
-        </section>
+        <TodosList todos={todos} onDelete={onDelete} />
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
