@@ -46,15 +46,15 @@ export const Header: React.FC<Props> = (props) => {
       })
         .then(res => {
           setTodos(prev => [...prev, res]);
+          setSelectedTodoId([res.id]);
         })
         .catch(() => setUnableAddTodo(true))
         .finally(() => {
-          setSelectedTodoId([...todos.map(todo => todo.id)]);
-          setTimeout(() => setIsLoading(false), 500);
+          setTimeout(() => {
+            setIsLoading(false);
+            setSelectedTodoId([]);
+          }, 500);
         });
-    } else if (!newTodo.trim().length) {
-      setUnableEmptyTitle(true);
-      setTimeout(() => setUnableEmptyTitle(false), 1500);
     }
 
     setNewTodo('');
@@ -94,6 +94,11 @@ export const Header: React.FC<Props> = (props) => {
 
       <form onSubmit={(event) => {
         event.preventDefault();
+        if (!newTodo.trim().length) {
+          setUnableEmptyTitle(true);
+          setTimeout(() => setUnableEmptyTitle(false), 1500);
+        }
+
         addTodo();
       }}
       >
@@ -105,7 +110,9 @@ export const Header: React.FC<Props> = (props) => {
           placeholder="What needs to be done?"
           value={newTodo}
           onChange={(event) => setNewTodo(event.target.value)}
-          onBlur={() => addTodo()}
+          onBlur={() => {
+            addTodo();
+          }}
         />
       </form>
     </header>
