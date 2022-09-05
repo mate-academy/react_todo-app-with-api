@@ -12,6 +12,7 @@ import { AuthContext } from './Auth/AuthContext';
 
 type Props = {
   todos: Todo[],
+  setSelectedTodoId: React.Dispatch<React.SetStateAction<number[]>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setUnableAddTodo: React.Dispatch<React.SetStateAction<boolean>>,
@@ -21,6 +22,8 @@ type Props = {
 export const Header: React.FC<Props> = (props) => {
   const {
     todos,
+    // selectedTodoId,
+    setSelectedTodoId,
     setIsLoading,
     setTodos,
     setUnableAddTodo,
@@ -41,18 +44,25 @@ export const Header: React.FC<Props> = (props) => {
         userId: user?.id,
         completed: false,
       })
-        .then(res => setTodos(prev => [...prev, res]))
+        .then(res => {
+          setTodos(prev => [...prev, res]);
+        })
         .catch(() => setUnableAddTodo(true))
-        .finally(() => setIsLoading(false));
+        .finally(() => {
+          setSelectedTodoId([...todos.map(todo => todo.id)]);
+          setTimeout(() => setIsLoading(false), 500);
+        });
     } else if (!newTodo.trim().length) {
-      setIsLoading(false);
       setUnableEmptyTitle(true);
+      setTimeout(() => setUnableEmptyTitle(false), 1500);
     }
 
     setNewTodo('');
   }, [newTodo]);
 
   const updateAllTodoStatus = useCallback(() => {
+    setIsLoading(true);
+    setSelectedTodoId([...todos.map(todo => todo.id)]);
     setisAllActive(!isAllActive);
 
     todos.map(todo => client.patch(`/todos/${todo.id}`, { completed: isAllActive }));
@@ -61,6 +71,9 @@ export const Header: React.FC<Props> = (props) => {
       ...todo,
       completed: isAllActive,
     })));
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   }, [isAllActive, todos]);
 
   useEffect(() => {

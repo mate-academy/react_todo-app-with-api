@@ -8,10 +8,13 @@ import {
   from 'react';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
+import { Loader } from './Loader';
 
 type Props = {
   todos: Todo[],
+  selectedTodoId: number[]
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setSelectedTodoId: React.Dispatch<React.SetStateAction<number[]>>,
   isLoading: boolean,
   filterBy: string,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
@@ -22,6 +25,8 @@ type Props = {
 export const TodosList: React.FC<Props> = (props) => {
   const {
     todos,
+    selectedTodoId,
+    setSelectedTodoId,
     setIsLoading,
     isLoading,
     filterBy,
@@ -32,34 +37,30 @@ export const TodosList: React.FC<Props> = (props) => {
 
   const [editTodo, setEditTodo] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
-  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   const editTodoField = useRef<HTMLInputElement>(null);
 
   const updateTodoStatus = useCallback(
     (todoId: number, todoComleted: boolean) => {
       setIsLoading(true);
-      setSelectedTodoId(todoId);
+      setSelectedTodoId([todoId]);
       client.patch<Todo>(`/todos/${todoId}`, { completed: !todoComleted })
         .then(res => setTodos(prev => [...prev
           .slice(0, prev.findIndex(todo => todo.id === res.id)), res, ...prev
-            .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
+          .slice(prev.findIndex(todo => todo.id === res.id) + 1)]))
         .catch(() => setUnableUpdateTodo(true))
         .finally(() => setIsLoading(false));
-      setSelectedTodoId(null);
     }, [selectedTodoId],
   );
 
   const deleteTodo = useCallback((todoId: number) => {
-    if (selectedTodoId === todoId) {
-      setIsLoading(true);
-    }
-
+    setIsLoading(true);
+    setSelectedTodoId([todoId]);
     client.delete(`/todos/${todoId}`)
       .then(res => {
         if (res === 1) {
           setTodos(prev => prev.filter(todo => todo.id !== todoId));
-          setSelectedTodoId(null);
+          setSelectedTodoId([]);
         }
       })
       .catch(() => setunableDeleteTodo(true))
@@ -67,14 +68,15 @@ export const TodosList: React.FC<Props> = (props) => {
   }, [selectedTodoId]);
 
   const updateTodoTitle = useCallback((todoId: number) => {
-    setSelectedTodoId(todoId);
+    setSelectedTodoId([todoId]);
+    setIsLoading(true);
     client.patch<Todo>(`/todos/${todoId}`, { title: todoTitle })
       .then(res => {
         setTodos(prev => [...prev.slice(0, prev
           .findIndex(todo => todo.id === res.id)), res, ...prev.slice(prev
           .findIndex(todo => todo.id === res.id) + 1)]);
-      });
-    setSelectedTodoId(null);
+      })
+      .finally(() => setTimeout(() => setIsLoading(false), 500));
     setTodoTitle('');
     setEditTodo(false);
   }, [todoTitle]);
@@ -120,12 +122,12 @@ export const TodosList: React.FC<Props> = (props) => {
             data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={() => {
-              setSelectedTodoId(todo.id);
+              setSelectedTodoId([todo.id]);
               setTodoTitle(todo.title);
               setEditTodo(true);
             }}
           >
-            {(editTodo && todo.id === selectedTodoId)
+            {(editTodo && selectedTodoId.includes(todo.id))
               ? (
                 <form onSubmit={(event) => {
                   event.preventDefault();
@@ -152,24 +154,18 @@ export const TodosList: React.FC<Props> = (props) => {
               className="todo__remove"
               data-cy="TodoDeleteButton"
               onClick={() => {
-                setSelectedTodoId(todo.id);
+                setSelectedTodoId([todo.id]);
                 deleteTodo(todo.id);
               }}
             >
               ×
             </button>
           )}
-          {isLoading && (
-            <div
-              data-cy="TodoLoader"
-              className="modal overlay is-active"
-            >
-              <div
-                className="modal-background has-background-white-ter"
-              />
-              <div className="loader" />
-            </div>
-          )}
+          {(isLoading
+            && selectedTodoId.includes(todo.id))
+            && (
+              <Loader />
+            )}
 
         </div>
       ))}
