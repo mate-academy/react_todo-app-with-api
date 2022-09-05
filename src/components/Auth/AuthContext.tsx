@@ -11,7 +11,7 @@ type Props = {
 export const AuthProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  if (!user) {
+  if (user === null) {
     return <AuthForm onLogin={setUser} />;
   }
 
