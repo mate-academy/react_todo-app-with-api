@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { LoadedTodo } from '../types/LoadedTodo';
+import { ChangedTodo } from '../types/ChangedTodo';
 
 type Props = {
   todos: Todo[],
   onTodoRemove: (id: number) => void,
-  onTodoChange: (id: number, data: any) => void,
+  onTodoChange: (id: number, data: ChangedTodo) => void,
   todoLoaded: LoadedTodo,
   setTodoLoaded: React.Dispatch<React.SetStateAction<LoadedTodo>>,
 };
@@ -35,7 +36,7 @@ export const TodoList: React.FC<Props> = ({
     }
   });
 
-  function editTodo(id: number, title: string) {
+  function editTodo(id: number, title: string, status: boolean) {
     setIsTodoEdit(false);
 
     if (newTitle === '') {
@@ -44,11 +45,13 @@ export const TodoList: React.FC<Props> = ({
       return;
     }
 
-    onTodoChange(id, { title: newTitle });
+    onTodoChange(id, { title: newTitle, completed: status });
     setNewTitle(title);
   }
 
-  const handleTodoStatusInputClick = (id: number, status: boolean) => {
+  const handleTodoStatusInputClick = (
+    id: number, title: string, status: boolean,
+  ) => {
     setTodoLoaded({ todoId: id, loaded: false });
 
     if (newTitle === '' && isTodoEdit) {
@@ -57,21 +60,23 @@ export const TodoList: React.FC<Props> = ({
       return;
     }
 
-    onTodoChange(id, { completed: !status });
+    onTodoChange(id, { title, completed: !status });
   };
 
-  const handleEditTodoInputBlur = (id: number, title: string) => {
-    editTodo(id, title);
+  const handleEditTodoInputBlur = (
+    id: number, title: string, status: boolean,
+  ) => {
+    editTodo(id, title, status);
   };
 
   const handleEditTodoInputKeyPress = (
-    e: React.KeyboardEvent, id: number, title: string,
+    e: React.KeyboardEvent, id: number, title: string, status: boolean,
   ) => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    editTodo(id, title);
+    editTodo(id, title, status);
   };
 
   const handleTodoTitleSpanDoubleClick = (id: number, title: string) => {
@@ -107,7 +112,7 @@ export const TodoList: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               onClick={() => {
-                handleTodoStatusInputClick(todo.id, todo.completed);
+                handleTodoStatusInputClick(todo.id, todo.title, todo.completed);
               }}
 
             />
@@ -135,10 +140,12 @@ export const TodoList: React.FC<Props> = ({
                  setNewTitle(e.target.value);
                }}
                onBlur={() => {
-                 handleEditTodoInputBlur(todo.id, todo.title);
+                 handleEditTodoInputBlur(todo.id, todo.title, todo.completed);
                }}
                onKeyPress={(e) => {
-                 handleEditTodoInputKeyPress(e, todo.id, todo.title);
+                 handleEditTodoInputKeyPress(
+                   e, todo.id, todo.title, todo.completed,
+                 );
                }}
              />
            </form>

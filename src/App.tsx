@@ -10,6 +10,7 @@ import {
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { LoadedTodo } from './types/LoadedTodo';
+import { ChangedTodo } from './types/ChangedTodo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -23,18 +24,19 @@ export const App: React.FC = () => {
     = useState<LoadedTodo>({ todoId: 0, loaded: false });
 
   function filterTodos(filterType: Filter, todosList: Todo[]): Todo[] {
+    const todoActive = todosList.filter(todo => todo.completed === false);
+    const todoCompleted = todosList.filter(todo => todo.completed === true);
+
     switch (filterType) {
       case Filter.active:
-        setIsFooterVisible((todosList.length > todosList
-          .filter(todo => todo.completed === false).length));
+        setIsFooterVisible((todosList.length > todoActive.length));
 
-        return todosList.filter(todo => todo.completed === false);
+        return todoActive;
 
       case Filter.completed:
-        setIsFooterVisible(todosList.length > todosList
-          .filter(todo => todo.completed === true).length);
+        setIsFooterVisible(todosList.length > todoCompleted.length);
 
-        return todosList.filter(todo => todo.completed === true);
+        return todoCompleted;
 
       case Filter.all:
         return todosList;
@@ -97,7 +99,7 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage('Unable to delete a todo'));
   };
 
-  const handleTodoChange = (id: number, data: any) => {
+  const handleTodoChange = (id: number, data: ChangedTodo) => {
     changeTodo(id, data)
       .then(() => setTodoLoaded({ todoId: id, loaded: true }))
       .catch(() => setErrorMessage('Unable to update a todo'));
@@ -114,7 +116,9 @@ export const App: React.FC = () => {
   const handleToggleBtnClick = () => {
     setIsAllTodosCompleted(!isAllTodosCompleted);
     todos.map(todo => {
-      return handleTodoChange(todo.id, { completed: !isAllTodosCompleted });
+      return handleTodoChange(
+        todo.id, { title: todo.title, completed: !isAllTodosCompleted },
+      );
     });
   };
 
