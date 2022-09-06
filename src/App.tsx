@@ -4,6 +4,7 @@
 import React,
 { FormEvent,
   useCallback, useContext, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { AuthForm } from './components/Auth/AuthForm';
 import { User } from './types/User';
@@ -19,8 +20,9 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   // const [filterOption, setFilterOption] = useState('All');
   const [addError, setAddError] = useState(false);
-  const [deleteError] = useState(false);
-  const [updateError] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
+  const [updateError, setUpdateError] = useState(false);
+  const [filterOption, setFilterOption] = useState('all');
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export const App: React.FC = () => {
     console.log(newUser);
   }, []);
 
-  /*   const getFilteredTodos = useCallback((option: string) => {
+  const getFilteredTodos = useCallback((option: string) => {
     switch (option) {
       case 'active':
         return todos.filter(todo => todo.completed === false);
@@ -79,7 +81,9 @@ export const App: React.FC = () => {
       default:
         return todos;
     }
-  }, [todos]); */
+  }, [todos]);
+
+  const fiteredTodos = getFilteredTodos(filterOption);
 
   if (!user) {
     return (
@@ -114,7 +118,7 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodosList todos={todos} onDelete={onDelete} />
+        <TodosList todos={fiteredTodos} onDelete={onDelete} />
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
@@ -125,7 +129,11 @@ export const App: React.FC = () => {
             <a
               data-cy="FilterLinkAll"
               href="#/"
-              className="filter__link selected"
+              className={classNames(
+                'filter__link',
+                { selected: filterOption === 'all' },
+              )}
+              onClick={() => setFilterOption('all')}
             >
               All
             </a>
@@ -133,14 +141,22 @@ export const App: React.FC = () => {
             <a
               data-cy="FilterLinkActive"
               href="#/active"
-              className="filter__link"
+              className={classNames(
+                'filter__link',
+                { selected: filterOption === 'active' },
+              )}
+              onClick={() => setFilterOption('active')}
             >
               Active
             </a>
             <a
               data-cy="FilterLinkCompleted"
               href="#/completed"
-              className="filter__link"
+              className={classNames(
+                'filter__link',
+                { selected: filterOption === 'completed' },
+              )}
+              onClick={() => setFilterOption('completed')}
             >
               Completed
             </a>
@@ -151,6 +167,15 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__clear-completed"
             disabled={!todos.some(todo => todo.completed)}
+            onClick={() => {
+              const todosToDelete = todos.filter(
+                todo => todo.completed === true,
+              );
+
+              todosToDelete.forEach(todo => {
+                client.delete(`/todos/${todo.id}`);
+              });
+            }}
           >
             Clear completed
           </button>
@@ -166,6 +191,11 @@ export const App: React.FC = () => {
             data-cy="HideErrorButton"
             type="button"
             className="delete"
+            onClick={() => {
+              setAddError(false);
+              setDeleteError(false);
+              setUpdateError(false);
+            }}
           />
 
           {addError && 'Unable to add a todo'}
