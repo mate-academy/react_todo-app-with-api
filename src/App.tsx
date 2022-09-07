@@ -5,23 +5,27 @@ import React, {
   useEffect,
   useMemo,
   useState,
-} from "react";
+} from 'react';
 
-import classNames from "classnames";
-import { createTodo, deleteTodo, getTodos, patchTodo } from "./api/todos";
+import classNames from 'classnames';
+import {
+  createTodo, deleteTodo, getTodos, patchTodo,
+} from './api/todos';
 
 import {
   CreateTodoFragment,
   Todo,
   UpdateStatus,
   UpdateTitle,
-} from "./types/Todo";
+} from './types/Todo';
 
-import { AuthContext } from "./components/Auth/AuthContext";
-import { FormCreateTodo } from "./components/FormCreateTodo/FormCreateTodo";
-import { TodosList } from "./components/TodoList/TodoList";
-import { FiltersTodos } from "./components/FilterTodos/FilterTodos";
-import { ErrorNotification } from "./components/ErrorNotification/ErrorNotification";
+import { AuthContext } from './components/Auth/AuthContext';
+import { FormCreateTodo } from './components/FormCreateTodo/FormCreateTodo';
+import { TodosList } from './components/TodoList/TodoList';
+import { FiltersTodos } from './components/FilterTodos/FilterTodos';
+import {
+  ErrorNotification,
+} from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,14 +33,14 @@ export const App: React.FC = () => {
 
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [typeError, setTypeError] = useState("");
+  const [typeError, setTypeError] = useState('');
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadTodoId, setLoadTodoId] = useState<number[]>([]);
   const [selectId, setSelectId] = useState(0);
   const [openPatchForm, setopenPatchForm] = useState(false);
 
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState('All');
 
   useEffect(() => {
     if (user) {
@@ -49,21 +53,21 @@ export const App: React.FC = () => {
 
   const completedTodos = useMemo(
     () => todos.filter((todo) => todo.completed === true),
-    [todos]
+    [todos],
   );
 
   const activeTodos = useMemo(
     () => todos.filter((todo) => todo.completed !== true),
-    [todos]
+    [todos],
   );
 
   useMemo(() => {
     const filtered = todos.filter((todo) => {
-      if (filter === "Completed") {
+      if (filter === 'Completed') {
         return todo.completed === true;
       }
 
-      if (filter === "Active") {
+      if (filter === 'Active') {
         return todo.completed !== true;
       }
 
@@ -74,7 +78,7 @@ export const App: React.FC = () => {
   }, [filter, todos]);
 
   const handelCloseError = useCallback(() => {
-    setTypeError("");
+    setTypeError('');
   }, []);
 
   const handleChange = (todoID: number, completedTodo: boolean) => {
@@ -90,33 +94,29 @@ export const App: React.FC = () => {
 
     patchTodo(todoID, updateStatus)
       .then(() => {
-        setFilteredTodos((prev) =>
-          prev.map((todo) => {
-            if (todo.id === todoID) {
-              return {
-                ...todo,
-                completed: !todo.completed,
-              };
-            }
+        setFilteredTodos((prev) => prev.map((todo) => {
+          if (todo.id === todoID) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
 
-            return todo;
-          })
-        );
-        setTodos((prev) =>
-          prev.map((todo) => {
-            if (todo.id === todoID) {
-              return {
-                ...todo,
-                completed: !todo.completed,
-              };
-            }
+          return todo;
+        }));
+        setTodos((prev) => prev.map((todo) => {
+          if (todo.id === todoID) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
 
-            return todo;
-          })
-        );
+          return todo;
+        }));
       })
       .catch(() => {
-        setTypeError("ErrorUpdate");
+        setTypeError('ErrorUpdate');
         setTimeout(handelCloseError, 3000);
       })
       .finally(() => {
@@ -128,8 +128,8 @@ export const App: React.FC = () => {
 
   const handelAllActiveReverse = () => {
     if (
-      completedTodos.length > 0 &&
-      completedTodos.length !== filteredTodos.length
+      completedTodos.length > 0
+      && completedTodos.length !== filteredTodos.length
     ) {
       setLoadTodoId(activeTodos.map((todo) => todo.id));
       activeTodos.forEach((todo) => {
@@ -140,8 +140,8 @@ export const App: React.FC = () => {
     }
 
     if (
-      !completedTodos.length ||
-      completedTodos.length === filteredTodos.length
+      !completedTodos.length
+      || completedTodos.length === filteredTodos.length
     ) {
       setLoadTodoId(filteredTodos.map((todo) => todo.id));
       filteredTodos.forEach((activeTodo) => {
@@ -163,9 +163,9 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    if (newTodo.title.length < 1) {
+    if (newTodo.title.trim().length < 1) {
       setTimeout(handelCloseError, 3000);
-      setTypeError("EmptyTitle");
+      setTypeError('EmptyTitle');
 
       return;
     }
@@ -176,7 +176,7 @@ export const App: React.FC = () => {
         setTodos((prev) => [...prev, todo]);
       })
       .catch(() => {
-        setTypeError("ErrorLoadedNewTodo");
+        setTypeError('ErrorLoadedNewTodo');
         setTimeout(handelCloseError, 3000);
       });
   };
@@ -194,14 +194,14 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setTimeout(handelCloseError, 3000);
-          setTypeError("ErrorDeletedTodo");
+          setTypeError('ErrorDeletedTodo');
         })
         .finally(() => {
           setLoadTodoId([]);
           setIsLoaded(false);
         });
     },
-    [filteredTodos, todos]
+    [filteredTodos, todos],
   );
 
   const handelClearAllComplered = () => {
@@ -255,7 +255,7 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setTimeout(handelCloseError, 3000);
-          setTypeError("ErrorUpdate");
+          setTypeError('ErrorUpdate');
         })
         .finally(() => {
           setSelectId(0);
@@ -280,7 +280,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             aria-label="Mute volume"
             type="button"
-            className={classNames("todoapp__toggle-all", {
+            className={classNames('todoapp__toggle-all', {
               active: activeTodos.length > 0,
             })}
             onClick={handelAllActiveReverse}

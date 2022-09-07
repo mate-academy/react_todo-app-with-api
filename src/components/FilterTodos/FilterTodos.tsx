@@ -16,7 +16,7 @@ export const FiltersTodos: React.FC<Props> = (props) => {
     = props;
 
   const handelFiltredTodos = (
-    // event: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>>,
+    // eslint-disable-next-line
     event: any,
   ) => {
     setFilter(event.target.textContent);
