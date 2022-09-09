@@ -17,8 +17,8 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   isFooterVisible,
 }) => {
-  const allActiveTodos = todos.filter(todo => todo.completed === false).length;
-  const existСompletedTodo = todos.some(todo => todo.completed === true);
+  const allActiveTodos = todos.filter(todo => !todo.completed).length;
+  const existСompletedTodo = todos.some(todo => todo.completed);
 
   return (
     todos.length || isFooterVisible

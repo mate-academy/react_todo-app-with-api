@@ -6,8 +6,7 @@ type Props = {
   todos: Todo[],
   title: string,
   setTitle: React.Dispatch<React.SetStateAction<string>>,
-  isAllTodosCompleted: boolean,
-  onToggleBtnClick: () => void,
+  onToggleBtnClick: (isEveryTodoCompleted: boolean) => void,
   onNewTodoFormSubmit: (e: React.FormEvent) => void,
 
 };
@@ -16,11 +15,11 @@ export const Header: React.FC<Props> = ({
   todos,
   title,
   setTitle,
-  isAllTodosCompleted,
   onToggleBtnClick,
   onNewTodoFormSubmit,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
+  const isEveryTodoCompleted = todos.every(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
@@ -32,10 +31,10 @@ export const Header: React.FC<Props> = ({
             className={classNames(
               'todoapp__toggle-all',
               {
-                active: isAllTodosCompleted,
+                active: isEveryTodoCompleted,
               },
             )}
-            onClick={onToggleBtnClick}
+            onClick={() => onToggleBtnClick(isEveryTodoCompleted)}
           >
             &nbsp;
           </button>
