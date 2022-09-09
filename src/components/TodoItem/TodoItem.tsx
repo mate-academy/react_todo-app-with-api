@@ -66,7 +66,7 @@ export const TodoItem: React.FC<Props> = React.memo(
                 ref={titleField}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                onBlur={() => changeTitleTodo()}
+                onBlur={changeTitleTodo}
                 onKeyDown={e => {
                   if (e.key === 'Escape') {
                     setSelectedId(0);

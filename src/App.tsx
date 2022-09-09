@@ -54,7 +54,7 @@ export const App: React.FC = () => {
       const copyPrev = [...prevState];
 
       copyPrev.forEach(todo => {
-        if (todo[`${property}`] === condition) {
+        if (todo[property] === condition) {
           todo.isLoading = toggle;
         }
       });
