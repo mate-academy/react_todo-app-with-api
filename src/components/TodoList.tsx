@@ -28,13 +28,13 @@ export const TodoList: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, [currentTodo]);
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      setIsTodoEdit(false);
-    }
-  });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setIsTodoEdit(false);
+      }
+    });
+  }, [isTodoEdit]);
 
   function editTodo(id: number, title: string, status: boolean) {
     setIsTodoEdit(false);

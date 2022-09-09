@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState, useMemo,
+} from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -17,61 +19,50 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isAllTodosCompleted, setIsAllTodosCompleted] = useState(false);
   const [filter, setFilter] = useState<Filter>(Filter.all);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [todoLoaded, setTodoLoaded]
     = useState<LoadedTodo>({ todoId: 0, loaded: false });
+  let isFooterVisible = false;
 
-  function filterTodos(filterType: Filter, todosList: Todo[]): Todo[] {
-    const todoActive = todosList.filter(todo => todo.completed === false);
-    const todoCompleted = todosList.filter(todo => todo.completed === true);
+  const loadTodos = async (userId: number) => {
+    try {
+      const todosFromServer = await getTodos(userId);
 
-    switch (filterType) {
-      case Filter.active:
-        setIsFooterVisible((todosList.length > todoActive.length));
-
-        return todoActive;
-
-      case Filter.completed:
-        setIsFooterVisible(todosList.length > todoCompleted.length);
-
-        return todoCompleted;
-
-      case Filter.all:
-        return todosList;
-
-      default:
-        return todosList;
+      setTodos(todosFromServer);
+    } catch (error) {
+      setErrorMessage('Can not load todos');
     }
-  }
+  };
 
-  function loadTodos() {
-    if (user) {
-      getTodos(user.id)
-        .then(result => setTodos(filterTodos(filter, result)))
-        .catch(() => setErrorMessage('Unable to add a todo'));
-    }
-  }
-
-  function checkTodos() {
-    if (todos.every(todo => todo.completed === true)) {
-      setIsAllTodosCompleted(true);
-
+  useEffect(() => {
+    if (!user) {
       return;
     }
 
-    setIsAllTodosCompleted(false);
-  }
-
-  useEffect(() => {
-    loadTodos();
-    checkTodos();
-  }, [todos]);
+    loadTodos(user.id);
+  }, [user?.id, todoLoaded]);
 
   useEffect(() => {
     setTimeout(() => setErrorMessage(''), 3000);
   }, [errorMessage]);
+
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filter) {
+        case Filter.active:
+          return !todo.completed;
+
+        case Filter.completed:
+          return todo.completed;
+
+        case Filter.all:
+          return todo;
+
+        default:
+          return todo;
+      }
+    });
+  }, [todos, filter]);
 
   function addNewTodo() {
     if (!user) {
@@ -106,20 +97,29 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    const deletedTodo = todos.map(todo => (todo.completed === true
-      ? deleteTodo(todo.id)
-      : todo));
+    const activeTodo = todos.filter(todo => !todo.completed);
 
-    setIsFooterVisible((todos.length > deletedTodo.length));
+    isFooterVisible = activeTodo.length > 0;
+    todos.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+      }
+    });
+
+    setTodos(activeTodo);
   };
 
-  const handleToggleBtnClick = () => {
-    setIsAllTodosCompleted(!isAllTodosCompleted);
-    todos.map(todo => {
-      return handleTodoChange(
-        todo.id, { title: todo.title, completed: !isAllTodosCompleted },
+  const handleToggleBtnClick = (todoCompleted: boolean) => {
+    todos.forEach(todo => {
+      handleTodoChange(
+        todo.id,
+        { ...todo, title: todo.title, completed: !todoCompleted },
       );
     });
+
+    setTodos(todos.map(todo => {
+      return { ...todo, completed: !todoCompleted };
+    }));
   };
 
   const handleNewTodoFormSubmit = (e: React.FormEvent) => {
@@ -143,7 +143,6 @@ export const App: React.FC = () => {
           todos={todos}
           title={title}
           setTitle={setTitle}
-          isAllTodosCompleted={isAllTodosCompleted}
           onToggleBtnClick={handleToggleBtnClick}
           onNewTodoFormSubmit={handleNewTodoFormSubmit}
         />
@@ -151,7 +150,7 @@ export const App: React.FC = () => {
         {todos.length > 0
           && (
             <TodoList
-              todos={todos}
+              todos={visibleTodos}
               onTodoRemove={handleTodoRemove}
               onTodoChange={handleTodoChange}
               todoLoaded={todoLoaded}
