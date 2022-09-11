@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
-import { LoadedTodo } from '../types/LoadedTodo';
-import { ChangedTodo } from '../types/ChangedTodo';
+import { Todo } from '../types/Todo/Todo';
+import { LoadedTodo } from '../types/Todo/LoadedTodo';
+import { ChangedTodo } from '../types/Todo/ChangedTodo';
 
 type Props = {
   todos: Todo[],

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
+import { Todo } from '../types/Todo/Todo';
 
 type Props = {
   todos: Todo[],

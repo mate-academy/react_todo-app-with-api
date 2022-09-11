@@ -9,10 +9,10 @@ import { ErrorNotification } from './components/ErrorNotification';
 import {
   getTodos, addTodo, deleteTodo, changeTodo,
 } from './api/todos';
-import { Todo } from './types/Todo';
+import { Todo } from './types/Todo/Todo';
 import { Filter } from './types/Filter';
-import { LoadedTodo } from './types/LoadedTodo';
-import { ChangedTodo } from './types/ChangedTodo';
+import { LoadedTodo } from './types/Todo/LoadedTodo';
+import { ChangedTodo } from './types/Todo/ChangedTodo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
