@@ -2,84 +2,24 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import { getTodos } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodos, updateTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Error } from './components/Error';
 import { Footer } from './components/Footer';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
-import { client } from './utils/fetchClient';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeAll, setActiveAll] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
-    if (user) {
-      getTodos(user.id)
-        .then(res => setTodos(res))
-        .catch(() => {
-          setHasError(true);
-          setErrorMessage('Unble to load');
-        });
-      setVisibleTodos(todos);
-    }
-
-    for (let i = 0; i < todos.length; i += 1) {
-      if (!todos[i].completed) {
-        setActiveAll(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      getTodos(user.id).then(res => {
-        setTodos(res);
-      }).catch(() => {
-        setHasError(true);
-        setErrorMessage('Unble to load');
-      });
-    }
-  }, [user]);
-
-  useEffect(() => {
-    setVisibleTodos(todos);
-  }, [todos]);
-
-  useEffect(() => {
-    if (activeFilter === 'Active') {
-      const newTodos = todos.filter(todo => todo.completed === false);
-
-      setVisibleTodos(newTodos);
-    }
-
-    if (activeFilter === 'Completed') {
-      const newTodos = todos.filter(todo => todo.completed === true);
-
-      setVisibleTodos(newTodos);
-    }
-
-    if (activeFilter === 'All') {
-      setVisibleTodos(todos);
-    }
-  }, [activeFilter]);
-
-  const removeError = () => {
-    setHasError(false);
-  };
 
   const updateTodos = () => {
     if (user) {
@@ -94,6 +34,28 @@ export const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+
+    updateTodos();
+
+    for (let i = 0; i < todos.length; i += 1) {
+      if (!todos[i].completed) {
+        setActiveAll(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    updateTodos();
+  }, [user]);
+
+  const removeError = () => {
+    setHasError(false);
+  };
+
   const addTodo = (title: string) => {
     if (!title) {
       setHasError(true);
@@ -105,15 +67,12 @@ export const App: React.FC = () => {
     }
 
     if (user) {
-      client.post('/todos', {
-        title,
-        userId: user.id || 0,
-        completed: false,
-      }).then(() => {
-        getTodos(user.id).then(res => {
-          setTodos(res);
-        });
-      })
+      postTodos(title, user.id || 0)
+        .then(() => {
+          getTodos(user.id).then(res => {
+            setTodos(res);
+          });
+        })
         .catch(() => {
           setHasError(true);
           setErrorMessage('Unble to load');
@@ -121,8 +80,8 @@ export const App: React.FC = () => {
     }
   };
 
-  const deleteTodo = (id: number | undefined) => {
-    client.delete(`/todos/${id}`).then(updateTodos)
+  const removeTodo = (id: number | undefined) => {
+    deleteTodo(id || 0).then(updateTodos)
       .catch(() => {
         setHasError(true);
         setErrorMessage('Unble to delete');
@@ -131,7 +90,7 @@ export const App: React.FC = () => {
 
   const patchTodo = (value: string, id: number | undefined) => {
     if (value.trim() === '') {
-      client.delete(`/todos/${id}`)
+      deleteTodo(id || 0)
         .then(updateTodos)
         .catch(() => {
           setHasError(true);
@@ -141,14 +100,36 @@ export const App: React.FC = () => {
       return;
     }
 
-    client.patch(`/todos/${id}`, {
-      title: value,
-    }).then(updateTodos)
+    updateTodo(value, id || 0).then(updateTodos)
       .catch(() => {
         setHasError(true);
         setErrorMessage('Unble to update');
       });
   };
+
+  const visibleTodos = todos.filter(todo => {
+    if (activeFilter === 'All') {
+      return true;
+    }
+
+    if (activeFilter === 'Active') {
+      if (!todo.completed) {
+        return true;
+      }
+
+      return false;
+    }
+
+    if (activeFilter === 'Completed') {
+      if (todo.completed) {
+        return true;
+      }
+
+      return false;
+    }
+
+    return 0;
+  });
 
   return (
     <div className="todoapp">
@@ -164,7 +145,7 @@ export const App: React.FC = () => {
         />
         <TodoList
           todos={visibleTodos}
-          deleteTodo={deleteTodo}
+          deleteTodo={removeTodo}
           updateTodos={updateTodos}
           activeAll={activeAll}
           patchTodo={patchTodo}
