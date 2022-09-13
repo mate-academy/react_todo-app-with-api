@@ -1,14 +1,17 @@
+@import "./show.scss";
+
 .todo {
   position: relative;
 
   display: grid;
   grid-template-columns: 45px 1fr;
   justify-items: stretch;
-
   font-size: 24px;
   line-height: 1.4em;
   border-bottom: 1px solid #ededed;
-  
+  height: 57px;
+  animation: show 0.3s;
+
   &:last-child {
     border-bottom: 0;
   }
@@ -30,7 +33,6 @@
 
   &__title {
     padding: 12px 15px;
-  
     word-break: break-all;
     transition: color 0.4s;
   }
@@ -45,18 +47,15 @@
     right: 12px;
     top: 0;
     bottom: 0;
-
     font-size: 120%;
     line-height: 1;
     font-family: inherit;
     font-weight: inherit;
     color: #cc9a9a;
-
     float: right;
     border: 0;
     background: none;
     cursor: pointer;
-  
     transform: translateY(-2px);
     opacity: 0;
     transition: color 0.2s ease-out;
@@ -73,16 +72,14 @@
   &__title-field {
     width: 100%;
     padding: 11px 14px;
-  
     font-size: inherit;
     line-height: inherit;
     font-family: inherit;
     font-weight: inherit;
     color: inherit;
-  
     border: 1px solid #999;
     box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
-
+    
     &::placeholder {
       font-style: italic;
       font-weight: 300;
@@ -96,7 +93,6 @@
     right: 0;
     bottom: 0;
     top: 0;
-
     opacity: 0.5;
   }
 }
