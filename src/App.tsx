@@ -22,16 +22,12 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.all);
   const [todoLoaded, setTodoLoaded]
     = useState<LoadedTodo>({ todoId: 0, loaded: false });
-  let isFooterVisible = false;
+  const isFooterVisible = todos.length > 0;
 
-  const loadTodos = async (userId: number) => {
-    try {
-      const todosFromServer = await getTodos(userId);
-
-      setTodos(todosFromServer);
-    } catch (error) {
-      setErrorMessage('Can not load todos');
-    }
+  const loadTodos = (userId: number) => {
+    getTodos(userId)
+      .then(result => setTodos(result))
+      .catch(() => setErrorMessage('Can not load todos'))
   };
 
   useEffect(() => {
@@ -41,10 +37,6 @@ export const App: React.FC = () => {
 
     loadTodos(user.id);
   }, [user?.id, todoLoaded]);
-
-  useEffect(() => {
-    setTimeout(() => setErrorMessage(''), 3000);
-  }, [errorMessage]);
 
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -97,16 +89,17 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    const activeTodo = todos.filter(todo => !todo.completed);
+    if (!user) {
+      return;
+    }
 
-    isFooterVisible = activeTodo.length > 0;
     todos.forEach(todo => {
       if (todo.completed) {
         deleteTodo(todo.id);
       }
     });
 
-    setTodos(activeTodo);
+    loadTodos(user.id);
   };
 
   const handleToggleBtnClick = (todoCompleted: boolean) => {
@@ -157,13 +150,15 @@ export const App: React.FC = () => {
               setTodoLoaded={setTodoLoaded}
             />
           )}
-        <Footer
-          todos={todos}
-          onClearCompletedTodos={handleClearCompletedTodos}
-          filter={filter}
-          setFilter={setFilter}
-          isFooterVisible={isFooterVisible}
-        />
+
+        {isFooterVisible && 
+          <Footer
+            todos={todos}
+            onClearCompletedTodos={handleClearCompletedTodos}
+            filter={filter}
+            setFilter={setFilter}
+          />
+        }
       </div>
 
       {(errorMessage && !title)

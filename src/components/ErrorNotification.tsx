@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 type Props = {
   errorMessage: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
@@ -7,6 +9,11 @@ export const ErrorNotification: React.FC<Props> = ({
   errorMessage,
   setErrorMessage,
 }) => {
+
+  useEffect(() => {
+    setTimeout(() => setErrorMessage(''), 3000);
+  }, [errorMessage]);
+
   return (
     <div
       data-cy="ErrorNotification"

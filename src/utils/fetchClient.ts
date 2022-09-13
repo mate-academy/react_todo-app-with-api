@@ -43,8 +43,10 @@ function request<T>(
 export const client = {
   get: <T>(url: string) => request<T>(url),
   post: <T>(url: string, data: Required<AddedTodo>) => request<T>(
-    url, 'POST', data),
+    url, 'POST', data,
+  ),
   patch: <T>(url: string, data: Required<ChangedTodo>) => request<T>(
-    url, 'PATCH', data),
+    url, 'PATCH', data,
+  ),
   delete: (url: string) => request(url, 'DELETE'),
 };
