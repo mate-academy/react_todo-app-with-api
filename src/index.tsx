@@ -6,10 +6,13 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { AuthProvider } from './components/Auth/AuthContext';
+import { StateProvider } from './components/StateContext';
 
 const Root = () => (
   <AuthProvider>
-    <App />
+    <StateProvider>
+      <App />
+    </StateProvider>
   </AuthProvider>
 );
 
