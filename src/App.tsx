@@ -12,7 +12,7 @@ import {
   removeTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
-import { Header } from './components/Auth/Header';
+import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoItems } from './components/TodoItems';
 import { FilterType, Todo } from './types/Todo';
@@ -219,6 +219,19 @@ export const App: React.FC<{}> = () => {
       });
   }, [todos, editingValue]);
 
+  const completedTodos = useMemo(() => {
+    const complited = [...visibleTodos].filter(todo => todo.completed === true);
+
+    return complited;
+  }, [isToggle, visibleTodos]);
+
+  const isCompletedAll = useMemo(() => {
+    const isComplited = [...visibleTodos]
+      .every(todo => todo.completed === true);
+
+    return isComplited;
+  }, [isToggle, visibleTodos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -230,7 +243,8 @@ export const App: React.FC<{}> = () => {
           isAdding={isAdding}
           handleSubmit={handleSubmit}
           toggleAll={toggleAll}
-          isToggle={isToggle}
+          isCompletedAll={isCompletedAll}
+          visibleTodos={visibleTodos}
         />
 
         <TodoItems
@@ -251,6 +265,7 @@ export const App: React.FC<{}> = () => {
           filterType={filterType}
           setFilterType={setFilterType}
           clearCompleted={clearCompleted}
+          completedTodos={completedTodos}
         />
       </div>
 

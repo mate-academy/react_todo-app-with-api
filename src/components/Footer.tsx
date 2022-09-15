@@ -7,6 +7,7 @@ interface Props {
   setFilterType: (str: FilterType) => void,
   filterType: string,
   clearCompleted:() => void,
+  completedTodos: Todo[],
 }
 
 export const Footer: FC<Props> = (props) => {
@@ -15,6 +16,7 @@ export const Footer: FC<Props> = (props) => {
     setFilterType,
     filterType,
     clearCompleted,
+    completedTodos,
   } = props;
 
   return (
@@ -22,7 +24,7 @@ export const Footer: FC<Props> = (props) => {
       {todos.length !== 0 && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
-            {`${todos.length} items left`}
+            {`${todos.length - completedTodos.length} items left`}
           </span>
 
           <nav className="filter" data-cy="Filter">
@@ -64,6 +66,7 @@ export const Footer: FC<Props> = (props) => {
             type="button"
             className="todoapp__clear-completed"
             onClick={clearCompleted}
+            style={{ opacity: completedTodos.length > 0 ? 1 : 0 }}
           >
             Clear completed
           </button>
