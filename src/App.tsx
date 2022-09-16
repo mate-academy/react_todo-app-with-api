@@ -145,7 +145,7 @@ export const App: React.FC = () => {
               className={cn(
                 'todoapp__toggle-all',
                 {
-                  active: todos.every(todo => !todo.completed),
+                  active: todos.every(todo => todo.completed),
                 },
               )}
               onClick={() => handlerToggler()}
