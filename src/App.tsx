@@ -28,7 +28,7 @@ export const App: React.FC = () => {
     filteredTodos,
     setFilteredTodos,
   ] = useState(FilterType.ALL);
-  const [toggleAll, setToggleAll] = useState(false);
+  const [toggleAll, setToggleAll] = useState(true);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
