@@ -7,10 +7,16 @@ interface Props {
   todo: Todo;
   handleDeleteTodo: (todoId: number) => void;
   handleUpdateTodo: (todoId: number, data: Partial<Todo>) => void;
+  isLoading: boolean;
 }
 
 export const TodoItem: React.FC<Props> = (props) => {
-  const { todo, handleDeleteTodo, handleUpdateTodo } = props;
+  const {
+    todo,
+    handleDeleteTodo,
+    handleUpdateTodo,
+    isLoading,
+  } = props;
 
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(todo.title);
@@ -106,7 +112,11 @@ export const TodoItem: React.FC<Props> = (props) => {
             </>
           )}
 
-        <div data-cy="TodoLoader" className="modal overlay">
+        <div
+          data-cy="TodoLoader"
+          className={cn('modal overlay',
+            { 'is-active': isLoading })}
+        >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>

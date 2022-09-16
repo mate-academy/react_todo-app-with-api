@@ -19,6 +19,7 @@ import { TodoFooter } from './components/Auth/TodoFooter';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoTitle, setTodoTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isAddingError, setIsAddingError] = useState(false);
   const [isDeletingError, setIsDeletingAddingError] = useState(false);
@@ -54,6 +55,8 @@ export const App: React.FC = () => {
   }
 
   const handleAddTodo = () => {
+    setIsLoading(true);
+
     if (todoTitle === '') {
       setIsAddingError(false);
       setIsError(true);
@@ -76,11 +79,14 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setTodoTitle('');
+          setIsLoading(false);
         });
     }
   };
 
   const handleDeleteTodo = (todoId: number) => {
+    setIsLoading(true);
+
     removeTodo(todoId)
       .then(() => setTodos((prev: Todo[]) => prev
         .filter(todo => todo.id !== todoId)))
@@ -90,10 +96,13 @@ export const App: React.FC = () => {
         setIsAddingError(false);
         setIsUpdatingError(false);
         setIsDeletingAddingError(true);
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
+    setIsLoading(true);
+
     updateTodo(todoId, data)
       .then(updatedTodo => {
         setTodos(prev => prev
@@ -107,7 +116,8 @@ export const App: React.FC = () => {
         setIsAddingError(false);
         setIsDeletingAddingError(false);
         setIsUpdatingError(true);
-      });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   let visibleTodos = [...todos];
@@ -173,6 +183,7 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           handleDeleteTodo={handleDeleteTodo}
           handleUpdateTodo={handleUpdateTodo}
+          isLoading={isLoading}
         />
 
         {todos.length > 0 && (
