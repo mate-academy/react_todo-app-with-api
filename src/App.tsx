@@ -2,94 +2,232 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React,
-{ FormEvent,
-  useCallback, useContext, useEffect, useRef, useState } from 'react';
+{
+  useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
-import { AuthForm } from './components/Auth/AuthForm';
-import { User } from './types/User';
 import { Todo } from './types/Todo';
-import { getTodos } from './api/todos';
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo,
+  TodoComplete,
+  TodoTitle,
+} from './api/todos';
 import { TodosList } from './components/TodosList';
-import { client } from './utils/fetchClient';
+import { Form } from './components/Form';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
+
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [title, setTitle] = useState('');
-  // const [filterOption, setFilterOption] = useState('All');
-  const [addError, setAddError] = useState(false);
-  const [deleteError, setDeleteError] = useState(false);
-  const [updateError, setUpdateError] = useState(false);
+  const [selectedTodoId, setSelectedTodoId] = useState<number>(0);
+  const [loadedTodosIds, setLoadedTodosIds] = useState<number[]>([]);
+  const [errorType, setErrorType] = useState('');
   const [filterOption, setFilterOption] = useState('all');
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
 
   useEffect(() => {
     if (user) {
-      getTodos(user?.id)
-        .then(gotTodos => setTodos(gotTodos));
-    }
-
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
+      getTodos(user.id)
+        .then(gotTodos => {
+          setTodos(gotTodos);
+        });
     }
   }, []);
 
-  const anyError = addError || deleteError || updateError;
+  const completedTodos = useMemo(() => todos.filter(
+    todo => todo.completed,
+  ), [todos]);
 
-  const onAdd = (todo: Todo) => {
-    setTodos(prevTodos => [...prevTodos, todo]);
-  };
+  const activeTodos = useMemo(() => todos.filter(
+    todo => !todo.completed,
+  ), [todos]);
 
-  const onDelete = (todo: Todo) => {
-    setTodos(prevTodos => prevTodos.filter(prevTodo => prevTodo !== todo));
-  };
+  const handleNoError = useCallback(() => {
+    setErrorType('');
+  }, []);
 
-  const onSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    if (title.trim() === '') {
-      setAddError(true);
+  const onChangeComplition = useCallback((
+    todoId: number, isCompleted: boolean,
+  ) => {
+    const newStatus: TodoComplete = {
+      completed: !isCompleted,
+    };
+
+    handleNoError();
+    setIsLoading(true);
+    setSelectedTodoId(todoId);
+
+    patchTodo(todoId, newStatus)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.map(todo => {
+          if (todo.id === todoId) {
+            return ({
+              ...todo,
+              completed: !todo.completed,
+            });
+          }
+
+          return todo;
+        }));
+      })
+      .catch(() => {
+        setErrorType('');
+        setTimeout(handleNoError, 3000);
+      })
+      .finally(() => {
+        setLoadedTodosIds([]);
+        setSelectedTodoId(0);
+        setIsLoading(false);
+      });
+  }, [todos]);
+
+  const onAdd = useCallback((newTitle: string) => {
+    if (!user) {
+      return;
+    }
+
+    handleNoError();
+
+    if (newTitle.trim() === '') {
+      setErrorType('add');
 
       return;
     }
 
-    const newTodo = {
-      title,
-      userId: user?.id,
-      completed: false,
-    };
+    addTodo(newTitle, user.id)
+      .then((todo) => {
+        getTodos(user.id)
+          .then(res => console.log(res));
 
-    client.post<Todo>('/todos', newTodo)
-      .then(todo => {
-        onAdd(todo);
+        setTodos(prevTodos => [...prevTodos, todo]);
+      })
+      .catch(() => {
+        setErrorType('add');
+        setTimeout(handleNoError, 3000);
       });
-    setTitle('');
-  };
 
-  const onLogin = useCallback((newUser: User) => {
-    console.log(newUser);
-  }, []);
+    console.log(todos);
+  }, [todos]);
 
-  const getFilteredTodos = useCallback((option: string) => {
+  const onDelete = useCallback((todoId: number) => {
+    setIsLoading(true);
+    setSelectedTodoId(todoId);
+    handleNoError();
+
+    return deleteTodo(todoId)
+      .then(() => {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      })
+      .catch(() => {
+        setErrorType('delete');
+        setTimeout(handleNoError, 3000);
+      })
+      .finally(() => {
+        setLoadedTodosIds([]);
+        setIsLoading(false);
+      });
+  }, [todos]);
+
+  const getFilteredTodos = (option: string) => {
     switch (option) {
       case 'active':
-        return todos.filter(todo => todo.completed === false);
+        return todos.filter(todo => !todo.completed);
       case 'completed':
-        return todos.filter(todo => todo.completed === true);
+        return todos.filter(todo => todo.completed);
+      case 'all':
       default:
         return todos;
     }
-  }, [todos]);
+  };
+
+  const handleClearAllCompleted = () => {
+    setLoadedTodosIds(completedTodos.map(todo => todo.id));
+    completedTodos.forEach(todo => {
+      onDelete(todo.id);
+    });
+  };
+
+  const handleDoubleClick = (todoId: number) => {
+    handleNoError();
+    setOpenForm(true);
+    setSelectedTodoId(todoId);
+  };
+
+  const closeInput = useCallback(() => {
+    setOpenForm(false);
+  }, []);
+
+  const handleChangeTitle = (newTitle: string, oldTitle: string) => {
+    if (newTitle.length === 0) {
+      onDelete(selectedTodoId || 0);
+      setOpenForm(false);
+    }
+
+    if (newTitle === oldTitle) {
+      setOpenForm(false);
+
+      return;
+    }
+
+    if (newTitle) {
+      setIsLoading(true);
+
+      const updateTitle: TodoTitle = {
+        title: newTitle,
+      };
+
+      patchTodo(selectedTodoId, updateTitle)
+        .then(() => {
+          const updatedTodos = todos.map(todo => {
+            if (todo.id === selectedTodoId) {
+              return ({
+                ...todo,
+                title: updateTitle.title,
+              });
+            }
+
+            return todo;
+          });
+
+          setTodos(updatedTodos);
+        })
+        .catch(() => {
+          setErrorType('update');
+          setTimeout(handleNoError, 3000);
+        })
+        .finally(() => {
+          setSelectedTodoId(0);
+          setIsLoading(false);
+        });
+    }
+
+    setOpenForm(false);
+  };
 
   const fiteredTodos = getFilteredTodos(filterOption);
 
-  if (!user) {
-    return (
-      <AuthForm onLogin={onLogin} />
-    );
-  }
+  const onChangeAllCompitions = () => {
+    if (completedTodos.length > 0 || completedTodos.length !== todos.length) {
+      setLoadedTodosIds(activeTodos.map(todo => todo.id));
+      activeTodos.forEach(todo => {
+        if (!todo.completed) {
+          onChangeComplition(todo.id, todo.completed);
+        }
+      });
+    }
+
+    if (completedTodos.length === 0 || completedTodos.length === todos.length) {
+      setLoadedTodosIds(completedTodos.map(todo => todo.id));
+      completedTodos.forEach(notCompletedTodo => {
+        onChangeComplition(notCompletedTodo.id, notCompletedTodo.completed);
+      });
+    }
+  };
 
   return (
     <div className="todoapp">
@@ -101,24 +239,24 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className="todoapp__toggle-all active"
+            onClick={onChangeAllCompitions}
           />
 
-          <form
-            onSubmit={onSubmit}
-          >
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-            />
-          </form>
+          <Form onAdd={onAdd} />
         </header>
 
-        <TodosList todos={fiteredTodos} onDelete={onDelete} />
+        <TodosList
+          todos={fiteredTodos}
+          selectedTodoId={selectedTodoId}
+          isLoading={isLoading}
+          openForm={openForm}
+          handleChangeTodoTitle={handleChangeTitle}
+          closeInput={closeInput}
+          handleChangeComplition={onChangeComplition}
+          handleDoubleClick={handleDoubleClick}
+          loadedTodosIds={loadedTodosIds}
+          onDelete={onDelete}
+        />
 
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="todosCounter">
@@ -167,22 +305,14 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__clear-completed"
             disabled={!todos.some(todo => todo.completed)}
-            onClick={() => {
-              const todosToDelete = todos.filter(
-                todo => todo.completed === true,
-              );
-
-              todosToDelete.forEach(todo => {
-                client.delete(`/todos/${todo.id}`);
-              });
-            }}
+            onClick={handleClearAllCompleted}
           >
             Clear completed
           </button>
         </footer>
       </div>
 
-      { anyError && (
+      { errorType !== '' && (
         <div
           data-cy="ErrorNotification"
           className="notification is-danger is-light has-text-weight-normal"
@@ -192,17 +322,14 @@ export const App: React.FC = () => {
             type="button"
             className="delete"
             onClick={() => {
-              setAddError(false);
-              setDeleteError(false);
-              setUpdateError(false);
             }}
           />
 
-          {addError && 'Unable to add a todo'}
+          {errorType === 'add' && 'Unable to add a todo'}
           <br />
-          {deleteError && 'Unable to delete a todo'}
+          {errorType === 'delete' && 'Unable to delete a todo'}
           <br />
-          {updateError && 'Unable to update a todo'}
+          {errorType === 'update' && 'Unable to update a todo'}
         </div>
       )}
     </div>
