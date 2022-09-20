@@ -33,7 +33,6 @@ export const TodoList: React.FC<Props> = (props) => {
           handleUpdateTodo={handleUpdateTodo}
           isLoading={isLoading}
           selectedId={selectedId}
-          setSelectedId={setSelectedId}
           toggleLoader={toggleLoader}
         />
       ))}

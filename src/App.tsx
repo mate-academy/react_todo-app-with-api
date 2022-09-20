@@ -106,7 +106,6 @@ export const App: React.FC = () => {
   const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
     setSelectedId(todoId);
     setIsLoading(true);
-    // setToggleLoader(true);
 
     updateTodo(todoId, data)
       .then(updatedTodo => {
