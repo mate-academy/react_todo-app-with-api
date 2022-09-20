@@ -30,6 +30,7 @@ export const App: React.FC = () => {
     setFilteredTodos,
   ] = useState(FilterType.ALL);
   const [toggleAll, setToggleAll] = useState(true);
+  const [selectedId, setSelectedId] = useState(0);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
@@ -86,6 +87,7 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = (todoId: number) => {
     setIsLoading(true);
+    setSelectedId(todoId);
 
     removeTodo(todoId)
       .then(() => setTodos((prev: Todo[]) => prev
@@ -101,6 +103,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
+    setSelectedId(todoId);
     setIsLoading(true);
 
     updateTodo(todoId, data)
@@ -184,6 +187,7 @@ export const App: React.FC = () => {
           handleDeleteTodo={handleDeleteTodo}
           handleUpdateTodo={handleUpdateTodo}
           isLoading={isLoading}
+          selectedId={selectedId}
         />
 
         {todos.length > 0 && (
