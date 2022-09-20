@@ -8,7 +8,8 @@ interface Props {
   handleDeleteTodo: (todoId: number) => void;
   handleUpdateTodo: (todoId: number, data: Partial<Todo>) => void;
   isLoading: boolean;
-  selectedId: number
+  selectedId: number;
+  toggleLoader: boolean;
 }
 
 export const TodoItem: React.FC<Props> = (props) => {
@@ -18,6 +19,7 @@ export const TodoItem: React.FC<Props> = (props) => {
     handleUpdateTodo,
     isLoading,
     selectedId,
+    toggleLoader,
   } = props;
 
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
@@ -111,10 +113,25 @@ export const TodoItem: React.FC<Props> = (props) => {
                 ×
               </button>
 
+              {
+                selectedId === todo.id && (
+                  <div
+                    data-cy="TodoLoader"
+                    className={cn('modal overlay',
+                      { 'is-active': isLoading })}
+                  >
+                    <div
+                      className="modal-background has-background-white-ter"
+                    />
+                    <div className="loader" />
+                  </div>
+                )
+              }
+
             </>
           )}
 
-        {selectedId === todo.id && (
+        {toggleLoader && (
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay',

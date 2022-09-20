@@ -30,6 +30,7 @@ export const App: React.FC = () => {
     setFilteredTodos,
   ] = useState(FilterType.ALL);
   const [toggleAll, setToggleAll] = useState(true);
+  const [toggleLoader, setToggleLoader] = useState(false);
   const [selectedId, setSelectedId] = useState(0);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -105,6 +106,7 @@ export const App: React.FC = () => {
   const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
     setSelectedId(todoId);
     setIsLoading(true);
+    // setToggleLoader(true);
 
     updateTodo(todoId, data)
       .then(updatedTodo => {
@@ -120,7 +122,10 @@ export const App: React.FC = () => {
         setIsDeletingAddingError(false);
         setIsUpdatingError(true);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setToggleLoader(false);
+      });
   };
 
   let visibleTodos = [...todos];
@@ -140,6 +145,7 @@ export const App: React.FC = () => {
 
   const handlerToggler = () => {
     setToggleAll(!toggleAll);
+    setToggleLoader(true);
 
     return visibleTodos
       .forEach(el => handleUpdateTodo(el.id, { completed: toggleAll }));
@@ -188,6 +194,8 @@ export const App: React.FC = () => {
           handleUpdateTodo={handleUpdateTodo}
           isLoading={isLoading}
           selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          toggleLoader={toggleLoader}
         />
 
         {todos.length > 0 && (
