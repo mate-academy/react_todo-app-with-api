@@ -7,7 +7,6 @@ interface Props {
   isLoading: boolean;
   handleDeleteTodo: (todoId: number) => void;
   handleUpdateTodo: (todoId: number, data: Partial<Todo>) => void;
-  setSelectedId: (prev: number) => void;
   selectedId: number;
   toggleLoader: boolean;
 }
@@ -20,7 +19,6 @@ export const TodoList: React.FC<Props> = (props) => {
     isLoading,
     selectedId,
     toggleLoader,
-    setSelectedId,
   } = props;
 
   return (

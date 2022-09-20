@@ -87,7 +87,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setIsLoading(true);
+    setToggleLoader(true);
     setSelectedId(todoId);
 
     removeTodo(todoId)
@@ -193,7 +193,6 @@ export const App: React.FC = () => {
           handleUpdateTodo={handleUpdateTodo}
           isLoading={isLoading}
           selectedId={selectedId}
-          setSelectedId={setSelectedId}
           toggleLoader={toggleLoader}
         />
 
