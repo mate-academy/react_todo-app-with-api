@@ -57,6 +57,7 @@ export const App: React.FC = () => {
   }
 
   const handleAddTodo = () => {
+    setToggleLoader(true);
     setIsLoading(true);
 
     if (todoTitle === '') {
@@ -82,12 +83,13 @@ export const App: React.FC = () => {
         .finally(() => {
           setTodoTitle('');
           setIsLoading(false);
+          setToggleLoader(false);
         });
     }
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setToggleLoader(true);
+    setIsLoading(true);
     setSelectedId(todoId);
 
     removeTodo(todoId)
