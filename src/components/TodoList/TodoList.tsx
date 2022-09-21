@@ -3,16 +3,36 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[],
+  title: string,
+  onDelete: (n: number) => void,
+  onCompleted: (n: number, data: Partial<Todo>) => void,
+  selectTodo: (n: number[]) => void,
+  isAdding: boolean,
+  selectedTodo: number[],
 };
 
-export const TodoList: React.FC<Props> = ({ todos }) => {
+export const TodoList: React.FC<Props> = ({
+  todos,
+  title,
+  onDelete,
+  onCompleted,
+  selectTodo,
+  isAdding,
+  selectedTodo,
+}) => {
+  const tempTodo = {
+    id: 0,
+    title,
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
         <div
           data-cy="Todo"
           className={cN(
-            'todo', { completed: todo.completed },
+            'todo',
+            { completed: todo.completed },
           )}
           key={todo.id}
         >
@@ -21,22 +41,36 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              defaultChecked
+              defaultChecked={todo.completed}
+              onClick={() => {
+                onCompleted(todo.id, { completed: !todo.completed });
+              }}
             />
           </label>
 
-          <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+          >
+            {todo.title}
+          </span>
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
+            onClick={() => {
+              onDelete(todo.id);
+              selectTodo([todo.id]);
+            }}
           >
             ×
           </button>
 
           <div
             data-cy="TodoLoader"
-            className={cN('modal overlay')}
+            className={cN('modal overlay', {
+              'is-active': selectedTodo.includes(todo.id),
+            })}
           >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
@@ -44,29 +78,31 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
         </div>
       ))}
 
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <span data-cy="TodoTitle" className="todo__title">Redux</span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
+      {isAdding && (
+        <div
+          data-cy="Todo"
+          className="todo"
+          key={tempTodo.id}
         >
-          ×
-        </button>
-
-        <div data-cy="TodoLoader" className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
+          <label className="todo__status-label">
+            <input
+              data-cy="TodoStatus"
+              type="checkbox"
+              className="todo__status"
+            />
+          </label>
+          <span data-cy="TodoTitle" className="todo__title">
+            {tempTodo.title}
+          </span>
+          <div
+            data-cy="TodoLoader"
+            className={cN('modal overlay', { 'is-active': isAdding })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

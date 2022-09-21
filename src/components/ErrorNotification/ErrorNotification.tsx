@@ -1,13 +1,14 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cN from 'classnames';
+import { Error } from '../../types/Errors';
 
 type Props = {
-  error: boolean,
-  onErrorChange: (b: boolean) => void,
+  errors: Error,
+  onErrorChange: (isError: Error | null) => void,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  error,
+  errors,
   onErrorChange,
 }) => {
   return (
@@ -15,21 +16,18 @@ export const ErrorNotification: React.FC<Props> = ({
       data-cy="ErrorNotification"
       className={cN(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: !error },
+        { hidden: !errors },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onErrorChange(false)}
+        onClick={() => {
+          onErrorChange(null);
+        }}
       />
-
-      Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo
+      {errors}
     </div>
   );
 };
