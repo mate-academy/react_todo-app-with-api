@@ -27,6 +27,7 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
+  const [selectedTodo, setSelectedTodo] = useState<number>(0);
   const [title, setTitle] = useState('');
   const [error, setError] = useState<Error | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -206,10 +207,12 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               title={title}
               onDelete={deleteTodo}
-              selectTodo={setSelectedTodos}
+              onSelectTodos={setSelectedTodos}
+              onSelectTodo={setSelectedTodo}
               isAdding={isAdding}
-              selectedTodo={selectedTodos}
-              onCompleted={updatedTodo}
+              selectedTodos={selectedTodos}
+              selectedTodo={selectedTodo}
+              onUpdated={updatedTodo}
             />
             <Footer
               todos={todos}

@@ -1,29 +1,57 @@
 import cN from 'classnames';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[],
   title: string,
   onDelete: (n: number) => void,
-  onCompleted: (n: number, data: Partial<Todo>) => void,
-  selectTodo: (n: number[]) => void,
+  onUpdated: (n: number, data: Partial<Todo>) => void,
+  onSelectTodos: (n: number[]) => void,
+  onSelectTodo: (n: number) => void,
   isAdding: boolean,
-  selectedTodo: number[],
+  selectedTodos: number[],
+  selectedTodo: number,
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   title,
   onDelete,
-  onCompleted,
-  selectTodo,
+  onUpdated,
+  onSelectTodos,
+  onSelectTodo,
   isAdding,
+  selectedTodos,
   selectedTodo,
 }) => {
+  const todoTitleField = useRef<HTMLInputElement>(null);
+  const [doubleClick, setDoubleClick] = useState(false);
+  const [todoTitle, setTodoTitle] = useState('');
   const tempTodo = {
     id: 0,
     title,
   };
+
+  const onUpddateTodoTitle = () => {
+    if (!todoTitle) {
+      onDelete(selectedTodo);
+    }
+
+    if (todos.find(todo => todo.title === todoTitle)) {
+      setDoubleClick(false);
+    }
+
+    onUpdated(selectedTodo, { title: todoTitle });
+    setDoubleClick(false);
+    setTodoTitle('');
+  };
+
+  useEffect(() => {
+    if (todoTitleField.current) {
+      todoTitleField.current.focus();
+    }
+  }, [selectedTodo]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -43,33 +71,74 @@ export const TodoList: React.FC<Props> = ({
               className="todo__status"
               defaultChecked={todo.completed}
               onClick={() => {
-                onCompleted(todo.id, { completed: !todo.completed });
+                onUpdated(todo.id, { completed: !todo.completed });
               }}
             />
           </label>
 
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-          >
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => {
-              onDelete(todo.id);
-              selectTodo([todo.id]);
-            }}
-          >
-            ×
-          </button>
+          {doubleClick && selectedTodo === todo.id
+            ? (
+              <form onSubmit={(e) => {
+                e.preventDefault();
+              }}
+              >
+                <input
+                  data-cy="TodoTitleField"
+                  type="text"
+                  ref={todoTitleField}
+                  className="todo__title-field"
+                  value={todoTitle}
+                  placeholder="If your todo is empty, it will be deleted"
+                  onChange={(e) => {
+                    setTodoTitle(e.target.value);
+                  }}
+                  onBlur={() => {
+                    onUpddateTodoTitle();
+                    setDoubleClick(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onUpddateTodoTitle();
+                    }
+
+                    if (e.key === 'Escape') {
+                      setDoubleClick(false);
+                    }
+                  }}
+                />
+              </form>
+            )
+            : (
+              <>
+                <span
+                  data-cy="TodoTitle"
+                  className="todo__title"
+                  onDoubleClick={() => {
+                    setDoubleClick(true);
+                    onSelectTodo(todo.id);
+                    setTodoTitle(todo.title);
+                  }}
+                >
+                  {todo.title}
+                </span>
+                <button
+                  type="button"
+                  className="todo__remove"
+                  data-cy="TodoDeleteButton"
+                  onClick={() => {
+                    onDelete(todo.id);
+                    onSelectTodos([todo.id]);
+                  }}
+                >
+                  ×
+                </button>
+              </>
+            )}
 
           <div
             data-cy="TodoLoader"
             className={cN('modal overlay', {
-              'is-active': selectedTodo.includes(todo.id),
+              'is-active': selectedTodos.includes(todo.id),
             })}
           >
             <div className="modal-background has-background-white-ter" />
