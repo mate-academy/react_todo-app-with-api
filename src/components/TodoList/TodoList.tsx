@@ -5,10 +5,10 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[],
   title: string,
-  onDelete: (n: number) => void,
-  onUpdated: (n: number, data: Partial<Todo>) => void,
-  onSelectTodos: (n: number[]) => void,
-  onSelectTodo: (n: number) => void,
+  onDelete: (todoId: number) => void,
+  onUpdated: (todoId: number, data: Partial<Todo>) => void,
+  onSelectTodos: (todoId: number[]) => void,
+  onSelectTodo: (todoId: number) => void,
   isAdding: boolean,
   selectedTodos: number[],
   selectedTodo: number,
@@ -28,11 +28,6 @@ export const TodoList: React.FC<Props> = ({
   const todoTitleField = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
-  const tempTodo = {
-    id: 0,
-    title,
-  };
-
   const onUpddateTodoTitle = () => {
     if (!todoTitle) {
       onDelete(selectedTodo);
@@ -151,7 +146,7 @@ export const TodoList: React.FC<Props> = ({
         <div
           data-cy="Todo"
           className="todo"
-          key={tempTodo.id}
+          key={selectedTodo}
         >
           <label className="todo__status-label">
             <input
@@ -161,7 +156,7 @@ export const TodoList: React.FC<Props> = ({
             />
           </label>
           <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
+            {title}
           </span>
           <div
             data-cy="TodoLoader"
