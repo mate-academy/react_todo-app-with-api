@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { User } from '../../types/User';
-import { AuthForm } from './AuthForm';
+import React, { createContext, ReactNode, useState } from 'react';
+import { User } from '../../../types/User';
+import { AuthForm } from '../AuthForm';
 
-export const AuthContext = React.createContext<User | null>(null);
+export const AuthContext = createContext<User | null>(null);
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export const AuthProvider: React.FC<Props> = ({ children }) => {
