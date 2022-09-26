@@ -21,7 +21,6 @@ export const TodoFooter: React.FC<Props> = (props) => {
   const completedTodos = todos.filter(el => el.completed === true);
 
   return (
-
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
         {todos.length - completedTodos.length}
@@ -65,7 +64,6 @@ export const TodoFooter: React.FC<Props> = (props) => {
       >
         {completedTodos.length !== 0 && 'Clear completed'}
       </button>
-
     </footer>
   );
 };

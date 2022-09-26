@@ -57,7 +57,6 @@ export const App: React.FC = () => {
   }
 
   const handleAddTodo = () => {
-    setToggleLoader(true);
     setIsLoading(true);
 
     if (todoTitle === '') {
@@ -72,7 +71,10 @@ export const App: React.FC = () => {
         title: todoTitle,
         completed: false,
       })
-        .then((newTodo: Todo) => setTodos((prev) => [...prev, newTodo]))
+        .then((newTodo: Todo) => {
+          setTodos((prev) => [...prev, newTodo]);
+          setSelectedId(newTodo.id);
+        })
         .catch(() => {
           setIsError(true);
           setEmptyQueryError(false);
