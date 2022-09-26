@@ -1,5 +1,5 @@
 export enum Error {
-  SERVER = 'Unable to connect to the server',
+  GET_TODOS = 'Unable to get the todos',
   LOGIN = 'Need to login',
   AUTH_WARN = 'Something went wrong',
   TITLE = 'Title can\'t be empty',

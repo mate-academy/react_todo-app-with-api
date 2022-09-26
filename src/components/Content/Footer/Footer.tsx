@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { getFilteredTodos } from '../../../api/todos';
+import { getFilteredTodos } from '../../../utils/filterTodos';
 import { TodoStatus } from '../../../types/TodoStatus';
 import { Todo } from '../../../types/Todo';
 

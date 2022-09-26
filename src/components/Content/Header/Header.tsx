@@ -6,7 +6,8 @@ import React, {
   FormEvent,
 } from 'react';
 import classNames from 'classnames';
-import { createTodo, getFilteredTodos } from '../../../api/todos';
+import { createTodo } from '../../../api/todos';
+import { getFilteredTodos } from '../../../utils/filterTodos';
 import { AuthContext } from '../../Auth/AuthContext';
 import { Todo } from '../../../types/Todo';
 import { Error } from '../../../types/Error';

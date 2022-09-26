@@ -8,11 +8,11 @@ import React, {
 import { getUserId } from '../../api/users';
 import {
   deleteTodo,
-  getFilteredTodos,
   getTodos,
-  handleIsProcessed,
   updateTodo,
 } from '../../api/todos';
+import { getFilteredTodos } from '../../utils/filterTodos';
+import { handleIsProcessed } from '../../utils/handleIsProcessed';
 import { AuthContext } from '../Auth/AuthContext';
 import { Header } from './Header';
 import { TodoList } from './TodoList';
@@ -111,7 +111,7 @@ export const Content: React.FC<Props> = ({ onError }) => {
     if (user) {
       getTodos(getUserId(user))
         .then(setTodos)
-        .catch(() => onError(Error.SERVER));
+        .catch(() => onError(Error.GET_TODOS));
     }
   }, []);
 
