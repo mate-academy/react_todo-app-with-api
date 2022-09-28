@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -28,6 +28,14 @@ export const TodoItem: React.FC<Props> = ({
   const [temporaryTitle, setTemporaryTitle] = useState(todo.title);
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
+  const changeTodoInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (changeTodoInput.current) {
+      changeTodoInput.current.focus();
+    }
+  });
 
   const isAnyChange = cilckedTodo === todo.id || isToggleClicked
     || (isClearButtonClicked && todo.completed)
@@ -111,6 +119,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={temporaryTitle}
+            ref={changeTodoInput}
             onChange={(e) => setTemporaryTitle(e.target.value)}
             onBlur={handleTitleChange}
             onKeyDown={(e) => {
@@ -124,7 +133,9 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => setIsDoubleClicked(true)}
+          onDoubleClick={() => {
+            setIsDoubleClicked(true);
+          }}
         >
           {todo.title}
         </span>
