@@ -3,17 +3,9 @@ import {
   CSSTransition,
   TransitionGroup,
 } from 'react-transition-group';
-import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 
-type Props = {
-  todos: Todo[];
-  title: string;
-  isAdding: boolean;
-  onDelete: (todoId: number) => void;
-  selectedTodos: number[];
-  onUpdate: (todoId: number, data: Partial<Todo>) => void;
-};
+import { Props } from './TodoList.props';
 
 export const TodosList: React.FC<Props> = ({
   todos,
@@ -21,7 +13,10 @@ export const TodosList: React.FC<Props> = ({
   isAdding,
   onDelete,
   selectedTodos,
+  setSelectedTodos,
   onUpdate,
+  selectedTodo,
+  setSelectedTodo,
 }) => {
   const temp = {
     id: 0,
@@ -42,7 +37,11 @@ export const TodosList: React.FC<Props> = ({
               todo={todo}
               onDelete={onDelete}
               selectedTodos={selectedTodos}
+              setSelectedTodos={setSelectedTodos}
               onUpdate={onUpdate}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
+              todos={todos}
             />
           </CSSTransition>
         ))}

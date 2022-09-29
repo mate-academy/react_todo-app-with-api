@@ -1,13 +1,7 @@
 import classnames from 'classnames';
 import { FilterType } from '../../types/FilterStatus';
-import { Todo } from '../../types/Todo';
 
-type Props = {
-  filterType: string;
-  handleFilterType: (type: string) => void;
-  todos: Todo[];
-  deleteCompleted: () => void;
-};
+import { Props } from './Footer.props';
 
 export const Footer: React.FC<Props> = ({
   filterType,

@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
   const [toggle, setToggle] = useState(true);
+  const [selectedTodo, setSelectedTodo] = useState(0);
 
   if (error) {
     setTimeout(() => {
@@ -125,9 +126,6 @@ export const App: React.FC = () => {
             ? result
             : todo
         )));
-      })
-      .catch(() => {
-        setError(Error.UPDATING);
       });
 
     setSelectedTodos([]);
@@ -193,7 +191,10 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               onDelete={deleteTodo}
               selectedTodos={selectedTodos}
+              setSelectedTodos={setSelectedTodos}
               onUpdate={handleTodoUpdate}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
             />
 
             <Footer

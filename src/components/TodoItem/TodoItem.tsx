@@ -1,19 +1,54 @@
 import classnames from 'classnames';
-import { Todo } from '../../types/Todo';
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
-type Props = {
-  todo: Todo;
-  onDelete: (todoId: number) => void;
-  selectedTodos: number[];
-  onUpdate: (todoId: number, data: Partial<Todo>) => void;
-};
+import { Props } from './TodoItem.props';
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   selectedTodos,
+  setSelectedTodos,
   onUpdate,
+  selectedTodo,
+  setSelectedTodo,
+  todos,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+  const [isClicked, setIsClicked] = useState(false);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+
+  const handleTitleUpdate = () => {
+    if (!newTodoTitle) {
+      setIsClicked(false);
+
+      onDelete(selectedTodo);
+    }
+
+    if (newTodoTitle === todo.title) {
+      setIsClicked(false);
+
+      return;
+    }
+
+    if (todos.find(element => element.title === newTodoTitle)) {
+      setIsClicked(false);
+    }
+
+    onUpdate(selectedTodo, { title: newTodoTitle });
+    setIsClicked(false);
+    setNewTodoTitle('');
+  };
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [selectedTodo]);
+
   return (
     <div
       data-cy="Todo"
@@ -32,15 +67,64 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDelete(todo.id)}
-      >
-        ×
-      </button>
+      {isClicked && selectedTodo === todo.id
+        ? (
+          <form onSubmit={event => {
+            event.preventDefault();
+          }}
+          >
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              ref={newTodoField}
+              className="todo__title-field"
+              value={newTodoTitle}
+              placeholder="If your todo is empty, it will be deleted"
+              onChange={event => {
+                setNewTodoTitle(event.target.value);
+              }}
+              onBlur={() => {
+                handleTitleUpdate();
+                setIsClicked(false);
+              }}
+              onKeyDown={event => {
+                if (event.key === 'Escape') {
+                  setIsClicked(false);
+                }
+
+                if (event.key === 'Enter') {
+                  handleTitleUpdate();
+                }
+              }}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setIsClicked(true);
+                setSelectedTodo(todo.id);
+                setNewTodoTitle(todo.title);
+              }}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => {
+                onDelete(todo.id);
+                setSelectedTodos([todo.id]);
+              }}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"
