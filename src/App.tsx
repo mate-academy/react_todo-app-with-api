@@ -78,6 +78,7 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(true);
+    setSelectedTodos([userId]);
 
     try {
       const newTodo = await createTodo(userId, title);
@@ -89,6 +90,7 @@ export const App: React.FC = () => {
 
     setTitle('');
     setIsAdding(false);
+    setSelectedTodos([]);
   };
 
   const deleteTodo = (todoId: number) => {

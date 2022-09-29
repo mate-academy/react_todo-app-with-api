@@ -26,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
       setIsClicked(false);
 
       onDelete(selectedTodo);
+      onDelete(selectedTodo);
     }
 
     if (newTodoTitle === todo.title) {
