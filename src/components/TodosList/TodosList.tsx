@@ -1,4 +1,3 @@
-import classnames from 'classnames';
 import {
   CSSTransition,
   TransitionGroup,
@@ -69,9 +68,7 @@ export const TodosList: React.FC<Props> = ({
               </span>
               <div
                 data-cy="TodoLoader"
-                className={classnames(
-                  'modal overlay is-active',
-                )}
+                className="modal overlay is-active"
               >
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />

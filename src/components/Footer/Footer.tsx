@@ -10,7 +10,7 @@ export const Footer: React.FC<Props> = ({
   deleteCompleted,
 }) => {
   const todosLeft = todos.filter(todo => !todo.completed).length;
-  const todosCompleted = todos.filter(todo => todo.completed).length;
+  const todosCompleted = todos.length - todosLeft;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

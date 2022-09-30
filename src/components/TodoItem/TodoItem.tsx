@@ -1,5 +1,7 @@
 import classnames from 'classnames';
 import {
+  ChangeEvent,
+  KeyboardEvent,
   useEffect,
   useRef,
   useState,
@@ -23,10 +25,9 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleTitleUpdate = () => {
     if (!newTodoTitle) {
-      setIsClicked(false);
+      onDelete(selectedTodo);
 
-      onDelete(selectedTodo);
-      onDelete(selectedTodo);
+      setIsClicked(false);
     }
 
     if (newTodoTitle === todo.title) {
@@ -49,6 +50,36 @@ export const TodoItem: React.FC<Props> = ({
       newTodoField.current.focus();
     }
   }, [selectedTodo]);
+
+  const handleRemove = () => {
+    onDelete(todo.id);
+    setSelectedTodos([todo.id]);
+  };
+
+  const handleDoubleClick = () => {
+    setIsClicked(true);
+    setSelectedTodo(todo.id);
+    setNewTodoTitle(todo.title);
+  };
+
+  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
+  };
+
+  const handleBlur = () => {
+    handleTitleUpdate();
+    setIsClicked(false);
+  };
+
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsClicked(false);
+    }
+
+    if (event.key === 'Enter') {
+      handleTitleUpdate();
+    }
+  };
 
   return (
     <div
@@ -81,22 +112,9 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               value={newTodoTitle}
               placeholder="If your todo is empty, it will be deleted"
-              onChange={event => {
-                setNewTodoTitle(event.target.value);
-              }}
-              onBlur={() => {
-                handleTitleUpdate();
-                setIsClicked(false);
-              }}
-              onKeyDown={event => {
-                if (event.key === 'Escape') {
-                  setIsClicked(false);
-                }
-
-                if (event.key === 'Enter') {
-                  handleTitleUpdate();
-                }
-              }}
+              onChange={event => handleTitleChange(event)}
+              onBlur={handleBlur}
+              onKeyDown={event => handleKeyPress(event)}
             />
           </form>
         )
@@ -105,11 +123,7 @@ export const TodoItem: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => {
-                setIsClicked(true);
-                setSelectedTodo(todo.id);
-                setNewTodoTitle(todo.title);
-              }}
+              onDoubleClick={handleDoubleClick}
             >
               {todo.title}
             </span>
@@ -117,10 +131,7 @@ export const TodoItem: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => {
-                onDelete(todo.id);
-                setSelectedTodos([todo.id]);
-              }}
+              onClick={handleRemove}
             >
               ×
             </button>

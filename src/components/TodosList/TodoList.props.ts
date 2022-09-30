@@ -7,7 +7,7 @@ export type Props = {
   onDelete: (todoId: number) => void;
   selectedTodos: number[];
   setSelectedTodos: (todoId: number[]) => void;
-  onUpdate: (todoId: number, data: Partial<Todo>) => void;
+  onUpdate: (todoId: number, data: Omit<Todo, string>) => void;
   selectedTodo: number;
   setSelectedTodo: (value: number) => void;
 };

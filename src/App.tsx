@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [filterType, setFilterType] = useState('all');
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -93,42 +93,47 @@ export const App: React.FC = () => {
     setSelectedTodos([]);
   };
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = async (todoId: number) => {
     setSelectedTodos([todoId]);
 
-    removeTodo(todoId)
-      .then(() => {
-        setTodos([...todos.filter(todo => todo.id !== todoId)]);
-      })
-      .catch(() => {
-        setError(Error.DELETING);
-      });
+    try {
+      await removeTodo(todoId);
+
+      setTodos(todos.filter(todo => todo.id !== todoId));
+    } catch {
+      setError(Error.DELETING);
+    }
   };
 
   const completedTodos = todos.filter(todo => todo.completed);
 
-  const deleteCompletedTodos = () => {
+  const deleteCompletedTodos = async () => {
     setSelectedTodos([...completedTodos].map(todo => todo.id));
 
-    Promise.all(completedTodos.map(todo => removeTodo(todo.id)))
-      .then(() => setTodos([...todos.filter(todo => !todo.completed)]))
-      .catch(() => {
-        setError(Error.DELETING);
-        setSelectedTodos([]);
-      });
+    try {
+      await Promise.all(completedTodos.map(todo => removeTodo(todo.id)));
+
+      setTodos([...todos.filter(todo => !todo.completed)]);
+    } catch {
+      setError(Error.DELETING);
+      setSelectedTodos([]);
+    }
   };
 
   const handleTodoUpdate = async (todoId: number, data: Partial<Todo>) => {
     setSelectedTodos([todoId]);
 
-    await updateTodo(todoId, data)
-      .then((result) => {
-        setTodos(todos.map(todo => (
-          todo.id === todoId
-            ? result
-            : todo
-        )));
-      });
+    try {
+      const newTodo = await updateTodo(todoId, data);
+
+      setTodos(todos.map(todo => (
+        todo.id === todoId
+          ? newTodo
+          : todo
+      )));
+    } catch {
+      setError(Error.UPDATING);
+    }
 
     setSelectedTodos([]);
   };
@@ -138,16 +143,17 @@ export const App: React.FC = () => {
       ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
       : [...completedTodos].map(todo => todo.id));
 
-    await Promise
-      .all(todos.map(todo => (
+    try {
+      const newTodos = await Promise.all(todos.map(todo => (
         todo.completed !== toggle
           ? updateTodo(todo.id, { completed: toggle })
           : todo
-      )))
-      .then(setTodos)
-      .catch(() => {
-        setError(Error.UPDATING);
-      });
+      )));
+
+      setTodos(newTodos);
+    } catch {
+      setError(Error.UPDATING);
+    }
 
     setToggle(!toggle);
     setSelectedTodos([]);
@@ -165,7 +171,7 @@ export const App: React.FC = () => {
               type="button"
               className={classnames(
                 'todoapp__toggle-all',
-                { active: !todos.find(todo => !todo.completed) },
+                { active: todos.every(todo => todo.completed) },
               )}
               onClick={handleToggle}
             />
