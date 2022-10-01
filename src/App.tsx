@@ -7,7 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { addTodos, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodos,
+  deleteTodo,
+  getTodos,
+  patchTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/Page/ErrorNotification';
 import { Footer } from './components/Page/Footer';
@@ -15,6 +20,7 @@ import { TodoList } from './components/Page/TodoList';
 import { TodoContext } from './components/TodoContext';
 import { TodosError } from './types/ErrorEnum';
 import { FilterType } from './types/FilterTypeEnum';
+import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -119,6 +125,20 @@ export const App: React.FC = () => {
 
   const toggleAllActive = todos.every(({ completed }) => completed);
 
+  const upgradeTodos = async (todoId: number, data: Partial<Todo>) => {
+    try {
+      const patchedTodo: Todo = await patchTodo(todoId, data);
+
+      setTodos(todos.map(todo => (
+        todo.id === todoId
+          ? patchedTodo
+          : todo
+      )));
+    } catch {
+      setTodosError(TodosError.Updating);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -157,6 +177,7 @@ export const App: React.FC = () => {
           removeTodo={handleDelete}
           input={title}
           isAdding={isAdding}
+          handleStatus={upgradeTodos}
         />
 
         {todos.length > 0 && (

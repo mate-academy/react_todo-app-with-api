@@ -7,6 +7,7 @@ type Props = {
   removeTodo: (todoId: number) => Promise<void>;
   input: string;
   isAdding: boolean;
+  handleStatus: (todoId: number, data: Partial<Todo>) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = ({
   removeTodo,
   input,
   isAdding,
+  handleStatus,
 }) => {
   const [deletedId, setDeletedId] = useState<number | null>(null);
   const handleDelete = (todoId: number) => {
@@ -40,6 +42,7 @@ export const TodoList: React.FC<Props> = ({
                 data-cy="TodoStatus"
                 type="checkbox"
                 className="todo__status"
+                onClick={() => handleStatus(id, { completed: !completed })}
               />
             </label>
 
