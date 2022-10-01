@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, {
   FormEvent,
   useCallback,
@@ -116,6 +117,8 @@ export const App: React.FC = () => {
     target: { value },
   }: React.ChangeEvent<HTMLInputElement>) => setTitle(value);
 
+  const toggleAllActive = todos.every(({ completed }) => completed);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -126,7 +129,10 @@ export const App: React.FC = () => {
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className="todoapp__toggle-all active"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: toggleAllActive },
+              )}
             >
               {null}
             </button>
