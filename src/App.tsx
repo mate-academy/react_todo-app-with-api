@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, {
   FormEvent,
   useCallback,
@@ -16,6 +15,7 @@ import {
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/Page/ErrorNotification';
 import { Footer } from './components/Page/Footer';
+import { Header } from './components/Page/Header';
 import { TodoList } from './components/Page/TodoList';
 import { TodoContext } from './components/TodoContext';
 import { TodosError } from './types/ErrorEnum';
@@ -183,34 +183,16 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length > 0 && (
-            <button
-              data-cy="ToggleAllButton"
-              type="button"
-              className={classNames(
-                'todoapp__toggle-all',
-                { active: toggleAllActive },
-              )}
-              onClick={handleClickToggle}
-            >
-              {null}
-            </button>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={title}
-              onChange={handleChangeInput}
-              disabled={isAdding}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          toggleAllActive={toggleAllActive}
+          handleClickToggle={handleClickToggle}
+          handleSubmit={handleSubmit}
+          newTodoField={newTodoField}
+          title={title}
+          handleChangeInput={handleChangeInput}
+          isAdding={isAdding}
+        />
 
         <TodoList
           visibleTodos={visibleTodos}
