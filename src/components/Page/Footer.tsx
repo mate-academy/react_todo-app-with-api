@@ -7,12 +7,14 @@ type Props = {
   handleChooseFilter: (filter: FilterType) => void;
   todos: Todo[];
   filterType: FilterType;
+  handleClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
   handleChooseFilter,
   todos,
   filterType,
+  handleClearCompleted,
 }) => {
   const activeTodos = todos.filter(({ completed }) => !completed);
   const completedTodos = todos.filter(({ completed }) => completed);
@@ -63,6 +65,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
+        onClick={handleClearCompleted}
       >
         {completedTodos.length > 0 ? 'Clear completed' : ''}
       </button>

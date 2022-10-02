@@ -167,6 +167,17 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleClearCompleted = () => {
+    todos.forEach(({ id, completed }) => {
+      if (completed) {
+        deleteTodo(id)
+          .catch(() => setTodosError(TodosError.Deleting));
+      }
+    });
+
+    setTodos(todos.filter(({ completed }) => !completed));
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -214,6 +225,7 @@ export const App: React.FC = () => {
             handleChooseFilter={handleChooseFilter}
             todos={todos}
             filterType={filterType}
+            handleClearCompleted={handleClearCompleted}
           />
         )}
       </div>
