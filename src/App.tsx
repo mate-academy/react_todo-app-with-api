@@ -125,17 +125,43 @@ export const App: React.FC = () => {
 
   const toggleAllActive = todos.every(({ completed }) => completed);
 
-  const upgradeTodos = async (todoId: number, data: Partial<Todo>) => {
-    try {
-      const patchedTodo: Todo = await patchTodo(todoId, data);
+  const upgradeTodos = useCallback(
+    async (todoId: number, data: Partial<Todo>) => {
+      try {
+        const patchedTodo: Todo = await patchTodo(todoId, data);
 
-      setTodos(todos.map(todo => (
-        todo.id === todoId
-          ? patchedTodo
-          : todo
-      )));
-    } catch {
-      setTodosError(TodosError.Updating);
+        setTodos(todos.map(todo => (
+          todo.id === todoId
+            ? patchedTodo
+            : todo
+        )));
+      } catch {
+        setTodosError(TodosError.Updating);
+      }
+    }, [todos],
+  );
+
+  const uncompletedTodos = todos.filter(({ completed }) => !completed);
+
+  const handleClickToggle = () => {
+    if (uncompletedTodos.length) {
+      uncompletedTodos.map(({ id }) => patchTodo(id,
+        { completed: true }).catch(() => setTodosError(TodosError.Updating)));
+      setTodos(todos.map(todo => {
+        // eslint-disable-next-line no-param-reassign
+        todo.completed = true;
+
+        return todo;
+      }));
+    } else {
+      todos.map(({ id }) => patchTodo(id,
+        { completed: false }).catch(() => setTodosError(TodosError.Updating)));
+      setTodos(todos.map(todo => {
+        // eslint-disable-next-line no-param-reassign
+        todo.completed = false;
+
+        return todo;
+      }));
     }
   };
 
@@ -153,6 +179,7 @@ export const App: React.FC = () => {
                 'todoapp__toggle-all',
                 { active: toggleAllActive },
               )}
+              onClick={handleClickToggle}
             >
               {null}
             </button>
