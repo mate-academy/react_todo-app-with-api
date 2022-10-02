@@ -148,19 +148,21 @@ export const App: React.FC = () => {
       uncompletedTodos.map(({ id }) => patchTodo(id,
         { completed: true }).catch(() => setTodosError(TodosError.Updating)));
       setTodos(todos.map(todo => {
-        // eslint-disable-next-line no-param-reassign
-        todo.completed = true;
+        const copy = todo;
 
-        return todo;
+        copy.completed = true;
+
+        return copy;
       }));
     } else {
       todos.map(({ id }) => patchTodo(id,
         { completed: false }).catch(() => setTodosError(TodosError.Updating)));
       setTodos(todos.map(todo => {
-        // eslint-disable-next-line no-param-reassign
-        todo.completed = false;
+        const copy = todo;
 
-        return todo;
+        copy.completed = false;
+
+        return copy;
       }));
     }
   };
