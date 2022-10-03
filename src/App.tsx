@@ -200,6 +200,8 @@ export const App: React.FC = () => {
           input={title}
           isAdding={isAdding}
           handleStatus={upgradeTodos}
+          setIsAdding={setIsAdding}
+          newTodoField={newTodoField}
         />
 
         {todos.length > 0 && (

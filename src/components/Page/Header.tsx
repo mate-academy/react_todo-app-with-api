@@ -50,6 +50,8 @@ export const Header: React.FC<Props> = ({
         value={title}
         onChange={handleChangeInput}
         disabled={isAdding}
+        /// <reference path="newTodoField" />
+
       />
     </form>
   </header>

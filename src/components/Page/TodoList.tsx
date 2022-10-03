@@ -1,6 +1,10 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, {
+  FormEvent,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
+// import { TodoContext } from '../TodoContext';
 
 type Props = {
   visibleTodos: Todo[];
@@ -8,6 +12,8 @@ type Props = {
   input: string;
   isAdding: boolean;
   handleStatus: (todoId: number, data: Partial<Todo>) => Promise<void>;
+  setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
+  newTodoField: React.RefObject<HTMLInputElement>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,11 +22,38 @@ export const TodoList: React.FC<Props> = ({
   input,
   isAdding,
   handleStatus,
+  setIsAdding,
+  newTodoField,
 }) => {
   const [deletedId, setDeletedId] = useState<number | null>(null);
+  // const [todos, setTodos] = useContext(TodoContext);
   const handleDelete = (todoId: number) => {
     setDeletedId(todoId);
     removeTodo(todoId);
+  };
+
+  const [isDoubleClick, setIsDoubleClick] = useState<boolean>(false);
+
+  const [name, setName] = useState<string>(input);
+  const [doubleClickId, setDoubleClickId] = useState<number | null>(null);
+
+  const handleDoubleClick = (todoId: number) => {
+    setIsDoubleClick(!isDoubleClick);
+    setDoubleClickId(todoId);
+  };
+
+  const handleChangeName = ({
+    target: { value },
+  }: React.ChangeEvent<HTMLInputElement>) => setName(value);
+
+  const handleRenameSubmit = async (event: FormEvent, todoId: number) => {
+    event.preventDefault();
+
+    setIsAdding(true);
+
+    if (!input.trim()) {
+      removeTodo(todoId);
+    }
   };
 
   return (
@@ -49,8 +82,24 @@ export const TodoList: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
+              onDoubleClick={() => handleDoubleClick(id)}
             >
-              {title}
+              {(isDoubleClick && doubleClickId === id)
+                ? (
+                  <form onSubmit={() => handleRenameSubmit}>
+                    <input
+                      data-cy="NewTodoField"
+                      type="text"
+                      ref={newTodoField}
+                      className="todoapp__new-todo"
+                      placeholder="Empty Todo will be deleted"
+                      value={name}
+                      onChange={handleChangeName}
+                      disabled={isAdding}
+                    />
+                  </form>
+                )
+                : title}
             </span>
 
             <button
@@ -76,7 +125,7 @@ export const TodoList: React.FC<Props> = ({
           </div>
         );
       })}
-      {(input.length > 0 && isAdding) && (
+      {isAdding && (
         <div data-cy="Todo" className="todo">
           <label className="todo__status-label">
             <input
