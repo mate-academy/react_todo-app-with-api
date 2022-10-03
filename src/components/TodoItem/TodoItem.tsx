@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -34,7 +34,7 @@ export const TodoItem: React.FC<Props> = ({
     if (changeTodoInput.current) {
       changeTodoInput.current.focus();
     }
-  });
+  }, [isDoubleClicked]);
 
   const isAnyChange = cilckedTodo === todo.id || isToggleClicked
     || (isClearButtonClicked && todo.completed)
@@ -132,9 +132,7 @@ export const TodoItem: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => {
-            setIsDoubleClicked(true);
-          }}
+          onDoubleClick={() => setIsDoubleClicked(true)}
         >
           {todo.title}
         </span>
