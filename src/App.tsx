@@ -23,7 +23,7 @@ import { Error } from './types/Error';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const inputField = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<Error | null>(null);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -63,10 +63,16 @@ export const App: React.FC = () => {
   });
 
   useEffect(() => {
+    inputField.current?.focus();
+
     getTodos(userId)
       .then(setTodos)
       .catch(() => setError(Error.LOADING));
   }, []);
+
+  useEffect(() => {
+    inputField.current?.focus();
+  }, [todos]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -181,7 +187,7 @@ export const App: React.FC = () => {
             <input
               data-cy="NewTodoField"
               type="text"
-              ref={newTodoField}
+              ref={inputField}
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               value={title}
