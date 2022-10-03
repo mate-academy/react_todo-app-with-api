@@ -8,6 +8,7 @@ type Props = {
   isActive?: boolean,
   selectedTodosId?: number[],
   onDelete: (id: number[]) => void;
+  onUpdate: (event: React.ChangeEvent<HTMLInputElement>, id: number[]) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const TodoItem: React.FC<Props> = ({
   isActive,
   selectedTodosId,
   onDelete,
+  onUpdate,
 }) => {
   const { id, title, completed } = todo;
 
@@ -25,10 +27,12 @@ export const TodoItem: React.FC<Props> = ({
     >
       <label className="todo__status-label">
         <input
+          name="completed"
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
+          checked={completed}
+          onChange={(event) => onUpdate(event, [id])}
         />
       </label>
 
@@ -45,7 +49,7 @@ export const TodoItem: React.FC<Props> = ({
         &times;
       </button>
 
-      <form>
+      {/* <form>
         <input
           data-cy="TodoTitleField"
           type="text"
@@ -53,7 +57,7 @@ export const TodoItem: React.FC<Props> = ({
           placeholder="Empty todo will be deleted"
           defaultValue={title}
         />
-      </form>
+      </form> */}
 
       <Loader
         isActive={isActive}

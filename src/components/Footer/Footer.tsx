@@ -67,7 +67,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={() => onDelete(completedTodosId)}
       >
-        {!isLeftActiveTodos && 'Clear completed'}
+        {isLeftActiveTodos && 'Clear completed'}
       </button>
     </footer>
   );

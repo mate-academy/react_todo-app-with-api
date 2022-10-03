@@ -11,6 +11,7 @@ type Props = {
   selectedTodosId: number[];
   newTitle: string,
   onDelete: (id: number[]) => void;
+  onUpdate: (event: React.ChangeEvent<HTMLInputElement>, id: number[]) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const TodoList: React.FC<Props> = ({
   selectedTodosId,
   newTitle,
   onDelete,
+  onUpdate,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,6 +35,7 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               selectedTodosId={selectedTodosId}
               onDelete={onDelete}
+              onUpdate={onUpdate}
             />
           </CSSTransition>
         ))}
@@ -51,6 +54,7 @@ export const TodoList: React.FC<Props> = ({
               }}
               isActive={isAdding}
               onDelete={() => {}}
+              onUpdate={() => {}}
             />
           </CSSTransition>
         )}

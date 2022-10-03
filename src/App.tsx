@@ -17,7 +17,12 @@ import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 
 import { Todo } from './types/Todo';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+import {
+  deleteTodo,
+  getTodos,
+  patchTodo,
+  postTodo,
+} from './api/todos';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -77,6 +82,43 @@ export const App: React.FC = () => {
     ));
   };
 
+  const hundleUpdateTodo = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    event: any,
+    todosId: number[],
+  ) => {
+    const {
+      name, value, type, checked,
+    } = event.target;
+
+    setSelectedTodosId(todosId);
+    todosId.map(todoId => (
+      patchTodo(todoId, {
+        [name]: type === 'checkbox' ? checked : value === 'true',
+      })
+        .then(() => {
+          setTodos(prevTodos => (
+            prevTodos.map(prevTodo => {
+              if (prevTodo.id === todoId) {
+                return {
+                  ...prevTodo,
+                  [name]: type === 'checkbox' ? checked : value === 'true',
+                };
+              }
+
+              return prevTodo;
+            })
+          ));
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update todo');
+        })
+        .finally(() => {
+          setSelectedTodosId([]);
+        })
+    ));
+  };
+
   const filteredTodos = todos.filter(({ completed }) => {
     switch (filterValue) {
       case 'active':
@@ -104,7 +146,17 @@ export const App: React.FC = () => {
     }, []);
   }, [todos]);
 
-  const isLeftActiveTodos = activeTodosTotal === todos.length;
+  const activeTodosId = useMemo(() => {
+    return todos.reduce((todosId: number[], currTodo: Todo) => {
+      if (!currTodo.completed) {
+        todosId.push(currTodo.id);
+      }
+
+      return todosId;
+    }, []);
+  }, [todos]);
+
+  const isLeftActiveTodos = activeTodosTotal === 0;
 
   return (
     <div className="todoapp">
@@ -117,6 +169,9 @@ export const App: React.FC = () => {
           onAddTodo={hundleAddTodo}
           isDisabled={isTodoAdded}
           setErrorMessage={setErrorMessage}
+          activeTodosId={activeTodosId}
+          completedTodosId={completedTodosId}
+          onUpdate={hundleUpdateTodo}
         />
         {!!todos.length && (
           <TodoList
@@ -125,6 +180,7 @@ export const App: React.FC = () => {
             selectedTodosId={selectedTodosId}
             newTitle={title}
             onDelete={hundleDeleteTodo}
+            onUpdate={hundleUpdateTodo}
           />
         )}
         {!!todos.length && (
