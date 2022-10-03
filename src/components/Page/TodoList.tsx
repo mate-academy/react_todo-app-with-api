@@ -34,12 +34,13 @@ export const TodoList: React.FC<Props> = ({
 
   const [isDoubleClick, setIsDoubleClick] = useState<boolean>(false);
 
-  const [name, setName] = useState<string>(input);
+  const [name, setName] = useState<string>('');
   const [doubleClickId, setDoubleClickId] = useState<number | null>(null);
 
-  const handleDoubleClick = (todoId: number) => {
+  const handleDoubleClick = (todoId: number, title: string) => {
     setIsDoubleClick(!isDoubleClick);
     setDoubleClickId(todoId);
+    setName(title);
   };
 
   const handleChangeName = ({
@@ -82,7 +83,7 @@ export const TodoList: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => handleDoubleClick(id)}
+              onDoubleClick={() => handleDoubleClick(id, title)}
             >
               {(isDoubleClick && doubleClickId === id)
                 ? (
