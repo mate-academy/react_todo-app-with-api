@@ -58,7 +58,7 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [todos]);
 
   const visibleTodos = filterType === FilterType.All
     ? todos
