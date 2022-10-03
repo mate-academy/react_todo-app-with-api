@@ -44,7 +44,7 @@ export const App: React.FC = () => {
   };
 
   const addTodo = async () => {
-    if (query.trim().length === 0) {
+    if (!query.trim()) {
       setError('Title can\'t be empty');
       fireTimeOut();
 

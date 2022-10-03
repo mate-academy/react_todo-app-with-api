@@ -3,7 +3,7 @@ import React from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  setFilter: (filter: string) => void
+  setFilter: React.Dispatch<React.SetStateAction<string>>
   filter: string
   todos: Todo[]
   removeTodo: (todoId: number) => void
