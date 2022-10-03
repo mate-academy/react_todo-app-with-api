@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import {
-  ChangeEvent, useEffect, useRef,
+  ChangeEvent, KeyboardEvent, useEffect, useRef,
 } from 'react';
 import { deleteTodo, updateTodo } from '../../../api/todos';
 import { TypeChange } from '../../../context/TodoContext';
@@ -80,6 +80,44 @@ export const TodoRender: React.FC<Props> = ({
     changeCompleteOnServer();
   };
 
+  const titleChangeOnServer = async () => {
+    const newTitle = { ...todo };
+
+    newTitle.title = inputValue;
+    await updateTodo(id, newTitle);
+    setTodoIdLoader(null);
+  };
+
+  const handleLocalTitle = () => {
+    if (inputValue.trim()) {
+      setTodoIdLoader(todo.id);
+      titleChangeOnServer();
+      handleStatusChange(todo, TypeChange.title);
+    } else {
+      setLoadError(true);
+      setErrorMessage('Unable to rename title on empty line');
+      if (newTodoField.current) {
+        newTodoField.current.focus();
+      }
+    }
+
+    if (newTodoField.current) {
+      newTodoField.current.blur();
+    }
+  };
+
+  const handleSubmitOnKey = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      if (newTodoField.current) {
+        newTodoField.current.blur();
+      }
+    }
+
+    if (event.key === 'Escape') {
+      setSelectedTodoId(0);
+    }
+  };
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -122,8 +160,9 @@ export const TodoRender: React.FC<Props> = ({
     <input
       value={inputValue}
       className="input is-large is-primary"
-      onBlur={() => handleStatusChange(todo, TypeChange.title)}
+      onBlur={() => handleLocalTitle()}
       onChange={handleChangeTitle}
+      onKeyUp={handleSubmitOnKey}
       ref={newTodoField}
     />
   )}
