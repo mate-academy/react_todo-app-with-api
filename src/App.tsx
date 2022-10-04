@@ -125,7 +125,8 @@ export const App: React.FC = () => {
     setVisibleLoader(true);
 
     patchTodo(todo.id, { completed: !todo.completed })
-      .then(() => setVisibleLoader(false));
+      .then(() => setVisibleLoader(false))
+      .catch(() => setErrorMessage('Unable to update a todo'));
 
     const newTodos = [...todos];
 
@@ -147,7 +148,8 @@ export const App: React.FC = () => {
       patchTodo(todo.id, { completed: !todo.completed })
         .then(() => {
           setVisibleLoader(false);
-        });
+        })
+        .catch(() => setErrorMessage('Unable to update a todo'));
 
       const todoIndex = findById(todo);
 
@@ -163,7 +165,8 @@ export const App: React.FC = () => {
     setVisibleLoader(true);
 
     patchTitleTodo(todo.id, { title })
-      .then(() => setVisibleLoader(false));
+      .then(() => setVisibleLoader(false))
+      .catch(() => setErrorMessage('Unable to update a todo'));
 
     const tempTodos = [...todos];
 
