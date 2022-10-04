@@ -4,7 +4,7 @@ import { UserTodo } from '../Todo';
 
 type Props = {
   todos: Todo[];
-  deleteTodo: (todo: Todo) => void;
+  deleteTodo: (todoId: number) => void;
   visibleLoader: boolean;
   setVisibleLoader: (loader: boolean) => void;
   updateCompleteTodo: (todo: Todo) => void;

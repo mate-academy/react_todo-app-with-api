@@ -75,34 +75,48 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage('Unable to update todos'));
   }, []);
 
+  const findById = (todo: Todo) => {
+    const todoIndex = todos.findIndex(foundTodo => {
+      return foundTodo.id === todo.id;
+    });
+
+    return todoIndex;
+  };
+
   const addNewTodo = (todo: Todo) => {
     setTodos(prevTodos => [todo, ...prevTodos]);
     setActiveItems(prevItems => prevItems + 1);
   };
 
-  const todoDelete = (todo: Todo) => {
-    deleteTodo(todo.id)
+  const todoDelete = (todoId: number) => {
+    deleteTodo(todoId)
       .then(() => {
         setVisibleLoader(false);
+      })
+      .then(() => {
+        setTodos(
+          todos.filter(userTodo => todoId !== userTodo.id),
+        );
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
       });
-
-    setTodos(
-      todos.filter(userTodo => todo.id !== userTodo.id),
-    );
     setActiveItems(prevItems => prevItems - 1);
   };
 
   const deleteCompletedTodos = () => {
-    todos.forEach(todoFromServer => {
-      if (todoFromServer.completed) {
-        setTodos(
-          todos.filter(todo => todo.id !== todoFromServer.id),
-        );
+    const filteredTodos = todos.filter(todo => {
+      if (todo.completed) {
+        setVisibleLoader(true);
+
+        deleteTodo(todo.id)
+          .then(() => setVisibleLoader(false));
       }
+
+      return todo.completed === false;
     });
+
+    setTodos(filteredTodos);
   };
 
   const activeItemsCounter = (todo: Todo) => {
@@ -113,20 +127,13 @@ export const App: React.FC = () => {
     }
   };
 
-  const findById = (todo: Todo) => {
-    const todoIndex = todos.findIndex(foundTodo => {
-      return foundTodo.id === todo.id;
-    });
-
-    return todoIndex;
-  };
-
   const updateCompleteTodo = (todo: Todo) => {
     setVisibleLoader(true);
 
     patchTodo(todo.id, { completed: !todo.completed })
       .then(() => setVisibleLoader(false))
-      .catch(() => setErrorMessage('Unable to update a todo'));
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => setVisibleLoader(false));
 
     const newTodos = [...todos];
 
@@ -162,19 +169,21 @@ export const App: React.FC = () => {
   };
 
   const updateTodoTitle = (todo: Todo, title: string) => {
-    setVisibleLoader(true);
+    if (title !== todo.title) {
+      setVisibleLoader(true);
 
-    patchTitleTodo(todo.id, { title })
-      .then(() => setVisibleLoader(false))
-      .catch(() => setErrorMessage('Unable to update a todo'));
+      patchTitleTodo(todo.id, { title })
+        .then(() => setVisibleLoader(false))
+        .catch(() => setErrorMessage('Unable to update a todo'));
 
-    const tempTodos = [...todos];
+      const tempTodos = [...todos];
 
-    const todoIndex = findById(todo);
+      const todoIndex = findById(todo);
 
-    tempTodos[todoIndex].title = title;
+      tempTodos[todoIndex].title = title;
 
-    setTodos(tempTodos);
+      setTodos(tempTodos);
+    }
   };
 
   const visibleTodos = filterTodos(todos, sortType);
@@ -185,18 +194,23 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={updateAllCompleteTodos}
-          />
+          {
+            todos.length > 0 && (
+              <button
+                data-cy="ToggleAllButton"
+                type="button"
+                className="todoapp__toggle-all active"
+                onClick={updateAllCompleteTodos}
+              />
+            )
+          }
 
           <NewTodoField
             onAdd={addNewTodo}
             setErrorMessage={setErrorMessage}
             setVisibleLoader={setVisibleLoader}
             visibleLoader={visibleLoader}
+            setTodos={setTodos}
           />
         </header>
 

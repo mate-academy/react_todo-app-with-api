@@ -5,7 +5,7 @@ import { Loader } from '../Loader';
 
 type Props = {
   todo: Todo;
-  deleteTodo: (todo: Todo) => void;
+  deleteTodo: (todoId: number) => void;
   visibleLoader: boolean;
   setVisibleLoader: (loader: boolean) => void;
   updateCompleteTodo: (todo: Todo) => void;
@@ -28,6 +28,10 @@ export const UserTodo: React.FC<Props> = ({
   };
 
   const handleUpdateTodo = () => {
+    if (title === '') {
+      deleteTodo(todo.id);
+    }
+
     updateTodoTitle(todo, title);
 
     setIsClicked(false);
@@ -49,17 +53,21 @@ export const UserTodo: React.FC<Props> = ({
           className="todo__status"
           defaultChecked
           onClick={addCompleteTodo}
+          disabled={visibleLoader}
         />
       </label>
 
       {
         isClicked
           ? (
-            <form onSubmit={handleUpdateTodo}>
+            <form
+              onSubmit={handleUpdateTodo}
+            >
               <input
                 type="text"
                 value={title}
                 onChange={({ target }) => setTitle(target.value)}
+                onBlur={handleUpdateTodo}
               />
             </form>
           )
@@ -79,12 +87,7 @@ export const UserTodo: React.FC<Props> = ({
         onClick={() => {
           setVisibleLoader(true);
 
-          return deleteTodo({
-            title: todo.title,
-            userId: todo.userId,
-            id: todo.id,
-            completed: todo.completed,
-          });
+          return deleteTodo(todo.id);
         }}
       >
         ×
