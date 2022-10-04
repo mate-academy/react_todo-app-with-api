@@ -8,6 +8,7 @@ type Props = {
   deleteTodo: (todo: Todo) => void;
   visibleLoader: boolean;
   setVisibleLoader: (loader: boolean) => void;
+  updateCompleteTodo: (todo: Todo) => void;
 };
 
 export const UserTodo: React.FC<Props> = ({
@@ -15,12 +16,18 @@ export const UserTodo: React.FC<Props> = ({
   deleteTodo,
   visibleLoader,
   setVisibleLoader,
+  updateCompleteTodo,
 }) => {
+  const addCompleteTodo = () => {
+    updateCompleteTodo(todo);
+  };
+
   return (
     <div
       data-cy="Todo"
       className={classNames(
         'todo',
+        { completed: todo.completed },
       )}
     >
       <label className="todo__status-label">
@@ -29,6 +36,7 @@ export const UserTodo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
+          onClick={addCompleteTodo}
         />
       </label>
 

@@ -9,6 +9,7 @@ import { TodoList } from './components/TodoList';
 import {
   getTodos,
   deleteTodo,
+  patchTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -44,6 +45,10 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [activeItems, setActiveItems] = useState<number>(0);
   const [visibleLoader, setVisibleLoader] = useState(false);
+  const [
+    visibleClearCompleted,
+    setVisibleClearCompleted,
+  ] = useState<number>(0);
 
   let userId = 0;
 
@@ -90,6 +95,38 @@ export const App: React.FC = () => {
     });
   };
 
+  const updateCompleteTodo = (todo: Todo) => {
+    setVisibleLoader(true);
+
+    patchTodo(todo.id, { completed: !todo.completed })
+      .then(() => setVisibleLoader(false));
+
+    const newTodos = [...todos];
+    const todoIndex = todos.findIndex(el => el.id === todo.id);
+
+    newTodos[todoIndex].completed = !todo.completed;
+
+    if (!todo.completed) {
+      setVisibleClearCompleted(prev => {
+        let temp = prev;
+
+        temp += 1;
+
+        return temp;
+      });
+    } else {
+      setVisibleClearCompleted(prev => {
+        let temp = prev;
+
+        temp -= 1;
+
+        return temp;
+      });
+    }
+
+    setTodos(newTodos);
+  };
+
   const visibleTodos = filterTodos(todos, sortType);
 
   return (
@@ -119,6 +156,7 @@ export const App: React.FC = () => {
               deleteTodo={todoDelete}
               visibleLoader={visibleLoader}
               setVisibleLoader={setVisibleLoader}
+              updateCompleteTodo={updateCompleteTodo}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">
@@ -170,14 +208,16 @@ export const App: React.FC = () => {
                 </a>
               </nav>
 
-              <button
-                data-cy="ClearCompletedButton"
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={deleteCompletedTodos}
-              >
-                Clear completed
-              </button>
+              {visibleClearCompleted > 0 && (
+                <button
+                  data-cy="ClearCompletedButton"
+                  type="button"
+                  className="todoapp__clear-completed"
+                  onClick={deleteCompletedTodos}
+                >
+                  Clear completed
+                </button>
+              )}
             </footer>
           </>
         )}
