@@ -56,9 +56,49 @@ export const App: React.FC = () => {
     setTimeout(() => setError(''), 3000);
   };
 
+  const handleCloseError = () => {
+    setError('');
+  };
+
   const handleNewTodoTitle = (event: React.ChangeEvent<HTMLInputElement>) => (
     setNewTodoTitle(event.target.value)
   );
+
+  const handleAddNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError('');
+
+    if (!newTodoTitle.replace(/\s/g, '')) {
+      showErrorMessage('Title can\'t be empty');
+      setNewTodoTitle('');
+
+      return;
+    }
+
+    if (user) {
+      const newTodoData = {
+        id: 0,
+        userId: user.id,
+        title: newTodoTitle,
+        completed: false,
+      };
+
+      setIsAdding(true);
+      setTodos(prevTodos => [...prevTodos, newTodoData]);
+      try {
+        const newTodo = await postTodo(newTodoData);
+
+        setTodos(prevTodos => [...prevTodos, newTodo]);
+        setNewTodoTitle('');
+      } catch {
+        showErrorMessage('Unable to add a todo');
+      } finally {
+        setTodos(copyTodos => copyTodos.filter(todo => todo.id !== 0));
+      }
+
+      setIsAdding(false);
+    }
+  };
 
   const handleStatusChange = async (todoId: number) => {
     setError('');
@@ -116,45 +156,6 @@ export const App: React.FC = () => {
         handleStatusChange(todo.id);
       }
     });
-  };
-
-  const handleCloseError = () => {
-    setError('');
-  };
-
-  const handleAddNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError('');
-
-    if (!newTodoTitle) {
-      showErrorMessage('Title can\'t be empty');
-
-      return;
-    }
-
-    if (user) {
-      const newTodoData = {
-        id: 0,
-        userId: user.id,
-        title: newTodoTitle,
-        completed: false,
-      };
-
-      setIsAdding(true);
-      setTodos(prevTodos => [...prevTodos, newTodoData]);
-      try {
-        const newTodo = await postTodo(newTodoData);
-
-        setTodos(prevTodos => [...prevTodos, newTodo]);
-        setNewTodoTitle('');
-      } catch {
-        showErrorMessage('Unable to add a todo');
-      } finally {
-        setTodos(copyTodos => copyTodos.filter(todo => todo.id !== 0));
-      }
-
-      setIsAdding(false);
-    }
   };
 
   const handleDeleteTodo = async (todoId: number) => {
