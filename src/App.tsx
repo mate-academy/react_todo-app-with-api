@@ -3,14 +3,16 @@ import React, {
   FormEvent,
   useContext, useEffect, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './TodoList/Todolist';
 import { Footer } from './Footer/Footer';
 import { ErrorNotification } from './ErrorNotification/ErrorNotification';
-import { getTodos, createTodo, deleteTodo, updateTodo } from './api/todos';
+import {
+  getTodos, createTodo, deleteTodo, updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
-import classNames from 'classnames';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,7 +24,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>('');
   const [title, setTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<number[]>([]);
-  const [changeAllStatus, setChangeAllStatus] = useState(false)
+  const [changeAllStatus, setChangeAllStatus] = useState(false);
 
   if (error) {
     setTimeout(() => {
@@ -104,31 +106,28 @@ export const App: React.FC = () => {
   };
 
   const handleChangeStatus = async (todoId: number, data: Partial<Todo>) => {
-
     setSelectedTodo(prevIds => [...prevIds, todoId]);
 
     try {
       const updatedTodo = await updateTodo(todoId, data);
+
       setTodos(prev => prev.map(todo => (todo.id === todoId
         ? updatedTodo
         : todo)));
-    }
-    catch {
-      setError('Unable to update a todo')}
-
-    finally {
+    } catch {
+      setError('Unable to update a todo');
+    } finally {
       setSelectedTodo(prevIds => prevIds.filter(id => id !== todoId));
     }
   };
 
   const isActive = filteredTodos.filter(todo => !todo.completed);
 
-
-  const handleChangeStatusAll = async (filteredTodos: Todo[]) => {
+  const handleChangeStatusAll = async (filtertodos: Todo[]) => {
     setChangeAllStatus(true);
 
     try {
-      filteredTodos.map(async todo => {
+      filtertodos.map(async todo => {
         if (isActive.length) {
           await updateTodo(todo.id, { completed: true });
         } else {
@@ -149,16 +148,12 @@ export const App: React.FC = () => {
           completed: false,
         });
       }));
-    }
-
-    catch {
-        setError('Unable to update a todo');
-    }
-    finally {
+    } catch {
+      setError('Unable to update a todo');
+    } finally {
       setChangeAllStatus(false);
     }
-  }
-
+  };
 
   const handleClickDelete = async (todoId: number) => {
     setSelectedTodo(prevIds => [...prevIds, todoId]);
@@ -183,9 +178,9 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className={classNames('todoapp__toggle-all', {
-              'active' : !isActive.length
+              active: !isActive.length,
             })}
-            onClick={()=>handleChangeStatusAll(filteredTodos)}
+            onClick={() => handleChangeStatusAll(filteredTodos)}
           />
 
           <form

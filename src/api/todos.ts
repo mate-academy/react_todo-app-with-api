@@ -17,9 +17,9 @@ export const createTodo = (title: string, userId: number) => {
 export const updateTodo = (
   todoId: number,
   data: Partial<Todo>,
-  ) => {
-    return client.patch<Todo>(`/todos/${todoId}`, data)
-  };
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
+};
 
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);

@@ -14,7 +14,7 @@ export const TodoList: React.FC<Props> = ({
   handleClickDelete,
   selectedTodo,
   handleChangeStatus,
-  changeAllStatus
+  changeAllStatus,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
