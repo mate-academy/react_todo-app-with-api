@@ -89,16 +89,23 @@ export const App: React.FC = () => {
       });
   };
 
-  const hundleUpdateTodo = (event: any, todosIds: number[]) => {
-    const {
-      name, value, type, checked,
-    } = event.target;
+  const hundleUpdateTodo = (
+    name: string,
+    type: string,
+    value: string | boolean,
+    todosIds: number[],
+  ) => {
+    const validValue = typeof value === 'boolean'
+      ? String(value)
+      : value;
 
     setSelectedTodosIds(todosIds);
     Promise.all(
       todosIds.map(todoId => (
         patchTodo(todoId, {
-          [name]: type === 'checkbox' ? checked : value === 'true',
+          [name]: type === 'submit'
+            ? validValue
+            : validValue === 'true',
         })
           .then(() => {
             setTodos(prevTodos => (
@@ -106,7 +113,9 @@ export const App: React.FC = () => {
                 if (prevTodo.id === todoId) {
                   return {
                     ...prevTodo,
-                    [name]: type === 'checkbox' ? checked : value === 'true',
+                    [name]: type === 'submit'
+                      ? validValue
+                      : validValue === 'true',
                   };
                 }
 
@@ -116,33 +125,6 @@ export const App: React.FC = () => {
           })
       )),
     )
-      .catch(() => {
-        setErrorMessage('Unable to update todo');
-      })
-      .finally(() => {
-        setSelectedTodosIds([]);
-      });
-  };
-
-  const hundleRenameTodo = (newTitle: string, todoId: number) => {
-    setSelectedTodosIds([todoId]);
-    patchTodo(todoId, { title: newTitle })
-      .then(() => {
-        if (setTodos && todos) {
-          setTodos((prevTodos: Todo[]) => (
-            prevTodos.map(prevTodo => {
-              if (prevTodo.id === todoId) {
-                return {
-                  ...prevTodo,
-                  title: newTitle,
-                };
-              }
-
-              return prevTodo;
-            })
-          ));
-        }
-      })
       .catch(() => {
         setErrorMessage('Unable to update todo');
       })
@@ -216,7 +198,6 @@ export const App: React.FC = () => {
             newTitle={title}
             onDelete={hundleDeleteTodo}
             onUpdate={hundleUpdateTodo}
-            onRename={hundleRenameTodo}
           />
         )}
         {!!todos.length && (

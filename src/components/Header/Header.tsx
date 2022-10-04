@@ -13,7 +13,10 @@ type Props = {
   activeTodosIds: number[],
   completedTodosIds: number[],
   onUpdate: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: number[]
+    name: string,
+    type: string,
+    value: string | boolean,
+    id: number[],
   ) => void;
 };
 
@@ -56,7 +59,12 @@ export const Header: React.FC<Props> = ({
           { active: !isLeftActiveTodos },
         )}
         value={isLeftActiveTodos ? 'true' : 'false'}
-        onClick={(event) => onUpdate(event, todosId)}
+        onClick={(event) => onUpdate(
+          event.currentTarget.name,
+          event.currentTarget.type,
+          event.currentTarget.value,
+          todosId,
+        )}
       />
 
       <form onSubmit={onAdd}>

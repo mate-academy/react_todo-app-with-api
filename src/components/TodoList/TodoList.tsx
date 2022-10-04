@@ -11,8 +11,12 @@ type Props = {
   selectedTodosIds: number[];
   newTitle: string,
   onDelete: (id: number[]) => void;
-  onUpdate: (event: React.ChangeEvent<HTMLInputElement>, id: number[]) => void;
-  onRename: (newTitle: string, id: number) => void;
+  onUpdate: (
+    name: string,
+    type: string,
+    value: string | boolean,
+    id: number[],
+  ) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,7 +26,6 @@ export const TodoList: React.FC<Props> = ({
   newTitle,
   onDelete,
   onUpdate,
-  onRename,
 }) => {
   const [selectedTodoId, setSelectedTodoId] = useState(0);
 
@@ -41,7 +44,6 @@ export const TodoList: React.FC<Props> = ({
               selectedTodosIds={selectedTodosIds}
               onDelete={onDelete}
               onUpdate={onUpdate}
-              onRename={onRename}
               selectedTodoId={selectedTodoId}
               setSelectedTodoId={setSelectedTodoId}
             />
@@ -63,7 +65,6 @@ export const TodoList: React.FC<Props> = ({
               isActive={isAdding}
               onDelete={() => {}}
               onUpdate={() => {}}
-              onRename={() => {}}
             />
           </CSSTransition>
         )}

@@ -9,10 +9,14 @@ type Props = {
   isActive?: boolean,
   selectedTodosIds?: number[],
   onDelete: (id: number[]) => void;
-  onUpdate: (event: React.ChangeEvent<HTMLInputElement>, id: number[]) => void;
+  onUpdate: (
+    name: string,
+    type: string,
+    value: string | boolean,
+    id: number[],
+  ) => void;
   selectedTodoId?: number,
   setSelectedTodoId?: (id: number) => void,
-  onRename: (newTitle: string, id: number) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -24,7 +28,6 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
   selectedTodoId,
   setSelectedTodoId,
-  onRename,
 }) => {
   const { id, title, completed } = todo;
   const [doubleClick, setDoubleClick] = useState(false);
@@ -56,7 +59,12 @@ export const TodoItem: React.FC<Props> = ({
       setDoubleClick(false);
     }
 
-    onRename(newTitle, id);
+    onUpdate(
+      'title',
+      'submit',
+      newTitle,
+      [id],
+    );
     setDoubleClick(false);
   };
 
@@ -99,7 +107,14 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={(event) => onUpdate(event, [id])}
+          onChange={(event) => (
+            onUpdate(
+              event.target.name,
+              event.target.type,
+              event.target.checked,
+              [id],
+            )
+          )}
         />
       </label>
 
