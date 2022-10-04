@@ -9,13 +9,9 @@ export const postTodo = (data: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', data);
 };
 
-export const patchTodoTitle = (todoId: number, data: Pick<Todo, 'title'>) => {
-  return client.patch(`/todos/${todoId}`, data);
-};
-
-export const patchTodoStatus = (
+export const patchTodo = (
   todoId: number,
-  data: Pick<Todo, 'completed'>,
+  data: Pick<Todo, 'completed'> | Pick<Todo, 'title'>,
 ) => {
   return client.patch<Todo>(`/todos/${todoId}`, data);
 };
