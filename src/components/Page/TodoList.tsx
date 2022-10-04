@@ -118,28 +118,27 @@ export const TodoList: React.FC<Props> = ({
             </label>
 
             {(isDoubleClick && doubleClickId === id)
-                ? (
-                  <form onSubmit={event => handleRenameSubmit(event, id)}>
-                    <input
-                      data-cy="NewTodoField"
-                      type="text"
-                      ref={newTodoField}
-                      className="todoapp__rename-todo"
-                      placeholder="Empty Todo will be deleted"
-                      value={name}
-                      onChange={handleChangeName}
-                      disabled={isAdding}
-                    />
-                  </form>
-                )
-                : (
-                  <span
+              ? (
+                <form onSubmit={event => handleRenameSubmit(event, id)}>
+                  <input
+                    data-cy="NewTodoField"
+                    type="text"
+                    ref={newTodoField}
+                    className="todoapp__rename-todo"
+                    placeholder="Empty Todo will be deleted"
+                    value={name}
+                    onChange={handleChangeName}
+                    disabled={isAdding}
+                  />
+                </form>
+              )
+              : (
+                <span
                   data-cy="TodoTitle"
                   className="todo__title"
                   onDoubleClick={() => handleDoubleClick(id, title)}
-                >
-                </span>
-                )}
+                />
+              )}
 
             {!isDoubleClick && (
               <button
