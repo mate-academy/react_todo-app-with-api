@@ -68,9 +68,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && setSelectedTodoId) {
       setDoubleClick(false);
       setNewTitle(title);
+      setSelectedTodoId(0);
     }
   };
 
