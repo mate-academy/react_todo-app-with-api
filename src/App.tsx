@@ -202,6 +202,7 @@ export const App: React.FC = () => {
           handleStatus={upgradeTodos}
           setIsAdding={setIsAdding}
           newTodoField={newTodoField}
+          setTodosError={setTodosError}
         />
 
         {todos.length > 0 && (

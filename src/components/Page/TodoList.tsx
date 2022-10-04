@@ -1,10 +1,12 @@
 import classNames from 'classnames';
 import React, {
   FormEvent,
+  useContext,
   useState,
 } from 'react';
+import { TodosError } from '../../types/ErrorEnum';
 import { Todo } from '../../types/Todo';
-// import { TodoContext } from '../TodoContext';
+import { TodoContext } from '../TodoContext';
 
 type Props = {
   visibleTodos: Todo[];
@@ -14,6 +16,7 @@ type Props = {
   handleStatus: (todoId: number, data: Partial<Todo>) => Promise<void>;
   setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
   newTodoField: React.RefObject<HTMLInputElement>;
+  setTodosError: (value: React.SetStateAction<TodosError>) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -24,9 +27,10 @@ export const TodoList: React.FC<Props> = ({
   handleStatus,
   setIsAdding,
   newTodoField,
+  setTodosError,
 }) => {
   const [deletedId, setDeletedId] = useState<number | null>(null);
-  // const [todos, setTodos] = useContext(TodoContext);
+  const [todos, setTodos] = useContext(TodoContext);
   const handleDelete = (todoId: number) => {
     setDeletedId(todoId);
     removeTodo(todoId);
@@ -52,9 +56,20 @@ export const TodoList: React.FC<Props> = ({
 
     setIsAdding(true);
 
-    if (!input.trim()) {
-      removeTodo(todoId);
+    if (!name.trim().length) {
+      try {
+        await removeTodo(todoId);
+
+        setTodos([...todos.filter((
+          { id },
+        ) => id !== todoId)]);
+      } catch {
+        setTodosError(TodosError.Deleting);
+      }
     }
+
+    setIsDoubleClick(false);
+    setIsAdding(false);
   };
 
   return (
@@ -87,12 +102,12 @@ export const TodoList: React.FC<Props> = ({
             >
               {(isDoubleClick && doubleClickId === id)
                 ? (
-                  <form onSubmit={() => handleRenameSubmit}>
+                  <form onSubmit={event => handleRenameSubmit(event, id)}>
                     <input
                       data-cy="NewTodoField"
                       type="text"
                       ref={newTodoField}
-                      className="todoapp__new-todo"
+                      className="todoapp__rename-todo"
                       placeholder="Empty Todo will be deleted"
                       value={name}
                       onChange={handleChangeName}
@@ -103,14 +118,16 @@ export const TodoList: React.FC<Props> = ({
                 : title}
             </span>
 
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => handleDelete(id)}
-            >
-              ×
-            </button>
+            {!isDoubleClick && (
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => handleDelete(id)}
+              >
+                ×
+              </button>
+            )}
 
             <div
               data-cy="TodoLoader"
