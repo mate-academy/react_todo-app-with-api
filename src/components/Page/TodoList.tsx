@@ -117,12 +117,7 @@ export const TodoList: React.FC<Props> = ({
               />
             </label>
 
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => handleDoubleClick(id, title)}
-            >
-              {(isDoubleClick && doubleClickId === id)
+            {(isDoubleClick && doubleClickId === id)
                 ? (
                   <form onSubmit={event => handleRenameSubmit(event, id)}>
                     <input
@@ -137,8 +132,14 @@ export const TodoList: React.FC<Props> = ({
                     />
                   </form>
                 )
-                : title}
-            </span>
+                : (
+                  <span
+                  data-cy="TodoTitle"
+                  className="todo__title"
+                  onDoubleClick={() => handleDoubleClick(id, title)}
+                >
+                </span>
+                )}
 
             {!isDoubleClick && (
               <button
