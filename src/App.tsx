@@ -197,13 +197,13 @@ export const App: React.FC = () => {
         <TodoList
           visibleTodos={visibleTodos}
           removeTodo={handleDelete}
-          input={title}
           isAdding={isAdding}
           handleStatus={upgradeTodos}
           setIsAdding={setIsAdding}
           newTodoField={newTodoField}
           setTodosError={setTodosError}
           upgradeTodos={upgradeTodos}
+          input={title}
         />
 
         {todos.length > 0 && (

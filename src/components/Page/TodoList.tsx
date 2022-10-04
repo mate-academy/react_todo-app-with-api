@@ -13,25 +13,25 @@ import { TodoContext } from '../TodoContext';
 type Props = {
   visibleTodos: Todo[];
   removeTodo: (todoId: number) => Promise<void>;
-  input: string;
   isAdding: boolean;
   handleStatus: (todoId: number, data: Partial<Todo>) => Promise<void>;
   setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
   newTodoField: React.RefObject<HTMLInputElement>;
   setTodosError: (value: React.SetStateAction<TodosError>) => void;
-  upgradeTodos: (todoId: number, data: Partial<Todo>) => Promise<void>
+  upgradeTodos: (todoId: number, data: Partial<Todo>) => Promise<void>;
+  input: string;
 };
 
 export const TodoList: React.FC<Props> = ({
   visibleTodos,
   removeTodo,
-  input,
   isAdding,
   handleStatus,
   setIsAdding,
   newTodoField,
   setTodosError,
   upgradeTodos,
+  input,
 }) => {
   const [deletedId, setDeletedId] = useState<number | null>(null);
   const [todos, setTodos] = useContext(TodoContext);
@@ -137,7 +137,9 @@ export const TodoList: React.FC<Props> = ({
                   data-cy="TodoTitle"
                   className="todo__title"
                   onDoubleClick={() => handleDoubleClick(id, title)}
-                />
+                >
+                  {title}
+                </span>
               )}
 
             {!isDoubleClick && (
