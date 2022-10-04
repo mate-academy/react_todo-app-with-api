@@ -31,8 +31,11 @@ export const App: React.FC = () => {
   const [completed, setCompleted] = useState<number[]>([]);
   const [updateTodoError, setUpdateTodoError] = useState(false);
 
-  async function updatePost(todoId: number, done: boolean) {
-    const updated = updateTodo(todoId, { completed: done });
+  async function updatePost(todoId: number, done: boolean, title: string) {
+    const updated = updateTodo(todoId, {
+      completed: done,
+      title,
+    });
 
     return updated;
   }
@@ -101,9 +104,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdate = async (todoId: number, done: boolean) => {
+  const handleUpdate = async (todoId: number, done: boolean, title: string) => {
     try {
-      updatePost(todoId, done);
+      updatePost(todoId, done, title);
     } catch (error) {
       setUpdateTodoError(true);
     }
@@ -112,6 +115,16 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
+      {user && (
+        <>
+          <h2 className="title todoapp__user-title">
+            {`Hey, ${user.name}!`}
+          </h2>
+          <h2 className="subtitle todoapp__user-title">
+            What are your plans for today?
+          </h2>
+        </>
+      )}
 
       <div className="todoapp__content">
         <header className="todoapp__header">

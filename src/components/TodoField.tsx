@@ -11,7 +11,7 @@ type Props = {
   isAdding: boolean;
   loadingError: boolean;
   setErrorClosing: (er: boolean) => void;
-  onUpdate: (todoId: number, done: boolean) => void;
+  onUpdate: (todoId: number, done: boolean, title: string) => void;
 };
 
 export const TodoField: React.FC<Props> = ({
@@ -57,10 +57,10 @@ export const TodoField: React.FC<Props> = ({
           aria-label="Toggle"
           onClick={() => todos.map((todo) => {
             if (completedTodos) {
-              return onUpdate(todo.id, false);
+              return onUpdate(todo.id, false, todo.title);
             }
 
-            return onUpdate(todo.id, true);
+            return onUpdate(todo.id, true, todo.title);
           })}
         />
       )}

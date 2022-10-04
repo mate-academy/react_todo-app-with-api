@@ -13,4 +13,5 @@ export interface NewTodo {
 
 export interface UpdateTodo {
   completed: boolean;
+  title: string;
 }
