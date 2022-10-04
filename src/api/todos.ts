@@ -11,7 +11,6 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-// Add more methods here
 export const addTodo = (userId: number, data: Data) => {
   return client.post(`/todos?userId=${userId}`, data);
 };

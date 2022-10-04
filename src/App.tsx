@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext, useEffect,
 } from 'react';
@@ -6,13 +5,13 @@ import { getTodos } from './api/todos';
 import { AddTodo } from './components/Auth/AddTodo/AddTodo';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorWindow } from './components/Auth/ErrorWindow/ErrorWindow';
-// eslint-disable-next-line
-import { FilterComponent } from './components/Auth/FilterComponent/FilterComponent';
+import {
+  FilterComponent,
+} from './components/Auth/FilterComponent/FilterComponent';
 import { TodoList } from './components/Auth/TodoList/TodoList';
 import { TodoContext } from './context/TodoContext';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const {
     setFiltredTodos,
