@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>('');
   const [title, setTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<number[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
+  const [changeAllStatus, setChangeAllStatus] = useState(false)
 
   if (error) {
     setTimeout(() => {
@@ -83,8 +83,6 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setIsAdding(true);
-
     setTodos([...todos, newTodoAdd]);
 
     try {
@@ -97,7 +95,6 @@ export const App: React.FC = () => {
     }
 
     setTitle('');
-    setIsAdding(false);
   };
 
   const handleChange = (
@@ -117,9 +114,8 @@ export const App: React.FC = () => {
         : todo)));
     }
     catch {
-      if (title.length !== 0) {
-      setError('Unable to update a todo');}
-    }
+      setError('Unable to update a todo')}
+
     finally {
       setSelectedTodo(prevIds => prevIds.filter(id => id !== todoId));
     }
@@ -127,8 +123,9 @@ export const App: React.FC = () => {
 
   const isActive = filteredTodos.filter(todo => !todo.completed);
 
+
   const handleChangeStatusAll = async (filteredTodos: Todo[]) => {
-    setSelectedTodo(prevIds => [...prevIds]);
+    setChangeAllStatus(true);
 
     try {
       filteredTodos.map(async todo => {
@@ -139,7 +136,7 @@ export const App: React.FC = () => {
         }
       });
 
-      setTodos((state) => [...state].map(todo => {
+      await setTodos((state) => [...state].map(todo => {
         if (isActive.length) {
           return ({
             ...todo,
@@ -153,11 +150,12 @@ export const App: React.FC = () => {
         });
       }));
     }
+
     catch {
         setError('Unable to update a todo');
     }
     finally {
-      setSelectedTodo(prevIds => prevIds.filter(id => id !== 0));
+      setChangeAllStatus(false);
     }
   }
 
@@ -201,7 +199,6 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={title}
               onChange={handleChange}
-              disabled={isAdding}
             />
           </form>
         </header>
@@ -211,6 +208,7 @@ export const App: React.FC = () => {
           handleClickDelete={handleClickDelete}
           selectedTodo={selectedTodo}
           handleChangeStatus={handleChangeStatus}
+          changeAllStatus={changeAllStatus}
         />
 
         <Footer

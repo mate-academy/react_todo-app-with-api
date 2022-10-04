@@ -6,6 +6,7 @@ type Props = {
   handleClickDelete: (id: number)=> void;
   selectedTodo: number[];
   handleChangeStatus: (id: number, data: Partial<Todo>) => void;
+  changeAllStatus: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -13,6 +14,7 @@ export const TodoList: React.FC<Props> = ({
   handleClickDelete,
   selectedTodo,
   handleChangeStatus,
+  changeAllStatus
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
           handleClickDelete={handleClickDelete}
           selectedTodo={selectedTodo}
           handleChangeStatus={handleChangeStatus}
+          changeAllStatus={changeAllStatus}
         />
       ))}
     </section>

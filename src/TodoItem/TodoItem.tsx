@@ -7,7 +7,7 @@ type Props = {
   handleClickDelete: (id: number)=> void;
   selectedTodo: number[];
   handleChangeStatus: (id: number, data: Partial<Todo>) => void;
-
+  changeAllStatus: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,6 +15,7 @@ export const TodoItem: React.FC<Props> = ({
   handleClickDelete,
   selectedTodo,
   handleChangeStatus,
+  changeAllStatus
 }) => {
 
   const [newTitle, setNewTitle] = useState(todoItem.title);
@@ -34,6 +35,7 @@ export const TodoItem: React.FC<Props> = ({
     if (!newTitle.trim().length) {
       handleClickDelete(todoItem.id);
     }
+
     if (newTitle === todoItem.title) {
         return;
     }
@@ -110,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({
           'overlay',
           {
             'is-active': selectedTodo.includes(todoItem.id)
-              || todoItem.id === 0,
+              || todoItem.id === 0 || changeAllStatus,
           },
         )}
       >
