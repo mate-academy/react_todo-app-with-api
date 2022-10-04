@@ -22,3 +22,9 @@ export const patchTodo = (todoId: number, todo: {
 }) => {
   return client.patch<Todo>(`/todos/${todoId}`, todo);
 };
+
+export const patchTitleTodo = (todoId: number, todo: {
+  title: string,
+}) => {
+  return client.patch<Todo>(`/todos/${todoId}`, todo);
+};

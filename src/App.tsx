@@ -10,6 +10,7 @@ import {
   getTodos,
   deleteTodo,
   patchTodo,
+  patchTitleTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -112,7 +113,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const findCompletedItem = (todo: Todo) => {
+  const findById = (todo: Todo) => {
     const todoIndex = todos.findIndex(foundTodo => {
       return foundTodo.id === todo.id;
     });
@@ -128,7 +129,7 @@ export const App: React.FC = () => {
 
     const newTodos = [...todos];
 
-    const todoIndex = findCompletedItem(todo);
+    const todoIndex = findById(todo);
 
     newTodos[todoIndex].completed = !todo.completed;
 
@@ -148,7 +149,7 @@ export const App: React.FC = () => {
           setVisibleLoader(false);
         });
 
-      const todoIndex = findCompletedItem(todo);
+      const todoIndex = findById(todo);
 
       todos[todoIndex].completed = !todo.completed;
 
@@ -156,6 +157,21 @@ export const App: React.FC = () => {
     });
 
     setTodos(temp);
+  };
+
+  const updateTodoTitle = (todo: Todo, title: string) => {
+    setVisibleLoader(true);
+
+    patchTitleTodo(todo.id, { title })
+      .then(() => setVisibleLoader(false));
+
+    const tempTodos = [...todos];
+
+    const todoIndex = findById(todo);
+
+    tempTodos[todoIndex].title = title;
+
+    setTodos(tempTodos);
   };
 
   const visibleTodos = filterTodos(todos, sortType);
@@ -189,6 +205,7 @@ export const App: React.FC = () => {
               visibleLoader={visibleLoader}
               setVisibleLoader={setVisibleLoader}
               updateCompleteTodo={updateCompleteTodo}
+              updateTodoTitle={updateTodoTitle}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">
