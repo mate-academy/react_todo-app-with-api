@@ -203,6 +203,7 @@ export const App: React.FC = () => {
           setIsAdding={setIsAdding}
           newTodoField={newTodoField}
           setTodosError={setTodosError}
+          upgradeTodos={upgradeTodos}
         />
 
         {todos.length > 0 && (

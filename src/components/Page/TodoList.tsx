@@ -1,7 +1,9 @@
 import classNames from 'classnames';
 import React, {
   FormEvent,
+  useCallback,
   useContext,
+  useEffect,
   useState,
 } from 'react';
 import { TodosError } from '../../types/ErrorEnum';
@@ -17,6 +19,7 @@ type Props = {
   setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
   newTodoField: React.RefObject<HTMLInputElement>;
   setTodosError: (value: React.SetStateAction<TodosError>) => void;
+  upgradeTodos: (todoId: number, data: Partial<Todo>) => Promise<void>
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -28,6 +31,7 @@ export const TodoList: React.FC<Props> = ({
   setIsAdding,
   newTodoField,
   setTodosError,
+  upgradeTodos,
 }) => {
   const [deletedId, setDeletedId] = useState<number | null>(null);
   const [todos, setTodos] = useContext(TodoContext);
@@ -51,14 +55,30 @@ export const TodoList: React.FC<Props> = ({
     target: { value },
   }: React.ChangeEvent<HTMLInputElement>) => setName(value);
 
-  const handleRenameSubmit = async (event: FormEvent, todoId: number) => {
-    event.preventDefault();
+  const escFunction = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsDoubleClick(false);
+    }
+  }, []);
 
-    setIsAdding(true);
+  useEffect(() => {
+    document.addEventListener('keydown', escFunction, false);
+
+    return () => {
+      document.removeEventListener('keydown', escFunction, false);
+    };
+  }, [todos, name]);
+
+  const handleRenameSubmit = async (
+    event: FormEvent,
+    todoId: number,
+  ) => {
+    event.preventDefault();
 
     if (!name.trim().length) {
       try {
         await removeTodo(todoId);
+        setIsAdding(true);
 
         setTodos([...todos.filter((
           { id },
@@ -67,6 +87,8 @@ export const TodoList: React.FC<Props> = ({
         setTodosError(TodosError.Deleting);
       }
     }
+
+    upgradeTodos(todoId, { title: name });
 
     setIsDoubleClick(false);
     setIsAdding(false);
