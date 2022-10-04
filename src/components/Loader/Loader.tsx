@@ -3,20 +3,20 @@ import classNames from 'classnames';
 
 type Props = {
   isActive?: boolean,
-  selectedTodosId?: number[],
+  selectedTodosIds?: number[],
   id: number,
 };
 
 export const Loader: React.FC<Props> = ({
   isActive,
-  selectedTodosId,
+  selectedTodosIds,
   id,
 }) => (
   <div
     data-cy="TodoLoader"
     className={classNames(
       'modal overlay',
-      { 'is-active': selectedTodosId?.includes(id) || isActive },
+      { 'is-active': selectedTodosIds?.includes(id) || isActive },
     )}
   >
     <div className="modal-background has-background-white-ter" />

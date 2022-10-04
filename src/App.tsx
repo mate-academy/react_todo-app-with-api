@@ -60,24 +60,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // const hundleAddTodo = useCallback(async (inputTitle: string) => {
-  //   setTitle(inputTitle);
-  //   setIsTodoAdded(true);
-
-  //   try {
-  //     if (user) {
-  //       const newTodo = await postTodo(user.id, inputTitle);
-
-  //       setTodos([...todos, newTodo]);
-  //     }
-  //   } catch {
-  //     setErrorMessage('Unable to add todo');
-  //   } finally {
-  //     setIsTodoAdded(false);
-  //     focusOnInput();
-  //   }
-  // }, []);
-
   const hundleAddTodo = async (inputTitle: string) => {
     setTitle(inputTitle);
     setIsTodoAdded(true);
@@ -96,19 +78,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // const hundleDeleteTodo = (todosIds: number[]) => {
-  //   setSelectedTodosIds(todosIds);
-  //   todosIds.map(todoId => (
-  //     deleteTodo(todoId)
-  //       .then(() => {
-  //         setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todoId));
-  //       })
-  //       .catch(() => {
-  //         setErrorMessage('Unable to delete todo');
-  //       })
-  //   ));
-  // };
-
   const hundleDeleteTodo = (todosIds: number[]) => {
     setSelectedTodosIds(todosIds);
     Promise.all(todosIds.map(todoId => (
@@ -125,11 +94,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const hundleUpdateTodo = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    event: any,
-    todosIds: number[],
-  ) => {
+  const hundleUpdateTodo = (event: any, todosIds: number[]) => {
     const {
       name, value, type, checked,
     } = event.target;
@@ -156,6 +121,33 @@ export const App: React.FC = () => {
           })
       )),
     )
+      .catch(() => {
+        setErrorMessage('Unable to update todo');
+      })
+      .finally(() => {
+        setSelectedTodosIds([]);
+      });
+  };
+
+  const hundleRenameTodo = (newTitle: string, todoId: number) => {
+    setSelectedTodosIds([todoId]);
+    patchTodo(todoId, { title: newTitle })
+      .then(() => {
+        if (setTodos && todos) {
+          setTodos((prevTodos: Todo[]) => (
+            prevTodos.map(prevTodo => {
+              if (prevTodo.id === todoId) {
+                return {
+                  ...prevTodo,
+                  title: newTitle,
+                };
+              }
+
+              return prevTodo;
+            })
+          ));
+        }
+      })
       .catch(() => {
         setErrorMessage('Unable to update todo');
       })
@@ -229,6 +221,7 @@ export const App: React.FC = () => {
             newTitle={title}
             onDelete={hundleDeleteTodo}
             onUpdate={hundleUpdateTodo}
+            onRename={hundleRenameTodo}
           />
         )}
         {!!todos.length && (

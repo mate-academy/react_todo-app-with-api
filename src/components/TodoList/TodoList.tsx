@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -12,16 +12,20 @@ type Props = {
   newTitle: string,
   onDelete: (id: number[]) => void;
   onUpdate: (event: React.ChangeEvent<HTMLInputElement>, id: number[]) => void;
+  onRename: (newTitle: string, id: number) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   isAdding,
-  selectedTodosIds: selectedTodosId,
+  selectedTodosIds,
   newTitle,
   onDelete,
   onUpdate,
+  onRename,
 }) => {
+  const [selectedTodoId, setSelectedTodoId] = useState(0);
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
@@ -33,9 +37,13 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={todo}
-              selectedTodosId={selectedTodosId}
+              todos={todos}
+              selectedTodosIds={selectedTodosIds}
               onDelete={onDelete}
               onUpdate={onUpdate}
+              onRename={onRename}
+              selectedTodoId={selectedTodoId}
+              setSelectedTodoId={setSelectedTodoId}
             />
           </CSSTransition>
         ))}
@@ -55,6 +63,7 @@ export const TodoList: React.FC<Props> = ({
               isActive={isAdding}
               onDelete={() => {}}
               onUpdate={() => {}}
+              onRename={() => {}}
             />
           </CSSTransition>
         )}
