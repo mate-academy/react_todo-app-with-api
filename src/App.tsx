@@ -1,9 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   FormEvent,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -24,15 +24,14 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [title, setTitle] = useState('');
-  const [selectedId, setSelectedId] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [todoStatus, setTodoStatus] = useState(false);
+  // const [toggle, setToggle] = useState(true);
   const user = useContext(AuthContext);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -56,7 +55,7 @@ export const App: React.FC = () => {
     getTodosFromServer(user.id);
   }, []);
 
-  const getFilteredTodo = todos.filter(todo => {
+  const getFilteredTodo = useMemo(() => todos.filter(todo => {
     switch (filterType) {
       case FilterType.Active:
         return !todo.completed;
@@ -64,13 +63,13 @@ export const App: React.FC = () => {
       case FilterType.Completed:
         return todo.completed;
       default:
-        return todo;
+        return true;
     }
-  });
+  }), [todos, filterType]);
 
   const newTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
-    if (!title || !user) {
+    if (!title.trim() || !user) {
       setErrorMessage(ErrorMessage.ErrorTitle);
 
       return;
@@ -91,7 +90,7 @@ export const App: React.FC = () => {
   }, [title, user]);
 
   const removeTodo = useCallback(async (TodoId: number) => {
-    setSelectedId([TodoId]);
+    setSelectedIds([TodoId]);
     try {
       await deleteTodo(TodoId);
 
@@ -104,34 +103,61 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter(({ completed }) => completed);
 
   const deleteCompletedTodos = useCallback(() => {
-    setSelectedId([...completedTodos].map(({ id }) => id));
+    setSelectedIds([...completedTodos].map(({ id }) => id));
 
     Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
       .then(() => setTodos([...todos.filter(({ completed }) => !completed)]))
       .catch(() => {
         setErrorMessage(ErrorMessage.NotDelete);
-        setSelectedId([]);
+        setSelectedIds([]);
       });
-  }, [todos, selectedId, errorMessage]);
+  }, [todos, selectedIds, errorMessage]);
 
-  const handleOnChange = useCallback(async (updateId: Todo) => {
-    setTodoStatus((current: boolean) => !current);
+  const toggleAll = todos.every(({ completed }) => completed);
 
-    try {
-      await updateTodo(updateId.id, todoStatus);
+  const handleOnChange = useCallback(
+    async (updateId: number, data: Partial<Todo>) => {
+      try {
+        const changeStatus: Todo = await updateTodo(updateId, data);
 
-      setTodos(state => [...state].map(todo => {
-        if (todo.id === updateId.id) {
-          // eslint-disable-next-line no-param-reassign
-          todo.completed = !todo.completed;
-        }
+        setTodos(todos.map(todo => (
+          todo.id === updateId
+            ? changeStatus
+            : todo
+        )));
+      } catch {
+        setErrorMessage(ErrorMessage.NotUpdate);
+      }
+    }, [todos],
+  );
 
-        return todo;
+  const activeTodos = todos.filter(({ completed }) => !completed);
+
+  const handleClickToggleAll = () => {
+    if (activeTodos.length) {
+      activeTodos.map(({ id }) => updateTodo(id,
+        { completed: true }).catch(() => (
+        setErrorMessage(ErrorMessage.NotUpdate))));
+      setTodos(todos.map(todo => {
+        const copy = todo;
+
+        copy.completed = true;
+
+        return copy;
       }));
-    } catch {
-      setErrorMessage(ErrorMessage.NotUpdate);
+    } else {
+      todos.map(({ id }) => updateTodo(id,
+        { completed: false }).catch(() => (
+        setErrorMessage(ErrorMessage.NotUpdate))));
+      setTodos(todos.map(todo => {
+        const copy = todo;
+
+        copy.completed = false;
+
+        return copy;
+      }));
     }
-  }, [todoStatus, todos]);
+  };
 
   return (
     <div className="todoapp">
@@ -143,6 +169,9 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           title={title}
           handleSubmit={newTodo}
+          isAdding={isAdding}
+          toggleAll={toggleAll}
+          handleToggleAll={handleClickToggleAll}
         />
         {
           (isAdding || todos.length > 0) && (
@@ -150,10 +179,9 @@ export const App: React.FC = () => {
               <TodoList
                 todos={getFilteredTodo}
                 removeTodo={removeTodo}
-                selectedId={selectedId}
+                selectedIds={selectedIds}
                 isAdding={isAdding}
                 title={title}
-                todoStatus={todoStatus}
                 handleOnChange={handleOnChange}
 
               />

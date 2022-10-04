@@ -4,20 +4,23 @@ import { Todo } from '../../../types/Todo';
 type Props = {
   todo: Todo;
   removeTodo: (TodoId: number) => Promise<void>;
-  selectedId: number[];
+  selectedIds: number[];
   isAdding: boolean;
-  todoStatus: boolean,
-  handleOnChange: (updateId: Todo) => Promise<void>,
+  handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   removeTodo,
-  selectedId,
+  selectedIds,
   isAdding,
-  todoStatus,
   handleOnChange,
 }) => {
+  const loaderCondition = selectedIds.includes(todo.id)
+    || (isAdding && todo.id === 0);
+
+  const { id, title, completed } = todo;
+
   return (
     <div
       data-cy="Todo"
@@ -27,31 +30,31 @@ export const TodoItem: React.FC<Props> = ({
           completed: todo.completed,
         },
       )}
-      key={todo.id}
+      key={id}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todoStatus}
-          onChange={() => handleOnChange(todo)}
+          checked={completed}
+          onChange={() => handleOnChange(id, { completed: !completed })}
 
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
+      <span data-cy="TodoTitle" className="todo__title">{title}</span>
       <button
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
         onClick={() => {
-          removeTodo(todo.id);
+          removeTodo(id);
         }}
       >
         ×
       </button>
-      { selectedId.includes(todo.id) && (
+      { loaderCondition && (
         <div
           data-cy="TodoLoader"
           className="modal overlay is-active"
@@ -60,17 +63,6 @@ export const TodoItem: React.FC<Props> = ({
           <div className="loader is-loading " />
         </div>
       )}
-
-      { (isAdding && todo.id === 0) && (
-        <div
-          data-cy="TodoLoader"
-          className="modal overlay is-active"
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader is-loading " />
-        </div>
-      )}
-
     </div>
   );
 };

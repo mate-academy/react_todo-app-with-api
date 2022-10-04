@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { FormEvent, RefObject } from 'react';
 
 type Props = {
@@ -5,6 +6,9 @@ type Props = {
   setTitle: React.Dispatch<React.SetStateAction<string>>,
   handleSubmit: (event: FormEvent) => Promise<void>,
   title: string,
+  isAdding: boolean,
+  toggleAll: boolean,
+  handleToggleAll: () => void,
 };
 
 export const Header: React.FC<Props> = ({
@@ -12,6 +16,9 @@ export const Header: React.FC<Props> = ({
   setTitle,
   handleSubmit,
   title,
+  isAdding,
+  toggleAll,
+  handleToggleAll,
 }) => {
   const getValue = ({
     target: { value },
@@ -25,7 +32,11 @@ export const Header: React.FC<Props> = ({
         aria-label="close"
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: toggleAll },
+        )}
+        onClick={handleToggleAll}
       />
 
       <form
@@ -39,6 +50,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={getValue}
+          disabled={isAdding}
         />
       </form>
     </header>
