@@ -33,10 +33,6 @@ const filterTodosByStatus = (todos: Todo[], filterStatus: FilterStatus) => {
   }
 };
 
-const deleteTodosById = (todos: Todo[], todoId: number) => (
-  todos.filter(todo => todo.id !== todoId)
-);
-
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
@@ -57,6 +53,12 @@ export const App: React.FC = () => {
   function stopIsProcessingById(todoId: number) {
     setIsProcessing(prevIsProcessing => (
       prevIsProcessing.filter(id => id !== todoId)
+    ));
+  }
+
+  function deleteTodoById(todoId: number) {
+    setTodos(prevTodos => (
+      prevTodos.filter(todo => todo.id !== todoId)
     ));
   }
 
@@ -102,7 +104,7 @@ export const App: React.FC = () => {
       } catch {
         showErrorMessage('Unable to add a todo');
       } finally {
-        setTodos(prevTodos => deleteTodosById(prevTodos, 0));
+        deleteTodoById(0);
         setIsAdding(false);
       }
     }
@@ -146,7 +148,7 @@ export const App: React.FC = () => {
 
     try {
       await deleteTodo(todoId);
-      setTodos(prevTodos => deleteTodosById(prevTodos, todoId));
+      deleteTodoById(todoId);
     } catch {
       showErrorMessage('Unable to delete a todo');
     } finally {
@@ -191,11 +193,10 @@ export const App: React.FC = () => {
   }, [todos, filterStatus, error]);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, [todos]);
+  }, [isAdding]);
 
   return (
     <div className="todoapp">
