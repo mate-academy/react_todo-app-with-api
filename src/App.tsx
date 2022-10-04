@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
+  useMemo(() => {
     setVisibelTodos(() => (
       todos.filter(todo => {
         switch (sortFilter) {
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
       })));
   }, [todos, sortFilter]);
 
-  useEffect(() => {
+  useMemo(() => {
     setCompletedTodos(() => todos.filter(todo => todo.completed));
   }, [todos]);
 
@@ -183,6 +183,8 @@ export const App: React.FC = () => {
     if (event.key === 'Escape') {
       setWantChangeTitle(-1);
       setChangeTitle('');
+
+      return;
     }
 
     if (changeTodoTitle.length > 0 && changeTodoTitle.trim().length === 0) {
@@ -193,10 +195,6 @@ export const App: React.FC = () => {
     }
 
     if (event.key === 'Enter') {
-      if (changeTodoTitle === changeTodo.title) {
-        return;
-      }
-
       if (changeTodoTitle === '') {
         handleRemoveTodo(changeTodo.id);
 
@@ -207,7 +205,7 @@ export const App: React.FC = () => {
         setActiveTodoId(idActive => [...idActive, changeTodo.id]);
         await updateTodo(changeTodo.id, { title: changeTodoTitle });
 
-        setTodos(Prevtodos => [...Prevtodos].map(todo => {
+        setTodos(state => [...state].map(todo => {
           if (todo.id === changeTodo.id) {
             // eslint-disable-next-line no-param-reassign
             todo.title = changeTodoTitle;
@@ -221,10 +219,9 @@ export const App: React.FC = () => {
       } finally {
         setActiveTodoId(idActive => idActive
           .filter(id => id !== changeTodo.id));
+        setWantChangeTitle(-1);
+        setChangeTitle('');
       }
-
-      setWantChangeTitle(-1);
-      setChangeTitle('');
     }
   };
 

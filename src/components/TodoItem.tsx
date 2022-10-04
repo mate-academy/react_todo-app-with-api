@@ -30,11 +30,13 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const changeTodoField = useRef<HTMLInputElement>(null);
 
+
   useEffect(() => {
     if (changeTodoField.current) {
       changeTodoField.current.focus();
     }
   }, [wantChangeTitle]);
+
   const handleBlur = () => {
     setWantChangeTitle(-1);
   };
@@ -65,7 +67,7 @@ export const TodoItem: React.FC<Props> = ({
               type="text"
               ref={changeTodoField}
               className="todoapp__new-todo"
-              placeholder="update title?"
+              placeholder="Empty title will be removed"
               value={changeTodoTitle}
               onChange={() => setChangeTitle(
                 changeTodoField.current?.value || '',
