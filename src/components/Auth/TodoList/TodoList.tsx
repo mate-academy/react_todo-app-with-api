@@ -19,7 +19,6 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   title,
   handleOnChange,
-
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,6 +32,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               key={todo.id}
               todo={todo}
+              todos={todos}
               removeTodo={removeTodo}
               selectedIds={selectedIds}
               isAdding={isAdding}
@@ -55,6 +55,7 @@ export const TodoList: React.FC<Props> = ({
                 completed: false,
                 userId: Math.random(),
               }}
+              todos={todos}
               removeTodo={removeTodo}
               selectedIds={selectedIds}
               isAdding={isAdding}

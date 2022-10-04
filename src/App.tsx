@@ -28,7 +28,6 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  // const [toggle, setToggle] = useState(true);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -183,7 +182,6 @@ export const App: React.FC = () => {
                 isAdding={isAdding}
                 title={title}
                 handleOnChange={handleOnChange}
-
               />
               <Footer
                 filterTypes={setFilterType}
