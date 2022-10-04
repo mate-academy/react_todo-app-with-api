@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useRef, useState } from 'react';
+import { SetStateAction, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { FilterBy } from './TodoFilter';
 
@@ -37,8 +37,22 @@ export const TodoList: React.FC<Props> = ({
     }
   });
 
-  const handleUpdate = (id: number, completed: boolean, title: string) => {
-    onUpdate(id, completed, title);
+  const handleUpdateOnCondition = (
+    title: string, newTitle: string, id: number, completed: boolean,
+  ) => {
+    if (title === newTitle) {
+      setEditTitle(false);
+
+      return 0;
+    }
+
+    if (newTitle.trim() === '') {
+      onDelete(id);
+      setDeletingId(id);
+    }
+
+    const updated = onUpdate(id, completed, newTitle);
+
     setUpdatingId(id);
 
     setTimeout(() => {
@@ -46,6 +60,43 @@ export const TodoList: React.FC<Props> = ({
     }, 600);
 
     setEditTitle(false);
+
+    return updated;
+    // return handleUpdate(id, completed, editingNewName);
+  };
+
+  const handleStatusChange = (todoId: number, done: boolean, name: string) => {
+    onUpdate(todoId, !done, name);
+    setUpdatingId(todoId);
+
+    setTimeout(() => {
+      setUpdatingId(null);
+    }, 600);
+  };
+
+  const handleInput = (event: {
+    currentTarget: { value: SetStateAction<string>; };
+  }) => {
+    setEditingNewName(event.currentTarget.value);
+  };
+
+  const handleEditCancelation = (key: {
+    key: string;
+  }) => {
+    if (key.key === 'Escape') {
+      setEditTitle(false);
+    }
+  };
+
+  const handleTodoDeletion = (todoId: number) => {
+    onDelete(todoId);
+    setDeletingId(todoId);
+  };
+
+  const handleEditingInit = (todoId: number, name: string) => {
+    setEditTitle(true);
+    setEditingId(todoId);
+    setEditingNewName(name);
   };
 
   return (
@@ -65,14 +116,7 @@ export const TodoList: React.FC<Props> = ({
                 data-cy="TodoStatus"
                 type="checkbox"
                 className="todo__status"
-                onChange={() => {
-                  onUpdate(id, !completed, title);
-                  setUpdatingId(id);
-
-                  setTimeout(() => {
-                    setUpdatingId(null);
-                  }, 600);
-                }}
+                onChange={() => handleStatusChange(id, completed, title)}
               />
 
             </label>
@@ -82,34 +126,16 @@ export const TodoList: React.FC<Props> = ({
                   onSubmit={(event) => {
                     event.preventDefault();
 
-                    if (title === editingNewName) {
-                      setEditTitle(false);
-
-                      return 0;
-                    }
-
-                    if (editingNewName.trim() === '') {
-                      onDelete(id);
-                      setDeletingId(id);
-                    }
-
-                    return handleUpdate(id, completed, editingNewName);
+                    handleUpdateOnCondition(
+                      title, editingNewName, id, completed,
+                    );
                   }}
                 >
                   <input
                     onBlur={() => {
-                      if (title === editingNewName) {
-                        setEditTitle(false);
-
-                        return 0;
-                      }
-
-                      if (editingNewName.trim() === '') {
-                        onDelete(id);
-                        setDeletingId(id);
-                      }
-
-                      return handleUpdate(id, completed, editingNewName);
+                      handleUpdateOnCondition(
+                        title, editingNewName, id, completed,
+                      );
                     }}
                     data-cy="TodoTitleField"
                     type="text"
@@ -117,14 +143,8 @@ export const TodoList: React.FC<Props> = ({
                     placeholder="Empty todo will be deleted"
                     defaultValue={title}
                     ref={editTodoField}
-                    onChange={(event) => {
-                      setEditingNewName(event.currentTarget.value);
-                    }}
-                    onKeyDown={(key) => {
-                      if (key.key === 'Escape') {
-                        setEditTitle(false);
-                      }
-                    }}
+                    onChange={handleInput}
+                    onKeyDown={handleEditCancelation}
                   />
                 </form>
               )
@@ -134,10 +154,7 @@ export const TodoList: React.FC<Props> = ({
                     data-cy="TodoTitle"
                     className="todo__title"
                     onDoubleClick={() => {
-                      setEditTitle(true);
-                      setEditingId(id);
-                      setEditingNewName(title);
-
+                      handleEditingInit(id, title);
                       setTimeout(() => editTodoField.current?.focus(), 100);
                     }}
                   >
@@ -147,10 +164,7 @@ export const TodoList: React.FC<Props> = ({
                     type="button"
                     className="todo__remove"
                     data-cy="TodoDeleteButton"
-                    onClick={() => {
-                      onDelete(id);
-                      setDeletingId(id);
-                    }}
+                    onClick={() => handleTodoDeletion(id)}
                   >
                     ×
                   </button>

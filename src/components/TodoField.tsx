@@ -18,7 +18,7 @@ export const TodoField: React.FC<Props> = ({
   todos, todoName, onAdd, setNewTodoName, setAddingBlancError, isAdding,
   loadingError, setErrorClosing, newToField, onUpdate,
 }) => {
-  const completedTodos = todos.every((todo) => todo.completed === true);
+  const completedAllTodos = todos.every((todo) => todo.completed === true);
 
   const handleFormSubmit = (event: {
     preventDefault: () => void;
@@ -44,6 +44,14 @@ export const TodoField: React.FC<Props> = ({
     setNewTodoName(event.target.value);
   };
 
+  const handleStatusOnToggle = () => todos.map((todo) => {
+    if (completedAllTodos) {
+      return onUpdate(todo.id, false, todo.title);
+    }
+
+    return onUpdate(todo.id, true, todo.title);
+  });
+
   return (
     <>
       {todos.length > 0 && (
@@ -52,16 +60,10 @@ export const TodoField: React.FC<Props> = ({
           type="button"
           className={classNames(
             ('todoapp__toggle-all'),
-            { active: completedTodos },
+            { active: completedAllTodos },
           )}
           aria-label="Toggle"
-          onClick={() => todos.map((todo) => {
-            if (completedTodos) {
-              return onUpdate(todo.id, false, todo.title);
-            }
-
-            return onUpdate(todo.id, true, todo.title);
-          })}
+          onClick={handleStatusOnToggle}
         />
       )}
       <form

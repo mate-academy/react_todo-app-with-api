@@ -24,6 +24,9 @@ export const TodoFilter: React.FC<Props> = ({
   const handleAllSort = () => setFilterType(FilterBy.All);
   const handleActiveSort = () => setFilterType(FilterBy.Active);
   const handleCompletedSort = () => setFilterType(FilterBy.Completed);
+  const handleBulkDelete = () => {
+    completed.forEach((todo) => onDelete(todo));
+  };
 
   return (
     <>
@@ -72,9 +75,7 @@ export const TodoFilter: React.FC<Props> = ({
             data-cy="ClearCompletedButton"
             type="button"
             className="todoapp__clear-completed"
-            onClick={() => {
-              completed.forEach((todo) => onDelete(todo));
-            }}
+            onClick={handleBulkDelete}
           >
             Clear completed
           </button>
