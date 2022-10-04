@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React, {
-  // FormEvent,
+  // useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -17,6 +17,7 @@ import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 
 import { Todo } from './types/Todo';
+import { FilterValues } from './types/FilterValues';
 import {
   deleteTodo,
   getTodos,
@@ -28,10 +29,10 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterValue, setFilterValue] = useState('all');
+  const [filterValue, setFilterValue] = useState(FilterValues.ALL);
   const [title, setTitle] = useState('');
   const [isTodoAdded, setIsTodoAdded] = useState(false);
-  const [selectedTodosId, setSelectedTodosId] = useState<number[]>([]);
+  const [selectedTodosIds, setSelectedTodosIds] = useState<number[]>([]);
 
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -44,12 +45,38 @@ export const App: React.FC = () => {
   useEffect(() => {
     focusOnInput();
 
-    getTodos(user?.id || 0)
-      .then(setTodos)
-      .catch(() => {
+    const getTodosAsync = async (userId: number) => {
+      try {
+        const receivedTodos = await getTodos(userId);
+
+        setTodos(receivedTodos);
+      } catch {
         setErrorMessage('Unable to load todos');
-      });
+      }
+    };
+
+    if (user) {
+      getTodosAsync(user.id);
+    }
   }, []);
+
+  // const hundleAddTodo = useCallback(async (inputTitle: string) => {
+  //   setTitle(inputTitle);
+  //   setIsTodoAdded(true);
+
+  //   try {
+  //     if (user) {
+  //       const newTodo = await postTodo(user.id, inputTitle);
+
+  //       setTodos([...todos, newTodo]);
+  //     }
+  //   } catch {
+  //     setErrorMessage('Unable to add todo');
+  //   } finally {
+  //     setIsTodoAdded(false);
+  //     focusOnInput();
+  //   }
+  // }, []);
 
   const hundleAddTodo = async (inputTitle: string) => {
     setTitle(inputTitle);
@@ -69,74 +96,94 @@ export const App: React.FC = () => {
     }
   };
 
-  const hundleDeleteTodo = (todosId: number[]) => {
-    setSelectedTodosId(todosId);
-    todosId.map(todoId => (
+  // const hundleDeleteTodo = (todosIds: number[]) => {
+  //   setSelectedTodosIds(todosIds);
+  //   todosIds.map(todoId => (
+  //     deleteTodo(todoId)
+  //       .then(() => {
+  //         setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todoId));
+  //       })
+  //       .catch(() => {
+  //         setErrorMessage('Unable to delete todo');
+  //       })
+  //   ));
+  // };
+
+  const hundleDeleteTodo = (todosIds: number[]) => {
+    setSelectedTodosIds(todosIds);
+    Promise.all(todosIds.map(todoId => (
       deleteTodo(todoId)
         .then(() => {
           setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todoId));
         })
-        .catch(() => {
-          setErrorMessage('Unable to delete todo');
-        })
-    ));
+    )))
+      .catch(() => {
+        setErrorMessage('Unable to delete todo');
+      })
+      .finally(() => {
+        setSelectedTodosIds([]);
+      });
   };
 
   const hundleUpdateTodo = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any,
-    todosId: number[],
+    todosIds: number[],
   ) => {
     const {
       name, value, type, checked,
     } = event.target;
 
-    setSelectedTodosId(todosId);
-    todosId.map(todoId => (
-      patchTodo(todoId, {
-        [name]: type === 'checkbox' ? checked : value === 'true',
-      })
-        .then(() => {
-          setTodos(prevTodos => (
-            prevTodos.map(prevTodo => {
-              if (prevTodo.id === todoId) {
-                return {
-                  ...prevTodo,
-                  [name]: type === 'checkbox' ? checked : value === 'true',
-                };
-              }
+    setSelectedTodosIds(todosIds);
+    Promise.all(
+      todosIds.map(todoId => (
+        patchTodo(todoId, {
+          [name]: type === 'checkbox' ? checked : value === 'true',
+        })
+          .then(() => {
+            setTodos(prevTodos => (
+              prevTodos.map(prevTodo => {
+                if (prevTodo.id === todoId) {
+                  return {
+                    ...prevTodo,
+                    [name]: type === 'checkbox' ? checked : value === 'true',
+                  };
+                }
 
-              return prevTodo;
-            })
-          ));
-        })
-        .catch(() => {
-          setErrorMessage('Unable to update todo');
-        })
-        .finally(() => {
-          setSelectedTodosId([]);
-        })
-    ));
+                return prevTodo;
+              })
+            ));
+          })
+      )),
+    )
+      .catch(() => {
+        setErrorMessage('Unable to update todo');
+      })
+      .finally(() => {
+        setSelectedTodosIds([]);
+      });
   };
 
-  const filteredTodos = todos.filter(({ completed }) => {
-    switch (filterValue) {
-      case 'active':
-        return !completed;
+  const filteredTodos = useMemo(() => {
+    return todos.filter(({ completed }) => {
+      switch (filterValue) {
+        case FilterValues.ACTIVE:
+          return !completed;
 
-      case 'completed':
-        return completed;
+        case FilterValues.COMPLETED:
+          return completed;
 
-      default:
-        return true;
-    }
-  });
+        default:
+          return true;
+      }
+    });
+  }, [todos, filterValue]);
 
   const activeTodosTotal = useMemo(() => {
     return todos.filter(({ completed }) => !completed).length;
   }, [todos]);
 
-  const completedTodosId = useMemo(() => {
+  const completedTodosIds = useMemo(() => {
     return todos.reduce((todosId: number[], currTodo: Todo) => {
       if (currTodo.completed) {
         todosId.push(currTodo.id);
@@ -146,7 +193,7 @@ export const App: React.FC = () => {
     }, []);
   }, [todos]);
 
-  const activeTodosId = useMemo(() => {
+  const activeTodosIds = useMemo(() => {
     return todos.reduce((todosId: number[], currTodo: Todo) => {
       if (!currTodo.completed) {
         todosId.push(currTodo.id);
@@ -156,7 +203,8 @@ export const App: React.FC = () => {
     }, []);
   }, [todos]);
 
-  const isLeftActiveTodos = activeTodosTotal === 0;
+  const isLeftActiveTodos = activeTodosTotal !== 0;
+  const isLeftCompletedTodos = activeTodosTotal !== todos.length;
 
   return (
     <div className="todoapp">
@@ -169,15 +217,15 @@ export const App: React.FC = () => {
           onAddTodo={hundleAddTodo}
           isDisabled={isTodoAdded}
           setErrorMessage={setErrorMessage}
-          activeTodosId={activeTodosId}
-          completedTodosId={completedTodosId}
+          activeTodosIds={activeTodosIds}
+          completedTodosIds={completedTodosIds}
           onUpdate={hundleUpdateTodo}
         />
         {!!todos.length && (
           <TodoList
             todos={filteredTodos}
             isAdding={isTodoAdded}
-            selectedTodosId={selectedTodosId}
+            selectedTodosIds={selectedTodosIds}
             newTitle={title}
             onDelete={hundleDeleteTodo}
             onUpdate={hundleUpdateTodo}
@@ -186,10 +234,10 @@ export const App: React.FC = () => {
         {!!todos.length && (
           <Footer
             activeTodosTotal={activeTodosTotal}
-            isLeftActiveTodos={isLeftActiveTodos}
+            isLeftCompletedTodos={isLeftCompletedTodos}
             filterValue={filterValue}
             setFilterValue={setFilterValue}
-            completedTodosId={completedTodosId}
+            completedTodosIds={completedTodosIds}
             onDelete={hundleDeleteTodo}
           />
         )}

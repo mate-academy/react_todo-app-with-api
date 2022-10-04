@@ -10,8 +10,8 @@ type Props = {
   onAddTodo: (inputTitle: string) => void,
   isDisabled: boolean,
   setErrorMessage: (error: string) => void,
-  activeTodosId: number[],
-  completedTodosId: number[],
+  activeTodosIds: number[],
+  completedTodosIds: number[],
   onUpdate: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: number[]
   ) => void;
@@ -23,8 +23,8 @@ export const Header: React.FC<Props> = ({
   onAddTodo,
   isDisabled,
   setErrorMessage,
-  activeTodosId,
-  completedTodosId,
+  activeTodosIds,
+  completedTodosIds,
   onUpdate,
 }) => {
   const [inputTitle, setInputTitle] = useState('');
@@ -42,7 +42,7 @@ export const Header: React.FC<Props> = ({
     setInputTitle('');
   };
 
-  const todosId = activeTodosId.length ? activeTodosId : completedTodosId;
+  const todosId = activeTodosIds.length ? activeTodosIds : completedTodosIds;
 
   return (
     <header className="todoapp__header">
@@ -53,9 +53,9 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: isLeftActiveTodos },
+          { active: !isLeftActiveTodos },
         )}
-        value={!isLeftActiveTodos ? 'true' : 'false'}
+        value={isLeftActiveTodos ? 'true' : 'false'}
         onClick={(event) => onUpdate(event, todosId)}
       />
 

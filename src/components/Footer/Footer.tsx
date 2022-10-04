@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import classNames from 'classnames';
+import { FilterValues } from '../../types/FilterValues';
 
 type Props = {
   activeTodosTotal: number,
-  isLeftActiveTodos: boolean,
+  isLeftCompletedTodos: boolean,
   filterValue: string,
-  setFilterValue: (value: string) => void,
-  completedTodosId: number[],
+  setFilterValue: Dispatch<SetStateAction<FilterValues>>,
+  completedTodosIds: number[],
   onDelete: (id: number[]) => void;
 };
 
 export const Footer: React.FC<Props> = ({
   activeTodosTotal,
-  isLeftActiveTodos,
+  isLeftCompletedTodos,
   filterValue,
   setFilterValue,
-  completedTodosId,
+  completedTodosIds,
   onDelete,
 }) => {
   return (
@@ -32,7 +33,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filterValue === 'all' },
           )}
-          onClick={() => setFilterValue('all')}
+          onClick={() => setFilterValue(FilterValues.ALL)}
         >
           All
         </a>
@@ -44,7 +45,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filterValue === 'active' },
           )}
-          onClick={() => setFilterValue('active')}
+          onClick={() => setFilterValue(FilterValues.ACTIVE)}
         >
           Active
         </a>
@@ -55,7 +56,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filterValue === 'completed' },
           )}
-          onClick={() => setFilterValue('completed')}
+          onClick={() => setFilterValue(FilterValues.COMPLETED)}
         >
           Completed
         </a>
@@ -65,9 +66,10 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={() => onDelete(completedTodosId)}
+        onClick={() => onDelete(completedTodosIds)}
+        disabled={!isLeftCompletedTodos}
       >
-        {isLeftActiveTodos && 'Clear completed'}
+        Clear completed
       </button>
     </footer>
   );
