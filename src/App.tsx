@@ -61,7 +61,7 @@ export const App: React.FC = () => {
             return true;
         }
       })));
-  }, [todos, sortFilter, isError]);
+  }, [todos, sortFilter]);
 
   useEffect(() => {
     setCompletedTodos(() => todos.filter(todo => todo.completed));
@@ -131,6 +131,7 @@ export const App: React.FC = () => {
     }
 
     try {
+      setActiveTodoId(idActive => [...idActive, changeTodo.id]);
       await updateTodo(changeTodo.id, { completed: !changeTodo.completed });
 
       setTodos(Prevtodos => [...Prevtodos].map(todo => {
@@ -144,12 +145,15 @@ export const App: React.FC = () => {
     } catch (errorFromServer) {
       setError(true);
       setMessageError('Unable to change a todo');
+    } finally {
+      setActiveTodoId(idActive => idActive.filter(id => id !== changeTodo.id));
     }
   };
 
   const handleUpdateAll = () => {
     todos.forEach(async changeTodo => {
       try {
+        setActiveTodoId(idActive => [...idActive, changeTodo.id]);
         await updateTodo(
           changeTodo.id,
           { completed: completedTodos.length !== todos.length },
@@ -165,6 +169,9 @@ export const App: React.FC = () => {
       } catch (errorFromServer) {
         setError(true);
         setMessageError('Unable to change a todo');
+      } finally {
+        setActiveTodoId(idActive => idActive
+          .filter(id => id !== changeTodo.id));
       }
     });
   };
@@ -184,7 +191,6 @@ export const App: React.FC = () => {
 
       return;
     }
-
 
     if (event.key === 'Enter') {
       if (changeTodoTitle === changeTodo.title) {
