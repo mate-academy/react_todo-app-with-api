@@ -6,6 +6,8 @@ import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Error } from './components/Error';
 import { Filter } from './components/Filter';
+import { TodoItem } from './components/TodoItem';
+import { HeaderInputForm } from './components/HeaderInputForm';
 
 import {
   getTodos, createTodo, deleteTodo, updateTodo,
@@ -15,7 +17,6 @@ import { Todo } from './types/Todo';
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
-  const changeTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [sortFilter, setSortFilter] = useState('all');
   const [visibelTodos, setVisibelTodos] = useState<Todo[]>([...todos]);
@@ -28,7 +29,6 @@ export const App: React.FC = () => {
   const [newTodoTitle, setTitle] = useState('');
   const [changeTodoTitle, setChangeTitle] = useState('');
   const [activeTodoId, setActiveTodoId] = useState(0);
-  // const [isOpenList, setOpenList] = useState(true);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -144,7 +144,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handlerUpdateAll = () => {
+  const handleUpdateAll = () => {
     todos.forEach(async changeTodo => {
       try {
         await updateTodo(
@@ -166,13 +166,7 @@ export const App: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    if (changeTodoField.current) {
-      changeTodoField.current.focus();
-    }
-  }, [wantChangeTitle]);
-
-  const handleKey = async (
+  const handleKeyChangeTitle = async (
     event: React.KeyboardEvent<HTMLInputElement>,
     changeTodo: Todo,
   ) => {
@@ -209,10 +203,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleBlur = () => {
-    setWantChangeTitle(-1);
-  };
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -228,98 +218,32 @@ export const App: React.FC = () => {
                   'todoapp__toggle-all',
                   { active: completedTodos.length === todos.length },
                 )}
-                onClick={handlerUpdateAll}
+                onClick={handleUpdateAll}
               />
             )}
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={newTodoTitle}
-              onChange={() => setTitle(newTodoField.current?.value || '')}
-            />
-          </form>
+          <HeaderInputForm
+            handleSubmit={handleSubmit}
+            newTodoTitle={newTodoTitle}
+            setTitle={setTitle}
+          />
         </header>
         {todos.length > 0
           && (
             <>
               <section className="todoapp__main" data-cy="TodoList">
                 {visibelTodos.map(todo => (
-                  <div
-                    data-cy="Todo"
+                  <TodoItem
                     key={todo.id}
-                    className={classNames(
-                      'todo',
-                      { completed: todo.completed },
-                    )}
-                  >
-                    <label className="todo__status-label">
-                      <input
-                        data-cy="TodoStatus"
-                        type="checkbox"
-                        className="todo__status"
-                        checked={todo.completed}
-                        onChange={() => handleUpdate(todo)}
-                      />
-                    </label>
-                    {wantChangeTitle === todo.id
-                      ? (
-                        <form>
-                          <input
-                            data-cy="ChangeTodoField"
-                            type="text"
-                            ref={changeTodoField}
-                            className="todoapp__new-todo"
-                            placeholder="update title?"
-                            value={changeTodoTitle}
-                            onChange={() => setChangeTitle(
-                              changeTodoField.current?.value || '',
-                            )}
-                            onBlur={handleBlur}
-                            onKeyDown={event => handleKey(event, todo)}
-                          />
-                        </form>
-                      )
-                      : (
-                        <>
-                          <span
-                            data-cy="TodoTitle"
-                            className="todo__title"
-                            onDoubleClick={() => {
-                              setWantChangeTitle(todo.id);
-                              setChangeTitle(todo.title);
-                            }}
-                          >
-                            {todo.title}
-                          </span>
-                          <button
-                            type="button"
-                            className="todo__remove"
-                            data-cy="TodoDeleteButton"
-                            onClick={() => handleRemoveTodo(todo.id)}
-                          >
-                            ×
-                          </button>
-                        </>
-                      )}
-                    <div
-                      data-cy="TodoLoader"
-                      className={classNames(
-                        'modal',
-                        'overlay',
-                        { 'is-active': todo.id === activeTodoId },
-                      )}
-                    >
-                      <div className="
-                      modal-background
-                      has-background-white-ter"
-                      />
-                      <div className="loader" />
-                    </div>
-                  </div>
+                    todo={todo}
+                    handleUpdate={handleUpdate}
+                    wantChangeTitle={wantChangeTitle}
+                    setWantChangeTitle={setWantChangeTitle}
+                    changeTodoTitle={changeTodoTitle}
+                    setChangeTitle={setChangeTitle}
+                    handleKeyChangeTitle={handleKeyChangeTitle}
+                    handleRemoveTodo={handleRemoveTodo}
+                    activeTodoId={activeTodoId}
+                  />
                 ))}
 
               </section>
@@ -344,12 +268,9 @@ export const App: React.FC = () => {
                       Clear completed
                     </button>
                   )}
-
               </footer>
             </>
-
           )}
-
       </div>
 
       <Error
