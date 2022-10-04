@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
 import React, {
-  // useCallback,
   useContext,
   useEffect,
   useMemo,
