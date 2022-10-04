@@ -42,7 +42,7 @@ export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isProcessing, setIsProcessing] = useState<number[]>([]);
+  const [isProcessing, setIsProcessing] = useState<number[]>([0]);
   const [error, setError] = useState('');
 
   const activeTodosCount = filterTodos(todos, 'active').length;

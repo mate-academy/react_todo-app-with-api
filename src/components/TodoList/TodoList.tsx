@@ -26,9 +26,13 @@ export const TodoList: React.FC<Props> = (props) => {
   const [selectedTodo, setSelectedTodo] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
-  const handleEditTitle = (id: number, title: string) => {
+  const handleStartEditTitle = (id: number, title: string) => {
     setSelectedTodo(id);
     setNewTitle(title);
+  };
+
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
   };
 
   const handleSaveChages = (todoId: number, title: string) => {
@@ -92,7 +96,7 @@ export const TodoList: React.FC<Props> = (props) => {
 
               {id === selectedTodo ? (
                 <form
-                  onSubmit={(event) => {
+                  onSubmit={event => {
                     event.preventDefault();
                     handleSaveChages(id, title);
                   }}
@@ -103,7 +107,7 @@ export const TodoList: React.FC<Props> = (props) => {
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"
                     value={newTitle}
-                    onChange={event => setNewTitle(event.target.value)}
+                    onChange={handleChangeTitle}
                     onBlur={() => handleSaveChages(id, title)}
                     onKeyDown={handleCancelChanges}
                     ref={selectedTodoField}
@@ -114,7 +118,7 @@ export const TodoList: React.FC<Props> = (props) => {
                   <span
                     data-cy="TodoTitle"
                     className="todo__title"
-                    onDoubleClick={() => handleEditTitle(id, title)}
+                    onDoubleClick={() => handleStartEditTitle(id, title)}
                   >
                     {title}
                   </span>
@@ -135,7 +139,7 @@ export const TodoList: React.FC<Props> = (props) => {
                 className={classNames(
                   'modal',
                   'overlay',
-                  { 'is-active': isProcessing.includes(id) || id === 0 },
+                  { 'is-active': isProcessing.includes(id) },
                 )}
               >
                 <div className="modal-background has-background-white-ter" />
