@@ -114,9 +114,9 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               value={newTodoTitle}
               placeholder="If your todo is empty, it will be deleted"
-              onChange={event => handleTitleChange(event)}
+              onChange={handleTitleChange}
               onBlur={handleBlur}
-              onKeyDown={event => handleKeyPress(event)}
+              onKeyDown={handleKeyPress}
             />
           </form>
         )

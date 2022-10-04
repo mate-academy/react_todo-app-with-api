@@ -88,7 +88,7 @@ export const App: React.FC = () => {
     try {
       const newTodo = await createTodo(user?.id || 0, title);
 
-      setTodos([...todos, newTodo]);
+      setTodos(prev => [...prev, newTodo]);
     } catch {
       setError(Error.ADDING);
     }
@@ -146,9 +146,11 @@ export const App: React.FC = () => {
   };
 
   const handleToggle = async () => {
-    setSelectedTodos(toggle
-      ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
-      : [...completedTodos].map(todo => todo.id));
+    setSelectedTodos(prev => {
+      return prev
+        ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
+        : completedTodos.map(todo => todo.id);
+    });
 
     try {
       const newTodos = await Promise.all(todos.map(todo => (
