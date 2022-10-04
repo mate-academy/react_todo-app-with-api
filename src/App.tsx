@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import React, {
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -45,7 +46,10 @@ export const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState<number[]>([0]);
   const [error, setError] = useState('');
 
-  const activeTodosCount = filterTodos(todos, 'active').length;
+  const activeTodosCount = useMemo(
+    () => filterTodos(todos, 'active').length,
+    [todos],
+  );
 
   const showErrorMessage = (errorMessage: string) => {
     setError(errorMessage);
@@ -71,7 +75,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => {
           targetTodo.completed = !targetTodo.completed;
 
-          return prevTodos;
+          return [...prevTodos];
         });
       }
     } catch {
