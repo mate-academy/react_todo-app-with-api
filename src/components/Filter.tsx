@@ -3,12 +3,12 @@ import classNames from 'classnames';
 
 type Props = {
   sortFilter: string
-  setSortFilter: (sortFilter:string) => void;
+  handleChangeSortFilter: (sort:string) => void;
 };
 
 export const Filter: React.FC<Props> = ({
   sortFilter,
-  setSortFilter,
+  handleChangeSortFilter,
 }) => {
   const FILTERS = {
     all: 'all',
@@ -25,10 +25,7 @@ export const Filter: React.FC<Props> = ({
           'filter__link',
           { selected: sortFilter === FILTERS.all },
         )}
-        onClick={() => (
-          sortFilter !== FILTERS.all
-          && setSortFilter(FILTERS.all)
-        )}
+        onClick={() => handleChangeSortFilter(FILTERS.all)}
       >
         All
       </a>
@@ -40,10 +37,7 @@ export const Filter: React.FC<Props> = ({
           'filter__link',
           { selected: sortFilter === FILTERS.active },
         )}
-        onClick={() => (
-          sortFilter !== FILTERS.active
-          && setSortFilter(FILTERS.active)
-        )}
+        onClick={() => handleChangeSortFilter(FILTERS.active)}
       >
         Active
       </a>
@@ -55,10 +49,7 @@ export const Filter: React.FC<Props> = ({
           'filter__link',
           { selected: sortFilter === FILTERS.completed },
         )}
-        onClick={() => (
-          sortFilter !== FILTERS.completed
-          && setSortFilter(FILTERS.completed)
-        )}
+        onClick={() => handleChangeSortFilter(FILTERS.completed)}
       >
         Completed
       </a>

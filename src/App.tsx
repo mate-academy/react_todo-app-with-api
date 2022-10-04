@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState, useMemo,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   const [messageError, setMessageError] = useState('');
   const [newTodoTitle, setTitle] = useState('');
   const [changeTodoTitle, setChangeTitle] = useState('');
-  const [activeTodoId, setActiveTodoId] = useState(0);
+  const [activeTodoId, setActiveTodoId] = useState([0]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  useMemo(() => {
+  useEffect(() => {
     setVisibelTodos(() => (
       todos.filter(todo => {
         switch (sortFilter) {
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
       })));
   }, [todos, sortFilter, isError]);
 
-  useMemo(() => {
+  useEffect(() => {
     setCompletedTodos(() => todos.filter(todo => todo.completed));
   }, [todos]);
 
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    setVisibelTodos(state => [...state, {
+    setVisibelTodos(visibleTodos => [...visibleTodos, {
       id: 0,
       userId: user.id,
       title: newTodoTitle,
@@ -94,27 +94,30 @@ export const App: React.FC = () => {
         completed: false,
       });
 
-      setTodos(state => [...state, isAdding]);
+      setTodos(PrevTodos => [...PrevTodos, isAdding]);
     } catch (errorFromServer) {
       setError(true);
       setMessageError('Unable to add a todo');
+    } finally {
+      setVisibelTodos(visibleTodos => visibleTodos
+        .filter(todo => todo.id !== 0));
     }
 
     setTitle('');
   };
 
   const handleRemoveTodo = async (removeTodoID: number) => {
-    setActiveTodoId(removeTodoID);
+    setActiveTodoId(idActive => [...idActive, removeTodoID]);
 
     try {
       await deleteTodo(removeTodoID);
 
-      setTodos(state => state.filter(todo => todo.id !== removeTodoID));
+      setTodos(Prevtodos => Prevtodos.filter(todo => todo.id !== removeTodoID));
     } catch (errorFromServer) {
       setError(true);
       setMessageError('Unable to delete a todo');
     } finally {
-      setActiveTodoId(0);
+      setActiveTodoId(idActive => idActive.filter(id => id !== removeTodoID));
     }
   };
 
@@ -130,7 +133,7 @@ export const App: React.FC = () => {
     try {
       await updateTodo(changeTodo.id, { completed: !changeTodo.completed });
 
-      setTodos(state => [...state].map(todo => {
+      setTodos(Prevtodos => [...Prevtodos].map(todo => {
         if (todo.id === changeTodo.id) {
           // eslint-disable-next-line no-param-reassign
           todo.completed = !todo.completed;
@@ -175,17 +178,30 @@ export const App: React.FC = () => {
       setChangeTitle('');
     }
 
-    if (changeTodoTitle.trim().length === 0) {
+    if (changeTodoTitle.length > 0 && changeTodoTitle.trim().length === 0) {
       setError(true);
       setMessageError('Title can\'t be empty');
 
       return;
     }
 
+
     if (event.key === 'Enter') {
+      if (changeTodoTitle === changeTodo.title) {
+        return;
+      }
+
+      if (changeTodoTitle === '') {
+        handleRemoveTodo(changeTodo.id);
+
+        return;
+      }
+
       try {
+        setActiveTodoId(idActive => [...idActive, changeTodo.id]);
         await updateTodo(changeTodo.id, { title: changeTodoTitle });
-        setTodos(state => [...state].map(todo => {
+
+        setTodos(Prevtodos => [...Prevtodos].map(todo => {
           if (todo.id === changeTodo.id) {
             // eslint-disable-next-line no-param-reassign
             todo.title = changeTodoTitle;
@@ -196,6 +212,9 @@ export const App: React.FC = () => {
       } catch (errorFromServer) {
         setError(true);
         setMessageError('Unable to update a Title');
+      } finally {
+        setActiveTodoId(idActive => idActive
+          .filter(id => id !== changeTodo.id));
       }
 
       setWantChangeTitle(-1);
@@ -203,8 +222,15 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleChangeSortFilter = (sort: string) => {
+    if (sortFilter !== sort) {
+      setSortFilter(sort);
+    }
+  };
+
   return (
     <div className="todoapp">
+
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
@@ -255,7 +281,7 @@ export const App: React.FC = () => {
 
                 <Filter
                   sortFilter={sortFilter}
-                  setSortFilter={setSortFilter}
+                  handleChangeSortFilter={handleChangeSortFilter}
                 />
                 {completedTodos.length > 0
                   && (

@@ -14,7 +14,7 @@ type Props = {
     todo: Todo) =>
   Promise<void>;
   handleRemoveTodo: (id: number) => void;
-  activeTodoId: number;
+  activeTodoId: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -102,7 +102,7 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames(
           'modal',
           'overlay',
-          { 'is-active': todo.id === activeTodoId },
+          { 'is-active': activeTodoId.includes(todo.id) },
         )}
       >
         <div className="
