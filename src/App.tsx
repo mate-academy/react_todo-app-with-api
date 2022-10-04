@@ -194,12 +194,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {error && (
-        <ErrorNotification
-          error={error}
-          setError={setError}
-        />
-      )}
+      <ErrorNotification
+        setError={setError}
+        error={error}
+      />
     </div>
   );
 };
