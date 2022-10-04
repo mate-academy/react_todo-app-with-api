@@ -45,10 +45,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [activeItems, setActiveItems] = useState<number>(0);
   const [visibleLoader, setVisibleLoader] = useState(false);
-  const [
-    visibleClearCompleted,
-    setVisibleClearCompleted,
-  ] = useState<number>(0);
 
   let userId = 0;
 
@@ -60,7 +56,20 @@ export const App: React.FC = () => {
     getTodos(userId)
       .then(todosFromServer => {
         setTodos(todosFromServer);
-        setActiveItems(todosFromServer.length);
+        setActiveItems((prevItems) => {
+          const tempTodos = [...todosFromServer];
+          let tempItems = prevItems;
+
+          tempTodos.forEach(todo => {
+            if (!todo.completed) {
+              tempItems += 1;
+            }
+          });
+
+          setTodos(tempTodos);
+
+          return tempItems;
+        });
       })
       .catch(() => setErrorMessage('Unable to update todos'));
   }, []);
@@ -95,6 +104,22 @@ export const App: React.FC = () => {
     });
   };
 
+  const activeItemsCounter = (todo: Todo) => {
+    if (todo.completed) {
+      setActiveItems(prevItems => prevItems - 1);
+    } else {
+      setActiveItems(prevItems => prevItems + 1);
+    }
+  };
+
+  const findCompletedItem = (todo: Todo) => {
+    const todoIndex = todos.findIndex(foundTodo => {
+      return foundTodo.id === todo.id;
+    });
+
+    return todoIndex;
+  };
+
   const updateCompleteTodo = (todo: Todo) => {
     setVisibleLoader(true);
 
@@ -102,29 +127,35 @@ export const App: React.FC = () => {
       .then(() => setVisibleLoader(false));
 
     const newTodos = [...todos];
-    const todoIndex = todos.findIndex(el => el.id === todo.id);
+
+    const todoIndex = findCompletedItem(todo);
 
     newTodos[todoIndex].completed = !todo.completed;
 
-    if (!todo.completed) {
-      setVisibleClearCompleted(prev => {
-        let temp = prev;
-
-        temp += 1;
-
-        return temp;
-      });
-    } else {
-      setVisibleClearCompleted(prev => {
-        let temp = prev;
-
-        temp -= 1;
-
-        return temp;
-      });
-    }
-
     setTodos(newTodos);
+
+    activeItemsCounter(todo);
+  };
+
+  const updateAllCompleteTodos = () => {
+    const temp = [...todos];
+
+    temp.forEach(todo => {
+      setVisibleLoader(true);
+
+      patchTodo(todo.id, { completed: !todo.completed })
+        .then(() => {
+          setVisibleLoader(false);
+        });
+
+      const todoIndex = findCompletedItem(todo);
+
+      todos[todoIndex].completed = !todo.completed;
+
+      activeItemsCounter(todo);
+    });
+
+    setTodos(temp);
   };
 
   const visibleTodos = filterTodos(todos, sortType);
@@ -139,6 +170,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className="todoapp__toggle-all active"
+            onClick={updateAllCompleteTodos}
           />
 
           <NewTodoField
@@ -208,16 +240,14 @@ export const App: React.FC = () => {
                 </a>
               </nav>
 
-              {visibleClearCompleted > 0 && (
-                <button
-                  data-cy="ClearCompletedButton"
-                  type="button"
-                  className="todoapp__clear-completed"
-                  onClick={deleteCompletedTodos}
-                >
-                  Clear completed
-                </button>
-              )}
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={deleteCompletedTodos}
+              >
+                Clear completed
+              </button>
             </footer>
           </>
         )}
