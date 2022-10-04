@@ -6,12 +6,14 @@ type Props = {
   todo: Todo;
   onRemoveTodo: (todoId: number) => void;
   isProcessing: boolean;
+  onUpdateStatus: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onRemoveTodo,
   isProcessing,
+  onUpdateStatus,
 }) => {
   const { title, completed } = todo;
 
@@ -25,7 +27,8 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked
+          checked={completed}
+          onChange={() => onUpdateStatus(todo)}
         />
       </label>
 

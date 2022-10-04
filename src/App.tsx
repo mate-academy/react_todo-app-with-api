@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/ErrorNotification';
 import { Footer } from './components/Footer';
@@ -19,7 +21,7 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.none);
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isDeletingId, setIsDeletingId] = useState<number[]>([]);
+  const [isLoadingList, setisLoadingList] = useState<number[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -84,14 +86,14 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = (todoId: number) => {
-    setIsDeletingId(prev => [...prev, todoId]);
+    setisLoadingList(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
         setUserTodos(prev => prev.filter(todo => todo.id !== todoId));
       })
       .catch(() => setErrorType(ErrorType.delete))
-      .finally(() => setIsDeletingId([]));
+      .finally(() => setisLoadingList([]));
   };
 
   const removeCompletedTodos = () => {
@@ -99,6 +101,41 @@ export const App: React.FC = () => {
     for (const { id, completed } of userTodos) {
       if (completed) {
         removeTodo(id);
+      }
+    }
+  };
+
+  const updateStatus = (todo: Todo) => {
+    setisLoadingList(prev => [...prev, todo.id]);
+
+    updateTodo({ ...todo, completed: !todo.completed })
+      .then(() => {
+        setUserTodos(prev => {
+          const currentTodo = prev.find(todoItem => todoItem.id === todo.id);
+
+          if (currentTodo) {
+            currentTodo.completed = !currentTodo.completed;
+          }
+
+          return [...prev];
+        });
+      })
+      .catch(() => setErrorType(ErrorType.update))
+      .finally(() => setisLoadingList([]));
+  };
+
+  const updateStatusForAll = (hasActive: boolean) => {
+    if (hasActive) {
+    // eslint-disable-next-line no-restricted-syntax
+      for (const todo of userTodos) {
+        if (!todo.completed) {
+          updateStatus(todo);
+        }
+      }
+    } else {
+    // eslint-disable-next-line no-restricted-syntax
+      for (const todo of userTodos) {
+        updateStatus(todo);
       }
     }
   };
@@ -114,6 +151,8 @@ export const App: React.FC = () => {
           onQueryChange={setQuery}
           onAddNewTodo={addNewTodo}
           isAdding={isAdding}
+          hasActive={Boolean(getActiveTodos(userTodos).length)}
+          onUpdateStatusForAll={updateStatusForAll}
         />
 
         <TodoList
@@ -121,7 +160,8 @@ export const App: React.FC = () => {
           isAdding={isAdding}
           query={query}
           onRemoveTodo={removeTodo}
-          isDeletingId={isDeletingId}
+          isLoadingList={isLoadingList}
+          onUpdateStatus={updateStatus}
         />
 
         {Boolean(userTodos.length)

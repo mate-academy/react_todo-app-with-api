@@ -9,7 +9,8 @@ type Props = {
   isAdding: boolean;
   query: string;
   onRemoveTodo: (todoId: number) => void;
-  isDeletingId: number[];
+  isLoadingList: number[];
+  onUpdateStatus: (todo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,7 +18,8 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   query,
   onRemoveTodo,
-  isDeletingId,
+  isLoadingList,
+  onUpdateStatus,
 }) => {
   const user = useContext(AuthContext);
 
@@ -33,7 +35,8 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               onRemoveTodo={onRemoveTodo}
-              isProcessing={isDeletingId.includes(todo.id)}
+              isProcessing={isLoadingList.includes(todo.id)}
+              onUpdateStatus={onUpdateStatus}
             />
           </CSSTransition>
 
@@ -54,6 +57,7 @@ export const TodoList: React.FC<Props> = ({
               userId: user?.id || 0,
             }}
             onRemoveTodo={onRemoveTodo}
+            onUpdateStatus={onUpdateStatus}
             isProcessing
           />
         </CSSTransition>

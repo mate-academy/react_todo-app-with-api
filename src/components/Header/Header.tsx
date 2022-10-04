@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import {
   ChangeEvent, FormEvent, useEffect, useRef,
 } from 'react';
@@ -5,18 +6,22 @@ import {
 type Props = {
   isTodos: boolean;
   query: string;
-  onQueryChange: (value: string) => void;
-  onAddNewTodo: () => void;
   isAdding: boolean,
+  hasActive: boolean,
+  onAddNewTodo: () => void;
+  onQueryChange: (value: string) => void;
+  onUpdateStatusForAll: (hasActive: boolean) => void;
 };
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const Header: React.FC<Props> = ({
   isTodos,
   query,
-  onQueryChange,
-  onAddNewTodo,
   isAdding,
+  hasActive,
+  onAddNewTodo,
+  onQueryChange,
+  onUpdateStatusForAll,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -36,6 +41,8 @@ export const Header: React.FC<Props> = ({
     onAddNewTodo();
   };
 
+  const handleToggleAllButton = () => onUpdateStatusForAll(hasActive);
+
   return (
     <header className="todoapp__header">
       {isTodos
@@ -43,7 +50,8 @@ export const Header: React.FC<Props> = ({
         <button
           data-cy="ToggleAllButton"
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all', { active: !hasActive })}
+          onClick={handleToggleAllButton}
         />
       )}
 
