@@ -8,6 +8,7 @@ interface Props {
   title: string;
   id: number;
   setError: (value: string) => void,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setTodos: (value: any) => void,
   todos: Todo[],
   setSelectedTodoId: (value: number) => void,
