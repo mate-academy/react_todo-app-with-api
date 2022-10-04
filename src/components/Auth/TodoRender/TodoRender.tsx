@@ -52,6 +52,7 @@ export const TodoRender: React.FC<Props> = ({
       setErrorMessage('Unable to delete todo from the server');
     } finally {
       setTodoIdLoader(null);
+      setSelectedTodoId(-1);
     }
   };
 
@@ -80,25 +81,32 @@ export const TodoRender: React.FC<Props> = ({
     changeCompleteOnServer();
   };
 
-  const titleChangeOnServer = async () => {
-    const newTitle = { ...todo };
+  const handleRenameTitle = async () => {
+    if (title === inputValue) {
+      setSelectedTodoId(-1);
 
-    newTitle.title = inputValue;
-    await updateTodo(id, newTitle);
-    setTodoIdLoader(null);
-  };
+      return;
+    }
 
-  const handleLocalTitle = () => {
-    if (inputValue.trim()) {
+    if (!inputValue.trim()) {
+      removeFromServer(todo);
+
+      return;
+    }
+
+    try {
       setTodoIdLoader(todo.id);
-      titleChangeOnServer();
+      const newTitle = { ...todo };
+
+      newTitle.title = inputValue;
+      await updateTodo(id, newTitle);
       handleStatusChange(todo, TypeChange.title);
-    } else {
+    } catch (_) {
       setLoadError(true);
-      setErrorMessage('Unable to rename title on empty line');
-      if (newTodoField.current) {
-        newTodoField.current.focus();
-      }
+      setErrorMessage('Unable to rename title. Server didn\'t response');
+    } finally {
+      setTodoIdLoader(null);
+      setSelectedTodoId(-1);
     }
 
     if (newTodoField.current) {
@@ -107,15 +115,18 @@ export const TodoRender: React.FC<Props> = ({
   };
 
   const handleSubmitOnKey = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      if (newTodoField.current) {
-        newTodoField.current.blur();
-      }
+    if (event.key === 'Enter' && newTodoField.current) {
+      newTodoField.current.blur();
     }
 
     if (event.key === 'Escape') {
-      setSelectedTodoId(0);
+      setSelectedTodoId(-1);
     }
+  };
+
+  const handleDoubleClick = () => {
+    setSelectedTodoId(todo.id);
+    setInputValue(title);
   };
 
   useEffect(() => {
@@ -147,10 +158,7 @@ export const TodoRender: React.FC<Props> = ({
         <span
           data-cy="TodoTitle"
           className="todo__title"
-          onDoubleClick={() => {
-            setSelectedTodoId(todo.id);
-            setInputValue(title);
-          }}
+          onDoubleClick={() => handleDoubleClick()}
         >
           {title}
         </span>
@@ -160,20 +168,23 @@ export const TodoRender: React.FC<Props> = ({
     <input
       value={inputValue}
       className="input is-large is-primary"
-      onBlur={() => handleLocalTitle()}
+      onBlur={() => handleRenameTitle()}
       onChange={handleChangeTitle}
       onKeyUp={handleSubmitOnKey}
       ref={newTodoField}
     />
   )}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => handleRemoveTodo(todo)}
-      >
-        ×
-      </button>
+      {selectedTodoId !== id
+  && (
+    <button
+      type="button"
+      className="todo__remove"
+      data-cy="TodoDeleteButton"
+      onClick={() => handleRemoveTodo(todo)}
+    >
+      ×
+    </button>
+  )}
 
       <div
         data-cy="TodoLoader"
