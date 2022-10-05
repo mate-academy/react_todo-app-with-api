@@ -30,7 +30,6 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const changeTodoField = useRef<HTMLInputElement>(null);
 
-
   useEffect(() => {
     if (changeTodoField.current) {
       changeTodoField.current.focus();

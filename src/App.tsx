@@ -180,13 +180,6 @@ export const App: React.FC = () => {
     event: React.KeyboardEvent<HTMLInputElement>,
     changeTodo: Todo,
   ) => {
-    if (event.key === 'Escape') {
-      setWantChangeTitle(-1);
-      setChangeTitle('');
-
-      return;
-    }
-
     if (changeTodoTitle.length > 0 && changeTodoTitle.trim().length === 0) {
       setError(true);
       setMessageError('Title can\'t be empty');
@@ -194,34 +187,46 @@ export const App: React.FC = () => {
       return;
     }
 
-    if (event.key === 'Enter') {
-      if (changeTodoTitle === '') {
-        handleRemoveTodo(changeTodo.id);
+    switch (event.key) {
+      case 'Enter':
+        if (changeTodoTitle === '') {
+          handleRemoveTodo(changeTodo.id);
 
-        return;
-      }
+          return;
+        }
 
-      try {
-        setActiveTodoId(idActive => [...idActive, changeTodo.id]);
-        await updateTodo(changeTodo.id, { title: changeTodoTitle });
+        try {
+          setActiveTodoId(idActive => [...idActive, changeTodo.id]);
+          await updateTodo(changeTodo.id, { title: changeTodoTitle });
 
-        setTodos(state => [...state].map(todo => {
-          if (todo.id === changeTodo.id) {
-            // eslint-disable-next-line no-param-reassign
-            todo.title = changeTodoTitle;
-          }
+          setTodos(state => [...state].map(todo => {
+            if (todo.id === changeTodo.id) {
+              // eslint-disable-next-line no-param-reassign
+              todo.title = changeTodoTitle;
+            }
 
-          return todo;
-        }));
-      } catch (errorFromServer) {
-        setError(true);
-        setMessageError('Unable to update a Title');
-      } finally {
-        setActiveTodoId(idActive => idActive
-          .filter(id => id !== changeTodo.id));
+            return todo;
+          }));
+        } catch (errorFromServer) {
+          setError(true);
+          setMessageError('Unable to update a Title');
+        } finally {
+          setActiveTodoId(idActive => idActive
+            .filter(id => id !== changeTodo.id));
+          setWantChangeTitle(-1);
+          setChangeTitle('');
+        }
+
+        break;
+
+      case 'Escape':
         setWantChangeTitle(-1);
         setChangeTitle('');
-      }
+
+        break;
+
+      default:
+        break;
     }
   };
 
