@@ -7,33 +7,34 @@ import {
   useState,
 } from 'react';
 import { Todo } from '../../../types/Todo';
+import { Loader } from './Loader';
 
 type Props = {
   todo: Todo;
   todos: Todo[];
   removeTodo: (TodoId: number) => Promise<void>;
-  selectedIds: number[];
   isAdding: boolean;
   handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
+  completedTodosId: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   todos,
   removeTodo,
-  selectedIds,
   isAdding,
   handleOnChange,
+  completedTodosId,
 }) => {
   const [doubleClicked, setDoubleClicked] = useState<boolean>(false);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [selectedTodo, setSelectedTodo] = useState(0);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const loaderCondition = selectedIds.includes(todo.id)
-  || (isAdding && todo.id === 0);
-
   const { id, title, completed } = todo;
+
+  const loaderCondition = completedTodosId.includes(id)
+  || (isAdding && todo.id === 0);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -57,11 +58,13 @@ export const TodoItem: React.FC<Props> = ({
 
     if (todos.find(element => element.title === newTodoTitle)) {
       setDoubleClicked(false);
+      setSelectedTodo(0);
     }
 
     handleOnChange(selectedTodo, { title: newTodoTitle });
     setDoubleClicked(false);
     setNewTodoTitle('');
+    setSelectedTodo(0);
   };
 
   const TitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -82,10 +85,12 @@ export const TodoItem: React.FC<Props> = ({
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setDoubleClicked(false);
+      setSelectedTodo(0);
     }
 
     if (event.key === 'Enter') {
       UpdateTitle();
+      setSelectedTodo(0);
     }
   };
 
@@ -151,14 +156,8 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )}
 
-      { loaderCondition && (
-        <div
-          data-cy="TodoLoader"
-          className="modal overlay is-active"
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader is-loading " />
-        </div>
+      {loaderCondition && (
+        <Loader />
       )}
     </div>
   );

@@ -27,6 +27,7 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -87,10 +88,11 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  const deleteCompletedTodos = useCallback(() => {
-    setSelectedIds(completedTodos.map(({ id }) => id));
+  const deleteCompletedTodos = useCallback(async () => {
+    setCompletedTodosId(completedTodos.map(({ id }) => id));
+    // console.log(completedTodosId);
 
-    Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
+    await Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
       .then(() => setTodos((prevTodos) => prevTodos
         .filter(({ completed }) => !completed)))
       .catch(() => {
@@ -164,7 +166,7 @@ export const App: React.FC = () => {
               <TodoList
                 todos={filterTodoBy}
                 removeTodo={removeTodo}
-                selectedIds={selectedIds}
+                completedTodosId={completedTodosId}
                 isAdding={isAdding}
                 title={title}
                 handleOnChange={handleOnChange}

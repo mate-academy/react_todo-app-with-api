@@ -6,19 +6,19 @@ import '../../../styles/transitiongroup.scss';
 interface Props {
   todos: Todo[],
   removeTodo: (TodoId: number) => Promise<void>,
-  selectedIds: number[],
   isAdding: boolean,
   title: string,
   handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
+  completedTodosId: number[],
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   removeTodo,
-  selectedIds,
   isAdding,
   title,
   handleOnChange,
+  completedTodosId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -34,9 +34,9 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               todos={todos}
               removeTodo={removeTodo}
-              selectedIds={selectedIds}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
+              completedTodosId={completedTodosId}
             />
           </CSSTransition>
         ))}
@@ -57,9 +57,9 @@ export const TodoList: React.FC<Props> = ({
               }}
               todos={todos}
               removeTodo={removeTodo}
-              selectedIds={selectedIds}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
+              completedTodosId={completedTodosId}
             />
           </CSSTransition>
         )}
