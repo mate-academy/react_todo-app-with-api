@@ -60,7 +60,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
       {wantChangeTitle === todo.id
         ? (
-          <form>
+          <form onSubmit={event => event.preventDefault()}>
             <input
               data-cy="ChangeTodoField"
               type="text"
@@ -68,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todoapp__new-todo"
               placeholder="Empty title will be removed"
               value={changeTodoTitle}
-              onChange={() => setChangeTitle(
+              onChange={(event) => setChangeTitle(
                 changeTodoField.current?.value || '',
               )}
               onBlur={handleBlur}
