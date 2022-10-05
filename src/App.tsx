@@ -104,7 +104,7 @@ export const App: React.FC = () => {
     try {
       await removeTodo(todoId);
 
-      setTodos(todos.filter(todo => todo.id !== todoId));
+      setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
       setError(Error.DELETING);
     }
@@ -115,12 +115,12 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const deleteCompletedTodos = useCallback(async () => {
-    setSelectedTodos([...completedTodos].map(todo => todo.id));
+    setSelectedTodos(completedTodos.map(todo => todo.id));
 
     try {
       await Promise.all(completedTodos.map(todo => removeTodo(todo.id)));
 
-      setTodos([...todos.filter(todo => !todo.completed)]);
+      setTodos(prev => prev.filter(todo => !todo.completed));
     } catch {
       setError(Error.DELETING);
       setSelectedTodos([]);
@@ -133,7 +133,7 @@ export const App: React.FC = () => {
     try {
       const newTodo = await updateTodo(todoId, data);
 
-      setTodos(todos.map(todo => (
+      setTodos(prev => prev.map(todo => (
         todo.id === todoId
           ? newTodo
           : todo
