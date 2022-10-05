@@ -1,16 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Todo } from '../types/Todo';
 import { TodoInfo } from './Todo';
 
 interface Props {
   todos: Todo[];
   setError: (value: string) => void,
-  setTodos: (value: Todo[]) => void,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   isLoading: boolean,
   setSelectedTodoId: (value: number) => void,
-  selectedTodoId: number,
+  selectedTodoId: number | null,
   tempTitle: string,
-  // user: User | null,
 }
 
 export const TodoList: React.FC<Props> = ({

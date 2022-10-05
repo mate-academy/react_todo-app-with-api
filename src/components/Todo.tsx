@@ -8,11 +8,10 @@ interface Props {
   title: string;
   id: number;
   setError: (value: string) => void,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setTodos: (value: any) => void,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   todos: Todo[],
   setSelectedTodoId: (value: number) => void,
-  selectedTodoId: number,
+  selectedTodoId: number | null,
 }
 
 export const TodoInfo: React.FC<Props> = ({
@@ -34,7 +33,8 @@ export const TodoInfo: React.FC<Props> = ({
       try {
         await remove(removeId);
 
-        setTodos([...todos.filter(todoo => todoo.id !== removeId)]);
+        setTodos((state: Todo[]) => [...state]
+          .filter(todo => todo.id !== removeId));
       } catch (errorFromServer) {
         setError('Unable to delete a todo');
       } finally {
