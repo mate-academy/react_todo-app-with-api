@@ -6,6 +6,7 @@ import '../../../styles/transitiongroup.scss';
 interface Props {
   todos: Todo[],
   removeTodo: (TodoId: number) => Promise<void>,
+  selectedIds: number[],
   isAdding: boolean,
   title: string,
   handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
@@ -15,6 +16,7 @@ interface Props {
 export const TodoList: React.FC<Props> = ({
   todos,
   removeTodo,
+  selectedIds,
   isAdding,
   title,
   handleOnChange,
@@ -34,6 +36,7 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               todos={todos}
               removeTodo={removeTodo}
+              selectedIds={selectedIds}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
               completedTodosId={completedTodosId}
@@ -57,6 +60,7 @@ export const TodoList: React.FC<Props> = ({
               }}
               todos={todos}
               removeTodo={removeTodo}
+              selectedIds={selectedIds}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
               completedTodosId={completedTodosId}

@@ -24,7 +24,7 @@ export const Header: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [isAdding]);
 
   const getValue = ({
     target: { value },

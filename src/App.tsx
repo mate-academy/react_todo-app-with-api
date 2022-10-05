@@ -166,6 +166,7 @@ export const App: React.FC = () => {
               <TodoList
                 todos={filterTodoBy}
                 removeTodo={removeTodo}
+                selectedIds={selectedIds}
                 completedTodosId={completedTodosId}
                 isAdding={isAdding}
                 title={title}
