@@ -1,9 +1,9 @@
 import classNames from 'classnames';
+import { useEffect, useRef } from 'react';
 import { Errors } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  newTodoField: React.RefObject<HTMLInputElement>;
   todos: Todo[];
   isAdding: boolean;
   leftTodosLength: number;
@@ -15,7 +15,6 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  newTodoField,
   todos,
   setError,
   onAdd,
@@ -25,6 +24,14 @@ export const Header: React.FC<Props> = ({
   newTodoTitle,
   setNewTodoTitle,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isAdding]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
   };

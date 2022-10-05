@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -24,7 +23,6 @@ import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState(todos);
   const [error, setError] = useState<Errors>(Errors.NONE);
@@ -42,12 +40,8 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     loadTodos();
-  }, [isAdding]);
+  }, []);
 
   const filterTodos = useCallback((groupBy: string) => {
     setVisibleTodos(
@@ -148,7 +142,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          newTodoField={newTodoField}
           todos={todos}
           isAdding={isAdding}
           newTodoTitle={newTodoTitle}
