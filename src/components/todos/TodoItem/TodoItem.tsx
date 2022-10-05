@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+// import { toggleStatus } from '../../../api/todos';
 
 interface Props {
   id: number,
@@ -9,6 +10,7 @@ interface Props {
   isAdding: boolean;
   removedTodos: number[];
   setRemovedTodos: (removedId: number[]) => void;
+  toggleTodoStatus: (id: number, completed: boolean) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,6 +21,7 @@ export const TodoItem: React.FC<Props> = ({
   isAdding,
   removedTodos,
   setRemovedTodos,
+  toggleTodoStatus,
 }) => {
   const remove = (todoId: number) => {
     setRemovedTodos([todoId]);
@@ -36,6 +39,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
+          onClick={() => toggleTodoStatus(id, completed)}
         />
       </label>
 

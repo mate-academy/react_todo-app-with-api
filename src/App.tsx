@@ -5,7 +5,14 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+
+import {
+  deleteTodo,
+  getTodos,
+  postTodo,
+  toggleStatus,
+} from './api/todos';
+
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorMessage } from './components/todos/ErrorMessage';
 import { TodoFooter } from './components/todos/TodoFooter';
@@ -26,6 +33,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [status, setStatus] = useState('All');
   const [removedTodos, setRemovedTodos] = useState<number[]>([]);
+  // const [completedTodoIds, setCompletedTodoIds] = useState<number[]>([]);
 
   const loadData = async () => {
     if (user) {
@@ -101,6 +109,18 @@ export const App: React.FC = () => {
     );
   };
 
+  const toggleTodoStatus = async (id: number, completed: boolean) => {
+    try {
+      await toggleStatus(id, completed);
+    } catch {
+      setError(Error.Update);
+    }
+
+    loadData();
+  };
+
+  console.log(todos);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -117,6 +137,7 @@ export const App: React.FC = () => {
           removeTodo={removeTodo}
           removedTodos={removedTodos}
           setRemovedTodos={setRemovedTodos}
+          toggleTodoStatus={toggleTodoStatus}
         />
 
         {todos.length > 0 && (

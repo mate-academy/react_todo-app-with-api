@@ -8,6 +8,7 @@ interface Props {
   removeTodo: (id: number) => void;
   removedTodos: number[];
   setRemovedTodos: (removedId: number[]) => void;
+  toggleTodoStatus: (id: number, completed: boolean) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoList: React.FC<Props> = ({
   removeTodo,
   removedTodos,
   setRemovedTodos,
+  toggleTodoStatus,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,6 +37,7 @@ export const TodoList: React.FC<Props> = ({
             isAdding={false}
             removedTodos={removedTodos}
             setRemovedTodos={setRemovedTodos}
+            toggleTodoStatus={toggleTodoStatus}
           />
         );
       })}
@@ -47,6 +50,8 @@ export const TodoList: React.FC<Props> = ({
           isAdding
           removedTodos={removedTodos}
           setRemovedTodos={setRemovedTodos}
+          toggleTodoStatus={toggleTodoStatus}
+
         />
       )}
 
