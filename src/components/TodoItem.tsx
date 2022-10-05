@@ -68,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todoapp__new-todo"
               placeholder="Empty title will be removed"
               value={changeTodoTitle}
-              onChange={(event) => setChangeTitle(
+              onChange={() => setChangeTitle(
                 changeTodoField.current?.value || '',
               )}
               onBlur={handleBlur}
