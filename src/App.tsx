@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -56,7 +57,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const hundleAddTodo = async (inputTitle: string) => {
+  const hundleAddTodo = useCallback(async (inputTitle: string) => {
     setTitle(inputTitle);
     setIsTodoAdded(true);
 
@@ -64,16 +65,16 @@ export const App: React.FC = () => {
       if (user) {
         const newTodo = await postTodo(user.id, inputTitle);
 
-        setTodos([...todos, newTodo]);
+        setTodos(prevTodos => [...prevTodos, newTodo]);
       }
     } catch {
       setErrorMessage('Unable to add todo');
     } finally {
       setIsTodoAdded(false);
     }
-  };
+  }, []);
 
-  const hundleDeleteTodo = (todosIds: number[]) => {
+  const hundleDeleteTodo = useCallback((todosIds: number[]) => {
     setSelectedTodosIds(todosIds);
     Promise.all(todosIds.map(todoId => (
       deleteTodo(todoId)
@@ -87,25 +88,27 @@ export const App: React.FC = () => {
       .finally(() => {
         setSelectedTodosIds([]);
       });
-  };
+  }, []);
 
-  const hundleUpdateTodo = (
+  const getValidValue = useCallback((value: string | boolean, type: string) => {
+    const newValue = typeof value === 'boolean' ? String(value) : value;
+
+    return type === 'submit' ? newValue : newValue === 'true';
+  }, []);
+
+  const hundleUpdateTodo = useCallback((
     name: string,
     type: string,
     value: string | boolean,
     todosIds: number[],
   ) => {
-    const validValue = typeof value === 'boolean'
-      ? String(value)
-      : value;
+    const validValue = getValidValue(value, type);
 
     setSelectedTodosIds(todosIds);
     Promise.all(
       todosIds.map(todoId => (
         patchTodo(todoId, {
-          [name]: type === 'submit'
-            ? validValue
-            : validValue === 'true',
+          [name]: validValue,
         })
           .then(() => {
             setTodos(prevTodos => (
@@ -113,9 +116,7 @@ export const App: React.FC = () => {
                 if (prevTodo.id === todoId) {
                   return {
                     ...prevTodo,
-                    [name]: type === 'submit'
-                      ? validValue
-                      : validValue === 'true',
+                    [name]: validValue,
                   };
                 }
 
@@ -131,7 +132,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setSelectedTodosIds([]);
       });
-  };
+  }, []);
 
   const filteredTodos = useMemo(() => {
     return todos.filter(({ completed }) => {
