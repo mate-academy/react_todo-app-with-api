@@ -55,8 +55,10 @@ export const TodoItem: React.FC<Props> = ({
       setDoubleClick(false);
     }
 
-    if (todos?.find(element => element.title === newTitle)) {
+    if (todos?.find(todoIt => todoIt.title === newTitle)) {
       setDoubleClick(false);
+
+      return;
     }
 
     onUpdate(
@@ -66,6 +68,10 @@ export const TodoItem: React.FC<Props> = ({
       [id],
     );
     setDoubleClick(false);
+
+    if (setSelectedTodoId) {
+      setSelectedTodoId(0);
+    }
   };
 
   const hundleDoubleClick = () => {
