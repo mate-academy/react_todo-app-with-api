@@ -57,6 +57,11 @@ export const TodoItem: React.FC<Props> = ({
 
     if (todos?.find(todoIt => todoIt.title === newTitle)) {
       setDoubleClick(false);
+      if (setSelectedTodoId) {
+        setSelectedTodoId(0);
+      }
+
+      setNewTitle(title);
 
       return;
     }
