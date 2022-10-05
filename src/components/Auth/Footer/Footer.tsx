@@ -37,7 +37,7 @@ export const Footer: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filterType },
+            { selected: filterType === FilterType.All },
           )}
           onClick={() => {
             filterTypes(FilterType.All);
@@ -51,7 +51,7 @@ export const Footer: React.FC<Props> = ({
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: filterType },
+            { selected: filterType === FilterType.Active },
           )}
           onClick={() => filterTypes(FilterType.Active)}
         >
@@ -62,7 +62,7 @@ export const Footer: React.FC<Props> = ({
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: filterType },
+            { selected: filterType === FilterType.Completed },
           )}
           onClick={() => filterTypes(FilterType.Completed)}
         >
