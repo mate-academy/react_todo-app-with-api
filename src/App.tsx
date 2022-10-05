@@ -23,7 +23,7 @@ export const App: React.FC = () => {
   const [todoName, setNewTodoName] = useState('');
   const [isAdding, setIsAddingFromServer] = useState(false);
   const [completed, setCompleted] = useState<number[]>([]);
-  const [deletingId, setDeletingId] = useState<number | null | number[]>(null);
+  const [activeTodoId, setActiveTodoId] = useState([0]);
 
   async function updatePost(todoId: number, done: boolean, title: string) {
     try {
@@ -53,8 +53,6 @@ export const App: React.FC = () => {
   }
 
   async function deletePost(id: number | number[]) {
-    setDeletingId(id);
-
     try {
       const deleted = await deleteTodo(id);
 
@@ -104,10 +102,16 @@ export const App: React.FC = () => {
     setIsAddingFromServer(false);
   };
 
-  const handleDelete = async (id: number | number[]) => {
-    const deleted = deletePost(id);
+  const handleDelete = async (id: number) => {
+    try {
+      setActiveTodoId(idActive => [...idActive, id]);
 
-    return deleted;
+      const deleted = deletePost(id);
+
+      return await deleted;
+    } finally {
+      setActiveTodoId(idActive => idActive.filter(idI => idI !== id));
+    }
   };
 
   const handleUpdate = async (todoId: number, done: boolean, title: string) => {
@@ -146,8 +150,6 @@ export const App: React.FC = () => {
         {(todos.length > 0 || isAdding) && (
           <>
             <TodoList
-              deletingId={deletingId}
-              setDeletingId={setDeletingId}
               todos={todos}
               filterType={filter}
               isAdding={isAdding}
@@ -155,6 +157,7 @@ export const App: React.FC = () => {
               onDelete={handleDelete}
               onUpdate={handleUpdate}
               setErrorClosing={setErrorClosing}
+              activeTodoId={activeTodoId}
             />
             <footer
               className="todoapp__footer"
@@ -167,7 +170,7 @@ export const App: React.FC = () => {
                 filterType={filter}
                 setFilterType={setFilter}
                 onDelete={handleDelete}
-                setDeletingId={setDeletingId}
+                setErrorClosing={setErrorClosing}
               />
             </footer>
           </>

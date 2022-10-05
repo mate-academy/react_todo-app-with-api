@@ -25,13 +25,15 @@ export const ErrorMessage: React.FC<Props> = ({
     setErrorType(ErrorType.None);
   };
 
-  // Error closing after 3 seconds ruins user experience
-
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       closeError(true);
       setErrorType(ErrorType.None);
     }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (

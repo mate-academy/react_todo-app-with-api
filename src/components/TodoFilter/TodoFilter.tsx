@@ -5,10 +5,11 @@ type Props = {
   todos: Todo[];
   setFilterType: (filterType: FilterBy) => void;
   filterType: FilterBy;
-  onDelete: (id: number | number[]) => void;
+  onDelete: (id: number) => void;
   completed: number[];
   setCompleted: (a: number[]) => void;
-  setDeletingId: (id: number) => void;
+  setErrorClosing: (err: boolean) => void;
+
 };
 
 export enum FilterBy {
@@ -18,8 +19,12 @@ export enum FilterBy {
 }
 
 export const TodoFilter: React.FC<Props> = ({
-  todos, filterType, setFilterType, onDelete, completed,
-  setDeletingId,
+  todos,
+  filterType,
+  setFilterType,
+  onDelete,
+  completed,
+  setErrorClosing,
 }) => {
   const { length } = todos.filter((todo) => todo.completed === false);
 
@@ -27,10 +32,11 @@ export const TodoFilter: React.FC<Props> = ({
   const handleActiveSort = () => setFilterType(FilterBy.Active);
   const handleCompletedSort = () => setFilterType(FilterBy.Completed);
   const handleBulkDelete = () => {
-    completed.map(async (todo) => {
-      setDeletingId(todo);
-      onDelete(todo);
+    completed.map(async (id) => {
+      onDelete(id);
     });
+
+    setErrorClosing(false);
   };
 
   return (

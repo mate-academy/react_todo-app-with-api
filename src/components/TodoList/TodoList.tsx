@@ -11,14 +11,19 @@ type Props = {
   todoName: string;
   onDelete: (id: number) => void;
   onUpdate: (todoId: number, done: boolean, title: string) => void;
-  deletingId: number | null | number[],
-  setDeletingId: (id: number | null | number[]) => void;
   setErrorClosing: (error: boolean) => void;
+  activeTodoId: number[];
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos, filterType, isAdding, todoName, onDelete,
-  onUpdate, deletingId, setErrorClosing,
+  todos,
+  filterType,
+  isAdding,
+  todoName,
+  onDelete,
+  onUpdate,
+  setErrorClosing,
+  activeTodoId,
 }) => {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [editingTitle, setEditTitle] = useState(false);
@@ -43,6 +48,8 @@ export const TodoList: React.FC<Props> = ({
   const handleUpdateOnCondition = (
     title: string, newTitle: string, id: number, completed: boolean,
   ) => {
+    setErrorClosing(false);
+
     if (title === newTitle) {
       setEditTitle(false);
 
@@ -180,7 +187,10 @@ export const TodoList: React.FC<Props> = ({
               data-cy="TodoLoader"
               className={classNames(
                 'modal overlay',
-                { 'is-active': deletingId === id || updatingId === id },
+                {
+                  'is-active': updatingId === id
+                    || activeTodoId.includes(id),
+                },
               )}
             >
               <div className="modal-background has-background-white-ter" />
