@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-return */
 import classNames from 'classnames';
 import {
   useState,
@@ -38,13 +39,11 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!newTitle.trim()) {
       removeTodo(todo.id);
-    }
-
-    if (newTitle === todo.title) {
+    } else if (newTitle === todo.title) {
       return;
+    } else {
+      onUpdate(todo.id, { title: newTitle });
     }
-
-    onUpdate(todo.id, { title: newTitle });
   };
 
   return (
