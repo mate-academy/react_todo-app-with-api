@@ -9,6 +9,7 @@ type Props = {
   setTitle: (value:string) => void,
   title: string;
   changeProperty: (todoId: number, property: Partial<Todo>) => void,
+  setIsToggling: (value: boolean) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const Header: React.FC<Props> = ({
   title,
   todos,
   changeProperty,
+  setIsToggling,
 }) => {
   const handleSetTitle = (event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -30,9 +32,13 @@ export const Header: React.FC<Props> = ({
 
   const handleToggleAll = () => {
     if (activeTodos.length > 0) {
+      setIsToggling(true);
+
       return activeTodos
         .map(({ id }) => changeProperty(id, { completed: true }));
     }
+
+    setIsToggling(true);
 
     return todos.map(({ id }) => changeProperty(id, { completed: false }));
   };

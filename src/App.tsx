@@ -28,7 +28,6 @@ export const App: React.FC = () => {
   const [typeOfFilter, setTypeOfFilter] = useState('all');
   const [error, setError] = useState<TextError | null>(null);
   const [title, setTitle] = useState('');
-  const [loader, setLoader] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState(0);
   const [isToggling, setIsToggling] = useState(false);
   const user = useContext(AuthContext);
@@ -95,8 +94,7 @@ export const App: React.FC = () => {
   };
 
   const changeProperty = async (todoId: number, property: Partial<Todo>) => {
-    setLoader(true);
-    setIsToggling(true);
+    setSelectedTodoId(todoId);
     try {
       const changedTodo: Todo = await updateTodo(todoId, property);
 
@@ -109,7 +107,7 @@ export const App: React.FC = () => {
       setError(TextError.Update);
     }
 
-    setLoader(false);
+    setSelectedTodoId(0);
     setIsToggling(false);
   };
 
@@ -127,13 +125,14 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           todos={todos}
           changeProperty={changeProperty}
+          setIsToggling={setIsToggling}
+
         />
         {(todos.length > 0) && (
           <TodoList
             todos={filteredTodos}
             removeTodo={removeTodo}
             changeProperty={changeProperty}
-            loader={loader}
             selectedTodoId={selectedTodoId}
             isToggling={isToggling}
           />

@@ -11,7 +11,6 @@ type Props = {
   todos: Todo[];
   removeTodo:(todoId: number) => void;
   changeProperty:(todoId: number, property: Partial<Todo>) => void;
-  loader: boolean;
   selectedTodoId: number;
   isToggling: boolean;
 };
@@ -20,7 +19,6 @@ export const TodoList: React.FC<Props> = ({
   todos,
   removeTodo,
   changeProperty,
-  loader,
   selectedTodoId,
   isToggling,
 }) => {
@@ -37,7 +35,6 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               removeTodo={removeTodo}
               changeProperty={changeProperty}
-              loader={loader}
               selectedTodoId={selectedTodoId}
               isToggling={isToggling}
             />
