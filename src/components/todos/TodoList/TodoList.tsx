@@ -9,6 +9,7 @@ interface Props {
   loadingTodos: number[];
   setLoadingTodos: (removedId: number[]) => void;
   toggleTodoStatus: (id: number, completed: boolean) => void;
+  todoRenaming: (id: number, title: string) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: React.FC<Props> = ({
   loadingTodos,
   setLoadingTodos,
   toggleTodoStatus,
+  todoRenaming,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -38,6 +40,7 @@ export const TodoList: React.FC<Props> = ({
             loadingTodos={loadingTodos}
             setLoadingTodos={setLoadingTodos}
             toggleTodoStatus={toggleTodoStatus}
+            todoRenaming={todoRenaming}
           />
         );
       })}
@@ -51,7 +54,7 @@ export const TodoList: React.FC<Props> = ({
           loadingTodos={loadingTodos}
           setLoadingTodos={setLoadingTodos}
           toggleTodoStatus={toggleTodoStatus}
-
+          todoRenaming={todoRenaming}
         />
       )}
 

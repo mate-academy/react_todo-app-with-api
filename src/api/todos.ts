@@ -22,3 +22,7 @@ export const deleteTodo = (id: number) => {
 export const toggleStatus = (id: number, completed: boolean) => {
   return client.patch(`/todos/${id}`, { completed: !completed });
 };
+
+export const renameTodo = (id: number, title: string) => {
+  return client.patch(`/todos/${id}`, { title });
+};

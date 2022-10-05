@@ -10,6 +10,7 @@ import {
   deleteTodo,
   getTodos,
   postTodo,
+  renameTodo,
   toggleStatus,
 } from './api/todos';
 
@@ -117,7 +118,23 @@ export const App: React.FC = () => {
     loadData();
   };
 
-  console.log(todos);
+  const todoRenaming = async (id: number, title: string) => {
+    setLoadingTodos([id]);
+
+    if (!title) {
+      removeTodo(id);
+
+      return;
+    }
+
+    try {
+      await renameTodo(id, title);
+    } catch {
+      setError(Error.Update);
+    }
+
+    loadData();
+  };
 
   return (
     <div className="todoapp">
@@ -139,6 +156,7 @@ export const App: React.FC = () => {
           loadingTodos={loadingTodos}
           setLoadingTodos={setLoadingTodos}
           toggleTodoStatus={toggleTodoStatus}
+          todoRenaming={todoRenaming}
         />
 
         {todos.length > 0 && (

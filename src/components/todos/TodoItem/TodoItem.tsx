@@ -1,6 +1,10 @@
 import classNames from 'classnames';
-import React from 'react';
-// import { toggleStatus } from '../../../api/todos';
+import React, {
+  FormEvent,
+  KeyboardEvent,
+  useRef,
+  useState,
+} from 'react';
 
 interface Props {
   id: number,
@@ -11,6 +15,7 @@ interface Props {
   loadingTodos: number[];
   setLoadingTodos: (removedId: number[]) => void;
   toggleTodoStatus: (id: number, completed: boolean) => void;
+  todoRenaming: (id: number, title: string) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,7 +27,11 @@ export const TodoItem: React.FC<Props> = ({
   loadingTodos,
   setLoadingTodos,
   toggleTodoStatus,
+  todoRenaming,
 }) => {
+  const renameField = useRef<HTMLInputElement>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+
   const remove = () => {
     setLoadingTodos([...loadingTodos, id]);
     removeTodo(id);
@@ -31,6 +40,21 @@ export const TodoItem: React.FC<Props> = ({
   const toggle = () => {
     toggleTodoStatus(id, completed);
     setLoadingTodos([...loadingTodos, id]);
+  };
+
+  const handleRenaming = (event: FormEvent) => {
+    event.preventDefault();
+    setIsRenaming(false);
+
+    if (renameField.current && renameField.current.value !== title) {
+      todoRenaming(id, renameField.current.value);
+    }
+  };
+
+  const handleRenamingCancel = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape') {
+      setIsRenaming(false);
+    }
   };
 
   return (
@@ -48,15 +72,40 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => remove()}
-      >
-        ×
-      </button>
+      {isRenaming ? (
+        <form
+          onSubmit={handleRenaming}
+          onBlur={handleRenaming}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            ref={renameField}
+            defaultValue={title}
+            onKeyDown={handleRenamingCancel}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsRenaming(true)}
+          >
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => remove()}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"
