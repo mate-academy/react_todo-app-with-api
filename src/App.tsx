@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useRef, useState,
   FormEvent,
-  useMemo,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
@@ -32,12 +31,23 @@ export const App: React.FC = () => {
   const [toggleLoader, setToggleLoader] = useState(false);
   const [toggleAll, setToggleAll] = useState(true);
   const [selectedId, setSelectedId] = useState(0);
-
   const userId = user?.id || 1;
 
-  getTodos(userId)
-    .then(setTodos)
-    .catch(() => setError(Error.Loading));
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+
+    const getTodosFromServer = async (Id: number) => {
+      try {
+        setTodos(await getTodos(Id));
+      } catch {
+        setError(Error.Loading);
+      }
+    };
+
+    getTodosFromServer(userId);
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -54,16 +64,22 @@ export const App: React.FC = () => {
     await createTodo(userId, title)
       .then((newTodo) => {
         setTodos([...todos, newTodo]);
+        setSelectedId(newTodo.id);
       })
       .catch(() => {
         setError(Error.Add);
+      })
+      .finally(() => {
+        setTitle('');
+        setIsAdding(false);
+        setToggleLoader(false);
       });
-
-    setTitle('');
-    setIsAdding(true);
   };
 
   const removeTodo = async (todoId: number) => {
+    setIsAdding(true);
+    setSelectedId(todoId);
+
     await deleteTodo(todoId)
       .then(() => {
         setTodos((initialTodos) => initialTodos
@@ -71,6 +87,9 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(Error.Delete);
+      })
+      .finally(() => {
+        setIsAdding(false);
       });
   };
 
@@ -115,15 +134,8 @@ export const App: React.FC = () => {
     setToggleLoader(true);
 
     return visibleTodos
-      .forEach((todo) => handleUpdateTodo(todo.id, { completed: toggleAll }));
+      .map((todo) => handleUpdateTodo(todo.id, { completed: toggleAll }));
   };
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
 
   return (
     <div className="todoapp">
@@ -135,7 +147,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className="todoapp__toggle-all active"
-            onClick={() => handleToggler}
+            onClick={handleToggler}
           />
 
           <form onSubmit={handleSubmit}>
