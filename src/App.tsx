@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isLoadingList, setisLoadingList] = useState<number[]>([]);
+  const [editTodoId, setEditTodoId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -140,6 +142,43 @@ export const App: React.FC = () => {
     }
   };
 
+  const resetEditTodoId = () => {
+    setEditTodoId(null);
+  };
+
+  const updateTitle = (todo: Todo, cancel?: boolean) => {
+    const title = newTitle.trim();
+
+    if (title === todo.title || cancel) {
+      resetEditTodoId();
+
+      return;
+    }
+
+    if (title.length) {
+      setisLoadingList(prev => [...prev, todo.id]);
+      updateTodo({ ...todo, title })
+        .then(() => {
+          setUserTodos(prev => {
+            const currentTodo = prev.find(todoItem => todoItem.id === todo.id);
+
+            if (currentTodo) {
+              currentTodo.title = title;
+            }
+
+            return [...prev];
+          });
+        })
+        .catch(() => setErrorType(ErrorType.update))
+        .finally(() => {
+          setisLoadingList([]);
+          resetEditTodoId();
+        });
+    } else {
+      removeTodo(todo.id);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -162,6 +201,11 @@ export const App: React.FC = () => {
           onRemoveTodo={removeTodo}
           isLoadingList={isLoadingList}
           onUpdateStatus={updateStatus}
+          onSetEditTodoId={setEditTodoId}
+          editTodoId={editTodoId}
+          onSetNewTitle={setNewTitle}
+          newTitle={newTitle}
+          onUpdateTitle={updateTitle}
         />
 
         {Boolean(userTodos.length)

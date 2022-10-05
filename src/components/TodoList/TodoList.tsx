@@ -11,6 +11,11 @@ type Props = {
   onRemoveTodo: (todoId: number) => void;
   isLoadingList: number[];
   onUpdateStatus: (todo: Todo) => void;
+  onSetEditTodoId: (todoId: number | null) => void;
+  editTodoId: number | null;
+  onSetNewTitle: (title: string) => void;
+  newTitle: string;
+  onUpdateTitle: (todo: Todo, cancel?: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,6 +25,11 @@ export const TodoList: React.FC<Props> = ({
   onRemoveTodo,
   isLoadingList,
   onUpdateStatus,
+  onSetEditTodoId,
+  editTodoId,
+  onSetNewTitle,
+  newTitle,
+  onUpdateTitle,
 }) => {
   const user = useContext(AuthContext);
 
@@ -37,6 +47,11 @@ export const TodoList: React.FC<Props> = ({
               onRemoveTodo={onRemoveTodo}
               isProcessing={isLoadingList.includes(todo.id)}
               onUpdateStatus={onUpdateStatus}
+              onSetEditTodoId={onSetEditTodoId}
+              editTodoId={editTodoId}
+              newTitle={newTitle}
+              onSetNewTitle={onSetNewTitle}
+              onUpdateTitle={onUpdateTitle}
             />
           </CSSTransition>
 
@@ -58,6 +73,11 @@ export const TodoList: React.FC<Props> = ({
             }}
             onRemoveTodo={onRemoveTodo}
             onUpdateStatus={onUpdateStatus}
+            onSetEditTodoId={onSetEditTodoId}
+            editTodoId={editTodoId}
+            newTitle={newTitle}
+            onSetNewTitle={onSetNewTitle}
+            onUpdateTitle={onUpdateTitle}
             isProcessing
           />
         </CSSTransition>
