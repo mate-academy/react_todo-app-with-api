@@ -23,14 +23,21 @@ export const App: React.FC = () => {
   const [todoName, setNewTodoName] = useState('');
   const [isAdding, setIsAddingFromServer] = useState(false);
   const [completed, setCompleted] = useState<number[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null | number[]>(null);
 
   async function updatePost(todoId: number, done: boolean, title: string) {
-    const updated = updateTodo(todoId, {
-      completed: done,
-      title,
-    });
+    try {
+      const updated = updateTodo(todoId, {
+        completed: done,
+        title,
+      });
 
-    return updated;
+      return await updated;
+    } catch (error) {
+      setErrorType(ErrorType.UpdatingOne);
+    }
+
+    return 0;
   }
 
   async function createPost(title: string) {
@@ -46,9 +53,17 @@ export const App: React.FC = () => {
   }
 
   async function deletePost(id: number | number[]) {
-    const deleted = await deleteTodo(id);
+    setDeletingId(id);
 
-    return deleted;
+    try {
+      const deleted = await deleteTodo(id);
+
+      return deleted;
+    } catch (error) {
+      setErrorType(ErrorType.DeletingOne);
+    }
+
+    return 0;
   }
 
   useEffect(() => {
@@ -90,19 +105,13 @@ export const App: React.FC = () => {
   };
 
   const handleDelete = async (id: number | number[]) => {
-    try {
-      deletePost(id);
-    } catch (error) {
-      setErrorType(ErrorType.DeletingOne);
-    }
+    const deleted = deletePost(id);
+
+    return deleted;
   };
 
   const handleUpdate = async (todoId: number, done: boolean, title: string) => {
-    try {
-      updatePost(todoId, done, title);
-    } catch (error) {
-      setErrorType(ErrorType.UpdatingOne);
-    }
+    updatePost(todoId, done, title);
   };
 
   return (
@@ -137,12 +146,15 @@ export const App: React.FC = () => {
         {(todos.length > 0 || isAdding) && (
           <>
             <TodoList
+              deletingId={deletingId}
+              setDeletingId={setDeletingId}
               todos={todos}
               filterType={filter}
               isAdding={isAdding}
               todoName={todoName}
               onDelete={handleDelete}
               onUpdate={handleUpdate}
+              setErrorClosing={setErrorClosing}
             />
             <footer
               className="todoapp__footer"
@@ -155,6 +167,7 @@ export const App: React.FC = () => {
                 filterType={filter}
                 setFilterType={setFilter}
                 onDelete={handleDelete}
+                setDeletingId={setDeletingId}
               />
             </footer>
           </>

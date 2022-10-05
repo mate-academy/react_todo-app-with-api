@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useEffect } from 'react';
 
 export enum ErrorType {
   None = 'no err',
@@ -24,10 +25,14 @@ export const ErrorMessage: React.FC<Props> = ({
     setErrorType(ErrorType.None);
   };
 
-  setTimeout(() => {
-    closeError(true);
-    setErrorType(ErrorType.None);
-  }, 3000);
+  // Error closing after 3 seconds ruins user experience
+
+  useEffect(() => {
+    setTimeout(() => {
+      closeError(true);
+      setErrorType(ErrorType.None);
+    }, 3000);
+  }, []);
 
   return (
     <div

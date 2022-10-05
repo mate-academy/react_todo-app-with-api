@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { SetStateAction, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { NewBlancTodo } from '../NewBlancTodo/NewBlancTodo';
 import { FilterBy } from '../TodoFilter/TodoFilter';
 
 type Props = {
@@ -10,13 +11,15 @@ type Props = {
   todoName: string;
   onDelete: (id: number) => void;
   onUpdate: (todoId: number, done: boolean, title: string) => void;
+  deletingId: number | null | number[],
+  setDeletingId: (id: number | null | number[]) => void;
+  setErrorClosing: (error: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos, filterType, isAdding, todoName, onDelete,
-  onUpdate,
+  onUpdate, deletingId, setErrorClosing,
 }) => {
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [editingTitle, setEditTitle] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -26,10 +29,10 @@ export const TodoList: React.FC<Props> = ({
   const filteredTodos = todos.filter(({ completed }) => {
     switch (filterType) {
       case FilterBy.Active:
-        return completed === false;
+        return !completed;
 
       case FilterBy.Completed:
-        return completed === true;
+        return completed;
 
       case FilterBy.All:
       default:
@@ -48,24 +51,25 @@ export const TodoList: React.FC<Props> = ({
 
     if (newTitle.trim() === '') {
       onDelete(id);
-      setDeletingId(id);
+    } else {
+      const updated = onUpdate(id, completed, newTitle);
+
+      setUpdatingId(id);
+
+      setTimeout(() => {
+        setUpdatingId(null);
+      }, 600);
+
+      setEditTitle(false);
+
+      return updated;
     }
 
-    const updated = onUpdate(id, completed, newTitle);
-
-    setUpdatingId(id);
-
-    setTimeout(() => {
-      setUpdatingId(null);
-    }, 600);
-
-    setEditTitle(false);
-
-    return updated;
-    // return handleUpdate(id, completed, editingNewName);
+    return 0;
   };
 
   const handleStatusChange = (todoId: number, done: boolean, name: string) => {
+    setErrorClosing(false);
     onUpdate(todoId, !done, name);
     setUpdatingId(todoId);
 
@@ -88,9 +92,10 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
-  const handleTodoDeletion = (todoId: number) => {
+  const handleTodoDeletion = async (todoId: number) => {
+    setErrorClosing(false);
+
     onDelete(todoId);
-    setDeletingId(todoId);
   };
 
   const handleEditingInit = (todoId: number, name: string) => {
@@ -187,35 +192,7 @@ export const TodoList: React.FC<Props> = ({
 
       {
         isAdding && (
-          <div
-            key={0}
-            data-cy="Todo"
-            className="todo"
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">
-              {todoName}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
+          <NewBlancTodo todoName={todoName} />
         )
       }
     </section>

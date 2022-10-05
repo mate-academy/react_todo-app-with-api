@@ -15,8 +15,15 @@ type Props = {
 };
 
 export const TodoField: React.FC<Props> = ({
-  todos, todoName, onAdd, setNewTodoName,
-  setErrorType, isAdding, setErrorClosing, newToField, onUpdate,
+  todos,
+  todoName,
+  onAdd,
+  setNewTodoName,
+  setErrorType,
+  isAdding,
+  setErrorClosing,
+  newToField,
+  onUpdate,
 }) => {
   const completedAllTodos = todos.every((todo) => todo.completed === true);
 
@@ -44,12 +51,14 @@ export const TodoField: React.FC<Props> = ({
     setNewTodoName(event.target.value);
   };
 
-  const handleStatusOnToggle = () => todos.map((todo) => {
+  const handleStatusOnToggle = () => todos.map(({ id, title }) => {
+    setErrorClosing(false);
+
     if (completedAllTodos) {
-      return onUpdate(todo.id, false, todo.title);
+      return onUpdate(id, false, title);
     }
 
-    return onUpdate(todo.id, true, todo.title);
+    return onUpdate(id, true, title);
   });
 
   return (
