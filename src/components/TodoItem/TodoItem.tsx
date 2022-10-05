@@ -6,7 +6,7 @@ import { Loader } from '../Loader/Loader';
 type Props = {
   todo: Todo;
   todos?: Todo[],
-  isActive?: boolean,
+  isAdding?: boolean,
   selectedTodosIds?: number[],
   onDelete: (id: number[]) => void;
   onUpdate: (
@@ -22,7 +22,7 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   todos,
-  isActive,
+  isAdding,
   selectedTodosIds,
   onDelete,
   onUpdate,
@@ -33,6 +33,8 @@ export const TodoItem: React.FC<Props> = ({
   const [doubleClick, setDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  const isActive = selectedTodosIds?.includes(id) || isAdding;
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -165,9 +167,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <Loader
-        isActive={isActive}
-        selectedTodosIds={selectedTodosIds}
-        id={id}
+        isActive={isActive || false}
       />
     </div>
   );

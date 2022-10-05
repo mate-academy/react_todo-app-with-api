@@ -42,9 +42,9 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               todos={todos}
               selectedTodosIds={selectedTodosIds}
+              selectedTodoId={selectedTodoId}
               onDelete={onDelete}
               onUpdate={onUpdate}
-              selectedTodoId={selectedTodoId}
               setSelectedTodoId={setSelectedTodoId}
             />
           </CSSTransition>
@@ -62,7 +62,7 @@ export const TodoList: React.FC<Props> = ({
                 completed: false,
                 userId: Math.random(),
               }}
-              isActive={isAdding}
+              isAdding={isAdding}
               onDelete={() => {}}
               onUpdate={() => {}}
             />
