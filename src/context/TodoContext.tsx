@@ -1,20 +1,15 @@
 import {
-  ChangeEvent, createContext, Dispatch, ReactNode, SetStateAction, useState,
+  ChangeEvent,
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useState,
 } from 'react';
+import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
-
-export enum Filter {
-  all,
-  active,
-  completed,
-}
-
-export enum TypeChange {
-  title,
-  checkbox,
-  delete,
-  deleteAll,
-}
+import { TypeChange } from '../types/TypeChange';
 
 interface Context {
   filtredTodos: Todo[],
@@ -80,26 +75,21 @@ export function TodoProvider({ children }: { children?: ReactNode }) {
   const [todoIdLoader, setTodoIdLoader] = useState<null | number>(null);
   const [toggleLoader, setToggleLoader] = useState(false);
 
-  const handleFilter = (filterStatus: number, data: Todo[]) => {
-    let copyOfTodos = [...data];
-
+  const handleFilter = useCallback((filterStatus: number, data: Todo[]) => {
     setFilterState(filterStatus);
-
-    if (filterStatus !== Filter.all) {
-      copyOfTodos = copyOfTodos.filter(todo => {
-        switch (filterStatus) {
-          case Filter.active:
-            return !todo.completed;
-          case Filter.completed:
-            return todo.completed;
-          default:
-            return false;
-        }
-      });
-    }
+    const copyOfTodos = data.filter(todo => {
+      switch (filterStatus) {
+        case Filter.active:
+          return !todo.completed;
+        case Filter.completed:
+          return todo.completed;
+        default:
+          return todo;
+      }
+    });
 
     setFiltredTodos(copyOfTodos);
-  };
+  }, [filterState, todos]);
 
   const handleStatusChange = (todo: Todo, type: TypeChange) => {
     const found = todos.find(stateTodo => stateTodo.id === todo.id) as Todo;
@@ -120,31 +110,34 @@ export function TodoProvider({ children }: { children?: ReactNode }) {
       }
     }
 
-    let newTodos = todos;
+    setTodos((oldState) => {
+      let newTodos = oldState;
 
-    switch (type) {
-      case TypeChange.checkbox:
-      case TypeChange.title:
-        newTodos = todos.map((item, index) => {
-          if (index === foundIndex) {
-            return found;
-          }
+      switch (type) {
+        case TypeChange.checkbox:
+        case TypeChange.title:
+          newTodos = todos.map((item, index) => {
+            if (index === foundIndex) {
+              return found;
+            }
 
-          return item;
-        });
-        break;
-      case TypeChange.delete:
-        newTodos = todos.filter(item => item.id !== todo.id);
-        break;
-      case TypeChange.deleteAll:
-        newTodos = todos.filter(item => !item.completed);
-        break;
-      default:
-        throw new Error('Error type two');
-    }
+            return item;
+          });
+          break;
+        case TypeChange.delete:
+          newTodos = todos.filter(item => item.id !== todo.id);
+          break;
+        case TypeChange.deleteAll:
+          newTodos = todos.filter(item => !item.completed);
+          break;
+        default:
+          throw new Error('Error type two');
+      }
 
-    setTodos(newTodos);
-    handleFilter(filterState, newTodos);
+      handleFilter(filterState, newTodos);
+
+      return newTodos;
+    });
   };
 
   const handleChangeTitle = (event: ChangeEvent<HTMLInputElement>) => {

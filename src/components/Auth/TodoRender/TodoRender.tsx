@@ -1,42 +1,34 @@
 import classNames from 'classnames';
 import {
-  ChangeEvent, KeyboardEvent, useEffect, useRef,
+  KeyboardEvent, useContext, useEffect, useRef,
 } from 'react';
 import { deleteTodo, updateTodo } from '../../../api/todos';
-import { TypeChange } from '../../../context/TodoContext';
+import { TypeChange } from '../../../types/TypeChange';
 import { Todo } from '../../../types/Todo';
+import { TodoContext } from '../../../context/TodoContext';
 
 type Props = {
   todo: Todo,
-  handleStatusChange: (todo: Todo, type: TypeChange) => void,
-  selectedTodoId: number | null,
-  setSelectedTodoId: (valut: number) => void,
-  setInputValue: (value: string) => void,
-  inputValue: string,
-  handleChangeTitle: (event: ChangeEvent<HTMLInputElement>) => void,
-  setLoadError: (value: boolean) => void,
-  setErrorMessage: (value: string) => void,
-  allCompletedLoader: boolean,
-  todoIdLoader: null | number,
-  setTodoIdLoader: (value: number | null) => void,
-  toggleLoader: boolean,
 };
 
 export const TodoRender: React.FC<Props> = ({
   todo,
-  handleStatusChange,
-  selectedTodoId,
-  setSelectedTodoId,
-  setInputValue,
-  inputValue,
-  handleChangeTitle,
-  setLoadError,
-  setErrorMessage,
-  allCompletedLoader,
-  todoIdLoader,
-  setTodoIdLoader,
-  toggleLoader,
 }) => {
+  const {
+    handleStatusChange,
+    selectedTodoId,
+    setSelectedTodoId,
+    setInputValue,
+    inputValue,
+    handleChangeTitle,
+    setLoadError,
+    setErrorMessage,
+    allCompletedLoader,
+    todoIdLoader,
+    setTodoIdLoader,
+    toggleLoader,
+  } = useContext(TodoContext);
+
   const {
     title, completed, id,
   } = todo;
@@ -163,28 +155,26 @@ export const TodoRender: React.FC<Props> = ({
           {title}
         </span>
       ))}
-      {selectedTodoId === id
-  && (
-    <input
-      value={inputValue}
-      className="input is-large is-primary"
-      onBlur={() => handleRenameTitle()}
-      onChange={handleChangeTitle}
-      onKeyUp={handleSubmitOnKey}
-      ref={newTodoField}
-    />
-  )}
-      {selectedTodoId !== id
-  && (
-    <button
-      type="button"
-      className="todo__remove"
-      data-cy="TodoDeleteButton"
-      onClick={() => handleRemoveTodo(todo)}
-    >
-      ×
-    </button>
-  )}
+      {selectedTodoId === id && (
+        <input
+          value={inputValue}
+          className="input is-large is-primary"
+          onBlur={() => handleRenameTitle()}
+          onChange={handleChangeTitle}
+          onKeyUp={handleSubmitOnKey}
+          ref={newTodoField}
+        />
+      )}
+      {selectedTodoId !== id && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDeleteButton"
+          onClick={() => handleRemoveTodo(todo)}
+        >
+          ×
+        </button>
+      )}
 
       <div
         data-cy="TodoLoader"

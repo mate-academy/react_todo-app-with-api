@@ -15,22 +15,12 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const {
     setFiltredTodos,
-    filterState,
-    handleFilter,
     todos,
     setTodos,
     loadError,
     setLoadError,
-    errorMessage,
     setErrorMessage,
-    setAllCompletedLoader,
-    handleStatusChange,
-    setToggleLoader,
   } = useContext(TodoContext);
-
-  useEffect(() => {
-    setTimeout(() => setLoadError(false), 3000);
-  }, [loadError]);
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -57,36 +47,17 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <AddTodo
           userId={user?.id}
-          setTodos={setTodos}
-          handleFilter={handleFilter}
-          filterState={filterState}
-          todos={todos}
-          setLoadError={setLoadError}
-          setErrorMessage={setErrorMessage}
-          setToggleLoader={setToggleLoader}
         />
 
         <TodoList />
 
         {todos.length > 0 && (
-          <FilterComponent
-            todos={todos}
-            filterState={filterState}
-            handleFilter={handleFilter}
-            setTodos={setTodos}
-            setAllCompletedLoader={setAllCompletedLoader}
-            handleStatusChange={handleStatusChange}
-            setErrorMessage={setErrorMessage}
-            setLoadError={setLoadError}
-          />
+          <FilterComponent />
         )}
       </div>
-
-      <ErrorWindow
-        loadError={loadError}
-        setLoadError={setLoadError}
-        errorMessage={errorMessage}
-      />
+      {loadError && (
+        <ErrorWindow />
+      )}
 
     </div>
   );

@@ -1,31 +1,26 @@
 import {
-  ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState,
+  ChangeEvent, FormEvent, useContext, useEffect, useRef, useState,
 } from 'react';
 import { addTodo, getTodos, updateTodo } from '../../../api/todos';
-import { Filter } from '../../../context/TodoContext';
-import { Todo } from '../../../types/Todo';
+import { TodoContext } from '../../../context/TodoContext';
 
 type Props = {
   userId?: number | undefined,
-  setTodos: Dispatch<SetStateAction<Todo[]>>,
-  filterState: Filter,
-  handleFilter: (filterStatus: Filter, data: Todo[]) => void,
-  todos: Todo[],
-  setLoadError: (value: boolean) => void,
-  setErrorMessage: (value: string) => void,
-  setToggleLoader: (value: boolean) => void,
 };
 
 export const AddTodo: React.FC<Props> = ({
   userId,
-  setTodos,
-  filterState,
-  handleFilter,
-  todos,
-  setLoadError,
-  setErrorMessage,
-  setToggleLoader,
 }) => {
+  const {
+    setTodos,
+    handleFilter,
+    filterState,
+    todos,
+    setLoadError,
+    setErrorMessage,
+    setToggleLoader,
+  } = useContext(TodoContext);
+
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todoField, setTodoField] = useState('');
   const [tempTodoCount, setTempTodoCount] = useState<number>(0);
