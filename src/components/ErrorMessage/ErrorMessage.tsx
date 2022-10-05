@@ -1,22 +1,32 @@
 import classNames from 'classnames';
 
+export enum ErrorType {
+  None = 'no err',
+  Blanc = 'Title can not be empty',
+  AddingOne = 'Unable to add a todo',
+  LoadingAll = 'Unable to load a list of todos. Check if your link is correct',
+  DeletingOne = 'Unable to delete a todo',
+  UpdatingOne = 'Unable to update a todo',
+}
+
 type Props = {
   closeError: (error: boolean) => void;
   error: boolean;
-  setDeleteTodoError: (err: boolean) => void;
+  errorType: string;
+  setErrorType: (error: ErrorType) => void;
 };
 
-export const DeletingTodoError: React.FC<Props> = ({
-  closeError, error, setDeleteTodoError,
+export const ErrorMessage: React.FC<Props> = ({
+  closeError, error, errorType, setErrorType,
 }) => {
   const handleWindowClose = () => {
-    setDeleteTodoError(false);
     closeError(true);
+    setErrorType(ErrorType.None);
   };
 
   setTimeout(() => {
-    setDeleteTodoError(false);
     closeError(true);
+    setErrorType(ErrorType.None);
   }, 3000);
 
   return (
@@ -34,7 +44,7 @@ export const DeletingTodoError: React.FC<Props> = ({
         className="delete"
         onClick={handleWindowClose}
       />
-      Unable to delete a todo
+      {errorType}
     </div>
   );
 };

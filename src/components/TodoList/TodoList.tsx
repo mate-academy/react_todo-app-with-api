@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { SetStateAction, useRef, useState } from 'react';
-import { Todo } from '../types/Todo';
-import { FilterBy } from './TodoFilter';
+import { Todo } from '../../types/Todo';
+import { FilterBy } from '../TodoFilter/TodoFilter';
 
 type Props = {
   todos: Todo[];
