@@ -10,7 +10,7 @@ type Props = {
   selectedId: number[];
   isAdding: boolean;
   title: string;
-  handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
+  handleChange: (todoId: number, property: Partial<Todo>) => void;
 };
 
 export const TodoList: React.FC<Props> = ({

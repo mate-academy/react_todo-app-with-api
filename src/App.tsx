@@ -1,9 +1,11 @@
 import React, {
   FormEvent,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Header } from './components/Header/Header';
@@ -22,13 +24,13 @@ import { ErrorMessage } from './types/Error';
 
 export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
-  const [todos, setTodos] = React.useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [fileterType, setFilterType] = React.useState(FilterType.All);
-  const [title, setTitle] = React.useState('');
-  const [selectedId, setSelectedId] = React.useState<number[]>([]);
-  const [isAdding, setisAdding] = React.useState(false);
-  const user = React.useContext(AuthContext);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fileterType, setFilterType] = useState(FilterType.All);
+  const [title, setTitle] = useState('');
+  const [selectedId, setSelectedId] = useState<number[]>([]);
+  const [isAdding, setisAdding] = useState(false);
+  const user = useContext(AuthContext);
 
   useEffect(() => {
     const getTodosFromServer = async (userId: number) => {
@@ -108,23 +110,21 @@ export const App: React.FC = () => {
       });
   }, [todos, selectedId, errorMessage]);
 
-  const handleChange = async (todoId: number, data: Partial<Todo>) => {
-    setSelectedId([todoId]);
+  const handleChange = useCallback(
+    async (todoId: number, data: Partial<Todo>) => {
+      try {
+        const updateStatus = await updateTodo(todoId, data);
 
-    try {
-      const updateStatus: Todo = await updateTodo(todoId, data);
-
-      setTodos(todos.map(todo => (
-        todo.id === todoId
-          ? updateStatus
-          : todo
-      )));
-    } catch {
-      setErrorMessage(ErrorMessage.NotUpdate);
-    }
-
-    setSelectedId([]);
-  };
+        setTodos(todos.map(todo => (
+          todo.id === todoId
+            ? updateStatus
+            : todo
+        )));
+      } catch {
+        setErrorMessage(ErrorMessage.NotUpdate);
+      }
+    }, [todos],
+  );
 
   const handleAllCompleted = () => {
     const isAllCompleted = todos.every(({ completed }) => completed);

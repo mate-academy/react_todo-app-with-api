@@ -14,7 +14,7 @@ type Props = {
   removeTodo: (TodoId: number) => void;
   selectedId: number[];
   isAdding: boolean;
-  handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
+  handleChange: (todoId: number, property: Partial<Todo>) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
