@@ -52,8 +52,6 @@ export const App: React.FC = () => {
     userId = user.id;
   }
 
-  userId = 0;
-
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
