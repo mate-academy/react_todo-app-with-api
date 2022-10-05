@@ -112,6 +112,7 @@ export const App: React.FC = () => {
 
   const handleChange = useCallback(
     async (todoId: number, data: Partial<Todo>) => {
+      setSelectedId([todoId]);
       try {
         const updateStatus = await updateTodo(todoId, data);
 
@@ -122,6 +123,8 @@ export const App: React.FC = () => {
         )));
       } catch {
         setErrorMessage(ErrorMessage.NotUpdate);
+      } finally {
+        setSelectedId([]);
       }
     }, [todos],
   );
