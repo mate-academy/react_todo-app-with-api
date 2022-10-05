@@ -159,12 +159,11 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           title={title}
           handleSubmit={handleSubmit}
-          isAdding={isAdding}
           toggleAll={toggleAll}
           handleToggleAll={handleClickToggleAll}
         />
 
-        {(isAdding || todos.length > 0) && (
+        {(todos.length > 0) && (
           <>
             <TodoList
               todos={filterTodoBy}

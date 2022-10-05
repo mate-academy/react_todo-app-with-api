@@ -35,7 +35,7 @@ export const TodoList: React.FC<Props> = ({
         />
       ))}
 
-      {isAdding && (
+      {(isAdding && todos.length !== 0 && title) && (
         <TodoItem
           key={Math.random()}
           todo={{

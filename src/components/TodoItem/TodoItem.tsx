@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const loaderCondition = completedTodosId.includes(id)
   || selectedIds.includes(id)
-  || (isAdding && !todo.id);
+  || (isAdding && todo.id === 0);
 
   useEffect(() => {
     if (newTodoField.current) {

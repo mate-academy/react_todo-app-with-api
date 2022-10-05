@@ -5,7 +5,6 @@ type Props = {
   setTitle: React.Dispatch<React.SetStateAction<string>>,
   handleSubmit: (event: FormEvent) => Promise<void>,
   title: string,
-  isAdding: boolean,
   toggleAll: boolean,
   handleToggleAll: () => void,
 };
@@ -14,7 +13,6 @@ export const Header: React.FC<Props> = ({
   setTitle,
   handleSubmit,
   title,
-  isAdding,
   toggleAll,
   handleToggleAll,
 }) => {
@@ -48,7 +46,6 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          disabled={isAdding}
         />
       </form>
     </header>
