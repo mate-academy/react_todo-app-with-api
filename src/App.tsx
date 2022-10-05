@@ -32,8 +32,7 @@ export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [status, setStatus] = useState('All');
-  const [removedTodos, setRemovedTodos] = useState<number[]>([]);
-  // const [completedTodoIds, setCompletedTodoIds] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const loadData = async () => {
     if (user) {
@@ -42,6 +41,7 @@ export const App: React.FC = () => {
       setTodos(temp);
       setVisibleTodos(temp);
       setTempTodo(null);
+      setLoadingTodos([]);
     }
   };
 
@@ -98,9 +98,7 @@ export const App: React.FC = () => {
   const removeCompleted = async (completedTodos: Todo[]) => {
     const completedTodoIds = completedTodos.map(todo => todo.id);
 
-    setRemovedTodos(completedTodoIds);
-
-    console.log(removedTodos);
+    setLoadingTodos(completedTodoIds);
 
     await Promise.all(
       completedTodos.map(async (todo) => {
@@ -127,16 +125,19 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          todos={todos}
           addTodo={addTodo}
           isAdding={isAdding}
+          setLoadingTodos={setLoadingTodos}
+          toggleTodoStatus={toggleTodoStatus}
         />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
-          removedTodos={removedTodos}
-          setRemovedTodos={setRemovedTodos}
+          loadingTodos={loadingTodos}
+          setLoadingTodos={setLoadingTodos}
           toggleTodoStatus={toggleTodoStatus}
         />
 

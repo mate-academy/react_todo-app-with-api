@@ -1,17 +1,28 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import classNames from 'classnames';
 import React, {
   FormEvent,
   useEffect,
   useRef,
 } from 'react';
+import { Todo } from '../../../types/Todo';
 
 interface Props {
   addTodo: (value: string) => void;
   isAdding: boolean;
+  todos: Todo[];
+  setLoadingTodos: (removedId: number[]) => void;
+  toggleTodoStatus: (id: number, completed: boolean) => void;
 }
 
-export const TodoHeader: React.FC<Props> = ({ addTodo, isAdding }) => {
+export const TodoHeader: React.FC<Props> = ({
+  addTodo,
+  isAdding,
+  todos,
+  setLoadingTodos,
+  toggleTodoStatus,
+}) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (event: FormEvent) => {
@@ -29,12 +40,37 @@ export const TodoHeader: React.FC<Props> = ({ addTodo, isAdding }) => {
     }
   }, []);
 
+  const isToggleAllAcive = () => {
+    return todos.length === todos.filter(todo => todo.completed).length;
+  };
+
+  const toggleAll = () => {
+    if (isToggleAllAcive()) {
+      setLoadingTodos(todos.map(todo => {
+        toggleTodoStatus(todo.id, todo.completed);
+
+        return todo.id;
+      }));
+    } else {
+      setLoadingTodos(todos.filter(todo => !todo.completed)
+        .map(todo => {
+          toggleTodoStatus(todo.id, todo.completed);
+
+          return todo.id;
+        }));
+    }
+  };
+
   return (
     <header className="todoapp__header">
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: isToggleAllAcive() },
+        )}
+        onClick={() => toggleAll()}
       />
 
       <form

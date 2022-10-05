@@ -6,8 +6,8 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   removeTodo: (id: number) => void;
-  removedTodos: number[];
-  setRemovedTodos: (removedId: number[]) => void;
+  loadingTodos: number[];
+  setLoadingTodos: (removedId: number[]) => void;
   toggleTodoStatus: (id: number, completed: boolean) => void;
 }
 
@@ -15,8 +15,8 @@ export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
   removeTodo,
-  removedTodos,
-  setRemovedTodos,
+  loadingTodos,
+  setLoadingTodos,
   toggleTodoStatus,
 }) => {
   return (
@@ -35,8 +35,8 @@ export const TodoList: React.FC<Props> = ({
             completed={completed}
             removeTodo={removeTodo}
             isAdding={false}
-            removedTodos={removedTodos}
-            setRemovedTodos={setRemovedTodos}
+            loadingTodos={loadingTodos}
+            setLoadingTodos={setLoadingTodos}
             toggleTodoStatus={toggleTodoStatus}
           />
         );
@@ -48,8 +48,8 @@ export const TodoList: React.FC<Props> = ({
           completed={tempTodo.completed}
           removeTodo={removeTodo}
           isAdding
-          removedTodos={removedTodos}
-          setRemovedTodos={setRemovedTodos}
+          loadingTodos={loadingTodos}
+          setLoadingTodos={setLoadingTodos}
           toggleTodoStatus={toggleTodoStatus}
 
         />

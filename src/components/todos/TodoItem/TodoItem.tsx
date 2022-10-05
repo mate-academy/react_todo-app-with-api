@@ -8,8 +8,8 @@ interface Props {
   completed: boolean,
   removeTodo: (id: number) => void;
   isAdding: boolean;
-  removedTodos: number[];
-  setRemovedTodos: (removedId: number[]) => void;
+  loadingTodos: number[];
+  setLoadingTodos: (removedId: number[]) => void;
   toggleTodoStatus: (id: number, completed: boolean) => void;
 }
 
@@ -19,13 +19,18 @@ export const TodoItem: React.FC<Props> = ({
   completed,
   removeTodo,
   isAdding,
-  removedTodos,
-  setRemovedTodos,
+  loadingTodos,
+  setLoadingTodos,
   toggleTodoStatus,
 }) => {
-  const remove = (todoId: number) => {
-    setRemovedTodos([todoId]);
-    removeTodo(todoId);
+  const remove = () => {
+    setLoadingTodos([...loadingTodos, id]);
+    removeTodo(id);
+  };
+
+  const toggle = () => {
+    toggleTodoStatus(id, completed);
+    setLoadingTodos([...loadingTodos, id]);
   };
 
   return (
@@ -39,7 +44,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => toggleTodoStatus(id, completed)}
+          onClick={() => toggle()}
         />
       </label>
 
@@ -48,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
-        onClick={() => remove(id)}
+        onClick={() => remove()}
       >
         ×
       </button>
@@ -58,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames(
           'modal',
           'overlay',
-          { 'is-active': removedTodos.includes(id) || isAdding },
+          { 'is-active': loadingTodos.includes(id) || isAdding },
         )}
       >
         <div className="modal-background has-background-white-ter" />
