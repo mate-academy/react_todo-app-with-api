@@ -90,7 +90,6 @@ export const App: React.FC = () => {
 
   const deleteCompletedTodos = useCallback(async () => {
     setCompletedTodosId(completedTodos.map(({ id }) => id));
-    // console.log(completedTodosId);
 
     await Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
       .then(() => setTodos((prevTodos) => prevTodos
@@ -99,12 +98,16 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.NotDelete);
         setSelectedIds([]);
       });
+
+    setCompletedTodosId([]);
   }, [todos, selectedIds, errorMessage]);
 
   const toggleAll = todos.every(({ completed }) => completed);
 
   const handleOnChange = useCallback(
     async (updateId: number, data: Partial<Todo>) => {
+      setCompletedTodosId([updateId]);
+
       try {
         const changeStatus: Todo = await updateTodo(updateId, data);
 
@@ -116,12 +119,16 @@ export const App: React.FC = () => {
       } catch {
         setErrorMessage(ErrorMessage.NotUpdate);
       }
+
+      setCompletedTodosId([]);
     }, [todos],
   );
 
   const activeTodos = todos.filter(({ completed }) => !completed);
 
   const handleClickToggleAll = () => {
+    setCompletedTodosId(activeTodos.map(({ id }) => id));
+
     if (activeTodos.length) {
       activeTodos.map(({ id }) => updateTodo(id,
         { completed: true }).catch(() => (
