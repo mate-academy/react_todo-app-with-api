@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   FormEvent,
+  useCallback,
 } from 'react';
 import {
   getTodos,
@@ -60,7 +61,7 @@ export const App: React.FC = () => {
     }
   });
 
-  const handleAddTodo = async (event: FormEvent) => {
+  const handleAddTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
 
     if (!title.trim()) {
@@ -84,7 +85,7 @@ export const App: React.FC = () => {
       setTitle('');
       setIsLoading(false);
     }
-  };
+  }, [title]);
 
   const handleRemoveTodo = async (todoId: number) => {
     setIsLoading(true);
