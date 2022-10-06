@@ -108,6 +108,7 @@ export const App: React.FC = () => {
 
   const toggleAll = todos.every(({ completed }) => completed);
   const activeTodos = todos.filter(({ completed }) => !completed);
+  const isCompletedTodos = todos.some(({ completed }) => completed);
 
   const handleOnChange = useCallback(
     async (updateId: number, data: Partial<Todo>) => {
@@ -178,7 +179,8 @@ export const App: React.FC = () => {
 
             <Footer
               sortBy={filterType}
-              todos={todos}
+              isCompleted={isCompletedTodos}
+              activeTodos={activeTodos.length}
               setSortBy={setFilterType}
               deleteTodo={handleDeleteCompletedTodos}
             />
