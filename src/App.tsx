@@ -128,7 +128,7 @@ export const App: React.FC = () => {
   }, [completedTodos]);
 
   const handleTodoUpdate = async (todoId: number, data: Partial<Todo>) => {
-    setSelectedTodos([todoId]);
+    setSelectedTodos(prev => [...prev, todoId]);
 
     try {
       const newTodo = await updateTodo(todoId, data);
@@ -171,7 +171,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <header className="todoapp__header">
           {todos.length > 0 && (
