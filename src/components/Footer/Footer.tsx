@@ -13,7 +13,7 @@ export const Footer: React.FC<Props> = ({
   setFilter,
   todos,
   filter,
-  handleDeleteComleted
+  handleDeleteComleted,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -55,16 +55,17 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {todos.some(todo => todo.completed) &&
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={() => handleDeleteComleted()}
-      >
-        Clear completed
-      </button>
-      }
+      {todos.some(todo => todo.completed)
+      && (
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={() => handleDeleteComleted()}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };
