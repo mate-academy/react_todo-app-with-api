@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { RefObject, useCallback } from 'react';
 import { post } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
@@ -27,10 +27,12 @@ export const NewTodoForm: React.FC<Props> = ({
   user,
   isLoading,
 }) => {
-  const handlerInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerInput = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewTodoTitle(event.target.value);
     setTempTitle(event.target.value);
-  };
+  }, []);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

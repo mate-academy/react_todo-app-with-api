@@ -85,9 +85,11 @@ export const TodoInfo: React.FC<Props> = ({
     fetchData();
   };
 
-  const handlerInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerInput = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewTitle(event.target.value);
-  };
+  }, []);
 
   const escFunction = useCallback((
     event: KeyboardEvent,
