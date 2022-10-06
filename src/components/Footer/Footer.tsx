@@ -7,24 +7,22 @@ export const Footer : React.FC<Props> = ({
   clearCompleted,
   countOfItemsLeft,
   todosLength,
-}) => {
-  return (
-    <footer className="todoapp__footer" data-cy="Footer">
-      <span className="todo-count" data-cy="todosCounter">
-        {`${countOfItemsLeft} items left`}
-      </span>
-      <Filter setFilterType={setFilterType} filterType={filterType} />
+}) => (
+  <footer className="todoapp__footer" data-cy="Footer">
+    <span className="todo-count" data-cy="todosCounter">
+      {`${countOfItemsLeft} items left`}
+    </span>
+    <Filter setFilterType={setFilterType} filterType={filterType} />
 
-      {todosLength > countOfItemsLeft && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => clearCompleted()}
-        >
-          Clear completed
-        </button>
-      )}
-    </footer>
-  );
-};
+    {todosLength > countOfItemsLeft && (
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => clearCompleted()}
+      >
+        Clear completed
+      </button>
+    )}
+  </footer>
+);

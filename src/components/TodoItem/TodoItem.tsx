@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { MouseEvent, useState } from 'react';
 import {
-  deleteTodo,
   updatingTodoTitle,
   updatingTodoCompleted,
 } from '../../api/todos';
@@ -17,14 +16,9 @@ export const TodoItem : React.FC<Props> = ({
   loadingTodoId,
   changeTitle,
 }) => {
-  const { id, title, completed } = todo;
   const [isDoublClick, setIsDublClick] = useState(false);
+  const { id, title, completed } = todo;
   const [newTitle, setNewTitle] = useState(title);
-  const onHendleDeleteTodo = (deleteId: number) => {
-    onDeleteTodo(deleteId);
-    deleteTodo(deleteId);
-  };
-
   const toggleStatusOnServer = async (
     selectedId: number,
     currentStatus: boolean,
@@ -47,24 +41,27 @@ export const TodoItem : React.FC<Props> = ({
     }
   };
 
-  const onTitleSubmit = async (event: EventChangeTitle = null) => {
+  const onTitleSubmit = async (
+    event: EventChangeTitle = null,
+    todoId: number,
+  ) => {
     if (event) {
       event.preventDefault();
     }
 
     setIsDublClick(false);
-    setloadingTodoId(id);
+    setloadingTodoId(todoId);
 
     if (!newTitle.trim()) {
-      onHendleDeleteTodo(id);
+      onDeleteTodo(todoId);
       setloadingTodoId(null);
 
       return;
     }
 
     try {
-      await updatingTodoTitle(id, newTitle);
-      changeTitle(id, newTitle);
+      await updatingTodoTitle(todoId, newTitle);
+      changeTitle(todoId, newTitle);
     } catch {
       setErrorMessage('update todo');
     } finally {
@@ -72,9 +69,9 @@ export const TodoItem : React.FC<Props> = ({
     }
   };
 
-  const isEscape = (key: string) => {
+  const isEscape = (key: string, todoId: number) => {
     if (key === 'Escape') {
-      onTitleSubmit();
+      onTitleSubmit(undefined, todoId);
     }
   };
 
@@ -82,7 +79,6 @@ export const TodoItem : React.FC<Props> = ({
     <div
       data-cy="Todo"
       className={classNames('todo', { completed })}
-      key={id}
     >
       <label className="todo__status-label">
         <input
@@ -106,15 +102,15 @@ export const TodoItem : React.FC<Props> = ({
         )
         : (
           <form
-            onSubmit={onTitleSubmit}
+            onSubmit={(event) => onTitleSubmit(event, id)}
           >
             <input
               type="text"
               className="todo__form"
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
-              onBlur={onTitleSubmit}
-              onKeyDown={event => isEscape(event.key)}
+              onBlur={(event) => onTitleSubmit(event, id)}
+              onKeyDown={event => isEscape(event.key, id)}
             />
           </form>
         )}
@@ -122,7 +118,7 @@ export const TodoItem : React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
-        onClick={() => onHendleDeleteTodo(id)}
+        onClick={() => onDeleteTodo(id)}
       >
         ×
       </button>

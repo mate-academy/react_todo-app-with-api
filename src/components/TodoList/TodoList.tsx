@@ -10,41 +10,40 @@ export const TodoList : React.FC<Props> = ({
   toggleStatus,
   setErrorMessage,
   changeTitle,
-}) => {
-  return (
-    <section className="todoapp__main" data-cy="TodoList">
+}) => (
+  <section className="todoapp__main" data-cy="TodoList">
 
-      {loadingTodoId === 0 && (
-        <div
-          data-cy="Todo"
-          className="todo"
-        >
-          <label className="todo__status-labe">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              defaultChecked
-            />
-          </label>
-          <Loader />
-        </div>
-      )}
-
-      {todos.map(todo => {
-        return (
-          <TodoItem
-            todo={todo}
-            setloadingTodoId={setloadingTodoId}
-            toggleStatus={toggleStatus}
-            setErrorMessage={setErrorMessage}
-            onDeleteTodo={onDeleteTodo}
-            loadingTodoId={loadingTodoId}
-            changeTitle={changeTitle}
+    {loadingTodoId === 0 && (
+      <div
+        data-cy="Todo"
+        className="todo"
+      >
+        <label className="todo__status-labe">
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            defaultChecked
           />
-        );
-      })}
+        </label>
+        <Loader />
+      </div>
+    )}
 
-    </section>
-  );
-};
+    {todos.map(todo => {
+      return (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          setloadingTodoId={setloadingTodoId}
+          toggleStatus={toggleStatus}
+          setErrorMessage={setErrorMessage}
+          onDeleteTodo={onDeleteTodo}
+          loadingTodoId={loadingTodoId}
+          changeTitle={changeTitle}
+        />
+      );
+    })}
+
+  </section>
+);

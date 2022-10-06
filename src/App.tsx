@@ -141,6 +141,7 @@ export const App: React.FC = () => {
       return { ...todo, completed: true };
     });
 
+    setTodos(selectedTodos);
     setVisibleTodos(selectedTodos);
   };
 
@@ -217,13 +218,15 @@ export const App: React.FC = () => {
               changeTitle={changeTitle}
             />
           )}
-        <Footer
-          setFilterType={setFilterType}
-          filterType={filterType}
-          clearCompleted={clearCompleted}
-          countOfItemsLeft={countOfItemsLeft}
-          todosLength={todos.length}
-        />
+        {!!todos.length && (
+          <Footer
+            setFilterType={setFilterType}
+            filterType={filterType}
+            clearCompleted={clearCompleted}
+            countOfItemsLeft={countOfItemsLeft}
+            todosLength={todos.length}
+          />
+        )}
       </div>
       {errorMessage && (
         <ErrorNotification
