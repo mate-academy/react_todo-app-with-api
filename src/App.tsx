@@ -24,6 +24,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAddingFromServer] = useState(false);
   const [completed, setCompleted] = useState<number[]>([]);
   const [activeTodoId, setActiveTodoId] = useState([0]);
+  const [updatungId, setUpdatungId] = useState<number | null>(null);
 
   async function updatePost(todoId: number, done: boolean, title: string) {
     try {
@@ -144,6 +145,7 @@ export const App: React.FC = () => {
             setErrorType={setErrorType}
             setErrorClosing={setErrorClosing}
             onUpdate={handleUpdate}
+            setUpdatungId={setUpdatungId}
           />
         </header>
 
@@ -158,6 +160,8 @@ export const App: React.FC = () => {
               onUpdate={handleUpdate}
               setErrorClosing={setErrorClosing}
               activeTodoId={activeTodoId}
+              updatungId={updatungId}
+
             />
             <footer
               className="todoapp__footer"

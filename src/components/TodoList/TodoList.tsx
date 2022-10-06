@@ -13,6 +13,7 @@ type Props = {
   onUpdate: (todoId: number, done: boolean, title: string) => void;
   setErrorClosing: (error: boolean) => void;
   activeTodoId: number[];
+  updatungId: number | null;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
   onUpdate,
   setErrorClosing,
   activeTodoId,
+  updatungId,
 }) => {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [editingTitle, setEditTitle] = useState(false);
@@ -189,7 +191,8 @@ export const TodoList: React.FC<Props> = ({
                 'modal overlay',
                 {
                   'is-active': updatingId === id
-                    || activeTodoId.includes(id),
+                    || activeTodoId.includes(id)
+                    || updatungId !== null,
                 },
               )}
             >

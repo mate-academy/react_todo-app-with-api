@@ -12,6 +12,7 @@ type Props = {
   isAdding: boolean;
   setErrorClosing: (er: boolean) => void;
   onUpdate: (todoId: number, done: boolean, title: string) => void;
+  setUpdatungId: (num: number | null) => void;
 };
 
 export const TodoField: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const TodoField: React.FC<Props> = ({
   setErrorClosing,
   newToField,
   onUpdate,
+  setUpdatungId,
 }) => {
   const completedAllTodos = todos.every((todo) => todo.completed === true);
 
@@ -39,6 +41,7 @@ export const TodoField: React.FC<Props> = ({
 
     if (todoName.trim()) {
       onAdd(todoName);
+      setErrorClosing(false);
       setErrorType(ErrorType.None);
     }
 
@@ -51,14 +54,19 @@ export const TodoField: React.FC<Props> = ({
     setNewTodoName(event.target.value);
   };
 
-  const handleStatusOnToggle = () => todos.map(({ id, title }) => {
+  const handleStatusOnToggle = () => todos.forEach(async ({ id, title }) => {
     setErrorClosing(false);
+    setUpdatungId(id);
 
-    if (completedAllTodos) {
-      return onUpdate(id, false, title);
+    try {
+      if (completedAllTodos) {
+        return onUpdate(id, false, title);
+      }
+
+      return onUpdate(id, true, title);
+    } finally {
+      setTimeout(() => setUpdatungId(null), 500);
     }
-
-    return onUpdate(id, true, title);
   });
 
   return (
