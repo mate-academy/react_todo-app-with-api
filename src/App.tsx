@@ -140,7 +140,6 @@ export const App: React.FC = () => {
             completed: true,
           });
         }
-
         return ({
           ...todo,
           completed: false,
