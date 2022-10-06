@@ -33,7 +33,7 @@ export const ToggleButton: React.FC<Props> = ({
     return activeTodos.length > 0
       ? updateComplete(activeTodos, true)
       : updateComplete(todos, false);
-  }, []);
+  }, [activeTodos, todos]);
 
   return (
     <button

@@ -59,9 +59,11 @@ export const UpdatingTodo: React.FC<Props> = ({
     deleteTodos();
   }, []);
 
-  const handleCheck = () => updateStatus(id, { completed: !completed });
+  const handleCheck = useCallback(
+    () => updateStatus(id, { completed: !completed }), [updateStatus],
+  );
 
-  const handleTitle = () => {
+  const handleTitle = useCallback(() => {
     if (!titleField) {
       handlerDeleteTodo(id);
       setIsDoubleClick(false);
@@ -71,19 +73,23 @@ export const UpdatingTodo: React.FC<Props> = ({
 
     updateStatus(id, { title: titleField });
     setIsDoubleClick(false);
-  };
+  }, [titleField]);
 
-  const handleTitleUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitleField(event.target.value);
-  };
+  const handleTitleUpdate = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTitleField(event.target.value);
+    }, [],
+  );
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     setIsDoubleClick(false);
-  };
+  }, []);
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    return event.key === 'Escape' && setIsDoubleClick(false);
-  };
+  const handleKeyPress = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      return event.key === 'Escape' && setIsDoubleClick(false);
+    }, [],
+  );
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
