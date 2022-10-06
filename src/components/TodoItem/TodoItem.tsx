@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import {
   ChangeEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -30,7 +31,10 @@ export const TodoItem: React.FC<Props> = ({
   const [selectedTodo, setSelectedTodo] = useState(0);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const isLoading = selectedId.includes(todo.id) || (isAdding && todo.id === 0);
+  const { title, id, completed } = todo;
+
+  const isLoading = useMemo(() => isAdding
+  && selectedId.includes(id), [isAdding, selectedId, id]);
 
   const UpdateTodoTitle = () => {
     if (newTitle === todo.title) {
@@ -85,8 +89,6 @@ export const TodoItem: React.FC<Props> = ({
       newTodoField.current.focus();
     }
   }, [selectedTodo]);
-
-  const { title, completed, id } = todo;
 
   return (
     <div
