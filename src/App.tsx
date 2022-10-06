@@ -86,8 +86,11 @@ export const App: React.FC = () => {
 
             <Footer
               todos={filterTodos}
+              setTodos={setTodos}
               filterType={filterType}
               setFilterType={setFilterType}
+              setError={setError}
+              setErrorMessage={setErrorMessage}
             />
           </>
         )}

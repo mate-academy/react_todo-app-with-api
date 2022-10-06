@@ -8,15 +8,33 @@ type Props = {
   todos: Todo[];
   filterType: FilterType;
   setFilterType: Dispatch<SetStateAction<FilterType>>;
+  setTodos: Dispatch<SetStateAction<Todo[]>>
+  setError: Dispatch<SetStateAction<boolean>>;
+  setErrorMessage: Dispatch<SetStateAction<string>>;
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   filterType,
   setFilterType,
+  setTodos,
+  setError,
+  setErrorMessage,
 }) => {
+  const checkSomeCompleted = todos.some(todo => todo.completed);
+
   const handleRemoveCompleted = () => {
-    todos.forEach(todo => (todo.completed ? deleteTodo(todo.id) : todo));
+    todos.map(todo => (
+      todo.completed
+        ? (deleteTodo(todo.id)
+          .then(() => {
+            setTodos(todos.filter(tod => !tod.completed));
+          })
+          .catch(() => {
+            setError(true);
+            setErrorMessage('Unable to delete a todo');
+          }))
+        : todo));
   };
 
   return (
@@ -73,9 +91,11 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         onClick={handleRemoveCompleted}
+        disabled={!checkSomeCompleted}
       >
         Clear completed
       </button>
+
     </footer>
   );
 };
