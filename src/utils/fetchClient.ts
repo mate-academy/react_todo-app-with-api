@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 const BASE_URL = 'https://mate.academy/students-api';
 
 function wait(delay: number) {
