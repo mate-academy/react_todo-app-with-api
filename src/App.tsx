@@ -16,6 +16,7 @@ import {
 import { AuthContext } from './components/Auth/AuthContext';
 import { Filter } from './components/Filter';
 import { TodoList } from './components/TodoList';
+import { ErrorMessage } from './components/ErrorMessage';
 
 import { FilterStatus } from './types/FilterStatus';
 import { Todo } from './types/Todo';
@@ -263,25 +264,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !error },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={handleCloseError}
-        />
-
-        {error}
-      </div>
+      <ErrorMessage error={error} onCloseError={handleCloseError} />
     </div>
   );
 };
