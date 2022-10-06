@@ -1,13 +1,13 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../../types/Todo';
+import { Filters } from '../../types/Filters';
 
 type Props = {
-  setFilterBy: (object: string) => void;
-  filterBy: string;
+  setFilterBy: (arg: Filters) => void;
+  filterBy: Filters;
   todos: Todo[] | null;
   deleteTodo: () => void
-  completedTodos: Todo[];
 };
 
 export const TodoFooter: React.FC<Props> = ({
@@ -15,9 +15,8 @@ export const TodoFooter: React.FC<Props> = ({
   todos,
   setFilterBy,
   deleteTodo,
-  completedTodos,
 }) => {
-  const handleChangeFilterBy = (filteredBy: string) => {
+  const handleChangeFilterBy = (filteredBy: Filters) => {
     setFilterBy(filteredBy);
   };
 
@@ -38,7 +37,7 @@ export const TodoFooter: React.FC<Props> = ({
           href="#/"
           className={classNames('filter__link',
             { selected: filterByParam('all') })}
-          onClick={() => handleChangeFilterBy('all')}
+          onClick={() => handleChangeFilterBy(Filters.All)}
         >
           All
         </a>
@@ -48,7 +47,7 @@ export const TodoFooter: React.FC<Props> = ({
           href="#/active"
           className={classNames('filter__link',
             { selected: filterByParam('active') })}
-          onClick={() => handleChangeFilterBy('active')}
+          onClick={() => handleChangeFilterBy(Filters.Active)}
         >
           Active
         </a>
@@ -57,7 +56,7 @@ export const TodoFooter: React.FC<Props> = ({
           href="#/completed"
           className={classNames('filter__link',
             { selected: filterByParam('completed') })}
-          onClick={() => handleChangeFilterBy('completed')}
+          onClick={() => handleChangeFilterBy(Filters.Completed)}
         >
           Completed
         </a>
@@ -69,7 +68,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={deleteTodo}
       >
-        {completedTodos.length > 0 && ('Clear completed')}
+        Clear completed
       </button>
     </footer>
   );

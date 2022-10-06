@@ -1,67 +1,57 @@
-import classNames from 'classnames';
-import React from 'react';
 import { Todo } from '../../types/Todo';
+import { TodoItem } from './TodoItem';
 
-type Props = {
-  todos: Todo[] | null;
-  handleremoveTodo: (param: number) => void;
-  isAdding: boolean;
-  selectedId: number[];
-
-};
+interface Props {
+  todos: Todo[],
+  removeTodo: (TodoId: number) => Promise<void>,
+  selectedTodoId: number[],
+  isAdding: boolean,
+  title: string,
+  handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
+  completedTodosId: number[],
+}
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  handleremoveTodo,
+  removeTodo,
+  selectedTodoId,
   isAdding,
-  selectedId,
+  title,
+  handleOnChange,
+  completedTodosId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos?.map(({ title, completed, id }) => {
-        return (
-          <div
-            data-cy="Todo"
-            className={classNames(
-              'todo',
-              {
-                completed,
-              },
-            )}
-            key={id}
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                defaultChecked
-              />
-            </label>
+      {todos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          todos={todos}
+          removeTodo={removeTodo}
+          selectedIds={selectedTodoId}
+          isAdding={isAdding}
+          handleOnChange={handleOnChange}
+          completedTodosId={completedTodosId}
+        />
+      ))}
 
-            <span data-cy="TodoTitle" className="todo__title">{title}</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => handleremoveTodo(id)}
-            >
-              ×
-            </button>
-
-            {(isAdding && selectedId.includes(id)) && (
-              <div
-                data-cy="TodoLoader"
-                className="modal overlay is-active"
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader is-loading " />
-              </div>
-            )}
-          </div>
-        );
-      })}
-
+      {(isAdding && todos.length > 0 && title) && (
+        <TodoItem
+          key={Math.random()}
+          todo={{
+            id: 0,
+            title,
+            completed: false,
+            userId: Math.random(),
+          }}
+          todos={todos}
+          removeTodo={removeTodo}
+          selectedIds={selectedTodoId}
+          isAdding={isAdding}
+          handleOnChange={handleOnChange}
+          completedTodosId={completedTodosId}
+        />
+      )}
     </section>
   );
 };

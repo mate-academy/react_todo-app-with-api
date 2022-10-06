@@ -1,25 +1,40 @@
-import React, { FormEventHandler, RefObject } from 'react';
+import classNames from 'classnames';
+import React, { useRef, FormEvent, useEffect } from 'react';
 
 type Props = {
-  newTodoField: RefObject<HTMLInputElement>;
-  handleSubmit: (FormEventHandler<HTMLFormElement>);
-  setTitle: (param: string) => void;
-  title: string;
+  setTitle: React.Dispatch<React.SetStateAction<string>>,
+  handleSubmit: (event: FormEvent) => Promise<void>,
+  title: string,
+  toggleAllCompetedTodos: boolean,
+  handleToggleAll: () => void,
 };
 
-export const TodoHeader: React.FC<Props> = ({
-  newTodoField,
-  handleSubmit,
+export const Header: React.FC<Props> = ({
   setTitle,
+  handleSubmit,
   title,
+  toggleAllCompetedTodos,
+  handleToggleAll,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
+
   return (
     <header className="todoapp__header">
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: toggleAllCompetedTodos },
+        )}
         aria-label="a problem"
+        onClick={handleToggleAll}
       />
 
       <form onSubmit={handleSubmit}>
