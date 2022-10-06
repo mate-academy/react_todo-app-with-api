@@ -83,7 +83,8 @@ export const UpdatingTodo: React.FC<Props> = ({
 
   const handleBlur = useCallback(() => {
     setIsDoubleClick(false);
-  }, []);
+    updateStatus(id, { title: titleField });
+  }, [titleField]);
 
   const handleKeyPress = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
