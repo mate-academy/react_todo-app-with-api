@@ -157,6 +157,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           setTitle={setTitle}
+          todos={todos}
           title={title}
           handleSubmit={handleSubmit}
           toggleAll={toggleAll}
