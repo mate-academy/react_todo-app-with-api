@@ -1,13 +1,14 @@
 import classNames from 'classnames';
 import React, { FormEvent, useEffect, useRef } from 'react';
+import { Todo } from '../../../types/Todo';
 
 type Props = {
   setTitle: React.Dispatch<React.SetStateAction<string>>,
   handleSubmit: (event: FormEvent) => Promise<void>,
-  title: string,
-  isAdding: boolean,
-  toggleAll: boolean,
-  handleToggleAll: () => void,
+  title: string;
+  isAdding: boolean;
+  handleToggleAll: () => Promise<void>,
+  todos: Todo[];
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,8 +16,8 @@ export const Header: React.FC<Props> = ({
   handleSubmit,
   title,
   isAdding,
-  toggleAll,
   handleToggleAll,
+  todos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -40,7 +41,7 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: toggleAll },
+          { active: todos.every(todo => todo.completed) },
         )}
         onClick={handleToggleAll}
       />

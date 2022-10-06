@@ -28,6 +28,7 @@ export const App: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
+  const [toggle, setToggle] = useState(true);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -83,13 +84,12 @@ export const App: React.FC = () => {
     }
   }, [todos, errorMessage]);
 
-  const completedTodos = useMemo(
-    () => todos.filter(({ completed }) => completed),
-    [todos],
-  );
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
   const deleteCompletedTodos = useCallback(async () => {
-    setCompletedTodosId(completedTodos.map(({ id }) => id));
+    setCompletedTodosId(completedTodos.map((todo => todo.id)));
 
     await Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
       .then(() => setTodos((prevTodos) => prevTodos
@@ -101,8 +101,6 @@ export const App: React.FC = () => {
 
     setCompletedTodosId([]);
   }, [todos, selectedIds, errorMessage]);
-
-  const toggleAll = todos.every(({ completed }) => completed);
 
   const handleOnChange = useCallback(
     async (updateId: number, data: Partial<Todo>) => {
@@ -124,34 +122,30 @@ export const App: React.FC = () => {
     }, [todos],
   );
 
-  const activeTodos = todos.filter(({ completed }) => !completed);
-
-  const handleClickToggleAll = () => {
-    setCompletedTodosId(activeTodos.map(({ id }) => id));
-
-    if (activeTodos.length) {
-      activeTodos.map(({ id }) => updateTodo(id,
-        { completed: true }).catch(() => (
-        setErrorMessage(ErrorMessage.NotUpdate))));
-      setTodos(todos.map(todo => {
-        const copy = todo;
-
-        copy.completed = true;
-
-        return copy;
-      }));
+  const handleClickToggleAll = async () => {
+    if (completedTodos.length === todos.length) {
+      setCompletedTodosId(todos.map(todo => todo.id));
     } else {
-      todos.map(({ id }) => updateTodo(id,
-        { completed: false }).catch(() => (
-        setErrorMessage(ErrorMessage.NotUpdate))));
-      setTodos(todos.map(todo => {
-        const copy = todo;
-
-        copy.completed = false;
-
-        return copy;
-      }));
+      setCompletedTodosId(todos.filter(todo => !todo.completed)
+        .map(todo => todo.id));
     }
+
+    try {
+      const newTodos = await Promise.all(todos.map(todo => (
+        todo.completed !== toggle
+          ? updateTodo(todo.id, { completed: toggle })
+          : todo
+      )));
+
+      setCompletedTodosId([]);
+
+      setTodos(newTodos);
+    } catch {
+      setErrorMessage(ErrorMessage.NotUpdate);
+    }
+
+    setToggle(!toggle);
+    setCompletedTodosId([]);
   };
 
   return (
@@ -164,7 +158,7 @@ export const App: React.FC = () => {
           title={title}
           handleSubmit={newTodo}
           isAdding={isAdding}
-          toggleAll={toggleAll}
+          todos={todos}
           handleToggleAll={handleClickToggleAll}
         />
         {
