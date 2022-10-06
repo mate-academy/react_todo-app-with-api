@@ -107,16 +107,24 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateStatus = (todo: Todo) => {
-    setisLoadingList(prev => [...prev, todo.id]);
+  const updatingTodo = (todo: Todo, title?: string) => {
+    const updatedTodo = {
+      ...todo,
+      completed: title ? todo.completed : !todo.completed,
+      title: title || todo.title,
+    };
 
-    updateTodo({ ...todo, completed: !todo.completed })
+    updateTodo(updatedTodo)
       .then(() => {
         setUserTodos(prev => {
           const currentTodo = prev.find(todoItem => todoItem.id === todo.id);
 
           if (currentTodo) {
-            currentTodo.completed = !currentTodo.completed;
+            if (title) {
+              currentTodo.title = title;
+            } else {
+              currentTodo.completed = !currentTodo.completed;
+            }
           }
 
           return [...prev];
@@ -126,20 +134,21 @@ export const App: React.FC = () => {
       .finally(() => setisLoadingList([]));
   };
 
+  const updateStatus = (todo: Todo) => {
+    setisLoadingList(prev => [...prev, todo.id]);
+    updatingTodo(todo);
+  };
+
   const updateStatusForAll = (hasActive: boolean) => {
-    if (hasActive) {
-    // eslint-disable-next-line no-restricted-syntax
-      for (const todo of userTodos) {
-        if (!todo.completed) {
-          updateStatus(todo);
-        }
-      }
-    } else {
-    // eslint-disable-next-line no-restricted-syntax
-      for (const todo of userTodos) {
+    userTodos.forEach(todo => {
+      if (!hasActive) {
         updateStatus(todo);
       }
-    }
+
+      if (!todo.completed) {
+        updateStatus(todo);
+      }
+    });
   };
 
   const resetEditTodoId = () => {
@@ -159,22 +168,7 @@ export const App: React.FC = () => {
       setisLoadingList(prev => [...prev, todo.id]);
       resetEditTodoId();
 
-      updateTodo({ ...todo, title })
-        .then(() => {
-          setUserTodos(prev => {
-            const currentTodo = prev.find(todoItem => todoItem.id === todo.id);
-
-            if (currentTodo) {
-              currentTodo.title = title;
-            }
-
-            return [...prev];
-          });
-        })
-        .catch(() => setErrorType(ErrorType.update))
-        .finally(() => {
-          setisLoadingList([]);
-        });
+      updatingTodo(todo, title);
     } else {
       removeTodo(todo.id);
     }
