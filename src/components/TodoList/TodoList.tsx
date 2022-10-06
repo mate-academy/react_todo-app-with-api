@@ -58,31 +58,24 @@ export const TodoList: React.FC<Props> = ({
         ))}
 
         {isAdding
-      && (
-        <CSSTransition
-          key={0}
-          timeout={300}
-          classNames="temp-item"
-        >
-          <TodoItem
-            todo={{
-              id: 0,
-              title: query,
-              completed: false,
-              userId: user?.id || 0,
-            }}
-            onRemoveTodo={onRemoveTodo}
-            onUpdateStatus={onUpdateStatus}
-            onSetEditTodoId={onSetEditTodoId}
-            editTodoId={editTodoId}
-            newTitle={newTitle}
-            onSetNewTitle={onSetNewTitle}
-            onUpdateTitle={onUpdateTitle}
-            isProcessing
-          />
-        </CSSTransition>
+          && (
+            <CSSTransition
+              key={0}
+              timeout={300}
+              classNames="temp-item"
+            >
+              <TodoItem
+                todo={{
+                  id: 0,
+                  title: query,
+                  completed: false,
+                  userId: user?.id || 0,
+                }}
+                isProcessing
+              />
+            </CSSTransition>
 
-      )}
+          )}
       </TransitionGroup>
     </section>
   );

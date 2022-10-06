@@ -75,7 +75,7 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setIsAdding(true);
+      setIsAdding(sortType !== SortType.completed);
 
       addTodo(newTodo)
         .then((todo: Todo) => {
@@ -157,6 +157,8 @@ export const App: React.FC = () => {
 
     if (title.length) {
       setisLoadingList(prev => [...prev, todo.id]);
+      resetEditTodoId();
+
       updateTodo({ ...todo, title })
         .then(() => {
           setUserTodos(prev => {
@@ -172,7 +174,6 @@ export const App: React.FC = () => {
         .catch(() => setErrorType(ErrorType.update))
         .finally(() => {
           setisLoadingList([]);
-          resetEditTodoId();
         });
     } else {
       removeTodo(todo.id);

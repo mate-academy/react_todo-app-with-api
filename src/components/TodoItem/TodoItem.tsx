@@ -7,14 +7,14 @@ import { TodoLoader } from '../TodoLoader';
 
 type Props = {
   todo: Todo;
-  onRemoveTodo: (todoId: number) => void;
   isProcessing: boolean;
-  onUpdateStatus: (todo: Todo) => void;
-  onSetEditTodoId: (todoId: number | null) => void;
-  editTodoId: number | null;
-  onSetNewTitle: (title: string) => void;
-  newTitle: string;
-  onUpdateTitle: (todo: Todo, cancel?: boolean) => void;
+  onRemoveTodo?: (todoId: number) => void;
+  onUpdateStatus?: (todo: Todo) => void;
+  onSetEditTodoId?: (todoId: number | null) => void;
+  editTodoId?: number | null;
+  onSetNewTitle?: (title: string) => void;
+  newTitle?: string;
+  onUpdateTitle?: (todo: Todo, cancel?: boolean) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -38,22 +38,41 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [editTodoId]);
 
+  const handleUpdateStatusInput = () => {
+    if (onUpdateStatus) {
+      onUpdateStatus(todo);
+    }
+  };
+
+  const handleRemoveButton = () => {
+    if (onRemoveTodo) {
+      onRemoveTodo(id);
+    }
+  };
+
   const handleNewTitleInput = (event: ChangeEvent<HTMLInputElement>) => {
-    onSetNewTitle(event.target.value);
+    if (onSetNewTitle) {
+      onSetNewTitle(event.target.value);
+    }
   };
 
   const handleNewTitleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onUpdateTitle(todo);
+
+    if (onUpdateTitle) {
+      onUpdateTitle(todo);
+    }
   };
 
   const handleDoubleClickTitle = () => {
-    onSetEditTodoId(id);
-    onSetNewTitle(title);
+    if (onSetEditTodoId && onSetNewTitle) {
+      onSetEditTodoId(id);
+      onSetNewTitle(title);
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.code === 'Escape') {
+    if (event.code === 'Escape' && onUpdateTitle) {
       onUpdateTitle(todo, true);
     }
   };
@@ -69,7 +88,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => onUpdateStatus(todo)}
+          onChange={handleUpdateStatusInput}
         />
       </label>
 
@@ -98,14 +117,14 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={handleDoubleClickTitle}
             >
-              {title}
+              {isProcessing && newTitle?.length ? newTitle : title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onRemoveTodo(todo.id)}
+              onClick={handleRemoveButton}
             >
               ×
             </button>
