@@ -14,6 +14,7 @@ type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>;
   setError: Dispatch<SetStateAction<boolean>>;
   setErrorMessage: Dispatch<SetStateAction<string>>;
+  toggleAll: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,11 +23,12 @@ export const TodoItem: React.FC<Props> = ({
   setTodos,
   setError,
   setErrorMessage,
+  toggleAll,
 }) => {
-  const [isDeleted, setDeleted] = useState(false);
+  const [isActive, setActive] = useState(false);
 
   const handleDelete = () => {
-    setDeleted(true);
+    setActive(true);
 
     deleteTodo(todo.id)
       .then(() => {
@@ -39,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleStatus = () => {
-    setDeleted(true);
+    setActive(true);
     const todoId = todo.id;
     const todoIndex = todos.findIndex(foundTodo => {
       return foundTodo.id === todo.id;
@@ -49,7 +51,7 @@ export const TodoItem: React.FC<Props> = ({
 
     updateTodo(todoId, { completed: !todo.completed })
       .then(() => {
-        setDeleted(false);
+        setActive(false);
       })
       .catch(() => {
         setError(true);
@@ -98,7 +100,7 @@ export const TodoItem: React.FC<Props> = ({
             ×
           </button>
 
-          {isDeleted && (
+          {(isActive || toggleAll) && (
             <div data-cy="TodoLoader" className="modal overlay is-active">
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

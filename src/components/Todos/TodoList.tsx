@@ -14,6 +14,8 @@ type Props = {
   setErrorMessage: Dispatch<SetStateAction<string>>;
   loader: boolean;
   title: string;
+  toggleAll: boolean;
+  setToggleAll: Dispatch<SetStateAction<boolean>>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
   setErrorMessage,
   loader,
   title,
+  toggleAll,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -40,6 +43,7 @@ export const TodoList: React.FC<Props> = ({
               setTodos={setTodos}
               setError={setError}
               setErrorMessage={setErrorMessage}
+              toggleAll={toggleAll}
             />
           </CSSTransition>
         ))}

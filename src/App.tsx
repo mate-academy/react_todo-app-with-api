@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loader, setLoader] = useState(true);
   const [title, setTitle] = useState('');
+  const [toggleAll, setToggleAll] = useState(false);
 
   const filterTodos = todos.filter(todo => {
     switch (filterType) {
@@ -67,6 +68,7 @@ export const App: React.FC = () => {
           setLoader={setLoader}
           title={title}
           setTitle={setTitle}
+          setToggleAll={setToggleAll}
         />
 
         {todos.length > 0 && (
@@ -78,6 +80,8 @@ export const App: React.FC = () => {
               setErrorMessage={setErrorMessage}
               loader={loader}
               title={title}
+              toggleAll={toggleAll}
+              setToggleAll={setToggleAll}
             />
 
             <Footer
