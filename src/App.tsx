@@ -41,9 +41,9 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [user]);
 
-  const handleAddTodo = (event: FormEvent) => {
+  const handleAddTodo = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     if (todoTitle.trim().length === 0) {
@@ -75,7 +75,7 @@ export const App: React.FC = () => {
         const targetTodo = prev
           .findIndex(todo => todo.id === -1);
 
-        if (!targetTodo) {
+        if (targetTodo === -1) {
           return prev;
         }
 
@@ -89,9 +89,8 @@ export const App: React.FC = () => {
         setTodoTitle('');
         setIsLoading(false);
         setErrorMessage('');
-        // console.log(todos);
       });
-  };
+  }, [todoTitle, userId]);
 
   const handleDeleteTodos = useCallback((todoId: number) => {
     setIsLoading(true);
@@ -109,23 +108,25 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleUpdateTodos = (todoId: number, data: Partial<Todo>) => {
-    setIsLoading(true);
-    setSelectedTodoId(todoId);
-    updateTodo(todoId, data)
-      .then(updatedTodo => {
-        setTodos(prev => (
-          prev.map(todo => (todo.id === todoId
-            ? updatedTodo
-            : todo))
-        ));
-      })
-      .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => {
-        setErrorMessage('');
-        setIsLoading(false);
-      });
-  };
+  const handleUpdateTodos = useCallback(
+    (todoId: number, data: Partial<Todo>) => {
+      setIsLoading(true);
+      setSelectedTodoId(todoId);
+      updateTodo(todoId, data)
+        .then(updatedTodo => {
+          setTodos(prev => (
+            prev.map(todo => (todo.id === todoId
+              ? updatedTodo
+              : todo))
+          ));
+        })
+        .catch(() => setErrorMessage('Unable to update a todo'))
+        .finally(() => {
+          setErrorMessage('');
+          setIsLoading(false);
+        });
+    }, [],
+  );
 
   const handleTogleAll = () => {
     todos.forEach(todo => (

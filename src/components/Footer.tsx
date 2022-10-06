@@ -10,7 +10,7 @@ interface Props {
   handleDeleteTodo: (id: number) => void;
 }
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   todos,
   filterType,
   handleFilter,
@@ -83,4 +83,4 @@ export const Footer: React.FC<Props> = ({
       )}
     </footer>
   );
-};
+});

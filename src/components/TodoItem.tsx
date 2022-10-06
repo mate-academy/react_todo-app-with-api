@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FormEvent, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { Todo } from '../types/Todo';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   selectedTodoId: number;
 }
 
-export const TodoItem: React.FC<Props> = (props) => {
+export const TodoItem: React.FC<Props> = React.memo((props) => {
   const {
     todo,
     handleDeleteTodos,
@@ -125,4 +125,4 @@ export const TodoItem: React.FC<Props> = (props) => {
         )}
     </div>
   );
-};
+});
