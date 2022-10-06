@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -10,16 +11,29 @@ export const ToggleButton: React.FC<Props> = ({
   todos,
   updateStatus,
 }) => {
-  const activeTodos = todos.filter(({ completed }) => !completed);
-  const completedTodos = todos.filter(({ completed }) => completed);
+  const updateComplete = useMemo(() => (todoType:Todo[], completed:boolean) => {
+    todoType.map(({ id }) => updateStatus(id, { completed }));
+  }, []);
+
+  const activeTodos = useMemo(() => {
+    return todos.filter(
+      ({ completed }) => !completed,
+    );
+  }, [todos]);
+
+  const completedTodos = useMemo(() => {
+    return todos.filter(
+      ({ completed }) => completed,
+    );
+  }, [todos]);
 
   const toggleButtonActive = !activeTodos.length && completedTodos.length;
 
-  const handleStatusTodo = () => {
+  const handleStatusTodo = useCallback(() => {
     return activeTodos.length > 0
-      ? activeTodos.map(({ id }) => updateStatus(id, { completed: true }))
-      : todos.map(({ id }) => updateStatus(id, { completed: false }));
-  };
+      ? updateComplete(activeTodos, true)
+      : updateComplete(todos, false);
+  }, []);
 
   return (
     <button

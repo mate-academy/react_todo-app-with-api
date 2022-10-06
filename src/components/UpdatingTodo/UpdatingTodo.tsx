@@ -5,12 +5,12 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useCallback,
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { deleteTodo } from '../../api/todos';
 
 type Props = {
-  todos: Todo[];
   todoId: number;
   setTodoId: (id: number) => void;
   setTodos: Dispatch<SetStateAction<Todo[]>>
@@ -22,7 +22,6 @@ type Props = {
 };
 
 export const UpdatingTodo: React.FC<Props> = ({
-  todos,
   todoId,
   setTodos,
   setTodoId,
@@ -43,20 +42,22 @@ export const UpdatingTodo: React.FC<Props> = ({
     }
   }, [isDoubleClick]);
 
-  const handlerDeleteTodo = (deletingId:number) => {
+  const handlerDeleteTodo = useCallback((deletingId:number) => {
     setTodoId(deletingId);
 
     const deleteTodos = async () => {
       try {
         await deleteTodo(deletingId);
-        setTodos(todos.filter(todo => todo.id !== deletingId));
+        setTodos((prevTodos) => {
+          return prevTodos.filter(todo => todo.id !== deletingId);
+        });
       } catch (error) {
         setErrorNotification('Unable to delete a todo');
       }
     };
 
     deleteTodos();
-  };
+  }, []);
 
   const handleCheck = () => updateStatus(id, { completed: !completed });
 

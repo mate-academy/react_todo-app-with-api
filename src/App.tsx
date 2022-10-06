@@ -3,6 +3,7 @@ import {
   useEffect,
   useState,
   useMemo,
+  useCallback,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList';
@@ -30,12 +31,15 @@ export const App: React.FC = () => {
   const [previewTitle, setPreviewTitle] = useState('');
   const user = useContext(AuthContext);
 
-  const selectedStatus = statuses
-    .find(status => selectedStatusId === status.id) || statuses[0];
+  const selectedStatus = useMemo(() => {
+    return statuses.find(
+      status => selectedStatusId === status.id,
+    ) || statuses[0];
+  }, [selectedStatusId]);
 
-  const onStatusSelected = (status:Status) => {
+  const onStatusSelected = useCallback((status:Status) => {
     setSelectedStatusId(status.id);
-  };
+  }, []);
 
   const loadTodos = async () => {
     try {

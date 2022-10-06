@@ -26,13 +26,13 @@ export const Footer: React.FC<Props> = ({
     return todos.filter(
       ({ completed }) => !completed,
     );
-  }, []);
+  }, [todos]);
 
   const completedTodos = useMemo(() => {
     return todos.filter(
       ({ completed }) => completed,
     );
-  }, []);
+  }, [todos]);
 
   const deleteCompletedTodos = async () => {
     try {

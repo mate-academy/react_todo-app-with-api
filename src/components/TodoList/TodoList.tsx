@@ -33,7 +33,6 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           setErrorNotification={setErrorNotification}
           setTodos={setTodos}
-          todos={todos}
           todoId={todoId}
           setTodoId={setTodoId}
           updateStatus={updateStatus}

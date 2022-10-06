@@ -52,18 +52,20 @@ export const NewTodo: React.FC<Props> = ({
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    if (!title) {
-      setErrorNotification('Title can\'t be empty');
+      if (!title) {
+        setErrorNotification('Title can\'t be empty');
 
-      return;
-    }
+        return;
+      }
 
-    createTodos();
-    setTitle('');
-  };
+      createTodos();
+      setTitle('');
+    }, [createTodos],
+  );
 
   return (
     <form
