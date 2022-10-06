@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { FilterStatus } from '../../types/Filter';
+import { FilterStatus } from '../../types/FilterStatus';
 
 type Props = {
   filterStatus: FilterStatus
