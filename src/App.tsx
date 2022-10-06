@@ -22,6 +22,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState<number>(0);
+  const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -81,11 +82,13 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(true);
+    setSelectedTodos([0]);
     try {
       const newTodo = await addTodo(newTodoTitle, user?.id || 0);
 
       setTodos(prevTodos => [...prevTodos, newTodo]);
       setNewTodoTitle('');
+      setSelectedTodos([]);
     } catch {
       setErrorMessage('Unable to add a todo');
     }
@@ -94,23 +97,23 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = async (todoId: number) => {
-    setIsLoading(true);
-    setSelectedTodoId(todoId);
+    setSelectedTodos([todoId]);
     try {
       await deleteTodo(todoId);
-
-      setIsLoading(false);
-      setSelectedTodoId(0);
 
       setTodos([...visibleTodo].filter((todo) => todo.id !== todoId));
     } catch {
       setErrorMessage('Unable to delete a todo');
     }
+
+    setSelectedTodos([]);
   };
 
-  const deleteCompletedTodo = () => {
+  const deleteCompletedTodo = async () => {
+    setSelectedTodos(completedTodo.map((todo) => (todo.id)));
     try {
-      completedTodo.map((todo) => deleteTodo(todo.id));
+      await Promise.all(completedTodo.map((todo) => deleteTodo(todo.id)));
+
       setTodos([...todos].filter(todo => !todo.completed));
     } catch {
       setErrorMessage('Unable to delete a todos');
@@ -121,15 +124,14 @@ export const App: React.FC = () => {
     const { id, completed } = todo;
 
     setIsLoading(true);
-    setSelectedTodoId(id);
+    setSelectedTodos([todo.id]);
     try {
-      updateTodo(id, { completed: !completed });
+      await updateTodo(id, { completed: !completed });
       const currentTodo = todo;
 
       currentTodo.completed = !currentTodo.completed;
 
-      setSelectedTodoId(id);
-
+      setSelectedTodos([]);
       setTodos([...todos]);
     } catch {
       setErrorMessage('Unable to update a todo');
@@ -143,15 +145,27 @@ export const App: React.FC = () => {
     currentTodo.completed = !currentTodo.completed;
   }
 
-  const handleCheckAllTodo = () => {
-    if (activeTodo.length > 0) {
-      activeTodo.forEach((todo) => {
-        checkAllCompleteTodo(todo);
-      });
-    } else {
-      todos.forEach((todo) => {
-        checkAllCompleteTodo(todo);
-      });
+  const handleCheckAllTodo = async () => {
+    setSelectedTodos(prev => {
+      return prev
+        ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
+        : completedTodo.map(todo => todo.id);
+    });
+
+    try {
+      if (activeTodo.length > 0) {
+        activeTodo.forEach((todo) => {
+          checkAllCompleteTodo(todo);
+        });
+      } else {
+        todos.forEach((todo) => {
+          checkAllCompleteTodo(todo);
+        });
+      }
+
+      setSelectedTodos([]);
+    } catch {
+      setErrorMessage('Unable to update todos');
     }
 
     setTodos([...todos]);
@@ -194,6 +208,7 @@ export const App: React.FC = () => {
           handleUpdateTodo={handleUpdateTodo}
           selectedTodoId={selectedTodoId}
           setSelectedTodoId={setSelectedTodoId}
+          selectedTodos={selectedTodos}
         />
 
         <footer className="todoapp__footer" data-cy="Footer">

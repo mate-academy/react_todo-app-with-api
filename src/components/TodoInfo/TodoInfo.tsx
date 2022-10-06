@@ -7,22 +7,20 @@ type Props = {
   title: string,
   onDelete: (todo: number) => void
   todo: Todo
-  isAdding?: boolean
-  isLoading?: boolean
   handleUpdateTodo: (todo: Todo) => void
   selectedTodoId: number
   setSelectedTodoId: (id: number) => void
+  selectedTodos: number[];
 };
 
 export const TodoInfo: React.FC<Props> = ({
   title,
   onDelete,
   todo,
-  isAdding,
-  isLoading,
   handleUpdateTodo,
   selectedTodoId,
   setSelectedTodoId,
+  selectedTodos,
 }) => {
   const handleCheck = () => {
     handleUpdateTodo(todo);
@@ -119,19 +117,16 @@ export const TodoInfo: React.FC<Props> = ({
             </button>
           </>
         )}
-      {
-        (isAdding || isLoading) && selectedTodoId === todo.id
-        && (
-          <div
-            data-cy="TodoLoader"
-            className={classNames('modal overlay',
-              { 'modal overlay is-active': isAdding || isLoading })}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )
-      }
+      <div
+        data-cy="TodoLoader"
+        className={classNames('modal overlay',
+          {
+            'modal overlay is-active': selectedTodos.includes(todo.id),
+          })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };
