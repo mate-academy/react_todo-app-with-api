@@ -93,10 +93,10 @@ export const App: React.FC = () => {
       if (changedTodo) {
         changedTodo.completed = completed;
 
-        return prevTodos;
+        return [...prevTodos];
       }
 
-      return prevTodos;
+      return [...prevTodos];
     });
   };
 
@@ -199,14 +199,15 @@ export const App: React.FC = () => {
   const handleToggleAllTodos = () => {
     const toggleValue = !todos.every((todo) => todo.completed);
 
-    todos.forEach(({ id }) => {
-      clearAlert();
-      addIsLoadingTodoId(id);
-      changeTodoStatus(id, toggleValue)
-        .then(() => changeVisibleTodoStatus(id, toggleValue))
-        .catch(() => handleUpdateError())
-        .finally(() => deleteIsLoadingTodos(id));
-    });
+    todos.filter(({ completed }) => completed !== toggleValue)
+      .forEach(({ id }) => {
+        clearAlert();
+        addIsLoadingTodoId(id);
+        changeTodoStatus(id, toggleValue)
+          .then(() => changeVisibleTodoStatus(id, toggleValue))
+          .catch(() => handleUpdateError())
+          .finally(() => deleteIsLoadingTodos(id));
+      });
   };
 
   const handleDeleteCompleted = () => {
@@ -223,13 +224,20 @@ export const App: React.FC = () => {
   };
 
   const handleTitleChange = (todoId: number, newTitle: string) => {
+    const oldTitle = todos.find((todo) => todoId === todo.id)?.title;
+
     if (newTitle === '') {
       handleDeleteTodo(todoId);
-    } else if (newTitle !== todos.find((todo) => todoId === todo.id)?.title) {
+    } else if (newTitle !== oldTitle) {
       addIsLoadingTodoId(todoId);
+      changeVisibleTodoTitle(todoId, newTitle);
       changeTodoTitle(todoId, newTitle)
-        .then(() => changeVisibleTodoTitle(todoId, newTitle))
-        .catch(() => handleUpdateError())
+        .catch(() => {
+          handleUpdateError();
+          if (oldTitle) {
+            changeVisibleTodoTitle(todoId, oldTitle);
+          }
+        })
         .finally(() => deleteIsLoadingTodos(todoId));
     }
   };

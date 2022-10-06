@@ -21,17 +21,14 @@ export const TodoInfo: React.FC<Props> = ({
 }) => {
   const { id, title, completed } = todo;
   const [isEditing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
   const handleOpenEditor = () => setEditing(true);
   // eslint-disable-next-line max-len
-  const handleCloseEditor = (event: React.FocusEvent<HTMLInputElement, Element> | React.FormEvent<HTMLFormElement>) => {
+  const handleCloseEditor = () => {
     setEditing(false);
 
-    if (event.target instanceof HTMLFormElement) {
-      handleTitleChange(id, event.target.TodoTitleField.value.trim());
-    } else if (event.target instanceof HTMLInputElement) {
-      handleTitleChange(id, event.target.value.trim());
-    }
+    handleTitleChange(id, newTitle.trim());
   };
 
   return (
@@ -60,7 +57,7 @@ export const TodoInfo: React.FC<Props> = ({
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              handleCloseEditor(event);
+              handleCloseEditor();
             }}
           >
             <input
@@ -70,9 +67,15 @@ export const TodoInfo: React.FC<Props> = ({
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               defaultValue={title}
-              onBlur={(event) => handleCloseEditor(event)}
+              onBlur={() => handleCloseEditor()}
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  handleCloseEditor();
+                }
+              }}
+              onChange={(event) => setNewTitle(event.target.value)}
             />
           </form>
         )
