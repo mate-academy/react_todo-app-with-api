@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
-  const [toggle, setToggle] = useState(true);
+  const [toggle, setToggle] = useState<boolean>(true);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -49,7 +49,8 @@ export const App: React.FC = () => {
     getTodosFromServer(user.id);
   }, []);
 
-  const filterTodoBy = getFilteredTodo(filterType, todos);
+  const filterTodoBy = useMemo(() => getFilteredTodo(filterType, todos),
+    [todos, filterType]);
 
   const newTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();

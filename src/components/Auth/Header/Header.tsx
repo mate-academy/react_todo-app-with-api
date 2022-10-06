@@ -5,19 +5,19 @@ import { Todo } from '../../../types/Todo';
 type Props = {
   setTitle: React.Dispatch<React.SetStateAction<string>>,
   handleSubmit: (event: FormEvent) => Promise<void>,
+  todos: Todo[];
   title: string;
   isAdding: boolean;
   handleToggleAll: () => Promise<void>,
-  todos: Todo[];
 };
 
 export const Header: React.FC<Props> = ({
   setTitle,
   handleSubmit,
+  todos,
   title,
   isAdding,
   handleToggleAll,
-  todos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
