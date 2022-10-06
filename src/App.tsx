@@ -9,7 +9,6 @@ import {
   useRef,
   useCallback,
 } from 'react';
-// import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
@@ -43,7 +42,6 @@ function filtTodos(
 }
 
 export const App: FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -54,39 +52,25 @@ export const App: FC = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [title, setTitle] = useState<string>('');
 
-  let userId = 0;
-
-  if (user?.id) {
-    userId = user.id;
-  }
-
-  useEffect(() => {
+  const loadTodos = useCallback((userId: number) => {
     getTodos(userId)
-      .then(userTodosFromServer => {
-        setTodos(userTodosFromServer);
+      .then(todosFromServer => {
+        setTodos(todosFromServer);
       })
       .catch(() => setErrorMessage('Unable to update todos'));
-  }, []);
+  }, [user, todos]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    loadTodos(user.id);
+  }, [user]);
 
   const visibleTodos = useMemo(() => (
     filtTodos(todos, sortType)
   ), [todos, sortType]);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [todos]);
-
-  const addNewTodo = (todo: Todo) => {
-    setTodos(prevTodos => [todo, ...prevTodos]);
-  };
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [todos]);
 
   const reset = () => {
     setTitle('');
@@ -95,7 +79,6 @@ export const App: FC = () => {
 
   const handleSubmit = useCallback(async (event: FormEvent) => {
     event.preventDefault();
-
     setIsAdding(true);
 
     if (!title.trim()) {
@@ -112,7 +95,7 @@ export const App: FC = () => {
 
       const newTodo = await postTodos(user.id, title);
 
-      addNewTodo(newTodo);
+      setTodos([...todos, newTodo]);
     } catch {
       setErrorMessage('Unable to add a todo');
     }
@@ -205,6 +188,7 @@ export const App: FC = () => {
           todos={todos}
           handleToggleClick={handleToggleClick}
           handleSubmit={handleSubmit}
+          isCompleted={isCompleted}
           newTodoField={newTodoField}
           isAdding={isAdding}
           title={title}
@@ -212,22 +196,26 @@ export const App: FC = () => {
         />
 
         <TodoList
-          todos={visibleTodos}
+          visibleTodos={visibleTodos}
           removeTodo={handleDeleteTodo}
-          // setIsAdding={setIsAdding}
+          setIsAdding={setIsAdding}
           isAdding={isAdding}
+          setErrorMessage={setErrorMessage}
           handleStatusChange={upgradeTodos}
+          newTodoField={newTodoField}
           mainInput={title}
-        // upgradeTodos={upgradeTodos}
+          upgradeTodos={upgradeTodos}
         />
 
-        <Footer
-          sortType={sortType}
-          activeItem={activeItem}
-          isCompleted={isCompleted}
-          onSortChange={setSortType}
-          clearCompleted={clearCompleted}
-        />
+        {todos.length > 0 && (
+          <Footer
+            sortType={sortType}
+            activeItem={activeItem}
+            isCompleted={isCompleted}
+            onSortChange={setSortType}
+            clearCompleted={clearCompleted}
+          />
+        )}
       </div>
 
       {errorMessage && (
