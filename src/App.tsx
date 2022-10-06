@@ -79,7 +79,7 @@ export const App: React.FC = () => {
     };
 
     loadTodos();
-  }, [completed]);
+  }, [activeTodoId]);
 
   const handleAdd = async (newTodoName: string) => {
     setIsAddingFromServer(true);
@@ -116,7 +116,15 @@ export const App: React.FC = () => {
   };
 
   const handleUpdate = async (todoId: number, done: boolean, title: string) => {
-    updatePost(todoId, done, title);
+    try {
+      setActiveTodoId(idActive => [...idActive, todoId]);
+
+      const updated = updatePost(todoId, done, title);
+
+      return await updated;
+    } finally {
+      setActiveTodoId(idActive => idActive.filter(idI => idI !== todoId));
+    }
   };
 
   return (
