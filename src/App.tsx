@@ -138,36 +138,20 @@ export const App: React.FC = () => {
     }
   };
 
-  function checkAllCompleteTodo(todo: Todo) {
-    updateTodo(todo.id, { completed: !todo.completed });
-    const currentTodo = todo;
+  const handleCheckAllTodo = () => {
+    todos.forEach(async (todo) => {
+      setSelectedTodos(prevIds => [...prevIds, todo.id]);
+      try {
+        await updateTodo(todo.id,
+          { completed: completedTodo.length !== todos.length });
+        const currentTodo = todo;
 
-    currentTodo.completed = !currentTodo.completed;
-  }
-
-  const handleCheckAllTodo = async () => {
-    setSelectedTodos(prev => {
-      return prev
-        ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
-        : completedTodo.map(todo => todo.id);
-    });
-
-    try {
-      if (activeTodo.length > 0) {
-        activeTodo.forEach((todo) => {
-          checkAllCompleteTodo(todo);
-        });
-      } else {
-        todos.forEach((todo) => {
-          checkAllCompleteTodo(todo);
-        });
+        currentTodo.completed = completedTodo.length !== todos.length;
+        setSelectedTodos([]);
+      } catch {
+        setErrorMessage('Unable to update todos');
       }
-
-      setSelectedTodos([]);
-    } catch {
-      setErrorMessage('Unable to update todos');
-    }
-
+    });
     setTodos([...todos]);
   };
 
@@ -209,6 +193,7 @@ export const App: React.FC = () => {
           selectedTodoId={selectedTodoId}
           setSelectedTodoId={setSelectedTodoId}
           selectedTodos={selectedTodos}
+          setSelectedTodos={setSelectedTodos}
         />
 
         <footer className="todoapp__footer" data-cy="Footer">

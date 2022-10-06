@@ -16,6 +16,7 @@ type Props = {
   selectedTodoId: number
   setSelectedTodoId: (id: number) => void
   selectedTodos: number[];
+  setSelectedTodos: (todoId: number[]) => void
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const TodoList: React.FC<Props> = ({
   selectedTodoId,
   setSelectedTodoId,
   selectedTodos,
+  setSelectedTodos,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -45,6 +47,7 @@ export const TodoList: React.FC<Props> = ({
               selectedTodoId={selectedTodoId}
               setSelectedTodoId={setSelectedTodoId}
               selectedTodos={selectedTodos}
+              setSelectedTodos={setSelectedTodos}
             />
           </CSSTransition>
         ))}
@@ -63,6 +66,7 @@ export const TodoList: React.FC<Props> = ({
               selectedTodoId={selectedTodoId}
               setSelectedTodoId={setSelectedTodoId}
               selectedTodos={selectedTodos}
+              setSelectedTodos={setSelectedTodos}
               todo={{
                 title: newTodoTitle,
                 completed: false,

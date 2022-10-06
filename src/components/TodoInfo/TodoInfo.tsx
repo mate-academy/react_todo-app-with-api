@@ -11,6 +11,7 @@ type Props = {
   selectedTodoId: number
   setSelectedTodoId: (id: number) => void
   selectedTodos: number[];
+  setSelectedTodos: (todoId: number[]) => void
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const TodoInfo: React.FC<Props> = ({
   selectedTodoId,
   setSelectedTodoId,
   selectedTodos,
+  setSelectedTodos,
 }) => {
   const handleCheck = () => {
     handleUpdateTodo(todo);
@@ -48,13 +50,17 @@ export const TodoInfo: React.FC<Props> = ({
     setNewRenameTodo(value);
   };
 
-  const updateTitle = (t: Todo) => {
-    const currentTodo = t;
+  const updateTitle = async (value: Todo) => {
+    setSelectedTodos([value.id]);
+    const currentTodo = value;
 
     currentTodo.title = newRenamedTodo;
-    updateTodo(currentTodo.id, { title: newRenamedTodo });
-
-    setSelectedTodoId(0);
+    try {
+      await updateTodo(currentTodo.id, { title: newRenamedTodo });
+      setSelectedTodos([]);
+    } finally {
+      setSelectedTodoId(0);
+    }
   };
 
   const handlePressKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
