@@ -20,7 +20,9 @@ export const Footer: React.FC<Props> = ({
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const completedTodos = todos.length - todosLeft;
+  const completedTodos = useMemo(() => (
+    todos.filter(todo => todo.completed).length),
+  [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -64,20 +66,15 @@ export const Footer: React.FC<Props> = ({
           Completed
         </a>
       </nav>
-
-      {
-        completedTodos > 0 && (
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={deleteCompleted}
-          >
-            Clear completed
-          </button>
-        )
-      }
-
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={deleteCompleted}
+        disabled={!completedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
