@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { remove, updatingData } from '../api/todos';
 import { Todo } from '../types/Todo';
 
@@ -26,6 +31,14 @@ export const TodoInfo: React.FC<Props> = ({
 }) => {
   const [isDoubleClick, setIsDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isDoubleClick]);
 
   const removeTodo = (removeId: number) => {
     setSelectedTodoId(removeId);
@@ -158,6 +171,7 @@ export const TodoInfo: React.FC<Props> = ({
             value={newTitle}
             onChange={handlerInput}
             onBlur={saveData}
+            ref={newTodoField}
             onKeyDown={() => escFunction}
           />
         </form>

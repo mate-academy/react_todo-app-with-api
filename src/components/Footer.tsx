@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { remove } from '../api/todos';
 import { FilterTypes } from '../types/Filter';
 import { Todo } from '../types/Todo';
+import { getCompletedTodos } from '../utils/functions';
 import { Filter } from './Filter';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   onTabSelected: (value: FilterTypes) => void,
   setError: (value: string) => void,
   setTodos: (value: Todo[]) => void,
+  setToggleAll: (value: boolean) => void;
 }
 
 export const Footer: React.FC<Props> = ({
@@ -20,9 +22,21 @@ export const Footer: React.FC<Props> = ({
   onTabSelected,
   setTodos,
   setError,
+  setToggleAll,
 }) => {
-  const notCompleted = todos.filter(({ completed }) => !completed);
-  const completedTodos = todos.filter(({ completed }) => completed);
+  const notCompleted = useMemo(() => {
+    return todos.filter(({ completed }) => !completed);
+  }, [todos]);
+
+  const completedTodos = useMemo(() => {
+    return getCompletedTodos(todos);
+  }, [todos]);
+
+  if (completedTodos.length === todos.length) {
+    setToggleAll(true);
+  } else {
+    setToggleAll(false);
+  }
 
   const handlerClick = (completedTodo: Todo[]) => {
     const fetchData = async () => {

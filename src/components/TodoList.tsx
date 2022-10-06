@@ -9,6 +9,7 @@ interface Props {
   setSelectedTodoId: (value: number) => void,
   selectedTodoId: number | null,
   tempTitle: string,
+
 }
 
 export const TodoList: React.FC<Props> = ({

@@ -20,3 +20,7 @@ export function getFilteredTodo(
 
   return filterByType;
 }
+
+export function getCompletedTodos(todos: Todo[]) {
+  return todos.filter(({ completed }) => completed);
+}

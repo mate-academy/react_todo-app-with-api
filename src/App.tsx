@@ -15,7 +15,7 @@ import { NewTodoForm } from './components/NewTodoForm';
 import { TodoList } from './components/TodoList';
 import { FilterTypes } from './types/Filter';
 import { Todo } from './types/Todo';
-import { getFilteredTodo } from './utils/functions';
+import { getFilteredTodo, getCompletedTodos } from './utils/functions';
 
 export const tabs: FilterTypes[] = [
   { id: '', title: 'All' },
@@ -69,23 +69,17 @@ export const App: React.FC = () => {
     return getFilteredTodo(todos, selectedTab);
   }, [todos, selectedTab]);
 
+  const completedTodos = useMemo(() => {
+    return getCompletedTodos(todos);
+  }, [todos]);
+
   const handlerClick = (todosFromList: Todo[]) => {
     const fetchData = async () => {
       try {
-        const notCompleted = todos.filter(({ completed }) => !completed);
-        const completedTodos = todos.filter(({ completed }) => completed);
-
-        if (completedTodos.length === todos.length) {
-          setToggleAll(true);
-        }
-
-        if (notCompleted.length > 0) {
-          setToggleAll(false);
-        }
-
         todosFromList.map(async todo => {
           if (completedTodos.length === todos.length) {
             await updatingData(todo.id, { completed: false });
+            setToggleAll(false);
           } else {
             await updatingData(todo.id, { completed: true });
           }
@@ -162,6 +156,7 @@ export const App: React.FC = () => {
                 todos={todos}
                 setTodos={setTodos}
                 setError={setError}
+                setToggleAll={setToggleAll}
               />
             </>
           )}
