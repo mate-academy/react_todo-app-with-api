@@ -13,7 +13,7 @@ export const ErrorMessage: React.FC<Props> = ({
   const [noError, setNoError] = useState(false);
 
   if (errorAlert) {
-    setTimeout(() => setErrorAlert(''), 1000);
+    setTimeout(() => setErrorAlert(''), 2000);
   }
 
   const handleError = () => {

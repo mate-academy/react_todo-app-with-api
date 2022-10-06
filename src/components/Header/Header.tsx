@@ -27,6 +27,10 @@ export const Header: React.FC<Props> = ({
     }
   }, []);
 
+  const handleTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
+
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
@@ -50,7 +54,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={handleTitle}
         />
       </form>
     </header>
