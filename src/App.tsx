@@ -119,7 +119,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const isActive = filteredTodos.filter(todo => !todo.completed);
+  const isActive = todos.filter(todo => !todo.completed);
 
   const handleChangeStatusAll = async (filtertodos: Todo[]) => {
     setChangeAllStatus(true);

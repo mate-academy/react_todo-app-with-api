@@ -31,15 +31,15 @@ export const TodoItem: React.FC<Props> = ({
   const handleTitleChange = () => {
     setDoubleClick(false);
 
-    if (!newTitle.trim().length) {
-      handleClickDelete(todoItem.id);
-    }
-
     if (newTitle === todoItem.title) {
       return;
     }
 
-    handleChangeStatus(todoItem.id, { title: newTitle });
+    if (!newTitle.trim().length) {
+      handleClickDelete(todoItem.id);
+    } else {
+      handleChangeStatus(todoItem.id, { title: newTitle });
+    }
   };
 
   return (

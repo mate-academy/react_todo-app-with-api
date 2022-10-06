@@ -9,6 +9,7 @@ import { AuthProvider } from './components/Auth/AuthContext';
 
 const Root = () => (
   <AuthProvider>
+
     <App />
   </AuthProvider>
 );
