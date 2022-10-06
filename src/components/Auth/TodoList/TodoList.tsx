@@ -6,11 +6,11 @@ import { Todo } from '../../../types/Todo';
 type Props = {
   todos: Todo[],
   title: string,
-  onDelete: (n: number) => void,
+  onDelete: (todoId: number) => void,
   isAdding: boolean,
-  onUpdated: (n: number, data: Partial<Todo>) => void,
-  onSelectTodos: (n: number[]) => void,
-  onSelectTodo: (n: number) => void,
+  onUpdated: (todoId: number, data: Partial<Todo>) => void,
+  onSelectTodos: (todoId: number[]) => void,
+  onSelectTodo: (todoId: number) => void,
   selectedTodos: number[],
   selectedTodo: number,
 };

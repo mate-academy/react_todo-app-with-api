@@ -10,24 +10,22 @@ type Props = {
 export const ErrorNotification: React.FC<Props> = ({
   errors,
   onErrorChange,
-}) => {
-  return (
-    <div
-      data-cy="ErrorNotification"
-      className={cN(
-        'notification is-danger is-light has-text-weight-normal',
-        { hidden: !errors },
-      )}
-    >
-      <button
-        data-cy="HideErrorButton"
-        type="button"
-        className="delete"
-        onClick={() => {
-          onErrorChange(null);
-        }}
-      />
-      {errors}
-    </div>
-  );
-};
+}) => (
+  <div
+    data-cy="ErrorNotification"
+    className={cN(
+      'notification is-danger is-light has-text-weight-normal',
+      { hidden: !errors },
+    )}
+  >
+    <button
+      data-cy="HideErrorButton"
+      type="button"
+      className="delete"
+      onClick={() => {
+        onErrorChange(null);
+      }}
+    />
+    {errors}
+  </div>
+);
