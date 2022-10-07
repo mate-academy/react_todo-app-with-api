@@ -46,6 +46,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [activeItems, setActiveItems] = useState<number>(0);
   const [visibleLoader, setVisibleLoader] = useState(false);
+  const [newTodoId, setNewTodoId] = useState(0);
 
   let userId = 0;
 
@@ -83,24 +84,24 @@ export const App: React.FC = () => {
     return todoIndex;
   };
 
-  const addNewTodo = (todo: Todo) => {
-    setTodos(prevTodos => [todo, ...prevTodos]);
-    setActiveItems(prevItems => prevItems + 1);
-  };
+  const todoDelete = (todo: Todo) => {
+    setVisibleLoader(true);
+    setNewTodoId(todo.id);
 
-  const todoDelete = (todoId: number) => {
-    deleteTodo(todoId)
-      .then(() => {
-        setVisibleLoader(false);
-      })
+    deleteTodo(todo.id)
       .then(() => {
         setTodos(
-          todos.filter(userTodo => todoId !== userTodo.id),
+          todos.filter(userTodo => todo.id !== userTodo.id),
         );
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setNewTodoId(0);
+        setVisibleLoader(false);
       });
+
     setActiveItems(prevItems => prevItems - 1);
   };
 
@@ -108,9 +109,13 @@ export const App: React.FC = () => {
     const filteredTodos = todos.filter(todo => {
       if (todo.completed) {
         setVisibleLoader(true);
+        setNewTodoId(todo.id);
 
         deleteTodo(todo.id)
-          .then(() => setVisibleLoader(false));
+          .then(() => {
+            setVisibleLoader(false);
+            setNewTodoId(0);
+          });
       }
 
       return todo.completed === false;
@@ -129,11 +134,14 @@ export const App: React.FC = () => {
 
   const updateCompleteTodo = (todo: Todo) => {
     setVisibleLoader(true);
+    setNewTodoId(todo.id);
 
     patchTodo(todo.id, { completed: !todo.completed })
-      .then(() => setVisibleLoader(false))
       .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => setVisibleLoader(false));
+      .finally(() => {
+        setVisibleLoader(false);
+        setNewTodoId(0);
+      });
 
     const newTodos = [...todos];
 
@@ -151,12 +159,14 @@ export const App: React.FC = () => {
 
     temp.forEach(todo => {
       setVisibleLoader(true);
+      setNewTodoId(todo.id);
 
       patchTodo(todo.id, { completed: !todo.completed })
-        .then(() => {
+        .catch(() => setErrorMessage('Unable to update a todo'))
+        .finally(() => {
           setVisibleLoader(false);
-        })
-        .catch(() => setErrorMessage('Unable to update a todo'));
+          setNewTodoId(0);
+        });
 
       const todoIndex = findById(todo);
 
@@ -171,10 +181,14 @@ export const App: React.FC = () => {
   const updateTodoTitle = (todo: Todo, title: string) => {
     if (title !== todo.title) {
       setVisibleLoader(true);
+      setNewTodoId(todo.id);
 
       patchTitleTodo(todo.id, { title })
-        .then(() => setVisibleLoader(false))
-        .catch(() => setErrorMessage('Unable to update a todo'));
+        .catch(() => setErrorMessage('Unable to update a todo'))
+        .finally(() => {
+          setVisibleLoader(false);
+          setNewTodoId(0);
+        });
 
       const tempTodos = [...todos];
 
@@ -206,11 +220,13 @@ export const App: React.FC = () => {
           }
 
           <NewTodoField
-            onAdd={addNewTodo}
             setErrorMessage={setErrorMessage}
             setVisibleLoader={setVisibleLoader}
             visibleLoader={visibleLoader}
             setTodos={setTodos}
+            todos={todos}
+            setActiveItems={setActiveItems}
+            activeItems={activeItems}
           />
         </header>
 
@@ -218,11 +234,11 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={visibleTodos}
-              deleteTodo={todoDelete}
+              todoDelete={todoDelete}
               visibleLoader={visibleLoader}
-              setVisibleLoader={setVisibleLoader}
               updateCompleteTodo={updateCompleteTodo}
               updateTodoTitle={updateTodoTitle}
+              newTodoId={newTodoId}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">

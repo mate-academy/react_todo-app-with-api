@@ -4,20 +4,20 @@ import { UserTodo } from '../Todo';
 
 type Props = {
   todos: Todo[];
-  deleteTodo: (todoId: number) => void;
+  todoDelete: (todo: Todo) => void;
   visibleLoader: boolean;
-  setVisibleLoader: (loader: boolean) => void;
   updateCompleteTodo: (todo: Todo) => void;
   updateTodoTitle: (todo: Todo, title: string) => void;
+  newTodoId: number;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  deleteTodo,
+  todoDelete,
   visibleLoader,
-  setVisibleLoader,
   updateCompleteTodo,
   updateTodoTitle,
+  newTodoId,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,11 +26,11 @@ export const TodoList: React.FC<Props> = ({
           <li key={todo.id}>
             <UserTodo
               todo={todo}
-              deleteTodo={deleteTodo}
+              todoDelete={todoDelete}
               visibleLoader={visibleLoader}
-              setVisibleLoader={setVisibleLoader}
               updateCompleteTodo={updateCompleteTodo}
               updateTodoTitle={updateTodoTitle}
+              newTodoId={newTodoId}
             />
           </li>
         ))}

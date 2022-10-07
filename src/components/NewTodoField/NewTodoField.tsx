@@ -6,11 +6,13 @@ import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  onAdd: (todo: Todo) => void;
   setErrorMessage: (error: string) => void;
   setVisibleLoader: (loader: boolean) => void;
   visibleLoader: boolean;
   setTodos: (todos: Todo[]) => void;
+  todos: Todo[];
+  setActiveItems: (activeItems: number) => void;
+  activeItems: number;
 };
 
 export const NewTodoField: React.FC<Props> = ({
@@ -18,6 +20,9 @@ export const NewTodoField: React.FC<Props> = ({
   setVisibleLoader,
   visibleLoader,
   setTodos,
+  todos,
+  setActiveItems,
+  activeItems,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const user = useContext(AuthContext);
@@ -33,8 +38,16 @@ export const NewTodoField: React.FC<Props> = ({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (title) {
+    if (title.trim()) {
       setVisibleLoader(true);
+      setActiveItems(activeItems + 1);
+
+      setTodos([...todos, {
+        title,
+        userId: user?.id || 0,
+        completed,
+        id: 0,
+      }]);
 
       postTodos({
         userId: user?.id || 0,
@@ -47,8 +60,6 @@ export const NewTodoField: React.FC<Props> = ({
         setVisibleLoader(false);
       })
         .catch(() => setErrorMessage('Unable to add a todo'));
-
-      // eslint-disable-next-line no-param-reassign
     } else {
       setErrorMessage('Title can\'t be empty');
     }
@@ -57,7 +68,6 @@ export const NewTodoField: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }

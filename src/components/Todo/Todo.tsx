@@ -5,20 +5,20 @@ import { Loader } from '../Loader';
 
 type Props = {
   todo: Todo;
-  deleteTodo: (todoId: number) => void;
+  todoDelete: (todo: Todo) => void;
   visibleLoader: boolean;
-  setVisibleLoader: (loader: boolean) => void;
   updateCompleteTodo: (todo: Todo) => void;
   updateTodoTitle: (todo: Todo, title: string) => void;
+  newTodoId: number;
 };
 
 export const UserTodo: React.FC<Props> = ({
   todo,
-  deleteTodo,
+  todoDelete,
   visibleLoader,
-  setVisibleLoader,
   updateCompleteTodo,
   updateTodoTitle,
+  newTodoId,
 }) => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(todo.title);
@@ -29,7 +29,7 @@ export const UserTodo: React.FC<Props> = ({
 
   const handleUpdateTodo = () => {
     if (title === '') {
-      deleteTodo(todo.id);
+      todoDelete(todo);
     }
 
     updateTodoTitle(todo, title);
@@ -66,7 +66,10 @@ export const UserTodo: React.FC<Props> = ({
               <input
                 type="text"
                 value={title}
-                onChange={({ target }) => setTitle(target.value)}
+                className="todo__title-field"
+                onChange={(event) => {
+                  setTitle(event.target.value);
+                }}
                 onBlur={handleUpdateTodo}
               />
             </form>
@@ -85,17 +88,19 @@ export const UserTodo: React.FC<Props> = ({
         className="todo__remove"
         data-cy="TodoDeleteButton"
         onClick={() => {
-          setVisibleLoader(true);
-
-          return deleteTodo(todo.id);
+          todoDelete(todo);
         }}
       >
         ×
       </button>
 
-      {visibleLoader && (
-        <Loader />
-      )}
+      {
+        visibleLoader && newTodoId === todo.id
+          ? (
+            <Loader />
+          )
+          : ''
+      }
     </div>
   );
 };
