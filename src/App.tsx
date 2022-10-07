@@ -1,8 +1,6 @@
 /* eslint-disable no-param-reassign */
 import React, {
-  FormEvent,
-  useCallback,
-  useContext, useEffect, useRef, useState,
+  FormEvent, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import {
   createTodo, deleteTodos, getTodos, updateTodoCompleted, updateTodoTitle,
@@ -29,7 +27,6 @@ export const App: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [hasLoadError, setHasLoadError] = useState(TextError.None);
   const [isAdding, setIsAdding] = useState(false);
-  const [completedTodo, setCompletedTodo] = useState(true);
   const [toggleAll, setToggleAll] = useState(false);
 
   useEffect(() => {
@@ -52,6 +49,7 @@ export const App: React.FC = () => {
     event.preventDefault();
     setHasLoadError(TextError.None);
     setIsAdding(true);
+
     if (user && newTitleTodo.trim() !== '') {
       await createTodo(user.id, newTitleTodo)
         .then(todo => {
@@ -61,9 +59,9 @@ export const App: React.FC = () => {
         .finally(() => setIsAdding(false));
     } else {
       setHasLoadError(TextError.TitleEmpty);
-      setIsAdding(false);
     }
 
+    setIsAdding(false);
     setNewTitleTodo('');
   };
 
@@ -97,39 +95,37 @@ export const App: React.FC = () => {
     clearCompleted();
   };
 
-  const handleChangeCompleted = async (curentTodoId: number) => {
-    setCompletedTodo(!completedTodo);
-
-    const filterTodo = todos.map(todo => {
-      if (todo.id === curentTodoId) {
-        todo.completed = !completedTodo;
-      }
-
-      return todo;
-    });
-
-    await updateTodoCompleted(curentTodoId, completedTodo)
+  const handleChangeCompleted = async (
+    curentTodoId: number,
+    completed: boolean,
+  ) => {
+    await updateTodoCompleted(curentTodoId, !completed)
       .then(() => {
+        const filterTodo = todos.map(todo => {
+          if (todo.id === curentTodoId) {
+            todo.completed = !completed;
+          }
+
+          return todo;
+        });
+
         setTodos(filterTodo);
       })
       .catch(() => setHasLoadError(TextError.UnableCompleted));
-    setCompletedTodo(!completedTodo);
   };
 
-  useEffect(() => {
+  useMemo(() => {
     setToggleAll(todos.every(todo => todo.completed === true));
   }, [todos]);
 
   const handleToggleAll = () => {
     setToggleAll(!toggleAll);
-    setCompletedTodo(false);
     const filterTodo = todos.map(todo => {
       todo.completed = !toggleAll;
 
       return todo;
     });
 
-    setCompletedTodo(true);
     const chooseCompletep = () => ([...todos].forEach(todo => {
       updateTodoCompleted(todo.id, !toggleAll)
         .then(() => {
@@ -187,7 +183,6 @@ export const App: React.FC = () => {
           newTitleTodo={newTitleTodo}
           handleTitleTodo={setNewTitleTodo}
           handleAddTodo={handleAddTodo}
-          isAdding={isAdding}
           handleToggleAll={handleToggleAll}
           toggleAll={toggleAll}
         />

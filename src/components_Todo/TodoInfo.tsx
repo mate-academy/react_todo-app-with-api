@@ -13,7 +13,7 @@ interface Props {
   isAdding: boolean;
   setChangTitle: (event: string) => void;
   handleDeleteTodo: (event: FormEvent, element: number) => void;
-  handleChangeCompleted: (event: number) => void;
+  handleChangeCompleted: (event: number, completed: boolean) => void;
   handleUpdateTodo: (event: FormEvent, element: number) => void;
 }
 
@@ -34,7 +34,7 @@ export const TodoInfo: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  });
+  }, []);
 
   const handleChangeTitile = () => {
     setVisibulInput(!visiblInput);
@@ -67,8 +67,8 @@ export const TodoInfo: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
-          onChange={() => handleChangeCompleted(id)}
+          defaultChecked
+          onChange={() => handleChangeCompleted(id, completed)}
         />
       </label>
       {!visiblInput ? (

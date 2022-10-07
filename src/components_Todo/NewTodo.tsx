@@ -6,7 +6,6 @@ interface Prors {
   newTitleTodo: string;
   handleTitleTodo: (value: string) => void;
   handleAddTodo: (event: FormEvent) => void;
-  isAdding: boolean;
   handleToggleAll: (value: boolean) => void;
   toggleAll: boolean;
 }
@@ -16,11 +15,10 @@ export const NewTodo: React.FC<Prors> = ({
   newTitleTodo,
   handleTitleTodo,
   handleAddTodo,
-  isAdding,
   handleToggleAll,
   toggleAll,
 }) => {
-  const handleNewTitle = (event: { target: { value: string; }; }) => {
+  const handleNewTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleTitleTodo(event.target.value);
   };
 
@@ -43,7 +41,6 @@ export const NewTodo: React.FC<Prors> = ({
           placeholder="What needs to be done?"
           value={newTitleTodo}
           onChange={handleNewTitle}
-          disabled={isAdding}
         />
       </form>
     </header>

@@ -24,9 +24,7 @@ export const updateTodoCompleted = (
   id: number,
   completed: boolean,
 ) => {
-  return client.patch<Todo>(`/todos/${id}`, {
-    completed,
-  });
+  return client.patch<Todo>(`/todos/${id}`, { completed });
 };
 
 export const updateTodoTitle = (

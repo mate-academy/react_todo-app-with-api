@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 import { FilterStatus } from '../types/FilterStatus';
 import { Todo } from '../types/Todo';
 
@@ -15,8 +16,17 @@ export const TodoFilter: React.FC<Props> = ({
   statusFilter,
   handleClearCompleted,
 }) => {
-  const findTodoCompleted = todos?.some(todo => todo.completed);
-  const findTodoNoCompleted = todos?.filter(todo => todo.completed);
+  const [visibleClear, setVisibleClear] = useState(false);
+
+  useEffect(() => {
+    if (todos) {
+      const findTodoCompleted = todos.some(todo => (todo.completed === true));
+
+      setVisibleClear(findTodoCompleted);
+    }
+  }, [todos]);
+
+  const findTodoNoCompleted = todos?.filter(todo => !todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -57,7 +67,7 @@ export const TodoFilter: React.FC<Props> = ({
             'filter__link',
             {
               'filter__link selected':
-              statusFilter === FilterStatus.Completed,
+                statusFilter === FilterStatus.Completed,
             },
           )}
           onClick={() => setStatusFilter(FilterStatus.Completed)}
@@ -66,16 +76,17 @@ export const TodoFilter: React.FC<Props> = ({
         </a>
       </nav>
       <div>
-        {findTodoCompleted && (
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={handleClearCompleted}
-          >
-            Clear completed
-          </button>
-        )}
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={handleClearCompleted}
+          style={visibleClear
+            ? undefined
+            : { visibility: 'hidden' }}
+        >
+          Clear completed
+        </button>
       </div>
     </footer>
   );

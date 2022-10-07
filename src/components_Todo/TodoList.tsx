@@ -7,7 +7,7 @@ interface Props {
   changTitle: string;
   setChangTitle: (event: string) => void;
   handleDeleteTodo: (event: FormEvent, element: number) => void;
-  handleChangeCompleted: (event: number) => void;
+  handleChangeCompleted: (event: number, completed: boolean) => void;
   isAdding: boolean;
   handleUpdateTodo: (event: FormEvent, element: number) => void;
 }
