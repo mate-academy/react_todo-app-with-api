@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [toggleAll, setToggleAll] = useState(true);
   const [selectedId, setSelectedId] = useState(0);
+  const [toggleLoader, setToggleLoader] = useState(false);
   const userId = user?.id || 1;
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setTitle('');
         setIsAdding(false);
+        setToggleLoader(false);
       });
   };
 
@@ -88,6 +90,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsAdding(false);
+        setToggleLoader(false);
       });
   };
 
@@ -105,14 +108,12 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsAdding(false);
+        setToggleLoader(false);
       });
   };
 
   const visibleTodos = todos.filter((todo) => {
     switch (filter) {
-      case Filter.All:
-        return todo;
-
       case Filter.Active:
         return !todo.completed;
 
@@ -120,12 +121,13 @@ export const App: React.FC = () => {
         return todo.completed;
 
       default:
-        return 0;
+        return todo;
     }
   });
 
   const handleToggler = () => {
     setToggleAll(!toggleAll);
+    setToggleLoader(true);
     setIsAdding(true);
 
     return visibleTodos
@@ -152,6 +154,7 @@ export const App: React.FC = () => {
               ref={newTodoField}
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
+              value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
           </form>
@@ -162,7 +165,7 @@ export const App: React.FC = () => {
             removeTodo={removeTodo}
             isAdding={isAdding}
             handleUpdateTodo={handleUpdateTodo}
-            toggleLoader={isAdding}
+            toggleLoader={toggleLoader}
             selectedId={selectedId}
           />
         )}

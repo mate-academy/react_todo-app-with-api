@@ -1,5 +1,5 @@
 import {
-  FormEvent, useEffect, useRef, useState,
+  FormEvent, useCallback, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -31,16 +31,18 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [doubleClick]);
 
-  const handleChangeTitle = (event: FormEvent) => {
+  const handleChangeTitle = useCallback(((event: FormEvent) => {
     event.preventDefault();
     setDoubleClick(false);
 
     if (!newTitle.trim().length) {
       removeTodo(todo.id);
+    } else if (newTitle === todo.title) {
+      return;
     }
 
     handleUpdateTodo(todo.id, { title: newTitle });
-  };
+  }), [newTitle]);
 
   return (
     <div
