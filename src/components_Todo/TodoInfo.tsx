@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
 import classNames from 'classnames';
 import {
   FormEvent,
@@ -108,18 +106,21 @@ export const TodoInfo: React.FC<Props> = ({
           />
         </form>
       )}
-      <div
-        data-cy="TodoLoader"
-        className={classNames(
-          'modal overlay',
-          {
-            'is-active': isAdding,
-          },
-        )}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isAdding
+      && (
+        <div
+          data-cy="TodoLoader"
+          className={classNames(
+            'modal overlay',
+            {
+              'is-active': isAdding,
+            },
+          )}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };

@@ -16,12 +16,13 @@ export const TodoFilter: React.FC<Props> = ({
   handleClearCompleted,
 }) => {
   const findTodoCompleted = todos?.some(todo => todo.completed);
+  const findTodoNoCompleted = todos?.filter(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
         {todos && (
-          `${todos.length} items left`
+          `${findTodoNoCompleted?.length} items left`
         )}
       </span>
 

@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { useEffect } from 'react';
+import { TextError } from '../types/TextError';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
   hasLoadError: string;
-  setHasLoadError: (event: string) => void;
+  setHasLoadError: (event: TextError) => void;
 }
 
 export const ErrorNotification: React.FC<Props> = ({
@@ -12,12 +12,12 @@ export const ErrorNotification: React.FC<Props> = ({
   setHasLoadError,
 }) => {
   const clouseError = () => {
-    setHasLoadError('');
+    setHasLoadError(TextError.None);
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setHasLoadError('');
+      setHasLoadError(TextError.None);
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -31,24 +31,18 @@ export const ErrorNotification: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: hasLoadError === '' },
+        { hidden: hasLoadError === TextError.None },
       )}
     >
 
       <button
         data-cy="HideErrorButton"
         type="button"
+        aria-label="HideErrorButton"
         className="delete"
         onClick={clouseError}
       />
       {hasLoadError}
-
-      <br />
-      {/* Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo */}
     </div>
   );
 };

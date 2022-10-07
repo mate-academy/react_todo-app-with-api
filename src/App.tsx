@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import React, {
   FormEvent,
+  useCallback,
   useContext, useEffect, useRef, useState,
 } from 'react';
 import {
@@ -13,6 +14,7 @@ import { TodoFilter } from './components_Todo/TodoFilter';
 
 import { TodoList } from './components_Todo/TodoList';
 import { FilterStatus } from './types/FilterStatus';
+import { TextError } from './types/TextError';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
@@ -25,9 +27,9 @@ export const App: React.FC = () => {
 
   const [changTitle, setChangTitle] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [hasLoadError, setHasLoadError] = useState('');
+  const [hasLoadError, setHasLoadError] = useState(TextError.None);
   const [isAdding, setIsAdding] = useState(false);
-  const [completedTodo, setCompletedTodo] = useState(false);
+  const [completedTodo, setCompletedTodo] = useState(true);
   const [toggleAll, setToggleAll] = useState(false);
 
   useEffect(() => {
@@ -41,24 +43,24 @@ export const App: React.FC = () => {
         .then(todo => {
           setTodos(todo);
         }).catch(() => (
-          setHasLoadError('Unable to load a todo')
+          setHasLoadError(TextError.Load)
         )).finally(() => setIsAdding(false));
     }
   }, []);
 
   const handleAddTodo = async (event: FormEvent) => {
     event.preventDefault();
-    setHasLoadError('');
+    setHasLoadError(TextError.None);
     setIsAdding(true);
     if (user && newTitleTodo.trim() !== '') {
       await createTodo(user.id, newTitleTodo)
         .then(todo => {
           setTodos([...todos, todo]);
         })
-        .catch(() => setHasLoadError('Unable to add a todo'))
+        .catch(() => setHasLoadError(TextError.UnableAdd))
         .finally(() => setIsAdding(false));
     } else {
-      setHasLoadError('Title can\'t be empty');
+      setHasLoadError(TextError.TitleEmpty);
       setIsAdding(false);
     }
 
@@ -74,7 +76,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos([...todos.filter(({ id }) => id !== curentTodoId)]);
       })
-      .catch(() => setHasLoadError('Unable to delete a todo'))
+      .catch(() => setHasLoadError(TextError.UnableDelete))
       .finally(() => setIsAdding(false));
   };
 
@@ -86,7 +88,7 @@ export const App: React.FC = () => {
           .then(() => {
             setTodos([...todos.filter(({ completed }) => completed !== true)]);
           })
-          .catch(() => setHasLoadError('Unable to delete a todo'))
+          .catch(() => setHasLoadError(TextError.UnableDelete))
           .finally(() => setIsAdding(false));
       }
     })
@@ -95,43 +97,50 @@ export const App: React.FC = () => {
     clearCompleted();
   };
 
-  const handleChangeCompleted = async (curentTodoId: number) => {
-    setCompletedTodo(!completedTodo);
+  const handleChangeCompleted = useCallback(
+    async (curentTodoId: number) => {
+      setCompletedTodo(!completedTodo);
 
-    const filterTodo = todos.map(todo => {
-      if (todo.id === curentTodoId) {
-        todo.completed = completedTodo;
-      }
+      const filterTodo = todos.map(todo => {
+        if (todo.id === curentTodoId) {
+          todo.completed = completedTodo;
+        }
 
-      return todo;
-    });
+        return todo;
+      });
 
-    await updateTodoCompleted(curentTodoId, completedTodo)
-      .then(() => {
-        setTodos(filterTodo);
-      })
-      .catch(() => setHasLoadError('Unable to completed a todo'));
-  };
-
-  const handleToggleAll = () => {
-    setToggleAll(!toggleAll);
-
-    const filterTodo = todos.map(todo => {
-      todo.completed = !completedTodo;
-
-      return todo;
-    });
-
-    const chooseCompletep = () => ([...todos].forEach(todo => {
-      updateTodoCompleted(todo.id, !completedTodo)
+      await updateTodoCompleted(curentTodoId, completedTodo)
         .then(() => {
           setTodos(filterTodo);
         })
-        .catch(() => setHasLoadError('Unable to completed a todo'));
+        .catch(() => setHasLoadError(TextError.UnableCompleted));
+      setCompletedTodo(!completedTodo);
+    }, [todos],
+  );
+
+  useEffect(() => {
+    setToggleAll(todos.every(todo => todo.completed === true));
+  }, [completedTodo]);
+
+  const handleToggleAll = () => {
+    setToggleAll(!toggleAll);
+    setCompletedTodo(false);
+    const filterTodo = todos.map(todo => {
+      todo.completed = !toggleAll;
+
+      return todo;
+    });
+
+    setCompletedTodo(true);
+    const chooseCompletep = () => ([...todos].forEach(todo => {
+      updateTodoCompleted(todo.id, !toggleAll)
+        .then(() => {
+          setTodos(filterTodo);
+        })
+        .catch(() => setHasLoadError(TextError.UnableCompleted));
     }));
 
     chooseCompletep();
-    setCompletedTodo(!completedTodo);
   };
 
   const handleUpdateTodo = async (event: FormEvent, curentTodoId: number) => {
@@ -149,7 +158,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos(filterTodo);
       })
-      .catch(() => setHasLoadError('Unable to update a todo'));
+      .catch(() => setHasLoadError(TextError.UnableUpdate));
 
     setChangTitle('');
   };

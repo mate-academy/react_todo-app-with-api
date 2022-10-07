@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { FormEvent } from 'react';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 interface Prors {
   newTodoField: React.RefObject<HTMLInputElement>;
   newTitleTodo: string;
@@ -29,6 +28,7 @@ export const NewTodo: React.FC<Prors> = ({
     <header className="todoapp__header">
       <button
         data-cy="ToggleAllButton"
+        aria-label="ToggleAllButton"
         type="button"
         className={classNames('todoapp__toggle-all', { active: toggleAll })}
         onClick={() => handleToggleAll(toggleAll)}
