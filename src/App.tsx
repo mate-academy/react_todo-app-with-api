@@ -97,30 +97,28 @@ export const App: React.FC = () => {
     clearCompleted();
   };
 
-  const handleChangeCompleted = useCallback(
-    async (curentTodoId: number) => {
-      setCompletedTodo(!completedTodo);
+  const handleChangeCompleted = async (curentTodoId: number) => {
+    setCompletedTodo(!completedTodo);
 
-      const filterTodo = todos.map(todo => {
-        if (todo.id === curentTodoId) {
-          todo.completed = completedTodo;
-        }
+    const filterTodo = todos.map(todo => {
+      if (todo.id === curentTodoId) {
+        todo.completed = !completedTodo;
+      }
 
-        return todo;
-      });
+      return todo;
+    });
 
-      await updateTodoCompleted(curentTodoId, completedTodo)
-        .then(() => {
-          setTodos(filterTodo);
-        })
-        .catch(() => setHasLoadError(TextError.UnableCompleted));
-      setCompletedTodo(!completedTodo);
-    }, [todos],
-  );
+    await updateTodoCompleted(curentTodoId, completedTodo)
+      .then(() => {
+        setTodos(filterTodo);
+      })
+      .catch(() => setHasLoadError(TextError.UnableCompleted));
+    setCompletedTodo(!completedTodo);
+  };
 
   useEffect(() => {
     setToggleAll(todos.every(todo => todo.completed === true));
-  }, [completedTodo]);
+  }, [todos]);
 
   const handleToggleAll = () => {
     setToggleAll(!toggleAll);
