@@ -2,31 +2,39 @@ import classNames from 'classnames';
 import {
   ChangeEvent,
   KeyboardEvent,
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
+import { deleteTodo } from '../../../api/todos';
+import { ErrorMessage } from '../../../types/Error';
 import { Todo } from '../../../types/Todo';
 import { Loader } from './Loader';
 
 type Props = {
   todo: Todo;
   todos: Todo[];
-  removeTodo: (TodoId: number) => Promise<void>;
-  selectedIds: number[],
+  selectedIds: number[];
+  errorMessage: string | null;
   isAdding: boolean;
   handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
-  completedTodosId: number[];
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   todos,
-  removeTodo,
   isAdding,
-  handleOnChange,
-  completedTodosId,
   selectedIds,
+  errorMessage,
+  handleOnChange,
+  setErrorMessage,
+  setSelectedIds,
+  setTodos,
 }) => {
   const [doubleClicked, setDoubleClicked] = useState<boolean>(false);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
@@ -35,9 +43,10 @@ export const TodoItem: React.FC<Props> = ({
 
   const { id, title, completed } = todo;
 
-  const loaderCondition = completedTodosId.includes(id)
-  || selectedIds.includes(id)
-  || (isAdding && todo.id === 0);
+  const loaderCondition = useMemo(
+    () => selectedIds.includes(id) || (isAdding && todo.id === 0),
+    [selectedIds, isAdding, todo.id],
+  );
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -45,7 +54,18 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [selectedTodo]);
 
-  const UpdateTitle = () => {
+  const removeTodo = useCallback(async (TodoId: number) => {
+    setSelectedIds([TodoId]);
+    try {
+      await deleteTodo(TodoId);
+
+      setTodos((prevTodos) => prevTodos.filter((item) => item.id !== TodoId));
+    } catch {
+      setErrorMessage(ErrorMessage.NotDelete);
+    }
+  }, [todos, errorMessage]);
+
+  const UpdateTitle = useCallback(() => {
     if (!newTodoTitle) {
       removeTodo(selectedTodo);
       setDoubleClicked(false);
@@ -68,7 +88,7 @@ export const TodoItem: React.FC<Props> = ({
     setDoubleClicked(false);
     setNewTodoTitle('');
     setSelectedTodo(0);
-  };
+  }, [newTodoTitle, selectedTodo, doubleClicked]);
 
   const TitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);

@@ -1,23 +1,38 @@
 import classNames from 'classnames';
-import React, { FormEvent, useEffect, useRef } from 'react';
+import
+React, {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { createTodo } from '../../../api/todos';
+import { ErrorMessage } from '../../../types/Error';
 import { Todo } from '../../../types/Todo';
+import { User } from '../../../types/User';
 
 type Props = {
-  setTitle: React.Dispatch<React.SetStateAction<string>>,
-  handleSubmit: (event: FormEvent) => Promise<void>,
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
   todos: Todo[];
   title: string;
   isAdding: boolean;
-  handleToggleAll: () => Promise<void>,
+  handleToggleAll: () => Promise<void>;
+  setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  user: User | null;
 };
 
 export const Header: React.FC<Props> = ({
   setTitle,
-  handleSubmit,
   todos,
   title,
   isAdding,
   handleToggleAll,
+  setIsAdding,
+  setErrorMessage,
+  setTodos,
+  user,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -33,6 +48,28 @@ export const Header: React.FC<Props> = ({
     setTitle(value);
   };
 
+  const newTodo = useCallback(async (event: FormEvent) => {
+    event.preventDefault();
+    if (!title.trim() || !user) {
+      setErrorMessage(ErrorMessage.ErrorTitle);
+
+      return;
+    }
+
+    setIsAdding(true);
+
+    try {
+      const postTodo = await createTodo(title, user.id);
+
+      setTodos((prevTodos) => [...prevTodos, postTodo]);
+    } catch {
+      setErrorMessage(ErrorMessage.NotAdd);
+    }
+
+    setTitle('');
+    setIsAdding(false);
+  }, [title, user]);
+
   return (
     <header className="todoapp__header">
       <button
@@ -47,7 +84,7 @@ export const Header: React.FC<Props> = ({
       />
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={newTodo}
       >
         <input
           data-cy="NewTodoField"

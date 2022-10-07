@@ -1,21 +1,32 @@
 import classNames from 'classnames';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { deleteTodo } from '../../../api/todos';
+import { ErrorMessage } from '../../../types/Error';
 import { FilterType } from '../../../types/FilterBy';
 import { Todo } from '../../../types/Todo';
 
 type Props = {
   filterTypes: (arg: FilterType) => void;
-  filterType: FilterType,
-  todos: Todo[],
-  deleteCompleted: () => void,
-
+  filterType: FilterType;
+  todos: Todo[];
+  completedTodos: Todo[];
+  setSelectedIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  errorMessage: string | null;
+  selectedIds: number[];
 };
 
 export const Footer: React.FC<Props> = ({
   filterTypes,
   filterType,
   todos,
-  deleteCompleted,
+  completedTodos,
+  setSelectedIds,
+  setTodos,
+  setErrorMessage,
+  errorMessage,
+  selectedIds,
 }) => {
   const notCompletedTodos = useMemo(() => (
     todos.filter(({ completed }) => !completed)
@@ -24,6 +35,20 @@ export const Footer: React.FC<Props> = ({
   const todosCompletedLength = useMemo(() => (
     todos.filter(todo => todo.completed).length),
   [todos]);
+
+  const deleteCompletedTodos = useCallback(async () => {
+    setSelectedIds(completedTodos.map((todo => todo.id)));
+
+    await Promise.all(completedTodos.map(({ id }) => deleteTodo(id)))
+      .then(() => setTodos((prevTodos) => prevTodos
+        .filter(({ completed }) => !completed)))
+      .catch(() => {
+        setErrorMessage(ErrorMessage.NotDelete);
+        setSelectedIds([]);
+      });
+
+    setSelectedIds([]);
+  }, [todos, selectedIds, errorMessage]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -73,7 +98,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={deleteCompleted}
+        onClick={deleteCompletedTodos}
         disabled={!todosCompletedLength}
       >
         Clear completed

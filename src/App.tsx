@@ -1,14 +1,11 @@
 import React, {
-  FormEvent,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import {
-  createTodo, deleteTodo, getTodos, updateTodo,
-} from './api/todos';
+import { getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from
   './components/Auth/ErrorNotification/ErrorNotification';
@@ -27,7 +24,6 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
   const [toggle, setToggle] = useState<boolean>(true);
   const user = useContext(AuthContext);
 
@@ -49,68 +45,23 @@ export const App: React.FC = () => {
     getTodosFromServer(user.id);
   }, []);
 
-  const filterTodoBy = useMemo(() => getFilteredTodo(filterType, todos),
-    [todos, filterType]);
-
-  const newTodo = useCallback(async (event: FormEvent) => {
-    event.preventDefault();
-    if (!title.trim() || !user) {
-      setErrorMessage(ErrorMessage.ErrorTitle);
-
-      return;
-    }
-
-    setIsAdding(true);
-
-    try {
-      const postTodo = await createTodo(title, user.id);
-
-      setTodos((prevTodos) => [...prevTodos, postTodo]);
-    } catch {
-      setErrorMessage(ErrorMessage.NotAdd);
-    }
-
-    setIsAdding(false);
-    setTitle('');
-  }, [title, user]);
-
-  const removeTodo = useCallback(async (TodoId: number) => {
-    setSelectedIds([TodoId]);
-    try {
-      await deleteTodo(TodoId);
-
-      setTodos((prevTodos) => prevTodos.filter(({ id }) => id !== TodoId));
-    } catch {
-      setErrorMessage(ErrorMessage.NotDelete);
-    }
-  }, [todos, errorMessage]);
+  const filterTodoBy = useMemo(
+    () => getFilteredTodo(filterType, todos),
+    [todos, filterType],
+  );
 
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
 
-  const deleteCompletedTodos = useCallback(async () => {
-    setCompletedTodosId(completedTodos.map((todo => todo.id)));
-
-    await Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
-      .then(() => setTodos((prevTodos) => prevTodos
-        .filter(({ completed }) => !completed)))
-      .catch(() => {
-        setErrorMessage(ErrorMessage.NotDelete);
-        setSelectedIds([]);
-      });
-
-    setCompletedTodosId([]);
-  }, [todos, selectedIds, errorMessage]);
-
   const handleOnChange = useCallback(
     async (updateId: number, data: Partial<Todo>) => {
-      setCompletedTodosId([updateId]);
+      setSelectedIds([updateId]);
 
       try {
         const changeStatus: Todo = await updateTodo(updateId, data);
 
-        setTodos(todos.map(todo => (
+        setTodos(prevTodos => prevTodos.map(todo => (
           todo.id === updateId
             ? changeStatus
             : todo
@@ -119,15 +70,15 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.NotUpdate);
       }
 
-      setCompletedTodosId([]);
+      setSelectedIds([]);
     }, [todos],
   );
 
   const handleClickToggleAll = async () => {
     if (completedTodos.length === todos.length) {
-      setCompletedTodosId(todos.map(todo => todo.id));
+      setSelectedIds(todos.map(todo => todo.id));
     } else {
-      setCompletedTodosId(todos.filter(todo => !todo.completed)
+      setSelectedIds(todos.filter(todo => !todo.completed)
         .map(todo => todo.id));
     }
 
@@ -138,15 +89,13 @@ export const App: React.FC = () => {
           : todo
       )));
 
-      setCompletedTodosId([]);
-
       setTodos(newTodos);
     } catch {
       setErrorMessage(ErrorMessage.NotUpdate);
     }
 
     setToggle(!toggle);
-    setCompletedTodosId([]);
+    setSelectedIds([]);
   };
 
   return (
@@ -157,28 +106,38 @@ export const App: React.FC = () => {
         <Header
           setTitle={setTitle}
           title={title}
-          handleSubmit={newTodo}
           isAdding={isAdding}
           todos={todos}
           handleToggleAll={handleClickToggleAll}
+          setIsAdding={setIsAdding}
+          setErrorMessage={setErrorMessage}
+          setTodos={setTodos}
+          user={user}
         />
         {
           (isAdding || todos.length > 0) && (
             <>
               <TodoList
                 todos={filterTodoBy}
-                removeTodo={removeTodo}
                 selectedIds={selectedIds}
-                completedTodosId={completedTodosId}
                 isAdding={isAdding}
                 title={title}
                 handleOnChange={handleOnChange}
+                setErrorMessage={setErrorMessage}
+                setSelectedIds={setSelectedIds}
+                setTodos={setTodos}
+                errorMessage={errorMessage}
               />
               <Footer
                 filterTypes={setFilterType}
                 filterType={filterType}
                 todos={todos}
-                deleteCompleted={deleteCompletedTodos}
+                completedTodos={completedTodos}
+                setTodos={setTodos}
+                setErrorMessage={setErrorMessage}
+                errorMessage={errorMessage}
+                setSelectedIds={setSelectedIds}
+                selectedIds={selectedIds}
               />
             </>
           )

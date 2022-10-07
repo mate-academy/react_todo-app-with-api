@@ -4,23 +4,27 @@ import { TodoItem } from './TodoItem';
 import '../../../styles/transitiongroup.scss';
 
 interface Props {
-  todos: Todo[],
-  removeTodo: (TodoId: number) => Promise<void>,
-  selectedIds: number[],
-  isAdding: boolean,
-  title: string,
-  handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>,
-  completedTodosId: number[],
+  todos: Todo[];
+  selectedIds: number[];
+  isAdding: boolean;
+  title: string;
+  errorMessage: string | null;
+  handleOnChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  removeTodo,
   selectedIds,
   isAdding,
   title,
+  errorMessage,
   handleOnChange,
-  completedTodosId,
+  setErrorMessage,
+  setSelectedIds,
+  setTodos,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,11 +39,13 @@ export const TodoList: React.FC<Props> = ({
               key={todo.id}
               todo={todo}
               todos={todos}
-              removeTodo={removeTodo}
               selectedIds={selectedIds}
+              errorMessage={errorMessage}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
-              completedTodosId={completedTodosId}
+              setErrorMessage={setErrorMessage}
+              setSelectedIds={setSelectedIds}
+              setTodos={setTodos}
             />
           </CSSTransition>
         ))}
@@ -59,11 +65,13 @@ export const TodoList: React.FC<Props> = ({
                 userId: Math.random(),
               }}
               todos={todos}
-              removeTodo={removeTodo}
               selectedIds={selectedIds}
+              errorMessage={errorMessage}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
-              completedTodosId={completedTodosId}
+              setErrorMessage={setErrorMessage}
+              setSelectedIds={setSelectedIds}
+              setTodos={setTodos}
             />
           </CSSTransition>
         )}
