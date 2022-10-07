@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import classNames from 'classnames';
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
@@ -15,13 +16,13 @@ export const Footer: React.FC<Props> = ({
   todos,
   removeTodo,
 }) => {
-  const removeCompletedTodos = () => {
+  const removeCompletedTodos = useCallback(() => {
     todos.forEach((todo) => {
       if (todo.completed) {
         removeTodo(todo.id);
       }
     });
-  };
+  }, [todos]);
 
   const countTodos = todos.filter((todo) => !todo.completed).length;
   const isCompleted = todos.filter((todo) => todo.completed).length;
@@ -70,7 +71,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={() => removeCompletedTodos}
+        onClick={removeCompletedTodos}
       >
         {isCompleted > 0 && (
           'Clear completed'
