@@ -7,13 +7,11 @@ interface Props {
   selectedTabId: string,
   onTabSelected: (value: FilterTypes) => void,
 }
-export const Filter: React.FC<Props> = (
-  {
-    tabs,
-    selectedTabId,
-    onTabSelected,
-  },
-) => {
+export const Filter: React.FC<Props> = ({
+  tabs,
+  selectedTabId,
+  onTabSelected,
+}) => {
   const selectedTab = useMemo(() => {
     return tabs.find(tab => tab.id === selectedTabId) || tabs[0];
   }, [selectedTabId]);

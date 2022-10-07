@@ -1,4 +1,4 @@
-import { RefObject, useCallback } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
 import { post } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
@@ -8,8 +8,7 @@ interface Props {
   newTodoTitle: string;
   setNewTodoTitle: (value: string) => void;
   setError: (value: string) => void
-  todos: Todo[],
-  setTodos: (value: Todo[]) => void,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setIsLoading: (value: boolean) => void,
   setTempTitle: (value: string) => void,
   user: User | null,
@@ -21,12 +20,17 @@ export const NewTodoForm: React.FC<Props> = ({
   setNewTodoTitle,
   setError,
   setTodos,
-  todos,
   setIsLoading,
   setTempTitle,
   user,
   isLoading,
 }) => {
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
+
   const handlerInput = useCallback((
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -34,32 +38,29 @@ export const NewTodoForm: React.FC<Props> = ({
     setTempTitle(event.target.value);
   }, []);
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (newTodoTitle.trim().length === 0) {
-      setError('Title can\'t be empty');
+  const onSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (newTodoTitle.trim().length === 0) {
+        setError('Title can\'t be empty');
 
-      return;
-    }
+        return;
+      }
 
-    const fetchData = async () => {
       setIsLoading(true);
       try {
         if (user) {
           const newTodosFromUser: Todo = await post(newTodoTitle, user?.id);
 
-          setTodos([...todos, newTodosFromUser]);
+          setTodos((state: Todo[]) => [...state, newTodosFromUser]);
         }
       } catch (errorFromServer) {
         setError('Unable to add a todo');
       } finally {
         setIsLoading(false);
+        setNewTodoTitle('');
       }
-    };
-
-    fetchData();
-    setNewTodoTitle('');
-  };
+    }, []);
 
   return (
     <form

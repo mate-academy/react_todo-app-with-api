@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { remove } from '../api/todos';
 import { FilterTypes } from '../types/Filter';
 import { Todo } from '../types/Todo';
@@ -9,21 +9,25 @@ interface Props {
   todos: Todo[],
   tabs: FilterTypes[],
   selectedTabId: string,
-  onTabSelected: (value: FilterTypes) => void,
   setError: (value: string) => void,
   setTodos: (value: Todo[]) => void,
   setToggleAll: (value: boolean) => void;
+  setSelectedTabId: (value: string) => void,
 }
 
 export const Footer: React.FC<Props> = ({
   todos,
   tabs,
   selectedTabId,
-  onTabSelected,
+  setSelectedTabId,
   setTodos,
   setError,
   setToggleAll,
 }) => {
+  const onTabSelected = (tab: FilterTypes) => {
+    setSelectedTabId(tab.id);
+  };
+
   const notCompleted = useMemo(() => {
     return todos.filter(({ completed }) => !completed);
   }, [todos]);
@@ -38,21 +42,17 @@ export const Footer: React.FC<Props> = ({
     setToggleAll(false);
   }
 
-  const handlerClick = (completedTodo: Todo[]) => {
-    const fetchData = async () => {
-      try {
-        completedTodo.forEach(async (todo) => {
-          await remove(todo.id);
-        });
+  const handlerClick = useCallback(async (completedTodo: Todo[]) => {
+    try {
+      completedTodo.forEach(async (todo) => {
+        await remove(todo.id);
+      });
 
-        setTodos([...notCompleted]);
-      } catch (errorFromServer) {
-        setError('Unable to delete a todo');
-      }
-    };
-
-    fetchData();
-  };
+      setTodos([...notCompleted]);
+    } catch (errorFromServer) {
+      setError('Unable to delete a todo');
+    }
+  }, [completedTodos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -35,17 +36,10 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [toggleAll, setToggleAll] = useState(false);
-  const onTabSelected = (tab: FilterTypes) => {
-    setSelectedTabId(tab.id);
-  };
 
-  const selectedTab = tabs.find(tab => tab.id === selectedTabId) || tabs[0];
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
+  const selectedTab = useMemo(() => {
+    return tabs.find(tab => tab.id === selectedTabId) || tabs[0];
+  }, [tabs]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,38 +67,34 @@ export const App: React.FC = () => {
     return getCompletedTodos(todos);
   }, [todos]);
 
-  const handlerClick = (todosFromList: Todo[]) => {
-    const fetchData = async () => {
-      try {
-        todosFromList.map(async todo => {
-          if (completedTodos.length === todos.length) {
-            await updatingData(todo.id, { completed: false });
-            setToggleAll(false);
-          } else {
-            await updatingData(todo.id, { completed: true });
-          }
-        });
+  const handlerClick = useCallback((todosFromList: Todo[]) => {
+    try {
+      todosFromList.map(async todo => {
+        if (completedTodos.length === todos.length) {
+          await updatingData(todo.id, { completed: false });
+          setToggleAll(false);
+        } else {
+          await updatingData(todo.id, { completed: true });
+        }
+      });
 
-        setTodos((state) => [...state].map(todo => {
-          if (completedTodos.length === todos.length) {
-            return ({
-              ...todo,
-              completed: false,
-            });
-          }
-
+      setTodos((state) => [...state].map(todo => {
+        if (completedTodos.length === todos.length) {
           return ({
             ...todo,
-            completed: true,
+            completed: false,
           });
-        }));
-      } catch (errorFromServer) {
-        setError('Unable to update a todo');
-      }
-    };
+        }
 
-    fetchData();
-  };
+        return ({
+          ...todo,
+          completed: true,
+        });
+      }));
+    } catch (errorFromServer) {
+      setError('Unable to update a todo');
+    }
+  }, [todos, completedTodos]);
 
   return (
     <div className="todoapp">
@@ -129,7 +119,6 @@ export const App: React.FC = () => {
             setNewTodoTitle={setNewTodoTitle}
             setError={setError}
             setTodos={setTodos}
-            todos={todos}
             setIsLoading={setIsLoading}
             setTempTitle={setTempTitle}
             user={user}
@@ -152,7 +141,7 @@ export const App: React.FC = () => {
               <Footer
                 tabs={tabs}
                 selectedTabId={selectedTabId}
-                onTabSelected={onTabSelected}
+                setSelectedTabId={setSelectedTabId}
                 todos={todos}
                 setTodos={setTodos}
                 setError={setError}

@@ -40,34 +40,69 @@ export const TodoInfo: React.FC<Props> = ({
     }
   }, [isDoubleClick]);
 
-  const removeTodo = (removeId: number) => {
+  const removeTodo = useCallback(async (removeId: number) => {
     setSelectedTodoId(removeId);
-    const fetchData = async () => {
-      try {
-        await remove(removeId);
+    try {
+      await remove(removeId);
 
-        setTodos((state: Todo[]) => [...state]
-          .filter(todo => todo.id !== removeId));
-      } catch (errorFromServer) {
-        setError('Unable to delete a todo');
-      } finally {
-        setSelectedTodoId(0);
-      }
-    };
+      setTodos((state: Todo[]) => [...state]
+        .filter(todo => todo.id !== removeId));
+    } catch (errorFromServer) {
+      setError('Unable to delete a todo');
+    } finally {
+      setSelectedTodoId(0);
+    }
+  }, [id]);
 
-    fetchData();
-  };
-
-  const handlerCheck = (updateId: number) => {
+  const handlerCheck = useCallback(async (updateId: number) => {
     setSelectedTodoId(updateId);
-    const fetchData = async () => {
+    try {
+      const currentTodo = todos.find(todo => todo.id === updateId);
+      const upDate = await updatingData(
+        updateId,
+        { completed: !currentTodo?.completed },
+      );
+
+      setTodos((state: Todo[]) => [...state].map(todo => {
+        if (todo.id === updateId) {
+          return ({
+            ...upDate,
+          });
+        }
+
+        return todo;
+      }));
+    } catch (errorFromServer) {
+      setError('Unable to update a todo');
+    } finally {
+      setSelectedTodoId(0);
+    }
+  }, [id, completed]);
+
+  const handlerInput = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setNewTitle(event.target.value);
+  }, []);
+
+  const escFunction = useCallback((
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Escape') {
+      setIsDoubleClick(false);
+    }
+  }, ['keydown']);
+
+  const saveData = useCallback(async () => {
+    if (newTitle.trim().length === 0) {
+      removeTodo(id);
+    } else {
+      setSelectedTodoId(id);
       try {
-        const currentTodo = todos.find(todo => todo.id === updateId);
-        const upDate = await updatingData(updateId,
-          { completed: !currentTodo?.completed });
+        const upDate = await updatingData(id, { title: newTitle });
 
         setTodos((state: Todo[]) => [...state].map(todo => {
-          if (todo.id === updateId) {
+          if (todo.id === id) {
             return ({
               ...upDate,
             });
@@ -79,63 +114,10 @@ export const TodoInfo: React.FC<Props> = ({
         setError('Unable to update a todo');
       } finally {
         setSelectedTodoId(0);
+        setIsDoubleClick(false);
       }
-    };
-
-    fetchData();
-  };
-
-  const handlerInput = useCallback((
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setNewTitle(event.target.value);
-  }, []);
-
-  const escFunction = useCallback((
-    event: KeyboardEvent,
-  ) => {
-    if (event.key === 'Escape') {
-      setIsDoubleClick(false);
     }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('keydown', escFunction, false);
-
-    return () => {
-      document.removeEventListener('keydown', escFunction, false);
-    };
-  }, [escFunction]);
-
-  const saveData = () => {
-    if (newTitle.trim().length === 0) {
-      removeTodo(id);
-    } else {
-      setSelectedTodoId(id);
-      const fetchData = async () => {
-        try {
-          const upDate = await updatingData(id, { title: newTitle });
-
-          setTodos((state: Todo[]) => [...state].map(todo => {
-            if (todo.id === id) {
-              return ({
-                ...upDate,
-              });
-            }
-
-            return todo;
-          }));
-        } catch (errorFromServer) {
-          setError('Unable to update a todo');
-        } finally {
-          setSelectedTodoId(0);
-          setIsDoubleClick(false);
-        }
-      };
-
-      fetchData();
-    }
-  };
+  }, [newTitle, isDoubleClick]);
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -174,7 +156,7 @@ export const TodoInfo: React.FC<Props> = ({
             onChange={handlerInput}
             onBlur={saveData}
             ref={newTodoField}
-            onKeyDown={() => escFunction}
+            onKeyDown={escFunction}
           />
         </form>
       )}
