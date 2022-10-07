@@ -26,53 +26,51 @@ export const TodoList: React.FC<Props> = ({
   loader,
   title,
   toggleAll,
-}) => {
-  return (
-    <section className="todoapp__main" data-cy="TodoList">
-      <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition
+}) => (
+  <section className="todoapp__main" data-cy="TodoList">
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
             key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoItem
-              todo={todo}
-              key={todo.id}
-              todos={todos}
-              setTodos={setTodos}
-              setError={setError}
-              setErrorMessage={setErrorMessage}
-              toggleAll={toggleAll}
-            />
-          </CSSTransition>
-        ))}
+            todos={todos}
+            setTodos={setTodos}
+            setError={setError}
+            setErrorMessage={setErrorMessage}
+            toggleAll={toggleAll}
+          />
+        </CSSTransition>
+      ))}
 
-        {loader === false && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <div data-cy="Todo" className="todo">
-              <label className="todo__status-label">
-                <input
-                  data-cy="TodoStatus"
-                  type="checkbox"
-                  className="todo__status"
-                />
-              </label>
+      {loader === false && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <div data-cy="Todo" className="todo">
+            <label className="todo__status-label">
+              <input
+                data-cy="TodoStatus"
+                type="checkbox"
+                className="todo__status"
+              />
+            </label>
 
-              <span data-cy="TodoTitle" className="todo__title">{title}</span>
+            <span data-cy="TodoTitle" className="todo__title">{title}</span>
 
-              <div data-cy="TodoLoader" className="modal overlay is-active">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
+            <div data-cy="TodoLoader" className="modal overlay is-active">
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
             </div>
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </section>
-  );
-};
+          </div>
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  </section>
+);

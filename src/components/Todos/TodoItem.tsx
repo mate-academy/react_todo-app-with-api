@@ -47,9 +47,7 @@ export const TodoItem: React.FC<Props> = ({
   }, [selectedTodo]);
 
   const updatedTodos = [...todos];
-  const todoIndex = todos.findIndex(foundTodo => {
-    return foundTodo.id === todo.id;
-  });
+  const todoIndex = todos.findIndex(foundTodo => foundTodo.id === todo.id);
 
   const handleDelete = () => {
     setActive(true);
@@ -155,10 +153,12 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const { id, completed, title } = todo;
+
   return (
     <TransitionGroup>
       <CSSTransition
-        key={todo.id}
+        key={id}
         timeout={300}
         classNames="item"
       >
@@ -166,7 +166,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="Todo"
           className={classNames(
             'todo',
-            { completed: todo.completed },
+            { completed },
           )}
         >
           <label className="todo__status-label">
@@ -174,7 +174,7 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              checked={todo.completed}
+              checked={completed}
               onChange={handleStatus}
             />
           </label>
@@ -186,7 +186,7 @@ export const TodoItem: React.FC<Props> = ({
                 className="todo__title"
                 onDoubleClick={handleDoubleClick}
               >
-                {todo.title}
+                {title}
               </span>
 
               <button

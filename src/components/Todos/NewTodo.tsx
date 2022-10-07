@@ -17,7 +17,7 @@ type Props = {
   setToggleAll: Dispatch<SetStateAction<boolean>>;
 };
 
-export const Header: React.FC<Props> = ({
+export const NewTodo: React.FC<Props> = ({
   userId,
   todos,
   setTodos,

@@ -13,7 +13,7 @@ type Props = {
   setErrorMessage: Dispatch<SetStateAction<string>>;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Filter: React.FC<Props> = ({
   todos,
   filterType,
   setFilterType,

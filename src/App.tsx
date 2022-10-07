@@ -3,8 +3,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { getTodos } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/Todos/ErrorNotification';
-import { Footer } from './components/Todos/Footer';
-import { Header } from './components/Todos/Header';
+import { Filter } from './components/Todos/Filter';
+import { NewTodo } from './components/Todos/NewTodo';
 import { TodoList } from './components/Todos/TodoList';
 import { FilterType } from './types/FilterType';
 import { Todo } from './types/Todo';
@@ -22,9 +22,6 @@ export const App: React.FC = () => {
 
   const filterTodos = todos.filter(todo => {
     switch (filterType) {
-      case FilterType.All:
-        return todo;
-
       case FilterType.Active:
         return !todo.completed;
 
@@ -32,7 +29,7 @@ export const App: React.FC = () => {
         return todo.completed;
 
       default:
-        return 0;
+        return todo;
     }
   });
 
@@ -59,7 +56,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <NewTodo
           userId={userId}
           todos={todos}
           setTodos={setTodos}
@@ -84,7 +81,7 @@ export const App: React.FC = () => {
               setToggleAll={setToggleAll}
             />
 
-            <Footer
+            <Filter
               todos={filterTodos}
               setTodos={setTodos}
               filterType={filterType}
