@@ -1,21 +1,16 @@
 import React from 'react';
 import classNames from 'classnames';
+import { SortFilter } from '../types/SortFilter';
 
 type Props = {
-  sortFilter: string
-  handleChangeSortFilter: (sort:string) => void;
+  sortFilter: SortFilter
+  handleChangeSortFilter: (sort:SortFilter) => void;
 };
 
 export const Filter: React.FC<Props> = ({
   sortFilter,
   handleChangeSortFilter,
 }) => {
-  const FILTERS = {
-    all: 'all',
-    completed: 'completed',
-    active: 'active',
-  };
-
   return (
     <nav className="filter" data-cy="Filter">
       <a
@@ -23,9 +18,9 @@ export const Filter: React.FC<Props> = ({
         href="#/"
         className={classNames(
           'filter__link',
-          { selected: sortFilter === FILTERS.all },
+          { selected: sortFilter === SortFilter.all },
         )}
-        onClick={() => handleChangeSortFilter(FILTERS.all)}
+        onClick={() => handleChangeSortFilter(SortFilter.all)}
       >
         All
       </a>
@@ -35,9 +30,9 @@ export const Filter: React.FC<Props> = ({
         href="#/active"
         className={classNames(
           'filter__link',
-          { selected: sortFilter === FILTERS.active },
+          { selected: sortFilter === SortFilter.active },
         )}
-        onClick={() => handleChangeSortFilter(FILTERS.active)}
+        onClick={() => handleChangeSortFilter(SortFilter.active)}
       >
         Active
       </a>
@@ -47,9 +42,9 @@ export const Filter: React.FC<Props> = ({
         href="#/completed"
         className={classNames(
           'filter__link',
-          { selected: sortFilter === FILTERS.completed },
+          { selected: sortFilter === SortFilter.completed },
         )}
-        onClick={() => handleChangeSortFilter(FILTERS.completed)}
+        onClick={() => handleChangeSortFilter(SortFilter.completed)}
       >
         Completed
       </a>

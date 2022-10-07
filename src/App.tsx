@@ -13,15 +13,16 @@ import {
   getTodos, createTodo, deleteTodo, updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
+import { SortFilter } from './types/SortFilter';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [sortFilter, setSortFilter] = useState('all');
+  const [sortFilter, setSortFilter] = useState(SortFilter.all);
   const [visibelTodos, setVisibelTodos] = useState<Todo[]>([...todos]);
   const [completedTodos, setCompletedTodos]
-  = useState<Todo[]>([...todos].filter(todo => todo.completed));
+    = useState<Todo[]>([...todos].filter(todo => todo.completed));
 
   const [wantChangeTitle, setWantChangeTitle] = useState(-1);
   const [isError, setError] = useState(false);
@@ -51,10 +52,10 @@ export const App: React.FC = () => {
     setVisibelTodos(() => (
       todos.filter(todo => {
         switch (sortFilter) {
-          case 'active':
+          case SortFilter.active:
             return !todo.completed;
 
-          case 'completed':
+          case SortFilter.completed:
             return todo.completed;
 
           default:
@@ -110,7 +111,7 @@ export const App: React.FC = () => {
     setActiveTodoId(idActive => [...idActive, removeTodoID]);
 
     try {
-      await deleteTodo(removeTodoID);
+      await deleteTodo({ id: removeTodoID });
 
       setTodos(Prevtodos => Prevtodos.filter(todo => todo.id !== removeTodoID));
     } catch (errorFromServer) {
@@ -125,7 +126,7 @@ export const App: React.FC = () => {
     completedTodos.forEach((todoComleted) => handleRemoveTodo(todoComleted.id));
   };
 
-  const handleUpdate = async (changeTodo:Todo) => {
+  const handleUpdate = async (changeTodo: Todo) => {
     if (!changeTodo.id) {
       return;
     }
@@ -230,7 +231,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleChangeSortFilter = (sort: string) => {
+  const handleChangeSortFilter = (sort: SortFilter) => {
     if (sortFilter !== sort) {
       setSortFilter(sort);
     }
