@@ -8,6 +8,7 @@ type Props = {
   filterType: string;
   setFilterType: (value: FilterType) => void;
   removeTodo: (todoId: number) => void;
+  setToggleLoader: (value: boolean) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,11 +16,14 @@ export const Footer: React.FC<Props> = ({
   filterType,
   setFilterType,
   removeTodo,
+  setToggleLoader,
 }) => {
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed).length;
 
   const clearCompleted = useCallback(() => {
+    setToggleLoader(true);
+
     todos.forEach(todo => {
       if (todo.completed) {
         removeTodo(todo.id);

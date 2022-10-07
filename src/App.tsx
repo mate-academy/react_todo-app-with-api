@@ -16,10 +16,10 @@ import {
 import { Todo } from './types/Todo';
 import { Error } from './types/Error';
 import { FilterType } from './types/Filter';
-import Header from './components/Header';
+import TodoPanel from './components/TodoPanel';
 import TodoList from './components/TodoList';
 import ErrorNotification from './components/ErrorNotification';
-import Footer from './components/Footer';
+import Filter from './components/Filter';
 import { AuthContext } from './components/Auth/AuthContext';
 
 export const App: React.FC = () => {
@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [toggleLoader, setToggleLoader] = useState(false);
 
   let userId = 0;
 
@@ -77,8 +78,7 @@ export const App: React.FC = () => {
       const todoToAdd = await createTodo(userId, title);
 
       setSelectedId(todoToAdd.id);
-
-      setTodos(prev => [...prev, todoToAdd]);
+      setTodos(prevState => [...prevState, todoToAdd]);
     } catch {
       setError(Error.Add);
     } finally {
@@ -94,11 +94,12 @@ export const App: React.FC = () => {
     try {
       await deleteTodo(todoId);
 
-      setTodos(prev => prev.filter(todo => todo.id !== todoId));
+      setTodos(prevState => prevState.filter(todo => todo.id !== todoId));
     } catch {
       setError(Error.Delete);
     } finally {
       setIsLoading(false);
+      setToggleLoader(false);
     }
   };
 
@@ -118,26 +119,33 @@ export const App: React.FC = () => {
       setError(Error.Update);
     } finally {
       setIsLoading(false);
+      setToggleLoader(false);
     }
   };
 
   const activeTodos = todos.filter(todo => !todo.completed);
 
   const handleToggleAll = () => {
-    if (activeTodos.length) {
-      todos.map(todo => patchTodo(todo.id, { completed: true }));
-      setTodos(todos.map(todo => {
-        todo.completed = true;
+    setToggleLoader(true);
 
-        return todo;
-      }));
-    } else {
-      todos.map(todo => patchTodo(todo.id, { completed: false }));
-      setTodos(todos.map(todo => {
-        todo.completed = false;
+    try {
+      if (activeTodos.length) {
+        setTodos(todos.map(todo => {
+          handleUpdateTodo(todo.id, { completed: true });
+          todo.completed = true;
 
-        return todo;
-      }));
+          return todo;
+        }));
+      } else {
+        setTodos(todos.map(todo => {
+          handleUpdateTodo(todo.id, { completed: false });
+          todo.completed = false;
+
+          return todo;
+        }));
+      }
+    } catch {
+      setError(Error.Update);
     }
   };
 
@@ -146,7 +154,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <TodoPanel
           todos={visibleTodos}
           newTodoField={newTodoField}
           addTodo={handleAddTodo}
@@ -163,21 +171,22 @@ export const App: React.FC = () => {
             onUpdate={handleUpdateTodo}
             isLoading={isLoading}
             selectedId={selectedId}
+            toggleLoader={toggleLoader}
           />
         )}
 
-        <Footer
+        <Filter
           todos={todos}
           filterType={filterType}
           setFilterType={setFilterType}
           removeTodo={handleRemoveTodo}
+          setToggleLoader={setToggleLoader}
         />
       </div>
 
       <ErrorNotification
-        error={error}
+        errorDetected={error}
         setError={setError}
-        setIsLoading={setIsLoading}
       />
     </div>
   );

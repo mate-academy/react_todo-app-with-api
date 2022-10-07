@@ -12,6 +12,7 @@ type Props = {
   onUpdate: (todoId: number, data: Partial<Todo>) => void;
   isLoading: boolean;
   selectedId: number | null;
+  toggleLoader: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoList: React.FC<Props> = ({
   onUpdate,
   isLoading,
   selectedId,
+  toggleLoader,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -37,6 +39,7 @@ export const TodoList: React.FC<Props> = ({
               onUpdate={onUpdate}
               isLoading={isLoading}
               selectedId={selectedId}
+              toggleLoader={toggleLoader}
             />
           </CSSTransition>
         ))}

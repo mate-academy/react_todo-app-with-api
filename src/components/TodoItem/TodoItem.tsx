@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-return */
 import classNames from 'classnames';
 import {
   useState,
@@ -15,6 +14,7 @@ type Props = {
   onUpdate: (todoId: number, data: Partial<Todo>) => void;
   isLoading: boolean;
   selectedId: number | null;
+  toggleLoader: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -23,6 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
   isLoading,
   selectedId,
+  toggleLoader,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
@@ -40,12 +41,12 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!newTitle.trim()) {
       removeTodo(todo.id);
-    } else if (newTitle === todo.title) {
-      return;
-    } else {
+    } else if (newTitle.trim() !== todo.title) {
       onUpdate(todo.id, { title: newTitle });
     }
   }, [newTitle]);
+
+  const selected = selectedId === todo.id;
 
   return (
     <div
@@ -65,68 +66,61 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {
-        doubleClick
-          ? (
-            <form onSubmit={handleTitleChange}>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                ref={newTodoField}
-                className="todo__title-field"
-                value={newTitle}
-                onChange={event => setNewTitle(event.target.value)}
-                onBlur={handleTitleChange}
-                onKeyDown={(event) => {
-                  if (event.key === 'Escape') {
-                    setDoubleClick(false);
-                  }
-                }}
-              />
-            </form>
-          )
-          : (
-            <>
-              <span
-                data-cy="TodoTitle"
-                className="todo__title"
-                onDoubleClick={() => {
-                  setDoubleClick(true);
-                  setNewTitle(todo.title);
-                }}
-                onBlur={() => setDoubleClick(false)}
-              >
-                {todo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDeleteButton"
-                onClick={() => removeTodo(todo.id)}
-              >
-                ×
-              </button>
+      {doubleClick
+        ? (
+          <form onSubmit={handleTitleChange}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              ref={newTodoField}
+              className="todo__title-field"
+              value={newTitle}
+              onChange={event => setNewTitle(event.target.value)}
+              onBlur={handleTitleChange}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  setDoubleClick(false);
+                }
+              }}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setDoubleClick(true);
+                setNewTitle(todo.title);
+              }}
+              onBlur={() => setDoubleClick(false)}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => removeTodo(todo.id)}
+            >
+              ×
+            </button>
 
-              {
-                selectedId === todo.id && (
-                  <div
-                    data-cy="TodoLoader"
-                    className={classNames(
-                      'modal overlay',
-                      { 'is-active': isLoading },
-                    )}
-                  >
-                    <div
-                      className="modal-background has-background-white-ter"
-                    />
-                    <div className="loader" />
-                  </div>
-                )
-              }
-
-            </>
-          )
-      }
+            {(selected || toggleLoader) && (
+              <div
+                data-cy="TodoLoader"
+                className={classNames(
+                  'modal overlay',
+                  { 'is-active': isLoading },
+                )}
+              >
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            )}
+          </>
+        )}
     </div>
   );
 };
