@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { useRef, FormEvent, useEffect } from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   setTitle: React.Dispatch<React.SetStateAction<string>>,
@@ -7,9 +8,11 @@ type Props = {
   title: string,
   toggleAllCompetedTodos: boolean,
   handleToggleAll: () => void,
+  todos: Todo[]
 };
 
-export const Header: React.FC<Props> = ({
+export const Todos: React.FC<Props> = ({
+  todos,
   setTitle,
   handleSubmit,
   title,
@@ -26,16 +29,18 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: toggleAllCompetedTodos },
-        )}
-        aria-label="a problem"
-        onClick={handleToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: toggleAllCompetedTodos },
+          )}
+          aria-label="a problem"
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

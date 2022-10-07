@@ -11,8 +11,8 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { Filters } from './types/Filters';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/Auth/TodoList';
-import { Header } from './components/Auth/TodoHeader';
-import { TodoFooter } from './components/Auth/Footer';
+import { Todos } from './components/Auth/Todo';
+import { Filter } from './components/Auth/Filters';
 import { ErroNotification } from './components/Auth/ErrorNot';
 import {
   createTodo,
@@ -51,6 +51,7 @@ export const App: React.FC = () => {
   const filterTodoBy = todos.filter(todo => {
     switch (filterType) {
       case Filters.Active:
+
         return !todo.completed;
 
       case Filters.Completed:
@@ -160,16 +161,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const isActiveTodos = todos.filter(({ completed }) => !completed);
+  const isCompletedTodos = todos.some(({ completed }) => completed);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
-        <Header
+        <Todos
           setTitle={setTitle}
           title={title}
           handleSubmit={handleSubmit}
           toggleAllCompetedTodos={toggleAllCompetedTodos}
           handleToggleAll={handleClickToggleAll}
+          todos={todos}
         />
 
         {(isAdding || todos.length > 0) && (
@@ -185,11 +190,13 @@ export const App: React.FC = () => {
             />
 
             {todos.length > 0 && (
-              <TodoFooter
+              <Filter
                 filterBy={filterType}
-                todos={todos}
                 setFilterBy={setFilterType}
                 deleteTodo={handleDeleteCompletedTodos}
+                isActiveTodos={isActiveTodos}
+                isCompletedTodos={isCompletedTodos}
+
               />
             )}
           </>
