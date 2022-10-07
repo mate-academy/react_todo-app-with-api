@@ -14,7 +14,7 @@ type Props = {
   toggleAllTodos: () => void;
 };
 
-export const Header: React.FC<Props> = ({
+export const NewTodo: React.FC<Props> = ({
   todos,
   setError,
   onAdd,

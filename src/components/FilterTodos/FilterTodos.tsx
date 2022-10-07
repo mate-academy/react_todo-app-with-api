@@ -11,7 +11,7 @@ type Props = {
   removeCompletedTodos: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const FilterTodo: React.FC<Props> = ({
   filterTodos,
   todos,
   completedTodosLength,

@@ -14,8 +14,8 @@ import {
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification }
   from './components/ErrorNotification/ErrorNotification';
-import { Footer } from './components/FilterTodos/FilterTodos';
-import { Header } from './components/NewTodo/NewTodo';
+import { FilterTodo } from './components/FilterTodos/FilterTodos';
+import { NewTodo } from './components/NewTodo/NewTodo';
 import { TodoList } from './components/TodoList/TodoList';
 import { Errors } from './types/Errors';
 import { GroupBy } from './types/GroupBy';
@@ -141,7 +141,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <NewTodo
           todos={todos}
           isAdding={isAdding}
           newTodoTitle={newTodoTitle}
@@ -164,7 +164,7 @@ export const App: React.FC = () => {
               leftTodosLength={leftTodos.length}
               newTodoTitle={newTodoTitle}
             />
-            <Footer
+            <FilterTodo
               filterTodos={filterTodos}
               todos={todos}
               completedTodosLength={completedTodos.length}
