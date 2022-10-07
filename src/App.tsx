@@ -14,8 +14,8 @@ import {
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification }
   from './components/ErrorNotification/ErrorNotification';
-import { Footer } from './components/Footer/Footer';
-import { Header } from './components/Header/Header';
+import { Footer } from './components/FilterTodos/FilterTodos';
+import { Header } from './components/NewTodo/NewTodo';
 import { TodoList } from './components/TodoList/TodoList';
 import { Errors } from './types/Errors';
 import { GroupBy } from './types/GroupBy';
