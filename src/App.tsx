@@ -7,8 +7,8 @@ import React, {
   useState,
 } from 'react';
 import { TodoList } from './components/TodoList';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
+import { NewTodo } from './components/NewTodo';
+import { Filter } from './components/Filter';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Todo } from './types/Todo';
 import {
@@ -173,7 +173,8 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-      <Header
+      <NewTodo
+        todos={todos}
         toggleAll={toggleAll}
         newTodoField={newTodoField}
         title={title}
@@ -192,11 +193,10 @@ export const App: React.FC = () => {
             todoStatus={todoStatus}
             handleChange={handleChange}
           />
-          <Footer
+          <Filter
             deleteCompletedTodos={deleteCompletedTodos}
             filterBy={filterBy}
             setFilterBy={setFilterBy}
-            filteredTodos={filteredTodos}
             todos={todos}
           />
         </div>

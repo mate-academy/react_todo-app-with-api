@@ -1,7 +1,13 @@
 import classNames from 'classnames';
-import React, { FormEventHandler, RefObject } from 'react';
+import React, {
+  FormEventHandler,
+  RefObject,
+  useEffect,
+} from 'react';
+import { Todo } from '../types/Todo';
 
 type Props = {
+  todos: Todo[],
   newTodoField: RefObject<HTMLInputElement>,
   title: string,
   setTitle: (param: string) => void,
@@ -10,7 +16,8 @@ type Props = {
   handleToggleAll: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const NewTodo: React.FC<Props> = ({
+  todos,
   newTodoField,
   title,
   setTitle,
@@ -24,18 +31,26 @@ export const Header: React.FC<Props> = ({
     setTitle(value);
   };
 
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
+
   return (
     <header className="todoapp__header">
-      <button
-        aria-label="a problem"
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: toggleAll },
-        )}
-        onClick={handleToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          aria-label="a problem"
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: toggleAll },
+          )}
+          onClick={handleToggleAll}
+        />
+      )}
 
       <form onSubmit={handleTodos}>
         <input
