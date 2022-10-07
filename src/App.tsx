@@ -99,10 +99,9 @@ export const App: React.FC = () => {
 
     await updateTodo(todoId, data)
       .then(updatedTodo => {
-        setTodos(initialTodos => initialTodos
-          .map(todo => (todo.id === todoId
-            ? updatedTodo
-            : todo)));
+        setTodos<Todo>((initialTodos) => initialTodos
+          .map((todo) => (todo.id === todoId ? updatedTodo : todo))
+        );
       })
       .catch(() => {
         setError(Error.Updating);
