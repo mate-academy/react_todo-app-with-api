@@ -28,7 +28,6 @@ export const App: React.FC = () => {
   const [errorMessage, setError] = useState<Error | null>(null);
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [toggleLoader, setToggleLoader] = useState(false);
   const [toggleAll, setToggleAll] = useState(true);
   const [selectedId, setSelectedId] = useState(0);
   const userId = user?.id || 1;
@@ -72,7 +71,6 @@ export const App: React.FC = () => {
       .finally(() => {
         setTitle('');
         setIsAdding(false);
-        setToggleLoader(false);
       });
   };
 
@@ -99,16 +97,14 @@ export const App: React.FC = () => {
 
     await updateTodo(todoId, data)
       .then(updatedTodo => {
-        setTodos<Todo>((initialTodos) => initialTodos
-          .map((todo) => (todo.id === todoId ? updatedTodo : todo))
-        );
+        setTodos((initialTodos) => initialTodos
+          .map((todo) => (todo.id === todoId ? updatedTodo : todo)));
       })
       .catch(() => {
         setError(Error.Updating);
       })
       .finally(() => {
         setIsAdding(false);
-        setToggleLoader(false);
       });
   };
 
@@ -130,7 +126,7 @@ export const App: React.FC = () => {
 
   const handleToggler = () => {
     setToggleAll(!toggleAll);
-    setToggleLoader(true);
+    setIsAdding(true);
 
     return visibleTodos
       .map((todo) => handleUpdateTodo(todo.id, { completed: toggleAll }));
@@ -166,7 +162,7 @@ export const App: React.FC = () => {
             removeTodo={removeTodo}
             isAdding={isAdding}
             handleUpdateTodo={handleUpdateTodo}
-            toggleLoader={toggleLoader}
+            toggleLoader={isAdding}
             selectedId={selectedId}
           />
         )}
