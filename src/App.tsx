@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -32,14 +31,6 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [isTodoAdded, setIsTodoAdded] = useState(false);
   const [selectedTodosIds, setSelectedTodosIds] = useState<number[]>([]);
-
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [isTodoAdded]);
 
   useEffect(() => {
     const getTodosAsync = async (userId: number) => {
@@ -74,7 +65,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const hundleDeleteTodo = useCallback((todosIds: number[]) => {
+  const hundleDeleteTodos = useCallback((todosIds: number[]) => {
     setSelectedTodosIds(todosIds);
     Promise.all(todosIds.map(todoId => (
       deleteTodo(todoId)
@@ -96,7 +87,7 @@ export const App: React.FC = () => {
     return type === 'submit' ? newValue : newValue === 'true';
   }, []);
 
-  const hundleUpdateTodo = useCallback((
+  const hundleUpdateTodos = useCallback((
     name: string,
     type: string,
     value: string | boolean,
@@ -182,14 +173,13 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          newTodoField={newTodoField}
           isLeftActiveTodos={isLeftActiveTodos}
           onAddTodo={hundleAddTodo}
           isDisabled={isTodoAdded}
           setErrorMessage={setErrorMessage}
           activeTodosIds={activeTodosIds}
           completedTodosIds={completedTodosIds}
-          onUpdate={hundleUpdateTodo}
+          onUpdate={hundleUpdateTodos}
         />
         {!!todos.length && (
           <TodoList
@@ -197,8 +187,8 @@ export const App: React.FC = () => {
             isAdding={isTodoAdded}
             selectedTodosIds={selectedTodosIds}
             newTitle={title}
-            onDelete={hundleDeleteTodo}
-            onUpdate={hundleUpdateTodo}
+            onDelete={hundleDeleteTodos}
+            onUpdate={hundleUpdateTodos}
           />
         )}
         {!!todos.length && (
@@ -208,7 +198,7 @@ export const App: React.FC = () => {
             filterValue={filterValue}
             setFilterValue={setFilterValue}
             completedTodosIds={completedTodosIds}
-            onDelete={hundleDeleteTodo}
+            onDelete={hundleDeleteTodos}
           />
         )}
       </div>

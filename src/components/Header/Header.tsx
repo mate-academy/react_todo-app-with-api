@@ -1,12 +1,13 @@
 import React, {
   FormEvent,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
 
 type Props = {
   isLeftActiveTodos: boolean;
-  newTodoField: React.RefObject<HTMLInputElement>,
   onAddTodo: (inputTitle: string) => void,
   isDisabled: boolean,
   setErrorMessage: (error: string) => void,
@@ -22,7 +23,6 @@ type Props = {
 
 export const Header: React.FC<Props> = ({
   isLeftActiveTodos,
-  newTodoField,
   onAddTodo,
   isDisabled,
   setErrorMessage,
@@ -31,6 +31,13 @@ export const Header: React.FC<Props> = ({
   onUpdate,
 }) => {
   const [inputTitle, setInputTitle] = useState('');
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isDisabled]);
 
   const onAdd = (event: FormEvent) => {
     event.preventDefault();

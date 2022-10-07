@@ -45,6 +45,9 @@ export const TodoItem: React.FC<Props> = ({
   const hundleRenameTodo = (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
+    const eventTargetName = 'title';
+    const eventTargetType = 'submit';
+
     if (!newTitle && selectedTodoId) {
       onDelete([selectedTodoId]);
 
@@ -69,8 +72,8 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     onUpdate(
-      'title',
-      'submit',
+      eventTargetName,
+      eventTargetType,
       newTitle,
       [id],
     );
