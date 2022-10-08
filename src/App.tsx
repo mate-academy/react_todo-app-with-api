@@ -21,7 +21,7 @@ export const App: React.FC = () => {
   const [newTitleTodo, setNewTitleTodo] = useState('');
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [, setTodoId] = useState(0);
+  const [todoId, setTodoId] = useState([0]);
 
   const [changTitle, setChangTitle] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = async (event: FormEvent, curentTodoId: number) => {
     event.preventDefault();
-    setTodoId(curentTodoId);
+    setTodoId([curentTodoId]);
     setIsAdding(true);
 
     await deleteTodos(curentTodoId)
@@ -85,11 +85,13 @@ export const App: React.FC = () => {
         deleteTodos(todo.id)
           .then(() => {
             setTodos([...todos.filter(({ completed }) => completed !== true)]);
+            setTodoId([...todos.map(({ id }) => id)]);
           })
           .catch(() => setHasLoadError(TextError.UnableDelete))
           .finally(() => setIsAdding(false));
       }
     })
+
     );
 
     clearCompleted();
@@ -194,6 +196,7 @@ export const App: React.FC = () => {
           handleChangeCompleted={handleChangeCompleted}
           isAdding={isAdding}
           handleUpdateTodo={handleUpdateTodo}
+          todoId={todoId}
         />
         {todos.length !== 0 && (
           <TodoFilter
@@ -203,7 +206,7 @@ export const App: React.FC = () => {
             handleClearCompleted={handleClearCompleted}
           />
         )}
-        {hasLoadError && (
+        {hasLoadError !== TextError.None && (
           <ErrorNotification
             hasLoadError={hasLoadError}
             setHasLoadError={setHasLoadError}

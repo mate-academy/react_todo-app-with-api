@@ -9,6 +9,7 @@ import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
+  todoId:number[];
   changTitle: string;
   isAdding: boolean;
   setChangTitle: (event: string) => void;
@@ -19,6 +20,7 @@ interface Props {
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
+  todoId,
   changTitle,
   isAdding,
   setChangTitle,
@@ -30,11 +32,14 @@ export const TodoInfo: React.FC<Props> = ({
   const newTodoField = useRef<HTMLInputElement>(null);
   const [visiblInput, setVisibulInput] = useState(false);
 
+  const statusLoader = todoId.includes(todo.id)
+    || (isAdding && todo.id === 0);
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  });
 
   const handleChangeTitile = () => {
     setVisibulInput(!visiblInput);
@@ -106,7 +111,7 @@ export const TodoInfo: React.FC<Props> = ({
           />
         </form>
       )}
-      {isAdding
+      {statusLoader
       && (
         <div
           data-cy="TodoLoader"

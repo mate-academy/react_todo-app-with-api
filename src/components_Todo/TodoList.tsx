@@ -4,6 +4,7 @@ import { TodoInfo } from './TodoInfo';
 
 interface Props {
   todos: Todo[] | null;
+  todoId:number[];
   changTitle: string;
   setChangTitle: (event: string) => void;
   handleDeleteTodo: (event: FormEvent, element: number) => void;
@@ -14,6 +15,7 @@ interface Props {
 
 export const TodoList: React.FC<Props> = ({
   todos,
+  todoId,
   changTitle,
   setChangTitle,
   handleDeleteTodo,
@@ -33,6 +35,7 @@ export const TodoList: React.FC<Props> = ({
           handleChangeCompleted={handleChangeCompleted}
           isAdding={isAdding}
           handleUpdateTodo={handleUpdateTodo}
+          todoId={todoId}
         />
       )))}
     </section>
