@@ -18,18 +18,18 @@ import { Filter } from './components/Filter';
 import { TodoList } from './components/TodoList';
 import { ErrorMessage } from './components/ErrorMessage';
 
-import { FilterStatus } from './types/FilterStatus';
+import { Filters } from './types/Filters';
 import { Todo } from './types/Todo';
 
 const getTodoById = (todos: Todo[], todoId: number) => {
   return todos.find(({ id }) => id === todoId) || null;
 };
 
-const filterTodosByStatus = (todos: Todo[], filterStatus: FilterStatus) => {
+const filterTodosByStatus = (todos: Todo[], filterStatus: Filters) => {
   switch (filterStatus) {
-    case 'all': return todos;
-    case 'active': return todos.filter(({ completed }) => !completed);
-    case 'completed': return todos.filter(({ completed }) => completed);
+    case Filters.ALL: return todos;
+    case Filters.ACTIVE: return todos.filter(({ completed }) => !completed);
+    case Filters.COMPLETED: return todos.filter(({ completed }) => completed);
     default: throw new Error('Error: Filter todos');
   }
 };
@@ -39,7 +39,7 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [filterStatus, setFilterStatus] = useState<Filters>(Filters.ALL);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
   const [showErrorTrigger, setShowErrorTrigger] = useState(0);
 
   const activeTodosCount = useMemo(
-    () => filterTodosByStatus(todos, 'active').length,
+    () => filterTodosByStatus(todos, Filters.ACTIVE).length,
     [todos],
   );
 

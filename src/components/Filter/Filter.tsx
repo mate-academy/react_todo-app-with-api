@@ -1,30 +1,30 @@
 import classNames from 'classnames';
 import React from 'react';
-import { FilterStatus } from '../../types/FilterStatus';
+import { Filters } from '../../types/Filters';
 
 type Props = {
-  filterStatus: FilterStatus
-  onFilter: (filterStatus: FilterStatus) => void;
+  filterStatus: Filters
+  onFilter: (filterStatus: Filters) => void;
 };
 
 export const Filter: React.FC<Props> = React.memo(
   ({ filterStatus, onFilter }) => {
-    const handleFilter = (newFilterStatus: FilterStatus) => {
+    const handleFilter = (newFilterStatus: Filters) => {
       if (filterStatus !== newFilterStatus) {
         onFilter(newFilterStatus);
       }
     };
 
     const handleFilterAll = () => {
-      handleFilter('all');
+      handleFilter(Filters.ALL);
     };
 
     const handleFilterActive = () => {
-      handleFilter('active');
+      handleFilter(Filters.ACTIVE);
     };
 
     const handleFilterCompleted = () => {
-      handleFilter('completed');
+      handleFilter(Filters.COMPLETED);
     };
 
     return (
