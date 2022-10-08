@@ -1,4 +1,4 @@
-export enum ErrorType {
+export enum ErrorMessage {
   none,
   emptyTitle = 'Title can\'t be empty',
   load = 'Unable to load a todos',

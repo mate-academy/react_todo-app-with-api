@@ -8,7 +8,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { SortType } from './types/SortType';
-import { ErrorType } from './types/ErrorType';
+import { ErrorMessage } from './types/ErrorMessage';
 import { Todo } from './types/Todo';
 import { getActiveTodos, getCompletedTodos } from './utils/filtering';
 
@@ -18,7 +18,8 @@ export const App: React.FC = () => {
   const [userTodos, setUserTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [sortType, setSortType] = useState<SortType>(SortType.all);
-  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.none);
+  const [errorMessage, setErrrorMessage]
+    = useState<ErrorMessage>(ErrorMessage.none);
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isLoadingList, setisLoadingList] = useState<number[]>([]);
@@ -31,7 +32,7 @@ export const App: React.FC = () => {
         .then((todos: Todo[]) => {
           setUserTodos(todos);
         })
-        .catch(() => setErrorType(ErrorType.load));
+        .catch(() => setErrrorMessage(ErrorMessage.load));
     }
   }, []);
 
@@ -54,16 +55,16 @@ export const App: React.FC = () => {
   }, [sortType, userTodos]);
 
   useEffect(() => {
-    if (errorType !== ErrorType.none) {
-      setTimeout(() => setErrorType(ErrorType.none), 3000);
+    if (errorMessage !== ErrorMessage.none) {
+      setTimeout(() => setErrrorMessage(ErrorMessage.none), 3000);
     }
-  }, [errorType]);
+  }, [errorMessage]);
 
   const addNewTodo = () => {
     const title = query.trim();
 
     if (!title.length) {
-      setErrorType(ErrorType.emptyTitle);
+      setErrrorMessage(ErrorMessage.emptyTitle);
 
       return;
     }
@@ -82,7 +83,7 @@ export const App: React.FC = () => {
           setUserTodos(prev => [...prev, todo]);
           setQuery('');
         })
-        .catch(() => setErrorType(ErrorType.add))
+        .catch(() => setErrrorMessage(ErrorMessage.add))
         .finally(() => setIsAdding(false));
     }
   };
@@ -94,7 +95,7 @@ export const App: React.FC = () => {
       .then(() => {
         setUserTodos(prev => prev.filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorType(ErrorType.delete))
+      .catch(() => setErrrorMessage(ErrorMessage.delete))
       .finally(() => setisLoadingList([]));
   };
 
@@ -130,7 +131,7 @@ export const App: React.FC = () => {
           return [...prev];
         });
       })
-      .catch(() => setErrorType(ErrorType.update))
+      .catch(() => setErrrorMessage(ErrorMessage.update))
       .finally(() => setisLoadingList([]));
   };
 
@@ -215,8 +216,13 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {errorType !== ErrorType.none
-      && <ErrorNotification onErrorType={setErrorType} errorType={errorType} />}
+      {errorMessage !== ErrorMessage.none
+      && (
+        <ErrorNotification
+          onErrorMessage={setErrrorMessage}
+          errorMessage={errorMessage}
+        />
+      )}
     </div>
   );
 };

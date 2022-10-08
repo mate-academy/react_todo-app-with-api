@@ -1,13 +1,14 @@
-import { ErrorType } from '../../types/ErrorType';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 type Props = {
-  onErrorType: (errorType: ErrorType) => void;
-  errorType: ErrorType,
+  onErrorMessage: (errorType: ErrorMessage) => void;
+  errorMessage: ErrorMessage,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  onErrorType, errorType,
+  onErrorMessage,
+  errorMessage,
 }) => {
   return (
     <div
@@ -18,10 +19,10 @@ export const ErrorNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onErrorType(ErrorType.none)}
+        onClick={() => onErrorMessage(ErrorMessage.none)}
       />
 
-      {errorType}
+      {errorMessage}
     </div>
   );
 };
