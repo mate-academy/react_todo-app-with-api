@@ -40,7 +40,6 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterStatus, setFilterStatus] = useState<Filters>(Filters.ALL);
-  // const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState<number[]>([0]);
