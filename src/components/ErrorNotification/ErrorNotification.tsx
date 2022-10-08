@@ -21,15 +21,7 @@ export const ErrorNotification: React.FC<Props> = ({
         onClick={() => onErrorType(ErrorType.none)}
       />
 
-      {errorType === ErrorType.add && 'Unable to add a todo'}
-
-      {errorType === ErrorType.delete && 'Unable to delete a todo'}
-
-      {errorType === ErrorType.update && 'Unable to update a todo'}
-
-      {errorType === ErrorType.load && 'Unable to load a todos'}
-
-      {errorType === ErrorType.emptyTitle && 'Title can\'t be empty'}
+      {errorType}
     </div>
   );
 };
