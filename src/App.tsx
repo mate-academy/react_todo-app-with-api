@@ -40,12 +40,17 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterStatus, setFilterStatus] = useState<Filters>(Filters.ALL);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
+  // const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState<number[]>([0]);
   const [error, setError] = useState('');
   const [showErrorTrigger, setShowErrorTrigger] = useState(0);
+
+  const visibleTodos = useMemo(
+    () => filterTodosByStatus(todos, filterStatus),
+    [todos, filterStatus],
+  );
 
   const activeTodosCount = useMemo(
     () => filterTodosByStatus(todos, Filters.ACTIVE).length,
@@ -189,10 +194,6 @@ export const App: React.FC = () => {
 
     loadTodos();
   }, []);
-
-  useEffect(() => {
-    setVisibleTodos(filterTodosByStatus(todos, filterStatus));
-  }, [todos, filterStatus, error]);
 
   useEffect(() => {
     if (newTodoField.current) {
