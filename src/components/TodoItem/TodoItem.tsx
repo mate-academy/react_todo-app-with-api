@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader/TodoLoader';
 
@@ -25,10 +25,11 @@ export const TodoItem: React.FC<Props> = ({
   const [selectedTodo, setSelectedTodo] = useState(0);
   const { title, id, completed } = todo;
 
-  const isAdding = isSelectId.includes(id) && isLoading && id === 0;
+  const isAdding = useMemo(() => isLoading
+  && isSelectId.includes(id), [isLoading, isSelectId, id]);
 
-  const updateTitile = () => {
-    if (newTitle === title) {
+  const updateTitle = () => {
+    if (newTitle === title || todos.find(item => item.title === newTitle)) {
       setIsEdit(false);
 
       return;
@@ -36,10 +37,8 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!newTitle) {
       removeTodo(selectedTodo);
-    }
 
-    if (todos.find(item => item.title === newTitle)) {
-      setIsEdit(false);
+      return;
     }
 
     changeStatus(selectedTodo, { title: newTitle });
@@ -58,13 +57,13 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleBlur = () => {
-    updateTitile();
+    updateTitle();
     setIsEdit(false);
   };
 
   const handleKey = (event: { key: string }) => {
     if (event.key === 'Enter') {
-      updateTitile();
+      updateTitle();
     }
 
     if (event.key === 'Escape') {
@@ -86,6 +85,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           onChange={() => changeStatus(id, { completed: !completed })}
+          checked={completed}
         />
       </label>
       { isEdit && selectedTodo === id
@@ -128,11 +128,7 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )}
 
-      {isSelectId.includes(id) && (
-        <TodoLoader />
-      )}
-
-      {isAdding && (
+      {(isAdding || isSelectId.includes(id)) && (
         <TodoLoader />
       )}
     </div>

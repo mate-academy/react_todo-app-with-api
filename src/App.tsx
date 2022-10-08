@@ -62,7 +62,7 @@ export const App: React.FC = () => {
   const newTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!user || !title) {
+    if (!title.trim() || !user) {
       setErrorMessage(ErrorMessage.ErrorTitle);
 
       return;
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
     try {
       const addedTodo = await addTodo(title, user.id);
 
-      setTodos([...todos, addedTodo]);
+      setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch {
       setErrorMessage(ErrorMessage.NotAdd);
     }
@@ -87,18 +87,23 @@ export const App: React.FC = () => {
 
     try {
       await deleteTodo(TodoId);
-      setTodos([...todos.filter(({ id }) => id !== TodoId)]);
+
+      setTodos(prevTodos => prevTodos.filter(({ id }) => id !== TodoId));
     } catch {
       setErrorMessage(ErrorMessage.NotDelete);
     }
   }, [todos, errorMessage]);
 
-  const completedTodo = todos.filter(({ completed }) => !completed);
+  const completedTodo = useMemo(() => todos
+    .filter(({ completed }) => completed), [todos]);
 
   const deleteTodoCompleted = useCallback(() => {
     setIsSelectId([...completedTodo].map(({ id }) => id));
+
     Promise.all(completedTodo.map(({ id }) => removeTodo(id)))
-      .then(() => setTodos([...todos.filter(({ completed }) => !completed)]))
+      .then(() => setTodos(prevTodos => prevTodos.filter(
+        ({ completed }) => !completed,
+      )))
       .catch(() => {
         setErrorMessage(ErrorMessage.NotDelete);
         setIsSelectId([]);
@@ -117,20 +122,27 @@ export const App: React.FC = () => {
         data,
       );
 
-      setTodos([...todos.map(todo => (todo.id === todoId
-        ? changedTodo
-        : todo))]);
+      setTodos(todos.map(todo => (
+        todo.id === todoId
+          ? changedTodo
+          : todo
+      )));
     } catch {
       setErrorMessage(ErrorMessage.NotUpdate);
+    } finally {
+      setIsSelectId([]);
     }
   }, [todos]);
 
   const changeAllStatus = () => {
-    const completed = isActiveTodos;
+    const isAllCompleted = todos.every(({ completed }) => completed);
 
-    setIsSelectId([...todos].map(({ id }) => id));
-    Promise.all(todos.map(({ id }) => changeStatus(id, { completed })))
-      .then(() => setTodos([...todos.map(todo => ({ ...todo, completed }))]))
+    Promise.all(todos.map(({ id }) => changeStatus(id,
+      { completed: !isAllCompleted })))
+      .then(() => setTodos(todos.map(todo => ({
+        ...todo,
+        completed: !isAllCompleted,
+      }))))
       .catch(() => {
         setErrorMessage(ErrorMessage.NotUpdate);
         setIsSelectId([]);
@@ -149,7 +161,7 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           changeAllStatus={changeAllStatus}
         />
-        {todos.length > 0 && (
+        {(todos.length > 0 || isLoading) && (
           <>
             <TodoList
               todos={filteredTodos}
