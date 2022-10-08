@@ -1,11 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 
-type Props = {
-  isToggling: boolean;
-};
-
-export const Loader: React.FC<Props> = () => {
+export const Loader: React.FC = () => {
   return (
     <div
       data-cy="TodoLoader"

@@ -13,6 +13,8 @@ type Props = {
   changeProperty:(todoId: number, property: Partial<Todo>) => void;
   selectedTodoId: number;
   isToggling: boolean;
+  title: string;
+  isAdding: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -21,6 +23,8 @@ export const TodoList: React.FC<Props> = ({
   changeProperty,
   selectedTodoId,
   isToggling,
+  title,
+  isAdding,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -37,9 +41,34 @@ export const TodoList: React.FC<Props> = ({
               changeProperty={changeProperty}
               selectedTodoId={selectedTodoId}
               isToggling={isToggling}
+              isAdding={isAdding}
             />
           </CSSTransition>
         ))}
+
+        {isAdding && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoItem
+              key={Math.random()}
+              todo={{
+                id: 0,
+                title,
+                completed: false,
+                userId: Math.random(),
+              }}
+              removeTodo={removeTodo}
+              changeProperty={changeProperty}
+              selectedTodoId={selectedTodoId}
+              isToggling={isToggling}
+              isAdding={isAdding}
+
+            />
+          </CSSTransition>
+        )}
       </TransitionGroup>
     </section>
   );

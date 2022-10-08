@@ -32,6 +32,7 @@ export const App: React.FC = () => {
   const [isToggling, setIsToggling] = useState(false);
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const userId = user?.id || 0;
 
@@ -59,9 +60,11 @@ export const App: React.FC = () => {
 
   const createTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
+    setIsAdding(true);
 
     if (title.trim().length === 0 || !user) {
       setError(TextError.Title);
+      setIsToggling(false);
 
       return;
     }
@@ -69,15 +72,13 @@ export const App: React.FC = () => {
     try {
       const newTodo = await addTodo(user.id, title);
 
-      setSelectedTodoId(newTodo.id);
-
       setTodos(prevTodos => [...prevTodos, newTodo]);
     } catch {
       setError(TextError.Add);
     }
 
     setTitle('');
-    setSelectedTodoId(0);
+    setIsAdding(false);
   }, [title, user]);
 
   const removeTodo = async (todoId: number) => {
@@ -135,6 +136,9 @@ export const App: React.FC = () => {
             changeProperty={changeProperty}
             selectedTodoId={selectedTodoId}
             isToggling={isToggling}
+            title={title}
+            isAdding={isAdding}
+
           />
         )}
         <Footer

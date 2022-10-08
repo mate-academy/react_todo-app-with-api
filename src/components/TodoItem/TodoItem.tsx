@@ -14,6 +14,7 @@ type Props = {
   changeProperty:(todoId: number, property: Partial<Todo>) => void;
   selectedTodoId: number;
   isToggling: boolean;
+  isAdding: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   changeProperty,
   selectedTodoId,
   isToggling,
+  isAdding,
 }) => {
   const { id, title, completed } = todo;
   const [doubleClick, setDoubleClick] = useState(false);
@@ -126,10 +128,10 @@ export const TodoItem: React.FC<Props> = ({
             >
               ×
             </button>
-            {((selectedTodoId === todo.id) || isToggling) && (
-              <Loader
-                isToggling={isToggling}
-              />
+            {((selectedTodoId === todo.id)
+            || (isAdding && todo.id === 0)
+            || isToggling) && (
+              <Loader />
             )}
           </>
         )}
