@@ -45,6 +45,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [isProcessing, setIsProcessing] = useState<number[]>([0]);
   const [error, setError] = useState('');
+  const [showErrorTrigger, setShowErrorTrigger] = useState(0);
 
   const activeTodosCount = useMemo(
     () => filterTodosByStatus(todos, 'active').length,
@@ -65,7 +66,7 @@ export const App: React.FC = () => {
 
   const showErrorMessage = (errorMessage: string) => {
     setError(errorMessage);
-    setTimeout(() => setError(''), 3000);
+    setShowErrorTrigger(tick => tick + 1);
   };
 
   const handleCloseError = () => {
@@ -198,6 +199,14 @@ export const App: React.FC = () => {
       newTodoField.current.focus();
     }
   }, [isAdding]);
+
+  useEffect(() => {
+    const errorTimeout = setTimeout(() => setError(''), 3000);
+
+    return () => {
+      clearTimeout(errorTimeout);
+    };
+  }, [showErrorTrigger]);
 
   return (
     <div className="todoapp">
