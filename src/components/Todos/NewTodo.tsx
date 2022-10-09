@@ -71,7 +71,9 @@ export const NewTodo: React.FC<Props> = ({
     setToggleAll(true);
 
     toggleTodos.map(todo => (
-      updateTodo(todo.id, { completed: !todo.completed })
+      updateTodo(todo.id, checkCompleted
+        ? { completed: false }
+        : { completed: true })
         .then(() => {
           setToggleAll(false);
         })
