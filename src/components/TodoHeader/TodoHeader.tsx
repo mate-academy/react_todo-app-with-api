@@ -47,22 +47,21 @@ export const TodoHeader: React.FC<Props> = ({
         title,
         completed: false,
       };
-      const initialTodos = [...todos];
 
-      setTodos(current => [...current, newTodo]);
       setIsAdding(true);
+      setTodos(current => [...current, newTodo]);
+      setTitle('');
+
       await addTodo(newTodo)
         .catch(() => {
           setNotification('Unable to add a todo');
-        })
-        .finally(() => {
-          setIsAdding(false);
-          setTodos(initialTodos);
-          setTitle('');
         });
+
       if (user) {
         await getTodos(user.id).then(setTodos);
       }
+
+      setIsAdding(false);
 
       return;
     }
@@ -84,8 +83,8 @@ export const TodoHeader: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={e => {
-        e.preventDefault();
+      <form onSubmit={event => {
+        event.preventDefault();
         handleSubmit();
       }}
       >
@@ -97,7 +96,7 @@ export const TodoHeader: React.FC<Props> = ({
           placeholder="What needs to be done?"
           disabled={isAdding}
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(event) => setTitle(event.target.value)}
         />
       </form>
     </header>

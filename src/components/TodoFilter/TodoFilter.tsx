@@ -1,52 +1,32 @@
 import classNames from 'classnames';
 import React from 'react';
-
-import { Filter } from '../../types/Filter';
+import { NavLink } from 'react-router-dom';
 
 type Props = {
-  setFilter: React.Dispatch<React.SetStateAction<Filter>>,
-  filter: Filter,
+  to: string;
+  text: string;
 };
 
-export const TodoFilter: React.FC<Props> = ({ setFilter, filter }) => (
+export const PageNavLink: React.FC<Props> = ({ to, text }) => (
+  <NavLink
+    data-cy="FilterLinkAll"
+    end
+    to={to}
+    className={({ isActive }) => classNames('filter__link', {
+      selected: isActive,
+    })}
+  >
+    {text}
+  </NavLink>
+);
 
+export const TodoFilter: React.FC = () => (
   <nav className="filter" data-cy="Filter">
-    <a
-      data-cy="FilterLinkAll"
-      href="#/"
-      className={classNames('filter__link', {
-        selected: filter === Filter.all,
-      })}
-      onClick={() => {
-        setFilter(Filter.all);
-      }}
-    >
-      All
-    </a>
 
-    <a
-      data-cy="FilterLinkActive"
-      href="#/active"
-      className={classNames('filter__link', {
-        selected: filter === Filter.active,
-      })}
-      onClick={() => {
-        setFilter(Filter.active);
-      }}
-    >
-      Active
-    </a>
-    <a
-      data-cy="FilterLinkCompleted"
-      href="#/completed"
-      className={classNames('filter__link', {
-        selected: filter === Filter.completed,
-      })}
-      onClick={() => {
-        setFilter(Filter.completed);
-      }}
-    >
-      Completed
-    </a>
+    <PageNavLink to="/" text="All" />
+
+    <PageNavLink to="/active" text="Active" />
+
+    <PageNavLink to="/completed" text="Completed" />
   </nav>
 );

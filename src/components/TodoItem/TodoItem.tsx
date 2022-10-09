@@ -51,7 +51,16 @@ export const TodoItem: React.FC<Props> = ({
       })
       .finally(() => setClickedTodo(0));
 
-    await getTodos(todo.userId).then(setTodos);
+    const changedTodos = [...allTodos].map(item => {
+      if (todo.id === item.id) {
+        return { ...todo, completed: !item.completed };
+      }
+
+      return item;
+    });
+
+    setTodos(changedTodos);
+    getTodos(todo.userId);
   };
 
   const handleDeleteTodo = async () => {
@@ -61,8 +70,11 @@ export const TodoItem: React.FC<Props> = ({
         setNotification('Unable to delete a todo');
       })
       .finally(() => setClickedTodo(0));
+    const changedTodos = [...allTodos].filter(item => item.id !== todo.id);
 
-    await getTodos(todo.userId).then(setTodos);
+    setTodos(changedTodos);
+
+    await getTodos(todo.userId);
   };
 
   const handleTitleChange = async (event: React.FormEvent, code?: string) => {
@@ -85,10 +97,18 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => {
         setIsDoubleClicked(false);
         setIsChanging(false);
-        getTodos(todo.userId).then(setTodos);
       });
 
-    await getTodos(todo.userId).then(setTodos);
+    const changedTodos = [...allTodos].map(item => {
+      if (todo.id === item.id) {
+        return { ...todo, title: temporaryTitle };
+      }
+
+      return item;
+    });
+
+    setTodos(changedTodos);
+    getTodos(todo.userId);
   };
 
   return (

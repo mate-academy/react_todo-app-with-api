@@ -3,22 +3,16 @@ import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
 import { TodoFilter } from '../TodoFilter';
-import { Filter } from '../../types/Filter';
-
 import { deleteTodo, getTodos } from '../../api/todos';
 
 type Props = {
   todos: Todo[],
-  filter: Filter,
-  setFilter: React.Dispatch<React.SetStateAction<Filter>>,
   setIsClearButtonClicked: React.Dispatch<React.SetStateAction<boolean>>,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
-  setFilter,
-  filter,
   setIsClearButtonClicked,
   setTodos,
 }) => {
@@ -37,13 +31,10 @@ export const TodoFooter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todos.length} items left`}
+        {`${todos.filter(todo => !todo.completed).length} items left`}
       </span>
 
-      <TodoFilter
-        setFilter={setFilter}
-        filter={filter}
-      />
+      <TodoFilter />
 
       <button
         data-cy="ClearCompletedButton"

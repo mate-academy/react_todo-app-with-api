@@ -4,7 +4,9 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from 'react';
+import { useParams } from 'react-router-dom';
 
 import {
   AuthContext,
@@ -24,6 +26,23 @@ export const App: React.FC = () => {
   const [isToggleClicked, setIsToggleClicked] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isClearButtonClicked, setIsClearButtonClicked] = useState(false);
+
+  const { filterParam = '' } = useParams();
+
+  useMemo(() => {
+    switch (filterParam) {
+      case '':
+      default:
+        setFilter(Filter.all);
+        break;
+      case 'active':
+        setFilter(Filter.active);
+        break;
+      case 'completed':
+        setFilter(Filter.completed);
+        break;
+    }
+  }, [filterParam]);
 
   const filterList = (todosList: Todo[]) => {
     switch (filter) {
@@ -71,7 +90,6 @@ export const App: React.FC = () => {
           user={user}
           setNotification={setNotification}
         />
-
         {todos.length > 0 && (
           <>
             <TodoList
@@ -82,11 +100,8 @@ export const App: React.FC = () => {
               isClearButtonClicked={isClearButtonClicked}
               setNotification={setNotification}
             />
-
             <TodoFooter
               todos={todos}
-              filter={filter}
-              setFilter={setFilter}
               setIsClearButtonClicked={setIsClearButtonClicked}
               setTodos={setTodos}
             />
