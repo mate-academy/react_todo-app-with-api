@@ -1,37 +1,34 @@
-import classNames from 'classnames';
-import {
+import React, {
   ChangeEvent, KeyboardEvent, useEffect, useRef, useState,
 } from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  onRemoveTodo: (id: number) => void,
-  selectedTodos: number[],
-  setSelectedTodos: (num: number[]) => void,
+  removeTodo: (value: number) => void,
+  setSelectedTodos: (value: number[]) => void,
   onUpdate: (todoId: number, data: Partial<Todo>) => void,
-  selectedTodo: number,
-  setSelectedTodo: (num: number) => void,
+  selectedTodos: number[],
   todos: Todo[],
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onRemoveTodo,
-  selectedTodos,
+  removeTodo,
   setSelectedTodos,
   onUpdate,
-  selectedTodo,
-  setSelectedTodo,
+  selectedTodos,
   todos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
-  const [isClicked, setIsClicked] = useState(false);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [selectedTodo, setSelectedTodo] = useState<number>(0);
+  const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [newTodoTitle, setNewTodoTitle] = useState<string>('');
 
   const handleTitleUpdate = () => {
     if (!newTodoTitle) {
-      onRemoveTodo(selectedTodo);
+      removeTodo(selectedTodo);
 
       setIsClicked(false);
 
@@ -54,13 +51,11 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
+    newTodoField.current?.focus();
   }, [selectedTodo]);
 
   const handleRemove = () => {
-    onRemoveTodo(todo.id);
+    removeTodo(todo.id);
     setSelectedTodos([todo.id]);
   };
 
@@ -102,7 +97,9 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onClick={() => onUpdate(todo.id, { completed: !todo.completed })}
+          onClick={() => {
+            onUpdate(todo.id, { completed: !todo.completed });
+          }}
           defaultChecked
         />
       </label>
@@ -151,7 +148,9 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
-          { 'is-active': selectedTodos.includes(todo.id) },
+          {
+            'is-active': selectedTodos.includes(todo.id),
+          },
         )}
       >
         <div className="modal-background has-background-white-ter" />

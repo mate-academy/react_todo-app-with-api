@@ -1,33 +1,26 @@
-import {
-  CSSTransition,
-  TransitionGroup,
-} from 'react-transition-group';
-import classNames from 'classnames';
+import React from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[],
-  onRemoveTodo: (id: number) => void,
-  isTodoLoaded: boolean,
+  isAdding: boolean,
   title: string,
+  removeTodo: (value: number) => void,
+  setSelectedTodos: (value: number[]) => void,
   selectedTodos: number[],
-  setSelectedTodos: (num: number[]) => void,
   onUpdate: (todoId: number, data: Partial<Todo>) => void,
-  selectedTodo: number,
-  setSelectedTodo: (num: number) => void,
 };
 
 export const TodosList: React.FC<Props> = ({
   todos,
-  onRemoveTodo,
-  isTodoLoaded,
+  isAdding,
   title,
-  selectedTodos,
+  removeTodo,
   setSelectedTodos,
+  selectedTodos,
   onUpdate,
-  selectedTodo,
-  setSelectedTodo,
 }) => {
   const temp = {
     id: 0,
@@ -35,71 +28,55 @@ export const TodosList: React.FC<Props> = ({
   };
 
   return (
-    <section
-      className="todoapp__main"
-      data-cy="TodoList"
-    >
+    <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
         {todos.map(todo => (
           <CSSTransition
             key={todo.id}
-            timeout={350}
+            timeout={300}
             classNames="item"
           >
             <TodoItem
               todo={todo}
               key={todo.id}
-              onRemoveTodo={onRemoveTodo}
-              selectedTodos={selectedTodos}
+              removeTodo={removeTodo}
               setSelectedTodos={setSelectedTodos}
               onUpdate={onUpdate}
-              selectedTodo={selectedTodo}
-              setSelectedTodo={setSelectedTodo}
+              selectedTodos={selectedTodos}
               todos={todos}
             />
           </CSSTransition>
         ))}
 
-        {isTodoLoaded
-          && (
-            <CSSTransition
-              key={0}
-              timeout={350}
-              classNames="temp-item"
+        {isAdding && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <div
+              data-cy="Todo"
+              className="todo"
             >
-              <div
-                data-cy="Todo"
-                className={classNames(
-                  'todo',
-                  { completed: isTodoLoaded },
-                )}
-              >
-                <label className="todo__status-label">
-                  <input
-                    data-cy="TodoStatus"
-                    type="checkbox"
-                    className="todo__status"
-                  />
-                </label>
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                />
+              </label>
 
-                <span data-cy="TodoTitle" className="todo__title">
-                  {temp.title}
-                </span>
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDeleteButton"
-                >
-                  ×
-                </button>
+              <span data-cy="TodoTitle" className="todo__title">
+                {temp.title}
+              </span>
 
-                <div data-cy="TodoLoader" className="modal overlay is-active">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
+              <div data-cy="TodoLoader" className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
               </div>
-            </CSSTransition>
-          )}
+            </div>
+          </CSSTransition>
+        )}
       </TransitionGroup>
     </section>
   );
