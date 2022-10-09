@@ -105,7 +105,7 @@ export const App: React.FC = () => {
     }, 3000);
 
     loadTodos();
-  }, [isError, selectedTodos, loadTodos]);
+  }, [isError, selectedTodos]);
 
   const handleRemove = async (todoId: number) => {
     setSelectedTodos([...selectedTodos, todoId]);
@@ -131,6 +131,7 @@ export const App: React.FC = () => {
 
     try {
       Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      loadTodos();
     } catch {
       setIsError(true);
       setErrorMessage(ErrorMessage.DELETING);
