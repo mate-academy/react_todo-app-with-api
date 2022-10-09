@@ -8,14 +8,14 @@ import { NewTodo } from './components/Todos/NewTodo';
 import { TodoList } from './components/Todos/TodoList';
 import { FilterType } from './types/FilterType';
 import { Todo } from './types/Todo';
+import { Error } from './types/Errors';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState<Error | null>(null);
   const [loader, setLoader] = useState(true);
   const [title, setTitle] = useState('');
   const [toggleAll, setToggleAll] = useState(false);
@@ -41,13 +41,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(userId)
-      .then(todosFromServer => setTodos(todosFromServer))
-      .catch(() => setError(true));
+      .then(setTodos)
+      .catch(() => setError(Error.Connect));
   }, []);
 
   if (error) {
     setTimeout(() => {
-      setError(false);
+      setError(null);
     }, 3000);
   }
 
@@ -61,7 +61,6 @@ export const App: React.FC = () => {
           todos={todos}
           setTodos={setTodos}
           setError={setError}
-          setErrorMessage={setErrorMessage}
           setLoader={setLoader}
           title={title}
           setTitle={setTitle}
@@ -74,7 +73,6 @@ export const App: React.FC = () => {
               todos={filterTodos}
               setTodos={setTodos}
               setError={setError}
-              setErrorMessage={setErrorMessage}
               loader={loader}
               title={title}
               toggleAll={toggleAll}
@@ -87,7 +85,6 @@ export const App: React.FC = () => {
               filterType={filterType}
               setFilterType={setFilterType}
               setError={setError}
-              setErrorMessage={setErrorMessage}
             />
           </>
         )}
@@ -95,7 +92,6 @@ export const App: React.FC = () => {
       <ErrorNotification
         error={error}
         setError={setError}
-        errorMessage={errorMessage}
       />
     </div>
   );

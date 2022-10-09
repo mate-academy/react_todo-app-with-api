@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
 import { deleteTodo } from '../../api/todos';
+import { Error } from '../../types/Errors';
 
 type Props = {
   todos: Todo[];
   filterType: FilterType;
   setFilterType: Dispatch<SetStateAction<FilterType>>;
   setTodos: Dispatch<SetStateAction<Todo[]>>
-  setError: Dispatch<SetStateAction<boolean>>;
-  setErrorMessage: Dispatch<SetStateAction<string>>;
+  setError: Dispatch<SetStateAction<Error | null>>;
 };
 
 export const Filter: React.FC<Props> = ({
@@ -19,7 +19,6 @@ export const Filter: React.FC<Props> = ({
   setFilterType,
   setTodos,
   setError,
-  setErrorMessage,
 }) => {
   const checkSomeCompleted = todos.some(todo => todo.completed);
 
@@ -31,8 +30,7 @@ export const Filter: React.FC<Props> = ({
             setTodos(todos.filter(tod => !tod.completed));
           })
           .catch(() => {
-            setError(true);
-            setErrorMessage('Unable to delete a todo');
+            setError(Error.Delete);
           }))
         : todo));
   };

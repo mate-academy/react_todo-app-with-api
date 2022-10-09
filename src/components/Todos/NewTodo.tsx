@@ -3,14 +3,14 @@ import {
   Dispatch, FormEvent, SetStateAction, useEffect, useRef,
 } from 'react';
 import { createTodo, updateTodo } from '../../api/todos';
+import { Error } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   userId: number;
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  setError: Dispatch<SetStateAction<boolean>>;
-  setErrorMessage: Dispatch<SetStateAction<string>>;
+  setError: Dispatch<SetStateAction<Error | null>>;
   setLoader: Dispatch<SetStateAction<boolean>>;
   title: string;
   setTitle: Dispatch<SetStateAction<string>>;
@@ -22,7 +22,6 @@ export const NewTodo: React.FC<Props> = ({
   todos,
   setTodos,
   setError,
-  setErrorMessage,
   setLoader,
   title,
   setTitle,
@@ -37,13 +36,12 @@ export const NewTodo: React.FC<Props> = ({
     }
   }, []);
 
-  const handleSumbit = (event: FormEvent) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const normalizedTitle = title.trim();
 
-    if (title.length < 1) {
-      setError(true);
-      setErrorMessage("Title can't be empty");
+    if (!title.length || !title.trim()) {
+      setError(Error.Empty);
 
       return;
     }
@@ -55,8 +53,7 @@ export const NewTodo: React.FC<Props> = ({
         setTitle('');
       })
       .catch(() => {
-        setError(true);
-        setErrorMessage('Unable to add a todo');
+        setError(Error.Add);
       });
 
     setLoader(false);
@@ -79,8 +76,7 @@ export const NewTodo: React.FC<Props> = ({
           setToggleAll(false);
         })
         .catch(() => {
-          setError(true);
-          setErrorMessage('Unable to update a todo');
+          setError(Error.Update);
         })));
 
     if (checkCompleted) {
@@ -108,7 +104,7 @@ export const NewTodo: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={handleSumbit}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

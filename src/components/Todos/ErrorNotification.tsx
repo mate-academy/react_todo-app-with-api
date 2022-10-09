@@ -1,15 +1,14 @@
 import classNames from 'classnames';
+import { Error } from '../../types/Errors';
 
 type Props = {
-  error: boolean;
-  setError: (error: boolean) => void;
-  errorMessage: string;
+  error: Error | null;
+  setError: (error: Error | null) => void;
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   error,
   setError,
-  errorMessage,
 }) => (
   <div
     data-cy="ErrorNotification"
@@ -18,14 +17,16 @@ export const ErrorNotification: React.FC<Props> = ({
       { hidden: !error },
     )}
   >
-    <button
-      data-cy="HideErrorButton"
-      type="button"
-      className="delete"
-      aria-label="HideErrorButton"
-      onClick={() => setError(false)}
-    />
+    <>
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        aria-label="HideErrorButton"
+        onClick={() => setError(null)}
+      />
 
-    {errorMessage}
+      {error}
+    </>
   </div>
 );

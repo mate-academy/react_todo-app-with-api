@@ -15,13 +15,13 @@ import {
 } from 'react';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { Error } from '../../types/Errors';
 
 type Props = {
   todo: Todo;
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  setError: Dispatch<SetStateAction<boolean>>;
-  setErrorMessage: Dispatch<SetStateAction<string>>;
+  setError: Dispatch<SetStateAction<Error | null>>;
   toggleAll: boolean;
 };
 
@@ -30,7 +30,6 @@ export const TodoItem: React.FC<Props> = ({
   todos,
   setTodos,
   setError,
-  setErrorMessage,
   toggleAll,
 }) => {
   const [isActive, setActive] = useState(false);
@@ -57,8 +56,7 @@ export const TodoItem: React.FC<Props> = ({
         setTodos(todos.filter(tod => tod.id !== todo.id));
       })
       .catch(() => {
-        setError(true);
-        setErrorMessage('Unable to delete a todo');
+        setError(Error.Delete);
       });
   };
 
@@ -71,8 +69,7 @@ export const TodoItem: React.FC<Props> = ({
         setActive(false);
       })
       .catch(() => {
-        setError(true);
-        setErrorMessage('Unable to update a todo');
+        setError(Error.Update);
       });
 
     updatedTodos[todoIndex].completed = !todo.completed;
@@ -99,8 +96,7 @@ export const TodoItem: React.FC<Props> = ({
           setActive(false);
         })
         .catch(() => {
-          setError(true);
-          setErrorMessage('Unable to delete a todo');
+          setError(Error.Delete);
         });
 
       setRename(false);
@@ -127,8 +123,7 @@ export const TodoItem: React.FC<Props> = ({
         setActive(false);
       })
       .catch(() => {
-        setError(true);
-        setErrorMessage('Unable to update a todo');
+        setError(Error.Update);
       });
     setRename(false);
 

@@ -5,13 +5,13 @@ import {
 import { Dispatch, SetStateAction } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from './TodoItem';
+import { Error } from '../../types/Errors';
 import '../../styles/todolist.scss';
 
 type Props = {
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  setError: Dispatch<SetStateAction<boolean>>;
-  setErrorMessage: Dispatch<SetStateAction<string>>;
+  setError: Dispatch<SetStateAction<Error | null>>;
   loader: boolean;
   title: string;
   toggleAll: boolean;
@@ -22,7 +22,6 @@ export const TodoList: React.FC<Props> = ({
   todos,
   setTodos,
   setError,
-  setErrorMessage,
   loader,
   title,
   toggleAll,
@@ -41,7 +40,6 @@ export const TodoList: React.FC<Props> = ({
             todos={todos}
             setTodos={setTodos}
             setError={setError}
-            setErrorMessage={setErrorMessage}
             toggleAll={toggleAll}
           />
         </CSSTransition>
