@@ -1,24 +1,24 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-export const getTodos = (userId: number) => {
+export const getTodos = (userId: number | undefined) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const createTodo = (userId: number | undefined, title : string) => {
-  const todo = {
-    title,
+export const addTodo = (userId: number | undefined, title: string) => {
+  return client.post<Todo>('/todos', {
     userId,
     completed: false,
-  };
-
-  return client.post<Todo>('/todos', todo);
+    title,
+  });
 };
 
-export const deleteTodo = (id : number) => client.delete(`/todos/${id}`);
-
-export const updatingTodoCompleted = (todoId: number, completed: boolean) => {
+export const updatingTodo = (todoId: number, completed: boolean) => {
   return client.patch(`/todos/${todoId}`, { completed });
+};
+
+export const deleteTodoOnServer = (todoId:number) => {
+  return client.delete(`/todos/${todoId}`);
 };
 
 export const updatingTodoTitle = (todoId: number, title: string) => {

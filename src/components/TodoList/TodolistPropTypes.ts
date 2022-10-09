@@ -1,11 +1,12 @@
 import { Todo } from '../../types/Todo';
 
 export type Props = {
-  todos: Todo[];
-  onDeleteTodo: (id: number) => void;
+  todos: Todo[]
+  toggleStatus: (todoId: number, comleted: boolean) => void
+  setErrorMessage: (type: string) => void;
   loadingTodoId: number | null;
-  toggleStatus: (todoId: number, completed: boolean) => void;
-  setloadingTodoId: (todoId: number | null) => void;
-  setErrorMessage: (message: string) => void;
-  changeTitle: (todoId: number, newTitle : string) => void;
+  setLoadingTodoId: (id: number | null) => void;
+  deleteTodo: (id: number) => void
+  temporaryTodo: Todo | null;
+  changeTitle: (id: number, title: string) => void;
 };

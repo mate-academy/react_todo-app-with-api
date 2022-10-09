@@ -1,9 +1,10 @@
-import { FilterType } from '../Filter/FilterPropTypes';
+import { FilterType } from '../Header/HeaderPropTypes';
 
 export type Props = {
-  countOfItemsLeft: number;
-  setFilterType: (type :FilterType) => void;
+  countOfItems: number;
+  setFelterType: (type :FilterType) => void;
   filterType: FilterType;
   clearCompleted: () => void;
+  countOfItemsLeft: number;
   todosLength: number;
 };

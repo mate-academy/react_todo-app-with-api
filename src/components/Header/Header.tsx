@@ -1,57 +1,80 @@
 import classNames from 'classnames';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
+import { addTodo } from '../../api/todos';
 import { Props } from './HeaderPropTypes';
 
 export const Header : React.FC<Props> = ({
   newTodoField,
-  addTodo,
-  isAdding,
+  userId,
+  addInVisibleTodos,
+  setLoadingTodoId,
   setErrorMessage,
   selectAllTodos,
   isAllSelected,
+  setTemporaryTodo,
 }) => {
-  const [title, setTilte] = useState('');
+  const [title, setTitle] = useState('');
 
-  const onHandleAddTodo = (event: FormEvent) => {
-    if (!title.trim()) {
-      setErrorMessage('title not able to be empty');
-      setTilte('');
+  const onHandlerSubmit = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
 
-      return;
-    }
+      setLoadingTodoId(0);
+      if (!title.trim()) {
+        setErrorMessage('title not able to be empty');
+        setLoadingTodoId(null);
 
-    event.preventDefault();
-    setTilte('');
-    addTodo(title);
-  };
+        return;
+      }
+
+      if (!userId) {
+        return;
+      }
+
+      setTemporaryTodo({
+        title,
+        id: 0,
+        completed: false,
+        userId,
+      });
+
+      setTitle('');
+      try {
+        const newTodo = await addTodo(userId, title);
+
+        addInVisibleTodos(newTodo);
+      } catch {
+        const errorMesg = 'add a todo';
+
+        setErrorMessage(errorMesg);
+      } finally {
+        setTemporaryTodo(null);
+        setLoadingTodoId(null);
+      }
+    }, [title],
+  );
 
   return (
     <header className="todoapp__header">
       <button
         aria-label="delete"
         data-cy="ToggleAllButton"
-        type="submit"
+        type="button"
         className={classNames(
           'todoapp__toggle-all', { active: !isAllSelected },
         )}
-        onClick={() => selectAllTodos()}
+        onClick={selectAllTodos}
       />
 
-      <form
-        onSubmit={(event) => onHandleAddTodo(event)}
-      >
+      <form onSubmit={onHandlerSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
           ref={newTodoField}
-          value={title}
-          onChange={(event) => {
-            if (!isAdding) {
-              setTilte(event.target.value);
-            }
-          }}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
+          value={title}
+          onChange={event => setTitle(event.target.value)}
         />
       </form>
     </header>

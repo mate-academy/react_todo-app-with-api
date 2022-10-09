@@ -1,45 +1,45 @@
 import classNames from 'classnames';
-import { MouseEvent, useState } from 'react';
 import {
-  updatingTodoTitle,
-  updatingTodoCompleted,
-} from '../../api/todos';
+  FocusEvent,
+  FormEvent,
+  MouseEvent,
+  useState,
+} from 'react';
+import { updatingTodoTitle } from '../../api/todos';
+import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/Loader';
-import { EventChangeTitle, Props } from './TodoIremsPropTypes';
 
-export const TodoItem : React.FC<Props> = ({
+type Props = {
+  todo: Todo;
+  toggleStatusOnServer: (id: number, comleted: boolean) => void;
+  loadingTodoid: number | null;
+  deleteTodo: (id: number) => void;
+  setloadingTodoId: (id: number | null) => void;
+  setErrorMessage: (message: string) => void;
+  changeTitle: (id: number, title: string,) => void;
+};
+
+export const TodoItem: React.FC<Props> = ({
   todo,
-  onDeleteTodo,
-  toggleStatus,
+  toggleStatusOnServer,
+  loadingTodoid,
+  deleteTodo,
   setloadingTodoId,
   setErrorMessage,
-  loadingTodoId,
   changeTitle,
 }) => {
   const [isDoublClick, setIsDublClick] = useState(false);
-  const { id, title, completed } = todo;
+  const { title, completed, id } = todo;
   const [newTitle, setNewTitle] = useState(title);
-  const toggleStatusOnServer = async (
-    selectedId: number,
-    currentStatus: boolean,
-  ) => {
-    setloadingTodoId(selectedId);
-
-    try {
-      await updatingTodoCompleted(selectedId, !currentStatus);
-      toggleStatus(selectedId, currentStatus);
-    } catch {
-      setErrorMessage('update todo');
-    } finally {
-      setloadingTodoId(null);
-    }
-  };
 
   const handleClick = (event : MouseEvent) => {
     if (event.detail === 2) {
       setIsDublClick(true);
     }
   };
+
+  type EventChangeTitle = FormEvent<HTMLFormElement>
+  | FocusEvent<HTMLInputElement> | null;
 
   const onTitleSubmit = async (
     event: EventChangeTitle = null,
@@ -53,7 +53,7 @@ export const TodoItem : React.FC<Props> = ({
     setloadingTodoId(todoId);
 
     if (!newTitle.trim()) {
-      onDeleteTodo(todoId);
+      deleteTodo(todoId);
       setloadingTodoId(null);
 
       return;
@@ -77,8 +77,14 @@ export const TodoItem : React.FC<Props> = ({
 
   return (
     <div
+      key={id}
       data-cy="Todo"
-      className={classNames('todo', { completed })}
+      className={
+        classNames('todo',
+          {
+            completed,
+          })
+      }
     >
       <label className="todo__status-label">
         <input
@@ -106,7 +112,7 @@ export const TodoItem : React.FC<Props> = ({
           >
             <input
               type="text"
-              className="todo__form"
+              className="todo__title-field"
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
               onBlur={(event) => onTitleSubmit(event, id)}
@@ -118,14 +124,13 @@ export const TodoItem : React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
-        onClick={() => onDeleteTodo(id)}
+        onClick={() => deleteTodo(id)}
       >
-        ×
+        х
       </button>
 
-      {loadingTodoId === id && (
-        <Loader />
-      )}
+      {loadingTodoid === id
+      && (<Loader />)}
     </div>
   );
 };

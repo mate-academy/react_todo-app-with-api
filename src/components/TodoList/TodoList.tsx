@@ -1,49 +1,58 @@
-import { Loader } from '../Loader/Loader';
-import { Props } from './TodolistPropTypes';
+import { updatingTodo } from '../../api/todos';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { Props } from './TodolistPropTypes';
 
 export const TodoList : React.FC<Props> = ({
   todos,
-  onDeleteTodo,
-  loadingTodoId,
-  setloadingTodoId,
   toggleStatus,
   setErrorMessage,
+  setLoadingTodoId,
+  loadingTodoId,
+  deleteTodo,
+  temporaryTodo,
   changeTitle,
-}) => (
-  <section className="todoapp__main" data-cy="TodoList">
+}) => {
+  const toggleStatusOnServer = async (id: number, comleted: boolean) => {
+    setLoadingTodoId(id);
 
-    {loadingTodoId === 0 && (
-      <div
-        data-cy="Todo"
-        className="todo"
-      >
-        <label className="todo__status-labe">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            defaultChecked
+    try {
+      await updatingTodo(id, !comleted);
+      toggleStatus(id, comleted);
+    } catch {
+      setErrorMessage('update todo');
+    } finally {
+      setLoadingTodoId(null);
+    }
+  };
+
+  return (
+    <section className="todoapp__main" data-cy="TodoList">
+      {todos.map(todo => {
+        return (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            toggleStatusOnServer={toggleStatusOnServer}
+            loadingTodoid={loadingTodoId}
+            deleteTodo={deleteTodo}
+            setloadingTodoId={setLoadingTodoId}
+            setErrorMessage={setErrorMessage}
+            changeTitle={changeTitle}
           />
-        </label>
-        <Loader />
-      </div>
-    )}
+        );
+      })}
 
-    {todos.map(todo => {
-      return (
+      {temporaryTodo && (
         <TodoItem
-          key={todo.id}
-          todo={todo}
-          setloadingTodoId={setloadingTodoId}
-          toggleStatus={toggleStatus}
+          todo={temporaryTodo}
+          toggleStatusOnServer={toggleStatusOnServer}
+          loadingTodoid={0}
+          deleteTodo={deleteTodo}
+          setloadingTodoId={setLoadingTodoId}
           setErrorMessage={setErrorMessage}
-          onDeleteTodo={onDeleteTodo}
-          loadingTodoId={loadingTodoId}
           changeTitle={changeTitle}
         />
-      );
-    })}
-
-  </section>
-);
+      )}
+    </section>
+  );
+};

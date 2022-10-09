@@ -1,134 +1,60 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
-import {
-  createTodo,
-  deleteTodo,
-  getTodos,
-  updatingTodoCompleted,
-} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
-// eslint-disable-next-line max-len
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
-import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
+import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
+import { deleteTodoOnServer, getTodos, updatingTodo } from './api/todos';
 import { Todo } from './types/Todo';
+import { ErrorMasage } from './components/ErrorMessage/ErrorMessage';
 import { Loader } from './components/Loader/Loader';
-import { FilterType } from './components/Filter/FilterPropTypes';
+import { FilterType } from './components/Header/HeaderPropTypes';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState(todos);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingTodoId, setloadingTodoId] = useState<number | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [countOfItemsLeft, setCountOfItemsLeft] = useState(0);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [isAllSelected, setIsAllSelected] = useState(false);
+  const [loadingTodoid, setLoadingTodoId] = useState<number | null>(null);
+  const [temporaryTodo, setTemporaryTodo] = useState<Todo | null>(null);
 
-  // Geting ↓
+  const uploadTodos = useCallback(
+    async () => {
+      setIsLoading(true);
+      try {
+        const data = await getTodos(user?.id);
 
-  const getTodosFromServer = async () => {
-    setIsLoading(true);
-    try {
-      if (user?.id) {
-        const todosFromServer = await getTodos(user?.id);
+        setTodos(data);
+        setVisibleTodos(data);
+      } catch (err) {
+        const errUpload = 'upload a todo';
 
-        setVisibleTodos(todosFromServer);
-        setTodos(todosFromServer);
+        setErrorMessage(errUpload);
+      } finally {
+        setIsLoading(false);
       }
-    } catch {
-      setErrorMessage('upload todos');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Deleting ↓
-
-  const deleteInLocalTodos = (id: number) => {
-    const filteredTodos = todos.filter(todo => todo.id !== id);
-
-    setVisibleTodos(filteredTodos);
-    setTodos(filteredTodos);
-  };
-
-  const onDeleteTodo = async (id: number) => {
-    setloadingTodoId(id);
-    try {
-      await deleteTodo(id);
-      deleteInLocalTodos(id);
-    } catch {
-      setErrorMessage('delete a todo');
-    } finally {
-      setloadingTodoId(null);
-    }
-  };
-
-  const clearCompleted = () => {
-    const filteredTodos = todos.filter((todo) => {
-      const { completed, id } = todo;
-
-      if (completed) {
-        deleteTodo(id);
-      }
-
-      return !completed;
-    });
-
-    setTodos(filteredTodos);
-    setVisibleTodos(filteredTodos);
-  };
-
-  // Adding ↓
-
-  const addToLocalTodos = (newTodo: Todo) => {
-    setVisibleTodos([...todos, newTodo]);
-    setTodos([...todos, newTodo]);
-  };
-
-  const addTodo = async (title: string) => {
-    setIsAdding(true);
-    setloadingTodoId(0);
-    try {
-      const newTodo: Todo = await createTodo(user?.id, title.trim());
-
-      addToLocalTodos(newTodo);
-    } catch {
-      setErrorMessage('add a todo');
-    } finally {
-      setIsAdding(false);
-      setloadingTodoId(null);
-    }
-  };
-
-  // Updating ↓
-
-  const toggleStatus = (todoId: number, comleted: boolean) => {
-    const index = visibleTodos.findIndex(todo => todo.id === todoId);
-
-    setVisibleTodos((prevVisibleTodos) => {
-      const todosCopy = [...prevVisibleTodos];
-
-      todosCopy[index].completed = !comleted;
-
-      return todosCopy;
-    });
-  };
+    }, [user],
+  );
 
   const selectAllTodos = () => {
+    const isAllSelectedNow = visibleTodos.every(todo => todo.completed);
+
+    setIsAllSelected(isAllSelectedNow);
+
     const selectedTodos = visibleTodos.map((todo) => {
       const { completed, id } = todo;
 
-      if (isAllSelected) {
+      if (isAllSelectedNow) {
         return { ...todo, completed: false };
       }
 
@@ -136,45 +62,15 @@ export const App: React.FC = () => {
         return todo;
       }
 
-      updatingTodoCompleted(id, true);
+      updatingTodo(id, true);
 
       return { ...todo, completed: true };
     });
 
-    setTodos(selectedTodos);
     setVisibleTodos(selectedTodos);
   };
 
-  const changeTitle = (todoId: number, newTitle: string) => {
-    const index = visibleTodos.findIndex(todo => todo.id === todoId);
-
-    setVisibleTodos((prevVisibleTodos) => {
-      const todosCopy = [...prevVisibleTodos];
-
-      todosCopy[index].title = newTitle;
-
-      return todosCopy;
-    });
-  };
-
-  // Hooks ↓
-
-  useEffect(() => {
-    const countofLeftItems = visibleTodos
-      .filter(({ completed }) => !completed).length;
-    const isAllSelectedNow = !countofLeftItems;
-
-    setIsAllSelected(isAllSelectedNow);
-    setCountOfItemsLeft(countofLeftItems);
-  }, [visibleTodos]);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
-    getTodosFromServer();
-  }, []);
+  // filtering ↓
 
   useEffect(() => {
     const filteredTodos = todos.filter(todo => {
@@ -193,44 +89,135 @@ export const App: React.FC = () => {
     setVisibleTodos(filteredTodos);
   }, [filterType]);
 
+  // updating ↓
+
+  const toggleStatus = (todoId: number, comleted: boolean) => {
+    const index = visibleTodos.findIndex(todo => todo.id === todoId);
+
+    setVisibleTodos((prevVisibleTodos) => {
+      const todosCopy = [...prevVisibleTodos];
+
+      todosCopy[index].completed = !comleted;
+
+      return todosCopy;
+    });
+  };
+
+  const changeTitle = (todoId: number, newTitle: string) => {
+    const index = visibleTodos.findIndex(todo => todo.id === todoId);
+
+    setVisibleTodos((prevVisibleTodos) => {
+      const todosCopy = [...prevVisibleTodos];
+
+      todosCopy[index].title = newTitle;
+
+      return todosCopy;
+    });
+  };
+
+  // deleting ↓
+
+  const deleteInVisibleTodos = (id: number) => {
+    const filteredTodos = visibleTodos.filter(todo => todo.id !== id);
+
+    setVisibleTodos(filteredTodos);
+    setTodos(filteredTodos);
+  };
+
+  const deleteTodo = async (id: number) => {
+    setLoadingTodoId(id);
+    try {
+      await deleteTodoOnServer(id);
+      deleteInVisibleTodos(id);
+    } catch {
+      const errDelete = 'delete Todo';
+
+      setErrorMessage(errDelete);
+    } finally {
+      setLoadingTodoId(null);
+    }
+  };
+
+  const clearCompleted = () => {
+    visibleTodos.forEach((todo) => {
+      const { completed, id } = todo;
+
+      if (completed) {
+        deleteTodo(id);
+      }
+    });
+  };
+
+  const addInVisibleTodos = (newTodo: Todo) => {
+    setTodos((prevTodos) => [...prevTodos, newTodo]);
+    setVisibleTodos((prevTodos) => [...prevTodos, newTodo]);
+  };
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+
+    uploadTodos();
+  }, [user]);
+
+  useEffect(() => {
+    const countofLeftItems = visibleTodos
+      .filter(({ completed }) => !completed).length;
+    const isAllSelectedNow = !countofLeftItems;
+
+    setIsAllSelected(isAllSelectedNow);
+    setCountOfItemsLeft(countofLeftItems);
+  }, [visibleTodos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
+
       <div className="todoapp__content">
+
         <Header
           newTodoField={newTodoField}
-          addTodo={addTodo}
-          isAdding={isAdding}
+          userId={user?.id}
+          addInVisibleTodos={addInVisibleTodos}
+          setLoadingTodoId={setLoadingTodoId}
           setErrorMessage={setErrorMessage}
           selectAllTodos={selectAllTodos}
           isAllSelected={isAllSelected}
+          setTemporaryTodo={setTemporaryTodo}
         />
+
         {isLoading
-          ? (<Loader />)
+          ? (
+            <Loader />
+          )
           : (
             <TodoList
               todos={visibleTodos}
-              onDeleteTodo={onDeleteTodo}
-              loadingTodoId={loadingTodoId}
               toggleStatus={toggleStatus}
-              setloadingTodoId={setloadingTodoId}
               setErrorMessage={setErrorMessage}
+              loadingTodoId={loadingTodoid}
+              setLoadingTodoId={setLoadingTodoId}
+              deleteTodo={deleteTodo}
+              temporaryTodo={temporaryTodo}
               changeTitle={changeTitle}
             />
           )}
-        {!!todos.length && (
-          <Footer
-            setFilterType={setFilterType}
-            filterType={filterType}
-            clearCompleted={clearCompleted}
-            countOfItemsLeft={countOfItemsLeft}
-            todosLength={todos.length}
-          />
-        )}
+
+        <Footer
+          countOfItems={countOfItemsLeft}
+          setFelterType={setFilterType}
+          filterType={filterType}
+          clearCompleted={clearCompleted}
+          countOfItemsLeft={countOfItemsLeft}
+          todosLength={todos.length}
+        />
+
       </div>
-      {errorMessage && (
-        <ErrorNotification
-          errorMessage={errorMessage}
+      {errorMessage
+      && (
+        <ErrorMasage
+          errorType={errorMessage}
           setErrorMessage={setErrorMessage}
         />
       )}
