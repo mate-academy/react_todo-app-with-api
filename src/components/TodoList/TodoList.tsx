@@ -2,12 +2,14 @@ import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
 
+import { Loader } from '../Loader/Loader';
+
 type Props = {
   filteredTodos: Todo[]
   deleteTodo: (todoId: number) => void
   selectedTodoId: number | null
   completedTodos: number[]
-  isClicked: (todoId: number, title: string) => void
+  isDoubleClicked: (todoId: number, title: string) => void
   doubleClickTodoId: number | null
   changeTitle: string
   setChangeTitle: (todoText: string) => void
@@ -29,7 +31,7 @@ export const TodoList: React.FC<Props> = ({
   selectedTodoId,
   deleteTodo,
   completedTodos,
-  isClicked,
+  isDoubleClicked,
   doubleClickTodoId,
   changeTitle,
   setChangeTitle,
@@ -48,8 +50,6 @@ export const TodoList: React.FC<Props> = ({
         } = todo;
 
         return (
-
-          // сделай тудушку отдельным компонентом
           <div
             data-cy="Todo"
             className={classNames('todo', {
@@ -57,10 +57,10 @@ export const TodoList: React.FC<Props> = ({
               completed,
             })}
             key={id}
-            onDoubleClick={() => isClicked(todo.id, title)}
+            onDoubleClick={() => isDoubleClicked(id, title)}
           >
             <>
-              {doubleClickTodoId === todo.id ? (
+              {doubleClickTodoId === id ? (
                 <>
                   <label className="todo__status-label">
                     <input
@@ -68,7 +68,7 @@ export const TodoList: React.FC<Props> = ({
                       type="checkbox"
                       className="todo__status"
                       defaultChecked
-                      onClick={() => changeStatusTodo(todo.id, todo.completed)}
+                      onClick={() => changeStatusTodo(id, completed)}
                     />
                   </label>
                   <form onSubmit={(event) => event.preventDefault()}>
@@ -79,7 +79,7 @@ export const TodoList: React.FC<Props> = ({
                         todo__title
                         todo__title--decoration-none
                        "
-                      // даный елемент не отображается на странице и не есть доступным для людей с ограничными возможностями
+                      // даный елемент не отображается сразу на странице и не есть доступным для людей с ограничными возможностями
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
                       value={changeTitle}
@@ -131,20 +131,7 @@ export const TodoList: React.FC<Props> = ({
             </>
             { (selectedTodoId === todo.id
               || completedTodos.includes(todo.id))
-              && (
-                <div
-                  data-cy="TodoLoader"
-                  className="
-                  overlay
-                  is-flex
-                  is-justify-content-center
-                  is-align-items-center
-                  "
-                >
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              )}
+              && (<Loader />)}
           </div>
         );
       })}

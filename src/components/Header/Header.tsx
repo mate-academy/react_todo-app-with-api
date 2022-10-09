@@ -7,7 +7,7 @@ type Props = {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   newTodoField: RefObject<HTMLInputElement>,
   title: string,
-  isAdding: boolean,
+  isDisabled: boolean,
   setTitle: (todoText: string) => void,
   changeStatusAll: () => void
   todos: Todo[]
@@ -17,17 +17,12 @@ export const Header: React.FC<Props> = ({
   handleSubmit,
   newTodoField,
   title,
-  isAdding,
+  isDisabled,
   setTitle,
   changeStatusAll,
   todos,
 }) => {
-  // console.log(todos.filter(todo => todo.completed).length, todos.filter(todo => todo.completed));
-  // может every метод?
-  // const completedTodosLen = todos.filter(todo => todo.completed).length;
   const completedTodosAll = todos.every(todo => todo.completed);
-
-  // console.log(completedTodosLen);
 
   return (
     <header className="todoapp__header">
@@ -35,14 +30,10 @@ export const Header: React.FC<Props> = ({
         aria-label="make all todos active or vice versa"
         data-cy="ToggleAllButton"
         type="button"
-        // className="todoapp__toggle-all active"
         className={classNames('todoapp__toggle-all', {
           active: completedTodosAll,
-          // active: completedTodosLen !== 0 || completedTodosLen < 0,
         })}
-        // было просто тру
-        onClick={() => changeStatusAll()}
-        // onClick={() => changeStatusAll(todos.map(todo => todo.completed))}
+        onClick={changeStatusAll}
       />
 
       <form onSubmit={handleSubmit}>
@@ -54,7 +45,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          disabled={isAdding}
+          disabled={isDisabled}
         />
       </form>
     </header>

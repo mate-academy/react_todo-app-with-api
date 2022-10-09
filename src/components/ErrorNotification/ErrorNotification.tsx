@@ -21,7 +21,6 @@ export const ErrorNotification: React.FC<Props> = ({
           'has-text-weight-normal', {
             hidden: !error,
           })}
-
       >
         <button
           aria-label="press button to delete"
