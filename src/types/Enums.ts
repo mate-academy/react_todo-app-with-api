@@ -5,3 +5,8 @@ export enum ErrorMessage {
   DELETING = 'Unable to delete a todo',
   UPDATING = 'Unable to update a todo',
 }
+
+export enum Buttons {
+  ENTER = 'Enter',
+  ESC = 'Escape',
+}

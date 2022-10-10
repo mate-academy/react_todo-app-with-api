@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { ErrorMessage } from '../../types/ErrorMessage';
+import { ErrorMessage } from '../../types/Enums';
 
 type Props = {
   errorMessage: ErrorMessage | null,

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { Buttons } from '../../types/Enums';
 
 type Props = {
   todo: Todo,
@@ -75,11 +76,11 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
+    if (event.key === Buttons.ESC) {
       setIsClicked(false);
     }
 
-    if (event.key === 'Enter') {
+    if (event.key === Buttons.ENTER) {
       handleTitleUpdate();
     }
   };

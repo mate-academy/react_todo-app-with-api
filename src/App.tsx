@@ -1,5 +1,5 @@
 import React, {
-  FormEvent, useCallback, useContext, useEffect, useMemo, useRef, useState,
+  FormEvent, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { NewTodo } from './components/NewTodo/NewTodo';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -7,7 +7,7 @@ import { TodosFilter } from './components/TodosFilter/TodosFilter';
 import { TodosList } from './components/TodosList/TodosList';
 import { FilterStatus } from './types/FilterStatus';
 import { Todo } from './types/Todo';
-import { ErrorMessage } from './types/ErrorMessage';
+import { ErrorMessage } from './types/Enums';
 import { ErrorNotification } from './components/ErrorNotification';
 import {
   createTodo, deleteTodo, getTodos, updateTodo,
@@ -126,17 +126,17 @@ export const App: React.FC = () => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
 
-  const deleteComplitedTodos = useCallback(() => {
+  const deleteComplitedTodos = async () => {
     setSelectedTodos(completedTodos.map(todo => todo.id));
 
     try {
-      Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
-      loadTodos();
+      await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      setTodos(todos.filter(todo => !todo.completed));
     } catch {
       setIsError(true);
       setErrorMessage(ErrorMessage.DELETING);
     }
-  }, [completedTodos]);
+  };
 
   const handleTodoUpdate = async (todoId: number, data: Partial<Todo>) => {
     setSelectedTodos([...selectedTodos, todoId]);
