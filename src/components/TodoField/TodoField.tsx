@@ -63,10 +63,14 @@ export const TodoField: React.FC<Props> = ({
         return onUpdate(id, false, title);
       }
 
-      return onUpdate(id, true, title);
+      if (!completedAllTodos) {
+        return onUpdate(id, true, title);
+      }
     } finally {
-      setTimeout(() => setUpdatungId(null), 500);
+      setTimeout(() => setUpdatungId(null), 900);
     }
+
+    return 0;
   });
 
   return (
@@ -76,7 +80,7 @@ export const TodoField: React.FC<Props> = ({
           data-cy="ToggleAllButton"
           type="button"
           className={classNames(
-            ('todoapp__toggle-all'),
+            'todoapp__toggle-all',
             { active: completedAllTodos },
           )}
           aria-label="Toggle"

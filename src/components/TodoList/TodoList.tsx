@@ -14,6 +14,8 @@ type Props = {
   setErrorClosing: (error: boolean) => void;
   activeTodoId: number[];
   updatungId: number | null;
+  setDelitingId: (number: number | null) => void;
+  deletingId: number | null;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -26,10 +28,13 @@ export const TodoList: React.FC<Props> = ({
   setErrorClosing,
   activeTodoId,
   updatungId,
+  setDelitingId,
+  deletingId,
 }) => {
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [editingTitle, setEditTitle] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+
   const [editingNewName, setEditingNewName] = useState('');
   const editTodoField = useRef<HTMLInputElement>(null);
 
@@ -47,6 +52,14 @@ export const TodoList: React.FC<Props> = ({
     }
   });
 
+  const handleTodoDeletion = async (todoId: number) => {
+    setErrorClosing(false);
+    setDelitingId(todoId);
+    onDelete(todoId);
+
+    setTimeout(() => setDelitingId(null), 1000);
+  };
+
   const handleUpdateOnCondition = (
     title: string, newTitle: string, id: number, completed: boolean,
   ) => {
@@ -59,7 +72,7 @@ export const TodoList: React.FC<Props> = ({
     }
 
     if (newTitle.trim() === '') {
-      onDelete(id);
+      handleTodoDeletion(id);
     } else {
       const updated = onUpdate(id, completed, newTitle);
 
@@ -84,7 +97,7 @@ export const TodoList: React.FC<Props> = ({
 
     setTimeout(() => {
       setUpdatingId(null);
-    }, 600);
+    }, 950);
   };
 
   const handleInput = (event: {
@@ -101,12 +114,6 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
-  const handleTodoDeletion = async (todoId: number) => {
-    setErrorClosing(false);
-
-    onDelete(todoId);
-  };
-
   const handleEditingInit = (todoId: number, name: string) => {
     setEditTitle(true);
     setEditingId(todoId);
@@ -121,8 +128,10 @@ export const TodoList: React.FC<Props> = ({
             key={id}
             data-cy="Todo"
             className={classNames(
-              { todo: !completed },
-              { 'todo completed': completed === true },
+              {
+                todo: !completed,
+                'todo completed': completed === true,
+              },
             )}
           >
             <label className="todo__status-label">
@@ -192,7 +201,8 @@ export const TodoList: React.FC<Props> = ({
                 {
                   'is-active': updatingId === id
                     || activeTodoId.includes(id)
-                    || updatungId !== null,
+                    || updatungId !== null
+                    || deletingId === id,
                 },
               )}
             >

@@ -21,10 +21,11 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
   const [errorClose, setErrorClosing] = useState(false);
   const [todoName, setNewTodoName] = useState('');
-  const [isAdding, setIsAddingFromServer] = useState(false);
+  const [isAdding, setIsLoading] = useState(false);
   const [completed, setCompleted] = useState<number[]>([]);
   const [activeTodoId, setActiveTodoId] = useState([0]);
   const [updatungId, setUpdatungId] = useState<number | null>(null);
+  const [deletingId, setDelitingId] = useState<number | null>(null);
 
   async function updatePost(todoId: number, done: boolean, title: string) {
     try {
@@ -53,7 +54,7 @@ export const App: React.FC = () => {
     return 0;
   }
 
-  async function deletePost(id: number | number[]) {
+  async function deletePost(id: number) {
     try {
       const deleted = await deleteTodo(id);
 
@@ -79,10 +80,10 @@ export const App: React.FC = () => {
     };
 
     loadTodos();
-  }, [activeTodoId]);
+  }, [activeTodoId, deletingId]);
 
   const handleAdd = async (newTodoName: string) => {
-    setIsAddingFromServer(true);
+    setIsLoading(true);
 
     try {
       const newTodo = await createPost(newTodoName);
@@ -98,30 +99,36 @@ export const App: React.FC = () => {
       setNewTodoName('');
     } catch (error) {
       setErrorType(ErrorType.AddingOne);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsAddingFromServer(false);
   };
 
   const handleDelete = async (id: number) => {
     try {
       setActiveTodoId(idActive => [...idActive, id]);
 
-      const deleted = deletePost(id);
+      const deleted = await deletePost(id);
 
-      return await deleted;
+      return deleted;
+    } catch (error) {
+      setErrorType(ErrorType.DeletingOne);
     } finally {
-      setActiveTodoId(idActive => idActive.filter(idI => idI !== id));
+      setTimeout(() => setActiveTodoId(
+        idActive => idActive.filter(idI => idI !== id),
+      ), 200);
     }
+
+    return 0;
   };
 
   const handleUpdate = async (todoId: number, done: boolean, title: string) => {
     try {
       setActiveTodoId(idActive => [...idActive, todoId]);
 
-      const updated = updatePost(todoId, done, title);
+      const updated = await updatePost(todoId, done, title);
 
-      return await updated;
+      return updated;
     } finally {
       setActiveTodoId(idActive => idActive.filter(idI => idI !== todoId));
     }
@@ -169,6 +176,8 @@ export const App: React.FC = () => {
               setErrorClosing={setErrorClosing}
               activeTodoId={activeTodoId}
               updatungId={updatungId}
+              setDelitingId={setDelitingId}
+              deletingId={deletingId}
 
             />
             <footer
@@ -183,6 +192,7 @@ export const App: React.FC = () => {
                 setFilterType={setFilter}
                 onDelete={handleDelete}
                 setErrorClosing={setErrorClosing}
+                setDelitingId={setDelitingId}
               />
             </footer>
           </>
