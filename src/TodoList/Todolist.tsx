@@ -3,7 +3,7 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[];
-  handleClickDelete: (id: number)=> void;
+  handleDelete: (id: number)=> void;
   selectedTodo: number[];
   handleChangeStatus: (id: number, data: Partial<Todo>) => void;
   changeAllStatus: boolean;
@@ -11,7 +11,7 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  handleClickDelete,
+  handleDelete,
   selectedTodo,
   handleChangeStatus,
   changeAllStatus,
@@ -22,7 +22,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todoItem={todo}
-          handleClickDelete={handleClickDelete}
+          handleDelete={handleDelete}
           selectedTodo={selectedTodo}
           handleChangeStatus={handleChangeStatus}
           changeAllStatus={changeAllStatus}

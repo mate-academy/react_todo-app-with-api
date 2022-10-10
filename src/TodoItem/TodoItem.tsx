@@ -4,7 +4,7 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todoItem: Todo;
-  handleClickDelete: (id: number)=> void;
+  handleDelete: (id: number)=> void;
   selectedTodo: number[];
   handleChangeStatus: (id: number, data: Partial<Todo>) => void;
   changeAllStatus: boolean;
@@ -12,7 +12,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todoItem,
-  handleClickDelete,
+  handleDelete,
   selectedTodo,
   handleChangeStatus,
   changeAllStatus,
@@ -21,6 +21,8 @@ export const TodoItem: React.FC<Props> = ({
   const [doubleClick, setDoubleClick] = useState(false);
 
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  const isActiveTodos = selectedTodo.includes(todoItem.id) || todoItem.id === 0;
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -36,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!newTitle.trim().length) {
-      handleClickDelete(todoItem.id);
+      handleDelete(todoItem.id);
     } else {
       handleChangeStatus(todoItem.id, { title: newTitle });
     }
@@ -99,7 +101,7 @@ export const TodoItem: React.FC<Props> = ({
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDeleteButton"
-                onClick={() => handleClickDelete(todoItem.id)}
+                onClick={() => handleDelete(todoItem.id)}
               >
                 ×
               </button>
@@ -113,8 +115,7 @@ export const TodoItem: React.FC<Props> = ({
           'modal',
           'overlay',
           {
-            'is-active': selectedTodo.includes(todoItem.id)
-              || todoItem.id === 0 || changeAllStatus,
+            'is-active': isActiveTodos || changeAllStatus,
           },
         )}
       >

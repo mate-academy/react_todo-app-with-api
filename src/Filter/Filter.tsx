@@ -3,24 +3,24 @@ import { FilterType } from '../types/FilterType';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  filterType: string;
-  setfilterType: (type: string) => void;
+  filterType: FilterType;
+  setfilterType: (type: FilterType) => void;
   todos: Todo[];
-  handleClickDelete: (id: number)=> void;
+  handleDelete: (id: number)=> void;
   isActive: Todo[],
 };
 
-export const Footer: React.FC<Props> = ({
+export const Filter: React.FC<Props> = ({
   filterType,
   setfilterType,
   todos,
-  handleClickDelete,
+  handleDelete,
   isActive,
 }) => {
   const clearCompleted = () => todos
     .forEach(todo => {
       if (todo.completed) {
-        handleClickDelete(todo.id);
+        handleDelete(todo.id);
       }
     });
 

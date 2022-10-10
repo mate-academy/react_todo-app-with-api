@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+
 import React, {
   FormEvent,
   useContext, useEffect, useRef, useState,
@@ -6,33 +7,27 @@ import React, {
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './TodoList/Todolist';
-import { Footer } from './Footer/Footer';
+import { Filter } from './Filter/Filter';
 import { ErrorNotification } from './ErrorNotification/ErrorNotification';
 import {
   getTodos, createTodo, deleteTodo, updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
+import { Errors } from './types/Errors';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterType, setfilterType] = useState('all');
-  const [error, setError] = useState<string | null>('');
+  const [filterType, setfilterType] = useState(FilterType.All);
+  const [error, setError] = useState<Errors | null>(null);
   const [title, setTitle] = useState('');
   const [selectedTodo, setSelectedTodo] = useState<number[]>([]);
   const [changeAllStatus, setChangeAllStatus] = useState(false);
 
-  if (error) {
-    setTimeout(() => {
-      setError(null);
-    }, 3000);
-  }
-
-  const filteredTodos = todos
+  const visibleTodos = todos
     .filter(todo => {
       switch (filterType) {
         case FilterType.Active:
@@ -57,16 +52,16 @@ export const App: React.FC = () => {
       newTodoField.current.focus();
     }
 
-    getTodos(userId)
+    getTodos(user?.id || 0)
       .then(setTodos)
-      .catch(() => (setError('Unable to load todo from server')));
+      .catch(() => (setError(Errors.Load)));
   }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (title.trim().length === 0) {
-      setError('Title can\'t be empty');
+    if (!title.trim().length) {
+      setError(Errors.Input);
       setTitle('');
 
       return;
@@ -90,8 +85,8 @@ export const App: React.FC = () => {
 
       setTodos([...todos, newTodo]);
     } catch {
-      setError('Unable to add a todo');
-      setTodos(filteredTodos.filter(todo => todo.id !== 0));
+      setError(Errors.Add);
+      setTodos([...visibleTodos].filter(todo => todo.id !== 0));
     }
 
     setTitle('');
@@ -113,7 +108,7 @@ export const App: React.FC = () => {
         ? updatedTodo
         : todo)));
     } catch {
-      setError('Unable to update a todo');
+      setError(Errors.Update);
     } finally {
       setSelectedTodo(prevIds => prevIds.filter(id => id !== todoId));
     }
@@ -140,26 +135,27 @@ export const App: React.FC = () => {
             completed: true,
           });
         }
+
         return ({
           ...todo,
           completed: false,
         });
       }));
     } catch {
-      setError('Unable to update a todo');
+      setError(Errors.Update);
     } finally {
       setChangeAllStatus(false);
     }
   };
 
-  const handleClickDelete = async (todoId: number) => {
+  const handleDelete = async (todoId: number) => {
     setSelectedTodo(prevIds => [...prevIds, todoId]);
     try {
       await deleteTodo(todoId);
       setTodos(currTodos => currTodos
         .filter(todo => todo.id !== todoId));
     } catch {
-      setError('Unable to delete a todo');
+      setError(Errors.Delete);
     } finally {
       setSelectedTodo(prevIds => prevIds.filter(id => id !== todoId));
     }
@@ -177,7 +173,7 @@ export const App: React.FC = () => {
             className={classNames('todoapp__toggle-all', {
               active: !isActive.length,
             })}
-            onClick={() => handleChangeStatusAll(filteredTodos)}
+            onClick={() => handleChangeStatusAll(visibleTodos)}
           />
 
           <form
@@ -196,18 +192,18 @@ export const App: React.FC = () => {
         </header>
 
         <TodoList
-          todos={filteredTodos}
-          handleClickDelete={handleClickDelete}
+          todos={visibleTodos}
+          handleDelete={handleDelete}
           selectedTodo={selectedTodo}
           handleChangeStatus={handleChangeStatus}
           changeAllStatus={changeAllStatus}
         />
 
-        <Footer
+        <Filter
           filterType={filterType}
           setfilterType={setfilterType}
           todos={todos}
-          handleClickDelete={handleClickDelete}
+          handleDelete={handleDelete}
           isActive={isActive}
         />
       </div>
