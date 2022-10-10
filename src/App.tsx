@@ -1,5 +1,4 @@
 import React, {
-  FormEvent,
   useCallback,
   useContext,
   useEffect,
@@ -16,29 +15,22 @@ import { Header } from './components/Header/Header';
 import { TodosList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
-import {
-  deleteTodos, getTodos, createTodos, updateTodos,
-} from './api/todos';
+import { getTodos, updateTodos } from './api/todos';
 import { Error } from './types/ErrorType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorNotification, setErrorNotification] = useState('');
-  const [filterType, setFilterType] = useState(FilterType.All);
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
+  const [errorNotification, setErrorNotification] = useState<string | null>('');
   const [title, setTitle] = useState('');
-  const [todosAdded, setTodosAdded] = useState(false);
   const [selectedTodosIds, setSelectedTodosIds] = useState<number[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
   const [toggle, setToggle] = useState(true);
-  const [completedTodos, setCompletedTodos] = useState<number[]>([]);
-
   const user = useContext(AuthContext);
 
   const filteredTodos = useMemo(() => {
     return todos.filter(({ completed }) => {
       switch (filterType) {
-        case FilterType.All:
-          return todos;
-
         case FilterType.Active:
           return !completed;
 
@@ -62,71 +54,26 @@ export const App: React.FC = () => {
       }
     };
 
-    if (user) {
-      getTodosFromServer(user.id);
-    }
-  }, []);
-
-  const addTodo = useCallback(async (event: FormEvent) => {
-    event.preventDefault();
-    if (!title.trim() || !user) {
-      setErrorNotification(Error.Title);
-
+    if (!user) {
       return;
     }
 
-    setTodosAdded(true);
-
-    try {
-      const postTodo = await createTodos(title, user.id);
-
-      setTodos((prevTodos) => [...prevTodos, postTodo]);
-    } catch {
-      setErrorNotification(Error.Add);
-    }
-
-    setTodosAdded(false);
-    setTitle('');
-  }, [title, user]);
-
-  const removeTodo = useCallback(async (todoId: number) => {
-    setSelectedTodosIds([todoId]);
-    try {
-      await deleteTodos(todoId);
-
-      setTodos((prevTodos) => prevTodos.filter(({ id }) => id !== todoId));
-    } catch {
-      setErrorNotification(Error.Delete);
-    }
-  }, [todos, errorNotification]);
+    getTodosFromServer(user.id);
+  }, []);
 
   const completedTodosIds = useMemo(
     () => todos.filter(({ completed }) => completed),
     [todos],
   );
 
-  const deleteCompletedTodo = useCallback(async () => {
-    setCompletedTodos(completedTodosIds.map(({ id }) => id));
-
-    await Promise.all(completedTodosIds.map(({ id }) => removeTodo(id)))
-      .then(() => setTodos((prevTodos) => prevTodos
-        .filter(({ completed }) => !completed)))
-      .catch(() => {
-        setErrorNotification(Error.Delete);
-        setSelectedTodosIds([]);
-      });
-
-    setCompletedTodos([]);
-  }, [todos, selectedTodosIds, errorNotification]);
-
   const handleOnChange = useCallback(
     async (updateId: number, data: Partial<Todo>) => {
-      setCompletedTodos([updateId]);
+      setSelectedTodosIds([updateId]);
 
       try {
         const changeStatus: Todo = await updateTodos(updateId, data);
 
-        setTodos(todos.map(todo => (
+        setTodos(prevTodos => prevTodos.map(todo => (
           todo.id === updateId
             ? changeStatus
             : todo
@@ -135,15 +82,15 @@ export const App: React.FC = () => {
         setErrorNotification(Error.Update);
       }
 
-      setCompletedTodos([]);
+      setSelectedTodosIds([]);
     }, [todos],
   );
 
   const handleClickToggle = async () => {
-    if (completedTodos.length === todos.length) {
-      setCompletedTodos(todos.map(todo => todo.id));
+    if (completedTodosIds.length === todos.length) {
+      setSelectedTodosIds(todos.map(todo => todo.id));
     } else {
-      setCompletedTodos(todos.filter(todo => !todo.completed)
+      setSelectedTodosIds(todos.filter(todo => !todo.completed)
         .map(todo => todo.id));
     }
 
@@ -154,15 +101,13 @@ export const App: React.FC = () => {
           : todo
       )));
 
-      setCompletedTodos([]);
-
       setTodos(newTodos);
     } catch {
       setErrorNotification(Error.Update);
     }
 
     setToggle(!toggle);
-    setCompletedTodos([]);
+    setSelectedTodosIds([]);
   };
 
   return (
@@ -171,32 +116,44 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
-          isAdding={todosAdded}
-          title={title}
           setTitle={setTitle}
-          handleSubmit={addTodo}
+          todos={todos}
+          title={title}
+          isAdding={isAdding}
           handleToggleAll={handleClickToggle}
+          setIsAdding={setIsAdding}
+          setErrorNotification={setErrorNotification}
+          setTodos={setTodos}
+          user={user}
         />
-        {!!todos.length && (
-          <TodosList
-            todos={filteredTodos}
-            selectedTodosIds={selectedTodosIds}
-            newTitle={title}
-            isAdding={todosAdded}
-            completedTodosIds={completedTodos}
-            handleOnChange={handleOnChange}
-            onDelete={removeTodo}
-          />
-        )}
-        {!!todos.length && (
-          <Footer
-            todos={todos}
-            filterType={filterType}
-            setFilterType={setFilterType}
-            onDelete={deleteCompletedTodo}
-          />
-        )}
+        {
+          (isAdding || todos.length) > 0 && (
+            <>
+              <TodosList
+                todos={filteredTodos}
+                selectedTodosIds={selectedTodosIds}
+                isAdding={isAdding}
+                title={title}
+                errorNotification={errorNotification}
+                handleOnChange={handleOnChange}
+                setErrorNotification={setErrorNotification}
+                setSelectTodosIds={setSelectedTodosIds}
+                setTodos={setTodos}
+              />
+              <Footer
+                setFilterType={setFilterType}
+                filterType={filterType}
+                todos={todos}
+                completeTodos={completedTodosIds}
+                setSelectedTodosIds={setSelectedTodosIds}
+                setTodos={setTodos}
+                setErrorNotification={setErrorNotification}
+                errorNotification={errorNotification}
+                selectedTodosIds={selectedTodosIds}
+              />
+            </>
+          )
+        }
       </div>
 
       {errorNotification && (

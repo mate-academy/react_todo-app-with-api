@@ -1,20 +1,32 @@
 import classNames from 'classnames';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { deleteTodos } from '../../api/todos';
+import { Error } from '../../types/ErrorType';
 import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todos: Todo[];
-  filterType: FilterType;
   setFilterType: (filter: FilterType) => void;
-  onDelete: () => void;
+  filterType: FilterType;
+  todos: Todo[];
+  completeTodos: Todo[];
+  setSelectedTodosIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setErrorNotification: React.Dispatch<React.SetStateAction<string | null>>;
+  errorNotification: string | null;
+  selectedTodosIds: number[];
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
-  filterType,
   setFilterType,
-  onDelete,
+  filterType,
+  todos,
+  completeTodos,
+  setSelectedTodosIds,
+  setTodos,
+  setErrorNotification,
+  errorNotification,
+  selectedTodosIds,
 }) => {
   const todosRemoved = useMemo(() => (
     todos.filter(({ completed }) => !completed)
@@ -23,6 +35,20 @@ export const Footer: React.FC<Props> = ({
   const todosCompleted = useMemo(() => (
     todos.filter(todo => todo.completed).length),
   [todos]);
+
+  const deleteCompletedTodo = useCallback(async () => {
+    setSelectedTodosIds(completeTodos.map(({ id }) => id));
+
+    await Promise.all(completeTodos.map(({ id }) => deleteTodos(id)))
+      .then(() => setTodos((prevTodos) => prevTodos
+        .filter(({ completed }) => !completed)))
+      .catch(() => {
+        setErrorNotification(Error.Delete);
+        setSelectedTodosIds([]);
+      });
+
+    setSelectedTodosIds([]);
+  }, [todos, selectedTodosIds, errorNotification]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -70,10 +96,10 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={onDelete}
+        onClick={deleteCompletedTodo}
         disabled={!todosCompleted}
       >
-        {!todosCompleted && 'Clear completed'}
+        Clear completed
       </button>
     </footer>
   );

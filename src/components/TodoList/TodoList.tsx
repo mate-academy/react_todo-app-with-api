@@ -6,21 +6,25 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   selectedTodosIds: number[];
-  newTitle: string;
   isAdding: boolean;
-  completedTodosIds: number[];
+  title: string;
+  errorNotification: string | null;
   handleOnChange: (id: number, data: Partial<Todo>) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
+  setErrorNotification: React.Dispatch<React.SetStateAction<string | null>>;
+  setSelectTodosIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 };
 
 export const TodosList: React.FC<Props> = ({
   todos,
   selectedTodosIds,
-  newTitle,
   isAdding,
-  completedTodosIds,
+  title,
+  errorNotification,
   handleOnChange,
-  onDelete,
+  setErrorNotification,
+  setSelectTodosIds,
+  setTodos,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -34,12 +38,13 @@ export const TodosList: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               todos={todos}
-              key={todo.id}
+              selectedTodosIds={selectedTodosIds}
+              errorNotification={errorNotification}
               isAdding={isAdding}
               handleOnChange={handleOnChange}
-              selectedTodosIds={selectedTodosIds}
-              onDelete={onDelete}
-              completedTodosIds={completedTodosIds}
+              setErrorNotification={setErrorNotification}
+              setSelectedTodosIds={setSelectTodosIds}
+              setTodos={setTodos}
             />
           </CSSTransition>
         ))}
@@ -53,16 +58,18 @@ export const TodosList: React.FC<Props> = ({
               key={Math.random()}
               todo={{
                 id: 0,
-                title: newTitle,
+                title,
                 completed: false,
                 userId: Math.random(),
               }}
               todos={todos}
               selectedTodosIds={selectedTodosIds}
-              handleOnChange={handleOnChange}
-              completedTodosIds={completedTodosIds}
+              errorNotification={errorNotification}
               isAdding={isAdding}
-              onDelete={onDelete}
+              handleOnChange={handleOnChange}
+              setErrorNotification={setErrorNotification}
+              setSelectedTodosIds={setSelectTodosIds}
+              setTodos={setTodos}
             />
           </CSSTransition>
         )}
