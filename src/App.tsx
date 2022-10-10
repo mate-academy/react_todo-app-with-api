@@ -14,6 +14,8 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { SortFilter } from './types/SortFilter';
+import { KeySubmit } from './types/KeySubmit';
+import { MessageError } from './types/MessageError';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -43,7 +45,7 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setError(true);
-          setMessageError('Todos from server were not gotten');
+          setMessageError(MessageError.ErrorServerOnStart);
         });
     }
   }, []);
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
 
     if (newTodoTitle.trim().length === 0) {
       setError(true);
-      setMessageError('Title can\'t be empty');
+      setMessageError(MessageError.ErrorEmptyTitle);
 
       return;
     }
@@ -116,7 +118,7 @@ export const App: React.FC = () => {
       setTodos(Prevtodos => Prevtodos.filter(todo => todo.id !== removeTodoID));
     } catch (errorFromServer) {
       setError(true);
-      setMessageError('Unable to delete a todo');
+      setMessageError(MessageError.ErrorServerWhileDelete);
     } finally {
       setActiveTodoId(idActive => idActive.filter(id => id !== removeTodoID));
     }
@@ -145,7 +147,7 @@ export const App: React.FC = () => {
       }));
     } catch (errorFromServer) {
       setError(true);
-      setMessageError('Unable to change a todo');
+      setMessageError(MessageError.ErrorServerWhileUpdate);
     } finally {
       setActiveTodoId(idActive => idActive.filter(id => id !== changeTodo.id));
     }
@@ -169,7 +171,7 @@ export const App: React.FC = () => {
         }));
       } catch (errorFromServer) {
         setError(true);
-        setMessageError('Unable to change a todo');
+        setMessageError(MessageError.ErrorServerWhileUpdate);
       } finally {
         setActiveTodoId(idActive => idActive
           .filter(id => id !== changeTodo.id));
@@ -189,7 +191,7 @@ export const App: React.FC = () => {
     }
 
     switch (event.key) {
-      case 'Enter':
+      case KeySubmit.Enter:
         if (changeTodoTitle === '') {
           handleRemoveTodo(changeTodo.id);
 
@@ -210,7 +212,7 @@ export const App: React.FC = () => {
           }));
         } catch (errorFromServer) {
           setError(true);
-          setMessageError('Unable to update a Title');
+          setMessageError(MessageError.ErrorServerWhileUpdate);
         } finally {
           setActiveTodoId(idActive => idActive
             .filter(id => id !== changeTodo.id));
@@ -220,7 +222,7 @@ export const App: React.FC = () => {
 
         break;
 
-      case 'Escape':
+      case KeySubmit.Escape:
         setWantChangeTitle(-1);
         setChangeTitle('');
 

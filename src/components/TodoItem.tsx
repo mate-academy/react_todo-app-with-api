@@ -65,7 +65,7 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="ChangeTodoField"
               type="text"
               ref={changeTodoField}
-              className="todoapp__new-todo"
+              className="todoapp__new-todo todoapp__new-todo--change"
               placeholder="Empty title will be removed"
               value={changeTodoTitle}
               onChange={() => setChangeTitle(
