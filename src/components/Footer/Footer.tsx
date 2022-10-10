@@ -4,7 +4,6 @@ import { FilterType } from '../../types/Filter';
 import { deleteTodo } from '../../api/todos';
 
 type Props = {
-  filteredTodos: Todo[],
   getFilteredBy: (param: FilterType) => void;
   selectedButtonType: FilterType;
   completedTodos: Todo[];
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export const Footer: React.FC<Props> = ({
-  filteredTodos,
   getFilteredBy,
   selectedButtonType,
   setTodos,
@@ -52,7 +50,7 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${filteredTodos.length} items left`}
+        {`${activeTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

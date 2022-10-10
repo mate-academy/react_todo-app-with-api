@@ -178,7 +178,6 @@ export const App: React.FC = () => {
               />
 
               <Footer
-                filteredTodos={filteredTodos}
                 getFilteredBy={setFilterBy}
                 selectedButtonType={filterBy}
                 setTodos={setTodos}
