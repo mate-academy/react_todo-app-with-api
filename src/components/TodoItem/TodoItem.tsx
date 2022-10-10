@@ -88,6 +88,7 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="NewTodoField"
               type="text"
               value={newTitle}
+              ref={input => input && input.focus()}
               className="todoapp__new-todo"
               placeholder="Empty todo will be deleted"
               onChange={newTodoTitle}
