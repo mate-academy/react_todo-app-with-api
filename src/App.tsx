@@ -13,11 +13,11 @@ import { Error } from './components/Error/Error';
 import { Footer } from './components/Footer/Footer';
 import { Todo } from './types/Todo';
 import { User } from './types/User';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { FilterType } from './types/Filter';
-import { updateTodo } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
-
 
 const getFilterTodos = (
   todos: Todo[],
@@ -76,10 +76,10 @@ export const App: React.FC = () => {
       setErrorMessage('Please add valid title');
 
       return;
-    };
+    }
 
     if (title.trim() === undefined) {
-      setErrorMessage('hhf;')
+      setErrorMessage('hhf;');
     }
 
     try {
@@ -87,7 +87,6 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, newTodo]);
     } catch (error) {
-
       setErrorMessage('Unable to add a todo');
     }
 
@@ -114,9 +113,10 @@ export const App: React.FC = () => {
             : todo
         )));
       } catch (error) {
-        setErrorMessage('Unable to update a todo')
+        setErrorMessage('Unable to update a todo');
       }
-    }, [todos]);
+    }, [todos],
+  );
 
   const filteredTodos = getFilterTodos(todos, filterBy);
   const completedTodos = todos.filter(todo => todo.completed);
@@ -198,5 +198,5 @@ export const App: React.FC = () => {
           )}
       </div>
     </div>
-  )
-}
+  );
+};

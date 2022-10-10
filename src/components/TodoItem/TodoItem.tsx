@@ -14,9 +14,8 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   isLoaded,
   removeTodo,
-  handleChange
+  handleChange,
 }) => {
-
   const [doubleClick, setDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
@@ -32,16 +31,16 @@ export const TodoItem: React.FC<Props> = ({
       setDoubleClick(false);
 
       return;
-    };
+    }
 
     handleChange(todoId, { title: newTitle });
     setDoubleClick(false);
-    setNewTitle('')
+    setNewTitle('');
   };
 
   const newTodoTitle = (event: ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
-  }
+  };
 
   const handleDoubleClick = () => {
     setDoubleClick(true);
@@ -52,17 +51,17 @@ export const TodoItem: React.FC<Props> = ({
     if (event.key === 'Enter') {
       updateTodoTitle(todo.id);
       setDoubleClick(false);
-    };
+    }
 
     if (event.key === 'Escape') {
       setDoubleClick(false);
     }
-  }
+  };
 
   const handleBlur = () => {
     updateTodoTitle(todo.id);
     setDoubleClick(false);
-  }
+  };
 
   const { completed, id, title } = todo;
 
@@ -83,46 +82,44 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {doubleClick
-        ?
-        <form onSubmit={event => event.preventDefault()}>
-          <input
-            data-cy="NewTodoField"
-            type="text"
-            value={newTitle}
-            className="todoapp__new-todo"
-            placeholder="Empty todo will be deleted"
-            onChange={newTodoTitle}
-            onKeyDown={handlePressedKey}
-            onBlur={handleBlur}
-            autoFocus
-          />
-        </form>
-        :
-        <>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={handleDoubleClick}
-          >
-            {title}
-          </span>
+        ? (
+          <form onSubmit={event => event.preventDefault()}>
+            <input
+              data-cy="NewTodoField"
+              type="text"
+              value={newTitle}
+              className="todoapp__new-todo"
+              placeholder="Empty todo will be deleted"
+              onChange={newTodoTitle}
+              onKeyDown={handlePressedKey}
+              onBlur={handleBlur}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={handleDoubleClick}
+            >
+              {title}
+            </span>
 
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => removeTodo(id)}
-          >
-            ×
-          </button>
-          {
-            isLoaded
-            &&
-            <Loader />
-          }
-        </>
-      }
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => removeTodo(id)}
+            >
+              ×
+            </button>
+            {
+              isLoaded
+            && <Loader />
+            }
+          </>
+        )}
     </div>
   );
 };
-

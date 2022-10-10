@@ -13,17 +13,15 @@ type Props = {
   setErrorMessage: (text: string) => void;
 };
 
-export const Footer: React.FC<Props> = (props) => {
-  const {
-    filteredTodos,
-    getFilteredBy,
-    selectedButtonType,
-    setTodos,
-    todos,
-    setErrorMessage,
-    completedTodos,
-  } = props;
-
+export const Footer: React.FC<Props> = ({
+  filteredTodos,
+  getFilteredBy,
+  selectedButtonType,
+  setTodos,
+  todos,
+  setErrorMessage,
+  completedTodos,
+}) => {
   const activeTodos = todos.filter(todo => !todo.completed);
 
   const deleteCompletedTodos = async (completed: Todo[]) => {
@@ -38,14 +36,16 @@ export const Footer: React.FC<Props> = (props) => {
     }
   };
 
-  const clearAllTodos = async (todos: Todo[]) => {
+  const clearAllTodos = async () => {
     try {
       todos.map(async (todo) => {
         await deleteTodo(todo.id);
-        setTodos([])
+        setTodos([]);
       });
     } catch (error) {
-      setErrorMessage('Sorry, but you can\'t clear all todos now, try later please)')
+      setErrorMessage(
+        'Sorry, but you can\'t clear all todos now, try later please)',
+      );
     }
   };
 
@@ -93,14 +93,15 @@ export const Footer: React.FC<Props> = (props) => {
       </nav>
 
       {todos.length > 0
-        &&
-        <button
-          className="todoapp__clear-completed"
-          onClick={() => clearAllTodos(todos)}
-        >
-          Clear All
-        </button>
-      }
+        && (
+          <button
+            type="button"
+            className="todoapp__clear-completed"
+            onClick={() => clearAllTodos(todos)}
+          >
+            Clear All
+          </button>
+        )}
 
       {completedTodos.length > 0
         && (

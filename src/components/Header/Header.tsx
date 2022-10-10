@@ -19,12 +19,13 @@ export const Header: React.FC<Props> = ({
   createTodo,
   title,
   setTitle,
-  handleChangeAll
+  handleChangeAll,
 }) => {
-
-  const handleChangeInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  }, [title]);
+  const handleChangeInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setTitle(event.target.value);
+    }, [title],
+  );
 
   return (
     <header className="todoapp__header">
@@ -34,7 +35,7 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          {active: todos.every(todo => todo.completed)}
+          { active: todos.every(todo => todo.completed) },
         )}
         onClick={handleChangeAll}
       />
