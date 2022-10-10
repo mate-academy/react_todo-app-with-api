@@ -156,24 +156,46 @@ export const App: React.FC = () => {
 
   const updateAllCompleteTodos = () => {
     const temp = [...todos];
-
-    temp.forEach(todo => {
-      setVisibleLoader(true);
-      setNewTodoId(todo.id);
-
-      patchTodo(todo.id, { completed: !todo.completed })
-        .catch(() => setErrorMessage('Unable to update a todo'))
-        .finally(() => {
-          setVisibleLoader(false);
-          setNewTodoId(0);
-        });
-
-      const todoIndex = findById(todo);
-
-      todos[todoIndex].completed = !todo.completed;
-
-      activeItemsCounter(todo);
+    const isCompleted = temp.find(todo => {
+      return todo.completed === false;
     });
+
+    if (isCompleted) {
+      temp.forEach(todo => {
+        setVisibleLoader(true);
+
+        if (!todo.completed) {
+          patchTodo(todo.id, { completed: !todo.completed })
+            .catch(() => setErrorMessage('Unable to update a todo'))
+            .finally(() => {
+              setVisibleLoader(false);
+            });
+
+          const todoIndex = findById(todo);
+
+          todos[todoIndex].completed = !todo.completed;
+          activeItemsCounter(todo);
+        }
+      });
+    } else {
+      temp.forEach(todo => {
+        setVisibleLoader(true);
+
+        if (todo.completed) {
+          patchTodo(todo.id, { completed: !todo.completed })
+            .catch(() => setErrorMessage('Unable to update a todo'))
+            .finally(() => {
+              setVisibleLoader(false);
+            });
+
+          const todoIndex = findById(todo);
+
+          todos[todoIndex].completed = !todo.completed;
+
+          activeItemsCounter(todo);
+        }
+      });
+    }
 
     setTodos(temp);
   };
