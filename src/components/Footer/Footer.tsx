@@ -36,9 +36,9 @@ export const Footer: React.FC<Props> = ({
     }
   };
 
-  const clearAllTodos = async () => {
+  const clearAllTodos = async (allTodos: Todo[]) => {
     try {
-      todos.map(async (todo) => {
+      allTodos.map(async (todo) => {
         await deleteTodo(todo.id);
         setTodos([]);
       });
