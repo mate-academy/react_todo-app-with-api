@@ -37,9 +37,13 @@ export const App: React.FC = () => {
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [toggleAll, setToggleAll] = useState(false);
 
+  const onTabSelected = (tab: FilterTypes) => {
+    setSelectedTabId(tab.id);
+  };
+
   const selectedTab = useMemo(() => {
     return tabs.find(tab => tab.id === selectedTabId) || tabs[0];
-  }, [tabs]);
+  }, [selectedTabId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,11 +145,11 @@ export const App: React.FC = () => {
               <Footer
                 tabs={tabs}
                 selectedTabId={selectedTabId}
-                setSelectedTabId={setSelectedTabId}
                 todos={todos}
                 setTodos={setTodos}
                 setError={setError}
                 setToggleAll={setToggleAll}
+                onTabSelected={onTabSelected}
               />
             </>
           )}

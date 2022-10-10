@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect } from 'react';
 import { post } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
+import { ErrorMessage } from '../types/Errors';
 
 interface Props {
   newTodoField: RefObject<HTMLInputElement>;
@@ -42,7 +43,7 @@ export const NewTodoForm: React.FC<Props> = ({
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (newTodoTitle.trim().length === 0) {
-        setError('Title can\'t be empty');
+        setError(ErrorMessage.TitleError);
 
         return;
       }
@@ -55,12 +56,13 @@ export const NewTodoForm: React.FC<Props> = ({
           setTodos((state: Todo[]) => [...state, newTodosFromUser]);
         }
       } catch (errorFromServer) {
-        setError('Unable to add a todo');
+        setError(ErrorMessage.AddError);
       } finally {
         setIsLoading(false);
         setNewTodoTitle('');
       }
-    }, []);
+    }, [newTodoTitle],
+  );
 
   return (
     <form

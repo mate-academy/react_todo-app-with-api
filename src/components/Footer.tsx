@@ -4,6 +4,7 @@ import { FilterTypes } from '../types/Filter';
 import { Todo } from '../types/Todo';
 import { getCompletedTodos } from '../utils/functions';
 import { Filter } from './Filter';
+import { ErrorMessage } from '../types/Errors';
 
 interface Props {
   todos: Todo[],
@@ -12,22 +13,18 @@ interface Props {
   setError: (value: string) => void,
   setTodos: (value: Todo[]) => void,
   setToggleAll: (value: boolean) => void;
-  setSelectedTabId: (value: string) => void,
+  onTabSelected: (value: FilterTypes) => void,
 }
 
 export const Footer: React.FC<Props> = ({
   todos,
   tabs,
   selectedTabId,
-  setSelectedTabId,
   setTodos,
   setError,
   setToggleAll,
+  onTabSelected,
 }) => {
-  const onTabSelected = (tab: FilterTypes) => {
-    setSelectedTabId(tab.id);
-  };
-
   const notCompleted = useMemo(() => {
     return todos.filter(({ completed }) => !completed);
   }, [todos]);
@@ -50,9 +47,9 @@ export const Footer: React.FC<Props> = ({
 
       setTodos([...notCompleted]);
     } catch (errorFromServer) {
-      setError('Unable to delete a todo');
+      setError(ErrorMessage.DeleteError);
     }
-  }, [completedTodos]);
+  }, [completedTodos.length]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

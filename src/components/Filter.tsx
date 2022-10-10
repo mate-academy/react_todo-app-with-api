@@ -14,7 +14,7 @@ export const Filter: React.FC<Props> = ({
 }) => {
   const selectedTab = useMemo(() => {
     return tabs.find(tab => tab.id === selectedTabId) || tabs[0];
-  }, [selectedTabId]);
+  }, [selectedTabId, tabs]);
 
   const handelClick = useMemo(() => {
     return (tab: FilterTypes) => {
@@ -22,7 +22,7 @@ export const Filter: React.FC<Props> = ({
         onTabSelected(tab);
       }
     };
-  }, [selectedTabId]);
+  }, [selectedTabId, tabs]);
 
   return (
     <nav className="filter" data-cy="Filter">

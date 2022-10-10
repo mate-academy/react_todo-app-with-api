@@ -1,4 +1,4 @@
-import { FilterTypes } from '../types/Filter';
+import { FilterTypes, FilterBy } from '../types/Filter';
 import { Todo } from '../types/Todo';
 
 export function getFilteredTodo(
@@ -7,10 +7,10 @@ export function getFilteredTodo(
 ) {
   const filterByType = todos.filter((todo) => {
     switch (selectedTab.id) {
-      case 'active':
+      case FilterBy.Active:
         return !todo.completed;
 
-      case 'completed':
+      case FilterBy.Completed:
         return todo.completed;
 
       default:

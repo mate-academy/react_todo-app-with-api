@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { remove, updatingData } from '../api/todos';
 import { Todo } from '../types/Todo';
+import { ErrorMessage } from '../types/Errors';
 
 interface Props {
   completed: boolean,
@@ -48,7 +49,7 @@ export const TodoInfo: React.FC<Props> = ({
       setTodos((state: Todo[]) => [...state]
         .filter(todo => todo.id !== removeId));
     } catch (errorFromServer) {
-      setError('Unable to delete a todo');
+      setError(ErrorMessage.DeleteError);
     } finally {
       setSelectedTodoId(0);
     }
@@ -73,7 +74,7 @@ export const TodoInfo: React.FC<Props> = ({
         return todo;
       }));
     } catch (errorFromServer) {
-      setError('Unable to update a todo');
+      setError(ErrorMessage.UpdateError);
     } finally {
       setSelectedTodoId(0);
     }
@@ -111,7 +112,7 @@ export const TodoInfo: React.FC<Props> = ({
           return todo;
         }));
       } catch (errorFromServer) {
-        setError('Unable to update a todo');
+        setError(ErrorMessage.UpdateError);
       } finally {
         setSelectedTodoId(0);
         setIsDoubleClick(false);
