@@ -2,6 +2,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+
 import '../../styles/transistiongroup.scss';
 
 type Props = {
@@ -10,7 +11,9 @@ type Props = {
   selectedId: number[];
   isAdding: boolean;
   title: string;
-  handleChange: (todoId: number, property: Partial<Todo>) => void;
+  handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
+  selectedTodo: number;
+  setSelectedTodo: (value: number) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,9 +23,12 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   title,
   handleChange,
+  selectedTodo,
+  setSelectedTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
+
       <TransitionGroup>
         {todos.map(todo => (
           <CSSTransition
@@ -38,6 +44,8 @@ export const TodoList: React.FC<Props> = ({
               isAdding={isAdding}
               handleChange={handleChange}
               todos={todos}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
             />
           </CSSTransition>
         ))}
@@ -61,6 +69,8 @@ export const TodoList: React.FC<Props> = ({
               isAdding={isAdding}
               handleChange={handleChange}
               todos={todos}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
             />
           </CSSTransition>
         )}

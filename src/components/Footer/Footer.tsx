@@ -1,5 +1,7 @@
 import classnames from 'classnames';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { deleteTodo } from '../../api/todos';
+import { ErrorMessage } from '../../types/Error';
 import { FilterType } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 
@@ -7,21 +9,42 @@ type Props = {
   todos: Todo[];
   filterType: FilterType | string;
   filterTypes: (arg: FilterType) => void;
-  deleteCompleted: () => void;
+  completedTodos: Todo[];
+  setSelectedId: React.Dispatch<React.SetStateAction<number[]>>;
+  selectedId: number[];
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  errorMessage: string;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   filterType,
   filterTypes,
-  deleteCompleted,
+  completedTodos,
+  setSelectedId,
+  selectedId,
+  setErrorMessage,
+  errorMessage,
+  setTodos,
 }) => {
   const todosLeft = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed).length), [todos]);
+  const deleteCompletedTodos = useCallback(async () => {
+    setSelectedId(completedTodos.map((todo => todo.id)));
+
+    await Promise.all(completedTodos.map(({ id }) => deleteTodo(id)))
+      .then(() => setTodos((prevTodos) => prevTodos
+        .filter(({ completed }) => !completed)))
+      .catch(() => {
+        setErrorMessage(ErrorMessage.NotDelete);
+        setSelectedId([]);
+      });
+
+    setSelectedId([]);
+  }, [todos, selectedId, errorMessage]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -69,7 +92,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={deleteCompleted}
+        onClick={deleteCompletedTodos}
         disabled={!completedTodos}
       >
         Clear completed

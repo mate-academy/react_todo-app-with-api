@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import {
   ChangeEvent,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -8,6 +9,7 @@ import {
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader/TodoLoader';
+import { PressedButton } from '../../types/PressedButton';
 
 type Props = {
   todo: Todo;
@@ -15,7 +17,9 @@ type Props = {
   removeTodo: (TodoId: number) => void;
   selectedId: number[];
   isAdding: boolean;
-  handleChange: (todoId: number, property: Partial<Todo>) => void;
+  handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
+  selectedTodo: number;
+  setSelectedTodo: (value: number) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -25,10 +29,11 @@ export const TodoItem: React.FC<Props> = ({
   selectedId,
   isAdding,
   handleChange,
+  selectedTodo,
+  setSelectedTodo,
 }) => {
   const [doubleClick, setDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState<string>('');
-  const [selectedTodo, setSelectedTodo] = useState(0);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const { title, id, completed } = todo;
@@ -36,13 +41,7 @@ export const TodoItem: React.FC<Props> = ({
   const isLoading = useMemo(() => selectedId.includes(id)
   || (isAdding && id === 0), [isAdding, selectedId, id]);
 
-  const UpdateTodoTitle = () => {
-    if (newTitle === todo.title) {
-      setDoubleClick(false);
-
-      return;
-    }
-
+  const updateTodoTitle = useCallback(() => {
     if (!newTitle) {
       removeTodo(selectedTodo);
       setDoubleClick(false);
@@ -50,16 +49,24 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
+    if (newTitle === todo.title) {
+      setDoubleClick(false);
+
+      return;
+    }
+
     if (todos.find(element => element.title === newTitle)) {
       setDoubleClick(false);
+      setSelectedTodo(0);
     }
 
     handleChange(selectedTodo, { title: newTitle });
     setDoubleClick(false);
     setNewTitle('');
-  };
+    setSelectedTodo(0);
+  }, [newTitle, selectedTodo, doubleClick]);
 
-  const TodoTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const todoTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
   };
 
@@ -70,17 +77,17 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleBlur = () => {
-    UpdateTodoTitle();
+    updateTodoTitle();
     setDoubleClick(false);
   };
 
   const handleKeyPress = (event: { key: string; }) => {
-    if (event.key === 'Escape') {
+    if (event.key === PressedButton.Escape) {
       setDoubleClick(false);
     }
 
-    if (event.key === 'Enter') {
-      UpdateTodoTitle();
+    if (event.key === PressedButton.Enter) {
+      updateTodoTitle();
     }
   };
 
@@ -101,7 +108,6 @@ export const TodoItem: React.FC<Props> = ({
       <label className="todo__status-label">
         <input
           type="checkbox"
-          ref={newTodoField}
           className="todo__status"
           data-cy="TodoStatus"
           checked={completed}
@@ -121,7 +127,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               value={newTitle}
               placeholder="Employ todo will be deleted"
-              onChange={TodoTitleChange}
+              onChange={todoTitleChange}
               onBlur={handleBlur}
               onKeyDown={handleKeyPress}
             />
@@ -149,10 +155,7 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )}
       {isLoading && (
-        <TodoLoader
-          todo={todo}
-          selectedId={selectedId}
-        />
+        <TodoLoader />
       )}
     </div>
   );

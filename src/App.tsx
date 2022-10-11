@@ -1,5 +1,4 @@
 import React, {
-  FormEvent,
   useCallback,
   useContext,
   useEffect,
@@ -16,7 +15,6 @@ import { Todo } from './types/Todo';
 import { FilterType } from './types/Filter';
 import {
   getTodos,
-  addTodo,
   deleteTodo,
   updateTodo,
 } from './api/todos';
@@ -31,6 +29,7 @@ export const App: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [toggle, setToggle] = useState(true);
+  const [selectedTodo, setSelectedTodo] = useState(0);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -64,28 +63,6 @@ export const App: React.FC = () => {
     });
   }, [todos, fileterType]);
 
-  const newTodo = useCallback(async (event: FormEvent) => {
-    event.preventDefault();
-    if (!title.trim() || !user) {
-      setErrorMessage(ErrorMessage.ErrorTitle);
-
-      return;
-    }
-
-    setIsAdding(true);
-
-    try {
-      const postTodo = await addTodo(title, user.id);
-
-      setTodos((prevTodos) => [...prevTodos, postTodo]);
-    } catch {
-      setErrorMessage(ErrorMessage.NotAdd);
-    }
-
-    setIsAdding(false);
-    setTitle('');
-  }, [title, user]);
-
   const removeTodo = useCallback(async (TodoId: number) => {
     setSelectedId([TodoId]);
     try {
@@ -97,46 +74,37 @@ export const App: React.FC = () => {
     }
   }, [todos, errorMessage]);
 
-  const completedTodos = useMemo(() => todos
-    .filter(({ completed }) => completed), [todos]);
-
-  const deleteCompletedTodos = useCallback(() => {
-    setSelectedId([...completedTodos].map(({ id }) => id));
-
-    Promise.all(completedTodos.map(({ id }) => removeTodo(id)))
-      .then(() => setTodos((prevTodos) => prevTodos
-        .filter(({ completed }) => !completed)))
-      .catch(() => {
-        setErrorMessage(ErrorMessage.NotDelete);
-        setSelectedId([]);
-      });
-  }, [todos, selectedId, errorMessage]);
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
   const handleChange = useCallback(
-    async (todoId: number, data: Partial<Todo>) => {
-      setSelectedId([todoId]);
-      try {
-        const updateStatus = await updateTodo(todoId, data);
+    async (updateId: number, data: Partial<Todo>) => {
+      setSelectedId([updateId]);
 
-        setTodos(todos.map(todo => (
-          todo.id === todoId
-            ? updateStatus
+      try {
+        const changeStatus: Todo = await updateTodo(updateId, data);
+
+        setTodos(prevTodos => prevTodos.map(todo => (
+          todo.id === updateId
+            ? changeStatus
             : todo
         )));
       } catch {
         setErrorMessage(ErrorMessage.NotUpdate);
-      } finally {
-        setSelectedId([]);
       }
+
+      setSelectedId([]);
     }, [todos],
   );
 
   const handleAllCompleted = async () => {
-    setSelectedId(prev => {
-      return prev
-        ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
-        : completedTodos.map(todo => todo.id);
-    });
+    if (completedTodos.length === todos.length) {
+      setSelectedId(todos.map(todo => todo.id));
+    } else {
+      setSelectedId(todos.filter(todo => !todo.completed)
+        .map(todo => todo.id));
+    }
 
     try {
       const newTodos = await Promise.all(todos.map(todo => (
@@ -163,12 +131,15 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
           setTitle={setTitle}
           title={title}
-          handleAddTodo={newTodo}
+          setIsAdding={setIsAdding}
           handleAllCompleted={handleAllCompleted}
           todos={todos}
           isAdding={isAdding}
+          user={user}
+          setErrorMessage={setErrorMessage}
+          setTodos={setTodos}
         />
-        {(todos.length > 0 || isAdding) && (
+        {(isAdding || todos.length > 0) && (
           <>
             <TodoList
               todos={filteredTodos}
@@ -177,12 +148,19 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               title={title}
               handleChange={handleChange}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
             />
             <Footer
               filterType={fileterType}
               filterTypes={setFilterType}
               todos={todos}
-              deleteCompleted={deleteCompletedTodos}
+              completedTodos={completedTodos}
+              setTodos={setTodos}
+              setErrorMessage={setErrorMessage}
+              errorMessage={errorMessage}
+              setSelectedId={setSelectedId}
+              selectedId={selectedId}
             />
           </>
         )}
