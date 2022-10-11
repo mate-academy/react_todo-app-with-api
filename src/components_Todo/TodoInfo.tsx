@@ -32,8 +32,7 @@ export const TodoInfo: React.FC<Props> = ({
   const newTodoField = useRef<HTMLInputElement>(null);
   const [visiblInput, setVisibulInput] = useState(false);
 
-  const statusLoader = todoId.includes(todo.id)
-    || (isAdding && todo.id === 0);
+  const statusLoader = todoId.includes(todo.id) && isAdding;
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -95,7 +94,12 @@ export const TodoInfo: React.FC<Props> = ({
           </button>
         </>
       ) : (
-        <form>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleCooseUpdateTodo(event);
+          }}
+        >
           <input
             onSubmit={(event) => handleUpdateTodo(event, id)}
             data-cy="TodoTitleField"
@@ -107,6 +111,11 @@ export const TodoInfo: React.FC<Props> = ({
             onChange={handlePatch}
             onBlur={(event) => {
               handleCooseUpdateTodo(event);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                handleCooseUpdateTodo(event);
+              }
             }}
           />
         </form>
