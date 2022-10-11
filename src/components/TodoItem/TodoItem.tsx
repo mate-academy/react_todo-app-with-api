@@ -32,7 +32,6 @@ export const TodoItem: React.FC<Props> = ({
   const editTitle = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (editTitle.current) {
       editTitle.current.focus();
     }

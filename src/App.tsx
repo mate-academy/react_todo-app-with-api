@@ -161,6 +161,7 @@ export const App: React.FC = () => {
 
     if (title === todo.title || cancel) {
       resetEditTodoId();
+      setNewTitle('');
 
       return;
     }
