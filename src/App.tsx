@@ -72,7 +72,6 @@ export const App: React.FC = () => {
       .finally(() => {
         setTitle('');
         setIsAdding(false);
-        setToggleLoader(false);
       });
   };
 
@@ -95,8 +94,8 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = async (todoId: number, data: Partial<Todo>) => {
-    setIsAdding(true);
     setSelectedId(todoId);
+    setIsAdding(true);
 
     await updateTodo(todoId, data)
       .then(updatedTodo => {
@@ -167,6 +166,7 @@ export const App: React.FC = () => {
             handleUpdateTodo={handleUpdateTodo}
             toggleLoader={toggleLoader}
             selectedId={selectedId}
+            title={title}
           />
         )}
         {todos.length > 0 && (
@@ -175,6 +175,7 @@ export const App: React.FC = () => {
             changeFilter={setFilter}
             todos={todos}
             removeTodo={removeTodo}
+            setIsAdding={setIsAdding}
           />
         )}
       </div>

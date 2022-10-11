@@ -8,6 +8,7 @@ type Props = {
   changeFilter: (filterType: Filter) => void;
   todos: Todo[];
   removeTodo: (id: number) => void;
+  setIsAdding: (value: boolean) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,9 +16,11 @@ export const Footer: React.FC<Props> = ({
   changeFilter,
   todos,
   removeTodo,
+  setIsAdding,
 }) => {
   const removeCompletedTodos = useCallback(() => {
     todos.forEach((todo) => {
+      setIsAdding(true);
       if (todo.completed) {
         removeTodo(todo.id);
       }
