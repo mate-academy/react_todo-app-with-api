@@ -14,7 +14,7 @@ import {
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/Page/ErrorNotification';
-import { Footer } from './components/Page/Footer';
+import { FilterTodos } from './components/Page/FilterTodo';
 import { Header } from './components/Page/Header';
 import { TodoList } from './components/Page/TodoList';
 import { TodoContext } from './components/TodoContext';
@@ -27,9 +27,9 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useContext(TodoContext);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
-  const [title, setTitle] = useState<string>('');
+  const [title, setTitle] = useState('');
   const [todosError, setTodosError] = useState<TodosError>(TodosError.None);
-  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   if (todosError.length > 0) {
     setTimeout(() => {
@@ -207,7 +207,7 @@ export const App: React.FC = () => {
         />
 
         {todos.length > 0 && (
-          <Footer
+          <FilterTodos
             handleChooseFilter={handleChooseFilter}
             todos={todos}
             filterType={filterType}
