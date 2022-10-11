@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -45,9 +46,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [filterBy, setFilterBy] = useState(FilterType.All);
+  const [selectedId, setSelectedId] = useState<number[]>([]);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -78,9 +79,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    if (title.trim() === undefined) {
-      setErrorMessage('hhf;');
-    }
+    setIsLoaded(true);
 
     try {
       const newTodo = await addTodo(user.id, title);
@@ -90,10 +89,12 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to add a todo');
     }
 
+    setIsLoaded(false);
     setTitle('');
   }, [user, title]);
 
   const removeTodo = useCallback(async (todoId: number) => {
+    setSelectedId([todoId]);
     try {
       await deleteTodo(todoId);
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
@@ -119,8 +120,14 @@ export const App: React.FC = () => {
   );
 
   const filteredTodos = getFilterTodos(todos, filterBy);
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
+
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed)
+  }, [todos]);
+
+  const activeTodos = useMemo(() => {
+    return todos.filter(todo => !todo.completed);
+  }, [todos]);
 
   const handleClickToggleAll = () => {
     if (activeTodos.length) {
@@ -171,10 +178,12 @@ export const App: React.FC = () => {
           && (
             <>
               <TodoList
+                title={title}
                 todos={filteredTodos}
                 isLoaded={isLoaded}
                 removeTodo={removeTodo}
                 handleChange={handleChange}
+                selectedId={selectedId}
               />
 
               <Footer

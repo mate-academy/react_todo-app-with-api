@@ -1,20 +1,20 @@
 import classNames from 'classnames';
 import { ChangeEvent, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { Loader } from '../Loader/Loader';
 
 type Props = {
   todo: Todo,
   isLoaded: boolean,
   removeTodo: (param: number) => void;
   handleChange: (todoId: number, data: Partial<Todo>) => void;
+  selectedId: number[]
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isLoaded,
   removeTodo,
   handleChange,
+  selectedId
 }) => {
   const [doubleClick, setDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -115,10 +115,16 @@ export const TodoItem: React.FC<Props> = ({
             >
               ×
             </button>
-            {
-              isLoaded
-            && <Loader />
-            }
+
+            <div
+              data-cy="TodoLoader"
+              className={classNames(
+                'modal overlay',
+                {'is-active': selectedId.includes(todo.id)}
+              )}>
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
           </>
         )}
     </div>
