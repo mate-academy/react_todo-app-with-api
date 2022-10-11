@@ -87,7 +87,7 @@ export const App: React.FC = () => {
     });
 
     setVisibleTodos(filteredTodos);
-  }, [filterType]);
+  }, [filterType, todos]);
 
   // updating ↓
 
@@ -139,13 +139,26 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    visibleTodos.forEach((todo) => {
+    const filteredTodos = visibleTodos.filter((todo) => {
       const { completed, id } = todo;
 
-      if (completed) {
-        deleteTodo(id);
+      if (completed && !errorMessage) {
+        try {
+          deleteTodoOnServer(id);
+        } catch {
+          const errDelete = 'delete Todo';
+
+          setErrorMessage(errDelete);
+        } finally {
+          setLoadingTodoId(null);
+        }
       }
+
+      return !completed;
     });
+
+    setVisibleTodos(filteredTodos);
+    setTodos(filteredTodos);
   };
 
   const addInVisibleTodos = (newTodo: Todo) => {
@@ -205,7 +218,6 @@ export const App: React.FC = () => {
           )}
 
         <Footer
-          countOfItems={countOfItemsLeft}
           setFelterType={setFilterType}
           filterType={filterType}
           clearCompleted={clearCompleted}
