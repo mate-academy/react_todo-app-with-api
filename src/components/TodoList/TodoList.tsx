@@ -60,31 +60,38 @@ export const TodoList: React.FC<Props> = ({
     setTimeout(() => setDelitingId(null), 1000);
   };
 
-  const handleUpdateOnCondition = (
+  const handleUpdateOnCondition = async (
     title: string, newTitle: string, id: number, completed: boolean,
   ) => {
     setErrorClosing(false);
 
-    if (title === newTitle) {
-      setEditTitle(false);
+    try {
+      if (title === newTitle) {
+        setEditTitle(false);
 
-      return 0;
-    }
+        return 0;
+      }
 
-    if (newTitle.trim() === '') {
-      handleTodoDeletion(id);
-    } else {
-      const updated = onUpdate(id, completed, newTitle);
+      if (newTitle.trim() === '') {
+        handleTodoDeletion(id);
+      } else {
+        const updated = onUpdate(id, completed, newTitle);
 
-      setUpdatingId(id);
+        setUpdatingId(id);
 
-      setTimeout(() => {
-        setUpdatingId(null);
-      }, 600);
+        setTimeout(() => {
+          setUpdatingId(null);
+          // newToField.current?.focus();
+        }, 600);
 
-      setEditTitle(false);
+        setTimeout(() => {
+          setEditTitle(false);
+        }, 750);
 
-      return updated;
+        return updated;
+      }
+    } catch (error) {
+      throw new Error();
     }
 
     return 0;

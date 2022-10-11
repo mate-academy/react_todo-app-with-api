@@ -178,7 +178,6 @@ export const App: React.FC = () => {
               updatungId={updatungId}
               setDelitingId={setDelitingId}
               deletingId={deletingId}
-
             />
             <footer
               className="todoapp__footer"
