@@ -1,5 +1,6 @@
 import React, {
-  useContext, useEffect, useRef, useState,
+  useCallback,
+  useContext, useEffect, useMemo, useRef, useState, FormEvent
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/Error/ErrorNotification';
@@ -40,29 +41,31 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage('Unable to load data'));
   }, [user]);
 
-  const visibleTodo = todos.filter((todo) => {
-    switch (sortBy) {
-      case FilterBy.All:
-        return todo;
+  const visibleTodo = useMemo(() => {
+    return todos.filter((todo) => {
+      switch (sortBy) {
+        case FilterBy.All:
+          return todo;
 
-      case FilterBy.Active:
-        return !todo.completed;
+        case FilterBy.Active:
+          return !todo.completed;
 
-      case FilterBy.Completed:
-        return todo.completed;
+        case FilterBy.Completed:
+          return todo.completed;
 
-      default:
-        return true;
-    }
-  });
+        default:
+          return true;
+      }
+    });
+  }, [todos, sortBy]);
 
-  const activeTodo = todos.filter((todo) => {
-    return !todo.completed;
-  });
+  const activeTodo = useMemo(() => {
+    return todos.filter(todo => !todo.completed);
+  }, [todos]);
 
-  const completedTodo = todos.filter((todo) => {
-    return todo.completed;
-  });
+  const completedTodo = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -72,7 +75,9 @@ export const App: React.FC = () => {
     setNewTodoTitle(value);
   };
 
-  const handleAddNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddNewTodo = useCallback(async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (!newTodoTitle.trim()) {
@@ -94,9 +99,9 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(false);
-  };
+  }, [newTodoTitle]);
 
-  const handleDeleteTodo = async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     setSelectedTodos([todoId]);
     try {
       await deleteTodo(todoId);
@@ -107,9 +112,9 @@ export const App: React.FC = () => {
     }
 
     setSelectedTodos([]);
-  };
+  }, [todos]);
 
-  const deleteCompletedTodo = async () => {
+  const deleteCompletedTodo = useCallback(async () => {
     setSelectedTodos(completedTodo.map((todo) => (todo.id)));
     try {
       await Promise.all(completedTodo.map((todo) => deleteTodo(todo.id)));
@@ -118,7 +123,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage('Unable to delete a todos');
     }
-  };
+  }, [completedTodo]);
 
   const handleUpdateTodo = async (todo: Todo) => {
     const { id, completed } = todo;
@@ -138,7 +143,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleCheckAllTodo = () => {
+  const handleCheckAllTodo = useCallback(async () => {
     todos.forEach(async (todo) => {
       setSelectedTodos(prevIds => [...prevIds, todo.id]);
       try {
@@ -147,13 +152,13 @@ export const App: React.FC = () => {
         const currentTodo = todo;
 
         currentTodo.completed = completedTodo.length !== todos.length;
+        setTodos([...todos]);
         setSelectedTodos([]);
       } catch {
         setErrorMessage('Unable to update todos');
       }
     });
-    setTodos([...todos]);
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
