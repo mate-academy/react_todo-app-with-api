@@ -70,11 +70,11 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
-  const handleDoubleClick = () => {
+  const handleDoubleClick = useCallback(() => {
     setDoubleClick(true);
-    setSelectedTodo(todo.id);
+    setSelectedTodo(id);
     setNewTitle(todo.title);
-  };
+  }, [doubleClick]);
 
   const handleBlur = () => {
     updateTodoTitle();
