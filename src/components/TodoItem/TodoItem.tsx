@@ -37,6 +37,11 @@ export const TodoItem: React.FC<Props> = ({
   const [todoTitle, setTodoTitle] = useState(title);
   const [isChosen, setIsChosen] = useState(false);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const isActive = (isAdding && userId === -1)
+    || (selectedTodoId)
+    || (isDeleting && completed)
+    || (!leftTodosLength && isUpdating && completed)
+    || (leftTodosLength && isUpdating && !completed);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -143,14 +148,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
-          {
-            'is-active':
-              (isAdding && userId === -1)
-              || (selectedTodoId)
-              || (isDeleting && completed)
-              || (!leftTodosLength && isUpdating && completed)
-              || (leftTodosLength && isUpdating && !completed),
-          },
+          { 'is-active': isActive },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -67,19 +67,34 @@ export const App: React.FC = () => {
     todos.filter(({ completed }) => !completed)
   ), [todos]);
 
-  const addTodo = async (todoTitle: string) => {
+  const addTodo = useCallback(async (todoTitle: string) => {
+    setTodos((prevTodos) => (
+      [...prevTodos, {
+        userId: -1,
+        id: 0,
+        title: newTodoTitle,
+        completed: false,
+      }]
+    ));
     setIsAdding(true);
 
     try {
-      setTodos([...todos, await createTodo(user?.id || 0, todoTitle)]);
+      const newTodo = await createTodo(user?.id || 0, todoTitle);
+
+      setTodos((prevTodos) => (
+        [...prevTodos, newTodo]
+      ));
     } catch {
       setError(Errors.ADD);
     } finally {
+      setTodos((prevTodos) => (
+        prevTodos.filter(todo => todo.id !== 0)
+      ));
       setIsAdding(false);
     }
-  };
+  }, [user, newTodoTitle]);
 
-  const removeTodo = async (todoId: number) => {
+  const removeTodo = useCallback(async (todoId: number) => {
     try {
       await deleteTodo(todoId);
 
@@ -90,18 +105,18 @@ export const App: React.FC = () => {
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [todos]);
 
-  const removeCompletedTodos = async () => {
+  const removeCompletedTodos = useCallback(async () => {
     setIsDeleting(true);
     try {
       completedTodos.forEach(({ id }) => removeTodo(id));
     } catch {
       setError(Errors.DELETE);
     }
-  };
+  }, [todos]);
 
-  const patchTodo = async (todo: Todo, newTitle?: string) => {
+  const patchTodo = useCallback(async (todo: Todo, newTitle?: string) => {
     const { id: todoId, title, completed } = todo;
     const currentTodo = todo;
 
@@ -114,15 +129,15 @@ export const App: React.FC = () => {
         currentTodo.completed = !currentTodo.completed;
       }
 
-      setTodos([...todos]);
+      setTodos((prevTodo) => [...prevTodo]);
     } catch {
       setError(Errors.UPDATE);
     } finally {
       setIsUpdating(false);
     }
-  };
+  }, [todos]);
 
-  const toggleAllTodos = async () => {
+  const toggleAllTodos = useCallback(async () => {
     setIsUpdating(true);
 
     try {
@@ -134,7 +149,7 @@ export const App: React.FC = () => {
     } catch {
       setError(Errors.UPDATE);
     }
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -162,7 +177,6 @@ export const App: React.FC = () => {
               isDeleting={isDeleting}
               isUpdating={isUpdating}
               leftTodosLength={leftTodos.length}
-              newTodoTitle={newTodoTitle}
             />
             <FilterTodo
               filterTodos={filterTodos}

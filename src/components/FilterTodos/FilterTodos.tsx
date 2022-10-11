@@ -25,7 +25,7 @@ export const FilterTodo: React.FC<Props> = ({
   }, [groupBy, todos]);
 
   const handleChange = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    setGroupBy(event.currentTarget.textContent || 'All');
+    setGroupBy(event.currentTarget.textContent || GroupBy.All);
   };
 
   return (
@@ -74,11 +74,11 @@ export const FilterTodo: React.FC<Props> = ({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames(
+          'todoapp__clear-completed',
+          { 'is-invisible': !completedTodosLength },
+        )}
         onClick={removeCompletedTodos}
-        style={{
-          visibility: completedTodosLength ? 'visible' : 'hidden',
-        }}
       >
         Clear completed
       </button>

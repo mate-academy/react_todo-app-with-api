@@ -7,7 +7,6 @@ type Props = {
   isDeleting: boolean;
   isUpdating: boolean;
   leftTodosLength: number;
-  newTodoTitle: string;
   removeTodo: (id: number) => Promise<void>;
   patchTodo: (todo: Todo, newTitle?: string) => Promise<void>;
 };
@@ -18,17 +17,9 @@ export const TodoList: React.FC<Props> = ({
   isDeleting,
   isUpdating,
   leftTodosLength,
-  newTodoTitle,
   removeTodo,
   patchTodo,
 }) => {
-  const temporaryTodo = {
-    userId: -1,
-    id: 0,
-    title: newTodoTitle,
-    completed: false,
-  };
-
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
@@ -43,19 +34,6 @@ export const TodoList: React.FC<Props> = ({
           patchTodo={patchTodo}
         />
       ))}
-
-      {isAdding && (
-        <TodoItem
-          todo={temporaryTodo}
-          key={0}
-          isAdding={isAdding}
-          isDeleting={isDeleting}
-          isUpdating={isUpdating}
-          leftTodosLength={leftTodosLength}
-          removeTodo={removeTodo}
-          patchTodo={patchTodo}
-        />
-      )}
     </section>
   );
 };
