@@ -102,7 +102,9 @@ export const App: React.FC = () => {
         setVisibleLoader(false);
       });
 
-    setActiveItems(prevItems => prevItems - 1);
+    if (!todo.completed) {
+      setActiveItems(prevItems => prevItems - 1);
+    }
   };
 
   const deleteCompletedTodos = () => {

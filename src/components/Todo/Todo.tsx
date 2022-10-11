@@ -30,9 +30,9 @@ export const UserTodo: React.FC<Props> = ({
   const handleUpdateTodo = () => {
     if (title === '') {
       todoDelete(todo);
+    } else {
+      updateTodoTitle(todo, title);
     }
-
-    updateTodoTitle(todo, title);
 
     setIsClicked(false);
   };
