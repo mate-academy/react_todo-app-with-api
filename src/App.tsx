@@ -72,16 +72,18 @@ export const App: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
     const newTodo = {
       id: Math.max(0, ...todos.map(({ id }) => id)) + 1,
       userId,
-      title,
       completed: false,
+      title,
     };
 
-    setTodos(prevState => [newTodo, ...prevState]);
+    setTodos(prevState => [...prevState, newTodo]);
+
     setSelectedId(newTodo.id);
+
+    setIsLoading(true);
 
     try {
       await createTodo(newTodo);
