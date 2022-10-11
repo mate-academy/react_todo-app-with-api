@@ -33,8 +33,8 @@ export const TodoItem: React.FC<Props> = ({
 
   const { title, id, completed } = todo;
 
-  const isLoading = useMemo(() => isAdding
-  && selectedId.includes(id), [isAdding, selectedId, id]);
+  const isLoading = useMemo(() => selectedId.includes(id)
+  || (isAdding && id === 0), [isAdding, selectedId, id]);
 
   const UpdateTodoTitle = () => {
     if (newTitle === todo.title) {

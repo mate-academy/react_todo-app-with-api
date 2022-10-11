@@ -30,6 +30,7 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [selectedId, setSelectedId] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
+  const [toggle, setToggle] = useState(true);
   const user = useContext(AuthContext);
 
   useEffect(() => {
@@ -130,20 +131,27 @@ export const App: React.FC = () => {
     }, [todos],
   );
 
-  const handleAllCompleted = () => {
-    const isAllCompleted = todos.every(({ completed }) => completed);
+  const handleAllCompleted = async () => {
+    setSelectedId(prev => {
+      return prev
+        ? [...todos].filter(todo => !todo.completed).map(todo => todo.id)
+        : completedTodos.map(todo => todo.id);
+    });
 
-    Promise.all(todos.map(({ id }) => handleChange(id, {
-      completed: !isAllCompleted,
-    })))
-      .then(() => setTodos(todos.map(todo => ({
-        ...todo,
-        completed: !isAllCompleted,
-      }))))
-      .catch(() => {
-        setErrorMessage(ErrorMessage.NotUpdate);
-        setSelectedId([]);
-      });
+    try {
+      const newTodos = await Promise.all(todos.map(todo => (
+        todo.completed !== toggle
+          ? updateTodo(todo.id, { completed: toggle })
+          : todo
+      )));
+
+      setTodos(newTodos);
+    } catch {
+      setErrorMessage(ErrorMessage.NotUpdate);
+    }
+
+    setToggle(!toggle);
+    setSelectedId([]);
   };
 
   return (
@@ -157,6 +165,8 @@ export const App: React.FC = () => {
           title={title}
           handleAddTodo={newTodo}
           handleAllCompleted={handleAllCompleted}
+          todos={todos}
+          isAdding={isAdding}
         />
         {(todos.length > 0 || isAdding) && (
           <>

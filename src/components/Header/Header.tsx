@@ -1,4 +1,6 @@
+import classNames from 'classnames';
 import React, { FormEvent, useEffect } from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -6,6 +8,8 @@ type Props = {
   title: string;
   handleAddTodo: (event: FormEvent) => void;
   handleAllCompleted: () => void;
+  todos: Todo[];
+  isAdding: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -14,6 +18,8 @@ export const Header: React.FC<Props> = ({
   title,
   handleAddTodo,
   handleAllCompleted,
+  todos,
+  isAdding,
 }) => {
   const getValue = ({
     target: { value },
@@ -32,7 +38,12 @@ export const Header: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={
+          classNames(
+            'todoapp__toggle-all',
+            { active: todos.every(todo => todo.completed) },
+          )
+        }
         aria-label="close"
         onClick={handleAllCompleted}
       />
@@ -48,6 +59,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={title}
           onChange={getValue}
+          disabled={isAdding}
         />
       </form>
     </header>
