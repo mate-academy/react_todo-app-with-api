@@ -21,12 +21,6 @@ export const Header: React.FC<Props> = ({
   handleToggal,
   todos,
 }) => {
-  // const activeToogle = todos.filter(todo => !todo.completed);
-  // const habdleToggle = () => {
-  //   if (activeToogle.length > 0) {
-
-  //   }
-  // }
   return (
 
     <header className="todoapp__header">

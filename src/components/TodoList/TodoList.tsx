@@ -10,7 +10,6 @@ type Props = {
   isAdding: boolean
   handleUpdate: (todoId: number, data: Partial<Todo>) => Promise<void>
   onSelectTodo(todoId: number): void
-  // onSelectTodos(todoId: number[]): void
 };
 
 export const TodoList:React.FC<Props> = ({
@@ -37,12 +36,6 @@ export const TodoList:React.FC<Props> = ({
     setDoubleClick(false);
     setNewTitle('');
   };
-
-  // const handleKey = (event: { key: string; }) => {
-  //   if (event.key === 'Escape') {
-  //     setDoubleClick(false);
-  //   }
-  // };
 
   return (
 
@@ -115,7 +108,6 @@ export const TodoList:React.FC<Props> = ({
                   data-cy="TodoDeleteButton"
                   onClick={() => {
                     handleRemove(todo.id);
-                    // onSelectTodos([todo.id]);
                   }}
                 >
                   ×

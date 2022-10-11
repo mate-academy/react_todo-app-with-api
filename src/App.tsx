@@ -17,7 +17,6 @@ import {
 } from './api/todos';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -26,7 +25,6 @@ export const App: React.FC = () => {
   const [subtitleError, setSubtitleError] = useState('');
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  // const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
   const [selectedTodo, setSelectedTodo] = useState(0);
 
   if (!hasError) {
@@ -36,7 +34,6 @@ export const App: React.FC = () => {
   }
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -99,8 +96,6 @@ export const App: React.FC = () => {
   );
 
   const handleUpdate = async (todoId: number, data: Partial<Todo>) => {
-    // setSelectedTodos([todoId]);
-
     await updateTodo(todoId, data).then((response) => {
       setTodos(todos.map(todo => (
         todo.id === todoId
@@ -110,7 +105,6 @@ export const App: React.FC = () => {
     }).catch(() => {
       setSubtitleError('Unable to update a todo');
     });
-    // setSelectedTodos([]);
   };
 
   const completedTodos = todos?.filter(todo => todo.completed);
@@ -161,9 +155,7 @@ export const App: React.FC = () => {
               handleRemove={handleRemove}
               isAdding={isAdding}
               handleUpdate={handleUpdate}
-              // onSelectTodos={setSelectedTodos}
               onSelectTodo={setSelectedTodo}
-              // selectedTodos={selectedTodos}
               selectedTodo={selectedTodo}
             />
             <Footer
