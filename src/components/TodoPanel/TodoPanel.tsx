@@ -11,6 +11,7 @@ type Props = {
   title: string
   setTitle: (value: string) => void
   isLoading: boolean;
+  toggleLoader: boolean
 };
 
 export const Header: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<Props> = ({
   title,
   setTitle,
   isLoading,
+  toggleLoader,
 }) => {
   return (
     <header className="todoapp__header">
@@ -33,6 +35,7 @@ export const Header: React.FC<Props> = ({
             { active: todos.every(todo => todo.completed) },
           )}
           onClick={toggleAll}
+          disabled={toggleLoader}
         />
       )}
 

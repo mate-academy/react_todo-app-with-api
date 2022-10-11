@@ -73,12 +73,18 @@ export const App: React.FC = () => {
     }
 
     setIsLoading(true);
+    const newTodo = {
+      id: Math.max(0, ...todos.map(({ id }) => id)) + 1,
+      userId,
+      title,
+      completed: false,
+    };
+
+    setTodos(prevState => [newTodo, ...prevState]);
+    setSelectedId(newTodo.id);
 
     try {
-      const todoToAdd = await createTodo(userId, title);
-
-      setSelectedId(todoToAdd.id);
-      setTodos(prevState => [...prevState, todoToAdd]);
+      await createTodo(newTodo);
     } catch {
       setError(Error.Add);
     } finally {
@@ -162,6 +168,7 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           isLoading={isLoading}
+          toggleLoader={toggleLoader}
         />
 
         {todos.length > 0 && (
