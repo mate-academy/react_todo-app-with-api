@@ -87,6 +87,7 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(true);
+
     try {
       const newTodo = await createTodo(tempTodo.title, userId);
 
@@ -115,6 +116,7 @@ export const App: React.FC = () => {
   const handleUpdated = useCallback(
     async (todoId: number, data: Partial<Todo>) => {
       setProcessings(current => [...current, todoId]);
+
       try {
         const updatedTodo = await updateTodo(todoId, data);
 
@@ -177,9 +179,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {!!error && (
-        <ErrorNotification error={error} unSetError={setError} />
-      )}
+      <ErrorNotification error={error} unSetError={setError} />
     </div>
   );
 };
