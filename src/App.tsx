@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef, useState,
   FormEvent,
+  useMemo,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
@@ -20,7 +21,6 @@ import { Todo } from './types/Todo';
 import { Error } from './types/Error';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -76,8 +76,8 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (todoId: number) => {
-    setIsAdding(true);
     setSelectedId(todoId);
+    setIsAdding(true);
 
     await deleteTodo(todoId)
       .then(() => {
@@ -88,14 +88,13 @@ export const App: React.FC = () => {
         setError(Error.Delete);
       })
       .finally(() => {
-        setIsAdding(false);
         setToggleLoader(false);
+        setIsAdding(false);
       });
   };
 
   const handleUpdateTodo = async (todoId: number, data: Partial<Todo>) => {
     setSelectedId(todoId);
-    setIsAdding(true);
 
     await updateTodo(todoId, data)
       .then(updatedTodo => {
@@ -106,12 +105,12 @@ export const App: React.FC = () => {
         setError(Error.Updating);
       })
       .finally(() => {
-        setIsAdding(false);
         setToggleLoader(false);
+        setIsAdding(false);
       });
   };
 
-  const visibleTodos = todos.filter((todo) => {
+  const visibleTodos = useMemo(() => todos.filter((todo) => {
     switch (filter) {
       case Filter.Active:
         return !todo.completed;
@@ -122,7 +121,7 @@ export const App: React.FC = () => {
       default:
         return todo;
     }
-  });
+  }), [todos, filter]);
 
   const handleToggler = () => {
     setToggleAll(!toggleAll);
@@ -175,7 +174,7 @@ export const App: React.FC = () => {
             changeFilter={setFilter}
             todos={todos}
             removeTodo={removeTodo}
-            setIsAdding={setIsAdding}
+            setToggleLoader={setToggleLoader}
           />
         )}
       </div>

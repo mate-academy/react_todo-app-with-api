@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
@@ -8,7 +8,7 @@ type Props = {
   changeFilter: (filterType: Filter) => void;
   todos: Todo[];
   removeTodo: (id: number) => void;
-  setIsAdding: (value: boolean) => void;
+  setToggleLoader: (value: boolean) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -16,19 +16,23 @@ export const Footer: React.FC<Props> = ({
   changeFilter,
   todos,
   removeTodo,
-  setIsAdding,
+  setToggleLoader,
 }) => {
   const removeCompletedTodos = useCallback(() => {
     todos.forEach((todo) => {
-      setIsAdding(true);
+      setToggleLoader(true);
       if (todo.completed) {
         removeTodo(todo.id);
       }
     });
   }, [todos]);
 
-  const countTodos = todos.filter((todo) => !todo.completed).length;
-  const isCompleted = todos.filter((todo) => todo.completed).length;
+  const countTodos = useMemo(
+    () => todos.filter((todo) => !todo.completed).length, [todos],
+  );
+  const isCompleted = useMemo(
+    () => todos.filter((todo) => todo.completed).length, [todos],
+  );
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

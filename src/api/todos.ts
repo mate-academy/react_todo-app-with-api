@@ -17,7 +17,8 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-// eslint-disable-next-line max-len
-export const updateTodo = (todoId: number, data: Partial<Todo>): Promise<Todo> => {
+export const updateTodo = (
+  todoId: number, data: Partial<Todo>,
+): Promise<Todo> => {
   return client.patch(`/todos/${todoId}`, data);
 };
