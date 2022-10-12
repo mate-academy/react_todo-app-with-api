@@ -85,6 +85,12 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleUpdate = () => {
+    onUpdate(todo.id, { completed: !todo.completed });
+  };
+
+  const isSelectedTodos = selectedTodos?.includes(todo.id);
+
   return (
     <div
       data-cy="Todo"
@@ -98,9 +104,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onClick={() => {
-            onUpdate(todo.id, { completed: !todo.completed });
-          }}
+          onClick={handleUpdate}
           defaultChecked
         />
       </label>
@@ -150,7 +154,7 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames(
           'modal overlay',
           {
-            'is-active': selectedTodos.includes(todo.id),
+            'is-active': isSelectedTodos,
           },
         )}
       >
