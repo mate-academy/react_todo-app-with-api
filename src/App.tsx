@@ -42,7 +42,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(userId)
-      .then(setTodos)
+      .then(allTodos => setTodos(allTodos.reverse()))
       .catch(() => setError(Error.Connect));
 
     if (newTodoField.current) {
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
       title,
     };
 
-    setTodos(prevState => [...prevState, newTodo]);
+    setTodos(prevState => [newTodo, ...prevState]);
 
     setSelectedId(newTodo.id);
 
