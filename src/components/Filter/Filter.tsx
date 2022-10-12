@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { useCallback } from 'react';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/Filter';
 
@@ -7,31 +6,17 @@ type Props = {
   todos: Todo[];
   filterType: string;
   setFilterType: (value: FilterType) => void;
-  removeTodo: (todoId: number) => void;
-  setCompletedIds: (value: number[] | null) => void;
+  clearCompleted: () => Promise<void>;
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   filterType,
   setFilterType,
-  removeTodo,
-  setCompletedIds,
+  clearCompleted,
 }) => {
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed).length;
-
-  const clearCompleted = useCallback(() => {
-    setCompletedIds(
-      todos.filter(todo => todo.completed).map(todo => todo.id),
-    );
-
-    todos.forEach(todo => {
-      if (todo.completed) {
-        removeTodo(todo.id);
-      }
-    });
-  }, [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

@@ -1,3 +1,6 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
 import React, {
   useContext,
@@ -128,35 +131,54 @@ export const App: React.FC = () => {
       setError(Error.Update);
     } finally {
       setIsLoading(false);
-      setToggleLoader(false);
     }
   };
 
   const activeTodos = todos.filter(todo => !todo.completed);
 
-  const handleToggleAll = () => {
+  const handleToggleAll = async () => {
+    setIsLoading(true);
     setToggleLoader(true);
 
     try {
       if (activeTodos.length) {
         setTodos(todos.map(todo => {
-          handleUpdateTodo(todo.id, { completed: true });
           todo.completed = true;
 
           return todo;
         }));
+        await Promise.all(todos.map(
+          todo => patchTodo(todo.id, { completed: true }),
+        ));
       } else {
         setTodos(todos.map(todo => {
-          handleUpdateTodo(todo.id, { completed: false });
           todo.completed = false;
 
           return todo;
         }));
+        await Promise.all(todos.map(
+          todo => patchTodo(todo.id, { completed: false }),
+        ));
       }
     } catch {
       setError(Error.Update);
+    } finally {
+      setIsLoading(false);
+      setToggleLoader(false);
     }
   };
+
+  const clearCompleted = useCallback(async () => {
+    setCompletedIds(
+      todos.filter(todo => todo.completed).map(todo => todo.id),
+    );
+
+    await Promise.all(todos.map(todo => {
+      if (todo.completed) {
+        handleRemoveTodo(todo.id);
+      }
+    }));
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -190,8 +212,7 @@ export const App: React.FC = () => {
           todos={todos}
           filterType={filterType}
           setFilterType={setFilterType}
-          removeTodo={handleRemoveTodo}
-          setCompletedIds={setCompletedIds}
+          clearCompleted={clearCompleted}
         />
       </div>
 
