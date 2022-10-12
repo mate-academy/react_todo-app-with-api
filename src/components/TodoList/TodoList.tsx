@@ -13,6 +13,7 @@ type Props = {
   isLoading: boolean;
   selectedId: number | null;
   toggleLoader: boolean;
+  completedIds: number[] | null;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoList: React.FC<Props> = ({
   isLoading,
   selectedId,
   toggleLoader,
+  completedIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -40,6 +42,7 @@ export const TodoList: React.FC<Props> = ({
               isLoading={isLoading}
               selectedId={selectedId}
               toggleLoader={toggleLoader}
+              completedIds={completedIds}
             />
           </CSSTransition>
         ))}

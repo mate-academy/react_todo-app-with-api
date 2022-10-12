@@ -15,6 +15,7 @@ type Props = {
   isLoading: boolean;
   selectedId: number | null;
   toggleLoader: boolean;
+  completedIds: number[] | null;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   isLoading,
   selectedId,
   toggleLoader,
+  completedIds,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
@@ -107,7 +109,7 @@ export const TodoItem: React.FC<Props> = ({
               ×
             </button>
 
-            {(selected || toggleLoader) && (
+            {(selected || toggleLoader || completedIds?.includes(todo.id)) && (
               <div
                 data-cy="TodoLoader"
                 className={classNames(

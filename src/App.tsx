@@ -32,6 +32,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [toggleLoader, setToggleLoader] = useState(false);
+  const [completedIds, setCompletedIds] = useState<number[] | null>(null);
 
   let userId = 0;
 
@@ -107,7 +108,7 @@ export const App: React.FC = () => {
       setError(Error.Delete);
     } finally {
       setIsLoading(false);
-      setToggleLoader(false);
+      setCompletedIds(null);
     }
   };
 
@@ -181,6 +182,7 @@ export const App: React.FC = () => {
             isLoading={isLoading}
             selectedId={selectedId}
             toggleLoader={toggleLoader}
+            completedIds={completedIds}
           />
         )}
 
@@ -189,7 +191,7 @@ export const App: React.FC = () => {
           filterType={filterType}
           setFilterType={setFilterType}
           removeTodo={handleRemoveTodo}
-          setToggleLoader={setToggleLoader}
+          setCompletedIds={setCompletedIds}
         />
       </div>
 
