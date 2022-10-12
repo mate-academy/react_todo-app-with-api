@@ -149,7 +149,13 @@ export const App: React.FC = () => {
       return;
     }
 
-    removeTodos.forEach(todo => deleteTodo(todo.id));
+    await Promise.all(removeTodos.map(todo => {
+      seTooggleIds(removeTodos.map(toDo => toDo.id));
+
+      return deleteTodo(todo.id);
+    }));
+
+    seTooggleIds([]);
   };
 
   const changeStatusTodo = async (id: number) => {
