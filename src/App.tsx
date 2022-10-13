@@ -109,14 +109,12 @@ export const App: React.FC = () => {
         setTodos(todos.map(todo => {
           const newItem = todo;
 
-          if (todo.id === todoId && Object.keys(data).includes('completed')) {
+          if (todo.id === todoId && 'completed' in data) {
             newItem.completed = !todo.completed;
           }
 
-          if (todo.id === todoId && Object.keys(data).includes('title')) {
-            const newTitle = Object.values(data)[0];
-
-            newItem.title = newTitle;
+          if (todo.id === todoId && data.title) {
+            newItem.title = data.title;
           }
 
           return newItem;
