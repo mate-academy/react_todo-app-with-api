@@ -40,6 +40,13 @@ export const Header: React.FC<Props> = ({
     setInputValue('');
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addValue((e.target as HTMLInputElement).value);
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
@@ -60,11 +67,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           disabled={isAdding}
           value={inputValue}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              addValue((e.target as HTMLInputElement).value);
-            }
-          }}
+          onKeyDown={handleKeyDown}
           onChange={(e) => {
             setInputValue(e.target.value);
           }}
