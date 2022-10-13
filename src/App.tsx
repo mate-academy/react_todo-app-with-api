@@ -111,7 +111,6 @@ export const App: React.FC = () => {
       setError(Error.Delete);
     } finally {
       setIsLoading(false);
-      setCompletedIds(null);
     }
   };
 
@@ -135,6 +134,7 @@ export const App: React.FC = () => {
   };
 
   const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   const handleToggleAll = async () => {
     setIsLoading(true);
@@ -142,23 +142,23 @@ export const App: React.FC = () => {
 
     try {
       if (activeTodos.length) {
+        await Promise.all(todos.map(
+          todo => patchTodo(todo.id, { completed: true }),
+        ));
         setTodos(todos.map(todo => {
           todo.completed = true;
 
           return todo;
         }));
-        await Promise.all(todos.map(
-          todo => patchTodo(todo.id, { completed: true }),
-        ));
       } else {
+        await Promise.all(todos.map(
+          todo => patchTodo(todo.id, { completed: false }),
+        ));
         setTodos(todos.map(todo => {
           todo.completed = false;
 
           return todo;
         }));
-        await Promise.all(todos.map(
-          todo => patchTodo(todo.id, { completed: false }),
-        ));
       }
     } catch {
       setError(Error.Update);
@@ -169,15 +169,18 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = useCallback(async () => {
+    setIsLoading(true);
     setCompletedIds(
       todos.filter(todo => todo.completed).map(todo => todo.id),
     );
 
-    await Promise.all(todos.map(todo => {
-      if (todo.completed) {
-        handleRemoveTodo(todo.id);
-      }
-    }));
+    try {
+      await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      setTodos(todos.filter(todo => !todo.completed));
+    } finally {
+      setIsLoading(false);
+      setCompletedIds(null);
+    }
   }, [todos]);
 
   return (
