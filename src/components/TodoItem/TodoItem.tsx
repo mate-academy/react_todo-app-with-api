@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import {
   useEffect,
   useRef,
@@ -74,7 +75,10 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={`todo ${todo.completed && 'completed'}`}
+      className={classNames(
+        'todo',
+        { completed: todo.completed },
+      )}
       key={todo.id}
     >
       <label className="todo__status-label">
@@ -134,12 +138,15 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${
-          (todo.id === 0
-          || selectedTodoid
-          || (isDeleting && selectedTodoid)
-          || tooggleIds.includes(todo.id))
-          && 'is-active'}`}
+        className={classNames(
+          'modal overlay',
+          {
+            'is-active': todo.id === 0
+              || selectedTodoid
+              || (isDeleting && selectedTodoid)
+              || tooggleIds.includes(todo.id),
+          },
+        )}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

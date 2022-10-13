@@ -270,7 +270,7 @@ export const App: React.FC = () => {
           updateTitle={updateTitle}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             filterTodos={filterTodos}

@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-/* eslint-disable jsx-a11y/control-has-associated-label */
+import classNames from 'classnames';
 import { useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
@@ -49,13 +48,18 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           data-cy="ToggleAllButton"
           type="button"
-          className={`todoapp__toggle-all ${countActive === 0 && 'active'}`}
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: countActive === 0 },
+          )}
           onClick={toggleAllTodos}
-        />
+        >
+          &nbsp;
+        </button>
       )}
 
       <form>
