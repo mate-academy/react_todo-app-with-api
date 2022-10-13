@@ -126,12 +126,16 @@ export const App: React.FC = () => {
   const handleChange = async (todoId: number, data: Partial<Todo>) => {
     setSelectedId([todoId]);
 
+    function updateStatus(value: Todo) {
+      return value;
+    }
+
     try {
-      const updateStatus: any = await updateTodo(todoId, data);
+      const value = await updateTodo(todoId, data);
 
       setTodos(todos.map(todo => (
         todo.id === todoId
-          ? updateStatus
+          ? updateStatus(value as Todo)
           : todo
       )));
     } catch {
