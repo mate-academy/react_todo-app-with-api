@@ -7,15 +7,15 @@ type Props = {
   todos: Todo[]
   selectedTodo: number,
   handleRemove : (todoId: number) => void
-  isAdding: boolean
   handleUpdate: (todoId: number, data: Partial<Todo>) => Promise<void>
   onSelectTodo(todoId: number): void
+  isLoading: boolean
 };
 
 export const TodoList:React.FC<Props> = ({
   todos,
   handleRemove,
-  isAdding, handleUpdate, selectedTodo, onSelectTodo,
+  handleUpdate, selectedTodo, onSelectTodo, isLoading,
 }) => {
   const newTodo = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
@@ -37,8 +37,23 @@ export const TodoList:React.FC<Props> = ({
     setNewTitle('');
   };
 
-  return (
+  const clickEnter = (event: { key: string; }) => {
+    if (event.key === 'Enter') {
+      updateTitle();
+    }
 
+    if (event.key === 'Escape') {
+      setDoubleClick(false);
+    }
+  };
+
+  const onDoubleClick = (title: string, id: number) => {
+    setDoubleClick(true);
+    setNewTitle(title);
+    onSelectTodo(id);
+  };
+
+  return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
         <div
@@ -60,8 +75,8 @@ export const TodoList:React.FC<Props> = ({
 
           {doubleClick && selectedTodo === todo.id
             ? (
-              <form onSubmit={(e) => {
-                e.preventDefault();
+              <form onSubmit={(event) => {
+                event.preventDefault();
               }}
               >
                 <input
@@ -78,15 +93,7 @@ export const TodoList:React.FC<Props> = ({
                     updateTitle();
                     setDoubleClick(false);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      updateTitle();
-                    }
-
-                    if (e.key === 'Escape') {
-                      setDoubleClick(false);
-                    }
-                  }}
+                  onKeyDown={clickEnter}
                 />
               </form>
             ) : (
@@ -94,11 +101,7 @@ export const TodoList:React.FC<Props> = ({
                 <span
                   data-cy="TodoTitle"
                   className="todo__title"
-                  onDoubleClick={() => {
-                    setDoubleClick(true);
-                    setNewTitle(todo.title);
-                    onSelectTodo(todo.id);
-                  }}
+                  onDoubleClick={() => onDoubleClick(todo.title, todo.id)}
                 >
                   {todo.title}
                 </span>
@@ -116,7 +119,7 @@ export const TodoList:React.FC<Props> = ({
 
             )}
 
-          {isAdding && (
+          {isLoading && (
             <Loader />
           )}
         </div>

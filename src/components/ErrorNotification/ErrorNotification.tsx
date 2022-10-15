@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useEffect } from 'react';
 
 type Props = {
   error: boolean,
@@ -10,20 +11,29 @@ export const Notification: React.FC<Props> = ({
   SetError,
   subtitleError,
 }) => {
+  useEffect(() => {
+    const timeout = window.setTimeout(() => SetError(false),
+      1500);
+
+    return () => {
+      window.clearInterval(timeout);
+    };
+  }, []);
+
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
         'notification', 'is-danger', 'is-light', 'has-text-weight-normal',
-        { hidden: error },
+        { hidden: !error },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        aria-label="error"
-        onClick={() => SetError(true)}
+        aria-label="close error"
+        onClick={() => SetError(false)}
       />
       {subtitleError}
     </div>

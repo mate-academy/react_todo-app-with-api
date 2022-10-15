@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
-  useContext, useEffect, useRef, useState,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer/Footer';
@@ -26,12 +29,18 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(0);
+  const [isLoading, setisLoading] = useState(false);
 
-  if (!hasError) {
-    setTimeout(() => {
-      setHasError(true);
-    }, 3000);
+  enum Filter {
+    Active = 'active',
+    Completed = 'completed',
   }
+
+  // if (!hasError) {
+  //   setTimeout(() => {
+  //     setHasError(true);
+  //   }, 3000);
+  // }
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -44,15 +53,17 @@ export const App: React.FC = () => {
           setTodos(response);
           setIsAdding(true);
         })
-        .catch(() => setHasError(true));
+        .catch(() => setTimeout(() => {
+          setHasError(true);
+        }, 3000));
     }
   }, []);
 
   const visibleTodos = todos.filter(todo => {
     switch (filter) {
-      case 'completed':
+      case Filter.Completed:
         return todo.completed;
-      case 'active':
+      case Filter.Active:
         return !todo.completed;
       default:
         return todo;
@@ -62,11 +73,14 @@ export const App: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (title.trim().length === 0) {
+    if (!title.trim()) {
       setHasError(true);
       setSubtitleError('Title can\'t be empty');
-      setIsAdding(true);
+
+      return;
     }
+
+    setisLoading(true);
 
     if (user) {
       createTodo(user.id, title).then(newTodo => {
@@ -96,6 +110,7 @@ export const App: React.FC = () => {
   );
 
   const handleUpdate = async (todoId: number, data: Partial<Todo>) => {
+    setisLoading(true);
     await updateTodo(todoId, data).then((response) => {
       setTodos(todos.map(todo => (
         todo.id === todoId
@@ -148,12 +163,12 @@ export const App: React.FC = () => {
         completedTodos={completedTodos}
       />
       <div className="todoapp__content">
-        {(todos.length > 0) && (
+        {(isAdding || todos.length > 0) && (
           <>
             <TodoList
               todos={visibleTodos}
               handleRemove={handleRemove}
-              isAdding={isAdding}
+              isLoading={isLoading}
               handleUpdate={handleUpdate}
               onSelectTodo={setSelectedTodo}
               selectedTodo={selectedTodo}
