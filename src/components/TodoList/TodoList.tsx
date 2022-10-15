@@ -11,7 +11,7 @@ type Props = {
   todos: Todo[];
   removeTodo:(todoId: number) => void;
   changeProperty:(todoId: number, property: Partial<Todo>) => void;
-  selectedTodoId: number;
+  selectedTodoId: number | null;
   isToggling: boolean;
   title: string;
   isAdding: boolean;

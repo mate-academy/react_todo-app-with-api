@@ -3,6 +3,8 @@ import React, {
   useEffect,
   useRef,
   ChangeEvent,
+  useMemo,
+  useCallback,
 } from 'react';
 import classNames from 'classnames';
 import { Loader } from '../Loader/Loader';
@@ -12,7 +14,7 @@ type Props = {
   todo: Todo,
   removeTodo:(todoId: number) => void;
   changeProperty:(todoId: number, property: Partial<Todo>) => void;
-  selectedTodoId: number;
+  selectedTodoId: number | null;
   isToggling: boolean;
   isAdding: boolean;
 };
@@ -31,17 +33,17 @@ export const TodoItem: React.FC<Props> = ({
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
   }, [doubleClick]);
 
-  const deleteTodo = () => removeTodo(todo.id);
+  const deleteTodo = useCallback(() => removeTodo(todo.id), [todo.id]);
 
-  const changeStatus = () => changeProperty(id, { completed: !completed });
+  const changeStatus = useCallback(() => changeProperty(id,
+    { completed: !completed }), [id]);
 
-  const changeTitle = () => {
+  const changeTitle = useCallback(() => {
     if (todoTitleField.trim().length === 0) {
       removeTodo(todo.id);
       setDoubleClick(false);
@@ -56,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
     changeProperty(todo.id, { title: todoTitleField });
     setDoubleClick(false);
     setTodoTitleField('');
-  };
+  }, [todo.id, doubleClick, todoTitleField]);
 
   const handleTitleUpdate = (event: ChangeEvent<HTMLInputElement>) => {
     setTodoTitleField(event.target.value);
@@ -76,6 +78,10 @@ export const TodoItem: React.FC<Props> = ({
       changeTitle();
     }
   };
+
+  const loaderStatus = useMemo(() => (selectedTodoId === todo.id)
+  || (isAdding && todo.id === 0)
+  || isToggling, [todo.id, selectedTodoId, isAdding, isToggling]);
 
   return (
     <div
@@ -128,14 +134,11 @@ export const TodoItem: React.FC<Props> = ({
             >
               ×
             </button>
-            {((selectedTodoId === todo.id)
-            || (isAdding && todo.id === 0)
-            || isToggling) && (
+            { loaderStatus && (
               <Loader />
             )}
           </>
         )}
-
     </div>
   );
 };

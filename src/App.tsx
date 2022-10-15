@@ -1,16 +1,17 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   FormEvent,
-  // useContext,
   useEffect,
   useRef,
   useState,
   useContext,
   useCallback,
+  useMemo,
 } from 'react';
-// eslint-disable-next-line
-import { ErrorNotification, TextError } from './components/ErrorNotification/ErrorNotification';
-import { Footer } from './components/Footer/Footer';
+import { TextError } from './types/TextError';
+import {
+  ErrorNotification,
+} from './components/ErrorNotification/ErrorNotification';
+import { Filter } from './components/Filter/Filter';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import {
@@ -25,10 +26,10 @@ import { AuthContext } from './components/Auth/AuthContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [typeOfFilter, setTypeOfFilter] = useState('all');
+  const [typeOfFilter, setTypeOfFilter] = useState(FilterType.All);
   const [error, setError] = useState<TextError | null>(null);
   const [title, setTitle] = useState('');
-  const [selectedTodoId, setSelectedTodoId] = useState(0);
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState(false);
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -36,15 +37,20 @@ export const App: React.FC = () => {
 
   const userId = user?.id || 0;
 
+  const getTodoList = async () => {
+    try {
+      setTodos(await getTodos(userId));
+    } catch {
+      setError(TextError.Data);
+    }
+  };
+
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
 
-    getTodos(userId)
-      .then(setTodos)
-      .catch(() => setError(TextError.Data));
+    getTodoList();
   }, []);
 
   const filteredTodos = todos.filter(todo => {
@@ -112,7 +118,8 @@ export const App: React.FC = () => {
     setIsToggling(false);
   };
 
-  const completedTodoList = todos.filter(todo => todo.completed);
+  const completedTodoList = useMemo(() => todos
+    .filter(todo => todo.completed), [todos]);
 
   return (
     <div className="todoapp">
@@ -141,7 +148,7 @@ export const App: React.FC = () => {
 
           />
         )}
-        <Footer
+        <Filter
           typeOfFilter={typeOfFilter}
           setTypeOfFilter={setTypeOfFilter}
           todos={todos}

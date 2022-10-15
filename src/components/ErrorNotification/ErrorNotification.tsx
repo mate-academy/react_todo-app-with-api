@@ -1,13 +1,6 @@
-import React from 'react';
-
-export enum TextError {
-  Add = 'Unable to add a todo',
-  Delete = 'Unable to delete a todo',
-  Update = 'Unable to update a todo',
-  Title = 'Title can\'t be empty',
-  Data = 'Unable to load data',
-  noUser = 'No user found',
-}
+import React, { useEffect } from 'react';
+import classNames from 'classnames';
+import { TextError } from '../../types/TextError';
 
 type Props = {
   error: TextError;
@@ -19,16 +12,24 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
     setError(null);
   };
 
-  if (error) {
-    setTimeout(() => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
       setError(null);
-    }, 3000);
-  }
+    }, (3000));
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
 
   return (
     <div
       data-cy="ErrorNotification"
-      className="notification is-danger is-light has-text-weight-normal"
+      className={classNames(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden: error === null },
+      )}
+
     >
       <button
         data-cy="HideErrorButton"
@@ -37,7 +38,6 @@ export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
         aria-label="closeError"
         onClick={closeError}
       />
-
       {error}
     </div>
   );

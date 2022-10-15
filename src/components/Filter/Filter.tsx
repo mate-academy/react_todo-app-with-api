@@ -1,22 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
 import { deleteTodo } from '../../api/todos';
-import {
-  TextError,
-} from '../ErrorNotification/ErrorNotification';
+import { TextError } from '../../types/TextError';
 
 type Props = {
   typeOfFilter: string;
-  setTypeOfFilter: (filter: string) => void;
+  setTypeOfFilter: (filter: FilterType) => void;
   todos: Todo[];
   setTodos: (todos: Todo[]) => void;
   setError: (value: TextError) => void;
   completedTodoList: Todo[];
 };
 
-export const Footer: React.FC<Props> = ({
+export const Filter: React.FC<Props> = ({
   typeOfFilter,
   setTypeOfFilter,
   todos,
@@ -24,7 +22,8 @@ export const Footer: React.FC<Props> = ({
   setError,
   completedTodoList,
 }) => {
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodos = useMemo(() => todos
+    .filter(todo => !todo.completed), [todos]);
 
   const deleteFinishedTodos = async (finished: Todo[]) => {
     try {
@@ -68,6 +67,7 @@ export const Footer: React.FC<Props> = ({
         >
           Active
         </a>
+
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"
