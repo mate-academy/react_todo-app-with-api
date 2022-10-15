@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -16,16 +17,22 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, deleteTodo, isDeleting, changeStatusTodo, tooggleIds, updateTitle,
+  todo,
+  deleteTodo,
+  isDeleting,
+  changeStatusTodo,
+  tooggleIds,
+  updateTitle,
 }) => {
   const changeTitleInput = useRef<HTMLInputElement>(null);
   const [selectedTodoid, setSelectedTodoid] = useState(0);
   const [isInput, setIsInput] = useState(false);
   const [inputValue, setInputValue] = useState(todo.title);
 
-  const removeTodo = (id: number) => {
+  const removeTodo = async (id: number) => {
     setSelectedTodoid(id);
-    deleteTodo(id);
+    await deleteTodo(id);
+    setSelectedTodoid(0);
   };
 
   const changeCheckboxStatus = async (id: number) => {
@@ -60,6 +67,10 @@ export const TodoItem: React.FC<Props> = ({
 
     setSelectedTodoid(0);
   };
+
+  useCallback(() => {
+    saveNewTitle();
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {

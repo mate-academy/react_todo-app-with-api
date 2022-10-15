@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 import classNames from 'classnames';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 import { ErrorMessages } from '../../types/Error';
@@ -14,7 +15,12 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  todos, newTodoField, addTodo, handleError, countActive, toggleAllTodos,
+  todos,
+  newTodoField,
+  addTodo,
+  handleError,
+  countActive,
+  toggleAllTodos,
 }) => {
   const user = useContext(AuthContext);
   const [inputValue, setInputValue] = useState('');
@@ -39,10 +45,14 @@ export const Header: React.FC<Props> = ({
     setInputValue('');
   };
 
+  useCallback(() => {
+    addValue(inputValue);
+  }, [inputValue]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addValue((e.target as HTMLInputElement).value);
+      addValue(inputValue);
     }
   };
 

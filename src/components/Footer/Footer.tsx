@@ -11,7 +11,11 @@ type Props = {
 };
 
 export const Footer: React.FC<Props> = ({
-  filterTodos, countActive, filterValue, clearCompleted, todos,
+  filterTodos,
+  countActive,
+  filterValue,
+  clearCompleted,
+  todos,
 }) => {
   const { All, Active, Completed } = FilterValues;
 
@@ -66,9 +70,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={() => {
-          clearCompleted();
-        }}
+        onClick={clearCompleted}
         disabled={countActive === todos.length}
         style={countActive === todos.length
           ? { opacity: 0 }
