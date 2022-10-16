@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
   const deleteTodo = useCallback(() => removeTodo(todo.id), [todo.id]);
 
   const changeStatus = useCallback(() => changeProperty(id,
-    { completed: !completed }), [id]);
+    { completed: !completed }), [id, completed]);
 
   const changeTitle = useCallback(() => {
     if (todoTitleField.trim().length === 0) {
@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
     changeProperty(todo.id, { title: todoTitleField });
     setDoubleClick(false);
     setTodoTitleField('');
-  }, [todo.id, doubleClick, todoTitleField]);
+  }, [todo.id, doubleClick, todoTitleField, todo.title]);
 
   const handleTitleUpdate = (event: ChangeEvent<HTMLInputElement>) => {
     setTodoTitleField(event.target.value);
