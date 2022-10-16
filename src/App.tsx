@@ -97,7 +97,7 @@ export const App: React.FC = () => {
 
   const todoCompleted = todos.filter(todo => todo.completed);
 
-  const ClearCompletedTodo = () => {
+  const clearCompletedTodo = () => {
     todoCompleted.filter(todo => removeTodo(todo.id));
   };
 
@@ -189,7 +189,7 @@ export const App: React.FC = () => {
               todos={todos}
               filter={filter}
               onSetFilter={setFilter}
-              ClearCompletedTodo={ClearCompletedTodo}
+              clearCompletedTodo={clearCompletedTodo}
             />
           </>
         )}

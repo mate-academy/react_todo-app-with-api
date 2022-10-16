@@ -20,14 +20,13 @@ export const TodoItem: React.FC<Props> = ({
   setSelectId,
   selectId,
 }) => {
-  const { id, completed } = todo;
 
   return (
     <>
       <div
         data-cy="Todo"
-        className={classNames('todo', { completed })}
-        key={id}
+        className={classNames('todo', { completed: todo.completed })}
+        key={todo.id}
       >
         <TodoStatus
           todo={todo}
@@ -46,8 +45,8 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoLoader"
           className={classNames('modal overlay',
             {
-              'is-active': (isAdding && id === 0)
-                || id === selectId,
+              'is-active': (isAdding && todo.id === 0)
+                || todo.id === selectId,
             })}
         >
           <div className="modal-background has-background-white-ter" />

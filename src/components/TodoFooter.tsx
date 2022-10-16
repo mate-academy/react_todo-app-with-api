@@ -6,14 +6,14 @@ type Props = {
   todos: Todo[],
   filter: string,
   onSetFilter: (value: string) => void,
-  ClearCompletedTodo: () => void,
+  clearCompletedTodo: () => void,
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
   filter,
   onSetFilter,
-  ClearCompletedTodo,
+  clearCompletedTodo,
 }) => {
   const findCopletedTodo = todos.some(todo => todo.completed === true);
 
@@ -58,7 +58,7 @@ export const TodoFooter: React.FC<Props> = ({
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={ClearCompletedTodo}
+          onClick={clearCompletedTodo}
         >
           Clear completed
         </button>
