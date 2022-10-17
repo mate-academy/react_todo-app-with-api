@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import React, {
   useContext,
   useState,
@@ -117,7 +116,7 @@ export const App: React.FC = () => {
       try {
         const newTodo = await patchTodo(todoId, data);
 
-        setTodos(todos.map(todo => (
+        setTodos(prevState => prevState.map(todo => (
           todo.id === todoId
             ? newTodo
             : todo
@@ -128,7 +127,7 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setSelectedId(null);
       }
-    }, [todos],
+    }, [],
   );
 
   const handleToggleAll = useCallback(async () => {
@@ -136,25 +135,19 @@ export const App: React.FC = () => {
     setToggleLoader(true);
 
     try {
+      let newTodos;
+
       if (activeTodos.length) {
-        await Promise.all(todos.map(
+        newTodos = await Promise.all(todos.map(
           todo => patchTodo(todo.id, { completed: true }),
         ));
-        setTodos(todos.map(todo => {
-          todo.completed = true;
-
-          return todo;
-        }));
       } else {
-        await Promise.all(todos.map(
+        newTodos = await Promise.all(todos.map(
           todo => patchTodo(todo.id, { completed: false }),
         ));
-        setTodos(todos.map(todo => {
-          todo.completed = false;
-
-          return todo;
-        }));
       }
+
+      setTodos(newTodos);
     } catch {
       setError(Error.Update);
     } finally {
