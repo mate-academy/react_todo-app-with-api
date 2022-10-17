@@ -20,7 +20,6 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState('all');
   const [isError, setIsError] = useState('');
   const [newTodo, setNewTodo] = useState('');
@@ -38,7 +37,7 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then((response) => {
           setTodos(response);
-          setVisibleTodos(response);
+          setTodos(response);
         })
         .catch(() => {
           setIsError('load');
@@ -60,7 +59,7 @@ export const App: React.FC = () => {
       try {
         const newTodoFromAPI = await addTodo(newTodo, user.id);
 
-        setVisibleTodos(prevState => [...prevState, newTodoFromAPI]);
+        setTodos(prevState => [...prevState, newTodoFromAPI]);
       } catch {
         setIsError('add');
       }
@@ -74,7 +73,7 @@ export const App: React.FC = () => {
     setIsDeletingAll(true);
 
     try {
-      await Promise.all(visibleTodos.map(todoItem => {
+      await Promise.all(todos.map(todoItem => {
         if (todoItem.completed) {
           return deleteTodo(todoItem.id);
         }
@@ -82,7 +81,7 @@ export const App: React.FC = () => {
         return null;
       }));
 
-      setVisibleTodos(prevState => (
+      setTodos(prevState => (
         prevState.filter(todoItem => !todoItem.completed)
       ));
     } catch (e) {
@@ -94,15 +93,15 @@ export const App: React.FC = () => {
 
   const onUpdateAll = async () => {
     // If all todos are completed switch 'em all to NOT completed:
-    if (visibleTodos.every(item => item.completed)) {
+    if (todos.every(item => item.completed)) {
       setIsDeletingAll(true);
 
       try {
-        await Promise.all(visibleTodos.map(todoItem => {
+        await Promise.all(todos.map(todoItem => {
           return toggleTodo(todoItem);
         }));
 
-        setVisibleTodos(prevState => (
+        setTodos(prevState => (
           prevState.map(todoItem => ({
             ...todoItem,
             completed: !todoItem.completed,
@@ -117,7 +116,7 @@ export const App: React.FC = () => {
       setIsTogglingAll(true);
 
       try {
-        await Promise.all(visibleTodos.map(todoItem => {
+        await Promise.all(todos.map(todoItem => {
           if (!todoItem.completed) {
             return toggleTodo(todoItem);
           }
@@ -125,7 +124,7 @@ export const App: React.FC = () => {
           return null;
         }));
 
-        setVisibleTodos(prevState => (
+        setTodos(prevState => (
           prevState.map(todoItem => {
             if (!todoItem.completed) {
               return {
@@ -148,14 +147,14 @@ export const App: React.FC = () => {
 
   const filterTodos = () => {
     if (filterBy === 'completed') {
-      return visibleTodos.filter(todoFilter => todoFilter.completed);
+      return todos.filter(todoFilter => todoFilter.completed);
     }
 
     if (filterBy === 'active') {
-      return visibleTodos.filter(todoFilter => !todoFilter.completed);
+      return todos.filter(todoFilter => !todoFilter.completed);
     }
 
-    return visibleTodos;
+    return todos;
   };
 
   return (
@@ -168,7 +167,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className={classNames('todoapp__toggle-all', {
-              active: visibleTodos.every(item => item.completed),
+              active: todos.every(item => item.completed),
             })}
             onClick={onUpdateAll}
           />
@@ -197,7 +196,7 @@ export const App: React.FC = () => {
           <>
             <TodoList
               setError={setIsError}
-              setVisibleTodos={setVisibleTodos}
+              setVisibleTodos={setTodos}
               todos={filterTodos()}
               isDeletingAll={isDeletingAll}
               isTogglingAll={isTogglingAll}
@@ -207,7 +206,7 @@ export const App: React.FC = () => {
 
             <footer className="todoapp__footer" data-cy="Footer">
               <span className="todo-count" data-cy="todosCounter">
-                {visibleTodos
+                {todos
                   .filter(task => (
                     !task.completed)).length}
                 {' items left'}
@@ -251,7 +250,7 @@ export const App: React.FC = () => {
                 data-cy="ClearCompletedButton"
                 type="button"
                 className="todoapp__clear-completed"
-                disabled={!visibleTodos.some(
+                disabled={!todos.some(
                   todoItem => (
                     todoItem.completed
                   ),
