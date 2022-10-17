@@ -13,7 +13,7 @@ export const addTodo = (title: string, userId: number) => {
     completed: false,
   };
 
-  return client.post<Todo>('/t0odos', data);
+  return client.post<Todo>('/todos', data);
 };
 
 export const deleteTodo = (todoId: number) => {

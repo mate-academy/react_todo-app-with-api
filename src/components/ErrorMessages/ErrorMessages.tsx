@@ -3,9 +3,16 @@ import React from 'react';
 type Props = {
   error: string,
   onClose: () => void
+  setError: (error: string) => void,
 };
 
-export const ErrorMessages: React.FC<Props> = ({ error, onClose }) => {
+const ERROR_DURATION = 3000;
+
+export const ErrorMessages: React.FC<Props> = ({
+  error,
+  onClose,
+  setError,
+}) => {
   let errorMessage = '';
 
   switch (error) {
@@ -36,6 +43,10 @@ export const ErrorMessages: React.FC<Props> = ({ error, onClose }) => {
     default:
       break;
   }
+
+  setTimeout(() => {
+    setError('');
+  }, ERROR_DURATION);
 
   return (
     <div

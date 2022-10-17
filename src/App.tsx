@@ -14,8 +14,6 @@ import { ErrorMessages } from './components/ErrorMessages/ErrorMessages';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoOnAdd } from './components/TodoOnAdd/TodoOnAdd';
 
-const ERROR_DURATION = 3000;
-
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
@@ -44,10 +42,6 @@ export const App: React.FC = () => {
         })
         .catch(() => {
           setIsError('load');
-
-          setTimeout(() => {
-            setIsError('');
-          }, ERROR_DURATION);
         });
     }
   }, []);
@@ -58,9 +52,6 @@ export const App: React.FC = () => {
     if (!newTodo.length) {
       setIsError('length');
       setIsAdding(false);
-      setTimeout(() => {
-        setIsError('');
-      }, ERROR_DURATION);
 
       return;
     }
@@ -72,9 +63,6 @@ export const App: React.FC = () => {
         setVisibleTodos(prevState => [...prevState, newTodoFromAPI]);
       } catch {
         setIsError('add');
-        setTimeout(() => {
-          setIsError('');
-        }, ERROR_DURATION);
       }
     }
 
@@ -99,9 +87,6 @@ export const App: React.FC = () => {
       ));
     } catch (e) {
       setIsError('deleteAll');
-      setTimeout(() => {
-        setIsError('');
-      }, ERROR_DURATION);
     }
 
     setIsDeletingAll(false);
@@ -125,9 +110,6 @@ export const App: React.FC = () => {
         ));
       } catch (e) {
         setIsError('updateAll');
-        setTimeout(() => {
-          setIsError('');
-        }, ERROR_DURATION);
       }
 
     // If some of todos are NOT completed switch 'em to completed:
@@ -157,9 +139,6 @@ export const App: React.FC = () => {
         ));
       } catch (e) {
         setIsError('updateAll');
-        setTimeout(() => {
-          setIsError('');
-        }, ERROR_DURATION);
       }
     }
 
@@ -292,6 +271,7 @@ export const App: React.FC = () => {
 
       {isError && (
         <ErrorMessages
+          setError={setIsError}
           error={isError}
           onClose={() => setIsError('')}
         />
