@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { memo } from 'react';
 import { SortType } from '../../types/SortType';
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
   onRemoveCompletedTodos: () => void;
 };
 
-export const Footer: React.FC<Props> = (props) => {
+export const Filter: React.FC<Props> = memo((props) => {
   const {
     activeTodosCount,
     sortType,
@@ -77,4 +78,4 @@ export const Footer: React.FC<Props> = (props) => {
       </button>
     </footer>
   );
-};
+});

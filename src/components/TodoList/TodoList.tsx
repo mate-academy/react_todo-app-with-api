@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
@@ -18,7 +18,7 @@ type Props = {
   onUpdateTitle: (todo: Todo, cancel?: boolean) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = memo(({
   todos,
   isAdding,
   query,
@@ -79,4 +79,4 @@ export const TodoList: React.FC<Props> = ({
       </TransitionGroup>
     </section>
   );
-};
+});

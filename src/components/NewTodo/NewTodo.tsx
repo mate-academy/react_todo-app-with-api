@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import {
-  ChangeEvent, FormEvent, useEffect, useRef,
+  ChangeEvent, FormEvent, useEffect, useRef, memo,
 } from 'react';
 
 type Props = {
@@ -13,8 +13,7 @@ type Props = {
   onUpdateStatusForAll: (hasActive: boolean) => void;
 };
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
-export const Header: React.FC<Props> = ({
+export const NewTodo: React.FC<Props> = memo(({
   isTodos,
   query,
   isAdding,
@@ -26,7 +25,6 @@ export const Header: React.FC<Props> = ({
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -51,6 +49,7 @@ export const Header: React.FC<Props> = ({
           data-cy="ToggleAllButton"
           type="button"
           className={classNames('todoapp__toggle-all', { active: !hasActive })}
+          aria-label="Toggle All"
           onClick={handleToggleAllButton}
         />
       )}
@@ -69,4 +68,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

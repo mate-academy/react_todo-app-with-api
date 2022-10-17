@@ -1,11 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback, useContext, useEffect, useMemo, useState,
+} from 'react';
 import {
   addTodo, deleteTodo, getTodos, updateTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/ErrorNotification';
-import { Footer } from './components/Footer';
-import { Header } from './components/Header';
+import { Filter } from './components/Filter';
+import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
 import { SortType } from './types/SortType';
 import { ErrorMessage } from './types/ErrorMessage';
@@ -18,7 +20,7 @@ export const App: React.FC = () => {
   const [userTodos, setUserTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [sortType, setSortType] = useState<SortType>(SortType.all);
-  const [errorMessage, setErrrorMessage]
+  const [errorMessage, setErrorMessage]
     = useState<ErrorMessage>(ErrorMessage.none);
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -28,11 +30,15 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      getTodos(user.id)
-        .then((todos: Todo[]) => {
+      (async () => {
+        try {
+          const todos = await getTodos(user.id);
+
           setUserTodos(todos);
-        })
-        .catch(() => setErrrorMessage(ErrorMessage.load));
+        } catch (err) {
+          setErrorMessage(ErrorMessage.load);
+        }
+      })();
     }
   }, []);
 
@@ -54,17 +60,11 @@ export const App: React.FC = () => {
     }
   }, [sortType, userTodos]);
 
-  useEffect(() => {
-    if (errorMessage !== ErrorMessage.none) {
-      setTimeout(() => setErrrorMessage(ErrorMessage.none), 3000);
-    }
-  }, [errorMessage]);
-
-  const addNewTodo = () => {
+  const addNewTodo = useCallback(() => {
     const title = query.trim();
 
     if (!title.length) {
-      setErrrorMessage(ErrorMessage.emptyTitle);
+      setErrorMessage(ErrorMessage.emptyTitle);
 
       return;
     }
@@ -78,45 +78,57 @@ export const App: React.FC = () => {
 
       setIsAdding(sortType !== SortType.completed);
 
-      addTodo(newTodo)
-        .then((todo: Todo) => {
+      (async () => {
+        try {
+          const todo = await addTodo(newTodo);
+
           setUserTodos(prev => [...prev, todo]);
           setQuery('');
-        })
-        .catch(() => setErrrorMessage(ErrorMessage.add))
-        .finally(() => setIsAdding(false));
+        } catch (err) {
+          setErrorMessage(ErrorMessage.add);
+        } finally {
+          setIsAdding(false);
+        }
+      })();
     }
-  };
+  }, [query]);
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setisLoadingList(prev => [...prev, todoId]);
 
-    deleteTodo(todoId)
-      .then(() => {
-        setUserTodos(prev => prev.filter(todo => todo.id !== todoId));
-      })
-      .catch(() => setErrrorMessage(ErrorMessage.delete))
-      .finally(() => setisLoadingList([]));
-  };
+    (async () => {
+      try {
+        await deleteTodo(todoId);
 
-  const removeCompletedTodos = () => {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const { id, completed } of userTodos) {
+        setUserTodos(prev => prev.filter(todo => todo.id !== todoId));
+        setQuery('');
+      } catch (err) {
+        setErrorMessage(ErrorMessage.delete);
+      } finally {
+        setisLoadingList([]);
+      }
+    })();
+  }, []);
+
+  const removeCompletedTodos = useCallback(() => {
+    userTodos.forEach(({ id, completed }) => {
       if (completed) {
         removeTodo(id);
       }
-    }
-  };
+    });
+  }, [userTodos]);
 
-  const updatingTodo = (todo: Todo, title?: string) => {
+  const updatingTodo = useCallback((todo: Todo, title?: string) => {
     const updatedTodo = {
       ...todo,
       completed: title ? todo.completed : !todo.completed,
       title: title || todo.title,
     };
 
-    updateTodo(updatedTodo)
-      .then(() => {
+    (async () => {
+      try {
+        await updateTodo(updatedTodo);
+
         setUserTodos(prev => {
           const currentTodo = prev.find(todoItem => todoItem.id === todo.id);
 
@@ -130,17 +142,20 @@ export const App: React.FC = () => {
 
           return [...prev];
         });
-      })
-      .catch(() => setErrrorMessage(ErrorMessage.update))
-      .finally(() => setisLoadingList([]));
-  };
+      } catch (err) {
+        setErrorMessage(ErrorMessage.update);
+      } finally {
+        setisLoadingList([]);
+      }
+    })();
+  }, []);
 
-  const updateStatus = (todo: Todo) => {
+  const updateStatus = useCallback((todo: Todo) => {
     setisLoadingList(prev => [...prev, todo.id]);
     updatingTodo(todo);
-  };
+  }, [userTodos]);
 
-  const updateStatusForAll = (hasActive: boolean) => {
+  const updateStatusForAll = useCallback((hasActive: boolean) => {
     userTodos.forEach(todo => {
       if (!hasActive) {
         updateStatus(todo);
@@ -150,13 +165,13 @@ export const App: React.FC = () => {
         updateStatus(todo);
       }
     });
-  };
+  }, [userTodos]);
 
-  const resetEditTodoId = () => {
+  const resetEditTodoId = useCallback(() => {
     setEditTodoId(null);
-  };
+  }, []);
 
-  const updateTitle = (todo: Todo, cancel?: boolean) => {
+  const updateTitle = useCallback((todo: Todo, cancel?: boolean) => {
     const title = newTitle.trim();
 
     if (title === todo.title || cancel) {
@@ -174,14 +189,22 @@ export const App: React.FC = () => {
     } else {
       removeTodo(todo.id);
     }
-  };
+  }, [newTitle]);
+
+  const isUserTodos = useMemo(() => Boolean(userTodos.length), [userTodos]);
+  const activeTodosCount = useMemo(() => (
+    getActiveTodos(userTodos).length),
+  [userTodos]);
+  const completedTodosCount = useMemo(() => (
+    getCompletedTodos(userTodos).length),
+  [userTodos]);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <NewTodo
           isTodos={Boolean(userTodos.length)}
           query={query}
           onQueryChange={setQuery}
@@ -205,13 +228,13 @@ export const App: React.FC = () => {
           onUpdateTitle={updateTitle}
         />
 
-        {Boolean(userTodos.length)
+        {isUserTodos
         && (
-          <Footer
+          <Filter
             sortType={sortType}
             onSortType={setSortType}
-            activeTodosCount={getActiveTodos(userTodos).length}
-            completedTodosCount={getCompletedTodos(userTodos).length}
+            activeTodosCount={activeTodosCount}
+            completedTodosCount={completedTodosCount}
             onRemoveCompletedTodos={removeCompletedTodos}
           />
         )}
@@ -220,7 +243,7 @@ export const App: React.FC = () => {
       {errorMessage !== ErrorMessage.none
       && (
         <ErrorNotification
-          onErrorMessage={setErrrorMessage}
+          onErrorMessage={setErrorMessage}
           errorMessage={errorMessage}
         />
       )}

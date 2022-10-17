@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, {
-  ChangeEvent, FormEvent, useEffect, useRef,
+  ChangeEvent, FormEvent, useEffect, useRef, memo,
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
@@ -17,7 +17,7 @@ type Props = {
   onUpdateTitle?: (todo: Todo, cancel?: boolean) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   todo,
   onRemoveTodo,
   isProcessing,
@@ -133,4 +133,4 @@ export const TodoItem: React.FC<Props> = ({
       {isProcessing && <TodoLoader />}
     </div>
   );
-};
+});
