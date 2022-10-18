@@ -4,18 +4,18 @@ import { FilterTypes } from '../../types/FilterTypes';
 
 interface Props {
   filterType: FilterTypes;
-  change: (value: FilterTypes) => void;
+  changeFilterType: (value: FilterTypes) => void;
   deleteAllCompletedTodos: () => void;
-  countActiveTodos: number;
-  countCompletedTodos: number;
+  activeTodosCount: number;
+  completedTodosCount: number;
 }
 
 const TodoFooter: React.FC<Props> = ({
   filterType,
-  change,
+  changeFilterType: change,
   deleteAllCompletedTodos,
-  countActiveTodos,
-  countCompletedTodos,
+  activeTodosCount: countActiveTodos,
+  completedTodosCount: countCompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">

@@ -36,9 +36,7 @@ export const App: React.FC = () => {
     ).map(todo => todo.id);
   }, [todos]);
 
-  const allActive = useMemo(() => {
-    return completedTodosId.length === todos.length;
-  }, [todos]);
+  const isAllActive = completedTodosId.length === todos.length;
 
   if (error) {
     setTimeout(() => {
@@ -100,7 +98,7 @@ export const App: React.FC = () => {
   };
 
   const toggleAll = () => {
-    if (allActive) {
+    if (isAllActive) {
       setTodosInProcess(completedTodosId);
 
       Promise.all(completedTodosId.map(async (id) => {
@@ -177,7 +175,7 @@ export const App: React.FC = () => {
           changeIsAdding={changeIsAdding}
           user={user}
           add={addTodoToState}
-          allActive={allActive}
+          allActive={isAllActive}
           toggleAll={toggleAll}
         />
 
@@ -193,10 +191,10 @@ export const App: React.FC = () => {
             />
             <TodoFooter
               filterType={filterType}
-              change={changeFilterType}
+              changeFilterType={changeFilterType}
               deleteAllCompletedTodos={deleteAllCompletedTodos}
-              countActiveTodos={activeTodosId.length}
-              countCompletedTodos={completedTodosId.length}
+              activeTodosCount={activeTodosId.length}
+              completedTodosCount={completedTodosId.length}
             />
           </>
         )}

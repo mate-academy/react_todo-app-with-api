@@ -53,31 +53,31 @@ const TodoItem:React.FC<Props> = ({
   const changeTodoTitle = (todoId: number) => {
     setIsLoading(true);
 
-    const inputValueTrim = inputValue.trim();
+    const trimmedInputValue = inputValue.trim();
 
-    if (!inputValueTrim) {
+    if (!trimmedInputValue) {
       deleteItem();
 
       return;
     }
 
-    if (todo.title === inputValueTrim) {
+    if (todo.title === trimmedInputValue) {
       setIsEdit(false);
       setIsLoading(false);
-      setInputValue(inputValueTrim);
+      setInputValue(trimmedInputValue);
 
       return;
     }
 
-    updateTodo(todoId, { title: inputValueTrim })
+    updateTodo(todoId, { title: trimmedInputValue })
       .then(() => {
-        changeTodoFromState(todoId, inputValueTrim);
+        changeTodoFromState(todoId, trimmedInputValue);
       })
       .catch(() => changeError(ErrorTypes.Update))
       .finally(() => {
         setIsLoading(false);
         setIsEdit(false);
-        setInputValue(inputValueTrim);
+        setInputValue(trimmedInputValue);
       });
   };
 
