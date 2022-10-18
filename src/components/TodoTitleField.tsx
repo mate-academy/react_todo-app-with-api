@@ -13,7 +13,6 @@ export const TodoTitleField: React.FC<Props> = ({
   onDeleteTodo,
   setSelectId,
   changeTodo,
-
 }) => {
   const { id, title } = todo;
   const [query, setQuery] = useState('');

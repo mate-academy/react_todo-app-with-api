@@ -20,7 +20,6 @@ export const TodoItem: React.FC<Props> = ({
   setSelectId,
   selectId,
 }) => {
-
   return (
     <>
       <div

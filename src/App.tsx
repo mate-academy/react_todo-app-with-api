@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
@@ -20,7 +19,6 @@ import {
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -32,6 +30,10 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [selectId, setSelectId] = useState(0);
 
+  if (newTodoField.current) {
+    newTodoField.current.focus();
+  }
+
   const getOurTodos = async () => {
     try {
       setTodos(await getTodos(user?.id || 0));
@@ -42,11 +44,6 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     getOurTodos();
   }, []);
 
@@ -58,13 +55,10 @@ export const App: React.FC = () => {
 
   const filterTodos = todos.filter(todo => {
     switch (filter) {
-      case 'all':
-        return todo;
       case 'active':
         return !todo.completed;
       case 'completed':
         return todo.completed;
-
       default:
         return todo;
     }

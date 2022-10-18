@@ -42,6 +42,7 @@ export const TodoFooter: React.FC<Props> = ({
         >
           Active
         </a>
+
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"

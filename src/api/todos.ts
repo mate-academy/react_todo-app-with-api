@@ -22,5 +22,3 @@ export const patchTodo = (
 ) => {
   return client.patch(`/todos/${userId}`, { ...data });
 };
-
-// Add more methods here
