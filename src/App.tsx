@@ -32,10 +32,14 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<string>(FilterType.ALL);
-  const [changeAllTodos, setChangeAllTodos] = useState(true);
+  const [filter, setFilter] = useState<FilterType>(FilterType.ALL);
   const [errorType, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<number[]>([]);
+
+  const todoIsCompleted = todos.every(
+    everyTodo => everyTodo.completed === true,
+  );
 
   const fireTimeOut = () => {
     setTimeout(() => {
@@ -76,12 +80,13 @@ export const App: React.FC = () => {
   const changeTodo = useCallback(async (
     todoId: number, object: TodoCompleted | TodoTitle,
   ) => {
+    setSelectedId([todoId]);
     try {
       const updetedTodo: Todo = await updateTodo(todoId, object);
 
-      setTodos(prev => (prev.map((x) => (x.id === todoId
+      setTodos(prev => (prev.map((prevItem) => (prevItem.id === todoId
         ? updetedTodo
-        : x))
+        : prevItem))
       ));
     } catch (error) {
       setError('Unable to update a todo');
@@ -91,14 +96,17 @@ export const App: React.FC = () => {
 
   const fireChangeAllTodos = () => {
     todos.forEach(todo => {
-      changeTodo(todo.id, { completed: changeAllTodos });
+      if (todoIsCompleted) {
+        changeTodo(todo.id, { completed: false });
+      } else if (!todoIsCompleted) {
+        changeTodo(todo.id, { completed: true });
+      } else {
+        changeTodo(todo.id, { completed: true });
+      }
     });
-
-    setChangeAllTodos(!changeAllTodos);
   };
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     getTodos(user?.id)
       .then(res => setTodos(res))
       .catch(() => {
@@ -177,6 +185,7 @@ export const App: React.FC = () => {
                   changeTodo={changeTodo}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
+                  selectedId={selectedId}
                 />
 
               </CSSTransition>
