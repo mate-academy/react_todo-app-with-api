@@ -6,16 +6,16 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  deleteTodoToState: (todoId: number) => void;
-  changeTodoFromState: (todoId: number, title?: string) => void;
+  onDeleteTodo: (todoId: number) => void;
+  onChangeTodo: (todoId: number, title?: string) => void;
   changeError: (value: ErrorTypes | null) => void;
   todosInProcess: number[] | null;
 }
 
 const TodoItem:React.FC<Props> = ({
   todo,
-  deleteTodoToState,
-  changeTodoFromState,
+  onDeleteTodo,
+  onChangeTodo,
   changeError,
   todosInProcess,
 }) => {
@@ -34,7 +34,7 @@ const TodoItem:React.FC<Props> = ({
     setIsLoading(true);
 
     deleteTodo(todo.id)
-      .then(() => deleteTodoToState(todo.id))
+      .then(() => onDeleteTodo(todo.id))
       .catch(() => changeError(ErrorTypes.Delete))
       .finally(() => setIsLoading(false));
   };
@@ -44,7 +44,7 @@ const TodoItem:React.FC<Props> = ({
 
     updateTodo(todoId, { completed: !todo.completed })
       .then(() => {
-        changeTodoFromState(todoId);
+        onChangeTodo(todoId);
       })
       .catch(() => changeError(ErrorTypes.Update))
       .finally(() => setIsLoading(false));
@@ -71,7 +71,7 @@ const TodoItem:React.FC<Props> = ({
 
     updateTodo(todoId, { title: trimmedInputValue })
       .then(() => {
-        changeTodoFromState(todoId, trimmedInputValue);
+        onChangeTodo(todoId, trimmedInputValue);
       })
       .catch(() => changeError(ErrorTypes.Update))
       .finally(() => {
@@ -79,6 +79,14 @@ const TodoItem:React.FC<Props> = ({
         setIsEdit(false);
         setInputValue(trimmedInputValue);
       });
+  };
+
+  const changeTodoTitleForKeyDown = (key: string, todoId: number) => {
+    if (key !== 'Enter') {
+      return;
+    }
+
+    changeTodoStatus(todoId);
   };
 
   return (
@@ -106,11 +114,7 @@ const TodoItem:React.FC<Props> = ({
           value={inputValue}
           onChange={(event) => changeInputValue(event.target.value)}
           onBlur={() => changeTodoTitle(todo.id)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              changeTodoTitle(todo.id);
-            }
-          }}
+          onKeyDown={(event) => changeTodoTitleForKeyDown(event.key, todo.id)}
         />
       ) : (
         <>

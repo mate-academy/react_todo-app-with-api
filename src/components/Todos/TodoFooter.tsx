@@ -58,7 +58,7 @@ const TodoFooter: React.FC<Props> = ({
       </nav>
 
       <button
-        style={{ visibility: countCompletedTodos > 0 ? 'visible' : 'hidden' }}
+        style={{ visibility: countCompletedTodos ? 'visible' : 'hidden' }}
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"

@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
+import classNames from 'classnames';
 import React from 'react';
 import { ErrorTypes } from '../types/ErrorTypes';
 
@@ -13,13 +13,13 @@ const ErrorNotification:React.FC<Props> = (
   return (
     <div
       data-cy="ErrorNotification"
-      className={
-        error
-          ? 'notification is-danger is-light has-text-weight-normal'
-          : 'notification is-danger is-light has-text-weight-normal hidden'
-      }
+      className={classNames(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden: !error },
+      )}
     >
       <button
+        aria-label="ideErrorButton"
         data-cy="HideErrorButton"
         type="button"
         className="delete"

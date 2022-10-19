@@ -12,7 +12,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (data: NewTodo) => {
-  return client.post('/todos/', data);
+  return client.post<Todo>('/todos/', data);
 };
 
 export const deleteTodo = (todoId: number) => {

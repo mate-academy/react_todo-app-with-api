@@ -29,7 +29,6 @@ const TodoList: React.FC<Props> = (
         {isAdding && (
           <CSSTransition
             timeout={1}
-            // classNames="item-load"
           >
             <div data-cy="Todo" className="todo">
               <label className="todo__status-label">
@@ -67,8 +66,8 @@ const TodoList: React.FC<Props> = (
             <TodoItem
               todo={todo}
               key={todo.id}
-              deleteTodoToState={deleteTodoToState}
-              changeTodoFromState={changeTodoFromState}
+              onDeleteTodo={deleteTodoToState}
+              onChangeTodo={changeTodoFromState}
               changeError={changeError}
               todosInProcess={todosInProcess}
             />

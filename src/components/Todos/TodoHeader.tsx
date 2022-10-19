@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { addTodo } from '../../api/todos';
 import { ErrorTypes } from '../../types/ErrorTypes';
+import { Todo } from '../../types/Todo';
 import { User } from '../../types/User';
 
 interface Props {
@@ -11,7 +10,7 @@ interface Props {
   isAdding: boolean;
   changeIsAdding: (value: boolean) => void;
   user: User;
-  add: (todo: any) => void | PromiseLike<void>;
+  add: (todo: Todo) => void;
   allActive: boolean;
   toggleAll: () => void;
 }
@@ -59,6 +58,7 @@ const TodoHeader: React.FC<Props> = (
   return (
     <header className="todoapp__header">
       <button
+        aria-label="ToggleAllButton"
         data-cy="ToggleAllButton"
         type="button"
         className={classNames(
