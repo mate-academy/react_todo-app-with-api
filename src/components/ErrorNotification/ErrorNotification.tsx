@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 
 type Props = {
@@ -17,6 +16,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
       hidden={!error}
     >
       <button
+        aria-label="HideError"
         data-cy="HideErrorButton"
         type="button"
         className="delete"

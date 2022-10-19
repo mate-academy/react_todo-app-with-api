@@ -53,6 +53,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
   };
 
+  const { title, completed } = todo;
+
   return (
     <>
       <div
@@ -60,7 +62,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         className={
           classnames(
             'todo',
-            { completed: todo.completed },
+            { completed },
           )
         }
       >
@@ -98,7 +100,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               className="todo__title"
               onDoubleClick={() => setIsEditing(true)}
             >
-              {todo.title}
+              {title}
             </span>
             <button
               type="button"

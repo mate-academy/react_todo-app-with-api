@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classnames from 'classnames';
 import React, {
   FormEvent,
@@ -22,7 +21,6 @@ import { FilterType } from './types/FilterType';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [title, setTitle] = useState<string>('');
@@ -66,7 +64,6 @@ export const App: React.FC = () => {
   });
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -189,6 +186,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <button
+            aria-label="ToggleAll"
             data-cy="ToggleAllButton"
             type="button"
             className={
