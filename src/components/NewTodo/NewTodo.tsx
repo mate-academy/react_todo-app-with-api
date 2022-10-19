@@ -12,7 +12,7 @@ type Props = {
   setIsToggling: (value: boolean) => void;
 };
 
-export const Header: React.FC<Props> = ({
+export const NewTodo: React.FC<Props> = ({
   newTodoField,
   createTodo,
   setTitle,
@@ -30,11 +30,12 @@ export const Header: React.FC<Props> = ({
   const activeTodos = useMemo(() => todos
     .filter(todo => todo.completed === false), [todos]);
 
-  const handleToggleAll = () => {
+  const handleToggleAll = async () => {
+    setIsToggling(true);
     if (activeTodos.length > 0) {
       setIsToggling(true);
 
-      return activeTodos
+      return todos
         .map(({ id }) => changeProperty(id, { completed: true }));
     }
 

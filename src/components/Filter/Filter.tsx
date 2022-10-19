@@ -86,8 +86,9 @@ export const Filter: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         onClick={() => deleteFinishedTodos(completedTodoList)}
+        disabled={completedTodoList.length === 0}
       >
-        {completedTodoList.length > 0 && 'Clear completed'}
+        Clear completed
       </button>
     </footer>
   );

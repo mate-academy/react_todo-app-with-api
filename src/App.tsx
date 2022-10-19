@@ -12,7 +12,7 @@ import {
   ErrorNotification,
 } from './components/ErrorNotification/ErrorNotification';
 import { Filter } from './components/Filter/Filter';
-import { Header } from './components/Header/Header';
+import { NewTodo } from './components/NewTodo/NewTodo';
 import { TodoList } from './components/TodoList/TodoList';
 import {
   getTodos,
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
     getTodoList();
   }, []);
 
-  const filteredTodos = todos.filter(todo => {
+  const filteredTodos = useMemo(() => todos.filter(todo => {
     switch (typeOfFilter) {
       case FilterType.Active:
         return !todo.completed;
@@ -62,7 +62,7 @@ export const App: React.FC = () => {
       default:
         return todo;
     }
-  });
+  }), [typeOfFilter, todos]);
 
   const createTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
@@ -101,8 +101,8 @@ export const App: React.FC = () => {
   };
 
   const changeProperty = async (todoId: number, property: Partial<Todo>) => {
-    setSelectedTodoId(todoId);
     try {
+      setSelectedTodoId(todoId);
       const changedTodo: Todo = await updateTodo(todoId, property);
 
       setTodos(prev => prev.map(todo => (
@@ -126,7 +126,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <NewTodo
           newTodoField={newTodoField}
           createTodo={createTodo}
           title={title}
@@ -134,7 +134,6 @@ export const App: React.FC = () => {
           todos={todos}
           changeProperty={changeProperty}
           setIsToggling={setIsToggling}
-
         />
         {(todos.length > 0) && (
           <TodoList
