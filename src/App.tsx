@@ -5,6 +5,7 @@ import React, {
   useRef, useState,
   FormEvent,
   useMemo,
+  useCallback,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
@@ -19,6 +20,7 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Error } from './types/Error';
+import { Header } from './components/Header/Header';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -28,9 +30,10 @@ export const App: React.FC = () => {
   const [errorMessage, setError] = useState<Error | null>(null);
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [toggleAll, setToggleAll] = useState(true);
-  const [selectedId, setSelectedId] = useState(0);
+  const [selectedId, setSelectedId] = useState<number>(0);
+  const [completedIds, setCompletedIds] = useState<number[] | null>(null);
   const [toggleLoader, setToggleLoader] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const userId = user?.id || 1;
 
   useEffect(() => {
@@ -49,31 +52,50 @@ export const App: React.FC = () => {
     getTodosFromServer(userId);
   }, []);
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+  const activeTodos = useMemo(
+    () => todos.filter((todo) => !todo.completed),
+    [todos],
+  );
+  const completedTodos = useMemo(
+    () => todos.filter((todo) => todo.completed),
+    [todos],
+  );
 
-    if (!title.trim()) {
-      setError(Error.Title);
+  const handleSubmit = useCallback(
+    async (event: FormEvent) => {
+      event.preventDefault();
+
+      if (!title.trim()) {
+        setError(Error.Title);
+        setTitle('');
+
+        return;
+      }
+
+      const newTodo = {
+        id: Math.max(0, ...todos.map(({ id }) => id)) + 1,
+        userId: user?.id || 0,
+        completed: false,
+        title,
+      };
+
+      setTodos((prevState) => [newTodo, ...prevState]);
+      setSelectedId(newTodo.id);
+      setIsAdding(true);
       setTitle('');
 
-      return;
-    }
-
-    setIsAdding(true);
-
-    await createTodo(userId, title)
-      .then((newTodo) => {
-        setTodos([...todos, newTodo]);
-        setSelectedId(newTodo.id);
-      })
-      .catch(() => {
+      try {
+        await createTodo(newTodo);
+      } catch {
         setError(Error.Add);
-      })
-      .finally(() => {
-        setTitle('');
+      } finally {
+        setIsFocused((prevState) => !prevState);
+        setSelectedId(0);
         setIsAdding(false);
-      });
-  };
+      }
+    },
+    [title],
+  );
 
   const removeTodo = async (todoId: number) => {
     setSelectedId(todoId);
@@ -93,22 +115,25 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleUpdateTodo = async (todoId: number, data: Partial<Todo>) => {
-    setSelectedId(todoId);
+  const handleUpdateTodo = useCallback(
+    async (todoId: number, data: Partial<Todo>) => {
+      setIsAdding(true);
+      setSelectedId(todoId);
 
-    await updateTodo(todoId, data)
-      .then(updatedTodo => {
-        setTodos((initialTodos) => initialTodos
-          .map((todo) => (todo.id === todoId ? updatedTodo : todo)));
-      })
-      .catch(() => {
+      try {
+        const newTodo = await updateTodo(todoId, data);
+
+        setTodos((prevState) => prevState
+          .map((todo) => (todo.id === todoId ? newTodo : todo)));
+      } catch {
         setError(Error.Updating);
-      })
-      .finally(() => {
-        setToggleLoader(false);
+      } finally {
         setIsAdding(false);
-      });
-  };
+        setSelectedId(0);
+      }
+    },
+    [],
+  );
 
   const visibleTodos = useMemo(() => todos.filter((todo) => {
     switch (filter) {
@@ -123,40 +148,60 @@ export const App: React.FC = () => {
     }
   }), [todos, filter]);
 
-  const handleToggler = () => {
-    setToggleAll(!toggleAll);
-    setToggleLoader(true);
+  const handleToggler = useCallback(async () => {
     setIsAdding(true);
+    setToggleLoader(true);
 
-    return visibleTodos
-      .map((todo) => handleUpdateTodo(todo.id, { completed: toggleAll }));
-  };
+    try {
+      let newTodos;
+
+      if (activeTodos.length) {
+        newTodos = await Promise.all(
+          todos.map((todo) => updateTodo(todo.id, { completed: true })),
+        );
+      } else {
+        newTodos = await Promise.all(
+          todos.map((todo) => updateTodo(todo.id, { completed: false })),
+        );
+      }
+
+      setTodos(newTodos);
+    } catch {
+      setError(Error.Updating);
+    } finally {
+      setIsAdding(false);
+      setToggleLoader(false);
+    }
+  }, [todos]);
+
+  const clearCompleted = useCallback(async () => {
+    setIsAdding(true);
+    setCompletedIds(completedTodos.map((todo) => todo.id));
+
+    try {
+      await Promise.all(completedTodos.map((todo) => deleteTodo(todo.id)));
+      setTodos(activeTodos);
+    } finally {
+      setIsAdding(false);
+      setCompletedIds(null);
+    }
+  }, [todos]);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={handleToggler}
-          />
-
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-            />
-          </form>
-        </header>
+        <Header
+          todos={visibleTodos}
+          createTodo={handleSubmit}
+          toggleAll={handleToggler}
+          title={title}
+          setTitle={setTitle}
+          isAdding={isAdding}
+          toggleLoader={toggleLoader}
+          isFocused={isFocused}
+        />
         {(isAdding || todos.length > 0) && (
           <TodoList
             todos={visibleTodos}
@@ -166,6 +211,7 @@ export const App: React.FC = () => {
             toggleLoader={toggleLoader}
             selectedId={selectedId}
             title={title}
+            completedIds={completedIds}
           />
         )}
         {todos.length > 0 && (
@@ -175,6 +221,9 @@ export const App: React.FC = () => {
             todos={todos}
             removeTodo={removeTodo}
             setToggleLoader={setToggleLoader}
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            clearCompleted={clearCompleted}
           />
         )}
       </div>

@@ -7,10 +7,11 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   removeTodo: (id: number) => void;
-  handleUpdateTodo: (id: number, data:Partial<Todo>) => void;
+  handleUpdateTodo: (id: number, data: Partial<Todo>) => void;
   isAdding: boolean;
   selectedId: number;
   toggleLoader: boolean;
+  completedIds: number[] | null;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoItem: React.FC<Props> = ({
   isAdding,
   selectedId,
   toggleLoader,
+  completedIds,
 }) => {
   const newTodo = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
@@ -116,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({
         </>
       )}
 
-      {toggleLoader && (
+      {(toggleLoader || completedIds?.includes(todo.id)) && (
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', { 'is-active': isAdding })}
