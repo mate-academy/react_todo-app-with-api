@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
-import { Footer } from './components/Footer';
+import { FilterComponent } from './components/FilterComponent';
 import { TodoList } from './components/Todo/TodoList';
 import { ErrorNotification } from './components/ErrorNotification';
 import { Todo } from './types/Todo';
@@ -182,7 +182,7 @@ export const App: React.FC = () => {
               title={title}
               changeTodo={changeTodo}
             />
-            <Footer
+            <FilterComponent
               todos={filteredTodos}
               filterBy={filterBy}
               setFilterBy={setFilterBy}
