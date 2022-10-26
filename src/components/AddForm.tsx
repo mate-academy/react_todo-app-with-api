@@ -8,7 +8,7 @@ type Props = {
   handleToggleAll: () => void;
 };
 
-export const Header: React.FC<Props> = ({
+export const AddForm: React.FC<Props> = ({
   title,
   setTitle,
   handleSubmit,

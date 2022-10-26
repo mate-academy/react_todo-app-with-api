@@ -15,7 +15,7 @@ import { FilterType } from './types/FilterType';
 import {
   createTodo, getTodos, removeTodo, updateTodo,
 } from './api/todos';
-import { Header } from './components/Header';
+import { AddForm } from './components/AddForm';
 import { ErrorType } from './types/ErrorTypes';
 
 export const App: React.FC = () => {
@@ -164,7 +164,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
+        <AddForm
           title={title}
           setTitle={setTitle}
           handleSubmit={handleSubmit}
