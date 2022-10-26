@@ -150,15 +150,17 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
 
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={classNames(
-              'todoapp__toggle-all',
-              { active: !completedTodo },
-            )}
-            onClick={handleCheckAll}
-          />
+          {!!todos?.length && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: !completedTodo },
+              )}
+              onClick={handleCheckAll}
+            />
+          )}
 
           <form>
             <input
@@ -250,7 +252,7 @@ export const App: React.FC = () => {
               className={
                 classNames(
                   'todoapp__clear-completed',
-                  { hide: completedTodo },
+                  { hide: todos.every((todo) => !todo.completed) },
                 )
               }
               onClick={handleDeleteAllCompleted}
