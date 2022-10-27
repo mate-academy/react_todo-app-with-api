@@ -86,6 +86,7 @@ export const TodoItem: React.FC<Props> = ({
             defaultValue={title}
             onKeyDown={handleRenamingCancel}
           />
+
         </form>
       ) : (
         <>
