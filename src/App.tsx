@@ -1,23 +1,17 @@
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useState,
 } from 'react';
-
-import {
-  deleteTodo,
-  getTodos,
-  postTodo,
-  renameTodo,
-  toggleStatus,
-} from './api/todos';
-
+import { deleteTodo, getTodos, postTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorMessage } from './components/todos/ErrorMessage';
-import { TodoFooter } from './components/todos/TodoFooter';
-import { TodoHeader } from './components/todos/TodoHeader';
+import { Filter } from './components/todos/Filter';
+import { NewTodo } from './components/todos/NewTodo';
 import { TodoList } from './components/todos/TodoList';
 import { Error } from './types/Error';
+import { Status } from './types/Status';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
@@ -30,8 +24,8 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [status, setStatus] = useState('All');
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
+  const [status, setStatus] = useState<Status>(Status.All);
+  const [removedTodos, setRemovedTodos] = useState<number[]>([]);
 
   const loadData = async () => {
     if (user) {
@@ -40,11 +34,10 @@ export const App: React.FC = () => {
       setTodos(temp);
       setVisibleTodos(temp);
       setTempTodo(null);
-      setLoadingTodos([]);
     }
   };
 
-  const filterByStatus = (activedStatus: string): Todo[] => {
+  const filterTodosByStatus = (activedStatus: string): Todo[] => {
     switch (activedStatus) {
       case 'Active':
         return todos.filter(todo => !todo.completed);
@@ -62,10 +55,16 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setVisibleTodos(filterByStatus(status));
+    setVisibleTodos(filterTodosByStatus(status));
   }, [status, todos]);
 
-  const addTodo = async (value: string) => {
+  const addTodo = useCallback(async (value: string) => {
+    if (!value.trim()) {
+      setError(Error.Empty);
+
+      return;
+    }
+
     setIsAdding(true);
 
     if (user && value) {
@@ -82,9 +81,9 @@ export const App: React.FC = () => {
     }
 
     setIsAdding(false);
-  };
+  }, []);
 
-  const removeTodo = async (id: number) => {
+  const removeTodo = useCallback(async (id: number) => {
     try {
       await deleteTodo(id);
     } catch {
@@ -92,12 +91,12 @@ export const App: React.FC = () => {
     }
 
     loadData();
-  };
+  }, []);
 
   const removeCompleted = async (completedTodos: Todo[]) => {
     const completedTodoIds = completedTodos.map(todo => todo.id);
 
-    setLoadingTodos(completedTodoIds);
+    setRemovedTodos(completedTodoIds);
 
     await Promise.all(
       completedTodos.map(async (todo) => {
@@ -106,59 +105,26 @@ export const App: React.FC = () => {
     );
   };
 
-  const toggleTodoStatus = async (id: number, completed: boolean) => {
-    try {
-      await toggleStatus(id, completed);
-    } catch {
-      setError(Error.Update);
-    }
-
-    loadData();
-  };
-
-  const todoRenaming = async (id: number, title: string) => {
-    setLoadingTodos([id]);
-
-    if (!title) {
-      removeTodo(id);
-
-      return;
-    }
-
-    try {
-      await renameTodo(id, title);
-    } catch {
-      setError(Error.Update);
-    }
-
-    loadData();
-  };
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoHeader
-          todos={todos}
+        <NewTodo
           addTodo={addTodo}
           isAdding={isAdding}
-          setLoadingTodos={setLoadingTodos}
-          toggleTodoStatus={toggleTodoStatus}
         />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
-          loadingTodos={loadingTodos}
-          setLoadingTodos={setLoadingTodos}
-          toggleTodoStatus={toggleTodoStatus}
-          todoRenaming={todoRenaming}
+          removedTodos={removedTodos}
+          setRemovedTodos={setRemovedTodos}
         />
 
         {todos.length > 0 && (
-          <TodoFooter
+          <Filter
             todos={todos}
             selected={status}
             setStatus={setStatus}
