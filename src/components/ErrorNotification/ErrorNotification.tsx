@@ -4,13 +4,21 @@ type Props = {
   removeError: (boolean: boolean) => void
   error: boolean
   errorMessage: string | null
+  setError: (boolean: boolean) => void
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   error,
   removeError,
   errorMessage,
+  setError,
 }) => {
+  if (error) {
+    setTimeout(() => {
+      setError(false);
+    }, 3000);
+  }
+
   return (
     <>
       <div

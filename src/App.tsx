@@ -169,12 +169,6 @@ export const App: React.FC = () => {
     }
   };
 
-  if (error) {
-    setTimeout(() => {
-      setError(false);
-    }, 3000);
-  }
-
   const filteredTodos = todos.filter(todo => {
     switch (filterType) {
       case FilterTypes.All:
@@ -346,6 +340,7 @@ export const App: React.FC = () => {
         error={error}
         removeError={removeError}
         errorMessage={errorMessage}
+        setError={setError}
       />
     </div>
   );
