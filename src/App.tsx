@@ -4,7 +4,15 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+
+import {
+  deleteTodo,
+  getTodos,
+  postTodo,
+  renameTodo,
+  toggleStatus,
+} from './api/todos';
+
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorMessage } from './components/todos/ErrorMessage';
 import { Filter } from './components/todos/Filter';
@@ -25,7 +33,7 @@ export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [status, setStatus] = useState<Status>(Status.All);
-  const [removedTodos, setRemovedTodos] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const loadData = async () => {
     if (user) {
@@ -34,6 +42,7 @@ export const App: React.FC = () => {
       setTodos(temp);
       setVisibleTodos(temp);
       setTempTodo(null);
+      setLoadingTodos([]);
     }
   };
 
@@ -96,7 +105,7 @@ export const App: React.FC = () => {
   const removeCompleted = async (completedTodos: Todo[]) => {
     const completedTodoIds = completedTodos.map(todo => todo.id);
 
-    setRemovedTodos(completedTodoIds);
+    setLoadingTodos(completedTodoIds);
 
     await Promise.all(
       completedTodos.map(async (todo) => {
@@ -105,22 +114,55 @@ export const App: React.FC = () => {
     );
   };
 
+  const toggleTodoStatus = async (id: number, completed: boolean) => {
+    try {
+      await toggleStatus(id, completed);
+    } catch {
+      setError(Error.Update);
+    }
+
+    loadData();
+  };
+
+  const todoRenaming = async (id: number, title: string) => {
+    setLoadingTodos([id]);
+
+    if (!title) {
+      removeTodo(id);
+
+      return;
+    }
+
+    try {
+      await renameTodo(id, title);
+    } catch {
+      setError(Error.Update);
+    }
+
+    loadData();
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <NewTodo
+          todos={todos}
           addTodo={addTodo}
           isAdding={isAdding}
+          setLoadingTodos={setLoadingTodos}
+          toggleTodoStatus={toggleTodoStatus}
         />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
-          removedTodos={removedTodos}
-          setRemovedTodos={setRemovedTodos}
+          loadingTodos={loadingTodos}
+          setLoadingTodos={setLoadingTodos}
+          toggleTodoStatus={toggleTodoStatus}
+          todoRenaming={todoRenaming}
         />
 
         {todos.length > 0 && (
