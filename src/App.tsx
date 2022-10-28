@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -27,20 +28,16 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState('all');
   const [subtitleError, setSubtitleError] = useState('');
   const [title, setTitle] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(0);
-  const [isLoading, setisLoading] = useState(false);
+  const [isLoading, setisLoading] = useState<number[]>([]);
 
   enum Filter {
     Active = 'active',
     Completed = 'completed',
   }
-
-  // if (!hasError) {
-  //   setTimeout(() => {
-  //     setHasError(true);
-  //   }, 3000);
-  // }
+  const activeItems = useMemo(() => {
+    return (todos.filter(todo => !todo.completed)).length;
+  }, [todos]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -51,7 +48,6 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(response => {
           setTodos(response);
-          setIsAdding(true);
         })
         .catch(() => setTimeout(() => {
           setHasError(true);
@@ -70,7 +66,7 @@ export const App: React.FC = () => {
     }
   });
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!title.trim()) {
@@ -80,25 +76,33 @@ export const App: React.FC = () => {
       return;
     }
 
-    setisLoading(true);
+    setisLoading([user?.id || 0]);
+    try {
+      if (user) {
+        const newTodoData = {
+          id: 0,
+          userId: user.id,
+          title,
+          completed: false,
+        };
 
-    if (user) {
-      createTodo(user.id, title).then(newTodo => {
-        setTodos([
-          ...todos,
-          newTodo,
-        ]);
-      }).catch(() => {
-        setSubtitleError('Unable to add a todo');
-      });
+        setTodos(state => [...state, newTodoData]);
+        const newTodo = await createTodo(user.id, title);
+
+        setTodos(state => [...state, newTodo]
+          .filter(todo => todo.id !== 0));
+      }
+    } catch {
+      setSubtitleError('Unable to add a todo');
     }
 
-    setIsAdding(false);
+    setisLoading([]);
     setTitle('');
   };
 
   const handleRemove = useCallback(
     async (todoId: number) => {
+      setisLoading(state => [...state, todoId]);
       try {
         await deleteTodo(todoId);
         setTodos(prev => prev.filter(todo => todo.id !== todoId));
@@ -106,11 +110,14 @@ export const App: React.FC = () => {
         setHasError(true);
         setSubtitleError('Unable to delete a todo');
       }
+
+      setisLoading([]);
     }, [],
   );
 
   const handleUpdate = async (todoId: number, data: Partial<Todo>) => {
-    setisLoading(true);
+    setisLoading(state => [...state, todoId]);
+
     await updateTodo(todoId, data).then((response) => {
       setTodos(todos.map(todo => (
         todo.id === todoId
@@ -120,6 +127,7 @@ export const App: React.FC = () => {
     }).catch(() => {
       setSubtitleError('Unable to update a todo');
     });
+    setisLoading([]);
   };
 
   const completedTodos = todos?.filter(todo => todo.completed);
@@ -163,17 +171,18 @@ export const App: React.FC = () => {
         completedTodos={completedTodos}
       />
       <div className="todoapp__content">
-        {(isAdding || todos.length > 0) && (
+        {(todos.length > 0) && (
           <>
             <TodoList
               todos={visibleTodos}
               handleRemove={handleRemove}
-              isLoading={isLoading}
               handleUpdate={handleUpdate}
               onSelectTodo={setSelectedTodo}
               selectedTodo={selectedTodo}
+              selectedTodos={isLoading}
             />
             <Footer
+              activeItems={activeItems}
               todos={visibleTodos}
               filterLink={filter}
               setFilter={setFilter}

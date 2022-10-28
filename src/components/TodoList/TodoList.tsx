@@ -9,13 +9,13 @@ type Props = {
   handleRemove : (todoId: number) => void
   handleUpdate: (todoId: number, data: Partial<Todo>) => Promise<void>
   onSelectTodo(todoId: number): void
-  isLoading: boolean
+  selectedTodos: number[],
 };
 
 export const TodoList:React.FC<Props> = ({
   todos,
   handleRemove,
-  handleUpdate, selectedTodo, onSelectTodo, isLoading,
+  handleUpdate, selectedTodo, onSelectTodo, selectedTodos,
 }) => {
   const newTodo = useRef<HTMLInputElement>(null);
   const [doubleClick, setDoubleClick] = useState(false);
@@ -28,12 +28,14 @@ export const TodoList:React.FC<Props> = ({
   }, [doubleClick]);
 
   const updateTitle = () => {
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       setDoubleClick(false);
+      handleRemove(selectedTodo);
     }
 
     handleUpdate(selectedTodo, { title: newTitle });
     setDoubleClick(false);
+
     setNewTitle('');
   };
 
@@ -118,10 +120,11 @@ export const TodoList:React.FC<Props> = ({
               </>
 
             )}
+          <Loader
+            isActive={selectedTodos.includes(todo.id)
+              || todo.id === 0}
+          />
 
-          {isLoading && (
-            <Loader />
-          )}
         </div>
       ))}
 

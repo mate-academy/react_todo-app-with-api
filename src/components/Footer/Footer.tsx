@@ -7,19 +7,21 @@ type Props = {
   setFilter: (value:string) => void,
   todosClear: Todo[]
   handlerRemoveComleted: () => void,
+  activeItems: number;
+
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
   filterLink,
   setFilter,
   todosClear,
   handlerRemoveComleted,
+  activeItems,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todos.filter(todo => !todo.completed).length} items left`}
+        {`${activeItems} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
