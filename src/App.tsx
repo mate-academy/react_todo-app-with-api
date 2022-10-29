@@ -39,20 +39,35 @@ export const App: React.FC = () => {
     return (todos.filter(todo => !todo.completed)).length;
   }, [todos]);
 
+  const loadTodos = async () => {
+    try {
+      if (user) {
+        const getTodosFromServer = await getTodos(user.id);
+
+        setTodos(getTodosFromServer);
+      }
+    } catch {
+      setTimeout(() => {
+        setHasError(true);
+      }, 3000);
+    }
+  };
+
+  // if (user) {
+  //   getTodos(user.id)
+  //     .then(response => {
+  //       setTodos(response);
+  //     })
+  //     .catch(() => setTimeout(() => {
+  //       setHasError(true);
+  //     }, 3000));
+  // }
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
 
-    if (user) {
-      getTodos(user.id)
-        .then(response => {
-          setTodos(response);
-        })
-        .catch(() => setTimeout(() => {
-          setHasError(true);
-        }, 3000));
-    }
+    loadTodos();
   }, []);
 
   const visibleTodos = todos.filter(todo => {
@@ -77,23 +92,15 @@ export const App: React.FC = () => {
     }
 
     setisLoading([user?.id || 0]);
+
     try {
       if (user) {
-        const newTodoData = {
-          id: 0,
-          userId: user.id,
-          title,
-          completed: false,
-        };
-
-        setTodos(state => [...state, newTodoData]);
-        const newTodo = await createTodo(user.id, title);
-
-        setTodos(state => [...state, newTodo]
-          .filter(todo => todo.id !== 0));
+        await createTodo(user.id, title);
       }
     } catch {
       setSubtitleError('Unable to add a todo');
+    } finally {
+      loadTodos();
     }
 
     setisLoading([]);
