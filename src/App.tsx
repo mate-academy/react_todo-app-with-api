@@ -17,7 +17,7 @@ import {
 
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodosList } from './components/TodoList';
-import { Footer } from './components/Filters';
+import { Filters } from './components/Filters';
 import { ErrorNotification, ErrorText } from './components/ErrorNotification';
 import { FilterStatus } from './types/Filter';
 import { Todo } from './types/Todo';
@@ -96,18 +96,6 @@ export const App: React.FC = () => {
 
     setTitle('');
   }, [title, user]);
-
-  // const hundleDeleteTodo = (todosIds: number[]) => {
-  //   Promise.all(todosIds.map(todoId => (
-  //     deleteTodo(todoId)
-  //       .then(() => {
-  //         setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todoId));
-  //       })
-  //   )))
-  //     .catch(() => {
-  //       setError(ErrorText.Delete);
-  //     });
-  // };
 
   const hundleDeleteTodo = async (todoId: number) => {
     setLoadingTodoIds([todoId]);
@@ -193,7 +181,7 @@ export const App: React.FC = () => {
               loadingTodoIds={loadingTodoIds}
               isAdding={isAdding}
             />
-            <Footer
+            <Filters
               todos={todos}
               filterType={filterStatus}
               handleFilterStatus={setFilterStatus}

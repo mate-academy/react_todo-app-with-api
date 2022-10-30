@@ -13,7 +13,7 @@ type Props = {
   completedTodosIds: Todo[],
 };
 
-export const Footer: React.FC<Props> = ({
+export const Filters: React.FC<Props> = ({
   todos,
   filterType,
   handleFilterStatus,
@@ -22,6 +22,7 @@ export const Footer: React.FC<Props> = ({
   completedTodosIds,
 }) => {
   const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   const deleteFinishedTodos = async (finished: Todo[]) => {
     try {
@@ -78,14 +79,16 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={() => deleteFinishedTodos(completedTodosIds)}
-      >
-        Clear completed
-      </button>
+      {!!completedTodos.length && (
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={() => deleteFinishedTodos(completedTodosIds)}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };
