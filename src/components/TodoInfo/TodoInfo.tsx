@@ -67,8 +67,10 @@ export const TodoInfo: React.FC<Props> = ({
       return;
     }
 
-    if (!inputTitleEditing) {
+    if (!inputTitleEditing.trim()) {
       onDeleteTodo();
+
+      return;
     }
 
     setIsDeleting(true);
@@ -126,6 +128,7 @@ export const TodoInfo: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            ref={(input) => input?.focus()}
             value={inputTitleEditing}
             onChange={(e) => setIinputTitleEditing(e.target.value)}
             onBlur={() => onFormSubmit()}

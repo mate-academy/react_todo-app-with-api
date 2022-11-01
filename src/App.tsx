@@ -48,9 +48,10 @@ export const App: React.FC = () => {
   const onAddNewTodo = async () => {
     setIsAdding(true);
 
-    if (!newTodo.length) {
+    if (!newTodo.trim().length) {
       setIsError('length');
       setIsAdding(false);
+      setNewTodo('');
 
       return;
     }
@@ -163,14 +164,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: todos.every(item => item.completed),
-            })}
-            onClick={onUpdateAll}
-          />
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: todos.every(item => item.completed),
+              })}
+              onClick={onUpdateAll}
+            />
+          )}
 
           <form
             onSubmit={(event) => {
