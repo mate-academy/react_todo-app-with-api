@@ -37,6 +37,7 @@ function request<T>(
     });
 }
 
+// Requests with different methods:
 export const client = {
   get: <T>(url: string) => request<T>(url),
   post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
