@@ -1,9 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState,
+  useCallback, useContext,
+  useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
+import './App.css';
 
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import {
@@ -146,7 +149,7 @@ export const App: React.FC = () => {
     setIsTogglingAll(false);
   };
 
-  const filterTodos = () => {
+  const filterTodos = useCallback(() => {
     if (filterBy === 'completed') {
       return todos.filter(todoFilter => todoFilter.completed);
     }
@@ -156,7 +159,7 @@ export const App: React.FC = () => {
     }
 
     return todos;
-  };
+  }, [todos, filterBy]);
 
   return (
     <div className="todoapp">
@@ -195,8 +198,11 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {todos.length > 0 && (
-          <>
+        <TransitionGroup>
+          <CSSTransition
+            timeout={300}
+            classNames="list-item"
+          >
             <TodoList
               setError={setIsError}
               setVisibleTodos={setTodos}
@@ -204,9 +210,20 @@ export const App: React.FC = () => {
               isDeletingAll={isDeletingAll}
               isTogglingAll={isTogglingAll}
             />
+          </CSSTransition>
 
-            {isAdding && <TodoOnAdd title={newTodo} />}
+          {isAdding && (
+            <CSSTransition
+              timeout={300}
+              classNames="temp-item"
+            >
+              <TodoOnAdd title={newTodo} />
+            </CSSTransition>
+          )}
+        </TransitionGroup>
 
+        {(todos.length > 0 || isAdding) && (
+          <>
             <footer className="todoapp__footer" data-cy="Footer">
               <span className="todo-count" data-cy="todosCounter">
                 {todos
