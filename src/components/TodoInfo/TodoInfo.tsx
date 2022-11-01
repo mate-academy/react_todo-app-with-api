@@ -98,12 +98,16 @@ export const TodoInfo: React.FC<Props> = ({
     setIsDeleting(false);
   };
 
+  const {
+    id, title, completed,
+  } = todo;
+
   return (
     <div
-      key={todo.id}
+      key={id}
       data-cy="Todo"
       className={classNames('todo', {
-        completed: todo.completed,
+        completed,
       })}
     >
       <label className="todo__status-label">
@@ -111,7 +115,7 @@ export const TodoInfo: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          defaultChecked={completed}
           onClick={onToggle}
         />
       </label>
@@ -135,7 +139,7 @@ export const TodoInfo: React.FC<Props> = ({
             onKeyUp={(e) => {
               if (e.key === 'Escape') {
                 setIsEditing(false);
-                setIinputTitleEditing(todo.title);
+                setIinputTitleEditing(title);
               }
             }}
           />
@@ -147,7 +151,7 @@ export const TodoInfo: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
-            {todo.title}
+            {title}
           </span>
 
           <button
@@ -165,8 +169,8 @@ export const TodoInfo: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active': isDeleting
-            || (isDeletingAll && todo.completed)
-            || (isTogglingAll && !todo.completed),
+            || (isDeletingAll && completed)
+            || (isTogglingAll && !completed),
         })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -19,18 +19,16 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => {
-        return (
-          <TodoInfo
-            key={todo.id}
-            todo={todo}
-            setError={setError}
-            setVisibleTodos={setVisibleTodos}
-            isDeletingAll={isDeletingAll}
-            isTogglingAll={isTogglingAll}
-          />
-        );
-      })}
+      {todos.map(todo => (
+        <TodoInfo
+          key={todo.id}
+          todo={todo}
+          setError={setError}
+          setVisibleTodos={setVisibleTodos}
+          isDeletingAll={isDeletingAll}
+          isTogglingAll={isTogglingAll}
+        />
+      ))}
     </section>
   );
 };
