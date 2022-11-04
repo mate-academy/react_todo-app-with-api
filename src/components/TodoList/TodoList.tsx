@@ -13,7 +13,7 @@ type Props = {
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
-    todos, title, isLoaded, removeTodo, handleChange, selectedId
+    todos, title, isLoaded, removeTodo, handleChange, selectedId,
   } = props;
 
   return (
@@ -47,7 +47,7 @@ export const TodoList: React.FC<Props> = (props) => {
             data-cy="TodoLoader"
             className={classNames(
               'modal overlay',
-              {'is-active': isLoaded}
+              { 'is-active': isLoaded },
             )}
           >
             <div className="modal-background has-background-white-ter" />

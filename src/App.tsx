@@ -122,7 +122,7 @@ export const App: React.FC = () => {
   const filteredTodos = getFilterTodos(todos, filterBy);
 
   const completedTodos = useMemo(() => {
-    return todos.filter(todo => todo.completed)
+    return todos.filter(todo => todo.completed);
   }, [todos]);
 
   const activeTodos = useMemo(() => {

@@ -14,7 +14,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   removeTodo,
   handleChange,
-  selectedId
+  selectedId,
 }) => {
   const [doubleClick, setDoubleClick] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -120,8 +120,9 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="TodoLoader"
               className={classNames(
                 'modal overlay',
-                {'is-active': selectedId.includes(todo.id)}
-              )}>
+                { 'is-active': selectedId.includes(todo.id) },
+              )}
+            >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>
