@@ -42,7 +42,7 @@ export const TodoList: React.FC<Props> = ({
     }
   }, []);
 
-  const handleSubmit = async (event: React.SyntheticEvent) => {
+  const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     if (isRenaming.title === renamedTitle) {
