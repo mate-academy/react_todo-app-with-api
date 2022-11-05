@@ -24,3 +24,11 @@ export const toggleTodo = (todoId: number, completed: boolean) => {
 
   return client.patch(`/todos/${todoId}`, data);
 };
+
+export const updateTodo = (todoId: number, title: string) => {
+  const data = {
+    title,
+  };
+
+  return client.patch(`/todos/${todoId}`, data);
+};

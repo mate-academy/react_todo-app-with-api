@@ -12,6 +12,7 @@ import {
   deleteTodo,
   getTodos,
   toggleTodo,
+  updateTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
@@ -75,7 +76,7 @@ export const App: React.FC = () => {
       try {
         const todosFromServer = await getTodos(user.id);
 
-        setTodos(() => todosFromServer);
+        setTodos(todosFromServer);
       } catch {
         handleError(ErrorMessage.Load);
       }
@@ -106,11 +107,9 @@ export const App: React.FC = () => {
   };
 
   const removingTodos = async (
-    todoId: number | number[] = completedTodosId,
+    todoId: number[] = completedTodosId,
   ) => {
-    const todosForRemoving = !Array.isArray(todoId)
-      ? [todoId]
-      : [...todoId];
+    const todosForRemoving = [...todoId];
 
     setChangeTodosId(todosForRemoving);
 
@@ -155,6 +154,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const updatingTodo = async (todoId: number, newTitle: string) => {
+    setChangeTodosId([todoId]);
+
+    try {
+      await updateTodo(todoId, newTitle);
+
+      setToggle((prevToggle) => !prevToggle);
+    } catch {
+      handleError(ErrorMessage.Update);
+    } finally {
+      setChangeTodosId([]);
+    }
+  };
+
   const handleSubmit = useCallback((event: React.SyntheticEvent) => {
     event.preventDefault();
 
@@ -167,6 +180,11 @@ export const App: React.FC = () => {
 
     additingTodo();
   }, [title]);
+
+  const handleRemoveError = useCallback(() => setIsError({
+    status: false,
+    notification: ErrorMessage.None,
+  }), []);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -184,16 +202,18 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            aria-label="button"
-            data-cy="ToggleAllButton"
-            type="button"
-            className={classNames(
-              'todoapp__toggle-all',
-              { active: visibleTodos.length === completedTodosId.length },
-            )}
-            onClick={() => togglingTodos()}
-          />
+          {todos.length > 0 && (
+            <button
+              aria-label="button"
+              data-cy="ToggleAllButton"
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: todos.length === completedTodosId.length },
+              )}
+              onClick={() => togglingTodos()}
+            />
+          )}
 
           <form onSubmit={handleSubmit}>
             <input
@@ -213,8 +233,9 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={visibleTodos}
-              onRemove={(todoId: number) => removingTodos(todoId)}
-              onToggle={(todo: Todo) => togglingTodos(todo)}
+              onRemove={removingTodos}
+              onToggle={togglingTodos}
+              onUpdate={updatingTodo}
               changeTodosIds={changeTodosIds}
             />
 
@@ -222,9 +243,9 @@ export const App: React.FC = () => {
 
             <Footer
               sortBy={sortBy}
-              setSortBy={(sort: Sorting) => setSortBy(sort)}
+              setSortBy={setSortBy}
               todosCount={visibleTodos.length}
-              onRemove={() => removingTodos()}
+              onRemove={removingTodos}
               complitedTodos={completedTodosId}
             />
           </>
@@ -233,10 +254,7 @@ export const App: React.FC = () => {
 
       <ErrorNotify
         isError={isError}
-        onResetError={() => setIsError({
-          status: false,
-          notification: ErrorMessage.None,
-        })}
+        onResetError={handleRemoveError}
       />
     </div>
   );
