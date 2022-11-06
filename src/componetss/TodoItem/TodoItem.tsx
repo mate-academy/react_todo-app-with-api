@@ -2,7 +2,7 @@ import {
   FormEvent, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;

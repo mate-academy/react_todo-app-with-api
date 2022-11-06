@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Error } from '../types/Error';
+import { Error } from '../../types/Error';
 
 type Props = {
   handleError: (value: Error | null) => void;
