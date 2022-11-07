@@ -1,6 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
-  useContext, useEffect, useMemo, useRef, useState,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
 import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
