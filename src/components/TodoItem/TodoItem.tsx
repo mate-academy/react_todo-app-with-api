@@ -49,7 +49,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (newTitle === '') {
+    if (!newTitle.trim()) {
       removeTodo();
 
       return;

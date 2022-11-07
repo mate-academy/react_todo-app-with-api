@@ -7,7 +7,11 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import {
-  getTodos, addTodo, deleteTodo, updateTodoStatus, updateTodoTitle,
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateTodoStatus,
+  updateTodoTitle,
 } from './api/todos';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';

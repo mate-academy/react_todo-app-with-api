@@ -32,7 +32,7 @@ export const NewTodoField: React.FC<Props> = ({
         ref={newTodoField}
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
-        value={`${newTodoTitle}`}
+        value={String(newTodoTitle)}
         disabled={isAdding}
         onChange={changeTitle}
       />
