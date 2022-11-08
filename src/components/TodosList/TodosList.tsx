@@ -1,20 +1,40 @@
 import cn from 'classnames';
-import React from 'react';
+import React, {
+// useCallback,
+// useContext,
+// useEffect,
+// useState,
+// useRef,
+// useState,
+// useMemo,
+} from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[];
-  onUpdate: (todoId: number, status: boolean) => void;
-  onDelete: (todoId: number) => void;
+  onDeleteTodo: (todoId: number) => Promise<void>;
+  loadTodos: () => Promise<void>;
+  changeTodoStatus: (todoId: number, status: boolean) => Promise<void>;
   processingId: number[];
 };
 
 export const TodosList: React.FC<Props> = React.memo(({
   todos,
-  onUpdate,
-  onDelete,
+  onDeleteTodo,
+  loadTodos,
+  changeTodoStatus,
   processingId,
 }) => {
+  const handleDeleteTodo = async (todoId: number) => {
+    await onDeleteTodo(todoId);
+    loadTodos();
+  };
+
+  const handleChangingTodoStatus = async (todoId: number, status: boolean) => {
+    await changeTodoStatus(todoId, status);
+    loadTodos();
+  };
+
   return (
     <>
       {todos.map(({ title, completed, id }) => (
@@ -31,7 +51,7 @@ export const TodosList: React.FC<Props> = React.memo(({
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              onChange={() => onUpdate(id, !completed)}
+              onChange={() => handleChangingTodoStatus(id, !completed)}
             />
           </label>
 
@@ -43,7 +63,7 @@ export const TodosList: React.FC<Props> = React.memo(({
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={() => onDelete(id)}
+            onClick={() => handleDeleteTodo(id)}
           >
             ×
           </button>
@@ -52,13 +72,7 @@ export const TodosList: React.FC<Props> = React.memo(({
             data-cy="TodoLoader"
             className={cn(
               'modal overlay',
-              {
-                'is-active': processingId.includes(id),
-                //   || deletingIds.includes(id)
-                //   || id === updatingTodoId
-                //   || changedTodosIds.includes(id),
-
-              },
+              { 'is-active': processingId.includes(id) },
             )}
           >
             <div

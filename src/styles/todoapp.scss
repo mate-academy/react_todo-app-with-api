@@ -83,9 +83,14 @@
   }
 
   &__footer {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 70px 200px 100px;
+    gap: 55px;
+
+    align-content: center;
+    justify-content: center;
     align-items: center;
+    justify-items: center;
 
     box-sizing: content-box;
     height: 20px;

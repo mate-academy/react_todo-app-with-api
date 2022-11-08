@@ -4,12 +4,12 @@ import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   error: ErrorType;
-  onClose: () => void;
+  closeErrorMassege: () => void;
 };
 
 export const ErrorNotification: React.FC<Props> = React.memo(({
   error,
-  onClose,
+  closeErrorMassege,
 }) => (
   <div
     data-cy="ErrorNotification"
@@ -23,11 +23,15 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
       data-cy="HideErrorButton"
       type="button"
       className="delete"
-      onClick={onClose}
+      onClick={closeErrorMassege}
     />
 
     {error === ErrorType.EMPTYTITLE && (
       'Title can\'t be empty'
+    )}
+
+    {error === ErrorType.LOADING && (
+      'Unable to load todos'
     )}
 
     {error === ErrorType.ADD && (

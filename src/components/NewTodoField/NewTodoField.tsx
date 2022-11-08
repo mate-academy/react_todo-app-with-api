@@ -1,25 +1,82 @@
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
+import { addTodo } from '../../api/todos';
 import { ErrorType } from '../../types/ErrorType';
+import { Todo } from '../../types/Todo';
+import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  onError: (errorType: ErrorType) => void;
-  onAddTodo: (event: React.FormEvent<HTMLFormElement>) => void;
+  onChangeError: (errorType: ErrorType) => void;
+  loadTodos: () => Promise<void>;
   isAdding: boolean;
-  newTodoField: React.RefObject<HTMLInputElement>;
+  onChangeIsAdding: (status: boolean) => void;
   newTodoTitle: string;
-  onTitleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onStatusChange: () => void;
+  onChangeNewTodoTitle: (title: string) => void;
 };
 
 export const NewTodoFieldInput: React.FC<Props> = ({
-  onError,
-  onAddTodo,
+  onChangeError,
+  loadTodos,
   isAdding,
-  newTodoField,
+  onChangeIsAdding,
   newTodoTitle,
-  onTitleChange,
+  onChangeNewTodoTitle,
 }) => {
+  const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  });
+
+  const createNewTodo = (title: string): Omit <Todo, 'id'> | null => {
+    const titleWithoutSpacesAround = title.trim();
+
+    if (!titleWithoutSpacesAround) {
+      onChangeError(ErrorType.EMPTYTITLE);
+    }
+
+    let todoForServer = null;
+
+    if (user && titleWithoutSpacesAround) {
+      onChangeIsAdding(true);
+
+      todoForServer = {
+        userId: user.id,
+        title: titleWithoutSpacesAround,
+        completed: false,
+      };
+    }
+
+    return todoForServer;
+  };
+
+  const handleAddTodo = useCallback(async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    const newTodo = createNewTodo(newTodoTitle);
+
+    try {
+      await addTodo(newTodo);
+    } catch {
+      onChangeError(ErrorType.ADD);
+    }
+
+    await loadTodos();
+    onChangeIsAdding(false);
+    onChangeNewTodoTitle('');
+  }, [newTodoTitle, user]);
+
   return (
-    <form onSubmit={onAddTodo}>
+    <form onSubmit={handleAddTodo}>
       <input
         data-cy="NewTodoField"
         type="text"
@@ -28,8 +85,8 @@ export const NewTodoFieldInput: React.FC<Props> = ({
         disabled={isAdding}
         value={newTodoTitle}
         placeholder="What needs to be done?"
-        onFocus={() => onError(ErrorType.NONE)}
-        onChange={(event) => onTitleChange(event)}
+        onFocus={() => onChangeError(ErrorType.NONE)}
+        onChange={(event) => onChangeNewTodoTitle(event.target.value)}
       />
     </form>
   );

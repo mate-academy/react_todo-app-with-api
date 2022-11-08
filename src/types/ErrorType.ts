@@ -4,4 +4,5 @@ export enum ErrorType {
   DELETE,
   UPDATE,
   EMPTYTITLE,
+  LOADING,
 }
