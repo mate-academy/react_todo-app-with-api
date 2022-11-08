@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
 import { useEffect } from 'react';
 
 type Props = {
@@ -20,20 +19,21 @@ export const TodoErrorNotification: React.FC<Props> = ({
   }, [error]);
 
   return (
-    <div
-      data-cy="ErrorNotification"
-      className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
-        { hidden: !error },
+    <>
+      {error && (
+        <div
+          data-cy="ErrorNotification"
+          className="notification is-danger is-light has-text-weight-normal"
+        >
+          <button
+            data-cy="HideErrorButton"
+            type="button"
+            className="delete"
+            onClick={() => setError(null)}
+          />
+          {error}
+        </div>
       )}
-    >
-      <button
-        data-cy="HideErrorButton"
-        type="button"
-        className="delete"
-        onClick={() => setError(null)}
-      />
-      {error}
-    </div>
+    </>
   );
 };
