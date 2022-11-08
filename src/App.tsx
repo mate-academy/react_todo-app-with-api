@@ -79,36 +79,6 @@ export const App: React.FC = () => {
     }, 3000);
   }, []);
 
-  const onCompleteTodo = useCallback((todoId: number) => {
-    setTodos(currentTodos => (
-      currentTodos.map(todo => {
-        if (todo.id === todoId) {
-          return {
-            ...todo,
-            completed: !todo.completed,
-          };
-        }
-
-        return todo;
-      })
-    ));
-  }, [todos]);
-
-  const onChangeTodoTitle = useCallback((todoId: number, newTitle: string) => {
-    setTodos(currentTodos => (
-      currentTodos.map(todo => {
-        if (todo.id === todoId) {
-          return {
-            ...todo,
-            title: newTitle,
-          };
-        }
-
-        return todo;
-      })
-    ));
-  }, [todos]);
-
   const getTodosFromServer = async () => {
     try {
       if (user) {
@@ -130,18 +100,13 @@ export const App: React.FC = () => {
       if (title && user) {
         setIsLoading(true);
 
-        const newTodo = await createTodo(title, user.id);
-
-        setTodos(currentTodos => ([
-          ...currentTodos,
-          newTodo,
-        ]));
-
-        setTodoTitle('');
+        await createTodo(title, user.id);
+        await getTodosFromServer();
       }
     } catch (error) {
       showError(ErrorType.Add);
     } finally {
+      setTodoTitle('');
       setIsLoading(false);
     }
   };
@@ -154,10 +119,7 @@ export const App: React.FC = () => {
       ]));
 
       await removeTodo(todoId);
-
-      setTodos(currentTodos => (
-        currentTodos.filter(todo => todo.id !== todoId)
-      ));
+      await getTodosFromServer();
     } catch (error) {
       showError(ErrorType.Delete);
     } finally {
@@ -181,7 +143,7 @@ export const App: React.FC = () => {
       ]));
 
       await editCompleteTodoStatus(todoId, !isComplited);
-      onCompleteTodo(todoId);
+      await getTodosFromServer();
     } catch (error) {
       showError(ErrorType.Update);
     } finally {
@@ -196,7 +158,7 @@ export const App: React.FC = () => {
       }
 
       if (isEveryTodosComplited) {
-        changeCompleteStatus(todo.id, !todo.completed);
+        changeCompleteStatus(todo.id, todo.completed);
       }
     });
   };
@@ -209,12 +171,11 @@ export const App: React.FC = () => {
       ]));
 
       await changeTitle(todoId, newTitle);
+      await getTodosFromServer();
 
       if (newTitle === '') {
         deleteTodo(todoId);
       }
-
-      onChangeTodoTitle(todoId, newTitle);
     } catch (error) {
       showError(ErrorType.Update);
     } finally {
