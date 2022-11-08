@@ -234,9 +234,9 @@ export const App: React.FC = () => {
           <TodoFooter
             sortType={sortType}
             setSortType={setSortType}
-            todos={getFilteredTodos()}
             completedTodosIds={completedTodosIds}
             handlerClearCompletedButton={handlerClearCompletedButton}
+            unCompletedTodosIds={unCompletedTodosIds}
           />
         )}
       </div>
