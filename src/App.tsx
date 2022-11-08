@@ -98,8 +98,8 @@ export const App: React.FC = () => {
           completed: false,
         });
 
-        setIsAdding(false);
         setTodos(currTodos => [...currTodos, addedTodo]);
+        setIsAdding(false);
       } catch (error) {
         generateError('Unable to add todo');
       }
@@ -194,6 +194,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const isSelectionVisible = useMemo(() => (
+    filtredTodos.length > 0 || isAdding
+  ), [filtredTodos, isAdding]);
+
   useEffect(() => {
     setTimeout(() => setHasError(false), 3000);
   }, [hasError]);
@@ -214,6 +218,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoForm
+          isToggleVisible={todos.length !== 0}
           newTodoField={newTodoField}
           toggleAllTodosServerStatus={toggleAllTodosServerStatus}
           addTodoToServer={addTodoToServer}
@@ -223,26 +228,24 @@ export const App: React.FC = () => {
           isAllTodosCompleted={completedTodos.length === todos.length}
         />
 
-        {todos.length > 0 && (
-          <>
-            <TodoList
-              filtredTodos={filtredTodos}
-              isAdding={isAdding}
-              tempTodo={tempTodo}
-              todoIdsLoading={todoIdsLoading}
-              removeTodoFromServer={removeTodoFromServer}
-              toggleTodoServerStatus={toggleTodoServerStatus}
-              sendNewTodoTitleToServer={sendNewTodoTitleToServer}
-            />
+        <TodoList
+          filtredTodos={filtredTodos}
+          isAdding={isAdding}
+          tempTodo={tempTodo}
+          todoIdsLoading={todoIdsLoading}
+          removeTodoFromServer={removeTodoFromServer}
+          toggleTodoServerStatus={toggleTodoServerStatus}
+          sendNewTodoTitleToServer={sendNewTodoTitleToServer}
+        />
 
-            <TodosSelection
-              completedTodosLength={completedTodos.length}
-              todosLength={todos.length}
-              statusToFilter={statusToFilter}
-              setStatusToFilter={setStatusToFilter}
-              removeAllCompletedTodos={removeAllCompletedTodos}
-            />
-          </>
+        {isSelectionVisible && (
+          <TodosSelection
+            completedTodosLength={completedTodos.length}
+            todosLength={todos.length}
+            statusToFilter={statusToFilter}
+            setStatusToFilter={setStatusToFilter}
+            removeAllCompletedTodos={removeAllCompletedTodos}
+          />
         )}
       </div>
 

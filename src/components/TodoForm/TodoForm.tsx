@@ -9,6 +9,7 @@ interface Props {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   toggleAllTodosServerStatus: () => Promise<void>;
   isAllTodosCompleted: boolean;
+  isToggleVisible: boolean;
 }
 
 export const TodoForm: React.FC<Props> = React.memo(({
@@ -19,6 +20,7 @@ export const TodoForm: React.FC<Props> = React.memo(({
   setErrorMessage,
   toggleAllTodosServerStatus,
   isAllTodosCompleted,
+  isToggleVisible,
 }) => {
   const [todoText, setTodoText] = useState('');
 
@@ -47,15 +49,17 @@ export const TodoForm: React.FC<Props> = React.memo(({
 
   return ((
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isAllTodosCompleted,
-        })}
-        aria-label="Toggle all todos"
-        onClick={toggleAllTodosServerStatus}
-      />
+      {isToggleVisible && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosCompleted,
+          })}
+          aria-label="Toggle all todos"
+          onClick={toggleAllTodosServerStatus}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
