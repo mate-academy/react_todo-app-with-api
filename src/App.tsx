@@ -195,8 +195,8 @@ export const App: React.FC = () => {
   };
 
   const isSelectionVisible = useMemo(() => (
-    filtredTodos.length > 0 || isAdding
-  ), [filtredTodos, isAdding]);
+    todos.length > 0 || isAdding
+  ), [todos, isAdding]);
 
   useEffect(() => {
     setTimeout(() => setHasError(false), 3000);
