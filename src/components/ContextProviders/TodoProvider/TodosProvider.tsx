@@ -337,7 +337,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       return;
     }
 
-    if (todo.title.length === 0) {
+    if (todo.title.trim().length === 0) {
       deleteTodos([todo.id]);
     } else {
       modifyTodos([{ ...todo, title: todo.title.trim() }]);
