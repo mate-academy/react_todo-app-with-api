@@ -5,4 +5,16 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-// Add more methods here
+export const createTodo = (todo: Todo) => {
+  return client.post<Todo>('/todos', todo);
+};
+
+export const deleteTodo = (todoID: number) => {
+  return client.delete(`/todos/${todoID}`);
+};
+
+export const updateTodo = (
+  todoId: number, data: Partial<Todo>,
+): Promise<Todo> => {
+  return client.patch(`/todos/${todoId}`, data);
+};
