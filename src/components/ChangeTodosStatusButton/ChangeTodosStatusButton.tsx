@@ -6,12 +6,14 @@ type Props = {
   todos: Todo[];
   loadTodos: () => Promise<void>;
   onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
+  onChangeProcessingIds: (todoId: number | []) => void;
 };
 
 export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
   todos,
   loadTodos,
   onUpdateTodoStatus,
+  onChangeProcessingIds,
 }) => {
   const isAllCompleted = useMemo(() => (
     todos.every(({ completed }) => completed)), [todos]);
@@ -20,6 +22,8 @@ export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
     if (!isAllCompleted) {
       await Promise.all(todos.map(async ({ id, completed }) => {
         if (!completed) {
+          onChangeProcessingIds(id);
+
           return onUpdateTodoStatus(id, !completed);
         }
 
@@ -27,6 +31,8 @@ export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
       }));
     } else {
       await Promise.all(todos.map(async ({ id, completed }) => {
+        onChangeProcessingIds(id);
+
         return onUpdateTodoStatus(id, !completed);
       }));
     }
@@ -35,6 +41,7 @@ export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
   const handleChangingAllTodosStatus = async () => {
     await changeAllTodosStatus();
     await loadTodos();
+    onChangeProcessingIds([]);
   };
 
   return (

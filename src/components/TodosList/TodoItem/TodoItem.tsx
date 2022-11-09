@@ -32,16 +32,20 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const [isDoubleClick, setIsDoubleClick] = useState(false);
 
   const handleDeleteTodo = async (todoId: number): Promise<void> => {
+    onChangeProcessingIds(todoId);
     await onDeleteTodo(todoId);
     await loadTodos();
+    onChangeProcessingIds([]);
   };
 
   const handleChangingTodoStatus = async (
     todoId: number,
     status: boolean,
   ): Promise<void> => {
+    onChangeProcessingIds(todoId);
     await onUpdateTodoStatus(todoId, status);
     await loadTodos();
+    onChangeProcessingIds([]);
   };
 
   const handleDoubleClick = (isRelevant: boolean): void => {

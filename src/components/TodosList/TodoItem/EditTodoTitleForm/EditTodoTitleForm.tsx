@@ -36,19 +36,17 @@ export const EditTodoTitleForm: React.FC<Props> = ({
 
   const onUpdateTodoTitle = async (todoId: number, newTitle: string) => {
     try {
-      onChangeProcessingIds(todoId);
-
       await updateTodoTitle(todoId, newTitle);
     } catch (e) {
       onChangeError(ErrorType.UPDATE);
-    } finally {
-      onChangeProcessingIds([]);
     }
   };
 
   const handleChangingTodoTitle = async (todoId: number, newTitle: string) => {
+    onChangeProcessingIds(todoId);
     await onUpdateTodoTitle(todoId, newTitle);
     await loadTodos();
+    onChangeProcessingIds([]);
   };
 
   const onSubmitEditedTodoTitle = (

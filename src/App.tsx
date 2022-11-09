@@ -56,16 +56,9 @@ export const App: React.FC = () => {
 
   const onDeleteTodo = useCallback(async (todoId: number): Promise<void> => {
     try {
-      setProcessingIds(ids => ([
-        ...ids,
-        todoId,
-      ]));
-
       await deleteTodo(todoId);
     } catch (e) {
       setError(ErrorType.DELETE);
-    } finally {
-      setProcessingIds([]);
     }
   }, []);
 
@@ -74,16 +67,9 @@ export const App: React.FC = () => {
     completed: boolean,
   ): Promise<void> => {
     try {
-      setProcessingIds(ids => ([
-        ...ids,
-        todoId,
-      ]));
-
       await updateTodoStatus(todoId, completed);
     } catch (e) {
       setError(ErrorType.UPDATE);
-    } finally {
-      setProcessingIds([]);
     }
   }, []);
 
@@ -133,6 +119,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onUpdateTodoStatus={onUpdateTodoStatus}
               loadTodos={loadTodos}
+              onChangeProcessingIds={onChangeProcessingIds}
             />
           )}
 
@@ -180,6 +167,7 @@ export const App: React.FC = () => {
                   todos={visibleTodos}
                   onDeleteTodo={onDeleteTodo}
                   loadTodos={loadTodos}
+                  onChangeProcessingIds={onChangeProcessingIds}
                 />
               </CSSTransition>
             </footer>

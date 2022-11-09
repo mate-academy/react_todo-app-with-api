@@ -5,23 +5,28 @@ type Props = {
   todos: Todo[];
   onDeleteTodo: (todoId: number) => void;
   loadTodos: () => void;
+  onChangeProcessingIds: (todoId: number | []) => void;
 };
 
 export const ClearCompletedTodos: React.FC<Props> = React.memo(({
   todos,
   onDeleteTodo,
   loadTodos,
+  onChangeProcessingIds,
 }) => {
   const handleDeleteAllCompleted = useCallback(async () => {
-    await Promise.all(todos.map(todo => {
+    await Promise.all(todos.map(async (todo) => {
       if (todo.completed) {
+        onChangeProcessingIds(todo.id);
+
         return onDeleteTodo(todo.id);
       }
 
       return null;
     }));
 
-    loadTodos();
+    await loadTodos();
+    onChangeProcessingIds([]);
   }, [todos]);
 
   return (
