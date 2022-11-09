@@ -20,9 +20,8 @@ import { TodosFilter } from './types/TodosFilter';
 import {
   addTodo,
   getTodos,
+  patchTodo,
   removeTodo,
-  sendNewTodoTitle,
-  toggleTodoStatus,
 } from './api/todos';
 
 export const App: React.FC = () => {
@@ -33,16 +32,18 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [todoIdsLoading, setTodoIdsLoading] = useState<number[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo>({
-    id: 0,
-    userId: 0,
-    title: '',
-    completed: false,
-  });
+  const [tempTodoTitle, setTempTodoTitle] = useState('');
   const [
     statusToFilter,
     setStatusToFilter,
   ] = useState<TodosFilter>(TodosFilter.All);
+
+  const tempTodo = useMemo(() => ({
+    id: 0,
+    userId: 0,
+    title: tempTodoTitle,
+    completed: false,
+  }), [tempTodoTitle]);
 
   const closeNotification = useCallback(() => setHasError(false), []);
 
@@ -65,12 +66,12 @@ export const App: React.FC = () => {
     todos.filter((todo) => todo.completed)
   ), [todos]);
 
-  const generateError = (message: string) => {
+  const generateError = useCallback((message: string) => {
     setErrorMessage(message);
     setHasError(true);
-  };
+  }, []);
 
-  const getTodosFromServer = async () => {
+  const getTodosFromServer = useCallback(async () => {
     try {
       if (user) {
         const todosFromServer = await getTodos(user.id);
@@ -80,17 +81,13 @@ export const App: React.FC = () => {
     } catch (error) {
       generateError('Unable to show todos');
     }
-  };
+  }, []);
 
-  const addTodoToServer = async (todoTitle: string) => {
+  const addTodoToServer = useCallback(async (todoTitle: string) => {
     if (user) {
       try {
         setIsAdding(true);
-        setTempTodo(currTemp => ({
-          ...currTemp,
-          title: todoTitle,
-          userId: user.id,
-        }));
+        setTempTodoTitle(todoTitle);
 
         const addedTodo = await addTodo({
           title: todoTitle,
@@ -102,11 +99,12 @@ export const App: React.FC = () => {
         setIsAdding(false);
       } catch (error) {
         generateError('Unable to add todo');
+        setIsAdding(false);
       }
     }
-  };
+  }, []);
 
-  const removeTodoFromServer = async (todoId: number) => {
+  const removeTodoFromServer = useCallback(async (todoId: number) => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
@@ -122,9 +120,9 @@ export const App: React.FC = () => {
     } catch (error) {
       generateError(`Unable to remove todo ${todoId}`);
     }
-  };
+  }, []);
 
-  const removeAllCompletedTodos = async () => {
+  const removeAllCompletedTodos = useCallback(async () => {
     try {
       await Promise.all(completedTodos.map(({ id }) => (
         removeTodoFromServer(id)
@@ -132,13 +130,16 @@ export const App: React.FC = () => {
     } catch (error) {
       generateError('Unable to remove all completed todo');
     }
-  };
+  }, [completedTodos]);
 
-  const toggleTodoServerStatus = async (todoId: number, status: boolean) => {
+  const toggleTodoServerStatus = useCallback(async (
+    todoId: number,
+    status: boolean,
+  ) => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      await toggleTodoStatus(todoId, status);
+      await patchTodo(todoId, { completed: status });
 
       setTodos(currTodos => (
         currTodos.map(todo => (
@@ -153,11 +154,13 @@ export const App: React.FC = () => {
       ));
     } catch (error) {
       generateError(`Unable to change status of todo #${todoId}, todo not exist!`);
-      await getTodosFromServer();
+      setTodos(currTodos => (
+        currTodos.filter(({ id }) => id !== todoId)
+      ));
     }
-  };
+  }, [todos]);
 
-  const toggleAllTodosServerStatus = async () => {
+  const toggleAllTodosServerStatus = useCallback(async () => {
     try {
       const todosToToggleStatus = completedTodos.length !== todos.length
         ? todos.filter(({ completed }) => !completed)
@@ -169,13 +172,16 @@ export const App: React.FC = () => {
     } catch (error) {
       generateError('Unable to toggle all todos status!');
     }
-  };
+  }, [todos]);
 
-  const sendNewTodoTitleToServer = async (todoId: number, newTitle: string) => {
+  const sendNewTodoTitleToServer = useCallback(async (
+    todoId: number,
+    newTitle: string,
+  ) => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      await sendNewTodoTitle(todoId, newTitle);
+      await patchTodo(todoId, { title: newTitle });
 
       setTodos(currTodos => (
         currTodos.map(todo => (
@@ -190,9 +196,11 @@ export const App: React.FC = () => {
       ));
     } catch (error) {
       generateError(`Unable to change title of todo #${todoId}, todo not exist!`);
-      await getTodosFromServer();
+      setTodos(currTodos => (
+        currTodos.filter(({ id }) => id !== todoId)
+      ));
     }
-  };
+  }, []);
 
   const isSelectionVisible = useMemo(() => (
     todos.length > 0 || isAdding

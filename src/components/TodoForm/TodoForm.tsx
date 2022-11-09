@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface Props {
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -24,22 +24,23 @@ export const TodoForm: React.FC<Props> = React.memo(({
 }) => {
   const [todoText, setTodoText] = useState('');
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTodoText(e.target.value);
-  };
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const trimedText = todoText.trim();
 
-    if (todoText.trim() === '') {
+    if (trimedText === '') {
       setHasError(true);
       setErrorMessage('Title can\'t be empty');
 
       return;
     }
 
-    addTodoToServer(todoText);
-  };
+    addTodoToServer(trimedText);
+  }, [todoText]);
 
   useEffect(() => {
     if (!isAdding) {

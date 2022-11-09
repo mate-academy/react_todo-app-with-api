@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -30,15 +35,15 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const [newTitle, setNewTitle] = useState(title);
   const titleInput = useRef<HTMLInputElement>(null);
 
-  const handleRemove = () => {
+  const handleRemove = useCallback(() => {
     removeTodoFromServer(id);
-  };
+  }, []);
 
-  const handleStatusToggle = () => {
+  const handleStatusToggle = useCallback(() => {
     toggleTodoServerStatus(id, !completed);
-  };
+  }, [completed]);
 
-  const changeTodoTitle = () => {
+  const changeTodoTitle = useCallback(() => {
     const trimedNewTitle = newTitle.trim();
 
     setIsFormVisible(false);
@@ -53,29 +58,36 @@ export const TodoItem: React.FC<Props> = React.memo(({
       return;
     }
 
+    setNewTitle(trimedNewTitle);
     sendNewTodoTitleToServer(id, trimedNewTitle);
-  };
+  }, [newTitle, title]);
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = useCallback((
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
 
     changeTodoTitle();
-  };
+  }, [changeTodoTitle]);
 
-  const handleInputBlur = () => {
+  const handleInputBlur = useCallback(() => {
     changeTodoTitle();
-  };
+  }, [changeTodoTitle]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewTitle(e.target.value);
-  };
+  }, []);
 
-  const handleInputKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeydown = useCallback((
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === 'Escape') {
       setIsFormVisible(false);
       setNewTitle(title);
     }
-  };
+  }, [title]);
 
   useEffect(() => {
     if (titleInput.current) {

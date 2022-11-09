@@ -13,10 +13,6 @@ export const removeTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const toggleTodoStatus = (todoId: number, completed: boolean) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { completed });
-};
-
-export const sendNewTodoTitle = (todoId: number, newTitle: string) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { title: newTitle });
+export const patchTodo = (todoId: number, data: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
