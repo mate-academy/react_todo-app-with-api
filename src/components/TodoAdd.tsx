@@ -3,6 +3,7 @@ import { addTodo } from '../api/todos';
 import { ErrorsType } from '../types/ErrorsType';
 import { normalizeTitle } from '../utils/normalizeTitle';
 import { AuthContext } from './Auth/AuthContext';
+import { createError } from './Errors';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>,
@@ -39,14 +40,7 @@ export const TodoAdd: React.FC<Props> = ({
       const normalizedTodoTitle = normalizeTitle(newTodoTitle);
 
       if (!normalizedTodoTitle) {
-        setErrors(currErrors => [
-          ...currErrors,
-          ErrorsType.Title,
-        ]);
-        setTimeout(() => {
-          setErrors(currErrors => currErrors
-            .filter(error => error !== ErrorsType.Title));
-        }, 3000);
+        createError(ErrorsType.Title, setErrors);
         setNewTodoTitle('');
         setIsLoadingTodos(currentLoadTodos => currentLoadTodos
           .filter(x => x !== 0));
@@ -60,14 +54,7 @@ export const TodoAdd: React.FC<Props> = ({
 
           await getTodosList();
         } catch {
-          setErrors(currErrors => [
-            ...currErrors,
-            ErrorsType.Add,
-          ]);
-          setTimeout(() => {
-            setErrors(currErrors => currErrors
-              .filter(error => error !== ErrorsType.Add));
-          }, 3000);
+          createError(ErrorsType.Add, setErrors);
         }
       }
 

@@ -6,6 +6,20 @@ type Props = {
   errors: ErrorsType[]
 };
 
+export const createError = (
+  errorType: ErrorsType,
+  errorCallback: (value: React.SetStateAction<ErrorsType[]>) => void,
+) => {
+  errorCallback(currErrors => [
+    ...currErrors,
+    errorType,
+  ]);
+  setTimeout(() => {
+    errorCallback(currErrors => currErrors
+      .filter(error => error !== errorType));
+  }, 3000);
+};
+
 export const Errors: React.FC<Props> = ({
   clearError,
   errors,

@@ -52,17 +52,19 @@ export const App: React.FC = () => {
     todosList.length - leftTodos
   ), [todosList]);
 
-  const filteredTodos = todosList.filter(todo => {
-    switch (filterBy) {
-      case FilterBy.Active:
-        return todo.completed === false;
-      case FilterBy.Completed:
-        return todo.completed === true;
-      case FilterBy.All:
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = useMemo(() => {
+    return todosList.filter(todo => {
+      switch (filterBy) {
+        case FilterBy.Active:
+          return todo.completed === false;
+        case FilterBy.Completed:
+          return todo.completed === true;
+        case FilterBy.All:
+        default:
+          return true;
+      }
+    });
+  }, [filterBy, todosList]);
 
   const getTodosList = useCallback(async () => {
     if (user) {

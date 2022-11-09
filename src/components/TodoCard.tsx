@@ -4,6 +4,7 @@ import { Todo } from '../types/Todo';
 import { deleteTodo, updateStatusTodo, updateTitleTodo } from '../api/todos';
 import { ErrorsType } from '../types/ErrorsType';
 import { normalizeTitle } from '../utils/normalizeTitle';
+import { createError } from './Errors';
 
 type Props = {
   todo: Todo,
@@ -53,14 +54,7 @@ export const TodoCard: React.FC<Props> = ({
 
       await getTodosList();
     } catch {
-      setErrors(currErrors => [
-        ...currErrors,
-        ErrorsType.Delete,
-      ]);
-      setTimeout(() => {
-        setErrors(currErrors => currErrors
-          .filter(error => error !== ErrorsType.Delete));
-      }, 3000);
+      createError(ErrorsType.Delete, setErrors);
     }
 
     unsetLoadingTodo(id);
@@ -74,14 +68,7 @@ export const TodoCard: React.FC<Props> = ({
 
       await getTodosList();
     } catch {
-      setErrors(currErrors => [
-        ...currErrors,
-        ErrorsType.Update,
-      ]);
-      setTimeout(() => {
-        setErrors(currErrors => currErrors
-          .filter(error => error !== ErrorsType.Update));
-      }, 3000);
+      createError(ErrorsType.Update, setErrors);
     }
 
     unsetLoadingTodo(id);
@@ -110,14 +97,7 @@ export const TodoCard: React.FC<Props> = ({
 
       await getTodosList();
     } catch {
-      setErrors(currErrors => [
-        ...currErrors,
-        ErrorsType.Update,
-      ]);
-      setTimeout(() => {
-        setErrors(currErrors => currErrors
-          .filter(error => error !== ErrorsType.Update));
-      }, 3000);
+      createError(ErrorsType.Update, setErrors);
     }
 
     unsetLoadingTodo(id);
