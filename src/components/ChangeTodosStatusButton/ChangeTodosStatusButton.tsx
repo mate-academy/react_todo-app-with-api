@@ -4,13 +4,13 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[];
   loadTodos: () => Promise<void>;
-  changeTodoStatus: (todoId: number, status: boolean) => Promise<void>;
+  onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
 };
 
 export const ChangeTodosStatusButton: React.FC<Props> = ({
   todos,
   loadTodos,
-  changeTodoStatus,
+  onUpdateTodoStatus,
 }) => {
   const isAllCompleted = todos.every(({ completed }) => completed);
 
@@ -18,14 +18,14 @@ export const ChangeTodosStatusButton: React.FC<Props> = ({
     if (!isAllCompleted) {
       await Promise.all(todos.map(({ id, completed }) => {
         if (!completed) {
-          return changeTodoStatus(id, !completed);
+          return onUpdateTodoStatus(id, !completed);
         }
 
         return null;
       }));
     } else {
       await Promise.all(todos.map(({ id, completed }) => {
-        return changeTodoStatus(id, !completed);
+        return onUpdateTodoStatus(id, !completed);
       }));
     }
   };

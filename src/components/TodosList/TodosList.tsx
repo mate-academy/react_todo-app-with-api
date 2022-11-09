@@ -1,4 +1,3 @@
-import cn from 'classnames';
 import React, {
 // useCallback,
 // useContext,
@@ -8,80 +7,50 @@ import React, {
 // useState,
 // useMemo,
 } from 'react';
+import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
+import { TempTodo } from './TempTodo';
+import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[];
   onDeleteTodo: (todoId: number) => Promise<void>;
   loadTodos: () => Promise<void>;
-  changeTodoStatus: (todoId: number, status: boolean) => Promise<void>;
-  processingId: number[];
+  onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
+  processingIds: number[];
+  isAdding: boolean;
+  newTodoTitle: string;
+  onChangeError: (errorType: ErrorType) => void;
+  onChangeProcessingIds: (todoId: number | []) => void;
 };
 
 export const TodosList: React.FC<Props> = React.memo(({
   todos,
   onDeleteTodo,
   loadTodos,
-  changeTodoStatus,
-  processingId,
-}) => {
-  const handleDeleteTodo = async (todoId: number) => {
-    await onDeleteTodo(todoId);
-    loadTodos();
-  };
+  onUpdateTodoStatus,
+  processingIds,
+  isAdding,
+  newTodoTitle,
+  onChangeError,
+  onChangeProcessingIds,
+}) => (
+  <>
+    {todos.map(todo => (
+      <TodoItem
+        key={todo.id}
+        todo={todo}
+        onDeleteTodo={onDeleteTodo}
+        loadTodos={loadTodos}
+        onUpdateTodoStatus={onUpdateTodoStatus}
+        isProcessed={processingIds.includes(todo.id)}
+        onChangeError={onChangeError}
+        onChangeProcessingIds={onChangeProcessingIds}
+      />
+    ))}
 
-  const handleChangingTodoStatus = async (todoId: number, status: boolean) => {
-    await changeTodoStatus(todoId, status);
-    loadTodos();
-  };
-
-  return (
-    <>
-      {todos.map(({ title, completed, id }) => (
-        <div
-          data-cy="Todo"
-          className={cn(
-            'todo',
-            { completed },
-          )}
-          key={id}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              onChange={() => handleChangingTodoStatus(id, !completed)}
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {title}
-          </span>
-
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => handleDeleteTodo(id)}
-          >
-            ×
-          </button>
-
-          <div
-            data-cy="TodoLoader"
-            className={cn(
-              'modal overlay',
-              { 'is-active': processingId.includes(id) },
-            )}
-          >
-            <div
-              className="modal-background has-background-white-ter"
-            />
-            <div className="loader" />
-          </div>
-        </div>
-      ))}
-    </>
-  );
-});
+    {isAdding && (
+      <TempTodo title={newTodoTitle} />
+    )}
+  </>
+));

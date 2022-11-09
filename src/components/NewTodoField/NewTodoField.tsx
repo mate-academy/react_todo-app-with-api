@@ -18,7 +18,7 @@ type Props = {
   onChangeNewTodoTitle: (title: string) => void;
 };
 
-export const NewTodoFieldInput: React.FC<Props> = ({
+export const NewTodoField: React.FC<Props> = ({
   onChangeError,
   loadTodos,
   isAdding,

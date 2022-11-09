@@ -9,31 +9,30 @@ import React, {
 import {
   deleteTodo,
   getTodos,
-  updateTodo,
+  updateTodoStatus,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/ErrorType';
-import { NewTodoFieldInput } from './components/NewTodoField';
+import { NewTodoField } from './components/NewTodoField';
 import { TodosCountInfo } from './components/TodosCountInfo/TodosCountInfo';
 import { ClearCompletedTodos } from './components/ClearCompletedTodos';
 import { TodosFilter } from './components/TodosFilter';
 import { TodosList } from './components/TodosList';
 import { ErrorNotification } from './components/ErrorNotification';
-import { TempTodo } from './components/TempTodo';
 import { ChangeTodosStatusButton } from './components/ChangeTodosStatusButton';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
 
-  const [processingId, setProcessingId] = useState<number[]>([]);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [error, setError] = useState<ErrorType>(ErrorType.NONE);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
-  const hasTodos = useMemo(() => todos.length > 0, [todos]);
+  const hasTodos = todos.length > 0;
   const firstTodoIsAdding = isAdding && !hasTodos;
   const hasCompleted = useMemo(() => (
     todos.some(({ completed }) => completed)), [todos]);
@@ -57,36 +56,40 @@ export const App: React.FC = () => {
 
   const onDeleteTodo = useCallback(async (todoId: number): Promise<void> => {
     try {
-      setProcessingId(currentId => ([
-        ...currentId,
+      setProcessingIds(ids => ([
+        ...ids,
         todoId,
       ]));
 
       await deleteTodo(todoId);
-    } catch {
+    } catch (e) {
       setError(ErrorType.DELETE);
     } finally {
-      setProcessingId([]);
+      setProcessingIds([]);
     }
   }, []);
 
-  const changeTodoStatus = async (
+  const onUpdateTodoStatus = async (
     todoId: number,
-    status: boolean,
+    completed: boolean,
   ): Promise<void> => {
     try {
-      setProcessingId((currentId) => ([
-        ...currentId,
+      setProcessingIds(ids => ([
+        ...ids,
         todoId,
       ]));
 
-      await updateTodo(todoId, status);
-    } catch {
+      await updateTodoStatus(todoId, completed);
+    } catch (e) {
       setError(ErrorType.UPDATE);
     } finally {
-      setProcessingId([]);
+      setProcessingIds([]);
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => setError(ErrorType.NONE), 3000);
+  }, [error]);
 
   const onChangeVisibleTodos = (newTodos: Todo[]): void => {
     setVisibleTodos(newTodos);
@@ -95,10 +98,6 @@ export const App: React.FC = () => {
   const onChangeError = (errorType: ErrorType) => {
     setError(errorType);
   };
-
-  useEffect(() => {
-    setTimeout(() => setError(ErrorType.NONE), 3000);
-  }, [error]);
 
   const onChangeNewTodoTitle = useCallback((title: string) => {
     setNewTodoTitle(title);
@@ -112,6 +111,17 @@ export const App: React.FC = () => {
     setIsAdding(status);
   };
 
+  const onChangeProcessingIds = (todoId: number | []) => {
+    if (typeof todoId === 'number') {
+      setProcessingIds((ids) => ([
+        ...ids,
+        todoId,
+      ]));
+    } else {
+      setProcessingIds([]);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -121,12 +131,12 @@ export const App: React.FC = () => {
           {hasTodos && (
             <ChangeTodosStatusButton
               todos={visibleTodos}
-              changeTodoStatus={changeTodoStatus}
+              onUpdateTodoStatus={onUpdateTodoStatus}
               loadTodos={loadTodos}
             />
           )}
 
-          <NewTodoFieldInput
+          <NewTodoField
             onChangeError={onChangeError}
             loadTodos={loadTodos}
             isAdding={isAdding}
@@ -141,13 +151,13 @@ export const App: React.FC = () => {
             todos={visibleTodos}
             onDeleteTodo={onDeleteTodo}
             loadTodos={loadTodos}
-            changeTodoStatus={changeTodoStatus}
-            processingId={processingId}
+            onUpdateTodoStatus={onUpdateTodoStatus}
+            processingIds={processingIds}
+            isAdding={isAdding}
+            newTodoTitle={newTodoTitle}
+            onChangeError={onChangeError}
+            onChangeProcessingIds={onChangeProcessingIds}
           />
-
-          {isAdding && (
-            <TempTodo title={newTodoTitle} />
-          )}
         </section>
 
         {(hasTodos || firstTodoIsAdding)
