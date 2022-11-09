@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import React, { useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -7,16 +8,17 @@ type Props = {
   onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
 };
 
-export const ChangeTodosStatusButton: React.FC<Props> = ({
+export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
   todos,
   loadTodos,
   onUpdateTodoStatus,
 }) => {
-  const isAllCompleted = todos.every(({ completed }) => completed);
+  const isAllCompleted = useMemo(() => (
+    todos.every(({ completed }) => completed)), [todos]);
 
   const changeAllTodosStatus = async () => {
     if (!isAllCompleted) {
-      await Promise.all(todos.map(({ id, completed }) => {
+      await Promise.all(todos.map(async ({ id, completed }) => {
         if (!completed) {
           return onUpdateTodoStatus(id, !completed);
         }
@@ -24,7 +26,7 @@ export const ChangeTodosStatusButton: React.FC<Props> = ({
         return null;
       }));
     } else {
-      await Promise.all(todos.map(({ id, completed }) => {
+      await Promise.all(todos.map(async ({ id, completed }) => {
         return onUpdateTodoStatus(id, !completed);
       }));
     }
@@ -47,4 +49,4 @@ export const ChangeTodosStatusButton: React.FC<Props> = ({
       onClick={handleChangingAllTodosStatus}
     />
   );
-};
+});

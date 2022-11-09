@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -6,7 +6,8 @@ type Props = {
 };
 
 export const TodosCountInfo: React.FC<Props> = React.memo(({ todos }) => {
-  const leftTodos = todos.filter(({ completed }) => !completed);
+  const leftTodos = useMemo(() => (
+    todos.filter(({ completed }) => !completed)), [todos]);
 
   return (
     <span className="todo-count" data-cy="todosCounter">

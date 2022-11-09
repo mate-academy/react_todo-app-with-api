@@ -14,7 +14,7 @@ type Props = {
   onChangeProcessingIds: (todoId: number | []) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDeleteTodo,
   loadTodos,
@@ -110,4 +110,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

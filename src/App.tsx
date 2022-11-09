@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
@@ -6,6 +5,7 @@ import React, {
   useState,
   useMemo,
 } from 'react';
+import { CSSTransition } from 'react-transition-group';
 import {
   deleteTodo,
   getTodos,
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const onUpdateTodoStatus = async (
+  const onUpdateTodoStatus = useCallback(async (
     todoId: number,
     completed: boolean,
   ): Promise<void> => {
@@ -85,19 +85,19 @@ export const App: React.FC = () => {
     } finally {
       setProcessingIds([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     setTimeout(() => setError(ErrorType.NONE), 3000);
   }, [error]);
 
-  const onChangeVisibleTodos = (newTodos: Todo[]): void => {
+  const onChangeVisibleTodos = useCallback((newTodos: Todo[]): void => {
     setVisibleTodos(newTodos);
-  };
+  }, []);
 
-  const onChangeError = (errorType: ErrorType) => {
+  const onChangeError = useCallback((errorType: ErrorType) => {
     setError(errorType);
-  };
+  }, []);
 
   const onChangeNewTodoTitle = useCallback((title: string) => {
     setNewTodoTitle(title);
@@ -107,11 +107,11 @@ export const App: React.FC = () => {
     setError(ErrorType.NONE);
   }, []);
 
-  const onChangeIsAdding = (status: boolean) => {
+  const onChangeIsAdding = useCallback((status: boolean) => {
     setIsAdding(status);
-  };
+  }, []);
 
-  const onChangeProcessingIds = (todoId: number | []) => {
+  const onChangeProcessingIds = useCallback((todoId: number | []) => {
     if (typeof todoId === 'number') {
       setProcessingIds((ids) => ([
         ...ids,
@@ -120,7 +120,7 @@ export const App: React.FC = () => {
     } else {
       setProcessingIds([]);
     }
-  };
+  }, []);
 
   return (
     <div className="todoapp">
@@ -170,22 +170,23 @@ export const App: React.FC = () => {
                 onChangeError={onChangeError}
               />
 
-              {hasCompleted && (
+              <CSSTransition
+                in={hasCompleted}
+                timeout={300}
+                classNames="todoapp__clear-completed"
+                unmountOnExit
+              >
                 <ClearCompletedTodos
                   todos={visibleTodos}
                   onDeleteTodo={onDeleteTodo}
                   loadTodos={loadTodos}
                 />
-              )}
-
+              </CSSTransition>
             </footer>
           )}
       </div>
 
-      <ErrorNotification
-        error={error}
-        closeErrorMassege={closeErrorMassege}
-      />
+      <ErrorNotification error={error} closeErrorMassege={closeErrorMassege} />
     </div>
   );
 };

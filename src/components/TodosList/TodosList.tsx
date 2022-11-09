@@ -7,6 +7,7 @@ import React, {
 // useState,
 // useMemo,
 } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
 import { TempTodo } from './TempTodo';
@@ -36,21 +37,34 @@ export const TodosList: React.FC<Props> = React.memo(({
   onChangeProcessingIds,
 }) => (
   <>
-    {todos.map(todo => (
-      <TodoItem
-        key={todo.id}
-        todo={todo}
-        onDeleteTodo={onDeleteTodo}
-        loadTodos={loadTodos}
-        onUpdateTodoStatus={onUpdateTodoStatus}
-        isProcessed={processingIds.includes(todo.id)}
-        onChangeError={onChangeError}
-        onChangeProcessingIds={onChangeProcessingIds}
-      />
-    ))}
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
+            onDeleteTodo={onDeleteTodo}
+            loadTodos={loadTodos}
+            onUpdateTodoStatus={onUpdateTodoStatus}
+            isProcessed={processingIds.includes(todo.id)}
+            onChangeError={onChangeError}
+            onChangeProcessingIds={onChangeProcessingIds}
+          />
+        </CSSTransition>
+      ))}
 
-    {isAdding && (
-      <TempTodo title={newTodoTitle} />
-    )}
+      {isAdding && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TempTodo title={newTodoTitle} />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </>
 ));

@@ -1,4 +1,4 @@
-import {
+import React, {
   useCallback,
   useContext,
   useEffect,
@@ -18,7 +18,7 @@ type Props = {
   onChangeNewTodoTitle: (title: string) => void;
 };
 
-export const NewTodoField: React.FC<Props> = ({
+export const NewTodoField: React.FC<Props> = React.memo(({
   onChangeError,
   loadTodos,
   isAdding,
@@ -35,32 +35,36 @@ export const NewTodoField: React.FC<Props> = ({
     }
   });
 
-  const createNewTodo = (title: string): Omit <Todo, 'id'> | null => {
-    const titleWithoutSpacesAround = title.trim();
+  const createNewTodo = useCallback(
+    (title: string): Omit <Todo, 'id'> | null | void => {
+      const titleWithoutSpacesAround = title.trim();
+      let todoForServer = null;
 
-    if (!titleWithoutSpacesAround) {
-      onChangeError(ErrorType.EMPTYTITLE);
-    }
+      if (user && titleWithoutSpacesAround) {
+        onChangeIsAdding(true);
 
-    let todoForServer = null;
+        todoForServer = {
+          userId: user.id,
+          title: titleWithoutSpacesAround,
+          completed: false,
+        };
+      }
 
-    if (user && titleWithoutSpacesAround) {
-      onChangeIsAdding(true);
-
-      todoForServer = {
-        userId: user.id,
-        title: titleWithoutSpacesAround,
-        completed: false,
-      };
-    }
-
-    return todoForServer;
-  };
+      return todoForServer;
+    }, [],
+  );
 
   const handleAddTodo = useCallback(async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+
+    if (!newTodoTitle.trim().length) {
+      onChangeError(ErrorType.EMPTYTITLE);
+      onChangeNewTodoTitle('');
+
+      return;
+    }
 
     const newTodo = createNewTodo(newTodoTitle);
 
@@ -90,4 +94,4 @@ export const NewTodoField: React.FC<Props> = ({
       />
     </form>
   );
-};
+});
