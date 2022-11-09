@@ -6,7 +6,6 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from './types/Todo';
-import { User } from './types/User';
 import { ErrorType } from './types/ErrorType';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
@@ -23,7 +22,6 @@ import { TodoError } from './components/TodoError';
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [userTodos, setUserTodos] = useState<Todo[]>([]);
-  const [hasTodos, setHasTodos] = useState(false);
   const [hasError, setHasError] = useState<ErrorType>({ status: false });
   const [isAdding, setIsAdding] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -37,14 +35,16 @@ export const App: React.FC = () => {
   }, []);
 
   const handleLoadTodos = useCallback(async () => {
-    try {
-      setHasError({ status: false });
+    if (user) {
+      try {
+        setHasError({ status: false });
 
-      const todosFromServer = await getTodos((user as User).id);
+        const todosFromServer = await getTodos(user.id);
 
-      setUserTodos(todosFromServer);
-    } catch {
-      handleSetError({ status: true });
+        setUserTodos(todosFromServer);
+      } catch {
+        handleSetError({ status: true });
+      }
     }
   }, []);
 
@@ -52,13 +52,7 @@ export const App: React.FC = () => {
     handleLoadTodos();
   }, []);
 
-  useEffect(() => {
-    if (userTodos.length !== 0) {
-      setHasTodos(true);
-    } else {
-      setHasTodos(false);
-    }
-  }, [userTodos]);
+  const hasTodos = (userTodos.length !== 0);
 
   const handleCloseError = useCallback(() => {
     handleSetError({ status: false });
@@ -67,23 +61,25 @@ export const App: React.FC = () => {
   const handleAddTodo = useCallback(async (title: string) => {
     handleSetError({ status: false });
 
-    try {
-      const preparedData = {
-        title,
-        userId: (user as User).id,
-        completed: false,
-      };
+    if (user) {
+      try {
+        const preparedData = {
+          title,
+          userId: user.id,
+          completed: false,
+        };
 
-      setTempTodo({ ...preparedData, id: 0 });
-      setIsAdding(true);
+        setTempTodo({ ...preparedData, id: 0 });
+        setIsAdding(true);
 
-      await addTodo(preparedData);
-      await handleLoadTodos();
+        await addTodo(preparedData);
+        await handleLoadTodos();
 
-      setIsAdding(false);
-    } catch {
-      handleSetError({ status: true, message: 'Unable to add a todo' });
-      setIsAdding(false);
+        setIsAdding(false);
+      } catch {
+        handleSetError({ status: true, message: 'Unable to add a todo' });
+        setIsAdding(false);
+      }
     }
   }, []);
 
