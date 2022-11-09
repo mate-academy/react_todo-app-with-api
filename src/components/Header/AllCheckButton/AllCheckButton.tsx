@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { TodoUpdateContext } from '../../ContextProviders/TodoProvider';
+import { TodoUpdateContext } from '../../TodoContext';
 
 type Props = {
   isActive: boolean,

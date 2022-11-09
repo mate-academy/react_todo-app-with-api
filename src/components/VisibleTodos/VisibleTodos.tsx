@@ -2,11 +2,11 @@ import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import {
   TodoContext, TodoUpdateContext,
-} from '../ContextProviders/TodoProvider';
+} from '../TodoContext';
 import { TodoTitleForm } from './TodoTitleField';
 import { TodoTitle } from './TodoTitle';
 import { TodoLoader } from './TodoLoader';
-import { FilterContext } from '../Filter';
+import { FilterContext } from '../FilterContext';
 
 export const VisibleTodos: React.FC = () => {
   const {

@@ -3,9 +3,9 @@ import React, {
 } from 'react';
 import {
   deleteTodo, getTodos, patchTodo, sendTodo,
-} from '../../../api/todos';
-import { Todo } from '../../../types/Todo';
-import { AuthContext } from '../../Auth/AuthContext';
+} from '../../api/todos';
+import { Todo } from '../../types/Todo';
+import { AuthContext } from '../Auth/AuthContext';
 
 // #region types
 

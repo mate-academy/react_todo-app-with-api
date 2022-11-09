@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from 'react';
 import {
   TodoContext, TodoUpdateContext,
-} from './components/ContextProviders/TodoProvider';
+} from './components/TodoContext';
 import { ErrorNotification } from './components/ErrorNotification';
-import { FilterProvider } from './components/Filter';
+import { FilterProvider } from './components/FilterContext';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { VisibleTodos } from './components/VisibleTodos';

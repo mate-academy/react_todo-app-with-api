@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
   TodoContext, TodoUpdateContext,
-} from '../ContextProviders/TodoProvider';
+} from '../TodoContext';
 import { possibleStatus } from './Footer.Constants';
 import { Sort } from '../../types/enums/Sort';
-import { FilterContext } from '../Filter';
+import { FilterContext } from '../FilterContext';
 
 export const Footer: React.FC = () => {
   const { todos } = useContext(TodoContext);

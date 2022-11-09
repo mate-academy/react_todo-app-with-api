@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Todo } from '../../../types/Todo';
-import { TodoUpdateContext } from '../../ContextProviders/TodoProvider';
+import { TodoUpdateContext } from '../../TodoContext';
 
 type Props = {
   todo: Todo,

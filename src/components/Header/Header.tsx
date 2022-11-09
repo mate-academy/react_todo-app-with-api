@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import {
   TodoContext, TodoUpdateContext,
-} from '../ContextProviders/TodoProvider';
+} from '../TodoContext';
 import { AllCheckButton } from './AllCheckButton';
 
 export const Header: React.FC = React.memo(() => {

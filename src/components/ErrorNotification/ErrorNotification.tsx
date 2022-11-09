@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
   TodoContext, TodoUpdateContext,
-} from '../ContextProviders/TodoProvider';
+} from '../TodoContext';
 
 export const ErrorNotification: React.FC = React.memo(() => {
   const {

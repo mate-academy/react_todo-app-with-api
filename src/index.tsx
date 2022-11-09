@@ -6,7 +6,7 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { AuthProvider } from './components/Auth/AuthContext';
-import { TodosProvider } from './components/ContextProviders/TodoProvider';
+import { TodosProvider } from './components/TodoContext';
 
 const Root = () => (
   <AuthProvider>
