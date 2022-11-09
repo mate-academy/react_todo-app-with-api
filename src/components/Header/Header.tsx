@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   TodoContext, TodoUpdateContext,
 } from '../ContextProviders/TodoProvider';
 import { AllCheckButton } from './AllCheckButton';
 
 export const Header: React.FC = React.memo(() => {
+  const [isAdding, setIsAdding] = useState(false);
   const {
     todos,
     newTodo,
     newTodoField,
-    isAdding,
   } = useContext(TodoContext);
   const {
     handleNewSubmit,
@@ -19,11 +19,17 @@ export const Header: React.FC = React.memo(() => {
   const title = newTodo?.title || '';
   const isActive = todos.every(todo => todo.completed);
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    setIsAdding(() => true);
+    handleNewSubmit(event);
+    setIsAdding(() => false);
+  };
+
   return (
     <header className="todoapp__header">
       {isShow && <AllCheckButton isActive={isActive} />}
 
-      <form onSubmit={handleNewSubmit}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

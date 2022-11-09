@@ -4,8 +4,6 @@ import React, {
 import {
   deleteTodo, getTodos, patchTodo, sendTodo,
 } from '../../../api/todos';
-import { Sort } from '../../../types/enums/Sort';
-import { SendedTodo } from '../../../types/SendedTodo';
 import { Todo } from '../../../types/Todo';
 import { AuthContext } from '../../Auth/AuthContext';
 
@@ -17,11 +15,9 @@ type Props = {
 
 type Context = {
   todos: Todo[],
-  newTodo: SendedTodo | null,
+  newTodo: Todo | null,
   newTodoField: React.RefObject<HTMLInputElement> | null,
-  isAdding: boolean,
   error: string,
-  filterBy: Sort,
   modifiedTodosId: number[],
   hidden: boolean,
   todoWithFormId: number,
@@ -30,7 +26,6 @@ type Context = {
 type UpdateContext = {
   handleNewSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   handleNewInput: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  changeFilterBy: (newStatus: Sort) => void,
   clearCompleted: () => void,
   removeTodo: (todoId: number) => void,
   handleChangeComplet: (todo: Todo) => void,
@@ -54,9 +49,7 @@ export const TodoContext = React.createContext<Context>({
   todos: [],
   newTodo: null,
   newTodoField: null,
-  isAdding: false,
   error: '',
-  filterBy: Sort.ALL,
   modifiedTodosId: [0],
   hidden: true,
   todoWithFormId: 0,
@@ -65,7 +58,6 @@ export const TodoContext = React.createContext<Context>({
 export const TodoUpdateContext = React.createContext<UpdateContext>({
   handleNewSubmit: () => {},
   handleNewInput: () => {},
-  changeFilterBy: () => {},
   clearCompleted: () => {},
   removeTodo: () => {},
   handleChangeComplet: () => {},
@@ -81,19 +73,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState<SendedTodo | null>(null);
+  const [newTodo, setNewTodo] = useState<Todo | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [modifiedTodosId, setModifiedTodosId] = useState<number[]>([0]);
-  const [filterBy, setFilterBy] = useState(Sort.ALL);
   const [hidden, setHidden] = useState(true);
   const [error, setError] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
   const [todoWithFormId, setTodoWithFormId] = useState(0);
-
-  // handling status of adding todo to disable main input
-  function handleAdding(isAddingStatus: boolean) {
-    setIsAdding(isAddingStatus);
-  }
 
   // #region ---- DATA API ----
   // download todos from server
@@ -112,9 +97,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }
 
   // adding todo when getting title from user
-  async function sendNewTodo(data: SendedTodo) {
-    handleAdding(true);
-
+  async function sendNewTodo(data: Todo) {
     if (tempTodo) {
       setTodos(current => (
         [...current, { ...tempTodo, title: tempTodo.title.trim() }]
@@ -141,7 +124,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
 
     setNewTodo(null);
-    handleAdding(false);
   }
 
   // delete todos or todo
@@ -200,7 +182,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   // handle submit action of main input (from where title comes)
   function handleNewSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (newTodo?.title.trim()) {
       sendNewTodo(newTodo);
     } else {
@@ -214,12 +195,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   // handle input action of main input (where user type new title for new todo)
   function handleNewInput(event: React.ChangeEvent<HTMLInputElement>) {
-    const userTodo = {
-      userId: user?.id,
-      title: event.target.value,
-      completed: false,
-    };
-
     const temporaryTodo = {
       id: 0,
       userId: user?.id,
@@ -228,7 +203,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     };
 
     setTempTodo(temporaryTodo);
-    setNewTodo(userTodo);
+    setNewTodo(temporaryTodo);
   }
 
   function changeAllComplet(isCompleted: boolean) {
@@ -347,12 +322,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   // #endregion
 
   // #region ---- FOOTER ----
-
-  // change sort type
-  function changeFilterBy(newStatus: Sort) {
-    setFilterBy(newStatus);
-  }
-
   // delete completed todos
   function clearCompleted() {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -364,34 +333,25 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   // #endregion
 
-  // #region ---- UseEffects ----
+  // #region ---- Error ----
 
   const closeErrorMessage = () => {
+    setError('');
     setHidden(true);
   };
+
+  // #endregion
 
   // load data
   useEffect(() => {
     loadTodos();
   }, []);
 
-  // when data trigger error, the message will be auto removed in 3 sec
-  useEffect(() => {
-    setTimeout(() => {
-      setError('');
-      closeErrorMessage();
-    }, 3000);
-  }, [error]);
-
-  // #endregion
-
   const contextValue = {
     todos,
     newTodo,
     newTodoField,
-    isAdding,
     error,
-    filterBy,
     modifiedTodosId,
     hidden,
     todoWithFormId,
@@ -400,7 +360,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const updateContextValue = {
     handleNewSubmit,
     handleNewInput,
-    changeFilterBy,
     clearCompleted,
     removeTodo,
     handleChangeComplet,

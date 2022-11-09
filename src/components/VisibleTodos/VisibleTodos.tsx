@@ -1,21 +1,21 @@
 import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
-import { filterTodo } from '../../utils/filterTodos';
 import {
   TodoContext, TodoUpdateContext,
 } from '../ContextProviders/TodoProvider';
 import { TodoTitleForm } from './TodoTitleField';
 import { TodoTitle } from './TodoTitle';
 import { TodoLoader } from './TodoLoader';
+import { FilterContext } from '../Filter';
 
 export const VisibleTodos: React.FC = () => {
   const {
     todos,
-    filterBy,
     modifiedTodosId,
     todoWithFormId,
   } = useContext(TodoContext);
   const { handleChangeComplet } = useContext(TodoUpdateContext);
+  const { filterTodo } = useContext(FilterContext);
   const [isForm, setIsForm] = useState(false);
 
   const changeFormStatus = (formStatus: boolean) => {
@@ -25,7 +25,7 @@ export const VisibleTodos: React.FC = () => {
   return (
     <>
       {todos
-        .filter(todo => filterTodo(todo, filterBy))
+        .filter(todo => filterTodo(todo))
         .map(todo => {
           const { id, completed } = todo;
           const isModified = id === 0;

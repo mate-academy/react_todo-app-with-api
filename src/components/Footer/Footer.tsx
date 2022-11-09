@@ -5,16 +5,12 @@ import {
 } from '../ContextProviders/TodoProvider';
 import { possibleStatus } from './Footer.Constants';
 import { Sort } from '../../types/enums/Sort';
+import { FilterContext } from '../Filter';
 
-export const Footer: React.FC = React.memo(() => {
-  const {
-    todos,
-    filterBy,
-  } = useContext(TodoContext);
-  const {
-    changeFilterBy,
-    clearCompleted,
-  } = useContext(TodoUpdateContext);
+export const Footer: React.FC = () => {
+  const { todos } = useContext(TodoContext);
+  const { clearCompleted } = useContext(TodoUpdateContext);
+  const { filterBy, changeFilterBy } = useContext(FilterContext);
   const isCompleted = todos.some(todo => todo.completed);
   const items = todos.filter(todo => !todo.completed).length;
 
@@ -34,7 +30,7 @@ export const Footer: React.FC = React.memo(() => {
               { selected: current as Sort === filterBy },
             )}
             key={current}
-            onClick={() => changeFilterBy(current as Sort)}
+            onClick={() => changeFilterBy(current)}
           >
             {current}
           </a>
@@ -52,4 +48,4 @@ export const Footer: React.FC = React.memo(() => {
       </button>
     </footer>
   );
-});
+};
