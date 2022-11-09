@@ -25,7 +25,7 @@ type Context = {
   isForm: boolean,
   modifiedTodosId: number[],
   hidden: boolean,
-  todoWithFormId: number | null,
+  todoWithFormId: number,
 };
 
 type UpdateContext = {
@@ -44,7 +44,7 @@ type UpdateContext = {
     todo: Todo,
   ) => void,
   setTodoInputStatus: (
-    formStatus: boolean, id: number | null, todo: Todo | null,
+    formStatus: boolean, id: number, todo: Todo | null,
   ) => void,
   closeErrorMessage: () => void,
   changeAllComplet: (isCompleted: boolean) => void,
@@ -63,7 +63,7 @@ export const TodoContext = React.createContext<Context>({
   isForm: false,
   modifiedTodosId: [0],
   hidden: true,
-  todoWithFormId: null,
+  todoWithFormId: 0,
 });
 
 export const TodoUpdateContext = React.createContext<UpdateContext>({
@@ -93,7 +93,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [error, setError] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isForm, setIsForm] = useState(false);
-  const [todoWithFormId, setTodoWithFormId] = useState<number | null>(null);
+  const [todoWithFormId, setTodoWithFormId] = useState(0);
 
   // handling status of adding todo to disable main input
   function handleAdding(isAddingStatus: boolean) {
@@ -180,8 +180,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           if (modifiedTodo) {
             return {
               ...todo,
-              title: modifiedTodo?.title || '',
-              completed: modifiedTodo?.completed || false,
+              title: modifiedTodo.title || '',
+              completed: modifiedTodo.completed || false,
             };
           }
 
@@ -216,10 +216,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   // handle input action of main input (where user type new title for new todo)
   function handleNewInput(event: React.ChangeEvent<HTMLInputElement>) {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     const userTodo = {
       userId: user?.id,
       title: event.target.value,
@@ -322,10 +318,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   // activate input to change existing todo title
   function setTodoInputStatus(
     formStatus: boolean,
-    id: number | null,
+    id: number,
     todo: Todo | null,
   ) {
-    setTempTodo(todo);
+    setTempTodo(() => (todo ? { ...todo } : null));
     setIsForm(formStatus);
     setTodoWithFormId(id);
   }
@@ -335,19 +331,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     event: React.FormEvent<HTMLFormElement> | null,
     todo: Todo,
   ) {
+    setModifiedTodosId([todo.id]);
     event?.preventDefault();
 
     if (todo.title === tempTodo?.title) {
+      setModifiedTodosId([0]);
+      setTodoInputStatus(false, 0, null);
+
       return;
     }
 
-    unsaveTitle();
-    setModifiedTodosId([todo.id]);
-
-    if (!todo.title) {
+    if (todo.title.length === 0) {
       deleteTodos([todo.id]);
     } else {
-      modifyTodos([todo]);
+      modifyTodos([{ ...todo }]);
     }
 
     setIsForm(false);

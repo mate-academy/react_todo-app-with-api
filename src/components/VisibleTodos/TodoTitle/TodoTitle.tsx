@@ -7,7 +7,7 @@ type Props = {
   isModified: boolean,
 };
 
-export const TodoTitle: React.FC<Props> = React.memo(({ todo, isModified }) => {
+export const TodoTitle: React.FC<Props> = ({ todo, isModified }) => {
   const { setTodoInputStatus, removeTodo } = useContext(TodoUpdateContext);
   const { id, title } = todo;
 
@@ -16,7 +16,7 @@ export const TodoTitle: React.FC<Props> = React.memo(({ todo, isModified }) => {
       <span
         data-cy="TodoTitle"
         className="todo__title"
-        onClick={() => setTodoInputStatus(true, id, todo)}
+        onDoubleClick={() => setTodoInputStatus(true, id, todo)}
         aria-hidden="true"
       >
         {title}
@@ -33,4 +33,4 @@ export const TodoTitle: React.FC<Props> = React.memo(({ todo, isModified }) => {
       )}
     </>
   );
-});
+};

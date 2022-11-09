@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import classNames from 'classnames';
 import {
   TodoContext, TodoUpdateContext,
 } from '../ContextProviders/TodoProvider';
+import { AllCheckButton } from './AllCheckButton';
 
 export const Header: React.FC = React.memo(() => {
   const {
@@ -14,23 +14,14 @@ export const Header: React.FC = React.memo(() => {
   const {
     handleNewSubmit,
     handleNewInput,
-    changeAllComplet,
   } = useContext(TodoUpdateContext);
+  const isShow = todos.length !== 0;
   const title = newTodo?.title || '';
   const isActive = todos.every(todo => todo.completed);
 
   return (
     <header className="todoapp__header">
-      <button
-        aria-label="all-check"
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: isActive },
-        )}
-        onClick={() => changeAllComplet(isActive)}
-      />
+      {isShow && <AllCheckButton isActive={isActive} />}
 
       <form onSubmit={handleNewSubmit}>
         <input

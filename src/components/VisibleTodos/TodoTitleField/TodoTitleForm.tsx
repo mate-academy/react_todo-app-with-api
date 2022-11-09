@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useCallback,
+  useContext, useEffect, useRef,
 } from 'react';
 import { Todo } from '../../../types/Todo';
 import { TodoUpdateContext } from '../../ContextProviders/TodoProvider';
@@ -18,29 +18,21 @@ export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
     unsaveTitle,
   } = useContext(TodoUpdateContext);
 
-  const handleKeys = useCallback((event: KeyboardEvent) => {
+  const handleKeys = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       unsaveTitle();
-      setTodoInputStatus(false, null, null);
+      setTodoInputStatus(false, 0, null);
     }
 
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key === 'NumpadEnter') {
       handleTitleUpdate(null, todo);
     }
-  }, []);
-
-  const handleFocus = useCallback(() => {
-    document.addEventListener('keydown', handleKeys);
-  }, []);
+  };
 
   useEffect(() => {
     if (newFormField.current) {
       newFormField.current.focus();
     }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeys);
-    };
   }, []);
 
   return (
@@ -57,7 +49,7 @@ export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
         value={title}
         onChange={(event) => handleChangeTitle(event, id)}
         onBlur={() => handleTitleUpdate(null, todo)}
-        onFocus={handleFocus}
+        onKeyDown={handleKeys}
       />
     </form>
   );
