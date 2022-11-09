@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../../types/Todo';
 import { TodoUpdateContext } from '../../TodoContext';
@@ -7,35 +7,63 @@ import { TodoUpdateContext } from '../../TodoContext';
 type Props = {
   todo: Todo,
   changeFormStatus: (status: boolean) => void,
+  handleActiveTodoId: (id: number) => void,
 };
 
-export const TodoTitleForm: React.FC<Props> = ({ todo, changeFormStatus }) => {
-  const { title, id } = todo;
+export const TodoTitleForm: React.FC<Props> = ({
+  todo, changeFormStatus, handleActiveTodoId,
+}) => {
+  const [currentTitle, setCurrentTitle] = useState(todo.title);
   const newFormField = useRef<HTMLInputElement>(null);
   const {
-    handleChangeTitle,
-    handleTitleUpdate,
-    setTodoInputStatus,
-    unsaveTitle,
+    setActiveIds,
+    deleteTodos,
+    modifyTodos,
   } = useContext(TodoUpdateContext);
 
+  // handle title change
+  function handleChangeTitle(event: React.ChangeEvent<HTMLInputElement>) {
+    setCurrentTitle(event.target.value);
+  }
+
+  // handle existing todo title change
+  function handleTitleUpdate(event: React.FormEvent<HTMLFormElement> | null) {
+    setActiveIds([todo.id]);
+    event?.preventDefault();
+
+    if (todo.title === currentTitle.trim()) {
+      setActiveIds([0]);
+      handleActiveTodoId(0);
+
+      return;
+    }
+
+    if (currentTitle.trim().length === 0) {
+      deleteTodos([todo.id]);
+    } else {
+      modifyTodos([{ ...todo, title: currentTitle.trim() }]);
+    }
+  }
+
+  // handle submit changed title
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | null) => {
-    handleTitleUpdate(event, todo);
+    handleTitleUpdate(event);
     changeFormStatus(false);
   };
 
+  // handle button pressed (on escape cancel changes, on enter submit them)
   const handleKeys = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      unsaveTitle();
       changeFormStatus(false);
-      setTodoInputStatus(0, null);
+      handleActiveTodoId(0);
     }
 
     if (event.key === 'Enter' || event.key === 'NumpadEnter') {
-      handleTitleUpdate(null, todo);
+      handleTitleUpdate(null);
     }
   };
 
+  // auto focus on field create
   useEffect(() => {
     if (newFormField.current) {
       newFormField.current.focus();
@@ -48,10 +76,10 @@ export const TodoTitleForm: React.FC<Props> = ({ todo, changeFormStatus }) => {
         data-cy="TodoTitleField"
         ref={newFormField}
         type="text"
-        className="todo__title todo__title-field"
+        className="todo__title-field"
         placeholder="Empty todo will be deleted"
-        value={title}
-        onChange={(event) => handleChangeTitle(event, id)}
+        value={currentTitle}
+        onChange={handleChangeTitle}
         onBlur={() => handleSubmit(null)}
         onKeyDown={handleKeys}
       />

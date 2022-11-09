@@ -7,19 +7,36 @@ import { TodoTitleForm } from './TodoTitleField';
 import { TodoTitle } from './TodoTitle';
 import { TodoLoader } from './TodoLoader';
 import { FilterContext } from '../FilterContext';
+import { Todo } from '../../types/Todo';
 
 export const VisibleTodos: React.FC = () => {
   const {
     todos,
     modifiedTodosId,
-    todoWithFormId,
   } = useContext(TodoContext);
-  const { handleChangeComplet } = useContext(TodoUpdateContext);
+  const { setActiveIds, modifyTodos } = useContext(TodoUpdateContext);
   const { filterTodo } = useContext(FilterContext);
   const [isForm, setIsForm] = useState(false);
+  const [todoWithFormId, setTodoWithFormId] = useState(0);
 
   const changeFormStatus = (formStatus: boolean) => {
     setIsForm(formStatus);
+  };
+
+  // activate input to change existing todo title
+  const handleActiveTodoId = (id: number) => {
+    setTodoWithFormId(id);
+  };
+
+  // change existing todo complet propery
+  const handleChangeComplet = (todo: Todo) => {
+    const modifiedTodo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    setActiveIds([todo.id]);
+    modifyTodos([modifiedTodo]);
   };
 
   return (
@@ -56,6 +73,7 @@ export const VisibleTodos: React.FC = () => {
                   <TodoTitleForm
                     todo={todo}
                     changeFormStatus={changeFormStatus}
+                    handleActiveTodoId={handleActiveTodoId}
                   />
                 )
                 : (
@@ -63,6 +81,7 @@ export const VisibleTodos: React.FC = () => {
                     todo={todo}
                     isModified={isModified}
                     changeFormStatus={changeFormStatus}
+                    handleActiveTodoId={handleActiveTodoId}
                   />
                 )}
 

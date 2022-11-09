@@ -27,9 +27,7 @@ export const App: React.FC = () => {
           && (
             <FilterProvider>
               <section className="todoapp__main" data-cy="TodoList">
-                <>
-                  <VisibleTodos />
-                </>
+                <VisibleTodos />
               </section>
 
               <Footer />

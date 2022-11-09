@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Sort } from '../../types/enums/Sort';
 import { Todo } from '../../types/Todo';
 
@@ -19,17 +19,17 @@ export const FilterContext = React.createContext<Context>({
 });
 
 export const FilterProvider: React.FC<Props> = ({ children }) => {
-  const [filterBy, setFilterBy] = useState<Sort>(Sort.ALL);
+  const [filterBy, setFilterBy] = useState<Sort>(Sort.ALL); // sort type
 
   // change sort type
-  function changeFilterBy(status: string) {
+  const changeFilterBy = useCallback((status: string) => {
     const newStatus = status as Sort;
 
     setFilterBy(() => newStatus);
-  }
+  }, [filterBy]);
 
   // filter todo by Sort type
-  function filterTodo(todo: Todo) {
+  const filterTodo = useCallback((todo: Todo) => {
     switch (filterBy) {
       case Sort.ACTIVE:
         return !todo.completed;
@@ -40,7 +40,7 @@ export const FilterProvider: React.FC<Props> = ({ children }) => {
       default:
         return true;
     }
-  }
+  }, [filterBy]);
 
   const contextValue = {
     filterBy,

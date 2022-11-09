@@ -1,10 +1,11 @@
 import React, {
-  useEffect, useState, useContext, useRef,
+  useEffect, useState, useContext,
 } from 'react';
 import {
   deleteTodo, getTodos, patchTodo, sendTodo,
 } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { User } from '../../types/User';
 import { AuthContext } from '../Auth/AuthContext';
 
 // #region types
@@ -15,98 +16,92 @@ type Props = {
 
 type Context = {
   todos: Todo[],
-  newTodo: Todo | null,
-  newTodoField: React.RefObject<HTMLInputElement> | null,
+  user: User | null,
   error: string,
   modifiedTodosId: number[],
   hidden: boolean,
-  todoWithFormId: number,
 };
 
 type UpdateContext = {
-  handleNewSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
-  handleNewInput: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  clearCompleted: () => void,
-  removeTodo: (todoId: number) => void,
-  handleChangeComplet: (todo: Todo) => void,
-  handleChangeTitle: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    todoId: number,
-  ) => void,
-  handleTitleUpdate: (
-    event: React.FormEvent<HTMLFormElement> | null,
-    todo: Todo,
-  ) => void,
-  setTodoInputStatus: (id: number, todo: Todo | null) => void,
   closeErrorMessage: () => void,
-  changeAllComplet: (isCompleted: boolean) => void,
-  unsaveTitle: () => void,
+  showError: (errorText: string) => void,
+  setActiveIds: (ids: number[]) => void,
+  sendNewTodo: (data: Todo) => void,
+  modifyTodos: (data: Todo[]) => void,
+  deleteTodos: (id: number[]) => void,
 };
 
 // #endregion
 
 export const TodoContext = React.createContext<Context>({
   todos: [],
-  newTodo: null,
-  newTodoField: null,
+  user: null,
   error: '',
   modifiedTodosId: [0],
   hidden: true,
-  todoWithFormId: 0,
 });
 
 export const TodoUpdateContext = React.createContext<UpdateContext>({
-  handleNewSubmit: () => {},
-  handleNewInput: () => {},
-  clearCompleted: () => {},
-  removeTodo: () => {},
-  handleChangeComplet: () => {},
-  handleChangeTitle: () => {},
-  handleTitleUpdate: () => {},
-  setTodoInputStatus: () => {},
   closeErrorMessage: () => {},
-  changeAllComplet: () => {},
-  unsaveTitle: () => {},
+  showError: () => {},
+  setActiveIds: () => {},
+  sendNewTodo: () => {},
+  modifyTodos: () => {},
+  deleteTodos: () => {},
 });
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState<Todo | null>(null);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [modifiedTodosId, setModifiedTodosId] = useState<number[]>([0]);
-  const [hidden, setHidden] = useState(true);
-  const [error, setError] = useState('');
-  const [todoWithFormId, setTodoWithFormId] = useState(0);
+  const [todos, setTodos] = useState<Todo[]>([]); // array of Todos
+  const [modifiedTodosId, setModifiedTodosId] = useState<number[]>([0]); // todo currently operated
+  const [hidden, setHidden] = useState(true); // show or not error box
+  const [error, setError] = useState(''); // error text
+
+  // #region ---- Error ----
+
+  // close error
+  const closeErrorMessage = () => {
+    setError('');
+    setHidden(true);
+  };
+
+  // set and show error
+  function showError(errorText: string) {
+    setError(errorText);
+    setHidden(false);
+  }
+
+  // #endregion
+
+  // handle state with adds which data is currently sending on server
+  function setActiveIds(ids: number[]) {
+    setModifiedTodosId(ids);
+  }
 
   // #region ---- DATA API ----
   // download todos from server
   async function loadTodos() {
     if (user) {
       try {
-        const todosFromApi = await getTodos(user?.id);
+        const todosFromApi = await getTodos(user.id);
 
         setTodos(todosFromApi);
       } catch {
-        setHidden(false);
-        setError('Unable to download todos');
+        showError('Unable to download todos');
         throw new Error('Unable to download todos');
       }
     }
   }
 
   // adding todo when getting title from user
-  async function sendNewTodo(data: Todo) {
-    if (tempTodo) {
-      setTodos(current => (
-        [...current, { ...tempTodo, title: tempTodo.title.trim() }]
-      ));
-    }
+  async function sendNewTodo(newTodo: Todo) {
+    setTodos(current => (
+      [...current, { ...newTodo }]
+    ));
 
-    if (user && data) {
+    if (user) {
       try {
-        const todoFromServer = await sendTodo(user?.id, data);
+        const todoFromServer = await sendTodo(user.id, newTodo);
 
         setTodos(current => current.map(todo => {
           if (todo.id === 0) {
@@ -116,30 +111,24 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           return todo;
         }));
       } catch {
-        setHidden(false);
+        showError('Unable to add a todo');
         setTodos(current => current.slice(0, current.length - 1));
-        setError('Unable to add a todo');
         throw new Error('Unable to add a todo');
       }
     }
-
-    setNewTodo(null);
   }
 
   // delete todos or todo
   async function deleteTodos(todosId: number[]) {
-    if (user && todosId) {
+    if (user) {
       try {
         await Promise.all(todosId.map(todoId => deleteTodo(todoId)));
 
-        setTodos(currentTodos => (
-          currentTodos.filter(({ id }) => !todosId.includes(id))
-        ));
+        loadTodos();
         setModifiedTodosId([0]);
       } catch {
         setModifiedTodosId([0]);
-        setHidden(false);
-        setError('Unable to delete a todo');
+        showError('Unable to delete a todo');
         throw new Error('Unable to delete a todo');
       }
     }
@@ -169,176 +158,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setModifiedTodosId([0]);
       } catch {
         setModifiedTodosId([0]);
-        setHidden(false);
-        setError('Unable to update a todo');
+        showError('Unable to update a todo');
         throw new Error('Unable to update a todo');
       }
     }
   }
-
-  // #endregion
-
-  // #region ---- HEADER ----
-  // handle submit action of main input (from where title comes)
-  function handleNewSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (newTodo?.title.trim()) {
-      sendNewTodo(newTodo);
-    } else {
-      setHidden(false);
-      setNewTodo(null);
-      setError('Title can\'t be empty or consist only spaces');
-    }
-
-    newTodoField.current?.blur();
-  }
-
-  // handle input action of main input (where user type new title for new todo)
-  function handleNewInput(event: React.ChangeEvent<HTMLInputElement>) {
-    const temporaryTodo = {
-      id: 0,
-      userId: user?.id,
-      title: event.target.value,
-      completed: false,
-    };
-
-    setTempTodo(temporaryTodo);
-    setNewTodo(temporaryTodo);
-  }
-
-  function changeAllComplet(isCompleted: boolean) {
-    const isNotCompleted = todos.every(({ completed }) => !completed);
-
-    if (isCompleted || isNotCompleted) {
-      const allIds = todos.map(todo => todo.id);
-      const modifiedTodos = todos.map(todo => {
-        return ({
-          ...todo,
-          completed: !todo.completed,
-        });
-      });
-
-      setModifiedTodosId(allIds);
-      modifyTodos(modifiedTodos);
-    } else {
-      const nonActiveTodos = todos
-        .filter(({ completed }) => !completed);
-      const nonActiveIds = nonActiveTodos
-        .map(todo => todo.id);
-      const modifiedTodos = nonActiveTodos
-        .map(todo => {
-          return ({
-            ...todo,
-            completed: !todo.completed,
-          });
-        });
-
-      setModifiedTodosId(nonActiveIds);
-      modifyTodos(modifiedTodos);
-    }
-  }
-
-  // #endregion
-
-  // #region ---- TODOS ----
-  // change existing todo complet propery
-  function handleChangeComplet(todo: Todo) {
-    const modifiedTodos = {
-      ...todo,
-      completed: !todo.completed,
-    };
-
-    setModifiedTodosId([todo.id]);
-    modifyTodos([modifiedTodos]);
-  }
-
-  // change existing todo title not updating the API
-  function handleChangeTitle(
-    event: React.ChangeEvent<HTMLInputElement>, todoId: number,
-  ) {
-    setTodos(currentTodos => currentTodos.map(todo => {
-      if (todo.id !== todoId) {
-        return todo;
-      }
-
-      return {
-        ...todo,
-        title: event.target.value,
-      };
-    }));
-  }
-
-  // return title from temp state if it hadn't been modified
-  function unsaveTitle() {
-    setTodos(currentTodos => currentTodos.map(todo => {
-      if (todo.id !== tempTodo?.id) {
-        return todo;
-      }
-
-      return {
-        ...todo,
-        title: tempTodo?.title,
-      };
-    }));
-  }
-
-  // remove one existing todo
-  function removeTodo(todoId: number) {
-    setModifiedTodosId([todoId]);
-    deleteTodos([todoId]);
-  }
-
-  // activate input to change existing todo title
-  function setTodoInputStatus(
-    id: number,
-    todo: Todo | null,
-  ) {
-    setTempTodo(() => (todo ? { ...todo } : null));
-    setTodoWithFormId(id);
-  }
-
-  // handle existing todo title change
-  function handleTitleUpdate(
-    event: React.FormEvent<HTMLFormElement> | null,
-    todo: Todo,
-  ) {
-    setModifiedTodosId([todo.id]);
-    event?.preventDefault();
-
-    if (todo.title === tempTodo?.title) {
-      setModifiedTodosId([0]);
-      setTodoInputStatus(0, null);
-
-      return;
-    }
-
-    if (todo.title.trim().length === 0) {
-      deleteTodos([todo.id]);
-    } else {
-      modifyTodos([{ ...todo, title: todo.title.trim() }]);
-    }
-  }
-
-  // #endregion
-
-  // #region ---- FOOTER ----
-  // delete completed todos
-  function clearCompleted() {
-    const completedTodos = todos.filter(todo => todo.completed);
-    const completedId = completedTodos.map(todo => todo.id);
-
-    setModifiedTodosId(completedId);
-    deleteTodos(completedId);
-  }
-
-  // #endregion
-
-  // #region ---- Error ----
-
-  const closeErrorMessage = () => {
-    setError('');
-    setHidden(true);
-  };
 
   // #endregion
 
@@ -349,26 +173,19 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const contextValue = {
     todos,
-    newTodo,
-    newTodoField,
+    user,
     error,
     modifiedTodosId,
     hidden,
-    todoWithFormId,
   };
 
   const updateContextValue = {
-    handleNewSubmit,
-    handleNewInput,
-    clearCompleted,
-    removeTodo,
-    handleChangeComplet,
-    handleChangeTitle,
-    setTodoInputStatus,
-    handleTitleUpdate,
     closeErrorMessage,
-    changeAllComplet,
-    unsaveTitle,
+    setActiveIds,
+    sendNewTodo,
+    modifyTodos,
+    deleteTodos,
+    showError,
   };
 
   return (

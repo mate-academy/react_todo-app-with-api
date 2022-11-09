@@ -6,16 +6,27 @@ type Props = {
   todo: Todo,
   isModified: boolean,
   changeFormStatus: (status: boolean) => void,
+  handleActiveTodoId: (id: number) => void,
 };
 
-export const TodoTitle: React.FC<Props> = ({
-  todo, isModified, changeFormStatus,
+export const TodoTitle: React.FC<Props> = React.memo(({
+  todo, isModified, changeFormStatus, handleActiveTodoId,
 }) => {
-  const { setTodoInputStatus, removeTodo } = useContext(TodoUpdateContext);
+  const {
+    setActiveIds,
+    deleteTodos,
+  } = useContext(TodoUpdateContext);
   const { id, title } = todo;
 
-  const activeInputField = () => {
-    setTodoInputStatus(id, todo);
+  // remove one existing todo
+  function removeTodo(todoId: number) {
+    setActiveIds([todoId]);
+    deleteTodos([todoId]);
+  }
+
+  // make input field active on double click
+  const activateInputField = () => {
+    handleActiveTodoId(id);
     changeFormStatus(true);
   };
 
@@ -24,7 +35,7 @@ export const TodoTitle: React.FC<Props> = ({
       <span
         data-cy="TodoTitle"
         className="todo__title"
-        onDoubleClick={activeInputField}
+        onDoubleClick={activateInputField}
         aria-hidden="true"
       >
         {title}
@@ -41,4 +52,4 @@ export const TodoTitle: React.FC<Props> = ({
       )}
     </>
   );
-};
+});

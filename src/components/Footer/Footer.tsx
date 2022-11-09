@@ -1,18 +1,23 @@
-import React, { useContext } from 'react';
-import classNames from 'classnames';
+import React, { useContext, useCallback } from 'react';
 import {
   TodoContext, TodoUpdateContext,
 } from '../TodoContext';
-import { possibleStatus } from './Footer.Constants';
-import { Sort } from '../../types/enums/Sort';
-import { FilterContext } from '../FilterContext';
+import { Navigation } from './Navigation';
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC = React.memo(() => {
   const { todos } = useContext(TodoContext);
-  const { clearCompleted } = useContext(TodoUpdateContext);
-  const { filterBy, changeFilterBy } = useContext(FilterContext);
+  const { deleteTodos, setActiveIds } = useContext(TodoUpdateContext);
   const isCompleted = todos.some(todo => todo.completed);
   const items = todos.filter(todo => !todo.completed).length;
+
+  // delete completed todos
+  const clearCompleted = useCallback(() => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    const completedId = completedTodos.map(todo => todo.id);
+
+    setActiveIds(completedId);
+    deleteTodos(completedId);
+  }, [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -20,22 +25,7 @@ export const Footer: React.FC = () => {
         {`${items} items left`}
       </span>
 
-      <nav className="filter" data-cy="Filter">
-        {possibleStatus.map((current) => (
-          <a
-            data-cy="FilterLinkAll"
-            href="#/"
-            className={classNames(
-              'filter__link',
-              { selected: current as Sort === filterBy },
-            )}
-            key={current}
-            onClick={() => changeFilterBy(current)}
-          >
-            {current}
-          </a>
-        ))}
-      </nav>
+      <Navigation />
 
       <button
         data-cy="ClearCompletedButton"
@@ -48,4 +38,4 @@ export const Footer: React.FC = () => {
       </button>
     </footer>
   );
-};
+});
