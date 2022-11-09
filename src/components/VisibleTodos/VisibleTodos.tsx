@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import { filterTodo } from '../../utils/filterTodos';
 import {
@@ -12,11 +12,15 @@ export const VisibleTodos: React.FC = () => {
   const {
     todos,
     filterBy,
-    isForm,
     modifiedTodosId,
     todoWithFormId,
   } = useContext(TodoContext);
   const { handleChangeComplet } = useContext(TodoUpdateContext);
+  const [isForm, setIsForm] = useState(false);
+
+  const changeFormStatus = (formStatus: boolean) => {
+    setIsForm(formStatus);
+  };
 
   return (
     <>
@@ -48,11 +52,17 @@ export const VisibleTodos: React.FC = () => {
               </label>
 
               {shouldFormShow
-                ? <TodoTitleForm todo={todo} />
+                ? (
+                  <TodoTitleForm
+                    todo={todo}
+                    changeFormStatus={changeFormStatus}
+                  />
+                )
                 : (
                   <TodoTitle
                     todo={todo}
                     isModified={isModified}
+                    changeFormStatus={changeFormStatus}
                   />
                 )}
 

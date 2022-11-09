@@ -22,7 +22,6 @@ type Context = {
   isAdding: boolean,
   error: string,
   filterBy: Sort,
-  isForm: boolean,
   modifiedTodosId: number[],
   hidden: boolean,
   todoWithFormId: number,
@@ -43,9 +42,7 @@ type UpdateContext = {
     event: React.FormEvent<HTMLFormElement> | null,
     todo: Todo,
   ) => void,
-  setTodoInputStatus: (
-    formStatus: boolean, id: number, todo: Todo | null,
-  ) => void,
+  setTodoInputStatus: (id: number, todo: Todo | null) => void,
   closeErrorMessage: () => void,
   changeAllComplet: (isCompleted: boolean) => void,
   unsaveTitle: () => void,
@@ -60,7 +57,6 @@ export const TodoContext = React.createContext<Context>({
   isAdding: false,
   error: '',
   filterBy: Sort.ALL,
-  isForm: false,
   modifiedTodosId: [0],
   hidden: true,
   todoWithFormId: 0,
@@ -92,7 +88,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [hidden, setHidden] = useState(true);
   const [error, setError] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isForm, setIsForm] = useState(false);
   const [todoWithFormId, setTodoWithFormId] = useState(0);
 
   // handling status of adding todo to disable main input
@@ -121,7 +116,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     handleAdding(true);
 
     if (tempTodo) {
-      setTodos(current => [...current, tempTodo]);
+      setTodos(current => (
+        [...current, { ...tempTodo, title: tempTodo.title.trim() }]
+      ));
     }
 
     if (user && data) {
@@ -204,11 +201,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   function handleNewSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (newTodo) {
+    if (newTodo?.title.trim()) {
       sendNewTodo(newTodo);
     } else {
       setHidden(false);
-      setError('Title can\'t be empty');
+      setNewTodo(null);
+      setError('Title can\'t be empty or consist only spaces');
     }
 
     newTodoField.current?.blur();
@@ -317,12 +315,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   // activate input to change existing todo title
   function setTodoInputStatus(
-    formStatus: boolean,
     id: number,
     todo: Todo | null,
   ) {
     setTempTodo(() => (todo ? { ...todo } : null));
-    setIsForm(formStatus);
     setTodoWithFormId(id);
   }
 
@@ -336,7 +332,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     if (todo.title === tempTodo?.title) {
       setModifiedTodosId([0]);
-      setTodoInputStatus(false, 0, null);
+      setTodoInputStatus(0, null);
 
       return;
     }
@@ -344,10 +340,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     if (todo.title.length === 0) {
       deleteTodos([todo.id]);
     } else {
-      modifyTodos([{ ...todo }]);
+      modifyTodos([{ ...todo, title: todo.title.trim() }]);
     }
-
-    setIsForm(false);
   }
 
   // #endregion
@@ -398,7 +392,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     isAdding,
     error,
     filterBy,
-    isForm,
     modifiedTodosId,
     hidden,
     todoWithFormId,

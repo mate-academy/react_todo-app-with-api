@@ -5,18 +5,26 @@ import { TodoUpdateContext } from '../../ContextProviders/TodoProvider';
 type Props = {
   todo: Todo,
   isModified: boolean,
+  changeFormStatus: (status: boolean) => void,
 };
 
-export const TodoTitle: React.FC<Props> = ({ todo, isModified }) => {
+export const TodoTitle: React.FC<Props> = ({
+  todo, isModified, changeFormStatus,
+}) => {
   const { setTodoInputStatus, removeTodo } = useContext(TodoUpdateContext);
   const { id, title } = todo;
+
+  const activeInputField = () => {
+    setTodoInputStatus(id, todo);
+    changeFormStatus(true);
+  };
 
   return (
     <>
       <span
         data-cy="TodoTitle"
         className="todo__title"
-        onDoubleClick={() => setTodoInputStatus(true, id, todo)}
+        onDoubleClick={activeInputField}
         aria-hidden="true"
       >
         {title}

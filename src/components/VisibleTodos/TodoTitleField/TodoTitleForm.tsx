@@ -6,9 +6,10 @@ import { TodoUpdateContext } from '../../ContextProviders/TodoProvider';
 
 type Props = {
   todo: Todo,
+  changeFormStatus: (status: boolean) => void,
 };
 
-export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
+export const TodoTitleForm: React.FC<Props> = ({ todo, changeFormStatus }) => {
   const { title, id } = todo;
   const newFormField = useRef<HTMLInputElement>(null);
   const {
@@ -18,10 +19,16 @@ export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
     unsaveTitle,
   } = useContext(TodoUpdateContext);
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | null) => {
+    handleTitleUpdate(event, todo);
+    changeFormStatus(false);
+  };
+
   const handleKeys = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       unsaveTitle();
-      setTodoInputStatus(false, 0, null);
+      changeFormStatus(false);
+      setTodoInputStatus(0, null);
     }
 
     if (event.key === 'Enter' || event.key === 'NumpadEnter') {
@@ -36,10 +43,7 @@ export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
   }, []);
 
   return (
-    <form onSubmit={
-      (event) => handleTitleUpdate(event, todo)
-    }
-    >
+    <form onSubmit={handleSubmit}>
       <input
         data-cy="TodoTitleField"
         ref={newFormField}
@@ -48,7 +52,7 @@ export const TodoTitleForm: React.FC<Props> = ({ todo }) => {
         placeholder="Empty todo will be deleted"
         value={title}
         onChange={(event) => handleChangeTitle(event, id)}
-        onBlur={() => handleTitleUpdate(null, todo)}
+        onBlur={() => handleSubmit(null)}
         onKeyDown={handleKeys}
       />
     </form>
