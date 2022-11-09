@@ -1,18 +1,237 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
+import { Todo } from './types/Todo';
+import {
+  changeTodo, createTodo, getTodos, removeTodo,
+} from './api/todos';
+import { Notifications } from './types/Notifications';
+import { Filter } from './types/Filter';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const todoTitleField = useRef<HTMLInputElement>(null);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [notification, setNotification] = useState<Notifications | ''>('');
+  const [filterType, setFilterType] = useState<Filter>(Filter.All);
+  const [title, setTitle] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [temporaryTodoTitle, setTemporaryTodoTitle] = useState('');
+  const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
+  const [isRenamingTodoID, setIsRenamingTodoID] = useState<number | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
+    async function fetchTodos() {
+      if (user) {
+        const loadedTodos = await getTodos(user.id);
+
+        setTodos(loadedTodos);
+      }
+    }
+
+    fetchTodos();
+  }, []);
+
+  useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+
+    setCompletedTodos(todos.filter(todo => todo.completed));
+  }, [todos]);
+
+  useEffect(() => {
+    if (todoTitleField.current) {
+      todoTitleField.current.focus();
+    }
+  }, [isRenamingTodoID]);
+
+  const addLoader = (todoId: number) => {
+    setLoadingTodos(current => ([...current, todoId]));
+  };
+
+  const removeLoader = (todoId: number) => {
+    setLoadingTodos(current => [...current].filter(id => id !== todoId));
+  };
+
+  const createNotification = (message: Notifications) => {
+    setNotification(message);
+    setTimeout(() => setNotification(''), 3000);
+  };
+
+  const filterTodos = (option: Filter) => {
+    switch (option) {
+      case Filter.Active:
+        return todos.filter(todo => !todo.completed);
+
+      case Filter.Completed:
+        return todos.filter(todo => todo.completed);
+
+      default:
+        return todos;
+    }
+  };
+
+  const addTodo = async (newTodo: Omit<Todo, 'id'>) => {
+    try {
+      setTemporaryTodoTitle(title);
+      setTitle('');
+      const response = await createTodo(newTodo);
+      const responseTodo = JSON.parse(JSON.stringify(response));
+
+      const createdTodo = {
+        id: responseTodo.id,
+        userId: responseTodo.userId,
+        title: responseTodo.title,
+        completed: responseTodo.completed,
+      };
+
+      setTodos(currentTodos => ([...currentTodos, createdTodo]));
+      setTemporaryTodoTitle('');
+    } catch (e) {
+      createNotification('Unable to add a todo');
+    }
+
+    setIsAdding(false);
+  };
+
+  const onDelete = async (todoId: number) => {
+    addLoader(todoId);
+
+    try {
+      await removeTodo(todoId);
+      removeLoader(todoId);
+      setTodos(
+        currentTodo => ([...currentTodo.filter(todo => todo.id !== todoId)]),
+      );
+    } catch (e) {
+      createNotification('Unable to delete a todo');
+      removeLoader(todoId);
+    }
+  };
+
+  const requestOnChange = async (
+    todo: Todo, requestValue: boolean, changeCompletedState: () => void,
+  ) => {
+    addLoader(todo.id);
+
+    try {
+      await changeTodo(todo.id, { completed: requestValue });
+      removeLoader(todo.id);
+      changeCompletedState();
+    } catch (e) {
+      removeLoader(todo.id);
+      createNotification('Unable to update a todo');
+    }
+  };
+
+  const completeTodo = async (todo: Todo) => {
+    if (completedTodos.includes(todo)) {
+      const callback = () => setCompletedTodos(
+        current => [...current].filter(currentTodo => currentTodo !== todo),
+      );
+
+      requestOnChange(todo, false, callback);
+    } else {
+      const callback = () => setCompletedTodos(current => ([...current, todo]));
+
+      requestOnChange(todo, true, callback);
+    }
+  };
+
+  const clearCompleted = () => {
+    completedTodos.forEach(todo => onDelete(todo.id));
+  };
+
+  const toggleAll = () => {
+    if (completedTodos.length !== todos.length) {
+      const callback = () => setCompletedTodos([...todos]);
+
+      todos
+        .filter(todo => !todo.completed)
+        .forEach(todo => requestOnChange(todo, true, callback));
+    } else {
+      const callback = () => setCompletedTodos([]);
+
+      todos.forEach(todo => requestOnChange(todo, false, callback));
+    }
+  };
+
+  const handleSubmitNewTodoField = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setNotification('');
+    setIsAdding(true);
+
+    if (!title) {
+      createNotification('Title can\'t be empty');
+      setIsAdding(false);
+
+      return;
+    }
+
+    const newTodo = {
+      userId: user ? user.id : 0,
+      title,
+      completed: false,
+    };
+
+    addTodo(newTodo);
+  };
+
+  const showTitleField = (todo: Todo) => {
+    setIsRenamingTodoID(todo.id);
+    setNewTodoTitle(todo.title);
+  };
+
+  const handleSubmitTodoTitleField = async (
+    todo: Todo, event: React.FormEvent,
+  ) => {
+    event.preventDefault();
+    addLoader(todo.id);
+    setIsRenamingTodoID(null);
+
+    if (!newTodoTitle) {
+      onDelete(todo.id);
+
+      return;
+    }
+
+    if (todo.title !== newTodoTitle) {
+      try {
+        await changeTodo(todo.id, { title: newTodoTitle });
+        setTodos(currentTodos => {
+          return currentTodos.map(currentTodo => {
+            if (currentTodo.id === todo.id) {
+              return {
+                ...currentTodo,
+                title: newTodoTitle,
+              };
+            }
+
+            return currentTodo;
+          });
+        });
+        removeLoader(todo.id);
+      } catch (e) {
+        createNotification('Unable to update a todo');
+      }
+    }
+
+    removeLoader(todo.id);
+  };
+
+  const cancelEditing = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsRenamingTodoID(null);
+    }
+  };
+
+  const filteredTodos = filterTodos(filterType);
 
   return (
     <div className="todoapp">
@@ -23,201 +242,219 @@ export const App: React.FC = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames(
+              'todoapp__toggle-all',
+              { active: completedTodos.length === todos.length },
+            )}
+            aria-label="toggle-all-todos"
+            onClick={toggleAll}
           />
 
-          <form>
+          <form onSubmit={handleSubmitNewTodoField}>
             <input
               data-cy="NewTodoField"
               type="text"
               ref={newTodoField}
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
+              value={title}
+              onChange={event => setTitle(event.target.value)}
+              disabled={isAdding}
             />
           </form>
         </header>
 
-        <section className="todoapp__main" data-cy="TodoList">
-          <div data-cy="Todo" className="todo completed">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                defaultChecked
-              />
-            </label>
+        {(todos.length > 0 || isAdding) && (
+          <>
+            <section className="todoapp__main" data-cy="TodoList">
+              {filteredTodos.map(todo => (
+                <div
+                  data-cy="Todo"
+                  className={classNames(
+                    'todo',
+                    {
+                      completed: completedTodos.includes(todo),
+                    },
+                  )}
+                  key={todo.id}
+                >
+                  <label className="todo__status-label">
+                    <input
+                      data-cy="TodoStatus"
+                      type="checkbox"
+                      className="todo__status"
+                      defaultChecked
+                      onClick={() => completeTodo(todo)}
+                    />
+                  </label>
+                  {isRenamingTodoID === todo.id
+                    ? (
+                      <form
+                        onSubmit={
+                          (event) => handleSubmitTodoTitleField(todo, event)
+                        }
+                      >
+                        <input
+                          data-cy="TodoTitleField"
+                          type="text"
+                          value={newTodoTitle}
+                          onChange={
+                            event => setNewTodoTitle(event.target.value)
+                          }
+                          className="todo__title-field"
+                          onBlur={
+                            (event) => handleSubmitTodoTitleField(todo, event)
+                          }
+                          onKeyDown={cancelEditing}
+                          ref={todoTitleField}
+                        />
+                      </form>
+                    )
+                    : (
+                      <>
+                        <span
+                          data-cy="TodoTitle"
+                          className="todo__title"
+                          onDoubleClick={() => showTitleField(todo)}
+                        >
+                          {todo.title}
+                        </span>
+                        <button
+                          type="button"
+                          className="todo__remove"
+                          data-cy="TodoDeleteButton"
+                          onClick={() => onDelete(todo.id)}
+                        >
+                          ×
+                        </button>
+                      </>
+                    )}
 
-            <span data-cy="TodoTitle" className="todo__title">HTML</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
+                  <div
+                    data-cy="TodoLoader"
+                    className={classNames(
+                      'modal overlay',
+                      {
+                        'is-active': loadingTodos.includes(todo.id),
+                      },
+                    )}
+                  >
+                    <div
+                      className="modal-background has-background-white-ter"
+                    />
+                    <div className="loader" />
+                  </div>
+                </div>
+              ))}
+              {isAdding && (
+                <div
+                  data-cy="Todo"
+                  className="todo"
+                >
+                  <label className="todo__status-label">
+                    <input
+                      data-cy="TodoStatus"
+                      type="checkbox"
+                      className="todo__status"
+                      defaultChecked
+                    />
+                  </label>
+                  <span
+                    data-cy="TodoTitle"
+                    className="todo__title"
+                  >
+                    {temporaryTodoTitle}
+                  </span>
+                  <button
+                    type="button"
+                    className="todo__remove"
+                    data-cy="TodoDeleteButton"
+                  >
+                    ×
+                  </button>
 
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
+                  <div data-cy="TodoLoader" className="modal overlay is-active">
+                    <div
+                      className="modal-background has-background-white-ter"
+                    />
+                    <div className="loader" />
+                  </div>
+                </div>
+              )}
+            </section>
+            <footer className="todoapp__footer" data-cy="Footer">
+              <span className="todo-count" data-cy="todosCounter">
+                {`${todos.length - completedTodos.length} items left`}
+              </span>
 
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
+              <nav className="filter" data-cy="Filter">
+                <a
+                  data-cy="FilterLinkAll"
+                  href="#/"
+                  className={classNames(
+                    'filter__link',
+                    { selected: filterType === Filter.All },
+                  )}
+                  onClick={() => setFilterType(Filter.All)}
+                >
+                  All
+                </a>
 
-            <span data-cy="TodoTitle" className="todo__title">CSS</span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <form>
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                defaultValue="JS"
-              />
-            </form>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">React</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-
-          <div data-cy="Todo" className="todo">
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">Redux</span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div data-cy="TodoLoader" className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        </section>
-
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            4 items left
-          </span>
-
-          <nav className="filter" data-cy="Filter">
-            <a
-              data-cy="FilterLinkAll"
-              href="#/"
-              className="filter__link selected"
-            >
-              All
-            </a>
-
-            <a
-              data-cy="FilterLinkActive"
-              href="#/active"
-              className="filter__link"
-            >
-              Active
-            </a>
-            <a
-              data-cy="FilterLinkCompleted"
-              href="#/completed"
-              className="filter__link"
-            >
-              Completed
-            </a>
-          </nav>
-
+                <a
+                  data-cy="FilterLinkActive"
+                  href="#/active"
+                  className={classNames(
+                    'filter__link',
+                    { selected: filterType === Filter.Active },
+                  )}
+                  onClick={() => setFilterType(Filter.Active)}
+                >
+                  Active
+                </a>
+                <a
+                  data-cy="FilterLinkCompleted"
+                  href="#/completed"
+                  className={classNames(
+                    'filter__link',
+                    { selected: filterType === Filter.Completed },
+                  )}
+                  onClick={() => setFilterType(Filter.Completed)}
+                >
+                  Completed
+                </a>
+              </nav>
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                className="todoapp__clear-completed"
+                disabled={completedTodos.length === 0}
+                onClick={clearCompleted}
+              >
+                Clear completed
+              </button>
+            </footer>
+          </>
+        )}
+      </div>
+      {notification && (
+        <div
+          data-cy="ErrorNotification"
+          className={classNames(
+            'notification is-danger is-light has-text-weight-normal',
+            { hidden: !notification },
+          )}
+        >
           <button
-            data-cy="ClearCompletedButton"
+            data-cy="HideErrorButton"
             type="button"
-            className="todoapp__clear-completed"
-          >
-            Clear completed
-          </button>
-        </footer>
-      </div>
+            className="delete"
+            aria-label="hide-notification"
+            onClick={() => setNotification('')}
+          />
 
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-        />
-
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
-      </div>
+          {notification}
+        </div>
+      )}
     </div>
   );
 };
