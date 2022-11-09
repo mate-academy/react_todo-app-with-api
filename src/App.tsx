@@ -139,12 +139,12 @@ export const App: React.FC = () => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      await patchTodo(todoId, { completed: status });
+      const responseTodo = await patchTodo(todoId, { completed: status });
 
       setTodos(currTodos => (
         currTodos.map(todo => (
           todo.id === todoId
-            ? ({ ...todo, completed: status })
+            ? responseTodo
             : todo
         ))
       ));
@@ -181,12 +181,12 @@ export const App: React.FC = () => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      await patchTodo(todoId, { title: newTitle });
+      const responseTodo = await patchTodo(todoId, { title: newTitle });
 
       setTodos(currTodos => (
         currTodos.map(todo => (
           todo.id === todoId
-            ? ({ ...todo, title: newTitle })
+            ? responseTodo
             : todo
         ))
       ));
