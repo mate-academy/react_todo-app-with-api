@@ -27,13 +27,7 @@ export const TodoInfo: React.FC<Props> = ({
     completed,
   } = todo;
 
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  });
+  const titleInput = useRef<HTMLInputElement>(null);
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState(title);
@@ -61,8 +55,15 @@ export const TodoInfo: React.FC<Props> = ({
       onDeleteTodo(id);
     } else {
       onChangeTodoTitle(id, newTodoTitle);
+      setIsRenaming(false);
     }
   };
+
+  useEffect(() => {
+    if (titleInput.current) {
+      titleInput.current.focus();
+    }
+  }, [isRenaming]);
 
   return (
     <div
@@ -94,7 +95,7 @@ export const TodoInfo: React.FC<Props> = ({
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              ref={newTodoField}
+              ref={titleInput}
               defaultValue={newTodoTitle}
               onChange={event => setNewTodoTitle(event.target.value)}
               onKeyDown={handleCloseRenaming}
