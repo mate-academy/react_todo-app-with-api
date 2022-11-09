@@ -20,7 +20,6 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [temporaryTodoTitle, setTemporaryTodoTitle] = useState('');
-  const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
   const [isRenamingTodoID, setIsRenamingTodoID] = useState<number | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
@@ -36,14 +35,6 @@ export const App: React.FC = () => {
 
     fetchTodos();
   }, []);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
-    setCompletedTodos(todos.filter(todo => todo.completed));
-  }, [todos]);
 
   useEffect(() => {
     if (todoTitleField.current) {
@@ -115,15 +106,28 @@ export const App: React.FC = () => {
     }
   };
 
-  const requestOnChange = async (
-    todo: Todo, requestValue: boolean, changeCompletedState: () => void,
-  ) => {
+  const updateTodoStatus = (todoId: number, value: boolean) => {
+    setTodos(currentTodos => {
+      return currentTodos.map(currentTodo => {
+        if (currentTodo.id === todoId) {
+          return {
+            ...currentTodo,
+            completed: value,
+          };
+        }
+
+        return currentTodo;
+      });
+    });
+  };
+
+  const requestOnChange = async (todo: Todo, requestValue: boolean) => {
     addLoader(todo.id);
 
     try {
       await changeTodo(todo.id, { completed: requestValue });
       removeLoader(todo.id);
-      changeCompletedState();
+      updateTodoStatus(todo.id, requestValue);
     } catch (e) {
       removeLoader(todo.id);
       createNotification('Unable to update a todo');
@@ -131,34 +135,28 @@ export const App: React.FC = () => {
   };
 
   const completeTodo = async (todo: Todo) => {
-    if (completedTodos.includes(todo)) {
-      const callback = () => setCompletedTodos(
-        current => [...current].filter(currentTodo => currentTodo !== todo),
-      );
-
-      requestOnChange(todo, false, callback);
+    if (todo.completed) {
+      await requestOnChange(todo, false);
     } else {
-      const callback = () => setCompletedTodos(current => ([...current, todo]));
-
-      requestOnChange(todo, true, callback);
+      await requestOnChange(todo, true);
     }
   };
 
   const clearCompleted = () => {
-    completedTodos.forEach(todo => onDelete(todo.id));
+    todos
+      .filter(todo => todo.completed)
+      .forEach(todo => onDelete(todo.id));
   };
 
   const toggleAll = () => {
-    if (completedTodos.length !== todos.length) {
-      const callback = () => setCompletedTodos([...todos]);
+    const uncompletedTodos = todos.filter(todo => !todo.completed);
 
-      todos
-        .filter(todo => !todo.completed)
-        .forEach(todo => requestOnChange(todo, true, callback));
+    if (uncompletedTodos.length !== todos.length) {
+      uncompletedTodos.forEach(todo => requestOnChange(todo, true));
     } else {
-      const callback = () => setCompletedTodos([]);
+      const completedTodos = todos.filter(todo => todo.completed);
 
-      todos.forEach(todo => requestOnChange(todo, false, callback));
+      completedTodos.forEach(todo => requestOnChange(todo, false));
     }
   };
 
@@ -244,7 +242,7 @@ export const App: React.FC = () => {
             type="button"
             className={classNames(
               'todoapp__toggle-all',
-              { active: completedTodos.length === todos.length },
+              { active: todos.every(todo => todo.completed) },
             )}
             aria-label="toggle-all-todos"
             onClick={toggleAll}
@@ -273,7 +271,7 @@ export const App: React.FC = () => {
                   className={classNames(
                     'todo',
                     {
-                      completed: completedTodos.includes(todo),
+                      completed: todo.completed,
                     },
                   )}
                   key={todo.id}
@@ -384,7 +382,7 @@ export const App: React.FC = () => {
             </section>
             <footer className="todoapp__footer" data-cy="Footer">
               <span className="todo-count" data-cy="todosCounter">
-                {`${todos.length - completedTodos.length} items left`}
+                {`${todos.filter(todo => !todo.completed).length} items left`}
               </span>
 
               <nav className="filter" data-cy="Filter">
@@ -427,7 +425,7 @@ export const App: React.FC = () => {
                 data-cy="ClearCompletedButton"
                 type="button"
                 className="todoapp__clear-completed"
-                disabled={completedTodos.length === 0}
+                disabled={todos.filter(todo => todo.completed).length === 0}
                 onClick={clearCompleted}
               >
                 Clear completed
