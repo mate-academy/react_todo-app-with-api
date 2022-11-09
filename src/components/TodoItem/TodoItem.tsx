@@ -7,12 +7,19 @@ type Props = {
   todo: Todo;
   removeTodo: (todoId: number) => void;
   isDeletingCompleted: boolean;
+  editTodo: (todoId: number, fieldToChange: object) => Promise<void>;
+  isTodoChanging: boolean;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
-  todo, removeTodo, isDeletingCompleted,
+  todo,
+  removeTodo,
+  isDeletingCompleted,
+  editTodo,
+  isTodoChanging,
 }) => {
   const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
+  const [checkBoxClicked, setChekboxClicked] = useState(false);
   const { title, completed, id } = todo;
 
   const handleDelete = () => {
@@ -20,17 +27,15 @@ export const TodoItem: React.FC<Props> = React.memo(({
     removeTodo(id);
   };
 
-  const loaderIsActive = () => {
-    if (id === 0 || deleteButtonClicked) {
-      return true;
-    }
-
-    if (isDeletingCompleted && completed) {
-      return true;
-    }
-
-    return false;
+  const handleTodoStatus = async () => {
+    setChekboxClicked(true);
+    await editTodo(id, { completed: !completed });
+    setChekboxClicked(false);
   };
+
+  const loaderIsActive = (id === 0 || deleteButtonClicked)
+    || (isDeletingCompleted && completed)
+    || (isTodoChanging && checkBoxClicked);
 
   return (
     <div
@@ -42,7 +47,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked
+          onChange={handleTodoStatus}
         />
       </label>
 
@@ -60,7 +65,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay',
-          { 'is-active': loaderIsActive() })}
+          { 'is-active': loaderIsActive })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

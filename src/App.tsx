@@ -1,7 +1,13 @@
 import React, {
-  useContext, useEffect, useRef, useState, useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
 } from 'react';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, updateTodo, getTodos,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorMessage } from './components/ErrorMessage';
 import { FilterForTodos } from './components/FilterForTodos';
@@ -26,6 +32,7 @@ export const App: React.FC = () => {
   const [isTodoAdding, setIsTodoAdding] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo>(emptyTodo);
   const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
+  const [isTodoChanging, setIsTodoChanging] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -42,10 +49,6 @@ export const App: React.FC = () => {
       setErrorText('Unable to load todos');
 
       throw new Error(`unexpected error with loading todos: ${error}`);
-    } finally {
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
     }
   }, []);
 
@@ -56,6 +59,14 @@ export const App: React.FC = () => {
 
     loadTodos();
   }, []);
+
+  useEffect(() => {
+    if (isError) {
+      setTimeout(() => {
+        setIsError(false);
+      }, 3000);
+    }
+  }, [isError]);
 
   const loadTodo = useCallback(async (todoTitle: string) => {
     try {
@@ -84,9 +95,6 @@ export const App: React.FC = () => {
       throw new Error(`unexpected error with adding todo: ${error}`);
     } finally {
       setIsTodoAdding(false);
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
     }
   }, []);
 
@@ -100,10 +108,6 @@ export const App: React.FC = () => {
       setErrorText('Unable to delete a todo');
 
       throw new Error(`unexpected error with deleting todo: ${error}`);
-    } finally {
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
     }
   }, []);
 
@@ -127,12 +131,29 @@ export const App: React.FC = () => {
       throw new Error(`unexpected error with deleting todos: ${error}`);
     } finally {
       setIsDeletingCompleted(false);
-
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
     }
   }, [todos]);
+
+  const editTodo = useCallback(async (
+    todoId: number, fieldToChange: object,
+  ) => {
+    try {
+      if (user) {
+        setIsTodoChanging(true);
+
+        await updateTodo(todoId, fieldToChange);
+
+        await loadTodos();
+      }
+    } catch (error) {
+      setIsError(true);
+      setErrorText('Unable to update a todo');
+
+      throw new Error(`unexpected error with adding todo: ${error}`);
+    } finally {
+      setIsTodoChanging(false);
+    }
+  }, []);
 
   const filterTodos = useCallback((todosFromServer: Todo[]) => {
     return todosFromServer.filter(todo => {
@@ -174,6 +195,8 @@ export const App: React.FC = () => {
               isTodoAdding={isTodoAdding}
               tempTodo={tempTodo}
               isDeletingCompleted={isDeletingCompleted}
+              editTodo={editTodo}
+              isTodoChanging={isTodoChanging}
             />
 
             <FilterForTodos
