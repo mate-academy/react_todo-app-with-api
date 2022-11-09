@@ -16,9 +16,7 @@ export const FiltersNavigation: React.FC<Props> = ({ filterBy, onFilter }) => (
       className={cn('filter__link', {
         selected: filterBy === FilterType.ALL,
       })}
-      onClick={() => {
-        onFilter(FilterType.ALL);
-      }}
+      onClick={() => onFilter(FilterType.ALL)}
     >
       All
     </a>
@@ -29,9 +27,7 @@ export const FiltersNavigation: React.FC<Props> = ({ filterBy, onFilter }) => (
       className={cn('filter__link', {
         selected: filterBy === FilterType.ACTIVE,
       })}
-      onClick={() => {
-        onFilter(FilterType.ACTIVE);
-      }}
+      onClick={() => onFilter(FilterType.ACTIVE)}
     >
       Active
     </a>
@@ -41,9 +37,7 @@ export const FiltersNavigation: React.FC<Props> = ({ filterBy, onFilter }) => (
       className={cn('filter__link', {
         selected: filterBy === FilterType.COMPLETED,
       })}
-      onClick={() => {
-        onFilter(FilterType.COMPLETED);
-      }}
+      onClick={() => onFilter(FilterType.COMPLETED)}
     >
       Completed
     </a>

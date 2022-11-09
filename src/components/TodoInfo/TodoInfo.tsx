@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -32,20 +32,20 @@ export const TodoInfo: React.FC<Props> = ({
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState(title);
 
-  const handleDoubleClick = (event: React.MouseEvent) => {
+  const handleDoubleClick = useCallback((event: React.MouseEvent) => {
     if (event.detail === 2) {
       setIsRenaming(true);
     }
-  };
+  }, []);
 
-  const handleCloseRenaming = (event: React.KeyboardEvent) => {
+  const handleCloseRenaming = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setNewTodoTitle('');
       setIsRenaming(false);
     }
-  };
+  }, []);
 
-  const submitNewTodoTitle = (event: React.FormEvent) => {
+  const submitNewTodoTitle = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     if (newTodoTitle === title) {
@@ -57,7 +57,7 @@ export const TodoInfo: React.FC<Props> = ({
       onChangeTodoTitle(id, newTodoTitle);
       setIsRenaming(false);
     }
-  };
+  }, [newTodoTitle]);
 
   useEffect(() => {
     if (titleInput.current) {
@@ -78,9 +78,7 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => {
-            onToggleTodo(id, completed);
-          }}
+          onClick={() => onToggleTodo(id, completed)}
         />
       </label>
 

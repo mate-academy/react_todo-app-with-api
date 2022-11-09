@@ -75,7 +75,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleDeleteTodo = async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     setDeletedTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
     try {
@@ -85,9 +85,9 @@ export const App: React.FC = () => {
       setError(ErrorType.DELETE);
       setSelectedTodoIds([]);
     }
-  };
+  }, []);
 
-  const handleDeleteCompletedTodos = async () => {
+  const handleDeleteCompletedTodos = useCallback(async () => {
     try {
       const completedTodoIds = todos
         .filter(todo => todo.completed)
@@ -108,29 +108,31 @@ export const App: React.FC = () => {
       setError(ErrorType.DELETE);
       setSelectedTodoIds([]);
     }
-  };
+  }, [todos]);
 
-  const handleToggleTodo = async (todoId: number, completed: boolean) => {
-    setSelectedTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
+  const handleToggleTodo = useCallback(
+    async (todoId: number, completed: boolean) => {
+      setSelectedTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
-    try {
-      await updateTodo(todoId, { completed: !completed });
-      await loadTodos();
+      try {
+        await updateTodo(todoId, { completed: !completed });
+        await loadTodos();
 
-      setSelectedTodoIds(currentTodoIds => (
-        currentTodoIds.filter(id => id !== todoId)
-      ));
-    } catch {
-      setError(ErrorType.UPDATE);
-      setSelectedTodoIds([]);
-    }
-  };
+        setSelectedTodoIds(currentTodoIds => (
+          currentTodoIds.filter(id => id !== todoId)
+        ));
+      } catch {
+        setError(ErrorType.UPDATE);
+        setSelectedTodoIds([]);
+      }
+    }, [],
+  );
 
   const isEachTodoCompleted = useMemo(
     () => todos.every(todo => todo.completed), [todos],
   );
 
-  const handleToggleAllTodos = async () => {
+  const handleToggleAllTodos = useCallback(async () => {
     try {
       await Promise.all(todos.map(async (todo) => {
         if (!todo.completed || isEachTodoCompleted) {
@@ -147,21 +149,23 @@ export const App: React.FC = () => {
       setError(ErrorType.UPDATE);
       setSelectedTodoIds([]);
     }
-  };
+  }, [selectedTodoIds]);
 
-  const handleChangeTodoTitle = async (todoId: number, title: string) => {
-    setSelectedTodoIds([todoId]);
+  const handleChangeTodoTitle = useCallback(
+    async (todoId: number, title: string) => {
+      setSelectedTodoIds([todoId]);
 
-    try {
-      await updateTodo(todoId, { title });
-      await loadTodos();
+      try {
+        await updateTodo(todoId, { title });
+        await loadTodos();
 
-      setSelectedTodoIds([]);
-    } catch {
-      setError(ErrorType.UPDATE);
-      setSelectedTodoIds([]);
-    }
-  };
+        setSelectedTodoIds([]);
+      } catch {
+        setError(ErrorType.UPDATE);
+        setSelectedTodoIds([]);
+      }
+    }, [],
+  );
 
   const handleFilterSelect = useCallback((filterType: FilterType) => {
     setFilterBy(filterType);
@@ -205,14 +209,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: isEachTodoCompleted,
-            })}
-            onClick={handleToggleAllTodos}
-          />
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className={cn('todoapp__toggle-all', {
+                active: isEachTodoCompleted,
+              })}
+              onClick={handleToggleAllTodos}
+            />
+          )}
 
           <NewTodo
             todoTitle={todoTitle}

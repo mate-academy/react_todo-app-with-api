@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 
 import { TodoCount } from '../TodoCount';
+import { FiltersNavigation } from '../FiltersNavigation';
 
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
-import { FiltersNavigation } from '../FiltersNavigation';
 
 interface Props {
   todos: Todo[];
