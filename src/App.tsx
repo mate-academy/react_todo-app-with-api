@@ -158,7 +158,7 @@ export const App: React.FC = () => {
   const toggleAll = () => {
     const uncompletedTodos = todos.filter(todo => !todo.completed);
 
-    if (uncompletedTodos.length !== todos.length) {
+    if (uncompletedTodos.length > 0) {
       uncompletedTodos.forEach(todo => requestOnChange(todo, true));
     } else {
       const completedTodos = todos.filter(todo => todo.completed);
@@ -360,42 +360,51 @@ export const App: React.FC = () => {
                     </div>
                   </CSSTransition>
                 ))}
-              </TransitionGroup>
-              {isAdding && (
-                <div
-                  data-cy="Todo"
-                  className="todo"
-                >
-                  <label className="todo__status-label">
-                    <input
-                      data-cy="TodoStatus"
-                      type="checkbox"
-                      className="todo__status"
-                      defaultChecked
-                    />
-                  </label>
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
+                {isAdding && (
+                  <CSSTransition
+                    key={0}
+                    timeout={300}
+                    classNames="temp-item"
                   >
-                    {temporaryTodoTitle}
-                  </span>
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    data-cy="TodoDeleteButton"
-                  >
-                    ×
-                  </button>
-
-                  <div data-cy="TodoLoader" className="modal overlay is-active">
                     <div
-                      className="modal-background has-background-white-ter"
-                    />
-                    <div className="loader" />
-                  </div>
-                </div>
-              )}
+                      data-cy="Todo"
+                      className="todo"
+                    >
+                      <label className="todo__status-label">
+                        <input
+                          data-cy="TodoStatus"
+                          type="checkbox"
+                          className="todo__status"
+                          defaultChecked
+                        />
+                      </label>
+                      <span
+                        data-cy="TodoTitle"
+                        className="todo__title"
+                      >
+                        {temporaryTodoTitle}
+                      </span>
+                      <button
+                        type="button"
+                        className="todo__remove"
+                        data-cy="TodoDeleteButton"
+                      >
+                        ×
+                      </button>
+
+                      <div
+                        data-cy="TodoLoader"
+                        className="modal overlay is-active"
+                      >
+                        <div
+                          className="modal-background has-background-white-ter"
+                        />
+                        <div className="loader" />
+                      </div>
+                    </div>
+                  </CSSTransition>
+                )}
+              </TransitionGroup>
             </section>
             <footer className="todoapp__footer" data-cy="Footer">
               <span className="todo-count" data-cy="todosCounter">
