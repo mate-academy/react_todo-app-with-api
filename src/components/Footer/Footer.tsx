@@ -19,14 +19,6 @@ export const Footer: React.FC<Props> = ({
   setSortType,
   clearCompletedTodos,
 }) => {
-  // const todosLeft = useMemo(() => (
-  //   todos.filter(({ completed }) => !completed).length
-  // ), [todos]);
-
-  // const completedTodos = useMemo(() => (
-  //   todos.filter(todo => todo.completed).length
-  // ), [todos]);
-
   const todosLeft = useMemo(() => (
     todos.reduce((acc: Todo[], cur) => {
       if (!cur.completed) {
