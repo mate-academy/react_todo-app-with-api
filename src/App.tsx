@@ -144,7 +144,6 @@ export const App: React.FC = () => {
       ));
     } catch (error) {
       generateError(`Unable to change status of todo #${todoId}, todo not exist!`);
-      await getTodosFromServer();
     }
   }, [todos]);
 
@@ -177,7 +176,6 @@ export const App: React.FC = () => {
       ));
     } catch (error) {
       generateError(`Unable to change title of todo #${todoId}, todo not exist!`);
-      await getTodosFromServer();
     }
   }, []);
 
