@@ -19,12 +19,32 @@ export const Footer: React.FC<Props> = ({
   setSortType,
   clearCompletedTodos,
 }) => {
+  // const todosLeft = useMemo(() => (
+  //   todos.filter(({ completed }) => !completed).length
+  // ), [todos]);
+
+  // const completedTodos = useMemo(() => (
+  //   todos.filter(todo => todo.completed).length
+  // ), [todos]);
+
   const todosLeft = useMemo(() => (
-    todos.filter(({ completed }) => !completed).length
+    todos.reduce((acc: Todo[], cur) => {
+      if (!cur.completed) {
+        acc.push(cur);
+      }
+
+      return acc;
+    }, []).length
   ), [todos]);
 
   const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed).length
+    todos.reduce((acc: Todo[], cur) => {
+      if (cur.completed) {
+        acc.push(cur);
+      }
+
+      return acc;
+    }, []).length
   ), [todos]);
 
   return (
@@ -50,19 +70,18 @@ export const Footer: React.FC<Props> = ({
         ))}
       </nav>
 
-      {completedTodos > 0 ? (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={clearCompletedTodos}
-          disabled={!completedTodos}
-        >
-          Clear completed
-        </button>
-      ) : (
-        <span>{'             '}</span>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className={classNames(
+          'todoapp__clear-completed',
+          { hide: !completedTodos },
+        )}
+        onClick={clearCompletedTodos}
+        disabled={!completedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
