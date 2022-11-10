@@ -20,9 +20,9 @@ export const TodosFilter: React.FC<Props> = ({
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const completedTodos = useMemo(() => {
-    return todos.filter(todo => todo.completed);
-  }, [todos]);
+  const hascompletedTodos = useMemo(() => (
+    todos.some(todo => todo.completed)
+  ), [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -32,25 +32,15 @@ export const TodosFilter: React.FC<Props> = ({
 
       <FilterControls todoStatus={todoStatus} onSelect={handleStatusSelect} />
 
-      {completedTodos.length
-        ? (
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={onDelete}
-          >
-            Clear completed
-          </button>
-        )
-        : (
-          // eslint-disable-next-line jsx-a11y/control-has-associated-label
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-          />
-        )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        style={{ visibility: hascompletedTodos ? 'visible' : 'hidden' }}
+        onClick={onDelete}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
