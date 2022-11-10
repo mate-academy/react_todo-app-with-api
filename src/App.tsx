@@ -2,6 +2,7 @@ import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import {
@@ -35,6 +36,12 @@ export const App: React.FC = () => {
 
     fetchTodos();
   }, []);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [todos]);
 
   useEffect(() => {
     if (todoTitleField.current) {
@@ -265,85 +272,95 @@ export const App: React.FC = () => {
         {(todos.length > 0 || isAdding) && (
           <>
             <section className="todoapp__main" data-cy="TodoList">
-              {filteredTodos.map(todo => (
-                <div
-                  data-cy="Todo"
-                  className={classNames(
-                    'todo',
-                    {
-                      completed: todo.completed,
-                    },
-                  )}
-                  key={todo.id}
-                >
-                  <label className="todo__status-label">
-                    <input
-                      data-cy="TodoStatus"
-                      type="checkbox"
-                      className="todo__status"
-                      defaultChecked
-                      onClick={() => completeTodo(todo)}
-                    />
-                  </label>
-                  {isRenamingTodoID === todo.id
-                    ? (
-                      <form
-                        onSubmit={
-                          (event) => handleSubmitTodoTitleField(todo, event)
-                        }
-                      >
-                        <input
-                          data-cy="TodoTitleField"
-                          type="text"
-                          value={newTodoTitle}
-                          onChange={
-                            event => setNewTodoTitle(event.target.value)
-                          }
-                          className="todo__title-field"
-                          onBlur={
-                            (event) => handleSubmitTodoTitleField(todo, event)
-                          }
-                          onKeyDown={cancelEditing}
-                          ref={todoTitleField}
-                        />
-                      </form>
-                    )
-                    : (
-                      <>
-                        <span
-                          data-cy="TodoTitle"
-                          className="todo__title"
-                          onDoubleClick={() => showTitleField(todo)}
-                        >
-                          {todo.title}
-                        </span>
-                        <button
-                          type="button"
-                          className="todo__remove"
-                          data-cy="TodoDeleteButton"
-                          onClick={() => onDelete(todo.id)}
-                        >
-                          ×
-                        </button>
-                      </>
-                    )}
-
-                  <div
-                    data-cy="TodoLoader"
-                    className={classNames(
-                      'modal overlay',
-                      {
-                        'is-active': loadingTodos.includes(todo.id),
-                      },
-                    )}
+              <TransitionGroup>
+                {filteredTodos.map(todo => (
+                  <CSSTransition
+                    key={todo.id}
+                    timeout={300}
+                    classNames="item"
                   >
                     <div
-                      className="modal-background has-background-white-ter"
-                    />
-                    <div className="loader" />
-                  </div>
-                </div>
-              ))}
+                      data-cy="Todo"
+                      className={classNames(
+                        'todo',
+                        {
+                          completed: todo.completed,
+                        },
+                      )}
+                      key={todo.id}
+                    >
+                      <label className="todo__status-label">
+                        <input
+                          data-cy="TodoStatus"
+                          type="checkbox"
+                          className="todo__status"
+                          defaultChecked
+                          onClick={() => completeTodo(todo)}
+                        />
+                      </label>
+                      {isRenamingTodoID === todo.id
+                        ? (
+                          <form
+                            onSubmit={
+                              (event) => handleSubmitTodoTitleField(todo, event)
+                            }
+                          >
+                            <input
+                              data-cy="TodoTitleField"
+                              type="text"
+                              value={newTodoTitle}
+                              onChange={
+                                event => setNewTodoTitle(event.target.value)
+                              }
+                              className="todo__title-field"
+                              onBlur={
+                                (
+                                  event,
+                                ) => handleSubmitTodoTitleField(todo, event)
+                              }
+                              onKeyDown={cancelEditing}
+                              ref={todoTitleField}
+                            />
+                          </form>
+                        )
+                        : (
+                          <>
+                            <span
+                              data-cy="TodoTitle"
+                              className="todo__title"
+                              onDoubleClick={() => showTitleField(todo)}
+                            >
+                              {todo.title}
+                            </span>
+                            <button
+                              type="button"
+                              className="todo__remove"
+                              data-cy="TodoDeleteButton"
+                              onClick={() => onDelete(todo.id)}
+                            >
+                              ×
+                            </button>
+                          </>
+                        )}
+
+                      <div
+                        data-cy="TodoLoader"
+                        className={classNames(
+                          'modal overlay',
+                          {
+                            'is-active': loadingTodos.includes(todo.id),
+                          },
+                        )}
+                      >
+                        <div
+                          className="modal-background has-background-white-ter"
+                        />
+                        <div className="loader" />
+                      </div>
+                    </div>
+                  </CSSTransition>
+                ))}
+              </TransitionGroup>
               {isAdding && (
                 <div
                   data-cy="Todo"
