@@ -49,6 +49,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
     if (titleQuery === title) {
       setIsInputVisible(false);
+
+      return;
     }
 
     if (titleQuery.trim()) {
