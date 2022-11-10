@@ -15,11 +15,8 @@ import { ErrorMessage } from './components/ErrorMessage';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputTitle, setInputTitle] = useState('');
-  const [isAdding, setIsAdding] = useState<Todo | null>(null);
-  const [addError, setAddError] = useState(false);
-  const [removeError, setRemoveError] = useState(false);
-  const [updateError, setUpdateError] = useState(false);
-  const [inputError, setInputError] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState('All');
   const [isAllSelected, setIsAllSelected] = useState(true);
   const [isHidden, setIsHidden] = useState(true);
@@ -43,10 +40,11 @@ export const App: React.FC = () => {
       const response = await getTodos(userId);
 
       setTodos(response);
-      setIsAdding(null);
+      setTempTodo(null);
       setIsEditing(null);
     } catch (error) {
-      throw new Error('Error on loading todos');
+      setErrorMessage('Unable to load todos');
+      setIsHidden(false);
     }
   };
 
@@ -54,7 +52,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!inputTitle) {
-      setInputError(true);
+      setErrorMessage('Title can\'t be empty');
       setIsHidden(false);
 
       return;
@@ -62,22 +60,23 @@ export const App: React.FC = () => {
 
     if (user) {
       const newTodo = {
+        id: 0,
         userId: user.id,
         title: inputTitle,
         completed: false,
       };
 
-      setIsAdding(newTodo);
+      setTempTodo(newTodo);
 
       try {
         await createTodos(newTodo);
+        getTodosFromApi(user.id);
       } catch {
-        setAddError(true);
+        setErrorMessage('Unable to add a todo');
         setIsHidden(false);
-        setIsAdding(null);
+        setTempTodo(null);
       }
 
-      getTodosFromApi(user.id);
       setInputTitle('');
     }
   };
@@ -85,13 +84,13 @@ export const App: React.FC = () => {
   const selectCompleted = async (todo: Todo) => {
     try {
       await updateTodo(todo, !todo.completed);
-    } catch {
-      setUpdateError(true);
-      setIsHidden(false);
-    }
 
-    if (user) {
-      getTodosFromApi(user.id);
+      if (user) {
+        getTodosFromApi(user.id);
+      }
+    } catch {
+      setErrorMessage('Unable to update a todo');
+      setIsHidden(false);
     }
   };
 
@@ -114,7 +113,7 @@ export const App: React.FC = () => {
         try {
           await removeTodo(todo);
         } catch {
-          setRemoveError(true);
+          setErrorMessage('Unable to delete a todo');
           setIsHidden(false);
         }
 
@@ -144,10 +143,7 @@ export const App: React.FC = () => {
 
   const clearErrors = () => {
     setIsHidden(true);
-    setAddError(false);
-    setUpdateError(false);
-    setRemoveError(false);
-    setInputError(false);
+    setErrorMessage('');
   };
 
   useEffect(() => {
@@ -188,8 +184,7 @@ export const App: React.FC = () => {
               key={todo.id}
               todo={todo}
               getTodo={getTodosFromApi}
-              setUpdateError={setUpdateError}
-              setRemoveError={setRemoveError}
+              setErrorMessage={setErrorMessage}
               editTitle={editTitle}
               setIsHidden={setIsHidden}
               isEditting={isEditing}
@@ -198,12 +193,11 @@ export const App: React.FC = () => {
             />
           ))}
 
-          {isAdding && (
+          {tempTodo && (
             <TodoComponent
-              todo={isAdding}
+              todo={tempTodo}
               getTodo={getTodosFromApi}
-              setUpdateError={setUpdateError}
-              setRemoveError={setRemoveError}
+              setErrorMessage={setErrorMessage}
               editTitle={editTitle}
               setIsHidden={setIsHidden}
               selectCompleted={selectCompleted}
@@ -224,10 +218,7 @@ export const App: React.FC = () => {
       <ErrorMessage
         isHidden={isHidden}
         clearErrors={clearErrors}
-        updateError={updateError}
-        addError={addError}
-        removeError={removeError}
-        inputError={inputError}
+        errorMessage={errorMessage}
       />
     </div>
   );

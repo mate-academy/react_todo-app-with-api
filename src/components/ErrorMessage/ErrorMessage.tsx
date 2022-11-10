@@ -4,19 +4,13 @@ import cn from 'classnames';
 type Props = {
   isHidden: boolean;
   clearErrors: () => void;
-  updateError: boolean;
-  addError: boolean;
-  removeError: boolean;
-  inputError: boolean;
+  errorMessage: string;
 };
 
 export const ErrorMessage: React.FC<Props> = ({
   isHidden,
   clearErrors,
-  updateError,
-  addError,
-  removeError,
-  inputError,
+  errorMessage,
 }) => {
   return (
     <div
@@ -33,10 +27,7 @@ export const ErrorMessage: React.FC<Props> = ({
         x
       </button>
 
-      {updateError && 'Unable to update a todo'}
-      {addError && 'Unable to add a todo'}
-      {removeError && 'Unable to delete a todo'}
-      {inputError && 'Title can\'t be empty'}
+      {errorMessage}
     </div>
   );
 };

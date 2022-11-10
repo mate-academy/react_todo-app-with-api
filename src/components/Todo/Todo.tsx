@@ -7,25 +7,23 @@ import { AuthContext } from '../Auth/AuthContext';
 type Props = {
   todo: Todo;
   getTodo: (userId: number) => void;
-  setUpdateError: React.Dispatch<React.SetStateAction<boolean>>;
-  setRemoveError: React.Dispatch<React.SetStateAction<boolean>>;
   editTitle: React.RefObject<HTMLInputElement>;
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   isEditting?: Todo | null;
   setIsEditting?: React.Dispatch<React.SetStateAction<Todo | null>>;
   selectCompleted: (todo: Todo) => void;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const TodoComponent: React.FC<Props> = ({
   todo,
   getTodo,
-  setUpdateError,
-  setRemoveError,
   editTitle,
   setIsHidden,
   isEditting,
   setIsEditting,
   selectCompleted,
+  setErrorMessage,
 }) => {
   const user = useContext(AuthContext);
   const [inputTitle, setInputTitle] = useState('');
@@ -41,7 +39,7 @@ export const TodoComponent: React.FC<Props> = ({
       setIsRemoving(toDo);
       await removeTodo(toDo);
     } catch {
-      setRemoveError(true);
+      setErrorMessage('Unable to delete a todo');
       setIsHidden(false);
       setIsRemoving(null);
     }
@@ -75,7 +73,7 @@ export const TodoComponent: React.FC<Props> = ({
       setToggleDoubleClick(null);
       await editTodo(toDo, trimTitle);
     } catch {
-      setUpdateError(true);
+      setErrorMessage('Unable to update a todo');
       setIsHidden(false);
     }
 
