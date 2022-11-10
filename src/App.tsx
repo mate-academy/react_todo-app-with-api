@@ -143,7 +143,7 @@ export const App: React.FC = () => {
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
-      generateError(`Unable to change status of todo #${todoId}, todo not exist!`);
+      generateError(`Unable to change status of todo #${todoId}!`);
     }
   }, [todos]);
 
@@ -175,7 +175,7 @@ export const App: React.FC = () => {
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
-      generateError(`Unable to change title of todo #${todoId}, todo not exist!`);
+      generateError(`Unable to change title of todo #${todoId}!`);
     }
   }, []);
 
