@@ -1,4 +1,5 @@
 import React from 'react';
+import { Errors } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
@@ -6,7 +7,7 @@ type Props = {
   todos: Todo[],
   addedTodo: Todo | null,
   setTodos(todos: Todo[]): void,
-  setError(error: string | null): void,
+  setError(error: Errors): void,
   isDeletingAll: boolean,
   isToggleAll: boolean,
 };

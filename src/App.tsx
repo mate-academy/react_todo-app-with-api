@@ -10,13 +10,15 @@ import {
 } from './api/todos';
 import { TodoFooter } from './components/TodoFooter';
 import { Status } from './types/Status';
+import { Errors } from './types/Errors';
 import { TodoError } from './components/TodoError';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const toggleButton = useRef<HTMLButtonElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(Errors.None);
   const [filter, setFilter] = useState(Status.All);
   const [isAdding, setIsAdding] = useState(false);
   const [addedTodo, setAddedTodo] = useState<Todo | null>(null);
@@ -31,7 +33,7 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       }
     } catch {
-      setError('Unable to load todos');
+      setError(Errors.Load);
     }
   };
 
@@ -43,7 +45,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, newTodo]);
     } catch {
-      setError('Unable to add todo');
+      setError(Errors.Add);
     } finally {
       setIsAdding(false);
       setAddedTodo(null);
@@ -67,7 +69,7 @@ export const App: React.FC = () => {
     const val = newTodoField.current?.value;
 
     if (!val) {
-      setError('Title can\'t be empty');
+      setError(Errors.Title);
 
       return;
     }
@@ -94,16 +96,14 @@ export const App: React.FC = () => {
 
       loadTodos();
     } catch (e) {
-      setError('Unable to delete completed todos');
+      setError(Errors.DeleteCompleted);
     } finally {
       setIsDeletingAll(false);
     }
   };
 
-  const handleToggleAll = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    const toggleAll = (event.target as Element).classList.contains('active');
+  const handleToggleAll = async () => {
+    const toggleAll = toggleButton.current?.classList.contains('active');
     const todosToToggle = toggleAll
       ? todos
       : todos.filter(todo => !todo.completed);
@@ -119,7 +119,7 @@ export const App: React.FC = () => {
 
       loadTodos();
     } catch {
-      setError('Unable to update todos');
+      setError(Errors.UpdateAll);
     } finally {
       setIsToggleAll(false);
     }
@@ -155,7 +155,8 @@ export const App: React.FC = () => {
             )}
             aria-label="ToogleAllButton"
             hidden={!todos.length}
-            onClick={(event) => handleToggleAll(event)}
+            onClick={() => handleToggleAll()}
+            ref={toggleButton}
           />
 
           <form onSubmit={(event) => handleNewTodoKeyDown(event)}>
@@ -191,7 +192,7 @@ export const App: React.FC = () => {
           )}
       </div>
 
-      {error && (
+      {error !== Errors.None && (
         <TodoError
           error={error}
           setError={setError}

@@ -1,15 +1,16 @@
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
+import { Errors } from '../../types/Errors';
 
 type Props = {
-  error: string | null,
-  setError: (error: string | null) => void,
+  error: Errors,
+  setError: (error: Errors) => void,
 };
 
 export const TodoError: React.FC<Props> = ({ error, setError }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      setError(null);
+      setError(Errors.None);
     }, 3000);
 
     return () => {
@@ -30,7 +31,7 @@ export const TodoError: React.FC<Props> = ({ error, setError }) => {
         type="button"
         className="delete"
         aria-label="delete"
-        onClick={() => setError(null)}
+        onClick={() => setError(Errors.None)}
       />
       <span>{error}</span>
     </div>

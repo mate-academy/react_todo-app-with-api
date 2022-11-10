@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { Errors } from '../../types/Errors';
 import { deleteTodo, patchTodo } from '../../api/todos';
 
 type Props = {
@@ -8,7 +9,7 @@ type Props = {
   todo: Todo,
   isAdded: boolean,
   setTodos(todos: Todo[]): void,
-  setError(error: string | null): void,
+  setError(error: Errors): void,
   isDeletingAll: boolean,
   isToggleAll: boolean,
 };
@@ -42,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({
 
       setTodos(todos.filter(item => item.id !== todoForRemove.id));
     } catch {
-      setError('Unable to delete a todo');
+      setError(Errors.Delete);
     } finally {
       setIsDeleting(false);
     }
@@ -60,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
           : newTodo;
       }));
     } catch {
-      setError('Unable to update a todo');
+      setError(Errors.Update);
     } finally {
       setIsUpdating(false);
     }
