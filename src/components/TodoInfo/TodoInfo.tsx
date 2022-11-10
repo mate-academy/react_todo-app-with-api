@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -40,7 +42,7 @@ export const TodoInfo: React.FC<Props> = ({
 
   const handleCloseRenaming = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setNewTodoTitle('');
+      setNewTodoTitle(title);
       setIsRenaming(false);
     }
   }, []);

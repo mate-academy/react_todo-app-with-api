@@ -27,7 +27,7 @@ import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
+  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
   const [error, setError] = useState<ErrorType>(ErrorType.NONE);
   const [todoTitle, setTodoTitle] = useState('');
