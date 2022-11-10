@@ -9,6 +9,7 @@ type Props = {
   onDelete: (id: number) => Promise<void>;
   activeTodoIds: number[];
   onToggle: (id: number) => Promise<void>;
+  onEdit: (id: number, newTitle: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   activeTodoIds,
   onToggle,
+  onEdit,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -27,6 +29,7 @@ export const TodoList: React.FC<Props> = ({
         onDelete={onDelete}
         activeTodoIds={activeTodoIds}
         onToggle={onToggle}
+        onEdit={onEdit}
       />
     ))}
 
@@ -37,6 +40,7 @@ export const TodoList: React.FC<Props> = ({
         onDelete={onDelete}
         activeTodoIds={activeTodoIds}
         onToggle={onToggle}
+        onEdit={onEdit}
       />
     )}
   </section>

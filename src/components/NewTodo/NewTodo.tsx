@@ -32,7 +32,7 @@ export const NewTodo: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  });
+  }, [todos]);
 
   const resetForm = useCallback(() => {
     setNewTodoTitle('');

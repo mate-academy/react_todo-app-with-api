@@ -22,7 +22,6 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { TodoStatus } from './types/TodoStatus';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -34,7 +33,7 @@ export const App: React.FC = () => {
     status: false,
   });
   const [todoStatus, setTodoStatus] = useState<TodoStatus>(TodoStatus.All);
-  const [activeTodoIds, setActiveTodoIds] = useState<number []>([]);
+  const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
 
   const showError = useCallback((message: string) => {
     setHasError({ status: true, message });
@@ -85,7 +84,7 @@ export const App: React.FC = () => {
     () => setHasError({ status: false, message: '' }), [],
   );
 
-  const addNewTodo = async (title: string) => {
+  const addNewTodo = useCallback(async (title: string) => {
     try {
       if (user) {
         const tempData: Todo = {
@@ -109,9 +108,9 @@ export const App: React.FC = () => {
     } catch (err) {
       showError('Unable to add a todo');
     }
-  };
+  }, [todos]);
 
-  const deleteTodo = async (id: number) => {
+  const deleteTodo = useCallback(async (id: number) => {
     try {
       setActiveTodoIds([id]);
       await deleteTodoAPI(id);
@@ -120,9 +119,9 @@ export const App: React.FC = () => {
     } catch (err) {
       showError('Unable to delete a todo');
     }
-  };
+  }, [todos]);
 
-  const deleteCompletedTodos = async () => {
+  const deleteCompletedTodos = useCallback(async () => {
     try {
       if (user) {
         const completedTodos = await getCompletedTodosAPI(user.id);
@@ -139,9 +138,9 @@ export const App: React.FC = () => {
     } catch (err) {
       showError('Unable to delete completed todos');
     }
-  };
+  }, [todos]);
 
-  const toggleTodo = async (id: number) => {
+  const toggleTodo = useCallback(async (id: number) => {
     try {
       const activeTodo = todos.find(todo => todo.id === id) || null;
       const newData = {
@@ -161,9 +160,9 @@ export const App: React.FC = () => {
       setActiveTodoIds([]);
       setIsAdding(false);
     }
-  };
+  }, [todos]);
 
-  const toggleAllTodos = async () => {
+  const toggleAllTodos = useCallback(async () => {
     try {
       const isAllTodosCompleted = todos.every(todo => todo.completed);
 
@@ -179,12 +178,37 @@ export const App: React.FC = () => {
       setActiveTodoIds([]);
     } catch (err) {
       showError('Unable to toggle todos');
+      setActiveTodoIds([]);
     }
-  };
+  }, [todos]);
 
   const handleStatusSelect = useCallback((status: TodoStatus) => {
     setTodoStatus(status);
   }, []);
+
+  const handleEditTitle = async (id: number, newTitle: string) => {
+    try {
+      const trimmedNewTitle = newTitle.trim();
+      const currentTodo = todos.find(todo => todo.id === id);
+
+      if (!trimmedNewTitle) {
+        setActiveTodoIds([id]);
+        await deleteTodoAPI(id);
+        await loadTodos();
+        setActiveTodoIds([]);
+      } else if (currentTodo?.title !== trimmedNewTitle) {
+        setActiveTodoIds([id]);
+
+        await toggleTodoAPI(id, { title: trimmedNewTitle });
+        await loadTodos();
+
+        setActiveTodoIds([]);
+      }
+    } catch (err) {
+      showError('Unable to edit a todo');
+      setActiveTodoIds([]);
+    }
+  };
 
   return (
     <div className="todoapp">
@@ -208,6 +232,7 @@ export const App: React.FC = () => {
               onDelete={deleteTodo}
               activeTodoIds={activeTodoIds}
               onToggle={toggleTodo}
+              onEdit={handleEditTitle}
             />
 
             <TodosFilter
