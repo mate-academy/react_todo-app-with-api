@@ -13,6 +13,7 @@ type Props = {
   deletingTodosIds: number[],
   toggleTodo: (todoId: number, isCompleted: boolean) => void,
   changeTodoTitle: (todoId: number, title: string) => void,
+  selectingTodoIds: number[],
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const TodoInfo: React.FC<Props> = ({
   deletingTodosIds,
   toggleTodo,
   changeTodoTitle,
+  selectingTodoIds,
 }) => {
   const { title, completed, id } = todo;
   const [deletedTodoId, setdeletedTodoId] = useState(0);
@@ -131,7 +133,8 @@ export const TodoInfo: React.FC<Props> = ({
           'modal overlay',
           {
             'is-active': id === deletedTodoId
-              || deletingTodosIds.includes(id),
+              || deletingTodosIds.includes(id)
+              || selectingTodoIds.includes(id),
           },
         )}
       >

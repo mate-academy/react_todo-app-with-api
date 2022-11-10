@@ -11,6 +11,7 @@ type Props = {
   newTitle: string,
   toggleTodo: (todoId: number, isCompleted: boolean) => void,
   changeTodoTitle: (todoId: number, title: string) => void,
+  selectingTodoIds: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const TodoList: React.FC<Props> = ({
   deletingTodosIds,
   toggleTodo,
   changeTodoTitle,
+  selectingTodoIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -32,6 +34,7 @@ export const TodoList: React.FC<Props> = ({
           deletingTodosIds={deletingTodosIds}
           toggleTodo={toggleTodo}
           changeTodoTitle={changeTodoTitle}
+          selectingTodoIds={selectingTodoIds}
         />
       ))}
 

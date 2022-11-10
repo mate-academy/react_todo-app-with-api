@@ -187,7 +187,6 @@ export const App: React.FC = () => {
       }));
 
       await getTodosFromApi();
-
       setSelectingTodoIds([]);
     } catch {
       setError(ErrorsType.UPDATE);
@@ -236,6 +235,7 @@ export const App: React.FC = () => {
               deletingTodosIds={deletingTodosIds}
               toggleTodo={toggleTodo}
               changeTodoTitle={changeTodoTitle}
+              selectingTodoIds={selectingTodoIds}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">
