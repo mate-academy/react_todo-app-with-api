@@ -55,6 +55,23 @@
     }
   }
 
+  &__edit-todo {
+    width: 100%;
+    padding: 12px 16px 12px 15px;
+
+    font-size: 24px;
+    line-height: 1.4em;
+    font-family: inherit;
+    font-weight: inherit;
+    color: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    border: none;
+    background: rgba(0, 0, 0, 0.01);
+    box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
+  }
+
   &__new-todo {
     width: 100%;
     padding: 16px 16px 16px 60px;
@@ -129,5 +146,9 @@
     &:active {
       text-decoration: none;
     }
+  }
+
+  &__clear--hidden {
+    visibility: hidden;
   }
 }
