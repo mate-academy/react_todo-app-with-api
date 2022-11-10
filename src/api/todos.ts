@@ -7,7 +7,7 @@ export const getTodos = async (userId: number) => {
   return todo || null;
 };
 
-type TodoData = Pick<Todo, 'userId' | 'title' | 'completed'>;
+type TodoData = Omit<Todo, 'id'>;
 
 export const createTodos = async (
   {
@@ -27,11 +27,10 @@ export const deleteTodos = async (todo: Todo) => {
   return client.delete(`/todos/${todo.id}`);
 };
 
-export const UpdateTodo = async (todo:Todo, completed:boolean) => {
-  return client.patch(`/todos/${todo.id}`, { completed });
-};
+export const UpdateTodo = async (todo:Todo, value: boolean | string) => {
+  if (typeof value === 'boolean') {
+    return client.patch(`/todos/${todo.id}`, { completed: value });
+  }
 
-export const EditTodo = async (todo:Todo, title:string) => {
-  return client.patch(`/todos/${todo.id}`, { title });
+  return client.patch(`/todos/${todo.id}`, { title: value });
 };
-// Add more methods here

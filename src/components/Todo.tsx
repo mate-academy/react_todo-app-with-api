@@ -3,12 +3,13 @@ import {
   useEffect,
   useContext,
   useRef,
+  useCallback,
 } from 'react';
 import classNames from 'classnames';
-import { User } from '../../types/User';
-import { deleteTodos, EditTodo } from '../../api/todos';
-import { Todo } from '../../types/Todo';
-import { AuthContext } from './AuthContext';
+import { User } from '../types/User';
+import { deleteTodos, UpdateTodo } from '../api/todos';
+import { Todo } from '../types/Todo';
+import { AuthContext } from './Auth/AuthContext';
 
 type Props = {
   todo: Todo,
@@ -55,7 +56,7 @@ export const ToDo: React.FC<Props> = ({
     }
   };
 
-  const editingTodo = async (toDo:Todo) => {
+  const editingTodo = useCallback(async (toDo:Todo) => {
     const validTodoTitle = editTodoTitile.trim();
 
     if (validTodoTitle.length < 1) {
@@ -74,7 +75,7 @@ export const ToDo: React.FC<Props> = ({
     try {
       onIsLoading(toDo);
       setToggleDoubleClick(null);
-      await EditTodo(toDo, validTodoTitle);
+      await UpdateTodo(toDo, validTodoTitle);
     } catch {
       setErrorUpdate(true);
       setHidden(false);
@@ -85,7 +86,7 @@ export const ToDo: React.FC<Props> = ({
     }
 
     setToggleDoubleClick(null);
-  };
+  }, [editTodoTitile]);
 
   useEffect(() => {
     if (editTitle.current) {
@@ -127,9 +128,9 @@ export const ToDo: React.FC<Props> = ({
   };
 
   const activeTodoLoader = (isLoading && isLoading.id === todo.id)
-  || (!todo.id)
-  || (loadingAllTodos)
-  || (clearLoader && todo.completed);
+          || (!todo.id)
+          || (loadingAllTodos)
+          || (clearLoader && todo.completed);
 
   return (
     <div
@@ -198,7 +199,7 @@ export const ToDo: React.FC<Props> = ({
         data-cy="TodoDeleteButton"
         onClick={() => removeTodo(todo)}
       >
-        { toggleDoubleClick !== todo && (
+        {toggleDoubleClick !== todo && (
           '×'
         )}
       </button>

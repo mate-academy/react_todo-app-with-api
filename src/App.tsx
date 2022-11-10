@@ -15,10 +15,10 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { User } from './types/User';
-import { TodoLIst } from './components/Auth/TodoList';
-import { Footer } from './components/Auth/Footer';
-import { Error } from './components/Auth/Error';
-import { Header } from './components/Auth/Header';
+import { TodoLIst } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { Error } from './components/Error';
+import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);

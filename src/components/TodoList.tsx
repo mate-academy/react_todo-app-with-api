@@ -1,7 +1,7 @@
 import React from 'react';
-import { Todo } from '../../types/Todo';
+import { Todo } from '../types/Todo';
 import { ToDo } from './Todo';
-import { User } from '../../types/User';
+import { User } from '../types/User';
 
 type Props = {
   List: Todo[],
