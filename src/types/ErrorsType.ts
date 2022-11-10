@@ -3,4 +3,5 @@ export enum ErrorsType {
   Add = 'add',
   Delete = 'delete',
   Update = 'update',
+  Get = 'get',
 }

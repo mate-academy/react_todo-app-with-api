@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { AuthContext } from './components/Auth/AuthContext';
 
-import { getTodos, deleteTodo, updateStatusTodo } from './api/todos';
+import { getTodos, deleteTodo, updateTodoStatus } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodosList } from './components/TodosList';
 import { FilterBy } from './types/FilterBy';
@@ -44,13 +44,9 @@ export const App: React.FC = () => {
     todosList.filter(todo => todo.completed === false).length
   ), [todosList]);
 
-  const isSelectAll = useMemo(() => {
-    return leftTodos === 0;
-  }, [leftTodos]);
+  const isSelectAll = leftTodos === 0;
 
-  const completedTodos = useMemo(() => (
-    todosList.length - leftTodos
-  ), [todosList]);
+  const completedTodos = todosList.length - leftTodos;
 
   const filteredTodos = useMemo(() => {
     return todosList.filter(todo => {
@@ -68,7 +64,20 @@ export const App: React.FC = () => {
 
   const getTodosList = useCallback(async () => {
     if (user) {
-      setTodoList(await getTodos(user.id));
+      const response = await getTodos(user.id)
+        .catch(() => {
+          setErrors(currErrors => [
+            ...currErrors,
+            ErrorsType.Get,
+          ]);
+          setTimeout(() => {
+            setErrors(currErrors => currErrors
+              .filter(error => error !== ErrorsType.Get));
+          }, 3000);
+          throw new Error('Unable to get Todos from server');
+        });
+
+      setTodoList(response);
     } else {
       throw new Error('No user');
     }
@@ -129,7 +138,7 @@ export const App: React.FC = () => {
     try {
       await Promise.all(todosList.map(todo => {
         if (todo.completed === isSelectAll) {
-          return updateStatusTodo(todo.id, todo.completed);
+          return updateTodoStatus(todo.id, todo.completed);
         }
 
         return null;

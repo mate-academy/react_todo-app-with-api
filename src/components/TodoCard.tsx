@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { deleteTodo, updateStatusTodo, updateTitleTodo } from '../api/todos';
+import { deleteTodo, updateTodoStatus, updateTodoTitle } from '../api/todos';
 import { ErrorsType } from '../types/ErrorsType';
 import { normalizeTitle } from '../utils/normalizeTitle';
 import { createError } from './Errors';
@@ -64,7 +64,7 @@ export const TodoCard: React.FC<Props> = ({
     setLoadingTodo(id);
 
     try {
-      await updateStatusTodo(id, status);
+      await updateTodoStatus(id, status);
 
       await getTodosList();
     } catch {
@@ -93,7 +93,7 @@ export const TodoCard: React.FC<Props> = ({
     setIsUpdateTitle(false);
 
     try {
-      await updateTitleTodo(id, newTitle);
+      await updateTodoTitle(id, newTitle);
 
       await getTodosList();
     } catch {
@@ -170,7 +170,7 @@ export const TodoCard: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => handlerDeleteTodo()}
+              onClick={handlerDeleteTodo}
             >
               ×
             </button>
