@@ -29,14 +29,18 @@ export const Footer: React.FC<Props> = React.memo(({
     Object.values(FilterType)
   ), []);
 
-  const handleFilterType = useCallback(() => (
-    (status: FilterType) => setFilterType(status)
-  ), []);
+  const handleFilterType = useCallback((status: FilterType) => {
+    setFilterType(status);
+  }, []);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${uncompletedCount} items left`}
+        {uncompletedCount <= 1 ? (
+          `${uncompletedCount} item left`
+        ) : (
+          `${uncompletedCount} items left`
+        )}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -48,7 +52,7 @@ export const Footer: React.FC<Props> = React.memo(({
             className={classNames('filter__link', {
               selected: filterType === status,
             })}
-            onClick={handleFilterType}
+            onClick={() => handleFilterType(status)}
           >
             {status}
           </a>

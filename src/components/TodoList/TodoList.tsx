@@ -13,6 +13,7 @@ type Props = {
   tempTodo: Todo
   todoIdsToRemove: number[]
   toggleTodoStatus: (todoId: number, status: boolean) => Promise<void>
+  changeTitle: (todoId: number, newTitle: string) => Promise<void>
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -22,6 +23,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   tempTodo,
   todoIdsToRemove,
   toggleTodoStatus,
+  changeTitle,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -38,6 +40,8 @@ export const TodoList: React.FC<Props> = React.memo(({
               isLoading={todoIdsToRemove.includes(todo.id)}
               onRemove={removeTodo}
               toggleTodoStatus={toggleTodoStatus}
+              removeTodo={removeTodo}
+              changeTitle={changeTitle}
             />
           </CSSTransition>
         ))}
@@ -52,6 +56,8 @@ export const TodoList: React.FC<Props> = React.memo(({
               todo={tempTodo}
               isLoading={isAdding}
               toggleTodoStatus={toggleTodoStatus}
+              removeTodo={removeTodo}
+              changeTitle={changeTitle}
             />
           </CSSTransition>
         )}

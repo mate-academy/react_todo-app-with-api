@@ -147,6 +147,25 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  const setNewTodoTitleToServer = useCallback(async (
+    todoId: number,
+    newTitle: string,
+  ) => {
+    try {
+      setTodoIdsToRemove(currIds => [...currIds, todoId]);
+
+      await changeTodo(todoId, { title: newTitle });
+      await getTodosFromServer();
+
+      setTodoIdsToRemove(currIds => (
+        currIds.filter((id) => id !== todoId)
+      ));
+    } catch (error) {
+      setHasError(true);
+      setErrorMessage('Unable to update a todo');
+    }
+  }, []);
+
   const closeNotification = useCallback(() => setHasError(false), []);
 
   useEffect(() => {
@@ -188,6 +207,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               todoIdsToRemove={todoIdsToRemove}
               toggleTodoStatus={toggleTodoStatus}
+              changeTitle={setNewTodoTitleToServer}
             />
 
             <Footer
