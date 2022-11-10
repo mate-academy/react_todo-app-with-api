@@ -20,6 +20,26 @@ body {
   pointer-events: none;
 }
 
+.enter {
+  max-height: 0;
+}
+
+.enter-active {
+  overflow: hidden;
+  max-height: 58px;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.exit {
+  max-height: 58px;
+}
+
+.exit-active {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out;
+}
+
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
