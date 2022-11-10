@@ -1,4 +1,4 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useMemo } from 'react';
 import {
   TodoContext, TodoUpdateContext,
 } from '../TodoContext';
@@ -7,8 +7,12 @@ import { Navigation } from './Navigation';
 export const Footer: React.FC = React.memo(() => {
   const { todos } = useContext(TodoContext);
   const { deleteTodos, setActiveIds } = useContext(TodoUpdateContext);
-  const isCompleted = todos.some(todo => todo.completed);
-  const items = todos.filter(todo => !todo.completed).length;
+  const isCompleted = useMemo(
+    () => todos.some(todo => todo.completed), [todos],
+  );
+  const items = useMemo(
+    () => todos.filter(todo => !todo.completed).length, [todos],
+  );
 
   // delete completed todos
   const clearCompleted = useCallback(() => {
