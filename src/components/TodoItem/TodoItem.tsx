@@ -84,42 +84,40 @@ export const TodoItem: React.FC<Props> = React.memo(({
         />
       </label>
 
-      {
-        !focusOnForm
-          ? (
-            <>
-              <span data-cy="TodoTitle" className="todo__title">
-                {newTitle}
-              </span>
+      {!focusOnForm
+        ? (
+          <>
+            <span data-cy="TodoTitle" className="todo__title">
+              {newTitle}
+            </span>
 
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDeleteButton"
-                onClick={() => deleteTodo(id)}
-              >
-                ×
-              </button>
-            </>
-          )
-          : (
-            <form
-              onSubmit={handleForm}
-              onBlur={handleForm}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => deleteTodo(id)}
             >
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={newTitle}
-                onChange={changeTitle}
-                onKeyDown={cancelChanging}
-                ref={currentTodoField}
-              />
-            </form>
-          )
-      }
+              ×
+            </button>
+          </>
+        )
+        : (
+          <form
+            onSubmit={handleForm}
+            onBlur={handleForm}
+          >
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={changeTitle}
+              onKeyDown={cancelChanging}
+              ref={currentTodoField}
+            />
+          </form>
+        )}
 
       <div
         data-cy="TodoLoader"
