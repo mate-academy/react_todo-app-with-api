@@ -118,33 +118,28 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const removeCompletedTodos = useCallback(async () => {
-    try {
-      await Promise.all(todos.map(todo => {
-        if (todo.completed) {
-          return deleteTodo(todo.id);
-        }
+  const completedTodos = useMemo(
+    () => (todos.filter(todo => todo.completed)), [todos],
+  );
 
-        return null;
-      }));
-
-      await loadTodos();
-    } catch (error) {
-      setIsError(true);
-      setErrorText('Unable to delete all completed todos');
-
-      throw new Error(`unexpected error with deleting todos: ${error}`);
+  const removeCompletedTodos = useCallback(() => {
+    if (completedTodos.length) {
+      completedTodos.forEach(todo => removeTodo(todo.id));
     }
-  }, [todos]);
+  }, [completedTodos]);
 
   const editTodo = useCallback(async (
     todoId: number, fieldToChange: object,
   ) => {
     try {
       if (user) {
+        setLoadingTodosIds(current => [...current, todoId]);
+
         await updateTodo(todoId, fieldToChange);
 
         await loadTodos();
+
+        setLoadingTodosIds(current => current.filter(id => id !== todoId));
       }
     } catch (error) {
       setIsError(true);
@@ -154,7 +149,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const toggleAllHadler = (isAllActive: boolean) => {
+  const toggleAllHadler = useCallback((isAllActive: boolean) => {
     if (isAllActive) {
       todos.map(todo => editTodo(todo.id, { completed: !todo.completed }));
     } else {
@@ -166,7 +161,7 @@ export const App: React.FC = () => {
         return todo;
       });
     }
-  };
+  }, [todos]);
 
   const filterTodos = useCallback((todosFromServer: Todo[]) => {
     return todosFromServer.filter(todo => {
@@ -190,7 +185,7 @@ export const App: React.FC = () => {
   }, [todos, filterBy]);
 
   const isAllTodoActive = useMemo(() => {
-    return todos.every(todo => todo.completed)
+    return todos.every(todo => todo.completed);
   }, [todos]);
 
   return (

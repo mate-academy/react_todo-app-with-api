@@ -8,7 +8,7 @@ type Props = {
   filterBy: TodoStatus;
   setFilterBy: (filterBy: TodoStatus) => void;
   todos: Todo[];
-  removeCompletedTodos: () => Promise<void>;
+  removeCompletedTodos: () => void;
 };
 
 export const FilterForTodos: React.FC<Props> = React.memo(({
