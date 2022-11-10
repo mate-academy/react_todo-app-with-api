@@ -101,15 +101,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     if (user) {
       try {
-        const todoFromServer = await sendTodo(user.id, newTodo);
+        await sendTodo(user.id, newTodo);
 
-        setTodos(current => current.map(todo => {
-          if (todo.id === 0) {
-            return { ...todo, id: todoFromServer.id };
-          }
-
-          return todo;
-        }));
+        loadTodos();
       } catch {
         showError('Unable to add a todo');
         setTodos(current => current.slice(0, current.length - 1));
@@ -138,23 +132,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const modifyTodos = useCallback(async (changedTodos: Todo[]) => {
     if (user) {
       try {
-        const todosFromServer = await Promise
-          .all(changedTodos.map(todo => patchTodo(todo)));
+        await Promise.all(changedTodos.map(todo => patchTodo(todo)));
 
-        setTodos(currentTodos => currentTodos.map(todo => {
-          const modifiedTodo: Todo | null = todosFromServer
-            .find(todoFromServer => todoFromServer.id === todo.id) || null;
-
-          if (modifiedTodo) {
-            return {
-              ...todo,
-              title: modifiedTodo.title || '',
-              completed: modifiedTodo.completed || false,
-            };
-          }
-
-          return todo;
-        }));
+        loadTodos();
         setModifiedTodosId([0]);
       } catch {
         setModifiedTodosId([0]);

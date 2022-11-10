@@ -37,11 +37,11 @@ export const Header: React.FC = React.memo(() => {
 
         await sendNewTodo(temporaryTodo);
       } else {
-        showError('Title can\'t be empty or consist of only spaces');
+        showError('Title can\'t be empty or consist only of spaces');
       }
 
       setTitle('');
-      setIsAdding(false);
+      setIsAdding(() => false);
       newTodoField?.current?.blur();
     }, [title],
   );
