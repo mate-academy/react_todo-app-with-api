@@ -30,20 +30,17 @@ export const TodoHeader: React.FC<Props> = React.memo(({
 
   return (
     <header className="todoapp__header">
-      {
-        countOfTodos > 0
-        && (
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: isEveryTodosComplited,
-            })}
-            aria-label="active"
-            onClick={copleteAllTodos}
-          />
-        )
-      }
+      {countOfTodos > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: isEveryTodosComplited,
+          })}
+          aria-label="active"
+          onClick={copleteAllTodos}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

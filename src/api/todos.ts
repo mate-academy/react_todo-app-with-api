@@ -17,20 +17,9 @@ export const removeTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const editCompleteTodoStatus = (
+export const updateTodo = (
   todoId: number,
-  completed: boolean,
+  data: Partial<Omit<Todo, 'id'>>,
 ) => {
-  return client.patch<Todo>(`/todos/${todoId}`, {
-    completed,
-  });
-};
-
-export const changeTitle = (
-  todoId: number,
-  title: string,
-) => {
-  return client.patch<Todo>(`/todos/${todoId}`, {
-    title,
-  });
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };

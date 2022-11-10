@@ -19,8 +19,7 @@ import {
   getTodos,
   createTodo,
   removeTodo,
-  editCompleteTodoStatus,
-  changeTitle,
+  updateTodo,
 } from './api/todos';
 
 export const App: React.FC = () => {
@@ -29,6 +28,7 @@ export const App: React.FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [proccessedTodoId, setProccessedTodoId] = useState<number[]>([]);
+  const [filterStatus, setFilterStatus] = useState(FilterStatus.All);
   const [todoTitle, setTodoTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -47,40 +47,28 @@ export const App: React.FC = () => {
     todos.some(todo => todo.completed)
   ), [todos]);
 
-  const [filterStatus, setFilterStatus]
-    = useState<FilterStatus>(FilterStatus.All);
-
   const manageErrors = useCallback((errorType: ErrorType) => {
-    setErrorMessage(currentMessage => {
-      let newMessage = currentMessage;
-
+    setErrorMessage(() => {
       switch (errorType) {
         case ErrorType.Endpoint:
-          newMessage = 'Fetch error';
-          break;
+          return 'Fetch error';
 
         case ErrorType.Title:
-          newMessage = 'Title can`t be empty';
-          break;
+          return 'Title can`t be empty';
 
         case ErrorType.Add:
-          newMessage = 'Unable to add a todo';
-          break;
+          return 'Unable to add a todo';
 
         case ErrorType.Delete:
-          newMessage = 'Unable to delete a todo';
-          break;
+          return 'Unable to delete a todo';
 
         case ErrorType.Update:
-          newMessage = 'Unable to update a todo';
-          break;
+          return 'Unable to update a todo';
 
         case ErrorType.None:
         default:
-          newMessage = '';
+          return '';
       }
-
-      return newMessage;
     });
   }, []);
 
@@ -91,7 +79,7 @@ export const App: React.FC = () => {
     }, 3000);
   }, []);
 
-  const getTodosFromServer = async () => {
+  const getTodosFromServer = useCallback(async () => {
     try {
       if (user) {
         const todosFromServer = await getTodos(user.id);
@@ -101,9 +89,9 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorType.Endpoint);
     }
-  };
+  }, []);
 
-  const createNewTodo = async (title: string) => {
+  const createNewTodo = useCallback(async (title: string) => {
     try {
       if (!title) {
         showError(ErrorType.Title);
@@ -121,9 +109,9 @@ export const App: React.FC = () => {
       setTodoTitle('');
       setIsLoading(false);
     }
-  };
+  }, [todos]);
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
       setProccessedTodoId(currentIds => ([
         ...currentIds,
@@ -137,33 +125,36 @@ export const App: React.FC = () => {
     } finally {
       setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
     }
-  };
+  }, [todos]);
 
-  const deleteAllCompletedTodos = () => {
+  const deleteAllCompletedTodos = useCallback(() => {
     todos.forEach(todo => {
       if (todo.completed) {
         deleteTodo(todo.id);
       }
     });
-  };
+  }, [todos]);
 
-  const changeCompleteStatus = async (todoId: number, isComplited: boolean) => {
+  const changeCompleteStatus = useCallback(async (
+    todoId: number,
+    data: boolean,
+  ) => {
     try {
       setProccessedTodoId(currentIds => ([
         ...currentIds,
         todoId,
       ]));
 
-      await editCompleteTodoStatus(todoId, !isComplited);
+      await updateTodo(todoId, { completed: !data });
       await getTodosFromServer();
     } catch (error) {
       showError(ErrorType.Update);
     } finally {
       setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
     }
-  };
+  }, [todos]);
 
-  const copleteAllTodos = () => {
+  const copleteAllTodos = useCallback(() => {
     todos.forEach(todo => {
       if (!todo.completed) {
         changeCompleteStatus(todo.id, todo.completed);
@@ -173,19 +164,22 @@ export const App: React.FC = () => {
         changeCompleteStatus(todo.id, todo.completed);
       }
     });
-  };
+  }, [todos]);
 
-  const changeTodoTitle = async (todoId: number, newTitle: string) => {
+  const changeTodoTitle = useCallback(async (
+    todoId: number,
+    data: string,
+  ) => {
     try {
       setProccessedTodoId(currentIds => ([
         ...currentIds,
         todoId,
       ]));
 
-      await changeTitle(todoId, newTitle);
+      await updateTodo(todoId, { title: data });
       await getTodosFromServer();
 
-      if (newTitle === '') {
+      if (data === '') {
         deleteTodo(todoId);
       }
     } catch (error) {
@@ -193,7 +187,7 @@ export const App: React.FC = () => {
     } finally {
       setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
     }
-  };
+  }, [todos]);
 
   useEffect(() => {
     getTodosFromServer();
@@ -206,7 +200,9 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const filterTodos = (filterBy: FilterStatus) => {
-    const filteredByStatus = todos.filter(todo => {
+    setFilterStatus(filterBy);
+
+    return todos.filter(todo => {
       switch (filterBy) {
         case FilterStatus.Active:
           return !todo.completed;
@@ -218,19 +214,15 @@ export const App: React.FC = () => {
           return todo;
       }
     });
-
-    setFilterStatus(filterBy);
-
-    return filteredByStatus;
   };
 
   const filteredTodos = useMemo(() => (
     filterTodos(filterStatus)
   ), [filterStatus, todos]);
 
-  const onChangeTitle = (title: string) => {
+  const onChangeTitle = useCallback((title: string) => {
     setTodoTitle(title);
-  };
+  }, [todoTitle]);
 
   return (
     <div className="todoapp">

@@ -61,27 +61,26 @@ export const TodoContent: React.FC<Props> = React.memo(({
       isEveryTodosComplited={isEveryTodosComplited}
     />
 
-    {todos.length > 0
-      && (
-        <>
-          <TodoBody
-            visibleTodos={visibleTodos}
-            isLoading={isLoading}
-            todoTitle={todoTitle}
-            deleteTodo={deleteTodo}
-            proccessedTodoId={proccessedTodoId}
-            changeCompleteStatus={changeCompleteStatus}
-            changeTodoTitle={changeTodoTitle}
-          />
+    {todos.length > 0 && (
+      <>
+        <TodoBody
+          visibleTodos={visibleTodos}
+          isLoading={isLoading}
+          todoTitle={todoTitle}
+          deleteTodo={deleteTodo}
+          proccessedTodoId={proccessedTodoId}
+          changeCompleteStatus={changeCompleteStatus}
+          changeTodoTitle={changeTodoTitle}
+        />
 
-          <TodoFooter
-            filterTodos={filterTodos}
-            filterStatus={filterStatus}
-            countOfLeftTodos={countOfLeftTodos}
-            deleteAllCompletedTodos={deleteAllCompletedTodos}
-            hasComplited={!hasComplited}
-          />
-        </>
-      )}
+        <TodoFooter
+          filterTodos={filterTodos}
+          filterStatus={filterStatus}
+          countOfLeftTodos={countOfLeftTodos}
+          deleteAllCompletedTodos={deleteAllCompletedTodos}
+          hasComplited={!hasComplited}
+        />
+      </>
+    )}
   </div>
 ));
