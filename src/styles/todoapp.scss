@@ -117,6 +117,7 @@
 
     cursor: pointer;
     background: none;
+    pointer-events: all;
 
     -webkit-appearance: none;
     appearance: none;
@@ -134,6 +135,7 @@
     &:disabled {
       opacity: 0;
       cursor: default;
+      pointer-events: none;
     }
   }
 }
