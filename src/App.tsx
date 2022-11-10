@@ -112,10 +112,14 @@ export const App: React.FC = () => {
 
   const deleteTodo = useCallback(async (id: number) => {
     try {
-      setActiveTodoIds([id]);
+      setActiveTodoIds(currentIds => [...currentIds, id]);
+
       await deleteTodoAPI(id);
       await loadTodos();
-      setActiveTodoIds([]);
+
+      setActiveTodoIds(currentTodoIds => (
+        currentTodoIds.filter(todoId => id !== todoId)
+      ));
     } catch (err) {
       showError('Unable to delete a todo');
     }
@@ -148,12 +152,14 @@ export const App: React.FC = () => {
       };
 
       setIsAdding(true);
-      setActiveTodoIds([id]);
+      setActiveTodoIds(currentIds => [...currentIds, id]);
 
       await changeTodoAPI(id, newData);
       await loadTodos();
 
-      setActiveTodoIds([]);
+      setActiveTodoIds(currentTodoIds => (
+        currentTodoIds.filter(todoId => id !== todoId)
+      ));
       setIsAdding(false);
     } catch (err) {
       showError('Unable to toggle todo');
@@ -191,19 +197,16 @@ export const App: React.FC = () => {
       const trimmedNewTitle = newTitle.trim();
       const currentTodo = todos.find(todo => todo.id === id);
 
+      setActiveTodoIds(currentIds => [...currentIds, id]);
+
       if (!trimmedNewTitle) {
-        setActiveTodoIds([id]);
         await deleteTodoAPI(id);
-        await loadTodos();
-        setActiveTodoIds([]);
       } else if (currentTodo?.title !== trimmedNewTitle) {
-        setActiveTodoIds([id]);
-
         await changeTodoAPI(id, { title: trimmedNewTitle });
-        await loadTodos();
-
-        setActiveTodoIds([]);
       }
+
+      await loadTodos();
+      setActiveTodoIds([]);
     } catch (err) {
       showError('Unable to edit a todo');
       setActiveTodoIds([]);
