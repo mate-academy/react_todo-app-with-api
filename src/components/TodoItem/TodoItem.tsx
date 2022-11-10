@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -6,36 +6,27 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   removeTodo: (todoId: number) => void;
-  isDeletingCompleted: boolean;
   editTodo: (todoId: number, fieldToChange: object) => Promise<void>;
-  isTodoChanging: boolean;
+  loadingTodosIds: number[];
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   removeTodo,
-  isDeletingCompleted,
   editTodo,
-  isTodoChanging,
+  loadingTodosIds,
 }) => {
-  const [deleteButtonClicked, setDeleteButtonClicked] = useState(false);
-  const [checkBoxClicked, setChekboxClicked] = useState(false);
   const { title, completed, id } = todo;
 
   const handleDelete = () => {
-    setDeleteButtonClicked(true);
     removeTodo(id);
   };
 
   const handleTodoStatus = async () => {
-    setChekboxClicked(true);
     await editTodo(id, { completed: !completed });
-    setChekboxClicked(false);
   };
 
-  const loaderIsActive = (id === 0 || deleteButtonClicked)
-    || (isDeletingCompleted && completed)
-    || (isTodoChanging && checkBoxClicked);
+  const loaderIsActive = loadingTodosIds.includes(id);
 
   return (
     <div

@@ -1,15 +1,20 @@
 import React, { useCallback, useState } from 'react';
+import cn from 'classnames';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;
   addNewTodo: (todoTitle: string) => Promise<void>;
   isTodoAdding: boolean;
+  isAllTodoActive: boolean;
+  toggleAllHadler: (isAllActive: boolean) => void;
 };
 
 export const NewTodo: React.FC<Props> = React.memo(({
   newTodoField,
   addNewTodo,
   isTodoAdding,
+  isAllTodoActive,
+  toggleAllHadler,
 }) => {
   const [titleField, setTitleField] = useState('');
 
@@ -37,7 +42,8 @@ export const NewTodo: React.FC<Props> = React.memo(({
         aria-label="All todos active"
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: isAllTodoActive })}
+        onClick={() => toggleAllHadler(isAllTodoActive)}
       />
 
       <form onSubmit={onSubmitHandler}>
