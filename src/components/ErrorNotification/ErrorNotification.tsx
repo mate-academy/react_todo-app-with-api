@@ -26,24 +26,6 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
       onClick={closeErrorMassege}
     />
 
-    {error === ErrorType.EMPTYTITLE && (
-      'Title can\'t be empty'
-    )}
-
-    {error === ErrorType.LOADING && (
-      'Unable to load todos'
-    )}
-
-    {error === ErrorType.ADD && (
-      'Unable to add a todo'
-    )}
-
-    {error === ErrorType.DELETE && (
-      'Unable to delete a todo'
-    )}
-
-    {error === ErrorType.UPDATE && (
-      'Unable to update a todo'
-    )}
+    {error}
   </div>
 ));

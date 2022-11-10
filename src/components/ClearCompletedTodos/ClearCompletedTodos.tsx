@@ -5,7 +5,7 @@ type Props = {
   todos: Todo[];
   onDeleteTodo: (todoId: number) => void;
   loadTodos: () => void;
-  onChangeProcessingIds: (todoId: number | []) => void;
+  onChangeProcessingIds: (todoId: number) => void;
 };
 
 export const ClearCompletedTodos: React.FC<Props> = React.memo(({
@@ -26,7 +26,7 @@ export const ClearCompletedTodos: React.FC<Props> = React.memo(({
     }));
 
     await loadTodos();
-    onChangeProcessingIds([]);
+    onChangeProcessingIds(0);
   }, [todos]);
 
   return (

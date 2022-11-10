@@ -9,7 +9,7 @@ type Props = {
   loadTodos: () => Promise<void>;
   onChangeError: (errorType: ErrorType) => void;
   handleDoubleClick: (isRelevant: boolean) => void;
-  onChangeProcessingIds: (todoId: number | []) => void;
+  onChangeProcessingIds: (todoId: number) => void;
 };
 
 export const EditTodoTitleForm: React.FC<Props> = ({
@@ -46,7 +46,7 @@ export const EditTodoTitleForm: React.FC<Props> = ({
     onChangeProcessingIds(todoId);
     await onUpdateTodoTitle(todoId, newTitle);
     await loadTodos();
-    onChangeProcessingIds([]);
+    onChangeProcessingIds(0);
   };
 
   const onSubmitEditedTodoTitle = (

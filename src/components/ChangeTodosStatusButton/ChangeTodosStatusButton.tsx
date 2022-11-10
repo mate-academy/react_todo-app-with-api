@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[];
   loadTodos: () => Promise<void>;
   onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
-  onChangeProcessingIds: (todoId: number | []) => void;
+  onChangeProcessingIds: (todoId: number) => void;
 };
 
 export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
@@ -41,7 +41,7 @@ export const ChangeTodosStatusButton: React.FC<Props> = React.memo(({
   const handleChangingAllTodosStatus = async () => {
     await changeAllTodosStatus();
     await loadTodos();
-    onChangeProcessingIds([]);
+    onChangeProcessingIds(0);
   };
 
   return (

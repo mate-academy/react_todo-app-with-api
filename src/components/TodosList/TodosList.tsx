@@ -1,12 +1,4 @@
-import React, {
-// useCallback,
-// useContext,
-// useEffect,
-// useState,
-// useRef,
-// useState,
-// useMemo,
-} from 'react';
+import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
@@ -22,7 +14,7 @@ type Props = {
   isAdding: boolean;
   newTodoTitle: string;
   onChangeError: (errorType: ErrorType) => void;
-  onChangeProcessingIds: (todoId: number | []) => void;
+  onChangeProcessingIds: (todoId: number) => void;
 };
 
 export const TodosList: React.FC<Props> = React.memo(({
@@ -36,35 +28,33 @@ export const TodosList: React.FC<Props> = React.memo(({
   onChangeError,
   onChangeProcessingIds,
 }) => (
-  <>
-    <TransitionGroup>
-      {todos.map(todo => (
-        <CSSTransition
-          key={todo.id}
-          timeout={300}
-          classNames="item"
-        >
-          <TodoItem
-            todo={todo}
-            onDeleteTodo={onDeleteTodo}
-            loadTodos={loadTodos}
-            onUpdateTodoStatus={onUpdateTodoStatus}
-            isProcessed={processingIds.includes(todo.id)}
-            onChangeError={onChangeError}
-            onChangeProcessingIds={onChangeProcessingIds}
-          />
-        </CSSTransition>
-      ))}
+  <TransitionGroup>
+    {todos.map(todo => (
+      <CSSTransition
+        key={todo.id}
+        timeout={300}
+        classNames="item"
+      >
+        <TodoItem
+          todo={todo}
+          onDeleteTodo={onDeleteTodo}
+          loadTodos={loadTodos}
+          onUpdateTodoStatus={onUpdateTodoStatus}
+          isProcessed={processingIds.includes(todo.id)}
+          onChangeError={onChangeError}
+          onChangeProcessingIds={onChangeProcessingIds}
+        />
+      </CSSTransition>
+    ))}
 
-      {isAdding && (
-        <CSSTransition
-          key={0}
-          timeout={300}
-          classNames="temp-item"
-        >
-          <TempTodo title={newTodoTitle} />
-        </CSSTransition>
-      )}
-    </TransitionGroup>
-  </>
+    {isAdding && (
+      <CSSTransition
+        key={0}
+        timeout={300}
+        classNames="temp-item"
+      >
+        <TempTodo title={newTodoTitle} />
+      </CSSTransition>
+    )}
+  </TransitionGroup>
 ));

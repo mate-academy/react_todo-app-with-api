@@ -36,7 +36,7 @@ export const NewTodoField: React.FC<Props> = React.memo(({
   });
 
   const createNewTodo = useCallback(
-    (title: string): Omit <Todo, 'id'> | null | void => {
+    (title: string): Omit <Todo, 'id'> | null => {
       const titleWithoutSpacesAround = title.trim();
       let todoForServer = null;
 

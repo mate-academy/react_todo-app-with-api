@@ -11,7 +11,7 @@ type Props = {
   onUpdateTodoStatus: (todoId: number, status: boolean) => Promise<void>;
   isProcessed: boolean;
   onChangeError: (errorType: ErrorType) => void;
-  onChangeProcessingIds: (todoId: number | []) => void;
+  onChangeProcessingIds: (todoId: number) => void;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
@@ -35,7 +35,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     onChangeProcessingIds(todoId);
     await onDeleteTodo(todoId);
     await loadTodos();
-    onChangeProcessingIds([]);
+    onChangeProcessingIds(0);
   };
 
   const handleChangingTodoStatus = async (
@@ -45,7 +45,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     onChangeProcessingIds(todoId);
     await onUpdateTodoStatus(todoId, status);
     await loadTodos();
-    onChangeProcessingIds([]);
+    onChangeProcessingIds(0);
   };
 
   const handleDoubleClick = (isRelevant: boolean): void => {

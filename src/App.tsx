@@ -77,7 +77,7 @@ export const App: React.FC = () => {
     setTimeout(() => setError(ErrorType.NONE), 3000);
   }, [error]);
 
-  const onChangeVisibleTodos = useCallback((newTodos: Todo[]): void => {
+  const onChangeVisibleTodos = useCallback((newTodos: Todo[]) => {
     setVisibleTodos(newTodos);
   }, []);
 
@@ -97,8 +97,8 @@ export const App: React.FC = () => {
     setIsAdding(status);
   }, []);
 
-  const onChangeProcessingIds = useCallback((todoId: number | []) => {
-    if (typeof todoId === 'number') {
+  const onChangeProcessingIds = useCallback((todoId: number) => {
+    if (todoId > 0) {
       setProcessingIds((ids) => ([
         ...ids,
         todoId,
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           {hasTodos && (
             <ChangeTodosStatusButton
-              todos={visibleTodos}
+              todos={todos}
               onUpdateTodoStatus={onUpdateTodoStatus}
               loadTodos={loadTodos}
               onChangeProcessingIds={onChangeProcessingIds}
