@@ -33,7 +33,19 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const isEveryTodosComplited = todos.every(todo => todo.completed);
+  const isEveryTodosComplited = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
+
+  const countOfTodos = useMemo(() => todos.length, [todos]);
+
+  const countOfLeftTodos = useMemo(() => (
+    todos.filter(todo => !todo.completed).length
+  ), [todos]);
+
+  const hasComplited = useMemo(() => (
+    todos.some(todo => todo.completed)
+  ), [todos]);
 
   const [filterStatus, setFilterStatus]
     = useState<FilterStatus>(FilterStatus.All);
@@ -226,6 +238,9 @@ export const App: React.FC = () => {
 
       <TodoContent
         todos={todos}
+        countOfTodos={countOfTodos}
+        countOfLeftTodos={countOfLeftTodos}
+        hasComplited={hasComplited}
         visibleTodos={filteredTodos}
         newTodoField={newTodoField}
         filterTodos={filterTodos}
