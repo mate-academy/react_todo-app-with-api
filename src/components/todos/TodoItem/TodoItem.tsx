@@ -2,14 +2,14 @@ import classNames from 'classnames';
 import React, {
   FormEvent,
   KeyboardEvent,
+  useEffect,
   useRef,
   useState,
 } from 'react';
+import { Todo } from '../../../types/Todo';
 
 interface Props {
-  id: number,
-  title: string,
-  completed: boolean,
+  todo: Todo;
   removeTodo: (id: number) => void;
   isAdding: boolean;
   loadingTodos: number[];
@@ -19,9 +19,7 @@ interface Props {
 }
 
 export const TodoItem: React.FC<Props> = ({
-  id,
-  title,
-  completed,
+  todo,
   removeTodo,
   isAdding,
   loadingTodos,
@@ -29,6 +27,12 @@ export const TodoItem: React.FC<Props> = ({
   toggleTodoStatus,
   todoRenaming,
 }) => {
+  const {
+    id,
+    title,
+    completed,
+  } = todo;
+
   const renameField = useRef<HTMLInputElement>(null);
   const [isRenaming, setIsRenaming] = useState(false);
 
@@ -56,6 +60,12 @@ export const TodoItem: React.FC<Props> = ({
       setIsRenaming(false);
     }
   };
+
+  useEffect(() => {
+    if (renameField.current) {
+      renameField.current.focus();
+    }
+  }, [isRenaming]);
 
   return (
     <div

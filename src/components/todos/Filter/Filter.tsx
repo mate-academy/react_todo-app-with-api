@@ -31,8 +31,7 @@ export const Filter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {todos.filter(todo => !todo.completed).length}
-        {' items left'}
+        {`${todos.length - completedTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -41,9 +40,10 @@ export const Filter: React.FC<Props> = ({
             key={status}
             data-cy="FilterLinkAll"
             href={`#${status.toLowerCase()}/`}
-            className={classNames('filter__link', {
-              selected: selected === status,
-            })}
+            className={classNames(
+              'filter__link',
+              { selected: selected === status },
+            )}
             onClick={() => setStatus(status)}
           >
             {status}
@@ -54,13 +54,13 @@ export const Filter: React.FC<Props> = ({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames(
+          'todoapp__clear-completed',
+          { 'todoapp__clear-completed--hidden': completedTodos.length === 0 },
+        )}
         onClick={() => filterCompleted()}
-        disabled={completedTodos.length === 0}
       >
-        {completedTodos.length === 0
-          ? ''
-          : 'Clear completed'}
+        Clear completed
       </button>
 
     </footer>

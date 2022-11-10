@@ -26,22 +26,16 @@ export const TodoList: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
 
-        {todos.map(({
-          id,
-          title,
-          completed,
-        }) => {
+        {todos.map((todo) => {
           return (
             <CSSTransition
-              key={id}
+              key={todo.id}
               timeout={300}
               classNames="item"
             >
               <TodoItem
-                key={id}
-                id={id}
-                title={title}
-                completed={completed}
+                key={todo.id}
+                todo={todo}
                 removeTodo={removeTodo}
                 isAdding={false}
                 loadingTodos={loadingTodos}
@@ -59,9 +53,7 @@ export const TodoList: React.FC<Props> = ({
             classNames="temp-item"
           >
             <TodoItem
-              id={tempTodo.id}
-              title={tempTodo.title}
-              completed={tempTodo.completed}
+              todo={tempTodo}
               removeTodo={removeTodo}
               isAdding
               loadingTodos={loadingTodos}

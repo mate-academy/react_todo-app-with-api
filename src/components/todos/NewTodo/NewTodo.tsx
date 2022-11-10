@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, {
   FormEvent,
+  useCallback,
   useEffect,
   useRef,
 } from 'react';
@@ -23,14 +24,14 @@ export const NewTodo: React.FC<Props> = ({
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     if (newTodoField.current) {
       addTodo(newTodoField.current.value);
       newTodoField.current.value = '';
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (newTodoField.current) {
