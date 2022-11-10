@@ -52,10 +52,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }, [],
   );
 
-  const handleSubmit = useCallback((event: React.FormEvent) => {
+  const handleSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
 
-    onEdit(todo.id, newTitle);
+    await onEdit(todo.id, newTitle);
     setIsEditing(false);
   }, [newTitle]);
 

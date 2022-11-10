@@ -17,6 +17,6 @@ export const deleteTodoAPI = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const toggleTodoAPI = (todoId: number, data: {}) => {
+export const changeTodoAPI = (todoId: number, data: {}) => {
   return client.patch(`/todos/${todoId}`, data);
 };

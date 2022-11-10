@@ -13,7 +13,7 @@ import {
   deleteTodoAPI,
   getCompletedTodosAPI,
   getTodosAPI,
-  toggleTodoAPI,
+  changeTodoAPI,
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { NewTodo } from './components/NewTodo';
@@ -150,7 +150,7 @@ export const App: React.FC = () => {
       setIsAdding(true);
       setActiveTodoIds([id]);
 
-      await toggleTodoAPI(id, newData);
+      await changeTodoAPI(id, newData);
       await loadTodos();
 
       setActiveTodoIds([]);
@@ -170,7 +170,7 @@ export const App: React.FC = () => {
         if (isAllTodosCompleted || !todo.completed) {
           setActiveTodoIds(currentIds => [...currentIds, todo.id]);
 
-          await toggleTodoAPI(todo.id, { completed: !todo.completed });
+          await changeTodoAPI(todo.id, { completed: !todo.completed });
         }
       }));
 
@@ -199,7 +199,7 @@ export const App: React.FC = () => {
       } else if (currentTodo?.title !== trimmedNewTitle) {
         setActiveTodoIds([id]);
 
-        await toggleTodoAPI(id, { title: trimmedNewTitle });
+        await changeTodoAPI(id, { title: trimmedNewTitle });
         await loadTodos();
 
         setActiveTodoIds([]);
