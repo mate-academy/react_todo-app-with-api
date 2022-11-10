@@ -60,15 +60,17 @@ export const NewTodo: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={cn(
-          'todoapp__toggle-all',
-          { active: isAllCompleted },
-        )}
-        onClick={onToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={cn(
+            'todoapp__toggle-all',
+            { active: isAllCompleted },
+          )}
+          onClick={onToggleAll}
+        />
+      )}
 
       <form onSubmit={handleFormSubmit}>
         <input
