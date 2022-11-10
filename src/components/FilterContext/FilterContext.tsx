@@ -26,7 +26,7 @@ export const FilterProvider: React.FC<Props> = ({ children }) => {
     const newStatus = status as Sort;
 
     setFilterBy(() => newStatus);
-  }, [filterBy]);
+  }, []);
 
   // filter todo by Sort type
   const filterTodo = useCallback((todo: Todo) => {

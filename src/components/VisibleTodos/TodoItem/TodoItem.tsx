@@ -1,4 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, {
+  useState, useContext, useMemo, useCallback,
+} from 'react';
 import classNames from 'classnames';
 import { TodoLoader } from '../TodoLoader';
 import { TodoTitle } from '../TodoTitle';
@@ -10,7 +12,7 @@ type Props = {
   todo: Todo,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
 }) => {
   const { modifiedTodosId } = useContext(TodoContext);
@@ -19,21 +21,25 @@ export const TodoItem: React.FC<Props> = ({
   const [todoWithFormId, setTodoWithFormId] = useState(0);
 
   const { id, completed } = todo;
-  const isModified = id === 0;
-  const isActive = modifiedTodosId.includes(id);
-  const shouldFormShow = isForm && id === todoWithFormId;
+  const isModified = useMemo(() => id === 0, [id]);
+  const isActive = useMemo(
+    () => modifiedTodosId.includes(id), [modifiedTodosId, id],
+  );
+  const shouldFormShow = useMemo(
+    () => isForm && id === todoWithFormId, [isForm, id, todoWithFormId],
+  );
 
-  const changeFormStatus = (formStatus: boolean) => {
-    setIsForm(formStatus);
-  };
+  const changeFormStatus = useCallback((formStatus: boolean) => (
+    setIsForm(formStatus)
+  ), []);
 
   // activate input to change existing todo title
-  const handleActiveTodoId = (todoId: number) => {
-    setTodoWithFormId(todoId);
-  };
+  const handleActiveTodoId = useCallback((todoId: number) => (
+    setTodoWithFormId(todoId)
+  ), []);
 
   // change existing todo complet propery
-  const handleChangeComplet = (currentTodo: Todo) => {
+  const handleChangeComplet = useCallback((currentTodo: Todo) => {
     const modifiedTodo = {
       ...currentTodo,
       completed: !currentTodo.completed,
@@ -41,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({
 
     setActiveIds([todo.id]);
     modifyTodos([modifiedTodo]);
-  };
+  }, []);
 
   return (
     <div
@@ -80,4 +86,4 @@ export const TodoItem: React.FC<Props> = ({
       <TodoLoader isModified={isModified} isActive={isActive} />
     </div>
   );
-};
+});

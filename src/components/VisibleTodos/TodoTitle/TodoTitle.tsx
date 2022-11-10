@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { Todo } from '../../../types/Todo';
 import { TodoUpdateContext } from '../../TodoContext';
 
@@ -19,16 +19,16 @@ export const TodoTitle: React.FC<Props> = React.memo(({
   const { id, title } = todo;
 
   // remove one existing todo
-  function removeTodo(todoId: number) {
+  const removeTodo = useCallback((todoId: number) => {
     setActiveIds([todoId]);
     deleteTodos([todoId]);
-  }
+  }, []);
 
   // make input field active on double click
-  const activateInputField = () => {
+  const activateInputField = useCallback(() => {
     handleActiveTodoId(id);
     changeFormStatus(true);
-  };
+  }, []);
 
   return (
     <>

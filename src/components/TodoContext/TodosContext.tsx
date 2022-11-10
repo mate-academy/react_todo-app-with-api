@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useState, useContext,
+  useEffect, useState, useContext, useCallback,
 } from 'react';
 import {
   deleteTodo, getTodos, patchTodo, sendTodo,
@@ -60,27 +60,27 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   // #region ---- Error ----
 
   // close error
-  const closeErrorMessage = () => {
+  const closeErrorMessage = useCallback(() => {
     setError('');
     setHidden(true);
-  };
+  }, []);
 
   // set and show error
-  function showError(errorText: string) {
+  const showError = useCallback((errorText: string) => {
     setError(errorText);
     setHidden(false);
-  }
+  }, []);
 
   // #endregion
 
   // handle state with adds which data is currently sending on server
-  function setActiveIds(ids: number[]) {
-    setModifiedTodosId(ids);
-  }
+  const setActiveIds = useCallback((ids: number[]) => (
+    setModifiedTodosId(ids)
+  ), []);
 
   // #region ---- DATA API ----
   // download todos from server
-  async function loadTodos() {
+  const loadTodos = useCallback(async () => {
     if (user) {
       try {
         const todosFromApi = await getTodos(user.id);
@@ -91,10 +91,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw new Error('Unable to download todos');
       }
     }
-  }
+  }, [user]);
 
   // adding todo when getting title from user
-  async function sendNewTodo(newTodo: Todo) {
+  const sendNewTodo = useCallback(async (newTodo: Todo) => {
     setTodos(current => (
       [...current, { ...newTodo }]
     ));
@@ -116,10 +116,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw new Error('Unable to add a todo');
       }
     }
-  }
+  }, []);
 
   // delete todos or todo
-  async function deleteTodos(todosId: number[]) {
+  const deleteTodos = useCallback(async (todosId: number[]) => {
     if (user) {
       try {
         await Promise.all(todosId.map(todoId => deleteTodo(todoId)));
@@ -132,10 +132,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw new Error('Unable to delete a todo');
       }
     }
-  }
+  }, [user]);
 
   // modify todos through modifying complete status or title
-  async function modifyTodos(changedTodos: Todo[]) {
+  const modifyTodos = useCallback(async (changedTodos: Todo[]) => {
     if (user) {
       try {
         const todosFromServer = await Promise
@@ -162,7 +162,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         throw new Error('Unable to update a todo');
       }
     }
-  }
+  }, [user]);
 
   // #endregion
 

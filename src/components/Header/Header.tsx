@@ -1,5 +1,5 @@
 import React, {
-  useContext, useState, useRef, useMemo,
+  useContext, useState, useRef, useMemo, useCallback,
 } from 'react';
 import {
   TodoContext, TodoUpdateContext,
@@ -22,32 +22,36 @@ export const Header: React.FC = React.memo(() => {
   const isActive = useMemo(() => todos.every(todo => todo.completed), [todos]);
 
   // handle submit action of main input (where user typed new title for new todo)
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsAdding(() => true);
-    event.preventDefault();
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      setIsAdding(() => true);
+      event.preventDefault();
 
-    if (title.trim()) {
-      const temporaryTodo = {
-        id: 0,
-        userId: user?.id,
-        title,
-        completed: false,
-      };
+      if (title.trim()) {
+        const temporaryTodo = {
+          id: 0,
+          userId: user?.id,
+          title,
+          completed: false,
+        };
 
-      await sendNewTodo(temporaryTodo);
-    } else {
-      showError('Title can\'t be empty or consist only spaces');
-    }
+        await sendNewTodo(temporaryTodo);
+      } else {
+        showError('Title can\'t be empty or consist of only spaces');
+      }
 
-    newTodoField?.current?.blur();
-    setTitle('');
-    setIsAdding(() => false);
-  };
+      setTitle('');
+      setIsAdding(false);
+      newTodoField?.current?.blur();
+    }, [title],
+  );
 
   // handle input action of main input (where user type new title for new todo)
-  function handleNewInput(event: React.ChangeEvent<HTMLInputElement>) {
-    setTitle(() => event.target.value);
-  }
+  const handleNewInput = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => (
+      setTitle(() => event.target.value)
+    ), [],
+  );
 
   return (
     <header className="todoapp__header">

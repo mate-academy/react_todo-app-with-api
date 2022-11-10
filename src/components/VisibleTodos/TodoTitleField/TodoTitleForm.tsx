@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useContext, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../../types/Todo';
@@ -22,28 +23,32 @@ export const TodoTitleForm: React.FC<Props> = ({
   } = useContext(TodoUpdateContext);
 
   // handle title change
-  function handleChangeTitle(event: React.ChangeEvent<HTMLInputElement>) {
-    setCurrentTitle(event.target.value);
-  }
+  const handleChangeTitle = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => (
+      setCurrentTitle(event.target.value)
+    ), [],
+  );
 
   // handle existing todo title change
-  function handleTitleUpdate(event: React.FormEvent<HTMLFormElement> | null) {
-    setActiveIds([todo.id]);
-    event?.preventDefault();
+  const handleTitleUpdate = useCallback(
+    (event: React.FormEvent<HTMLFormElement> | null) => {
+      setActiveIds([todo.id]);
+      event?.preventDefault();
 
-    if (todo.title === currentTitle.trim()) {
-      setActiveIds([0]);
-      handleActiveTodoId(0);
+      if (todo.title === currentTitle.trim()) {
+        setActiveIds([0]);
+        handleActiveTodoId(0);
 
-      return;
-    }
+        return;
+      }
 
-    if (currentTitle.trim().length === 0) {
-      deleteTodos([todo.id]);
-    } else {
-      modifyTodos([{ ...todo, title: currentTitle.trim() }]);
-    }
-  }
+      if (currentTitle.trim().length === 0) {
+        deleteTodos([todo.id]);
+      } else {
+        modifyTodos([{ ...todo, title: currentTitle.trim() }]);
+      }
+    }, [currentTitle],
+  );
 
   // handle submit changed title
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | null) => {

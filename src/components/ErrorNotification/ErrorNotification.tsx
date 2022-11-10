@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import {
   TodoContext, TodoUpdateContext,
@@ -10,6 +10,11 @@ export const ErrorNotification: React.FC = React.memo(() => {
     hidden,
   } = useContext(TodoContext);
   const { closeErrorMessage } = useContext(TodoUpdateContext);
+
+  // when data trigger error, the message will be auto removed in 3 sec
+  useEffect(() => {
+    setTimeout(closeErrorMessage, 3000);
+  }, [hidden]);
 
   return (
     <div
