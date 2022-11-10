@@ -122,26 +122,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const toggleTodo = async (id: number) => {
-    try {
-      const activeTodo = todos.find(todo => todo.id === id) || null;
-      const newData = {
-        completed: !activeTodo?.completed || false,
-      };
-
-      setIsAdding(true);
-      setActiveTodoIds([id]);
-      await toggleTodoAPI(id, newData);
-      await loadTodos();
-      setActiveTodoIds([]);
-      setIsAdding(false);
-    } catch (err) {
-      showError('Unable to toggle todo');
-      setActiveTodoIds([]);
-      setIsAdding(false);
-    }
-  };
-
   const deleteCompletedTodos = async () => {
     try {
       if (user) {
@@ -161,6 +141,47 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleTodo = async (id: number) => {
+    try {
+      const activeTodo = todos.find(todo => todo.id === id) || null;
+      const newData = {
+        completed: !activeTodo?.completed,
+      };
+
+      setIsAdding(true);
+      setActiveTodoIds([id]);
+
+      await toggleTodoAPI(id, newData);
+      await loadTodos();
+
+      setActiveTodoIds([]);
+      setIsAdding(false);
+    } catch (err) {
+      showError('Unable to toggle todo');
+      setActiveTodoIds([]);
+      setIsAdding(false);
+    }
+  };
+
+  const toggleAllTodos = async () => {
+    try {
+      const isAllTodosCompleted = todos.every(todo => todo.completed);
+
+      await Promise.all(todos.map(async (todo) => {
+        if (isAllTodosCompleted || !todo.completed) {
+          setActiveTodoIds(currentIds => [...currentIds, todo.id]);
+
+          await toggleTodoAPI(todo.id, { completed: !todo.completed });
+        }
+      }));
+
+      await loadTodos();
+      setActiveTodoIds([]);
+    } catch (err) {
+      showError('Unable to toggle todos');
+    }
+  };
+
   const handleStatusSelect = useCallback((status: TodoStatus) => {
     setTodoStatus(status);
   }, []);
@@ -174,6 +195,8 @@ export const App: React.FC = () => {
           addNewTodo={addNewTodo}
           isAdding={isAdding}
           showError={showError}
+          onToggleAll={toggleAllTodos}
+          todos={todos}
         />
 
         {todos.length > 0 && (

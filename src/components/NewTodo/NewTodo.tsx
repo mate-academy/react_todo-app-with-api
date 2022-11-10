@@ -4,18 +4,25 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useMemo,
 } from 'react';
+import cn from 'classnames';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   addNewTodo: (title: string) => void;
   isAdding: boolean;
   showError: (message: string) => void;
+  onToggleAll: () => Promise<void>;
+  todos: Todo[];
 };
 
 export const NewTodo: React.FC<Props> = ({
   addNewTodo,
   isAdding,
   showError,
+  onToggleAll,
+  todos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -47,12 +54,20 @@ export const NewTodo: React.FC<Props> = ({
     }
   };
 
+  const isAllCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
+
   return (
     <header className="todoapp__header">
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn(
+          'todoapp__toggle-all',
+          { active: isAllCompleted },
+        )}
+        onClick={onToggleAll}
       />
 
       <form onSubmit={handleFormSubmit}>
