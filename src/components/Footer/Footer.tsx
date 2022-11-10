@@ -36,10 +36,10 @@ export const Footer: React.FC<Props> = ({
     todos.filter(todo => todo.completed).length),
   [todos]);
 
-  const deleteCompletedTodo = useCallback(async () => {
+  const deleteCompletedTodo = useCallback(() => {
     setSelectedTodosIds(completeTodos.map(({ id }) => id));
 
-    await Promise.all(completeTodos.map(({ id }) => deleteTodos(id)))
+    Promise.all(completeTodos.map(({ id }) => deleteTodos(id)))
       .then(() => setTodos((prevTodos) => prevTodos
         .filter(({ completed }) => !completed)))
       .catch(() => {

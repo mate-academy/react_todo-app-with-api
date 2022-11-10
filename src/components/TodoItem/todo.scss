@@ -124,7 +124,7 @@
 }
 
 .temp-item {
-  &-enter {
+  &_enter {
     max-height: 0;
     &-active {
       overflow: hidden;
@@ -135,7 +135,7 @@
 
   &-exit {
     max-height: 58px;
-    &-active {
+    &_active {
       transform: translateY(-58px);
       max-height: 0;
       opacity: 0;
@@ -145,7 +145,7 @@
   }
 }
 
-.has-error .temp-item-exit-active {
+.has-error .temp-item_exit-active {
   transform: translateY(0);
   overflow: hidden;
 }

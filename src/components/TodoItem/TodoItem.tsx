@@ -59,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [todos, errorNotification]);
 
-  const UpdateTitle = useCallback(() => {
+  const updateTitle = useCallback(() => {
     if (!newTodo) {
       removeTodo(selectedTodo);
       setDoubleClick(false);
@@ -84,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({
     SetSelectedTodo(0);
   }, [newTodo, selectedTodo, doubleClick]);
 
-  const TitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const titleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setNewTodo(event.target.value);
   };
 
@@ -95,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleBlur = () => {
-    UpdateTitle();
+    updateTitle();
     setDoubleClick(false);
   };
 
@@ -106,7 +106,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (event.key === 'Enter') {
-      UpdateTitle();
+      updateTitle();
       SetSelectedTodo(0);
     }
   };
@@ -139,7 +139,7 @@ export const TodoItem: React.FC<Props> = ({
               value={newTodo}
               className="todo__title-field"
               placeholder="If your todo is empty, it will be deleted"
-              onChange={TitleChange}
+              onChange={titleChange}
               onBlur={handleBlur}
               onKeyDown={handleKeyPress}
             />
