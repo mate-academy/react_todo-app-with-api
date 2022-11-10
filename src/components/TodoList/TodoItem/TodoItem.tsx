@@ -33,7 +33,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const handleInputChange = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       setNewTitle(event.target.value);
-    }, [],
+    }, [newTitle],
   );
 
   const handleDoubleClick = useCallback(
@@ -41,15 +41,16 @@ export const TodoItem: React.FC<Props> = React.memo(({
       if (event.detail === 2) {
         setIsEditing(true);
       }
-    }, [],
+    }, [isEditing],
   );
 
   const handleEscPressing = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Escape') {
         setIsEditing(false);
+        setNewTitle(todo.title);
       }
-    }, [],
+    }, [newTitle, isEditing],
   );
 
   const handleSubmit = useCallback(async (event: React.FormEvent) => {
