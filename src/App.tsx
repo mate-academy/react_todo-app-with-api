@@ -89,13 +89,13 @@ export const App: React.FC = () => {
         setIsAdding(true);
         setTempTodoTitle(todoTitle);
 
-        const addedTodo = await addTodo({
+        await addTodo({
           title: todoTitle,
           userId: user.id,
           completed: false,
         });
 
-        setTodos(currTodos => [...currTodos, addedTodo]);
+        await getTodosFromServer();
         setIsAdding(false);
       } catch (error) {
         generateError('Unable to add todo');
@@ -109,10 +109,7 @@ export const App: React.FC = () => {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
       await removeTodo(todoId);
-
-      setTodos(currTodos => (
-        currTodos.filter(({ id }) => id !== todoId)
-      ));
+      await getTodosFromServer();
 
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
@@ -139,24 +136,15 @@ export const App: React.FC = () => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      const responseTodo = await patchTodo(todoId, { completed: status });
-
-      setTodos(currTodos => (
-        currTodos.map(todo => (
-          todo.id === todoId
-            ? responseTodo
-            : todo
-        ))
-      ));
+      await patchTodo(todoId, { completed: status });
+      await getTodosFromServer();
 
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
       generateError(`Unable to change status of todo #${todoId}, todo not exist!`);
-      setTodos(currTodos => (
-        currTodos.filter(({ id }) => id !== todoId)
-      ));
+      await getTodosFromServer();
     }
   }, [todos]);
 
@@ -181,24 +169,15 @@ export const App: React.FC = () => {
     try {
       setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-      const responseTodo = await patchTodo(todoId, { title: newTitle });
-
-      setTodos(currTodos => (
-        currTodos.map(todo => (
-          todo.id === todoId
-            ? responseTodo
-            : todo
-        ))
-      ));
+      await patchTodo(todoId, { title: newTitle });
+      await getTodosFromServer();
 
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
       generateError(`Unable to change title of todo #${todoId}, todo not exist!`);
-      setTodos(currTodos => (
-        currTodos.filter(({ id }) => id !== todoId)
-      ));
+      await getTodosFromServer();
     }
   }, []);
 
