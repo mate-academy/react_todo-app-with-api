@@ -36,11 +36,11 @@ export const App: React.FC = () => {
 
   const isAllCompleted = todos.every(todo => todo.completed);
 
-  const removeError = () => {
+  const removeError = useCallback(() => {
     setTimeout(() => {
       setErrorType(ErrorType.None);
     }, 3000);
-  };
+  }, []);
 
   const loadTodos = useCallback(async () => {
     try {
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
     }
   }, [filterType]);
 
-  const handleTodoAdding = async (event: React.FormEvent) => {
+  const handleTodoAdding = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
     setIsAdding(true);
 
@@ -98,9 +98,9 @@ export const App: React.FC = () => {
 
     setIsAdding(false);
     setNewTodoTitle('');
-  };
+  }, [newTodoTitle]);
 
-  const handleTodoDeleting = async (todoId: number) => {
+  const handleTodoDeleting = useCallback(async (todoId: number) => {
     setLoadingTodoIds(currentIds => ([
       ...currentIds,
       todoId,
@@ -122,15 +122,15 @@ export const App: React.FC = () => {
         return newIds;
       });
     }
-  };
+  }, [filterType]);
 
-  const handleCompletedDeleting = async () => {
+  const handleCompletedDeleting = useCallback(async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => handleTodoDeleting(todo.id));
-  };
+  }, [todos]);
 
-  const toggleStatus = async (todo: Todo) => {
+  const toggleStatus = useCallback(async (todo: Todo) => {
     setLoadingTodoIds(currentIds => ([
       ...currentIds,
       todo.id,
@@ -156,16 +156,16 @@ export const App: React.FC = () => {
         return newIds;
       });
     }
-  };
+  }, []);
 
-  const handleTitleChange = async (
+  const handleTitleChange = useCallback(async (
     event: React.FormEvent,
     todo: Todo,
     newTitle: string,
   ) => {
     event.preventDefault();
 
-    if (newTitle === todo.title) {
+    if (newTitle.trim() === todo.title) {
       return;
     }
 
@@ -198,9 +198,9 @@ export const App: React.FC = () => {
         return newIds;
       });
     }
-  };
+  }, []);
 
-  const toggleAllCompleted = async () => {
+  const toggleAllCompleted = useCallback(async () => {
     todos.forEach(todo => {
       if (isAllCompleted) {
         toggleStatus(todo);
@@ -208,19 +208,19 @@ export const App: React.FC = () => {
         toggleStatus(todo);
       }
     });
-  };
+  }, [todos]);
 
-  const onInput = (input: string) => {
+  const onInput = useCallback((input: string) => {
     setNewTodoTitle(input);
-  };
+  }, []);
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setErrorType(ErrorType.None);
-  };
+  }, []);
 
-  const onFilter = (type: FilterType) => {
+  const onFilter = useCallback((type: FilterType) => {
     setFilterType(type);
-  };
+  }, []);
 
   useEffect(() => {
     loadTodos();

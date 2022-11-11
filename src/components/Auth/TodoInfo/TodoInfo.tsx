@@ -1,7 +1,9 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 
 import classNames from 'classnames';
 import { Todo } from '../../../types/Todo';
@@ -34,11 +36,11 @@ export const TodoInfo: React.FC<Props> = ({
 
   const newTitle = useRef<HTMLInputElement>(null);
 
-  const handleTitleEdit = (event: React.FormEvent) => {
+  const handleTitleEdit = useCallback((event: React.FormEvent) => {
     handleTitleChange(event, todo, editedTitle);
 
     setIsEditing(false);
-  };
+  }, [editedTitle]);
 
   useEffect(() => {
     if (newTitle.current) {
@@ -51,6 +53,7 @@ export const TodoInfo: React.FC<Props> = ({
       if (event.key === 'Escape') {
         event.preventDefault();
 
+        setEditedTitle(title);
         setIsEditing(false);
       }
     };
