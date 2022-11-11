@@ -40,12 +40,12 @@ export const Footer: React.FC<Props> = ({
     setSelectedTodosIds(completeTodos.map(({ id }) => id));
 
     Promise.all(completeTodos.map(({ id }) => deleteTodos(id)))
-      .then(() => setTodos((prevTodos) => prevTodos
-        .filter(({ completed }) => !completed)))
       .catch(() => {
         setErrorNotification(Error.Delete);
         setSelectedTodosIds([]);
-      });
+      })
+      .then(() => setTodos((prevTodos) => prevTodos
+        .filter(({ completed }) => !completed)));
 
     setSelectedTodosIds([]);
   }, [todos, selectedTodosIds, errorNotification]);
