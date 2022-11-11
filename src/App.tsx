@@ -8,7 +8,6 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { CSSTransition } from 'react-transition-group';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import {
@@ -52,9 +51,6 @@ export const App: React.FC = () => {
       setTodos(todosApi);
     }
   }, []);
-
-  const isCompleted = useMemo(() => (
-    todos.some(({ completed }) => completed)), [todos]);
 
   useEffect(() => {
     getTodosFromApi();
@@ -223,6 +219,7 @@ export const App: React.FC = () => {
           handleNewTitle={handleNewTitle}
           toggleAllTodos={toggleAllTodos}
           isAllTodoCompleted={isAllTodoCompleted}
+          todos={todos}
         />
 
         {todos.length > 0 && (
@@ -280,16 +277,10 @@ export const App: React.FC = () => {
                   Completed
                 </a>
               </nav>
-              <CSSTransition
-                in={isCompleted}
-                timeout={300}
-                classNames="todoapp__clear-completed"
-                unmountOnExit
-              >
-                <ClearAllButton
-                  handleClearCompleted={handleClearCompleted}
-                />
-              </CSSTransition>
+              <ClearAllButton
+                handleClearCompleted={handleClearCompleted}
+                todos={todos}
+              />
             </footer>
           </>
         )}

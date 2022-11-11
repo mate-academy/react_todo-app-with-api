@@ -44,7 +44,7 @@ export const TodoInfo: React.FC<Props> = ({
 
   const closeRenaming = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setNewTodoTitle('');
+      setNewTodoTitle(title);
       setIsRenamed(false);
     }
   }, []);

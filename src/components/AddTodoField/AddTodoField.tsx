@@ -1,4 +1,5 @@
 import React from 'react';
+import { Todo } from '../../types/Todo';
 import { ChangeTodosStatus } from '../ChangeTodosStatus';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   handleNewTitle: (event: React.ChangeEvent<HTMLInputElement>) => void,
   toggleAllTodos: () => void,
   isAllTodoCompleted: boolean
+  todos: Todo[],
 };
 
 export const AddTodoField:React.FC<Props> = ({
@@ -19,13 +21,16 @@ export const AddTodoField:React.FC<Props> = ({
   handleNewTitle,
   toggleAllTodos,
   isAllTodoCompleted,
+  todos,
 }) => (
   <header className="todoapp__header">
     {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-    <ChangeTodosStatus
-      toggleAllTodos={toggleAllTodos}
-      isAllTodoCompleted={isAllTodoCompleted}
-    />
+    {todos.length > 0 && (
+      <ChangeTodosStatus
+        toggleAllTodos={toggleAllTodos}
+        isAllTodoCompleted={isAllTodoCompleted}
+      />
+    )}
 
     <form onSubmit={handleAddTodo}>
       <input
