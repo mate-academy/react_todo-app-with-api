@@ -38,14 +38,14 @@ export const TodoItem: React.FC<Props> = ({
     if (event.detail === 2) {
       setIsRenaming(true);
     }
-  }, []);
+  }, [isRenaming]);
 
   const handleCloseRenaming = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setNewTodoTitle(title);
       setIsRenaming(false);
     }
-  }, []);
+  }, [isRenaming, newTodoTitle]);
 
   const submitNewTodoTitle = useCallback((event: React.FormEvent) => {
     event.preventDefault();
