@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { CSSTransition } from 'react-transition-group';
 
 import { TodoCount } from '../TodoCount';
 import { FiltersNavigation } from '../FiltersNavigation';
@@ -13,7 +14,7 @@ interface Props {
   onDeleteAllTodos: () => void;
 }
 
-export const Filters: React.FC<Props> = ({
+export const Footer: React.FC<Props> = ({
   todos,
   filterBy,
   onFilter,
@@ -32,15 +33,22 @@ export const Filters: React.FC<Props> = ({
 
       <FiltersNavigation filterBy={filterBy} onFilter={onFilter} />
 
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        style={{ visibility: hasCompletedTodo ? 'visible' : 'hidden' }}
-        onClick={onDeleteAllTodos}
+      <CSSTransition
+        in={hasCompletedTodo}
+        timeout={300}
+        classNames="todoapp__clear-completed"
+        unmountOnExit
       >
-        Clear completed
-      </button>
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          style={{ visibility: hasCompletedTodo ? 'visible' : 'hidden' }}
+          onClick={onDeleteAllTodos}
+        >
+          Clear completed
+        </button>
+      </CSSTransition>
     </footer>
   );
 };

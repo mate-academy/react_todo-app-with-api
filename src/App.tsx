@@ -17,7 +17,7 @@ import {
 
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotifications } from './components/ErrorNotifications';
-import { Filters } from './components/Filters';
+import { Footer } from './components/Footer';
 import { NewTodo } from './components/NewTodo/NewTodo';
 import { TodoList } from './components/TodoList';
 
@@ -39,6 +39,12 @@ export const App: React.FC = () => {
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const user = useContext(AuthContext);
+
+  const hasTodos = todos.length > 0;
+  const firstTodoIsAdding = isAdding && !hasTodos;
+  const isEachTodoCompleted = useMemo(
+    () => todos.every(todo => todo.completed), [todos],
+  );
 
   const showError = useCallback((message: string) => {
     setError({ status: true, message });
@@ -139,10 +145,6 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  const isEachTodoCompleted = useMemo(
-    () => todos.every(todo => todo.completed), [todos],
-  );
-
   const handleToggleAllTodos = useCallback(async () => {
     try {
       await Promise.all(todos.map(async (todo) => {
@@ -220,7 +222,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {hasTodos && (
             <button
               data-cy="ToggleAllButton"
               type="button"
@@ -239,33 +241,28 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos.length > 0 && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-              isAdding={isAdding}
-              todoTitle={todoTitle}
-              onDeleteTodo={handleDeleteTodo}
-              deletedTodoIds={deletedTodoIds}
-              onToggleTodo={handleToggleTodo}
-              selectedTodoId={selectedTodoIds}
-              onChangeTodoTitle={handleChangeTodoTitle}
-            />
+        <TodoList
+          todos={visibleTodos}
+          isAdding={isAdding}
+          todoTitle={todoTitle}
+          onDeleteTodo={handleDeleteTodo}
+          deletedTodoIds={deletedTodoIds}
+          onToggleTodo={handleToggleTodo}
+          selectedTodoId={selectedTodoIds}
+          onChangeTodoTitle={handleChangeTodoTitle}
+        />
 
-            <Filters
-              todos={todos}
-              filterBy={filterBy}
-              onFilter={handleFilterSelect}
-              onDeleteAllTodos={handleDeleteCompletedTodos}
-            />
-          </>
+        {(hasTodos || firstTodoIsAdding) && (
+          <Footer
+            todos={todos}
+            filterBy={filterBy}
+            onFilter={handleFilterSelect}
+            onDeleteAllTodos={handleDeleteCompletedTodos}
+          />
         )}
       </div>
 
-      <ErrorNotifications
-        error={error}
-        onCloseError={handleCloseError}
-      />
+      <ErrorNotifications error={error} onCloseError={handleCloseError} />
     </div>
   );
 };
