@@ -8,7 +8,10 @@ import React, {
   useState,
 } from 'react';
 import {
-  addTodo, deleteTodo, getTodos, toggleTodo,
+  addTodo,
+  deleteTodo,
+  getTodos,
+  toggleTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer';
@@ -25,17 +28,15 @@ export const App: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const [fieldForSorting, setFieldForSorting]
     = useState<FieldForSorting>(FieldForSorting.All);
-  const [titleNewTodo, setTitleNewTodo] = useState('');
   const [error, setError] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [changingTodosId, setChangingTodosId] = useState<number[]>([0]);
-
-  const tempTodo: Todo = {
+  const [tempTodo, setTempTodo] = useState<Todo>({
     id: 0,
     userId: user?.id || 0,
-    title: titleNewTodo,
+    title: '',
     completed: false,
-  };
+  });
 
   const getTodosFromAPI = useCallback(async () => {
     setIsError(false);
@@ -47,11 +48,11 @@ export const App: React.FC = () => {
       } catch {
         setIsError(true);
         setError('No ToDo loaded');
-
-        setTimeout(() => {
-          setIsError(false);
-        }, 3000);
       }
+
+      setTimeout(() => {
+        setIsError(false);
+      }, 3000);
     }
   }, []);
 
@@ -96,36 +97,34 @@ export const App: React.FC = () => {
 
   const hasTodos = todos.length > 0;
 
-  const handleAddTodo = useCallback(async () => {
+  const handleAddTodo = async (title: string) => {
     if (user) {
       try {
-        const newTitle = titleNewTodo.trim();
+        // const newTitle = titleNewTodo.trim();
 
-        if (newTitle) {
+        if (title.length > 0) {
+          setTempTodo((prevTemp) => ({ ...prevTemp, title }));
           setIsAdding(true);
-          await addTodo(user.id, newTitle);
+          // console.log(newTitle)
+          await Promise.all([
+            await addTodo(user.id, title)]);
+          // await addTodo(user.id, newTitle);
           await getTodosFromAPI();
-          setTitleNewTodo('');
           setIsAdding(false);
+          // setTitleNewTodo('');
         } else {
           setIsError(true);
-          setTitleNewTodo('');
+          // setTitleNewTodo('');
           setError('Title can`t be empty');
         }
       } catch {
         setIsError(true);
         setError('Unable to add a todo');
-      } finally {
-        setIsAdding(false);
         setTimeout(() => {
           setIsError(false);
         }, 3000);
       }
     }
-  }, [titleNewTodo]);
-
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitleNewTodo(event.target.value);
   };
 
   const deleteOneTodo = useCallback(async (todoId: number) => {
@@ -157,9 +156,7 @@ export const App: React.FC = () => {
   const deleteCompletedTodos = useCallback(async () => {
     if (completedTodosId.length > 0) {
       try {
-        await Promise.all(completedTodosId.map(async id => {
-          await deleteOneTodo(id);
-        }));
+        await Promise.all(completedTodosId.map(id => deleteOneTodo(id)));
       } catch {
         setIsError(true);
         setError('Unable to delete all completed todos');
@@ -191,7 +188,7 @@ export const App: React.FC = () => {
         setIsError(false);
       }, 3000);
     }
-  }, []);
+  }, [todos]);
 
   const handleToggleTodo = useCallback(async (
     todoId: number, completed: boolean,
@@ -199,7 +196,7 @@ export const App: React.FC = () => {
     await toggleOneTodo(todoId, completed);
     setChangingTodosId([0]);
     await getTodosFromAPI();
-  }, []);
+  }, [todos]);
 
   const toggleAllTodos = useCallback(async () => {
     try {
@@ -254,9 +251,8 @@ export const App: React.FC = () => {
 
           <AddTodoForm
             handleAddTodo={handleAddTodo}
-            handleInput={handleInput}
             newTodoField={newTodoField}
-            titleNewTodo={titleNewTodo}
+            // titleNewTodo={titleNewTodo}
             isAdding={isAdding}
           />
         </header>

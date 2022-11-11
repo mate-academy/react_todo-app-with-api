@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import React from 'react';
 import { FieldForSorting } from '../../types/Todo';
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
   length: number;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   fieldForSorting,
   selectFieldForSorting,
   counterActiveTodos,
@@ -68,4 +69,4 @@ export const Footer: React.FC<Props> = ({
       )}
     </footer>
   );
-};
+});

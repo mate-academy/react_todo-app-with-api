@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import React from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader';
 
@@ -9,7 +10,7 @@ type Props = {
   handleToggleTodo: (todoId: number, completed: boolean) => void;
 };
 
-export const TodoData: React.FC<Props> = ({
+export const TodoData: React.FC<Props> = React.memo(({
   todo,
   handleDeleteTodo,
   changingTodosId,
@@ -45,4 +46,4 @@ export const TodoData: React.FC<Props> = ({
 
     </div>
   );
-};
+});

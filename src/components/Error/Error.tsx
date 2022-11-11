@@ -7,7 +7,11 @@ type Props = {
   error: string,
 };
 
-export const Error:React.FC <Props> = ({ isError, closeError, error }) => {
+export const Error:React.FC <Props> = React.memo(({
+  isError,
+  closeError,
+  error
+}) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -28,4 +32,4 @@ export const Error:React.FC <Props> = ({ isError, closeError, error }) => {
       {error}
     </div>
   );
-};
+});

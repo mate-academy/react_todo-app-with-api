@@ -1,20 +1,23 @@
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 type Props = {
-  handleAddTodo: () => void;
-  handleInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAddTodo: (titleNewTodo: string) => void;
   newTodoField: React.RefObject<HTMLInputElement>;
-  titleNewTodo: string;
   isAdding: boolean;
 };
 
-export const AddTodoForm: React.FC<Props> = ({
+export const AddTodoForm: React.FC<Props> = React.memo(({
   handleAddTodo,
-  handleInput,
   newTodoField,
-  titleNewTodo,
   isAdding,
 }) => {
+  const [titleNewTodo, setTitleNewTodo] = useState('');
+
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setTitleNewTodo(event.target.value);
+  };
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
@@ -23,7 +26,14 @@ export const AddTodoForm: React.FC<Props> = ({
   }, [isAdding]);
 
   return (
-    <form onSubmit={handleAddTodo}>
+    <form onSubmit={(event) => {
+      event.preventDefault();
+      const newTitle = titleNewTodo.trim();
+
+      handleAddTodo(newTitle);
+      setTitleNewTodo('');
+    }}
+    >
       <input
         data-cy="NewTodoField"
         type="text"
@@ -36,4 +46,4 @@ export const AddTodoForm: React.FC<Props> = ({
       />
     </form>
   );
-};
+});

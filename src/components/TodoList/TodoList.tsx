@@ -11,7 +11,7 @@ type Props = {
   handleToggleTodo: (todoId: number, completed: boolean) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   handleDeleteTodo,
   isAdding,
@@ -25,7 +25,7 @@ export const TodoList: React.FC<Props> = ({
         <TodoData
           todo={todo}
           key={todo.id}
-          handleDeleteTodo={() => handleDeleteTodo(todo.id)}
+          handleDeleteTodo={handleDeleteTodo}
           changingTodosId={changingTodosId}
           handleToggleTodo={handleToggleTodo}
         />
@@ -34,10 +34,11 @@ export const TodoList: React.FC<Props> = ({
     {isAdding && (
       <TodoData
         todo={tempTodo}
-        handleDeleteTodo={() => handleDeleteTodo(tempTodo.id)}
+        key={tempTodo.id}
+        handleDeleteTodo={handleDeleteTodo}
         changingTodosId={changingTodosId}
         handleToggleTodo={handleToggleTodo}
       />
     )}
   </section>
-);
+));
