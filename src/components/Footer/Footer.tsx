@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { FilterType } from '../../types/FilterType';
+import { filterHrefByType, filterTypeList } from '../../utils/constans';
 
 type Props = {
   filterType: FilterType
@@ -18,16 +19,6 @@ export const Footer: React.FC<Props> = React.memo(({
   todosLength,
 }) => {
   const uncompletedCount = todosLength - completedTodos;
-
-  const filterHrefByType = useMemo(() => ({
-    [FilterType.All]: '#/',
-    [FilterType.Active]: '#/active',
-    [FilterType.Completed]: '#/completed',
-  }), []);
-
-  const filterTypeList = useMemo(() => (
-    Object.values(FilterType)
-  ), []);
 
   const handleFilterType = useCallback((status: FilterType) => {
     setFilterType(status);

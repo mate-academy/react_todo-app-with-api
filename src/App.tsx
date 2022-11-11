@@ -81,6 +81,10 @@ export const App: React.FC = () => {
 
         await deleteTodo(todoId);
         await getTodosFromServer();
+
+        setTodoIdsToRemove(currIds => (
+          currIds.filter((id) => id !== todoId)
+        ));
       }
     } catch (error) {
       setHasError(true);
@@ -109,9 +113,17 @@ export const App: React.FC = () => {
 
   const removeAllCompletedTodos = useCallback(async () => {
     try {
+      setTodoIdsToRemove(currIds => (
+        [...currIds, ...completedTodos.map(todo => todo.id)]
+      ));
+
       await Promise.all(completedTodos.map(async ({ id }) => (
-        removeTodoFromServer(id)
+        deleteTodo(id)
       )));
+
+      setTodoIdsToRemove([0]);
+
+      await getTodosFromServer();
     } catch (error) {
       setErrorMessage('Unable to remove all completed todo');
       setHasError(true);
@@ -123,8 +135,14 @@ export const App: React.FC = () => {
     status: boolean,
   ) => {
     try {
+      setTodoIdsToRemove(currIds => [...currIds, todoId]);
+
       await changeTodo(todoId, { completed: status });
-      getTodosFromServer();
+      await getTodosFromServer();
+
+      setTodoIdsToRemove(currIds => (
+        currIds.filter((id) => id !== todoId)
+      ));
     } catch (error) {
       setHasError(true);
       setErrorMessage('Unable to toggle ToDo status');
@@ -137,10 +155,15 @@ export const App: React.FC = () => {
         ? todos.filter(({ completed }) => !completed)
         : todos;
 
+      setTodoIdsToRemove([...todosFilteredByStatus.map(todo => todo.id)]);
+
       await Promise.all(todosFilteredByStatus.map(async ({ id, completed }) => (
         changeTodo(id, { completed: !completed })
       )));
-      getTodosFromServer();
+
+      await getTodosFromServer();
+
+      setTodoIdsToRemove([0]);
     } catch (error) {
       setHasError(true);
       setErrorMessage('Unable to toggle all ToDos status');
