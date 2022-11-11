@@ -9,7 +9,7 @@ type Props = {
   isAdding: boolean;
   handleDeleteTodo: (id: number) => void;
   selectedIDs: number[];
-  setEditTodoId: (id : number) => void;
+  handleEditTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -18,7 +18,7 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   todoTemplate,
   selectedIDs,
-  setEditTodoId,
+  handleEditTodo,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     <TransitionGroup>
@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
             key={todo.id}
             handleDeleteTodo={handleDeleteTodo}
             selectedIDs={selectedIDs}
-            setEditTodoId={setEditTodoId}
+            handleEditTodo={handleEditTodo}
           />
         </CSSTransition>
       ))}
@@ -46,9 +46,9 @@ export const TodoList: React.FC<Props> = ({
         >
           <TodoItem
             todo={todoTemplate}
-            handleDeleteTodo={handleDeleteTodo}
             selectedIDs={[0]}
-            setEditTodoId={setEditTodoId}
+            handleDeleteTodo={handleDeleteTodo}
+            handleEditTodo={handleEditTodo}
           />
         </CSSTransition>
       )}

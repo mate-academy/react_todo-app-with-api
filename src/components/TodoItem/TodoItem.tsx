@@ -1,20 +1,69 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  handleDeleteTodo: (id: number) => void;
   selectedIDs: number[];
-  setEditTodoId: (id: number) => void;
+  handleDeleteTodo: (id: number) => void;
+  handleEditTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  handleDeleteTodo,
   selectedIDs,
-  setEditTodoId,
+  handleDeleteTodo,
+  handleEditTodo,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(todo.title);
+
+  const toggleStatus = () => {
+    const newData = {
+      completed: !todo.completed,
+    };
+
+    handleEditTodo(todo.id, newData);
+  };
+
+  const editTodoTitle = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (currentTitle.trim() === '') {
+      setIsEditing(false);
+      handleDeleteTodo(todo.id);
+
+      return;
+    }
+
+    if (currentTitle.trim() === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    const newData = {
+      title: currentTitle,
+    };
+
+    handleEditTodo(todo.id, newData);
+    setIsEditing(false);
+  };
+
+  const keyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isEditing]);
+
   return (
     <div
       data-cy="Todo"
@@ -30,30 +79,53 @@ export const TodoItem: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => setEditTodoId(todo.id)}
+          onClick={() => toggleStatus()}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => handleDeleteTodo(todo.id)}
-      >
-        ×
-      </button>
+      {isEditing ? (
+        <form onSubmit={editTodoTitle} onBlur={editTodoTitle}>
+          <input
+            data-cy="NewTodoField"
+            type="text"
+            ref={newTodoField}
+            className="todoapp__new-todo pl-4"
+            value={currentTitle}
+            onChange={(event => setCurrentTitle(event.target.value))}
+            onKeyDown={keyPress}
+          />
+        </form>
+      )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => handleDeleteTodo(todo.id)}
+            >
+              ×
+            </button>
 
-      <div
-        data-cy="TodoLoader"
-        className={cn(
-          'modal overlay',
-          { 'is-active': selectedIDs.includes(todo.id) },
+            <div
+              data-cy="TodoLoader"
+              className={cn(
+                'modal overlay',
+                { 'is-active': selectedIDs.includes(todo.id) },
+              )}
+            >
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
+          </>
         )}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
     </div>
   );
 });

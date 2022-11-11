@@ -36,7 +36,6 @@ export const App: React.FC = () => {
   const [todoStatus, setTodoStatus]
     = useState<FilteringMethod>(FilteringMethod.All);
   const [isAdding, setIsAdding] = useState(false);
-  // const [editTodoId, setEditTodoId] = useState(0);
   const [todoTemplate, setTodoTemplate] = useState({
     id: 0,
     userId: 0,
@@ -60,7 +59,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const addNewTodo = useCallback(async (todoTitle: string) => {
+  const addNewTodo = async (todoTitle: string) => {
     try {
       setIsAdding(true);
 
@@ -81,11 +80,15 @@ export const App: React.FC = () => {
 
         setTodos(curr => [...curr, addedTodo]);
       }
+
+      if (newTodoField.current) {
+        newTodoField.current.focus();
+      }
     } catch (error) {
       setHasError(true);
       setErrorMessage('Unable to add a todo');
     }
-  }, []);
+  };
 
   const handleDeleteTodo = useCallback(async (id: number) => {
     try {
@@ -100,7 +103,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const removeCompleted = async () => {
+  const removeAllCompleted = async () => {
     try {
       setSelectedIDs(todos
         .filter(todo => todo.completed)
@@ -117,22 +120,25 @@ export const App: React.FC = () => {
     }
   };
 
-  const handlerToggleTodo = async (todoId: number) => {
-    const currentTodo = todos.find(todo => todo.id === todoId) || null;
-    const newData = {
-      completed: !currentTodo?.completed,
-    };
+  const handleEditTodo
+  = useCallback(async (todoId: number, data: Partial<Todo>) => {
+    try {
+      setSelectedIDs([todoId]);
 
-    // console.log(newData);
-    await toggleTodo(todoId, newData);
-    await getTodosFromsServer();
+      await toggleTodo(todoId, data);
+      await getTodosFromsServer();
 
-    // setEditTodoId(0);
-  };
+      setSelectedIDs([]);
+    } catch (error) {
+      setHasError(true);
+      setErrorMessage('Unable to update a todo');
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   handlerToggleTodo();
-  // }, [editTodoId]);
+  const handleErrorClose = () => setHasError(false);
+  const handleStatusSelect = useCallback((status: FilteringMethod) => {
+    setTodoStatus(status);
+  }, []);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -164,11 +170,6 @@ export const App: React.FC = () => {
     setVisibleTodos(todosCopy);
   }, [todos, todoStatus]);
 
-  const handleErrorClose = useCallback(() => setHasError(false), []);
-  const handleStatusSelect = useCallback((status: FilteringMethod) => {
-    setTodoStatus(status);
-  }, []);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -186,18 +187,18 @@ export const App: React.FC = () => {
           <>
             <TodoList
               visibleTodos={visibleTodos}
-              handleDeleteTodo={handleDeleteTodo}
               todoTemplate={todoTemplate}
               isAdding={isAdding}
               selectedIDs={selectedIDs}
-              setEditTodoId={handlerToggleTodo}
+              handleDeleteTodo={handleDeleteTodo}
+              handleEditTodo={handleEditTodo}
             />
 
             <TodosFilter
               todos={todos}
               filteringMethod={todoStatus}
               handleStatusSelect={handleStatusSelect}
-              removeCompleted={removeCompleted}
+              removeAllCompleted={removeAllCompleted}
             />
           </>
         )}

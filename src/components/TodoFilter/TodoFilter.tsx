@@ -7,14 +7,14 @@ type Props = {
   todos: Todo[];
   filteringMethod: FilteringMethod;
   handleStatusSelect: (status: FilteringMethod) => void;
-  removeCompleted: () => void;
+  removeAllCompleted: () => void;
 };
 
 export const TodosFilter: React.FC<Props> = ({
   todos,
   filteringMethod,
   handleStatusSelect,
-  removeCompleted,
+  removeAllCompleted,
 }) => {
   const todosLeft = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
@@ -69,7 +69,7 @@ export const TodosFilter: React.FC<Props> = ({
         className={cn('todoapp__clear-completed', {
           'has-text-white': todos.length === todosLeft,
         })}
-        onClick={() => removeCompleted()}
+        onClick={() => removeAllCompleted()}
       >
         Clear completed
       </button>
