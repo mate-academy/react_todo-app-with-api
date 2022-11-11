@@ -47,7 +47,7 @@ export const TodoInfo: React.FC<Props> = ({
       setNewTodoTitle(title);
       setIsRenamed(false);
     }
-  }, []);
+  }, [newTodoTitle, isRenamed]);
 
   const submitNewTodoTitle = useCallback((event: React.FormEvent) => {
     event.preventDefault();
