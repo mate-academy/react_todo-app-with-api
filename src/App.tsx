@@ -29,13 +29,24 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
-  const [error, setError] = useState<ErrorType>(ErrorType.NONE);
+  const [error, setError] = useState<ErrorType>({
+    status: false,
+    message: '',
+  });
   const [todoTitle, setTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const user = useContext(AuthContext);
+
+  const showError = useCallback((message: string) => {
+    setError({ status: true, message });
+
+    setTimeout(() => {
+      setError({ status: false, message: '' });
+    }, 3000);
+  }, []);
 
   const loadTodos = useCallback(async () => {
     if (user) {
@@ -44,7 +55,7 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        setError(ErrorType.LOAD);
+        showError('Unable to load todos');
       }
     }
   }, []);
@@ -57,7 +68,7 @@ export const App: React.FC = () => {
 
       try {
         if (!todoTitle.trim().length) {
-          setError(ErrorType.TITLE);
+          showError('Title can\'t be empty');
           setIsAdding(false);
 
           return;
@@ -69,7 +80,7 @@ export const App: React.FC = () => {
         setIsAdding(false);
         setTodoTitle('');
       } catch {
-        setError(ErrorType.UPLOAD);
+        showError('Unable to add a todo');
         setIsAdding(false);
       }
     }
@@ -82,8 +93,8 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
       await loadTodos();
     } catch {
-      setError(ErrorType.DELETE);
-      setSelectedTodoIds([]);
+      showError('Unable to delete a todo');
+      setDeletedTodoIds([]);
     }
   }, []);
 
@@ -105,7 +116,7 @@ export const App: React.FC = () => {
 
       await loadTodos();
     } catch {
-      setError(ErrorType.DELETE);
+      showError('Unable to delete a todo');
       setSelectedTodoIds([]);
     }
   }, [todos]);
@@ -122,7 +133,7 @@ export const App: React.FC = () => {
           currentTodoIds.filter(id => id !== todoId)
         ));
       } catch {
-        setError(ErrorType.UPDATE);
+        showError('Unable to update a todo');
         setSelectedTodoIds([]);
       }
     }, [],
@@ -146,7 +157,7 @@ export const App: React.FC = () => {
 
       setSelectedTodoIds([]);
     } catch {
-      setError(ErrorType.UPDATE);
+      showError('Unable to update a todo');
       setSelectedTodoIds([]);
     }
   }, [selectedTodoIds]);
@@ -161,7 +172,7 @@ export const App: React.FC = () => {
 
         setSelectedTodoIds([]);
       } catch {
-        setError(ErrorType.UPDATE);
+        showError('Unable to update a todo');
         setSelectedTodoIds([]);
       }
     }, [],
@@ -172,7 +183,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleCloseError = useCallback(() => {
-    setError(ErrorType.NONE);
+    setError({ status: false, message: '' });
   }, []);
 
   const handleSetTodoTitle = useCallback((title: string) => {

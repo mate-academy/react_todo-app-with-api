@@ -1,8 +1,4 @@
-export enum ErrorType {
-  NONE,
-  TITLE,
-  LOAD,
-  UPLOAD,
-  DELETE,
-  UPDATE,
+export interface ErrorType {
+  status: boolean;
+  message: string;
 }
