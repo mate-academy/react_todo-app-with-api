@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { CSSTransition } from 'react-transition-group';
 
 import { TodoCount } from '../TodoCount';
 import { FiltersNavigation } from '../FiltersNavigation';
@@ -33,22 +32,15 @@ export const Footer: React.FC<Props> = ({
 
       <FiltersNavigation filterBy={filterBy} onFilter={onFilter} />
 
-      <CSSTransition
-        in={hasCompletedTodo}
-        timeout={300}
-        classNames="todoapp__clear-completed"
-        unmountOnExit
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        style={{ visibility: hasCompletedTodo ? 'visible' : 'hidden' }}
+        onClick={onDeleteAllTodos}
       >
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          style={{ visibility: hasCompletedTodo ? 'visible' : 'hidden' }}
-          onClick={onDeleteAllTodos}
-        >
-          Clear completed
-        </button>
-      </CSSTransition>
+        Clear completed
+      </button>
     </footer>
   );
 };
