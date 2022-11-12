@@ -19,6 +19,25 @@ export const InfoTodo: React.FC<Props> = ({
   const [value, setValue] = useState(title);
   const [isDoubleClick, setIsDoubleClick] = useState(false);
 
+  const handleTodoStatus = async () => {
+    setIsLoading(true);
+    await updateTodo(todo.id, { completed: !completed });
+    setIsLoading(false);
+    handleLoadTodos();
+  };
+
+  const handleDeleteTodo = async () => {
+    setIsLoading(true);
+    await deleteTodo(todo.id);
+    handleLoadTodos();
+  };
+
+  const handleEditTodo = (event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    updateTodo(todo.id, { title: value });
+    setIsDoubleClick(false);
+  };
+
   return (
     <div data-cy="Todo" className={classNames('todo', { completed })}>
       <label className="todo__status-label">
@@ -26,12 +45,7 @@ export const InfoTodo: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={async () => {
-            setIsLoading(true);
-            await updateTodo(todo.id, { completed: !completed });
-            setIsLoading(false);
-            handleLoadTodos();
-          }}
+          onChange={handleTodoStatus}
         />
       </label>
 
@@ -48,22 +62,14 @@ export const InfoTodo: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={async () => {
-              setIsLoading(true);
-              await deleteTodo(todo.id);
-              handleLoadTodos();
-            }}
+            onClick={handleDeleteTodo}
           >
             ×
           </button>
         </>
       ) : (
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateTodo(todo.id, { title: value });
-            setIsDoubleClick(false);
-          }}
+          onSubmit={handleEditTodo}
         >
           <input
             data-cy="NewTodoField"

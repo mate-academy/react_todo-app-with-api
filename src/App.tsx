@@ -31,6 +31,7 @@ export const App: React.FC = () => {
     } catch (err) {
       setHasError(true);
       setErrorMessage('Server error!');
+      setIsEditing(false);
 
       setTimeout(() => {
         setHasError(false);
