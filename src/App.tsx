@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState, useCallback,
 } from 'react';
 import cn from 'classnames';
 import {
@@ -11,6 +11,7 @@ import { Todo } from './types/Todo';
 import { TodoComponent } from './components/Todo';
 import { Footer } from './components/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
+import { Form } from './components/Form';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -35,18 +36,19 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const getTodosFromApi = async (userId: number) => {
+  const getTodosFromApi = useCallback(async (userId: number) => {
     try {
       const response = await getTodos(userId);
 
       setTodos(response);
       setTempTodo(null);
       setIsEditing(null);
+      setIsAllSelected(response.every(todo => !todo.completed));
     } catch (error) {
       setErrorMessage('Unable to load todos');
       setIsHidden(false);
     }
-  };
+  }, []);
 
   const createTodo = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -81,7 +83,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const selectCompleted = async (todo: Todo) => {
+  const setTodoSelected = useCallback(async (todo: Todo) => {
     try {
       await updateTodo(todo, !todo.completed);
 
@@ -92,18 +94,26 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to update a todo');
       setIsHidden(false);
     }
-  };
+  }, []);
 
   const selectAll = () => {
-    todos.map(async (todo) => {
-      if (!todo.completed && isAllSelected) {
-        await selectCompleted(todo);
-      } else if (todo.completed && !isAllSelected) {
-        await selectCompleted(todo);
+    const todoFunctions = todos.map(async (todo) => {
+      if ((!todo.completed && isAllSelected)
+        || (todo.completed && !isAllSelected)) {
+        try {
+          await updateTodo(todo, !todo.completed);
+        } catch {
+          setErrorMessage('Unable to update a todo');
+          setIsHidden(false);
+        }
       }
     });
 
-    setIsAllSelected(prev => !prev);
+    Promise.all(todoFunctions).then(() => {
+      if (user) {
+        getTodosFromApi(user.id);
+      }
+    });
   };
 
   const clearCompleted = () => {
@@ -164,18 +174,12 @@ export const App: React.FC = () => {
             className={cn('todoapp__toggle-all', { active: isAllCompleted })}
             onClick={selectAll}
           />
-
-          <form onSubmit={createTodo}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              ref={newTodoField}
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={inputTitle}
-              onChange={event => setInputTitle(event.target.value)}
-            />
-          </form>
+          <Form
+            createTodo={createTodo}
+            newTodoField={newTodoField}
+            inputTitle={inputTitle}
+            setInputTitle={setInputTitle}
+          />
         </header>
 
         <section className="todoapp__main" data-cy="TodoList">
@@ -189,7 +193,7 @@ export const App: React.FC = () => {
               setIsHidden={setIsHidden}
               isEditting={isEditing}
               setIsEditting={setIsEditing}
-              selectCompleted={selectCompleted}
+              setTodoSelected={setTodoSelected}
             />
           ))}
 
@@ -200,7 +204,7 @@ export const App: React.FC = () => {
               setErrorMessage={setErrorMessage}
               editTitle={editTitle}
               setIsHidden={setIsHidden}
-              selectCompleted={selectCompleted}
+              setTodoSelected={setTodoSelected}
             />
           )}
         </section>

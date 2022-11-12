@@ -11,7 +11,7 @@ type Props = {
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
   isEditting?: Todo | null;
   setIsEditting?: React.Dispatch<React.SetStateAction<Todo | null>>;
-  selectCompleted: (todo: Todo) => void;
+  setTodoSelected: (todo: Todo) => void;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 
@@ -22,7 +22,7 @@ export const TodoComponent: React.FC<Props> = ({
   setIsHidden,
   isEditting,
   setIsEditting,
-  selectCompleted,
+  setTodoSelected,
   setErrorMessage,
 }) => {
   const user = useContext(AuthContext);
@@ -131,7 +131,7 @@ export const TodoComponent: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => selectCompleted(todo)}
+          onChange={() => setTodoSelected(todo)}
         />
       </label>
 
