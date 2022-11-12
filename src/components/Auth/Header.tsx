@@ -10,6 +10,7 @@ type Props = {
   handleTitleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isAdding: boolean;
   todos: Todo[];
+  updateAllTodos: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<Props> = ({
   handleTitleChange,
   isAdding,
   todos,
+  updateAllTodos,
 }) => (
   <header className="todoapp__header">
     {todosAreLoaded && (
@@ -29,6 +31,7 @@ export const Header: React.FC<Props> = ({
         className={cn('todoapp__toggle-all', {
           active: todos.every(todo => todo.completed),
         })}
+        onClick={updateAllTodos}
       />
     )}
 

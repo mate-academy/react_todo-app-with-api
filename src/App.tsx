@@ -5,7 +5,9 @@ import React, {
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
-import { getTodos, addNewTodo, deleteTodo } from './api/todos';
+import {
+  getTodos, addNewTodo, deleteTodo, updateTodo,
+} from './api/todos';
 import { Error } from './types/Error';
 import { Filter } from './types/Filter';
 import { ErrorNotification } from './components/Auth/ErrorNotification';
@@ -30,6 +32,7 @@ export const App: React.FC = () => {
   });
   const [isAdding, setIsAdding] = useState(false);
   const [todosIdsForDelete, setTodosIdsForDelete] = useState<number[]>([]);
+  const [todosIdsForUpdate, setTodosIdsForUpdate] = useState<number[]>([]);
 
   const userId = user ? user.id : 1;
 
@@ -98,13 +101,46 @@ export const App: React.FC = () => {
   const deleteCompletedTodos = async () => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
 
-    await completedTodos.forEach(todo => {
+    completedTodos.forEach(todo => {
       deleteTodoFromServer(todo.id);
     });
   };
 
+  const updateTodoOnServer = async (todoId: number, data: Partial<Todo>) => {
+    try {
+      setTodosIdsForUpdate((prevTodoIds) => [...prevTodoIds, todoId]);
+      await updateTodo(todoId, data);
+      setVisibleTodos((prevTodos) => {
+        return prevTodos.map(todo => {
+          if (todo.id === todoId) {
+            return { ...todo, ...data };
+          }
+
+          return todo;
+        });
+      });
+      setTodosIdsForUpdate([]);
+    } catch {
+      setTodosIdsForUpdate([]);
+      setError(Error.UPDATE);
+      resetError();
+    }
+  };
+
+  const updateAllTodos = async () => {
+    if (visibleTodos.every(todo => todo.completed)
+      || visibleTodos.every(todo => !todo.completed)) {
+      visibleTodos.forEach(todo => {
+        updateTodoOnServer(todo.id, { completed: !todo.completed });
+      });
+    } else {
+      visibleTodos.filter(todo => !todo.completed).forEach(todo => {
+        updateTodoOnServer(todo.id, { completed: !todo.completed });
+      });
+    }
+  };
+
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -136,6 +172,7 @@ export const App: React.FC = () => {
           handleTitleChange={handleTitleChange}
           isAdding={isAdding}
           todos={visibleTodos}
+          updateAllTodos={updateAllTodos}
         />
         {todosAreLoaded && (
           <>
@@ -145,6 +182,8 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               deleteTodo={deleteTodoFromServer}
               todosIdsForDelete={todosIdsForDelete}
+              updateTodo={updateTodoOnServer}
+              todosIdsForUpdate={todosIdsForUpdate}
             />
             <Footer
               filter={filter}
