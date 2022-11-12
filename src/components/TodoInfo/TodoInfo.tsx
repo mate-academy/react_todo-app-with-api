@@ -56,7 +56,7 @@ export const TodoInfo: React.FC<OneTodo> = ({
   };
 
   const todoEditFieldHandler = async (
-    event: React.KeyboardEvent<HTMLFormElement>,
+    event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -133,7 +133,7 @@ export const TodoInfo: React.FC<OneTodo> = ({
   };
 
   const todoEditFieldOnEscHandler = (
-    event: React.KeyboardEvent<HTMLFormElement>,
+    event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
       setTodoEditField(false);
@@ -163,18 +163,17 @@ export const TodoInfo: React.FC<OneTodo> = ({
       </label>
 
       {todoEditField ? (
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-        <form
-          onKeyPress={todoEditFieldHandler}
-          onBlur={todoEditFieldOnBlurHandler}
-          onKeyDown={todoEditFieldOnEscHandler}
-        >
+
+        <form>
           <input
             className="todoapp__edit-todo"
             ref={editTodoField}
             type="text"
             value={todoTitle}
             onChange={editFieldOnChangeHandler}
+            onKeyPress={todoEditFieldHandler}
+            onBlur={todoEditFieldOnBlurHandler}
+            onKeyDown={todoEditFieldOnEscHandler}
           />
         </form>
       ) : (

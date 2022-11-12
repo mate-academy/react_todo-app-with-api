@@ -28,19 +28,21 @@ export const App: React.FC = () => {
   );
 
   const getTodosFromServer = () => {
-    getTodos(user?.id)
-      .then(setTodos);
+    if (user?.id) {
+      getTodos(user?.id)
+        .then(setTodos);
+    }
   };
 
   const todosFiltration = (filterType: TodosFilter) => {
     switch (filterType) {
       case TodosFilter.active:
-        setVisibleTodos(todos.filter(todo => todo.completed === false));
+        setVisibleTodos(todos.filter(todo => !todo.completed));
         setFilter(TodosFilter.active);
         break;
 
       case TodosFilter.completed:
-        setVisibleTodos(todos.filter(todo => todo.completed === true));
+        setVisibleTodos(todos.filter(todo => todo.completed));
         setFilter(TodosFilter.completed);
         break;
 
@@ -97,7 +99,7 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    if (formInput !== '') {
+    if (formInput.trim() !== '') {
       try {
         await client.post('/todos', date);
       } catch {
@@ -142,10 +144,11 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setVisibleTodos(todos);
+    todosFiltration(filter);
   }, [todos]);
 
   useEffect(() => {
-    if (isAdding === false) {
+    if (!isAdding) {
       newTodoField.current?.focus();
     }
   }, [isAdding]);
@@ -156,7 +159,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               data-cy="ToggleAllButton"
               type="button"
