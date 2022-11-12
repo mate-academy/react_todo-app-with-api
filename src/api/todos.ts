@@ -31,3 +31,12 @@ export const toggleTodo = (todoId: number, completed: boolean) => {
     },
   );
 };
+
+export const editTodo = (todoId: number, title: string) => {
+  return client.patch<Partial<Todo>>(
+    `/todos/${todoId}`,
+    {
+      title,
+    },
+  );
+};

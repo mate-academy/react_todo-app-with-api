@@ -10,7 +10,7 @@ type Props = {
 export const Error:React.FC <Props> = React.memo(({
   isError,
   closeError,
-  error
+  error,
 }) => {
   return (
     <div

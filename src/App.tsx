@@ -10,6 +10,7 @@ import React, {
 import {
   addTodo,
   deleteTodo,
+  editTodo,
   getTodos,
   toggleTodo,
 } from './api/todos';
@@ -100,21 +101,15 @@ export const App: React.FC = () => {
   const handleAddTodo = async (title: string) => {
     if (user) {
       try {
-        // const newTitle = titleNewTodo.trim();
-
         if (title.length > 0) {
           setTempTodo((prevTemp) => ({ ...prevTemp, title }));
           setIsAdding(true);
-          // console.log(newTitle)
           await Promise.all([
             await addTodo(user.id, title)]);
-          // await addTodo(user.id, newTitle);
           await getTodosFromAPI();
           setIsAdding(false);
-          // setTitleNewTodo('');
         } else {
           setIsError(true);
-          // setTitleNewTodo('');
           setError('Title can`t be empty');
         }
       } catch {
@@ -238,6 +233,42 @@ export const App: React.FC = () => {
     await getTodosFromAPI();
   }, [filteredTodos]);
 
+  const editOneTodo = async (
+    todoId:number,
+    newTitle: string,
+  ) => {
+    if (user) {
+      try {
+        const newTodoTitle = newTitle.trim();
+
+        if (newTodoTitle.length > 0) {
+          setChangingTodosId(prevEditedTodos => [...prevEditedTodos, todoId]);
+          await Promise.all([
+            await editTodo(todoId, newTodoTitle)]);
+          await getTodosFromAPI();
+        } else {
+          setChangingTodosId(prevDeleteTodos => [...prevDeleteTodos, todoId]);
+          handleDeleteTodo(todoId);
+        }
+      } catch {
+        setIsError(true);
+        setError('Unable to edit a todo');
+        setTimeout(() => {
+          setIsError(false);
+        }, 3000);
+      }
+    }
+  };
+
+  const handleEditTodo = async (
+    todoId:number,
+    newTitle: string,
+  ) => {
+    await editOneTodo(todoId, newTitle);
+    setChangingTodosId([0]);
+    await getTodosFromAPI();
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -252,7 +283,6 @@ export const App: React.FC = () => {
           <AddTodoForm
             handleAddTodo={handleAddTodo}
             newTodoField={newTodoField}
-            // titleNewTodo={titleNewTodo}
             isAdding={isAdding}
           />
         </header>
@@ -264,6 +294,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           changingTodosId={changingTodosId}
           handleToggleTodo={handleToggleTodo}
+          handleEditTodo={handleEditTodo}
+          newTodoField={newTodoField}
         />
 
         {hasTodos && (
