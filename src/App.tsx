@@ -87,7 +87,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const deleteTodoFromServer = async (todoId: number) => {
+  const deleteTodoFromServer = useCallback(async (todoId: number) => {
     try {
       await deleteTodo(todoId);
       setTodosIdsForDelete((currentIds) => [...currentIds, todoId]);
@@ -96,7 +96,7 @@ export const App: React.FC = () => {
       setError(Error.DELETE);
       resetError();
     }
-  };
+  }, []);
 
   const deleteCompletedTodos = async () => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
@@ -106,26 +106,28 @@ export const App: React.FC = () => {
     });
   };
 
-  const updateTodoOnServer = async (todoId: number, data: Partial<Todo>) => {
-    try {
-      setTodosIdsForUpdate((prevTodoIds) => [...prevTodoIds, todoId]);
-      await updateTodo(todoId, data);
-      setVisibleTodos((prevTodos) => {
-        return prevTodos.map(todo => {
-          if (todo.id === todoId) {
-            return { ...todo, ...data };
-          }
+  const updateTodoOnServer = useCallback(
+    async (todoId: number, data: Partial<Todo>) => {
+      try {
+        setTodosIdsForUpdate((prevTodoIds) => [...prevTodoIds, todoId]);
+        await updateTodo(todoId, data);
+        setVisibleTodos((prevTodos) => {
+          return prevTodos.map(todo => {
+            if (todo.id === todoId) {
+              return { ...todo, ...data };
+            }
 
-          return todo;
+            return todo;
+          });
         });
-      });
-      setTodosIdsForUpdate([]);
-    } catch {
-      setTodosIdsForUpdate([]);
-      setError(Error.UPDATE);
-      resetError();
-    }
-  };
+        setTodosIdsForUpdate([]);
+      } catch {
+        setTodosIdsForUpdate([]);
+        setError(Error.UPDATE);
+        resetError();
+      }
+    }, [],
+  );
 
   const updateAllTodos = async () => {
     if (visibleTodos.every(todo => todo.completed)
@@ -144,7 +146,9 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
+  }, [visibleTodos]);
 
+  useEffect(() => {
     loadTodosFromServer();
   }, []);
 
