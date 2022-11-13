@@ -94,7 +94,8 @@ export const App: React.FC = () => {
     try {
       setSelectedIDs(current => [...current, id]);
       await deleteTodo(id);
-      await getTodosFromsServer();
+
+      setTodos(curr => curr.filter(todo => todo.id !== id));
 
       setSelectedIDs([]);
     } catch (error) {
@@ -109,11 +110,9 @@ export const App: React.FC = () => {
         .filter(todo => todo.completed)
         .map(todo => todo.id));
 
-      await Promise.all(todos.map(post => {
-        return post.completed ? handleDeleteTodo(post.id) : null;
+      await Promise.all(todos.map(todo => {
+        return todo.completed ? handleDeleteTodo(todo.id) : null;
       }));
-
-      setSelectedIDs([]);
     } catch (error) {
       setHasError(true);
       setErrorMessage('Unable to delete todo');
@@ -135,6 +134,25 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const changeAllToCompleted = async () => {
+    const completedData = { completed: true };
+
+    try {
+      const idsToComplete = todos
+        .filter(todo => !todo.completed)
+        .map(todo => todo.id);
+
+      setSelectedIDs(idsToComplete);
+
+      await Promise.all(todos.map(todo => {
+        return !todo.completed ? handleEditTodo(todo.id, completedData) : null;
+      }));
+    } catch (error) {
+      setHasError(true);
+      setErrorMessage('Unable to update a todo');
+    }
+  };
+
   const handleErrorClose = () => setHasError(false);
   const handleStatusSelect = useCallback((status: FilteringMethod) => {
     setTodoStatus(status);
@@ -147,7 +165,7 @@ export const App: React.FC = () => {
     }
 
     getTodosFromsServer();
-  }, []);
+  }, [todos]);
 
   useEffect(() => {
     let todosCopy = [...todos];
@@ -181,6 +199,7 @@ export const App: React.FC = () => {
           addNewTodo={addNewTodo}
           setErrorMessage={setErrorMessage}
           setHasError={setHasError}
+          changeAllToCompleted={changeAllToCompleted}
         />
 
         {todos.length > 0 && (

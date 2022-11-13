@@ -6,6 +6,7 @@ interface Props {
   addNewTodo: (title: string) => void;
   setErrorMessage: (message: string) => void;
   setHasError: (val: boolean) => void;
+  changeAllToCompleted: () => void;
 }
 
 export const NewTodoField: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const NewTodoField: React.FC<Props> = ({
   addNewTodo,
   setErrorMessage,
   setHasError,
+  changeAllToCompleted,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -38,6 +40,7 @@ export const NewTodoField: React.FC<Props> = ({
         data-cy="ToggleAllButton"
         type="button"
         className="todoapp__toggle-all active"
+        onClick={changeAllToCompleted}
       />
 
       <form onSubmit={handleSubmit}>
