@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -7,7 +7,8 @@ type Props = {
   deleteTodo: (id: number, reload: boolean) => Promise<void>;
   loadingTodos: number[];
   addLoadingTodo: (id: number) => void;
-  changeTodoCompleted: (id: number, todoServer: Todo) => Promise<void>;
+  changeTodoCompleted: (id: number, todoServer: Partial<Todo>) => Promise<void>;
+  isAdding: boolean;
 };
 
 export const TodoList: FC<Props> = ({
@@ -16,7 +17,16 @@ export const TodoList: FC<Props> = ({
   loadingTodos,
   addLoadingTodo,
   changeTodoCompleted,
+  isAdding,
 }) => {
+  const [input, setInput] = useState('');
+  const [selectedTodoId, setSelectedTodoId] = useState(0);
+
+  const handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    changeTodoCompleted(selectedTodoId, { title: input });
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => {
@@ -43,14 +53,54 @@ export const TodoList: FC<Props> = ({
                 onClick={async () => {
                   addLoadingTodo(id);
                   await changeTodoCompleted(id, {
-                    ...todo,
                     completed: !completed,
                   });
                 }}
               />
             </label>
 
-            <span data-cy="TodoTitle" className="todo__title">{title}</span>
+            {selectedTodoId === id && !isAdding
+              ? (
+                <form onSubmit={(event) => {
+                  if (input.length) {
+                    handleFormSubmit(event);
+                    addLoadingTodo(id);
+                    setSelectedTodoId(0);
+                  } else {
+                    addLoadingTodo(id);
+                    setSelectedTodoId(0);
+                    deleteTodo(id, true);
+                  }
+                }}
+                >
+                  <input
+                    type="text"
+                    className="todoapp__change-todo"
+                    placeholder="Empty todo will be deleted"
+                    value={input}
+                    onChange={event => {
+                      setInput(event.target.value);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') {
+                        setSelectedTodoId(0);
+                      }
+                    }}
+                  />
+                </form>
+              )
+              : (
+                <span
+                  data-cy="TodoTitle"
+                  className="todo__title"
+                  onDoubleClick={() => {
+                    setInput(title);
+                    setSelectedTodoId(id);
+                  }}
+                >
+                  {title}
+                </span>
+              )}
             <button
               type="button"
               className="todo__remove"

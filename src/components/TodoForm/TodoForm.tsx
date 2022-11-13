@@ -1,13 +1,11 @@
 import React, { FC, useState } from 'react';
 
 type Props = {
-  todoField: any;
   setNewTodo: (title: string) => void;
   isAdding: boolean;
 };
 
 export const TodoForm: FC<Props> = ({
-  todoField,
   setNewTodo,
   isAdding,
 }) => {
@@ -27,7 +25,6 @@ export const TodoForm: FC<Props> = ({
         disabled={isAdding}
         data-cy="NewTodoField"
         type="text"
-        ref={todoField}
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={newTodoTitle}

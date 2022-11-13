@@ -63,16 +63,17 @@ export const FilterPanel: FC<Props> = ({
         </a>
       </nav>
 
-      {isCompletedTodos && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={deleteCompletedTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className={cn({
+          'todoapp__clear-completed': isCompletedTodos,
+          'todoapp__hide-completed': !isCompletedTodos,
+        })}
+        onClick={deleteCompletedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

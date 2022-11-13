@@ -78,6 +78,27 @@
     }
   }
 
+  &__change-todo {
+    width: 100%;
+    padding: 12px 15px;
+
+    font-size: 24px;
+    line-height: 1.4em;
+    font-family: inherit;
+    font-weight: inherit;
+    color: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    border: none;
+
+    &::placeholder {
+      font-style: italic;
+      font-weight: 300;
+      color: #e6e6e6;
+    }
+  }
+
   &__main {
     border-top: 1px solid #e6e6e6;
   }
@@ -129,5 +150,12 @@
     &:active {
       text-decoration: none;
     }
+  }
+
+  &__hide-completed {
+    width: 92px;
+    padding: 0;
+    border: 0;
+    opacity: 0;
   }
 }

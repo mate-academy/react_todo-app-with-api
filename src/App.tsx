@@ -1,7 +1,6 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
-import cn from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList';
 import { FilterPanel } from './components/FilterPanel';
@@ -13,6 +12,7 @@ import {
 import { FilterType } from './types/FilterType';
 import { TodoForm } from './components/TodoForm';
 import { TodoForServer } from './types/TodoForServer';
+import { ToggleCompleted } from './components/ToggleCompleted';
 
 export const App: React.FC = () => {
   // Utils
@@ -148,13 +148,7 @@ export const App: React.FC = () => {
   };
 
   // Edit todos completed
-  const [todosStatus, setTodosStatus] = useState(false);
-
-  const changeTodosStatus = () => {
-    setTodosStatus(currentStatus => !currentStatus);
-  };
-
-  const changeTodoCompleted = async (id: number, todo: Todo) => {
+  const changeTodoCompleted = async (id: number, todo: Partial<Todo>) => {
     try {
       await editTodoCompleted(id, todo);
       await loadTodos();
@@ -183,13 +177,12 @@ export const App: React.FC = () => {
   };
 
   const changeAllTodoCompleted = async () => {
-    if (todosStatus) {
-      await changeTodosGroup(activeTodos);
-    } else {
+    if (completedTodos.length === todos.length) {
       await changeTodosGroup(completedTodos);
+    } else {
+      await changeTodosGroup(activeTodos);
     }
 
-    changeTodosStatus();
     await loadTodos();
   };
 
@@ -229,18 +222,13 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: completedTodos.length === todos.length,
-            })}
-            onClick={changeAllTodoCompleted}
+          <ToggleCompleted
+            toggleAllCompleted={changeAllTodoCompleted}
+            isActive={(completedTodos.length === todos.length)
+              && (todos.length > 0)}
           />
 
           <TodoForm
-            todoField={newTodoField}
             setNewTodo={addNewTodo}
             isAdding={isAdding}
           />
@@ -252,6 +240,7 @@ export const App: React.FC = () => {
           loadingTodos={loadingTodos}
           addLoadingTodo={addLoadingTodo}
           changeTodoCompleted={changeTodoCompleted}
+          isAdding={isAdding}
         />
 
         {todos.length > 0 && (
