@@ -1,4 +1,5 @@
 import { FC, memo } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from './TodoInfo';
 
@@ -22,18 +23,32 @@ export const TodoList: FC<Props> = memo(({
   isPatchingTodoIds,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
-    {todos.map(todo => (
-      <TodoInfo
-        key={todo.id}
-        todo={todo}
-        deleteTodo={deleteTodo}
-        deleteCompleted={deleteCompleted}
-        handleTodoUpdate={handleTodoUpdate}
-        isPatchingTodoIds={isPatchingTodoIds}
-      />
-    ))}
-    {isAdding && (
-      <TodoInfo todo={tempTodo} isAdding={isAdding} />
-    )}
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoInfo
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            deleteCompleted={deleteCompleted}
+            handleTodoUpdate={handleTodoUpdate}
+            isPatchingTodoIds={isPatchingTodoIds}
+          />
+        </CSSTransition>
+      ))}
+      {isAdding && (
+        <CSSTransition
+          key={tempTodo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoInfo todo={tempTodo} isAdding={isAdding} />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </section>
 ));

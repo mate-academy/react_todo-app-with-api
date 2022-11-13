@@ -1,5 +1,6 @@
 import {
-  FC, useState, memo, useCallback, FormEvent, ChangeEvent, KeyboardEvent,
+  FC, useState, memo, useCallback, FormEvent, useEffect,
+  ChangeEvent, KeyboardEvent, useRef,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../../types/Todo';
@@ -21,10 +22,18 @@ export const TodoInfo: FC<Props> = memo(({
   handleTodoUpdate,
   isPatchingTodoIds,
 }) => {
+  const titleInput = useRef<HTMLInputElement>(null);
+
   const { id, title, completed } = todo;
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+
+  useEffect(() => {
+    if (titleInput.current) {
+      titleInput.current.focus();
+    }
+  }, [isEditing]);
 
   const isLoading = isAdding
     || isDeleting
@@ -46,22 +55,22 @@ export const TodoInfo: FC<Props> = memo(({
 
   const handleSubmit = useCallback(async (event: FormEvent) => {
     event.preventDefault();
+    setIsEditing(false);
+    const trimedNewTitle = newTitle.trim();
 
-    if (newTitle === title) {
+    if (trimedNewTitle === title) {
       return;
     }
 
-    if (newTitle.trim() === '') {
+    if (trimedNewTitle === '') {
       handleDelete();
 
       return;
     }
 
     if (handleTodoUpdate) {
-      handleTodoUpdate(id, { title: newTitle });
+      handleTodoUpdate(id, { title: trimedNewTitle });
     }
-
-    setIsEditing(false);
   }, [handleTodoUpdate, newTitle]);
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +115,7 @@ export const TodoInfo: FC<Props> = memo(({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            ref={titleInput}
             value={newTitle}
             onChange={handleInput}
             onKeyDown={handleEsc}
