@@ -86,6 +86,12 @@ export const TodoList: FC<Props> = ({
                         setSelectedTodoId(0);
                       }
                     }}
+                    ref={(element) => element?.focus()}
+                    onBlur={() => {
+                      changeTodoCompleted(selectedTodoId, { title: input });
+                      addLoadingTodo(id);
+                      setSelectedTodoId(0);
+                    }}
                   />
                 </form>
               )

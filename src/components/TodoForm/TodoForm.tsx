@@ -3,11 +3,13 @@ import React, { FC, useState } from 'react';
 type Props = {
   setNewTodo: (title: string) => void;
   isAdding: boolean;
+  newTodoField: any;
 };
 
 export const TodoForm: FC<Props> = ({
   setNewTodo,
   isAdding,
+  newTodoField,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
@@ -22,6 +24,7 @@ export const TodoForm: FC<Props> = ({
   return (
     <form onSubmit={handleFormSubmit}>
       <input
+        ref={newTodoField}
         disabled={isAdding}
         data-cy="NewTodoField"
         type="text"

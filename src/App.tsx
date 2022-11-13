@@ -47,6 +47,7 @@ export const App: React.FC = () => {
         const todosFromServer = await getTodos(user.id);
 
         setTodos(todosFromServer);
+        // eslint-disable-next-line
       } catch (error: any) {
         // eslint-disable-next-line no-console
         console.log('error', error.message);
@@ -231,6 +232,7 @@ export const App: React.FC = () => {
           <TodoForm
             setNewTodo={addNewTodo}
             isAdding={isAdding}
+            newTodoField={newTodoField}
           />
         </header>
 
