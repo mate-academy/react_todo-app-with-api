@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import cn from 'classnames';
 import { TodosFilter } from '../../types/TodosFilter';
 
@@ -11,7 +11,7 @@ type Props = {
   deleteAllCompleted: () => Promise<void>;
 };
 
-export const Footer: FC<Props> = ({
+export const Footer: FC<Props> = memo(({
   numberOfActive,
   handleFilter,
   filterBy,
@@ -77,4 +77,4 @@ export const Footer: FC<Props> = ({
       Clear completed
     </button>
   </footer>
-);
+));

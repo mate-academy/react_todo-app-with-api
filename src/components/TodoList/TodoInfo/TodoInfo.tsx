@@ -1,4 +1,6 @@
-import { FC, useState } from 'react';
+import {
+  FC, useState, memo, useCallback, FormEvent, ChangeEvent, KeyboardEvent,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../../types/Todo';
 
@@ -7,26 +9,71 @@ type Props = {
   deleteTodo?: (todoId: number) => Promise<void>;
   isAdding?: boolean;
   deleteCompleted?: boolean;
+  handleTodoUpdate?: (todoId: number, data: Partial<Todo>) => Promise<void>;
+  isPatchingTodoIds?: number[];
 };
 
-export const TodoInfo: FC<Props> = ({
+export const TodoInfo: FC<Props> = memo(({
   todo,
   deleteTodo,
   isAdding,
   deleteCompleted,
+  handleTodoUpdate,
+  isPatchingTodoIds,
 }) => {
   const { id, title, completed } = todo;
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
+
   const isLoading = isAdding
     || isDeleting
-    || (deleteCompleted && completed);
+    || (deleteCompleted && completed)
+    || isPatchingTodoIds?.includes(id);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (deleteTodo) {
       deleteTodo(id);
       setIsDeleting(true);
     }
-  };
+  }, [deleteTodo]);
+
+  const handleStatusChange = useCallback(() => {
+    if (handleTodoUpdate) {
+      handleTodoUpdate(id, { completed: !completed });
+    }
+  }, [handleTodoUpdate]);
+
+  const handleSubmit = useCallback(async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (newTitle === title) {
+      return;
+    }
+
+    if (newTitle.trim() === '') {
+      handleDelete();
+
+      return;
+    }
+
+    if (handleTodoUpdate) {
+      handleTodoUpdate(id, { title: newTitle });
+    }
+
+    setIsEditing(false);
+  }, [handleTodoUpdate, newTitle]);
+
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  }, []);
+
+  const handleEsc = useCallback((event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(title);
+    }
+  }, [title]);
 
   return (
     <div
@@ -44,20 +91,45 @@ export const TodoInfo: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
+          onClick={handleStatusChange}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={handleDelete}
-      >
-        ×
-      </button>
+      {isEditing ? (
+
+        <form
+          onSubmit={handleSubmit}
+          onBlur={handleSubmit}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={handleInput}
+            onKeyDown={handleEsc}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={handleDelete}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"
@@ -70,4 +142,4 @@ export const TodoInfo: FC<Props> = ({
       </div>
     </div>
   );
-};
+});

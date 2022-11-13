@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
-  FC, RefObject, useState, ChangeEvent, FormEvent,
+  FC, RefObject, useState, ChangeEvent, FormEvent, useCallback, memo,
 } from 'react';
+import cn from 'classnames';
 
 type Props = {
   newTodoField: RefObject<HTMLInputElement>;
@@ -10,26 +11,30 @@ type Props = {
   errorChange: () => void;
   ErrorNotification: (str: string) => void;
   isTodos: number;
+  isActiveToggleAll: boolean;
+  handleToggleAll: () => Promise<void>;
 };
 
-export const Header: FC<Props> = ({
+export const Header: FC<Props> = memo(({
   newTodoField,
   isAdding,
   addTodoToServer,
   errorChange,
   ErrorNotification,
   isTodos,
+  isActiveToggleAll,
+  handleToggleAll,
 }) => {
   const [title, setTitle] = useState('');
 
-  const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value.trim());
-  };
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  }, []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!title) {
+    if (!title.trim()) {
       errorChange();
       ErrorNotification('Title can\'t be empty');
 
@@ -38,7 +43,8 @@ export const Header: FC<Props> = ({
 
     addTodoToServer(title);
     setTitle('');
-  };
+  },
+  [addTodoToServer, errorChange, ErrorNotification, addTodoToServer, title]);
 
   return (
     <header className="todoapp__header">
@@ -46,7 +52,13 @@ export const Header: FC<Props> = ({
         <button
           data-cy="ToggleAllButton"
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn(
+            'todoapp__toggle-all',
+            {
+              active: isActiveToggleAll,
+            },
+          )}
+          onClick={handleToggleAll}
         />
       )}
 
@@ -64,4 +76,4 @@ export const Header: FC<Props> = ({
       </form>
     </header>
   );
-};
+});

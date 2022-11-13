@@ -1,7 +1,9 @@
 import {
-  FC, useContext, useEffect, useRef, useState, useMemo,
+  FC, useContext, useEffect, useRef, useState, useMemo, useCallback,
 } from 'react';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
@@ -27,6 +29,7 @@ export const App: FC = () => {
     completed: false,
   });
   const [deleteCompleted, setDeleteCompleted] = useState(false);
+  const [isPatchingTodoIds, setIsPatchingTodoIds] = useState<number[]>([]);
 
   const activeTodos = useMemo(() => (
     todos.filter(({ completed }) => completed === false)
@@ -36,7 +39,7 @@ export const App: FC = () => {
     todos.filter(({ completed }) => completed === true)
   ), [todos]);
 
-  const handleTodosFilter = (filter: TodosFilter) => {
+  const handleTodosFilter = useCallback((filter: TodosFilter) => {
     switch (filter) {
       case TodosFilter.Completed:
         setVisibleTodos(completedTodos);
@@ -48,9 +51,9 @@ export const App: FC = () => {
       default:
         setVisibleTodos(todos);
     }
-  };
+  }, [todos]);
 
-  const getAllTodos = async () => {
+  const getAllTodos = useCallback(async () => {
     try {
       if (user) {
         const todosFromServer = await getTodos(user.id);
@@ -61,9 +64,9 @@ export const App: FC = () => {
     } catch (error) {
       setIsError(true);
     }
-  };
+  }, []);
 
-  const addTodoToServer = async (todoTitle: string) => {
+  const addTodoToServer = useCallback(async (todoTitle: string) => {
     if (user) {
       try {
         setTempTodo(currTodo => ({
@@ -82,9 +85,9 @@ export const App: FC = () => {
         setIsAdding(false);
       }
     }
-  };
+  }, []);
 
-  const deleteTodoFromServer = async (todoId: number) => {
+  const deleteTodoFromServer = useCallback(async (todoId: number) => {
     try {
       await deleteTodo(todoId);
       getAllTodos();
@@ -92,18 +95,14 @@ export const App: FC = () => {
       setIsError(true);
       setErrorNotification('Unable to delete a todo');
     }
-  };
+  }, []);
 
-  const deleteAllCompleted = async () => {
+  const deleteAllCompleted = useCallback(async () => {
     try {
       setDeleteCompleted(true);
-      await Promise.all(todos.map(({ completed, id }) => {
-        if (completed) {
-          return deleteTodoFromServer(id);
-        }
-
-        return null;
-      }));
+      await Promise.all(completedTodos.map(({ id }) => (
+        deleteTodoFromServer(id)
+      )));
       await getAllTodos();
     } catch (error) {
       setErrorNotification('Unable to remove all completed todo');
@@ -111,7 +110,53 @@ export const App: FC = () => {
     } finally {
       setDeleteCompleted(false);
     }
-  };
+  }, [completedTodos]);
+
+  const handleTodoUpdate = useCallback(
+    async (todoId: number, data: Partial<Todo>) => {
+      if (user) {
+        try {
+          setIsPatchingTodoIds([...isPatchingTodoIds, todoId]);
+          await updateTodo(todoId, data);
+          await getAllTodos();
+        } catch (error) {
+          setIsError(true);
+          setErrorNotification('Unable to update a todo');
+        } finally {
+          setIsPatchingTodoIds(isPatchingTodoIds.filter(id => id !== todoId));
+        }
+      }
+    }, [todos],
+  );
+
+  const isActiveToggleAll = todos.length === completedTodos.length;
+
+  const handleToggleAll = useCallback(async () => {
+    try {
+      await Promise.all(todos.map(({ id, completed }) => {
+        if (isActiveToggleAll) {
+          setIsPatchingTodoIds(currIsPatching => [...currIsPatching, id]);
+
+          return updateTodo(id, { completed: false });
+        }
+
+        if (!completed) {
+          setIsPatchingTodoIds(currIsPatching => [...currIsPatching, id]);
+
+          return updateTodo(id, { completed: true });
+        }
+
+        return null;
+      }));
+
+      await getAllTodos();
+    } catch (error) {
+      setErrorNotification('Unable to update todos');
+      setIsError(true);
+    } finally {
+      setIsPatchingTodoIds([]);
+    }
+  }, [todos]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -125,13 +170,13 @@ export const App: FC = () => {
     setTimeout(() => setIsError(false), 3000);
   }, [isError]);
 
-  const handleErrorChange = () => {
+  const handleErrorChange = useCallback(() => {
     setIsError(currError => !currError);
-  };
+  }, []);
 
-  const handleErrorNotification = (str: string) => {
+  const handleErrorNotification = useCallback((str: string) => {
     setErrorNotification(str);
-  };
+  }, []);
 
   const handleFilterChange = (filter: TodosFilter) => {
     handleTodosFilter(filter);
@@ -150,6 +195,8 @@ export const App: FC = () => {
           errorChange={handleErrorChange}
           ErrorNotification={handleErrorNotification}
           isTodos={todos.length}
+          isActiveToggleAll={isActiveToggleAll}
+          handleToggleAll={handleToggleAll}
         />
 
         {todos.length > 0 && (
@@ -160,6 +207,8 @@ export const App: FC = () => {
               isAdding={isAdding}
               tempTodo={tempTodo}
               deleteCompleted={deleteCompleted}
+              handleTodoUpdate={handleTodoUpdate}
+              isPatchingTodoIds={isPatchingTodoIds}
             />
 
             <Footer
