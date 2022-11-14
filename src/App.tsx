@@ -44,7 +44,7 @@ export const App: React.FC = () => {
       const todosFromServer = await getTodos(user.id);
 
       setTodos(todosFromServer);
-    } catch (error) {
+    } catch {
       setErrorMessage('Can\'t download ToDos from server');
     }
   }, []);
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
       await addTodo(currTodo);
       await getTodosFromServer();
       setIsAdding(false);
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to add a todo');
     }
   }, []);
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to remove ToDo');
     }
   }, []);
@@ -138,7 +138,7 @@ export const App: React.FC = () => {
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to toggle ToDo status');
     }
   }, []);
@@ -158,7 +158,7 @@ export const App: React.FC = () => {
       await getTodosFromServer();
 
       setTodoIdsLoading([0]);
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to toggle all ToDos status');
     }
   }, [todos]);
@@ -176,7 +176,7 @@ export const App: React.FC = () => {
       setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to update a todo');
     }
   }, []);
@@ -235,10 +235,12 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification
-        errorMessage={errorMessage}
-        onClose={closeNotification}
-      />
+      {errorMessage && (
+        <ErrorNotification
+          errorMessage={errorMessage}
+          onClose={closeNotification}
+        />
+      )}
     </div>
   );
 };
