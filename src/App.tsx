@@ -130,16 +130,18 @@ export const App: React.FC = () => {
     completedTodos.forEach(todo => handleTodoDeleting(todo.id));
   }, [todos]);
 
-  const toggleStatus = useCallback(async (todo: Todo) => {
+  const toggleStatus = useCallback(async (
+    todoId: number,
+    completed: boolean,
+  ) => {
     setLoadingTodoIds(currentIds => ([
       ...currentIds,
-      todo.id,
+      todoId,
     ]));
 
     try {
-      await changeTodo(todo.id, {
-        ...todo,
-        completed: !todo.completed,
+      await changeTodo(todoId, {
+        completed: !completed,
       });
 
       await loadTodos();
@@ -160,30 +162,25 @@ export const App: React.FC = () => {
 
   const handleTitleChange = useCallback(async (
     event: React.FormEvent,
-    todo: Todo,
+    todoId: number,
     newTitle: string,
   ) => {
     event.preventDefault();
 
-    if (newTitle.trim() === todo.title) {
-      return;
-    }
-
     setLoadingTodoIds(currentIds => ([
       ...currentIds,
-      todo.id,
+      todoId,
     ]));
 
     try {
       if (newTitle.trim()) {
-        await changeTodo(todo.id, {
-          ...todo,
+        await changeTodo(todoId, {
           title: newTitle,
         });
 
         await loadTodos();
       } else {
-        await handleTodoDeleting(todo.id);
+        await handleTodoDeleting(todoId);
       }
     } catch {
       setErrorType(ErrorType.Update);
@@ -203,9 +200,9 @@ export const App: React.FC = () => {
   const toggleAllCompleted = useCallback(async () => {
     todos.forEach(todo => {
       if (isAllCompleted) {
-        toggleStatus(todo);
+        toggleStatus(todo.id, todo.completed);
       } else if (!todo.completed) {
-        toggleStatus(todo);
+        toggleStatus(todo.id, todo.completed);
       }
     });
   }, [todos]);

@@ -11,12 +11,12 @@ import { Todo } from '../../../types/Todo';
 type Props = {
   todo: Todo;
   handleTodoDeleting: (id: number) => void;
-  toggleStatus: (todo: Todo) => Promise<void>;
+  toggleStatus: (todoId: number, completed: boolean) => Promise<void>;
   loadingTodoIds: number[];
   isAdding: boolean;
   handleTitleChange: (
     event: React.FormEvent,
-    todo: Todo,
+    todoId: number,
     title: string,
   ) => Promise<void>;
 };
@@ -37,9 +37,14 @@ export const TodoInfo: React.FC<Props> = ({
   const newTitle = useRef<HTMLInputElement>(null);
 
   const handleTitleEdit = useCallback((event: React.FormEvent) => {
-    handleTitleChange(event, todo, editedTitle);
+    if (editedTitle.trim() === todo.title) {
+      setEditedTitle(todo.title);
 
-    setIsEditing(false);
+      setIsEditing(false);
+    } else {
+      handleTitleChange(event, todo.id, editedTitle);
+      setIsEditing(false);
+    }
   }, [editedTitle]);
 
   useEffect(() => {
@@ -79,7 +84,7 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => toggleStatus(todo)}
+          onClick={() => toggleStatus(todo.id, todo.completed)}
         />
       </label>
 

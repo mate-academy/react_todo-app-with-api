@@ -9,10 +9,10 @@ type Props = {
   isAdding: boolean;
   tempTodoTitle: string;
   handleTodoDeleting: (id: number) => void;
-  toggleStatus: (todo: Todo) => Promise<void>;
+  toggleStatus: (todoId: number, compelted: boolean) => Promise<void>;
   loadingTodoIds: number[];
   handleTitleChange: (event: React.FormEvent,
-    todo: Todo,
+    todoId: number,
     title: string
   ) => Promise<void>;
 };
