@@ -175,7 +175,7 @@ export const App: React.FC = () => {
         setClickedId(0);
         setLoadingIds([]);
       } else {
-        await changeTodo(id, { title: submittedTitle });
+        await changeTodo(id, { title: submittedTitle.trim() });
         await getTodosFromsServer();
         setIsDoubleClicked(false);
         setClickedId(0);
