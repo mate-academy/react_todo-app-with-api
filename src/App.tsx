@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import {
-  createTodo, deleteTodo, getTodos, TodoData,
+  createTodo, deleteTodo, getTodos, TodoData, updateTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -20,23 +20,24 @@ export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [activeTodosQuantity, setActiveTodosQuantity] = useState(0);
+  const [activeTodos, setActiveTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [todoIdToToggle, setTodoIdToToggle] = useState(0);
 
   const getTodosFromServer = useCallback(async () => {
     if (user) {
       try {
         const todosFromServer = await getTodos(user.id);
-        const activeTodosNumber = todosFromServer
-          .filter(({ completed }) => !completed).length;
 
+        setActiveTodos(todosFromServer
+          .filter(({ completed }) => !completed));
         setTodos(todosFromServer);
-        setActiveTodosQuantity(activeTodosNumber);
       } catch {
         setIsError(true);
       }
@@ -44,7 +45,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleAddTodoToServer = useCallback(async (title: string) => {
-    if (!title) {
+    if (!title.trim()) {
       setIsError(true);
       setErrorMessage('Title can\'t be empty');
     } else {
@@ -104,6 +105,44 @@ export const App: React.FC = () => {
     setIsDeleting(false);
   }, [completedTodos]);
 
+  const toggleTodo = useCallback(async (
+    id: number, completed: boolean,
+  ) => {
+    setTodoIdToToggle(id);
+    try {
+      await updateTodo({
+        id,
+        completed: !completed,
+      });
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage('Unable to update a todo');
+    }
+
+    await getTodosFromServer();
+    setTodoIdToToggle(0);
+  }, []);
+
+  const todosToToggle = useMemo(() => {
+    return activeTodos.length > 0
+      ? activeTodos
+      : todos;
+  }, [activeTodos]);
+
+  const toggleAllTodos = useCallback(async () => {
+    setIsUpdating(true);
+    try {
+      await Promise.all(todosToToggle.map(async ({ id, completed }) => (
+        toggleTodo(id, completed)
+      )));
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage('Unable to toggle todos');
+    }
+
+    setIsUpdating(false);
+  }, [todosToToggle]);
+
   useEffect(() => {
     setTimeout(() => {
       setIsError(false);
@@ -137,7 +176,8 @@ export const App: React.FC = () => {
         <Header
           addTodo={handleAddTodoToServer}
           isAdding={isAdding}
-          activeTodosQuantity={activeTodosQuantity}
+          activeTodosQuantity={activeTodos.length}
+          toggleAllTodos={toggleAllTodos}
         />
 
         <TodoList
@@ -145,11 +185,15 @@ export const App: React.FC = () => {
           deleteTodo={deleteTodoFromServer}
           completedTodos={completedTodos}
           isDeleting={isDeleting}
+          toggleTodo={toggleTodo}
+          todosToToggle={todosToToggle}
+          todoIdToToggle={todoIdToToggle}
+          isUpdating={isUpdating}
         />
 
         {todos.length > 0 && (
           <Footer
-            activeTodosQuantity={activeTodosQuantity}
+            activeTodosQuantity={activeTodos.length}
             completedTodosQuantity={completedTodos.length}
             filterBy={filterBy}
             setFilterBy={setFilterBy}

@@ -6,12 +6,14 @@ type Props = {
   addTodo: (title: string) => void,
   isAdding: boolean,
   activeTodosQuantity: number,
+  toggleAllTodos: () => void,
 };
 
 export const Header: React.FC<Props> = ({
   addTodo,
   isAdding,
   activeTodosQuantity,
+  toggleAllTodos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
@@ -31,6 +33,7 @@ export const Header: React.FC<Props> = ({
           'todoapp__toggle-all',
           { active: !activeTodosQuantity },
         )}
+        onClick={() => toggleAllTodos()}
       />
 
       <form onSubmit={(event) => {

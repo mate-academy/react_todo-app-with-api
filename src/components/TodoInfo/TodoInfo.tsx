@@ -7,6 +7,10 @@ type Props = {
   deleteTodo: (id: number) => void,
   completedTodos: Todo[],
   isDeleting: boolean,
+  toggleTodo: (id: number, completed: boolean) => void,
+  todosToToggle: Todo[],
+  todoIdToToggle: number,
+  isUpdating: boolean,
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -14,6 +18,10 @@ export const TodoInfo: React.FC<Props> = ({
   deleteTodo,
   completedTodos,
   isDeleting,
+  toggleTodo,
+  todosToToggle,
+  todoIdToToggle,
+  isUpdating,
 }) => {
   const [todoIdToDelete, setTodoIdToDelete] = useState(0);
 
@@ -31,6 +39,9 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
+          onClick={() => {
+            toggleTodo(todo.id, todo.completed);
+          }}
         />
       </label>
 
@@ -57,7 +68,9 @@ export const TodoInfo: React.FC<Props> = ({
           {
             'is-active': todo.id === 0
               || todo.id === todoIdToDelete
-              || (completedTodos.includes(todo) && isDeleting),
+              || (completedTodos.includes(todo) && isDeleting)
+              || (todosToToggle.includes(todo) && isUpdating)
+              || todo.id === todoIdToToggle,
           },
         )}
       >
