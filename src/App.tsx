@@ -118,59 +118,52 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleCompletedStatus = async (
+    todoId: number,
+    status: boolean,
+  ) => {
+    try {
+      await patchTodo(todoId, { completed: status });
+      await getTodosFromApi();
+    } catch (error) {
+      setIsSuccessful(false);
+      setErrorMessage('Unable to change status of the todo.');
+    }
+  };
+
+  const changeTodoTitle = async (
+    todoId: number,
+    title: string,
+  ) => {
+    try {
+      await patchTodo(todoId, { title });
+      await getTodosFromApi();
+    } catch (error) {
+      setIsSuccessful(false);
+      setErrorMessage('Unable to change title of the todo.');
+    }
+  };
+
   const updateAll = async () => {
-    if (todos.every(item => item.completed)) {
-      try {
-        await Promise.all(todos.map(todoItem => {
-          const toggledTodo = {
-            ...todoItem,
-            completed: !todoItem.completed,
-          };
+    try {
+      await Promise.all(todos.map(todoItem => {
+        const toggledTodo = {
+          ...todoItem,
+          completed: !todoItem.completed,
+        };
 
-          return patchTodo(todoItem.id, toggledTodo);
-        }));
+        return patchTodo(todoItem.id, toggledTodo);
+      }));
 
-        setTodos(prevState => (
-          prevState.map(todoItem => ({
-            ...todoItem,
-            completed: !todoItem.completed,
-          }))
-        ));
-      } catch (error) {
-        setIsSuccessful(false);
-        setErrorMessage('Unable to update todos. Try again.');
-      }
-    } else {
-      try {
-        await Promise.all(todos.map(todoItem => {
-          if (!todoItem.completed) {
-            const toggledTodo = {
-              ...todoItem,
-              completed: !todoItem.completed,
-            };
-
-            return patchTodo(todoItem.id, toggledTodo);
-          }
-
-          return null;
-        }));
-
-        setTodos(prevTodos => (
-          prevTodos.map(todoItem => {
-            if (!todoItem.completed) {
-              return {
-                ...todoItem,
-                completed: !todoItem.completed,
-              };
-            }
-
-            return todoItem;
-          })
-        ));
-      } catch (error) {
-        setIsSuccessful(false);
-        setErrorMessage('Unable to update todos. Try again.');
-      }
+      setTodos(prevState => (
+        prevState.map(todoItem => ({
+          ...todoItem,
+          completed: !todoItem.completed,
+        }))
+      ));
+    } catch (error) {
+      setIsSuccessful(false);
+      setErrorMessage('Unable to update todos. Try again.');
     }
   };
 
@@ -211,6 +204,8 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               removeTodoFromServer={removeTodoFromServer}
+              toggleCompletedStatus={toggleCompletedStatus}
+              changeTodoTitle={changeTodoTitle}
             />
 
             <Footer
