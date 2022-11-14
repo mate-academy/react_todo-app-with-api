@@ -42,7 +42,7 @@ export const TodoInfo: React.FC<Props> = ({
   const submitNewTitle = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
-    if (newTitle === todo.title) {
+    if (newTitle.trim() === todo.title) {
       setNewTitle(todo.title);
       setIsTodoTitleFieldActive(false);
     } else if (newTitle.trim() === '') {
