@@ -5,10 +5,7 @@ type Props = {
   resetError: () => void;
 };
 
-export const Error: FC<Props> = ({
-  error,
-  resetError,
-}) => {
+export const Error: FC<Props> = ({ error, resetError }) => {
   return (
     <div
       data-cy="ErrorNotification"
@@ -22,10 +19,7 @@ export const Error: FC<Props> = ({
         onClick={resetError}
       />
 
-      {error === 'title'
-        ? 'Title can\'t be empty'
-        : `Unable to ${error} a todo`}
-
+      <span>{error}</span>
     </div>
   );
 };

@@ -1,7 +1,6 @@
-/* eslint-disable */
 const BASE_URL = 'https://mate.academy/students-api';
 
-// returns a promise resolved after a given delay
+// a promise resolved after a given delay
 function wait(delay: number) {
   return new Promise(resolve => {
     setTimeout(resolve, delay);
@@ -14,7 +13,6 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  // eslint-disable-next-line
   data: any = null, // we can send any data to the server
 ): Promise<T> {
   const options: RequestInit = { method };
