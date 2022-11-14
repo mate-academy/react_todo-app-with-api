@@ -35,6 +35,7 @@ export const Errors: React.FC<Props> = ({ hasError, onCloseError, error }) => {
       {error === Error.OnDeleting && 'Unable to delete a todo'}
       {error === Error.OnLoading && 'Loading failed'}
       {error === Error.OnToggleAll && 'Toggle failed'}
+      {error === Error.OnUpdating && 'Title updating failed'}
     </div>
   );
 };

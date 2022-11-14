@@ -1,23 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   id: number,
   title: string,
   handleSubmit: (title: string, id: number) => void,
-  setIsDoubleClicked: (clicked: boolean) => void,
+  setClickedId: (id: number) => void,
+  setIsDoubleClicked: (click: boolean) => void,
 };
 
 export const UpdateTitleForm: React.FC<Props> = ({
-  id, title, handleSubmit, setIsDoubleClicked,
+  id, title, handleSubmit, setClickedId, setIsDoubleClicked,
 }) => {
   const [newTitle, setNewTitle] = useState(title);
-
   const onEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
+      setClickedId(0);
       setIsDoubleClicked(false);
       setNewTitle(title);
     }
   };
+
+  const newTitleInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTitleInput.current) {
+      newTitleInput.current.focus();
+    }
+  }, []);
 
   return (
     <form
@@ -36,6 +45,7 @@ export const UpdateTitleForm: React.FC<Props> = ({
         className="todo__title-field"
         placeholder="Empty todo will be deleted"
         value={newTitle}
+        ref={newTitleInput}
         onChange={(event) => {
           setNewTitle(event.target.value);
         }}

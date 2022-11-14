@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const [error, setError] = useState(Error.None);
   const [isDeletedId, setIsDeleted] = useState(0);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const [isDoubleClicked, setIsDoubleClicked] = useState(false);
+  const [clickedId, setClickedId] = useState(0);
 
   const user = useContext(AuthContext);
 
@@ -160,6 +162,33 @@ export const App: React.FC = () => {
     }
   };
 
+  const onUpdateTodo = async (submittedTitle: string, id: number) => {
+    setLoadingIds([id]);
+    setIsDoubleClicked(true);
+    setClickedId(id);
+
+    try {
+      if (submittedTitle.trim().length === 0) {
+        await deleteTodo(id);
+        await getTodosFromsServer();
+        setIsDoubleClicked(false);
+        setClickedId(0);
+        setLoadingIds([]);
+      } else {
+        await changeTodo(id, { title: submittedTitle });
+        await getTodosFromsServer();
+        setIsDoubleClicked(false);
+        setClickedId(0);
+        setLoadingIds([]);
+      }
+    } catch {
+      setError(Error.OnUpdating);
+      setClickedId(0);
+      setIsDoubleClicked(false);
+      setLoadingIds([]);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -184,8 +213,11 @@ export const App: React.FC = () => {
               handleDelete={handleDelete}
               loadingIds={loadingIds}
               onToggleTodo={onToggleTodo}
-              getTodosFromsServer={getTodosFromsServer}
-              setError={setError}
+              handleSubmit={onUpdateTodo}
+              clickedId={clickedId}
+              isDoubleClicked={isDoubleClicked}
+              setClickedId={setClickedId}
+              setIsDoubleClicked={setIsDoubleClicked}
             />
             <ListFooter
               todos={todos}
