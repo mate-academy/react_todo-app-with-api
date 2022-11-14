@@ -9,8 +9,9 @@ type Props = {
   isDeleting: boolean,
   toggleTodo: (id: number, completed: boolean) => void,
   todosToToggle: Todo[],
-  todoIdToToggle: number,
+  todoIdToUpdate: number,
   isUpdating: boolean,
+  updateTodoTitle: (id: number, title: string) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,8 +21,9 @@ export const TodoList: React.FC<Props> = ({
   isDeleting,
   toggleTodo,
   todosToToggle,
-  todoIdToToggle,
+  todoIdToUpdate,
   isUpdating,
+  updateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -34,8 +36,9 @@ export const TodoList: React.FC<Props> = ({
           isDeleting={isDeleting}
           toggleTodo={toggleTodo}
           todosToToggle={todosToToggle}
-          todoIdToToggle={todoIdToToggle}
+          todoIdToUpdate={todoIdToUpdate}
           isUpdating={isUpdating}
+          updateTodoTitle={updateTodoTitle}
         />
       ))}
     </section>

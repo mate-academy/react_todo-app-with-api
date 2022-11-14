@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [todoIdToToggle, setTodoIdToToggle] = useState(0);
+  const [todoIdToUpdate, setTodoIdToUpdate] = useState(0);
 
   const getTodosFromServer = useCallback(async () => {
     if (user) {
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
   const toggleTodo = useCallback(async (
     id: number, completed: boolean,
   ) => {
-    setTodoIdToToggle(id);
+    setTodoIdToUpdate(id);
     try {
       await updateTodo({
         id,
@@ -120,7 +120,7 @@ export const App: React.FC = () => {
     }
 
     await getTodosFromServer();
-    setTodoIdToToggle(0);
+    setTodoIdToUpdate(0);
   }, []);
 
   const todosToToggle = useMemo(() => {
@@ -142,6 +142,24 @@ export const App: React.FC = () => {
 
     setIsUpdating(false);
   }, [todosToToggle]);
+
+  const updateTodoTitle = useCallback(async (
+    id: number, title: string,
+  ) => {
+    setTodoIdToUpdate(id);
+    try {
+      await updateTodo({
+        id,
+        title,
+      });
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage('Unable to update a todo');
+    }
+
+    await getTodosFromServer();
+    setTodoIdToUpdate(0);
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -187,8 +205,9 @@ export const App: React.FC = () => {
           isDeleting={isDeleting}
           toggleTodo={toggleTodo}
           todosToToggle={todosToToggle}
-          todoIdToToggle={todoIdToToggle}
+          todoIdToUpdate={todoIdToUpdate}
           isUpdating={isUpdating}
+          updateTodoTitle={updateTodoTitle}
         />
 
         {todos.length > 0 && (
