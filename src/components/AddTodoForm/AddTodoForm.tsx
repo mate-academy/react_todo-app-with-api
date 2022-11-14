@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useInput } from '../../utils/useInput';
 
 type Props = {
   handleAddTodo: (titleNewTodo: string) => void;
-  newTodoField: React.RefObject<HTMLInputElement>;
   isAdding: boolean;
 };
 
 export const AddTodoForm: React.FC<Props> = React.memo(({
   handleAddTodo,
-  newTodoField,
   isAdding,
 }) => {
-  const [titleNewTodo, setTitleNewTodo] = useState('');
-
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setTitleNewTodo(event.target.value);
-  };
+  const newTodoField = useRef<HTMLInputElement>(null);
+  const { value, onChange, clearInput } = useInput('');
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -28,10 +23,10 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
   return (
     <form onSubmit={(event) => {
       event.preventDefault();
-      const newTitle = titleNewTodo.trim();
+      const newTitle = value.trim();
 
       handleAddTodo(newTitle);
-      setTitleNewTodo('');
+      clearInput();
     }}
     >
       <input
@@ -40,8 +35,8 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
         ref={newTodoField}
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
-        value={titleNewTodo}
-        onChange={event => handleInput(event)}
+        value={value}
+        onChange={onChange}
         disabled={isAdding}
       />
     </form>

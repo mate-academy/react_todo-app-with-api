@@ -10,7 +10,6 @@ type Props = {
   handleToggleTodo: (todoId: number, completed: boolean) => void;
   isAdding: boolean;
   handleEditTodo: (todoId:number, title: string) => void;
-  newTodoField: React.RefObject<HTMLInputElement>;
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -21,32 +20,31 @@ export const TodoList: React.FC<Props> = React.memo(({
   changingTodosId,
   handleToggleTodo,
   handleEditTodo,
-  // newTodoField,
-}) => (
-  <section className="todoapp__main" data-cy="TodoList">
-    {todos.map(todo => {
-      return (
+}) => {
+  return (
+    <section className="todoapp__main" data-cy="TodoList">
+      {todos.map(todo => {
+        return (
+          <TodoData
+            todo={todo}
+            key={todo.id}
+            handleDeleteTodo={handleDeleteTodo}
+            changingTodosId={changingTodosId}
+            handleToggleTodo={handleToggleTodo}
+            handleEditTodo={handleEditTodo}
+          />
+        );
+      })}
+      {isAdding && (
         <TodoData
-          todo={todo}
-          key={todo.id}
+          todo={tempTodo}
+          key={tempTodo.id}
           handleDeleteTodo={handleDeleteTodo}
           changingTodosId={changingTodosId}
           handleToggleTodo={handleToggleTodo}
           handleEditTodo={handleEditTodo}
-          // newTodoField={newTodoField}
         />
-      );
-    })}
-    {isAdding && (
-      <TodoData
-        todo={tempTodo}
-        key={tempTodo.id}
-        handleDeleteTodo={handleDeleteTodo}
-        changingTodosId={changingTodosId}
-        handleToggleTodo={handleToggleTodo}
-        handleEditTodo={handleEditTodo}
-        // newTodoField={newTodoField}
-      />
-    )}
-  </section>
-));
+      )}
+    </section>
+  )
+});

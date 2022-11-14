@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -21,53 +20,47 @@ import { Error } from './components/Error';
 import { FieldForSorting, Todo } from './types/Todo';
 import { AddTodoForm } from './components/AddTodoForm';
 import { ToggleAllButton } from './components/ToggleAllButton';
+import { useError } from './utils/useError';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isError, setIsError] = useState(false);
   const [fieldForSorting, setFieldForSorting]
     = useState<FieldForSorting>(FieldForSorting.All);
-  const [error, setError] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [changingTodosId, setChangingTodosId] = useState<number[]>([0]);
   const [tempTodo, setTempTodo] = useState<Todo>({
     id: 0,
-    userId: user?.id || 0,
+    userId: 0,
     title: '',
     completed: false,
   });
+  const {
+    isError,
+    addError,
+    clearError,
+    errorMessage,
+  } = useError();
 
   const getTodosFromAPI = useCallback(async () => {
-    setIsError(false);
+    clearError();
     if (user) {
       try {
         const todosFromAPI = await getTodos(user.id);
 
         setTodos(todosFromAPI);
       } catch {
-        setIsError(true);
-        setError('No ToDo loaded');
+        addError('No ToDo loaded');
       }
-
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
     }
   }, []);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     getTodosFromAPI();
   }, []);
 
   const closeError = useCallback(() => {
-    setIsError(false);
+    clearError();
   }, []);
 
   const selectFieldForSorting = useCallback((fieldForSort: FieldForSorting) => {
@@ -99,26 +92,25 @@ export const App: React.FC = () => {
   const hasTodos = todos.length > 0;
 
   const handleAddTodo = async (title: string) => {
-    if (user) {
-      try {
-        if (title.length > 0) {
-          setTempTodo((prevTemp) => ({ ...prevTemp, title }));
-          setIsAdding(true);
-          await Promise.all([
-            await addTodo(user.id, title)]);
-          await getTodosFromAPI();
-          setIsAdding(false);
-        } else {
-          setIsError(true);
-          setError('Title can`t be empty');
-        }
-      } catch {
-        setIsError(true);
-        setError('Unable to add a todo');
-        setTimeout(() => {
-          setIsError(false);
-        }, 3000);
-      }
+    if (!user) {
+      return;
+    }
+
+    if (title.length === 0) {
+      addError('Title can`t be empty');
+
+      return;
+    }
+
+    try {
+      setTempTodo((prevTemp) => ({ ...prevTemp, title }));
+      setIsAdding(true);
+      await Promise.all([
+        await addTodo(user.id, title)]);
+      await getTodosFromAPI();
+      setIsAdding(false);
+    } catch {
+      addError('Unable to add a todo');
     }
   };
 
@@ -127,12 +119,7 @@ export const App: React.FC = () => {
       setChangingTodosId(prevDeleteTodos => [...prevDeleteTodos, todoId]);
       await deleteTodo(todoId);
     } catch {
-      setIsError(true);
-      setError('Unable to delete a todo');
-    } finally {
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
+      addError('Unable to delete a todo');
     }
   }, []);
 
@@ -152,21 +139,12 @@ export const App: React.FC = () => {
     if (completedTodosId.length > 0) {
       try {
         await Promise.all(completedTodosId.map(id => deleteOneTodo(id)));
+        setChangingTodosId([0]);
+        await getTodosFromAPI();
       } catch {
-        setIsError(true);
-        setError('Unable to delete all completed todos');
-      } finally {
-        setTimeout(() => {
-          setIsError(false);
-        }, 3000);
+        addError('Unable to delete all completed todos');
       }
     }
-  }, [completedTodosId]);
-
-  const handleDeleteCompletedTodos = useCallback(async () => {
-    await deleteCompletedTodos();
-    setChangingTodosId([0]);
-    await getTodosFromAPI();
   }, [completedTodosId]);
 
   const toggleOneTodo = useCallback(async (
@@ -176,12 +154,7 @@ export const App: React.FC = () => {
       setChangingTodosId(prevToggledTodos => [...prevToggledTodos, todoId]);
       await toggleTodo(todoId, completed);
     } catch {
-      setIsError(true);
-      setError('Unable to update a todo');
-    } finally {
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
+      addError('Unable to update a todo');
     }
   }, [todos]);
 
@@ -193,7 +166,7 @@ export const App: React.FC = () => {
     await getTodosFromAPI();
   }, [todos]);
 
-  const toggleAllTodos = useCallback(async () => {
+  const handleToggleAllTodos = useCallback(async () => {
     try {
       if (counterActiveTodos > 0
         && fieldForSorting !== FieldForSorting.Completed) {
@@ -218,22 +191,14 @@ export const App: React.FC = () => {
         }));
       }
     } catch {
-      setIsError(true);
-      setError('Unable to toggle all todos');
-    } finally {
-      setTimeout(() => {
-        setIsError(false);
-      }, 3000);
+      addError('Unable to toggle all todos');
     }
-  }, [filteredTodos]);
 
-  const handleToggleAllTodos = useCallback(async () => {
-    await toggleAllTodos();
-    setChangingTodosId([0]);
     await getTodosFromAPI();
+    setChangingTodosId([0]);
   }, [filteredTodos]);
 
-  const editOneTodo = async (
+  const handleEditTodo = async (
     todoId:number,
     newTitle: string,
   ) => {
@@ -251,22 +216,11 @@ export const App: React.FC = () => {
           handleDeleteTodo(todoId);
         }
       } catch {
-        setIsError(true);
-        setError('Unable to edit a todo');
-        setTimeout(() => {
-          setIsError(false);
-        }, 3000);
+        addError('Unable to edit a todo');
       }
-    }
-  };
 
-  const handleEditTodo = async (
-    todoId:number,
-    newTitle: string,
-  ) => {
-    await editOneTodo(todoId, newTitle);
-    setChangingTodosId([0]);
-    await getTodosFromAPI();
+      setChangingTodosId([0]);
+    }
   };
 
   return (
@@ -282,7 +236,6 @@ export const App: React.FC = () => {
 
           <AddTodoForm
             handleAddTodo={handleAddTodo}
-            newTodoField={newTodoField}
             isAdding={isAdding}
           />
         </header>
@@ -295,7 +248,6 @@ export const App: React.FC = () => {
           changingTodosId={changingTodosId}
           handleToggleTodo={handleToggleTodo}
           handleEditTodo={handleEditTodo}
-          newTodoField={newTodoField}
         />
 
         {hasTodos && (
@@ -303,7 +255,7 @@ export const App: React.FC = () => {
             fieldForSorting={fieldForSorting}
             selectFieldForSorting={selectFieldForSorting}
             counterActiveTodos={counterActiveTodos}
-            deleteCompletedTodos={handleDeleteCompletedTodos}
+            deleteCompletedTodos={deleteCompletedTodos}
             length={completedTodosId.length}
           />
         )}
@@ -312,7 +264,7 @@ export const App: React.FC = () => {
       <Error
         isError={isError}
         closeError={closeError}
-        error={error}
+        error={errorMessage}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-// import { EditTodoForm } from '../EditTodoForm';
+import { useInput } from '../../utils/useInput';
 import { Loader } from '../Loader';
 
 type Props = {
@@ -19,27 +19,34 @@ export const TodoData: React.FC<Props> = React.memo(({
   handleToggleTodo,
   handleEditTodo,
 }) => {
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const editTodoField = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [titleEditTodo, setTitleEditTodo] = useState(todo.title);
+
+  const { value, onChange } = useInput(todo.title);
+
+  const { id, title, completed } = todo;
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
+    if (editTodoField.current) {
+      editTodoField.current.focus();
     }
   }, [isEditing]);
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditing = (input: boolean) => {
+    setIsEditing(input);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setTitleEditTodo(event.target.value);
+    handleEditing(true);
+    if (value !== title) {
+      handleEditTodo(id, value);
+      handleEditing(false);
+    } else {
+      handleEditing(false);
+    }
   };
-
-  const handleEditing = (value: boolean) => {
-    setIsEditing(value);
-  };
-
-  const { id, title, completed } = todo;
 
   return (
     <div
@@ -58,32 +65,21 @@ export const TodoData: React.FC<Props> = React.memo(({
       {isEditing
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleEditing(true);
-              if (titleEditTodo !== title) {
-                handleEditTodo(todo.id, titleEditTodo);
-                handleEditing(false);
-              } else {
-                handleEditing(false);
-              }
-            }}
-            onBlur={() => {
-              if (titleEditTodo !== title) {
-                handleEditing(true);
-
-                handleEditTodo(todo.id, titleEditTodo);
-                handleEditing(false);
-              }
-            }}
+            onSubmit={handleSubmit}
+            onBlur={handleSubmit}
           >
             <input
               data-cy="NewTodoField"
-              ref={newTodoField}
+              ref={editTodoField}
               type="text"
               className="todoapp__new-todo todo__title"
-              value={titleEditTodo}
-              onChange={event => handleInput(event)}
+              value={value}
+              onChange={onChange}
+              onKeyDown={event => {
+                if (event.key === 'Escape') {
+                  setIsEditing(false);
+                }
+              }}
             />
           </form>
         ) : (
