@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useCallback } from 'react';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, editTodo } from '../../api/todos';
 import { TodoItem } from './TodoItem';
@@ -38,7 +38,7 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
-  const handleDeleteTodo = async (id: number) => {
+  const handleDeleteTodo = useCallback(async (id: number) => {
     try {
       setIsLoading((currentIds) => [...currentIds, id]);
       await deleteTodo(id);
@@ -49,15 +49,22 @@ export const TodoList: React.FC<Props> = ({
       setHasError(true);
       setMessageError(ErrorMessage.DeleteError);
     }
-  };
+  }, []);
 
   const handleEditTitle = async (id: number, title: string) => {
     try {
-      setIsLoading((currentIds) => [...currentIds, id]);
-      await editTodo(id, { title });
-      await getTodosFromServer();
-      setIsLoading((currentIds) => currentIds
-        .filter((numberOfId) => numberOfId !== id));
+      const newTodoTitle = title.trim();
+
+      if (newTodoTitle.length > 0) {
+        setIsLoading((currentIds) => [...currentIds, id]);
+        await Promise.all([editTodo(id, { title })]);
+        await getTodosFromServer();
+        setIsLoading((currentIds) => currentIds
+          .filter((numberOfId) => numberOfId !== id));
+      } else {
+        setIsLoading((currentIds) => [...currentIds, id]);
+        await handleDeleteTodo(id);
+      }
     } catch (err) {
       setHasError(true);
       setMessageError(ErrorMessage.UpdateError);

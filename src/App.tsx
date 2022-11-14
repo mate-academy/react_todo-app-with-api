@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState, useCallback, useMemo,
 } from 'react';
 import cn from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -14,7 +14,7 @@ import { TodoList } from './components/Auth/TodoList';
 import { Footer } from './components/Auth/Footer';
 import { Error } from './components/Auth/Error';
 import { FilterTodos } from './utils/FilterTodos';
-// import { User } from './types/User';
+
 const defaultTodo = {
   id: 0,
   userId: 0,
@@ -23,12 +23,6 @@ const defaultTodo = {
 };
 
 export const App: React.FC = () => {
-  // export enum FilterTodos {
-  //   ALL = 'All',
-  //   ACTIVE = 'Active',
-  //   COMLETED = 'Completed',
-  // }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -37,12 +31,7 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [messageError, setMessageError] = useState(ErrorMessage.None);
   const [isAdding, setIsAdding] = useState(false);
-  // const [isCompleted, setIsCompleted] = useState(false);
-  // const [deleteCompletedTodo, setDeleteCompletdTodo] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo>(defaultTodo);
-  // const [addError, setAddError] = useState(false);
-  // const [deleteError, setDeleteError] = useState(false);
-  // const [updateError, setUpdateError] = useState(false);
   const [isLoading, setIsLoading] = useState<number[]>([]);
 
   const getTodosFromServer = async () => {
@@ -55,24 +44,10 @@ export const App: React.FC = () => {
     } catch (err) {
       setHasError(true);
       setMessageError(ErrorMessage.LoadError);
-      // setTimeout(() => {
-      //   setHasError(false);
-      // }, 3000);
     }
   };
 
-  // const handleDeleteTodo = async (id: number) => {
-  //   try {
-  //     await deleteTodo(id);
-  //     getTodosFromServer();
-  //   } catch (err) {
-  //     setHasError(true);
-  //     setDeleteError(true);
-  //   }
-  // };
-
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -94,7 +69,6 @@ export const App: React.FC = () => {
   const deleteCompleted = () => {
     return todos.map(async (todo) => {
       if (todo.completed === true) {
-        // const newTodo =
         await deleteTodo(todo.id);
 
         await getTodosFromServer();
@@ -103,12 +77,6 @@ export const App: React.FC = () => {
       return todo;
     });
   };
-
-  // const handleEditTodo = async (id: number, comleted: boolean) => {
-  //   setIsCompleted(comleted);
-  //   editTodo(id, comleted);
-  //   getTodosFromServer();
-  // };
 
   const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -136,27 +104,6 @@ export const App: React.FC = () => {
       setHasError(true);
       setMessageError(ErrorMessage.AddError);
     }
-
-    // event.preventDefault();
-    // setIsAdding(true);
-
-    // const trimtitle = queryOfTitle.trim();
-
-    // if (!trimtitle) {
-    //   setMessageError(ErrorMessage.TitleError);
-    //   setHasError(true);
-    //   setQueryOfTitle('');
-
-    //   return;
-    // }
-
-    // if (user && !hasError) {
-    //   await addTodos(user.id, trimtitle);
-    //   getTodosFromServer();
-    // }
-
-    // setIsAdding(false);
-    // setQueryOfTitle('');
   };
 
   const handleQueryOfTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,29 +118,50 @@ export const App: React.FC = () => {
     setQueryOfTitle(event.target.value);
   };
 
+  const todosWithCompletedStatus = useMemo(
+    () => todos.filter(({ completed }) => completed),
+    [todos],
+  );
+
   const activeTodos = todos.filter((todo) => todo.completed === false).length;
   const completedTodos = todos.filter((todo) => todo.completed === true).length;
 
-  const editAllTodos = () => {
-    return todos.map(async (todo) => {
-      if (todo.completed === false) {
-        // const newTodo =
-        await editTodo(todo.id, { completed: true });
+  const editTodoStatusOnServer = useCallback(
+    async (todoId: number, status: boolean) => {
+      try {
+        setIsLoading((currentIds) => [...currentIds, todoId]);
+
+        await editTodo(todoId, { completed: status });
 
         await getTodosFromServer();
+
+        setIsLoading((currentIds) => currentIds.filter((id) => id !== todoId));
+      } catch (error) {
+        setHasError(true);
+        setMessageError(ErrorMessage.UpdateError);
       }
-      // return newTodo;
-      // } else {
-      //   await editTodo(todo.id, true);
+    },
+    [todos],
+  );
 
-      //   getTodosFromServer();
-      // }
+  const editAllTodos = useCallback(async () => {
+    try {
+      const couldBeToggled
+        = todosWithCompletedStatus.length !== todos.length
+          ? todos.filter(({ completed }) => !completed)
+          : todos;
 
-      return todo;
-    });
-
-    // setTodos(newListOFTodos);
-  };
+      await Promise.all(
+        couldBeToggled.map((todo) => editTodoStatusOnServer(
+          todo.id, !todo.completed,
+        )),
+      );
+      getTodosFromServer();
+    } catch (error) {
+      setHasError(true);
+      setMessageError(ErrorMessage.UpdateError);
+    }
+  }, [todos]);
 
   const isAllTodosCompleted = todos.length === completedTodos;
 
@@ -228,8 +196,6 @@ export const App: React.FC = () => {
             setMessageError={setMessageError}
             setIsLoading={setIsLoading}
             isLoading={isLoading}
-            // handleDeleteTodo={handleDeleteTodo}
-            // isCompleted={isCompleted}
           />
         )}
         <Footer

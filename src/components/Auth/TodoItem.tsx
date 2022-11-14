@@ -1,7 +1,6 @@
 import React, {
   useMemo,
   useRef,
-  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -12,7 +11,6 @@ type Props = {
   todo: Todo;
   handleEditTodo: (id: number, comleted: boolean) => Promise<void>;
   handleDeleteTodo: (id: number) => Promise<void>;
-  // isCompleted: boolean;
   isAdding: boolean;
   isLoading: number[];
   handleEditTitle: (id: number, title: string) => Promise<void>;
@@ -37,33 +35,14 @@ export const TodoItem: React.FC<Props> = ({
     [isLoading, isAdding],
   );
 
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-
-      if (title === newTitle.trim()) {
-        setIsDoubleClicked(false);
-        setNewTitle(newTitle.trim());
-      }
-
-      if (!newTitle.trim()) {
-        handleDeleteTodo(id);
-      }
-
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsDoubleClicked(true);
+    if (newTitle !== title) {
+      handleEditTitle(id, newTitle);
       setIsDoubleClicked(false);
-      handleEditTitle(id, newTitle.trim());
-    },
-    [newTitle, title],
-  );
-
-  const handleKeyboardEvent = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      setIsDoubleClicked(true);
-    }
-
-    if (event.key === 'Escape') {
+    } else {
       setIsDoubleClicked(false);
-      setNewTitle(title);
     }
   };
 
@@ -93,7 +72,11 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             ref={newTitleField}
             value={newTitle}
-            onKeyDown={handleKeyboardEvent}
+            onKeyDown={event => {
+              if (event.key === 'Escape') {
+                setIsDoubleClicked(false);
+              }
+            }}
             onChange={(event) => {
               setNewTitle(event.target.value);
             }}

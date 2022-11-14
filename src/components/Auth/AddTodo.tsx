@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -15,6 +15,15 @@ export const AddTodo: React.FC<Props> = ({
   handleOnSubmit,
   isAdding,
 }) => {
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+
+    // getTodosFromServer();
+  }, [isAdding]);
+
   return (
     <form onSubmit={handleOnSubmit}>
       <input
