@@ -54,6 +54,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const keyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setCurrentTitle('');
     }
   };
 
@@ -79,7 +80,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => toggleStatus()}
+          onClick={toggleStatus}
         />
       </label>
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import cn from 'classnames';
 
 interface Props {
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -7,6 +8,7 @@ interface Props {
   setErrorMessage: (message: string) => void;
   setHasError: (val: boolean) => void;
   changeAllToCompleted: () => void;
+  isAllTodosCompleted: boolean;
 }
 
 export const NewTodoField: React.FC<Props> = ({
@@ -16,6 +18,7 @@ export const NewTodoField: React.FC<Props> = ({
   setErrorMessage,
   setHasError,
   changeAllToCompleted,
+  isAllTodosCompleted,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -39,7 +42,11 @@ export const NewTodoField: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        // className="todoapp__toggle-all active"
+        className={cn(
+          'todoapp__toggle-all',
+          { active: isAllTodosCompleted },
+        )}
         onClick={changeAllToCompleted}
       />
 

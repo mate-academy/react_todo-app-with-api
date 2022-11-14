@@ -36,6 +36,7 @@ export const App: React.FC = () => {
   const [todoStatus, setTodoStatus]
     = useState<FilteringMethod>(FilteringMethod.All);
   const [isAdding, setIsAdding] = useState(false);
+  const [isAllTodosCompleted, setIsAllTodosCompleted] = useState(false);
   const [todoTemplate, setTodoTemplate] = useState({
     id: 0,
     userId: 0,
@@ -122,7 +123,7 @@ export const App: React.FC = () => {
   const handleEditTodo
   = useCallback(async (todoId: number, data: Partial<Todo>) => {
     try {
-      setSelectedIDs([todoId]);
+      setSelectedIDs(currentId => [...currentId, todoId]);
 
       await toggleTodo(todoId, data);
       await getTodosFromsServer();
@@ -135,8 +136,6 @@ export const App: React.FC = () => {
   }, []);
 
   const changeAllToCompleted = async () => {
-    const completedData = { completed: true };
-
     try {
       const idsToComplete = todos
         .filter(todo => !todo.completed)
@@ -144,9 +143,19 @@ export const App: React.FC = () => {
 
       setSelectedIDs(idsToComplete);
 
-      await Promise.all(todos.map(todo => {
-        return !todo.completed ? handleEditTodo(todo.id, completedData) : null;
-      }));
+      if (idsToComplete.length === 0) {
+        setSelectedIDs(todos.map(todo => todo.id));
+
+        await Promise.all(todos
+          .map(todo => handleEditTodo(todo.id, { completed: false })));
+      } else {
+        await Promise.all(todos.map(todo => {
+          return !todo.completed
+            ? handleEditTodo(todo.id, { completed: true }) : null;
+        }));
+      }
+
+      setSelectedIDs([]);
     } catch (error) {
       setHasError(true);
       setErrorMessage('Unable to update a todo');
@@ -167,6 +176,8 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
+
+    setIsAllTodosCompleted(todos.every(todo => todo.completed));
   }, [todos]);
 
   useEffect(() => {
@@ -202,6 +213,7 @@ export const App: React.FC = () => {
           setErrorMessage={setErrorMessage}
           setHasError={setHasError}
           changeAllToCompleted={changeAllToCompleted}
+          isAllTodosCompleted={isAllTodosCompleted}
         />
 
         {todos.length > 0 && (
