@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import {
@@ -31,7 +32,6 @@ export const App: React.FC = () => {
   const [errors, setErrors] = useState<ErrorType>(ErrorType.NONE);
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [allCompleted, setAllCompleted] = useState(false);
 
   const getTodosFromServer = async () => {
     if (user) {
@@ -72,11 +72,9 @@ export const App: React.FC = () => {
     setVisibleTodos(filteredTodos);
   }, [filterType, todos, query]);
 
-  useEffect(() => {
-    if (visibleTodos.every(todo => todo.completed)) {
-      setAllCompleted(true);
-    }
-  }, [visibleTodos]);
+  const isEachTodoCompleted = useMemo(
+    () => visibleTodos.every(todo => todo.completed), [visibleTodos],
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createNewTodo = async (event: any) => {
@@ -103,9 +101,10 @@ export const App: React.FC = () => {
         setErrors(ErrorType.ADD);
       }
 
-      await getTodosFromServer();
       setIsAdding(false);
       setQuery('');
+      setErrors(ErrorType.NONE);
+      await getTodosFromServer();
     }
   };
 
@@ -146,15 +145,13 @@ export const App: React.FC = () => {
 
   const handleAllToggled = async () => {
     try {
-      todos.forEach(todo => {
+      await todos.forEach(todo => {
         updateTodos(todo.id, { completed: !todo.completed });
-        getTodosFromServer();
       });
+      await getTodosFromServer();
     } catch (error) {
       setErrors(ErrorType.UPDATE);
     }
-
-    await getTodosFromServer();
   };
 
   const updateTodoStatus = async (todo: Todo) => {
@@ -178,7 +175,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className={classNames('todoapp__toggle-all',
-              { active: allCompleted })}
+              { active: isEachTodoCompleted })}
             onClick={handleAllToggled}
           />
 

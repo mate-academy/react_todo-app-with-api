@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef } from 'react';
 
 type Props = {
   query: string,
   setQuery: (value: string) => void,
-  createNewTodo: (event: any) => void,
+  createNewTodo: (event: React.FormEvent<HTMLFormElement>) => void,
 };
 
 export const TodoForm: React.FC<Props> = ({
