@@ -28,52 +28,42 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<FilterBy>(FilterBy.ALL);
-  const [counter, setCounter] = useState(0);
 
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [emptyTitleError, setEmptyTitleError] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [deletingCompletedTodos, setDeletingCompletedTodos] = useState(false);
-
-  const [addingError, setAddingError] = useState(false);
-  const [deletingError, setDeletingError] = useState(false);
   const [addingNewTodo, setAddingNewTodo] = useState(false);
-  const [updatingError, setUpdatingError] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [toggleAll, setToggleAll] = useState(false);
 
-  const increaseCounter = () => {
-    setCounter(prevState => prevState + 1);
-  };
-
   const filterTodos = (filterBy: FilterBy) => {
-    if (todos) {
-      setVisibleTodos(todos.filter((todo: Todo) => {
-        switch (filterBy) {
-          case FilterBy.ACTIVE:
-            return !todo.completed;
-          case FilterBy.COMPLETED:
-            return todo.completed;
-          default:
-            return true;
-        }
-      }));
-    }
+    setVisibleTodos(() => todos.filter((todo: Todo) => {
+      switch (filterBy) {
+        case FilterBy.ACTIVE:
+          return !todo.completed;
+        case FilterBy.COMPLETED:
+          return todo.completed;
+        default:
+          return true;
+      }
+    }));
   };
 
   const todosLength = () => {
-    return todos?.filter(todo => !todo.completed).length || '0';
+    return todos.filter(todo => !todo.completed).length || '0';
   };
 
   const todosCompletedLength = () => {
-    return todos?.filter(todo => todo.completed).length;
+    return todos.filter(todo => todo.completed).length;
   };
 
   const getTodosFromApi = useCallback(async () => {
     try {
       if (user) {
         setIsAdding(true);
-        const apiTodos = await getTodos(user.id).then(gotTodos => gotTodos);
+        const apiTodos = await getTodos(user.id);
 
         if (apiTodos.length === 0) {
           setTodos([]);
@@ -88,7 +78,7 @@ export const App: React.FC = () => {
         setIsAdding(false);
       }
     } catch {
-      setAddingError(true);
+      setErrorMessage('Unable to add a todo');
     }
   }, []);
 
@@ -98,19 +88,19 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    getTodosFromApi();
+  }, []);
+
+  useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-
-    getTodosFromApi();
-  }, [counter]);
+  }, [todos]);
 
   const debounceCallback = useCallback(
     () => {
-      setEmptyTitleError(false);
-      setAddingError(false);
-      setUpdatingError(false);
+      setErrorMessage('');
     }, [],
   );
 
@@ -120,10 +110,7 @@ export const App: React.FC = () => {
   );
 
   const closeError = () => {
-    setEmptyTitleError(false);
-    setAddingError(false);
-    setDeletingError(false);
-    setUpdatingError(false);
+    setErrorMessage('');
   };
 
   const handleOnChangeNewTodoTitle = (event: ChangeEvent<HTMLInputElement>) => {
@@ -132,12 +119,13 @@ export const App: React.FC = () => {
 
   const handleOnSubmitNewTodo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setAddingNewTodo(true);
     if (newTodoTitle.trim() === '') {
-      setEmptyTitleError(true);
+      setErrorMessage('Title can\'t be empty');
 
       return;
     }
+
+    setAddingNewTodo(true);
 
     if (user) {
       await addNewTodo({
@@ -146,7 +134,7 @@ export const App: React.FC = () => {
         completed: false,
       });
 
-      setCounter((prevState) => prevState + 1);
+      await getTodosFromApi();
     }
 
     setNewTodoTitle('');
@@ -155,7 +143,7 @@ export const App: React.FC = () => {
 
   const onDeleteTodo = async (id: number) => {
     await deleteTodo(id);
-    increaseCounter();
+    await getTodosFromApi();
   };
 
   const handleClearCompleted = () => {
@@ -164,10 +152,10 @@ export const App: React.FC = () => {
       if (todo.completed) {
         try {
           await deleteTodo(todo.id);
-          increaseCounter();
+          await getTodosFromApi();
           setDeletingCompletedTodos(false);
         } catch {
-          setDeletingError(true);
+          setErrorMessage('Unable to delete a todo');
         }
       }
     });
@@ -177,14 +165,17 @@ export const App: React.FC = () => {
     setToggleAll(prevState => !prevState);
     try {
       todos.forEach(async (todo) => {
-        await updateTodo({
-          ...todo,
-          completed: newStatus,
-        }, todo.id);
-        increaseCounter();
+        if (todo.completed !== newStatus) {
+          await updateTodo({
+            ...todo,
+            completed: newStatus,
+          }, todo.id);
+        }
+
+        await getTodosFromApi();
       });
     } catch {
-      setUpdatingError(true);
+      setErrorMessage('Unable to update a todo');
     }
   };
 
@@ -201,6 +192,10 @@ export const App: React.FC = () => {
 
     setToggleAll(false);
   }, [visibleTodos.length !== 0, visibleTodos]);
+
+  const onSetErrorMessage = (message: string) => {
+    setErrorMessage(message);
+  };
 
   return (
     <div className="todoapp">
@@ -244,8 +239,8 @@ export const App: React.FC = () => {
                 completed: false,
               }}
               deletingCompletedTodos={deletingCompletedTodos}
-              increaseCounter={increaseCounter}
-              setUpdatingError={setUpdatingError}
+              onSetErrorMessage={onSetErrorMessage}
+              getTodosFromApi={getTodosFromApi}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">
@@ -300,17 +295,11 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {(emptyTitleError
-        || addingError
-        || deletingError
-        || updatingError) && (
+      {(errorMessage !== '') && (
         <ErrorNotification
           onClose={onSetError}
           closeError={closeError}
-          emptyTitleError={emptyTitleError}
-          addingError={addingError}
-          deletingError={deletingError}
-          updatingError={updatingError}
+          errorMessage={errorMessage}
         />
       )}
     </div>

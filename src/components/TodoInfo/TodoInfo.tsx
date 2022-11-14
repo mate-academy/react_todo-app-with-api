@@ -1,6 +1,4 @@
-import React, {
-  Dispatch, FC, SetStateAction, useState,
-} from 'react';
+import React, { useState, FC } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
@@ -10,8 +8,8 @@ type Props = {
   onDeleteTodo: (id: number) => void;
   addingNewTodo: boolean;
   deletingCompletedTodos: boolean;
-  increaseCounter: () => void;
-  setUpdatingError: Dispatch<SetStateAction<boolean>>;
+  onSetErrorMessage: (message: string) => void;
+  getTodosFromApi: () => void;
 };
 
 export const TodoInfo: FC<Props> = ({
@@ -19,8 +17,8 @@ export const TodoInfo: FC<Props> = ({
   onDeleteTodo,
   addingNewTodo,
   deletingCompletedTodos,
-  increaseCounter,
-  setUpdatingError,
+  onSetErrorMessage,
+  getTodosFromApi,
 }) => {
   const { id, completed, title } = todo;
   const [deletingTodo, setDeletingTodo] = useState(false);
@@ -40,9 +38,9 @@ export const TodoInfo: FC<Props> = ({
         ...todo,
         completed: !completed,
       }, id);
-      increaseCounter();
+      getTodosFromApi();
     } catch {
-      setUpdatingError(true);
+      onSetErrorMessage('Unable to update a todo');
     }
 
     setIsChangingStatus(false);
@@ -53,8 +51,9 @@ export const TodoInfo: FC<Props> = ({
     if (newTitle === '') {
       try {
         await deleteTodo(id);
+        await getTodosFromApi();
       } catch {
-        setUpdatingError(true);
+        onSetErrorMessage('Unable to update a todo');
       }
     } else {
       try {
@@ -62,12 +61,12 @@ export const TodoInfo: FC<Props> = ({
           ...todo,
           title: newTitle,
         }, id);
+        await getTodosFromApi();
       } catch {
-        setUpdatingError(true);
+        onSetErrorMessage('Unable to update a todo');
       }
     }
 
-    increaseCounter();
     setIsChangingStatus(false);
   };
 

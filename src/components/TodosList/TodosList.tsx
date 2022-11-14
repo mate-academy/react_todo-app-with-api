@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from 'react';
+import { FC } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
 
@@ -8,8 +8,8 @@ type Props = {
   addingNewTodo: boolean;
   tempTodo: Todo;
   deletingCompletedTodos: boolean;
-  increaseCounter: () => void;
-  setUpdatingError: Dispatch<SetStateAction<boolean>>;
+  onSetErrorMessage: (message: string) => void;
+  getTodosFromApi: () => void;
 };
 
 export const TodosList: FC<Props> = ({
@@ -18,8 +18,8 @@ export const TodosList: FC<Props> = ({
   addingNewTodo,
   tempTodo,
   deletingCompletedTodos,
-  increaseCounter,
-  setUpdatingError,
+  onSetErrorMessage,
+  getTodosFromApi,
 }) => {
   const {
     id, userId, title, completed,
@@ -34,8 +34,8 @@ export const TodosList: FC<Props> = ({
           onDeleteTodo={onDeleteTodo}
           addingNewTodo={false}
           deletingCompletedTodos={deletingCompletedTodos}
-          increaseCounter={increaseCounter}
-          setUpdatingError={setUpdatingError}
+          onSetErrorMessage={onSetErrorMessage}
+          getTodosFromApi={getTodosFromApi}
         />
       ))}
       {addingNewTodo && (
@@ -49,8 +49,8 @@ export const TodosList: FC<Props> = ({
           onDeleteTodo={onDeleteTodo}
           addingNewTodo={addingNewTodo}
           deletingCompletedTodos={deletingCompletedTodos}
-          increaseCounter={increaseCounter}
-          setUpdatingError={setUpdatingError}
+          onSetErrorMessage={onSetErrorMessage}
+          getTodosFromApi={getTodosFromApi}
         />
       )}
     </section>

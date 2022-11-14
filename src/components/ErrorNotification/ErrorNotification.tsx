@@ -3,19 +3,13 @@ import { FC } from 'react';
 type Props = {
   onClose: () => void;
   closeError: () => void;
-  emptyTitleError: boolean;
-  addingError: boolean;
-  deletingError: boolean;
-  updatingError: boolean;
+  errorMessage: string;
 };
 
 export const ErrorNotification: FC<Props> = ({
   onClose,
   closeError,
-  emptyTitleError,
-  addingError,
-  deletingError,
-  updatingError,
+  errorMessage,
 }) => {
   onClose();
 
@@ -32,12 +26,7 @@ export const ErrorNotification: FC<Props> = ({
         onClick={closeError}
       />
 
-      {emptyTitleError && 'Title can\'t be empty'}
-      {addingError && 'Unable to add a todo'}
-      {/* <br /> */}
-      {deletingError && 'Unable to delete a todo'}
-      {/* <br /> */}
-      {updatingError && 'Unable to update a todo'}
+      <span>{errorMessage}</span>
     </div>
   );
 };
