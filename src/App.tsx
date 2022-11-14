@@ -12,7 +12,9 @@ import {
   addTodo,
   deleteTodo,
   updateTodoStatus,
+  updateTodoTitle,
 } from './api/todos';
+
 import { Todo } from './types/Todo';
 import { ErrorEnums } from './enums/ErrorEnums';
 import { ErrorComponent } from './components/Error';
@@ -55,7 +57,6 @@ export const App: React.FC = () => {
 
   const addNewTodo = async (
     title: string,
-
   ) => {
     if (user && title.trim()) {
       setIsAdding(true);
@@ -76,6 +77,10 @@ export const App: React.FC = () => {
     await loadTodos();
     setNewTodoTitle('');
     setIsAdding(false);
+  };
+
+  const onChangeError = (errorType: ErrorEnums) => {
+    setError(errorType);
   };
 
   const handleDeleteTodo = async (id: number) => {
@@ -124,6 +129,16 @@ export const App: React.FC = () => {
     await loadTodos();
   };
 
+  const changingTodoTitle = async (todoId: number, newTitle: string) => {
+    try {
+      await updateTodoTitle(todoId, newTitle);
+    } catch (e) {
+    onChangeError(ErrorEnums.Update);
+    }
+
+    await loadTodos();
+  };
+
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -164,7 +179,7 @@ export const App: React.FC = () => {
                 />
               </form>
             </header>
-
+            
             {isAdding && (
               <TempTodo title={newTodoTitle} />
             )}
@@ -174,6 +189,7 @@ export const App: React.FC = () => {
               deleteTodo={handleDeleteTodo}
               onUpdateTodoStatus={onUpdateTodoStatus}
               loadTodos={loadTodos}
+              onChangeTodoTile={changingTodoTitle}
             />
 
             {todos.length > 0 && (
