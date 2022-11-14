@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoData } from '../TodoData';
 
@@ -23,28 +27,42 @@ export const TodoList: React.FC<Props> = React.memo(({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => {
-        return (
-          <TodoData
-            todo={todo}
-            key={todo.id}
-            handleDeleteTodo={handleDeleteTodo}
-            changingTodosId={changingTodosId}
-            handleToggleTodo={handleToggleTodo}
-            handleEditTodo={handleEditTodo}
-          />
-        );
-      })}
-      {isAdding && (
-        <TodoData
-          todo={tempTodo}
-          key={tempTodo.id}
-          handleDeleteTodo={handleDeleteTodo}
-          changingTodosId={changingTodosId}
-          handleToggleTodo={handleToggleTodo}
-          handleEditTodo={handleEditTodo}
-        />
-      )}
+      <TransitionGroup>
+        {todos.map(todo => {
+          return (
+            <CSSTransition
+              key={todo.id}
+              timeout={300}
+              classNames="item"
+            >
+              <TodoData
+                todo={todo}
+                key={todo.id}
+                handleDeleteTodo={handleDeleteTodo}
+                changingTodosId={changingTodosId}
+                handleToggleTodo={handleToggleTodo}
+                handleEditTodo={handleEditTodo}
+              />
+            </CSSTransition>
+          );
+        })}
+        {isAdding && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoData
+              todo={tempTodo}
+              key={tempTodo.id}
+              handleDeleteTodo={handleDeleteTodo}
+              changingTodosId={changingTodosId}
+              handleToggleTodo={handleToggleTodo}
+              handleEditTodo={handleEditTodo}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
-  )
+  );
 });
