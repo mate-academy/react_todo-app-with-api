@@ -3,7 +3,6 @@ import React, { useCallback, useState } from 'react';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>
-  setHasError: (status: boolean) => void
   setErrorMessage: (message: string) => void
   addNewTodo: (title: string) => Promise<void>
   isAdding: boolean
@@ -14,7 +13,6 @@ type Props = {
 
 export const Header: React.FC<Props> = React.memo(({
   newTodoField,
-  setHasError,
   setErrorMessage,
   addNewTodo,
   isAdding,
@@ -30,7 +28,6 @@ export const Header: React.FC<Props> = React.memo(({
     e.preventDefault();
 
     if (!title.trim()) {
-      setHasError(true);
       setErrorMessage('ToDo title can`t be empty!');
 
       return;

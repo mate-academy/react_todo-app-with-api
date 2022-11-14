@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   useCallback,
   useContext,
@@ -22,15 +21,13 @@ import { FilterType } from './types/FilterType';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
-  const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [todoIdsToRemove, setTodoIdsToRemove] = useState<number[]>([]);
+  const [todoIdsLoading, setTodoIdsLoading] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo>({
     id: 0,
     userId: 0,
@@ -40,54 +37,53 @@ export const App: React.FC = () => {
 
   const getTodosFromServer = useCallback(async () => {
     try {
-      if (user) {
-        const todosFromServer = await getTodos(user.id);
-
-        setTodos(todosFromServer);
+      if (!user) {
+        return;
       }
+
+      const todosFromServer = await getTodos(user.id);
+
+      setTodos(todosFromServer);
     } catch (error) {
-      setHasError(true);
-      setErrorMessage('Can`t download ToDos from server');
+      setErrorMessage('Can\'t download ToDos from server');
     }
   }, []);
 
   const addNewTodoToServer = useCallback(async (title: string) => {
     try {
-      if (user) {
-        setIsAdding(true);
-
-        const currTodo = {
-          title,
-          userId: user.id,
-          completed: false,
-        };
-
-        setTempTodo(prev => ({ ...prev, ...currTodo }));
-
-        await addTodo(currTodo);
-        await getTodosFromServer();
-        setIsAdding(false);
+      if (!user) {
+        return;
       }
+
+      setIsAdding(true);
+
+      const currTodo = {
+        title,
+        userId: user.id,
+        completed: false,
+      };
+
+      setTempTodo(prev => ({ ...prev, ...currTodo }));
+
+      await addTodo(currTodo);
+      await getTodosFromServer();
+      setIsAdding(false);
     } catch (error) {
-      setHasError(true);
       setErrorMessage('Unable to add a todo');
     }
   }, []);
 
   const removeTodoFromServer = useCallback(async (todoId: number) => {
     try {
-      if (user) {
-        setTodoIdsToRemove(currIds => [...currIds, todoId]);
+      setTodoIdsLoading(currIds => [...currIds, todoId]);
 
-        await deleteTodo(todoId);
-        await getTodosFromServer();
+      await deleteTodo(todoId);
+      await getTodosFromServer();
 
-        setTodoIdsToRemove(currIds => (
-          currIds.filter((id) => id !== todoId)
-        ));
-      }
+      setTodoIdsLoading(currIds => (
+        currIds.filter((id) => id !== todoId)
+      ));
     } catch (error) {
-      setHasError(true);
       setErrorMessage('Unable to remove ToDo');
     }
   }, []);
@@ -113,7 +109,7 @@ export const App: React.FC = () => {
 
   const removeAllCompletedTodos = useCallback(async () => {
     try {
-      setTodoIdsToRemove(currIds => (
+      setTodoIdsLoading(currIds => (
         [...currIds, ...completedTodos.map(todo => todo.id)]
       ));
 
@@ -121,12 +117,11 @@ export const App: React.FC = () => {
         deleteTodo(id)
       )));
 
-      setTodoIdsToRemove([0]);
+      setTodoIdsLoading([0]);
 
       await getTodosFromServer();
     } catch (error) {
       setErrorMessage('Unable to remove all completed todo');
-      setHasError(true);
     }
   }, [completedTodos]);
 
@@ -135,16 +130,15 @@ export const App: React.FC = () => {
     status: boolean,
   ) => {
     try {
-      setTodoIdsToRemove(currIds => [...currIds, todoId]);
+      setTodoIdsLoading(currIds => [...currIds, todoId]);
 
       await changeTodo(todoId, { completed: status });
       await getTodosFromServer();
 
-      setTodoIdsToRemove(currIds => (
+      setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
-      setHasError(true);
       setErrorMessage('Unable to toggle ToDo status');
     }
   }, []);
@@ -155,7 +149,7 @@ export const App: React.FC = () => {
         ? todos.filter(({ completed }) => !completed)
         : todos;
 
-      setTodoIdsToRemove([...todosFilteredByStatus.map(todo => todo.id)]);
+      setTodoIdsLoading([...todosFilteredByStatus.map(todo => todo.id)]);
 
       await Promise.all(todosFilteredByStatus.map(async ({ id, completed }) => (
         changeTodo(id, { completed: !completed })
@@ -163,9 +157,8 @@ export const App: React.FC = () => {
 
       await getTodosFromServer();
 
-      setTodoIdsToRemove([0]);
+      setTodoIdsLoading([0]);
     } catch (error) {
-      setHasError(true);
       setErrorMessage('Unable to toggle all ToDos status');
     }
   }, [todos]);
@@ -175,21 +168,20 @@ export const App: React.FC = () => {
     newTitle: string,
   ) => {
     try {
-      setTodoIdsToRemove(currIds => [...currIds, todoId]);
+      setTodoIdsLoading(currIds => [...currIds, todoId]);
 
       await changeTodo(todoId, { title: newTitle });
       await getTodosFromServer();
 
-      setTodoIdsToRemove(currIds => (
+      setTodoIdsLoading(currIds => (
         currIds.filter((id) => id !== todoId)
       ));
     } catch (error) {
-      setHasError(true);
       setErrorMessage('Unable to update a todo');
     }
   }, []);
 
-  const closeNotification = useCallback(() => setHasError(false), []);
+  const closeNotification = useCallback(() => setErrorMessage(''), []);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -201,9 +193,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setHasError(false);
+      setErrorMessage('');
     }, 3000);
-  }, [hasError]);
+  }, [errorMessage]);
 
   return (
     <div className="todoapp">
@@ -212,7 +204,6 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           newTodoField={newTodoField}
-          setHasError={setHasError}
           setErrorMessage={setErrorMessage}
           addNewTodo={addNewTodoToServer}
           isAdding={isAdding}
@@ -228,7 +219,7 @@ export const App: React.FC = () => {
               removeTodo={removeTodoFromServer}
               isAdding={isAdding}
               tempTodo={tempTodo}
-              todoIdsToRemove={todoIdsToRemove}
+              todoIdsLoading={todoIdsLoading}
               toggleTodoStatus={toggleTodoStatus}
               changeTitle={setNewTodoTitleToServer}
             />
@@ -245,11 +236,9 @@ export const App: React.FC = () => {
       </div>
 
       <ErrorNotification
-        hasError={hasError}
+        errorMessage={errorMessage}
         onClose={closeNotification}
-      >
-        {errorMessage}
-      </ErrorNotification>
+      />
     </div>
   );
 };
