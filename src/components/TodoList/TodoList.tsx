@@ -12,7 +12,7 @@ import { TodoItem } from '../TodoItem';
 type Props = {
   filteredTodo: Todo[];
   removeTodo: (TodoId: number) => void;
-  selectedId: number[];
+  selectedIds: number[];
   isAdding: boolean;
   title: string;
   handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
@@ -21,7 +21,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   filteredTodo,
   removeTodo,
-  selectedId,
+  selectedIds,
   isAdding,
   title,
   handleChange,
@@ -39,7 +39,7 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               key={todo.id}
               removeTodo={removeTodo}
-              selectedId={selectedId}
+              selectedId={selectedIds}
               isAdding={isAdding}
               handleChange={handleChange}
               todos={filteredTodo}
@@ -61,7 +61,7 @@ export const TodoList: React.FC<Props> = ({
                 userId: 0,
               }}
               removeTodo={removeTodo}
-              selectedId={selectedId}
+              selectedId={selectedIds}
               isAdding={isAdding}
               handleChange={handleChange}
               todos={filteredTodo}

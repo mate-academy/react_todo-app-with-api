@@ -34,7 +34,7 @@ export const App: React.FC = () => {
   const [sortType, setSortType] = useState<SortType>(SortType.ALL);
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
-  const [selectedId, setSelectedId] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isAdding, setIsAdding] = useState(false);
 
   const filteredTodo = useMemo(() => todos.filter(todo => {
@@ -54,9 +54,7 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
 
-  useEffect(() => {
     if (!user) {
       return;
     }
@@ -74,9 +72,11 @@ export const App: React.FC = () => {
     getTodosFromServer(user.id);
   }, []);
 
-  const getValue = (element: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(element.target.value);
-  };
+  const getValue = useCallback(
+    (element: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(element.target.value);
+    }, [title],
+  );
 
   const addNewTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
   }, [title, user]);
 
   const removeTodo = useCallback(async (TodoId: number) => {
-    setSelectedId([TodoId]);
+    setSelectedIds([TodoId]);
 
     try {
       await deleteTodos(TodoId);
@@ -113,46 +113,44 @@ export const App: React.FC = () => {
     }
   }, [todos, error]);
 
-  const completedTodos = todos.filter(({ completed }) => completed);
+  const completedTodos = useMemo(() => (
+    todos.filter((todo) => todo.completed)
+  ), [todos]);
 
   const clearCompletedTodos = useCallback(
     async () => {
       try {
-        setSelectedId([...completedTodos].map(({ id }) => id));
+        setSelectedIds([...completedTodos].map(({ id }) => id));
 
         await Promise.all(completedTodos.map(({ id }) => removeTodo(id)));
         await (() => setTodos((prevTodos) => prevTodos
           .filter(({ completed }) => !completed)));
       } catch {
         setError(ErrorType.NotDelete);
-        setSelectedId([]);
+        setSelectedIds([]);
       }
-    }, [todos, selectedId, error],
+    }, [todos, selectedIds, error],
   );
 
   const handleChange = async (todoId: number, data: Partial<Todo>) => {
-    setSelectedId([todoId]);
-
-    function updateStatus(value: Todo) {
-      return value;
-    }
+    setSelectedIds([todoId]);
 
     try {
       const value = await updateTodo(todoId, data);
 
       setTodos(todos.map(todo => (
         todo.id === todoId
-          ? updateStatus(value as Todo)
+          ? value
           : todo
       )));
     } catch {
       setError(ErrorType.NotUpdate);
     }
 
-    setSelectedId([]);
+    setSelectedIds([]);
   };
 
-  const handleAllCompleted = () => {
+  const handleAllCompleted = useCallback(() => {
     const isAllCompleted = todos.every(({ completed }) => completed);
 
     Promise.all(todos.map(({ id }) => handleChange(id, {
@@ -164,9 +162,9 @@ export const App: React.FC = () => {
       }))))
       .catch(() => {
         setError(ErrorType.NotUpdate);
-        setSelectedId([]);
+        setSelectedIds([]);
       });
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -185,7 +183,7 @@ export const App: React.FC = () => {
             <TodoList
               filteredTodo={filteredTodo}
               removeTodo={removeTodo}
-              selectedId={selectedId}
+              selectedIds={selectedIds}
               isAdding={isAdding}
               title={title}
               handleChange={handleChange}
