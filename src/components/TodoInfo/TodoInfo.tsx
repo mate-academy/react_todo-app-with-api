@@ -32,7 +32,7 @@ export const TodoInfo: React.FC<Props> = ({
 
   const [isEditingAvailable, setIsEditingAvailable]
     = useState(false);
-  const [newTitle, setNewTitle] = useState(title);
+  const [newTitle, setNewTitle] = useState(title.trim());
   const editingField = useRef<HTMLInputElement>(null);
 
   const handleToggleTodo = useCallback(() => {

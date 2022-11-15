@@ -1,4 +1,3 @@
-
 const BASE_URL = 'https://mate.academy/students-api';
 
 // returns a promise resolved after a given delay
