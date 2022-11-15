@@ -32,7 +32,7 @@ export const TodoInfo: React.FC<Props> = ({
   const titleInput = useRef<HTMLInputElement>(null);
 
   const [isRenamed, setIsRenamed] = useState(false);
-  const [newTodoTitle, setNewTodoTitle] = useState(title);
+  const [newTodoTitle, setNewTodoTitle] = useState(title.trim());
 
   useEffect(() => {
     if (titleInput.current) {
