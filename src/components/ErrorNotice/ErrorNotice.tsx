@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import { ErrorNoticeType } from '../../types/ErrorNoticeType';
 
@@ -20,11 +19,7 @@ export const ErrorNotice: React.FC<Props> = ({
   return (
     <div
       data-cy="ErrorNotification"
-      className={classNames(
-        'notification is-danger is-light has-text-weight-normal', {
-          hidden: errorNotice === ErrorNoticeType.None,
-        },
-      )}
+      className="notification is-danger is-light has-text-weight-normal"
     >
       <button
         data-cy="HideErrorButton"

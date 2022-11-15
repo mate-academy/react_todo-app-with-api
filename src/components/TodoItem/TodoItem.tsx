@@ -45,6 +45,8 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (!trimmedTitle) {
+      deleteTodoFromServer(id);
+
       return;
     }
 
