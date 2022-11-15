@@ -6,6 +6,8 @@ type Props = {
   isAdding: boolean;
   deletedTodoIDs: number[];
   deleteTodoAtServer: (id: number) => void;
+  toggleTodoStatus: (id: number, completed: boolean) => Promise<void>;
+  updateTodo: (id: number, title: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -13,6 +15,8 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   deleteTodoAtServer,
   deletedTodoIDs,
+  toggleTodoStatus,
+  updateTodo,
 }) => {
   const tempTodo = {
     id: 0,
@@ -29,6 +33,8 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           isAdding={deletedTodoIDs.includes(todo.id)}
           deleteTodoAtServer={deleteTodoAtServer}
+          toggleTodoStatus={toggleTodoStatus}
+          updateTodo={updateTodo}
         />
       ))}
       {isAdding && (
@@ -36,6 +42,8 @@ export const TodoList: React.FC<Props> = ({
           key={tempTodo.id}
           todo={tempTodo}
           isAdding={isAdding}
+          toggleTodoStatus={toggleTodoStatus}
+          updateTodo={updateTodo}
         />
       )}
     </section>

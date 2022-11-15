@@ -7,7 +7,13 @@ import React, {
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
-import { addNewTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addNewTodo,
+  deleteTodo,
+  getTodos,
+  updateTodoTitle,
+  updateTodoStatus,
+} from './api/todos';
 import { FilterType } from './types/FilterType';
 import { Error } from './types/Error';
 import { Header } from './components/Header/Header';
@@ -115,6 +121,55 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleTodoStatus = async (id: number, completed: boolean) => {
+    try {
+      setDeletedTodoIDs(prevIDs => [...prevIDs, id]);
+
+      await updateTodoStatus(id, completed);
+      if (user) {
+        await getTodosFromServer(user.id);
+      }
+
+      setDeletedTodoIDs(prevIDs => prevIDs.filter(todoID => todoID !== id));
+    } catch (error) {
+      setErrorMessage({
+        hasMessage: 'Unable to update a todo',
+      });
+    }
+  };
+
+  const toggleAllTodosStatus = async () => {
+    try {
+      const toggledTodos = activeTodosCount
+        ? todos.filter((todo) => !todo.completed)
+        : todos;
+
+      await Promise.all(toggledTodos.map(({ id, completed }) => (
+        toggleTodoStatus(id, !completed))));
+    } catch (error) {
+      setErrorMessage({
+        hasMessage: 'Unable to update all todos',
+      });
+    }
+  };
+
+  const updateTodo = async (id: number, title: string) => {
+    try {
+      setDeletedTodoIDs(prevIDs => [...prevIDs, id]);
+
+      await updateTodoTitle(id, title);
+      if (user) {
+        await getTodosFromServer(user.id);
+      }
+
+      setDeletedTodoIDs(prevIDs => prevIDs.filter(todoID => todoID !== id));
+    } catch (error) {
+      setErrorMessage({
+        hasMessage: 'Unable to update a todo',
+      });
+    }
+  };
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -148,6 +203,7 @@ export const App: React.FC = () => {
           addTodoToServer={addTodoToServer}
           isAdding={isAdding}
           setErrorMessage={setErrorMessage}
+          toggleAllTodosStatus={toggleAllTodosStatus}
         />
 
         <TodoList
@@ -155,6 +211,8 @@ export const App: React.FC = () => {
           isAdding={isAdding}
           deleteTodoAtServer={deleteTodoAtServer}
           deletedTodoIDs={deletedTodoIDs}
+          toggleTodoStatus={toggleTodoStatus}
+          updateTodo={updateTodo}
         />
 
         {!!todos.length && (

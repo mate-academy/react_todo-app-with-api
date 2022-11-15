@@ -8,6 +8,7 @@ type Props = {
   addTodoToServer: (arg0: string) => Promise<void>;
   isAdding: boolean;
   setErrorMessage: (arg0: Error) => void;
+  toggleAllTodosStatus: () => Promise<void>;
 };
 
 export const Header: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<Props> = ({
   addTodoToServer,
   isAdding,
   setErrorMessage,
+  toggleAllTodosStatus,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -48,6 +50,7 @@ export const Header: React.FC<Props> = ({
           type="button"
           className="todoapp__toggle-all active"
           aria-label="Toggle all todos"
+          onClick={toggleAllTodosStatus}
         />
       )}
       <form onSubmit={handleSubmit}>
