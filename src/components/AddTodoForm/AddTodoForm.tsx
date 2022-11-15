@@ -13,6 +13,14 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
   const newTodoField = useRef<HTMLInputElement>(null);
   const { value, onChange, clearInput } = useInput('');
 
+  const submitAddingTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const newTitle = value.trim();
+
+    handleAddTodo(newTitle);
+    clearInput();
+  };
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
@@ -21,14 +29,7 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
   }, [isAdding]);
 
   return (
-    <form onSubmit={(event) => {
-      event.preventDefault();
-      const newTitle = value.trim();
-
-      handleAddTodo(newTitle);
-      clearInput();
-    }}
-    >
+    <form onSubmit={submitAddingTodo}>
       <input
         data-cy="NewTodoField"
         type="text"
