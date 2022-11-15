@@ -8,7 +8,7 @@ export const LogOut: FC<Props> = ({ resetUser }) => {
   return (
     <button
       type="button"
-      className="button"
+      className="button button-logout"
       onClick={() => {
         localStorage.clear();
         resetUser();

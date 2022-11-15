@@ -20,6 +20,10 @@ body {
   pointer-events: none;
 }
 
+.button-logout {
+  width: 100%;
+}
+
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
