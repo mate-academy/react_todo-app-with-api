@@ -1,3 +1,6 @@
+import { Todo } from '../types/Todo';
+import { User } from '../types/User';
+
 const BASE_URL = 'https://mate.academy/students-api';
 
 // a promise resolved after a given delay
@@ -13,7 +16,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data: any = null, // we can send any data to the server
+  data: Partial<Todo> | Partial<User> | null = null, // we can send any data to the server
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -26,7 +29,7 @@ function request<T>(
   }
 
   // we wait for testing purpose to see loaders
-  return wait(300)
+  return wait(500)
     .then(() => fetch(BASE_URL + url, options))
     .then(response => {
       if (!response.ok) {
@@ -39,7 +42,11 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
+  post: <T>(url: string, data: Partial<Todo> | Partial<User> | null) => (
+    request<T>(url, 'POST', data)
+  ),
+  patch: <T>(url: string, data: Partial<Todo> | Partial<User> | null) => (
+    request<T>(url, 'PATCH', data)
+  ),
   delete: (url: string) => request(url, 'DELETE'),
 };
