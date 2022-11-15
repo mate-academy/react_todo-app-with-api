@@ -76,6 +76,7 @@ export const TodoList: React.FC<Props> = ({
       {todos.map((todo: Todo) => {
         return (
           <TodoItem
+            key={todo.id}
             handleEditTodo={handleEditTodo}
             handleDeleteTodo={handleDeleteTodo}
             todo={todo}
