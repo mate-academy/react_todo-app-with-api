@@ -88,11 +88,11 @@ export const App: React.FC = () => {
         setIsAdding(true);
         setTemporaryTodo((currentTemp => ({
           ...currentTemp,
-          title: todoTitle,
+          title: todoTitle.trim(),
           userId: user.id,
         })));
         const newTodo = {
-          title: todoTitle,
+          title: todoTitle.trim(),
           completed: false,
           userId: user?.id,
         };
