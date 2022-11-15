@@ -50,8 +50,6 @@ export const App: React.FC = () => {
     } catch (error) {
       setIsError(true);
       setErrorText('Unable to load todos');
-
-      throw new Error(`unexpected error with loading todos: ${error}`);
     }
   }, []);
 
@@ -94,8 +92,6 @@ export const App: React.FC = () => {
     } catch (error) {
       setIsError(true);
       setErrorText('Unable to add a todo');
-
-      throw new Error(`unexpected error with adding todo: ${error}`);
     } finally {
       setIsTodoAdding(false);
     }
@@ -113,8 +109,6 @@ export const App: React.FC = () => {
     } catch (error) {
       setIsError(true);
       setErrorText('Unable to delete a todo');
-
-      throw new Error(`unexpected error with deleting todo: ${error}`);
     }
   }, []);
 
@@ -144,8 +138,6 @@ export const App: React.FC = () => {
     } catch (error) {
       setIsError(true);
       setErrorText('Unable to update a todo');
-
-      throw new Error(`unexpected error with adding todo: ${error}`);
     }
   }, []);
 
