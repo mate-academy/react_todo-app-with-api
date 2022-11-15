@@ -69,7 +69,7 @@ export const App: React.FC = () => {
       }
 
       const newTodo = {
-        title: newTodoTitle,
+        title: newTodoTitle.trim(),
         userId,
         completed: false,
       };
