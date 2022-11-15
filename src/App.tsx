@@ -11,20 +11,20 @@ import { TodoField } from './components/TodoField';
 
 import {
   getTodos,
-  newTodo,
+  addTodo,
   deleteTodo,
   updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
+import { ErrorTypes } from './types/ErrorType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<ErrorTypes | null>(null);
   const [filterType, setFilterType] = useState<FilterTypes>(FilterTypes.all);
   const [isAdding, setIsAdding] = useState(false);
   const [todoToAdd, setTodoToAdd] = useState('');
   const [currTodo, setCurrTodo] = useState(0);
-  const [selectedTodos, setSelectedTodos] = useState<number[]>([]);
   const [isEditing, setisEditing] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -64,11 +64,16 @@ export const App: React.FC = () => {
 
         setTodos(loadedTodos);
       } catch {
-        setError('load');
-        setTimeout(() => setError(''), 3000);
+        setError(ErrorTypes.LOAD);
       }
     }, [],
   );
+
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => setError(null), 3000);
+    }
+  }, [error]);
 
   const updateTodoOnServer = async (
     idTodo: number, data: Partial<Todo>,
@@ -78,7 +83,7 @@ export const App: React.FC = () => {
         await updateTodo(idTodo, data);
       }
     } catch {
-      setError('update');
+      setError(ErrorTypes.UPDATE);
     } finally {
       loadTodos();
     }
@@ -88,8 +93,6 @@ export const App: React.FC = () => {
     const todosToHandle = isActiveToggleAll
       ? [...completed]
       : [...notCompleted];
-
-    setSelectedTodos(todosToHandle.map(todo => todo.id));
 
     todosToHandle.forEach(
       todo => updateTodoOnServer(
@@ -110,8 +113,8 @@ export const App: React.FC = () => {
     setIsAdding(true);
 
     if (!todoToAdd.length) {
-      setError('length');
-      setTimeout(() => setError(''), 3000);
+      setError(ErrorTypes.LENGTH);
+      setTimeout(() => setError(null), 3000);
       setTodoToAdd('');
       setIsAdding(false);
 
@@ -120,11 +123,11 @@ export const App: React.FC = () => {
 
     if (user) {
       try {
-        const newAPITodo = await newTodo(todoToAdd, user.id);
+        const newAPITodo = await addTodo(todoToAdd, user.id);
 
         setTodos(currTodos => [...currTodos, newAPITodo]);
       } catch {
-        setError('add');
+        setError(ErrorTypes.ADD);
       }
     }
 
@@ -133,8 +136,6 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
-    setSelectedTodos([todoId]);
-
     if (user) {
       try {
         await deleteTodo(todoId);
@@ -142,7 +143,7 @@ export const App: React.FC = () => {
           prev.filter(item => item.id !== todoId)
         ));
       } catch {
-        setError('delete');
+        setError(ErrorTypes.DELETE);
       }
     }
   }, [user]);
@@ -159,7 +160,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => currentTodos.filter(todo => !todo.completed));
     } catch {
-      setError('deleteAll');
+      setError(ErrorTypes.DELETEALL);
     }
   };
 
@@ -187,10 +188,8 @@ export const App: React.FC = () => {
             <TodoList
               todos={filteredTodos}
               handleDeleteTodo={handleDeleteTodo}
-              selectedTodos={selectedTodos}
               isEditing={isEditing}
               setisEditing={setisEditing}
-              setSelectedTodos={setSelectedTodos}
               updateTodoOnServer={updateTodoOnServer}
               currTodo={currTodo}
               setCurrTodo={setCurrTodo}
@@ -207,7 +206,7 @@ export const App: React.FC = () => {
       {error && (
         <ErrorMessage
           error={error}
-          closeError={() => setError('')}
+          closeError={() => setError(null)}
         />
       )}
     </div>

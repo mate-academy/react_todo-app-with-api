@@ -5,10 +5,8 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo,
   handleDeleteTodo: (todoId: number) => void,
-  selectedTodos: number[],
   isEditing: boolean,
   setisEditing: (value: boolean) => void,
-  setSelectedTodos: (value: number[]) => void,
   updateTodoOnServer: (todoId: number, data: Partial<Todo>) => void,
   currTodo: number,
   setCurrTodo: (value: number) => void,
@@ -17,15 +15,14 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  selectedTodos,
   isEditing,
   setisEditing,
-  setSelectedTodos,
   updateTodoOnServer,
   currTodo,
   setCurrTodo,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [deletindId, setDeletingId] = useState(0);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -34,11 +31,15 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [currTodo]);
 
+  const handleRemoveTodo = () => {
+    setDeletingId(todo.id);
+    handleDeleteTodo(todo.id);
+  };
+
   const handleChangeTodoStatus = (
     todoId: number, todoStatus: boolean,
   ) => {
     updateTodoOnServer(todoId, { completed: todoStatus });
-    setSelectedTodos([todoId]);
   };
 
   const handleEditing = (todoId: number) => {
@@ -53,7 +54,6 @@ export const TodoItem: React.FC<Props> = ({
     } else if (!newTodoTitle) {
       handleDeleteTodo(todo.id);
     } else {
-      setSelectedTodos([todo.id]);
       updateTodoOnServer(todo.id, { title: newTodoTitle });
       setisEditing(false);
     }
@@ -67,6 +67,18 @@ export const TodoItem: React.FC<Props> = ({
     if (event.key === 'Escape') {
       setisEditing(false);
     }
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+  };
+
+  const handleEdit = (event: React.KeyboardEvent) => {
+    handleKeyEditing(event);
+  };
+
+  const handleNewTodo = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
   };
 
   return (
@@ -89,9 +101,7 @@ export const TodoItem: React.FC<Props> = ({
       {isEditing && (currTodo === todo.id)
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-            }}
+            onSubmit={handleSubmit}
           >
             <input
               data-cy="TodoTitleField"
@@ -100,8 +110,8 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               ref={newTodoField}
               value={newTodoTitle}
-              onKeyDown={(event) => handleKeyEditing(event)}
-              onChange={(event) => setNewTodoTitle(event.target.value)}
+              onKeyDown={handleEdit}
+              onChange={handleNewTodo}
               onBlur={handleBlur}
             />
           </form>
@@ -119,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => handleDeleteTodo(todo.id)}
+              onClick={handleRemoveTodo}
             >
               ×
             </button>
@@ -129,7 +139,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': selectedTodos.includes(todo.id),
+          'is-active': todo.id === deletindId,
         })}
 
       >
