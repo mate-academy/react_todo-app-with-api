@@ -9,7 +9,7 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { FilterTypes } from './types/FilterType';
 import { Todo } from './types/Todo';
 import { User } from './types/User';
-import { TodoList } from './components/Todolist';
+import { TodoList } from './components/TodoList';
 import {
   getTodos,
   createTodo,
