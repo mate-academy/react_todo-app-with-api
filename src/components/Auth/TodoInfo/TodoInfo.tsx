@@ -42,8 +42,10 @@ export const TodoInfo: React.FC<Props> = ({
 
       setIsEditing(false);
     } else {
-      handleTitleChange(event, todo.id, editedTitle);
+      handleTitleChange(event, todo.id, editedTitle.trim());
       setIsEditing(false);
+
+      setEditedTitle(editedTitle.trim());
     }
   }, [editedTitle]);
 

@@ -78,7 +78,7 @@ export const App: React.FC = () => {
     try {
       if (user && newTodoTitle.trim()) {
         await createTodo({
-          title: newTodoTitle,
+          title: newTodoTitle.trim(),
           userId: user.id,
           completed: false,
         });
