@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { createUser, getUserByEmail } from '../../api/users';
+import { ErrorNoticeType } from '../../types/ErrorNoticeType';
 import { User } from '../../types/User';
 
 export type Props = {
@@ -11,8 +12,9 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [needToRegister, setNeedToRegister] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorNotice, setErrorNotice]
+    = useState<ErrorNoticeType>(ErrorNoticeType.None);
 
   const saveUser = (user: User) => {
     localStorage.setItem('user', JSON.stringify(user));
@@ -30,8 +32,8 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
       const user = JSON.parse(userData) as User;
 
       onLogin(user);
-    } catch (error) {
-      // Need to login
+    } catch {
+      setErrorNotice(ErrorNoticeType.LoginError);
     }
   }, []);
 
@@ -45,16 +47,17 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
     }
   };
 
-  const registerUser = () => {
-    return createUser({ name, email })
-      .then(saveUser);
+  const registerUser = async () => {
+    const newUser = await createUser({ name, email });
+
+    await saveUser(newUser);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    setErrorMessage('');
-    setLoading(true);
+    setErrorNotice(ErrorNoticeType.None);
+    setIsLoading(true);
 
     try {
       if (needToRegister) {
@@ -63,9 +66,9 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         await loadUser();
       }
     } catch (error) {
-      setErrorMessage('Something went wrtong');
+      setErrorNotice(ErrorNoticeType.SignupError);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -82,17 +85,17 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
         <div
           className={classNames('control has-icons-left', {
-            'is-loading': loading,
+            'is-loading': isLoading,
           })}
         >
           <input
             type="email"
             id="user-email"
             className={classNames('input', {
-              'is-danger': !needToRegister && errorMessage,
+              'is-danger': !needToRegister && errorNotice,
             })}
             placeholder="Enter your email"
-            disabled={loading || needToRegister}
+            disabled={isLoading || needToRegister}
             value={email}
             required
             onChange={e => setEmail(e.target.value)}
@@ -103,8 +106,8 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
           </span>
         </div>
 
-        {!needToRegister && errorMessage && (
-          <p className="help is-danger">{errorMessage}</p>
+        {!needToRegister && errorNotice && (
+          <p className="help is-danger">{errorNotice}</p>
         )}
       </div>
 
@@ -116,19 +119,19 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
           <div
             className={classNames('control has-icons-left', {
-              'is-loading': loading,
+              'is-loading': isLoading,
             })}
           >
             <input
               type="text"
               id="user-name"
               className={classNames('input', {
-                'is-danger': needToRegister && errorMessage,
+                'is-danger': needToRegister && errorNotice,
               })}
               placeholder="Enter your name"
               required
               minLength={4}
-              disabled={loading}
+              disabled={isLoading}
               value={name}
               onChange={e => setName(e.target.value)}
             />
@@ -138,8 +141,8 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
             </span>
           </div>
 
-          {needToRegister && errorMessage && (
-            <p className="help is-danger">{errorMessage}</p>
+          {needToRegister && errorNotice && (
+            <p className="help is-danger">{errorNotice}</p>
           )}
         </div>
       )}
@@ -148,7 +151,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         <button
           type="submit"
           className={classNames('button is-primary', {
-            'is-loading': loading,
+            'is-loading': isLoading,
           })}
         >
           {needToRegister ? 'Register' : 'Login'}
