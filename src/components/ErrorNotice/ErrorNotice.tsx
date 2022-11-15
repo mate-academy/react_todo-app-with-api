@@ -1,37 +1,35 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import { ErrorNoticeType } from '../../types/ErrorNoticeType';
 
 interface Props {
-  hasError: boolean,
   errorNotice: ErrorNoticeType,
-  setHasError: (status: boolean) => void,
+  setErrorNotice: (type: ErrorNoticeType) => void,
 }
 
 export const ErrorNotice: React.FC<Props> = ({
-  hasError,
   errorNotice,
-  setHasError,
+  setErrorNotice,
 }) => {
   useEffect(() => {
-    setTimeout(() => setHasError(false), 3000);
-  }, [hasError]);
+    setTimeout(() => setErrorNotice(ErrorNoticeType.None), 3000);
+  }, [setErrorNotice]);
 
-  const closeErrorNotice = () => setHasError(false);
+  const closeErrorNotice = () => setErrorNotice(ErrorNoticeType.None);
 
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
         'notification is-danger is-light has-text-weight-normal', {
-          hidden: !hasError,
+          hidden: errorNotice === ErrorNoticeType.None,
         },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
+        aria-label="Close error notice"
         className="delete"
         onClick={closeErrorNotice}
       />

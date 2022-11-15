@@ -11,7 +11,7 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo,
   isAdding: boolean,
-  isLoadingIds: number[],
+  loadingIds: number[],
   deleteTodoFromServer: (todoId: number) => void,
   patchTodoStatusOnServer: (todoId: number, status: boolean) => void,
   patchTodoTitleOnServer: (todoId: number, title: string) => void,
@@ -20,7 +20,7 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({
   todo,
   isAdding,
-  isLoadingIds,
+  loadingIds,
   deleteTodoFromServer,
   patchTodoStatusOnServer,
   patchTodoTitleOnServer,
@@ -33,32 +33,38 @@ export const TodoItem: React.FC<Props> = ({
   const newTitleField = useRef<HTMLInputElement>(null);
 
   const isLoading = useMemo(() => (
-    isLoadingIds.includes(id) || (isAdding && !todo.id)
-  ), [isLoadingIds, isAdding]);
+    loadingIds.includes(id) || (isAdding && !todo.id)
+  ), [loadingIds, isAdding]);
+
+  const changeTitle = useCallback(() => {
+    const trimmedTitle = newTitle.trim();
+
+    if (title === trimmedTitle) {
+      setIsDoubleClicked(false);
+      setNewTitle(trimmedTitle);
+    }
+
+    if (!trimmedTitle) {
+      return;
+    }
+
+    setIsDoubleClicked(false);
+    patchTodoTitleOnServer(id, trimmedTitle);
+  }, [newTitle, title]);
 
   const handleSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      if (title === newTitle.trim()) {
-        setIsDoubleClicked(false);
-        setNewTitle(newTitle.trim());
-      }
-
-      if (!newTitle.trim()) {
-        deleteTodoFromServer(id);
-      }
-
-      setIsDoubleClicked(false);
-      patchTodoTitleOnServer(id, newTitle.trim());
-    }, [newTitle, title],
+      changeTitle();
+    }, [changeTitle],
   );
 
-  const handleKeyboardEvent = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      setIsDoubleClicked(true);
-    }
+  const handleBlur = useCallback(() => {
+    changeTitle();
+  }, [changeTitle]);
 
+  const handleKeyboardEvent = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsDoubleClicked(false);
       setNewTitle(title);
@@ -93,7 +99,6 @@ export const TodoItem: React.FC<Props> = ({
         ? (
           <form
             onSubmit={handleSubmit}
-            onBlur={handleSubmit}
           >
             <input
               data-cy="TodoTitleField"
@@ -102,6 +107,7 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               ref={newTitleField}
               value={newTitle}
+              onBlur={handleBlur}
               onKeyDown={handleKeyboardEvent}
               onChange={event => {
                 setNewTitle(event.target.value);

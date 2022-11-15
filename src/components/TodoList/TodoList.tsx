@@ -6,7 +6,7 @@ interface Props {
   filteredTodos: Todo[],
   temporaryTodo: Todo,
   isAdding: boolean,
-  isLoadingIds: number[],
+  loadingIds: number[],
   deleteTodoFromServer: (todoId: number) => void,
   patchTodoStatusOnServer: (todoId: number, status: boolean) => void,
   patchTodoTitleOnServer: (todoId: number, title: string) => void,
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   filteredTodos,
   temporaryTodo,
   isAdding,
-  isLoadingIds,
+  loadingIds,
   deleteTodoFromServer,
   patchTodoStatusOnServer,
   patchTodoTitleOnServer,
@@ -27,7 +27,7 @@ export const TodoList: React.FC<Props> = ({
         key={todo.id}
         todo={todo}
         isAdding={isAdding}
-        isLoadingIds={isLoadingIds}
+        loadingIds={loadingIds}
         deleteTodoFromServer={deleteTodoFromServer}
         patchTodoStatusOnServer={patchTodoStatusOnServer}
         patchTodoTitleOnServer={patchTodoTitleOnServer}
@@ -38,7 +38,7 @@ export const TodoList: React.FC<Props> = ({
       <TodoItem
         todo={temporaryTodo}
         isAdding={isAdding}
-        isLoadingIds={isLoadingIds}
+        loadingIds={loadingIds}
         deleteTodoFromServer={deleteTodoFromServer}
         patchTodoStatusOnServer={patchTodoStatusOnServer}
         patchTodoTitleOnServer={patchTodoTitleOnServer}

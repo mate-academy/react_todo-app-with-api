@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ErrorNoticeType } from '../../types/ErrorNoticeType';
@@ -8,7 +7,6 @@ interface Props {
   isAdding: boolean,
   isToggleVisible: boolean,
   isAllTodosCompleted: boolean,
-  setHasError: (status: boolean) => void,
   setErrorNotice: (notice: ErrorNoticeType) => void,
   postTodoToServer: (title: string) => void,
   toggleAllTodosStatus: () => void,
@@ -19,7 +17,6 @@ export const NewTodo: React.FC<Props> = ({
   isAdding,
   isToggleVisible,
   isAllTodosCompleted,
-  setHasError,
   setErrorNotice,
   postTodoToServer,
   toggleAllTodosStatus,
@@ -30,14 +27,15 @@ export const NewTodo: React.FC<Props> = ({
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      if (!newTitle.trim()) {
-        setHasError(true);
+      const trimmedTitle = newTitle.trim();
+
+      if (!trimmedTitle) {
         setErrorNotice(ErrorNoticeType.TitleError);
 
         return;
       }
 
-      postTodoToServer(newTitle);
+      postTodoToServer(trimmedTitle);
     }, [newTitle],
   );
 
@@ -53,6 +51,7 @@ export const NewTodo: React.FC<Props> = ({
         <button
           data-cy="ToggleAllButton"
           type="button"
+          aria-label="Toggle all todos"
           className={classNames('todoapp__toggle-all', {
             active: isAllTodosCompleted,
           })}

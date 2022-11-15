@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext,
   useRef,
@@ -38,8 +37,7 @@ export const App: React.FC = () => {
   const [temporaryTodo, setTemporaryTodo] = useState(defaultTodo);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
   const [isAdding, setIsAdding] = useState(false);
-  const [isLoadingIds, setIsLoadingIds] = useState<number[]>([]);
-  const [hasError, setHasError] = useState(false);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [errorNotice, setErrorNotice]
     = useState<ErrorNoticeType>(ErrorNoticeType.None);
 
@@ -48,14 +46,15 @@ export const App: React.FC = () => {
 
   const getTodosFromServer = useCallback(
     async () => {
-      try {
-        if (user) {
-          const todosFromServer = await getTodos(user.id);
+      if (!user) {
+        return;
+      }
 
-          setTodos(todosFromServer);
-        }
-      } catch (error) {
-        setHasError(true);
+      try {
+        const todosFromServer = await getTodos(user.id);
+
+        setTodos(todosFromServer);
+      } catch {
         setErrorNotice(ErrorNoticeType.LoadError);
       }
     }, [],
@@ -82,47 +81,46 @@ export const App: React.FC = () => {
 
   const postTodoToServer = useCallback(
     async (title: string) => {
-      setIsAdding(true);
-
-      if (user) {
-        try {
-          setTemporaryTodo(currentTodo => ({
-            ...currentTodo,
-            title,
-            userId: user.id,
-          }));
-
-          await createTodo({
-            title,
-            userId: user.id,
-            completed: false,
-          });
-
-          await getTodosFromServer();
-        } catch (error) {
-          setHasError(true);
-          setErrorNotice(ErrorNoticeType.AddError);
-        }
+      if (!user) {
+        return;
       }
 
-      setIsAdding(false);
+      try {
+        setIsAdding(true);
+        setTemporaryTodo(currentTodo => ({
+          ...currentTodo,
+          title,
+          userId: user.id,
+        }));
+
+        await createTodo({
+          title,
+          userId: user.id,
+          completed: false,
+        });
+
+        await getTodosFromServer();
+      } catch {
+        setErrorNotice(ErrorNoticeType.AddError);
+      } finally {
+        setIsAdding(false);
+      }
     }, [],
   );
 
   const deleteTodoFromServer = useCallback(
     async (todoId: number) => {
       try {
-        setIsLoadingIds(currentsIds => [...currentsIds, todoId]);
+        setLoadingIds(currentsIds => [...currentsIds, todoId]);
 
         await deleteTodo(todoId);
 
         await getTodosFromServer();
 
-        setIsLoadingIds(currentsIds => (
+        setLoadingIds(currentsIds => (
           currentsIds.filter(id => id !== todoId)
         ));
-      } catch (error) {
-        setHasError(true);
+      } catch {
         setErrorNotice(ErrorNoticeType.DeleteError);
       }
     }, [],
@@ -134,8 +132,7 @@ export const App: React.FC = () => {
         await Promise.all(completedTodos.map(({ id }) => (
           deleteTodoFromServer(id)
         )));
-      } catch (error) {
-        setHasError(true);
+      } catch {
         setErrorNotice(ErrorNoticeType.DeleteError);
       }
     }, [completedTodos],
@@ -144,17 +141,16 @@ export const App: React.FC = () => {
   const patchTodoStatusOnServer = useCallback(
     async (todoId: number, status: boolean) => {
       try {
-        setIsLoadingIds(currentIds => [...currentIds, todoId]);
+        setLoadingIds(currentIds => [...currentIds, todoId]);
 
         await updateTodo(todoId, { completed: status });
 
         await getTodosFromServer();
 
-        setIsLoadingIds(currentIds => (
+        setLoadingIds(currentIds => (
           currentIds.filter(id => id !== todoId)
         ));
-      } catch (error) {
-        setHasError(true);
+      } catch {
         setErrorNotice(ErrorNoticeType.UpdateError);
       }
     }, [todos],
@@ -170,8 +166,7 @@ export const App: React.FC = () => {
         await Promise.all(couldBeToggled.map(({ id, completed }) => (
           patchTodoStatusOnServer(id, !completed)
         )));
-      } catch (error) {
-        setHasError(true);
+      } catch {
         setErrorNotice(ErrorNoticeType.UpdateError);
       }
     }, [todos],
@@ -180,17 +175,16 @@ export const App: React.FC = () => {
   const patchTodoTitleOnServer = useCallback(
     async (todoId: number, title: string) => {
       try {
-        setIsLoadingIds(currentIds => [...currentIds, todoId]);
+        setLoadingIds(currentIds => [...currentIds, todoId]);
 
         await updateTodo(todoId, { title });
 
         await getTodosFromServer();
 
-        setIsLoadingIds(currentIds => (
+        setLoadingIds(currentIds => (
           currentIds.filter(id => id !== todoId)
         ));
-      } catch (error) {
-        setHasError(true);
+      } catch {
         setErrorNotice(ErrorNoticeType.UpdateError);
       }
     }, [todos],
@@ -216,7 +210,6 @@ export const App: React.FC = () => {
           isAdding={isAdding}
           isToggleVisible={todos.length !== 0}
           isAllTodosCompleted={todos.length === completedTodos.length}
-          setHasError={setHasError}
           setErrorNotice={setErrorNotice}
           postTodoToServer={postTodoToServer}
           toggleAllTodosStatus={toggleAllTodosStatus}
@@ -228,7 +221,7 @@ export const App: React.FC = () => {
               filteredTodos={filteredTodos}
               temporaryTodo={temporaryTodo}
               isAdding={isAdding}
-              isLoadingIds={isLoadingIds}
+              loadingIds={loadingIds}
               deleteTodoFromServer={deleteTodoFromServer}
               patchTodoStatusOnServer={patchTodoStatusOnServer}
               patchTodoTitleOnServer={patchTodoTitleOnServer}
@@ -245,11 +238,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {hasError && (
+      {errorNotice !== ErrorNoticeType.None && (
         <ErrorNotice
-          hasError={hasError}
           errorNotice={errorNotice}
-          setHasError={setHasError}
+          setErrorNotice={setErrorNotice}
         />
       )}
     </div>

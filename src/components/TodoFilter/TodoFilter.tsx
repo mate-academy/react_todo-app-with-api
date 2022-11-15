@@ -46,9 +46,10 @@ export const TodoFilter: React.FC<Props> = ({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
         onClick={clearAllCompletedTodos}
-        disabled={!completedTodos}
+        className={classNames('todoapp__clear-completed', {
+          hidden: completedTodos.length === 0,
+        })}
       >
         Clear completed
       </button>
