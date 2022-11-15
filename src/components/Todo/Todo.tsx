@@ -8,9 +8,8 @@ type Props = {
   todo: Todo;
   getTodo: (userId: number) => void;
   editTitle: React.RefObject<HTMLInputElement>;
-  setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
-  isEditting?: Todo | null;
-  setIsEditting?: React.Dispatch<React.SetStateAction<Todo | null>>;
+  edittingTodo?: Todo | null;
+  setEdittingTodo?: React.Dispatch<React.SetStateAction<Todo | null>>;
   setTodoSelected: (todo: Todo) => void;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 };
@@ -19,33 +18,31 @@ export const TodoComponent: React.FC<Props> = ({
   todo,
   getTodo,
   editTitle,
-  setIsHidden,
-  isEditting,
-  setIsEditting,
+  edittingTodo,
+  setEdittingTodo,
   setTodoSelected,
   setErrorMessage,
 }) => {
   const user = useContext(AuthContext);
   const [inputTitle, setInputTitle] = useState('');
-  const [isRemoving, setIsRemoving] = useState<Todo | null>(null);
+  const [removingTodo, setRemovingTodo] = useState<Todo | null>(null);
   const [
     tooggleDoubleClick,
     setToggleDoubleClick,
   ] = useState<Todo | null>(null);
 
   const removeTodos = async (toDo: Todo) => {
-    removeTodo(toDo);
-    try {
-      setIsRemoving(toDo);
-      await removeTodo(toDo);
-    } catch {
-      setErrorMessage('Unable to delete a todo');
-      setIsHidden(false);
-      setIsRemoving(null);
+    if (!user) {
+      return;
     }
 
-    if (user) {
+    try {
+      setRemovingTodo(toDo);
+      await removeTodo(toDo);
       getTodo(user.id);
+    } catch {
+      setErrorMessage('Unable to delete a todo');
+      setRemovingTodo(null);
     }
   };
 
@@ -66,15 +63,14 @@ export const TodoComponent: React.FC<Props> = ({
     }
 
     try {
-      if (setIsEditting) {
-        setIsEditting(toDo);
+      if (setEdittingTodo) {
+        setEdittingTodo(toDo);
       }
 
       setToggleDoubleClick(null);
       await editTodo(toDo, trimTitle);
     } catch {
       setErrorMessage('Unable to update a todo');
-      setIsHidden(false);
     }
 
     if (user) {
@@ -98,12 +94,6 @@ export const TodoComponent: React.FC<Props> = ({
     document.addEventListener('click', onClick);
 
     return () => document.removeEventListener('click', onClick);
-  }, [tooggleDoubleClick]);
-
-  useEffect(() => {
-    if (editTitle.current) {
-      editTitle.current.focus();
-    }
   }, [tooggleDoubleClick]);
 
   const onBlur = (toDo: Todo) => {
@@ -177,8 +167,8 @@ export const TodoComponent: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
-          'is-active': (isRemoving && isRemoving.id === todo.id)
-          || !todo.id || (isEditting?.id === todo.id),
+          'is-active': (removingTodo && removingTodo.id === todo.id)
+          || !todo.id || (edittingTodo?.id === todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

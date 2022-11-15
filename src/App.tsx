@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext, useEffect, useRef, useState, useCallback,
 } from 'react';
@@ -6,6 +5,7 @@ import cn from 'classnames';
 import {
   createTodos, getTodos, removeTodo, updateTodo,
 } from './api/todos';
+import { FilterType } from './types/FilterType';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import { TodoComponent } from './components/Todo';
@@ -18,14 +18,12 @@ export const App: React.FC = () => {
   const [inputTitle, setInputTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterType, setFilterType] = useState('All');
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
   const [isAllSelected, setIsAllSelected] = useState(true);
-  const [isHidden, setIsHidden] = useState(true);
-  const [isEditing, setIsEditing] = useState<Todo | null>(null);
+  const [edittingTodo, setEdittingTodo] = useState<Todo | null>(null);
 
   const editTitle = useRef<HTMLInputElement>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -42,25 +40,27 @@ export const App: React.FC = () => {
 
       setTodos(response);
       setTempTodo(null);
-      setIsEditing(null);
+      setEdittingTodo(null);
       setIsAllSelected(response.every(todo => !todo.completed));
     } catch (error) {
       setErrorMessage('Unable to load todos');
-      setIsHidden(false);
     }
   }, []);
 
   const createTodo = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!inputTitle) {
-      setErrorMessage('Title can\'t be empty');
-      setIsHidden(false);
+    try {
+      if (!user) {
+        return;
+      }
 
-      return;
-    }
+      if (!inputTitle) {
+        setErrorMessage('Title can\'t be empty');
 
-    if (user) {
+        return;
+      }
+
       const newTodo = {
         id: 0,
         userId: user.id,
@@ -69,34 +69,34 @@ export const App: React.FC = () => {
       };
 
       setTempTodo(newTodo);
-
-      try {
-        await createTodos(newTodo);
-        getTodosFromApi(user.id);
-      } catch {
-        setErrorMessage('Unable to add a todo');
-        setIsHidden(false);
-        setTempTodo(null);
-      }
-
-      setInputTitle('');
+      await createTodos(newTodo);
+      getTodosFromApi(user.id);
+    } catch {
+      setErrorMessage('Unable to add a todo');
+      setTempTodo(null);
     }
+
+    setInputTitle('');
   };
 
   const setTodoSelected = useCallback(async (todo: Todo) => {
     try {
-      await updateTodo(todo, !todo.completed);
-
-      if (user) {
-        getTodosFromApi(user.id);
+      if (!user) {
+        return;
       }
+
+      await updateTodo(todo, !todo.completed);
+      getTodosFromApi(user.id);
     } catch {
       setErrorMessage('Unable to update a todo');
-      setIsHidden(false);
     }
   }, []);
 
   const selectAll = () => {
+    if (!user) {
+      return;
+    }
+
     const todoFunctions = todos.map(async (todo) => {
       if ((!todo.completed && isAllSelected)
         || (todo.completed && !isAllSelected)) {
@@ -104,31 +104,27 @@ export const App: React.FC = () => {
           await updateTodo(todo, !todo.completed);
         } catch {
           setErrorMessage('Unable to update a todo');
-          setIsHidden(false);
         }
       }
     });
 
     Promise.all(todoFunctions).then(() => {
-      if (user) {
-        getTodosFromApi(user.id);
-      }
+      getTodosFromApi(user.id);
     });
   };
 
   const clearCompleted = () => {
-    todos.map(async todo => {
+    if (!user) {
+      return;
+    }
+
+    todos.forEach(async todo => {
       if (todo.completed) {
-        removeTodo(todo);
         try {
           await removeTodo(todo);
+          getTodosFromApi(user.id);
         } catch {
           setErrorMessage('Unable to delete a todo');
-          setIsHidden(false);
-        }
-
-        if (user) {
-          getTodosFromApi(user.id);
         }
       }
     });
@@ -142,9 +138,9 @@ export const App: React.FC = () => {
 
   const filteredTodos = todos.filter(todo => {
     switch (filterType) {
-      case 'Active':
+      case FilterType.ACTIVE:
         return !todo.completed;
-      case 'Completed':
+      case FilterType.COMPLETED:
         return todo.completed;
       default:
         return todo;
@@ -152,13 +148,12 @@ export const App: React.FC = () => {
   });
 
   const clearErrors = () => {
-    setIsHidden(true);
     setErrorMessage('');
   };
 
   useEffect(() => {
     setTimeout(clearErrors, 3000);
-  }, [isHidden]);
+  }, [errorMessage]);
 
   const isAllCompleted = todos.every(todo => todo.completed);
 
@@ -169,9 +164,11 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <button
+            aria-label="toggleButton"
             data-cy="ToggleAllButton"
             type="button"
-            className={cn('todoapp__toggle-all', { active: isAllCompleted })}
+            className={cn('todoapp__toggle-all', { active: isAllCompleted },
+              { hidden: filteredTodos.length === 0 })}
             onClick={selectAll}
           />
           <Form
@@ -190,9 +187,8 @@ export const App: React.FC = () => {
               getTodo={getTodosFromApi}
               setErrorMessage={setErrorMessage}
               editTitle={editTitle}
-              setIsHidden={setIsHidden}
-              isEditting={isEditing}
-              setIsEditting={setIsEditing}
+              edittingTodo={edittingTodo}
+              setEdittingTodo={setEdittingTodo}
               setTodoSelected={setTodoSelected}
             />
           ))}
@@ -203,7 +199,6 @@ export const App: React.FC = () => {
               getTodo={getTodosFromApi}
               setErrorMessage={setErrorMessage}
               editTitle={editTitle}
-              setIsHidden={setIsHidden}
               setTodoSelected={setTodoSelected}
             />
           )}
@@ -219,11 +214,12 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorMessage
-        isHidden={isHidden}
-        clearErrors={clearErrors}
-        errorMessage={errorMessage}
-      />
+      {errorMessage.length > 0 && (
+        <ErrorMessage
+          clearErrors={clearErrors}
+          errorMessage={errorMessage}
+        />
+      )}
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { FilterType } from '../../types/FilterType';
 
 type Props = {
   todos: Todo[];
-  filterType: string;
-  setFilterType: React.Dispatch<React.SetStateAction<string>>;
+  filterType: FilterType;
+  setFilterType: React.Dispatch<React.SetStateAction<FilterType>>;
   clearCompleted: () => void;
 };
 
@@ -29,9 +30,9 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkAll"
           href="#/"
           className={cn('filter__link', {
-            selected: filterType === 'All',
+            selected: filterType === FilterType.ALL,
           })}
-          onClick={() => setFilterType('All')}
+          onClick={() => setFilterType(FilterType.ALL)}
         >
           All
         </a>
@@ -40,9 +41,9 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkActive"
           href="#/active"
           className={cn('filter__link', {
-            selected: filterType === 'Active',
+            selected: filterType === FilterType.ACTIVE,
           })}
-          onClick={() => setFilterType('Active')}
+          onClick={() => setFilterType(FilterType.ACTIVE)}
         >
           Active
         </a>
@@ -50,9 +51,9 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={cn('filter__link', {
-            selected: filterType === 'Completed',
+            selected: filterType === FilterType.COMPLETED,
           })}
-          onClick={() => setFilterType('Completed')}
+          onClick={() => setFilterType(FilterType.COMPLETED)}
         >
           Completed
         </a>
