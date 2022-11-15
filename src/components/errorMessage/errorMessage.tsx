@@ -6,6 +6,14 @@ type Props = {
   onCloseErrorMessage: MouseEventHandler<HTMLButtonElement>,
 };
 
+enum TextOfError {
+  Add = 'Unable to add todos',
+  Delete = 'Unable to delete a todo',
+  Download = 'Unable to download todos',
+  Update = 'Unable to update a todo',
+  EmptyTitle = 'Title can\'t be empty',
+}
+
 export const ErrorMessage: React.FC<Props> = ({
   typeError,
   onCloseErrorMessage,
@@ -26,19 +34,19 @@ export const ErrorMessage: React.FC<Props> = ({
   const getTextOfErrorMessage = () => {
     switch (typeError) {
       case ErrorTodo.Add:
-        return 'Unable to add todos';
+        return TextOfError.Add;
 
       case ErrorTodo.Delete:
-        return 'Unable to delete a todo';
+        return TextOfError.Delete;
 
       case ErrorTodo.Download:
-        return 'Unable to download todos';
+        return TextOfError.Download;
 
       case ErrorTodo.Update:
-        return 'Unable to update a todo';
+        return TextOfError.Update;
 
       case ErrorTodo.EmptyTitle:
-        return 'Title can\'t be empty';
+        return TextOfError.EmptyTitle;
 
       default:
         return undefined;

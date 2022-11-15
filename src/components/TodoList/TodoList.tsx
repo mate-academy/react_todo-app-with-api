@@ -1,8 +1,5 @@
 import classNames from 'classnames';
-import {
-  CSSTransition,
-  TransitionGroup,
-} from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import React, { useContext } from 'react';
 import { SortParam } from '../../types/SortParam';
 import { Todo } from '../../types/Todo';
