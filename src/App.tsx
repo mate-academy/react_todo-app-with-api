@@ -176,16 +176,7 @@ export const App: React.FC = () => {
         await Promise.all(filteredTodosForToggle.map(async todo => {
           await toggleOneTodo(todo.id, todo.completed);
         }));
-      }
-
-      if (counterActiveTodos > 0
-        && fieldForSorting === FieldForSorting.Completed) {
-        await Promise.all(filteredTodos.map(async todo => {
-          await toggleOneTodo(todo.id, todo.completed);
-        }));
-      }
-
-      if (counterActiveTodos === 0) {
+      } else {
         await Promise.all(filteredTodos.map(async todo => {
           await toggleOneTodo(todo.id, todo.completed);
         }));
