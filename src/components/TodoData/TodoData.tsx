@@ -73,7 +73,7 @@ export const TodoData: React.FC<Props> = React.memo(({
               ref={editTodoField}
               type="text"
               className="todoapp__new-todo todo__title"
-              placeholder="Empty todo will be deleted"
+              placeholder={value || 'Empty todo will be deleted'}
               value={value}
               onChange={onChange}
               onKeyDown={event => {
