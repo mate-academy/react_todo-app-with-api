@@ -32,7 +32,7 @@ export const NewTodoField: React.FC<Props> = ({
       return;
     }
 
-    addNewTodo(title);
+    addNewTodo(title.trim());
     setTitle('');
   };
 

@@ -30,21 +30,24 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const editTodoTitle = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (currentTitle.trim() === '') {
+    const noSpacesTitle = currentTitle.trim();
+
+    if (noSpacesTitle === '') {
       setIsEditing(false);
       handleDeleteTodo(todo.id);
 
       return;
     }
 
-    if (currentTitle.trim() === todo.title) {
+    if (noSpacesTitle === todo.title) {
       setIsEditing(false);
+      setCurrentTitle(todo.title);
 
       return;
     }
 
     const newData = {
-      title: currentTitle,
+      title: noSpacesTitle,
     };
 
     handleEditTodo(todo.id, newData);
