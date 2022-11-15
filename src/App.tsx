@@ -156,6 +156,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoForm
+          todosLength={todos.length}
           newTitile={newTitile}
           setNewTitle={setNewTitle}
           addNewTodo={addNewTodo}
@@ -166,20 +167,22 @@ export const App: React.FC = () => {
         />
 
         {todos.length > 0 && (
-          <TodoList
-            visibleTodos={visibleTodos}
-            deleteTodo={deleteSingleTodo}
-            changeTodoTitle={changeTodoTitle}
-            changeTodoStatus={changeTodoStatus}
-          />
-        )}
+          <>
+            <TodoList
+              visibleTodos={visibleTodos}
+              deleteTodo={deleteSingleTodo}
+              changeTodoTitle={changeTodoTitle}
+              changeTodoStatus={changeTodoStatus}
+            />
 
-        <Footer
-          todos={visibleTodos}
-          setFilter={setFilter}
-          filter={filter}
-          deleteCompletedTodos={deleteCompletedTodos}
-        />
+            <Footer
+              todos={visibleTodos}
+              setFilter={setFilter}
+              filter={filter}
+              deleteCompletedTodos={deleteCompletedTodos}
+            />
+          </>
+        )}
       </div>
 
       {errors !== ErrorType.NONE && (

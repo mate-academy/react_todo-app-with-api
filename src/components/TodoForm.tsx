@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { ErrorType } from '../types/ErrorType';
 
 type Props = {
+  todosLength: number;
   newTitile: string;
   isAdding: boolean;
   setNewTitle: (value: string) => void;
@@ -14,6 +15,7 @@ type Props = {
 
 export const TodoForm: React.FC<Props>
   = ({
+    todosLength,
     newTitile,
     setNewTitle,
     addNewTodo,
@@ -39,14 +41,17 @@ export const TodoForm: React.FC<Props>
 
     return (
       <header className="todoapp__header">
-        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-        <button
-          data-cy="ToggleAllButton"
-          type="button"
-          className={classNames('todoapp__toggle-all',
-            { active: allToggled })}
-          onClick={toggleAllTodos}
-        />
+
+        {todosLength > 0 && (
+          /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
+          <button
+            data-cy="ToggleAllButton"
+            type="button"
+            className={classNames('todoapp__toggle-all',
+              { active: allToggled })}
+            onClick={toggleAllTodos}
+          />
+        )}
 
         <form onSubmit={handleSubmit}>
           <input
