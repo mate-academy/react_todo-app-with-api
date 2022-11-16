@@ -1,6 +1,10 @@
 import { FC, useEffect, useState } from 'react';
 import cn from 'classnames';
 import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
+import {
   addTodo, deleteTodo,
   editTodo, getTodos,
 } from '../../api/todos';
@@ -222,17 +226,25 @@ export const MainContent: FC<Props> = ({ user, setError }) => {
       </header>
 
       <section className="todoapp__main" data-cy="TodoItem">
-        {filteredTodos().map(todo => {
-          return (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              deleteTodo={deleteTodoOnServer}
-              isLoadingTodo={loadingTodos.includes(todo.id)}
-              changeTodoOnServer={changeTodoOnServer}
-            />
-          );
-        })}
+        <TransitionGroup>
+          {filteredTodos().map(todo => {
+            return (
+              <CSSTransition
+                key={todo.id}
+                timeout={300}
+                classNames="item"
+              >
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  deleteTodo={deleteTodoOnServer}
+                  isLoadingTodo={loadingTodos.includes(todo.id)}
+                  changeTodoOnServer={changeTodoOnServer}
+                />
+              </CSSTransition>
+            );
+          })}
+        </TransitionGroup>
       </section>
 
       {todos.length > 0 && (
