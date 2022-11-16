@@ -201,12 +201,17 @@ export const MainContent: FC<Props> = ({ user, setError }) => {
 
   // Effects
   useEffect(() => {
-    loadTodosFromServer();
+    (async () => {
+      await loadTodosFromServer();
+    })();
   }, []);
 
   useEffect(() => {
     if (tempTodo) {
-      addNewTodoOnServer(tempTodo);
+      (async () => {
+        await addNewTodoOnServer(tempTodo);
+      })();
+
       setIsTodoAdding(false);
     }
   }, [tempTodo]);
