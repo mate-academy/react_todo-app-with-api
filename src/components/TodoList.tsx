@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[],
   handleDeleteTodo: (todoId: number) => void,
   isEditing: boolean,
-  setisEditing: (value: boolean) => void,
+  setIsEditing: (value: boolean) => void,
   updateTodoOnServer: (todoId: number, data: Partial<Todo>) => void,
   currTodo: number,
   setCurrTodo: (value: number) => void,
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   todos,
   handleDeleteTodo,
   isEditing,
-  setisEditing,
+  setIsEditing,
   updateTodoOnServer,
   currTodo,
   setCurrTodo,
@@ -30,7 +30,7 @@ export const TodoList: React.FC<Props> = ({
           currTodo={currTodo}
           setCurrTodo={setCurrTodo}
           isEditing={isEditing}
-          setisEditing={setisEditing}
+          setIsEditing={setIsEditing}
           handleDeleteTodo={handleDeleteTodo}
           updateTodoOnServer={updateTodoOnServer}
         />

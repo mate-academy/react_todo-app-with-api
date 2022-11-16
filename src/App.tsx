@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [todoToAdd, setTodoToAdd] = useState('');
   const [currTodo, setCurrTodo] = useState(0);
-  const [isEditing, setisEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
@@ -47,15 +47,13 @@ export const App: React.FC = () => {
   const todoNumber = (items: Todo[]) => items.filter(todo => !todo.completed);
   const completedTodo = (items: Todo[]) => items.filter(todo => todo.completed);
 
-  const notCompleted = useMemo(() => (
+  const notCompletedTodos = useMemo(() => (
     todoNumber(todos)
   ), [todos, filterType]);
 
-  const completed = useMemo(() => (
+  const completedTodos = useMemo(() => (
     completedTodo(todos)
   ), [todos, filterType]);
-
-  const isActiveToggleAll = completedTodo.length === todos.length;
 
   const loadTodos = useCallback(
     async () => {
@@ -75,6 +73,8 @@ export const App: React.FC = () => {
     }
   }, [error]);
 
+  const isActiveToggleAll = completedTodos.length === todos.length;
+
   const updateTodoOnServer = async (
     idTodo: number, data: Partial<Todo>,
   ) => {
@@ -91,8 +91,8 @@ export const App: React.FC = () => {
 
   const handleChangeToggleAll = () => {
     const todosToHandle = isActiveToggleAll
-      ? [...completed]
-      : [...notCompleted];
+      ? [...completedTodos]
+      : [...notCompletedTodos];
 
     todosToHandle.forEach(
       todo => updateTodoOnServer(
@@ -189,7 +189,7 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               handleDeleteTodo={handleDeleteTodo}
               isEditing={isEditing}
-              setisEditing={setisEditing}
+              setIsEditing={setIsEditing}
               updateTodoOnServer={updateTodoOnServer}
               currTodo={currTodo}
               setCurrTodo={setCurrTodo}

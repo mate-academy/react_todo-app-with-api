@@ -6,7 +6,7 @@ type Props = {
   todo: Todo,
   handleDeleteTodo: (todoId: number) => void,
   isEditing: boolean,
-  setisEditing: (value: boolean) => void,
+  setIsEditing: (value: boolean) => void,
   updateTodoOnServer: (todoId: number, data: Partial<Todo>) => void,
   currTodo: number,
   setCurrTodo: (value: number) => void,
@@ -16,7 +16,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
   isEditing,
-  setisEditing,
+  setIsEditing,
   updateTodoOnServer,
   currTodo,
   setCurrTodo,
@@ -43,19 +43,19 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleEditing = (todoId: number) => {
-    setisEditing(true);
+    setIsEditing(true);
     setCurrTodo(todoId);
     setNewTodoTitle(todo.title);
   };
 
   const handleBlur = () => {
     if (todo.title === newTodoTitle) {
-      setisEditing(false);
+      setIsEditing(false);
     } else if (!newTodoTitle) {
       handleDeleteTodo(todo.id);
     } else {
       updateTodoOnServer(todo.id, { title: newTodoTitle });
-      setisEditing(false);
+      setIsEditing(false);
     }
   };
 
@@ -65,7 +65,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (event.key === 'Escape') {
-      setisEditing(false);
+      setIsEditing(false);
     }
   };
 
