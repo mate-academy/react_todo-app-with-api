@@ -169,7 +169,7 @@ export const App: React.FC = () => {
     try {
       setselectedTodoId(curr => [...curr, todo.id]);
 
-      await updateTodo(todo.id, { title: newTodoTitle });
+      await updateTodo(todo.id, { title: newTodoTitle.trim() });
       await getTodosFromServer();
       setselectedTodoId(curr => (
         curr.filter((id) => id !== todo.id)

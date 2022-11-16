@@ -33,9 +33,6 @@ export const TodoInfo: React.FC<Props>
 
   const handleChangeTitle = () => {
     setIsInputChange(false);
-    if (todo.title === newTodoTitle.trim()) {
-      return;
-    }
 
     if (newTodoTitle.trim().length === 0) {
       handleDeleteOnClick();
@@ -62,7 +59,7 @@ export const TodoInfo: React.FC<Props>
 = (event: React.KeyboardEvent<HTMLInputElement>) => {
   if (event.key === 'Escape') {
     setIsInputChange(false);
-    setNewTodoTitle(todo.title);
+    setNewTodoTitle(todo.title.trim());
   }
 };
 
@@ -80,8 +77,7 @@ export const TodoInfo: React.FC<Props>
   return (
     <div
       data-cy="Todo"
-      className={classNames('todo',
-        { completed: todo.completed })}
+      className={classNames('todo', { completed: todo.completed })}
     >
       <label className="todo__status-label">
         <input
@@ -92,31 +88,29 @@ export const TodoInfo: React.FC<Props>
           onClick={handleUpdateOnClick}
         />
       </label>
-      {isInputChange
-        ? (
-          <form onSubmit={handleFormOnSubmit}>
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              ref={newTodoTitleField}
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={newTodoTitle}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDownChange}
-              onBlur={handleInputOnBlur}
-            />
-          </form>
-        )
-        : (
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={() => setIsInputChange(true)}
-          >
-            {todo.title}
-          </span>
-        )}
+      {isInputChange ? (
+        <form onSubmit={handleFormOnSubmit}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            ref={newTodoTitleField}
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTodoTitle}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDownChange}
+            onBlur={handleInputOnBlur}
+          />
+        </form>
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={() => setIsInputChange(true)}
+        >
+          {todo.title}
+        </span>
+      )}
 
       <button
         type="button"
@@ -128,11 +122,9 @@ export const TodoInfo: React.FC<Props>
       </button>
       <div
         data-cy="TodoLoader"
-        className={
-          classNames('modal overlay', {
-            'is-active': isAdding || isActive,
-          })
-        }
+        className={classNames('modal overlay', {
+          'is-active': isAdding || isActive,
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
