@@ -62,7 +62,7 @@ export const App: React.FC = () => {
           return;
         }
 
-        await addTodo(todoTitle, user.id);
+        await addTodo(todoTitle.trim(), user.id);
         await loadTodos();
 
         setIsAdding(false);
