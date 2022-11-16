@@ -77,7 +77,6 @@ export const TodoInfo: React.FC<Props> = ({
       data-cy="Todo"
       className={cn('todo',
         { completed })}
-      key={id}
       onDoubleClick={() => {
         setIsRenaming(true);
       }}
