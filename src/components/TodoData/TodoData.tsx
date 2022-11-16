@@ -36,10 +36,16 @@ export const TodoData: React.FC<Props> = React.memo(({
     setIsEditing(input);
   };
 
+  const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     handleEditing(true);
-    if (value !== title) {
+    if (value.trim() !== title) {
       handleEditTodo(id, value);
       handleEditing(false);
     } else {
@@ -75,11 +81,7 @@ export const TodoData: React.FC<Props> = React.memo(({
               placeholder="Empty todo will be deleted"
               value={value}
               onChange={onChange}
-              onKeyDown={event => {
-                if (event.key === 'Escape') {
-                  setIsEditing(false);
-                }
-              }}
+              onKeyDown={handleEscape}
             />
           </form>
         ) : (
