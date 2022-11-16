@@ -151,12 +151,15 @@ export const MainContent: FC<Props> = ({ user, setError }) => {
   };
 
   const changeCompletedForGroup = async (group: Todo[], value: boolean) => {
-    group.map(todo => addOnLoadingTodo(todo.id));
     await Promise.all(
-      todos.map(todo => editTodo(todo.id, { completed: value })),
+      group.map(todo => {
+        addOnLoadingTodo(todo.id);
+
+        return editTodo(todo.id, { completed: value });
+      }),
     );
     await loadTodosFromServer();
-    todos.map(todo => deleteFromLoadingTodo(todo.id));
+    todos.forEach(todo => deleteFromLoadingTodo(todo.id));
   };
 
   const setAllTodosCompletedOnServer = async () => {

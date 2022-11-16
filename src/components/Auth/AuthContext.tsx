@@ -21,7 +21,8 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   return (
     <AuthContext.Provider value={user}>
       {children}
-      {user && <LogOut resetUser={resetUser} />}
+
+      <LogOut resetUser={resetUser} />
     </AuthContext.Provider>
   );
 };

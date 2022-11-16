@@ -17,9 +17,11 @@ export const App: React.FC = () => {
   const resetError = () => setError('');
 
   useEffect(() => {
-    setTimeout(() => {
-      setError('');
-    }, 3000);
+    if (error) {
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    }
   }, [error]);
 
   return (
