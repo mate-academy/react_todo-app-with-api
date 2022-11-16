@@ -7,8 +7,8 @@ import { AuthContext } from './components/Auth/AuthContext';
 import {
   getTodos,
   addTodo,
-  deleteTodos,
-  updateTodos,
+  deleteTodo,
+  updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
@@ -86,7 +86,7 @@ export const App: React.FC = () => {
   const deleteSingleTodo = async (todoId: number) => {
     if (user) {
       try {
-        await deleteTodos(todoId);
+        await deleteTodo(todoId);
         await getTodosWithUsers();
       } catch {
         setErrors(ErrorType.DELETE);
@@ -98,9 +98,9 @@ export const App: React.FC = () => {
     try {
       const completedTodos = todos.filter((todo) => todo.completed);
 
-      await Promise.all(completedTodos.map(({ id }) => (
-        deleteSingleTodo(id)
-      )));
+      completedTodos.forEach(todo => {
+        deleteSingleTodo(todo.id);
+      });
     } catch (error) {
       setErrors(ErrorType.DELETE);
     }
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
 
   const changeTodoTitle = async (todoId: number, newTitle: string) => {
     try {
-      await updateTodos(todoId, { title: newTitle });
+      await updateTodo(todoId, { title: newTitle });
       await getTodosWithUsers();
     } catch {
       setErrors(ErrorType.UPDATE);
@@ -119,7 +119,7 @@ export const App: React.FC = () => {
 
   const changeTodoStatus = async (todo: Todo) => {
     try {
-      await updateTodos(todo.id, { completed: !todo.completed });
+      await updateTodo(todo.id, { completed: !todo.completed });
       await getTodosWithUsers();
     } catch (error) {
       setErrors(ErrorType.UPDATE);
@@ -131,11 +131,13 @@ export const App: React.FC = () => {
 
     try {
       if (notCompletedTodos.length > 0) {
-        notCompletedTodos.map(todo => (
-          changeTodoStatus(todo)
-        ));
+        notCompletedTodos.forEach(todo => {
+          changeTodoStatus(todo);
+        });
       } else if (!notCompletedTodos.length) {
-        todos.map(todo => changeTodoStatus(todo));
+        todos.forEach(todo => {
+          changeTodoStatus(todo);
+        });
       }
     } catch (error) {
       setErrors(ErrorType.UPDATE);

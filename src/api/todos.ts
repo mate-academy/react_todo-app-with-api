@@ -12,10 +12,10 @@ export const addTodo = ({ userId, title, completed }: NewTodo) => {
   });
 };
 
-export const deleteTodos = (todoId: number) => {
+export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodos = (todoId: number, data: {}) => {
+export const updateTodo = (todoId: number, data: {}) => {
   return client.patch(`/todos/${todoId}`, data);
 };
