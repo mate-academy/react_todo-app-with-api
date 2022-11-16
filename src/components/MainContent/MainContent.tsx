@@ -190,6 +190,11 @@ export const MainContent: FC<Props> = ({ user, setError }) => {
     }
   };
 
+  // Key generator
+  const generateKey = (prev: string) => {
+    return `${prev}_${new Date().getTime()}`;
+  };
+
   // Effects
   useEffect(() => {
     loadTodosFromServer();
@@ -237,8 +242,8 @@ export const MainContent: FC<Props> = ({ user, setError }) => {
           </span>
 
           <nav className="filter" data-cy="Filter">
-            {filterList.map((filter, index) => {
-              const newKey = filter + index;
+            {filterList.map((filter) => {
+              const newKey = generateKey(filter);
 
               return (
                 <Filter
