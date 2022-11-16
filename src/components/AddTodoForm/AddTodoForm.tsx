@@ -22,7 +22,6 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
   };
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }

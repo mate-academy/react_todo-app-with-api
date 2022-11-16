@@ -27,7 +27,6 @@ export const TodoData: React.FC<Props> = React.memo(({
   const { id, title, completed } = todo;
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (editTodoField.current) {
       editTodoField.current.focus();
     }
@@ -73,7 +72,7 @@ export const TodoData: React.FC<Props> = React.memo(({
               ref={editTodoField}
               type="text"
               className="todoapp__new-todo todo__title"
-              placeholder={value || 'Empty todo will be deleted'}
+              placeholder="Empty todo will be deleted"
               value={value}
               onChange={onChange}
               onKeyDown={event => {

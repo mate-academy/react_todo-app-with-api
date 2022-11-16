@@ -51,6 +51,7 @@ export const App: React.FC = () => {
       const todosFromAPI = await getTodos(user.id);
 
       setTodos(todosFromAPI);
+      setChangingTodosId([0]);
     } catch {
       addError('ToDos can\'t be loaded');
     }
@@ -128,13 +129,11 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
     await deleteOneTodo(todoId);
-    setChangingTodosId([0]);
     await getTodosFromAPI();
   }, []);
 
   const completedTodosId = useMemo(() => {
     return todos
-      .filter(todo => todo.completed)
       .map(todo => (todo.completed ? todo.id : 0));
   }, [todos]);
 
@@ -145,7 +144,6 @@ export const App: React.FC = () => {
       } catch {
         addError('Unable to delete all completed todos');
       } finally {
-        setChangingTodosId([0]);
         await getTodosFromAPI();
       }
     }
@@ -166,7 +164,6 @@ export const App: React.FC = () => {
     todoId: number, completed: boolean,
   ) => {
     await toggleOneTodo(todoId, completed);
-    setChangingTodosId([0]);
     await getTodosFromAPI();
   }, [todos]);
 
@@ -177,44 +174,44 @@ export const App: React.FC = () => {
         const filteredTodosForToggle = filteredTodos
           .filter(todo => !todo.completed);
 
-        await Promise.all(filteredTodosForToggle.map(async todo => {
-          await toggleOneTodo(todo.id, todo.completed);
-        }));
-      } else {
-        await Promise.all(filteredTodos.map(async todo => {
-          await toggleOneTodo(todo.id, todo.completed);
-        }));
+        await Promise.all(filteredTodosForToggle
+          .map(todo => toggleOneTodo(todo.id, todo.completed)));
+
+        return;
       }
+
+      await Promise.all(filteredTodos
+        .map(todo => toggleOneTodo(todo.id, todo.completed)));
     } catch {
       addError('Unable to toggle all todos');
+    } finally {
+      await getTodosFromAPI();
     }
-
-    await getTodosFromAPI();
-    setChangingTodosId([0]);
   }, [filteredTodos]);
 
   const handleEditTodo = async (
     todoId:number,
     newTitle: string,
   ) => {
-    if (user) {
-      try {
-        const newTodoTitle = newTitle.trim();
+    if (!user) {
+      return;
+    }
 
-        if (newTodoTitle.length > 0) {
-          setChangingTodosId(prevEditedTodos => [...prevEditedTodos, todoId]);
-          await Promise.all([
-            await editTodo(todoId, newTodoTitle)]);
-          await getTodosFromAPI();
-        } else {
-          setChangingTodosId(prevDeleteTodos => [...prevDeleteTodos, todoId]);
-          handleDeleteTodo(todoId);
-        }
-      } catch {
-        addError('Unable to edit a todo');
+    try {
+      const newTodoTitle = newTitle.trim();
+
+      if (newTodoTitle.length > 0) {
+        setChangingTodosId(prevEditedTodos => [...prevEditedTodos, todoId]);
+        await editTodo(todoId, newTodoTitle);
+        await getTodosFromAPI();
+
+        return;
       }
 
-      setChangingTodosId([0]);
+      setChangingTodosId(prevDeleteTodos => [...prevDeleteTodos, todoId]);
+      handleDeleteTodo(todoId);
+    } catch {
+      addError('Unable to edit a todo');
     }
   };
 
@@ -224,10 +221,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <ToggleAllButton
-            handleToggleAllTodos={handleToggleAllTodos}
-            counterActiveTodos={counterActiveTodos}
-          />
+          {todos.length > 0 && (
+            <ToggleAllButton
+              handleToggleAllTodos={handleToggleAllTodos}
+              counterActiveTodos={counterActiveTodos}
+            />
+          )}
 
           <AddTodoForm
             handleAddTodo={handleAddTodo}
