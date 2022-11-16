@@ -5,7 +5,7 @@ export interface Todo {
   completed: boolean;
 }
 
-export enum FieldForSorting {
+export enum FieldForFiltering {
   All,
   Active,
   Completed,

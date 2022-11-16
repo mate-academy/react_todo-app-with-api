@@ -1,18 +1,18 @@
 import classNames from 'classnames';
 import React from 'react';
-import { FieldForSorting } from '../../types/Todo';
+import { FieldForFiltering } from '../../types/Todo';
 
 type Props = {
-  fieldForSorting: FieldForSorting;
-  selectFieldForSorting: (field: FieldForSorting) => void;
+  fieldForFiltering: FieldForFiltering;
+  selectFieldForFiltering: (field: FieldForFiltering) => void;
   counterActiveTodos: number;
   deleteCompletedTodos: () => void;
   length: number;
 };
 
 export const Footer: React.FC<Props> = React.memo(({
-  fieldForSorting,
-  selectFieldForSorting,
+  fieldForFiltering,
+  selectFieldForFiltering: selectFieldForSorting,
   counterActiveTodos,
   deleteCompletedTodos,
   length,
@@ -28,9 +28,9 @@ export const Footer: React.FC<Props> = React.memo(({
           data-cy="FilterLinkAll"
           href="#/"
           className={classNames('filter__link', {
-            selected: fieldForSorting === FieldForSorting.All,
+            selected: fieldForFiltering === FieldForFiltering.All,
           })}
-          onClick={() => selectFieldForSorting(FieldForSorting.All)}
+          onClick={() => selectFieldForSorting(FieldForFiltering.All)}
         >
           All
         </a>
@@ -39,9 +39,9 @@ export const Footer: React.FC<Props> = React.memo(({
           data-cy="FilterLinkActive"
           href="#/active"
           className={classNames('filter__link', {
-            selected: fieldForSorting === FieldForSorting.Active,
+            selected: fieldForFiltering === FieldForFiltering.Active,
           })}
-          onClick={() => selectFieldForSorting(FieldForSorting.Active)}
+          onClick={() => selectFieldForSorting(FieldForFiltering.Active)}
         >
           Active
         </a>
@@ -49,9 +49,9 @@ export const Footer: React.FC<Props> = React.memo(({
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={classNames('filter__link', {
-            selected: fieldForSorting === FieldForSorting.Completed,
+            selected: fieldForFiltering === FieldForFiltering.Completed,
           })}
-          onClick={() => selectFieldForSorting(FieldForSorting.Completed)}
+          onClick={() => selectFieldForSorting(FieldForFiltering.Completed)}
         >
           Completed
         </a>
