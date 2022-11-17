@@ -100,68 +100,88 @@ export const App: React.FC = () => {
   };
 
   const removeCompletedTodos = async () => {
-    await Promise.all(todos.map(todo => {
-      if (todo.completed) {
-        setIsRemoving(prevIds => [...prevIds, todo.id]);
-        removeTodo(todo.id);
-      }
+    try {
+      await Promise.all(todos.map(todo => {
+        if (todo.completed) {
+          setIsRemoving(prevIds => [...prevIds, todo.id]);
+          removeTodo(todo.id);
+        }
 
-      return todo;
-    }));
+        return todo;
+      }));
 
-    setTimeout(() => {
-      setTodos(currTodos => currTodos.filter(todo => !todo.completed));
-    }, 500);
+      setTimeout(() => {
+        setTodos(currTodos => currTodos.filter(todo => !todo.completed));
+      }, 500);
+    } catch {
+      setErrorMessage('Unable to delete todos');
+      setErrorStatus(true);
+    }
   };
 
   const changeTodoOnServer = async (todoId: number, completed: boolean) => {
-    setIsRemoving(prevIds => [...prevIds, todoId]);
-    await changeTodo({ completed }, todoId);
+    try {
+      setIsRemoving(prevIds => [...prevIds, todoId]);
+      await changeTodo({ completed }, todoId);
 
-    setTodos(currTodos => currTodos.map((todo: Todo) => {
-      if (todo.id === todoId) {
-        const changedTodo = todo;
+      setTodos(currTodos => currTodos.map((todo: Todo) => {
+        if (todo.id === todoId) {
+          const changedTodo = todo;
 
-        changedTodo.completed = completed;
+          changedTodo.completed = completed;
 
-        return changedTodo;
-      }
+          return changedTodo;
+        }
 
-      return todo;
-    }));
-    setIsRemoving([]);
+        return todo;
+      }));
+      setIsRemoving([]);
+    } catch {
+      setErrorMessage('Unable to update a todo');
+      setErrorStatus(true);
+    }
   };
 
   const changeTitleOnServer = async (todoId: number, title: string) => {
-    setIsRemoving(prevIds => [...prevIds, todoId]);
-    await changeTodo({ title }, todoId);
+    try {
+      setIsRemoving(prevIds => [...prevIds, todoId]);
+      await changeTodo({ title }, todoId);
 
-    setTodos(currTodos => currTodos.map((todo: Todo) => {
-      if (todo.id === todoId) {
-        const changedTodo = todo;
+      setTodos(currTodos => currTodos.map((todo: Todo) => {
+        if (todo.id === todoId) {
+          const changedTodo = todo;
 
-        changedTodo.title = title;
+          changedTodo.title = title;
 
-        return changedTodo;
-      }
+          return changedTodo;
+        }
 
-      return todo;
-    }));
-    setIsRemoving([]);
+        return todo;
+      }));
+      setIsRemoving([]);
+    } catch {
+      setErrorMessage('Unable to update a todo');
+      setErrorStatus(true);
+    }
   };
 
   const changeAllTodos = async () => {
-    const isAllCompleted = todos.every(todoItem => todoItem.completed);
+    try {
+      const isAllCompleted = todos.every(todoItem => todoItem.completed);
 
-    await Promise.all(todos.map(todo => {
-      if (isAllCompleted) {
-        changeTodoOnServer(todo.id, !todo.completed);
-      } else if (!todo.completed) {
-        changeTodoOnServer(todo.id, !todo.completed);
-      }
+      await Promise.all(todos.map(todo => {
+        if (isAllCompleted) {
+          changeTodoOnServer(todo.id, !todo.completed);
+        } else if (!todo.completed) {
+          changeTodoOnServer(todo.id, !todo.completed);
+        }
 
-      return todo;
-    }));
+        return todo;
+      }));
+    } catch {
+      setErrorMessage('Unable to update todos');
+      setErrorStatus(true);
+    }
   };
 
   useEffect(() => {
@@ -171,7 +191,11 @@ export const App: React.FC = () => {
     }
 
     loadTodos();
-  }, []);
+
+    setTimeout(() => {
+      setErrorStatus(false);
+    }, 3000);
+  }, [errorStatus]);
 
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
