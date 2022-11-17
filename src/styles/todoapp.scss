@@ -5,6 +5,7 @@
   font-weight: 300;
   color: #4d4d4d;
   margin: 40px 20px;
+  transition: visibility 0.3s;
 
   &__content {
     margin-bottom: 20px;
@@ -128,6 +129,11 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &:disabled {
+      opacity: 0;
+      cursor: initial;
     }
   }
 }
