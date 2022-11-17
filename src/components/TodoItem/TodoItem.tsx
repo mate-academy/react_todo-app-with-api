@@ -32,12 +32,12 @@ export const TodoItem: React.FC<Props> = ({
   setActiveTodoId,
 }) => {
   const { title, completed, id } = todo;
-  const [checked, setChecked] = useState(false);
+  const [isChecked, setisChecked] = useState(false);
   const [isExistForm, setIsExistForm] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   const updateTodoStatus = async () => {
-    setChecked(!checked);
+    setisChecked(!isChecked);
     setIsLoading(true);
     setActiveTodoId(id);
 
@@ -124,7 +124,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={checked}
+          checked={isChecked}
           onChange={updateTodoStatus}
         />
       </label>
