@@ -11,63 +11,69 @@ import {
   getTodos,
   createTodos,
   deleteTodos,
-  UpdateTodo,
+  updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { User } from './types/User';
 import { TodoLIst } from './components/TodoList';
 import { Footer } from './components/Footer';
-import { Error } from './components/Error';
 import { Header } from './components/Header';
+import { Error } from './components/Error';
+import { ErrorType } from './types/ErrorType';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todoList, setTodoList] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [errorAdd, setErrorAdd] = useState(false);
-  const [errorRemove, setErrorRemove] = useState(false);
-  const [errorUpdate, setErrorUpdate] = useState(false);
-  const [errorEmptyTitile, setErrorEmptyTitile] = useState(false);
   const [typeFilter, setTypeFilter] = useState('All');
-  const [hidden, setHidden] = useState(true);
+  const [hiddenErrorTable, setHiddenErrorTable] = useState(true);
   const [isAdding, setIsAdding] = useState<Todo | null>(null);
   const [clearLoader, setClearLoader] = useState(false);
   const [loadingAllTodos, setLoadingAllTodos] = useState(false);
-  const [isLoading, setIsLoading] = useState<Todo | null>(null);
+  const [loadTodo, setLoadTodo] = useState<Todo | null>(null);
+  const [error, setError] = useState<ErrorType>(ErrorType.noError);
 
   const handleHidden = useCallback(
     (value: boolean) => {
-      setHidden(value);
+      setHiddenErrorTable(value);
     }, [],
   );
 
-  const handleLoading = useCallback((value: Todo | null) => {
-    setIsLoading(value);
+  const setComplitedTodo = async (todo: Todo) => {
+    await updateTodo(todo, { completed: true });
+  };
+
+  const setUnComplitedTodo = async (todo: Todo) => {
+    await updateTodo(todo, { completed: false });
+  };
+
+  const handleLoadTodo = useCallback((value: Todo | null) => {
+    setLoadTodo(value);
   }, []);
 
   const handleTypeFilter = useCallback((type: string) => {
     setTypeFilter(type);
   }, []);
 
-  const hanldeUpdateError = useCallback((value: boolean) => {
-    setErrorUpdate(value);
+  const hanldeUpdateError = useCallback((value: ErrorType) => {
+    setError(value);
   }, []);
 
-  const handlerRemoveError = useCallback((value: boolean) => {
-    setErrorRemove(value);
+  const handlerRemoveError = useCallback((value: ErrorType) => {
+    setError(value);
   }, []);
 
   const handlerNewTitle = useCallback((value: string) => {
     setNewTodoTitle(value);
   }, []);
 
-  const foundTodoList = useCallback((u:User) => {
-    getTodos(u.id).then(response => {
+  const getUpdateTodoList = useCallback((uSer:User) => {
+    getTodos(uSer.id).then(response => {
       setTodoList(response);
       setIsAdding(null);
       setClearLoader(false);
-      setIsLoading(null);
+      setLoadTodo(null);
       setLoadingAllTodos(false);
     });
   }, [user]);
@@ -76,8 +82,8 @@ export const App: React.FC = () => {
     async (event:React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (!newTodoTitle.trim()) {
-        setErrorEmptyTitile(true);
-        setHidden(false);
+        setError(ErrorType.errorEmptyTitile);
+        setHiddenErrorTable(false);
 
         return;
       }
@@ -94,11 +100,11 @@ export const App: React.FC = () => {
         try {
           await createTodos(newTodo);
         } catch {
-          setErrorAdd(true);
-          setHidden(false);
+          setError(ErrorType.errorAdd);
+          setHiddenErrorTable(false);
         }
 
-        foundTodoList(user);
+        getUpdateTodoList(user);
         setNewTodoTitle('');
       }
     }, [newTodoTitle],
@@ -110,26 +116,26 @@ export const App: React.FC = () => {
 
   const selectComplited = useCallback(async (todo:Todo) => {
     try {
-      setIsLoading(todo);
+      setLoadTodo(todo);
       if (todo.completed) {
-        await UpdateTodo(todo, false);
+        await setUnComplitedTodo(todo);
       } else {
-        await UpdateTodo(todo, true);
+        await setComplitedTodo(todo);
       }
     } catch {
-      setErrorUpdate(true);
-      setHidden(false);
-      setIsLoading(null);
+      setError(ErrorType.errorUpdate);
+      setHiddenErrorTable(false);
+      setLoadTodo(null);
     }
 
     if (user) {
-      foundTodoList(user);
+      getUpdateTodoList(user);
     }
   }, [todoList]);
 
   const selectAllTodos = useCallback(() => {
+    setLoadingAllTodos(true);
     todoList.map(async (todo) => {
-      setLoadingAllTodos(true);
       if (!checkedAllCompletedTodo(todoList)) {
         if (!todo.completed) {
           selectComplited(todo);
@@ -147,13 +153,13 @@ export const App: React.FC = () => {
           setClearLoader(true);
           await deleteTodos(todo);
         } catch {
-          setErrorRemove(true);
-          setHidden(false);
+          setError(ErrorType.errorRemove);
+          setHiddenErrorTable(false);
           setClearLoader(false);
         }
 
         if (user) {
-          foundTodoList(user);
+          getUpdateTodoList(user);
         }
       }
     });
@@ -161,7 +167,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      foundTodoList(user);
+      getUpdateTodoList(user);
     }
   }, [user]);
 
@@ -171,7 +177,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const listFiltring = (list:Todo[]) => (
+  const filtrationList = (list:Todo[]) => (
     list.filter(todo => {
       switch (typeFilter) {
         case 'Active':
@@ -183,20 +189,17 @@ export const App: React.FC = () => {
       }
     }));
 
-  const filtredList = useMemo(() => listFiltring(todoList),
+  const filtredList = useMemo(() => filtrationList(todoList),
     [typeFilter, todoList]);
 
   const handlerCloseErrors = useCallback(() => {
-    setHidden(true);
-    setErrorAdd(false);
-    setErrorRemove(false);
-    setErrorUpdate(false);
-    setErrorEmptyTitile(false);
-  }, [hidden]);
+    setHiddenErrorTable(true);
+    setError(ErrorType.noError);
+  }, [hiddenErrorTable]);
 
   useEffect(() => {
     setTimeout(handlerCloseErrors, 3000);
-  }, [hidden]);
+  }, [hiddenErrorTable]);
 
   const countingActiveTodo = (list: Todo[]) => (
     list.filter(todo => !todo.completed).length
@@ -206,26 +209,19 @@ export const App: React.FC = () => {
     list.some(todo => todo.completed)
   );
 
-  const selectErrors = (...args: boolean[]) => {
-    const [EmptyTitile, Add, Remove, Update] = args;
-
-    if (EmptyTitile) {
-      return 'Title can\'t be empty';
+  const selectErrors = () => {
+    switch (error) {
+      case ErrorType.errorEmptyTitile:
+        return 'Title can\'t be empty';
+      case ErrorType.errorAdd:
+        return 'Unable to add a todo';
+      case ErrorType.errorUpdate:
+        return 'Unable to update a todo';
+      case ErrorType.errorRemove:
+        return 'Unable to delete a todo';
+      default:
+        return null;
     }
-
-    if (Add) {
-      return 'Unable to add a todo';
-    }
-
-    if (Remove) {
-      return 'Unable to delete a todo';
-    }
-
-    if (Update) {
-      return 'Unable to update a todo';
-    }
-
-    return null;
   };
 
   const hasComplitedTodo = useMemo(() => checkedComplitedTodo(todoList),
@@ -237,12 +233,8 @@ export const App: React.FC = () => {
   [todoList]);
 
   const errorMessage = useMemo(
-    () => selectErrors(
-      errorEmptyTitile,
-      errorAdd,
-      errorRemove,
-      errorUpdate,
-    ), [errorEmptyTitile, errorAdd, errorRemove, errorUpdate],
+    () => selectErrors(),
+    [error],
   );
 
   return (
@@ -264,13 +256,13 @@ export const App: React.FC = () => {
           onErrorRemove={handlerRemoveError}
           onErrorUpdate={hanldeUpdateError}
           onHidden={handleHidden}
-          foundTodoList={foundTodoList}
+          updateTodoList={getUpdateTodoList}
           isAdding={isAdding}
           selectComplited={selectComplited}
           clearLoader={clearLoader}
           loadingAllTodos={loadingAllTodos}
-          onIsLoading={handleLoading}
-          isLoading={isLoading}
+          onLoadTodo={handleLoadTodo}
+          loadTodo={loadTodo}
         />
 
         {!!todoList.length && (
@@ -285,7 +277,7 @@ export const App: React.FC = () => {
       </div>
 
       <Error
-        hidden={hidden}
+        hidden={hiddenErrorTable}
         onCloseErrors={handlerCloseErrors}
         errorMessage={errorMessage}
       />

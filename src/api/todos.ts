@@ -27,10 +27,9 @@ export const deleteTodos = async (todo: Todo) => {
   return client.delete(`/todos/${todo.id}`);
 };
 
-export const UpdateTodo = async (todo:Todo, value: boolean | string) => {
-  if (typeof value === 'boolean') {
-    return client.patch(`/todos/${todo.id}`, { completed: value });
-  }
-
-  return client.patch(`/todos/${todo.id}`, { title: value });
+export const updateTodo = async (
+  todo:Todo,
+  value: Partial<Omit<Todo, 'id'>>,
+) => {
+  return client.patch(`/todos/${todo.id}`, value);
 };

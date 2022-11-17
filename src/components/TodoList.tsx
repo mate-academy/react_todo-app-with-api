@@ -2,19 +2,20 @@ import React from 'react';
 import { Todo } from '../types/Todo';
 import { ToDo } from './Todo';
 import { User } from '../types/User';
+import { ErrorType } from '../types/ErrorType';
 
 type Props = {
   List: Todo[],
-  onErrorRemove: (value: boolean) => void,
-  onErrorUpdate: (value: boolean) => void,
+  onErrorRemove: (value: ErrorType) => void,
+  onErrorUpdate: (value: ErrorType) => void,
   onHidden: (value: boolean) => void,
-  foundTodoList: (u: User) => void,
+  updateTodoList: (u: User) => void,
   isAdding: Todo | null,
   selectComplited: (todo: Todo) => Promise<void>,
   clearLoader: boolean,
   loadingAllTodos: boolean,
-  onIsLoading:(value: Todo | null) => void,
-  isLoading: Todo | null,
+  onLoadTodo:(value: Todo | null) => void,
+  loadTodo: Todo | null,
 };
 
 export const TodoLIst: React.FC<Props> = React.memo((
@@ -23,13 +24,13 @@ export const TodoLIst: React.FC<Props> = React.memo((
     onErrorRemove,
     onErrorUpdate,
     onHidden,
-    foundTodoList,
+    updateTodoList,
     isAdding,
     selectComplited,
     clearLoader,
     loadingAllTodos,
-    onIsLoading,
-    isLoading,
+    onLoadTodo,
+    loadTodo,
   },
 ) => {
   return (
@@ -37,30 +38,30 @@ export const TodoLIst: React.FC<Props> = React.memo((
       {List.map(todo => (
         <ToDo
           todo={todo}
-          foundTodoList={foundTodoList}
+          updateTodoList={updateTodoList}
           setErrorUpdate={onErrorUpdate}
           setErrorRemove={onErrorRemove}
           setHidden={onHidden}
           selectComplited={selectComplited}
           clearLoader={clearLoader}
           loadingAllTodos={loadingAllTodos}
-          onIsLoading={onIsLoading}
-          isLoading={isLoading}
+          onLoadTodo={onLoadTodo}
+          loadTodo={loadTodo}
         />
       ))}
 
       {isAdding && (
         <ToDo
           todo={isAdding}
-          foundTodoList={foundTodoList}
+          updateTodoList={updateTodoList}
           setErrorUpdate={onErrorUpdate}
           setErrorRemove={onErrorRemove}
           setHidden={onHidden}
           selectComplited={selectComplited}
           clearLoader={clearLoader}
           loadingAllTodos={loadingAllTodos}
-          onIsLoading={onIsLoading}
-          isLoading={isLoading}
+          onLoadTodo={onLoadTodo}
+          loadTodo={loadTodo}
         />
       )}
     </section>

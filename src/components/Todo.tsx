@@ -7,34 +7,35 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { User } from '../types/User';
-import { deleteTodos, UpdateTodo } from '../api/todos';
+import { deleteTodos, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { AuthContext } from './Auth/AuthContext';
+import { ErrorType } from '../types/ErrorType';
 
 type Props = {
   todo: Todo,
-  foundTodoList: (u: User) => void,
-  setErrorUpdate:(value: boolean) => void,
-  setErrorRemove: (value: boolean) => void,
+  updateTodoList: (u: User) => void,
+  setErrorUpdate:(value: ErrorType) => void,
+  setErrorRemove: (value: ErrorType) => void,
   setHidden: (value: boolean) => void,
   selectComplited: (toDo: Todo) => Promise<void>,
   clearLoader: boolean,
   loadingAllTodos: boolean,
-  onIsLoading: (value: Todo | null) => void,
-  isLoading: Todo | null,
+  onLoadTodo: (value: Todo | null) => void,
+  loadTodo: Todo | null,
 };
 
 export const ToDo: React.FC<Props> = ({
   todo,
-  foundTodoList,
+  updateTodoList,
   setErrorUpdate,
   setErrorRemove,
   setHidden,
   selectComplited,
   clearLoader,
   loadingAllTodos,
-  onIsLoading,
-  isLoading,
+  onLoadTodo,
+  loadTodo,
 }) => {
   const user = useContext(AuthContext);
   const [editTodoTitile, setEditTodoTitle] = useState('');
@@ -44,15 +45,15 @@ export const ToDo: React.FC<Props> = ({
   const removeTodo = async (toDo:Todo) => {
     deleteTodos(toDo);
     try {
-      onIsLoading(toDo);
+      onLoadTodo(toDo);
       await deleteTodos(toDo);
     } catch {
-      setErrorRemove(true);
+      setErrorRemove(ErrorType.errorRemove);
       setHidden(false);
     }
 
     if (user) {
-      foundTodoList(user);
+      updateTodoList(user);
     }
   };
 
@@ -73,16 +74,16 @@ export const ToDo: React.FC<Props> = ({
     }
 
     try {
-      onIsLoading(toDo);
+      onLoadTodo(toDo);
       setToggleDoubleClick(null);
-      await UpdateTodo(toDo, validTodoTitle);
+      await updateTodo(toDo, { title: validTodoTitle });
     } catch {
-      setErrorUpdate(true);
+      setErrorUpdate(ErrorType.errorUpdate);
       setHidden(false);
     }
 
     if (user) {
-      foundTodoList(user);
+      updateTodoList(user);
     }
 
     setToggleDoubleClick(null);
@@ -127,7 +128,8 @@ export const ToDo: React.FC<Props> = ({
     }
   };
 
-  const activeTodoLoader = (isLoading && isLoading.id === todo.id)
+  const Loading = !!loadTodo;
+  const activeTodoLoader = (Loading && loadTodo.id === todo.id)
           || (!todo.id)
           || (loadingAllTodos)
           || (clearLoader && todo.completed);
