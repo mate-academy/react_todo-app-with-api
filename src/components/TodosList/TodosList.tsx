@@ -1,5 +1,7 @@
 import React from 'react';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import {
+  TransitionGroup, CSSTransition,
+} from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
