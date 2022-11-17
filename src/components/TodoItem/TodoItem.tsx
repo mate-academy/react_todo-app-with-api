@@ -15,7 +15,7 @@ type Props = {
   todos: Todo[]
   removeTodo: (TodoId: number) => void;
   selectedId: number[];
-  isAdding: boolean;
+
   handleChange: (updateId: number, data: Partial<Todo>) => Promise<void>;
 };
 
@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({
   todos,
   removeTodo,
   selectedId,
-  isAdding,
+
   handleChange,
 }) => {
   const [doubleClick, setDoubleClick] = useState(false);
@@ -32,7 +32,7 @@ export const TodoItem: React.FC<Props> = ({
   const [selectedTodo, setSelectedTodo] = useState(0);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const isLoading = selectedId.includes(todo.id) || (isAdding && todo.id === 0);
+  const isLoading = selectedId.includes(todo.id) || (todo.id === 0);
 
   const updateTodoTitle = () => {
     if (newTitle === todo.title) {

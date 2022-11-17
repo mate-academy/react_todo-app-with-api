@@ -35,7 +35,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
+  // const [isAdding] = useState(false);
 
   const filteredTodo = useMemo(() => todos.filter(todo => {
     switch (sortType) {
@@ -50,6 +50,16 @@ export const App: React.FC = () => {
     }
   }), [todos, sortType]);
 
+  const getTodosFromServer = async (userId: number) => {
+    try {
+      const receivedTodos = await getTodos(userId);
+
+      setTodos(receivedTodos);
+    } catch (errorMessage) {
+      setError(`${errorMessage}`);
+    }
+  };
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -58,16 +68,6 @@ export const App: React.FC = () => {
     if (!user) {
       return;
     }
-
-    const getTodosFromServer = async (userId: number) => {
-      try {
-        const receivedTodos = await getTodos(userId);
-
-        setTodos(receivedTodos);
-      } catch (errorMessage) {
-        setError(`${errorMessage}`);
-      }
-    };
 
     getTodosFromServer(user.id);
   }, []);
@@ -87,17 +87,14 @@ export const App: React.FC = () => {
       return;
     }
 
-    setIsAdding(true);
-
     try {
-      const newTodo = await createTodo(title, user.id);
+      await createTodo(title, user.id);
 
-      setTodos((prevTodos) => [...prevTodos, newTodo]);
+      getTodosFromServer(user.id);
     } catch {
       setError(ErrorType.NotAdd);
     }
 
-    setIsAdding(false);
     setTitle('');
   }, [title, user]);
 
@@ -107,7 +104,7 @@ export const App: React.FC = () => {
     try {
       await deleteTodos(TodoId);
 
-      setTodos((prevTodos) => prevTodos.filter(({ id }) => id !== TodoId));
+      getTodosFromServer(user!.id);
     } catch {
       setError(ErrorType.NotDelete);
     }
@@ -123,8 +120,7 @@ export const App: React.FC = () => {
         setSelectedIds([...completedTodos].map(({ id }) => id));
 
         await Promise.all(completedTodos.map(({ id }) => removeTodo(id)));
-        await (() => setTodos((prevTodos) => prevTodos
-          .filter(({ completed }) => !completed)));
+        await getTodosFromServer(user!.id);
       } catch {
         setError(ErrorType.NotDelete);
         setSelectedIds([]);
@@ -178,14 +174,12 @@ export const App: React.FC = () => {
           getValue={getValue}
         />
 
-        {(todos.length > 0 || isAdding) && (
+        {(todos.length > 0) && (
           <>
             <TodoList
               filteredTodo={filteredTodo}
               removeTodo={removeTodo}
               selectedIds={selectedIds}
-              isAdding={isAdding}
-              title={title}
               handleChange={handleChange}
             />
 
