@@ -6,10 +6,10 @@ import { Loader } from '../Loader';
 
 type Props = {
   todo: Todo;
-  handleDeleteTodo: (todoId: number) => void;
+  handleDeleteTodo: (todoId: number) => Promise<void>;
   changingTodosId: number[];
-  handleToggleTodo: (todoId: number, completed: boolean) => void;
-  handleEditTodo: (todoId:number, title: string) => void;
+  handleToggleTodo: (todoId: number, completed: boolean) => Promise<void>;
+  handleEditTodo: (todoId:number, title: string) => Promise<void>;
 };
 
 export const TodoData: React.FC<Props> = React.memo(({
@@ -42,15 +42,14 @@ export const TodoData: React.FC<Props> = React.memo(({
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     handleEditing(true);
     if (value.trim() !== title) {
-      handleEditTodo(id, value);
-      handleEditing(false);
-    } else {
-      handleEditing(false);
+      await handleEditTodo(id, value);
     }
+
+    handleEditing(false);
   };
 
   return (

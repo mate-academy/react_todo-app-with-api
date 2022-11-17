@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useInput } from '../../utils/useInput';
 
 type Props = {
-  handleAddTodo: (titleNewTodo: string) => void;
+  handleAddTodo: (titleNewTodo: string) => Promise<void>;
   isAdding: boolean;
 };
 
@@ -13,12 +13,16 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
   const newTodoField = useRef<HTMLInputElement>(null);
   const { value, onChange, clearInput } = useInput('');
 
-  const submitAddingTodo = (event: React.FormEvent<HTMLFormElement>) => {
+  const submitAddingTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newTitle = value.trim();
 
-    handleAddTodo(newTitle);
-    clearInput();
+    try {
+      await handleAddTodo(newTitle);
+      clearInput();
+    } catch (error) {
+      // No need to handle error;
+    }
   };
 
   useEffect(() => {

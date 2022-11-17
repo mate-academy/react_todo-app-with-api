@@ -6,7 +6,7 @@ type Props = {
   fieldForFiltering: FieldForFiltering;
   selectFieldForFiltering: (field: FieldForFiltering) => void;
   counterActiveTodos: number;
-  deleteCompletedTodos: () => void;
+  deleteCompletedTodos: () => Promise<void>;
   length: number;
 };
 

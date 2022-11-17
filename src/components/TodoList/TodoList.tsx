@@ -8,12 +8,12 @@ import { TodoData } from '../TodoData';
 
 type Props = {
   todos: Todo[];
-  handleDeleteTodo: (todoId: number) => void;
+  handleDeleteTodo: (todoId: number) => Promise<void>;
   tempTodo: Todo;
   changingTodosId: number[];
-  handleToggleTodo: (todoId: number, completed: boolean) => void;
+  handleToggleTodo: (todoId: number, completed: boolean) => Promise<void>;
   isAdding: boolean;
-  handleEditTodo: (todoId:number, title: string) => void;
+  handleEditTodo: (todoId:number, title: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = React.memo(({

@@ -7,14 +7,13 @@ export const getTodos = (userId: number) => {
 
 export const addTodo = (
   userId: number,
-  title: string,
+  newTodo: Partial<Todo>,
 ) => {
   return client.post<Todo>(
     `/todos?userId=${userId}`,
     {
-      title,
       userId,
-      completed: false,
+      ...newTodo,
     },
   );
 };
@@ -23,20 +22,12 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const toggleTodo = (todoId: number, completed: boolean) => {
+export const updateTodo = (
+  todoId: number,
+  fieldToPatch: Partial<Todo>,
+) => {
   return client.patch<Partial<Todo>>(
     `/todos/${todoId}`,
-    {
-      completed: !completed,
-    },
-  );
-};
-
-export const editTodo = (todoId: number, title: string) => {
-  return client.patch<Partial<Todo>>(
-    `/todos/${todoId}`,
-    {
-      title,
-    },
+    fieldToPatch,
   );
 };

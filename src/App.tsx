@@ -8,14 +8,13 @@ import React, {
 import {
   addTodo,
   deleteTodo,
-  editTodo,
   getTodos,
-  toggleTodo,
+  updateTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
-import { Error } from './components/Error';
+import { Error as ErrorComponent } from './components/Error';
 import { FieldForFiltering, Todo } from './types/Todo';
 import { AddTodoForm } from './components/AddTodoForm';
 import { ToggleAllButton } from './components/ToggleAllButton';
@@ -109,11 +108,12 @@ export const App: React.FC = () => {
     try {
       setTempTodo((prevTemp) => ({ ...prevTemp, title }));
       setIsAdding(true);
-      await addTodo(user.id, title);
+      await addTodo(user.id, { title, completed: false });
+      await getTodosFromAPI();
     } catch {
       addError('Unable to add a todo');
+      throw new Error('Unable to add a todo');
     } finally {
-      await getTodosFromAPI();
       setIsAdding(false);
     }
   }, []);
@@ -134,7 +134,8 @@ export const App: React.FC = () => {
 
   const completedTodosId = useMemo(() => {
     return todos
-      .map(todo => (todo.completed ? todo.id : 0));
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
   }, [todos]);
 
   const deleteCompletedTodos = useCallback(async () => {
@@ -154,7 +155,7 @@ export const App: React.FC = () => {
   ) => {
     try {
       setChangingTodosId(prevToggledTodos => [...prevToggledTodos, todoId]);
-      await toggleTodo(todoId, completed);
+      await updateTodo(todoId, { completed: !completed });
     } catch {
       addError('Unable to update a todo');
     }
@@ -202,7 +203,7 @@ export const App: React.FC = () => {
 
       if (newTodoTitle.length > 0) {
         setChangingTodosId(prevEditedTodos => [...prevEditedTodos, todoId]);
-        await editTodo(todoId, newTodoTitle);
+        await updateTodo(todoId, { title: newTodoTitle });
         await getTodosFromAPI();
 
         return;
@@ -255,7 +256,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <Error
+      <ErrorComponent
         isError={isError}
         closeError={closeError}
         error={errorMessage}
