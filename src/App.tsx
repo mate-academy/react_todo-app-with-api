@@ -35,7 +35,6 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [title, setTitle] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  // const [isAdding] = useState(false);
 
   const filteredTodo = useMemo(() => todos.filter(todo => {
     switch (sortType) {
