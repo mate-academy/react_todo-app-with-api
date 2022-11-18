@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     setIsAdding(true);
 
     try {
-      if (fieldValue.length === 0) {
+      if (!fieldValue.trim()) {
         setHasError(true);
         setErrorText('Title cannot be empty');
 

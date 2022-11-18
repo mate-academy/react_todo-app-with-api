@@ -57,7 +57,7 @@ export const TodoItem: React.FC<Props> = ({
     setActiveTodoId(id);
 
     try {
-      if (!newTitle) {
+      if (!newTitle.trim()) {
         setIsLoading(true);
         await removeTodo(id);
         loadTodos();
@@ -69,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({
         return;
       }
 
-      setNewTitle(newTitle);
+      setNewTitle(newTitle.trim());
       await renameTodo(id, newTitle);
       setIsLoading(true);
       await loadTodos();
