@@ -1,38 +1,25 @@
 import React from 'react';
-import cn from 'classnames';
 
 interface Props {
   children: string;
-  isHidden: boolean;
-  setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
+  clearError: () => void;
 }
 
 export const ErrorMessage: React.FC<Props> = ({
   children,
-  isHidden,
-  setIsHidden,
+  clearError,
 }) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={cn(
-        'notification',
-        'is-danger',
-        'is-light',
-        'has-text-weight-normal',
-        {
-          hidden: isHidden,
-        },
-      )}
+      className="notification is-danger is-light has-text-weight-normal"
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
         aria-label="Hide errors"
-        onClick={() => {
-          setIsHidden(true);
-        }}
+        onClick={clearError}
       />
 
       <p>{children}</p>

@@ -4,7 +4,6 @@ interface Props {
   newTodoField: React.RefObject<HTMLInputElement>;
   addTodoToServer: (newTodoTitle: string) => void;
   isTodoBeingAdded: boolean;
-  setIsSuccessful: React.Dispatch<React.SetStateAction<boolean>>;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   todosLength: number;
   updateAll: () => Promise<void>;
@@ -14,7 +13,6 @@ export const Header: React.FC<Props> = React.memo(({
   newTodoField,
   addTodoToServer,
   isTodoBeingAdded,
-  setIsSuccessful,
   setErrorMessage,
   todosLength,
   updateAll,
@@ -28,14 +26,15 @@ export const Header: React.FC<Props> = React.memo(({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle.trim() === '') {
-      setIsSuccessful(false);
+    const trimmedTitle = todoTitle.trim();
+
+    if (trimmedTitle === '') {
       setErrorMessage('Please enter what needs to be done');
 
       return;
     }
 
-    addTodoToServer(todoTitle);
+    addTodoToServer(trimmedTitle);
   };
 
   useEffect(() => {

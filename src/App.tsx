@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
@@ -32,7 +31,6 @@ export const App: React.FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
-  const [isSuccessful, setIsSuccessful] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
 
@@ -50,8 +48,7 @@ export const App: React.FC = () => {
         setTodos(todosFromApi);
         setVisibleTodos(todosFromApi);
       }
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to load todos. Try reloading the page.');
     }
   };
@@ -89,9 +86,8 @@ export const App: React.FC = () => {
         setIsAdding(false);
 
         setTodos(currentTodos => [...currentTodos, newTodo]);
-      } catch (error) {
+      } catch {
         setIsAdding(false);
-        setIsSuccessful(false);
         setErrorMessage('Todo could not be added. Try again.');
       }
     }
@@ -103,8 +99,7 @@ export const App: React.FC = () => {
       setTodos(currentTodos => (
         currentTodos.filter(todo => todo.id !== todoToRemoveId)
       ));
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to delete a todo. Try again.');
     }
   };
@@ -112,8 +107,7 @@ export const App: React.FC = () => {
   const removeAllCompletedTodos = async () => {
     try {
       await completedTodos.forEach(({ id }) => removeTodoFromServer(id));
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to delete todos. Try again.');
     }
   };
@@ -125,8 +119,7 @@ export const App: React.FC = () => {
     try {
       await patchTodo(todoId, { completed: status });
       await getTodosFromApi();
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to change status of the todo.');
     }
   };
@@ -138,8 +131,7 @@ export const App: React.FC = () => {
     try {
       await patchTodo(todoId, { title });
       await getTodosFromApi();
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to change title of the todo.');
     }
   };
@@ -161,8 +153,7 @@ export const App: React.FC = () => {
           completed: !todoItem.completed,
         }))
       ));
-    } catch (error) {
-      setIsSuccessful(false);
+    } catch {
       setErrorMessage('Unable to update todos. Try again.');
     }
   };
@@ -180,9 +171,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setIsSuccessful(true);
+      setErrorMessage('');
     }, 4000);
-  }, [isSuccessful]);
+  }, [errorMessage]);
 
   return (
     <div className="todoapp">
@@ -194,7 +185,6 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
           addTodoToServer={addTodoToServer}
           isTodoBeingAdded={isAdding}
-          setIsSuccessful={setIsSuccessful}
           setErrorMessage={setErrorMessage}
           updateAll={updateAll}
         />
@@ -219,12 +209,13 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorMessage
-        isHidden={isSuccessful}
-        setIsHidden={setIsSuccessful}
-      >
-        {errorMessage}
-      </ErrorMessage>
+      {errorMessage.length > 0 && (
+        <ErrorMessage
+          clearError={() => setErrorMessage('')}
+        >
+          {errorMessage}
+        </ErrorMessage>
+      )}
     </div>
   );
 };
