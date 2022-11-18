@@ -36,22 +36,21 @@ export const TodoItem: React.FC<Props> = React.memo(({
   }, []);
 
   const handleChangeTodoTitle = useCallback(() => {
-    const trimmedNewTitle = newTitle.trim();
+    setNewTitle(() => newTitle.trim());
 
     setIsFormVisible(false);
 
-    if (title === trimmedNewTitle) {
+    if (title === newTitle) {
       return;
     }
 
-    if (trimmedNewTitle === '') {
+    if (newTitle === '') {
       handleRemove();
 
       return;
     }
 
-    setNewTitle(trimmedNewTitle);
-    changeTodoTitle(id, trimmedNewTitle);
+    changeTodoTitle(id, newTitle);
   }, [newTitle, title]);
 
   const handleFormSubmit = useCallback((
@@ -75,6 +74,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
       setIsFormVisible(false);
     }
   }, []);
+
+  const handleInputBlur = useCallback(() => {
+    handleChangeTodoTitle();
+  }, [handleChangeTodoTitle]);
 
   useEffect(() => {
     if (titleInput.current) {
@@ -111,6 +114,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               value={newTitle}
               onChange={handleInputChange}
               onKeyDown={handleInputCancel}
+              onBlur={handleInputBlur}
             />
           </form>
         )

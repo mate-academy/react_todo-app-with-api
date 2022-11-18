@@ -41,13 +41,15 @@ export const App: React.FC = () => {
   ), [todos]);
 
   const getTodosFromApi = async () => {
-    try {
-      if (user) {
-        const todosFromApi = await getTodos(user.id);
+    if (!user) {
+      return;
+    }
 
-        setTodos(todosFromApi);
-        setVisibleTodos(todosFromApi);
-      }
+    try {
+      const todosFromApi = await getTodos(user.id);
+
+      setTodos(todosFromApi);
+      setVisibleTodos(todosFromApi);
     } catch {
       setErrorMessage('Unable to load todos. Try reloading the page.');
     }
@@ -71,25 +73,26 @@ export const App: React.FC = () => {
   }, [todos, filterBy]);
 
   const addTodoToServer = async (newTodoTitle: string) => {
-    if (user) {
-      try {
-        setIsAdding(true);
+    if (!user) {
+      return;
+    }
 
-        const todoToAdd: TodoToPost = {
-          title: newTodoTitle,
-          userId: user.id,
-          completed: false,
-        };
+    try {
+      setIsAdding(true);
 
-        const newTodo = await addTodo(todoToAdd);
+      const todoToAdd: TodoToPost = {
+        title: newTodoTitle,
+        userId: user.id,
+        completed: false,
+      };
 
-        setIsAdding(false);
+      const newTodo = await addTodo(todoToAdd);
 
-        setTodos(currentTodos => [...currentTodos, newTodo]);
-      } catch {
-        setIsAdding(false);
-        setErrorMessage('Todo could not be added. Try again.');
-      }
+      setTodos(currentTodos => [...currentTodos, newTodo]);
+    } catch {
+      setErrorMessage('Todo could not be added. Try again.');
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -106,7 +109,9 @@ export const App: React.FC = () => {
 
   const removeAllCompletedTodos = async () => {
     try {
-      await completedTodos.forEach(({ id }) => removeTodoFromServer(id));
+      await Promise.all(completedTodos.map(({ id }) => (
+        removeTodoFromServer(id)
+      )));
     } catch {
       setErrorMessage('Unable to delete todos. Try again.');
     }
@@ -159,7 +164,6 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
