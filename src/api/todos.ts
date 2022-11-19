@@ -23,6 +23,6 @@ export const updateTodo = (todo: Todo, completed: boolean) => {
   return client.patch(`/todos/${todo.id}`, { completed });
 };
 
-export const editTodo = (todo: Todo, title: string) => {
+export const editTodos = (todo: Todo, title: string) => {
   return client.patch(`/todos/${todo.id}`, { title });
 };

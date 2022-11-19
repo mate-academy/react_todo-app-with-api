@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { removeTodo, editTodo } from '../../api/todos';
+import { removeTodo, editTodos } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
@@ -27,8 +27,8 @@ export const TodoComponent: React.FC<Props> = ({
   const [inputTitle, setInputTitle] = useState('');
   const [removingTodo, setRemovingTodo] = useState<Todo | null>(null);
   const [
-    tooggleDoubleClick,
-    setToggleDoubleClick,
+    clickedTodo,
+    setClickedTodo,
   ] = useState<Todo | null>(null);
 
   const removeTodos = async (toDo: Todo) => {
@@ -46,18 +46,18 @@ export const TodoComponent: React.FC<Props> = ({
     }
   };
 
-  const editTodos = async (toDo: Todo) => {
+  const editTodo = async (toDo: Todo) => {
     const trimTitle = inputTitle.trim();
 
     if (trimTitle.length < 1) {
-      setToggleDoubleClick(null);
+      setClickedTodo(null);
       removeTodo(toDo);
 
       return;
     }
 
     if (trimTitle === toDo.title) {
-      setToggleDoubleClick(null);
+      setClickedTodo(null);
 
       return;
     }
@@ -67,8 +67,8 @@ export const TodoComponent: React.FC<Props> = ({
         setEdittingTodo(toDo);
       }
 
-      setToggleDoubleClick(null);
-      await editTodo(toDo, trimTitle);
+      setClickedTodo(null);
+      await editTodos(toDo, trimTitle);
     } catch {
       setErrorMessage('Unable to update a todo');
     }
@@ -77,7 +77,7 @@ export const TodoComponent: React.FC<Props> = ({
       getTodo(user.id);
     }
 
-    setToggleDoubleClick(null);
+    setClickedTodo(null);
   };
 
   useEffect(() => {
@@ -87,29 +87,32 @@ export const TodoComponent: React.FC<Props> = ({
 
     const onClick = (event: any) => {
       if (editTitle.current?.contains(event.target)) {
-        setToggleDoubleClick(null);
+        setClickedTodo(null);
       }
     };
 
     document.addEventListener('click', onClick);
 
     return () => document.removeEventListener('click', onClick);
-  }, [tooggleDoubleClick]);
+  }, [clickedTodo]);
 
   const onBlur = (toDo: Todo) => {
-    editTodos(toDo);
+    editTodo(toDo);
   };
 
   const onEditting = (toDo: Todo) => {
-    setToggleDoubleClick(toDo);
+    setClickedTodo(toDo);
     setInputTitle(toDo.title);
   };
 
   const onKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setToggleDoubleClick(null);
+      setClickedTodo(null);
     }
   };
+
+  const isLoading = (removingTodo && removingTodo.id === todo.id)
+  || !todo.id || (edittingTodo?.id === todo.id);
 
   return (
     <div
@@ -125,7 +128,7 @@ export const TodoComponent: React.FC<Props> = ({
         />
       </label>
 
-      {(tooggleDoubleClick !== todo)
+      {(clickedTodo !== todo)
         ? (
           <span
             data-cy="TodoTitle"
@@ -137,7 +140,7 @@ export const TodoComponent: React.FC<Props> = ({
         )
         : (
           <form
-            onSubmit={() => editTodos(todo)}
+            onSubmit={() => editTodo(todo)}
           >
             <input
               data-cy="TodoTitle"
@@ -153,7 +156,7 @@ export const TodoComponent: React.FC<Props> = ({
           </form>
         )}
 
-      {tooggleDoubleClick !== todo && (
+      {clickedTodo !== todo && (
         <button
           type="button"
           className="todo__remove"
@@ -167,8 +170,7 @@ export const TodoComponent: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {
-          'is-active': (removingTodo && removingTodo.id === todo.id)
-          || !todo.id || (edittingTodo?.id === todo.id),
+          'is-active': isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

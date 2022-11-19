@@ -42,7 +42,7 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setEdittingTodo(null);
       setIsAllSelected(response.every(todo => !todo.completed));
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to load todos');
     }
   }, []);
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      if (!inputTitle) {
+      if (!inputTitle.trim()) {
         setErrorMessage('Title can\'t be empty');
 
         return;
@@ -101,11 +101,13 @@ export const App: React.FC = () => {
       if ((!todo.completed && isAllSelected)
         || (todo.completed && !isAllSelected)) {
         try {
-          await updateTodo(todo, !todo.completed);
+          return await updateTodo(todo, !todo.completed);
         } catch {
           setErrorMessage('Unable to update a todo');
         }
       }
+
+      return null;
     });
 
     Promise.all(todoFunctions).then(() => {
