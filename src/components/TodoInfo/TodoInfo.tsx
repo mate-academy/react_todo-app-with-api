@@ -27,14 +27,15 @@ export const TodoInfo: React.FC<Props> = ({
   isUpdating,
   updateTodoTitle,
 }) => {
+  const { id, title, completed } = todo;
   const [todoIdToDelete, setTodoIdToDelete] = useState(0);
   const [isTodoTitleFieldActive, setIsTodoTitleFieldActive] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
+  const [newTitle, setNewTitle] = useState(title);
   const titleInputField = useRef<HTMLInputElement>(null);
 
   const cancelUpdating = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setNewTitle(todo.title);
+      setNewTitle(title);
       setIsTodoTitleFieldActive(false);
     }
   }, [newTitle, isTodoTitleFieldActive]);
@@ -42,13 +43,15 @@ export const TodoInfo: React.FC<Props> = ({
   const submitNewTitle = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
-    if (newTitle.trim() === todo.title) {
-      setNewTitle(todo.title);
+    const trimmedNewTitle = newTitle.trim();
+
+    if (trimmedNewTitle === title) {
+      setNewTitle(trimmedNewTitle);
       setIsTodoTitleFieldActive(false);
-    } else if (newTitle.trim() === '') {
-      deleteTodo(todo.id);
+    } else if (trimmedNewTitle === '') {
+      deleteTodo(id);
     } else {
-      updateTodoTitle(todo.id, newTitle);
+      updateTodoTitle(id, newTitle);
       setIsTodoTitleFieldActive(false);
     }
   }, [newTitle]);
@@ -64,7 +67,7 @@ export const TodoInfo: React.FC<Props> = ({
       data-cy="Todo"
       className={classNames(
         'todo',
-        { completed: todo.completed },
+        { completed },
       )}
     >
       <label className="todo__status-label">
@@ -74,7 +77,7 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
           defaultChecked
           onClick={() => {
-            toggleTodo(todo.id, todo.completed);
+            toggleTodo(id, completed);
           }}
         />
       </label>
@@ -103,15 +106,15 @@ export const TodoInfo: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={() => setIsTodoTitleFieldActive(true)}
             >
-              {todo.title}
+              {title}
             </span>
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
               onClick={() => {
-                setTodoIdToDelete(todo.id);
-                deleteTodo(todo.id);
+                setTodoIdToDelete(id);
+                deleteTodo(id);
               }}
             >
               ×
@@ -125,11 +128,11 @@ export const TodoInfo: React.FC<Props> = ({
           'modal',
           'overlay',
           {
-            'is-active': todo.id === 0
-              || todo.id === todoIdToDelete
+            'is-active': id === 0
+              || id === todoIdToDelete
               || (completedTodos.includes(todo) && isDeleting)
               || (todosToToggle.includes(todo) && isUpdating)
-              || todo.id === todoIdToUpdate,
+              || id === todoIdToUpdate,
           },
         )}
       >

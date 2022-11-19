@@ -36,11 +36,12 @@ export const Header: React.FC<Props> = ({
         onClick={() => toggleAllTodos()}
       />
 
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        addTodo(title);
-        setTitle('');
-      }}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          addTodo(title.trim());
+          setTitle('');
+        }}
       >
         <input
           data-cy="NewTodoField"
