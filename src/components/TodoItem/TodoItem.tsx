@@ -32,12 +32,12 @@ export const TodoItem: React.FC<Props> = ({
   setActiveTodoId,
 }) => {
   const { title, completed, id } = todo;
-  const [isChecked, setisChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const [isExistForm, setIsExistForm] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   const updateTodoStatus = async () => {
-    setisChecked(!isChecked);
+    setIsChecked(!isChecked);
     setIsLoading(true);
     setActiveTodoId(id);
 
