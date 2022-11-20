@@ -28,7 +28,6 @@ export const Header:React.FC<Props> = ({
 }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // setSelectedTodos([user?.id || 0]);
 
     if (title.trim() === '') {
       setErrorMessage("Title can't be empty");
@@ -41,7 +40,6 @@ export const Header:React.FC<Props> = ({
     }
 
     addNewTodo(title);
-    // setSelectedTodos([]);
   };
 
   useEffect(() => {

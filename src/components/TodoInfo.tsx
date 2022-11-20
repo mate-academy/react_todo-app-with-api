@@ -6,7 +6,6 @@ import { chandeTodoText } from '../api/todos';
 type Props = {
   todo: Todo;
   setErrorMessage: (value: string) => void;
-  // isAdding: boolean;
   togleStatus: (
     id: number,
     completed: boolean,
@@ -29,7 +28,9 @@ export const TodoInfo: React.FC<Props> = ({
 
   const newTitle = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = async () => {
+  const handleInputChange = async (event: React.FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
+
     if (title === inputText) {
       setDbClicked(false);
 
@@ -83,14 +84,16 @@ export const TodoInfo: React.FC<Props> = ({
 
       {dbClicked
         ? (
-          <form onSubmit={handleInputChange}>
+          <form
+            onSubmit={handleInputChange}
+            onBlur={handleInputChange}
+          >
             <input
               data-cy="TodoTitleField"
               className="todo__title-field"
               ref={newTitle}
               value={inputText}
               onChange={(event) => setInputText(event.target.value)}
-              onBlur={handleInputChange}
               placeholder="Empty todo will be deleted"
             />
           </form>

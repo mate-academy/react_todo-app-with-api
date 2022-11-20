@@ -52,6 +52,7 @@ export const Footer:React.FC<Props> = ({
         >
           Active
         </a>
+
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"
