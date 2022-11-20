@@ -4,11 +4,13 @@ import { useInput } from '../../utils/useInput';
 type Props = {
   handleAddTodo: (titleNewTodo: string) => Promise<void>;
   isAdding: boolean;
+  addError: (message: string) => void;
 };
 
 export const AddTodoForm: React.FC<Props> = React.memo(({
   handleAddTodo,
   isAdding,
+  addError,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const { value, onChange, clearInput } = useInput('');
@@ -21,7 +23,9 @@ export const AddTodoForm: React.FC<Props> = React.memo(({
       await handleAddTodo(newTitle);
       clearInput();
     } catch (error) {
-      // No need to handle error;
+      if (error instanceof Error) {
+        addError(error.message);
+      }
     }
   };
 

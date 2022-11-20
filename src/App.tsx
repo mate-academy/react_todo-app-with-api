@@ -110,8 +110,7 @@ export const App: React.FC = () => {
       setIsAdding(true);
       await addTodo(user.id, { title, completed: false });
       await getTodosFromAPI();
-    } catch {
-      addError('Unable to add a todo');
+    } catch (error) {
       throw new Error('Unable to add a todo');
     } finally {
       setIsAdding(false);
@@ -139,7 +138,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const deleteCompletedTodos = useCallback(async () => {
-    if (completedTodosId.length !== 0) {
+    if (completedTodosId.length) {
       try {
         await Promise.all(completedTodosId.map(id => deleteOneTodo(id)));
       } catch {
@@ -232,6 +231,7 @@ export const App: React.FC = () => {
           <AddTodoForm
             handleAddTodo={handleAddTodo}
             isAdding={isAdding}
+            addError={addError}
           />
         </header>
 

@@ -8,6 +8,10 @@ function useInput(initialValue: string) {
     setValue(event.target.value);
   };
 
+  const cancelChange = (title: string) => {
+    setValue(title);
+  };
+
   const clearInput = () => {
     setValue('');
   };
@@ -16,6 +20,7 @@ function useInput(initialValue: string) {
     value,
     onChange,
     clearInput,
+    cancelChange,
   };
 }
 

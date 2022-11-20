@@ -22,9 +22,11 @@ export const TodoData: React.FC<Props> = React.memo(({
   const editTodoField = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { value, onChange } = useInput(todo.title);
+  const { value, onChange, cancelChange } = useInput(todo.title);
 
   const { id, title, completed } = todo;
+
+  // const startValue = title;
 
   useEffect(() => {
     if (editTodoField.current) {
@@ -38,6 +40,7 @@ export const TodoData: React.FC<Props> = React.memo(({
 
   const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
+      cancelChange(title);
       setIsEditing(false);
     }
   };
@@ -45,7 +48,9 @@ export const TodoData: React.FC<Props> = React.memo(({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     handleEditing(true);
-    if (value.trim() !== title) {
+    const newValue = value.trim();
+
+    if (newValue !== title) {
       await handleEditTodo(id, value);
     }
 
