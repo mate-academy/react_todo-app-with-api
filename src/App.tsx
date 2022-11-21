@@ -72,12 +72,13 @@ export const App: React.FC = () => {
 
   const addNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const titleTrimmed = title.trim();
 
     if (user) {
       setIsAdding(true);
 
       try {
-        if (!title.trim().length) {
+        if (!titleTrimmed.length) {
           setHasError(true);
           setError(Error.OnTitle);
           setIsAdding(false);
@@ -85,7 +86,7 @@ export const App: React.FC = () => {
           return;
         }
 
-        await addTodo(title, user.id);
+        await addTodo(titleTrimmed, user.id);
         await getTodosFromsServer();
 
         setIsAdding(false);
