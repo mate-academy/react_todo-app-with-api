@@ -89,45 +89,43 @@ export const TodoList: React.FC<Props> = React.memo(({
             />
           </label>
 
-          {isRenamingTodoID === todo.id
-            ? (
-              <form
-                onSubmit={(e) => handleSubmitTodoTitleField(todo, e)}
+          {isRenamingTodoID === todo.id ? (
+            <form
+              onSubmit={(e) => handleSubmitTodoTitleField(todo, e)}
+            >
+              <input
+                data-cy="TodoTitleField"
+                type="text"
+                value={changedTodoTitle}
+                onChange={
+                  e => setChangedTodoTitle(e.target.value)
+                }
+                className="todo__title-field"
+                onBlur={(e) => handleSubmitTodoTitleField(todo, e)}
+                onKeyDown={cancelEditing}
+                ref={todoTitleField}
+              />
+            </form>
+          ) : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => activateTitleField(todo)}
               >
-                <input
-                  data-cy="TodoTitleField"
-                  type="text"
-                  value={changedTodoTitle}
-                  onChange={
-                    e => setChangedTodoTitle(e.target.value)
-                  }
-                  className="todo__title-field"
-                  onBlur={(e) => handleSubmitTodoTitleField(todo, e)}
-                  onKeyDown={cancelEditing}
-                  ref={todoTitleField}
-                />
-              </form>
-            )
-            : (
-              <>
-                <span
-                  data-cy="TodoTitle"
-                  className="todo__title"
-                  onDoubleClick={() => activateTitleField(todo)}
-                >
-                  {todo.title}
-                </span>
+                {todo.title}
+              </span>
 
-                <button
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDeleteButton"
-                  onClick={() => onDelete(todo.id)}
-                >
-                  ×
-                </button>
-              </>
-            )}
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => onDelete(todo.id)}
+              >
+                ×
+              </button>
+            </>
+          )}
 
           {loaderForTodo.includes(todo.id) && <Loader />}
         </div>
