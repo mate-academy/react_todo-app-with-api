@@ -18,6 +18,6 @@ export const ToggleAllButton: React.FC<Props> = React.memo(({
       { active: counterActiveTodos === 0 },
     )}
     aria-label="Toggle Button"
-    onClick={() => handleToggleAllTodos()}
+    onClick={handleToggleAllTodos}
   />
 ));

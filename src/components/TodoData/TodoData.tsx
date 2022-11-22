@@ -26,8 +26,6 @@ export const TodoData: React.FC<Props> = React.memo(({
 
   const { id, title, completed } = todo;
 
-  // const startValue = title;
-
   useEffect(() => {
     if (editTodoField.current) {
       editTodoField.current.focus();
