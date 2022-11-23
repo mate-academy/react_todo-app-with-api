@@ -58,12 +58,18 @@ export const TodoInfo: React.FC<Props> = ({
     if (query === title) {
       setTitleIsInput(false);
       setQuery(title);
-    } else if (query === '') {
-      onDelete(id);
-    } else {
-      onChangeTitle(id, query);
-      setTitleIsInput(false);
+
+      return;
     }
+
+    if (query === '') {
+      onDelete(id);
+
+      return;
+    }
+
+    onChangeTitle(id, query);
+    setTitleIsInput(false);
   }, [query, todo]);
 
   return (
