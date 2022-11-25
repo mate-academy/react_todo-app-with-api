@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useMemo,
   useCallback,
 } from 'react';
 
@@ -12,8 +11,9 @@ import { ErrorMessages } from './components/ErrorMessages';
 import { TodoContent } from './components/TodoContent/TodoContent';
 
 import { Todo } from './types/Todo';
-import { FilterStatus } from './types/FilterStatus';
 import { ErrorType } from './types/ErrorType';
+
+import { TodosContext } from './context/todosContext';
 
 import {
   getTodos,
@@ -22,60 +22,22 @@ import {
   updateTodo,
 } from './api/todos';
 
+import { manageErrors } from './utils/manageErrors';
+
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [proccessedTodoId, setProccessedTodoId] = useState<number[]>([]);
-  const [filterStatus, setFilterStatus] = useState(FilterStatus.All);
+  const [proccessedTodoIds, setProccessedTodoIds] = useState<number[]>([]);
   const [todoTitle, setTodoTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const isEveryTodosComplited = useMemo(() => (
-    todos.every(todo => todo.completed)
-  ), [todos]);
-
-  const countOfTodos = useMemo(() => todos.length, [todos]);
-
-  const countOfLeftTodos = useMemo(() => (
-    todos.filter(todo => !todo.completed).length
-  ), [todos]);
-
-  const hasComplited = useMemo(() => (
-    todos.some(todo => todo.completed)
-  ), [todos]);
-
-  const manageErrors = useCallback((errorType: ErrorType) => {
-    setErrorMessage(() => {
-      switch (errorType) {
-        case ErrorType.Endpoint:
-          return 'Fetch error';
-
-        case ErrorType.Title:
-          return 'Title can`t be empty';
-
-        case ErrorType.Add:
-          return 'Unable to add a todo';
-
-        case ErrorType.Delete:
-          return 'Unable to delete a todo';
-
-        case ErrorType.Update:
-          return 'Unable to update a todo';
-
-        case ErrorType.None:
-        default:
-          return '';
-      }
-    });
-  }, []);
-
   const showError = useCallback((errorType: ErrorType) => {
-    manageErrors(errorType);
+    setErrorMessage(manageErrors(errorType));
     setTimeout(() => {
-      manageErrors(ErrorType.None);
+      setErrorMessage(ErrorType.None);
     }, 3000);
   }, []);
 
@@ -113,7 +75,7 @@ export const App: React.FC = () => {
 
   const deleteTodo = useCallback(async (todoId: number) => {
     try {
-      setProccessedTodoId(currentIds => ([
+      setProccessedTodoIds(currentIds => ([
         ...currentIds,
         todoId,
       ]));
@@ -123,7 +85,7 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorType.Delete);
     } finally {
-      setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
+      setProccessedTodoIds(currentIds => currentIds.slice(todoId, 1));
     }
   }, [todos]);
 
@@ -140,7 +102,7 @@ export const App: React.FC = () => {
     data: boolean,
   ) => {
     try {
-      setProccessedTodoId(currentIds => ([
+      setProccessedTodoIds(currentIds => ([
         ...currentIds,
         todoId,
       ]));
@@ -150,20 +112,8 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorType.Update);
     } finally {
-      setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
+      setProccessedTodoIds(currentIds => currentIds.slice(todoId, 1));
     }
-  }, [todos]);
-
-  const copleteAllTodos = useCallback(() => {
-    todos.forEach(todo => {
-      if (!todo.completed) {
-        changeCompleteStatus(todo.id, todo.completed);
-      }
-
-      if (isEveryTodosComplited) {
-        changeCompleteStatus(todo.id, todo.completed);
-      }
-    });
   }, [todos]);
 
   const changeTodoTitle = useCallback(async (
@@ -171,7 +121,7 @@ export const App: React.FC = () => {
     data: string,
   ) => {
     try {
-      setProccessedTodoId(currentIds => ([
+      setProccessedTodoIds(currentIds => ([
         ...currentIds,
         todoId,
       ]));
@@ -185,7 +135,7 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorType.Update);
     } finally {
-      setProccessedTodoId(currentIds => currentIds.slice(todoId, 1));
+      setProccessedTodoIds(currentIds => currentIds.slice(todoId, 1));
     }
   }, [todos]);
 
@@ -199,27 +149,6 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  const filterTodos = (filterBy: FilterStatus) => {
-    setFilterStatus(filterBy);
-
-    return todos.filter(todo => {
-      switch (filterBy) {
-        case FilterStatus.Active:
-          return !todo.completed;
-
-        case FilterStatus.Completed:
-          return todo.completed;
-
-        default:
-          return todo;
-      }
-    });
-  };
-
-  const filteredTodos = useMemo(() => (
-    filterTodos(filterStatus)
-  ), [filterStatus, todos]);
-
   const onChangeTitle = useCallback((title: string) => {
     setTodoTitle(title);
   }, [todoTitle]);
@@ -228,32 +157,25 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <TodoContent
-        todos={todos}
-        countOfTodos={countOfTodos}
-        countOfLeftTodos={countOfLeftTodos}
-        hasComplited={hasComplited}
-        visibleTodos={filteredTodos}
-        newTodoField={newTodoField}
-        filterTodos={filterTodos}
-        filterStatus={filterStatus}
-        onChangeTitle={onChangeTitle}
-        todoTitle={todoTitle}
-        createNewTodo={createNewTodo}
-        isLoading={isLoading}
-        deleteTodo={deleteTodo}
-        proccessedTodoId={proccessedTodoId}
-        changeCompleteStatus={changeCompleteStatus}
-        deleteAllCompletedTodos={deleteAllCompletedTodos}
-        copleteAllTodos={copleteAllTodos}
-        isEveryTodosComplited={isEveryTodosComplited}
-        changeTodoTitle={changeTodoTitle}
-      />
+      <TodosContext.Provider value={todos}>
+        <TodoContent
+          newTodoField={newTodoField}
+          onChangeTitle={onChangeTitle}
+          todoTitle={todoTitle}
+          createNewTodo={createNewTodo}
+          isLoading={isLoading}
+          deleteTodo={deleteTodo}
+          proccessedTodoIds={proccessedTodoIds}
+          changeCompleteStatus={changeCompleteStatus}
+          deleteAllCompletedTodos={deleteAllCompletedTodos}
+          changeTodoTitle={changeTodoTitle}
+        />
 
-      <ErrorMessages
-        errorMessage={errorMessage}
-        manageErrors={manageErrors}
-      />
+        <ErrorMessages
+          errorMessage={errorMessage}
+          manageErrors={manageErrors}
+        />
+      </TodosContext.Provider>
     </div>
   );
 };

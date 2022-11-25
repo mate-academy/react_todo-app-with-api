@@ -9,7 +9,7 @@ type Props = {
   createNewTodo: (title: string) => void;
   isAdding: boolean;
   copleteAllTodos: () => void;
-  isEveryTodosComplited: boolean;
+  isEveryTodoComplited: boolean;
 };
 
 export const TodoHeader: React.FC<Props> = React.memo(({
@@ -20,7 +20,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
   createNewTodo,
   isAdding,
   copleteAllTodos,
-  isEveryTodosComplited,
+  isEveryTodoComplited,
 }) => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -35,7 +35,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
           data-cy="ToggleAllButton"
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: isEveryTodosComplited,
+            active: isEveryTodoComplited,
           })}
           aria-label="active"
           onClick={copleteAllTodos}

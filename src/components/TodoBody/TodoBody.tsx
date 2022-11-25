@@ -4,32 +4,32 @@ import { AddingTodoItem } from '../AddingTodoItem';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  visibleTodos: Todo[],
+  filteredTodos: Todo[],
   isLoading: boolean,
   todoTitle: string,
   deleteTodo: (todoId: number) => void;
-  proccessedTodoId: number[],
+  proccessedTodoIds: number[],
   changeCompleteStatus: (todoId: number, isComplited: boolean) => void;
   changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoBody: React.FC<Props> = React.memo(({
-  visibleTodos,
+  filteredTodos,
   isLoading,
   todoTitle,
   deleteTodo,
-  proccessedTodoId,
+  proccessedTodoIds,
   changeCompleteStatus,
   changeTodoTitle,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
 
-    {visibleTodos.map(todo => (
+    {filteredTodos.map(todo => (
       <TodoItem
         key={todo.id}
         todo={todo}
         deleteTodo={deleteTodo}
-        proccessedTodoId={proccessedTodoId}
+        proccessedTodoIds={proccessedTodoIds}
         changeCompleteStatus={changeCompleteStatus}
         changeTodoTitle={changeTodoTitle}
       />
