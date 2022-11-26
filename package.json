@@ -36,6 +36,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
+    "server": "json-server --watch db.json --port 5000",
     "start": "mate-scripts start -l",
     "build": "mate-scripts build",
     "test": "mate-scripts test -l",

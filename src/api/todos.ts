@@ -1,5 +1,5 @@
 import { Todo } from '../types/Todo';
-import { client } from '../utils/fetchClient';
+import { client, client2 } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
@@ -38,4 +38,24 @@ export const updateTodo = (
   userId: number, todoId: number, updatedData: UpdatedData,
 ) => {
   return client.patch(`/todos/${todoId}/?userId=${userId}`, updatedData);
+};
+
+// ------------------------------------------------------Own methods-----------------------
+export const getTodos2 = () => {
+  return client2.get2<Todo[]>('/todos');
+};
+
+export const postTodo2
+= (data: NewTodoData): Promise<FullTodoData> => {
+  return client2.post2('/todos', data);
+};
+
+export const deleteTodo2 = (todoId: number) => {
+  return client2.delete2(`/todos/${todoId}`);
+};
+
+export const updateTodo2 = (
+  todoId: number, updatedData: UpdatedData,
+) => {
+  return client2.patch2(`/todos/${todoId}`, updatedData);
 };
