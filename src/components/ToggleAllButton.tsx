@@ -24,6 +24,15 @@ export const ToggleAllButton: FC<Props> = ({
     setIsAddingErrorShown,
   } = useContext(ErrorContext);
 
+  function setErrorsToFalseExceptTogglingError() {
+    setIsEmptyTitleErrorShown(false);
+    setHasLoadingError(false);
+    setIsRemoveErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setIsTogglingErrorShown(true);
+  }
+
   const handleToggleAll = () => {
     setAreTodosToggling(true);
 
@@ -53,12 +62,7 @@ export const ToggleAllButton: FC<Props> = ({
             }));
           })
           .catch(() => {
-            setIsTogglingErrorShown(true);
-            // set all other errors to false so they don`t overlap each other
-            setIsEmptyTitleErrorShown(false);
-            setHasLoadingError(false);
-            setIsRemoveErrorShown(false);
-            setIsAddingErrorShown(false);
+            setErrorsToFalseExceptTogglingError();
 
             setAreTodosToggling(false);
           });

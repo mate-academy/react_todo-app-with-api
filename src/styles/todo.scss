@@ -35,6 +35,24 @@
     transition: color 0.4s;
   }
 
+  &__title-form {
+    padding: 12px 15px;
+
+    word-break: break-all;
+    transition: color 0.4s;
+  }
+
+  &__input {
+    margin: 0;
+    padding: 0 2px;
+    width: 80%;
+    height: 100%;
+    font-family: inherit;
+    font-size: 24px;
+    line-height: 1.4em;
+    font-weight: inherit;
+  }
+
   &.completed &__title {
     color: #d9d9d9;
     text-decoration: line-through;

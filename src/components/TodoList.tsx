@@ -35,6 +35,8 @@ export const TodoList: FC<Props> = ({
   const [isTodoDeleted, setIsTodoDeleted] = useState(true);
   const [isTodoToggled, setIsTodoToggled] = useState(false);
   const [isTodoEdited, setIsTodoEdited] = useState(true);
+  const [isTodoEditing, setIsTodoEditing] = useState(false);
+
   const {
     setIsRemoveErrorShown,
     setHasLoadingError,
@@ -45,6 +47,24 @@ export const TodoList: FC<Props> = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState('');
+
+  function setErrorsToFalseExceptRemoveError() {
+    setIsEmptyTitleErrorShown(false);
+    setHasLoadingError(false);
+    setIsTogglingErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setIsRemoveErrorShown(true);
+  }
+
+  function setErrorsToFalseExceptTogglingError() {
+    setIsEmptyTitleErrorShown(false);
+    setHasLoadingError(false);
+    setIsRemoveErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setIsTogglingErrorShown(true);
+  }
 
   const deleteTodoHandler = (todoId: number) => {
     setIsTodoDeleted(false);
@@ -57,13 +77,7 @@ export const TodoList: FC<Props> = ({
           setIsRemoveErrorShown(false);
         }))
         .catch(() => {
-          // set all other errors to false so they don`t overlap each other
-          setIsEmptyTitleErrorShown(false);
-          setHasLoadingError(false);
-          setIsTogglingErrorShown(false);
-          setIsAddingErrorShown(false);
-
-          setIsRemoveErrorShown(true);
+          setErrorsToFalseExceptRemoveError();
           setIsTodoDeleted(true);
         });
     }
@@ -95,19 +109,11 @@ export const TodoList: FC<Props> = ({
           }));
         })
         .catch(() => {
-          // set all other errors to false so they don`t overlap each other
-          setIsEmptyTitleErrorShown(false);
-          setHasLoadingError(false);
-          setIsRemoveErrorShown(false);
-          setIsAddingErrorShown(false);
-
-          setIsTogglingErrorShown(true);
+          setErrorsToFalseExceptTogglingError();
           setIsTodoToggled(false);
         });
     }
   };
-
-  const [isTodoEditing, setIsTodoEditing] = useState(false);
 
   const onDoubleClick = (index: number) => {
     setIsTodoEditing(true);
@@ -122,6 +128,10 @@ export const TodoList: FC<Props> = ({
     event.preventDefault();
     setIsTodoEdited(false);
 
+    const clickedTodoTitle = visibleTodos.find(todo => {
+      return todo.id === todoId;
+    })?.title;
+
     if (inputRef.current?.value.length === 0) {
       deleteTodo2(/* user.id, */ todoId)
         .then(() => {
@@ -129,17 +139,21 @@ export const TodoList: FC<Props> = ({
           setIsTodoEditing(false);
           setIsTodoEdited(true);
         }).catch(() => {
+          inputRef.current?.blur();
+          setIsTodoEditing(false);
           setIsTodoEdited(true);
 
-          // set all other errors to false so they don`t overlap each other
-          setIsEmptyTitleErrorShown(false);
-          setHasLoadingError(false);
-          setIsTogglingErrorShown(false);
-          setIsAddingErrorShown(false);
+          setIsTodoDeleted(true);
 
-          setIsRemoveErrorShown(true);
-          // setIsTodoDeleted(true);
+          setErrorsToFalseExceptRemoveError();
         });
+
+      return;
+    }
+
+    if (inputValue === clickedTodoTitle) {
+      inputRef.current?.blur();
+      setIsTodoEdited(true);
 
       return;
     }
@@ -154,8 +168,20 @@ export const TodoList: FC<Props> = ({
       ).then(() => {
         setIsTodoEditing(false);
         setIsTodoEdited(true);
+        setVisibleTodos(prevTodos => prevTodos.map(el => {
+          const prevTodo = el;
+
+          if (prevTodo.id === todoId && inputRef.current) {
+            prevTodo.title = inputRef?.current.value;
+          }
+
+          return prevTodo;
+        }));
       }).catch(() => {
-        setIsTodoEdited(false);
+        setIsTodoEdited(true);
+        setIsTodoEditing(false);
+
+        setErrorsToFalseExceptTogglingError();
       });
     }
   };
@@ -206,11 +232,13 @@ export const TodoList: FC<Props> = ({
             </label>
 
             {isTodoEditing && index === clickedIndex ? (
-              <form onSubmit={(event) => onEditSubmit(
-                event,
-                todo.id,
-                todo.completed,
-              )}
+              <form
+                onSubmit={(event) => onEditSubmit(
+                  event,
+                  todo.id,
+                  todo.completed,
+                )}
+                className="todo__title-form"
               >
                 <input
                   type="text"
@@ -219,6 +247,7 @@ export const TodoList: FC<Props> = ({
                   ref={inputRef}
                   onBlur={() => setIsTodoEditing(false)}
                   onKeyDown={onKeyDownHandler}
+                  className="todo__input"
                 />
               </form>
             ) : (

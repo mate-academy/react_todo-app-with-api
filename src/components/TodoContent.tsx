@@ -34,6 +34,33 @@ export const TodoContent = () => {
   ] = useState(false);
   const [areTodosToggling, setAreTodosToggling] = useState(false);
 
+  function setErrorsToFalseExceptLoadingError() {
+    setIsEmptyTitleErrorShown(false);
+    setIsRemoveErrorShown(false);
+    setIsTogglingErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setHasLoadingError(true);
+  }
+
+  function setErrorsToFalseExceptEmptyTitleError() {
+    setHasLoadingError(false);
+    setIsTogglingErrorShown(false);
+    setIsRemoveErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setIsEmptyTitleErrorShown(true);
+  }
+
+  function setErrorsToFalseExceptAddingError() {
+    setHasLoadingError(false);
+    setIsTogglingErrorShown(false);
+    setIsRemoveErrorShown(false);
+    setIsEmptyTitleErrorShown(false);
+
+    setIsAddingErrorShown(true);
+  }
+
   useEffect(() => {
     if (!user) {
       return;
@@ -48,12 +75,7 @@ export const TodoContent = () => {
         setVisibleTodos(fetchedTodos);
       })
       .catch(() => {
-        setHasLoadingError(true);
-        // set all other errors to false so they don`t overlap each other
-        setIsEmptyTitleErrorShown(false);
-        setIsRemoveErrorShown(false);
-        setIsTogglingErrorShown(false);
-        setIsAddingErrorShown(false);
+        setErrorsToFalseExceptLoadingError();
       });
   }, []);
 
@@ -77,14 +99,7 @@ export const TodoContent = () => {
     const inputValue = newTodoField?.current?.value;
 
     if (inputValue?.length === 0) {
-      setIsEmptyTitleErrorShown(false);
-      setIsEmptyTitleErrorShown(true);
-
-      // set all other errors to false so they don`t overlap each other
-      setHasLoadingError(false);
-      setIsTogglingErrorShown(false);
-      setIsRemoveErrorShown(false);
-      setIsAddingErrorShown(false);
+      setErrorsToFalseExceptEmptyTitleError();
 
       return;
     }
@@ -114,13 +129,7 @@ export const TodoContent = () => {
           });
         })
         .catch(() => {
-          // set all other errors to false so they don`t overlap each other
-          setIsEmptyTitleErrorShown(false);
-          setHasLoadingError(false);
-          setIsTogglingErrorShown(false);
-          setIsRemoveErrorShown(false);
-
-          setIsAddingErrorShown(true);
+          setErrorsToFalseExceptAddingError();
 
           setVisibleTodos(prev => prev.slice(0, prev.length - 1));
           setTodos(visibleTodos);
@@ -135,8 +144,8 @@ export const TodoContent = () => {
       <header className="todoapp__header">
         <ToggleAllButton
           visibleTodos={visibleTodos}
-          setAreTodosToggling={setAreTodosToggling}
           setVisibleTodos={setVisibleTodos}
+          setAreTodosToggling={setAreTodosToggling}
         />
 
         <form
@@ -155,8 +164,8 @@ export const TodoContent = () => {
       {visibleTodos.length > 0 && (
         <TodoList
           visibleTodos={visibleTodos}
-          isNewTodoLoaded={isNewTodoLoaded}
           setVisibleTodos={setVisibleTodos}
+          isNewTodoLoaded={isNewTodoLoaded}
           clickedIndex={clickedIndex}
           setClickedIndex={setClickedIndex}
           isCompletedTodosDeleting={isCompletedTodosDeleting}
@@ -165,8 +174,8 @@ export const TodoContent = () => {
       )}
       <Footer
         setVisibleTodos={setVisibleTodos}
-        todos={todos}
         visibleTodos={visibleTodos}
+        todos={todos}
         setIsCompletedTodosDeleting={setIsCompletedTodosDeleting}
       />
     </div>

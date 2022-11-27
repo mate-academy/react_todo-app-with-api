@@ -32,7 +32,17 @@ export const Footer = ({
     setIsEmptyTitleErrorShown,
     setIsTogglingErrorShown,
     setHasLoadingError,
+    setIsAddingErrorShown,
   } = useContext(ErrorContext);
+
+  function setErrorsToFalseExceptRemoveError() {
+    setIsEmptyTitleErrorShown(false);
+    setHasLoadingError(false);
+    setIsTogglingErrorShown(false);
+    setIsAddingErrorShown(false);
+
+    setIsRemoveErrorShown(true);
+  }
 
   useEffect(() => {
     switch (filterType) {
@@ -70,11 +80,7 @@ export const Footer = ({
       setIsRemoveErrorShown(false);
     })
       .catch(() => {
-        setIsRemoveErrorShown(true);
-        setIsEmptyTitleErrorShown(false);
-        setIsTogglingErrorShown(false);
-        setHasLoadingError(false);
-
+        setErrorsToFalseExceptRemoveError();
         setIsCompletedTodosDeleting(false);
       });
   };
