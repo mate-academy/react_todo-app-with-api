@@ -23,6 +23,7 @@ type FullTodoData = {
 
 type UpdatedData = {
   completed: boolean,
+  title: string,
 };
 
 export const postTodo

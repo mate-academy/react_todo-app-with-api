@@ -20,6 +20,16 @@ body {
   pointer-events: none;
 }
 
+label.todo__status-label.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo__remove.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .todoapp__clear-completed.hidden {
   opacity: 0;
   pointer-events: none;
