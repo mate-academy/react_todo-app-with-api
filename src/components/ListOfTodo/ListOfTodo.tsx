@@ -28,20 +28,15 @@ export const ListOfTodo: React.FC<Props> = React.memo(
       .completed === false).length;
 
     const filterTodos = useCallback(() => {
-      let filtered;
-
       switch (currentStatus) {
         case TodoStatus.ACTIVE:
         case TodoStatus.COMPLETED:
-          filtered = todos.filter((todo) => (currentStatus === TodoStatus.ACTIVE
+          return todos.filter((todo) => (currentStatus === TodoStatus.ACTIVE
             ? !todo.completed
             : todo.completed));
-          break;
         default:
-          filtered = todos;
+          return todos;
       }
-
-      return filtered;
     }, [todos, currentStatus]);
 
     const filteredTodos = useMemo(() => filterTodos(), [todos, currentStatus]);

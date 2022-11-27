@@ -1,31 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import cn from 'classnames';
 
 interface Prop {
-  hasError: boolean;
-  setHasError: (value: boolean) => void;
   errorMessage: string;
-  handleErrorClose: () => void;
+  setErrorMessage: (string: string) => void;
 }
 
 export const ErrorOfTodo: React.FC<Prop> = ({
-  hasError,
-  setHasError,
   errorMessage,
-  handleErrorClose,
+  setErrorMessage,
 }) => {
-  useEffect(() => {
-    setTimeout(() => {
-      setHasError(false);
-    }, 3000);
-  }, [hasError]);
-
   return (
     <div
       data-cy="ErrorNotification"
       className={cn(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: !hasError },
+        { hidden: errorMessage !== '' },
       )}
     >
       {/* eslint-disable jsx-a11y/control-has-associated-label */}
@@ -33,7 +23,7 @@ export const ErrorOfTodo: React.FC<Prop> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={handleErrorClose}
+        onClick={() => setErrorMessage('')}
       />
       {errorMessage}
     </div>

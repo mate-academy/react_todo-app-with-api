@@ -20,22 +20,34 @@ export const InfoTodo: React.FC<Props> = ({
   const [isDoubleClick, setIsDoubleClick] = useState(false);
 
   const handleTodoStatus = async () => {
-    setIsLoading(true);
-    await updateTodo(todo.id, { completed: !completed });
-    setIsLoading(false);
-    handleLoadTodos();
+    try {
+      setIsLoading(true);
+      await updateTodo(todo.id, { completed: !completed });
+      setIsLoading(false);
+      handleLoadTodos();
+    } catch {
+      throw new Error();
+    }
   };
 
   const handleDeleteTodo = async () => {
-    setIsLoading(true);
-    await deleteTodo(todo.id);
-    handleLoadTodos();
+    try {
+      setIsLoading(true);
+      await deleteTodo(todo.id);
+      handleLoadTodos();
+    } catch {
+      throw new Error();
+    }
   };
 
   const handleEditTodo = (event: { preventDefault: () => void; }) => {
-    event.preventDefault();
-    updateTodo(todo.id, { title: value });
-    setIsDoubleClick(false);
+    try {
+      event.preventDefault();
+      updateTodo(todo.id, { title: value });
+      setIsDoubleClick(false);
+    } catch {
+      throw new Error();
+    }
   };
 
   return (
@@ -77,6 +89,7 @@ export const InfoTodo: React.FC<Props> = ({
             className="todoapp__new-todo"
             value={value}
             onChange={(event) => setValue(event.target.value)}
+            placeholder="What needs to be done?"
           />
         </form>
       )}

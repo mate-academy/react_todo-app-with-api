@@ -5,40 +5,42 @@ import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
   todos: Todo[];
-  hasTodos: boolean;
   handleLoadTodos: () => void;
   query: string;
-  setQuery: (string: string) => void;
-  setIsEditing: (arg0: boolean) => void;
+  OnQuery: (string: string) => void;
+  OnEditing: (arg0: boolean) => void;
 };
 
 export const NewTodo: React.FC<Props> = ({
   todos,
-  hasTodos,
   handleLoadTodos,
   query,
-  setQuery,
-  setIsEditing,
+  OnQuery,
+  OnEditing,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const user = React.useContext(AuthContext);
 
   const addNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!user) {
+      return;
+    }
+
     if (query.length >= 1) {
-      setIsEditing(true);
+      OnEditing(true);
       if (user) {
-        await createTodo(query, user.id);
+        await createTodo(query.trim(), user.id);
         handleLoadTodos();
-        setQuery('');
+        OnQuery('');
       }
     }
   };
 
-  const toggleAll = async () => {
+  const toggleAll = async (newStatus: boolean) => {
     await Promise.all(
       todos.map((todo: { id: number; completed: boolean }) => updateTodo(
-        todo.id, { completed: !todo.completed }
+        todo.id, { completed: newStatus },
       )),
     );
     handleLoadTodos();
@@ -46,13 +48,13 @@ export const NewTodo: React.FC<Props> = ({
 
   return (
     <>
-      {hasTodos && (
+      {todos.length !== 0 && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           data-cy="ToggleAllButton"
           type="button"
           className="todoapp__toggle-all active"
-          onClick={toggleAll}
+          onClick={() => toggleAll(true)}
         />
       )}
 
@@ -63,7 +65,7 @@ export const NewTodo: React.FC<Props> = ({
           ref={newTodoField}
           className="todoapp__new-todo"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => OnQuery(event.target.value)}
           placeholder="What needs to be done?"
         />
       </form>
