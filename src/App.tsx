@@ -32,7 +32,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorStatus, setErrorStatus] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [isRemoving, setIsRemoving] = useState<number[]>([]);
+  const [todosOnChange, setTodosOnChange] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo>({
     id: 0,
     title: '',
@@ -64,13 +64,13 @@ export const App: React.FC = () => {
         });
         setIsAdding(true);
 
-        const newTodo = await addTodo({
+        await addTodo({
           title: todoTitle,
           userId: user.id,
           completed: false,
         });
 
-        setTodos(currTodos => [...currTodos, newTodo]);
+        loadTodos();
         setIsAdding(false);
       } catch {
         setErrorMessage('Unable to add a todo');
@@ -88,11 +88,11 @@ export const App: React.FC = () => {
 
   const removeTodoFromServer = async (todoId: number) => {
     try {
-      setIsRemoving(prevIds => [...prevIds, todoId]);
+      setTodosOnChange(prevIds => [...prevIds, todoId]);
       await removeTodo(todoId);
 
-      setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId));
-      setIsRemoving(prevIds => prevIds.filter(id => id !== todoId));
+      loadTodos();
+      setTodosOnChange(prevIds => prevIds.filter(id => id !== todoId));
     } catch {
       setErrorMessage('Unable to delete a todo');
       setErrorStatus(true);
@@ -103,7 +103,7 @@ export const App: React.FC = () => {
     try {
       await Promise.all(todos.map(todo => {
         if (todo.completed) {
-          setIsRemoving(prevIds => [...prevIds, todo.id]);
+          setTodosOnChange(prevIds => [...prevIds, todo.id]);
           removeTodo(todo.id);
         }
 
@@ -121,7 +121,7 @@ export const App: React.FC = () => {
 
   const changeTodoOnServer = async (todoId: number, completed: boolean) => {
     try {
-      setIsRemoving(prevIds => [...prevIds, todoId]);
+      setTodosOnChange(prevIds => [...prevIds, todoId]);
       await changeTodo({ completed }, todoId);
 
       setTodos(currTodos => currTodos.map((todo: Todo) => {
@@ -135,7 +135,7 @@ export const App: React.FC = () => {
 
         return todo;
       }));
-      setIsRemoving([]);
+      setTodosOnChange([]);
     } catch {
       setErrorMessage('Unable to update a todo');
       setErrorStatus(true);
@@ -144,21 +144,11 @@ export const App: React.FC = () => {
 
   const changeTitleOnServer = async (todoId: number, title: string) => {
     try {
-      setIsRemoving(prevIds => [...prevIds, todoId]);
+      setTodosOnChange(prevIds => [...prevIds, todoId]);
       await changeTodo({ title }, todoId);
 
-      setTodos(currTodos => currTodos.map((todo: Todo) => {
-        if (todo.id === todoId) {
-          const changedTodo = todo;
-
-          changedTodo.title = title;
-
-          return changedTodo;
-        }
-
-        return todo;
-      }));
-      setIsRemoving([]);
+      loadTodos();
+      setTodosOnChange([]);
     } catch {
       setErrorMessage('Unable to update a todo');
       setErrorStatus(true);
@@ -243,7 +233,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={filteredTodos}
               isAdding={isAdding}
-              isRemoving={isRemoving}
+              todosOnChange={todosOnChange}
               tempTodo={tempTodo}
               removeTodoFromServer={removeTodoFromServer}
               changeTodoOnServer={changeTodoOnServer}

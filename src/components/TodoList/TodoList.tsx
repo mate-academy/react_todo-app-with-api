@@ -9,7 +9,7 @@ import { TodoItem } from '../Todo/TodoItem';
 type Props = {
   todos: Todo[];
   isAdding: boolean;
-  isRemoving: number[];
+  todosOnChange: number[];
   tempTodo: Todo;
   removeTodoFromServer: (todoId: number) => void;
   changeTodoOnServer: (todoId: number, completed: boolean) => void;
@@ -19,7 +19,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   isAdding,
-  isRemoving,
+  todosOnChange,
   tempTodo,
   removeTodoFromServer,
   changeTodoOnServer,
@@ -38,7 +38,7 @@ export const TodoList: React.FC<Props> = ({
               key={todo.id}
               todo={todo}
               removeTodoFromServer={removeTodoFromServer}
-              isAdding={isRemoving.includes(todo.id)}
+              isAdding={todosOnChange.includes(todo.id)}
               changeTodoOnServer={changeTodoOnServer}
               changeTitleOnServer={changeTitleOnServer}
             />
