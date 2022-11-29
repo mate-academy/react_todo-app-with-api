@@ -1,4 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
+
 import { Todo } from '../../types/Todo';
 import { TodoStatus } from '../../types/TodoStatus';
 
@@ -67,26 +72,40 @@ export const TodoList: React.FC<Props> = React.memo(({
   return (
     <>
       <section className="todoapp__main" data-cy="TodoList">
-        {filteredTodos.map(todo => (
-          <TodoInfo
-            todo={todo}
-            key={todo.id}
-            onDelete={onDelete}
-            deletingIds={deletingIds}
-            onChangeStatus={onChangeStatus}
-            onChangeTitle={onChangeTitle}
-          />
-        ))}
+        <TransitionGroup>
+          {filteredTodos.map(todo => (
+            <CSSTransition
+              key={todo.id}
+              timeout={300}
+              classNames="item"
+            >
+              <TodoInfo
+                todo={todo}
+                key={todo.id}
+                onDelete={onDelete}
+                deletingIds={deletingIds}
+                onChangeStatus={onChangeStatus}
+                onChangeTitle={onChangeTitle}
+              />
+            </CSSTransition>
+          ))}
 
-        {(isAdding && tempTodo) && (
-          <TodoInfo
-            todo={tempTodo}
-            onDelete={onDelete}
-            deletingIds={deletingIds}
-            onChangeStatus={onChangeStatus}
-            onChangeTitle={onChangeTitle}
-          />
-        )}
+          {(isAdding && tempTodo) && (
+            <CSSTransition
+              key={0}
+              timeout={300}
+              classNames="temp-item"
+            >
+              <TodoInfo
+                todo={tempTodo}
+                onDelete={onDelete}
+                deletingIds={deletingIds}
+                onChangeStatus={onChangeStatus}
+                onChangeTitle={onChangeTitle}
+              />
+            </CSSTransition>
+          )}
+        </TransitionGroup>
       </section>
 
       <footer className="todoapp__footer" data-cy="Footer">
