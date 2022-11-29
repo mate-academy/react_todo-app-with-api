@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { FC, useContext } from 'react';
-import { /* updateTodo, */ updateTodo2 } from '../api/todos';
+import { updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { AuthContext } from './Auth/AuthContext';
 import { ErrorContext } from './ErrorContext';
@@ -38,32 +38,27 @@ export const ToggleAllButton: FC<Props> = ({
 
     visibleTodos.forEach(todo => {
       if (user) {
-        updateTodo2(/* user.id, */
-          todo.id,
-          {
-            completed: !isToggleAllActive,
-            title: todo.title,
-          },
-        )
-          .then(() => {
-            setIsTogglingErrorShown(false);
-            setAreTodosToggling(false);
+        updateTodo(user.id, todo.id, {
+          completed: !isToggleAllActive,
+          title: todo.title,
+        }).then(() => {
+          setIsTogglingErrorShown(false);
+          setAreTodosToggling(false);
 
-            setVisibleTodos(prev => prev.map(x => {
-              const prevTodo = x;
+          setVisibleTodos(prev => prev.map(x => {
+            const prevTodo = x;
 
-              if (isToggleAllActive) {
-                prevTodo.completed = false;
-              } else {
-                prevTodo.completed = true;
-              }
+            if (isToggleAllActive) {
+              prevTodo.completed = false;
+            } else {
+              prevTodo.completed = true;
+            }
 
-              return prevTodo;
-            }));
-          })
+            return prevTodo;
+          }));
+        })
           .catch(() => {
             setErrorsToFalseExceptTogglingError();
-
             setAreTodosToggling(false);
           });
       }

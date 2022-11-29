@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useContext, useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { /* deleteTodo */ deleteTodo2 } from '../api/todos';
+import { deleteTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
 import { ErrorContext } from './ErrorContext';
 
@@ -70,7 +70,7 @@ export const Footer = ({
     }
 
     const promiseArray = completedTodos.map(completedTodo => {
-      return deleteTodo2(/* user.id */ completedTodo.id);
+      return deleteTodo(user.id, completedTodo.id);
     });
 
     Promise.all(promiseArray).then(() => {

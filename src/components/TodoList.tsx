@@ -3,11 +3,7 @@ import {
   FC, FormEvent, useContext, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import {
-  /* deleteTodo, updateTodo */
-  deleteTodo2,
-  updateTodo2,
-} from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
 import { Loader } from './Loader';
 import { ErrorContext } from './ErrorContext';
@@ -70,7 +66,7 @@ export const TodoList: FC<Props> = ({
     setIsTodoDeleted(false);
 
     if (user) {
-      deleteTodo2(/* user.id, */ todoId) // give user id as first param on deleteTodo
+      deleteTodo(user.id, todoId)
         .then((() => {
           setIsTodoDeleted(true);
           setVisibleTodos(prevTodos => prevTodos.filter(x => x.id !== todoId));
@@ -89,7 +85,7 @@ export const TodoList: FC<Props> = ({
     setIsTodoToggled(true);
 
     if (user && clickedTodo) {
-      updateTodo2(/* user.id, */ todoId,
+      updateTodo(user.id, todoId,
         {
           completed: !clickedTodo?.completed,
           title: todoTitle,
@@ -132,8 +128,8 @@ export const TodoList: FC<Props> = ({
       return todo.id === todoId;
     })?.title;
 
-    if (inputRef.current?.value.length === 0) {
-      deleteTodo2(/* user.id, */ todoId)
+    if (inputRef.current?.value.length === 0 && user) {
+      deleteTodo(user.id, todoId)
         .then(() => {
           setVisibleTodos(prev => prev.filter(x => x.id !== todoId));
           setIsTodoEditing(false);
@@ -159,13 +155,10 @@ export const TodoList: FC<Props> = ({
     }
 
     if (user && inputRef.current) {
-      updateTodo2(/* user.id, */
-        todoId,
-        {
-          title: inputRef.current?.value,
-          completed: todoCompleted,
-        },
-      ).then(() => {
+      updateTodo(user.id, todoId, {
+        title: inputRef.current?.value,
+        completed: todoCompleted,
+      }).then(() => {
         setIsTodoEditing(false);
         setIsTodoEdited(true);
         setVisibleTodos(prevTodos => prevTodos.map(el => {

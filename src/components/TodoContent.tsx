@@ -3,9 +3,7 @@ import {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import { TodoList } from './TodoList';
-import {
-  /* getTodos postTodo */ getTodos2, postTodo2,
-} from '../api/todos';
+import { getTodos, postTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
 import { Footer } from './Footer';
 import { Todo } from '../types/Todo';
@@ -70,7 +68,7 @@ export const TodoContent = () => {
       newTodoField.current.focus();
     }
 
-    getTodos2() // give user id on getTodos
+    getTodos(user.id)
       .then((fetchedTodos) => {
         setVisibleTodos(fetchedTodos);
       })
@@ -85,7 +83,7 @@ export const TodoContent = () => {
         return;
       }
 
-      const fetchedTodos = await getTodos2(); // give user id on getTodos
+      const fetchedTodos = await getTodos(user.id);
 
       setTodos(fetchedTodos);
     }
@@ -117,7 +115,7 @@ export const TodoContent = () => {
     setTodos(visibleTodos);
 
     if (user && newTodoField.current) {
-      postTodo2(newTodoObj) // give user id as first parameter on postTodo
+      postTodo(user.id, newTodoObj)
         .then(data => {
           setIsAddingErrorShown(false);
 
