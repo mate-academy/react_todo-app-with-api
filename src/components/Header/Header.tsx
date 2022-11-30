@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { ChangeEvent } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -35,6 +34,7 @@ export const Header: React.FC<Props> = ({
           className={classNames('todoapp__toggle-all',
             { active: allTodosAreCompleted })}
           onClick={handleToggleAllButton}
+          aria-label="toggleAll"
         />
       )}
 
