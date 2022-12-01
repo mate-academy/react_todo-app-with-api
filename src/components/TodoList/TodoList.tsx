@@ -8,7 +8,7 @@ type Props = {
   todoTemplate: Todo;
   isAdding: boolean;
   handleDeleteTodo: (id: number) => void;
-  selectedId: number[];
+  selectedIds: number[];
   editTodo: (id: number, data: Partial<Todo>) => void;
 };
 
@@ -17,7 +17,7 @@ export const TodoList: React.FC<Props> = ({
   todoTemplate,
   isAdding,
   handleDeleteTodo,
-  selectedId,
+  selectedIds,
   editTodo,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
@@ -32,7 +32,7 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             key={todo.id}
             handleDeleteTodo={handleDeleteTodo}
-            selectedId={selectedId}
+            selectedIds={selectedIds}
             editTodo={editTodo}
           />
         </CSSTransition>
@@ -47,7 +47,7 @@ export const TodoList: React.FC<Props> = ({
           <TodoItem
             todo={todoTemplate}
             handleDeleteTodo={handleDeleteTodo}
-            selectedId={[0]}
+            selectedIds={[0]}
             editTodo={editTodo}
           />
         </CSSTransition>

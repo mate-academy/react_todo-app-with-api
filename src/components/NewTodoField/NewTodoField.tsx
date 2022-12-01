@@ -23,11 +23,9 @@ export const NewTodoField: React.FC<Props> = ({
 }) => {
   const [title, setTitle] = useState('');
 
-  const isAllCompleted = (allTodos: Todo[]) => {
-    const filtredTodos = allTodos.filter(todo => todo.completed);
-
-    return filtredTodos.length === allTodos.length;
-  };
+  const isAllCompleted = (allTodos: Todo[]) => (
+    allTodos.every(todo => todo.completed)
+  );
 
   const handleSubmit = (event: React.FormEvent<HTMLElement>) => {
     event.preventDefault();

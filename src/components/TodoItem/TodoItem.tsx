@@ -5,14 +5,14 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   handleDeleteTodo: (id: number) => void;
-  selectedId: number[];
+  selectedIds: number[];
   editTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   handleDeleteTodo,
-  selectedId,
+  selectedIds,
   editTodo,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -116,7 +116,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               data-cy="TodoLoader"
               className={classNames(
                 'modal overlay',
-                { 'is-active': selectedId.includes(todo.id) },
+                { 'is-active': selectedIds.includes(todo.id) },
               )}
             >
               <div className="modal-background has-background-white-ter" />
