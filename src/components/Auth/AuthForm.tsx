@@ -53,6 +53,12 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    await loadUser();
+
+    if (needToRegister) {
+      await registerUser();
+    }
+
     setErrorMessage('');
     setLoading(true);
 
@@ -63,7 +69,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         await loadUser();
       }
     } catch (error) {
-      setErrorMessage('Something went wrtong');
+      setErrorMessage('Something went wrong');
     } finally {
       setLoading(false);
     }
