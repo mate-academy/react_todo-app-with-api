@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 
 type Props = {
@@ -17,6 +16,7 @@ export const Errors:React.FC<Props> = ({
     <button
       data-cy="HideErrorButton"
       type="button"
+      aria-label="Delete"
       className="delete"
       onClick={() => setErrorMessage('')}
     />

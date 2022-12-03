@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
@@ -54,6 +53,7 @@ export const Header:React.FC<Props> = ({
         <button
           data-cy="ToggleAllButton"
           type="button"
+          aria-label="ToggleAll"
           className={classNames(
             'todoapp__toggle-all',
             { active: completedTodos.length === todos.length },

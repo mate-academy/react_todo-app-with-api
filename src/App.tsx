@@ -85,7 +85,7 @@ export const App: React.FC = () => {
       const newTodo = await addTodo(todoToAdd);
 
       setIsAdding(false);
-      setTodos(currentTodos => [...currentTodos, newTodo]);
+      setTodos(previousTodos => [...previousTodos, newTodo]);
     } catch (error) {
       setErrorMessage('Unable to add a todo');
       setTitle('');
@@ -101,13 +101,9 @@ export const App: React.FC = () => {
     ));
   };
 
-  const activeTodos = todos.filter((todo) => (
-    !todo.completed
-  ));
+  const activeTodos = todos.filter(todo => !todo.completed);
 
-  const completedTodos = todos.filter((todo) => (
-    todo.completed
-  ));
+  const completedTodos = todos.filter(todo => todo.completed);
 
   const deleteTodo = async (id: number) => {
     setActiveTodosId(prevState => [...prevState, id]);
