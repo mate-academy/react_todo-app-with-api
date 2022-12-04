@@ -15,6 +15,7 @@ import { NewTodo } from './components/TodoComponents/NewTodo';
 import { TodoList } from './components/TodoComponents/TodoList';
 import { ErrorTypes } from './types/ErrorTypes';
 import { Todo } from './types/Todo';
+import './App.scss';
 
 export const App: React.FC = () => {
   const [isErrorMessage, setIsErrorMessage]
