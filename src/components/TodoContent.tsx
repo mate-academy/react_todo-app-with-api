@@ -32,6 +32,8 @@ export const TodoContent = () => {
   ] = useState(false);
   const [areTodosToggling, setAreTodosToggling] = useState(false);
 
+  const isContentRendered = todos.length > 0;
+
   function setErrorsToFalseExceptLoadingError() {
     setIsEmptyTitleErrorShown(false);
     setIsRemoveErrorShown(false);
@@ -78,17 +80,11 @@ export const TodoContent = () => {
   }, []);
 
   useEffect(() => {
-    async function updateTodos() {
-      if (!user) {
-        return;
-      }
-
-      const fetchedTodos = await getTodos(user.id);
-
-      setTodos(fetchedTodos);
+    if (!user) {
+      return;
     }
 
-    updateTodos();
+    getTodos(user.id).then(fetchedTodos => setTodos(fetchedTodos));
   }, [visibleTodos]);
 
   function onSubmitHandler(event: FormEvent<HTMLFormElement>) {
@@ -140,11 +136,13 @@ export const TodoContent = () => {
   return (
     <div className="todoapp__content">
       <header className="todoapp__header">
-        <ToggleAllButton
-          visibleTodos={visibleTodos}
-          setVisibleTodos={setVisibleTodos}
-          setAreTodosToggling={setAreTodosToggling}
-        />
+        {visibleTodos.length > 0 && (
+          <ToggleAllButton
+            visibleTodos={visibleTodos}
+            setVisibleTodos={setVisibleTodos}
+            setAreTodosToggling={setAreTodosToggling}
+          />
+        )}
 
         <form
           onSubmit={(event) => onSubmitHandler(event)}
@@ -159,23 +157,26 @@ export const TodoContent = () => {
         </form>
       </header>
 
-      {visibleTodos.length > 0 && (
-        <TodoList
-          visibleTodos={visibleTodos}
-          setVisibleTodos={setVisibleTodos}
-          isNewTodoLoaded={isNewTodoLoaded}
-          clickedIndex={clickedIndex}
-          setClickedIndex={setClickedIndex}
-          isCompletedTodosDeleting={isCompletedTodosDeleting}
-          areTodosToggling={areTodosToggling}
-        />
+      {(isContentRendered) && (
+        <>
+          <TodoList
+            visibleTodos={visibleTodos}
+            setVisibleTodos={setVisibleTodos}
+            isNewTodoLoaded={isNewTodoLoaded}
+            clickedIndex={clickedIndex}
+            setClickedIndex={setClickedIndex}
+            isCompletedTodosDeleting={isCompletedTodosDeleting}
+            areTodosToggling={areTodosToggling}
+          />
+
+          <Footer
+            setVisibleTodos={setVisibleTodos}
+            visibleTodos={visibleTodos}
+            todos={todos}
+            setIsCompletedTodosDeleting={setIsCompletedTodosDeleting}
+          />
+        </>
       )}
-      <Footer
-        setVisibleTodos={setVisibleTodos}
-        visibleTodos={visibleTodos}
-        todos={todos}
-        setIsCompletedTodosDeleting={setIsCompletedTodosDeleting}
-      />
     </div>
   );
 };

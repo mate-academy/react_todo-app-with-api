@@ -26,6 +26,7 @@ export const Footer = ({
 }: Props) => {
   const [filterType, setFilterType] = useState(FilterType.All);
   const completedTodos = visibleTodos.filter(todo => todo.completed);
+  const itemsLeft = todos.filter(todo => !todo.completed).length;
   const user = useContext(AuthContext);
   const {
     setIsRemoveErrorShown,
@@ -88,7 +89,7 @@ export const Footer = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${visibleTodos.length} `}
+        {`${itemsLeft} `}
         items left
       </span>
 

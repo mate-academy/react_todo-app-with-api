@@ -5,8 +5,8 @@ import {
 import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
-import { Loader } from './Loader';
 import { ErrorContext } from './ErrorContext';
+import { Loaders } from './Loaders';
 
 type Props = {
   visibleTodos: Todo[],
@@ -188,6 +188,8 @@ export const TodoList: FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {visibleTodos.map((todo: Todo, index) => {
+        const isCurrentClicked = index === clickedIndex;
+
         return (
           <div
             key={todo.id}
@@ -209,7 +211,7 @@ export const TodoList: FC<Props> = ({
           >
             <label className={classNames(
               'todo__status-label',
-              { hidden: isTodoEditing && index === clickedIndex },
+              { hidden: isTodoEditing && isCurrentClicked },
             )}
             >
               <input
@@ -264,29 +266,16 @@ export const TodoList: FC<Props> = ({
               ×
             </button>
 
-            {index === clickedIndex && (
-              <Loader
-                isActiveCondition={((!isNewTodoLoaded))}
-              />
-            )}
-
-            {index === clickedIndex && (
-              <Loader isActiveCondition={isTodoToggled} />
-            )}
-
-            {index === clickedIndex && (
-              <Loader isActiveCondition={!isTodoDeleted} />
-            )}
-
-            {index === clickedIndex && (
-              <Loader isActiveCondition={!isTodoEdited} />
-            )}
-
-            <Loader
-              isActiveCondition={(todo.completed && isCompletedTodosDeleting)}
+            <Loaders
+              isCurrentClicked={isCurrentClicked}
+              isNewTodoLoaded={isNewTodoLoaded}
+              isTodoToggled={isTodoToggled}
+              isTodoDeleted={isTodoDeleted}
+              isTodoEdited={isTodoEdited}
+              areTodosToggling={areTodosToggling}
+              todoCompleted={todo.completed}
+              isCompletedTodosDeleting={isCompletedTodosDeleting}
             />
-
-            <Loader isActiveCondition={areTodosToggling} />
           </div>
         );
       })}

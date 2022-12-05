@@ -2,6 +2,14 @@ import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
 import { ErrorContext } from './ErrorContext';
 
+enum ErrorMessage {
+  Load = 'Unable to load your todos',
+  EmptyTitle = 'Title can`t be empty',
+  Update = 'Unable to update todo',
+  Delete = 'Unable to delete todo',
+  Add = 'Unable to add todo',
+}
+
 export const ErrorNotification = () => {
   const {
     isTogglingErrorShown,
@@ -17,10 +25,19 @@ export const ErrorNotification = () => {
   } = useContext(ErrorContext);
 
   const [isClosePressed, setIsClosePressed] = useState(false);
+  const hideErrorHandler = () => {
+    setIsClosePressed(true);
+    setIsEmptyTitleErrorShown(false);
+    if (setIsTogglingErrorShown) {
+      setIsTogglingErrorShown(false);
+    }
+  };
 
-  const isErrorHidden = (((!hasLoadingError || isClosePressed)
-  && !isEmptyTitleErrorShown) && !isTogglingErrorShown) && !isRemoveErrorShown
-  && !isAddingErrorShown;
+  const isErrorHidden = (!hasLoadingError || isClosePressed)
+    && !isEmptyTitleErrorShown
+    && !isTogglingErrorShown
+    && !isRemoveErrorShown
+    && !isAddingErrorShown;
 
   useEffect(() => {
     const setErrors = () => {
@@ -57,19 +74,13 @@ export const ErrorNotification = () => {
         type="button"
         data-cy="HideErrorButton"
         className="delete"
-        onClick={() => {
-          setIsClosePressed(true);
-          setIsEmptyTitleErrorShown(false);
-          if (setIsTogglingErrorShown) {
-            setIsTogglingErrorShown(false);
-          }
-        }}
+        onClick={hideErrorHandler}
       />
-      {hasLoadingError && ('Unable to load your todos')}
-      {isEmptyTitleErrorShown && !hasLoadingError && ('Title can`t be empty')}
-      {isTogglingErrorShown && !hasLoadingError && ('Unable to update todo')}
-      {isRemoveErrorShown && !hasLoadingError && ('Unable to delete todo')}
-      {isAddingErrorShown && !hasLoadingError && ('Unable to add todo')}
+      {hasLoadingError && ErrorMessage.Load}
+      {isEmptyTitleErrorShown && !hasLoadingError && ErrorMessage.EmptyTitle}
+      {isTogglingErrorShown && !hasLoadingError && ErrorMessage.Update}
+      {isRemoveErrorShown && !hasLoadingError && ErrorMessage.Delete}
+      {isAddingErrorShown && !hasLoadingError && ErrorMessage.Add}
       <br />
     </div>
   );
