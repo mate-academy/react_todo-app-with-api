@@ -129,12 +129,15 @@ $todo-height: 58px;
 
 .item-enter {
   max-height: 0;
+  opacity: 0;
 }
 
 .item-enter-active {
   overflow: hidden;
+  opacity: 1;
   max-height: $todo-height;
-  transition: max-height $transition-duration ease-in-out;
+  transition: $transition-duration ease-in-out;
+  transition-property: max-height, opacity;
 }
 
 .item-exit {

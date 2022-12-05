@@ -2,6 +2,7 @@ import {
   FormEvent,
   useContext, useEffect, useRef, useState,
 } from 'react';
+import { CSSTransition } from 'react-transition-group';
 import { TodoList } from './TodoList';
 import { getTodos, postTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
@@ -157,26 +158,28 @@ export const TodoContent = () => {
         </form>
       </header>
 
-      {(isContentRendered) && (
-        <>
-          <TodoList
-            visibleTodos={visibleTodos}
-            setVisibleTodos={setVisibleTodos}
-            isNewTodoLoaded={isNewTodoLoaded}
-            clickedIndex={clickedIndex}
-            setClickedIndex={setClickedIndex}
-            isCompletedTodosDeleting={isCompletedTodosDeleting}
-            areTodosToggling={areTodosToggling}
-          />
+      <TodoList
+        visibleTodos={visibleTodos}
+        setVisibleTodos={setVisibleTodos}
+        isNewTodoLoaded={isNewTodoLoaded}
+        clickedIndex={clickedIndex}
+        setClickedIndex={setClickedIndex}
+        isCompletedTodosDeleting={isCompletedTodosDeleting}
+        areTodosToggling={areTodosToggling}
+      />
 
-          <Footer
-            setVisibleTodos={setVisibleTodos}
-            visibleTodos={visibleTodos}
-            todos={todos}
-            setIsCompletedTodosDeleting={setIsCompletedTodosDeleting}
-          />
-        </>
-      )}
+      <CSSTransition
+        in={isContentRendered}
+        timeout={100}
+        classNames="footer"
+      >
+        <Footer
+          setVisibleTodos={setVisibleTodos}
+          visibleTodos={visibleTodos}
+          todos={todos}
+          setIsCompletedTodosDeleting={setIsCompletedTodosDeleting}
+        />
+      </CSSTransition>
     </div>
   );
 };
