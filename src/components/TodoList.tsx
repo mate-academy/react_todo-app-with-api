@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import {
   FC, FormEvent, useContext, useRef, useState,
 } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { AuthContext } from './Auth/AuthContext';
@@ -187,98 +188,108 @@ export const TodoList: FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos.map((todo: Todo, index) => {
-        const isCurrentClicked = index === clickedIndex;
+      <TransitionGroup
+        className="item"
+      >
+        {visibleTodos.map((todo: Todo, index) => {
+          const isCurrentClicked = index === clickedIndex;
 
-        return (
-          <div
-            key={todo.id}
-            data-cy="Todo"
-            className={classNames(
-              'todo',
-              { completed: todo.completed },
-            )}
-            onDoubleClick={() => {
-              onDoubleClick(index);
-              setInputValue(todo.title);
-              setIsTodoEditing(true);
-              setTimeout(() => {
-                if (inputRef) {
-                  inputRef.current?.focus();
-                }
-              }, 0);
-            }}
-          >
-            <label className={classNames(
-              'todo__status-label',
-              { hidden: isTodoEditing && isCurrentClicked },
-            )}
+          return (
+            <CSSTransition
+              key={todo.id}
+              classNames="temp-item"
+              timeout={300}
             >
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                defaultChecked
-                onClick={() => {
-                  setClickedIndex(index);
-                  handleToggleTodo(todo.id, todo.title);
-                }}
-              />
-            </label>
-
-            {isTodoEditing && index === clickedIndex ? (
-              <form
-                onSubmit={(event) => onEditSubmit(
-                  event,
-                  todo.id,
-                  todo.completed,
+              <div
+                key={todo.id}
+                data-cy="Todo"
+                className={classNames(
+                  'todo',
+                  { completed: todo.completed },
                 )}
-                className="todo__title-form"
+                onDoubleClick={() => {
+                  onDoubleClick(index);
+                  setInputValue(todo.title);
+                  setIsTodoEditing(true);
+                  setTimeout(() => {
+                    if (inputRef) {
+                      inputRef.current?.focus();
+                    }
+                  }, 0);
+                }}
               >
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  ref={inputRef}
-                  onBlur={() => setIsTodoEditing(false)}
-                  onKeyDown={onKeyDownHandler}
-                  className="todo__input"
+                <label className={classNames(
+                  'todo__status-label',
+                  { hidden: isTodoEditing && isCurrentClicked },
+                )}
+                >
+                  <input
+                    data-cy="TodoStatus"
+                    type="checkbox"
+                    className="todo__status"
+                    defaultChecked
+                    onClick={() => {
+                      setClickedIndex(index);
+                      handleToggleTodo(todo.id, todo.title);
+                    }}
+                  />
+                </label>
+
+                {isTodoEditing && index === clickedIndex ? (
+                  <form
+                    onSubmit={(event) => onEditSubmit(
+                      event,
+                      todo.id,
+                      todo.completed,
+                    )}
+                    className="todo__title-form"
+                  >
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      ref={inputRef}
+                      onBlur={() => setIsTodoEditing(false)}
+                      onKeyDown={onKeyDownHandler}
+                      className="todo__input"
+                    />
+                  </form>
+                ) : (
+                  <span data-cy="TodoTitle" className="todo__title">
+                    {todo.title}
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  className={classNames(
+                    'todo__remove',
+                    { hidden: isTodoEditing && index === clickedIndex },
+                  )}
+                  data-cy="TodoDeleteButton"
+                  onClick={() => {
+                    setClickedIndex(index);
+                    deleteTodoHandler(todo.id);
+                  }}
+                >
+                  ×
+                </button>
+
+                <Loaders
+                  isCurrentClicked={isCurrentClicked}
+                  isNewTodoLoaded={isNewTodoLoaded}
+                  isTodoToggled={isTodoToggled}
+                  isTodoDeleted={isTodoDeleted}
+                  isTodoEdited={isTodoEdited}
+                  areTodosToggling={areTodosToggling}
+                  todoCompleted={todo.completed}
+                  isCompletedTodosDeleting={isCompletedTodosDeleting}
                 />
-              </form>
-            ) : (
-              <span data-cy="TodoTitle" className="todo__title">
-                {todo.title}
-              </span>
-            )}
-
-            <button
-              type="button"
-              className={classNames(
-                'todo__remove',
-                { hidden: isTodoEditing && index === clickedIndex },
-              )}
-              data-cy="TodoDeleteButton"
-              onClick={() => {
-                setClickedIndex(index);
-                deleteTodoHandler(todo.id);
-              }}
-            >
-              ×
-            </button>
-
-            <Loaders
-              isCurrentClicked={isCurrentClicked}
-              isNewTodoLoaded={isNewTodoLoaded}
-              isTodoToggled={isTodoToggled}
-              isTodoDeleted={isTodoDeleted}
-              isTodoEdited={isTodoEdited}
-              areTodosToggling={areTodosToggling}
-              todoCompleted={todo.completed}
-              isCompletedTodosDeleting={isCompletedTodosDeleting}
-            />
-          </div>
-        );
-      })}
+              </div>
+            </CSSTransition>
+          );
+        })}
+      </TransitionGroup>
     </section>
   );
 };

@@ -1,3 +1,6 @@
+$transition-duration: .3s;
+$todo-height: 58px;
+
 .todo {
   position: relative;
 
@@ -122,4 +125,51 @@
 
     opacity: 0.5;
   }
+}
+
+.item-enter {
+  max-height: 0;
+}
+
+.item-enter-active {
+  overflow: hidden;
+  max-height: $todo-height;
+  transition: max-height $transition-duration ease-in-out;
+}
+
+.item-exit {
+  max-height: $todo-height;
+}
+
+.item-exit-active {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height $transition-duration ease-in-out;
+}
+
+.temp-item-enter {
+  max-height: 0;
+}
+
+.temp-item-enter-active {
+  overflow: hidden;
+  max-height: $todo-height;
+  transition: max-height $transition-duration ease-in-out;
+}
+
+.temp-item-exit {
+  max-height: $todo-height;
+}
+
+.temp-item-exit-active {
+  transform: translateY(-($todo-height));
+  opacity: 0;
+  max-height: 0;
+  transition: $transition-duration ease-in-out;
+  transition-property: max-height, transform;
+}
+
+.has-error .temp-item-exit-active {
+  transform: translateY(0);
+  overflow: hidden;
 }
