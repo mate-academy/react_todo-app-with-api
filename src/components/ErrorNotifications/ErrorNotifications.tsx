@@ -26,7 +26,6 @@ export const ErrorNotifications: React.FC<Props> = ({
         aria-label="Hide Error"
         onClick={handleErrorClose}
       />
-
       {isError.message}
     </div>
   );

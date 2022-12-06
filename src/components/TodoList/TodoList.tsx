@@ -38,6 +38,11 @@ export const TodoList: React.FC<Props> = ({
     }
   }, []);
 
+  const handleDoubleClick = async (id: number, title: string) => {
+    setTodoIdToChange(id);
+    setNewTitle(title);
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {(todos.length > 0 || isTodoOnLoad) && (
@@ -82,10 +87,7 @@ export const TodoList: React.FC<Props> = ({
                   <span
                     data-cy="TodoTitle"
                     className="todo__title"
-                    onDoubleClick={() => {
-                      setTodoIdToChange(todo.id);
-                      setNewTitle(todo.title);
-                    }}
+                    onDoubleClick={() => handleDoubleClick(todo.id, todo.title)}
                   >
                     {todo.title}
                   </span>

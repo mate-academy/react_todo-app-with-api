@@ -44,9 +44,7 @@ export const Header: React.FC<Props> = ({
           data-cy="NewTodoField"
           type="text"
           ref={newTodoField}
-          className={classNames(
-            'todoapp__new-todo',
-          )}
+          className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
