@@ -102,7 +102,7 @@ export const TodoContent = () => {
     setIsNewTodoLoaded(false);
 
     const newTodoObj = {
-      title: newTodoField.current?.value || '',
+      title: newTodoField.current?.value.trim() || '',
       userId: user?.id || 0,
       completed: false,
       id: 0,
@@ -146,7 +146,7 @@ export const TodoContent = () => {
         )}
 
         <form
-          onSubmit={(event) => onSubmitHandler(event)}
+          onSubmit={onSubmitHandler}
         >
           <input
             data-cy="NewTodoField"

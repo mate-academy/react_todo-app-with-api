@@ -48,11 +48,7 @@ export const ToggleAllButton: FC<Props> = ({
           setVisibleTodos(prev => prev.map(x => {
             const prevTodo = x;
 
-            if (isToggleAllActive) {
-              prevTodo.completed = false;
-            } else {
-              prevTodo.completed = true;
-            }
+            prevTodo.completed = !isToggleAllActive;
 
             return prevTodo;
           }));

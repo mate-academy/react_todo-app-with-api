@@ -157,7 +157,7 @@ export const TodoList: FC<Props> = ({
 
     if (user && inputRef.current) {
       updateTodo(user.id, todoId, {
-        title: inputRef.current?.value,
+        title: inputRef.current?.value.trim(),
         completed: todoCompleted,
       }).then(() => {
         setIsTodoEditing(false);
@@ -247,7 +247,7 @@ export const TodoList: FC<Props> = ({
                     <input
                       type="text"
                       value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
+                      onChange={(event) => setInputValue(event.target.value)}
                       ref={inputRef}
                       onBlur={() => setIsTodoEditing(false)}
                       onKeyDown={onKeyDownHandler}
