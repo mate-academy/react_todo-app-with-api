@@ -8,6 +8,7 @@ type Props = {
   visibleTodos: Todo[],
   setVisibleTodos: (param: Todo[]) => void,
   onRemoveCompleted: () => Promise<void>,
+  completedTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const Footer: React.FC<Props> = ({
   visibleTodos,
   setVisibleTodos,
   onRemoveCompleted,
+  completedTodos,
 }) => {
   const [filterType, setFilterType] = useState<Filters>(Filters.all);
 
@@ -80,24 +82,21 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {visibleTodos.length ? (
-        <button
-          aria-label="ClearCompletedButton"
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onRemoveCompleted}
-        >
-          Clear completed
-        </button>
-      ) : (
-        <button
-          aria-label="ClearCompletedButton"
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-        />
-      )}
+      <button
+        aria-label="ClearCompletedButton"
+        data-cy="ClearCompletedButton"
+        type="button"
+        className={classNames(
+          'todoapp__clear-completed',
+          {
+            hidden: !completedTodos.length,
+          },
+        )}
+        onClick={onRemoveCompleted}
+      >
+        Clear completed
+      </button>
+
     </footer>
   );
 };

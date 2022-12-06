@@ -17,6 +17,7 @@ export const ErrorNotification: React.FC<Props> = ({
     [ErrorTypes.upload]: 'Unable to add a todo',
     [ErrorTypes.delete]: 'Unable to delete a todo',
     [ErrorTypes.title]: 'Title can\'t be empty',
+    [ErrorTypes.update]: 'Unable to update a todo',
     [ErrorTypes.none]: '',
   };
 

@@ -6,12 +6,14 @@ type Props = {
   todo: Todo,
   onRemove: (id: number) => Promise<void>,
   activeTodoIds: number[],
+  onTodoToogle: (id: number, completed: boolean) => Promise<void>,
 };
 
 export const TodoInfo: React.FC<Props> = React.memo(({
   todo,
   onRemove,
   activeTodoIds,
+  onTodoToogle,
 }) => {
   return (
     <div
@@ -27,6 +29,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onChange={() => onTodoToogle(todo.id, !todo.completed)}
         />
       </label>
 

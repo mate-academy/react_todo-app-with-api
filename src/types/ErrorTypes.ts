@@ -4,4 +4,5 @@ export enum ErrorTypes {
   load,
   upload,
   delete,
+  update,
 }

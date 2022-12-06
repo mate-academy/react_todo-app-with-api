@@ -2,10 +2,11 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import {
-  addTodo, deleteTodo, getCompletedTodos, getTodos,
+  addTodo, deleteTodo, getCompletedTodos, getTodos, updateTodoStatus,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 
@@ -40,6 +41,16 @@ export const App: React.FC = () => {
       setIsErrorMessage(ErrorTypes.load);
     }
   }, []);
+
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed),
+    [todos],
+  );
+
+  const activeTodosCount = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
   const addNewTodo = async (title: string) => {
     try {
@@ -85,11 +96,11 @@ export const App: React.FC = () => {
   const removeCompletedTodos = async () => {
     try {
       if (user) {
-        const completedTodos = await getCompletedTodos(user.id);
+        const todosToRemove = await getCompletedTodos(user.id);
 
-        setActiveTodoIds(completedTodos.map(todo => todo.id));
+        setActiveTodoIds(todosToRemove.map(todo => todo.id));
 
-        await Promise.all(completedTodos.map(async ({ id }) => {
+        await Promise.all(todosToRemove.map(async ({ id }) => {
           await deleteTodo(id);
         }));
 
@@ -98,6 +109,33 @@ export const App: React.FC = () => {
       }
     } catch {
       setIsErrorMessage(ErrorTypes.delete);
+    }
+  };
+
+  const toggleTodoStatus = async (id: number, completed: boolean) => {
+    try {
+      if (user) {
+        setActiveTodoIds(prevIds => [...prevIds, id]);
+        await updateTodoStatus(id, completed);
+        await loadTodos();
+
+        setActiveTodoIds(prevIds => prevIds.filter(todoId => todoId !== id));
+      }
+    } catch {
+      setIsErrorMessage(ErrorTypes.update);
+    }
+  };
+
+  const toggleAllTodoStatus = async () => {
+    try {
+      const toggeledTodos = activeTodosCount
+        ? todos.filter(todo => !todo.completed)
+        : todos;
+
+      await Promise.all(toggeledTodos.map(({ id, completed }) => (
+        toggleTodoStatus(id, !completed))));
+    } catch {
+      setIsErrorMessage(ErrorTypes.update);
     }
   };
 
@@ -116,6 +154,7 @@ export const App: React.FC = () => {
             data-cy="ToggleAllButton"
             type="button"
             className="todoapp__toggle-all active"
+            onClick={toggleAllTodoStatus}
           />
 
           <NewTodo
@@ -133,6 +172,7 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               onRemove={removeTodo}
               activeTodoIds={activeTodoIds}
+              onTodoToogle={toggleTodoStatus}
             />
 
             <Footer
@@ -140,6 +180,7 @@ export const App: React.FC = () => {
               visibleTodos={visibleTodos}
               setVisibleTodos={setVisibleTodos}
               onRemoveCompleted={removeCompletedTodos}
+              completedTodos={completedTodos}
             />
           </>
         )}

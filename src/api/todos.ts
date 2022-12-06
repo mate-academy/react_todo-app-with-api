@@ -16,3 +16,10 @@ export const deleteTodo = (todoId: number) => {
 export const getCompletedTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}&completed=true`);
 };
+
+export const updateTodoStatus = (id: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${id}`, {
+    id,
+    completed,
+  });
+};

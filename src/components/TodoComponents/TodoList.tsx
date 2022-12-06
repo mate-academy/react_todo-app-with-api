@@ -9,6 +9,7 @@ type Props = {
   isAdding: boolean,
   onRemove: (id: number) => Promise<void>,
   activeTodoIds: number[],
+  onTodoToogle: (id: number, completed: boolean) => Promise<void>,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,6 +18,7 @@ export const TodoList: React.FC<Props> = ({
   isAdding,
   onRemove,
   activeTodoIds,
+  onTodoToogle,
 }) => (
 
   <section className="todoapp__main" data-cy="TodoList">
@@ -32,6 +34,7 @@ export const TodoList: React.FC<Props> = ({
             key={todo.id}
             onRemove={onRemove}
             activeTodoIds={activeTodoIds}
+            onTodoToogle={onTodoToogle}
           />
         </CSSTransition>
       ))}
@@ -47,6 +50,7 @@ export const TodoList: React.FC<Props> = ({
             key={tempTodo.id}
             onRemove={onRemove}
             activeTodoIds={activeTodoIds}
+            onTodoToogle={onTodoToogle}
           />
         </CSSTransition>
       )}
