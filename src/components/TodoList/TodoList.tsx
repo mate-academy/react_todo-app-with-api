@@ -4,7 +4,6 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[];
-  todoTemp: Todo | null;
   onDelete: (id: number) => Promise<void>;
   isAdding: boolean;
   activeTodoID: number[];
@@ -14,7 +13,6 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  todoTemp,
   onDelete,
   activeTodoID,
   changeTodo,
@@ -34,18 +32,6 @@ export const TodoList: React.FC<Props> = ({
           showError={showError}
         />
       ))}
-
-      {todoTemp && (
-        <TodoItem
-          todo={todoTemp}
-          key={todoTemp.id}
-          onDelete={onDelete}
-          activeTodoID={activeTodoID}
-          changeTodo={changeTodo}
-          isAdding={isAdding}
-          showError={showError}
-        />
-      )}
     </section>
   );
 };

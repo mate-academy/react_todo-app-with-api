@@ -30,7 +30,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.NONE);
   const [filterBy, setFilterBy] = useState<Filter>(Filter.All);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todoTemp, setTodoTemp] = useState<Todo | null>(null);
   const [todosFiltered, setTodosFiltered] = useState<Todo[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [activeTodoID, setActiveTodoID] = useState<number[]>([]);
@@ -46,8 +45,9 @@ export const App: React.FC = () => {
   const loadTodos = useCallback(async () => {
     try {
       if (user) {
-        await getTodos(user.id)
-          .then(data => setTodos(data));
+        const todosFromServer = await getTodos(user.id);
+
+        setTodos(todosFromServer);
       }
     } catch (e) {
       showError(Errors.UNEXPECTED);
@@ -57,21 +57,12 @@ export const App: React.FC = () => {
   const addNewTodo = async (title: string) => {
     try {
       if (user) {
-        const tempTodo: Todo = {
-          id: 0,
-          userId: user.id,
-          completed: false,
-          title: `TEMPTODO ${title}`,
-        };
-
         const newTodo: Todo = {
           id: todos.length,
           userId: user.id,
           completed: false,
           title,
         };
-
-        setTodoTemp(tempTodo);
 
         setActiveTodoID(currentTodoIds => [...currentTodoIds, newTodo.id]);
         await addTodo(newTodo);
@@ -83,7 +74,6 @@ export const App: React.FC = () => {
       showError(Errors.ADD);
     } finally {
       setIsAdding(false);
-      setTodoTemp(null);
     }
   };
 
@@ -186,7 +176,6 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={todosFiltered}
-              todoTemp={todoTemp}
               isAdding={isAdding}
               onDelete={deleteTodo}
               activeTodoID={activeTodoID}
