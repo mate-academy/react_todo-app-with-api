@@ -58,7 +58,7 @@ export const App: React.FC = () => {
     try {
       if (user) {
         const newTodo: Todo = {
-          id: todos.length,
+          id: 0,
           userId: user.id,
           completed: false,
           title,

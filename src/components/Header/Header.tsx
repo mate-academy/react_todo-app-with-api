@@ -51,8 +51,9 @@ export const Header: React.FC<Props> = ({
     if (!title.trim()) {
       showError(Errors.TITLE);
     } else {
-      await addNewTodo(title);
-      await setTitle('');
+      addNewTodo(title);
+      newTodoField.current?.blur();
+      setTitle('');
     }
   };
 
