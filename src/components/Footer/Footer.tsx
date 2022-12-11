@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
@@ -16,8 +16,10 @@ export const Footer: React.FC<Props> = ({
   setFilterType,
   clearCompleted,
 }) => {
-  const hasCompleted = todos.some(todo => todo.completed);
-  const countOfActive = todos.filter(todo => !todo.completed).length;
+  const hasCompleted
+  = useMemo(() => todos.some(todo => todo.completed), [todos]);
+  const countOfActive
+  = useMemo(() => todos.filter(todo => !todo.completed).length, [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">

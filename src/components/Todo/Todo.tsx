@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { removeTodo, editTodos } from '../../api/todos';
+import { removeTodo, editTodo } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
@@ -46,10 +46,10 @@ export const TodoComponent: React.FC<Props> = ({
     }
   };
 
-  const editTodo = async (toDo: Todo) => {
+  const editTodos = async (toDo: Todo) => {
     const trimTitle = inputTitle.trim();
 
-    if (trimTitle.length < 1) {
+    if (!trimTitle.length) {
       setClickedTodo(null);
       removeTodo(toDo);
 
@@ -68,7 +68,7 @@ export const TodoComponent: React.FC<Props> = ({
       }
 
       setClickedTodo(null);
-      await editTodos(toDo, trimTitle);
+      await editTodo(toDo, trimTitle);
     } catch {
       setErrorMessage('Unable to update a todo');
     }
@@ -97,7 +97,7 @@ export const TodoComponent: React.FC<Props> = ({
   }, [clickedTodo]);
 
   const onBlur = (toDo: Todo) => {
-    editTodo(toDo);
+    editTodos(toDo);
   };
 
   const onEditting = (toDo: Todo) => {
@@ -140,7 +140,7 @@ export const TodoComponent: React.FC<Props> = ({
         )
         : (
           <form
-            onSubmit={() => editTodo(todo)}
+            onSubmit={() => editTodos(todo)}
           >
             <input
               data-cy="TodoTitle"

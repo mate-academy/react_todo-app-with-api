@@ -2,7 +2,7 @@ import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
-  return client.get<Todo[]>(`/todos?userId=${userId}`) || null;
+  return client.get<Todo[]>(`/todos?userId=${userId}`) || [];
 };
 
 export const createTodos = (todo: Todo) => {
@@ -23,6 +23,6 @@ export const updateTodo = (todo: Todo, completed: boolean) => {
   return client.patch(`/todos/${todo.id}`, { completed });
 };
 
-export const editTodos = (todo: Todo, title: string) => {
+export const editTodo = (todo: Todo, title: string) => {
   return client.patch(`/todos/${todo.id}`, { title });
 };
