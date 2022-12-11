@@ -38,9 +38,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
       setFilteredTodos(todosFromServer);
-    } 
-    
-    catch {
+    } catch {
       showError('unable to download todo');
     }
   };
@@ -67,13 +65,9 @@ export const App: React.FC = () => {
       const response = await addTodo(user.id, todo);
 
       setTodos([...todos, response]);
-    } 
-    
-    catch {
+    } catch {
       showError('Unable to add a todo');
-    } 
-    
-    finally {
+    } finally {
       setIsAdding(false);
       setTempTodo(null);
       setNewTodoTitle('');
@@ -103,13 +97,9 @@ export const App: React.FC = () => {
         .filter(todo => !ids.includes(todo.id));
 
       setTodos(todosToStay);
-    } 
-    
-    catch (error) {
+    } catch (error) {
       showError('Unable to delete a todo');
-    } 
-    
-    finally {
+    } finally {
       setActiveTodoId([]);
     }
   }, [todos]);
@@ -153,13 +143,9 @@ export const App: React.FC = () => {
       });
 
       setTodos(updatedTodos);
-    } 
-    
-    catch {
+    } catch {
       showError('Unable to update a todo');
-    } 
-    
-    finally {
+    } finally {
       setActiveTodoId([]);
     }
   }, [todos]);
@@ -168,6 +154,7 @@ export const App: React.FC = () => {
     if (!user) {
       return;
     }
+
     setActiveTodoId([todoToUpdate.id]);
 
     try {
@@ -178,13 +165,9 @@ export const App: React.FC = () => {
       if (updatedTodo) {
         updatedTodo.title = todoToUpdate.title;
       }
-    } 
-    
-    catch (error) {
+    } catch (error) {
       showError('Unable to update a todo');
-    } 
-    
-    finally {
+    } finally {
       setActiveTodoId([]);
     }
   }, [todos]);
