@@ -106,7 +106,7 @@ export const SingleTodo = React.memo<Props>(({
         </>
       )
         : (
-          <form onSubmit={(event) => handleSubmit(event)}>
+          <form onSubmit={handleSubmit}>
             <input
               data-cy="TodoTitleField"
               type="text"
@@ -114,9 +114,9 @@ export const SingleTodo = React.memo<Props>(({
               placeholder="Empty todo will be deleted"
               defaultValue={title}
               ref={todoToUpdate}
-              onChange={(event) => handleChange(event)}
+              onChange={handleChange}
               onBlur={handleBlur}
-              onKeyDown={(event) => handleKeyDown(event)}
+              onKeyDown={handleKeyDown}
             />
           </form>
         )}

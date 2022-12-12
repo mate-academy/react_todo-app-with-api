@@ -68,13 +68,13 @@ export const Header = React.memo<Props>(({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: notCompletedTodos.length === 0 },
+          { active: !notCompletedTodos.length },
         )}
         aria-label="label"
         onClick={handleClick}
       />
 
-      <form onSubmit={(event) => handleSubmit(event)}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
