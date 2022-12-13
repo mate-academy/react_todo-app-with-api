@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext, useEffect, useState,
@@ -43,9 +42,11 @@ export const App: React.FC = () => {
 
   const deleteToDos = async (idS: number | number[]) => {
     try {
-      const deleteRequest = Array.isArray(idS)
-        ? await Promise.all(idS.map(id => deleteTODO(id)))
-        : await deleteTODO(idS);
+      if (Array.isArray(idS)) {
+        await Promise.all(idS.map(id => deleteTODO(id)));
+      } else {
+        await deleteTODO(idS);
+      }
     } catch {
       setErrorType(ErrorType.Delete);
     } finally {
@@ -55,9 +56,11 @@ export const App: React.FC = () => {
 
   const updateStatus = async (idS: number | number[], status: boolean) => {
     try {
-      const updateRequest = Array.isArray(idS)
-        ? await Promise.all(idS.map(id => updateTODOstatus(id, !status)))
-        : await updateTODOstatus(idS, status);
+      if (Array.isArray(idS)) {
+        await Promise.all(idS.map(id => updateTODOstatus(id, !status)));
+      } else {
+        await updateTODOstatus(idS, status);
+      }
     } catch {
       setErrorType(ErrorType.Update);
     } finally {
@@ -67,7 +70,7 @@ export const App: React.FC = () => {
 
   const updateTitle = async (id: number, newTitle: string) => {
     try {
-      const updateRequest = await updateTODOtitle(id, newTitle);
+      await updateTODOtitle(id, newTitle);
     } catch {
       setErrorType(ErrorType.Update);
     } finally {
@@ -129,11 +132,12 @@ export const App: React.FC = () => {
     });
 
     try {
-      const postRequest = await postTODO(newToDo);
-
+      await postTODO(newToDo);
       setNewTodoTitle('');
     } catch {
       setErrorType(ErrorType.Add);
+
+      return;
     } finally {
       triggerRequest();
     }
