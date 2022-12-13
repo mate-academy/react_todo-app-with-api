@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
+
 import { Todo } from '../../types/Todo';
 import { ToDo } from '../ToDo/ToDo';
 
@@ -25,20 +30,34 @@ export const ToDoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => (
-        <ToDo
-          key={todo.id}
-          todo={todo}
-          onRemove={onRemove}
-          isEditing={isTodoEditing(todo.id || 0)}
-          onStatusChange={onStatusChange}
-          onTitleChange={onTitleChange}
-        />
-      ))}
+      <TransitionGroup>
 
-      {tempTodo && (
-        <ToDo todo={tempTodo} isTemp />
-      )}
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <ToDo
+              key={todo.id}
+              todo={todo}
+              onRemove={onRemove}
+              isEditing={isTodoEditing(todo.id || 0)}
+              onStatusChange={onStatusChange}
+              onTitleChange={onTitleChange}
+            />
+          </CSSTransition>
+        ))}
+
+        {tempTodo && (
+          <CSSTransition
+            timeout={300}
+            classNames="temp-item"
+          >
+            <ToDo todo={tempTodo} isTemp />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
