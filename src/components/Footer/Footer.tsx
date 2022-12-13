@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ComplitedStatus } from '../../types/ComplitedStatus';
+import { CompletedStatus } from '../../types/CompletedStatus';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -14,14 +14,14 @@ export const Footer = React.memo<Props>(({
   setFilteredTodos,
   remove,
 }) => {
-  const [selectedStatus, setSelectedStatus] = useState(ComplitedStatus.ALL);
+  const [selectedStatus, setSelectedStatus] = useState(CompletedStatus.ALL);
 
   const filterByCompleteStatus = useMemo(() => {
     return [...todos].filter(todo => {
       switch (selectedStatus) {
-        case ComplitedStatus.ACTIVE:
+        case CompletedStatus.ACTIVE:
           return !todo.completed;
-        case ComplitedStatus.COMPLITED:
+        case CompletedStatus.COMPLETED:
           return todo.completed;
         default:
           return todo;
@@ -57,11 +57,11 @@ export const Footer = React.memo<Props>(({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === ComplitedStatus.ALL },
+            { selected: selectedStatus === CompletedStatus.ALL },
           )}
-          onClick={() => setSelectedStatus(ComplitedStatus.ALL)}
+          onClick={() => setSelectedStatus(CompletedStatus.ALL)}
         >
-          {ComplitedStatus.ALL}
+          {CompletedStatus.ALL}
         </a>
 
         <a
@@ -69,22 +69,22 @@ export const Footer = React.memo<Props>(({
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === ComplitedStatus.ACTIVE },
+            { selected: selectedStatus === CompletedStatus.ACTIVE },
           )}
-          onClick={() => setSelectedStatus(ComplitedStatus.ACTIVE)}
+          onClick={() => setSelectedStatus(CompletedStatus.ACTIVE)}
         >
-          {ComplitedStatus.ACTIVE}
+          {CompletedStatus.ACTIVE}
         </a>
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === ComplitedStatus.COMPLITED },
+            { selected: selectedStatus === CompletedStatus.COMPLETED },
           )}
-          onClick={() => setSelectedStatus(ComplitedStatus.COMPLITED)}
+          onClick={() => setSelectedStatus(CompletedStatus.COMPLETED)}
         >
-          {ComplitedStatus.COMPLITED}
+          {CompletedStatus.COMPLETED}
         </a>
       </nav>
 
