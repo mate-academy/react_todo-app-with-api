@@ -7,21 +7,17 @@ import React, {
 import { TodoData } from '../../api/todos';
 import { ErrorTypes } from '../../types/ErrorTypes';
 import { AuthContext } from '../Auth/AuthContext';
+import { ErrorContext } from '../ErrorContext/ErrorContext';
 
 interface Props {
   onAdd: (todo: TodoData) => void,
-  isAdding: boolean,
-  onError: (error: ErrorTypes) => void,
-  onHiddenChange: (isHidden: boolean) => void,
 }
 
 export const NewTodoForm: React.FC<Props> = ({
   onAdd,
-  isAdding,
-  onError,
-  onHiddenChange,
 }) => {
   const user = useContext(AuthContext);
+  const { isAdding, setError } = useContext(ErrorContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
@@ -39,7 +35,7 @@ export const NewTodoForm: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onHiddenChange(true);
+    setError(ErrorTypes.NONE);
     if (newTodoTitle.trim()) {
       const newTodo = {
         title: newTodoTitle.trim(),
@@ -50,8 +46,7 @@ export const NewTodoForm: React.FC<Props> = ({
       onAdd(newTodo);
       setNewTodoTitle('');
     } else {
-      onError(ErrorTypes.EmptyTitle);
-      onHiddenChange(false);
+      setError(ErrorTypes.EmptyTitle);
     }
   };
 

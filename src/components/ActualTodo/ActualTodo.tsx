@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../../types/Todo';
+// import { NewTodoForm } from '../NewTodoForm/NewTodoForm';
 
 interface Props {
   todo: Todo,
@@ -17,7 +18,7 @@ export const ActualTodo: React.FC<Props> = ({
 }) => {
   const { completed, title, id } = todo;
   const isLoaderActive = id === 0 || deletedTodoIds.includes(id);
-  // const isChecked = true;
+  // const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div
@@ -36,7 +37,17 @@ export const ActualTodo: React.FC<Props> = ({
           onChange={() => onUpdate(id, { completed: !completed })}
         />
       </label>
-
+      {/* {isEditing
+        ? (
+          <NewTodoForm
+            onAdd={addNewTodo}
+            isAdding={isAdding}
+            onError={setError}
+            onHiddenChange={setIsErrorHidden}
+          />
+        )
+        : (
+          <> */}
       <span data-cy="TodoTitle" className="todo__title">
         {title}
       </span>
@@ -51,6 +62,23 @@ export const ActualTodo: React.FC<Props> = ({
       >
         ×
       </button>
+      {/* // </> */}
+      {/* )} */}
+      {/*
+        <span data-cy="TodoTitle" className="todo__title">
+          {title}
+        </span>
+
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDeleteButton"
+          onClick={() => {
+            onDelete(id);
+          }}
+        >
+          ×
+        </button> */}
 
       <div
         data-cy="TodoLoader"

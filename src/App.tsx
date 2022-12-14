@@ -15,7 +15,8 @@ import {
   TodoData,
   updateTodo,
 } from './api/todos';
-import { AuthContext, AuthProvider } from './components/Auth/AuthContext';
+import { AuthContext } from './components/Auth/AuthContext';
+import { ErrorContext } from './components/ErrorContext/ErrorContext';
 // eslint-disable-next-line max-len
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotiication';
 import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
@@ -27,12 +28,13 @@ import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
+  const {
+    setError,
+    setIsAdding,
+  } = useContext(ErrorContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<ErrorTypes>(ErrorTypes.GET);
-  const [isErrorHidden, setIsErrorHidden] = useState(true);
   const [filtredBy, setFiltredBy] = useState(FilterOptions.ALL);
-  const [isAdding, setIsAdding] = useState(false);
   const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
 
   const getUserTodos = async () => {
@@ -43,14 +45,13 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       } catch {
         setError(ErrorTypes.GET);
-        setIsErrorHidden(false);
       }
     }
   };
 
   const addNewTodo = async (todo: TodoData) => {
     try {
-      setIsErrorHidden(true);
+      setError(ErrorTypes.NONE);
       setIsAdding(true);
       const tempTodo = { ...todo, id: 0 };
 
@@ -59,7 +60,6 @@ export const App: React.FC = () => {
       await createTodo(todo);
     } catch {
       setError(ErrorTypes.ADD);
-      setIsErrorHidden(false);
     } finally {
       setIsAdding(false);
       getUserTodos();
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
 
   const deleteCurrentTodo = async (todoId: number) => {
     try {
-      setIsErrorHidden(true);
+      setError(ErrorTypes.NONE);
       setDeletedTodoIds((currentIDs) => [...currentIDs, todoId]);
 
       await deleteTodo(todoId);
@@ -77,7 +77,6 @@ export const App: React.FC = () => {
       });
     } catch {
       setError(ErrorTypes.DELETE);
-      setIsErrorHidden(false);
     } finally {
       setDeletedTodoIds([]);
     }
@@ -88,14 +87,13 @@ export const App: React.FC = () => {
     dataToUpdate: Partial<Todo>,
   ) => {
     try {
-      setIsErrorHidden(true);
+      setError(ErrorTypes.NONE);
       setDeletedTodoIds((currentIDs) => [...currentIDs, todoId]);
 
       await updateTodo(todoId, dataToUpdate);
       await getUserTodos();
     } catch {
       setError(ErrorTypes.UPDATE);
-      setIsErrorHidden(false);
     } finally {
       setDeletedTodoIds([]);
     }
@@ -156,69 +154,58 @@ export const App: React.FC = () => {
   };
 
   return (
-    <AuthProvider>
-      <div className="todoapp">
-        <h1 className="todoapp__title">todos</h1>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-        <div className="todoapp__content">
-          <header className="todoapp__header">
-            <button
-              data-cy="ToggleAllButton"
-              type="button"
-              className={classNames(
-                'todoapp__toggle-all',
-                { active: activeTodos.length === 0 },
-              )}
-              onClick={toggleAll}
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          <button
+            data-cy="ToggleAllButton"
+            type="button"
+            className={classNames(
+              'todoapp__toggle-all',
+              { active: activeTodos.length === 0 },
+            )}
+            onClick={toggleAll}
+          />
+
+          <NewTodoForm onAdd={addNewTodo} />
+        </header>
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={visibleTodos}
+              deletedTodoIds={deletedTodoIds}
+              onDelete={deleteCurrentTodo}
+              onUpdate={updateCurrentTodo}
             />
 
-            <NewTodoForm
-              onAdd={addNewTodo}
-              isAdding={isAdding}
-              onError={setError}
-              onHiddenChange={setIsErrorHidden}
-            />
-          </header>
-          {todos.length > 0 && (
-            <>
-              <TodoList
-                todos={visibleTodos}
-                deletedTodoIds={deletedTodoIds}
-                onDelete={deleteCurrentTodo}
-                onUpdate={updateCurrentTodo}
+            <footer className="todoapp__footer" data-cy="Footer">
+              <span className="todo-count" data-cy="todosCounter">
+                {`${activeTodos.length} items left`}
+              </span>
+
+              <TodoFilter
+                filtredBy={filtredBy}
+                onOptionChange={setFiltredBy}
               />
-
-              <footer className="todoapp__footer" data-cy="Footer">
-                <span className="todo-count" data-cy="todosCounter">
-                  {`${activeTodos.length} items left`}
-                </span>
-
-                <TodoFilter
-                  filtredBy={filtredBy}
-                  onOptionChange={setFiltredBy}
-                />
-                <button
-                  data-cy="ClearCompletedButton"
-                  type="button"
-                  className={classNames(
-                    'todoapp__clear-completed',
-                    { hidden: !isClearNeeded },
-                  )}
-                  onClick={clearCompletedTodos}
-                >
-                  Clear completed
-                </button>
-              </footer>
-            </>
-          )}
-        </div>
-
-        <ErrorNotification
-          error={error}
-          isHidden={isErrorHidden}
-          onHiddenChange={setIsErrorHidden}
-        />
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                className={classNames(
+                  'todoapp__clear-completed',
+                  { hidden: !isClearNeeded },
+                )}
+                onClick={clearCompletedTodos}
+              >
+                Clear completed
+              </button>
+            </footer>
+          </>
+        )}
       </div>
-    </AuthProvider>
+
+      <ErrorNotification />
+    </div>
   );
 };

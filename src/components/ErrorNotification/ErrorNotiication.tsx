@@ -1,37 +1,29 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { ErrorTypes } from '../../types/ErrorTypes';
+import { ErrorContext } from '../ErrorContext/ErrorContext';
 
-interface Props {
-  error: ErrorTypes,
-  isHidden: boolean,
-  onHiddenChange: (isError: boolean) => void,
-}
-
-export const ErrorNotification: React.FC<Props> = ({
-  error,
-  isHidden,
-  onHiddenChange,
-}) => {
+export const ErrorNotification: React.FC = () => {
   const timerRef = useRef<NodeJS.Timer>();
+  const { error, setError } = useContext(ErrorContext);
 
   useEffect(() => {
-    if (!isHidden) {
+    if (error !== ErrorTypes.NONE) {
       timerRef.current = setTimeout(() => {
-        onHiddenChange(true);
+        setError(ErrorTypes.NONE);
       }, 3000);
     } else {
       clearTimeout(timerRef.current);
     }
-  }, [isHidden]);
+  }, [error]);
 
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: isHidden },
+        { hidden: error === ErrorTypes.NONE },
       )}
     >
       <button
@@ -39,7 +31,7 @@ export const ErrorNotification: React.FC<Props> = ({
         type="button"
         className="delete"
         onClick={() => {
-          onHiddenChange(true);
+          setError(ErrorTypes.NONE);
         }}
       />
       {error}
