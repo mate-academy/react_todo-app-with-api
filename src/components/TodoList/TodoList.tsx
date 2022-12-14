@@ -12,7 +12,9 @@ type Props = {
   todos: Todo[],
   isAdding: boolean,
   curTitle: string,
+  onRename: (todo: Todo, newTitle: string) => Promise<void>,
   onDelete: (id: number) => void,
+  onChangeStatus: (todo: Todo) => void,
   loadingTodosIds: number[]
 };
 
@@ -20,6 +22,8 @@ export const TodoList: React.FC<Props> = (props) => {
   const {
     todos,
     onDelete,
+    onRename,
+    onChangeStatus,
     loadingTodosIds,
     isAdding,
     curTitle,
@@ -39,6 +43,8 @@ export const TodoList: React.FC<Props> = (props) => {
             <TodoItem
               todo={todo}
               onDelete={onDelete}
+              onRename={onRename}
+              onChangeStatus={onChangeStatus}
               isLoading={loadingTodosIds.includes(todo.id)}
             />
           </CSSTransition>
@@ -58,6 +64,8 @@ export const TodoList: React.FC<Props> = (props) => {
                 userId: user?.id,
               }}
               onDelete={onDelete}
+              onRename={onRename}
+              onChangeStatus={onChangeStatus}
               isLoading
             />
           </CSSTransition>

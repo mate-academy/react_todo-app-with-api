@@ -1,14 +1,47 @@
 import classNames from 'classnames';
+import { useCallback, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
   onDelete: (id: number) => void,
+  onRename: (todo: Todo, newTitle: string) => Promise<void>,
+  onChangeStatus: (todo: Todo) => void,
   isLoading: boolean,
 };
 
 export const TodoItem: React.FC<Props> = (props) => {
-  const { todo, onDelete, isLoading } = props;
+  const {
+    todo,
+    onDelete,
+    onRename,
+    onChangeStatus,
+    isLoading,
+  } = props;
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+
+  const handleDoubleClick = useCallback(
+    (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
+      if (event.detail === 2) {
+        setIsEditing(true);
+      }
+    }, [],
+  );
+
+  const handleSuccessfulEdit = useCallback(() => {
+    onRename(todo, newTitle);
+    setIsEditing(false);
+  }, [newTitle]);
+
+  const handlePressEsc = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+        setNewTitle(todo.title);
+      }
+    }, [],
+  );
 
   return (
     <div
@@ -25,22 +58,51 @@ export const TodoItem: React.FC<Props> = (props) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked
+          checked={todo.completed}
+          onChange={() => onChangeStatus(todo)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isEditing
+        ? (
+          <form
+            onSubmit={event => {
+              event.preventDefault();
+              handleSuccessfulEdit();
+            }}
+          >
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={event => setNewTitle(event.target.value)}
+              onBlur={handleSuccessfulEdit}
+              onKeyDown={handlePressEsc}
+            />
+          </form>
+        ) : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onClick={handleDoubleClick}
+              aria-hidden="true"
+            >
+              {todo.title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDelete(todo.id)}
-      >
-        ×
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => onDelete(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"

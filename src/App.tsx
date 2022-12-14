@@ -10,6 +10,7 @@ import React, {
 
 import {
   addTodo,
+  editTodo,
   getTodos,
   removeTodo,
 } from './api/todos';
@@ -127,6 +128,74 @@ export const App: React.FC = () => {
     }, [completedTodos],
   );
 
+  const handleChangeStatus = useCallback(
+    async (todo: Todo) => {
+      const { completed, id } = todo;
+
+      setError(ErrorMessage.None);
+      setLoadingTodosIds(prevIds => [...prevIds, id]);
+
+      try {
+        await editTodo(id, {
+          completed: !completed,
+        });
+
+        await loadUserTodos();
+      } catch {
+        setError(ErrorMessage.Update);
+      } finally {
+        setLoadingTodosIds([]);
+      }
+    }, [],
+  );
+
+  const handleChangeAllToCompleted = useCallback(
+    async () => {
+      setError(ErrorMessage.None);
+      setLoadingTodosIds(prevTodoIds => ([
+        ...prevTodoIds,
+        ...activeTodos.map(todo => todo.id),
+      ]));
+
+      try {
+        await Promise.all(activeTodos.map(todo => (
+          editTodo(todo.id, { completed: true })
+        )));
+
+        await loadUserTodos();
+      } catch {
+        setError(ErrorMessage.Update);
+      } finally {
+        setLoadingTodosIds([]);
+      }
+    }, [activeTodos],
+  );
+
+  const handleRename = async (todo: Todo, newTitle: string) => {
+    const { title: curTitle, id } = todo;
+
+    if (!newTitle) {
+      handleDelete(id);
+
+      return;
+    }
+
+    if (newTitle !== curTitle) {
+      setError(ErrorMessage.None);
+      setLoadingTodosIds(prevIds => [...prevIds, id]);
+
+      try {
+        await editTodo(id, { title: newTitle });
+
+        await loadUserTodos();
+      } catch {
+        setError(ErrorMessage.Update);
+      } finally {
+        setLoadingTodosIds([]);
+      }
+    }
+  };
+
   const showedTodos = useMemo(() => (
     todos.filter(todo => {
       switch (status) {
@@ -159,6 +228,7 @@ export const App: React.FC = () => {
                   active: !activeTodos.length,
                 },
               )}
+              onClick={handleChangeAllToCompleted}
             />
           )}
 
@@ -170,13 +240,15 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos.length > 0 && (
+        {(todos.length > 0 || isAdding) && (
           <>
             <TodoList
               todos={showedTodos}
               curTitle={title}
               isAdding={isAdding}
               onDelete={handleDelete}
+              onRename={handleRename}
+              onChangeStatus={handleChangeStatus}
               loadingTodosIds={loadingTodosIds}
             />
 
