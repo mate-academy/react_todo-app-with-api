@@ -51,10 +51,18 @@ export const TodoInfo: React.FC<Props> = (props) => {
             type="checkbox"
             className="todo__status"
             onChange={() => {
-              updateTodo(todo.id, { completed: !todo.completed });
+              setIsLoading(String(todo.id));
+              // setIsLoading(todo.title);
               if (user) {
-                getTodos(user.id)
-                  .then(todos => setVisibleTodos(todos));
+                updateTodo(todo.id, { completed: !todo.completed })
+                  .then(() => getTodos(user.id))
+                  .then(todos => setVisibleTodos(todos))
+                  .then(() => setIsLoading(''))
+
+                  .catch(() => {
+                    setErrorWithTimer(ErrorStatus.UpdateError);
+                    setIsLoading('');
+                  });
               }
             }}
           />

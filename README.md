@@ -10,15 +10,20 @@ and implement the ability to toggle and rename todos.
 
 ## Toggling a todo status
 
-Change Togler. It is dumb now.
+Change Togler. It is dumb and slow now.
 Check all Errors
 IsLoading All check
+activeTodos delete state
+async/await add
+useContext add
+consider useMemo/useCallback
+'1 items left' doesn't update in real time
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 
-- covered the todo with a loader overlay while wating for API response;
+✓ covered the todo with a loader overlay while wating for API response;
 ✓ the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+✓ show the `Unable to update a todo` notification in case of API error.
 
 Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 
