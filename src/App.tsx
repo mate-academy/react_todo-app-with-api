@@ -17,23 +17,20 @@ import {
 } from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
-  const [getErrorStatus, setGetErrorStatus] = useState(false);
-  const [postErrorStatus, setPostErrorStatus] = useState(false);
+  const [errorStatus, setErrorStatus] = useState('');
   const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);
   const [visibleTodos, setVisibleTodos] = useState<Todo[] | null>(null);
-  const [emptyTitleError, setEmptyTitleError] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
   const [isDeleting, setIsDeleting] = useState(0);
-  const [deleteErrorStatus, setDeleteErrorStatus] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const setErrorStatus = (errorType: (boolean: boolean) => void) => {
-    errorType(true);
-    setTimeout(() => errorType(false), 3000);
+  const setErrorWithTimer = (message: string) => {
+    setErrorStatus(message);
+    setTimeout(() => setErrorStatus(''), 3000);
   };
 
   useEffect(() => {
@@ -48,7 +45,9 @@ export const App: React.FC = () => {
           setVisibleTodos(userTodos);
           setAllTodos(userTodos);
         })
-        .catch(() => setErrorStatus(setGetErrorStatus));
+        .catch(() => {
+          setErrorWithTimer('Unable to get a todo');
+        });
 
       getActiveTodos(user.id)
         .then(userTodos => setActiveTodos(userTodos));
@@ -64,14 +63,12 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
           activeTodos={activeTodos}
           allTodos={allTodos}
-          setEmptyTitleError={setEmptyTitleError}
-          setErrorStatus={setErrorStatus}
           setVisibleTodos={setVisibleTodos}
           setIsAdding={setIsAdding}
           isAdding={isAdding}
           currentInput={currentInput}
           setCurrentInput={setCurrentInput}
-          setPostErrorStatus={setPostErrorStatus}
+          setErrorWithTimer={setErrorWithTimer}
 
         />
         <TodoList
@@ -81,8 +78,7 @@ export const App: React.FC = () => {
           isDeleting={isDeleting}
           setIsDeleting={setIsDeleting}
           setVisibleTodos={setVisibleTodos}
-          setDeleteErrorStatus={setDeleteErrorStatus}
-          setErrorStatus={setErrorStatus}
+          setErrorWithTimer={setErrorWithTimer}
         />
 
         <Filter
@@ -94,14 +90,8 @@ export const App: React.FC = () => {
       </div>
 
       <ErrorNotification
-        postErrorStatus={postErrorStatus}
-        setPostErrorStatus={setPostErrorStatus}
-        getErrorStatus={getErrorStatus}
-        setGetErrorStatus={setGetErrorStatus}
-        emptyTitleError={emptyTitleError}
-        setEmptyTitleError={setEmptyTitleError}
-        deleteErrorStatus={deleteErrorStatus}
-        setDeleteErrorStatus={setDeleteErrorStatus}
+        errorStatus={errorStatus}
+        setErrorStatus={setErrorStatus}
       />
     </div>
   );

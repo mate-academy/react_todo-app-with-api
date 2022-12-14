@@ -8,15 +8,17 @@ import {
   updateTodo,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
+import { ErrorStatus } from '../../types/errorStatus';
 
 interface Props {
   todo: Todo,
   isDeleting: number,
   setIsDeleting: Dispatch<SetStateAction<number>>,
   setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
-  setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
+  // setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
   // eslint-disable-next-line max-len
-  setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void,
+  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void,
+  setErrorWithTimer: (message: string) => void;
 }
 
 export const TodoInfo: React.FC<Props> = (props) => {
@@ -25,8 +27,9 @@ export const TodoInfo: React.FC<Props> = (props) => {
     isDeleting,
     setIsDeleting,
     setVisibleTodos,
-    setDeleteErrorStatus,
-    setErrorStatus,
+    // setDeleteErrorStatus,
+    // setErrorStatus,
+    setErrorWithTimer,
   } = props;
 
   const user = useContext(AuthContext);
@@ -81,7 +84,8 @@ export const TodoInfo: React.FC<Props> = (props) => {
                 })
 
                 .catch(() => {
-                  setErrorStatus(setDeleteErrorStatus);
+                  setErrorWithTimer(ErrorStatus.DeleteErrod);
+                  // setErrorStatus(setDeleteErrorStatus);
                   setIsDeleting(0);
                 });
             }

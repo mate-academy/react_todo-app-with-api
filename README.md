@@ -1,4 +1,5 @@
 # React Todo App with API (complete)
+https://mate-academy.github.io/fe-students-api/todos.html
 
 It is the third part of the React Todo App with API.
 
@@ -8,6 +9,9 @@ and implement the ability to toggle and rename todos.
 > Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
 
 ## Toggling a todo status
+
+Change Togler. It is dumb now.
+Check all Errors
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 

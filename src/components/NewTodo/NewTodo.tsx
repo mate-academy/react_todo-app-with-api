@@ -10,20 +10,22 @@ import { addTodo, getTodos } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 import { Todo } from '../../types/Todo';
+import { ErrorStatus } from '../../types/errorStatus';
 
 interface Props {
   newTodoField: React.LegacyRef<HTMLInputElement> | undefined,
   activeTodos: Todo[] | null,
   allTodos: Todo[] | null,
-  setEmptyTitleError: Dispatch<SetStateAction<boolean>>,
+  // setEmptyTitleError: Dispatch<SetStateAction<boolean>>,
   // eslint-disable-next-line max-len
-  setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
+  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
   setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
   setIsAdding: Dispatch<SetStateAction<boolean>>,
   isAdding: boolean,
   currentInput: string,
   setCurrentInput: Dispatch<SetStateAction<string>>,
-  setPostErrorStatus: Dispatch<SetStateAction<boolean>>,
+  // setPostErrorStatus: Dispatch<SetStateAction<boolean>>,
+  setErrorWithTimer: (message: string) => void;
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -31,14 +33,15 @@ export const NewTodo: React.FC<Props> = (props) => {
     newTodoField,
     activeTodos,
     allTodos,
-    setEmptyTitleError,
-    setErrorStatus,
+    // setEmptyTitleError,
+    // setErrorStatus,
     setVisibleTodos,
     setIsAdding,
     isAdding,
     currentInput,
     setCurrentInput,
-    setPostErrorStatus,
+    // setPostErrorStatus,
+    setErrorWithTimer,
   } = props;
 
   const user = useContext(AuthContext);
@@ -68,7 +71,8 @@ export const NewTodo: React.FC<Props> = (props) => {
           e.preventDefault();
           setIsAdding(true);
           if (currentInput === '') {
-            setErrorStatus(setEmptyTitleError);
+            // setErrorStatus(setEmptyTitleError);
+            setErrorWithTimer(ErrorStatus.EmptyTitle);
           }
 
           if (user && currentInput.length > 0) {
@@ -80,7 +84,8 @@ export const NewTodo: React.FC<Props> = (props) => {
                 setCurrentInput('');
               })
               .catch(() => {
-                setErrorStatus(setPostErrorStatus);
+                setErrorWithTimer(ErrorStatus.AddError);
+                // setErrorStatus(setPostErrorStatus);
                 setIsAdding(false);
               });
           }

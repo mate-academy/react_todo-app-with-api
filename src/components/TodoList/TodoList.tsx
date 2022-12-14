@@ -9,9 +9,10 @@ interface Props {
   isDeleting: number,
   setIsDeleting: Dispatch<SetStateAction<number>>,
   setVisibleTodos:Dispatch<SetStateAction<Todo[] | null>>,
-  setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
+  // setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
   // eslint-disable-next-line max-len
-  setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
+  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
+  setErrorWithTimer: (message: string) => void;
 }
 
 export const TodoList: React.FC<Props> = (props) => {
@@ -22,8 +23,9 @@ export const TodoList: React.FC<Props> = (props) => {
     isDeleting,
     setIsDeleting,
     setVisibleTodos,
-    setDeleteErrorStatus,
-    setErrorStatus,
+    // setDeleteErrorStatus,
+    // setErrorStatus,
+    setErrorWithTimer,
   } = props;
 
   return (
@@ -39,8 +41,9 @@ export const TodoList: React.FC<Props> = (props) => {
             isDeleting={isDeleting}
             setIsDeleting={setIsDeleting}
             setVisibleTodos={setVisibleTodos}
-            setErrorStatus={setErrorStatus}
-            setDeleteErrorStatus={setDeleteErrorStatus}
+            // setErrorStatus={setErrorStatus}
+            // setDeleteErrorStatus={setDeleteErrorStatus}
+            setErrorWithTimer={setErrorWithTimer}
           />
         ))}
         {isAdding && (
