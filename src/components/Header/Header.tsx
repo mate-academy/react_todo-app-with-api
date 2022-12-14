@@ -36,7 +36,7 @@ export const Header: React.FC<Props> = React.memo(({
       return;
     }
 
-    addNewTodo(title);
+    addNewTodo(title.trim());
     setTitle('');
   }, [title]);
 
