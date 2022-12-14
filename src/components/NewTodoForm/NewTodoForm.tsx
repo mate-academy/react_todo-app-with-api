@@ -76,7 +76,6 @@ export const NewTodoForm: React.FC<Props> = (props) => {
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         disabled={isAdding}
-        // onKeyDown={(event) => console.log(event.key)}
       />
     </form>
   );

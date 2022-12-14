@@ -1,18 +1,19 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
 
+import { ErrorContext } from '../Error/ErrorContext';
 import { Loader } from '../Loader/Loader';
 
 import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  isAdding?: boolean;
   onDelete: (todoId: number) => void;
   onUpdate: (todo: Todo, newTitle: string) => Promise<void>
   isActive?: boolean;
@@ -22,7 +23,6 @@ interface Props {
 export const TodoItem: React.FC<Props> = (props) => {
   const {
     todo,
-    isAdding,
     onDelete,
     onUpdate,
     isActive,
@@ -34,6 +34,8 @@ export const TodoItem: React.FC<Props> = (props) => {
     title,
     completed,
   } = todo;
+
+  const { isAdding } = useContext(ErrorContext);
 
   const newTitle = useRef<HTMLInputElement>(null);
 
