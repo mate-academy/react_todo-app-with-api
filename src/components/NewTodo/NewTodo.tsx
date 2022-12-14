@@ -16,16 +16,12 @@ interface Props {
   newTodoField: React.LegacyRef<HTMLInputElement> | undefined,
   activeTodos: Todo[] | null,
   allTodos: Todo[] | null,
-  // setEmptyTitleError: Dispatch<SetStateAction<boolean>>,
-  // eslint-disable-next-line max-len
-  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
   setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
-  setIsAdding: Dispatch<SetStateAction<boolean>>,
-  isAdding: boolean,
   currentInput: string,
   setCurrentInput: Dispatch<SetStateAction<string>>,
-  // setPostErrorStatus: Dispatch<SetStateAction<boolean>>,
-  setErrorWithTimer: (message: string) => void;
+  setErrorWithTimer: (message: string) => void,
+  isLoading: string,
+  setIsLoading: Dispatch<SetStateAction<string>>,
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -33,15 +29,13 @@ export const NewTodo: React.FC<Props> = (props) => {
     newTodoField,
     activeTodos,
     allTodos,
-    // setEmptyTitleError,
-    // setErrorStatus,
+
     setVisibleTodos,
-    setIsAdding,
-    isAdding,
     currentInput,
     setCurrentInput,
-    // setPostErrorStatus,
     setErrorWithTimer,
+    isLoading,
+    setIsLoading,
   } = props;
 
   const user = useContext(AuthContext);
@@ -69,9 +63,8 @@ export const NewTodo: React.FC<Props> = (props) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          setIsAdding(true);
+          setIsLoading('Adding');
           if (currentInput === '') {
-            // setErrorStatus(setEmptyTitleError);
             setErrorWithTimer(ErrorStatus.EmptyTitle);
           }
 
@@ -80,19 +73,18 @@ export const NewTodo: React.FC<Props> = (props) => {
               .then(() => getTodos(user.id))
               .then(userTodos => {
                 setVisibleTodos(userTodos);
-                setIsAdding(false);
+                setIsLoading('');
                 setCurrentInput('');
               })
               .catch(() => {
                 setErrorWithTimer(ErrorStatus.AddError);
-                // setErrorStatus(setPostErrorStatus);
-                setIsAdding(false);
+                setIsLoading('');
               });
           }
         }}
       >
         <input
-          disabled={isAdding}
+          disabled={isLoading.length > 0}
           data-cy="NewTodoField"
           type="text"
           ref={newTodoField}

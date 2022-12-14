@@ -12,24 +12,19 @@ import { ErrorStatus } from '../../types/errorStatus';
 
 interface Props {
   todo: Todo,
-  isDeleting: number,
-  setIsDeleting: Dispatch<SetStateAction<number>>,
   setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
-  // setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
-  // eslint-disable-next-line max-len
-  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void,
   setErrorWithTimer: (message: string) => void;
+  isLoading: string,
+  setIsLoading: Dispatch<SetStateAction<string>>,
 }
 
 export const TodoInfo: React.FC<Props> = (props) => {
   const {
     todo,
-    isDeleting,
-    setIsDeleting,
     setVisibleTodos,
-    // setDeleteErrorStatus,
-    // setErrorStatus,
     setErrorWithTimer,
+    isLoading,
+    setIsLoading,
   } = props;
 
   const user = useContext(AuthContext);
@@ -43,7 +38,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
           { completed: todo.completed },
         )}
       >
-        {(todo.id === isDeleting) && (
+        {(todo.id === +isLoading) && (
           <div data-cy="TodoLoader" className="modal overlay is-active">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
@@ -74,19 +69,18 @@ export const TodoInfo: React.FC<Props> = (props) => {
           className="todo__remove"
           data-cy="TodoDeleteButton"
           onClick={() => {
-            setIsDeleting(todo.id);
+            setIsLoading(String(todo.id));
             if (user) {
               deleteTodo(todo.id)
                 .then(() => getActiveTodos(user.id))
                 .then(userTodos => {
                   setVisibleTodos(userTodos);
-                  setIsDeleting(0);
+                  setIsLoading('');
                 })
 
                 .catch(() => {
                   setErrorWithTimer(ErrorStatus.DeleteErrod);
-                  // setErrorStatus(setDeleteErrorStatus);
-                  setIsDeleting(0);
+                  setIsLoading('');
                 });
             }
           }}

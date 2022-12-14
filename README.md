@@ -12,6 +12,7 @@ and implement the ability to toggle and rename todos.
 
 Change Togler. It is dumb now.
 Check all Errors
+IsLoading All check
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 

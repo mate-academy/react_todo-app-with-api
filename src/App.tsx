@@ -17,13 +17,12 @@ import {
 } from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState('');
   const [errorStatus, setErrorStatus] = useState('');
   const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);
   const [visibleTodos, setVisibleTodos] = useState<Todo[] | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
   const [currentInput, setCurrentInput] = useState('');
-  const [isDeleting, setIsDeleting] = useState(0);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -64,8 +63,8 @@ export const App: React.FC = () => {
           activeTodos={activeTodos}
           allTodos={allTodos}
           setVisibleTodos={setVisibleTodos}
-          setIsAdding={setIsAdding}
-          isAdding={isAdding}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
           currentInput={currentInput}
           setCurrentInput={setCurrentInput}
           setErrorWithTimer={setErrorWithTimer}
@@ -73,12 +72,11 @@ export const App: React.FC = () => {
         />
         <TodoList
           visibleTodos={visibleTodos}
-          isAdding={isAdding}
           currentInput={currentInput}
-          isDeleting={isDeleting}
-          setIsDeleting={setIsDeleting}
           setVisibleTodos={setVisibleTodos}
           setErrorWithTimer={setErrorWithTimer}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
         />
 
         <Filter

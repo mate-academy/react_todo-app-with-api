@@ -4,28 +4,21 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 
 interface Props {
   visibleTodos: Todo[] | null,
-  isAdding: boolean,
   currentInput: string,
-  isDeleting: number,
-  setIsDeleting: Dispatch<SetStateAction<number>>,
   setVisibleTodos:Dispatch<SetStateAction<Todo[] | null>>,
-  // setDeleteErrorStatus: Dispatch<SetStateAction<boolean>>,
-  // eslint-disable-next-line max-len
-  // setErrorStatus: (setEmptyTitleError: Dispatch<SetStateAction<boolean>>) => void;
   setErrorWithTimer: (message: string) => void;
+  isLoading: string,
+  setIsLoading: Dispatch<SetStateAction<string>>,
 }
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
     visibleTodos,
-    isAdding,
     currentInput,
-    isDeleting,
-    setIsDeleting,
     setVisibleTodos,
-    // setDeleteErrorStatus,
-    // setErrorStatus,
     setErrorWithTimer,
+    isLoading,
+    setIsLoading,
   } = props;
 
   return (
@@ -38,15 +31,13 @@ export const TodoList: React.FC<Props> = (props) => {
           <TodoInfo
             key={todo.id}
             todo={todo}
-            isDeleting={isDeleting}
-            setIsDeleting={setIsDeleting}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
             setVisibleTodos={setVisibleTodos}
-            // setErrorStatus={setErrorStatus}
-            // setDeleteErrorStatus={setDeleteErrorStatus}
             setErrorWithTimer={setErrorWithTimer}
           />
         ))}
-        {isAdding && (
+        {(isLoading === 'Adding') && (
           <div
             className="todo"
             key={0}
