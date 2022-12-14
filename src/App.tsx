@@ -75,13 +75,9 @@ export const App: React.FC = () => {
       setTodos(currentTodos => {
         return currentTodos.filter(todo => todoId !== todo.id);
       });
-
-      return 1;
     } catch {
       setError(ErrorTypes.DELETE);
       setIsErrorHidden(false);
-
-      return 0;
     } finally {
       setDeletedTodoIds([]);
     }
@@ -149,16 +145,14 @@ export const App: React.FC = () => {
   };
 
   const toggleAll = async () => {
-    if (activeTodos.length === 0
-      || activeTodos.length === todos.length) {
-      await Promise.all(todos
-        // eslint-disable-next-line max-len
-        .map((todo) => updateCurrentTodo(todo.id, { completed: !todo.completed })));
-    } else {
-      await Promise.all(activeTodos
-        // eslint-disable-next-line max-len
-        .map((todo) => updateCurrentTodo(todo.id, { completed: !todo.completed })));
-    }
+    const todosToUpdate = activeTodos.length === 0
+      ? todos
+      : activeTodos;
+
+    await Promise.all(todosToUpdate
+      .map((todo) => {
+        return updateCurrentTodo(todo.id, { completed: !todo.completed });
+      }));
   };
 
   return (
