@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
@@ -16,8 +17,7 @@ import {
   updateTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
-import { ErrorContext } from './components/ErrorContext/ErrorContext';
-// eslint-disable-next-line max-len
+import { ProcessedContext } from './components/ProcessedContext/ProcessedContext';
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotiication';
 import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
@@ -31,11 +31,11 @@ export const App: React.FC = () => {
   const {
     setError,
     setIsAdding,
-  } = useContext(ErrorContext);
+    setProcessedTodoIds,
+  } = useContext(ProcessedContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filtredBy, setFiltredBy] = useState(FilterOptions.ALL);
-  const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
 
   const getUserTodos = async () => {
     if (user) {
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
   const deleteCurrentTodo = async (todoId: number) => {
     try {
       setError(ErrorTypes.NONE);
-      setDeletedTodoIds((currentIDs) => [...currentIDs, todoId]);
+      setProcessedTodoIds((currentIDs) => [...currentIDs, todoId]);
 
       await deleteTodo(todoId);
       setTodos(currentTodos => {
@@ -78,7 +78,7 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorTypes.DELETE);
     } finally {
-      setDeletedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
@@ -88,14 +88,23 @@ export const App: React.FC = () => {
   ) => {
     try {
       setError(ErrorTypes.NONE);
-      setDeletedTodoIds((currentIDs) => [...currentIDs, todoId]);
+      setProcessedTodoIds((currentIDs) => [...currentIDs, todoId]);
+      setTodos((currentTodos) => {
+        const updatedTodo = currentTodos.find(el => el.id === todoId) || null;
+
+        if (updatedTodo) {
+          Object.assign(updatedTodo, dataToUpdate);
+        }
+
+        return currentTodos;
+      });
 
       await updateTodo(todoId, dataToUpdate);
-      await getUserTodos();
     } catch {
       setError(ErrorTypes.UPDATE);
     } finally {
-      setDeletedTodoIds([]);
+      await getUserTodos();
+      setProcessedTodoIds([]);
     }
   };
 
@@ -175,7 +184,6 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={visibleTodos}
-              deletedTodoIds={deletedTodoIds}
               onDelete={deleteCurrentTodo}
               onUpdate={updateCurrentTodo}
             />

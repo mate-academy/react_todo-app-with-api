@@ -1,24 +1,25 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
 // import { NewTodoForm } from '../NewTodoForm/NewTodoForm';
+import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
+import { UpdateTodoForm } from '../UpdateTodoForm/UpdateTodoForm';
 
 interface Props {
   todo: Todo,
   onDelete: (todoId: number) => void,
-  deletedTodoIds: number[],
   onUpdate: (todoId: number, dataToUpdate: Partial<Todo>,) => void,
 }
 
 export const ActualTodo: React.FC<Props> = ({
   todo,
   onDelete,
-  deletedTodoIds,
   onUpdate,
 }) => {
   const { completed, title, id } = todo;
-  const isLoaderActive = id === 0 || deletedTodoIds.includes(id);
-  // const [isEditing, setIsEditing] = useState(false);
+  const { processedTodoIds } = useContext(ProcessedContext);
+  const isLoaderActive = id === 0 || processedTodoIds.includes(id);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div
@@ -37,33 +38,36 @@ export const ActualTodo: React.FC<Props> = ({
           onChange={() => onUpdate(id, { completed: !completed })}
         />
       </label>
-      {/* {isEditing
+      {isEditing
         ? (
-          <NewTodoForm
-            onAdd={addNewTodo}
-            isAdding={isAdding}
-            onError={setError}
-            onHiddenChange={setIsErrorHidden}
+          <UpdateTodoForm
+            todoId={id}
+            onUpdate={onUpdate}
+            onEdit={setIsEditing}
           />
         )
         : (
-          <> */}
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => {
-          onDelete(id);
-        }}
-      >
-        ×
-      </button>
-      {/* // </> */}
-      {/* )} */}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => {
+                onDelete(id);
+              }}
+            >
+              ×
+            </button>
+          </>
+        )}
       {/*
         <span data-cy="TodoTitle" className="todo__title">
           {title}

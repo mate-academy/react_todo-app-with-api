@@ -4,19 +4,24 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { TodoData } from '../../api/todos';
+// import { TodoData } from '../../api/todos';
 import { ErrorTypes } from '../../types/ErrorTypes';
-import { AuthContext } from '../Auth/AuthContext';
+import { Todo } from '../../types/Todo';
+// import { AuthContext } from '../Auth/AuthContext';
 import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 
 interface Props {
-  onAdd: (todo: TodoData) => void,
+  onUpdate: (todoId: number, dataToUpdate: Partial<Todo>) => void,
+  todoId: number,
+  onEdit: (isEdit: boolean) => void,
 }
 
-export const NewTodoForm: React.FC<Props> = ({
-  onAdd,
+export const UpdateTodoForm: React.FC<Props> = ({
+  onUpdate,
+  todoId,
+  onEdit,
 }) => {
-  const user = useContext(AuthContext);
+  // const user = useContext(AuthContext);
   const { isAdding, setError } = useContext(ProcessedContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -27,24 +32,22 @@ export const NewTodoForm: React.FC<Props> = ({
     }
   }, []);
 
-  useEffect(() => {
-    if (newTodoField.current && !isAdding) {
-      newTodoField.current.focus();
-    }
-  }, [isAdding]);
+  // useEffect(() => {
+  //   if (newTodoField.current && !isAdding) {
+  //     newTodoField.current.focus();
+  //   }
+  // }, [isAdding]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(ErrorTypes.NONE);
     if (newTodoTitle.trim()) {
-      const newTodo = {
+      const updatedTodo: Partial<Todo> = {
         title: newTodoTitle.trim(),
-        completed: false,
-        userId: user?.id,
       };
 
-      onAdd(newTodo);
-      setNewTodoTitle('');
+      onUpdate(todoId, updatedTodo);
+      onEdit(false);
     } else {
       setError(ErrorTypes.EmptyTitle);
     }

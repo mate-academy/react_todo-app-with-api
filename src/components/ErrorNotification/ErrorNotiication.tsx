@@ -2,11 +2,11 @@
 import classNames from 'classnames';
 import React, { useContext, useEffect, useRef } from 'react';
 import { ErrorTypes } from '../../types/ErrorTypes';
-import { ErrorContext } from '../ErrorContext/ErrorContext';
+import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 
 export const ErrorNotification: React.FC = () => {
   const timerRef = useRef<NodeJS.Timer>();
-  const { error, setError } = useContext(ErrorContext);
+  const { error, setError } = useContext(ProcessedContext);
 
   useEffect(() => {
     if (error !== ErrorTypes.NONE) {
