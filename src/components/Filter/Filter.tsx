@@ -92,6 +92,7 @@ export const Filter: React.FC<Props> = (props) => {
             type="button"
             className="todoapp__clear-completed"
             onClick={async () => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const response: any[] = [];
 
               if (user) {
