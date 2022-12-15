@@ -28,14 +28,17 @@ export const TodoInfo: React.FC<Props> = ({
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const handleStatusChange = async (todo: Todo) => {
-    const todoWithChangedStatus = {
-      id: todo.id,
-      userId: todo.userId,
-      title: todo.title,
-      completed: !todo.completed,
-    };
+    // const todoWithChangedStatus = {
+    //   id: todo.id,
+    //   userId: todo.userId,
+    //   title: todo.title,
+    //   completed: !todo.completed,
+    // };
 
-    onUpdateTodo(todo.id, todoWithChangedStatus);
+    onUpdateTodo(todo.id, {
+      ...todo,
+      completed: !todo.completed,
+    });
   };
 
   return (
@@ -79,7 +82,15 @@ export const TodoInfo: React.FC<Props> = ({
           </>
         )}
 
-        {showNewTodo && <NewTodo />}
+        {showNewTodo && (
+          <NewTodo
+            onUpdateTodo={onUpdateTodo}
+            onDeleteTodo={onDeleteTodo}
+            currentTodo={todo}
+            title={todo.title}
+            onTodoShowChange={setShowNewTodo}
+          />
+        )}
 
         <div
           data-cy="TodoLoader"
