@@ -105,7 +105,6 @@ export const App: React.FC = () => {
         <Filter
           allTodos={allTodos}
           activeTodos={activeTodos}
-          visibleTodos={visibleTodos}
           setFilter={setFilter}
           selectedFilter={filter}
           setAllTodos={setAllTodos}

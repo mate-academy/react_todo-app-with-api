@@ -79,6 +79,28 @@ export const NewTodo: React.FC<Props> = (props) => {
     }
   };
 
+  const handleAddTodo = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading('Adding');
+    if (currentInput === '') {
+      setErrorWithTimer(ErrorStatus.EmptyTitle);
+    }
+
+    if (user && currentInput.length > 0) {
+      addTodo(user.id, newTodo)
+        .then(() => getTodos(user.id))
+        .then(userTodos => {
+          setAllTodos(userTodos);
+          setIsLoading('');
+          setCurrentInput('');
+        })
+        .catch(() => {
+          setErrorWithTimer(ErrorStatus.AddError);
+          setIsLoading('');
+        });
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {(allTodos?.length !== 0) && (
@@ -93,28 +115,7 @@ export const NewTodo: React.FC<Props> = (props) => {
         />
       ) }
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setIsLoading('Adding');
-          if (currentInput === '') {
-            setErrorWithTimer(ErrorStatus.EmptyTitle);
-          }
-
-          if (user && currentInput.length > 0) {
-            addTodo(user.id, newTodo)
-              .then(() => getTodos(user.id))
-              .then(userTodos => {
-                setAllTodos(userTodos);
-                // setVisibleTodos(userTodos);
-                setIsLoading('');
-                setCurrentInput('');
-              })
-              .catch(() => {
-                setErrorWithTimer(ErrorStatus.AddError);
-                setIsLoading('');
-              });
-          }
-        }}
+        onSubmit={(e) => handleAddTodo(e)}
       >
         <input
           disabled={isLoading.length > 0}

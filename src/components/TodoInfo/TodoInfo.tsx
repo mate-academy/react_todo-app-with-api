@@ -99,6 +99,23 @@ export const TodoInfo: React.FC<Props> = (props) => {
     }
   };
 
+  const handleDeleteTodo = () => {
+    setIsLoading(String(todo.id));
+    if (user) {
+      deleteTodo(todo.id)
+        .then(() => getTodos(user.id))
+        .then(userTodos => {
+          setAllTodos(userTodos);
+          setIsLoading('');
+        })
+
+        .catch(() => {
+          setErrorWithTimer(ErrorStatus.DeleteErrod);
+          setIsLoading('');
+        });
+    }
+  };
+
   return (
     <>
       <div
@@ -159,23 +176,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDeleteButton"
-                onClick={() => {
-                  setIsLoading(String(todo.id));
-                  if (user) {
-                    deleteTodo(todo.id)
-                      .then(() => getTodos(user.id))
-                      .then(userTodos => {
-                        setAllTodos(userTodos);
-                        // setVisibleTodos(userTodos);
-                        setIsLoading('');
-                      })
-
-                      .catch(() => {
-                        setErrorWithTimer(ErrorStatus.DeleteErrod);
-                        setIsLoading('');
-                      });
-                  }
-                }}
+                onClick={handleDeleteTodo}
               >
                 ×
               </button>
