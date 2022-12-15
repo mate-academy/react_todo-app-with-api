@@ -53,6 +53,13 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      getActiveTodos(user.id)
+        .then(userTodos => setActiveTodos(userTodos));
+    }
+  }, [allTodos, visibleTodos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
