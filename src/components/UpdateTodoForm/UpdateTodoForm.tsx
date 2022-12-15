@@ -1,14 +1,11 @@
-/* eslint-disable no-console */
 import React, {
   useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
-// import { TodoData } from '../../api/todos';
 import { ErrorTypes } from '../../types/ErrorTypes';
 import { Todo } from '../../types/Todo';
-// import { AuthContext } from '../Auth/AuthContext';
 import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 
 interface Props {
@@ -43,11 +40,7 @@ export const UpdateTodoForm: React.FC<Props> = ({
     event.preventDefault();
     setError(ErrorTypes.NONE);
     if (trimmedTitle !== title) {
-      const updatedTodo: Partial<Todo> = {
-        title: trimmedTitle,
-      };
-
-      onUpdate(id, updatedTodo);
+      onUpdate(id, { title: trimmedTitle });
     }
 
     if (trimmedTitle.length === 0) {
@@ -64,23 +57,21 @@ export const UpdateTodoForm: React.FC<Props> = ({
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <input
-          data-cy="TodoTitleField"
-          type="text"
-          ref={TodoTitleField}
-          className="todo__title-field"
-          placeholder="Empty todo will be deleted"
-          value={updatedTodoTitle}
-          onChange={(event) => {
-            setUpdatedTodoTitle(event.target.value);
-          }}
-          onBlur={handleSubmit}
-          onKeyDown={handleKeyDown}
-          disabled={isAdding}
-        />
-      </form>
-    </>
+    <form onSubmit={handleSubmit}>
+      <input
+        data-cy="TodoTitleField"
+        type="text"
+        ref={TodoTitleField}
+        className="todo__title-field"
+        placeholder="Empty todo will be deleted"
+        value={updatedTodoTitle}
+        onChange={(event) => {
+          setUpdatedTodoTitle(event.target.value);
+        }}
+        onBlur={handleSubmit}
+        onKeyDown={handleKeyDown}
+        disabled={isAdding}
+      />
+    </form>
   );
 };

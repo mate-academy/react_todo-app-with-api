@@ -136,17 +136,14 @@ export const App: React.FC = () => {
   }, [todos, filtredBy]);
 
   const activeTodos = useMemo(() => {
-    return filterBySelect(todos, FilterOptions.ACTIVE);
+    return todos.filter(todo => !todo.completed);
   }, [todos]);
 
-  const isClearNeeded = useMemo(() => {
-    return activeTodos.length !== visibleTodos.length;
-  }, [activeTodos, visibleTodos]);
+  const compTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
   const clearCompletedTodos = async () => {
-    const compTodos = todos
-      .filter(todo => todo.completed);
-
     await Promise.all(compTodos
       .map((todo) => deleteCurrentTodo(todo.id)));
   };
@@ -202,7 +199,7 @@ export const App: React.FC = () => {
                 type="button"
                 className={classNames(
                   'todoapp__clear-completed',
-                  { hidden: !isClearNeeded },
+                  { hidden: compTodos.length === 0 },
                 )}
                 onClick={clearCompletedTodos}
               >

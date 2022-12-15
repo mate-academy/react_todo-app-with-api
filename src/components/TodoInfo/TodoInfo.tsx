@@ -10,7 +10,7 @@ interface Props {
   onUpdate: (todoId: number, dataToUpdate: Partial<Todo>,) => void,
 }
 
-export const ActualTodo: React.FC<Props> = ({
+export const TodoInfo: React.FC<Props> = ({
   todo,
   onDelete,
   onUpdate,

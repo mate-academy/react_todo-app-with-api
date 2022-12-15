@@ -1,5 +1,5 @@
 import { Todo } from '../../types/Todo';
-import { ActualTodo } from '../ActualTodo/ActualTodo';
+import { TodoInfo } from '../TodoInfo/TodoInfo';
 
 interface Props {
   todos: Todo[],
@@ -15,7 +15,7 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
-        <ActualTodo
+        <TodoInfo
           key={todo.id}
           todo={todo}
           onDelete={onDelete}
