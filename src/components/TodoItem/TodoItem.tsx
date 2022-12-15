@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import { useCallback, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -18,16 +23,16 @@ export const TodoItem: React.FC<Props> = (props) => {
     onChangeStatus,
     isLoading,
   } = props;
+
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const newTodoTitle = useRef<HTMLInputElement>(null);
 
-  const handleDoubleClick = useCallback(
-    (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-      if (event.detail === 2) {
-        setIsEditing(true);
-      }
-    }, [],
-  );
+  useEffect(() => {
+    if (newTodoTitle.current) {
+      newTodoTitle.current.focus();
+    }
+  });
 
   const handleSuccessfulEdit = useCallback(() => {
     onRename(todo, newTitle);
@@ -76,6 +81,7 @@ export const TodoItem: React.FC<Props> = (props) => {
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
+              ref={newTodoTitle}
               value={newTitle}
               onChange={event => setNewTitle(event.target.value)}
               onBlur={handleSuccessfulEdit}
@@ -87,8 +93,7 @@ export const TodoItem: React.FC<Props> = (props) => {
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onClick={handleDoubleClick}
-              aria-hidden="true"
+              onDoubleClick={() => setIsEditing(true)}
             >
               {todo.title}
             </span>

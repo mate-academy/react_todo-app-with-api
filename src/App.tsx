@@ -41,6 +41,10 @@ export const App: React.FC = () => {
     todos.filter(todo => todo.completed)
   ), [todos]);
 
+  const todosShouldToggle = completedTodos.length < todos.length
+    ? activeTodos
+    : todos;
+
   const loadUserTodos = useCallback(async () => {
     if (!user) {
       return;
@@ -149,17 +153,17 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  const handleChangeAllToCompleted = useCallback(
+  const handleToggleAll = useCallback(
     async () => {
       setError(ErrorMessage.None);
       setLoadingTodosIds(prevTodoIds => ([
         ...prevTodoIds,
-        ...activeTodos.map(todo => todo.id),
+        ...todosShouldToggle.map(todo => todo.id),
       ]));
 
       try {
-        await Promise.all(activeTodos.map(todo => (
-          editTodo(todo.id, { completed: true })
+        await Promise.all(todosShouldToggle.map(todo => (
+          editTodo(todo.id, { completed: !todo.completed })
         )));
 
         await loadUserTodos();
@@ -168,7 +172,7 @@ export const App: React.FC = () => {
       } finally {
         setLoadingTodosIds([]);
       }
-    }, [activeTodos],
+    }, [todosShouldToggle],
   );
 
   const handleRename = async (todo: Todo, newTitle: string) => {
@@ -228,7 +232,7 @@ export const App: React.FC = () => {
                   active: !activeTodos.length,
                 },
               )}
-              onClick={handleChangeAllToCompleted}
+              onClick={handleToggleAll}
             />
           )}
 
