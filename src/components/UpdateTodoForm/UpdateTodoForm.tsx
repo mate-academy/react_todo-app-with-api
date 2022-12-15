@@ -42,19 +42,15 @@ export const UpdateTodoForm: React.FC<Props> = ({
   ) => {
     event.preventDefault();
     setError(ErrorTypes.NONE);
-    if (trimmedTitle === title) {
-      onEdit(false);
-
-      return;
-    }
-
-    if (trimmedTitle) {
+    if (trimmedTitle !== title) {
       const updatedTodo: Partial<Todo> = {
         title: trimmedTitle,
       };
 
       onUpdate(id, updatedTodo);
-    } else {
+    }
+
+    if (trimmedTitle.length === 0) {
       onDelete(id);
     }
 
