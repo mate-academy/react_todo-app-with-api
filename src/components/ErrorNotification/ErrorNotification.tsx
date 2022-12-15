@@ -39,7 +39,7 @@ export const ErrorNotification: React.FC<Props> = (props) => {
         className="delete"
         onClick={() => onErrorChange(ErrorMessage.None)}
       />
-      {!isHidden && error}
+      {error}
     </div>
   );
 };
