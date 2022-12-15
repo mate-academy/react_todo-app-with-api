@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { useContext, useState } from 'react';
 import { Todo } from '../../types/Todo';
-// import { NewTodoForm } from '../NewTodoForm/NewTodoForm';
 import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 import { UpdateTodoForm } from '../UpdateTodoForm/UpdateTodoForm';
 
@@ -20,6 +19,13 @@ export const ActualTodo: React.FC<Props> = ({
   const { processedTodoIds } = useContext(ProcessedContext);
   const isLoaderActive = id === 0 || processedTodoIds.includes(id);
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleDoubleClick = (
+    event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    setIsEditing(true);
+  };
 
   return (
     <div
@@ -41,9 +47,10 @@ export const ActualTodo: React.FC<Props> = ({
       {isEditing
         ? (
           <UpdateTodoForm
-            todoId={id}
+            todo={todo}
             onUpdate={onUpdate}
             onEdit={setIsEditing}
+            onDelete={onDelete}
           />
         )
         : (
@@ -51,7 +58,7 @@ export const ActualTodo: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => setIsEditing(true)}
+              onDoubleClick={handleDoubleClick}
             >
               {title}
             </span>

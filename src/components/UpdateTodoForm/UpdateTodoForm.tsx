@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, {
   useContext,
   useEffect,
@@ -12,44 +13,57 @@ import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 
 interface Props {
   onUpdate: (todoId: number, dataToUpdate: Partial<Todo>) => void,
-  todoId: number,
+  todo: Todo,
   onEdit: (isEdit: boolean) => void,
+  onDelete: (todoId: number) => void,
 }
 
 export const UpdateTodoForm: React.FC<Props> = ({
   onUpdate,
-  todoId,
+  todo,
   onEdit,
+  onDelete,
 }) => {
-  // const user = useContext(AuthContext);
   const { isAdding, setError } = useContext(ProcessedContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const { id, title } = todo;
+  const TodoTitleField = useRef<HTMLInputElement>(null);
+  const [updatedTodoTitle, setUpdatedTodoTitle] = useState(title);
+  const trimmedTitle = updatedTodoTitle.trim();
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
+    if (TodoTitleField.current) {
+      TodoTitleField.current.focus();
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (newTodoField.current && !isAdding) {
-  //     newTodoField.current.focus();
-  //   }
-  // }, [isAdding]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (
+    event: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement>,
+  ) => {
     event.preventDefault();
     setError(ErrorTypes.NONE);
-    if (newTodoTitle.trim()) {
+    if (trimmedTitle === title) {
+      onEdit(false);
+
+      return;
+    }
+
+    if (trimmedTitle) {
       const updatedTodo: Partial<Todo> = {
-        title: newTodoTitle.trim(),
+        title: trimmedTitle,
       };
 
-      onUpdate(todoId, updatedTodo);
-      onEdit(false);
+      onUpdate(id, updatedTodo);
     } else {
-      setError(ErrorTypes.EmptyTitle);
+      onDelete(id);
+    }
+
+    onEdit(false);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      onEdit(false);
     }
   };
 
@@ -57,15 +71,17 @@ export const UpdateTodoForm: React.FC<Props> = ({
     <>
       <form onSubmit={handleSubmit}>
         <input
-          data-cy="NewTodoField"
+          data-cy="TodoTitleField"
           type="text"
-          ref={newTodoField}
-          className="todoapp__new-todo"
-          placeholder="What needs to be done?"
-          value={newTodoTitle}
+          ref={TodoTitleField}
+          className="todo__title-field"
+          placeholder="Empty todo will be deleted"
+          value={updatedTodoTitle}
           onChange={(event) => {
-            setNewTodoTitle(event.target.value);
+            setUpdatedTodoTitle(event.target.value);
           }}
+          onBlur={handleSubmit}
+          onKeyDown={handleKeyDown}
           disabled={isAdding}
         />
       </form>

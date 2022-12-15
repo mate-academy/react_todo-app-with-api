@@ -12,7 +12,7 @@ export const createTodo = ({ title, completed, userId }: TodoData) => {
 };
 
 export const deleteTodo = (todoId: number) => {
-  return client.delete(`/todos/${todoId}`);
+  return client.delete(`/todo/${todoId}`);
 };
 
 export const updateTodo = (todoId: number, dataToUpdate: Partial<Todo>) => {
