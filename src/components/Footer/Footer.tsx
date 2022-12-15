@@ -40,11 +40,11 @@ export const Footer: React.FC<Props> = ({
 
   console.log(compTodos);
   const clearCompletedTodos = () => {
-    compTodos.forEach(async (a) => {
-      console.log(a);
+    compTodos.forEach(async (todo) => {
+      console.log(todo);
       try {
         onSetisDeletedComplete(true);
-        await removeTodo(a.id);
+        await removeTodo(todo.id);
       } catch (inError) {
         console.log('ERROR DELETE', inError);
         onSetIsError(false);
