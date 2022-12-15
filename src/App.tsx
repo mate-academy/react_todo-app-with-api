@@ -106,15 +106,17 @@ export const App: React.FC = () => {
       const response
         = await updateTodo(todo.id, { completed: !todo.completed });
 
-      const todoToUpdate = todos.find(todoItem => todoItem.id === todo.id);
+      setTodos(prev => {
+        const todoToUpdate = prev.find(todoItem => todoItem.id === todo.id);
 
-      if (todoToUpdate) {
-        todoToUpdate.completed = response.completed;
-      }
+        if (todoToUpdate) {
+          todoToUpdate.completed = response.completed;
+        }
 
-      setTodos([...todos]);
+        return [...prev];
+      });
     } catch {
-      setErrorMessage('Unable to updata todo');
+      setErrorMessage('Unable to update a todo');
     } finally {
       setIsProcessing([]);
     }

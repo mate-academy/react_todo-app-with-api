@@ -44,7 +44,7 @@ export const Header: React.FC<Props> = ({
 
       setTitleValue('');
 
-      const newTodo = {
+      const fetchTodo = {
         id: 0,
         userId: user.id,
         title: titleValue,
@@ -53,22 +53,9 @@ export const Header: React.FC<Props> = ({
 
       try {
         setIsAdding(true);
-        const response = await addTodo(user.id, newTodo);
-        const {
-          id,
-          userId,
-          title,
-          completed,
-        } = response;
+        const newTodo = await addTodo(user.id, fetchTodo);
 
-        const todo = {
-          id,
-          userId,
-          title,
-          completed,
-        };
-
-        onAdd(todo);
+        onAdd(newTodo);
       } catch {
         setError('Unable to add a todo');
       }

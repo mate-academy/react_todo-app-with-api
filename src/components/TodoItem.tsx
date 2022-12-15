@@ -41,14 +41,18 @@ export const TodoItem: React.FC<Props> = React.memo(({
     onRename(todo.id, newTitle);
   };
 
+  const focusInput = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsRenaming(false);
+    }
+  };
+
   useEffect(() => {
     renameInput.current?.focus();
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        setIsRenaming(false);
-      }
-    });
+    document.addEventListener('keydown', focusInput);
+
+    return () => document.removeEventListener('keydown', focusInput);
   }, [isRenaming]);
 
   return (
