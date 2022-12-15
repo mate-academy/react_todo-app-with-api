@@ -83,11 +83,12 @@ export const App: React.FC = () => {
       setTitle('');
 
       setTodos(prevTodos => [...prevTodos, todo]);
-
-      setIsAdding(false);
     } catch (error) {
       setHasError(true);
       setCurrentError(Add);
+    } finally {
+      loadUserTodos();
+      setIsAdding(false);
     }
   }, []);
 
@@ -97,13 +98,13 @@ export const App: React.FC = () => {
       setSelectedTodoIds(prevIds => [...prevIds, todoId]);
 
       await removeTodo(todoId);
-
-      await loadUserTodos();
-
-      setSelectedTodoIds([0]);
     } catch (error) {
       setHasError(true);
       setCurrentError(Delete);
+    } finally {
+      await loadUserTodos();
+
+      setSelectedTodoIds([0]);
     }
   }, []);
 
@@ -123,13 +124,13 @@ export const App: React.FC = () => {
       };
 
       await patchTodo(todo.id, updatedTodo);
-
-      await loadUserTodos();
-
-      setSelectedTodoIds([0]);
     } catch (error) {
       setHasError(true);
       setCurrentError(Update);
+    } finally {
+      await loadUserTodos();
+
+      setSelectedTodoIds([0]);
     }
   }, []);
 
@@ -149,13 +150,13 @@ export const App: React.FC = () => {
       };
 
       await patchTodo(todo.id, updatedTodo);
-
-      await loadUserTodos();
-
-      setSelectedTodoIds([0]);
     } catch (error) {
       setHasError(true);
       setCurrentError(Update);
+    } finally {
+      await loadUserTodos();
+
+      setSelectedTodoIds([0]);
     }
   }, []);
 
