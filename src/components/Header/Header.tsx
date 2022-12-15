@@ -59,7 +59,6 @@ export const Header: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        // className="todoapp__toggle-all active"
         className={cn('todoapp__toggle-all', { active: toggleButton })}
         onClick={() => onToggleChange()}
       />

@@ -1,5 +1,7 @@
 import cn from 'classnames';
+import { useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { NewTodo } from '../NewTodo/NewTodo';
 
 type Props = {
   todo: Todo;
@@ -18,6 +20,8 @@ export const TodoInfo: React.FC<Props> = ({
   togglerLoader,
   focusedTodoId,
 }) => {
+  const [showNewTodo, setShowNewTodo] = useState(false);
+
   const handleDeleteButton = () => {
     onDeleteTodo(todo.id);
   };
@@ -54,21 +58,28 @@ export const TodoInfo: React.FC<Props> = ({
           />
         </label>
 
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-        >
-          {todo.title}
-        </span>
+        {!showNewTodo && (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setShowNewTodo(true)}
+            >
+              {todo.title}
+            </span>
 
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-          onClick={() => handleDeleteButton()}
-        >
-          ×
-        </button>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => handleDeleteButton()}
+            >
+              ×
+            </button>
+          </>
+        )}
+
+        {showNewTodo && <NewTodo />}
 
         <div
           data-cy="TodoLoader"
