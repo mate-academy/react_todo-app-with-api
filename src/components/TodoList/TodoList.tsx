@@ -96,7 +96,7 @@ export const TodoList: React.FC<Props> = (props) => {
             appear
           >
             <TodoItem
-              key={0}
+              key={tempTodo.id}
               todo={tempTodo}
               onDelete={onDelete}
               onUpdate={onUpdate}

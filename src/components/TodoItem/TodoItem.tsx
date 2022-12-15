@@ -1,13 +1,11 @@
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
 
-import { ErrorContext } from '../Error/ErrorContext';
 import { Loader } from '../Loader/Loader';
 
 import { Todo } from '../../types/Todo';
@@ -34,8 +32,6 @@ export const TodoItem: React.FC<Props> = (props) => {
     title,
     completed,
   } = todo;
-
-  const { isAdding } = useContext(ErrorContext);
 
   const newTitle = useRef<HTMLInputElement>(null);
 
@@ -145,7 +141,7 @@ export const TodoItem: React.FC<Props> = (props) => {
         </>
       )}
 
-      {(isActive || isAdding) && (
+      {(isActive || id === 0) && (
         <Loader />
       )}
     </div>
