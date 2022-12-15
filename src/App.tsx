@@ -112,23 +112,9 @@ export const App: React.FC = () => {
 
   const handleRemoveCompleted = useCallback(
     async () => {
-      setError(ErrorMessage.None);
-      setLoadingTodosIds(prevTodoIds => ([
-        ...prevTodoIds,
-        ...completedTodos.map(todo => todo.id),
-      ]));
-
-      try {
-        await Promise.all(completedTodos.map(todo => (
-          removeTodo(todo.id)
-        )));
-
-        await loadUserTodos();
-      } catch {
-        setError(ErrorMessage.Delete);
-      } finally {
-        setLoadingTodosIds([]);
-      }
+      await Promise.all(completedTodos.map(todo => (
+        handleDelete(todo.id)
+      )));
     }, [completedTodos],
   );
 
@@ -155,23 +141,9 @@ export const App: React.FC = () => {
 
   const handleToggleAll = useCallback(
     async () => {
-      setError(ErrorMessage.None);
-      setLoadingTodosIds(prevTodoIds => ([
-        ...prevTodoIds,
-        ...todosShouldToggle.map(todo => todo.id),
-      ]));
-
-      try {
-        await Promise.all(todosShouldToggle.map(todo => (
-          editTodo(todo.id, { completed: !todo.completed })
-        )));
-
-        await loadUserTodos();
-      } catch {
-        setError(ErrorMessage.Update);
-      } finally {
-        setLoadingTodosIds([]);
-      }
+      await Promise.all(todosShouldToggle.map(todo => (
+        handleChangeStatus(todo)
+      )));
     }, [todosShouldToggle],
   );
 
