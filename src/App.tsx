@@ -6,21 +6,21 @@ import React, {
   useState,
 } from 'react';
 
-import { AuthContext } from './components/Auth/AuthContext';
-import { getTodos, getActiveTodos } from './api/todos';
 import { Todo } from './types/Todo';
-import { TodoList } from './components/TodoList/TodoList';
 import { Filter } from './components/Filter/Filter';
 import { NewTodo } from './components/NewTodo/NewTodo';
+import { TodoList } from './components/TodoList/TodoList';
+import { getTodos, getActiveTodos } from './api/todos';
+import { AuthContext } from './components/Auth/AuthContext';
 import {
   ErrorNotification,
 } from './components/ErrorNotification/ErrorNotification';
 
 export const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState('');
-  const [errorStatus, setErrorStatus] = useState('');
-  const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);
+  const [isLoading, setIsLoading] = useState('');
+  const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
+  const [errorStatus, setErrorStatus] = useState('');
   const [visibleTodos, setVisibleTodos] = useState<Todo[] | null>(null);
   const [currentInput, setCurrentInput] = useState('');
 
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
           currentInput={currentInput}
           setCurrentInput={setCurrentInput}
           setErrorWithTimer={setErrorWithTimer}
-          // setAllTodos={setAllTodos}
+          setAllTodos={setAllTodos}
 
         />
         <TodoList

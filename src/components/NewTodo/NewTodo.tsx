@@ -11,7 +11,7 @@ import {
   addTodo,
   getTodos,
   updateTodo,
-  // getActiveTodos,
+  getActiveTodos,
   // getCompletedTodos,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
@@ -29,7 +29,7 @@ interface Props {
   setErrorWithTimer: (message: string) => void,
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
-  // setAllTodos: Dispatch<SetStateAction<Todo[]>>,
+  setAllTodos: Dispatch<SetStateAction<Todo[] | null>>,
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -43,7 +43,7 @@ export const NewTodo: React.FC<Props> = (props) => {
     setErrorWithTimer,
     isLoading,
     setIsLoading,
-    // setAllTodos,
+    setAllTodos,
   } = props;
 
   const user = useContext(AuthContext);
@@ -75,6 +75,11 @@ export const NewTodo: React.FC<Props> = (props) => {
                 updateTodo(todo.id, { completed: false });
               } else {
                 updateTodo(todo.id, { completed: true });
+              }
+
+              if (user) {
+                getActiveTodos(user.id)
+                  .then(userTodos => setAllTodos(userTodos));
               }
             });
           }}

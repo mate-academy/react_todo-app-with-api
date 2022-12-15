@@ -37,11 +37,31 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const user = useContext(AuthContext);
 
-  const handleSuccessfulEdit = ((todoId: number, title: string) => {
-    if (!newTitle) {
-      deleteTodo(todoId);
-    } else if (newTitle !== title) {
-      updateTodo(todoId, { title: newTitle });
+  const handleSuccessfulEdit = (() => {
+    setIsLoading(String(todo.id));
+    if (!newTitle && user) {
+      deleteTodo(todo.id)
+        .then(() => getActiveTodos(user.id))
+        .then(userTodos => {
+          setVisibleTodos(userTodos);
+          setIsLoading('');
+        })
+
+        .catch(() => {
+          setErrorWithTimer(ErrorStatus.DeleteErrod);
+          setIsLoading('');
+        });
+    } else if (newTitle !== todo.title && user) {
+      setIsLoading(String(todo.id));
+      updateTodo(todo.id, { title: newTitle })
+        .then(() => getTodos(user.id))
+        .then(todos => setVisibleTodos(todos))
+        .then(() => setIsLoading(''))
+
+        .catch(() => {
+          setErrorWithTimer(ErrorStatus.UpdateError);
+          setIsLoading('');
+        });
     }
 
     setIsEditing(false);
@@ -108,7 +128,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
             <form
               onSubmit={event => {
                 event.preventDefault();
-                handleSuccessfulEdit(todo.id, todo.title);
+                handleSuccessfulEdit();
               }}
             >
               <input
@@ -118,7 +138,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
                 onChange={event => setNewTitle(event.target.value)}
-                onBlur={() => handleSuccessfulEdit(todo.id, todo.title)}
+                onBlur={() => handleSuccessfulEdit()}
                 onKeyDown={handlePressEsc}
               />
             </form>
