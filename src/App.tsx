@@ -37,16 +37,11 @@ export const App: React.FC = () => {
       } catch (inError) {
         setIsError(false);
         setTypeError(Errors.ErrGET);
+      } finally {
+        setIsAdding(false);
       }
     }
   }, []);
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  });
 
   useEffect(() => {
     fetchData();

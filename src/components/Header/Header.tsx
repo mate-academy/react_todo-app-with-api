@@ -32,6 +32,13 @@ export const Header: React.FC<Props> = ({
   todos,
   toUpdateTodo,
 }) => {
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  });
+
   const [isAllCompleted, setIsAllCompleted] = useState(false);
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -56,9 +63,9 @@ export const Header: React.FC<Props> = ({
         }
       }
 
-      onSetIsAdding(false);
       onSetNewTitleTodo('');
       toLoad();
+      // onSetIsAdding(false);
     };
 
     addTodo();
@@ -74,7 +81,6 @@ export const Header: React.FC<Props> = ({
   useEffect(() => {
     setIsAllCompleted(isAllTodosCompleted);
   });
-
 
   const toggleCompleteAllTodos = () => {
     todos.forEach(todo => {
