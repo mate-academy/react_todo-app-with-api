@@ -22,7 +22,6 @@ interface Props {
   newTodoField: React.LegacyRef<HTMLInputElement> | undefined,
   activeTodos: Todo[] | null,
   allTodos: Todo[] | null,
-  setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
   currentInput: string,
   setCurrentInput: Dispatch<SetStateAction<string>>,
   setErrorWithTimer: (message: string) => void,
@@ -36,12 +35,12 @@ export const NewTodo: React.FC<Props> = (props) => {
     newTodoField,
     activeTodos,
     allTodos,
-    setVisibleTodos,
     currentInput,
     setCurrentInput,
     setErrorWithTimer,
     isLoading,
     setIsLoading,
+    setAllTodos,
   } = props;
 
   const user = useContext(AuthContext);
@@ -75,7 +74,7 @@ export const NewTodo: React.FC<Props> = (props) => {
         await Promise.all(results);
         const newTodos: Todo[] = await getTodos(user.id);
 
-        setVisibleTodos(newTodos);
+        setAllTodos(newTodos);
       }
     }
   };
@@ -105,7 +104,8 @@ export const NewTodo: React.FC<Props> = (props) => {
             addTodo(user.id, newTodo)
               .then(() => getTodos(user.id))
               .then(userTodos => {
-                setVisibleTodos(userTodos);
+                setAllTodos(userTodos);
+                // setVisibleTodos(userTodos);
                 setIsLoading('');
                 setCurrentInput('');
               })

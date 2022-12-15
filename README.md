@@ -10,14 +10,11 @@ and implement the ability to toggle and rename todos.
 
 ## Toggling a todo status
 
-Change Togler. It is dumb and slow now.
-Check all Errors
-IsLoading All check
+
 activeTodos delete state
 async/await add
 useContext add
 consider useMemo/useCallback
-'1 items left' doesn't update in real time
 add handlers(helpers)
 
 ✓ Toggle the `completed` status on `TodoStatus` change:

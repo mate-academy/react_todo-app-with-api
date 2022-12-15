@@ -5,20 +5,22 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 interface Props {
   visibleTodos: Todo[] | null,
   currentInput: string,
-  setVisibleTodos:Dispatch<SetStateAction<Todo[] | null>>,
+  // setVisibleTodos:Dispatch<SetStateAction<Todo[] | null>>,
   setErrorWithTimer: (message: string) => void;
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
+  setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
 }
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
     visibleTodos,
     currentInput,
-    setVisibleTodos,
+    // setVisibleTodos,
     setErrorWithTimer,
     isLoading,
     setIsLoading,
+    setAllTodos,
   } = props;
 
   return (
@@ -33,8 +35,9 @@ export const TodoList: React.FC<Props> = (props) => {
             todo={todo}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
-            setVisibleTodos={setVisibleTodos}
+            // setVisibleTodos={setVisibleTodos}
             setErrorWithTimer={setErrorWithTimer}
+            setAllTodos={setAllTodos}
           />
         ))}
         {(isLoading === 'Adding') && (

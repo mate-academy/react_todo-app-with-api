@@ -2,6 +2,7 @@
 import React, {
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,8 +22,24 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState('');
   const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [errorStatus, setErrorStatus] = useState('');
-  const [visibleTodos, setVisibleTodos] = useState<Todo[] | null>(null);
   const [currentInput, setCurrentInput] = useState('');
+  const [filter, setFilter] = useState('all');
+
+  const visibleTodos = useMemo(() => {
+    let result = allTodos;
+
+    if (allTodos) {
+      if (filter === 'active') {
+        result = allTodos.filter(todo => !todo.completed);
+      }
+
+      if (filter === 'completed') {
+        result = allTodos.filter(todo => todo.completed);
+      }
+    }
+
+    return result;
+  }, [filter, allTodos]);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -41,7 +58,6 @@ export const App: React.FC = () => {
     if (user) {
       getTodos(user.id)
         .then(userTodos => {
-          setVisibleTodos(userTodos);
           setAllTodos(userTodos);
         })
         .catch(() => {
@@ -69,7 +85,6 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
           activeTodos={activeTodos}
           allTodos={allTodos}
-          setVisibleTodos={setVisibleTodos}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           currentInput={currentInput}
@@ -81,17 +96,19 @@ export const App: React.FC = () => {
         <TodoList
           visibleTodos={visibleTodos}
           currentInput={currentInput}
-          setVisibleTodos={setVisibleTodos}
           setErrorWithTimer={setErrorWithTimer}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
+          setAllTodos={setAllTodos}
         />
 
         <Filter
           allTodos={allTodos}
           activeTodos={activeTodos}
-          setVisibleTodos={setVisibleTodos}
           visibleTodos={visibleTodos}
+          setFilter={setFilter}
+          selectedFilter={filter}
+          setAllTodos={setAllTodos}
         />
       </div>
 

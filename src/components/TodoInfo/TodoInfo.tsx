@@ -18,19 +18,19 @@ import { ErrorStatus } from '../../types/errorStatus';
 
 interface Props {
   todo: Todo,
-  setVisibleTodos: Dispatch<SetStateAction<Todo[] | null>>,
   setErrorWithTimer: (message: string) => void;
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
+  setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
 }
 
 export const TodoInfo: React.FC<Props> = (props) => {
   const {
     todo,
-    setVisibleTodos,
     setErrorWithTimer,
     isLoading,
     setIsLoading,
+    setAllTodos,
   } = props;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +43,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
       deleteTodo(todo.id)
         .then(() => getActiveTodos(user.id))
         .then(userTodos => {
-          setVisibleTodos(userTodos);
+          setAllTodos(userTodos);
           setIsLoading('');
         })
 
@@ -55,7 +55,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
       setIsLoading(String(todo.id));
       updateTodo(todo.id, { title: newTitle })
         .then(() => getTodos(user.id))
-        .then(todos => setVisibleTodos(todos))
+        .then(todos => setAllTodos(todos))
         .then(() => setIsLoading(''))
 
         .catch(() => {
@@ -84,6 +84,21 @@ export const TodoInfo: React.FC<Props> = (props) => {
     }, [],
   );
 
+  const handleCheckboxOnChange = () => {
+    setIsLoading(String(todo.id));
+    if (user) {
+      updateTodo(todo.id, { completed: !todo.completed })
+        .then(() => getTodos(user.id))
+        .then(todos => setAllTodos(todos))
+        .then(() => setIsLoading(''))
+
+        .catch(() => {
+          setErrorWithTimer(ErrorStatus.UpdateError);
+          setIsLoading('');
+        });
+    }
+  };
+
   return (
     <>
       <div
@@ -105,21 +120,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            onChange={() => {
-              setIsLoading(String(todo.id));
-              // setIsLoading(todo.title);
-              if (user) {
-                updateTodo(todo.id, { completed: !todo.completed })
-                  .then(() => getTodos(user.id))
-                  .then(todos => setVisibleTodos(todos))
-                  .then(() => setIsLoading(''))
-
-                  .catch(() => {
-                    setErrorWithTimer(ErrorStatus.UpdateError);
-                    setIsLoading('');
-                  });
-              }
-            }}
+            onChange={handleCheckboxOnChange}
           />
         </label>
 
@@ -162,9 +163,10 @@ export const TodoInfo: React.FC<Props> = (props) => {
                   setIsLoading(String(todo.id));
                   if (user) {
                     deleteTodo(todo.id)
-                      .then(() => getActiveTodos(user.id))
+                      .then(() => getTodos(user.id))
                       .then(userTodos => {
-                        setVisibleTodos(userTodos);
+                        setAllTodos(userTodos);
+                        // setVisibleTodos(userTodos);
                         setIsLoading('');
                       })
 

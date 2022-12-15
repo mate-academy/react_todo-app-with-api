@@ -1,53 +1,36 @@
 import classNames from 'classnames';
-import { useState, useContext } from 'react';
+import {
+  useContext,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import {
-  getCompletedTodos,
-  getTodos,
-  getActiveTodos,
   deleteTodo,
+  getTodos,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 interface Props {
   allTodos: Todo[] | null,
   activeTodos: Todo[] | null,
-  setVisibleTodos: (userTodos: Todo[]) => void,
   visibleTodos: Todo[] | null,
+  setFilter: Dispatch<SetStateAction<string>>,
+  selectedFilter: string,
+  setAllTodos: Dispatch<SetStateAction<Todo[] | null>>,
 }
 
-const filters = {
-  all: 'all',
-  completed: 'completed',
-  active: 'active',
-};
-
 export const Filter: React.FC<Props> = (props) => {
-  const [selectedFilter, setSelectedFilter] = useState(filters.all);
-
   const {
     allTodos,
     activeTodos,
-    setVisibleTodos,
     visibleTodos,
+    setFilter,
+    selectedFilter,
+    setAllTodos,
   } = props;
 
   const user = useContext(AuthContext);
-
-  const editTodos = (
-    functonEdit: (number: number) => Promise<Todo[]>,
-    activeFilter: string,
-    event: React.MouseEvent<HTMLElement>,
-  ) => {
-    if (user) {
-      functonEdit(user.id)
-        .then((userTodos: Todo[]) => setVisibleTodos(userTodos));
-    }
-
-    setSelectedFilter(activeFilter);
-
-    event.preventDefault();
-  };
 
   return (
     <>
@@ -63,10 +46,11 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/"
               className={classNames(
                 { filter__link: true },
-                { selected: selectedFilter === filters.all },
+                { selected: selectedFilter === 'all' },
               )}
               onClick={(event) => {
-                editTodos(getTodos, filters.all, event);
+                setFilter('all');
+                event.preventDefault();
               }}
             >
               All
@@ -77,10 +61,11 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/active"
               className={classNames(
                 { filter__link: true },
-                { selected: selectedFilter === filters.active },
+                { selected: selectedFilter === 'sctive' },
               )}
               onClick={(event) => {
-                editTodos(getActiveTodos, filters.active, event);
+                setFilter('active');
+                event.preventDefault();
               }}
             >
               Active
@@ -90,10 +75,11 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/completed"
               className={classNames(
                 { filter__link: true },
-                { selected: selectedFilter === filters.completed },
+                { selected: selectedFilter === 'completed' },
               )}
               onClick={(event) => {
-                editTodos(getCompletedTodos, filters.completed, event);
+                setFilter('completed');
+                event.preventDefault();
               }}
             >
               Completed
@@ -105,15 +91,21 @@ export const Filter: React.FC<Props> = (props) => {
             data-cy="ClearCompletedButton"
             type="button"
             className="todoapp__clear-completed"
-            onClick={() => {
+            onClick={async () => {
+              const response: any[] = [];
+
               if (user) {
                 allTodos.forEach(todo => {
                   if (todo.completed) {
-                    deleteTodo(todo.id);
+                    response.push(deleteTodo(todo.id));
                   }
                 });
-                if (activeTodos) {
-                  setVisibleTodos(activeTodos);
+
+                if (user) {
+                  await Promise.all(response);
+                  const newTodos: Todo[] = await getTodos(user.id);
+
+                  setAllTodos(newTodos);
                 }
               }
             }}
