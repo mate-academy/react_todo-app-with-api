@@ -62,20 +62,20 @@ export const TodoItem: React.FC<Props> = (props) => {
   const updateTitle = useCallback(() => {
     const trimmedTitle = updatedTitle.trim();
 
-    setIsClicked(false);
-
     if (trimmedTitle === title) {
+      setIsClicked(false);
+      setUpdatedTitle(title);
+
       return;
     }
 
-    if (trimmedTitle === '') {
+    if (trimmedTitle) {
+      onUpdate(todo, trimmedTitle);
+    } else {
       onDelete(id);
-
-      return;
     }
 
-    setUpdatedTitle(trimmedTitle);
-    onUpdate(todo, trimmedTitle);
+    setIsClicked(false);
   }, [title, updatedTitle]);
 
   const handleOnBlur = () => updateTitle();

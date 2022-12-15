@@ -9,7 +9,11 @@ import React, {
 import { Errors } from '../../types/Errors';
 import { ErrorContext } from './ErrorContext';
 
-export const Error: React.FC = () => {
+type Props = {
+  loadUsers: () => Promise<void>;
+};
+
+export const Error: React.FC<Props> = ({ loadUsers }) => {
   const {
     currentError,
     setCurrentError,
@@ -27,6 +31,7 @@ export const Error: React.FC = () => {
       setIsAdding(false);
       setSelectedTodoIds([0]);
       setCurrentError(Errors.NoError);
+      loadUsers();
     },
     [currentError],
   );

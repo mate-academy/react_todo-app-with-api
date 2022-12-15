@@ -151,11 +151,12 @@ export const App: React.FC = () => {
       };
 
       await patchTodo(todo.id, updatedTodo);
+      await loadUserTodos();
     } catch (error) {
       setHasError(true);
       setCurrentError(Update);
     } finally {
-      await loadUserTodos();
+      // await loadUserTodos();
       setSelectedTodoIds([0]);
     }
   }, []);
@@ -195,7 +196,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <Error />
+      <Error loadUsers={loadUserTodos} />
     </div>
   );
 };
