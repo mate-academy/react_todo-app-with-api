@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import cn from 'classnames';
 import React, { RefObject, useContext } from 'react';
 import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
@@ -9,18 +10,22 @@ type Props = {
   newTodoField: RefObject<HTMLInputElement>;
   query: string;
   isDisabledInput: boolean;
+  toggleButton?: boolean;
   onQueryChange: (value: string) => void;
   onErrorChange: (value: ErrorType) => void;
   onAddNewTodo: (value: Todo) => void;
+  onToggleChange: () => void;
 };
 
 export const Header: React.FC<Props> = ({
   newTodoField,
   query,
   isDisabledInput,
+  toggleButton,
   onQueryChange,
   onErrorChange,
   onAddNewTodo,
+  onToggleChange,
 }) => {
   const user = useContext(AuthContext);
 
@@ -54,7 +59,9 @@ export const Header: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        // className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: toggleButton })}
+        onClick={() => onToggleChange()}
       />
 
       <form

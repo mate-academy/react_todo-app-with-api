@@ -5,6 +5,7 @@ type Props = {
   todo: Todo;
   loader: boolean;
   focusedTodoId: number;
+  togglerLoader: boolean;
   onDeleteTodo: (value: number) => void;
   onUpdateTodo: (todoId: number, todo: Todo) => void;
 };
@@ -14,6 +15,7 @@ export const TodoInfo: React.FC<Props> = ({
   onDeleteTodo,
   onUpdateTodo,
   loader,
+  togglerLoader,
   focusedTodoId,
 }) => {
   const handleDeleteButton = () => {
@@ -73,7 +75,8 @@ export const TodoInfo: React.FC<Props> = ({
           className={cn(
             'modal overlay',
             {
-              'is-active': loader && focusedTodoId === todo.id,
+              'is-active': (loader && focusedTodoId === todo.id)
+                || togglerLoader,
             },
           )}
         >

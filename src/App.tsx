@@ -29,6 +29,8 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorType>(ErrorType.None);
   const [loader, setLoader] = useState(false);
   const [focusedTodoId, setFocusetTodoId] = useState<number>(Infinity);
+  const [toggleButton, setToggleButton] = useState<boolean>();
+  const [togglerLoader, setTogglerLoader] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -50,6 +52,10 @@ export const App: React.FC = () => {
         // condition to show footer
         if (todosFromServer && todosFromServer.length > 0) {
           setShowFooter(true);
+        }
+
+        if (todosFromServer && todosFromServer.some(todo => !todo.completed)) {
+          setToggleButton(false);
         }
       } catch {
         setError(ErrorType.NoTodos);
@@ -134,6 +140,52 @@ export const App: React.FC = () => {
     }
   };
 
+  const toggleAll = async () => {
+    try {
+      setTogglerLoader(true);
+      const todosFromServer = user && await getTodos(user.id);
+
+      if (!toggleButton && todosFromServer) {
+        setToggleButton(true);
+
+        setTodos(todosFromServer.map(todo => ({
+          ...todo,
+          completed: false,
+        })));
+
+        setTogglerLoader(false);
+
+        todosFromServer.map(
+          todo => updateTodo(todo.id, ({
+            ...todo,
+            completed: false,
+          })),
+        );
+      }
+
+      if (toggleButton && todosFromServer) {
+        setToggleButton(false);
+
+        setTodos(todosFromServer.map(todo => ({
+          ...todo,
+          completed: true,
+        })));
+
+        setTogglerLoader(false);
+
+        todosFromServer.map(
+          todo => updateTodo(todo.id, ({
+            ...todo,
+            completed: true,
+          })),
+        );
+      }
+    } catch {
+      setTogglerLoader(false);
+      setError(ErrorType.Update);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -142,15 +194,18 @@ export const App: React.FC = () => {
           newTodoField={newTodoField}
           query={query}
           isDisabledInput={isDisabledInput}
+          toggleButton={toggleButton}
           onQueryChange={setQuery}
           onErrorChange={setError}
           onAddNewTodo={addNewTodo}
+          onToggleChange={toggleAll}
         />
 
         <TodoList
           todos={todos}
           focusedTodoId={focusedTodoId}
           loader={loader}
+          togglerLoader={togglerLoader}
           onDeleteTodo={deleteTodo}
           onUpdateTodo={changeTodo}
         />
