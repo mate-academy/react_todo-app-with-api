@@ -68,6 +68,7 @@ export const App: React.FC = () => {
           currentInput={currentInput}
           setCurrentInput={setCurrentInput}
           setErrorWithTimer={setErrorWithTimer}
+          // setAllTodos={setAllTodos}
 
         />
         <TodoList

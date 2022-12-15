@@ -2,11 +2,18 @@
 import classNames from 'classnames';
 import {
   useMemo,
+  Dispatch,
   useContext,
   SetStateAction,
-  Dispatch,
 } from 'react';
-import { addTodo, getTodos } from '../../api/todos';
+
+import {
+  addTodo,
+  getTodos,
+  updateTodo,
+  // getActiveTodos,
+  // getCompletedTodos,
+} from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 import { Todo } from '../../types/Todo';
@@ -22,6 +29,7 @@ interface Props {
   setErrorWithTimer: (message: string) => void,
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
+  // setAllTodos: Dispatch<SetStateAction<Todo[]>>,
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -29,13 +37,13 @@ export const NewTodo: React.FC<Props> = (props) => {
     newTodoField,
     activeTodos,
     allTodos,
-
     setVisibleTodos,
     currentInput,
     setCurrentInput,
     setErrorWithTimer,
     isLoading,
     setIsLoading,
+    // setAllTodos,
   } = props;
 
   const user = useContext(AuthContext);
@@ -58,6 +66,18 @@ export const NewTodo: React.FC<Props> = (props) => {
             { 'todoapp__toggle-all': true },
             { active: !areAllCompleted },
           )}
+          onClick={() => {
+            allTodos?.forEach(todo => {
+              // eslint-disable-next-line max-len
+              if (activeTodos && activeTodos?.length !== allTodos.length && activeTodos.length > 0) {
+                updateTodo(todo.id, { completed: true });
+              } else if (activeTodos?.length === 0) {
+                updateTodo(todo.id, { completed: false });
+              } else {
+                updateTodo(todo.id, { completed: true });
+              }
+            });
+          }}
         />
       ) }
       <form

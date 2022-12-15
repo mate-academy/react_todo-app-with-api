@@ -18,6 +18,7 @@ async/await add
 useContext add
 consider useMemo/useCallback
 '1 items left' doesn't update in real time
+add handlers(helpers)
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 
@@ -28,20 +29,20 @@ consider useMemo/useCallback
 Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 
 - `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the oppsite one, and set it to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+✓ `toggleAll` click changes its status to the oppsite one, and set it to all the todos;
+✓ it should work the same as several individual updates of the todos which statuses were actually changed;
+✓ do send requests for the todos that were not changed;
 
 ## Renaming a todo
 
 Implement the ability to rename a todo title on double click:
 
 - show the `TodoTitleField` instead of the `TodoTitle` and `TodoDeleteButton`;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if new title is the same as the old one just cancel editing;
-- cancel editing on `Ecs` key `keydown`;
-- if the new title is empty delete the todo the same way the `x` button does it;
+✓ saves changes on the form submit (just press `Enter`);
+✓ save changes when the field loses focus (`onBlur`);
+✓ if new title is the same as the old one just cancel editing;
+✓ cancel editing on `Ecs` key `keydown`;
+✓ if the new title is empty delete the todo the same way the `x` button does it;
 - if the title was changed show the loader while waiting for the API response;
 - update the todo title on success;
 - show `Unable to update a todo` in case of API error
