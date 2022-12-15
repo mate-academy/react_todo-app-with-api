@@ -40,6 +40,7 @@ export const App: React.FC = () => {
   const {
     setHasError,
     setCurrentError,
+    isAdding,
     setIsAdding,
     setSelectedTodoIds,
   } = useContext(ErrorContext);
@@ -47,6 +48,8 @@ export const App: React.FC = () => {
   const loadUserTodos = useCallback(async () => {
     if (user) {
       try {
+        setHasError(false);
+
         const todosFromServer = await getTodos(user.id);
 
         setTodos(todosFromServer);
@@ -87,8 +90,8 @@ export const App: React.FC = () => {
       setHasError(true);
       setCurrentError(Add);
     } finally {
-      loadUserTodos();
       setIsAdding(false);
+      await loadUserTodos();
     }
   }, []);
 
@@ -103,7 +106,6 @@ export const App: React.FC = () => {
       setCurrentError(Delete);
     } finally {
       await loadUserTodos();
-
       setSelectedTodoIds([0]);
     }
   }, []);
@@ -129,7 +131,6 @@ export const App: React.FC = () => {
       setCurrentError(Update);
     } finally {
       await loadUserTodos();
-
       setSelectedTodoIds([0]);
     }
   }, []);
@@ -155,7 +156,6 @@ export const App: React.FC = () => {
       setCurrentError(Update);
     } finally {
       await loadUserTodos();
-
       setSelectedTodoIds([0]);
     }
   }, []);
@@ -173,7 +173,7 @@ export const App: React.FC = () => {
           onToggle={toggleAll}
         />
 
-        {todos.length > 0 && (
+        {(todos.length > 0 || isAdding) && (
           <>
             <TodoList
               todos={todos}
