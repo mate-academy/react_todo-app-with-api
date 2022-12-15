@@ -7,8 +7,8 @@ export const getTodos = (userId: number) => {
 
 export type TodoData = Pick<Todo, 'title' | 'completed' | 'userId'>;
 
-export const createTodo = (data: TodoData) => {
-  return client.post<Todo>('/todos', data);
+export const createTodo = (todo: TodoData) => {
+  return client.post<Todo>('/todos', todo);
 };
 
 export const deleteTodo = (todoId: number) => {
