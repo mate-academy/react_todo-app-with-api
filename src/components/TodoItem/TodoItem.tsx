@@ -106,9 +106,6 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )}
 
-      {/* {loadedTodos.length === 0 && (
-        <p>No todos yet. You can rest for now!</p>
-      )} */}
       <Loader isLoading={isLoading} />
     </div>
   );
