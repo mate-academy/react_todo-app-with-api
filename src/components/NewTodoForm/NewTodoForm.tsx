@@ -2,7 +2,6 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import { TodoData } from '../../api/todos';
 import { ErrorTypes } from '../../types/ErrorTypes';
@@ -11,15 +10,18 @@ import { ProcessedContext } from '../ProcessedContext/ProcessedContext';
 
 interface Props {
   onAdd: (todo: TodoData) => void,
+  onTitleChange: (title: string) => void,
+  newTitle: string,
 }
 
 export const NewTodoForm: React.FC<Props> = ({
   onAdd,
+  onTitleChange,
+  newTitle,
 }) => {
   const user = useContext(AuthContext);
   const { isAdding, setError } = useContext(ProcessedContext);
   const newTodoField = useRef<HTMLInputElement>(null);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -36,15 +38,14 @@ export const NewTodoForm: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(ErrorTypes.NONE);
-    if (newTodoTitle.trim()) {
+    if (newTitle.trim()) {
       const newTodo = {
-        title: newTodoTitle.trim(),
+        title: newTitle.trim(),
         completed: false,
         userId: user?.id,
       };
 
       onAdd(newTodo);
-      setNewTodoTitle('');
     } else {
       setError(ErrorTypes.EmptyTitle);
     }
@@ -59,9 +60,9 @@ export const NewTodoForm: React.FC<Props> = ({
           ref={newTodoField}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={newTodoTitle}
+          value={newTitle}
           onChange={(event) => {
-            setNewTodoTitle(event.target.value);
+            onTitleChange(event.target.value);
           }}
           disabled={isAdding}
         />

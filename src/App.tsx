@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, {
@@ -36,6 +35,7 @@ export const App: React.FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filtredBy, setFiltredBy] = useState(FilterOptions.ALL);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const getUserTodos = async () => {
     if (user) {
@@ -49,20 +49,19 @@ export const App: React.FC = () => {
     }
   };
 
-  const addNewTodo = async (todo: TodoData) => {
+  const addNewTodo = async (todoData: TodoData) => {
     try {
       setError(ErrorTypes.NONE);
       setIsAdding(true);
-      const tempTodo = { ...todo, id: 0 };
 
-      setTodos(prevTodos => [...prevTodos, tempTodo]);
+      const todo = await createTodo(todoData);
 
-      await createTodo(todo);
+      setNewTodoTitle('');
+      setTodos(prevTodos => [...prevTodos, todo]);
     } catch {
       setError(ErrorTypes.ADD);
     } finally {
       setIsAdding(false);
-      getUserTodos();
     }
   };
 
@@ -143,9 +142,9 @@ export const App: React.FC = () => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
 
-  const clearCompletedTodos = async () => {
-    await Promise.all(compTodos
-      .map((todo) => deleteCurrentTodo(todo.id)));
+  const clearCompletedTodos = () => {
+    compTodos
+      .forEach((todo) => deleteCurrentTodo(todo.id));
   };
 
   const toggleAll = async () => {
@@ -153,10 +152,8 @@ export const App: React.FC = () => {
       ? todos
       : activeTodos;
 
-    await Promise.all(todosToUpdate
-      .map((todo) => {
-        return updateCurrentTodo(todo.id, { completed: !todo.completed });
-      }));
+    todosToUpdate
+      .forEach(todo => updateCurrentTodo(todo.id, { completed: !todo.completed }));
   };
 
   return (
@@ -175,7 +172,11 @@ export const App: React.FC = () => {
             onClick={toggleAll}
           />
 
-          <NewTodoForm onAdd={addNewTodo} />
+          <NewTodoForm
+            onAdd={addNewTodo}
+            onTitleChange={setNewTodoTitle}
+            newTitle={newTodoTitle}
+          />
         </header>
         {todos.length > 0 && (
           <>
@@ -183,6 +184,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDelete={deleteCurrentTodo}
               onUpdate={updateCurrentTodo}
+              newTitle={newTodoTitle}
             />
 
             <footer className="todoapp__footer" data-cy="Footer">

@@ -75,22 +75,6 @@ export const TodoInfo: React.FC<Props> = ({
             </button>
           </>
         )}
-      {/*
-        <span data-cy="TodoTitle" className="todo__title">
-          {title}
-        </span>
-
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-          onClick={() => {
-            onDelete(id);
-          }}
-        >
-          ×
-        </button> */}
-
       <div
         data-cy="TodoLoader"
         className={classNames(
