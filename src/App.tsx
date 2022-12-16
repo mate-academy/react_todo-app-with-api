@@ -13,6 +13,7 @@ import {
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
+import { Errors } from './types/Errors';
 import { Error } from './components/Error';
 import { Navigation } from './components/Navigation';
 import { Filter } from './types/Filter';
@@ -24,9 +25,9 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState(Filter.ALL);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(Errors.NONE);
   const [isAdding, setIsAdding] = useState(false);
-  const { setTodoOnLoad, setTodosOnLoad } = useContext(LoaderContext);
+  const { setTodosOnLoad } = useContext(LoaderContext);
 
   const loadTodos = async () => {
     if (!user) {
@@ -66,78 +67,64 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
 
   const removeError = useCallback(() => {
-    setError('');
+    setError(Errors.NONE);
   }, []);
 
-  const handleError = useCallback((errorText: string) => {
+  const handleError = useCallback((errorText: Errors) => {
     setError(errorText);
     setTimeout(removeError, 3000);
   }, []);
 
   const removeTodo = useCallback(async (todoId: number) => {
-    setTodoOnLoad(todoId);
+    setTodosOnLoad((current) => [...current, todoId]);
 
     try {
       await deleteTodo(todoId);
 
       await loadTodos();
     } catch {
-      handleError('Unable to delete a todo');
+      handleError(Errors.DELETE);
     }
 
-    setTodoOnLoad(-1);
+    setTodosOnLoad([]);
   }, []);
 
   const updateTodo = useCallback(async (
     todoId: number,
     data: Partial<Todo>,
   ) => {
-    setTodoOnLoad(todoId);
+    setTodosOnLoad((current) => [...current, todoId]);
 
     try {
       await patchTodo(todoId, data);
 
       await loadTodos();
     } catch {
-      handleError('Unable to update a todo');
+      handleError(Errors.UPDATE);
     }
 
-    setTodoOnLoad(-1);
+    setTodosOnLoad([]);
   }, []);
 
   const updateStatusTodos = useCallback(async () => {
-    if (activeTodos.length > 0) {
-      setTodosOnLoad(activeTodos.map(todo => todo.id));
-
-      await Promise.all(activeTodos.map((todo) => (
-        updateTodo(
-          todo.id,
-          { completed: true },
-        ))));
-    } else {
-      setTodosOnLoad(todos.map(todo => todo.id));
-
-      await Promise.all(todos.map((todo) => (
-        updateTodo(
-          todo.id,
-          { completed: !todo.completed },
-        ))));
-    }
+    await Promise.all(activeTodos.map((todo) => (
+      updateTodo(
+        todo.id,
+        {
+          completed: activeTodos.length > 0
+            ? true
+            : !todo.completed,
+        },
+      ))));
 
     await loadTodos();
-
-    setTodosOnLoad([]);
   }, [todos]);
 
   const removeCompletedTodos = useCallback(async () => {
-    setTodosOnLoad(completedTodos.map(todo => todo.id));
-
     await Promise.all(completedTodos.map((todo) => (
       removeTodo(todo.id))));
 
     await loadTodos();
-
-    setTodosOnLoad([]);
   }, [todos]);
 
   return (

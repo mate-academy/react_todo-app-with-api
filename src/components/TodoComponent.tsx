@@ -1,12 +1,11 @@
 import classNames from 'classnames';
 import React, {
   useContext,
-  useEffect,
-  useRef,
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { LoaderContext } from './Context/LoaderContext';
+import { EditTodo } from './EditTodo';
 
 interface Props {
   todo: Todo,
@@ -19,51 +18,18 @@ export const TodoComponent: React.FC<Props> = React.memo(({
   onRemoveTodo,
   onUpdateTodo,
 }) => {
-  const { todoOnLoad, todosOnLoad } = useContext(LoaderContext);
-  const [titleChange, setTitleChange] = useState(todo.title);
-  const todoTitleField = useRef<HTMLInputElement>(null);
+  const { title, id, completed } = todo;
+  const { todosOnLoad } = useContext(LoaderContext);
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    if (todoTitleField.current) {
-      todoTitleField.current.focus();
-    }
-  }, [isEditing]);
-
-  const todosOnProccessing = (todoId: number) => {
-    if (todoId === 0
-      || todoOnLoad === todoId
-      || todosOnLoad.find(id => id === todoId)) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const handleTitleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (todo.title !== titleChange) {
-      onUpdateTodo(todo.id, { title: titleChange });
-    }
-
-    if (titleChange.trim().length === 0) {
-      onRemoveTodo(todo.id);
-    }
-
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      setIsEditing(false);
-    }
-  };
+  const isTodoOnProccessing = id === 0
+    || todosOnLoad.includes(id);
 
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', {
-        completed: todo.completed,
+        completed,
       })}
     >
       <label className="todo__status-label">
@@ -71,10 +37,10 @@ export const TodoComponent: React.FC<Props> = React.memo(({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          defaultChecked={completed}
           onClick={() => onUpdateTodo(
             todo.id,
-            { completed: !todo.completed },
+            { completed: !completed },
           )}
         />
       </label>
@@ -87,40 +53,33 @@ export const TodoComponent: React.FC<Props> = React.memo(({
               className="todo__title"
               onDoubleClick={() => setIsEditing(true)}
             >
-              {todo.title}
+              {title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onRemoveTodo(todo.id)}
+              onClick={() => onRemoveTodo(id)}
             >
               ×
             </button>
           </>
         )
         : (
-          <form onSubmit={handleTitleSubmit}>
-            <input
-              data-cy="TodoTitleField"
-              ref={todoTitleField}
-              type="text"
-              className="todoapp__new-todo"
-              value={titleChange}
-              onChange={event => {
-                setTitleChange(event.target.value);
-              }}
-              onBlur={handleTitleSubmit}
-              onKeyDown={handleKeyDown}
-            />
-          </form>
+          <EditTodo
+            todo={todo}
+            onUpdateTodo={onUpdateTodo}
+            onRemoveTodo={onRemoveTodo}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+          />
         )}
 
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': todosOnProccessing(todo.id),
+          'is-active': isTodoOnProccessing,
         })}
       >
         <div className="modal-background has-background-white-ter" />
