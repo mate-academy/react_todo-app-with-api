@@ -40,9 +40,7 @@ export const App: React.FC = () => {
   const getUserTodos = async () => {
     if (user) {
       try {
-        const todosFromServer = await getTodos(user.id);
-
-        setTodos(todosFromServer);
+        setTodos(await getTodos(user.id));
       } catch {
         setError(ErrorTypes.GET);
       }
