@@ -32,7 +32,7 @@ export const TodoItem: React.FC<Props> = ({
       setIsdeleted(true);
       await removeTodo(id);
     } catch (inError) {
-      onSetIsError(false);
+      onSetIsError(true);
       onSetTypeError(Errors.ErrDEL);
     }
 

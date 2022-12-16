@@ -2,7 +2,7 @@ import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
-  return client.get<Todo[]>(`/todos?userId=${userId}a`);
+  return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
 export const postTodo = (data: Omit <Todo, 'id'>) => {
@@ -16,4 +16,3 @@ export const removeTodo = (id: number) => {
 export const patchTodo = (id: number, todo: Partial<Todo>) => {
   return client.patch(`/todos/${id}`, todo);
 };
-// Add more methods here

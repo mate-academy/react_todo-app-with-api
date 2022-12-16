@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { getTodos, patchTodo } from './api/todos';
@@ -19,17 +18,15 @@ import { Todo } from './types/Todo';
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
+
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isError, setIsError] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>(Filter.ALL);
   const [typeError, setTypeError] = useState<string>('');
   const [newTitleTodo, setNewTitleTodo] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isDeletedComplete, setisDeletedComplete]
   = useState<boolean>(false);
-
-  const filteredTodos = [...todos];
 
   const fetchData = useCallback(async () => {
     if (user) {
@@ -38,7 +35,7 @@ export const App: React.FC = () => {
 
         setTodos(inData);
       } catch (inError) {
-        setIsError(false);
+        setIsError(true);
         setTypeError(Errors.ErrGET);
       } finally {
         setIsAdding(false);
@@ -55,6 +52,7 @@ export const App: React.FC = () => {
       setisDeletedComplete(true);
       await patchTodo(id, data);
     } catch (inError) {
+      setIsError(true);
       setTypeError(Errors.ErrUPD);
     }
 
@@ -68,29 +66,27 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          newTodoField={newTodoField}
+          todos={todos}
+          userId={user?.id || null}
+          isAdding={isAdding}
+          onSetNewTitleTodo={setNewTitleTodo}
           onSetIsError={setIsError}
           onSetTypeError={setTypeError}
-          userId={user?.id || null}
-          toLoad={fetchData}
-          newTitleTodo={newTitleTodo}
-          onSetNewTitleTodo={setNewTitleTodo}
-          isAdding={isAdding}
           onSetIsAdding={setIsAdding}
-          todos={todos}
           toUpdateTodo={updateTodo}
+          toLoad={fetchData}
         />
 
         <TodoList
-          newTitleTodo={newTitleTodo}
-          isAdding={isAdding}
-          todos={filteredTodos}
+          todos={todos}
           selectedFilter={selectedFilter}
+          newTitleTodo={newTitleTodo}
           userId={user?.id || null}
+          isAdding={isAdding}
+          isDeletedComplete={isDeletedComplete}
           onSetIsError={setIsError}
           onSetTypeError={setTypeError}
           toLoad={fetchData}
-          isDeletedComplete={isDeletedComplete}
         />
 
         <Footer

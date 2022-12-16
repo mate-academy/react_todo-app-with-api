@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type Props = {
   isError: boolean
@@ -12,12 +12,15 @@ export const ErrorNotification: React.FC<Props> = ({
   onSetIsError,
   typeError,
 }) => {
+  const timeReference = useRef<NodeJS.Timer>();
+
   useEffect(() => {
-    onSetIsError(isError);
     if (isError) {
-      setTimeout(() => {
-        onSetIsError(true);
+      timeReference.current = setTimeout(() => {
+        onSetIsError(false);
       }, 3000);
+    } else {
+      clearTimeout(timeReference.current);
     }
   }, [isError]);
 
@@ -25,16 +28,16 @@ export const ErrorNotification: React.FC<Props> = ({
     <div
       data-cy="ErrorNotification"
       className="notification is-danger is-light has-text-weight-normal"
-      hidden={isError}
+      hidden={!isError}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onSetIsError(true)}
+        onClick={() => onSetIsError(false)}
       />
 
-      {!isError && <>{typeError}</>}
+      {isError && <>{typeError}</>}
     </div>
   );
 };

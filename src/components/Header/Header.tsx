@@ -1,37 +1,35 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { postTodo } from '../../api/todos';
 import { Errors } from '../../types/Errors';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  newTodoField: React.RefObject<HTMLInputElement>
+  todos: Todo[]
+  userId: number | null
+  isAdding: boolean
+  onSetNewTitleTodo: React.Dispatch<React.SetStateAction<string>>
   onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
   onSetTypeError: React.Dispatch<React.SetStateAction<string>>
-  userId: number | null
-  toLoad:() => Promise<void>
-  newTitleTodo: string
-  onSetNewTitleTodo: React.Dispatch<React.SetStateAction<string>>
-  isAdding: boolean
   onSetIsAdding: React.Dispatch<React.SetStateAction<boolean>>
-  todos: Todo[]
   toUpdateTodo: (id: number, data: Partial<Todo>) => Promise<void>
+  toLoad:() => Promise<void>
 };
 
 export const Header: React.FC<Props> = ({
-  newTodoField,
+  todos,
+  userId,
+  isAdding,
+  onSetNewTitleTodo,
   onSetIsError,
   onSetTypeError,
-  userId,
-  toLoad,
-  isAdding,
   onSetIsAdding,
-  newTitleTodo,
-  onSetNewTitleTodo,
-  todos,
   toUpdateTodo,
+  toLoad,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
@@ -39,48 +37,51 @@ export const Header: React.FC<Props> = ({
     }
   });
 
+  const [innerInput, setInnerInput] = useState('');
   const [isAllCompleted, setIsAllCompleted] = useState(false);
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!newTitleTodo.trim()) {
+    if (!innerInput.trim()) {
       onSetTypeError(Errors.ErrBlankTitle);
-      onSetIsError(false);
-      onSetNewTitleTodo('');
+      onSetIsError(true);
+      setInnerInput('');
     }
 
+    onSetNewTitleTodo(innerInput);
     const addTodo = async () => {
-      if (newTitleTodo && userId) {
+      if (innerInput && userId) {
         try {
           onSetIsAdding(true);
           await postTodo({
             userId,
-            title: newTitleTodo,
+            title: innerInput.trim(),
             completed: false,
           });
         } catch (inError) {
-          onSetIsError(false);
+          onSetIsError(true);
           onSetTypeError(Errors.ErrADD);
         }
       }
 
-      onSetNewTitleTodo('');
+      setInnerInput('');
       toLoad();
-      // onSetIsAdding(false);
     };
 
-    addTodo();
+    if (innerInput.trim()) {
+      addTodo();
+    }
   };
 
   const handleInput = (input: string) => {
-    onSetNewTitleTodo(input);
-    onSetIsError(true);
+    setInnerInput(input);
+    onSetIsError(false);
   };
 
-  const isAllTodosCompleted = todos.every(todo => todo.completed === true);
-
   useEffect(() => {
+    const isAllTodosCompleted = todos.every(todo => todo.completed === true);
+
     setIsAllCompleted(isAllTodosCompleted);
-  });
+  }, [todos]);
 
   const toggleCompleteAllTodos = () => {
     todos.forEach(todo => {
@@ -111,7 +112,7 @@ export const Header: React.FC<Props> = ({
           ref={newTodoField}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={newTitleTodo}
+          value={innerInput}
           onChange={(e) => handleInput(e.target.value)}
           disabled={isAdding}
         />

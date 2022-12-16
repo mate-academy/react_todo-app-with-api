@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { removeTodo } from '../../api/todos';
 import { Errors } from '../../types/Errors';
 import { Filter } from '../../types/Filter';
@@ -25,9 +24,19 @@ export const Footer: React.FC<Props> = ({
   toLoad,
   onSetisDeletedComplete,
 }) => {
-  const amountActiveTodos = todos.filter(
-    todo => todo.completed === false,
-  ).length;
+  const [amountActiveTodos, setAmountActiveTodos] = useState(0);
+  const [compTodos, setCompTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    const activeTodos = todos.filter(
+      todo => todo.completed === false,
+    ).length;
+    const completedTodos = todos.filter(todo => todo.completed);
+
+    setCompTodos(completedTodos);
+    setAmountActiveTodos(activeTodos);
+  }, [todos]);
+
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     title: string,
@@ -36,18 +45,13 @@ export const Footer: React.FC<Props> = ({
     onSetFilterGlobal(title);
   };
 
-  const compTodos = todos.filter(todo => todo.completed);
-
-  console.log(compTodos);
   const clearCompletedTodos = () => {
     compTodos.forEach(async (todo) => {
-      console.log(todo);
       try {
         onSetisDeletedComplete(true);
         await removeTodo(todo.id);
       } catch (inError) {
-        console.log('ERROR DELETE', inError);
-        onSetIsError(false);
+        onSetIsError(true);
         onSetTypeError(Errors.ErrDEL);
       }
 
