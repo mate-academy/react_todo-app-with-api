@@ -109,7 +109,7 @@ export const NewTodo: React.FC<Props> = (props) => {
           data-cy="ToggleAllButton"
           type="button"
           className={classNames(
-            { 'todoapp__toggle-all': true },
+            'todoapp__toggle-all',
             { active: !areAllCompleted },
           )}
           onClick={handleOnClickToggleAll}

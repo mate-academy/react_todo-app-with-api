@@ -68,7 +68,7 @@ export const Filter: React.FC<Props> = (props) => {
               data-cy="FilterLinkAll"
               href="#/"
               className={classNames(
-                { filter__link: true },
+                'filter__link',
                 { selected: selectedFilter === 'all' },
               )}
               onClick={(event) => {
@@ -83,8 +83,8 @@ export const Filter: React.FC<Props> = (props) => {
               data-cy="FilterLinkActive"
               href="#/active"
               className={classNames(
-                { filter__link: true },
-                { selected: selectedFilter === 'sctive' },
+                'filter__link',
+                { selected: selectedFilter === 'active' },
               )}
               onClick={(event) => {
                 setFilter('active');
@@ -97,7 +97,7 @@ export const Filter: React.FC<Props> = (props) => {
               data-cy="FilterLinkCompleted"
               href="#/completed"
               className={classNames(
-                { filter__link: true },
+                'filter__link',
                 { selected: selectedFilter === 'completed' },
               )}
               onClick={(event) => {

@@ -121,7 +121,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
       <div
         data-cy="Todo"
         className={classNames(
-          { todo: true },
+          'todo',
           { completed: todo.completed },
         )}
       >
