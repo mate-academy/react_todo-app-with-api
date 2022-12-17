@@ -11,8 +11,6 @@ and implement the ability to toggle and rename todos.
 ## Toggling a todo status
 
 
-activeTodos delete state
-async/await add
 useContext add
 tel advices
 

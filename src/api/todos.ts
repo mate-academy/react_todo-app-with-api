@@ -5,14 +5,6 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const getActiveTodos = (userId: number) => {
-  return client.get<Todo[]>(`/todos?userId=${userId}&completed=false`);
-};
-
-export const getCompletedTodos = (userId: number) => {
-  return client.get<Todo[]>(`/todos?userId=${userId}&completed=true`);
-};
-
 export const addTodo = (userId: number, dataInfo: any) => {
   return client.post<Todo[]>('/todos', dataInfo);
 };

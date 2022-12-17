@@ -11,7 +11,6 @@ import {
 
 import {
   addTodo,
-  getTodos,
   updateTodo,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
@@ -28,7 +27,7 @@ interface Props {
   setErrorWithTimer: (message: string) => void,
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
-  setAllTodos: Dispatch<SetStateAction<Todo[] | null>>,
+  loadUserTodos: () => void;
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -41,7 +40,7 @@ export const NewTodo: React.FC<Props> = (props) => {
     setErrorWithTimer,
     isLoading,
     setIsLoading,
-    setAllTodos,
+    loadUserTodos,
   } = props;
 
   const user = useContext(AuthContext);
@@ -73,14 +72,12 @@ export const NewTodo: React.FC<Props> = (props) => {
 
       if (user) {
         await Promise.all(results);
-        const newTodos: Todo[] = await getTodos(user.id);
-
-        setAllTodos(newTodos);
+        await loadUserTodos();
       }
     }
   }, [allTodos, activeTodos]);
 
-  const handleAddTodo = useCallback((e: React.FormEvent) => {
+  const handleAddTodo = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (currentInput === '') {
       setErrorWithTimer(ErrorStatus.EmptyTitle);
@@ -88,17 +85,13 @@ export const NewTodo: React.FC<Props> = (props) => {
 
     if (user && currentInput.length > 0) {
       setIsLoading('Adding');
-      addTodo(user.id, newTodo)
-        .then(() => getTodos(user.id))
-        .then(userTodos => {
-          setIsLoading('');
-          setAllTodos(userTodos);
-          setCurrentInput('');
-        })
+      await addTodo(user.id, newTodo)
         .catch(() => {
-          setIsLoading('');
           setErrorWithTimer(ErrorStatus.AddError);
         });
+      await loadUserTodos();
+      setIsLoading('');
+      setCurrentInput('');
     }
   }, [user, currentInput]);
 

@@ -12,7 +12,7 @@ import { Todo } from './types/Todo';
 import { Filter } from './components/Filter/Filter';
 import { NewTodo } from './components/NewTodo/NewTodo';
 import { TodoList } from './components/TodoList/TodoList';
-import { getTodos, getActiveTodos } from './api/todos';
+import { getTodos } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
   ErrorNotification,
@@ -50,31 +50,28 @@ export const App: React.FC = () => {
     setTimeout(() => setErrorStatus(''), 3000);
   }, []);
 
+  const loadUserTodos = useCallback(async () => {
+    if (user) {
+      const userTodos = await getTodos(user.id)
+        .catch(() => {
+          setErrorWithTimer('Unable to get a todo');
+
+          return [];
+        });
+      const userActiveTodos = userTodos.filter(todo => !todo.completed);
+
+      setAllTodos(userTodos);
+      setActiveTodos(userActiveTodos);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
 
-    if (user) {
-      getTodos(user.id)
-        .then(userTodos => {
-          setAllTodos(userTodos);
-        })
-        .catch(() => {
-          setErrorWithTimer('Unable to get a todo');
-        });
-
-      getActiveTodos(user.id)
-        .then(userTodos => setActiveTodos(userTodos));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      getActiveTodos(user.id)
-        .then(userTodos => setActiveTodos(userTodos));
-    }
-  }, [allTodos, visibleTodos]);
+    loadUserTodos();
+  }, [user]);
 
   return (
     <div className="todoapp">
@@ -90,7 +87,7 @@ export const App: React.FC = () => {
           currentInput={currentInput}
           setCurrentInput={setCurrentInput}
           setErrorWithTimer={setErrorWithTimer}
-          setAllTodos={setAllTodos}
+          loadUserTodos={loadUserTodos}
 
         />
         <TodoList
@@ -99,7 +96,8 @@ export const App: React.FC = () => {
           setErrorWithTimer={setErrorWithTimer}
           isLoading={isLoading}
           setIsLoading={setIsLoading}
-          setAllTodos={setAllTodos}
+          // setAllTodos={setAllTodos}
+          loadUserTodos={loadUserTodos}
         />
 
         <Filter

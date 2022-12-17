@@ -10,20 +10,22 @@ import { TempTodo } from '../TempTodo/TempTodo';
 interface Props {
   visibleTodos: Todo[] | null,
   currentInput: string,
-  setErrorWithTimer: (message: string) => void;
   isLoading: string,
+  setErrorWithTimer: (message: string) => void;
   setIsLoading: Dispatch<SetStateAction<string>>,
-  setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
+  // setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
+  loadUserTodos: () => void;
 }
 
 export const TodoList: React.FC<Props> = (props) => {
   const {
-    visibleTodos,
-    currentInput,
-    setErrorWithTimer,
     isLoading,
+    currentInput,
+    visibleTodos,
+    // setAllTodos,
     setIsLoading,
-    setAllTodos,
+    setErrorWithTimer,
+    loadUserTodos,
   } = props;
 
   return (
@@ -41,7 +43,8 @@ export const TodoList: React.FC<Props> = (props) => {
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}
                 setErrorWithTimer={setErrorWithTimer}
-                setAllTodos={setAllTodos}
+                // setAllTodos={setAllTodos}
+                loadUserTodos={loadUserTodos}
               />
             </CSSTransition>
           ))}
@@ -51,29 +54,6 @@ export const TodoList: React.FC<Props> = (props) => {
               timeout={300}
               classNames="temp-item"
             >
-
-              {/* <div
-                className="todo"
-              >
-                <Loader />
-                <label className="todo__status-label">
-                  <input
-                    type="checkbox"
-                    className="todo__status"
-                  />
-                </label>
-
-                <span className="todo__title">
-                  {currentInput}
-                </span>
-
-                <button
-                  type="button"
-                  className="todo__remove"
-                >
-                  ×
-                </button>
-              </div> */}
               <TempTodo currentInput={currentInput} />
             </CSSTransition>
           )}

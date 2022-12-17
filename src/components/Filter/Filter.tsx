@@ -32,7 +32,6 @@ export const Filter: React.FC<Props> = (props) => {
   const user = useContext(AuthContext);
 
   const handleClearCompleted = useCallback(async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any[] = [];
 
     if (user && allTodos) {
@@ -49,7 +48,13 @@ export const Filter: React.FC<Props> = (props) => {
         setAllTodos(newTodos);
       }
     }
-  }, []);
+  }, [user, allTodos]);
+
+  const filters = {
+    all: 'all',
+    completed: 'completed',
+    active: 'active',
+  };
 
   const areCompleted = useCallback(
     () => allTodos?.every(todo => !todo.completed), [],
@@ -69,10 +74,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === 'all' },
+                { selected: selectedFilter === filters.all },
               )}
               onClick={(event) => {
-                setFilter('all');
+                setFilter(filters.all);
                 event.preventDefault();
               }}
             >
@@ -84,10 +89,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/active"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === 'active' },
+                { selected: selectedFilter === filters.active },
               )}
               onClick={(event) => {
-                setFilter('active');
+                setFilter(filters.active);
                 event.preventDefault();
               }}
             >
@@ -98,10 +103,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/completed"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === 'completed' },
+                { selected: selectedFilter === filters.completed },
               )}
               onClick={(event) => {
-                setFilter('completed');
+                setFilter(filters.completed);
                 event.preventDefault();
               }}
             >
