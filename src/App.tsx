@@ -8,7 +8,6 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-// import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {
   createTodo,
   deleteTodo,
@@ -178,39 +177,36 @@ export const App: React.FC = () => {
             newTitle={newTodoTitle}
           />
         </header>
+        <TodoList
+          todos={visibleTodos}
+          onDelete={deleteCurrentTodo}
+          onUpdate={updateCurrentTodo}
+          newTitle={newTodoTitle}
+        />
         {(todos.length > 0 || isAdding) && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-              onDelete={deleteCurrentTodo}
-              onUpdate={updateCurrentTodo}
-              newTitle={newTodoTitle}
-            />
-            <footer className="todoapp__footer" data-cy="Footer">
-              <span className="todo-count" data-cy="todosCounter">
-                {`${activeTodos.length} items left`}
-              </span>
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="todosCounter">
+              {`${activeTodos.length} items left`}
+            </span>
 
-              <TodoFilter
-                filtredBy={filtredBy}
-                onOptionChange={setFiltredBy}
-              />
-              <button
-                data-cy="ClearCompletedButton"
-                type="button"
-                className={classNames(
-                  'todoapp__clear-completed',
-                  { hidden: compTodos.length === 0 },
-                )}
-                onClick={clearCompletedTodos}
-              >
-                Clear completed
-              </button>
-            </footer>
-          </>
+            <TodoFilter
+              filtredBy={filtredBy}
+              onOptionChange={setFiltredBy}
+            />
+            <button
+              data-cy="ClearCompletedButton"
+              type="button"
+              className={classNames(
+                'todoapp__clear-completed',
+                { hidden: compTodos.length === 0 },
+              )}
+              onClick={clearCompletedTodos}
+            >
+              Clear completed
+            </button>
+          </footer>
         )}
       </div>
-
       <ErrorNotification />
     </div>
   );

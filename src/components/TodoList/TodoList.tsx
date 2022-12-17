@@ -80,7 +80,6 @@ export const TodoList: React.FC<Props> = ({
               </div>
             </div>
           </CSSTransition>
-
         )}
       </TransitionGroup>
     </section>
