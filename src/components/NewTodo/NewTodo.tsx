@@ -91,8 +91,8 @@ export const NewTodo: React.FC<Props> = (props) => {
       addTodo(user.id, newTodo)
         .then(() => getTodos(user.id))
         .then(userTodos => {
-          setAllTodos(userTodos);
           setIsLoading('');
+          setAllTodos(userTodos);
           setCurrentInput('');
         })
         .catch(() => {
