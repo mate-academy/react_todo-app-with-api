@@ -48,7 +48,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
         })
 
         .catch(() => {
-          setErrorWithTimer(ErrorStatus.DeleteErrod);
+          setErrorWithTimer(ErrorStatus.DeleteError);
           setIsLoading('');
         });
     } else if (newTitle !== todo.title && user) {
@@ -110,7 +110,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
         })
 
         .catch(() => {
-          setErrorWithTimer(ErrorStatus.DeleteErrod);
+          setErrorWithTimer(ErrorStatus.DeleteError);
           setIsLoading('');
         });
     }

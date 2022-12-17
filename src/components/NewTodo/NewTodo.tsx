@@ -82,12 +82,12 @@ export const NewTodo: React.FC<Props> = (props) => {
 
   const handleAddTodo = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading('Adding');
     if (currentInput === '') {
       setErrorWithTimer(ErrorStatus.EmptyTitle);
     }
 
     if (user && currentInput.length > 0) {
+      setIsLoading('Adding');
       addTodo(user.id, newTodo)
         .then(() => getTodos(user.id))
         .then(userTodos => {
@@ -96,8 +96,8 @@ export const NewTodo: React.FC<Props> = (props) => {
           setCurrentInput('');
         })
         .catch(() => {
-          setErrorWithTimer(ErrorStatus.AddError);
           setIsLoading('');
+          setErrorWithTimer(ErrorStatus.AddError);
         });
     }
   }, [user, currentInput]);

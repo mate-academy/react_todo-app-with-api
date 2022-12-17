@@ -14,8 +14,7 @@ and implement the ability to toggle and rename todos.
 activeTodos delete state
 async/await add
 useContext add
-consider useMemo/useCallback
-ошибка крутится после addTodo
+CSS animation
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 
