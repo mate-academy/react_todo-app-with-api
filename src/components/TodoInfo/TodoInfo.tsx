@@ -37,7 +37,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const user = useContext(AuthContext);
 
-  const handleSuccessfulEdit = (() => {
+  const handleSuccessfulEdit = useCallback((() => {
     setIsLoading(String(todo.id));
     if (!newTitle && user) {
       deleteTodo(todo.id)
@@ -65,7 +65,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
     }
 
     setIsEditing(false);
-  });
+  }), [newTitle, todo, user]);
 
   const handlePressEsc = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -73,7 +73,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
         setIsEditing(false);
         setNewTitle(todo.title);
       }
-    }, [],
+    }, [todo],
   );
 
   const handleDoubleClick = useCallback(
@@ -84,7 +84,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
     }, [],
   );
 
-  const handleCheckboxOnChange = () => {
+  const handleCheckboxOnChange = useCallback(() => {
     setIsLoading(String(todo.id));
     if (user) {
       updateTodo(todo.id, { completed: !todo.completed })
@@ -97,9 +97,9 @@ export const TodoInfo: React.FC<Props> = (props) => {
           setIsLoading('');
         });
     }
-  };
+  }, [todo, user]);
 
-  const handleDeleteTodo = () => {
+  const handleDeleteTodo = useCallback(() => {
     setIsLoading(String(todo.id));
     if (user) {
       deleteTodo(todo.id)
@@ -114,7 +114,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
           setIsLoading('');
         });
     }
-  };
+  }, [todo, user]);
 
   return (
     <>

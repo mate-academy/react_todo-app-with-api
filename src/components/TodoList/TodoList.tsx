@@ -5,7 +5,6 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 interface Props {
   visibleTodos: Todo[] | null,
   currentInput: string,
-  // setVisibleTodos:Dispatch<SetStateAction<Todo[] | null>>,
   setErrorWithTimer: (message: string) => void;
   isLoading: string,
   setIsLoading: Dispatch<SetStateAction<string>>,
@@ -16,7 +15,6 @@ export const TodoList: React.FC<Props> = (props) => {
   const {
     visibleTodos,
     currentInput,
-    // setVisibleTodos,
     setErrorWithTimer,
     isLoading,
     setIsLoading,

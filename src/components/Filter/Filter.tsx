@@ -3,6 +3,7 @@ import {
   useContext,
   Dispatch,
   SetStateAction,
+  useCallback,
 } from 'react';
 import { Todo } from '../../types/Todo';
 import {
@@ -30,7 +31,7 @@ export const Filter: React.FC<Props> = (props) => {
 
   const user = useContext(AuthContext);
 
-  const handleClearCompleted = async () => {
+  const handleClearCompleted = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any[] = [];
 
@@ -48,9 +49,11 @@ export const Filter: React.FC<Props> = (props) => {
         setAllTodos(newTodos);
       }
     }
-  };
+  }, []);
 
-  const areCompleted = () => allTodos?.every(todo => !todo.completed);
+  const areCompleted = useCallback(
+    () => allTodos?.every(todo => !todo.completed), [],
+  );
 
   return (
     <>

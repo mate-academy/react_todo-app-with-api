@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -44,10 +45,10 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const setErrorWithTimer = (message: string) => {
+  const setErrorWithTimer = useCallback((message: string) => {
     setErrorStatus(message);
     setTimeout(() => setErrorStatus(''), 3000);
-  };
+  }, []);
 
   useEffect(() => {
     if (newTodoField.current) {

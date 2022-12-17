@@ -15,7 +15,7 @@ activeTodos delete state
 async/await add
 useContext add
 consider useMemo/useCallback
-add handlers(helpers)
+ошибка крутится после addTodo
 
 ✓ Toggle the `completed` status on `TodoStatus` change:
 

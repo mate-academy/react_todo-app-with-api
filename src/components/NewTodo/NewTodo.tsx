@@ -6,6 +6,7 @@ import {
   Dispatch,
   useContext,
   SetStateAction,
+  useCallback,
 } from 'react';
 
 import {
@@ -53,7 +54,7 @@ export const NewTodo: React.FC<Props> = (props) => {
 
   const areAllCompleted = useMemo(() => activeTodos?.length, [activeTodos]);
 
-  const handleOnClickToggleAll = async () => {
+  const handleOnClickToggleAll = useCallback(async () => {
     const results = [];
 
     if (allTodos) {
@@ -77,9 +78,9 @@ export const NewTodo: React.FC<Props> = (props) => {
         setAllTodos(newTodos);
       }
     }
-  };
+  }, [allTodos, activeTodos]);
 
-  const handleAddTodo = (e: React.FormEvent) => {
+  const handleAddTodo = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading('Adding');
     if (currentInput === '') {
@@ -99,7 +100,7 @@ export const NewTodo: React.FC<Props> = (props) => {
           setIsLoading('');
         });
     }
-  };
+  }, [user, currentInput]);
 
   return (
     <header className="todoapp__header">
