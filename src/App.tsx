@@ -177,12 +177,14 @@ export const App: React.FC = () => {
             newTitle={newTodoTitle}
           />
         </header>
+
         <TodoList
           todos={visibleTodos}
           onDelete={deleteCurrentTodo}
           onUpdate={updateCurrentTodo}
           newTitle={newTodoTitle}
         />
+
         {(todos.length > 0 || isAdding) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
