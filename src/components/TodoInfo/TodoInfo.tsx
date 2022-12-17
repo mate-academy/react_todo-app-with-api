@@ -17,7 +17,6 @@ export const TodoInfo: React.FC<Props> = ({
 }) => {
   const { completed, title, id } = todo;
   const { processedTodoIds } = useContext(ProcessedContext);
-  const isLoaderActive = id === 0 || processedTodoIds.includes(id);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleDoubleClick = (
@@ -79,7 +78,7 @@ export const TodoInfo: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
-          { 'is-active': isLoaderActive },
+          { 'is-active': processedTodoIds.includes(id) },
         )}
       >
         <div className="

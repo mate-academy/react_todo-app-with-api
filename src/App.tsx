@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+// import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {
   createTodo,
   deleteTodo,
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
   const {
     setError,
     setIsAdding,
+    isAdding,
     setProcessedTodoIds,
   } = useContext(ProcessedContext);
 
@@ -176,7 +178,7 @@ export const App: React.FC = () => {
             newTitle={newTodoTitle}
           />
         </header>
-        {todos.length > 0 && (
+        {(todos.length > 0 || isAdding) && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -184,7 +186,6 @@ export const App: React.FC = () => {
               onUpdate={updateCurrentTodo}
               newTitle={newTodoTitle}
             />
-
             <footer className="todoapp__footer" data-cy="Footer">
               <span className="todo-count" data-cy="todosCounter">
                 {`${activeTodos.length} items left`}
