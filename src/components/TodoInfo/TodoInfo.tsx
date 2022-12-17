@@ -15,6 +15,7 @@ import {
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 import { ErrorStatus } from '../../types/errorStatus';
+import { Loader } from '../Loader/Loader';
 
 interface Props {
   todo: Todo,
@@ -126,10 +127,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
         )}
       >
         {(todo.id === +isLoading) && (
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
+          <Loader />
         )}
 
         <label className="todo__status-label">

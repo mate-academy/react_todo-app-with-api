@@ -5,6 +5,7 @@ import {
 } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo/TodoInfo';
+import { TempTodo } from '../TempTodo/TempTodo';
 
 interface Props {
   visibleTodos: Todo[] | null,
@@ -50,33 +51,30 @@ export const TodoList: React.FC<Props> = (props) => {
               timeout={300}
               classNames="temp-item"
             >
-              <div
+
+              {/* <div
                 className="todo"
               >
-                <div data-cy="TodoLoader" className="modal overlay is-active">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
+                <Loader />
                 <label className="todo__status-label">
                   <input
-                    data-cy="TodoStatus"
                     type="checkbox"
                     className="todo__status"
                   />
                 </label>
 
-                <span data-cy="TodoTitle" className="todo__title">
+                <span className="todo__title">
                   {currentInput}
                 </span>
 
                 <button
                   type="button"
                   className="todo__remove"
-                  data-cy="TodoDeleteButton"
                 >
                   ×
                 </button>
-              </div>
+              </div> */}
+              <TempTodo currentInput={currentInput} />
             </CSSTransition>
           )}
         </TransitionGroup>

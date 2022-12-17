@@ -17,10 +17,10 @@
 ✓ Code should be split into small, reusable components if it possible (`Filter`, `TodoList`, `Todo`, `NewTodo`)
 ✓ ID for new todos should be unique, you can use an internal ID counter for this, and increment it.
 ✓ “Toggle all” should be active only in case when all todos are completed.
-1. If you manually toggle all todos to completed state, “Toggle all” should stay active.
-1. "Toggle all" should stay inactive if at least one todo is not completed.
-1. `NewTodo` form shouldn’t create empty todos.
-1. `NewTodo` form should trim redundant spaces.
+✓ If you manually toggle all todos to completed state, “Toggle all” should stay active.
+✓ "Toggle all" should stay inactive if at least one todo is not completed.
+✓ `NewTodo` form shouldn’t create empty todos.
+✓ `NewTodo` form should trim redundant spaces.
 ✓ Do not rely on the unknown string, make constants for this.
     ```
     const FILTERS = {
