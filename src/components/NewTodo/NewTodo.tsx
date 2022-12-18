@@ -85,7 +85,7 @@ export const NewTodo: React.FC<Props> = (props) => {
 
     if (user && currentInput.length > 0) {
       setIsLoading([0]);
-      await addTodo(user.id, newTodo)
+      await addTodo(newTodo)
         .catch(() => {
           setErrorWithTimer(ErrorStatus.AddError);
         });
