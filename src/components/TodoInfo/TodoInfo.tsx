@@ -68,14 +68,6 @@ export const TodoInfo: React.FC<Props> = (props) => {
     }, [todo],
   );
 
-  const handleDoubleClick = useCallback(
-    (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-      if (event.detail === 2) {
-        setIsEditing(true);
-      }
-    }, [],
-  );
-
   const handleCheckboxOnChange = useCallback(async () => {
     setIsLoading((prev) => [...prev, todo.id]);
     if (user) {
@@ -147,7 +139,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
               <span
                 data-cy="TodoTitle"
                 className="todo__title"
-                onClick={handleDoubleClick}
+                onDoubleClick={() => setIsEditing(true)}
                 aria-hidden="true"
               >
                 {todo.title}
