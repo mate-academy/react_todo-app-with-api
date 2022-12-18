@@ -1,6 +1,6 @@
-import classNames from "classnames";
-import { StatusTodo } from "../../types/StatusTodo";
-import { Todo } from "../../types/Todo";
+import classNames from 'classnames';
+import { StatusTodo } from '../../types/StatusTodo';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   activeTodos: Todo[],
@@ -8,7 +8,7 @@ type Props = {
   statusTodos: StatusTodo,
   setStatusTodos: (status: StatusTodo) => void,
   onDelete: (id: number) => void,
-}
+};
 
 export const Footer: React.FC<Props> = (props) => {
   const {

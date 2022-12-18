@@ -1,4 +1,5 @@
-import { ErrorMessage } from "../../types/ErrorMessage";
+import { useEffect, useRef } from 'react';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   error: ErrorMessage,
@@ -7,6 +8,17 @@ type Props = {
 
 export const ErrorNotification: React.FC<Props> = (props) => {
   const { error, setError } = props;
+  const timerRef = useRef<NodeJS.Timer>();
+
+  useEffect(() => {
+    if (error !== ErrorMessage.None) {
+      timerRef.current = setTimeout(() => {
+        setError(ErrorMessage.None);
+      }, 3000);
+    } else {
+      clearTimeout(timerRef.current);
+    }
+  }, [error]);
 
   return (
     <div
@@ -16,6 +28,7 @@ export const ErrorNotification: React.FC<Props> = (props) => {
       <button
         data-cy="HideErrorButton"
         type="button"
+        aria-label="HideError"
         className="delete"
         onClick={() => setError(ErrorMessage.None)}
       />
