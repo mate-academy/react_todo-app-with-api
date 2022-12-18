@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
 import {
   CSSTransition,
   TransitionGroup,
@@ -10,10 +9,8 @@ import { TempTodo } from '../TempTodo/TempTodo';
 interface Props {
   visibleTodos: Todo[] | null,
   currentInput: string,
-  isLoading: string,
+  isLoading: number[],
   setErrorWithTimer: (message: string) => void;
-  setIsLoading: Dispatch<SetStateAction<string>>,
-  // setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
   loadUserTodos: () => void;
 }
 
@@ -22,8 +19,6 @@ export const TodoList: React.FC<Props> = (props) => {
     isLoading,
     currentInput,
     visibleTodos,
-    // setAllTodos,
-    setIsLoading,
     setErrorWithTimer,
     loadUserTodos,
   } = props;
@@ -41,14 +36,12 @@ export const TodoList: React.FC<Props> = (props) => {
               <TodoInfo
                 todo={todo}
                 isLoading={isLoading}
-                setIsLoading={setIsLoading}
                 setErrorWithTimer={setErrorWithTimer}
-                // setAllTodos={setAllTodos}
                 loadUserTodos={loadUserTodos}
               />
             </CSSTransition>
           ))}
-          {(isLoading === 'Adding') && (
+          {isLoading.includes(0) && (
             <CSSTransition
               key={0}
               timeout={300}

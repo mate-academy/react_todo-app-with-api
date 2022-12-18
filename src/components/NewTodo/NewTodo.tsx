@@ -17,6 +17,7 @@ import { AuthContext } from '../Auth/AuthContext';
 
 import { Todo } from '../../types/Todo';
 import { ErrorStatus } from '../../types/errorStatus';
+import { setIsLoadingContext } from '../Context/context';
 
 interface Props {
   newTodoField: React.LegacyRef<HTMLInputElement> | undefined,
@@ -25,9 +26,9 @@ interface Props {
   currentInput: string,
   setCurrentInput: Dispatch<SetStateAction<string>>,
   setErrorWithTimer: (message: string) => void,
-  isLoading: string,
-  setIsLoading: Dispatch<SetStateAction<string>>,
+  isLoading: number[],
   loadUserTodos: () => void;
+  onFocusing: () => void;
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -39,8 +40,8 @@ export const NewTodo: React.FC<Props> = (props) => {
     setCurrentInput,
     setErrorWithTimer,
     isLoading,
-    setIsLoading,
     loadUserTodos,
+    onFocusing,
   } = props;
 
   const user = useContext(AuthContext);
@@ -51,6 +52,7 @@ export const NewTodo: React.FC<Props> = (props) => {
     completed: false,
   };
 
+  const setIsLoading = useContext(setIsLoadingContext);
   const areAllCompleted = useMemo(() => activeTodos?.length, [activeTodos]);
 
   const handleOnClickToggleAll = useCallback(async () => {
@@ -84,15 +86,17 @@ export const NewTodo: React.FC<Props> = (props) => {
     }
 
     if (user && currentInput.length > 0) {
-      setIsLoading('Adding');
+      setIsLoading([0]);
       await addTodo(user.id, newTodo)
         .catch(() => {
           setErrorWithTimer(ErrorStatus.AddError);
         });
       await loadUserTodos();
-      setIsLoading('');
+      setIsLoading([]);
       setCurrentInput('');
     }
+
+    onFocusing();
   }, [user, currentInput]);
 
   return (

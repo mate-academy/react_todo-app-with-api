@@ -11,6 +11,7 @@ import {
   getTodos,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
+import { setIsLoadingContext } from '../Context/context';
 
 interface Props {
   allTodos: Todo[] | null,
@@ -30,6 +31,7 @@ export const Filter: React.FC<Props> = (props) => {
   } = props;
 
   const user = useContext(AuthContext);
+  const setIsLoading = useContext(setIsLoadingContext);
 
   const handleClearCompleted = useCallback(async () => {
     const response: any[] = [];
@@ -37,6 +39,7 @@ export const Filter: React.FC<Props> = (props) => {
     if (user && allTodos) {
       allTodos.forEach(todo => {
         if (todo.completed) {
+          setIsLoading((prev) => [...prev, todo.id]);
           response.push(deleteTodo(todo.id));
         }
       });
@@ -45,6 +48,7 @@ export const Filter: React.FC<Props> = (props) => {
         await Promise.all(response);
         const newTodos: Todo[] = await getTodos(user.id);
 
+        setIsLoading([]);
         setAllTodos(newTodos);
       }
     }
@@ -57,7 +61,7 @@ export const Filter: React.FC<Props> = (props) => {
   };
 
   const areCompleted = useCallback(
-    () => allTodos?.every(todo => !todo.completed), [],
+    () => allTodos?.every(todo => !todo.completed), [allTodos],
   );
 
   return (

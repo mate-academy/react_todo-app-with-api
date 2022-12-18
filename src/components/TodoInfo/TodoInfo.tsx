@@ -1,7 +1,5 @@
 import classNames from 'classnames';
 import {
-  Dispatch,
-  SetStateAction,
   useCallback,
   useContext,
   useState,
@@ -14,13 +12,12 @@ import {
 import { AuthContext } from '../Auth/AuthContext';
 import { ErrorStatus } from '../../types/errorStatus';
 import { Loader } from '../Loader/Loader';
+import { setIsLoadingContext } from '../Context/context';
 
 interface Props {
   todo: Todo,
   setErrorWithTimer: (message: string) => void;
-  isLoading: string,
-  setIsLoading: Dispatch<SetStateAction<string>>,
-  // setAllTodos: Dispatch<SetStateAction<Todo [] | null>>,
+  isLoading: number[],
   loadUserTodos: () => void,
 }
 
@@ -29,7 +26,6 @@ export const TodoInfo: React.FC<Props> = (props) => {
     todo,
     setErrorWithTimer,
     isLoading,
-    setIsLoading,
     loadUserTodos,
   } = props;
 
@@ -37,25 +33,27 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const user = useContext(AuthContext);
 
+  const setIsLoading = useContext(setIsLoadingContext);
+
   const handleSuccessfulEdit = useCallback((async () => {
-    setIsLoading(String(todo.id));
+    setIsLoading([todo.id]);
     if (!newTitle && user) {
       await deleteTodo(todo.id)
         .catch(() => {
           setErrorWithTimer(ErrorStatus.DeleteError);
-          setIsLoading('');
+          setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading('');
+      setIsLoading([]);
     } else if (newTitle !== todo.title && user) {
-      setIsLoading(String(todo.id));
+      setIsLoading([todo.id]);
       await updateTodo(todo.id, { title: newTitle })
         .catch(() => {
           setErrorWithTimer(ErrorStatus.UpdateError);
-          setIsLoading('');
+          setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading('');
+      setIsLoading([]);
     }
 
     setIsEditing(false);
@@ -79,28 +77,28 @@ export const TodoInfo: React.FC<Props> = (props) => {
   );
 
   const handleCheckboxOnChange = useCallback(async () => {
-    setIsLoading(String(todo.id));
+    setIsLoading([todo.id]);
     if (user) {
       await updateTodo(todo.id, { completed: !todo.completed })
         .catch(() => {
           setErrorWithTimer(ErrorStatus.UpdateError);
-          setIsLoading('');
+          setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading('');
+      setIsLoading([]);
     }
   }, [todo, user]);
 
   const handleDeleteTodo = useCallback(async () => {
-    setIsLoading(String(todo.id));
+    setIsLoading([todo.id]);
     if (user) {
       await deleteTodo(todo.id)
         .catch(() => {
           setErrorWithTimer(ErrorStatus.DeleteError);
-          setIsLoading('');
+          setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading('');
+      setIsLoading([]);
     }
   }, [todo, user]);
 
@@ -113,9 +111,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
           { completed: todo.completed },
         )}
       >
-        {(todo.id === +isLoading) && (
-          <Loader />
-        )}
+        {isLoading.includes(todo.id) && <Loader />}
 
         <label className="todo__status-label">
           <input

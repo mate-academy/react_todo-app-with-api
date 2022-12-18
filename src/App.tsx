@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 
+import { setIsLoadingContext } from './components/Context/context';
 import { Todo } from './types/Todo';
 import { Filter } from './components/Filter/Filter';
 import { NewTodo } from './components/NewTodo/NewTodo';
@@ -20,7 +21,7 @@ import {
 
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);
-  const [isLoading, setIsLoading] = useState('');
+  const [isLoading, setIsLoading] = useState<number[]>([]);
   const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [errorStatus, setErrorStatus] = useState('');
   const [currentInput, setCurrentInput] = useState('');
@@ -65,10 +66,14 @@ export const App: React.FC = () => {
     }
   }, [user]);
 
-  useEffect(() => {
+  const onFocusing = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
+  };
+
+  useEffect(() => {
+    onFocusing();
 
     loadUserTodos();
   }, [user]);
@@ -78,35 +83,35 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <NewTodo
-          newTodoField={newTodoField}
-          activeTodos={activeTodos}
-          allTodos={allTodos}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          currentInput={currentInput}
-          setCurrentInput={setCurrentInput}
-          setErrorWithTimer={setErrorWithTimer}
-          loadUserTodos={loadUserTodos}
+        <setIsLoadingContext.Provider value={setIsLoading}>
+          <NewTodo
+            newTodoField={newTodoField}
+            activeTodos={activeTodos}
+            allTodos={allTodos}
+            isLoading={isLoading}
+            currentInput={currentInput}
+            setCurrentInput={setCurrentInput}
+            setErrorWithTimer={setErrorWithTimer}
+            loadUserTodos={loadUserTodos}
+            onFocusing={onFocusing}
+          />
 
-        />
-        <TodoList
-          visibleTodos={visibleTodos}
-          currentInput={currentInput}
-          setErrorWithTimer={setErrorWithTimer}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          // setAllTodos={setAllTodos}
-          loadUserTodos={loadUserTodos}
-        />
+          <TodoList
+            visibleTodos={visibleTodos}
+            currentInput={currentInput}
+            setErrorWithTimer={setErrorWithTimer}
+            isLoading={isLoading}
+            loadUserTodos={loadUserTodos}
+          />
 
-        <Filter
-          allTodos={allTodos}
-          activeTodos={activeTodos}
-          setFilter={setFilter}
-          selectedFilter={filter}
-          setAllTodos={setAllTodos}
-        />
+          <Filter
+            allTodos={allTodos}
+            activeTodos={activeTodos}
+            setFilter={setFilter}
+            selectedFilter={filter}
+            setAllTodos={setAllTodos}
+          />
+        </setIsLoadingContext.Provider>
       </div>
 
       <ErrorNotification
