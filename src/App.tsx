@@ -44,18 +44,16 @@ export const App: React.FC = () => {
     : todos;
 
   const loadingTodos = async () => {
-    if (!user) {
-      return;
-    }
+    if (user) {
+      setError(ErrorNotification.None);
 
-    setError(ErrorNotification.None);
-
-    try {
-      setIsAdding(true);
-      setTodos(await getTodos(user.id));
-      setIsAdding(false);
-    } catch {
-      setError(ErrorNotification.NoTodos);
+      try {
+        setIsAdding(true);
+        setTodos(await getTodos(user.id));
+        setIsAdding(false);
+      } catch {
+        setError(ErrorNotification.NoTodos);
+      }
     }
   };
 

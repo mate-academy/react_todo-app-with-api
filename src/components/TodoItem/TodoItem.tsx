@@ -103,10 +103,10 @@ export const TodoItem: React.FC<Props> = ({
             >
               ×
             </button>
+
+            <Loader isLoading={isLoading} />
           </>
         )}
-
-      <Loader isLoading={isLoading} />
     </div>
   );
 };
