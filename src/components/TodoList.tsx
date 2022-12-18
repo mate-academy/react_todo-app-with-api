@@ -3,19 +3,19 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { AuthContext } from './Auth/AuthContext';
 import { TitleContext } from './Context/TitleContext';
-import { TodoComponent } from './TodoComponent';
+import { TodoItem } from './TodoItem';
 
 interface Props {
   todos: Todo[],
-  onRemoveTodo: (todoId: number) => Promise<void>,
-  onUpdateTodo: (todoId: number, data: Partial<Todo>) => Promise<void>,
+  onRemove: (todoId: number) => Promise<void>,
+  onUpdate: (todoId: number, data: Partial<Todo>) => Promise<void>,
   isAdding: boolean,
 }
 
 export const TodoList: React.FC<Props> = React.memo(({
   todos,
-  onUpdateTodo,
-  onRemoveTodo,
+  onUpdate,
+  onRemove,
   isAdding,
 }) => {
   const user = useContext(AuthContext);
@@ -28,13 +28,13 @@ export const TodoList: React.FC<Props> = React.memo(({
           <CSSTransition
             key={todo.id}
             timeout={300}
-            className="item"
+            classNames="item"
           >
-            <TodoComponent
+            <TodoItem
               todo={todo}
               key={todo.id}
-              onRemoveTodo={onRemoveTodo}
-              onUpdateTodo={onUpdateTodo}
+              onRemove={onRemove}
+              onUpdate={onUpdate}
             />
           </CSSTransition>
         ))}
@@ -45,15 +45,15 @@ export const TodoList: React.FC<Props> = React.memo(({
             timeout={300}
             classNames="temp-item"
           >
-            <TodoComponent
+            <TodoItem
               todo={{
                 id: 0,
                 userId: user?.id || 0,
                 title: todoTitle,
                 completed: false,
               }}
-              onRemoveTodo={onRemoveTodo}
-              onUpdateTodo={onUpdateTodo}
+              onRemove={onRemove}
+              onUpdate={onUpdate}
             />
           </CSSTransition>
         )}

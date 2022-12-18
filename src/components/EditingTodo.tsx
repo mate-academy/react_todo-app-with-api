@@ -15,7 +15,7 @@ interface Props {
   setIsEditing: Dispatch<SetStateAction<boolean>>,
 }
 
-export const EditTodo: React.FC<Props> = ({
+export const EditingTodo: React.FC<Props> = ({
   todo,
   onUpdateTodo,
   onRemoveTodo,

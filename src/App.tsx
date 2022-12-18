@@ -152,37 +152,34 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos.length !== 0 && (
-          <>
-            <TodoList
-              todos={filteredTodos}
-              onRemoveTodo={removeTodo}
-              onUpdateTodo={updateTodo}
-              isAdding={isAdding}
+        <TodoList
+          todos={filteredTodos}
+          onRemove={removeTodo}
+          onUpdate={updateTodo}
+          isAdding={isAdding}
+        />
+        {(todos.length !== 0 || isAdding) && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="todosCounter">
+              {`${activeTodos.length} items left`}
+            </span>
+
+            <Navigation
+              isSelected={filter}
+              onFilterTodos={setFilter}
             />
 
-            <footer className="todoapp__footer" data-cy="Footer">
-              <span className="todo-count" data-cy="todosCounter">
-                {`${activeTodos.length} items left`}
-              </span>
-
-              <Navigation
-                isSelected={filter}
-                onFilterTodos={setFilter}
-              />
-
-              {completedTodos.length > 0 && (
-                <button
-                  data-cy="ClearCompletedButton"
-                  type="button"
-                  className="todoapp__clear-completed"
-                  onClick={removeCompletedTodos}
-                >
-                  Clear completed
-                </button>
-              )}
-            </footer>
-          </>
+            {completedTodos.length > 0 && (
+              <button
+                data-cy="ClearCompletedButton"
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={removeCompletedTodos}
+              >
+                Clear completed
+              </button>
+            )}
+          </footer>
         )}
       </div>
 

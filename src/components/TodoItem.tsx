@@ -5,24 +5,24 @@ import React, {
 } from 'react';
 import { Todo } from '../types/Todo';
 import { LoaderContext } from './Context/LoaderContext';
-import { EditTodo } from './EditTodo';
+import { EditingTodo } from './EditingTodo';
 
 interface Props {
   todo: Todo,
-  onRemoveTodo: (todoId: number) => Promise<void>,
-  onUpdateTodo: (todoId: number, data: Partial<Todo>) => Promise<void>,
+  onRemove: (todoId: number) => Promise<void>,
+  onUpdate: (todoId: number, data: Partial<Todo>) => Promise<void>,
 }
 
-export const TodoComponent: React.FC<Props> = React.memo(({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  onRemoveTodo,
-  onUpdateTodo,
+  onRemove,
+  onUpdate,
 }) => {
   const { title, id, completed } = todo;
   const { todosOnLoad } = useContext(LoaderContext);
   const [isEditing, setIsEditing] = useState(false);
 
-  const isTodoOnProccessing = id === 0
+  const isTodoOnProcessing = id === 0
     || todosOnLoad.includes(id);
 
   return (
@@ -38,7 +38,7 @@ export const TodoComponent: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => onUpdateTodo(
+          onClick={() => onUpdate(
             todo.id,
             { completed: !completed },
           )}
@@ -60,17 +60,17 @@ export const TodoComponent: React.FC<Props> = React.memo(({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onRemoveTodo(id)}
+              onClick={() => onRemove(id)}
             >
               ×
             </button>
           </>
         )
         : (
-          <EditTodo
+          <EditingTodo
             todo={todo}
-            onUpdateTodo={onUpdateTodo}
-            onRemoveTodo={onRemoveTodo}
+            onUpdateTodo={onUpdate}
+            onRemoveTodo={onRemove}
             isEditing={isEditing}
             setIsEditing={setIsEditing}
           />
@@ -79,7 +79,7 @@ export const TodoComponent: React.FC<Props> = React.memo(({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isTodoOnProccessing,
+          'is-active': isTodoOnProcessing,
         })}
       >
         <div className="modal-background has-background-white-ter" />
