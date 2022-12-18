@@ -30,9 +30,9 @@ export const Footer: React.FC<Props> = (
 
       return removeTodo(id);
     }));
-    clearLoadingList();
 
     loadTodos();
+    clearLoadingList();
   };
 
   return (

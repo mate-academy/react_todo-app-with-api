@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
 type Props = {
@@ -39,14 +40,10 @@ export const NewTodoField: React.FC<Props> = (
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  });
+  }, [isAdding]);
 
   const addNewTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (onSetIsEditing) {
-      newTodoField.current?.blur();
-    }
-
     onSubmit();
   };
 
@@ -68,7 +65,9 @@ export const NewTodoField: React.FC<Props> = (
         data-cy="NewTodoField"
         type="text"
         ref={newTodoField}
-        className="todoapp__new-todo"
+        className={classNames('todoapp__new-todo', {
+          'todoapp__update-todo-title': onSetIsEditing,
+        })}
         placeholder="What needs to be done?"
         value={title}
         onChange={handleChangeTitle}

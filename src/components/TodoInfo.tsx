@@ -75,18 +75,19 @@ export const TodoInfo: React.FC<Props> = (
     }
   };
 
-  const onSubmit = async () => {
+  const onUpdateTodoTitle = async () => {
     if (title === newTitle) {
       setIsEditing(false);
 
       return;
     }
 
+    setIsEditing(false);
+
     addTodoToLoadingList(id);
 
     await updateTodo(id, newTitle, completed);
     await loadTodos();
-    setIsEditing(false);
 
     deleteTodoOfLoadingList(id);
   };
@@ -112,7 +113,7 @@ export const TodoInfo: React.FC<Props> = (
           <NewTodoField
             title={newTitle}
             changeTitle={(value) => setNewTitle(value)}
-            onSubmit={onSubmit}
+            onSubmit={onUpdateTodoTitle}
             onSetIsEditing={(isEdit) => setIsEditing(isEdit)}
           />
         )

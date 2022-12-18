@@ -26,15 +26,6 @@ body {
   pointer-events: none;
 }
 
-// .todoapp__new-todo.rename-todo {
-//   // height: 58px;
-//   -moz-user-select: none;
-//   -khtml-user-select: none;
-//   -webkit-user-select: none;
-//   -ms-user-select: none;
-//   user-select: none;
-// }
-
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
