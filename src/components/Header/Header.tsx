@@ -7,7 +7,7 @@ type Props = {
   activeTodos: Todo[],
   title: string,
   setTitle: (title: string) => void,
-  onAdd: () => void,
+  onAdd: (event: React.FormEvent<HTMLFormElement>) => Promise<void>,
   onChangeStatusAll: () => void,
 };
 
@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = (props) => {
 
   return (
     <header className="todoapp__header">
-      <form>
+      <form onSubmit={onAdd}>
         <p className="control is-expanded has-icons-left has-icons-right">
           {todos.length > 0 && (
             <button
@@ -47,13 +47,8 @@ export const Header: React.FC<Props> = (props) => {
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={title}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={(event) => {
               setTitle(event.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                onAdd();
-              }
             }}
           />
 

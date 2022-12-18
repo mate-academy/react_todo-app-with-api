@@ -12,7 +12,7 @@ import {
   addTodo,
   deleteTodo,
   editTodo,
-  getAllTodos,
+  getTodos,
 } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 // eslint-disable-next-line
@@ -30,13 +30,13 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
 
   useEffect(() => {
-    const getTodos = async () => {
-      const allTodos: Todo[] = await getAllTodos();
+    const getAllTodos = async () => {
+      const allTodos: Todo[] = await getTodos();
 
       setTodos(allTodos);
     };
 
-    getTodos();
+    getAllTodos();
   }, []);
 
   const filteringTodos = (statusAllTodos: StatusTodo) => {
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
     setError(ErrorMessage.None);
 
     try {
-      const todosFromServer = await getAllTodos();
+      const todosFromServer = await getTodos();
 
       setTodos(todosFromServer);
     } catch {
@@ -74,18 +74,19 @@ export const App: React.FC = () => {
   const activeTodos = filteredTodos.filter(a => !a.completed);
   const completedTodos = filteredTodos.filter(c => c.completed);
 
-  const handleAddTodo = async () => {
+  const handleAddTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError(ErrorMessage.None);
 
-    if (user && title.trim()) {
+    if (title.trim() && user) {
       try {
         await addTodo({
-          userId: user?.id,
-          title,
+          userId: user.id,
+          title: title.trim(),
           completed: false,
         });
 
-        loadUserTodos();
+        await loadUserTodos();
         setTitle('');
       } catch {
         setError(ErrorMessage.Add);
