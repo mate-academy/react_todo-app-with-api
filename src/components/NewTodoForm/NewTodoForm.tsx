@@ -46,23 +46,18 @@ export const NewTodoForm: React.FC<Props> = (props) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setHasError(false);
 
-    if (!title.trim()) {
-      setCurrentError(Errors.Title);
+    if (title.trim() && user) {
+      onSubmit({
+        title: title.trim(),
+        userId: user.id,
+        completed: false,
+      });
+    } else {
       setHasError(true);
+      setCurrentError(Errors.Title);
     }
-
-    const userId = user?.id;
-
-    if (!title || !userId) {
-      return;
-    }
-
-    onSubmit({
-      title,
-      userId,
-      completed: false,
-    });
   };
 
   return (

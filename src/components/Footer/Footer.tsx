@@ -11,7 +11,7 @@ interface Props {
   status: Status;
   setStatus: React.Dispatch<React.SetStateAction<Status>>;
   completedTodos: Todo[];
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
 }
 
 export const Footer: React.FC<Props> = (props) => {

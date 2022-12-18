@@ -92,7 +92,6 @@ export const TodoList: React.FC<Props> = (props) => {
             classNames="temp-item"
           >
             <TodoItem
-              key={tempTodo.id}
               todo={tempTodo}
               onDelete={onDelete}
               onUpdate={onUpdate}

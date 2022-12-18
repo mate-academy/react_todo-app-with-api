@@ -10,7 +10,7 @@ interface Props {
   title: string;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>;
-  onToggle: () => Promise<void>;
+  onToggle: () => void;
 }
 
 export const Header: React.FC<Props> = (props) => {

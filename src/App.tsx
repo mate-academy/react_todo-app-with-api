@@ -110,9 +110,9 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const clearCompleted = useCallback(async () => {
-    await Promise.all(completedTodos
-      .map((todo) => deleteTodo(todo.id)));
+  const clearCompleted = useCallback(() => {
+    completedTodos
+      .forEach((todo) => deleteTodo(todo.id));
   }, [completedTodos]);
 
   const updateStatus = useCallback(async (todo: Todo) => {
@@ -135,9 +135,9 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const toggleAll = useCallback(async () => {
-    await Promise.all(todoToToggle
-      .map((todo) => updateStatus(todo)));
+  const toggleAll = useCallback(() => {
+    todoToToggle
+      .forEach((todo) => updateStatus(todo));
   }, [todoToToggle]);
 
   const updateTitle = useCallback(async (todo: Todo, newTitle: string) => {
@@ -151,12 +151,11 @@ export const App: React.FC = () => {
       };
 
       await patchTodo(todo.id, updatedTodo);
-      await loadUserTodos();
     } catch (error) {
       setHasError(true);
       setCurrentError(Update);
     } finally {
-      // await loadUserTodos();
+      await loadUserTodos();
       setSelectedTodoIds([0]);
     }
   }, []);
@@ -174,25 +173,23 @@ export const App: React.FC = () => {
           onToggle={toggleAll}
         />
 
-        {(todos.length > 0 || isAdding) && (
-          <>
-            <TodoList
-              todos={todos}
-              status={status}
-              newTodoTitle={title}
-              onDelete={deleteTodo}
-              onUpdate={updateTitle}
-              onToggle={updateStatus}
-            />
+        <TodoList
+          todos={todos}
+          status={status}
+          newTodoTitle={title}
+          onDelete={deleteTodo}
+          onUpdate={updateTitle}
+          onToggle={updateStatus}
+        />
 
-            <Footer
-              activeTodos={activeTodos}
-              status={status}
-              setStatus={setStatus}
-              completedTodos={completedTodos}
-              onDelete={clearCompleted}
-            />
-          </>
+        {(todos.length > 0 || isAdding) && (
+          <Footer
+            activeTodos={activeTodos}
+            status={status}
+            setStatus={setStatus}
+            completedTodos={completedTodos}
+            onDelete={clearCompleted}
+          />
         )}
       </div>
 
