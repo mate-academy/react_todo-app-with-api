@@ -10,8 +10,6 @@ interface Props {
   visibleTodos: Todo[] | null,
   currentInput: string,
   isLoading: number[],
-  setErrorWithTimer: (message: string) => void;
-  loadUserTodos: () => void;
 }
 
 export const TodoList: React.FC<Props> = (props) => {
@@ -19,8 +17,6 @@ export const TodoList: React.FC<Props> = (props) => {
     isLoading,
     currentInput,
     visibleTodos,
-    setErrorWithTimer,
-    loadUserTodos,
   } = props;
 
   return (
@@ -36,8 +32,6 @@ export const TodoList: React.FC<Props> = (props) => {
               <TodoInfo
                 todo={todo}
                 isLoading={isLoading}
-                setErrorWithTimer={setErrorWithTimer}
-                loadUserTodos={loadUserTodos}
               />
             </CSSTransition>
           ))}
@@ -52,7 +46,6 @@ export const TodoList: React.FC<Props> = (props) => {
           )}
         </TransitionGroup>
       </section>
-
     </>
   );
 };

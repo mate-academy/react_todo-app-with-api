@@ -117,10 +117,7 @@ export const NewTodo: React.FC<Props> = (props) => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={currentInput}
-          onChange={(event) => {
-            setCurrentInput(event.target.value);
-          }}
-
+          onChange={(event) => setCurrentInput(event.target.value)}
         />
       </form>
     </header>

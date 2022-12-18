@@ -8,7 +8,10 @@ import React, {
   useState,
 } from 'react';
 
-import { setIsLoadingContext } from './components/Context/context';
+import {
+  setIsLoadingContext,
+  functonsContext,
+} from './components/Context/context';
 import { Todo } from './types/Todo';
 import { Filter } from './components/Filter/Filter';
 import { NewTodo } from './components/NewTodo/NewTodo';
@@ -100,14 +103,17 @@ export const App: React.FC = () => {
             setErrorWithTimer={setErrorWithTimer}
             loadUserTodos={loadUserTodos}
           />
-
-          <TodoList
-            visibleTodos={visibleTodos}
-            currentInput={currentInput}
-            setErrorWithTimer={setErrorWithTimer}
-            isLoading={isLoading}
-            loadUserTodos={loadUserTodos}
-          />
+          <functonsContext.Provider value={{
+            setErrorWithTimer,
+            loadUserTodos,
+          }}
+          >
+            <TodoList
+              visibleTodos={visibleTodos}
+              currentInput={currentInput}
+              isLoading={isLoading}
+            />
+          </functonsContext.Provider>
 
           <Filter
             allTodos={allTodos}

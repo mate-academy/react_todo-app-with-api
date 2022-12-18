@@ -12,21 +12,20 @@ import {
 import { AuthContext } from '../Auth/AuthContext';
 import { ErrorStatus } from '../../types/errorStatus';
 import { Loader } from '../Loader/Loader';
-import { setIsLoadingContext } from '../Context/context';
+import {
+  setIsLoadingContext,
+  functonsContext,
+} from '../Context/context';
 
 interface Props {
   todo: Todo,
-  setErrorWithTimer: (message: string) => void;
   isLoading: number[],
-  loadUserTodos: () => void,
 }
 
 export const TodoInfo: React.FC<Props> = (props) => {
   const {
     todo,
-    setErrorWithTimer,
     isLoading,
-    loadUserTodos,
   } = props;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -34,6 +33,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const user = useContext(AuthContext);
 
   const setIsLoading = useContext(setIsLoadingContext);
+  const { setErrorWithTimer, loadUserTodos } = useContext(functonsContext);
 
   const handleSuccessfulEdit = useCallback((async () => {
     setIsLoading([todo.id]);
@@ -136,8 +136,8 @@ export const TodoInfo: React.FC<Props> = (props) => {
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
+                onBlur={handleSuccessfulEdit}
                 onChange={event => setNewTitle(event.target.value)}
-                onBlur={() => handleSuccessfulEdit()}
                 onKeyDown={handlePressEsc}
               />
             </form>

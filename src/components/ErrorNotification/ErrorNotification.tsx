@@ -23,14 +23,11 @@ export const ErrorNotification: React.FC<Props> = (props) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => {
-          setErrorStatus('');
-        }}
+        onClick={() => setErrorStatus('')}
       />
       <span hidden={!errorStatus}>
         {errorStatus}
       </span>
     </div>
-
   );
 };
