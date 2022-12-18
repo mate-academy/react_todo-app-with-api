@@ -77,7 +77,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
   );
 
   const handleCheckboxOnChange = useCallback(async () => {
-    setIsLoading([todo.id]);
+    setIsLoading((prev) => [...prev, todo.id]);
     if (user) {
       await updateTodo(todo.id, { completed: !todo.completed })
         .catch(() => {
@@ -85,7 +85,7 @@ export const TodoInfo: React.FC<Props> = (props) => {
           setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading([]);
+      setIsLoading(prev => prev.filter((userTodoId) => userTodoId !== todo.id));
     }
   }, [todo, user]);
 
