@@ -8,6 +8,7 @@ type Props = {
   loader: boolean;
   focusedTodoId: number;
   togglerLoader: boolean;
+  clearCompletedLoader: boolean;
   onDeleteTodo: (value: number) => void;
   onUpdateTodo: (todoId: number, todo: Todo) => void;
 };
@@ -17,10 +18,12 @@ export const TodoInfo: React.FC<Props> = ({
   onDeleteTodo,
   onUpdateTodo,
   loader,
+  clearCompletedLoader,
   togglerLoader,
   focusedTodoId,
 }) => {
   const [showNewTodo, setShowNewTodo] = useState(false);
+  const [clickedTodoId, setClickedTodoId] = useState<number>();
 
   const handleDeleteButton = () => {
     onDeleteTodo(todo.id);
@@ -28,13 +31,6 @@ export const TodoInfo: React.FC<Props> = ({
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const handleStatusChange = async (todo: Todo) => {
-    // const todoWithChangedStatus = {
-    //   id: todo.id,
-    //   userId: todo.userId,
-    //   title: todo.title,
-    //   completed: !todo.completed,
-    // };
-
     onUpdateTodo(todo.id, {
       ...todo,
       completed: !todo.completed,
@@ -66,7 +62,10 @@ export const TodoInfo: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => setShowNewTodo(true)}
+              onDoubleClick={() => {
+                setShowNewTodo(true);
+                setClickedTodoId(todo.id);
+              }}
             >
               {todo.title}
             </span>
@@ -82,7 +81,7 @@ export const TodoInfo: React.FC<Props> = ({
           </>
         )}
 
-        {showNewTodo && (
+        {(showNewTodo && clickedTodoId === todo.id) && (
           <NewTodo
             onUpdateTodo={onUpdateTodo}
             onDeleteTodo={onDeleteTodo}
@@ -98,7 +97,7 @@ export const TodoInfo: React.FC<Props> = ({
             'modal overlay',
             {
               'is-active': (loader && focusedTodoId === todo.id)
-                || togglerLoader,
+                || togglerLoader || clearCompletedLoader,
             },
           )}
         >

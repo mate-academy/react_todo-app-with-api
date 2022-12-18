@@ -8,6 +8,7 @@ type Props = {
   todos: Todo[];
   onTodosChange: (value: Todo[]) => void;
   onShowFooterChange: (value: boolean) => void;
+  onClearCompletedLoader: (value: boolean) => void;
 };
 
 enum SortBy {
@@ -18,6 +19,8 @@ enum SortBy {
 
 export const Footer: React.FC<Props> = ({
   onTodosChange,
+  onClearCompletedLoader,
+  onShowFooterChange,
   todos,
 }) => {
   const [activeTodos, setActiveTodos] = useState<Todo[]>([]);
@@ -26,48 +29,29 @@ export const Footer: React.FC<Props> = ({
 
   const user = useContext(AuthContext);
 
-  // // to check if there are some completed todos
-  // useEffect(() => {
-  //   const completedTodos = async () => {
-  //     const todosFromServer = user && await getTodos(user.id);
-
-  //     return todosFromServer
-  //       && todosFromServer.filter(todo => todo.completed).length > 0
-  //       ? setHasCompletedTodos(true)
-  //       : setHasCompletedTodos(false);
-  //   };
-
-  //   completedTodos();
-  // }, [activeTodos]);
-
-  // // to find active todos (bottom left corner)
-  // useEffect(() => {
-  //   const findActiveTodos = async () => {
-  //     const todosFromServer = user && await getTodos(user.id);
-
-  //     if (todosFromServer) {
-  //       const filteredTodos = todosFromServer
-  //         && todosFromServer.filter(todo => todo.completed === false);
-
-  //       setActiveTodos(filteredTodos);
-  //     }
-  //   };
-
-  //   findActiveTodos();
-  // }, [activeTodos]);
-
   useEffect(() => {
-    const filteredTodos = todos.filter(todo => todo.completed === false);
+    const findActiveTodos = async () => {
+      const todosFromServer = user && await getTodos(user.id);
 
-    setActiveTodos(filteredTodos);
+      if (todosFromServer) {
+        const filteredTodos = todosFromServer
+          && todosFromServer.filter(todo => todo.completed === false);
 
-    if (todos.filter(todo => todo.completed).length > 0) {
-      setHasCompletedTodos(true);
-    }
+        setActiveTodos(filteredTodos);
+      }
 
-    if (todos.filter(todo => todo.completed).length === 0) {
-      setHasCompletedTodos(false);
-    }
+      if (todosFromServer
+        && todosFromServer.filter(todo => todo.completed).length > 0) {
+        setHasCompletedTodos(true);
+      }
+
+      if (todosFromServer
+        && todosFromServer.filter(todo => todo.completed).length === 0) {
+        setHasCompletedTodos(false);
+      }
+    };
+
+    findActiveTodos();
   }, [activeTodos]);
 
   const handleFilter = async (sortBy: SortBy) => {
@@ -93,6 +77,7 @@ export const Footer: React.FC<Props> = ({
   };
 
   const handleClearCompleted = async () => {
+    onClearCompletedLoader(true);
     const todosFromServer = user && await getTodos(user.id);
     const onlyActiveTodos = todos.filter(todo => !todo.completed);
 
@@ -104,7 +89,12 @@ export const Footer: React.FC<Props> = ({
       );
     }
 
+    if (user && (await getTodos(user.id)).length === 0) {
+      onShowFooterChange(false);
+    }
+
     setHasCompletedTodos(false);
+    onClearCompletedLoader(false);
   };
 
   const { All, Active, Completed } = SortBy;

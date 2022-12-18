@@ -1,13 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import cn from 'classnames';
-import React, { RefObject, useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  newTodoField: RefObject<HTMLInputElement>;
   query: string;
   isDisabledInput: boolean;
   toggleButton?: boolean;
@@ -18,7 +17,6 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  newTodoField,
   query,
   isDisabledInput,
   toggleButton,
@@ -28,6 +26,13 @@ export const Header: React.FC<Props> = ({
   onToggleChange,
 }) => {
   const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -59,7 +64,12 @@ export const Header: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className={cn('todoapp__toggle-all', { active: toggleButton })}
+        className={cn(
+          'todoapp__toggle-all',
+          {
+            active: toggleButton,
+          },
+        )}
         onClick={() => onToggleChange()}
       />
 

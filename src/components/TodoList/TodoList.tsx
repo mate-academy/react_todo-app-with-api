@@ -6,6 +6,7 @@ type Props = {
   loader: boolean;
   focusedTodoId: number;
   togglerLoader: boolean;
+  clearCompletedLoader: boolean;
   onDeleteTodo: (value: number) => void;
   onUpdateTodo: (todoId: number, todo: Todo) => void;
 };
@@ -17,6 +18,7 @@ export const TodoList: React.FC<Props> = ({
   loader,
   focusedTodoId,
   togglerLoader,
+  clearCompletedLoader,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,6 +28,7 @@ export const TodoList: React.FC<Props> = ({
           focusedTodoId={focusedTodoId}
           loader={loader}
           togglerLoader={togglerLoader}
+          clearCompletedLoader={clearCompletedLoader}
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           onUpdateTodo={onUpdateTodo}

@@ -31,12 +31,19 @@ export const App: React.FC = () => {
   const [focusedTodoId, setFocusetTodoId] = useState<number>(Infinity);
   const [toggleButton, setToggleButton] = useState<boolean>();
   const [togglerLoader, setTogglerLoader] = useState(false);
+  const [clearCompletedLoader, setClearCompletedLoader] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+  const {
+    None,
+    NoTodos,
+    Update,
+    Delete,
+    Add,
+  } = ErrorType;
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -58,10 +65,10 @@ export const App: React.FC = () => {
           setToggleButton(true);
         }
       } catch {
-        setError(ErrorType.NoTodos);
+        setError(NoTodos);
 
         setTimeout(() => {
-          setError(ErrorType.None);
+          setError(None);
         }, 3000);
       }
     };
@@ -83,11 +90,11 @@ export const App: React.FC = () => {
       setShowFooter(true);
       setIsDisableInput(false);
     } catch {
-      setError(ErrorType.Add);
+      setError(Add);
       setIsDisableInput(false);
 
       setTimeout(() => {
-        setError(ErrorType.None);
+        setError(None);
       }, 3000);
     }
   };
@@ -108,11 +115,11 @@ export const App: React.FC = () => {
       setLoader(false);
       setTodos(updatedTodos);
     } catch {
-      setError(ErrorType.Delete);
+      setError(Delete);
       setLoader(false);
 
       setTimeout(() => {
-        setError(ErrorType.None);
+        setError(None);
       }, 3000);
     }
   };
@@ -131,11 +138,11 @@ export const App: React.FC = () => {
 
       setLoader(false);
     } catch {
-      setError(ErrorType.Update);
+      setError(Update);
       setLoader(false);
 
       setTimeout(() => {
-        setError(ErrorType.None);
+        setError(None);
       }, 3000);
     }
   };
@@ -182,7 +189,7 @@ export const App: React.FC = () => {
       }
     } catch {
       setTogglerLoader(false);
-      setError(ErrorType.Update);
+      setError(Update);
     }
   };
 
@@ -191,7 +198,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <Header
-          newTodoField={newTodoField}
           query={query}
           isDisabledInput={isDisabledInput}
           toggleButton={toggleButton}
@@ -206,6 +212,7 @@ export const App: React.FC = () => {
           focusedTodoId={focusedTodoId}
           loader={loader}
           togglerLoader={togglerLoader}
+          clearCompletedLoader={clearCompletedLoader}
           onDeleteTodo={deleteTodo}
           onUpdateTodo={changeTodo}
         />
@@ -215,6 +222,7 @@ export const App: React.FC = () => {
             todos={todos}
             onTodosChange={setTodos}
             onShowFooterChange={setShowFooter}
+            onClearCompletedLoader={setClearCompletedLoader}
           />
         )}
       </div>
