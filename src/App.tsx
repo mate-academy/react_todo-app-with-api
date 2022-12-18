@@ -29,16 +29,6 @@ export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
 
-  useEffect(() => {
-    const getAllTodos = async () => {
-      const allTodos: Todo[] = await getTodos();
-
-      setTodos(allTodos);
-    };
-
-    getAllTodos();
-  }, []);
-
   const filteringTodos = (statusAllTodos: StatusTodo) => {
     switch (statusAllTodos) {
       case StatusTodo.ACTIVE:
@@ -63,13 +53,17 @@ export const App: React.FC = () => {
     setError(ErrorMessage.None);
 
     try {
-      const todosFromServer = await getTodos();
+      const todosFromServer = await getTodos(user.id);
 
       setTodos(todosFromServer);
     } catch {
       setError(ErrorMessage.NoTodos);
     }
   };
+
+  useEffect(() => {
+    loadUserTodos();
+  }, [user]);
 
   const activeTodos = filteredTodos.filter(a => !a.completed);
   const completedTodos = filteredTodos.filter(c => c.completed);
