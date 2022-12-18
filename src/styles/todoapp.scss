@@ -55,6 +55,10 @@
     }
   }
 
+  &__icon-delete {
+    top: 14px;
+  }
+
   &__new-todo {
     width: 100%;
     padding: 16px 16px 16px 60px;
@@ -128,6 +132,10 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &--hidden {
+      visibility: hidden;
     }
   }
 }
