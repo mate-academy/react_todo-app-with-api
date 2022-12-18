@@ -78,6 +78,12 @@ export const App: React.FC = () => {
     loadUserTodos();
   }, [user]);
 
+  useEffect(() => {
+    if (currentInput === '') {
+      onFocusing();
+    }
+  }, [currentInput]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -93,7 +99,6 @@ export const App: React.FC = () => {
             setCurrentInput={setCurrentInput}
             setErrorWithTimer={setErrorWithTimer}
             loadUserTodos={loadUserTodos}
-            onFocusing={onFocusing}
           />
 
           <TodoList

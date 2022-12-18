@@ -20,7 +20,7 @@ import { ErrorStatus } from '../../types/errorStatus';
 import { setIsLoadingContext } from '../Context/context';
 
 interface Props {
-  newTodoField: React.LegacyRef<HTMLInputElement> | undefined,
+  newTodoField: React.Ref<HTMLInputElement> | undefined,
   activeTodos: Todo[] | null,
   allTodos: Todo[] | null,
   currentInput: string,
@@ -28,7 +28,6 @@ interface Props {
   setErrorWithTimer: (message: string) => void,
   isLoading: number[],
   loadUserTodos: () => void;
-  onFocusing: () => void;
 }
 
 export const NewTodo: React.FC<Props> = (props) => {
@@ -41,7 +40,6 @@ export const NewTodo: React.FC<Props> = (props) => {
     setErrorWithTimer,
     isLoading,
     loadUserTodos,
-    onFocusing,
   } = props;
 
   const user = useContext(AuthContext);
@@ -95,13 +93,11 @@ export const NewTodo: React.FC<Props> = (props) => {
       setIsLoading([]);
       setCurrentInput('');
     }
-
-    onFocusing();
   }, [user, currentInput]);
 
   return (
     <header className="todoapp__header">
-      {(allTodos?.length !== 0) && (
+      {allTodos?.length !== 0 && (
         <button
           data-cy="ToggleAllButton"
           type="button"
@@ -112,9 +108,7 @@ export const NewTodo: React.FC<Props> = (props) => {
           onClick={handleOnClickToggleAll}
         />
       ) }
-      <form
-        onSubmit={(e) => handleAddTodo(e)}
-      >
+      <form onSubmit={(e) => handleAddTodo(e)}>
         <input
           disabled={isLoading.length > 0}
           data-cy="NewTodoField"

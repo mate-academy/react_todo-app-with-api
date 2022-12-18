@@ -10,10 +10,6 @@ and implement the ability to toggle and rename todos.
 
 ## Toggling a todo status
 
-
-useContext add
-tel advices
-
 ✓ Toggle the `completed` status on `TodoStatus` change:
 
 ✓ covered the todo with a loader overlay while wating for API response;
