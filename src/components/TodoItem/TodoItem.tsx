@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/Loader';
