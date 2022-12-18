@@ -55,7 +55,7 @@ export const App: React.FC = () => {
         }
 
         if (todosFromServer && todosFromServer.some(todo => !todo.completed)) {
-          setToggleButton(false);
+          setToggleButton(true);
         }
       } catch {
         setError(ErrorType.NoTodos);
@@ -145,24 +145,6 @@ export const App: React.FC = () => {
       setTogglerLoader(true);
       const todosFromServer = user && await getTodos(user.id);
 
-      if (!toggleButton && todosFromServer) {
-        setToggleButton(true);
-
-        setTodos(todosFromServer.map(todo => ({
-          ...todo,
-          completed: false,
-        })));
-
-        setTogglerLoader(false);
-
-        todosFromServer.map(
-          todo => updateTodo(todo.id, ({
-            ...todo,
-            completed: false,
-          })),
-        );
-      }
-
       if (toggleButton && todosFromServer) {
         setToggleButton(false);
 
@@ -177,6 +159,24 @@ export const App: React.FC = () => {
           todo => updateTodo(todo.id, ({
             ...todo,
             completed: true,
+          })),
+        );
+      }
+
+      if (!toggleButton && todosFromServer) {
+        setToggleButton(true);
+
+        setTodos(todosFromServer.map(todo => ({
+          ...todo,
+          completed: false,
+        })));
+
+        setTogglerLoader(false);
+
+        todosFromServer.map(
+          todo => updateTodo(todo.id, ({
+            ...todo,
+            completed: false,
           })),
         );
       }
@@ -214,6 +214,7 @@ export const App: React.FC = () => {
           <Footer
             todos={todos}
             onTodosChange={setTodos}
+            onShowFooterChange={setShowFooter}
           />
         )}
       </div>

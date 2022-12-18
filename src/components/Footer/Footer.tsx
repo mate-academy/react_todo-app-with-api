@@ -7,6 +7,7 @@ import { AuthContext } from '../Auth/AuthContext';
 type Props = {
   todos: Todo[];
   onTodosChange: (value: Todo[]) => void;
+  onShowFooterChange: (value: boolean) => void;
 };
 
 enum SortBy {
@@ -25,34 +26,48 @@ export const Footer: React.FC<Props> = ({
 
   const user = useContext(AuthContext);
 
-  // to check if there are some completed todos
+  // // to check if there are some completed todos
+  // useEffect(() => {
+  //   const completedTodos = async () => {
+  //     const todosFromServer = user && await getTodos(user.id);
+
+  //     return todosFromServer
+  //       && todosFromServer.filter(todo => todo.completed).length > 0
+  //       ? setHasCompletedTodos(true)
+  //       : setHasCompletedTodos(false);
+  //   };
+
+  //   completedTodos();
+  // }, [activeTodos]);
+
+  // // to find active todos (bottom left corner)
+  // useEffect(() => {
+  //   const findActiveTodos = async () => {
+  //     const todosFromServer = user && await getTodos(user.id);
+
+  //     if (todosFromServer) {
+  //       const filteredTodos = todosFromServer
+  //         && todosFromServer.filter(todo => todo.completed === false);
+
+  //       setActiveTodos(filteredTodos);
+  //     }
+  //   };
+
+  //   findActiveTodos();
+  // }, [activeTodos]);
+
   useEffect(() => {
-    const completedTodos = async () => {
-      const todosFromServer = user && await getTodos(user.id);
+    const filteredTodos = todos.filter(todo => todo.completed === false);
 
-      return todosFromServer
-        && todosFromServer.filter(todo => todo.completed).length > 0
-        ? setHasCompletedTodos(true)
-        : setHasCompletedTodos(false);
-    };
+    setActiveTodos(filteredTodos);
 
-    completedTodos();
-  }, [activeTodos]);
+    if (todos.filter(todo => todo.completed).length > 0) {
+      setHasCompletedTodos(true);
+    }
 
-  // to find active todos (bottom left corner)
-  useEffect(() => {
-    const findActiveTodos = async () => {
-      const todosFromServer = user && await getTodos(user.id);
-
-      if (todosFromServer) {
-        const filteredTodos = todosFromServer
-          && todosFromServer.filter(todo => todo.completed === false);
-
-        setActiveTodos(filteredTodos);
-      }
-    };
-
-    findActiveTodos();
+    if (todos.filter(todo => todo.completed).length === 0) {
+      setHasCompletedTodos(false);
+    }
   }, [activeTodos]);
 
   const handleFilter = async (sortBy: SortBy) => {
@@ -82,11 +97,14 @@ export const Footer: React.FC<Props> = ({
     const onlyActiveTodos = todos.filter(todo => !todo.completed);
 
     onTodosChange(onlyActiveTodos);
-    setHasCompletedTodos(false);
 
-    return todosFromServer && todosFromServer.map(
-      todo => todo.completed === true && removeTodo(todo.id),
-    );
+    if (todosFromServer) {
+      todosFromServer.map(
+        todo => todo.completed === true && removeTodo(todo.id),
+      );
+    }
+
+    setHasCompletedTodos(false);
   };
 
   const { All, Active, Completed } = SortBy;
@@ -155,9 +173,8 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={() => handleClearCompleted()}
       >
-        {hasCompletedTodos && 'Clear complited'}
+        {hasCompletedTodos ? 'Clear complited' : ''}
 
-        {!hasCompletedTodos && ''}
       </button>
     </footer>
   );
