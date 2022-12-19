@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
 
@@ -6,6 +7,7 @@ import { NewTodoForm } from '../NewTodoForm/NewTodoForm';
 import { Todo } from '../../types/Todo';
 
 interface Props {
+  todos: Todo[];
   activeTodos: Todo[];
   title: string;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
@@ -15,6 +17,7 @@ interface Props {
 
 export const Header: React.FC<Props> = (props) => {
   const {
+    todos,
     activeTodos,
     title,
     setTitle,
@@ -24,18 +27,19 @@ export const Header: React.FC<Props> = (props) => {
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          {
-            active: activeTodos.length === 0,
-          },
-        )}
-        onClick={onToggle}
-      />
+      {todos.length > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            {
+              active: activeTodos.length === 0,
+            },
+          )}
+          onClick={onToggle}
+        />
+      )}
 
       <NewTodoForm
         title={title}

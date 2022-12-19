@@ -166,6 +166,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
           activeTodos={activeTodos}
           title={title}
           setTitle={setTitle}
