@@ -128,23 +128,35 @@ export const Todos: React.FC = React.memo(() => {
 
       setModifyingTodosId(current => [...current, ...modifiedTodosIds]);
 
+      const promisesToModify = async (modifier: Promise<Todo>) => {
+        const modifiedTodo = await modifier;
+
+        setTodos(current => current.map(curTodo => {
+          if (curTodo.id !== modifiedTodo.id) {
+            return curTodo;
+          }
+
+          return modifiedTodo;
+        }));
+
+        await setModifyingTodosId(
+          current => current.filter(curTodo => curTodo !== modifiedTodo.id),
+        );
+      };
+
       await Promise.all(modifiedTodos.map(todo => {
         if ('completed' in todo) {
-          return modifyTodo(todo.id, { completed: todo.completed });
+          promisesToModify(modifyTodo(todo.id, { completed: todo.completed }));
         }
 
         if ('title' in todo) {
-          return modifyTodo(todo.id, { title: todo.title });
+          promisesToModify(modifyTodo(todo.id, { title: todo.title }));
         }
 
         return [];
       }));
-
-      await loadTodos();
     } catch {
       setErrorMessage(ErrorType.Update);
-    } finally {
-      setModifyingTodosId([]);
     }
   };
 
