@@ -29,10 +29,7 @@ export const TodoList: React.FC<Props> = (props) => {
               timeout={300}
               classNames="item"
             >
-              <TodoInfo
-                todo={todo}
-                isLoading={isLoading}
-              />
+              <TodoInfo todo={todo} isLoading={isLoading} />
             </CSSTransition>
           ))}
           {isLoading.includes(0) && (

@@ -2,6 +2,8 @@ import classNames from 'classnames';
 import {
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
@@ -35,6 +37,18 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const setIsLoading = useContext(setIsLoadingContext);
   const { setErrorWithTimer, loadUserTodos } = useContext(functonsContext);
 
+  const editTodoField = useRef<HTMLInputElement>(null);
+
+  const onFocusing = () => {
+    if (editTodoField.current) {
+      editTodoField.current.focus();
+    }
+  };
+
+  useEffect(() => {
+    onFocusing();
+  }, [isEditing]);
+
   const handleSuccessfulEdit = useCallback((async () => {
     setIsLoading([todo.id]);
     if (!newTitle && user) {
@@ -44,19 +58,17 @@ export const TodoInfo: React.FC<Props> = (props) => {
           setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading([]);
     } else if (newTitle !== todo.title && user) {
       setIsLoading([todo.id]);
       await updateTodo(todo.id, { title: newTitle })
         .catch(() => {
           setErrorWithTimer(ErrorStatus.UpdateError);
-          setIsLoading([]);
         });
       await loadUserTodos();
-      setIsLoading([]);
     }
 
     setIsEditing(false);
+    setIsLoading([]);
   }), [newTitle, todo, user]);
 
   const handlePressEsc = useCallback(
@@ -123,12 +135,15 @@ export const TodoInfo: React.FC<Props> = (props) => {
               }}
             >
               <input
+                ref={editTodoField}
                 data-cy="TodoTitleField"
                 type="text"
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
                 value={newTitle}
-                onBlur={handleSuccessfulEdit}
+                onBlur={() => {
+                  handleSuccessfulEdit();
+                }}
                 onChange={event => setNewTitle(event.target.value)}
                 onKeyDown={handlePressEsc}
               />
