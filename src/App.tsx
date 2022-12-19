@@ -2,7 +2,6 @@
 import React, {
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -23,7 +22,6 @@ import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [notification, setNotification]
@@ -33,22 +31,12 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [activeTodosIds, setActiveTodosIds] = useState<number[]>([]);
 
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [title]);
-
   const fetchTodos = async () => {
     if (user) {
       try {
         setTodos(await getTodos(user.id));
       } catch (error) {
         setNotification(Notifications.Load);
-
-        setTimeout(() => {
-          setNotification(Notifications.None);
-        }, 3000);
       }
     }
   };
@@ -92,10 +80,6 @@ export const App: React.FC = () => {
         setNotification(Notifications.Add);
         setTitle('');
         setIsAdding(false);
-
-        setTimeout(() => {
-          setNotification(Notifications.None);
-        }, 3000);
       }
 
       setActiveTodosIds(todosIds => todosIds.filter(
@@ -111,10 +95,6 @@ export const App: React.FC = () => {
       await deleteTodo(id);
     } catch (error) {
       setNotification(Notifications.Delete);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
     }
 
     setActiveTodosIds(todosIds => todosIds.filter(todosId => todosId === id));
@@ -131,10 +111,6 @@ export const App: React.FC = () => {
       }));
     } catch (error) {
       setNotification(Notifications.Delete);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
     }
 
     setActiveTodosIds([]);
@@ -153,10 +129,6 @@ export const App: React.FC = () => {
     } catch (error) {
       setNotification(Notifications.Update);
       isLoading(false);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
     }
 
     isLoading(false);
@@ -184,10 +156,6 @@ export const App: React.FC = () => {
     } catch {
       setNotification(Notifications.Update);
       setActiveTodosIds([]);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
     }
   };
 
@@ -199,7 +167,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {!!filteredTodos.length && (
+          {filteredTodos.length > 0 && (
             <button
               data-cy="ToggleAllButton"
               type="button"
@@ -211,7 +179,6 @@ export const App: React.FC = () => {
             />
           )}
           <NewTodo
-            newTodoField={newTodoField}
             title={title}
             setTitle={setTitle}
             addNewTodo={addNewTodo}
@@ -220,7 +187,7 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {!!todos.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={filteredTodos}
@@ -244,7 +211,7 @@ export const App: React.FC = () => {
       {notification && (
         <ErrorNotification
           notification={notification}
-          resetNotification={() => setNotification(Notifications.None)}
+          setNotification={setNotification}
         />
       )}
     </div>

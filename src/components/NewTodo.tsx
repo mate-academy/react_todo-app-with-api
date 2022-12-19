@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Notifications } from '../types/Notifications';
 
 interface Props {
-  newTodoField: React.RefObject<HTMLInputElement>,
   title: string,
   setTitle: (title: string) => void,
   addNewTodo: (title: string) => void,
@@ -11,22 +10,25 @@ interface Props {
 }
 
 export const NewTodo:React.FC<Props> = ({
-  newTodoField,
   title,
   setTitle,
   addNewTodo,
   setNotification,
   isAdding,
 }) => {
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [title]);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!title.trim()) {
       setNotification(Notifications.TitleError);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
 
       return;
     }

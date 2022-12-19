@@ -59,10 +59,6 @@ export const TodoInfo: React.FC<Props> = ({
       }
     } catch {
       setNotification(Notifications.Update);
-
-      setTimeout(() => {
-        setNotification(Notifications.None);
-      }, 3000);
     }
 
     setIsUpdating(false);
