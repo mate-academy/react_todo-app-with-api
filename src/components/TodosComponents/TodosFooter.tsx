@@ -18,23 +18,11 @@ export const TodosFooter: React.FC<Props> = ({
 }) => {
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
-  const activeStatus = todos.every(todo => todo.completed);
-  const completedStatus = todos.every(todo => !todo.completed);
-
-  let finalItemsCount = `${todos.length - completedTodos.length} items left`;
-
-  if (activeStatus && todoFilter !== FilterValues.ALL) {
-    finalItemsCount = `${completedTodos.length} items left`;
-  }
-
-  if (completedStatus) {
-    finalItemsCount = `${activeTodos.length} items left`;
-  }
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {finalItemsCount}
+        {activeTodos.length}
       </span>
 
       <nav className="filter" data-cy="Filter">

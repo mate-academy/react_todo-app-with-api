@@ -1,54 +1,83 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo,
   isAdding?: boolean,
-  todoCurrentId?: number,
-  DeletingTodo?: (id: number) => void,
-  onTodoCurrentId?: (currId: number) => void,
+  deletingTodo?: (id: number) => void,
   idsForLoader: number[],
-  changeCompleteStatus?: (id: number, changes: Partial<Todo>) => void,
+  changeTodo: (id: number, changes: Partial<Todo>) => void,
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todos,
   isAdding,
-  DeletingTodo,
-  todoCurrentId,
-  onTodoCurrentId,
+  deletingTodo,
   idsForLoader,
-  changeCompleteStatus,
+  changeTodo,
 }) => {
   const { title, id, completed } = todos;
 
-  const [isDeliting, setIsDeliting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isFormExist, setIsFormExist] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
-  const handlerDeleteButton = async () => {
-    if (DeletingTodo) {
-      setIsDeliting(true);
+  const TodoField = useRef<HTMLInputElement>(null);
+  const LoaderCondition = isAdding || isDeleting || idsForLoader.includes(id);
 
-      await DeletingTodo(id);
+  useEffect(() => {
+    if (TodoField.current) {
+      TodoField.current.focus();
+    }
+  }, [isFormExist]);
 
-      setIsDeliting(false);
+  const handleTodoRemoval = async () => {
+    if (deletingTodo) {
+      setIsDeleting(true);
+
+      await deletingTodo(id);
+
+      setIsDeleting(false);
     }
   };
 
   const handlerForUpdatingTodo = async () => {
-    if (changeCompleteStatus) {
-      setIsDeliting(true);
+    if (changeTodo) {
+      setIsDeleting(true);
 
       if (!completed) {
-        await changeCompleteStatus(id, { completed: true });
+        await changeTodo(id, { completed: true });
       } else {
-        await changeCompleteStatus(id, { completed: false });
+        await changeTodo(id, { completed: false });
       }
 
-      setIsDeliting(false);
+      setIsDeleting(false);
     }
   };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (newTitle.trim() === '') {
+      handleTodoRemoval();
+    }
+
+    if (newTitle !== title) {
+      setIsDeleting(true);
+      setIsFormExist(false);
+      await changeTodo(id, { title: newTitle });
+      setIsDeleting(false);
+    }
+
+    setIsFormExist(false);
+  };
+
+  document.addEventListener('keyup', (event) => {
+    if (event.key === 'Escape') {
+      TodoField.current?.blur();
+    }
+  });
 
   return (
     <div
@@ -65,23 +94,54 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
         />
       </label>
-      <span data-cy="TodoTitle" className="todo__title">{title}</span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={handlerDeleteButton}
-      >
-        ×
-      </button>
+      {isFormExist
+        ? (
+          <form onSubmit={handleSubmit}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              ref={TodoField}
+              onBlur={handleSubmit}
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={(event) => {
+                setNewTitle(event.target.value);
+              }}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              onClickCapture={(event) => {
+                if (event.detail === 2) {
+                  setIsFormExist(true);
+                }
+              }}
+              data-cy="TodoTitle"
+              className="todo__title"
+            >
+              {title}
+            </span>
 
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={handleTodoRemoval}
+            >
+              ×
+            </button>
+          </>
+        )}
       <div
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay',
           {
-            'is-active': isAdding || isDeliting || idsForLoader.includes(id),
+            'is-active': LoaderCondition,
           },
         )}
       >

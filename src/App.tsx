@@ -32,7 +32,6 @@ export const App: React.FC = () => {
 
   const [query, setQuery] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [todoCurrentId, setTodoCurrentId] = useState(-1);
 
   const [idsForLoader, setIdsForLoader] = useState<number[]>([]);
 
@@ -59,10 +58,6 @@ export const App: React.FC = () => {
 
   const setterErrorStatus = (errStatus: boolean) => {
     setErrorStatus(errStatus);
-  };
-
-  const setterCurrentId = (currId: number) => {
-    setTodoCurrentId(currId);
   };
 
   const setterOfQuery = (settedQuery: string) => {
@@ -122,20 +117,49 @@ export const App: React.FC = () => {
 
       await Promise.all(completedTodos.map(todo => deletingTodo(todo.id)));
 
-      await reloadTodos();
-
       setIdsForLoader([]);
     } catch (error) {
       getErrorStatus(ErrorValues.DELETE);
     }
   };
 
-  const changeCompleteStatus = async (id: number, changes: Partial<Todo>) => {
+  const changeTodo = async (id: number, changes: Partial<Todo>) => {
     try {
       await updatingTodo(id, changes);
       await reloadTodos();
     } catch (error) {
       getErrorStatus(ErrorValues.UPDATE);
+    }
+  };
+
+  const changeAllTodosStatus = async () => {
+    try {
+      const todosToFalse = todos.filter(todo => todo.completed === false);
+
+      if (todosToFalse.length > 0) {
+        setIdsForLoader(todosToFalse
+          .map(change => change.id));
+
+        await Promise.all(todosToFalse
+          .map(todo => updatingTodo(todo.id, { completed: true })));
+
+        await reloadTodos();
+
+        setIdsForLoader([]);
+      } else {
+        setIdsForLoader(todos
+          .map(change => change.id));
+
+        await Promise.all(todos
+          .map(todo => updatingTodo(todo.id, { completed: false })));
+
+        await reloadTodos();
+
+        setIdsForLoader([]);
+      }
+    } catch (error) {
+      getErrorStatus(ErrorValues.UPDATE);
+      setIdsForLoader([]);
     }
   };
 
@@ -176,9 +200,11 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodosHeader
+          todos={todos}
           newTodoField={newTodoField}
           query={query}
           isAdding={isAdding}
+          changeAllTodosStatus={changeAllTodosStatus}
           AddingTodos={addingTodos}
           getErrorStatus={getErrorStatus}
           onSetterOfQuery={setterOfQuery}
@@ -193,15 +219,13 @@ export const App: React.FC = () => {
                 query={query}
                 isAdding={isAdding}
                 DeletingTodo={deletingTodo}
-                todoCurrentId={todoCurrentId}
-                onTodoCurrentId={setterCurrentId}
                 idsForLoader={idsForLoader}
-                changeCompleteStatus={changeCompleteStatus}
+                changeTodo={changeTodo}
               />
             </section>
 
             <TodosFooter
-              todos={visibleTodos}
+              todos={todos}
               todoFilter={todoFilter}
               onFilterByCompleted={setFilterStatus}
               deleteAllCompleted={deleteAllCompleted}

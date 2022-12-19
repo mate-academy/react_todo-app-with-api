@@ -8,11 +8,9 @@ type Props = {
   query: string,
   isAdding: boolean,
   user: User,
-  todoCurrentId: number,
   DeletingTodo: (id: number) => void,
-  onTodoCurrentId: (currId: number) => void,
   idsForLoader: number[];
-  changeCompleteStatus: (id: number, changes: Partial<Todo>) => void,
+  changeTodo: (id: number, changes: Partial<Todo>) => void,
 };
 
 export const TodosList: React.FC<Props> = ({
@@ -20,11 +18,9 @@ export const TodosList: React.FC<Props> = ({
   isAdding,
   query,
   user,
-  todoCurrentId,
   DeletingTodo,
-  onTodoCurrentId,
   idsForLoader,
-  changeCompleteStatus,
+  changeTodo,
 }) => {
   return (
     <>
@@ -32,11 +28,9 @@ export const TodosList: React.FC<Props> = ({
         <TodoInfo
           key={todo.id}
           todos={todo}
-          DeletingTodo={DeletingTodo}
-          onTodoCurrentId={onTodoCurrentId}
-          todoCurrentId={todoCurrentId}
+          deletingTodo={DeletingTodo}
           idsForLoader={idsForLoader}
-          changeCompleteStatus={changeCompleteStatus}
+          changeTodo={changeTodo}
         />
       ))}
 
@@ -52,6 +46,7 @@ export const TodosList: React.FC<Props> = ({
           }
           isAdding={isAdding}
           idsForLoader={idsForLoader}
+          changeTodo={changeTodo}
         />
       )}
     </>

@@ -1,23 +1,29 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import classNames from 'classnames';
 import React, { useEffect } from 'react';
 import { ErrorValues } from '../../types/ErrorValues';
+import { Todo } from '../../types/Todo';
 
 type Props = {
+  todos: Todo[],
   newTodoField: React.RefObject<HTMLInputElement>,
   query: string,
   isAdding: boolean,
   getErrorStatus: (errStatus: ErrorValues) => void,
   onSetterOfQuery: (settedQuery: string) => void,
   AddingTodos: () => void,
+  changeAllTodosStatus: () => void,
 };
 
 export const TodosHeader: React.FC<Props> = ({
+  todos,
   newTodoField,
   query,
   isAdding,
   getErrorStatus,
   onSetterOfQuery,
   AddingTodos,
+  changeAllTodosStatus,
 }) => {
   useEffect(() => {
     if (newTodoField.current && !isAdding) {
@@ -35,14 +41,19 @@ export const TodosHeader: React.FC<Props> = ({
     }
   };
 
+  const active = todos.every(todo => todo.completed);
+
   return (
     <>
       <header className="todoapp__header">
-        <button
-          data-cy="ToggleAllButton"
-          type="button"
-          className="todoapp__toggle-all active"
-        />
+        {todos.length > 0 && (
+          <button
+            data-cy="ToggleAllButton"
+            type="button"
+            className={classNames('todoapp__toggle-all', { active })}
+            onClick={changeAllTodosStatus}
+          />
+        )}
 
         <form
           onSubmit={SubmitForm}
