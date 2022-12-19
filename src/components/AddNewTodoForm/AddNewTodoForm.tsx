@@ -37,11 +37,11 @@ export const AddNewTodoForm: React.FC<Props> = React.memo(({
 
       const userId = user?.id;
 
-      if (title.trim().length === 0) {
+      if (!title.trim().length) {
         setErrorText(ErrorText.Title);
       }
 
-      if (!userId || title.trim().length === 0) {
+      if (!userId || !title.trim().length) {
         return;
       }
 
