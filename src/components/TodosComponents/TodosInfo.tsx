@@ -32,6 +32,20 @@ export const TodoInfo: React.FC<Props> = ({
     }
   }, [isFormExist]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        TodoField.current?.blur();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const handleTodoRemoval = async () => {
     if (deletingTodo) {
       setIsDeleting(true);
@@ -72,12 +86,6 @@ export const TodoInfo: React.FC<Props> = ({
 
     setIsFormExist(false);
   };
-
-  document.addEventListener('keyup', (event) => {
-    if (event.key === 'Escape') {
-      TodoField.current?.blur();
-    }
-  });
 
   return (
     <div
