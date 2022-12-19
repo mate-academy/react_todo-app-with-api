@@ -79,11 +79,11 @@ export const NewTodo: React.FC<Props> = (props) => {
 
   const handleAddTodo = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (currentInput === '') {
+    if (currentInput.trim() === '') {
       setErrorWithTimer(ErrorStatus.EmptyTitle);
     }
 
-    if (user && currentInput.length > 0) {
+    if (user && currentInput.trim().length > 0) {
       setIsLoading([0]);
       await addTodo(newTodo)
         .catch(() => {
