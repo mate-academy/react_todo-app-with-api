@@ -209,9 +209,10 @@ export const App: React.FC = () => {
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className={classNames('todoapp__toggle-all', {
-                active: !activeTodos.length,
-              })}
+              className={classNames('todoapp__toggle-all',
+                {
+                  active: !activeTodos.length,
+                })}
               onClick={handleSetAllCompleted}
             />
           )}

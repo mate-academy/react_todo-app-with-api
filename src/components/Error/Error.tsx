@@ -17,12 +17,15 @@ export const Error: React.FC<Props> = ({ error, onErrorChange }) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={classNames('notification',
+      className={classNames(
+        'notification',
         'is-danger',
         'is-light',
-        'has-text-weight-normal', {
+        'has-text-weight-normal',
+        {
           hidden: error === ErrorNotification.None,
-        })}
+        },
+      )}
     >
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
