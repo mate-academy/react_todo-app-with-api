@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -19,6 +24,13 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [isChanging, setIsChanging] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const newTodoTitle = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoTitle.current) {
+      newTodoTitle.current.focus();
+    }
+  });
 
   const handleTitleEdit = useCallback(() => {
     onChangeTitle(todo, newTitle);
@@ -66,6 +78,7 @@ export const TodoItem: React.FC<Props> = ({
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
+              ref={newTodoTitle}
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
               onBlur={handleTitleEdit}
