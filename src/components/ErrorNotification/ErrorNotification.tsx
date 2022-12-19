@@ -1,26 +1,25 @@
 import React, { useEffect } from 'react';
+import { ErrorText } from '../../types/ErrorText';
 
 interface Props {
-  isError: boolean,
   errorText: string,
-  onSetIsError: (isError: boolean) => void,
+  onSetErrorText: (Error: ErrorText) => void,
 }
 export const ErrorNotification: React.FC<Props> = React.memo(({
-  isError,
-  onSetIsError,
+  onSetErrorText,
   errorText,
 }) => {
   let timer: NodeJS.Timer;
 
   useEffect(() => {
-    if (isError) {
-      timer = setTimeout(() => onSetIsError(false), 3000);
+    if (errorText !== ErrorText.None) {
+      timer = setTimeout(() => onSetErrorText(ErrorText.None), 3000);
     }
-  }, [isError]);
+  }, [errorText]);
 
   return (
     <div
-      hidden={!isError}
+      hidden={errorText === ErrorText.None}
       data-cy="ErrorNotification"
       className="notification is-danger is-light has-text-weight-normal"
     >
@@ -30,7 +29,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
         type="button"
         className="delete"
         onClick={() => {
-          onSetIsError(false);
+          onSetErrorText(ErrorText.None);
           clearTimeout(timer);
         }}
       />

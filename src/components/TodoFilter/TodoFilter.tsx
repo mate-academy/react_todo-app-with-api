@@ -1,15 +1,11 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StatusToFilter } from '../../types/StatusToFilter';
+import { FilterContext } from './FilterContext';
 
-interface Props {
-  filterStatus: string,
-  onFilterStatusChange: (newStatus: StatusToFilter) => void,
-}
+export const TodoFilter: React.FC = React.memo(() => {
+  const { filterStatus, setFilterStatus } = useContext(FilterContext);
 
-export const TodoFilter: React.FC<Props> = React.memo(({
-  filterStatus, onFilterStatusChange,
-}) => {
   return (
     <nav className="filter" data-cy="Filter">
       <a
@@ -19,7 +15,7 @@ export const TodoFilter: React.FC<Props> = React.memo(({
           'filter__link',
           { selected: filterStatus === StatusToFilter.All },
         )}
-        onClick={() => onFilterStatusChange(StatusToFilter.All)}
+        onClick={() => setFilterStatus(StatusToFilter.All)}
       >
         {StatusToFilter.All}
       </a>
@@ -31,7 +27,7 @@ export const TodoFilter: React.FC<Props> = React.memo(({
           'filter__link',
           { selected: filterStatus === StatusToFilter.Active },
         )}
-        onClick={() => onFilterStatusChange(StatusToFilter.Active)}
+        onClick={() => setFilterStatus(StatusToFilter.Active)}
       >
         {StatusToFilter.Active}
       </a>
@@ -42,7 +38,7 @@ export const TodoFilter: React.FC<Props> = React.memo(({
           'filter__link',
           { selected: filterStatus === StatusToFilter.Completed },
         )}
-        onClick={() => onFilterStatusChange(StatusToFilter.Completed)}
+        onClick={() => setFilterStatus(StatusToFilter.Completed)}
       >
         {StatusToFilter.Completed}
       </a>

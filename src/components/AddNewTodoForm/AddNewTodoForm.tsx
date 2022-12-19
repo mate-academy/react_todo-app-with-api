@@ -1,30 +1,31 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
+import { ErrorText } from '../../types/ErrorText';
 import { Todo } from '../../types/Todo';
-import { User } from '../../types/User';
+import { AuthContext } from '../Auth/AuthContext';
+import { AddNewTodoFormContext } from './AddNewTodoFormContext';
 
 interface Props {
-  user: User | null,
-  title: string,
-  onSetTitle: (newTitle: string) => void,
   onTodoAdd: (todoData: Omit<Todo, 'id'>) => void;
-  onSetIsError: (newStatus: boolean) => void;
-  onSetErrorText: (newText: string) => void;
-  isAdding: boolean;
 }
 
 export const AddNewTodoForm: React.FC<Props> = React.memo(({
-  user,
-  title,
-  onSetTitle,
   onTodoAdd,
-  onSetErrorText,
-  onSetIsError,
-  isAdding,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
+  const user = useContext(AuthContext);
+  const {
+    title,
+    setTitle,
+    setErrorText,
+    isAdding,
+  } = useContext(AddNewTodoFormContext);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -37,8 +38,7 @@ export const AddNewTodoForm: React.FC<Props> = React.memo(({
       const userId = user?.id;
 
       if (title.trim().length === 0) {
-        onSetErrorText("Title can't be empty");
-        onSetIsError(true);
+        setErrorText(ErrorText.Title);
       }
 
       if (!userId || title.trim().length === 0) {
@@ -51,7 +51,7 @@ export const AddNewTodoForm: React.FC<Props> = React.memo(({
         completed: false,
       });
 
-      onSetTitle('');
+      setTitle('');
     }, [title],
   );
 
@@ -65,7 +65,7 @@ export const AddNewTodoForm: React.FC<Props> = React.memo(({
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={title}
-        onChange={event => onSetTitle(event.target.value)}
+        onChange={event => setTitle(event.target.value)}
       />
     </form>
   );

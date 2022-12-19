@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
@@ -19,30 +18,34 @@ import { HeaderTodo } from './components/HeaderTodo';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { StatusToFilter } from './types/StatusToFilter';
+import { FilterContext } from './components/TodoFilter/FilterContext';
+import {
+  AddNewTodoFormContext,
+} from './components/AddNewTodoForm/AddNewTodoFormContext';
+import { ErrorText } from './types/ErrorText';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
+  const { filterStatus } = useContext(FilterContext);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterStatus, setFilterStatus] = useState(StatusToFilter.All);
-  const [isError, setIsError] = useState(false);
-  const [title, setTitle] = useState('');
-  const [errorText, setErrorText] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  const {
+    title,
+    errorText,
+    setErrorText,
+    isAdding,
+    setIsAdding,
+  } = useContext(AddNewTodoFormContext);
   const [todoIdsToDelete, setTodoIdsToDelete] = useState<number[]>([0]);
   const [todoIdsToUpdate, setTodoIdsToUpdate] = useState<number[]>([0]);
 
   const getUserTodos = useCallback(async () => {
     if (user) {
       try {
-        setIsError(false);
+        setErrorText(ErrorText.None);
 
-        const todosFromServer = await getTodos(user.id);
-
-        setTodos(todosFromServer);
+        setTodos(await getTodos(user.id));
       } catch (error) {
-        setErrorText('Unable to connect to server');
-        setIsError(true);
+        setErrorText(ErrorText.Connect);
       }
     }
   }, []);
@@ -65,7 +68,7 @@ export const App: React.FC = () => {
 
   const addNewTodo = useCallback(async (todoData: Omit<Todo, 'id'>) => {
     try {
-      setIsError(false);
+      setErrorText(ErrorText.None);
       setIsAdding(true);
 
       const newTodo = {
@@ -79,14 +82,13 @@ export const App: React.FC = () => {
 
       setIsAdding(false);
     } catch (error) {
-      setErrorText('Unable to add Todo');
-      setIsError(true);
+      setErrorText(ErrorText.Add);
     }
   }, []);
 
   const deleteCurrentTodo = useCallback(async (todoId: number) => {
     try {
-      setIsError(false);
+      setErrorText(ErrorText.None);
 
       setTodoIdsToDelete(prevTodoIds => [...prevTodoIds, todoId]);
 
@@ -96,22 +98,21 @@ export const App: React.FC = () => {
 
       setTodoIdsToDelete([0]);
     } catch (error) {
-      setErrorText('Unable to delete Todo');
-      setIsError(true);
+      setErrorText(ErrorText.Delete);
     }
   }, []);
 
   const clearAllCompletedTodos = useCallback(async () => {
-    setIsError(false);
+    setErrorText(ErrorText.None);
 
     const completedTodos = todos.filter(todo => todo.completed);
 
     setTodoIdsToDelete(prevTodoIds => (
       [...prevTodoIds, ...completedTodos.map(todo => todo.id)]));
 
-    await Promise.all(completedTodos.map(async (todo) => {
-      await deleteCurrentTodo(todo.id);
-    }));
+    completedTodos.forEach(todo => {
+      deleteCurrentTodo(todo.id);
+    });
 
     await getUserTodos();
   }, [todos]);
@@ -119,7 +120,7 @@ export const App: React.FC = () => {
   const updatingTodoTitle = useCallback(
     async (todoId: number, newTitle: string) => {
       try {
-        setIsError(false);
+        setErrorText(ErrorText.None);
 
         setTodoIdsToUpdate(prevTodoIds => [...prevTodoIds, todoId]);
 
@@ -129,8 +130,7 @@ export const App: React.FC = () => {
 
         setTodoIdsToUpdate([0]);
       } catch (error) {
-        setErrorText('Unable to update Todo');
-        setIsError(true);
+        setErrorText(ErrorText.Update);
       }
     }, [],
   );
@@ -138,7 +138,7 @@ export const App: React.FC = () => {
   const updatingTodoStatus = useCallback(
     async (todoId: number, completed: boolean) => {
       try {
-        setIsError(false);
+        setErrorText(ErrorText.None);
 
         setTodoIdsToUpdate(prevTodoIds => [...prevTodoIds, todoId]);
 
@@ -148,14 +148,13 @@ export const App: React.FC = () => {
 
         setTodoIdsToUpdate([0]);
       } catch (error) {
-        setErrorText('Unable to update Todo');
-        setIsError(true);
+        setErrorText(ErrorText.Update);
       }
     }, [],
   );
 
   const setAllTodosToComplete = useCallback(async () => {
-    setIsError(false);
+    setErrorText(ErrorText.None);
 
     const todosToChange = todos.some(todo => !todo.completed)
       ? todos.filter(todo => !todo.completed)
@@ -164,9 +163,9 @@ export const App: React.FC = () => {
     setTodoIdsToUpdate(prevTodoIds => (
       [...prevTodoIds, ...todosToChange.map(todo => todo.id)]));
 
-    await Promise.all(todosToChange.map(async (todo) => {
-      await updatingTodoStatus(todo.id, !todo.completed);
-    }));
+    todosToChange.forEach(todo => {
+      updatingTodoStatus(todo.id, !todo.completed);
+    });
 
     await getUserTodos();
   }, [todos]);
@@ -183,12 +182,6 @@ export const App: React.FC = () => {
         <HeaderTodo
           todos={todos}
           onTodoAdd={addNewTodo}
-          user={user}
-          title={title}
-          onSetTitle={setTitle}
-          onSetIsError={setIsError}
-          onSetErrorText={setErrorText}
-          isAdding={isAdding}
           onSetAllTodosToComplete={setAllTodosToComplete}
         />
 
@@ -205,8 +198,6 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <FooterTodo
-            onFilterStatusChange={setFilterStatus}
-            filterStatus={filterStatus}
             onClearAllCompletedTodos={clearAllCompletedTodos}
             todos={todos}
           />
@@ -215,8 +206,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         errorText={errorText}
-        isError={isError}
-        onSetIsError={setIsError}
+        onSetErrorText={setErrorText}
       />
     </div>
   );
