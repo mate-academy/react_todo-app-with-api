@@ -6,10 +6,18 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { AuthProvider } from './components/Auth/AuthContext';
+import { FilterProvider } from './components/TodoFilter/FilterContext';
+import {
+  AddNewTodoFormProvider,
+} from './components/AddNewTodoForm/AddNewTodoFormContext';
 
 const Root = () => (
   <AuthProvider>
-    <App />
+    <FilterProvider>
+      <AddNewTodoFormProvider>
+        <App />
+      </AddNewTodoFormProvider>
+    </FilterProvider>
   </AuthProvider>
 );
 
