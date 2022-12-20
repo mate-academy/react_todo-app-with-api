@@ -194,7 +194,7 @@ export const App: React.FC = () => {
             </span>
 
             <TodoFilter
-              filtredBy={filtredBy}
+              filteredBy={filtredBy}
               onOptionChange={setFiltredBy}
             />
             <button

@@ -23,13 +23,13 @@ export const UpdateTodoForm: React.FC<Props> = ({
 }) => {
   const { isAdding, setError } = useContext(ProcessedContext);
   const { id, title } = todo;
-  const TodoTitleField = useRef<HTMLInputElement>(null);
+  const todoTitleField = useRef<HTMLInputElement>(null);
   const [updatedTodoTitle, setUpdatedTodoTitle] = useState(title);
   const trimmedTitle = updatedTodoTitle.trim();
 
   useEffect(() => {
-    if (TodoTitleField.current) {
-      TodoTitleField.current.focus();
+    if (todoTitleField.current) {
+      todoTitleField.current.focus();
     }
   }, []);
 
@@ -61,7 +61,7 @@ export const UpdateTodoForm: React.FC<Props> = ({
       <input
         data-cy="TodoTitleField"
         type="text"
-        ref={TodoTitleField}
+        ref={todoTitleField}
         className="todo__title-field"
         placeholder="Empty todo will be deleted"
         value={updatedTodoTitle}
