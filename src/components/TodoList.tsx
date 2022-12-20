@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
-import { useState } from 'react';
+import { ErrorTypes } from '../types/ErrorTypes';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
 import { TodoInfo } from './TodoInfo';
@@ -14,6 +13,7 @@ type Props = {
   addTodoToLoadingList: (idToAdd: number) => void,
   deleteTodoOfLoadingList: (idToAdd: number) => void,
   loadingList: number[],
+  errorInfo: (errorTitle: ErrorTypes) => void,
 };
 
 export const TodoList: React.FC<Props> = (
@@ -26,11 +26,9 @@ export const TodoList: React.FC<Props> = (
     addTodoToLoadingList,
     deleteTodoOfLoadingList,
     loadingList,
+    errorInfo,
   },
 ) => {
-  const [deleteTodoError, setDeleteTodoError] = useState(false);
-  const [updateTodoError, setUpdateTodoError] = useState(false);
-
   const previewTodo: Todo = {
     id: 0,
     userId: user?.id || 0,
@@ -40,49 +38,12 @@ export const TodoList: React.FC<Props> = (
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {deleteTodoError && (
-        <div
-          className={classNames(
-            'notification', 'is-danger', 'is-light', 'none-visible', {
-              hidden: !deleteTodoError,
-            },
-          )}
-        >
-          <span>Unable to delete a todo</span>
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setDeleteTodoError(false)}
-          />
-        </div>
-      )}
-
-      {updateTodoError && (
-        <div
-          className={classNames(
-            'notification', 'is-danger', 'is-light', 'none-visible', {
-              hidden: !updateTodoError,
-            },
-          )}
-        >
-          <span>Unable to update a todo</span>
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setUpdateTodoError(false)}
-          />
-        </div>
-      )}
-
       {visibleTodos.map(todo => (
         <TodoInfo
           key={todo.id}
           todo={todo}
           loadTodos={loadTodos}
-          onSetDeleteTodoError={(isError) => setDeleteTodoError(isError)}
-          onSetUpdateTodoError={(isError) => setUpdateTodoError(isError)}
+          errorInfo={errorInfo}
           addTodoToLoadingList={addTodoToLoadingList}
           deleteTodoOfLoadingList={deleteTodoOfLoadingList}
           loadingList={loadingList}

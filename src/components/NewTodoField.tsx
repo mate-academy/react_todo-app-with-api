@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 type Props = {
   title: string,
   changeTitle: (value: string) => void,
-  onSetTitleError?: (isError: boolean) => void,
+  onSetTitleError?: () => void,
   isAdding?: boolean,
   onSetIsEditing?: (isEdit: boolean) => void,
   onSubmit: () => void,
@@ -27,12 +27,6 @@ export const NewTodoField: React.FC<Props> = (
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
-
-      newTodoField.current.addEventListener('keydown', (event) => {
-        if (event.code === 'Escape' && onSetIsEditing) {
-          onSetIsEditing(false);
-        }
-      });
     }
   }, []);
 
@@ -51,10 +45,23 @@ export const NewTodoField: React.FC<Props> = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (onSetTitleError) {
-      onSetTitleError(false);
+      onSetTitleError();
     }
 
     changeTitle(event.target.value);
+  };
+
+  const onEscapeClick = useCallback((event: React.KeyboardEvent) => {
+    if (event.code === 'Escape' && onSetIsEditing) {
+      onSetIsEditing(false);
+      changeTitle(title);
+    }
+  }, []);
+
+  const onBlur = () => {
+    if (onSetIsEditing) {
+      onSubmit();
+    }
   };
 
   return (
@@ -68,15 +75,14 @@ export const NewTodoField: React.FC<Props> = (
         className={classNames('todoapp__new-todo', {
           'todoapp__update-todo-title': onSetIsEditing,
         })}
-        placeholder="What needs to be done?"
+        placeholder={onSetIsEditing
+          ? 'Empty todo will be deleted'
+          : 'What needs to be done?'}
         value={title}
         onChange={handleChangeTitle}
         disabled={isAdding}
-        onBlur={() => {
-          if (onSetIsEditing) {
-            onSubmit();
-          }
-        }}
+        onKeyDown={onEscapeClick}
+        onBlur={onBlur}
       />
     </form>
   );

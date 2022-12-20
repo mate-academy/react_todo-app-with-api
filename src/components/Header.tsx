@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import { useState } from 'react';
 import { createTodo, updateTodo } from '../api/todos';
+import { ErrorTypes } from '../types/ErrorTypes';
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
 import { NewTodoField } from './NewTodoField';
@@ -11,7 +11,7 @@ type Props = {
   titleToAdd: string,
   changeTitle: (value: string) => void,
   onSetTodo: (newTodo: Todo) => void,
-  onSetTitleError: (isError: boolean) => void,
+  errorInfo: (errorTitle: ErrorTypes) => void,
   onSetIsAdding: (isLoading: boolean) => void,
   isAdding: boolean,
   completedTodos: Todo[],
@@ -20,6 +20,7 @@ type Props = {
   loadTodos: () => void,
   addTodoToLoadingList: (idToAdd: number) => void,
   clearLoadingList: () => void,
+  clearErrorMessage: () => void,
 };
 
 export const Header: React.FC<Props> = (
@@ -28,7 +29,7 @@ export const Header: React.FC<Props> = (
     titleToAdd,
     changeTitle,
     onSetTodo,
-    onSetTitleError,
+    errorInfo,
     onSetIsAdding,
     isAdding,
     completedTodos,
@@ -37,21 +38,18 @@ export const Header: React.FC<Props> = (
     loadTodos,
     addTodoToLoadingList,
     clearLoadingList,
+    clearErrorMessage,
   },
 ) => {
-  const [addTodoError, setAddTodoError] = useState(false);
-
-  const addNewTodo = async () => {
-    onSetTitleError(false);
-    setAddTodoError(false);
+  const handleSubmit = async () => {
+    clearErrorMessage();
 
     if (!user) {
       return;
     }
 
     if (titleToAdd.trim().length === 0) {
-      onSetTitleError(true);
-      setTimeout(() => onSetTitleError(false), 3000);
+      errorInfo(ErrorTypes.TITLE);
 
       return;
     }
@@ -64,11 +62,8 @@ export const Header: React.FC<Props> = (
       onSetIsAdding(false);
       changeTitle('');
     } catch {
-      setAddTodoError(true);
       onSetIsAdding(false);
-      setTimeout(() => {
-        setAddTodoError(false);
-      }, 3000);
+      errorInfo(ErrorTypes.TITLE);
     }
   };
 
@@ -92,43 +87,23 @@ export const Header: React.FC<Props> = (
   };
 
   return (
-    <>
-      {addTodoError && (
-        <div
-          className={classNames(
-            'notification', 'is-danger', 'is-light', {
-              hidden: !addTodoError,
-            },
-          )}
-        >
-          <span>Unable to add a todo</span>
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setAddTodoError(false)}
-          />
-        </div>
-      )}
+    <header className="todoapp__header">
+      <button
+        data-cy="ToggleAllButton"
+        type="button"
+        className={classNames('todoapp__toggle-all', {
+          active: completedTodos.length === todos.length,
+        })}
+        onClick={toggleAll}
+      />
 
-      <header className="todoapp__header">
-        <button
-          data-cy="ToggleAllButton"
-          type="button"
-          className={classNames('todoapp__toggle-all', {
-            active: completedTodos.length === todos.length,
-          })}
-          onClick={toggleAll}
-        />
-
-        <NewTodoField
-          title={titleToAdd}
-          changeTitle={changeTitle}
-          onSetTitleError={onSetTitleError}
-          isAdding={isAdding}
-          onSubmit={addNewTodo}
-        />
-      </header>
-    </>
+      <NewTodoField
+        title={titleToAdd}
+        changeTitle={changeTitle}
+        onSetTitleError={clearErrorMessage}
+        isAdding={isAdding}
+        onSubmit={handleSubmit}
+      />
+    </header>
   );
 };

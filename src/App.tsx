@@ -12,15 +12,14 @@ import { Filter } from './types/Filter';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
-import { TitleError } from './components/TitleError';
+import { ErrorTypes } from './types/ErrorTypes';
 
 export const App: React.FC = () => {
   const [hasLoadingError, setHasLoadingError] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorTypes.None);
   const [filterBy, setFilterBy] = useState(Filter.ALL);
-  const [titleError, setTitleError] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [loadingList, setLoadingList] = useState<number[]>([]);
 
@@ -35,7 +34,7 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       } catch {
         setHasLoadingError(true);
-        setErrorMessage('Error... Can not load your todos');
+        setErrorMessage(ErrorTypes.LOADING);
       }
     }
   };
@@ -44,8 +43,8 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const completedTodos = todos.filter(todo => todo.completed === true);
-  const activeTodos = todos.filter(todo => todo.completed === false);
+  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
   let visibleTodos = todos;
 
@@ -61,38 +60,54 @@ export const App: React.FC = () => {
     default: visibleTodos = todos;
   }
 
+  const errorInfo = (errorTitle: ErrorTypes) => {
+    setHasLoadingError(true);
+    setErrorMessage(errorTitle);
+  };
+
+  const clearErrorMessage = () => setHasLoadingError(false);
+
+  const addNewTodo = (newTodo: Todo) => setTodos(
+    (prevTodos) => [...prevTodos, newTodo],
+  );
+
+  const addTodoToLoadingList = (idToAdd: number) => setLoadingList(
+    prevIds => [...prevIds, idToAdd],
+  );
+
+  const deleteTodoOfLoadingList = (idToRemove: number) => setLoadingList(
+    prevIds => prevIds.filter(id => id !== idToRemove),
+  );
+
+  const clearLoadingList = () => setLoadingList([]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      {errorMessage
+      {errorMessage === ErrorTypes.LOADING
         ? (
-          <Error
-            clearErrorMessage={() => setHasLoadingError(false)}
-            hasLoadingError={hasLoadingError}
-            errorMessage={errorMessage}
-          />
+          <>
+            <span>Error... Can not load your todos</span>
+          </>
         )
         : (
           <div className="todoapp__content">
             <Header
               user={user}
               titleToAdd={title}
-              changeTitle={(value) => setTitle(value)}
-              onSetTodo={(newTodo) => setTodos(
-                (prevTodos) => [...prevTodos, newTodo],
-              )}
-              onSetTitleError={(isError) => setTitleError(isError)}
-              onSetIsAdding={(isLoading) => setIsAdding(isLoading)}
+              changeTitle={setTitle}
+              onSetTodo={addNewTodo}
+              errorInfo={errorInfo}
+              onSetIsAdding={setIsAdding}
               isAdding={isAdding}
               completedTodos={completedTodos}
               activeTodos={activeTodos}
               todos={todos}
               loadTodos={getTodosFromServer}
-              addTodoToLoadingList={(idToAdd) => setLoadingList(
-                prevIds => [...prevIds, idToAdd],
-              )}
-              clearLoadingList={() => setLoadingList([])}
+              addTodoToLoadingList={addTodoToLoadingList}
+              clearLoadingList={clearLoadingList}
+              clearErrorMessage={clearErrorMessage}
             />
 
             <TodoList
@@ -101,32 +116,28 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               title={title}
               user={user}
-              addTodoToLoadingList={(idToAdd) => setLoadingList(
-                prevIds => [...prevIds, idToAdd],
-              )}
-              deleteTodoOfLoadingList={(idToRemove) => setLoadingList(
-                prevIds => prevIds.filter(id => id !== idToRemove),
-              )}
+              addTodoToLoadingList={addTodoToLoadingList}
+              deleteTodoOfLoadingList={deleteTodoOfLoadingList}
               loadingList={loadingList}
+              errorInfo={errorInfo}
             />
 
             <Footer
               activeTodos={activeTodos}
               filterBy={filterBy}
-              selectFilterField={(filter) => setFilterBy(filter)}
+              selectFilterField={setFilterBy}
               completedTodos={completedTodos}
-              addTodoToLoadingList={(idToRemove) => setLoadingList(
-                prevIds => [...prevIds, idToRemove],
-              )}
-              clearLoadingList={() => setLoadingList([])}
+              addTodoToLoadingList={addTodoToLoadingList}
+              clearLoadingList={clearLoadingList}
               loadTodos={getTodosFromServer}
             />
           </div>
         )}
 
-      <TitleError
-        titleError={titleError}
-        onSetTitleError={(isError) => setTitleError(isError)}
+      <Error
+        clearErrorMessage={() => setHasLoadingError(false)}
+        hasLoadingError={hasLoadingError}
+        errorMessage={errorMessage}
       />
     </div>
   );

@@ -13,35 +13,26 @@ export const Error: React.FC<Props> = (
 ) => {
   useEffect(() => {
     setTimeout(() => clearErrorMessage(), 3000);
-  }, []);
+  });
 
   return (
-    <div>
-      <span>{errorMessage}</span>
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification', 'is-danger', 'is-light', 'has-text-weight-normal', {
-            hidden: !hasLoadingError,
-          },
-        )}
-      >
-        <div>
-          <span>error</span>
-        </div>
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={clearErrorMessage}
-        />
-
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
+    <div
+      data-cy="ErrorNotification"
+      className={classNames(
+        'notification', 'is-danger', 'is-light', 'has-text-weight-normal', {
+          hidden: !hasLoadingError,
+        },
+      )}
+    >
+      <div>
+        <span>{errorMessage}</span>
       </div>
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        onClick={clearErrorMessage}
+      />
     </div>
   );
 };

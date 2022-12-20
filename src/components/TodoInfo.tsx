@@ -3,28 +3,27 @@
 import classNames from 'classnames';
 import { useState } from 'react';
 import { removeTodo, updateTodo } from '../api/todos';
+import { ErrorTypes } from '../types/ErrorTypes';
 import { Todo } from '../types/Todo';
 import { NewTodoField } from './NewTodoField';
 
 type Props = {
   todo: Todo,
   loadTodos: () => void,
-  onSetDeleteTodoError: (isError: boolean) => void,
-  onSetUpdateTodoError: (isError: boolean) => void,
   addTodoToLoadingList: (idToAdd: number) => void,
   deleteTodoOfLoadingList: (idToAdd: number) => void,
   loadingList: number[],
+  errorInfo: (errorTitle: ErrorTypes) => void,
 };
 
 export const TodoInfo: React.FC<Props> = (
   {
     todo,
     loadTodos,
-    onSetDeleteTodoError,
-    onSetUpdateTodoError,
     addTodoToLoadingList,
     deleteTodoOfLoadingList,
     loadingList,
+    errorInfo,
   },
 ) => {
   const {
@@ -44,10 +43,7 @@ export const TodoInfo: React.FC<Props> = (
       await removeTodo(id);
       await loadTodos();
     } catch {
-      onSetDeleteTodoError(true);
-      setTimeout(() => {
-        onSetDeleteTodoError(false);
-      }, 3000);
+      errorInfo(ErrorTypes.DELETE);
     }
 
     deleteTodoOfLoadingList(id);
@@ -60,10 +56,7 @@ export const TodoInfo: React.FC<Props> = (
       await updateTodo(id, title, !completed);
       await loadTodos();
     } catch {
-      onSetUpdateTodoError(true);
-      setTimeout(() => {
-        onSetUpdateTodoError(false);
-      }, 3000);
+      errorInfo(ErrorTypes.UPDATE);
     }
 
     deleteTodoOfLoadingList(id);
@@ -76,6 +69,13 @@ export const TodoInfo: React.FC<Props> = (
   };
 
   const onUpdateTodoTitle = async () => {
+    if (newTitle.trim().length === 0) {
+      setIsEditing(false);
+      onDeleteTodo();
+
+      return;
+    }
+
     if (title === newTitle) {
       setIsEditing(false);
 
@@ -86,8 +86,12 @@ export const TodoInfo: React.FC<Props> = (
 
     addTodoToLoadingList(id);
 
-    await updateTodo(id, newTitle, completed);
-    await loadTodos();
+    try {
+      await updateTodo(id, newTitle, completed);
+      await loadTodos();
+    } catch {
+      errorInfo(ErrorTypes.UPDATE);
+    }
 
     deleteTodoOfLoadingList(id);
   };
@@ -112,9 +116,9 @@ export const TodoInfo: React.FC<Props> = (
         ? (
           <NewTodoField
             title={newTitle}
-            changeTitle={(value) => setNewTitle(value)}
+            changeTitle={setNewTitle}
             onSubmit={onUpdateTodoTitle}
-            onSetIsEditing={(isEdit) => setIsEditing(isEdit)}
+            onSetIsEditing={setIsEditing}
           />
         )
         : (
