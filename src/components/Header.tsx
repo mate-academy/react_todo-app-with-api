@@ -1,10 +1,14 @@
+import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
+import { Todo } from '../types/Todo';
 
 type Props = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   title: string;
   onTitleChange: (title: string) => void;
   isAdding: boolean;
+  onToggleAll: () => void;
+  activeTodos: Todo[];
 };
 
 export const Header: React.FC<Props> = (props) => {
@@ -13,6 +17,8 @@ export const Header: React.FC<Props> = (props) => {
     title,
     onTitleChange,
     isAdding,
+    onToggleAll,
+    activeTodos,
   } = props;
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -27,8 +33,13 @@ export const Header: React.FC<Props> = (props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all', {
+            active: activeTodos.length,
+          },
+        )}
         aria-label="Toggle All"
+        onClick={onToggleAll}
       />
 
       <form onSubmit={onSubmit}>

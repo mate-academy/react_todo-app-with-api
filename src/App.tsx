@@ -35,7 +35,7 @@ export const App: React.FC = () => {
       const todosFromServer = await getTodos(user?.id || 1);
 
       setTodos(todosFromServer);
-    } catch (_) {
+    } catch {
       setHasError(true);
       setCurrError('Something went wrong :(. We can not load user`s todos');
     }
@@ -154,6 +154,18 @@ export const App: React.FC = () => {
     loadUserTodos();
   }, [user]);
 
+  const todosShouldToggle = completedTodos.length < todos.length
+    ? activeTodos
+    : todos;
+
+  const handleToggleAll = useCallback(
+    async () => {
+      await Promise.all(todosShouldToggle.map(todo => (
+        handleChangeStatus(todo)
+      )));
+    }, [todosShouldToggle],
+  );
+
   const handleRename = async (todo: Todo, newTitle: string) => {
     const { title: curTitle, id } = todo;
 
@@ -205,6 +217,8 @@ export const App: React.FC = () => {
           title={title}
           onTitleChange={setTitle}
           isAdding={isAdding}
+          onToggleAll={handleToggleAll}
+          activeTodos={activeTodos}
         />
         <TodoList
           todos={showedTodos}
