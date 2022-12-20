@@ -33,13 +33,7 @@ export const NewTodoForm: React.FC<Props> = (props) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (newTodoField.current && !isAdding) {
+    if (newTodoField.current || (newTodoField.current && !isAdding)) {
       newTodoField.current.focus();
     }
   }, [isAdding]);
