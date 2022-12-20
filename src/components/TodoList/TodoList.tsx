@@ -5,19 +5,27 @@ import { TodoInfo } from '../TodoInfo';
 type Props = {
   todos: Todo[],
   isAdding: boolean,
+  isUpdating: boolean,
   title: string,
   onDelete: (todoId: number) => void,
+  onChangeStatus: (changeTodo: Todo) => void,
   deletingTodoId: number,
+  updatingTodoId: number,
   completedTodosId: number[],
+  onEditTitle: (id: number, newTitle: string) => void,
 };
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
   isAdding,
+  isUpdating,
   title,
   onDelete,
   deletingTodoId,
+  updatingTodoId,
   completedTodosId,
+  onChangeStatus,
+  onEditTitle,
 }) => {
   return (
     <>
@@ -26,8 +34,13 @@ export const TodoList: React.FC<Props> = memo(({
           key={todo.id}
           todo={todo}
           onDelete={onDelete}
+          onChangeStatus={onChangeStatus}
+          onEditTitle={onEditTitle}
           isLoading={
-            completedTodosId.includes(todo.id) || deletingTodoId === todo.id
+            completedTodosId.includes(todo.id)
+            || deletingTodoId === todo.id
+            || updatingTodoId === todo.id
+            || isUpdating
           }
         />
       ))}

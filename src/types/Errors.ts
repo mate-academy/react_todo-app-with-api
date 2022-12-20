@@ -3,4 +3,5 @@ export enum Error{
   AddTodo = 'Unable to add a todo',
   LoadTodos = 'Can\'t load user todos',
   DeleteTodo = 'Unable to delete a todo',
+  UpdateTodo = 'Unable to update a todo',
 }

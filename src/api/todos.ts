@@ -9,7 +9,7 @@ export const addTodo = (todo: Omit<Todo, 'id'>) => {
   return client.post('/todos', todo);
 };
 
-export const changeTodo = (todoId: number, todo: Todo) => {
+export const changeTodo = (todoId: number, todo: Partial<Todo>) => {
   return client.patch(`/todos/${todoId}`, todo);
 };
 

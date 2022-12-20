@@ -8,7 +8,7 @@ type Props = {
   onSetFilter: (filter: TodoFilters) => void,
   filter: TodoFilters,
   todos: Todo[],
-  handleClearComplited: () => void,
+  handleClearCompleteed: () => void,
 };
 
 export const Footer: FC<Props> = memo(({
@@ -16,7 +16,7 @@ export const Footer: FC<Props> = memo(({
   onSetFilter,
   filter,
   todos,
-  handleClearComplited,
+  handleClearCompleteed,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -35,7 +35,7 @@ export const Footer: FC<Props> = memo(({
         style={todos.some(todo => todo.completed)
           ? {}
           : { visibility: 'hidden' }}
-        onClick={handleClearComplited}
+        onClick={handleClearCompleteed}
       >
         Clear completed
       </button>
