@@ -2,7 +2,6 @@
 import React, {
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -29,12 +28,11 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorType>(ErrorType.None);
   const [loader, setLoader] = useState(false);
   const [focusedTodoId, setFocusetTodoId] = useState<number>(Infinity);
-  const [toggleButton, setToggleButton] = useState<boolean>();
+  const [toggleButton, setToggleButton] = useState<boolean>(true);
   const [togglerLoader, setTogglerLoader] = useState(false);
   const [clearCompletedLoader, setClearCompletedLoader] = useState(false);
 
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
   const {
     None,
     NoTodos,
@@ -44,10 +42,6 @@ export const App: React.FC = () => {
   } = ErrorType;
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     const getTodosFromServer = async () => {
       const todosFromServer = user && await getTodos(user.id);
 
@@ -61,8 +55,12 @@ export const App: React.FC = () => {
           setShowFooter(true);
         }
 
-        if (todosFromServer && todosFromServer.some(todo => !todo.completed)) {
+        if (todosFromServer && todosFromServer.every(todo => todo.completed)) {
           setToggleButton(true);
+        }
+
+        if (todosFromServer && todosFromServer.some(todo => !todo.completed)) {
+          setToggleButton(false);
         }
       } catch {
         setError(NoTodos);
@@ -79,8 +77,17 @@ export const App: React.FC = () => {
   const addNewTodo = async (todoData: Todo) => {
     try {
       setIsDisableInput(true);
+      setFocusetTodoId(todoData.id);
+      setLoader(true);
+
+      setTodos(previousTodos => ([
+        ...previousTodos,
+        todoData,
+      ]));
 
       const newTodo = await addTodo(todoData);
+
+      setTodos(todos.filter(todo => todo !== todoData));
 
       setTodos(previousTodos => ([
         ...previousTodos,
@@ -89,6 +96,7 @@ export const App: React.FC = () => {
 
       setShowFooter(true);
       setIsDisableInput(false);
+      setToggleButton(false);
     } catch {
       setError(Add);
       setIsDisableInput(false);
@@ -152,41 +160,39 @@ export const App: React.FC = () => {
       setTogglerLoader(true);
       const todosFromServer = user && await getTodos(user.id);
 
-      if (toggleButton && todosFromServer) {
-        setToggleButton(false);
-
-        setTodos(todosFromServer.map(todo => ({
-          ...todo,
-          completed: true,
-        })));
-
-        setTogglerLoader(false);
-
+      if (!toggleButton && todosFromServer) {
         todosFromServer.map(
           todo => updateTodo(todo.id, ({
             ...todo,
             completed: true,
           })),
         );
-      }
 
-      if (!toggleButton && todosFromServer) {
-        setToggleButton(true);
-
-        setTodos(todosFromServer.map(todo => ({
+        setTodos(todos.map(todo => ({
           ...todo,
-          completed: false,
+          completed: true,
         })));
 
-        setTogglerLoader(false);
+        setToggleButton(true);
+      }
 
+      if (toggleButton && todosFromServer) {
         todosFromServer.map(
           todo => updateTodo(todo.id, ({
             ...todo,
             completed: false,
           })),
         );
+
+        setTodos(todos.map(todo => ({
+          ...todo,
+          completed: false,
+        })));
+
+        setToggleButton(false);
       }
+
+      setTogglerLoader(false);
     } catch {
       setTogglerLoader(false);
       setError(Update);
@@ -198,6 +204,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <Header
+          todos={todos}
           query={query}
           isDisabledInput={isDisabledInput}
           toggleButton={toggleButton}

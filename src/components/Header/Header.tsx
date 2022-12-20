@@ -1,12 +1,17 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import cn from 'classnames';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
+  todos: Todo[];
   query: string;
   isDisabledInput: boolean;
   toggleButton?: boolean;
@@ -17,6 +22,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
+  todos,
   query,
   isDisabledInput,
   toggleButton,
@@ -32,7 +38,7 @@ export const Header: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [isDisabledInput]);
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -61,17 +67,19 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={cn(
-          'todoapp__toggle-all',
-          {
-            active: toggleButton,
-          },
-        )}
-        onClick={() => onToggleChange()}
-      />
+      {todos.length > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={cn(
+            'todoapp__toggle-all',
+            {
+              active: toggleButton,
+            },
+          )}
+          onClick={() => onToggleChange()}
+        />
+      )}
 
       <form
         onSubmit={handleFormSubmit}
