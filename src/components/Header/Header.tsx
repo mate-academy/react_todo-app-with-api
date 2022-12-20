@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = ({
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!query.length) {
+    if (!query.trim().length) {
       onErrorChange(ErrorType.Title);
 
       setTimeout(() => {

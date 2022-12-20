@@ -28,7 +28,7 @@ export const NewTodo: React.FC<Props> = ({
       completed: false,
     });
 
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       onDeleteTodo(currentTodo.id);
     }
 
