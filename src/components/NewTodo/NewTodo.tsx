@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -6,7 +6,7 @@ type Props = {
   onDeleteTodo: (value: number) => void;
   currentTodo: Todo;
   title: string;
-  onTodoShowChange: (value: boolean) => void;
+  onTitleModifyingChange: (value: boolean) => void;
 };
 
 export const NewTodo: React.FC<Props> = ({
@@ -14,10 +14,16 @@ export const NewTodo: React.FC<Props> = ({
   onDeleteTodo,
   currentTodo,
   title,
-  onTodoShowChange,
+  onTitleModifyingChange,
 }) => {
   const [newTitle, setNewTitle] = useState(title);
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -32,7 +38,7 @@ export const NewTodo: React.FC<Props> = ({
       onDeleteTodo(currentTodo.id);
     }
 
-    onTodoShowChange(false);
+    onTitleModifyingChange(false);
   };
 
   return (
@@ -47,6 +53,7 @@ export const NewTodo: React.FC<Props> = ({
         onChange={(event) => {
           setNewTitle(event.target.value);
         }}
+        onBlur={() => onTitleModifyingChange(false)}
       />
     </form>
   );

@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { NewTodo } from '../NewTodo/NewTodo';
 
@@ -22,8 +22,14 @@ export const TodoInfo: React.FC<Props> = ({
   togglerLoader,
   focusedTodoId,
 }) => {
-  const [showNewTodo, setShowNewTodo] = useState(false);
-  const [clickedTodoId, setClickedTodoId] = useState<number>();
+  const [isTitleModifying, setIsTitleModifying] = useState(false);
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isTitleModifying]);
 
   const handleDeleteButton = () => {
     onDeleteTodo(todo.id);
@@ -57,14 +63,14 @@ export const TodoInfo: React.FC<Props> = ({
           />
         </label>
 
-        {!showNewTodo && (
+        {!isTitleModifying && (
           <>
             <span
               data-cy="TodoTitle"
               className="todo__title"
               onDoubleClick={() => {
-                setShowNewTodo(true);
-                setClickedTodoId(todo.id);
+                setIsTitleModifying(true);
+                newTodoField.current?.focus();
               }}
             >
               {todo.title}
@@ -81,13 +87,13 @@ export const TodoInfo: React.FC<Props> = ({
           </>
         )}
 
-        {(showNewTodo && clickedTodoId === todo.id) && (
+        {isTitleModifying && (
           <NewTodo
             onUpdateTodo={onUpdateTodo}
             onDeleteTodo={onDeleteTodo}
             currentTodo={todo}
             title={todo.title}
-            onTodoShowChange={setShowNewTodo}
+            onTitleModifyingChange={setIsTitleModifying}
           />
         )}
 
