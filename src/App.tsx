@@ -50,7 +50,6 @@ export const App: React.FC = () => {
           setTodos(await getTodos(user.id));
         }
 
-        // condition to show footer
         if (todosFromServer && todosFromServer.length > 0) {
           setShowFooter(true);
         }

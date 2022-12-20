@@ -23,36 +23,23 @@ export const Footer: React.FC<Props> = ({
   onShowFooterChange,
   todos,
 }) => {
-  const [activeTodos, setActiveTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<SortBy>();
   const [hasCompletedTodos, setHasCompletedTodos] = useState<boolean>();
 
   const user = useContext(AuthContext);
 
   useEffect(() => {
-    const findActiveTodos = async () => {
-      const todosFromServer = user && await getTodos(user.id);
+    const hasTodos = todos.filter(todo => todo.completed).length > 0;
+    const hasntTodos = todos.filter(todo => todo.completed).length === 0;
 
-      if (todosFromServer) {
-        const filteredTodos = todosFromServer
-          && todosFromServer.filter(todo => todo.completed === false);
+    if (hasTodos) {
+      setHasCompletedTodos(true);
+    }
 
-        setActiveTodos(filteredTodos);
-      }
-
-      if (todosFromServer
-        && todosFromServer.filter(todo => todo.completed).length > 0) {
-        setHasCompletedTodos(true);
-      }
-
-      if (todosFromServer
-        && todosFromServer.filter(todo => todo.completed).length === 0) {
-        setHasCompletedTodos(false);
-      }
-    };
-
-    findActiveTodos();
-  }, [activeTodos]);
+    if (hasntTodos) {
+      setHasCompletedTodos(false);
+    }
+  }, [todos]);
 
   const handleFilter = async (sortBy: SortBy) => {
     const todosFromServer = user && await getTodos(user.id);
@@ -98,11 +85,12 @@ export const Footer: React.FC<Props> = ({
   };
 
   const { All, Active, Completed } = SortBy;
+  const activeTodos = todos.filter(todo => todo.completed === false).length;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${activeTodos.length} items left`}
+        {`${activeTodos} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
