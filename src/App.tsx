@@ -35,7 +35,7 @@ export const App: React.FC = () => {
   } = useContext(ProcessedContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filtredBy, setFiltredBy] = useState(FilterOptions.ALL);
+  const [filtredBy, setFiltredBy] = useState(FilterOptions.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const getUserTodos = async () => {
@@ -116,13 +116,13 @@ export const App: React.FC = () => {
   ) => {
     return todosFromServer.filter(todo => {
       switch (option) {
-        case FilterOptions.ACTIVE:
+        case FilterOptions.Active:
           return todo.completed === false;
 
-        case FilterOptions.COMPLETED:
+        case FilterOptions.Completed:
           return todo.completed === true;
 
-        case FilterOptions.ALL:
+        case FilterOptions.All:
         default:
           return true;
       }
