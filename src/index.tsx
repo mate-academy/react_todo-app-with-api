@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { createRoot } from 'react-dom/client';
 
 import 'bulma/css/bulma.css';
@@ -6,10 +7,13 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { AuthProvider } from './components/Auth/AuthContext';
+import { ProcessedProvider } from './components/ProcessedContext/ProcessedContext';
 
 const Root = () => (
   <AuthProvider>
-    <App />
+    <ProcessedProvider>
+      <App />
+    </ProcessedProvider>
   </AuthProvider>
 );
 
