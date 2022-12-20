@@ -57,7 +57,7 @@ export const EditingTodo: React.FC<Props> = ({
         data-cy="TodoTitleField"
         ref={todoTitleField}
         type="text"
-        className="todoapp__new-todo"
+        className="todoapp__editing-todo"
         value={titleChange}
         onChange={event => {
           setTitleChange(event.target.value);

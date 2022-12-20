@@ -33,7 +33,7 @@ export const NewTodo: React.FC<Props> = React.memo(({
   }, [loadTodos]);
 
   const addTodo = useCallback(async (title: string) => {
-    if (title.trim().length === 0) {
+    if (!title.trim().length) {
       handleError(Errors.TITLE);
     }
 

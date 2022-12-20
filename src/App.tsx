@@ -107,15 +107,15 @@ export const App: React.FC = () => {
   }, []);
 
   const updateStatusTodos = useCallback(async () => {
-    await Promise.all(activeTodos.map((todo) => (
-      updateTodo(
-        todo.id,
-        {
-          completed: activeTodos.length > 0
-            ? true
-            : !todo.completed,
-        },
-      ))));
+    if (activeTodos.length) {
+      await Promise.all(activeTodos.map(todo => (
+        updateTodo(todo.id, { completed: true })
+      )));
+    } else {
+      await Promise.all(todos.map((todo) => (
+        updateTodo(todo.id, { completed: !todo.completed })
+      )));
+    }
 
     await loadTodos();
   }, [todos]);
@@ -138,7 +138,7 @@ export const App: React.FC = () => {
               data-cy="ToggleAllButton"
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: activeTodos.length === 0,
+                active: !activeTodos.length,
               })}
               onClick={updateStatusTodos}
             />
@@ -158,7 +158,7 @@ export const App: React.FC = () => {
           onUpdate={updateTodo}
           isAdding={isAdding}
         />
-        {(todos.length !== 0 || isAdding) && (
+        {(todos.length || isAdding) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
               {`${activeTodos.length} items left`}
@@ -183,12 +183,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {error && (
-        <Error
-          error={error}
-          onRemoveError={removeError}
-        />
-      )}
+      <Error
+        error={error}
+        onRemoveError={removeError}
+      />
     </div>
   );
 };
