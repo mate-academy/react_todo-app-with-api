@@ -6,10 +6,16 @@ import './styles/index.scss';
 
 import { App } from './App';
 import { AuthProvider } from './components/Auth/AuthContext';
+import { LoaderProvider } from './components/Context/LoaderContext';
+import { TitleProvider } from './components/Context/TitleContext';
 
 const Root = () => (
   <AuthProvider>
-    <App />
+    <TitleProvider>
+      <LoaderProvider>
+        <App />
+      </LoaderProvider>
+    </TitleProvider>
   </AuthProvider>
 );
 
