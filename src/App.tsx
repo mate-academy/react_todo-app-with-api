@@ -21,7 +21,7 @@ import { AuthContext } from './components/Auth/AuthContext';
 import {
   ErrorNotification,
 } from './components/ErrorNotification/ErrorNotification';
-import { Filters } from './types/Filters';
+import { Filters } from './types/filters';
 
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);

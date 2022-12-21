@@ -17,7 +17,7 @@ import { AuthContext } from '../Auth/AuthContext';
 
 import { Todo } from '../../types/Todo';
 import { setIsLoadingContext } from '../Context/context';
-import { ErrorStatus } from '../../types/ErrorStatus';
+import { ErrorStatus } from '../../types/errorStatus';
 
 interface Props {
   newTodoField: React.Ref<HTMLInputElement> | undefined,

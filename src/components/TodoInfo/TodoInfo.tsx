@@ -12,7 +12,7 @@ import {
   updateTodo,
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
-import { ErrorStatus } from '../../types/ErrorStatus';
+import { ErrorStatus } from '../../types/errorStatus';
 import { Loader } from '../Loader/Loader';
 import {
   setIsLoadingContext,
