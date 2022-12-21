@@ -9,6 +9,7 @@ type Props = {
   isAdding: boolean;
   onToggleAll: () => void;
   activeTodos: Todo[];
+  todos: Todo[];
 };
 
 export const Header: React.FC<Props> = (props) => {
@@ -19,6 +20,7 @@ export const Header: React.FC<Props> = (props) => {
     isAdding,
     onToggleAll,
     activeTodos,
+    todos,
   } = props;
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -30,17 +32,19 @@ export const Header: React.FC<Props> = (props) => {
 
   return (
     <header className="todoapp__header">
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all', {
-            active: activeTodos.length,
-          },
-        )}
-        aria-label="Toggle All"
-        onClick={onToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all', {
+              active: !activeTodos.length,
+            },
+          )}
+          aria-label="Toggle All"
+          onClick={onToggleAll}
+        />
+      )}
 
       <form onSubmit={onSubmit}>
         <input

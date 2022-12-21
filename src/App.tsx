@@ -37,7 +37,7 @@ export const App: React.FC = () => {
       setTodos(todosFromServer);
     } catch {
       setHasError(true);
-      setCurrError('Something went wrong :(. We can not load user`s todos');
+      setCurrError(ErrorMessage.NoTodos);
     }
   }, []);
 
@@ -73,8 +73,13 @@ export const App: React.FC = () => {
     }, [title, user],
   );
 
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = useMemo(() => (
+    todos.filter(todo => !todo.completed)
+  ), [todos]);
+
+  const completedTodos = useMemo(() => (
+    todos.filter(todo => todo.completed)
+  ), [todos]);
 
   const handleDelete = useCallback(
     async (todoId: number) => {
@@ -210,7 +215,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           onSubmit={handleSubmit}
@@ -219,6 +223,7 @@ export const App: React.FC = () => {
           isAdding={isAdding}
           onToggleAll={handleToggleAll}
           activeTodos={activeTodos}
+          todos={showedTodos}
         />
         <TodoList
           todos={showedTodos}
@@ -230,13 +235,15 @@ export const App: React.FC = () => {
           onRename={handleRename}
           onChangeStatus={handleChangeStatus}
         />
-        <Footer
-          status={status}
-          onChangeStatus={setStatus}
-          activeTodos={activeTodos}
-          onClear={handleClearCompleted}
-          completedTodos={completedTodos}
-        />
+        {todos.length > 0 && (
+          <Footer
+            status={status}
+            onChangeStatus={setStatus}
+            activeTodos={activeTodos}
+            onClear={handleClearCompleted}
+            completedTodos={completedTodos}
+          />
+        )}
       </div>
 
       <Errors
