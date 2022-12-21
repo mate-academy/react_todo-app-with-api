@@ -54,21 +54,21 @@ export const NewTodo: React.FC<Props> = (props) => {
   const areAllCompleted = useMemo(() => activeTodos?.length, [activeTodos]);
 
   const handleOnClickToggleAll = useCallback(async () => {
-    const results = [];
-
     if (allTodos) {
-      for (const todo of allTodos) {
+      const results = allTodos.map(todo => {
         if (activeTodos
-            && activeTodos.length !== allTodos.length
-            && activeTodos.length > 0
+          && activeTodos.length !== allTodos.length
+          && activeTodos.length > 0
         ) {
-          results.push(updateTodo(todo.id, { completed: true }));
-        } else if (activeTodos?.length === 0) {
-          results.push(updateTodo(todo.id, { completed: false }));
-        } else {
-          results.push(updateTodo(todo.id, { completed: true }));
+          return (updateTodo(todo.id, { completed: true }));
         }
-      }
+
+        if (activeTodos?.length === 0) {
+          return (updateTodo(todo.id, { completed: false }));
+        }
+
+        return (updateTodo(todo.id, { completed: true }));
+      });
 
       if (user) {
         await Promise.all(results);
@@ -85,13 +85,15 @@ export const NewTodo: React.FC<Props> = (props) => {
 
     if (user && currentInput.trim().length > 0) {
       setIsLoading([0]);
-      await addTodo(newTodo)
-        .catch(() => {
-          setErrorWithTimer(ErrorStatus.AddError);
-        });
-      await loadUserTodos();
-      setIsLoading([]);
-      setCurrentInput('');
+      await addTodo(newTodo);
+
+      try {
+        await loadUserTodos();
+        setIsLoading([]);
+        setCurrentInput('');
+      } catch {
+        setErrorWithTimer(ErrorStatus.AddError);
+      }
     }
   }, [user, currentInput]);
 

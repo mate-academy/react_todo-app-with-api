@@ -52,19 +52,23 @@ export const TodoInfo: React.FC<Props> = (props) => {
   const handleSuccessfulEdit = useCallback((async () => {
     setIsLoading([todo.id]);
     if (!newTitle && user) {
-      await deleteTodo(todo.id)
-        .catch(() => {
-          setErrorWithTimer(ErrorStatus.DeleteError);
-          setIsLoading([]);
-        });
-      await loadUserTodos();
+      await deleteTodo(todo.id);
+
+      try {
+        await loadUserTodos();
+      } catch {
+        setErrorWithTimer(ErrorStatus.DeleteError);
+        setIsLoading([]);
+      }
     } else if (newTitle !== todo.title && user) {
       setIsLoading([todo.id]);
-      await updateTodo(todo.id, { title: newTitle })
-        .catch(() => {
-          setErrorWithTimer(ErrorStatus.UpdateError);
-        });
-      await loadUserTodos();
+      await updateTodo(todo.id, { title: newTitle });
+
+      try {
+        await loadUserTodos();
+      } catch {
+        setErrorWithTimer(ErrorStatus.UpdateError);
+      }
     }
 
     setIsEditing(false);

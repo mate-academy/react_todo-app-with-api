@@ -21,6 +21,7 @@ import { AuthContext } from './components/Auth/AuthContext';
 import {
   ErrorNotification,
 } from './components/ErrorNotification/ErrorNotification';
+import { Filters } from './types/filters';
 
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[] | null>(null);
@@ -28,18 +29,21 @@ export const App: React.FC = () => {
   const [activeTodos, setActiveTodos] = useState<Todo[] | null>(null);
   const [errorStatus, setErrorStatus] = useState('');
   const [currentInput, setCurrentInput] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(Filters.all);
 
   const visibleTodos = useMemo(() => {
-    let result = allTodos;
+    const result = allTodos;
 
     if (allTodos) {
-      if (filter === 'active') {
-        result = allTodos.filter(todo => !todo.completed);
-      }
+      switch (filter) {
+        case Filters.active:
+          return result?.filter(todo => !todo.completed) || null;
 
-      if (filter === 'completed') {
-        result = allTodos.filter(todo => todo.completed);
+        case Filters.completed:
+          return result?.filter(todo => todo.completed) || null;
+
+        default:
+          return result;
       }
     }
 
@@ -56,16 +60,15 @@ export const App: React.FC = () => {
 
   const loadUserTodos = useCallback(async () => {
     if (user) {
-      const userTodos = await getTodos(user.id)
-        .catch(() => {
-          setErrorWithTimer('Unable to get a todo');
-
-          return [];
-        });
+      const userTodos = await getTodos(user.id);
       const userActiveTodos = userTodos.filter(todo => !todo.completed);
 
-      setAllTodos(userTodos);
-      setActiveTodos(userActiveTodos);
+      try {
+        setAllTodos(userTodos);
+        setActiveTodos(userActiveTodos);
+      } catch {
+        setErrorWithTimer('Unable to get a todo');
+      }
     }
   }, [user]);
 

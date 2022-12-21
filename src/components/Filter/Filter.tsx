@@ -12,11 +12,12 @@ import {
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 import { setIsLoadingContext } from '../Context/context';
+import { Filters } from '../../types/filters';
 
 interface Props {
   allTodos: Todo[] | null,
   activeTodos: Todo[] | null,
-  setFilter: Dispatch<SetStateAction<string>>,
+  setFilter: Dispatch<SetStateAction<Filters>>,
   selectedFilter: string,
   setAllTodos: Dispatch<SetStateAction<Todo[] | null>>,
 }
@@ -34,14 +35,15 @@ export const Filter: React.FC<Props> = (props) => {
   const setIsLoading = useContext(setIsLoadingContext);
 
   const handleClearCompleted = useCallback(async () => {
-    const response: any[] = [];
-
     if (user && allTodos) {
-      allTodos.forEach(todo => {
+      const response = allTodos.map(todo => {
         if (todo.completed) {
           setIsLoading((prev) => [...prev, todo.id]);
-          response.push(deleteTodo(todo.id));
+
+          return (deleteTodo(todo.id));
         }
+
+        return todo;
       });
 
       if (user) {
@@ -53,12 +55,6 @@ export const Filter: React.FC<Props> = (props) => {
       }
     }
   }, [user, allTodos]);
-
-  const filters = {
-    all: 'all',
-    completed: 'completed',
-    active: 'active',
-  };
 
   const areCompleted = useCallback(
     () => allTodos?.every(todo => !todo.completed), [allTodos],
@@ -78,10 +74,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === filters.all },
+                { selected: selectedFilter === Filters.all },
               )}
               onClick={(event) => {
-                setFilter(filters.all);
+                setFilter(Filters.all);
                 event.preventDefault();
               }}
             >
@@ -93,10 +89,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/active"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === filters.active },
+                { selected: selectedFilter === Filters.active },
               )}
               onClick={(event) => {
-                setFilter(filters.active);
+                setFilter(Filters.active);
                 event.preventDefault();
               }}
             >
@@ -107,10 +103,10 @@ export const Filter: React.FC<Props> = (props) => {
               href="#/completed"
               className={classNames(
                 'filter__link',
-                { selected: selectedFilter === filters.completed },
+                { selected: selectedFilter === Filters.completed },
               )}
               onClick={(event) => {
-                setFilter(filters.completed);
+                setFilter(Filters.completed);
                 event.preventDefault();
               }}
             >
