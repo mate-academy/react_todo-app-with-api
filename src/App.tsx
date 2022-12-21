@@ -113,6 +113,24 @@ export const App: React.FC = () => {
     todoToToggle.forEach((todo: Todo) => updateStatus(todo));
   };
 
+  const updateTitle = async (todo: Todo, newTitle: string) => {
+    try {
+      setHasError(false);
+
+      const updatedTodo = {
+        ...todo,
+        title: newTitle,
+      };
+
+      await patchTodo(todo.id, updatedTodo);
+    } catch (err) {
+      setHasError(true);
+      setError('error: failed to update a todo');
+    } finally {
+      await getTodosFromServer();
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -140,6 +158,7 @@ export const App: React.FC = () => {
               isAdding={isAdding}
               onDelete={delTodo}
               onToggle={updateStatus}
+              onUpdate={updateTitle}
             />
 
             <Footer
