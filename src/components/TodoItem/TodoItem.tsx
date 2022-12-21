@@ -1,7 +1,5 @@
-import classNames from 'classnames';
-import React, {
-  useCallback, useEffect, useRef, useState,
-} from 'react';
+import classNames from "classnames";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Todo } from '../../types/Todo';
 
 import { Loader } from '../Loader';
@@ -12,14 +10,14 @@ type Props = {
   onToggle: (todo: Todo) => Promise<void>,
   onUpdate: (todo: Todo, newTitle: string) => void,
   isAdding?: boolean,
-};
+}
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = ({ 
   todo,
   onDelete,
   onToggle,
   onUpdate,
-  isAdding,
+  isAdding
 }) => {
   const { id, completed, title } = todo;
 
@@ -146,5 +144,5 @@ export const TodoItem: React.FC<Props> = ({
       />
 
     </div>
-  );
-};
+);
+}

@@ -4,8 +4,8 @@ import React from 'react';
 interface Props {
   isAdding?: boolean;
   isLoading?: boolean;
-  id?: number;
-  loadingTodoIds?: number[];
+  id: number;
+  loadingTodoIds: number[];
 }
 
 export const Loader: React.FC<Props> = ({
