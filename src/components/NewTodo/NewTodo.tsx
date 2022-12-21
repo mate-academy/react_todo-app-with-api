@@ -16,7 +16,7 @@ import {
 import { AuthContext } from '../Auth/AuthContext';
 
 import { Todo } from '../../types/Todo';
-import { ErrorStatus } from '../../types/errorStatus';
+import { ErrorStatus } from '../../types/ErrorStatus';
 import { setIsLoadingContext } from '../Context/context';
 
 interface Props {

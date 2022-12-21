@@ -12,7 +12,7 @@ import {
 } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 import { setIsLoadingContext } from '../Context/context';
-import { Filters } from '../../types/filters';
+import { Filters } from '../../types/Filters';
 
 interface Props {
   allTodos: Todo[] | null,
