@@ -11,8 +11,9 @@ interface Props {
   todo: Todo,
   onDelete: (todoId: number) => Promise<void>,
   activeTodoId: number[],
-  onUpdateTodoStatus: (todoId: number, todo: Partial<Todo>) => Promise<void>
-  onDeleteTodo: (todoId: number) => Promise<void>
+  onUpdateTodoStatus: (todoId: number, todo: Partial<Todo>) => Promise<void>,
+  onDeleteTodo: (todoId: number) => Promise<void>,
+  isAdding: boolean,
 }
 
 export const TodoItem: React.FC<Props> = React.memo(({
@@ -21,6 +22,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   activeTodoId,
   onUpdateTodoStatus,
   onDeleteTodo,
+  isAdding,
 }) => {
   const { id, title, completed } = todo;
   const titleInputField = useRef<HTMLInputElement>(null);
@@ -121,7 +123,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
       <div
         data-cy="TodoLoader"
         className={classNames('modal', 'overlay',
-          { 'is-active': activeTodoId.includes(id) })}
+          {
+            'is-active': (activeTodoId.includes(id) && !isAdding)
+              || (!activeTodoId.includes(id) && isAdding),
+          })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

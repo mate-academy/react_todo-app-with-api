@@ -1,24 +1,22 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface Props {
   newTodoField: React.RefObject<HTMLInputElement>,
   completedTodos: boolean,
   onTodoTitle: (title: string) => void,
   onErrorMessage: React.Dispatch<React.SetStateAction<string>>,
-  onErrorPresence: React.Dispatch<React.SetStateAction<boolean>>,
   inputDisabled: boolean,
   onUpdateAllTodoStatus: () => Promise<void>;
 }
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   newTodoField,
   completedTodos,
   onTodoTitle,
   onErrorMessage,
-  onErrorPresence,
   inputDisabled,
   onUpdateAllTodoStatus,
 }) => {
@@ -30,25 +28,26 @@ export const Header: React.FC<Props> = ({
     }
   }, []);
 
-  const handleFormSubmit = async (event: React.FormEvent) => {
+  const handleFormSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (newTodoTitle.trim()) {
-      onTodoTitle(newTodoTitle);
-      setNewTodoTitle('');
-    } else {
-      onErrorPresence(true);
+    try {
+      if (newTodoTitle.trim()) {
+        onTodoTitle(newTodoTitle);
+        setNewTodoTitle('');
+      }
+    } catch {
       onErrorMessage('Unable to add empty todo');
       setNewTodoTitle('');
     }
-  };
+  }, [newTodoTitle]);
 
   return (
     <header className="todoapp__header">
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className={classNames('todoapp__toggle-all active',
+        className={classNames('todoapp__toggle-all',
           { active: completedTodos })}
         onClick={onUpdateAllTodoStatus}
       />
@@ -67,4 +66,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

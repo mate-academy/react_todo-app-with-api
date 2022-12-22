@@ -3,37 +3,34 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 
 interface Props {
-  hasError: boolean,
-  onErrorPresence: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   onErrorMessage: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export const ErrorNotification: React.FC<Props> = React.memo(({
-  hasError, onErrorPresence, errorMessage, onErrorMessage,
+  errorMessage, onErrorMessage,
 }) => {
   useEffect(() => {
-    if (hasError) {
+    if (errorMessage) {
       setTimeout(() => {
-        onErrorPresence(false);
         onErrorMessage('');
       }, 3000);
     }
-  }, [hasError]);
+  }, [errorMessage]);
 
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
         'notification', 'is-danger', 'is-light', 'has-text-weight-normal',
-        { hidden: !hasError },
+        { hidden: !errorMessage },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onErrorPresence(false)}
+        onClick={() => onErrorMessage('')}
       />
 
       {errorMessage}

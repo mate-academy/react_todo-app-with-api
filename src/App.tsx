@@ -1,5 +1,7 @@
 import React,
 {
+  CSSProperties,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -25,7 +27,6 @@ import { Header } from './components/Header';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<FilterType>(FilterType.ALL);
-  const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [activeTodoId, setActiveTodoId] = useState<number[]>([]);
@@ -33,22 +34,21 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const getTodosFromServer = async () => {
+  const getTodosFromServer = useCallback(async () => {
     try {
       if (user) {
         const todosFromServer = await getTodos(user.id);
 
         setTodos(todosFromServer);
       }
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to contact server. Please, try later.');
     }
-  };
+  }, []);
 
   useEffect(() => {
     getTodosFromServer();
-  }, []);
+  }, [user]);
 
   const visibleTodos: Todo[] = useMemo(() => (
     todos.filter(todo => {
@@ -73,20 +73,30 @@ export const App: React.FC = () => {
     return todos.every(todo => todo.completed === true);
   }, [todos]);
 
-  const removeTodo = async (todoId: number) => {
+  const OneAndMoreTodosCompleted: boolean = useMemo(() => {
+    return todos.some(todo => todo.completed === true);
+  }, [todos]);
+
+  const hiddenClearButonStyle: CSSProperties = {
+    opacity: '0%',
+    cursor: 'default',
+  };
+
+  const removeTodo = useCallback(async (todoId: number) => {
     setActiveTodoId([todoId]);
 
     try {
       await deleteTodo(todoId);
       getTodosFromServer();
       setActiveTodoId([]);
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to delete todo');
+    } finally {
+      setActiveTodoId([]);
     }
-  };
+  }, []);
 
-  const removeCompletedTodos = async () => {
+  const removeCompletedTodos = useCallback(async () => {
     try {
       const completedTodos = todos.filter(todo => todo.completed === true);
       const completedTodosId = completedTodos.map(todo => todo.id);
@@ -98,46 +108,52 @@ export const App: React.FC = () => {
       }));
 
       getTodosFromServer();
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to delete completed todos');
     } finally {
       setActiveTodoId([]);
     }
-  };
+  }, [todos]);
 
-  const createTodo = async (title: string) => {
+  const createTodo = useCallback(async (title: string) => {
     setIsAdding(true);
+
+    const todosId = todos.map(todo => todo.id);
+
+    setActiveTodoId(todosId);
 
     try {
       if (user) {
         await addTodo(title, user.id);
 
-        getTodosFromServer();
+        await getTodosFromServer();
       }
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to create new todo');
     } finally {
-      setIsAdding(false);
+      setTimeout(() => {
+        setIsAdding(false);
+        setActiveTodoId([]);
+      }, 300);
     }
-  };
+  }, [todos]);
 
-  const updateOneTodo = async (todoId: number, todo: Partial<Todo>) => {
+  const updateOneTodo = useCallback(async (
+    todoId: number, todo: Partial<Todo>,
+  ) => {
     setActiveTodoId([todoId]);
 
     try {
       await updateTodo(todoId, todo);
       getTodosFromServer();
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to update todo');
     } finally {
       setActiveTodoId([]);
     }
-  };
+  }, []);
 
-  const updateAllTodoStatus = async () => {
+  const updateAllTodoStatus = useCallback(async () => {
     try {
       if (allTodosCompleted) {
         const todosId = todos.map(todo => todo.id);
@@ -162,13 +178,12 @@ export const App: React.FC = () => {
 
         getTodosFromServer();
       }
-    } catch (error) {
-      setHasError(true);
+    } catch {
       setErrorMessage('Unable to update todos');
     } finally {
       setActiveTodoId([]);
     }
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -180,7 +195,6 @@ export const App: React.FC = () => {
           completedTodos={allTodosCompleted}
           onTodoTitle={createTodo}
           onErrorMessage={setErrorMessage}
-          onErrorPresence={setHasError}
           inputDisabled={isAdding}
           onUpdateAllTodoStatus={updateAllTodoStatus}
         />
@@ -191,6 +205,7 @@ export const App: React.FC = () => {
           activeTodoId={activeTodoId}
           onUpdateTodoStatus={updateOneTodo}
           onDeleteTodo={removeTodo}
+          isAdding={isAdding}
         />
 
         {todos.length > 0 && (
@@ -201,23 +216,23 @@ export const App: React.FC = () => {
 
             <Filter filter={filter} onSelectFilter={setFilter} />
 
-            {todos.some(todo => todo.completed === true) && (
-              <button
-                data-cy="ClearCompletedButton"
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={removeCompletedTodos}
-              >
-                Clear completed
-              </button>
-            )}
+            <button
+              data-cy="ClearCompletedButton"
+              type="button"
+              className="todoapp__clear-completed"
+              style={!OneAndMoreTodosCompleted
+                ? hiddenClearButonStyle : undefined}
+              disabled={!OneAndMoreTodosCompleted}
+              onClick={removeCompletedTodos}
+            >
+              Clear completed
+            </button>
+
           </footer>
         )}
       </div>
 
       <ErrorNotification
-        hasError={hasError}
-        onErrorPresence={setHasError}
         errorMessage={errorMessage}
         onErrorMessage={setErrorMessage}
       />
