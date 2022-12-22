@@ -77,7 +77,7 @@ export const TodoInfo: React.FC<Props> = ({
       handleTodoRemoval();
     }
 
-    if (newTitle !== title) {
+    if (newTitle !== title && newTitle.trim() !== '') {
       setIsDeleting(true);
       setIsFormExist(false);
       await changeTodo(id, { title: newTitle });
