@@ -72,41 +72,40 @@ export const TodoItem: React.FC<Props> = React.memo(({
         />
       </label>
 
-      {!isRenaming
-        ? (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => setIsRenaming(true)}
-            >
-              {title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => onDelete(todo.id)}
-            >
-              ×
-            </button>
-          </>
-        ) : (
-          <form
-            onSubmit={handleRename}
-            onBlur={handleRename}
+      {!isRenaming ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsRenaming(true)}
           >
-            <input
-              data-cy="TodoTitleField"
-              ref={renameInput}
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={newTitle}
-              onChange={(event) => setNewTitle(event.target.value)}
-            />
-          </form>
-        )}
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => onDelete(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <form
+          onSubmit={handleRename}
+          onBlur={handleRename}
+        >
+          <input
+            data-cy="TodoTitleField"
+            ref={renameInput}
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={(event) => setNewTitle(event.target.value)}
+          />
+        </form>
+      )}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {

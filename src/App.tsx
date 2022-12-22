@@ -1,8 +1,8 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { deleteTodo, getTodos, updateTodo } from './api/todos';
@@ -27,7 +27,9 @@ export const App: React.FC = () => {
   const activeTodosCount = todos.filter(todoItem => !todoItem.completed).length;
   const completedTodosId = todos.filter(todoItem => todoItem.completed)
     .map(todo => todo.id);
-  const allCompleted = todos.every(todoItem => todoItem.completed);
+  const allCompleted = useMemo<boolean>(() => (
+    todos.every(todoItem => todoItem.completed)
+  ), [todos]);
 
   const loadTodos = async () => {
     if (!user) {
@@ -103,8 +105,10 @@ export const App: React.FC = () => {
     setIsProcessing(prev => [...prev, todo.id]);
 
     try {
-      const response
-        = await updateTodo(todo.id, { completed: !todo.completed });
+      const response = await updateTodo(
+        todo.id,
+        { completed: !todo.completed },
+      );
 
       setTodos(prev => {
         const todoToUpdate = prev.find(todoItem => todoItem.id === todo.id);

@@ -33,7 +33,7 @@ export const Header: React.FC<Props> = ({
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!titleValue) {
+    if (!titleValue.trim()) {
       setError('Title can\'t be empty');
 
       return;
