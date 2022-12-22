@@ -1,7 +1,11 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext, useEffect, useState,
 } from 'react';
+
+import {
+  CSSTransition,
+} from 'react-transition-group';
+
 import {
   deleteTODO,
   getCompletedTODOS,
@@ -29,8 +33,8 @@ export const App: React.FC = () => {
   const [requestCount, setRequestCount] = useState(0);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [editingTodoIds, setEditingToDoIds] = useState<number[]>([]);
+  const [isTemp, setIsTemp] = useState(false);
 
   const clearError = () => setErrorType(null);
 
@@ -119,17 +123,16 @@ export const App: React.FC = () => {
 
     clearError();
     setIsAdding(true);
+    setIsTemp(true);
 
     const newToDo: Todo = {
       userId: user.id,
       title: newTodoTitle,
       completed: false,
+      id: 0,
     };
 
-    setTempTodo({
-      ...newToDo,
-      id: 0,
-    });
+    setVisibleToDos(prev => [...prev, newToDo]);
 
     try {
       await postTODO(newToDo);
@@ -215,7 +218,6 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setIsAdding(false);
-    setTempTodo(null);
     setEditingToDoIds([]);
   }, [visibleToDos]);
 
@@ -235,6 +237,8 @@ export const App: React.FC = () => {
         );
       } catch {
         setErrorType(ErrorType.Unexpected);
+      } finally {
+        setIsTemp(false);
       }
     };
 
@@ -261,14 +265,14 @@ export const App: React.FC = () => {
 
         <ToDoList
           todos={visibleToDos}
-          tempTodo={tempTodo}
+          isTemp={isTemp}
           onRemove={handleRemoveTodo}
           deletingToDoId={editingTodoIds}
           onStatusChange={handleUpdateTodoStatus}
           onTitleChange={handleTitleChange}
         />
 
-        {(activeCount || hasCompleted) && (
+        {!!visibleToDos.length && (
           <Footer
             hasCompleted={hasCompleted}
             activeCount={activeCount}
@@ -279,10 +283,18 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorMessage
-        errorType={errorType}
-        onErrorClose={clearError}
-      />
+      <CSSTransition
+        classNames="error"
+        in={!!errorType}
+        timeout={500}
+        unmountOnExit
+
+      >
+        <ErrorMessage
+          errorType={errorType}
+          onErrorClose={clearError}
+        />
+      </CSSTransition>
     </div>
   );
 };

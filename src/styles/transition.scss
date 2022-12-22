@@ -18,16 +18,17 @@
   transition: max-height 0.3s ease-in-out;
 }
 
-.temp-item-enter {
-  max-height: 0;
+.error-enter {
+  opacity: 0;
 }
-
-.temp-item-enter-active {
-  overflow: hidden;
-  max-height: 58px;
-  transition: max-height 0.3s ease-in-out;
+.error-enter-active {
+  opacity: 1;
+  transition: opacity 500ms;
 }
-
-.temp-item-exit {
-  max-height: 58px;
+.error-exit {
+  opacity: 1;
+}
+.error-exit-active {
+  opacity: 0;
+  transition: opacity 500ms;
 }

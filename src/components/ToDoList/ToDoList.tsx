@@ -9,7 +9,7 @@ import { ToDo } from '../ToDo/ToDo';
 
 type Props = {
   todos: Todo[];
-  tempTodo: Todo | null;
+  isTemp: boolean;
   onRemove: (todoId: number) => void
   deletingToDoId: number[];
   onStatusChange: (todoId: number, data: boolean) => void;
@@ -19,7 +19,7 @@ type Props = {
 export const ToDoList: React.FC<Props> = ({
   todos,
   onRemove,
-  tempTodo,
+  isTemp,
   deletingToDoId,
   onStatusChange,
   onTitleChange,
@@ -32,7 +32,7 @@ export const ToDoList: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
 
-        {todos.map(todo => (
+        {todos.map((todo, i) => (
           <CSSTransition
             key={todo.id}
             timeout={300}
@@ -45,18 +45,10 @@ export const ToDoList: React.FC<Props> = ({
               isEditing={isTodoEditing(todo.id || 0)}
               onStatusChange={onStatusChange}
               onTitleChange={onTitleChange}
+              isTemp={i === todos.length - 1 && isTemp}
             />
           </CSSTransition>
         ))}
-
-        {tempTodo && (
-          <CSSTransition
-            timeout={300}
-            classNames="temp-item"
-          >
-            <ToDo todo={tempTodo} isTemp />
-          </CSSTransition>
-        )}
       </TransitionGroup>
     </section>
   );
