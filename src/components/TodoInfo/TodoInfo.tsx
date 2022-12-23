@@ -15,12 +15,12 @@ type Props = {
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  loader,
-  focusedTodoId,
-  togglerLoader,
-  clearCompletedLoader,
   onDeleteTodo,
   onUpdateTodo,
+  loader,
+  clearCompletedLoader,
+  togglerLoader,
+  focusedTodoId,
 }) => {
   const [isTitleModifying, setIsTitleModifying] = useState(false);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -35,6 +35,7 @@ export const TodoInfo: React.FC<Props> = ({
     onDeleteTodo(todo.id);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const handleStatusChange = async (todo: Todo) => {
     onUpdateTodo(todo.id, {
       ...todo,
@@ -61,38 +62,39 @@ export const TodoInfo: React.FC<Props> = ({
         />
       </label>
 
-      {isTitleModifying
-        ? (
-          <NewTodo
-            onUpdateTodo={onUpdateTodo}
-            onDeleteTodo={onDeleteTodo}
-            currentTodo={todo}
-            title={todo.title}
-            onTitleModifyingChange={setIsTitleModifying}
-          />
-        ) : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => {
-                setIsTitleModifying(true);
-                newTodoField.current?.focus();
-              }}
-            >
-              {todo.title}
-            </span>
+      {!isTitleModifying && (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => {
+              setIsTitleModifying(true);
+              newTodoField.current?.focus();
+            }}
+          >
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => handleDeleteButton()}
+          >
+            ×
+          </button>
+        </>
+      )}
 
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => handleDeleteButton()}
-            >
-              ×
-            </button>
-          </>
-        )}
+      {isTitleModifying && (
+        <NewTodo
+          onUpdateTodo={onUpdateTodo}
+          onDeleteTodo={onDeleteTodo}
+          currentTodo={todo}
+          title={todo.title}
+          onTitleModifyingChange={setIsTitleModifying}
+        />
+      )}
+
       <div
         data-cy="TodoLoader"
         className={classNames(
