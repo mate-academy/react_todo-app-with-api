@@ -270,7 +270,7 @@ export const App: React.FC = () => {
           onTitleChange={handleTitleChange}
         />
 
-        {!!visibleToDos.length && (
+        {(!!visibleToDos.length || activeCount || hasCompleted) && (
           <Footer
             hasCompleted={hasCompleted}
             activeCount={activeCount}
