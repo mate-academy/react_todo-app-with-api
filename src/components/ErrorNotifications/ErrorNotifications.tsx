@@ -2,13 +2,13 @@
 import React from 'react';
 
 type Props = {
-  ErrorMessage: string,
+  errorMessage: string,
   timerId: NodeJS.Timeout,
   onErrorStatus: (errStatus: boolean) => void,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  ErrorMessage,
+  errorMessage,
   timerId,
   onErrorStatus,
 }) => {
@@ -27,7 +27,7 @@ export const ErrorNotification: React.FC<Props> = ({
         }}
       />
 
-      {ErrorMessage}
+      {errorMessage}
     </div>
   );
 };

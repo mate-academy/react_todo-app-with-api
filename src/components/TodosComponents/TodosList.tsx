@@ -8,7 +8,7 @@ type Props = {
   query: string,
   isAdding: boolean,
   user: User,
-  DeletingTodo: (id: number) => void,
+  deletingTodo: (id: number) => void,
   idsForLoader: number[];
   changeTodo: (id: number, changes: Partial<Todo>) => void,
 };
@@ -18,17 +18,24 @@ export const TodosList: React.FC<Props> = ({
   isAdding,
   query,
   user,
-  DeletingTodo,
+  deletingTodo,
   idsForLoader,
   changeTodo,
 }) => {
+  const todoId0 = {
+    id: 0,
+    completed: false,
+    title: query,
+    userId: user.id,
+  };
+
   return (
     <>
       {todos?.map(todo => (
         <TodoInfo
           key={todo.id}
-          todos={todo}
-          deletingTodo={DeletingTodo}
+          todo={todo}
+          deletingTodo={deletingTodo}
           idsForLoader={idsForLoader}
           changeTodo={changeTodo}
         />
@@ -36,14 +43,7 @@ export const TodosList: React.FC<Props> = ({
 
       {isAdding && (
         <TodoInfo
-          todos={
-            {
-              id: 0,
-              completed: false,
-              title: query,
-              userId: user.id,
-            }
-          }
+          todo={todoId0}
           isAdding={isAdding}
           idsForLoader={idsForLoader}
           changeTodo={changeTodo}

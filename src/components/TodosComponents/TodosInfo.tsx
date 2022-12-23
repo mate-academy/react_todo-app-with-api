@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todos: Todo,
+  todo: Todo,
   isAdding?: boolean,
   deletingTodo?: (id: number) => void,
   idsForLoader: number[],
@@ -11,31 +11,31 @@ type Props = {
 };
 
 export const TodoInfo: React.FC<Props> = ({
-  todos,
+  todo,
   isAdding,
   deletingTodo,
   idsForLoader,
   changeTodo,
 }) => {
-  const { title, id, completed } = todos;
+  const { title, id, completed } = todo;
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isFormExist, setIsFormExist] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
-  const TodoField = useRef<HTMLInputElement>(null);
-  const LoaderCondition = isAdding || isDeleting || idsForLoader.includes(id);
+  const todoField = useRef<HTMLInputElement>(null);
+  const loaderCondition = isAdding || isLoading || idsForLoader.includes(id);
 
   useEffect(() => {
-    if (TodoField.current) {
-      TodoField.current.focus();
+    if (todoField.current) {
+      todoField.current.focus();
     }
   }, [isFormExist]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        TodoField.current?.blur();
+        todoField.current?.blur();
       }
     };
 
@@ -48,17 +48,17 @@ export const TodoInfo: React.FC<Props> = ({
 
   const handleTodoRemoval = async () => {
     if (deletingTodo) {
-      setIsDeleting(true);
+      setIsLoading(true);
 
       await deletingTodo(id);
 
-      setIsDeleting(false);
+      setIsLoading(false);
     }
   };
 
   const handlerForUpdatingTodo = async () => {
     if (changeTodo) {
-      setIsDeleting(true);
+      setIsLoading(true);
 
       if (!completed) {
         await changeTodo(id, { completed: true });
@@ -66,7 +66,7 @@ export const TodoInfo: React.FC<Props> = ({
         await changeTodo(id, { completed: false });
       }
 
-      setIsDeleting(false);
+      setIsLoading(false);
     }
   };
 
@@ -78,10 +78,10 @@ export const TodoInfo: React.FC<Props> = ({
     }
 
     if (newTitle !== title && newTitle.trim() !== '') {
-      setIsDeleting(true);
+      setIsLoading(true);
       setIsFormExist(false);
       await changeTodo(id, { title: newTitle });
-      setIsDeleting(false);
+      setIsLoading(false);
     }
 
     setIsFormExist(false);
@@ -109,7 +109,7 @@ export const TodoInfo: React.FC<Props> = ({
             <input
               data-cy="TodoTitleField"
               type="text"
-              ref={TodoField}
+              ref={todoField}
               onBlur={handleSubmit}
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
@@ -149,7 +149,7 @@ export const TodoInfo: React.FC<Props> = ({
         className={classNames(
           'modal overlay',
           {
-            'is-active': LoaderCondition,
+            'is-active': loaderCondition,
           },
         )}
       >

@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoFilter, setTodoFilter] = useState(FilterValues.ALL);
   const [errorStatus, setErrorStatus] = useState(false);
-  const [ErrorMessage, setErrorMessage] = useState(ErrorValues.DEFAULT);
+  const [errorMessage, setErrorMessage] = useState(ErrorValues.DEFAULT);
   const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
 
   const [query, setQuery] = useState('');
@@ -39,6 +39,10 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const getErrorStatus = (currentError: ErrorValues) => {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
     setErrorMessage(currentError);
 
     setErrorStatus(true);
@@ -50,18 +54,6 @@ export const App: React.FC = () => {
     }, 3000);
 
     setTimerId(handleId);
-
-    if (timerId) {
-      clearTimeout(timerId);
-    }
-  };
-
-  const setterErrorStatus = (errStatus: boolean) => {
-    setErrorStatus(errStatus);
-  };
-
-  const setterOfQuery = (settedQuery: string) => {
-    setQuery(settedQuery);
   };
 
   const reloadTodos = async () => {
@@ -207,7 +199,7 @@ export const App: React.FC = () => {
           changeAllTodosStatus={changeAllTodosStatus}
           AddingTodos={addingTodos}
           getErrorStatus={getErrorStatus}
-          onSetterOfQuery={setterOfQuery}
+          onSetterOfQuery={setQuery}
         />
 
         {todos.length > 0 && user && (
@@ -218,8 +210,8 @@ export const App: React.FC = () => {
                 todos={visibleTodos}
                 query={query}
                 isAdding={isAdding}
-                DeletingTodo={deletingTodo}
                 idsForLoader={idsForLoader}
+                deletingTodo={deletingTodo}
                 changeTodo={changeTodo}
               />
             </section>
@@ -237,8 +229,8 @@ export const App: React.FC = () => {
       {errorStatus && timerId && (
         <ErrorNotification
           timerId={timerId}
-          ErrorMessage={ErrorMessage}
-          onErrorStatus={setterErrorStatus}
+          errorMessage={errorMessage}
+          onErrorStatus={setErrorStatus}
         />
       )}
     </div>
