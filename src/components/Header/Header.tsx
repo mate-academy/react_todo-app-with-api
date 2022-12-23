@@ -9,13 +9,14 @@ import { AuthContext } from '../Auth/AuthContext';
 import { Todo } from '../../types/Todo';
 
 interface Props {
+  onMultipleLoad: React.Dispatch<React.SetStateAction<number[]>>
   onError: React.Dispatch<React.SetStateAction<TodoErrors>>,
   onAdd: (id: number) => Promise<void>,
   todosFromServer: Todo[],
 }
 
 export const Header: FC<Props> = memo(({
-  onError, onAdd, todosFromServer,
+  onError, onAdd, todosFromServer, onMultipleLoad,
 }) => {
   const [input, setInput] = useState<string>('');
   const [isAdding, setIsAdding] = useState<boolean>(false);
@@ -63,15 +64,25 @@ export const Header: FC<Props> = memo(({
   const completedTodos = getTodosByCompletion(todosFromServer, true);
   const isAllDone = completedTodos.length === todosFromServer.length;
 
-  const handleToggleAll = () => {
-    const updatePromises = getTodosByCompletion(todosFromServer, isAllDone)
+  const handleToggleAll = async () => {
+    const todosToUpdate = getTodosByCompletion(todosFromServer, isAllDone);
+
+    onMultipleLoad(todosToUpdate.map(todo => todo.id));
+
+    const updatePromises = todosToUpdate
       .map(todo => updateTodoStatus(todo.id, !todo.completed));
 
-    Promise.all(updatePromises).then(() => {
+    try {
+      await Promise.all(updatePromises);
+
       if (user) {
         onAdd(user.id);
       }
-    });
+    } catch (error) {
+      onError(TodoErrors.onUpdate);
+    } finally {
+      onMultipleLoad([]);
+    }
   };
 
   return (

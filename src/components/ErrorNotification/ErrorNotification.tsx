@@ -4,17 +4,17 @@ import { FC, useEffect } from 'react';
 import { TodoErrors } from '../../types/ErrorMessages';
 
 interface Props {
-  handleSkipErrorClick: React.Dispatch<React.SetStateAction<TodoErrors>>,
+  onErrorSkip: React.Dispatch<React.SetStateAction<TodoErrors>>,
   message: string,
 }
 
 export const ErrorNotification: FC<Props> = ({
-  handleSkipErrorClick,
+  onErrorSkip,
   message,
 }) => {
   useEffect(() => {
     setTimeout(() => {
-      handleSkipErrorClick(TodoErrors.none);
+      onErrorSkip(TodoErrors.none);
     }, 3000);
   }, [message]);
 
@@ -33,7 +33,7 @@ export const ErrorNotification: FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => handleSkipErrorClick(TodoErrors.none)}
+        onClick={() => onErrorSkip(TodoErrors.none)}
       />
       <span>{message}</span>
     </div>

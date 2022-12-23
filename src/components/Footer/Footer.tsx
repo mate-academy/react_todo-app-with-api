@@ -6,14 +6,19 @@ import { filterByContext } from '../FilterContext/FilterContext';
 import { FilterOptions } from '../../types/FilterOptions';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
+import { TodoErrors } from '../../types/ErrorMessages';
 
 interface Props {
+  onError: React.Dispatch<React.SetStateAction<TodoErrors>>,
+  onMultipleLoad: React.Dispatch<React.SetStateAction<number[]>>,
   todosFromServer: Todo[],
   onFilterChange: React.Dispatch<React.SetStateAction<FilterOptions>>,
   loadTodos: (id: number) => Promise<void>,
 }
 
 export const Footer: FC<Props> = ({
+  onError,
+  onMultipleLoad,
   todosFromServer,
   onFilterChange,
   loadTodos,
@@ -22,15 +27,23 @@ export const Footer: FC<Props> = ({
   const user = useContext(AuthContext);
   const completedTodos = getTodosByCompletion(todosFromServer, true);
 
-  const hadleDeleteCompleted = () => {
-    const deletePromises = getTodosByCompletion(todosFromServer, true)
+  const hadleDeleteCompleted = async () => {
+    onMultipleLoad(completedTodos.map(todo => todo.id));
+
+    const deletePromises = completedTodos
       .map(todo => removeTodo(todo.id));
 
-    Promise.all(deletePromises).then(() => {
+    try {
+      await Promise.all(deletePromises);
+
       if (user) {
         loadTodos(user.id);
       }
-    });
+    } catch (error) {
+      onError(TodoErrors.onDelete);
+    } finally {
+      onMultipleLoad([]);
+    }
   };
 
   return (

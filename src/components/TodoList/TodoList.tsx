@@ -7,6 +7,7 @@ import { TodoItem } from '../TodoItem/TodoItem';
 import { FilterOptions } from '../../types/FilterOptions';
 
 interface Props {
+  activeTodoIds: number[],
   todosFromServer: Todo[],
   filterBy: FilterOptions,
   loadTodos: (id: number) => Promise<void>,
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const TodoList: FC<Props> = memo(({
+  activeTodoIds,
   todosFromServer,
   loadTodos,
   setErrorMessage,
@@ -37,6 +39,7 @@ export const TodoList: FC<Props> = memo(({
         return (
           <Fragment key={todo.id}>
             <TodoItem
+              hasActiveId={activeTodoIds.includes(todo.id)}
               todo={todo}
               loadTodos={loadTodos}
               setErrorMessage={setErrorMessage}

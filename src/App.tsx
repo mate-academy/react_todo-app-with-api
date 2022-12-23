@@ -20,6 +20,7 @@ export const App: FC = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterOptions>(FilterOptions.All);
   const [errorText, setErrorText] = useState<TodoErrors>(TodoErrors.none);
+  const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
 
   const loadTodosFromServer = async (id: number) => {
     try {
@@ -43,6 +44,7 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
+          onMultipleLoad={setActiveTodoIds}
           onError={setErrorText}
           onAdd={loadTodosFromServer}
           todosFromServer={todosFromServer}
@@ -51,6 +53,7 @@ export const App: FC = () => {
         {todosFromServer.length > 0 && (
           <>
             <TodoList
+              activeTodoIds={activeTodoIds}
               todosFromServer={todosFromServer}
               filterBy={filterBy}
               loadTodos={loadTodosFromServer}
@@ -58,6 +61,8 @@ export const App: FC = () => {
             />
             <filterByContext.Provider value={filterBy}>
               <Footer
+                onError={setErrorText}
+                onMultipleLoad={setActiveTodoIds}
                 todosFromServer={todosFromServer}
                 loadTodos={loadTodosFromServer}
                 onFilterChange={setFilterBy}
@@ -69,7 +74,7 @@ export const App: FC = () => {
 
       <ErrorNotification
         message={errorText}
-        handleSkipErrorClick={setErrorText}
+        onErrorSkip={setErrorText}
       />
     </div>
   );

@@ -11,12 +11,14 @@ type InputEvent = React.FormEvent<HTMLFormElement>
 | React.FocusEvent<HTMLInputElement, Element>;
 
 interface Props {
+  hasActiveId: boolean,
   todo: Todo,
   loadTodos: (id: number) => Promise<void>
   setErrorMessage: React.Dispatch<React.SetStateAction<TodoErrors>>
 }
 
 export const TodoItem: FC<Props> = memo(({
+  hasActiveId,
   todo,
   loadTodos,
   setErrorMessage,
@@ -196,7 +198,7 @@ export const TodoItem: FC<Props> = memo(({
           </>
         )}
 
-      {isLoading === true && (
+      {(isLoading || hasActiveId) && (
         <div
           data-cy="TodoLoader"
           className="modal overlay is-active"
