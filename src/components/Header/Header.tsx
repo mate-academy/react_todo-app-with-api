@@ -31,7 +31,6 @@ export const Header: React.FC<Props> = ({
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
