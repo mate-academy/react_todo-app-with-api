@@ -89,15 +89,18 @@ export const App: React.FC = () => {
           toLoad={fetchData}
         />
 
-        <Footer
-          todos={todos}
-          onSetFilterGlobal={setSelectedFilter}
-          selectedFilter={selectedFilter}
-          onSetIsError={setIsError}
-          onSetTypeError={setTypeError}
-          toLoad={fetchData}
-          onSetisDeletedComplete={setisDeletedComplete}
-        />
+        { todos.length > 0 && (
+          <Footer
+            todos={todos}
+            onSetFilterGlobal={setSelectedFilter}
+            selectedFilter={selectedFilter}
+            onSetIsError={setIsError}
+            onSetTypeError={setTypeError}
+            toLoad={fetchData}
+            onSetisDeletedComplete={setisDeletedComplete}
+          />
+        )}
+
       </div>
 
       <ErrorNotification

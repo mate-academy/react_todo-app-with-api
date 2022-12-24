@@ -81,16 +81,17 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleCloseInputEdit = (id: number) => {
     if (!titleInputEdit) {
+      // setIsInputEditOpen(false);
       deleteTodo(id);
-      setIsInputEditOpen(false);
 
       return;
     }
 
     if (todo.title !== titleInputEdit) {
       updateTodo(id, { title: titleInputEdit });
-      setIsInputEditOpen(false);
     }
+
+    setIsInputEditOpen(false);
   };
 
   const handleSubmitFormInput = (event: React.FormEvent, id: number) => {
