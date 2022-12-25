@@ -76,6 +76,10 @@
       font-weight: 300;
       color: #e6e6e6;
     }
+
+    &.todoapp__update-todo-title {
+      padding: 12px 15px;
+    }
   }
 
   &__main {
@@ -121,6 +125,12 @@
     appearance: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    &.hidden {
+      min-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
 
     &:hover {
       text-decoration: underline;
