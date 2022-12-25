@@ -137,11 +137,16 @@ export const App: React.FC = () => {
       setFocusetTodoId(todoId);
 
       await updateTodo(todoId, todoData);
-      const todosFromServer = user && await getTodos(user.id);
 
-      if (todosFromServer) {
-        setTodos(todosFromServer);
-      }
+      const newTodos = todos.map(todo => {
+        if (todoId === todo.id) {
+          return { ...todoData };
+        }
+
+        return todo;
+      });
+
+      setTodos(newTodos);
 
       setLoader(false);
     } catch {

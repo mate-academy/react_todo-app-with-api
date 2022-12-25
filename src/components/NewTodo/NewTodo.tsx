@@ -41,6 +41,12 @@ export const NewTodo: React.FC<Props> = ({
     onTitleModifyingChange(false);
   };
 
+  const handleEscapeButton = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      onTitleModifyingChange(false);
+    }
+  };
+
   return (
     <form onSubmit={handleFormSubmit}>
       <input
@@ -53,7 +59,11 @@ export const NewTodo: React.FC<Props> = ({
         onChange={(event) => {
           setNewTitle(event.target.value);
         }}
-        onBlur={() => onTitleModifyingChange(false)}
+        onBlur={(event) => {
+          handleFormSubmit(event);
+          onTitleModifyingChange(false);
+        }}
+        onKeyDown={handleEscapeButton}
       />
     </form>
   );
