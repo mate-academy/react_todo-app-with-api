@@ -1,27 +1,25 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
-import { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 type Props = {
   title: string,
   changeTitle: (value: string) => void,
-  onSetTitleError?: () => void,
+  clearErrorMessage?: () => void,
   isAdding?: boolean,
   onSetIsEditing?: (isEdit: boolean) => void,
   onSubmit: () => void,
 };
 
-export const NewTodoField: React.FC<Props> = (
-  {
-    onSetTitleError,
-    title,
-    changeTitle,
-    onSetIsEditing,
-    isAdding,
-    onSubmit,
-  },
-) => {
+export const NewTodoField: React.FC<Props> = React.memo(({
+  clearErrorMessage,
+  title,
+  changeTitle,
+  onSetIsEditing,
+  isAdding,
+  onSubmit,
+}) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,20 +34,20 @@ export const NewTodoField: React.FC<Props> = (
     }
   }, [isAdding]);
 
-  const addNewTodo = (event: React.FormEvent<HTMLFormElement>) => {
+  const addNewTodo = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit();
-  };
+  }, [title]);
 
-  const handleChangeTitle = (
+  const handleChangeTitle = useCallback((
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    if (onSetTitleError) {
-      onSetTitleError();
+    if (clearErrorMessage) {
+      clearErrorMessage();
     }
 
     changeTitle(event.target.value);
-  };
+  }, []);
 
   const onEscapeClick = useCallback((event: React.KeyboardEvent) => {
     if (event.code === 'Escape' && onSetIsEditing) {
@@ -58,11 +56,11 @@ export const NewTodoField: React.FC<Props> = (
     }
   }, []);
 
-  const onBlur = () => {
+  const onBlur = useCallback(() => {
     if (onSetIsEditing) {
       onSubmit();
     }
-  };
+  }, [title]);
 
   return (
     <form
@@ -86,4 +84,4 @@ export const NewTodoField: React.FC<Props> = (
       />
     </form>
   );
-};
+});

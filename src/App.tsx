@@ -1,7 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -26,7 +28,7 @@ export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
 
-  const getTodosFromServer = async () => {
+  const getTodosFromServer = useCallback(async () => {
     if (user) {
       try {
         const todosFromServer = await getTodos(user.id);
@@ -37,14 +39,18 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorTypes.LOADING);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     getTodosFromServer();
   }, []);
 
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = useMemo(() => todos.filter(
+    todo => todo.completed,
+  ), [todos]);
+  const activeTodos = useMemo(() => todos.filter(
+    todo => !todo.completed,
+  ), [todos]);
 
   let visibleTodos = todos;
 
@@ -57,85 +63,85 @@ export const App: React.FC = () => {
       visibleTodos = activeTodos;
       break;
 
+    case Filter.ALL:
+      visibleTodos = todos;
+      break;
+
     default: visibleTodos = todos;
   }
 
-  const errorInfo = (errorTitle: ErrorTypes) => {
+  const errorInfo = useCallback((errorTitle: ErrorTypes) => {
     setHasLoadingError(true);
     setErrorMessage(errorTitle);
-  };
+  }, []);
 
-  const clearErrorMessage = () => setHasLoadingError(false);
+  const clearErrorMessage = useCallback(() => setHasLoadingError(false), []);
 
-  const addNewTodo = (newTodo: Todo) => setTodos(
+  const addNewTodo = useCallback((newTodo: Todo) => setTodos(
     (prevTodos) => [...prevTodos, newTodo],
-  );
+  ), []);
 
-  const addTodoToLoadingList = (idToAdd: number) => setLoadingList(
+  const addTodoToLoadingList = useCallback((idToAdd: number) => setLoadingList(
     prevIds => [...prevIds, idToAdd],
+  ), []);
+
+  const deleteTodoOfLoadingList = useCallback(
+    (idToRemove: number) => setLoadingList(
+      prevIds => prevIds.filter(id => id !== idToRemove),
+    ), [],
   );
 
-  const deleteTodoOfLoadingList = (idToRemove: number) => setLoadingList(
-    prevIds => prevIds.filter(id => id !== idToRemove),
-  );
-
-  const clearLoadingList = () => setLoadingList([]);
+  const clearLoadingList = useCallback(() => setLoadingList([]), []);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      {errorMessage === ErrorTypes.LOADING
-        ? (
-          <>
-            <span>Error... Can not load your todos</span>
-          </>
-        )
-        : (
-          <div className="todoapp__content">
-            <Header
-              user={user}
-              titleToAdd={title}
-              changeTitle={setTitle}
-              onSetTodo={addNewTodo}
-              errorInfo={errorInfo}
-              onSetIsAdding={setIsAdding}
-              isAdding={isAdding}
-              completedTodos={completedTodos}
-              activeTodos={activeTodos}
-              todos={todos}
-              loadTodos={getTodosFromServer}
-              addTodoToLoadingList={addTodoToLoadingList}
-              clearLoadingList={clearLoadingList}
-              clearErrorMessage={clearErrorMessage}
-            />
+      <div className="todoapp__content">
+        <Header
+          user={user}
+          titleToAdd={title}
+          changeTitle={setTitle}
+          onSetTodo={addNewTodo}
+          errorInfo={errorInfo}
+          onSetIsAdding={setIsAdding}
+          isAdding={isAdding}
+          completedTodos={completedTodos}
+          activeTodos={activeTodos}
+          todos={todos}
+          loadTodos={getTodosFromServer}
+          addTodoToLoadingList={addTodoToLoadingList}
+          clearLoadingList={clearLoadingList}
+          clearErrorMessage={clearErrorMessage}
+        />
 
-            <TodoList
-              visibleTodos={visibleTodos}
-              loadTodos={getTodosFromServer}
-              isAdding={isAdding}
-              title={title}
-              user={user}
-              addTodoToLoadingList={addTodoToLoadingList}
-              deleteTodoOfLoadingList={deleteTodoOfLoadingList}
-              loadingList={loadingList}
-              errorInfo={errorInfo}
-            />
+        <TodoList
+          visibleTodos={visibleTodos}
+          loadTodos={getTodosFromServer}
+          isAdding={isAdding}
+          title={title}
+          user={user}
+          addTodoToLoadingList={addTodoToLoadingList}
+          deleteTodoOfLoadingList={deleteTodoOfLoadingList}
+          loadingList={loadingList}
+          errorInfo={errorInfo}
+        />
 
-            <Footer
-              activeTodos={activeTodos}
-              filterBy={filterBy}
-              selectFilterField={setFilterBy}
-              completedTodos={completedTodos}
-              addTodoToLoadingList={addTodoToLoadingList}
-              clearLoadingList={clearLoadingList}
-              loadTodos={getTodosFromServer}
-            />
-          </div>
+        {todos.length > 0 && (
+          <Footer
+            activeTodos={activeTodos}
+            filterBy={filterBy}
+            selectFilterField={setFilterBy}
+            completedTodos={completedTodos}
+            addTodoToLoadingList={addTodoToLoadingList}
+            clearLoadingList={clearLoadingList}
+            loadTodos={getTodosFromServer}
+          />
         )}
+      </div>
 
       <Error
-        clearErrorMessage={() => setHasLoadingError(false)}
+        clearErrorMessage={clearErrorMessage}
         hasLoadingError={hasLoadingError}
         errorMessage={errorMessage}
       />

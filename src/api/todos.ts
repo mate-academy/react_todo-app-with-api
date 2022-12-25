@@ -31,5 +31,3 @@ export const updateTodo = async (
 
   return newTodo;
 };
-
-// Add more methods here

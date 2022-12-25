@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { removeTodo, updateTodo } from '../api/todos';
 import { ErrorTypes } from '../types/ErrorTypes';
 import { Todo } from '../types/Todo';
@@ -33,10 +33,9 @@ export const TodoInfo: React.FC<Props> = (
   } = todo;
 
   const [newTitle, setNewTitle] = useState(title);
-
   const [isEditing, setIsEditing] = useState(false);
 
-  const onDeleteTodo = async () => {
+  const onDeleteTodo = useCallback(async () => {
     addTodoToLoadingList(id);
 
     try {
@@ -47,9 +46,9 @@ export const TodoInfo: React.FC<Props> = (
     }
 
     deleteTodoOfLoadingList(id);
-  };
+  }, []);
 
-  const onUpdateStatusTodo = async () => {
+  const onUpdateStatusTodo = useCallback(async () => {
     addTodoToLoadingList(id);
 
     try {
@@ -60,15 +59,17 @@ export const TodoInfo: React.FC<Props> = (
     }
 
     deleteTodoOfLoadingList(id);
-  };
+  }, [completed]);
 
-  const handleDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
-    if (event.detail === 2) {
-      setIsEditing(true);
-    }
-  };
+  const handleDoubleClick = useCallback(
+    (event: React.MouseEvent<HTMLInputElement>) => {
+      if (event.detail === 2) {
+        setIsEditing(true);
+      }
+    }, [],
+  );
 
-  const onUpdateTodoTitle = async () => {
+  const onUpdateTodoTitle = useCallback(async () => {
     if (newTitle.trim().length === 0) {
       setIsEditing(false);
       onDeleteTodo();
@@ -94,7 +95,7 @@ export const TodoInfo: React.FC<Props> = (
     }
 
     deleteTodoOfLoadingList(id);
-  };
+  }, [newTitle, title]);
 
   return (
     <div

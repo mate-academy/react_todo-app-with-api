@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 type Props = {
   clearErrorMessage: () => void,
@@ -8,12 +8,12 @@ type Props = {
   errorMessage: string,
 };
 
-export const Error: React.FC<Props> = (
+export const Error: React.FC<Props> = React.memo((
   { clearErrorMessage, hasLoadingError, errorMessage },
 ) => {
   useEffect(() => {
     setTimeout(() => clearErrorMessage(), 3000);
-  });
+  }, [hasLoadingError]);
 
   return (
     <div
@@ -35,4 +35,4 @@ export const Error: React.FC<Props> = (
       />
     </div>
   );
-};
+});
