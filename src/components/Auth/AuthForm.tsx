@@ -30,8 +30,8 @@ export const AuthForm: React.FC<Props> = memo(({ onLogin }) => {
       const user = JSON.parse(userData) as User;
 
       onLogin(user);
-    } catch (error) {
-      // Need to login
+    } catch {
+      setErrorMessage('Need to login');
     }
   }, []);
 

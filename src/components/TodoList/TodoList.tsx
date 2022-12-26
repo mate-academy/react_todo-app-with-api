@@ -27,6 +27,17 @@ export const TodoList: React.FC<Props> = memo(({
   onChangeStatus,
   onEditTitle,
 }) => {
+  const isLoading = (todoId: number) => {
+    switch (true) {
+      case (completedTodosId.includes(todoId)):
+      case (todoId === deletingTodoId):
+      case (todoId === updatingTodoId):
+      case (isUpdating):
+      default:
+        return true;
+    }
+  };
+
   return (
     <>
       {todos.map((todo) => (
@@ -36,12 +47,7 @@ export const TodoList: React.FC<Props> = memo(({
           onDelete={onDelete}
           onChangeStatus={onChangeStatus}
           onEditTitle={onEditTitle}
-          isLoading={
-            completedTodosId.includes(todo.id)
-            || deletingTodoId === todo.id
-            || updatingTodoId === todo.id
-            || isUpdating
-          }
+          isLoading={isLoading(todo.id)}
         />
       ))}
 

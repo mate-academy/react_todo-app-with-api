@@ -64,7 +64,7 @@ export const App: React.FC = () => {
     loadUsersTodos();
   }, []);
 
-  const visibleTodos = useCallback(() => {
+  const processedTodos = useCallback(() => {
     const {
       completed,
       active,
@@ -75,14 +75,18 @@ export const App: React.FC = () => {
       switch (filter) {
         case completed:
           return todo.completed;
+
         case active:
           return !todo.completed;
+
         case all:
         default:
           return todo;
       }
     });
   }, [filter, todos]);
+
+  const visibleTodos = processedTodos();
 
   const activeTodos = todos.filter(todo => !todo.completed);
 
@@ -242,7 +246,7 @@ export const App: React.FC = () => {
           data-cy="TodoList"
         >
           <TodoList
-            todos={visibleTodos()}
+            todos={visibleTodos}
             isAdding={isAdding}
             isUpdating={isUpdating}
             title={title}
@@ -255,13 +259,15 @@ export const App: React.FC = () => {
           />
         </section>
 
-        <Footer
-          activeTodos={activeTodos.length}
-          onSetFilter={setFilter}
-          filter={filter}
-          todos={todos}
-          handleClearCompleteed={handleClearCompleteed}
-        />
+        {(isAdding || !!todos.length) && (
+          <Footer
+            activeTodos={activeTodos.length}
+            onSetFilter={setFilter}
+            filter={filter}
+            todos={todos}
+            handleClearCompleteed={handleClearCompleteed}
+          />
+        )}
       </div>
 
       {errorType && (
