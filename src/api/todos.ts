@@ -23,3 +23,10 @@ export const updateTodoStatus = (id: number, completed: boolean) => {
     completed,
   });
 };
+
+export const updateTodoTitle = (id: number, title: string) => {
+  return client.patch<Todo>(`/todos/${id}`, {
+    id,
+    title,
+  });
+};

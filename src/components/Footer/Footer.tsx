@@ -1,22 +1,22 @@
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
-import { Filters } from '../types/Filters';
-import { Todo } from '../types/Todo';
+import { Filters } from '../../types/Filters';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[],
-  visibleTodos: Todo[],
   setVisibleTodos: (param: Todo[]) => void,
   onRemoveCompleted: () => Promise<void>,
   completedTodos: Todo[],
+  activeTodosCount: number,
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
-  visibleTodos,
   setVisibleTodos,
   onRemoveCompleted,
   completedTodos,
+  activeTodosCount,
 }) => {
   const [filterType, setFilterType] = useState<Filters>(Filters.all);
 
@@ -42,7 +42,7 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${visibleTodos.length} items left`}
+        {`${activeTodosCount} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

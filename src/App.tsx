@@ -6,17 +6,23 @@ import React, {
   useState,
 } from 'react';
 import {
-  addTodo, deleteTodo, getCompletedTodos, getTodos, updateTodoStatus,
+  addTodo,
+  deleteTodo,
+  getCompletedTodos,
+  getTodos,
+  updateTodoStatus,
+  updateTodoTitle,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 
-import { ErrorNotification } from './components/ErrorNotification';
-import { Footer } from './components/Footer';
-import { NewTodo } from './components/TodoComponents/NewTodo';
+import { ErrorNotification }
+  from './components/ErrorNotifications/ErrorNotification';
+import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoComponents/TodoList';
 import { ErrorTypes } from './types/ErrorTypes';
 import { Todo } from './types/Todo';
 import './App.scss';
+import { Header } from './components/TodoComponents/Header';
 
 export const App: React.FC = () => {
   const [isErrorMessage, setIsErrorMessage]
@@ -139,6 +145,20 @@ export const App: React.FC = () => {
     }
   };
 
+  const updateTitle = async (id: number, title: string) => {
+    try {
+      if (user) {
+        setActiveTodoIds(prevIds => [...prevIds, id]);
+        await updateTodoTitle(id, title);
+        await loadTodos();
+
+        setActiveTodoIds(prevIds => prevIds.filter(todoId => todoId !== id));
+      }
+    } catch {
+      setIsErrorMessage(ErrorTypes.update);
+    }
+  };
+
   useEffect(() => {
     loadTodos();
   }, []);
@@ -148,21 +168,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            aria-label="ToggleAllButton"
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={toggleAllTodoStatus}
-          />
-
-          <NewTodo
-            addNewTodo={addNewTodo}
-            isAdding={isAdding}
-            setIsErrorMessage={setIsErrorMessage}
-          />
-        </header>
+        <Header
+          toggleAllTodoStatus={toggleAllTodoStatus}
+          addNewTodo={addNewTodo}
+          isAdding={isAdding}
+          setIsErrorMessage={setIsErrorMessage}
+          activeTodosCount={activeTodosCount}
+        />
 
         {todos.length > 0 && (
           <>
@@ -173,14 +185,15 @@ export const App: React.FC = () => {
               onRemove={removeTodo}
               activeTodoIds={activeTodoIds}
               onTodoToogle={toggleTodoStatus}
+              updateTitle={updateTitle}
             />
 
             <Footer
               todos={todos}
-              visibleTodos={visibleTodos}
               setVisibleTodos={setVisibleTodos}
               onRemoveCompleted={removeCompletedTodos}
               completedTodos={completedTodos}
+              activeTodosCount={activeTodosCount}
             />
           </>
         )}
