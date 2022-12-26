@@ -22,7 +22,7 @@ export const TodoForm: React.FC<Props> = (
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  });
 
   return (
     <form onSubmit={onSubmit}>

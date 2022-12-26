@@ -21,7 +21,10 @@ export const TodoList: React.FC<Props> = ({
   onTodoTitleUpdate,
 }) => {
   return (
-    <section className="todoapp__main" data-cy="TodoList">
+    <section
+      className="todoapp__main"
+      data-cy="TodoList"
+    >
       {todos.map(todo => (
         <TodoItem
           key={todo.id}

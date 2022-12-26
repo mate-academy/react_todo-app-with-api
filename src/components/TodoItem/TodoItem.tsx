@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
       setIsEditing(false);
       setNewTitle(todo.title);
     }
-  }
+  };
 
   const handleDelete = async () => {
     await onDelete();

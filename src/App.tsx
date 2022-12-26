@@ -57,6 +57,10 @@ export const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    todosFilter();
+  }, [status]);
+
   const completedTodos = todos.filter(todo => todo.completed);
 
   const visibleTodos = todosFilter();
@@ -66,7 +70,7 @@ export const App: React.FC = () => {
 
     setError(Error.None);
 
-    if (title && user) {
+    if (title.trim().length > 0 && user) {
       setIsAdding(true);
       try {
         await addTodo({
@@ -74,7 +78,9 @@ export const App: React.FC = () => {
           title: title.trim(),
           completed: false,
         });
+
         await loadTodos();
+
         setTitle('');
       } catch {
         setError(Error.Add);
@@ -87,13 +93,13 @@ export const App: React.FC = () => {
   };
 
   const deleteCurrentTodo = async (todoId: number) => {
-    setLoadingTodoIds(prevIds => [...prevIds, todoId]);
+    try {
+      await deleteTodo(todoId);
 
-    await deleteTodo(todoId);
-
-    await loadTodos();
-
-    setLoadingTodoIds([]);
+      await loadTodos();
+    } catch {
+      setError(Error.Delete);
+    }
   };
 
   const deleteComplitedTodos = async () => {
@@ -167,12 +173,16 @@ export const App: React.FC = () => {
 
         <div className="todoapp__content">
           <header className="todoapp__header">
-            <button
-              data-cy="ToggleAllButton"
-              type="button"
-              className="todoapp__toggle-all active"
-              onClick={completeAllTodos}
-            />
+            {todos.length > 0
+              && (
+                <button
+                  data-cy="ToggleAllButton"
+                  type="button"
+                  className="todoapp__toggle-all active"
+                  onClick={completeAllTodos}
+                />
+              )}
+
             <TodoForm
               title={title}
               isAdding={isAdding}
@@ -180,41 +190,45 @@ export const App: React.FC = () => {
               onTitleChange={setTitle}
             />
           </header>
-          <TodoList
-            loadingTodoIds={loadingTodoIds}
-            todos={visibleTodos}
-            onTodoDelete={deleteCurrentTodo}
-            onTodoStatusUpdate={updateTodoStatus}
-            onTodoTitleUpdate={updateTodoTitle}
-          />
+          {todos.length > 0
+            && (
+              <>
+                <TodoList
+                  loadingTodoIds={loadingTodoIds}
+                  todos={visibleTodos}
+                  onTodoDelete={deleteCurrentTodo}
+                  onTodoStatusUpdate={updateTodoStatus}
+                  onTodoTitleUpdate={updateTodoTitle}
+                />
 
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="todosCounter">
-              {`${todos.filter(todo => !todo.completed).length} items left`}
-            </span>
+                <footer className="todoapp__footer" data-cy="Footer">
+                  <span className="todo-count" data-cy="todosCounter">
+                    {`${todos.filter(todo => !todo.completed).length} items left`}
+                  </span>
 
-            <TodoFilter
-              status={status}
-              onStatusChange={setStatus}
-            />
-            <button
-              data-cy="ClearCompletedButton"
-              type="button"
-              className={classNames(
-                'todoapp__clear-completed',
-                {
-                  'todoapp__clear-completed--hidden':
-                    completedTodos.length === 0,
-                },
-              )}
-              onClick={deleteComplitedTodos}
-            >
-              Clear completed
-            </button>
+                  <TodoFilter
+                    status={status}
+                    onStatusChange={setStatus}
+                  />
+                  <button
+                    data-cy="ClearCompletedButton"
+                    type="button"
+                    className={classNames(
+                      'todoapp__clear-completed',
+                      {
+                        'todoapp__clear-completed--hidden':
+                          completedTodos.length === 0,
+                      },
+                    )}
+                    onClick={deleteComplitedTodos}
+                  >
+                    Clear completed
+                  </button>
 
-          </footer>
+                </footer>
+              </>
+            )}
         </div>
-
         <ErrorNotifications error={error} onErrorMessageChange={setError} />
       </div>
     </AuthProvider>
