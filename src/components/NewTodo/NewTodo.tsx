@@ -20,7 +20,7 @@ export const NewTodo: React.FC<Props> = ({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  });
 
   return (
     <form onSubmit={onSubmit}>
