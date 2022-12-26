@@ -65,12 +65,14 @@ export const App: React.FC = () => {
     })
   ), [todos, filter]);
 
-  const incompletedTodos: number = useMemo(() => {
+  const incompletedTodosLength: number = useMemo(() => {
     return todos.filter(todo => todo.completed === false).length;
   }, [todos]);
 
   const allTodosCompleted: boolean = useMemo(() => {
-    return todos.every(todo => todo.completed === true);
+    return todos.length
+      ? todos.every(todo => todo.completed === true)
+      : false;
   }, [todos]);
 
   const OneAndMoreTodosCompleted: boolean = useMemo(() => {
@@ -211,7 +213,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
-              {`${incompletedTodos} items left`}
+              {`${incompletedTodosLength} items left`}
             </span>
 
             <Filter filter={filter} onSelectFilter={setFilter} />
