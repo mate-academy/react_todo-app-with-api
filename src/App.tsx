@@ -212,7 +212,6 @@ export const App: React.FC = () => {
         />
 
         <FilterTodoList
-          todosLeft={visibleTodos.length}
           setFilterType={setFilterType}
           filterType={filterType}
           visibleTodos={visibleTodos}

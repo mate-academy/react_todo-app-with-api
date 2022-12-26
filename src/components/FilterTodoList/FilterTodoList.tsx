@@ -4,7 +4,7 @@ import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-  todosLeft: number;
+
   setFilterType: (filterType: FilterType) => void,
   filterType: FilterType,
   clearAllHandler: () => void,
@@ -12,7 +12,6 @@ interface Props {
 }
 
 export const FilterTodoList: React.FC<Props> = ({
-  todosLeft,
   setFilterType,
   filterType,
   clearAllHandler,
@@ -21,10 +20,13 @@ export const FilterTodoList: React.FC<Props> = ({
   const isClearButtondisabled = visibleTodos
     .some(todo => todo.completed === true);
 
+  const countCompletedTodos = visibleTodos
+    .filter(todo => todo.completed === false);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todosLeft} items left`}
+        {`${countCompletedTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
