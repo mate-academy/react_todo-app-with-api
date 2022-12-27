@@ -13,7 +13,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data: Partial<T> = {}, // we can send any data to the server
+  data: any = null, // we can send any data to the server
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -39,9 +39,9 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: Partial<T>) => request<T>(url, 'POST', data),
+  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
   patch: <T>(
-    url: string, data: Partial<T>,
+    url: string, data: any,
   ) => request<T>(url, 'PATCH', data),
   delete: (url: string) => request(url, 'DELETE'),
 };
