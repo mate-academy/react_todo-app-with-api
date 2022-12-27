@@ -58,7 +58,7 @@ export const App: React.FC = () => {
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      if (title.trim() !== '' && user) {
+      if (title.trim() && user) {
         await addTodo({
           userId: user.id,
           title: title.trim(),
@@ -74,46 +74,61 @@ export const App: React.FC = () => {
     }, [title, user],
   );
 
-  const deleteCurrentTodo = async (todoId: number) => {
-    setLoadingTodoId(prevIds => [...prevIds, todoId]);
-    await removeTodo(todoId);
-    await loadUserTodos();
-    setLoadingTodoId([]);
-  };
+  const deleteCurrentTodo = useCallback(
+    async (todoId: number) => {
+      setLoadingTodoId(prevIds => [...prevIds, todoId]);
+      await removeTodo(todoId);
+      await loadUserTodos();
+      setLoadingTodoId([]);
+    }, [],
+  );
 
-  const removeComplited = async () => {
-    setError(ErrorMessage.None);
+  const removeComplited = useCallback(
+    async () => {
+      setError(ErrorMessage.None);
 
-    try {
-      await Promise.all(completedTodos.map(todo => (
-        removeTodo(todo.id)
-      )));
+      try {
+        await Promise.all(completedTodos.map(todo => (
+          removeTodo(todo.id)
+        )));
+
+        await loadUserTodos();
+      } catch {
+        setError(ErrorMessage.Delete);
+      }
+    }, [completedTodos],
+  );
+
+  const handleStatusChange = useCallback(
+    async (updatedTodo: Todo) => {
+      setError(ErrorMessage.None);
+      setLoadingTodoId(prevIds => [...prevIds, updatedTodo.id]);
+
+      await editTodo(updatedTodo.id, {
+        completed: !updatedTodo.completed,
+      });
 
       await loadUserTodos();
-    } catch {
-      setError(ErrorMessage.Delete);
-    }
-  };
 
-  const handleStatusChange = async (updatedTodo: Todo) => {
-    setError(ErrorMessage.None);
-    setLoadingTodoId(prevIds => [...prevIds, updatedTodo.id]);
-
-    await editTodo(updatedTodo.id, {
-      completed: !updatedTodo.completed,
-    });
-
-    await loadUserTodos();
-
-    setLoadingTodoId([]);
-  };
+      setLoadingTodoId([]);
+    }, [],
+  );
 
   const handleTitleChange = async (
     updatedTodo: Todo,
     newTitle: string,
   ) => {
+    if (!newTitle) {
+      deleteCurrentTodo(updatedTodo.id);
+
+      return;
+    }
+
     if (newTitle !== updatedTodo.title) {
+      setLoadingTodoId(prevIds => [...prevIds, updatedTodo.id]);
       await editTodo(updatedTodo.id, { title: newTitle });
+      await loadUserTodos();
+      setLoadingTodoId([]);
     }
   };
 
@@ -166,7 +181,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length && (
+          {todos.length > 0 && (
             <button
               data-cy="ToggleAllButton"
               type="button"
@@ -187,7 +202,7 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}
