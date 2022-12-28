@@ -1,10 +1,9 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-
   setFilterType: (filterType: FilterType) => void,
   filterType: FilterType,
   clearAllHandler: () => void,
@@ -20,13 +19,15 @@ export const FilterTodoList: React.FC<Props> = ({
   const isClearButtondisabled = visibleTodos
     .some(todo => todo.completed === true);
 
-  const countCompletedTodos = visibleTodos
-    .filter(todo => todo.completed === false);
+  const countCompletedTodos = useMemo(
+    () => visibleTodos
+      .filter(todo => todo.completed === false).length, [visibleTodos],
+  );
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${countCompletedTodos.length} items left`}
+        {`${countCompletedTodos} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
