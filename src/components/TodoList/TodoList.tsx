@@ -162,11 +162,7 @@ export const TodoList: React.FC<Props> = React.memo(
 
             <div
               data-cy="TodoLoader"
-              className={classNames(
-                'modal overlay',
-                { 'is-active': true },
-              )}
-
+              className="modal overlay is-active"
             >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

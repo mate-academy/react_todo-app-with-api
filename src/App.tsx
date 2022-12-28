@@ -24,7 +24,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
   const [error, setError] = useState<ErrorType>('');
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.all);
   const [isAdding, setIsAdding] = useState(false);
   const [toggleAll, setToggleAll] = useState(false);
   const [isLoading, setIsLoading] = useState<Loading>({});
