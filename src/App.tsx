@@ -262,8 +262,8 @@ export const App: React.FC = () => {
           toggleAll={toggleAll}
         />
 
-        <section className="todoapp__main" data-cy="TodoList">
-          {todos.length > 0 && (
+        {todos.length > 0 && (
+          <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
@@ -275,17 +275,15 @@ export const App: React.FC = () => {
               setIsRenaming={setIsRenaming}
               handleRenamingSubmit={handleRenamingSubmit}
             />
-          )}
-        </section>
 
-        {todos.length > 0 && (
-          <Footer
-            itemsLeft={itemsLeft}
-            completedTodos={completedTodos.length}
-            filter={filter}
-            handleFilterClick={handleFilterClick}
-            handleClearCompletedClick={handleClearCompletedClick}
-          />
+            <Footer
+              itemsLeft={itemsLeft}
+              completedTodos={completedTodos.length}
+              filter={filter}
+              handleFilterClick={handleFilterClick}
+              handleClearCompletedClick={handleClearCompletedClick}
+            />
+          </>
         )}
       </div>
 

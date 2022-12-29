@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import classNames from 'classnames';
+import React from 'react';
 import { Todo } from '../../types/Todo';
 import { Loading } from '../../types/Loading';
 import { Renaming } from '../../types/Renaming';
+import { TodoItem } from '../TodoItem';
+import { TempTodoItem } from '../TempTodoItem';
 
 type Props = {
   todos: Todo[],
@@ -33,143 +34,21 @@ export const TodoList: React.FC<Props> = React.memo(
     handleDeleteTodoClick,
     setIsRenaming,
     handleRenamingSubmit,
-  }) => {
-    const [titleRenaming, setTitleRenaming] = useState('');
+  }) => (
+    <section className="todoapp__main" data-cy="TodoList">
+      <TodoItem
+        todos={todos}
+        isLoading={isLoading}
+        isRenaming={isRenaming}
+        handleMarkChange={handleMarkChange}
+        handleDeleteTodoClick={handleDeleteTodoClick}
+        setIsRenaming={setIsRenaming}
+        handleRenamingSubmit={handleRenamingSubmit}
+      />
 
-    const renamingField = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-      // focus the element with `ref={newTodoField}`
-      if (renamingField.current) {
-        renamingField.current.focus();
-      }
-    }, [isRenaming]);
-
-    const handleKeyUp = (keyCode: string) => {
-      if (keyCode !== 'Escape') {
-        return;
-      }
-
-      setIsRenaming({});
-    };
-
-    return (
-      <>
-        {todos.map(todo => (
-          <div
-            key={todo.id}
-            data-cy="Todo"
-            className={classNames(
-              'todo',
-              { completed: todo.completed },
-            )}
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                checked={todo.completed}
-                onChange={
-                  () => handleMarkChange(todo.id, todo.completed)
-                }
-              />
-            </label>
-
-            {isRenaming[todo.id]
-              ? (
-                <form
-                  onSubmit={(e) => {
-                    handleRenamingSubmit(
-                      e,
-                      todo.id,
-                      todo.title,
-                      titleRenaming,
-                    );
-                  }}
-                >
-                  <input
-                    data-cy="TodoTitleField"
-                    type="text"
-                    ref={renamingField}
-                    className="todo__title-field"
-                    value={titleRenaming}
-                    placeholder="Empty todo will be deleted"
-                    onChange={(e) => setTitleRenaming(e.target.value)}
-                    onFocus={() => setTitleRenaming(todo.title)}
-                    onBlur={() => setIsRenaming({})}
-                    onKeyUp={(e) => handleKeyUp(e.code)}
-                  />
-                </form>
-              )
-              : (
-                <>
-                  <span
-                    data-cy="TodoTitle"
-                    className="todo__title"
-                    onDoubleClick={() => setIsRenaming({ [todo.id]: true })}
-                  >
-                    {todo.title}
-                  </span>
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    data-cy="TodoDeleteButton"
-                    onClick={() => handleDeleteTodoClick(todo.id)}
-                  >
-                    ×
-                  </button>
-                </>
-              )}
-
-            <div
-              data-cy="TodoLoader"
-              className={classNames(
-                'modal overlay',
-                { 'is-active': isLoading[todo.id] },
-              )}
-
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        ))}
-        {tempTodo && (
-          <div
-            key={0}
-            data-cy="Todo"
-            className="todo"
-          >
-            <label className="todo__status-label">
-              <input
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-
-            <span data-cy="TodoTitle" className="todo__title">
-              {todoTitle}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-            >
-              ×
-            </button>
-
-            <div
-              data-cy="TodoLoader"
-              className="modal overlay is-active"
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        )}
-      </>
-    );
-  },
+      {tempTodo && (
+        <TempTodoItem todoTitle={todoTitle} />
+      )}
+    </section>
+  ),
 );
