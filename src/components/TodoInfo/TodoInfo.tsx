@@ -50,7 +50,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
       });
   };
 
-  const upDateProperties = (date:Partial<Todo>) => {
+  const upDateTodoProperties = (date:Partial<Todo>) => {
     return upDateTodo(id, date)
       .then(response => {
         setTodos(currentTodos => {
@@ -73,7 +73,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
 
   const handleTodoStatusClick = () => {
     setHasLoader(true);
-    upDateProperties({ completed: !completed });
+    upDateTodoProperties({ completed: !completed });
   };
 
   const handleDeleteTodoClick = () => {
