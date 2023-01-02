@@ -1,8 +1,8 @@
 import React, {
   useCallback,
-  useContext, useEffect, useState,
+  useContext, useEffect, useMemo, useState,
 } from 'react';
-
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Erorr } from './components/Error/Error';
 import { FilterTodoList } from './components/FilterTodoList/FilterTodoList';
@@ -30,8 +30,7 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [deletedTodosIds, setDeletedTodoIds] = useState<number[]>([]);
-  const [isTogled, setIsTogled] = useState(false);
-  const [selectedTodoId, setSelectedTodoId] = useState<number[]>([]);
+  const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const loadTodosFromServer = useCallback(async () => {
     if (user) {
@@ -55,6 +54,10 @@ export const App: React.FC = () => {
     setErrorType(TypeError.NONE);
   };
 
+  const isEachTodoCompleted = useMemo(
+    () => todos.every(todo => todo.completed), [todos],
+  );
+
   const submitNewTodoHandler = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
@@ -77,6 +80,7 @@ export const App: React.FC = () => {
           await loadTodosFromServer();
         }, 100);
 
+        setHasError(false);
         setIsAdding(false);
         setNewTodoTitle('');
       } catch {
@@ -86,70 +90,96 @@ export const App: React.FC = () => {
     }
   };
 
-  const clearAllHandler = async () => {
-    const completedTodoIds = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
+  const handleToggleTodo = useCallback(
+    async (todoId: number, completed: boolean) => {
+      setSelectedTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
-    todos.forEach(async todo => {
-      if (todo.completed) {
-        try {
-          setDeletedTodoIds(completedTodoIds);
-          await deleteTodos(todo.id);
-          await loadTodosFromServer();
-        } catch {
-          setErrorType(TypeError.DELETE);
-          setHasError(true);
-          setDeletedTodoIds([]);
-        }
+      try {
+        await toggleTodo(todoId, !completed);
+        await loadTodosFromServer();
+
+        setSelectedTodoIds(currentTodoIds => (
+          currentTodoIds.filter(id => id !== todoId)
+        ));
+      } catch {
+        setErrorType(TypeError.UPDATE);
+        setHasError(true);
+        setSelectedTodoIds([]);
       }
-    });
-  };
+    }, [],
+  );
 
-  const deleteTodoHandler = async (todoId: number) => {
-    setDeletedTodoIds([todoId]);
+  const clearAllHandler = useCallback(
+    async () => {
+      const completedTodoIds = todos
+        .filter(todo => todo.completed)
+        .map(todo => todo.id);
 
-    try {
-      await deleteTodos(todoId);
-      await loadTodosFromServer();
-    } catch {
-      setErrorType(TypeError.DELETE);
-      setHasError(true);
-      setDeletedTodoIds([]);
-    }
-  };
-
-  const togleAllHandler = async () => {
-    try {
-      setIsTogled(!isTogled);
-
-      visibleTodos.forEach(todo => {
-        toggleTodo(todo.id, !todo.completed);
-
-        return todo;
+      todos.forEach(async todo => {
+        if (todo.completed) {
+          try {
+            setDeletedTodoIds(completedTodoIds);
+            await deleteTodos(todo.id);
+            await loadTodosFromServer();
+          } catch {
+            setErrorType(TypeError.DELETE);
+            setHasError(true);
+            setDeletedTodoIds([]);
+          }
+        }
       });
+    }, [],
+  );
+
+  const deleteTodoHandler = useCallback(
+    async (todoId: number) => {
+      setDeletedTodoIds([todoId]);
+
+      try {
+        await deleteTodos(todoId);
+        await loadTodosFromServer();
+      } catch {
+        setErrorType(TypeError.DELETE);
+        setHasError(true);
+        setDeletedTodoIds([]);
+      }
+    }, [],
+  );
+
+  const handleToggleAllTodos = useCallback(async () => {
+    try {
+      await Promise.all(todos.map(async (todo) => {
+        if (!todo.completed || isEachTodoCompleted) {
+          setSelectedTodoIds(currentTodoIds => [...currentTodoIds, todo.id]);
+
+          await toggleTodo(todo.id, !todo.completed);
+        }
+      }));
 
       await loadTodosFromServer();
+
+      setSelectedTodoIds([]);
     } catch {
-      setErrorType(TypeError.LOAD);
+      setErrorType(TypeError.UPDATE);
       setHasError(true);
+      setSelectedTodoIds([]);
     }
-  };
+  }, [selectedTodoIds]);
 
   const handleChangeTodoTittle = useCallback(
     async (todoId: number, title: string) => {
-      setSelectedTodoId([todoId]);
+      setSelectedTodoIds([todoId]);
 
       try {
         await renameTodo(todoId, { title });
         await loadTodosFromServer();
 
-        setSelectedTodoId([]);
+        setSelectedTodoIds([]);
       } catch {
         setErrorType(TypeError.UPDATE);
         setHasError(true);
 
-        setSelectedTodoId([]);
+        setSelectedTodoIds([]);
       }
     }, [],
   );
@@ -184,13 +214,17 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className="todoapp__toggle-all active"
-            aria-label="Toggle"
-            onClick={togleAllHandler}
-          />
+          {todos.length > 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: isEachTodoCompleted,
+              })}
+              aria-label="Toggle"
+              onClick={handleToggleAllTodos}
+            />
+          )}
 
           <NewTodo
             newTodoTitle={newTodoTitle}
@@ -204,9 +238,9 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           deleteTodoHandler={deleteTodoHandler}
           deletedTodosIds={deletedTodosIds}
-          isTogled={isTogled}
+          onToggleTodo={handleToggleTodo}
           handleChangeTodoTittle={handleChangeTodoTittle}
-          selectedTodoId={selectedTodoId}
+          selectedTodoId={selectedTodoIds}
           isAdding={isAdding}
           newTodoTitle={newTodoTitle}
         />

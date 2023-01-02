@@ -40,7 +40,7 @@ export const FilterTodoList: React.FC<Props> = ({
           )}
           onClick={() => setFilterType(FilterType.All)}
         >
-          All
+          {FilterType.All}
         </a>
 
         <a
@@ -52,7 +52,7 @@ export const FilterTodoList: React.FC<Props> = ({
           )}
           onClick={() => setFilterType(FilterType.Active)}
         >
-          Active
+          {FilterType.Active}
         </a>
         <a
           data-cy="FilterLinkCompleted"
@@ -63,7 +63,7 @@ export const FilterTodoList: React.FC<Props> = ({
           )}
           onClick={() => setFilterType(FilterType.Completed)}
         >
-          Completed
+          {FilterType.Completed}
         </a>
       </nav>
 

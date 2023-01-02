@@ -8,7 +8,7 @@ interface Props {
   todos: Todo[],
   deleteTodoHandler: (todoId: number) => void,
   deletedTodosIds: number[],
-  isTogled: boolean,
+  onToggleTodo: (todoIt: number, completed: boolean) => void,
   handleChangeTodoTittle: (todoId: number, title: string) => void,
   selectedTodoId: number[],
   isAdding: boolean,
@@ -19,7 +19,7 @@ export const TodoList: React.FC<Props> = ({
   todos,
   deleteTodoHandler,
   deletedTodosIds,
-  isTogled,
+  onToggleTodo,
   handleChangeTodoTittle,
   selectedTodoId,
   isAdding,
@@ -40,7 +40,7 @@ export const TodoList: React.FC<Props> = ({
                   todo={todo}
                   deleteTodoHandler={deleteTodoHandler}
                   deletedTodosIds={deletedTodosIds}
-                  isTogled={isTogled}
+                  onToggleTodo={onToggleTodo}
                   handleChangeTodoTittle={handleChangeTodoTittle}
                   selectedTodoId={selectedTodoId}
                 />

@@ -6,6 +6,10 @@ export const getTodos = (userId: number) => {
 };
 
 // Add more methods here
+interface TodoTitle {
+  title: string,
+}
+
 export const addTodos = (title: string, userId: number) => {
   return client.post<Todo>('/todos', {
     title,
@@ -18,7 +22,7 @@ export const deleteTodos = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const renameTodo = (todoId: number, data: any) => {
+export const renameTodo = (todoId: number, data: TodoTitle) => {
   return client.patch<Todo>(`/todos/${todoId}`, data);
 };
 

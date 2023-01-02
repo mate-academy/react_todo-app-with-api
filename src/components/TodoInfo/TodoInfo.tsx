@@ -2,14 +2,13 @@ import classNames from 'classnames';
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
-import { toggleTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo,
   deleteTodoHandler: (todoId: number) => void,
   deletedTodosIds: number[],
-  isTogled: boolean,
+  onToggleTodo: (todoIt: number, completed: boolean) => void,
   handleChangeTodoTittle: (todoId: number, title: string) => void;
   selectedTodoId: number[],
 }
@@ -18,20 +17,13 @@ export const TodoInfo: React.FC<Props> = ({
   todo,
   deleteTodoHandler,
   deletedTodosIds,
-  isTogled,
+  onToggleTodo,
   handleChangeTodoTittle,
   selectedTodoId,
 }) => {
   const { id, title, completed } = todo;
-  const [isCompleted, setIsCompleted] = useState(completed);
   const [newTodoTitle, setNewTodoTitle] = useState(title);
   const [isRenaming, setIsRenaming] = useState(false);
-
-  const checkboxHandler = async () => {
-    setIsCompleted(!isCompleted);
-
-    await toggleTodo(id, !todo.completed);
-  };
 
   const handleDoubleClick = useCallback((event: React.MouseEvent) => {
     if (event.detail === 2) {
@@ -73,7 +65,7 @@ export const TodoInfo: React.FC<Props> = ({
       data-cy="Todo"
       className={classNames(
         'todo',
-        { completed: isCompleted || isTogled },
+        { completed },
       )}
       key={id}
     >
@@ -83,50 +75,48 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={checkboxHandler}
+          onClick={() => onToggleTodo(id, completed)}
         />
       </label>
 
-      { isRenaming
-        ? (
-          <form
-            onSubmit={submitNewTodoTitle}
-            onBlur={submitNewTodoTitle}
+      {isRenaming ? (
+        <form
+          onSubmit={submitNewTodoTitle}
+          onBlur={submitNewTodoTitle}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            ref={titleInput}
+            defaultValue={newTodoTitle}
+            onChange={event => setNewTodoTitle(event.target.value)}
+            onKeyDown={handleCloseRenaming}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            role="button"
+            tabIndex={0}
+            className="todo__title"
+            onClick={event => handleDoubleClick(event)}
+            aria-hidden="true"
           >
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              ref={titleInput}
-              defaultValue={newTodoTitle}
-              onChange={event => setNewTodoTitle(event.target.value)}
-              onKeyDown={handleCloseRenaming}
-            />
-          </form>
-        )
-        : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              role="button"
-              tabIndex={0}
-              className="todo__title"
-              onClick={event => handleDoubleClick(event)}
-              aria-hidden="true"
-            >
-              {title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => deleteTodoHandler(id)}
-            >
-              ×
-            </button>
-          </>
-        )}
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => deleteTodoHandler(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"
