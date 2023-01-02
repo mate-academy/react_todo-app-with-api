@@ -33,20 +33,27 @@ export const TodoItem: React.FC<Props> = ({
   const submitForm = (event: React.FormEvent, item: Todo) => {
     event.preventDefault();
 
-    if (item.title === inputValue || !inputValue) {
+    const {
+      title,
+      id,
+      userId,
+      completed,
+    } = item;
+
+    if (title === inputValue.trim() || !inputValue.trim()) {
       setShowInput(false);
 
       return;
     }
 
     setIsUpdating(true);
-    setTargetTodoId(item.id);
+    setTargetTodoId(id);
 
     const newTodo = {
-      id: item.id,
-      userId: item.userId,
-      title: inputValue,
-      completed: item.completed,
+      id,
+      userId,
+      title: inputValue.trim(),
+      completed,
     };
 
     changeValueSubmit(newTodo);

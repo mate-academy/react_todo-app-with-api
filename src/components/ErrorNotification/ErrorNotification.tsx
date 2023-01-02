@@ -22,7 +22,6 @@ export const ErrorNotification: React.FC<Props> = ({
         onClick={() => setShowError(Errors.None)}
         aria-label="x"
       />
-
       {text}
     </div>
   );

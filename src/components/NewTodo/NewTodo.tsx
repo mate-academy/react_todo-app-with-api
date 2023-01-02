@@ -40,7 +40,7 @@ export const NewTodo: React.FC<Props> = ({
             })
           }
           aria-label="x"
-          onClick={() => changeAllNotCompleted()}
+          onClick={changeAllNotCompleted}
         />
       )}
 
