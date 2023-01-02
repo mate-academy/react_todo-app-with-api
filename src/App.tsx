@@ -112,6 +112,7 @@ export const App: React.FC = () => {
         }
       } else {
         setErrorType(Error.AddTodo);
+        setIsAdding(false);
       }
     }, [title, user],
   );

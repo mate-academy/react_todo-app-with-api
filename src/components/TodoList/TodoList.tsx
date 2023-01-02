@@ -28,14 +28,16 @@ export const TodoList: React.FC<Props> = memo(({
   onEditTitle,
 }) => {
   const isLoading = (todoId: number) => {
-    switch (true) {
-      case (completedTodosId.includes(todoId)):
-      case (todoId === deletingTodoId):
-      case (todoId === updatingTodoId):
-      case (isUpdating):
-      default:
-        return true;
+    if (
+      completedTodosId.includes(todoId)
+      || todoId === deletingTodoId
+      || todoId === updatingTodoId
+      || isUpdating
+    ) {
+      return true;
     }
+
+    return false;
   };
 
   return (
