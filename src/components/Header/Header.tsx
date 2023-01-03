@@ -10,8 +10,7 @@ type Props = {
   userId: number | null
   isAdding: boolean
   onSetNewTitleTodo: React.Dispatch<React.SetStateAction<string>>
-  onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
-  onSetTypeError: React.Dispatch<React.SetStateAction<string>>
+  onSetTypeError: React.Dispatch<React.SetStateAction<Errors>>
   onSetIsAdding: React.Dispatch<React.SetStateAction<boolean>>
   toUpdateTodo: (id: number, data: Partial<Todo>) => Promise<void>
   toLoad:() => Promise<void>
@@ -22,7 +21,6 @@ export const Header: React.FC<Props> = ({
   userId,
   isAdding,
   onSetNewTitleTodo,
-  onSetIsError,
   onSetTypeError,
   onSetIsAdding,
   toUpdateTodo,
@@ -42,7 +40,6 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
     if (!innerInput.trim()) {
       onSetTypeError(Errors.ErrBlankTitle);
-      onSetIsError(true);
       setInnerInput('');
     }
 
@@ -57,7 +54,6 @@ export const Header: React.FC<Props> = ({
             completed: false,
           });
         } catch (inError) {
-          onSetIsError(true);
           onSetTypeError(Errors.ErrADD);
         }
       }
@@ -73,7 +69,7 @@ export const Header: React.FC<Props> = ({
 
   const handleInput = (input: string) => {
     setInnerInput(input);
-    onSetIsError(false);
+    onSetTypeError(Errors.ErrNone);
   };
 
   useEffect(() => {

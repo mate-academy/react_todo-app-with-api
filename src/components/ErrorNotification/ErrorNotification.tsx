@@ -1,43 +1,42 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef } from 'react';
+import { Errors } from '../../types/Errors';
 
 type Props = {
-  isError: boolean
-  onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
-  typeError: string
+  onSetTypeError: React.Dispatch<React.SetStateAction<Errors>>
+  typeError: Errors
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  isError,
-  onSetIsError,
+  onSetTypeError,
   typeError,
 }) => {
   const timeReference = useRef<NodeJS.Timer>();
 
   useEffect(() => {
-    if (isError) {
+    if (typeError) {
       timeReference.current = setTimeout(() => {
-        onSetIsError(false);
+        onSetTypeError(Errors.ErrNone);
       }, 3000);
     } else {
       clearTimeout(timeReference.current);
     }
-  }, [isError]);
+  }, [typeError]);
 
   return (
     <div
       data-cy="ErrorNotification"
       className="notification is-danger is-light has-text-weight-normal"
-      hidden={!isError}
+      hidden={!typeError}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onSetIsError(false)}
+        onClick={() => onSetTypeError(Errors.ErrNone)}
       />
 
-      {isError && <>{typeError}</>}
+      {typeError && <>{typeError}</>}
     </div>
   );
 };

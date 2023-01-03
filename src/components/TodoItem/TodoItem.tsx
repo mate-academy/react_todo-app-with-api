@@ -7,19 +7,17 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo
   isAdding: boolean
-  onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
-  onSetTypeError: React.Dispatch<React.SetStateAction<string>>
+  onSetTypeError: React.Dispatch<React.SetStateAction<Errors>>
   toLoad:() => Promise<void>
-  isDeletedComplete: boolean
+  isDeleting: boolean
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isAdding,
-  onSetIsError,
   onSetTypeError,
   toLoad,
-  isDeletedComplete,
+  isDeleting,
 }) => {
   const { title, completed } = todo;
   const [isDeleted, setIsdeleted] = useState<boolean>(false);
@@ -32,7 +30,6 @@ export const TodoItem: React.FC<Props> = ({
       setIsdeleted(true);
       await removeTodo(id);
     } catch (inError) {
-      onSetIsError(true);
       onSetTypeError(Errors.ErrDEL);
     }
 
@@ -52,12 +49,10 @@ export const TodoItem: React.FC<Props> = ({
     toLoad();
   };
 
-  const handleClick = (id: number, isCompleted: boolean) => {
-    const toUpdate = {
+  const toggleTodoCompletion = (id: number, isCompleted: boolean) => {
+    updateTodo(id, {
       completed: !isCompleted,
-    };
-
-    updateTodo(id, toUpdate);
+    });
   };
 
   const handleOpenInputEdit = () => {
@@ -81,7 +76,6 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleCloseInputEdit = (id: number) => {
     if (!titleInputEdit) {
-      // setIsInputEditOpen(false);
       deleteTodo(id);
 
       return;
@@ -126,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => handleClick(todo.id, todo.completed)}
+          onClick={() => toggleTodoCompletion(todo.id, todo.completed)}
         />
       </label>
 
@@ -173,7 +167,7 @@ export const TodoItem: React.FC<Props> = ({
           {
             'is-active': isAdding
             || isDeleted
-            || isDeletedComplete
+            || isDeleting
             || isUpdated,
           },
         )}

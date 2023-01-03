@@ -7,22 +7,20 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[]
-  onSetFilterGlobal: React.Dispatch<React.SetStateAction<string>>
+  onSetFilterGlobal: React.Dispatch<React.SetStateAction<Filter>>
   selectedFilter: string
-  onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
-  onSetTypeError: React.Dispatch<React.SetStateAction<string>>
+  onSetTypeError: React.Dispatch<React.SetStateAction<Errors>>
   toLoad:() => Promise<void>
-  onSetisDeletedComplete: React.Dispatch<React.SetStateAction<boolean>>
+  onSetisDeleting: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   onSetFilterGlobal,
   selectedFilter,
-  onSetIsError,
   onSetTypeError,
   toLoad,
-  onSetisDeletedComplete,
+  onSetisDeleting,
 }) => {
   const [amountActiveTodos, setAmountActiveTodos] = useState(0);
   const [compTodos, setCompTodos] = useState<Todo[]>([]);
@@ -39,23 +37,22 @@ export const Footer: React.FC<Props> = ({
 
   const handleAnchorClick = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    title: string,
+    filter: Filter,
   ) => {
     e.preventDefault();
-    onSetFilterGlobal(title);
+    onSetFilterGlobal(filter);
   };
 
   const clearCompletedTodos = () => {
     compTodos.forEach(async (todo) => {
       try {
-        onSetisDeletedComplete(true);
+        onSetisDeleting(true);
         await removeTodo(todo.id);
       } catch (inError) {
-        onSetIsError(true);
         onSetTypeError(Errors.ErrDEL);
       }
 
-      onSetisDeletedComplete(false);
+      onSetisDeleting(false);
       onSetFilterGlobal(Filter.ALL);
       toLoad();
     });
@@ -76,7 +73,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === Filter.ALL },
           )}
-          onClick={event => handleAnchorClick(event, event.currentTarget.title)}
+          onClick={event => handleAnchorClick(event, Filter.ALL)}
         >
           All
         </a>
@@ -89,7 +86,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === Filter.ACTIVE },
           )}
-          onClick={event => handleAnchorClick(event, event.currentTarget.title)}
+          onClick={event => handleAnchorClick(event, Filter.ACTIVE)}
         >
           Active
         </a>
@@ -101,7 +98,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === Filter.COMPLETED },
           )}
-          onClick={event => handleAnchorClick(event, event.currentTarget.title)}
+          onClick={event => handleAnchorClick(event, Filter.COMPLETED)}
         >
           Completed
         </a>
@@ -116,7 +113,7 @@ export const Footer: React.FC<Props> = ({
             todoapp__hidden: !compTodos.length,
           },
         )}
-        onClick={() => clearCompletedTodos()}
+        onClick={clearCompletedTodos}
       >
         Clear completed
       </button>

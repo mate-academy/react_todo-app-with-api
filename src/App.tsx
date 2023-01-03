@@ -20,22 +20,21 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isError, setIsError] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string>(Filter.ALL);
-  const [typeError, setTypeError] = useState<string>('');
+  // const [isError, setIsError] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<Filter>(Filter.ALL);
+  const [typeError, setTypeError] = useState<Errors>(Errors.ErrNone);
   const [newTitleTodo, setNewTitleTodo] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isDeletedComplete, setisDeletedComplete]
+  const [isDeleting, setisDeleting]
   = useState<boolean>(false);
 
   const fetchData = useCallback(async () => {
     if (user) {
       try {
-        const inData = await getTodos(user.id);
+        const todosFromServer = await getTodos(user.id);
 
-        setTodos(inData);
+        setTodos(todosFromServer);
       } catch (inError) {
-        setIsError(true);
         setTypeError(Errors.ErrGET);
       } finally {
         setIsAdding(false);
@@ -49,14 +48,13 @@ export const App: React.FC = () => {
 
   const updateTodo = async (id: number, data: Partial<Todo>) => {
     try {
-      setisDeletedComplete(true);
+      setisDeleting(true);
       await patchTodo(id, data);
     } catch (inError) {
-      setIsError(true);
       setTypeError(Errors.ErrUPD);
     }
 
-    setisDeletedComplete(false);
+    setisDeleting(false);
     fetchData();
   };
 
@@ -70,7 +68,6 @@ export const App: React.FC = () => {
           userId={user?.id || null}
           isAdding={isAdding}
           onSetNewTitleTodo={setNewTitleTodo}
-          onSetIsError={setIsError}
           onSetTypeError={setTypeError}
           onSetIsAdding={setIsAdding}
           toUpdateTodo={updateTodo}
@@ -83,8 +80,7 @@ export const App: React.FC = () => {
           newTitleTodo={newTitleTodo}
           userId={user?.id || null}
           isAdding={isAdding}
-          isDeletedComplete={isDeletedComplete}
-          onSetIsError={setIsError}
+          isDeleting={isDeleting}
           onSetTypeError={setTypeError}
           toLoad={fetchData}
         />
@@ -94,10 +90,9 @@ export const App: React.FC = () => {
             todos={todos}
             onSetFilterGlobal={setSelectedFilter}
             selectedFilter={selectedFilter}
-            onSetIsError={setIsError}
             onSetTypeError={setTypeError}
             toLoad={fetchData}
-            onSetisDeletedComplete={setisDeletedComplete}
+            onSetisDeleting={setisDeleting}
           />
         )}
 
@@ -105,8 +100,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         typeError={typeError}
-        isError={isError}
-        onSetIsError={setIsError}
+        onSetTypeError={setTypeError}
       />
     </div>
   );

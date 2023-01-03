@@ -3,6 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
+import { Errors } from '../../types/Errors';
 
 type Props = {
   todos: Todo[]
@@ -10,9 +11,8 @@ type Props = {
   newTitleTodo: string
   userId: number | null
   isAdding: boolean
-  isDeletedComplete: boolean
-  onSetIsError: React.Dispatch<React.SetStateAction<boolean>>
-  onSetTypeError: React.Dispatch<React.SetStateAction<string>>
+  isDeleting: boolean
+  onSetTypeError: React.Dispatch<React.SetStateAction<Errors>>
   toLoad:() => Promise<void>
 };
 
@@ -22,8 +22,7 @@ export const TodoList: React.FC<Props> = ({
   newTitleTodo,
   userId,
   isAdding,
-  isDeletedComplete,
-  onSetIsError,
+  isDeleting,
   onSetTypeError,
   toLoad,
 }) => {
@@ -58,10 +57,9 @@ export const TodoList: React.FC<Props> = ({
               key={todo.id}
               todo={todo}
               isAdding={false}
-              onSetIsError={onSetIsError}
               onSetTypeError={onSetTypeError}
               toLoad={toLoad}
-              isDeletedComplete={isDeletedComplete}
+              isDeleting={isDeleting}
             />
           </CSSTransition>
         ))}
@@ -80,10 +78,9 @@ export const TodoList: React.FC<Props> = ({
               completed: false,
             }}
             isAdding={isAdding}
-            onSetIsError={onSetIsError}
             onSetTypeError={onSetTypeError}
             toLoad={toLoad}
-            isDeletedComplete={isDeletedComplete}
+            isDeleting={isDeleting}
           />
         </CSSTransition>
       )}

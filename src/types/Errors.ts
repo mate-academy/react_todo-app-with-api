@@ -4,4 +4,5 @@ export enum Errors {
   ErrUPD = 'Unable to update a todo',
   ErrBlankTitle = 'Title can\'t be empty',
   ErrGET = 'Can\'t download from server',
+  ErrNone = '',
 }
