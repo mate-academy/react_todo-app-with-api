@@ -27,7 +27,7 @@ export const Footer: FC<Props> = ({
   const user = useContext(AuthContext);
   const completedTodos = getTodosByCompletion(todosFromServer, true);
 
-  const hadleDeleteCompleted = async () => {
+  const handleTodoDeletion = async () => {
     onMultipleLoad(completedTodos.map(todo => todo.id));
 
     const deletePromises = completedTodos
@@ -65,7 +65,7 @@ export const Footer: FC<Props> = ({
             'todoapp__clear-completed--hidden': !completedTodos.length,
           },
         )}
-        onClick={hadleDeleteCompleted}
+        onClick={handleTodoDeletion}
       >
         Clear completed
       </button>

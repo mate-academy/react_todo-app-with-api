@@ -2,7 +2,7 @@ import {
   FC, memo, useEffect, useRef, useState, useContext,
 } from 'react';
 import {
-  getTodosByCompletion, updateTodoStatus, addTodo,
+  getTodosByCompletion, updateTodo, addTodo,
 } from '../../api/todos';
 import { TodoErrors } from '../../types/ErrorMessages';
 import { AuthContext } from '../Auth/AuthContext';
@@ -18,8 +18,8 @@ interface Props {
 export const Header: FC<Props> = memo(({
   onError, onAdd, todosFromServer, onMultipleLoad,
 }) => {
-  const [input, setInput] = useState<string>('');
-  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [input, setInput] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const user = useContext(AuthContext);
@@ -37,7 +37,7 @@ export const Header: FC<Props> = memo(({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (user && input.trim().length > 0) {
+    if (user && input.trim()) {
       setIsAdding(true);
 
       const newTodo = {
@@ -70,7 +70,7 @@ export const Header: FC<Props> = memo(({
     onMultipleLoad(todosToUpdate.map(todo => todo.id));
 
     const updatePromises = todosToUpdate
-      .map(todo => updateTodoStatus(todo.id, !todo.completed));
+      .map(todo => updateTodo(todo.id, 'completed', !todo.completed));
 
     try {
       await Promise.all(updatePromises);

@@ -19,16 +19,14 @@ export const App: FC = () => {
   const user = useContext(AuthContext);
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterOptions>(FilterOptions.All);
-  const [errorText, setErrorText] = useState<TodoErrors>(TodoErrors.none);
+  const [error, setError] = useState<TodoErrors>(TodoErrors.none);
   const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
 
   const loadTodosFromServer = async (id: number) => {
     try {
-      const todos = await getTodos(id);
-
-      setTodosFromServer(todos);
-    } catch (error) {
-      setErrorText(TodoErrors.onLoad);
+      setTodosFromServer(await getTodos(id));
+    } catch (e) {
+      setError(TodoErrors.onLoad);
     }
   };
 
@@ -45,23 +43,23 @@ export const App: FC = () => {
       <div className="todoapp__content">
         <Header
           onMultipleLoad={setActiveTodoIds}
-          onError={setErrorText}
+          onError={setError}
           onAdd={loadTodosFromServer}
           todosFromServer={todosFromServer}
         />
 
-        {todosFromServer.length > 0 && (
+        {todosFromServer && (
           <>
             <TodoList
               activeTodoIds={activeTodoIds}
               todosFromServer={todosFromServer}
               filterBy={filterBy}
               loadTodos={loadTodosFromServer}
-              setErrorMessage={setErrorText}
+              setErrorMessage={setError}
             />
             <filterByContext.Provider value={filterBy}>
               <Footer
-                onError={setErrorText}
+                onError={setError}
                 onMultipleLoad={setActiveTodoIds}
                 todosFromServer={todosFromServer}
                 loadTodos={loadTodosFromServer}
@@ -73,8 +71,8 @@ export const App: FC = () => {
       </div>
 
       <ErrorNotification
-        message={errorText}
-        onErrorSkip={setErrorText}
+        message={error}
+        onErrorSkip={setError}
       />
     </div>
   );

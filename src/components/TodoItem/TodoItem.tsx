@@ -4,7 +4,7 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoErrors } from '../../types/ErrorMessages';
-import { removeTodo, updateTodoTitle, updateTodoStatus } from '../../api/todos';
+import { removeTodo, updateTodo } from '../../api/todos';
 import { AuthContext } from '../Auth/AuthContext';
 
 type InputEvent = React.FormEvent<HTMLFormElement>
@@ -26,9 +26,9 @@ export const TodoItem: FC<Props> = memo(({
   const { completed, id, title } = todo;
   const user = useContext(AuthContext);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isEditing, setIsEdiding] = useState<boolean>(false);
-  const [editorQuery, setEditorQuery] = useState<string>(title);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEdiding] = useState(false);
+  const [editorQuery, setEditorQuery] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDelete = async (
@@ -55,7 +55,7 @@ export const TodoItem: FC<Props> = memo(({
     const isChecked = event.target.checked;
 
     try {
-      await updateTodoStatus(userId, isChecked);
+      await updateTodo(userId, 'completed', isChecked);
 
       if (user) {
         loadTodos(user.id);
@@ -77,7 +77,7 @@ export const TodoItem: FC<Props> = memo(({
     setIsLoading(true);
     setIsEdiding(false);
     try {
-      await updateTodoTitle(id, editorQuery);
+      await updateTodo(id, 'title', editorQuery);
       if (user) {
         loadTodos(user.id);
       }
