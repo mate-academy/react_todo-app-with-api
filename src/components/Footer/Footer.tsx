@@ -1,5 +1,10 @@
 import cn from 'classnames';
-import { useContext, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { getTodos, removeTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
@@ -41,7 +46,7 @@ export const Footer: React.FC<Props> = ({
     }
   }, [todos]);
 
-  const handleFilter = async (sortBy: SortBy) => {
+  const handleFilter = useCallback(async (sortBy: SortBy) => {
     const todosFromServer = user && await getTodos(user.id);
 
     if (todosFromServer) {
@@ -61,9 +66,9 @@ export const Footer: React.FC<Props> = ({
     }
 
     return todosFromServer;
-  };
+  }, []);
 
-  const handleClearCompleted = async () => {
+  const handleClearCompleted = useCallback(async () => {
     onClearCompletedLoader(true);
     const todosFromServer = user && await getTodos(user.id);
     const onlyActiveTodos = todos.filter(todo => !todo.completed);
@@ -82,7 +87,7 @@ export const Footer: React.FC<Props> = ({
 
     setHasCompletedTodos(false);
     onClearCompletedLoader(false);
-  };
+  }, [todos]);
 
   const { All, Active, Completed } = SortBy;
   const activeTodos = todos.filter(todo => todo.completed === false).length;

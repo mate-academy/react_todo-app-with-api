@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -73,7 +74,7 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const addNewTodo = async (todoData: Todo) => {
+  const addNewTodo = useCallback(async (todoData: Todo) => {
     try {
       setIsDisableInput(true);
       setFocusetTodoId(todoData.id);
@@ -104,9 +105,9 @@ export const App: React.FC = () => {
         setError(None);
       }, 3000);
     }
-  };
+  }, [todos]);
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
       setLoader(true);
       setFocusetTodoId(todoId);
@@ -129,9 +130,9 @@ export const App: React.FC = () => {
         setError(None);
       }, 3000);
     }
-  };
+  }, [todos]);
 
-  const changeTodo = async (todoId: number, todoData: Todo) => {
+  const changeTodo = useCallback(async (todoId: number, todoData: Todo) => {
     try {
       setLoader(true);
       setFocusetTodoId(todoId);
@@ -157,9 +158,9 @@ export const App: React.FC = () => {
         setError(None);
       }, 3000);
     }
-  };
+  }, [todos]);
 
-  const toggleAll = async () => {
+  const toggleAll = useCallback(async () => {
     try {
       setTogglerLoader(true);
       const todosFromServer = user && await getTodos(user.id);
@@ -201,7 +202,7 @@ export const App: React.FC = () => {
       setTogglerLoader(false);
       setError(Update);
     }
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">

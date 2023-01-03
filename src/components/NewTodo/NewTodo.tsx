@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -25,7 +30,7 @@ export const NewTodo: React.FC<Props> = ({
     }
   }, []);
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     onUpdateTodo(currentTodo.id, {
@@ -39,13 +44,13 @@ export const NewTodo: React.FC<Props> = ({
     }
 
     onTitleModifyingChange(false);
-  };
+  }, [newTitle]);
 
-  const handleEscapeButton = (event: React.KeyboardEvent) => {
+  const handleEscapeButton = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       onTitleModifyingChange(false);
     }
-  };
+  }, []);
 
   return (
     <form onSubmit={handleFormSubmit}>

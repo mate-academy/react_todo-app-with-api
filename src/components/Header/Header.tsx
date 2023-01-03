@@ -2,6 +2,7 @@
 
 import cn from 'classnames';
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -40,7 +41,7 @@ export const Header: React.FC<Props> = ({
     }
   }, [isDisabledInput]);
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     if (!query.trim().length) {
@@ -63,7 +64,7 @@ export const Header: React.FC<Props> = ({
     }
 
     onQueryChange('');
-  };
+  }, [query]);
 
   return (
     <header className="todoapp__header">
