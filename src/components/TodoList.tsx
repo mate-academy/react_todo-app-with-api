@@ -22,20 +22,6 @@ export const TodoList: FC<Props> = ({
   isCompletedTodosDeleting,
   areTodosToggling,
 }) => {
-  // const user = useContext(AuthContext);
-  // const [isTodoDeleted, setIsTodoDeleted] = useState(true);
-  // const [isTodoToggled, setIsTodoToggled] = useState(false);
-  // const [isTodoEdited, setIsTodoEdited] = useState(true);
-  // const [isTodoEditing, setIsTodoEditing] = useState(false);
-
-  // const {
-  //   setIsRemoveErrorShown,
-  //   setHasLoadingError,
-  //   setIsEmptyTitleErrorShown,
-  //   setIsTogglingErrorShown,
-  //   setIsAddingErrorShown,
-  // } = useContext(ErrorContext);
-
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup
