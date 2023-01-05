@@ -12,7 +12,8 @@ import {
   getTodos,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
-import { Filter } from './components/Filter';
+import { Error } from './components/error';
+import { Footer } from './components/footer';
 import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
@@ -166,7 +167,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleClearCompleted = () => {
+  const onClearCompleted = () => {
     todos.forEach(({ id, completed }) => {
       if (completed) {
         onDelete(id);
@@ -211,40 +212,20 @@ export const App: React.FC = () => {
           onToggle={onToggle}
         />
 
-        <footer className="todoapp__footer" data-cy="Footer">
-          <span className="todo-count" data-cy="todosCounter">
-            {`${visibleTodos.length} items left`}
-          </span>
-
-          <Filter filterStatus={filterStatus} onFilter={setFilterStatus} />
-
-          <button
-            data-cy="ClearCompletedButton"
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={handleClearCompleted}
-            style={{
-              visibility: !isClearCompletedHidden ? 'hidden' : 'visible',
-            }}
-          >
-            Clear completed
-          </button>
-        </footer>
-      </div>
-
-      <div
-        data-cy="ErrorNotification"
-        className="notification is-danger is-light has-text-weight-normal"
-        hidden={noError}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setNoError(true)}
+        <Footer
+          numberOfItems={visibleTodos.length}
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          onClearCompleted={onClearCompleted}
+          isClearCompletedHidden={isClearCompletedHidden}
         />
-        {errorText}
       </div>
+
+      <Error
+        onClose={setNoError}
+        isVisible={noError}
+        errorText={errorText}
+      />
     </div>
   );
 };
