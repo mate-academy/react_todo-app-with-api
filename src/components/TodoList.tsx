@@ -8,6 +8,7 @@ interface Props {
   isLoading: number[],
   onDelete: (id: number) => void,
   onToggle: (id: number) => void,
+  onRename: (newTitle: string, id: number) => void
 }
 
 export const TodoList: FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoList: FC<Props> = ({
   isLoading,
   onDelete,
   onToggle,
+  onRename,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {
@@ -27,6 +29,7 @@ export const TodoList: FC<Props> = ({
             isLoading={isLoading}
             onDelete={onDelete}
             onToggle={onToggle}
+            onRename={onRename}
           />
         ))
     }
@@ -38,6 +41,7 @@ export const TodoList: FC<Props> = ({
           isLoading={isLoading}
           onDelete={onDelete}
           onToggle={onToggle}
+          onRename={onRename}
         />
       )
     }

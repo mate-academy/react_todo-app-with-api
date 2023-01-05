@@ -49,7 +49,7 @@ export const NewTodo: FC<Props> = ({
           placeholder="What needs to be done?"
           onFocus={() => onFocus(true)}
           value={inputValue}
-          onChange={(event) => setInputValue(event.currentTarget.value.trim())}
+          onChange={(event) => setInputValue(event.currentTarget.value)}
           disabled={isAdding}
         />
       </form>

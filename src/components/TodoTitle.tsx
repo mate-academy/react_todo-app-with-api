@@ -1,14 +1,24 @@
 import { FC } from 'react';
 
 interface Props {
-  title: string
+  title: string,
+  showForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const TodoTitle: FC<Props> = ({ title }) => (
-  <span
-    data-cy="TodoTitle"
-    className="todo__title"
-  >
-    {title}
-  </span>
-);
+export const TodoTitle: FC<Props> = ({ title, showForm }) => {
+  const handleDoubleClick = () => {
+    showForm(true);
+  };
+
+  return (
+    (
+      <span
+        data-cy="TodoTitle"
+        className="todo__title"
+        onDoubleClick={handleDoubleClick}
+      >
+        {title}
+      </span>
+    )
+  );
+};

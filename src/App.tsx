@@ -58,8 +58,10 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const onSubmit = (title: string) => {
-    if (title.length === 0) {
+  const onTitleSubmit = (title: string) => {
+    const trimedTitle = title.trim();
+
+    if (trimedTitle.length === 0) {
       showError('Title can\'t be empty');
 
       return;
@@ -68,7 +70,7 @@ export const App: React.FC = () => {
     setTemporaryTodo({
       id: 0,
       userId,
-      title,
+      title: trimedTitle,
       completed: false,
     });
 
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
 
     const newTodo = {
       userId,
-      title,
+      title: trimedTitle,
       completed: false,
     };
 
@@ -132,7 +134,7 @@ export const App: React.FC = () => {
             if (todo.id === id) {
               return {
                 ...todo,
-                completed: !todo.completed,
+                ...newData,
               };
             }
 
@@ -142,8 +144,8 @@ export const App: React.FC = () => {
       })
       .catch(() => showError('Unable to update a todo'))
       .finally(() => {
-        setIsLoading((isLoadingNow) => {
-          return isLoadingNow
+        setIsLoading((areLoadingNow) => {
+          return areLoadingNow
             .filter(idOfLoadedTodo => idOfLoadedTodo !== id);
         });
       });
@@ -175,6 +177,57 @@ export const App: React.FC = () => {
     });
   };
 
+  const onRename = (newTitle: string, id: number) => {
+    const todoToedit = todos.find(todo => todo.id === id);
+
+    if (!todoToedit) {
+      showError('Unable to update a todo');
+
+      return;
+    }
+
+    const oldTitle = todoToedit.title.trim();
+
+    if (newTitle.trim() === oldTitle) {
+      return;
+    }
+
+    if (newTitle.trim() === '') {
+      onDelete(id);
+
+      return;
+    }
+
+    const newData: Pick<Todo, 'title'> = {
+      title: newTitle,
+    };
+
+    setIsLoading((currentArrIsDelete) => [...currentArrIsDelete, id]);
+
+    editTodo(id, newData)
+      .then(() => {
+        setTodos((currentTodos) => {
+          return currentTodos.map(todo => {
+            if (todo.id === id) {
+              return {
+                ...todo,
+                ...newData,
+              };
+            }
+
+            return todo;
+          });
+        });
+      })
+      .catch(() => showError('Unable to update a todo'))
+      .finally(() => {
+        setIsLoading((areLoadingNow) => {
+          return areLoadingNow
+            .filter(idOfLoadedTodo => idOfLoadedTodo !== id);
+        });
+      });
+  };
+
   const isClearCompletedHidden = todos.some(({ completed }) => completed);
 
   const isToggleAllActive = todos.every(({ completed }) => completed);
@@ -200,7 +253,7 @@ export const App: React.FC = () => {
           isAdding={isAdding}
           isToggleAllActive={isToggleAllActive}
           onFocus={setNoError}
-          onFormSubmit={onSubmit}
+          onFormSubmit={onTitleSubmit}
           onToggleAll={onToggleAll}
         />
 
@@ -210,6 +263,7 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           onDelete={onDelete}
           onToggle={onToggle}
+          onRename={onRename}
         />
 
         <Footer
