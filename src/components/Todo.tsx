@@ -1,6 +1,10 @@
 import { FC } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
+import { TodoTitle } from './TodoTitle';
+import { TodoDeleteButton } from './TodoDeleteButton';
+import { TodoLoader } from './TodoLoader';
+import { TodoStatusLabel } from './todoStatusLabel';
 
 interface Props {
   todo: Todo,
@@ -26,38 +30,24 @@ export const TodoComponent: FC<Props> = ({
       data-cy="Todo"
       className={cn('todo', { completed })}
     >
-      <label className="todo__status-label">
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          onClick={() => onToggle(id)}
-          defaultChecked
-        />
-      </label>
+      <TodoStatusLabel
+        id={id}
+        onToggle={onToggle}
+      />
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDelete(id)}
-      >
-        ×
-      </button>
+      <TodoTitle
+        title={title}
+      />
 
-      <div
-        data-cy="TodoLoader"
-        className={cn(
-          'modal overlay',
-          { 'is-active': isLoading.includes(id) },
-        )}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      <TodoDeleteButton
+        id={id}
+        onDelete={onDelete}
+      />
+
+      <TodoLoader
+        isLoading={isLoading}
+        id={id}
+      />
     </div>
   );
 };
