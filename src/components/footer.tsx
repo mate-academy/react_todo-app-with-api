@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Filter } from './Filter';
 
 interface Props {
@@ -9,30 +9,32 @@ interface Props {
   isClearCompletedHidden: boolean,
 }
 
-export const Footer: FC<Props> = ({
-  numberOfItems,
-  filterStatus,
-  setFilterStatus,
-  onClearCompleted,
-  isClearCompletedHidden,
-}) => (
-  <footer className="todoapp__footer" data-cy="Footer">
-    <span className="todo-count" data-cy="todosCounter">
-      {`${numberOfItems} items left`}
-    </span>
+export const Footer: FC<Props> = memo(
+  ({
+    numberOfItems,
+    filterStatus,
+    isClearCompletedHidden,
+    setFilterStatus,
+    onClearCompleted,
+  }) => (
+    <footer className="todoapp__footer" data-cy="Footer">
+      <span className="todo-count" data-cy="todosCounter">
+        {`${numberOfItems} items left`}
+      </span>
 
-    <Filter filterStatus={filterStatus} onFilter={setFilterStatus} />
+      <Filter filterStatus={filterStatus} onFilter={setFilterStatus} />
 
-    <button
-      data-cy="ClearCompletedButton"
-      type="button"
-      className="todoapp__clear-completed"
-      onClick={onClearCompleted}
-      style={{
-        visibility: !isClearCompletedHidden ? 'hidden' : 'visible',
-      }}
-    >
-      Clear completed
-    </button>
-  </footer>
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={onClearCompleted}
+        style={{
+          visibility: !isClearCompletedHidden ? 'hidden' : 'visible',
+        }}
+      >
+        Clear completed
+      </button>
+    </footer>
+  ),
 );

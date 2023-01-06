@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   FC,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -13,10 +15,10 @@ import {
   getTodos,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
-import { Error } from './components/error';
-import { Footer } from './components/footer';
 import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
+import { Footer } from './components/footer';
+import { Error } from './components/error';
 import { Todo } from './types/Todo';
 
 export const App: FC = () => {
@@ -59,7 +61,7 @@ export const App: FC = () => {
     }
   }, []);
 
-  const onTitleSubmit = (title: string) => {
+  const onTitleSubmit = useCallback((title: string) => {
     const trimedTitle = title.trim();
 
     if (trimedTitle.length === 0) {
@@ -85,7 +87,9 @@ export const App: FC = () => {
 
     addTodos(userId, newTodo)
       .then((newTodoFromServer) => {
-        setTodos([...todos, newTodoFromServer]);
+        setTodos((currentTodos) => {
+          return [...currentTodos, newTodoFromServer];
+        });
       })
       .catch(() => {
         showError('Unable to add a todo');
@@ -94,9 +98,9 @@ export const App: FC = () => {
         setTemporaryTodo(null);
         setIsAdding(false);
       });
-  };
+  }, []);
 
-  const onDelete = (id: number) => {
+  const onDelete = useCallback((id: number) => {
     setIsLoading((currentArrIsDelete) => [...currentArrIsDelete, id]);
 
     deleteTodo(id)
@@ -112,9 +116,9 @@ export const App: FC = () => {
             .filter(idOfDeletingItem => idOfDeletingItem !== id);
         });
       });
-  };
+  }, []);
 
-  const onToggle = (id: number) => {
+  const onToggle = useCallback((id: number) => {
     setIsLoading((currentArrIsDelete) => [...currentArrIsDelete, id]);
     const todoToedit = todos.find(todo => todo.id === id);
 
@@ -150,9 +154,9 @@ export const App: FC = () => {
             .filter(idOfLoadedTodo => idOfLoadedTodo !== id);
         });
       });
-  };
+  }, [todos]);
 
-  const onToggleAll = () => {
+  const onToggleAll = useCallback(() => {
     const areAllCompleted = todos.every(todo => todo.completed);
 
     if (!areAllCompleted) {
@@ -168,17 +172,17 @@ export const App: FC = () => {
     todos.forEach(todo => {
       onToggle(todo.id);
     });
-  };
+  }, [todos]);
 
-  const onClearCompleted = () => {
+  const onClearCompleted = useCallback(() => {
     todos.forEach(({ id, completed }) => {
       if (completed) {
         onDelete(id);
       }
     });
-  };
+  }, [todos]);
 
-  const onRename = (newTitle: string, id: number) => {
+  const onRename = useCallback((newTitle: string, id: number) => {
     const todoToedit = todos.find(todo => todo.id === id);
 
     if (!todoToedit) {
@@ -227,22 +231,28 @@ export const App: FC = () => {
             .filter(idOfLoadedTodo => idOfLoadedTodo !== id);
         });
       });
-  };
+  }, [todos]);
 
-  const isClearCompletedHidden = todos.some(({ completed }) => completed);
+  const isClearCompletedHidden = useMemo(() => {
+    return todos.some(({ completed }) => completed);
+  }, [todos]);
 
-  const isToggleAllActive = todos.every(({ completed }) => completed);
+  const isToggleAllActive = useMemo(() => {
+    return todos.every(({ completed }) => completed);
+  }, [todos]);
 
-  const visibleTodos = todos.filter(({ completed }) => {
-    switch (filterStatus) {
-      case 'Active':
-        return !completed;
-      case 'Completed':
-        return completed;
-      default:
-        return true;
-    }
-  });
+  const visibleTodos = useMemo(() => {
+    return todos.filter(({ completed }) => {
+      switch (filterStatus) {
+        case 'Active':
+          return !completed;
+        case 'Completed':
+          return completed;
+        default:
+          return true;
+      }
+    });
+  }, [todos, filterStatus]);
 
   return (
     <div className="todoapp">
