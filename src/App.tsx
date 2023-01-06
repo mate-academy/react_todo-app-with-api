@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
+import {
+  FC,
   useContext,
   useEffect,
   useRef,
@@ -18,15 +19,15 @@ import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 
-export const App: React.FC = () => {
+export const App: FC = () => {
   const user = useContext(AuthContext);
   const userId = user ? user.id : 0;
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [noError, setNoError] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('All');
   const [errorText, setErrorText] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
   const [isAdding, setIsAdding] = useState(false);
   const [isLoading, setIsLoading] = useState([0]);
   const [
