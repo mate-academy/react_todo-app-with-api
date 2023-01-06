@@ -1,4 +1,9 @@
-import { FC, useState } from 'react';
+import {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 interface Props {
   title: string,
@@ -13,7 +18,15 @@ export const TodoTitleField: FC<Props> = ({
   hideForm,
   onRename,
 }) => {
+  const field = useRef<HTMLInputElement>(null);
+
   const [titleTochange, setTitleTochange] = useState(title);
+
+  useEffect(() => {
+    if (field.current) {
+      field.current.focus();
+    }
+  }, []);
 
   const handleOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitleTochange(event.currentTarget.value);
@@ -45,6 +58,7 @@ export const TodoTitleField: FC<Props> = ({
   return (
     <form onSubmit={handleSubmit}>
       <input
+        ref={field}
         data-cy="TodoTitleField"
         type="text"
         className="todo__title-field"

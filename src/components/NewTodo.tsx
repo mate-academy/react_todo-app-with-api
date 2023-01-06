@@ -1,8 +1,14 @@
 import cn from 'classnames';
-import { FC, memo, useState } from 'react';
+import {
+  FC,
+  memo,
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
 
 interface Props {
-  newTodoField: React.RefObject<HTMLInputElement>,
+  // newTodoField: React.RefObject<HTMLInputElement>,
   isToggleAllActive: boolean
   isAdding: boolean
   onFocus: React.Dispatch<React.SetStateAction<boolean>>,
@@ -12,14 +18,21 @@ interface Props {
 
 export const NewTodo: FC<Props> = memo(
   ({
+    // newTodoField,
     isAdding,
-    newTodoField,
     isToggleAllActive,
     onFocus,
     onFormSubmit,
     onToggleAll,
   }) => {
+    const TodoField = useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = useState('');
+
+    useEffect(() => {
+      if (TodoField.current) {
+        TodoField.current.focus();
+      }
+    }, [isAdding]);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -45,7 +58,7 @@ export const NewTodo: FC<Props> = memo(
           <input
             data-cy="NewTodoField"
             type="text"
-            ref={newTodoField}
+            ref={TodoField}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             onFocus={() => onFocus(true)}

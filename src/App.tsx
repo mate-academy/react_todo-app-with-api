@@ -5,7 +5,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import {
@@ -24,7 +23,7 @@ import { Todo } from './types/Todo';
 export const App: FC = () => {
   const user = useContext(AuthContext);
   const userId = user ? user.id : 0;
-  const newTodoField = useRef<HTMLInputElement>(null);
+  // const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [noError, setNoError] = useState(true);
@@ -55,10 +54,6 @@ export const App: FC = () => {
       .catch(() => {
         showError('Unable to update a todo');
       });
-
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
   }, []);
 
   const onTitleSubmit = useCallback((title: string) => {
@@ -260,7 +255,6 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <NewTodo
-          newTodoField={newTodoField}
           isAdding={isAdding}
           isToggleAllActive={isToggleAllActive}
           onFocus={setNoError}
