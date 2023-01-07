@@ -42,7 +42,7 @@ export const TodoItem: React.FC<Props> = (props) => {
       event.preventDefault();
     }
 
-    if (newTitle === todo.title) {
+    if (newTitle.trim() === todo.title) {
       cancelEditing();
 
       return;
@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = (props) => {
       onDeleteTodo(todo.id);
     }
 
-    onUpdateTodo(todo.id, { title: newTitle });
+    onUpdateTodo(todo.id, { title: newTitle.trim() });
     setIsTitleChange(false);
   };
 

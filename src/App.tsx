@@ -83,13 +83,13 @@ export const App: React.FC = () => {
           setTempTodo({
             id: 0,
             userId: user?.id,
-            title,
+            title: title.trim(),
             completed: false,
           });
 
           const loadedTodo = await addTodo({
             userId: user?.id,
-            title,
+            title: title.trim(),
             completed: false,
           });
 
@@ -100,7 +100,7 @@ export const App: React.FC = () => {
             {
               id: loadedTodo.id,
               userId: user.id,
-              title,
+              title: title.trim(),
               completed: false,
             },
           ]);
