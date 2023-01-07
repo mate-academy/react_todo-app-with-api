@@ -10,6 +10,8 @@ type Props = {
   temporary?: boolean;
   isTodoDeleting?: boolean;
   selectedTodoId?: number[];
+  isTodoUpdating?: boolean;
+  onUpdate?: (todoId: number) => void;
   onDelete?: (todoId: number) => Promise<void>;
 };
 
@@ -19,6 +21,8 @@ export const TodoItem: React.FC<Props> = (props) => {
     temporary = false,
     isTodoDeleting,
     selectedTodoId,
+    isTodoUpdating,
+    onUpdate = () => {},
     onDelete = () => {},
   } = props;
 
@@ -36,6 +40,7 @@ export const TodoItem: React.FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked
+          onClick={() => onUpdate(todo.id)}
         />
       </label>
 
@@ -52,7 +57,10 @@ export const TodoItem: React.FC<Props> = (props) => {
         ×
       </button>
 
-      {(temporary || (isTodoDeleting && selectedTodoId?.includes(todo.id))) && (
+      {(temporary
+        || (isTodoDeleting && selectedTodoId?.includes(todo.id))
+        || (isTodoUpdating && selectedTodoId?.includes(todo.id))
+      ) && (
         <TodoLoader />
       )}
     </div>

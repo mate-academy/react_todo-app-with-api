@@ -13,7 +13,12 @@ import { Footer } from './components/Footer/Footer';
 import { ErrorNotification } from
   './components/ErrorNotification/ErrorNotification';
 
-import { getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateStatus,
+} from './api/todos';
 import { FilterType } from './types/FilterType';
 
 import { Todo } from './types/Todo';
@@ -27,6 +32,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isTodoDeleting, setIsTodoDeleting] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState<number []>([]);
+  const [isTodoUpdating, setIsTodoUpdating] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -158,6 +164,41 @@ export const App: React.FC = () => {
     });
   };
 
+  const updateTodo = async (todoId: number) => {
+    try {
+      const selectedTodo = todos.find(todo => todo.id === todoId);
+
+      setIsTodoUpdating(true);
+      setErrorMessage('');
+      setSelectedTodoId(todosIds => [
+        ...todosIds,
+        todoId,
+      ]);
+
+      await updateStatus(
+        todoId,
+        { completed: !selectedTodo?.completed },
+      );
+
+      setTodos(currentTodos => currentTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return {
+          ...todo,
+          completed: !selectedTodo?.completed,
+        };
+      }));
+
+      setSelectedTodoId(todosIds => todosIds.filter(id => id !== todoId));
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setIsTodoUpdating(false);
+    }
+  };
+
   const filteredTodos = filterTodos();
   const activeTodos = todos.filter(todo => todo.completed === false).length;
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
@@ -181,6 +222,8 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             isTodoDeleting={isTodoDeleting}
             selectedTodoId={selectedTodoId}
+            isTodoUpdating={isTodoUpdating}
+            onUpdate={updateTodo}
             onDelete={removeTodo}
           />
 

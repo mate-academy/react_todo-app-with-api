@@ -9,6 +9,8 @@ type Props = {
   tempTodo: Todo | null;
   isTodoDeleting: boolean;
   selectedTodoId: number[];
+  isTodoUpdating: boolean;
+  onUpdate: (todoId: number) => void;
   onDelete: (todoId: number) => Promise<void>;
 };
 
@@ -18,6 +20,8 @@ export const TodoList: React.FC<Props> = (props) => {
     tempTodo,
     isTodoDeleting,
     selectedTodoId,
+    isTodoUpdating,
+    onUpdate,
     onDelete,
   } = props;
 
@@ -29,6 +33,8 @@ export const TodoList: React.FC<Props> = (props) => {
           key={todo.id}
           isTodoDeleting={isTodoDeleting}
           selectedTodoId={selectedTodoId}
+          isTodoUpdating={isTodoUpdating}
+          onUpdate={onUpdate}
           onDelete={onDelete}
         />
       ))}
