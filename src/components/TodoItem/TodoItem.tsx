@@ -48,7 +48,7 @@ export const TodoItem: React.FC<Props> = (props) => {
       return;
     }
 
-    if (newTitle === '') {
+    if (newTitle.trim() === '') {
       onDeleteTodo(todo.id);
     }
 
