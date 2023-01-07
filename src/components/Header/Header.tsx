@@ -1,11 +1,14 @@
 import React from 'react';
+import cn from 'classnames';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;
   title: string;
   isAdding: boolean;
+  isAllTodosCompleted: boolean;
   onChange: React.Dispatch<React.SetStateAction<string>>;
   onSubmitForm: (event: React.FormEvent<HTMLFormElement>) => void;
+  onUpdateAll: () => void;
 };
 
 export const Header: React.FC<Props> = (props) => {
@@ -13,8 +16,10 @@ export const Header: React.FC<Props> = (props) => {
     newTodoField,
     title,
     isAdding,
+    isAllTodosCompleted,
     onChange,
     onSubmitForm,
+    onUpdateAll,
   } = props;
 
   return (
@@ -23,7 +28,11 @@ export const Header: React.FC<Props> = (props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn(
+          'todoapp__toggle-all',
+          { active: isAllTodosCompleted },
+        )}
+        onClick={() => onUpdateAll()}
       />
 
       <form onSubmit={event => onSubmitForm(event)}>

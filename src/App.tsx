@@ -199,6 +199,19 @@ export const App: React.FC = () => {
     }
   };
 
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
+
+  const updateAllTodos = () => {
+    todos.forEach(todo => {
+      if (
+        (!isAllTodosCompleted && !todo.completed)
+        || isAllTodosCompleted
+      ) {
+        updateTodo(todo.id);
+      }
+    });
+  };
+
   const filteredTodos = filterTodos();
   const activeTodos = todos.filter(todo => todo.completed === false).length;
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
@@ -211,8 +224,10 @@ export const App: React.FC = () => {
         newTodoField={newTodoField}
         title={title}
         isAdding={isAdding}
+        isAllTodosCompleted={isAllTodosCompleted}
         onChange={setTitle}
         onSubmitForm={handleSubmitForm}
+        onUpdateAll={updateAllTodos}
       />
 
       {todos.length > 0 && (
