@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
 
 import { TodoLoader } from '../TodoLoader/TodoLoader';
+import { NewTodoField } from '../NewTodoField/NewTodoField';
 
 import { Todo } from '../../types/Todo';
 
@@ -11,8 +12,9 @@ type Props = {
   isTodoDeleting?: boolean;
   selectedTodoId?: number[];
   isTodoUpdating?: boolean;
-  onUpdate?: (todoId: number) => void;
-  onDelete?: (todoId: number) => Promise<void>;
+  newTodoField?: React.RefObject<HTMLInputElement>;
+  onUpdateTodo?: (todoId: number, newData: Partial<Todo>) => Promise<void>;
+  onDeleteTodo?: (todoId: number) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = (props) => {
@@ -22,9 +24,37 @@ export const TodoItem: React.FC<Props> = (props) => {
     isTodoDeleting,
     selectedTodoId,
     isTodoUpdating,
-    onUpdate = () => {},
-    onDelete = () => {},
+    newTodoField,
+    onUpdateTodo = () => {},
+    onDeleteTodo = () => {},
   } = props;
+
+  const [newTitle, setNewTitle] = useState(todo.title);
+  const [isTitleChange, setIsTitleChange] = useState(false);
+
+  const cancelEditing = () => {
+    setIsTitleChange(false);
+    setNewTitle(todo.title);
+  };
+
+  const changeTodoTitle = (event?: React.FormEvent<HTMLFormElement>) => {
+    if (event !== undefined) {
+      event.preventDefault();
+    }
+
+    if (newTitle === todo.title) {
+      cancelEditing();
+
+      return;
+    }
+
+    if (newTitle === '') {
+      onDeleteTodo(todo.id);
+    }
+
+    onUpdateTodo(todo.id, { title: newTitle });
+    setIsTitleChange(false);
+  };
 
   return (
     <div
@@ -40,22 +70,38 @@ export const TodoItem: React.FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => onUpdate(todo.id)}
+          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isTitleChange ? (
+        <NewTodoField
+          title={newTitle}
+          newTodoField={newTodoField}
+          onChange={setNewTitle}
+          onSubmit={changeTodoTitle}
+          cancelEditing={cancelEditing}
+        />
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsTitleChange(true)}
+          >
+            {todo.title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDelete(todo.id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => onDeleteTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       {(temporary
         || (isTodoDeleting && selectedTodoId?.includes(todo.id))

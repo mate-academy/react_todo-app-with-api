@@ -17,7 +17,7 @@ import {
   getTodos,
   addTodo,
   deleteTodo,
-  updateStatus,
+  updateTodo,
 } from './api/todos';
 import { FilterType } from './types/FilterType';
 
@@ -63,8 +63,10 @@ export const App: React.FC = () => {
     loadTodos();
   }, []);
 
-  const handleSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmitForm = (event?: React.FormEvent<HTMLFormElement>) => {
+    if (event) {
+      event.preventDefault();
+    }
 
     if (!title.trim()) {
       setErrorMessage('Title can\'t be empty');
@@ -164,10 +166,11 @@ export const App: React.FC = () => {
     });
   };
 
-  const updateTodo = async (todoId: number) => {
+  const changeTodo = async (
+    todoId: number,
+    newData: Partial<Todo>,
+  ) => {
     try {
-      const selectedTodo = todos.find(todo => todo.id === todoId);
-
       setIsTodoUpdating(true);
       setErrorMessage('');
       setSelectedTodoId(todosIds => [
@@ -175,9 +178,9 @@ export const App: React.FC = () => {
         todoId,
       ]);
 
-      await updateStatus(
+      await updateTodo(
         todoId,
-        { completed: !selectedTodo?.completed },
+        newData,
       );
 
       setTodos(currentTodos => currentTodos.map(todo => {
@@ -187,7 +190,7 @@ export const App: React.FC = () => {
 
         return {
           ...todo,
-          completed: !selectedTodo?.completed,
+          ...newData,
         };
       }));
 
@@ -207,7 +210,7 @@ export const App: React.FC = () => {
         (!isAllTodosCompleted && !todo.completed)
         || isAllTodosCompleted
       ) {
-        updateTodo(todo.id);
+        changeTodo(todo.id, { completed: !todo.completed });
       }
     });
   };
@@ -221,7 +224,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <Header
-        newTodoField={newTodoField}
         title={title}
         isAdding={isAdding}
         isAllTodosCompleted={isAllTodosCompleted}
@@ -238,8 +240,9 @@ export const App: React.FC = () => {
             isTodoDeleting={isTodoDeleting}
             selectedTodoId={selectedTodoId}
             isTodoUpdating={isTodoUpdating}
-            onUpdate={updateTodo}
-            onDelete={removeTodo}
+            newTodoField={newTodoField}
+            onUpdateTodo={changeTodo}
+            onDeleteTodo={removeTodo}
           />
 
           <Footer

@@ -13,9 +13,9 @@ export const deleteTodo = async (userId: number) => {
   return client.delete(`/todos/${userId}`);
 };
 
-export const updateStatus = async (
+export const updateTodo = async (
   userId: number,
-  status: Pick<Todo, 'completed'>,
+  newData: Partial<Todo>,
 ) => {
-  return client.patch(`/todos/${userId}`, status);
+  return client.patch(`/todos/${userId}`, newData);
 };

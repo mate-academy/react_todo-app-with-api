@@ -10,8 +10,9 @@ type Props = {
   isTodoDeleting: boolean;
   selectedTodoId: number[];
   isTodoUpdating: boolean;
-  onUpdate: (todoId: number) => void;
-  onDelete: (todoId: number) => Promise<void>;
+  newTodoField: React.RefObject<HTMLInputElement>;
+  onUpdateTodo: (todoId: number, newData: Partial<Todo>) => Promise<void>;
+  onDeleteTodo: (todoId: number) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = (props) => {
@@ -21,8 +22,9 @@ export const TodoList: React.FC<Props> = (props) => {
     isTodoDeleting,
     selectedTodoId,
     isTodoUpdating,
-    onUpdate,
-    onDelete,
+    newTodoField,
+    onUpdateTodo,
+    onDeleteTodo,
   } = props;
 
   return (
@@ -34,8 +36,9 @@ export const TodoList: React.FC<Props> = (props) => {
           isTodoDeleting={isTodoDeleting}
           selectedTodoId={selectedTodoId}
           isTodoUpdating={isTodoUpdating}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
+          newTodoField={newTodoField}
+          onUpdateTodo={onUpdateTodo}
+          onDeleteTodo={onDeleteTodo}
         />
       ))}
 
