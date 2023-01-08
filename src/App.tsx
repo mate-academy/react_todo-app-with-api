@@ -109,27 +109,29 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  const clearAllHandler = useCallback(
-    async () => {
+  const clearAllHandler = useCallback(async () => {
+    try {
       const completedTodoIds = todos
         .filter(todo => todo.completed)
         .map(todo => todo.id);
 
-      todos.forEach(async todo => {
+      setDeletedTodoIds(completedTodoIds);
+
+      await Promise.all(todos.map(async todo => {
         if (todo.completed) {
-          try {
-            setDeletedTodoIds(completedTodoIds);
-            await deleteTodos(todo.id);
-            await loadTodosFromServer();
-          } catch {
-            setErrorType(TypeError.DELETE);
-            setHasError(true);
-            setDeletedTodoIds([]);
-          }
+          await deleteTodos(todo.id);
         }
-      });
-    }, [],
-  );
+
+        return todo;
+      }));
+
+      await loadTodosFromServer();
+    } catch {
+      setErrorType(TypeError.DELETE);
+      setHasError(true);
+      setDeletedTodoIds([]);
+    }
+  }, [todos]);
 
   const deleteTodoHandler = useCallback(
     async (todoId: number) => {
@@ -254,12 +256,12 @@ export const App: React.FC = () => {
       </div>
 
       {hasError
-        && (
-          <Erorr
-            errorType={errorType}
-            onRemoveErrorHandler={removeErorrHandler}
-          />
-        )}
+      && (
+        <Erorr
+          errorType={errorType}
+          onRemoveErrorHandler={removeErorrHandler}
+        />
+      )}
     </div>
   );
 };
