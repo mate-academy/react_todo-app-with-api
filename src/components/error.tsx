@@ -1,30 +1,29 @@
-import { FC, memo } from 'react';
+import { FC, memo, useContext } from 'react';
+import { GlobalContext } from '../contexts/GlobalContext';
 
-interface Props {
-  onClose: (value: React.SetStateAction<boolean>) => void,
-  isVisible: boolean,
-  errorText: string,
-}
+export const Error: FC = memo(
+  () => {
+    const {
+      noError,
+      setNoError,
+      errorText,
+    } = useContext(GlobalContext);
 
-export const Error: FC<Props> = memo(
-  ({
-    onClose,
-    isVisible,
-    errorText,
-  }) => (
-    <div
-      data-cy="ErrorNotification"
-      className="notification is-danger is-light has-text-weight-normal"
-      hidden={isVisible}
-    >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        data-cy="HideErrorButton"
-        type="button"
-        className="delete"
-        onClick={() => onClose(true)}
-      />
-      {errorText}
-    </div>
-  ),
+    return (
+      <div
+        data-cy="ErrorNotification"
+        className="notification is-danger is-light has-text-weight-normal"
+        hidden={noError}
+      >
+        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setNoError(true)}
+        />
+        {errorText}
+      </div>
+    );
+  },
 );

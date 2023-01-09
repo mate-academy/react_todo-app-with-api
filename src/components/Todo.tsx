@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useContext, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoTitle } from './TodoTitle';
@@ -6,22 +6,30 @@ import { TodoDeleteButton } from './TodoDeleteButton';
 import { TodoLoader } from './TodoLoader';
 import { TodoStatusLabel } from './todoStatusLabel';
 import { TodoTitleField } from './TodoTitleField';
+import { EditContext } from '../contexts/EditContext';
+import { DeleteContext } from '../contexts/DeleteContext';
+import { GlobalContext } from '../contexts/GlobalContext';
 
 interface Props {
   todo: Todo,
-  isLoading: number[],
-  onDelete: (id: number) => void,
-  onToggle: (id: number) => void,
-  onRename: (newTitle: string, id: number) => void
 }
 
 export const TodoComponent: FC<Props> = ({
   todo,
-  isLoading,
-  onDelete,
-  onToggle,
-  onRename,
 }) => {
+  const {
+    isLoading,
+  } = useContext(GlobalContext);
+
+  const {
+    onDelete,
+  } = useContext(DeleteContext);
+
+  const {
+    onToggle,
+    onRename,
+  } = useContext(EditContext);
+
   const {
     title,
     id,

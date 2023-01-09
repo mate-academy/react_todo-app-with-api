@@ -5,26 +5,24 @@ import {
   useState,
   useRef,
   useEffect,
+  useContext,
 } from 'react';
+import { EditContext } from '../contexts/EditContext';
+import { GlobalContext } from '../contexts/GlobalContext';
 
-interface Props {
-  // newTodoField: React.RefObject<HTMLInputElement>,
-  isToggleAllActive: boolean
-  isAdding: boolean
-  onFocus: React.Dispatch<React.SetStateAction<boolean>>,
-  onFormSubmit: (title: string) => void,
-  onToggleAll: () => void
-}
+export const NewTodo: FC = memo(
+  () => {
+    const {
+      isAdding,
+      setNoError,
+      onTitleSubmit,
+    } = useContext(GlobalContext);
 
-export const NewTodo: FC<Props> = memo(
-  ({
-    // newTodoField,
-    isAdding,
-    isToggleAllActive,
-    onFocus,
-    onFormSubmit,
-    onToggleAll,
-  }) => {
+    const {
+      isToggleAllActive,
+      onToggleAll,
+    } = useContext(EditContext);
+
     const TodoField = useRef<HTMLInputElement>(null);
     const [inputValue, setInputValue] = useState('');
 
@@ -37,8 +35,13 @@ export const NewTodo: FC<Props> = memo(
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      onFormSubmit(inputValue);
+      onTitleSubmit(inputValue);
       setInputValue('');
+    };
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setInputValue(event.currentTarget.value);
+      setNoError(true);
     };
 
     return (
@@ -61,9 +64,8 @@ export const NewTodo: FC<Props> = memo(
             ref={TodoField}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
-            onFocus={() => onFocus(true)}
             value={inputValue}
-            onChange={(event) => setInputValue(event.currentTarget.value)}
+            onChange={handleChange}
             disabled={isAdding}
           />
         </form>
