@@ -37,9 +37,9 @@ export const TodoComponent: FC<Props> = ({
   const user = useContext(AuthContext);
 
   const [isTodoDeleted, setIsTodoDeleted] = useState(true);
-  const [isTodoToggled, setIsTodoToggled] = useState(false);
   const [isTodoEdited, setIsTodoEdited] = useState(true);
   const [isTodoEditing, setIsTodoEditing] = useState(false);
+  const [isTodoToggled, setIsTodoToggled] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const {
     setIsRemoveErrorShown,

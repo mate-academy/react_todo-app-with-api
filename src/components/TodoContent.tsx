@@ -1,6 +1,5 @@
 import {
-  FormEvent,
-  useContext, useEffect, useRef, useState,
+  FormEvent, useContext, useEffect, useRef, useState,
 } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { TodoList } from './TodoList';
@@ -12,6 +11,9 @@ import { ToggleAllButton } from './ToggleAllButton';
 import { ErrorContext } from './ErrorContext';
 
 export const TodoContent = () => {
+  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
+
   const {
     hasLoadingError,
     setHasLoadingError,
@@ -21,16 +23,14 @@ export const TodoContent = () => {
     setIsAddingErrorShown,
   } = useContext(ErrorContext);
 
+  const [
+    isCompletedTodosDeleting,
+    setIsCompletedTodosDeleting,
+  ] = useState(false);
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
-
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [isNewTodoLoaded, setIsNewTodoLoaded] = useState(true);
   const [clickedIndex, setClickedIndex] = useState(-1);
-  const [
-    isCompletedTodosDeleting, setIsCompletedTodosDeleting,
-  ] = useState(false);
   const [areTodosToggling, setAreTodosToggling] = useState(false);
 
   const isContentRendered = todos.length > 0;
@@ -109,13 +109,11 @@ export const TodoContent = () => {
     };
 
     setVisibleTodos(prev => [...prev, newTodoObj]);
-    setTodos(visibleTodos);
 
     if (user && newTodoField.current) {
       postTodo(user.id, newTodoObj)
         .then(data => {
           setIsAddingErrorShown(false);
-
           setVisibleTodos((prev: Todo[]) => {
             setIsNewTodoLoaded(true);
             const prevArr = prev.slice(0, -1);
@@ -127,7 +125,6 @@ export const TodoContent = () => {
           setErrorsToFalseExceptAddingError();
 
           setVisibleTodos(prev => prev.slice(0, prev.length - 1));
-          setTodos(visibleTodos);
         });
 
       newTodoField.current.value = '';

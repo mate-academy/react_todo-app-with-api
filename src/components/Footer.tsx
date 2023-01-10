@@ -45,10 +45,14 @@ export const Footer = ({
     setIsRemoveErrorShown(true);
   }
 
+  const completedTodosLength = todos.filter(x => x.completed).length;
+  const activeTodosLength = todos.filter(x => !x.completed).length;
+
   useEffect(() => {
     switch (filterType) {
       case FilterType.All:
         setVisibleTodos(todos);
+
         break;
 
       case FilterType.Completed:
@@ -62,7 +66,7 @@ export const Footer = ({
       default:
         throw new Error('Wrong Type');
     }
-  }, [filterType]);
+  }, [filterType, todos.length, completedTodosLength, activeTodosLength]);
 
   const clearCompletedHandler = () => {
     setIsCompletedTodosDeleting(true);
@@ -75,12 +79,13 @@ export const Footer = ({
     });
 
     Promise.all(promiseArray).then(() => {
-      setVisibleTodos(todos.filter(x => !x.completed));
+      setVisibleTodos(prev => prev.filter(x => !x.completed));
 
       setIsCompletedTodosDeleting(false);
       setIsRemoveErrorShown(false);
     })
       .catch(() => {
+        setFilterType(prev => prev);
         setErrorsToFalseExceptRemoveError();
         setIsCompletedTodosDeleting(false);
       });
