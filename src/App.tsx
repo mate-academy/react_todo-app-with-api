@@ -69,6 +69,7 @@ export const App: React.FC = () => {
     const newArray = [...todos, todo];
 
     setTodos(newArray);
+    handleAllCompleted(newArray);
   };
 
   const showTempTodo = (todo: Todo | null) => {
@@ -79,6 +80,7 @@ export const App: React.FC = () => {
     const newArray = todos.filter(todo => !todoIds.includes(todo.id));
 
     setTodos(newArray);
+    handleAllCompleted(newArray);
   };
 
   const onTodoDelete = async (todoIds: number[]) => {
@@ -92,7 +94,6 @@ export const App: React.FC = () => {
 
       removeTodo(todoIds);
       setIsProcessing(false);
-      setIsAllCompletedChecked(false);
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
       handleError();
