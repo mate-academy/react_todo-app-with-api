@@ -10,7 +10,7 @@ type Props = {
   todo: Todo;
   temporary?: boolean;
   isTodoDeleting?: boolean;
-  selectedTodoId?: number[];
+  selectedTodosId?: number[];
   isTodoUpdating?: boolean;
   newTodoField?: React.RefObject<HTMLInputElement>;
   onUpdateTodo?: (todoId: number, newData: Partial<Todo>) => Promise<void>;
@@ -22,7 +22,7 @@ export const TodoItem: React.FC<Props> = (props) => {
     todo,
     temporary = false,
     isTodoDeleting,
-    selectedTodoId,
+    selectedTodosId,
     isTodoUpdating,
     newTodoField,
     onUpdateTodo = () => {},
@@ -38,7 +38,7 @@ export const TodoItem: React.FC<Props> = (props) => {
   };
 
   const changeTodoTitle = (event?: React.FormEvent<HTMLFormElement>) => {
-    if (event !== undefined) {
+    if (event) {
       event.preventDefault();
     }
 
@@ -104,8 +104,8 @@ export const TodoItem: React.FC<Props> = (props) => {
       )}
 
       {(temporary
-        || (isTodoDeleting && selectedTodoId?.includes(todo.id))
-        || (isTodoUpdating && selectedTodoId?.includes(todo.id))
+        || (isTodoDeleting && selectedTodosId?.includes(todo.id))
+        || (isTodoUpdating && selectedTodosId?.includes(todo.id))
       ) && (
         <TodoLoader />
       )}

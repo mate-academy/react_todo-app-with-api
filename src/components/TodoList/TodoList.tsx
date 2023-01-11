@@ -8,7 +8,7 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   isTodoDeleting: boolean;
-  selectedTodoId: number[];
+  selectedTodosId: number[];
   isTodoUpdating: boolean;
   newTodoField: React.RefObject<HTMLInputElement>;
   onUpdateTodo: (todoId: number, newData: Partial<Todo>) => Promise<void>;
@@ -20,7 +20,7 @@ export const TodoList: React.FC<Props> = (props) => {
     todos,
     tempTodo,
     isTodoDeleting,
-    selectedTodoId,
+    selectedTodosId,
     isTodoUpdating,
     newTodoField,
     onUpdateTodo,
@@ -34,7 +34,7 @@ export const TodoList: React.FC<Props> = (props) => {
           todo={todo}
           key={todo.id}
           isTodoDeleting={isTodoDeleting}
-          selectedTodoId={selectedTodoId}
+          selectedTodosId={selectedTodosId}
           isTodoUpdating={isTodoUpdating}
           newTodoField={newTodoField}
           onUpdateTodo={onUpdateTodo}

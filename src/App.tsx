@@ -31,7 +31,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isTodoDeleting, setIsTodoDeleting] = useState(false);
-  const [selectedTodoId, setSelectedTodoId] = useState<number []>([]);
+  const [selectedTodosId, setSelectedTodosId] = useState<number []>([]);
   const [isTodoUpdating, setIsTodoUpdating] = useState(false);
 
   const user = useContext(AuthContext);
@@ -139,7 +139,7 @@ export const App: React.FC = () => {
   const removeTodo = async (todoId: number) => {
     try {
       setIsTodoDeleting(true);
-      setSelectedTodoId(todosIds => [
+      setSelectedTodosId(todosIds => [
         ...todosIds,
         todoId,
       ]);
@@ -150,7 +150,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
 
-      setSelectedTodoId(todosIds => todosIds.filter(id => id !== todoId));
+      setSelectedTodosId(todosIds => todosIds.filter(id => id !== todoId));
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {
@@ -173,7 +173,7 @@ export const App: React.FC = () => {
     try {
       setIsTodoUpdating(true);
       setErrorMessage('');
-      setSelectedTodoId(todosIds => [
+      setSelectedTodosId(todosIds => [
         ...todosIds,
         todoId,
       ]);
@@ -194,7 +194,7 @@ export const App: React.FC = () => {
         };
       }));
 
-      setSelectedTodoId(todosIds => todosIds.filter(id => id !== todoId));
+      setSelectedTodosId(todosIds => todosIds.filter(id => id !== todoId));
     } catch (error) {
       setErrorMessage('Unable to update a todo');
     } finally {
@@ -238,7 +238,7 @@ export const App: React.FC = () => {
             todos={filteredTodos}
             tempTodo={tempTodo}
             isTodoDeleting={isTodoDeleting}
-            selectedTodoId={selectedTodoId}
+            selectedTodosId={selectedTodosId}
             isTodoUpdating={isTodoUpdating}
             newTodoField={newTodoField}
             onUpdateTodo={changeTodo}
