@@ -1,6 +1,7 @@
 const BASE_URL = 'https://mate.academy/students-api';
 
 // returns a promise resolved after a given delay
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function wait(delay: number) {
   return new Promise(resolve => {
     setTimeout(resolve, delay);
@@ -26,8 +27,7 @@ function request<T>(
   }
 
   // we wait for testing purpose to see loaders
-  return wait(300)
-    .then(() => fetch(BASE_URL + url, options))
+  return fetch(BASE_URL + url, options)
     .then(response => {
       if (!response.ok) {
         throw new Error();
