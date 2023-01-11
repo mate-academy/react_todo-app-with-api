@@ -4,34 +4,35 @@ import { TodoInfo } from '../TodoInfo';
 
 type Props = {
   todos: Todo[];
-  todosForDelete: Todo[];
+  idsTodosForDelete: number[];
   todosForUpdate: Todo[];
-  onSetTodoForDelete: (todo: Todo) => void;
+  onSetTodoIdForDelete: (todoId: number) => void;
   onSetTodoForUpdate: (todo: Todo) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
-  todos,
-  todosForDelete,
-  todosForUpdate,
-  onSetTodoForDelete,
-  onSetTodoForUpdate,
-}) => {
-  const idTodosForDelete = todosForDelete.map(todo => todo.id);
-  const idTodosForUpdate = todosForUpdate.map(todo => todo.id);
+export const TodoList: React.FC<Props> = React.memo(
+  ({
+    todos,
+    idsTodosForDelete,
+    todosForUpdate,
+    onSetTodoIdForDelete,
+    onSetTodoForUpdate,
+  }) => {
+    const idTodosForUpdate = todosForUpdate.map(todo => todo.id);
 
-  return (
-    <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => (
-        <TodoInfo
-          key={todo.id}
-          todo={todo}
-          isDeleting={idTodosForDelete.includes(todo.id)}
-          isUpdating={idTodosForUpdate.includes(todo.id)}
-          onSetTodoForDelete={onSetTodoForDelete}
-          onSetTodoForUpdate={onSetTodoForUpdate}
-        />
-      ))}
-    </section>
-  );
-};
+    return (
+      <section className="todoapp__main" data-cy="TodoList">
+        {todos.map(todo => (
+          <TodoInfo
+            key={todo.id}
+            todo={todo}
+            isDeleting={idsTodosForDelete.includes(todo.id)}
+            isUpdating={idTodosForUpdate.includes(todo.id)}
+            onSetTodoIdForDelete={onSetTodoIdForDelete}
+            onSetTodoForUpdate={onSetTodoForUpdate}
+          />
+        ))}
+      </section>
+    );
+  },
+);

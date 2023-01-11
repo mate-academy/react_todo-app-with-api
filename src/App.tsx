@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -25,6 +28,7 @@ import { FilterStatus } from './types/FilterLink';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [isError, setIsError] = useState(false);
@@ -32,7 +36,7 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [todosForDelete, setTodosForDelete] = useState<Todo[]>([]);
+  const [idsTodosForDelete, setIdsTodosForDelete] = useState<number[]>([]);
   const [todosForUpdate, setTodosForUpdate] = useState<Todo[]>([]);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('All');
 
@@ -46,6 +50,12 @@ export const App: React.FC = () => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isAdding]);
 
   const handleChangeNewTodoTitle = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -100,31 +110,33 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleClickCloseErrorMessage = () => {
+  const handleClickCloseErrorMessage = useCallback(() => {
     setIsError(false);
-  };
+  }, []);
 
-  const setNewFilterStatus = (status: FilterStatus) => {
+  const setNewFilterStatus = useCallback((status: FilterStatus) => {
     setFilterStatus(status);
-  };
+  }, []);
 
-  const setTodoForDelete = (chosenTodo: Todo) => {
-    setTodosForDelete(todos => [...todos, chosenTodo]);
+  const setTodoIdForDelete = useCallback((selectedTodoId: number) => {
+    setIdsTodosForDelete(currentIdsTodosForDelete => (
+      [...currentIdsTodosForDelete, selectedTodoId]
+    ));
 
-    deleteTodo(chosenTodo.id)
+    deleteTodo(selectedTodoId)
       .then(() => (
         setTodosFromServer(currentTodos => currentTodos.filter(
-          todo => todo.id !== chosenTodo.id,
+          todo => todo.id !== selectedTodoId,
         ))
       ))
       .catch(() => {
-        setTodosForDelete([]);
         setIsError(true);
         setErrorMessage('Unable to delete a todo');
-      });
-  };
+      })
+      .finally(() => setIdsTodosForDelete([]));
+  }, []);
 
-  const setTodoForUpdate = (chosenTodo: Todo) => {
+  const setTodoForUpdate = useCallback((chosenTodo: Todo) => {
     setTodosForUpdate(todos => [...todos, chosenTodo]);
 
     updateTodo(chosenTodo.id, chosenTodo.title, !chosenTodo.completed)
@@ -147,12 +159,12 @@ export const App: React.FC = () => {
       .finally(() => {
         setTodosForUpdate([]);
       });
-  };
+  }, []);
 
   const handleClickClearCompletedTodos = () => {
     todosFromServer.forEach(todo => {
       if (todo.completed) {
-        setTodoForDelete(todo);
+        setTodoIdForDelete(todo.id);
       }
     });
   };
@@ -169,18 +181,25 @@ export const App: React.FC = () => {
     })
   );
 
-  const todos = todosFromServer.filter(todo => {
-    switch (filterStatus) {
-      case 'Active':
-        return !todo.completed;
+  const getVisibleTodos = () => (
+    todosFromServer.filter(todo => {
+      switch (filterStatus) {
+        case 'Active':
+          return !todo.completed;
 
-      case 'Completed':
-        return todo.completed;
+        case 'Completed':
+          return todo.completed;
 
-      default:
-        return true;
-    }
-  });
+        default:
+          return true;
+      }
+    })
+  );
+
+  const todos = useMemo(
+    getVisibleTodos,
+    [todosFromServer, filterStatus],
+  );
 
   if (isError) {
     setTimeout(() => setIsError(false), 3000);
@@ -207,6 +226,7 @@ export const App: React.FC = () => {
           <form onSubmit={handleSubmitAddNewTodo}>
             <input
               data-cy="NewTodoField"
+              ref={newTodoField}
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
@@ -219,9 +239,9 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={todos}
-          todosForDelete={todosForDelete}
+          idsTodosForDelete={idsTodosForDelete}
           todosForUpdate={todosForUpdate}
-          onSetTodoForDelete={setTodoForDelete}
+          onSetTodoIdForDelete={setTodoIdForDelete}
           onSetTodoForUpdate={setTodoForUpdate}
         />
         {tempTodo && <TodoInfo todo={tempTodo} isAdding={isAdding} />}
