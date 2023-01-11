@@ -33,7 +33,7 @@ export const TodoContent = () => {
   const [clickedIndex, setClickedIndex] = useState(-1);
   const [areTodosToggling, setAreTodosToggling] = useState(false);
 
-  const isContentRendered = todos.length > 0;
+  const isFooterRendered = todos.length > 0 || visibleTodos.length > 0;
 
   function setErrorsToFalseExceptLoadingError() {
     setIsEmptyTitleErrorShown(false);
@@ -166,7 +166,7 @@ export const TodoContent = () => {
       />
 
       <CSSTransition
-        in={isContentRendered}
+        in={isFooterRendered}
         timeout={100}
         classNames="footer"
       >
