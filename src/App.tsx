@@ -78,7 +78,7 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to get todos');
         setErrorCount(prev => prev + 1);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     filterTodos(currentFilter);

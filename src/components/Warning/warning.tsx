@@ -10,14 +10,22 @@ const Warning: React.FC<Props> = ({ message, errorCount }) => {
   const [isShown, setIsShown] = useState(false);
 
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+
     if (message) {
       setIsShown(true);
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setIsShown(false);
       }, 3000);
     } else {
       setIsShown(false);
     }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [errorCount]);
 
   return (
