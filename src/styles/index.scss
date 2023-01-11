@@ -9,13 +9,28 @@ body {
 }
 
 .notification {
-  transition-property: opacity, min-height;
-  transition-duration: 1s;
+  transition-property: opacity, min-height, display;
+  transition-duration: 300;
   min-height: 36px;
 }
 
 .notification.hidden {
   min-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+label.todo__status-label.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todo__remove.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.todoapp__clear-completed.hidden {
   opacity: 0;
   pointer-events: none;
 }
