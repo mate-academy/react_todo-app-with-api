@@ -14,8 +14,8 @@ export const deleteTodo = async (userId: number) => {
 };
 
 export const updateTodo = async (
-  userId: number,
+  todoId: number,
   newData: Partial<Todo>,
 ) => {
-  return client.patch(`/todos/${userId}`, newData);
+  return client.patch(`/todos/${todoId}`, newData);
 };
