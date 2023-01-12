@@ -10,8 +10,7 @@ import {
 import { Todo } from './types/Todo';
 import { TodoItem } from './components/TodoItem/TodoItem';
 import { Notification } from
-  './components/Notification/Notification';
-import { Error } from './types/Error';
+  './components/ErrorNotification/Notification';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -19,7 +18,7 @@ export const App: React.FC = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState<Error>('');
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [filteredBy, setFilteredBy] = useState('All');
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
 
@@ -63,35 +62,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleClearCompleted = () => {
-    filteredTodos.forEach(todo => {
-      if (todo.completed) {
-        deleteTodo(todo.id).then(() => updateTodos());
-      }
-    });
-  };
-
-  const toggleStatus = (
-    todoId: number,
-    todo: Todo,
-    setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>,
-  ) => {
-    const updatedTodo = {
-      id: todo.id,
-      title: todo.title,
-      completed: !todo.completed,
-      userId: todo.userId,
-    };
-
-    patchTodo(todoId, updatedTodo)
-      .then(() => {
-        updateTodos(setIsLoading);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      });
-  };
-
   const filterByAll = () => {
     if (filteredBy !== 'All') {
       setFilteredTodos(todos);
@@ -113,28 +83,67 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleDelete = (todoId: number) => {
+    if (user) {
+      deleteTodo(todoId)
+        .then(() => updateTodos())
+        .catch(() => {
+          setErrorMessages([...errorMessages, 'Unable to delete a todo']);
+        });
+    }
+  };
+
+  const handleClearCompleted = () => {
+    filteredTodos.forEach(todo => {
+      if (todo.completed) {
+        handleDelete(todo.id);
+      }
+    });
+  };
+
+  const toggleStatus = (
+    todoId: number,
+    todo: Todo,
+    setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>,
+  ) => {
+    const updatedTodo = {
+      id: todo.id,
+      title: todo.title,
+      completed: !todo.completed,
+      userId: todo.userId,
+    };
+
+    patchTodo(todoId, updatedTodo)
+      .then(() => {
+        updateTodos(setIsLoading);
+      })
+      .catch(() => {
+        setErrorMessages([...errorMessages, 'Unable to update a todo']);
+        if (setIsLoading) {
+          setIsLoading(false);
+        }
+      });
+  };
+
   const handleToggleAll = () => {
     filteredTodos.forEach(todo => {
       toggleStatus(todo.id, todo);
     });
   };
 
-  const handleDeleteTodo = (todoId: number) => {
-    if (user) {
-      deleteTodo(todoId)
-        .then(() => updateTodos())
-        .catch(() => setErrorMessage('Unable to delete a todo'));
-    }
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitAdd = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (user) {
       postTodo({
         title: inputValue,
         completed: false,
         userId: user.id,
-      }).then(() => updateTodos()).finally(() => setInputValue(''));
+      })
+        .then(() => updateTodos())
+        .catch(() => {
+          setErrorMessages([...errorMessages, 'Unable to add a todo']);
+        })
+        .finally(() => setInputValue(''));
     }
   };
 
@@ -155,7 +164,7 @@ export const App: React.FC = () => {
             onClick={handleToggleAll}
           />
 
-          <form onSubmit={event => handleSubmit(event)}>
+          <form onSubmit={event => handleSubmitAdd(event)}>
             <input
               type="text"
               className="todoapp__new-todo"
@@ -172,10 +181,11 @@ export const App: React.FC = () => {
             <TodoItem
               todo={todo}
               key={todo.id}
-              deleteItem={handleDeleteTodo}
+              deleteItem={handleDelete}
               toggleStatus={toggleStatus}
               updateTodos={updateTodos}
-              setErrorMessage={setErrorMessage}
+              errorMessages={errorMessages}
+              setErrorMessages={setErrorMessages}
             />
           ))}
         </section>
@@ -241,10 +251,10 @@ export const App: React.FC = () => {
         )}
       </div>
       {
-        errorMessage && (
+        errorMessages.length > 0 && (
           <Notification
-            message={errorMessage}
-            setErrorMessage={setErrorMessage}
+            errorMessages={errorMessages}
+            setErrorMessages={setErrorMessages}
           />
         )
       }

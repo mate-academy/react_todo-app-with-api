@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, patchTodo } from '../../api/todos';
-import { Error } from '../../types/Error';
 
 type Props = {
   todo: Todo;
@@ -13,7 +12,9 @@ type Props = {
     setIsToggle: React.Dispatch<React.SetStateAction<boolean>>
   ) => void;
   updateTodos: () => void;
-  setErrorMessage: React.Dispatch<React.SetStateAction<Error>>;
+  errorMessages: string[];
+  // eslint-disable-next-line no-empty-pattern
+  setErrorMessages: ([]) => void;
 };
 
 export const TodoItem: React.FC<Props> = (props) => {
@@ -22,7 +23,8 @@ export const TodoItem: React.FC<Props> = (props) => {
     deleteItem,
     toggleStatus,
     updateTodos,
-    setErrorMessage,
+    errorMessages,
+    setErrorMessages,
   } = props;
 
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
@@ -33,11 +35,16 @@ export const TodoItem: React.FC<Props> = (props) => {
     e.preventDefault();
     setUpdatedTitle(updatedTitle.trim());
     if (updatedTitle === '') {
-      deleteTodo(todo.id).then(() => {
-        updateTodos();
-        setIsDoubleClicked(false);
-      })
-        .catch(() => setErrorMessage('Unable to delete a todo'));
+      deleteTodo(todo.id)
+        .then(() => {
+          updateTodos();
+          setIsDoubleClicked(false);
+        })
+        .catch(() => {
+          setErrorMessages([...errorMessages, 'Unable to delete a todo']);
+          setIsDoubleClicked(false);
+          setUpdatedTitle(todo.title);
+        });
 
       return;
     }
@@ -63,7 +70,9 @@ export const TodoItem: React.FC<Props> = (props) => {
       setIsDoubleClicked(false);
     })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessages([...errorMessages, 'Unable to update a todo']);
+        setIsLoading(false);
+        setIsDoubleClicked(false);
       });
   };
 
