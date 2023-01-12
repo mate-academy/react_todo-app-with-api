@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 import TodoTitleField from '../TodoTitleField/TodoTitleFiled';
 
@@ -25,7 +25,12 @@ const TodoComponent: React.FC<Props> = ({
   const [hasSpinner, setHasSpinner] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  let isActive = todo.completed && deletingCompleted ? true : hasSpinner;
+  const activeBecauseDeletingCompleted = todo.completed && deletingCompleted;
+  let isActive = useMemo(
+    () => activeBecauseDeletingCompleted || hasSpinner, [
+      activeBecauseDeletingCompleted, hasSpinner,
+    ],
+  );
 
   if (currentlyChanging) {
     if (todo.completed && currentlyChanging === 'completed') {

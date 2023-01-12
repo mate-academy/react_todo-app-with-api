@@ -16,7 +16,7 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer/Footer';
 import Form from './components/Form/Form';
 import TodoList from './components/TodoList/TodoList';
-import Warning from './components/Warning/warning';
+import Warning from './components/Warning/Warning';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {

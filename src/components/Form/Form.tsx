@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Form: React.FC<Props> = ({ onSubmit, isAdding }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState<string>('');
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

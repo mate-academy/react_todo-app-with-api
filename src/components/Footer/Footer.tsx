@@ -8,10 +8,16 @@ type Props = {
   onClearCompleted: ()=>void;
 };
 
+enum Filter {
+  ALL,
+  ACTIVE,
+  COMPLETED,
+}
+
 export const Footer: React.FC<Props> = ({
   left, onFilter, completed, onClearCompleted,
 }) => {
-  const [selectedFilter, setSelectedFilter] = useState('ALL');
+  const [selectedFilter, setSelectedFilter] = useState(Filter.ALL);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -24,11 +30,11 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkAll"
           href="#/"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'ALL' },
+            'filter__link', { selected: selectedFilter === Filter.ALL },
           )}
           onClick={() => {
             onFilter('ALL');
-            setSelectedFilter('ALL');
+            setSelectedFilter(Filter.ALL);
           }}
         >
           All
@@ -38,11 +44,11 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkActive"
           href="#/active"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'ACTIVE' },
+            'filter__link', { selected: selectedFilter === Filter.ACTIVE },
           )}
           onClick={() => {
             onFilter('ACTIVE');
-            setSelectedFilter('ACTIVE');
+            setSelectedFilter(Filter.ACTIVE);
           }}
         >
           Active
@@ -51,11 +57,11 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'COMPLETED' },
+            'filter__link', { selected: selectedFilter === Filter.COMPLETED },
           )}
           onClick={() => {
             onFilter('COMPLETED');
-            setSelectedFilter('COMPLETED');
+            setSelectedFilter(Filter.COMPLETED);
           }}
         >
           Completed
