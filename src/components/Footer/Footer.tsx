@@ -1,24 +1,17 @@
-import { useState } from 'react';
 import classNames from 'classnames';
+import { Filter } from '../../types/Filter';
 
 type Props = {
   left: number;
   completed: number;
-  onFilter: (type: string) => void;
+  onFilter: (type: Filter) => void;
   onClearCompleted: ()=>void;
+  currentFilter: Filter;
 };
 
-enum Filter {
-  ALL,
-  ACTIVE,
-  COMPLETED,
-}
-
 export const Footer: React.FC<Props> = ({
-  left, onFilter, completed, onClearCompleted,
+  left, onFilter, completed, onClearCompleted, currentFilter,
 }) => {
-  const [selectedFilter, setSelectedFilter] = useState(Filter.ALL);
-
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
@@ -30,11 +23,10 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkAll"
           href="#/"
           className={classNames(
-            'filter__link', { selected: selectedFilter === Filter.ALL },
+            'filter__link', { selected: currentFilter === Filter.ALL },
           )}
           onClick={() => {
-            onFilter('ALL');
-            setSelectedFilter(Filter.ALL);
+            onFilter(Filter.ALL);
           }}
         >
           All
@@ -44,11 +36,10 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkActive"
           href="#/active"
           className={classNames(
-            'filter__link', { selected: selectedFilter === Filter.ACTIVE },
+            'filter__link', { selected: currentFilter === Filter.ACTIVE },
           )}
           onClick={() => {
-            onFilter('ACTIVE');
-            setSelectedFilter(Filter.ACTIVE);
+            onFilter(Filter.ACTIVE);
           }}
         >
           Active
@@ -57,11 +48,10 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={classNames(
-            'filter__link', { selected: selectedFilter === Filter.COMPLETED },
+            'filter__link', { selected: currentFilter === Filter.COMPLETED },
           )}
           onClick={() => {
-            onFilter('COMPLETED');
-            setSelectedFilter(Filter.COMPLETED);
+            onFilter(Filter.COMPLETED);
           }}
         >
           Completed

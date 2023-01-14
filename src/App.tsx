@@ -11,6 +11,7 @@ import {
   deleteTodo,
   updateTodo,
 } from './api/todos';
+import { Filter } from './types/Filter';
 
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer/Footer';
@@ -24,7 +25,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const [todosToShow, setTodosToShow] = useState(todosFromTheServer);
-  const [currentFilter, setCurrentFilter] = useState('ALL');
+  const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.ALL);
   const [isAdding, setIsAdding] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
@@ -37,10 +38,10 @@ export const App: React.FC = () => {
     todoFromServer => !todoFromServer.completed,
   ).length === 0;
 
-  const filterTodos = (type: string) => {
+  const filterTodos = (type: Filter) => {
     setCurrentFilter(type);
     switch (type) {
-      case 'COMPLETED': {
+      case Filter.COMPLETED: {
         const completedTodos = todosFromTheServer.filter(
           todo => todo.completed,
         );
@@ -49,7 +50,7 @@ export const App: React.FC = () => {
         break;
       }
 
-      case 'ACTIVE': {
+      case Filter.ACTIVE: {
         const activeTodos = todosFromTheServer.filter(
           todo => !todo.completed,
         );
@@ -262,6 +263,7 @@ export const App: React.FC = () => {
               }
               onFilter={filterTodos}
               onClearCompleted={clearCompleted}
+              currentFilter={currentFilter}
             />
           </>
         )}
