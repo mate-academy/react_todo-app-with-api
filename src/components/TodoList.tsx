@@ -7,6 +7,9 @@ type Props = {
   activeLoading: number[];
   isAdding: boolean;
   loader: number;
+  tickTodo:(id: number, completed: boolean) => void,
+  idToUpdate: number,
+  updateTodoTitle:(id: number, title: string) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +17,9 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   activeLoading,
   loader,
+  tickTodo,
+  idToUpdate,
+  updateTodoTitle,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -23,6 +29,9 @@ export const TodoList: React.FC<Props> = ({
         onDelete={onDelete}
         activeLoading={activeLoading.includes(todo.id)}
         loader={loader}
+        tickTodo={tickTodo}
+        idToUpdate={idToUpdate}
+        updateTodoTitle={updateTodoTitle}
       />
     ))}
   </section>

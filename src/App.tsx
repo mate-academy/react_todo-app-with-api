@@ -8,7 +8,12 @@ import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Condition } from './types/Condition';
 import { Todo } from './types/Todo';
-import { addTodos, deleteTodos, getTodos } from './api/todos';
+import {
+  addTodos,
+  deleteTodos,
+  getTodos,
+  updateTodos,
+} from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -21,6 +26,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [activeLoading, setActiveLoading] = useState<number[]>([]);
   const [loader, setLoader] = useState<number>(0);
+  const [idToUpdate, setIdToUpdate] = useState<number>(0);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -130,6 +136,46 @@ export const App: React.FC = () => {
     return () => clearTimeout(timer);
   });
 
+  const tickTodo = async (id: number, completed: boolean) => {
+    setIdToUpdate(id);
+
+    try {
+      await updateTodos({
+        id,
+        completed: !completed,
+      });
+      loadApiTodos();
+    } catch {
+      setIsError('Unable to update a todo');
+    }
+  };
+
+  useEffect(() => {
+    const t2 = setTimeout(() => {
+      setIdToUpdate(0);
+    }, 500);
+
+    return () => clearTimeout(t2);
+  });
+
+  const updateTodoTitle = async (
+    id: number, title: string,
+  ) => {
+    setIdToUpdate(id);
+
+    try {
+      await updateTodos({
+        id,
+        title,
+      });
+      loadApiTodos();
+    } catch {
+      setIsError('Unable to update a todo');
+    }
+
+    setIsError('');
+  };
+
   const todosNotCompleted = todos.filter(todo => !todo.completed);
 
   return (
@@ -171,6 +217,9 @@ export const App: React.FC = () => {
               activeLoading={activeLoading}
               isAdding={isAdding}
               loader={loader}
+              tickTodo={tickTodo}
+              idToUpdate={idToUpdate}
+              updateTodoTitle={updateTodoTitle}
             />
             <Footer
               todos={todos}
