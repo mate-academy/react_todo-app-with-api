@@ -21,7 +21,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentTodoId, setCurrentTodoId] = useState<number[]>([]);
-  const [isAllCompletedChecked, setIsAllCompletedChecked] = useState(false);
 
   const handleError = () => {
     setIsErrorShow(true);
@@ -37,11 +36,7 @@ export const App: React.FC = () => {
   };
 
   const handleAllCompleted = (array: Todo[]) => {
-    if (array.some(todo => !todo.completed) || array.length === 0) {
-      setIsAllCompletedChecked(false);
-    } else {
-      setIsAllCompletedChecked(true);
-    }
+    return !(array.some(todo => !todo.completed) || array.length === 0);
   };
 
   const loadingTodos = async () => {
@@ -77,10 +72,8 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = (todoIds: number[]) => {
-    const newArray = todos.filter(todo => !todoIds.includes(todo.id));
-
-    setTodos(newArray);
-    handleAllCompleted(newArray);
+    setTodos(prevTodos => prevTodos.filter(todo => !todoIds.includes(todo.id)));
+    handleAllCompleted(todos);
   };
 
   const onTodoDelete = async (todoIds: number[]) => {
@@ -111,7 +104,7 @@ export const App: React.FC = () => {
 
       await Promise.all(todoIds.map(todoId => patchTodo(todoId, data)));
 
-      const updatedArray = todos.map(todo => {
+      setTodos(prevTodos => prevTodos.map(todo => {
         if (todoIds.includes(todo.id)) {
           return {
             ...todo,
@@ -120,10 +113,8 @@ export const App: React.FC = () => {
         }
 
         return todo;
-      });
-
-      setTodos(updatedArray);
-      handleAllCompleted(updatedArray);
+      }));
+      handleAllCompleted(todos);
       setIsProcessing(false);
     } catch (error) {
       setErrorMessage('Unable to update a todo');
@@ -133,11 +124,11 @@ export const App: React.FC = () => {
   };
 
   const toggleAllCompletedStatus = () => {
-    const todoIds = isAllCompletedChecked
+    const todoIds = handleAllCompleted(todos)
       ? todos.map(todo => todo.id)
       : todos.filter(todo => !todo.completed).map(todo => todo.id);
 
-    toggleCompletedStatus(todoIds, { completed: !isAllCompletedChecked });
+    toggleCompletedStatus(todoIds, { completed: !handleAllCompleted(todos) });
   };
 
   const handleTitleChanges = async (
@@ -185,7 +176,7 @@ export const App: React.FC = () => {
           showTempTodo={showTempTodo}
           handleError={handleError}
           toggleAllCompletedStatus={toggleAllCompletedStatus}
-          isAllCompletedChecked={isAllCompletedChecked}
+          isAllCompletedChecked={handleAllCompleted(todos)}
         />
 
         {todos.length > 0 && (
