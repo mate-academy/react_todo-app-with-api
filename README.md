@@ -6,3 +6,5 @@ You can adding todos, edit the names, statuses of already existing ones, and als
 Each action is accompanied by a request to the server and the return of a certain result.
 
 Technoligis: React.js, FETCH, REST API, AJAX, TypeScript, JavaScript, Boolma, BEM, SCSS, HTML. 
+
+[PREVIEW](https://andrii-bassarab.github.io/react_todo-app-with-api/)
