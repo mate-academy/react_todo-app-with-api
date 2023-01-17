@@ -9,6 +9,7 @@ export const Footer: FC = memo(
       visibleTodos,
       filterStatus,
       setFilterStatus,
+      todos,
     } = useContext(GlobalContext);
 
     const {
@@ -16,7 +17,7 @@ export const Footer: FC = memo(
       isClearCompletedHidden,
     } = useContext(DeleteContext);
 
-    if (visibleTodos.length === 0) {
+    if (todos.length === 0) {
       return <></>;
     }
 
