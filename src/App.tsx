@@ -1,6 +1,7 @@
 import React, {
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -20,13 +21,14 @@ import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isError, setIsError] = useState('');
+  const [error, setError] = useState('');
   const [filterType, setFilterType] = useState(Condition.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [activeLoading, setActiveLoading] = useState<number[]>([]);
   const [loader, setLoader] = useState<number>(0);
   const [idToUpdate, setIdToUpdate] = useState<number>(0);
+  const [isTotalTick, setIsTotalTick] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -49,7 +51,7 @@ export const App: React.FC = () => {
 
         setTodos(data);
       } catch {
-        setIsError('Unable to add a todo');
+        setError('Unable to add a todo');
       }
     }
   };
@@ -67,7 +69,7 @@ export const App: React.FC = () => {
   };
 
   const closeError = () => {
-    setIsError('');
+    setError('');
   };
 
   const addToLoadingArr = (id: number) => {
@@ -82,7 +84,7 @@ export const App: React.FC = () => {
     }
 
     if (!newTodoTitle.trim()) {
-      setIsError('Title can\'t be empty');
+      setError('Title can\'t be empty');
 
       return;
     }
@@ -102,7 +104,7 @@ export const App: React.FC = () => {
         setNewTodoTitle('');
         loadApiTodos();
       } catch {
-        setIsError('Unable to add a todo');
+        setError('Unable to add a todo');
         setNewTodoTitle('');
       } finally {
         setIsAdding(false);
@@ -111,11 +113,11 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timerForAdding = setTimeout(() => {
       setLoader(0);
     }, 500);
 
-    return () => clearTimeout(t);
+    return () => clearTimeout(timerForAdding);
   });
 
   const handleDeleteTodo = async (todoId: number) => {
@@ -124,16 +126,16 @@ export const App: React.FC = () => {
       await deleteTodos(todoId);
       loadApiTodos();
     } catch {
-      setIsError('Unable to delete a todo');
+      setError('Unable to delete a todo');
     }
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timerForDelete = setTimeout(() => {
       setActiveLoading([]);
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timerForDelete);
   });
 
   const tickTodo = async (id: number, completed: boolean) => {
@@ -146,17 +148,11 @@ export const App: React.FC = () => {
       });
       loadApiTodos();
     } catch {
-      setIsError('Unable to update a todo');
+      setError('Unable to update a todo');
     }
+
+    setIdToUpdate(0);
   };
-
-  useEffect(() => {
-    const t2 = setTimeout(() => {
-      setIdToUpdate(0);
-    }, 500);
-
-    return () => clearTimeout(t2);
-  });
 
   const updateTodoTitle = async (
     id: number, title: string,
@@ -170,13 +166,34 @@ export const App: React.FC = () => {
       });
       loadApiTodos();
     } catch {
-      setIsError('Unable to update a todo');
+      setError('Unable to update a todo');
     }
 
-    setIsError('');
+    setError('');
+    setIdToUpdate(0);
   };
 
   const todosNotCompleted = todos.filter(todo => !todo.completed);
+
+  const todosToToggle = useMemo(() => {
+    return todosNotCompleted.length > 0
+      ? todosNotCompleted
+      : todos;
+  }, [todosNotCompleted]);
+
+  const tickAllTodos = async () => {
+    setIsTotalTick(true);
+
+    try {
+      await Promise.all(todosToToggle.map(({ id, completed }) => (
+        tickTodo(id, completed)
+      )));
+    } catch {
+      setError('Unable to update a todo');
+    }
+
+    setIsTotalTick(false);
+  };
 
   return (
     <div className="todoapp">
@@ -192,6 +209,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all', {
                 active: todosNotCompleted.length === 0,
               })}
+              onClick={tickAllTodos}
             />
           )}
 
@@ -220,6 +238,7 @@ export const App: React.FC = () => {
               tickTodo={tickTodo}
               idToUpdate={idToUpdate}
               updateTodoTitle={updateTodoTitle}
+              isTotalTick={isTotalTick}
             />
             <Footer
               todos={todos}
@@ -231,10 +250,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {isError && (
+      {error && (
         <ErrorNotification
-          isError={isError}
-          setIsError={closeError}
+          error={error}
+          setError={closeError}
         />
       )}
     </div>

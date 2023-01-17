@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -10,6 +10,7 @@ type Props = {
   tickTodo: (id: number, completed: boolean) => void,
   idToUpdate: number,
   updateTodoTitle: (id: number, title: string) => void,
+  isTotalTick:boolean,
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoInfo: React.FC<Props> = ({
   tickTodo,
   idToUpdate,
   updateTodoTitle,
+  isTotalTick,
 }) => {
   const {
     id,
@@ -41,8 +43,8 @@ export const TodoInfo: React.FC<Props> = ({
       onDelete(id);
     }
 
-    updateTodoTitle(id, changedTitle);
     setIsActiveTitle(false);
+    updateTodoTitle(id, changedTitle);
   };
 
   const cancelUpdate = (event: React.KeyboardEvent) => {
@@ -51,6 +53,12 @@ export const TodoInfo: React.FC<Props> = ({
       setIsActiveTitle(false);
     }
   };
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isActiveTitle]);
 
   return (
     <div
@@ -81,7 +89,7 @@ export const TodoInfo: React.FC<Props> = ({
               ref={newTodoField}
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              defaultValue={changedTitle}
+              value={changedTitle}
               onChange={(event) => setChangedTitle(event.target.value)}
               onKeyDown={cancelUpdate}
             />
@@ -110,7 +118,7 @@ export const TodoInfo: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active': activeLoading || loader === id
-            || idToUpdate === id,
+            || idToUpdate === id || isTotalTick,
         })}
       >
         <div className="modal-background has-background-white-ter" />

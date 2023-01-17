@@ -10,6 +10,7 @@ type Props = {
   tickTodo:(id: number, completed: boolean) => void,
   idToUpdate: number,
   updateTodoTitle:(id: number, title: string) => void,
+  isTotalTick: boolean;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoList: React.FC<Props> = ({
   tickTodo,
   idToUpdate,
   updateTodoTitle,
+  isTotalTick,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -32,6 +34,7 @@ export const TodoList: React.FC<Props> = ({
         tickTodo={tickTodo}
         idToUpdate={idToUpdate}
         updateTodoTitle={updateTodoTitle}
+        isTotalTick={isTotalTick}
       />
     ))}
   </section>

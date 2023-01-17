@@ -2,17 +2,17 @@ import { useEffect } from 'react';
 import classNames from 'classnames';
 
 type Props = {
-  isError: string;
-  setIsError: () => void;
+  error: string;
+  setError: () => void;
 };
 
-export const ErrorNotification: React.FC<Props> = ({ isError, setIsError }) => {
+export const ErrorNotification: React.FC<Props> = ({ error, setError }) => {
   useEffect(() => {
-    const timerId = setTimeout(() => {
-      setIsError();
+    const errorTimer = setTimeout(() => {
+      setError();
     }, 3000);
 
-    return () => clearTimeout(timerId);
+    return () => clearTimeout(errorTimer);
   }, []);
 
   return (
@@ -20,7 +20,7 @@ export const ErrorNotification: React.FC<Props> = ({ isError, setIsError }) => {
       data-cy="ErrorNotification"
       className={
         classNames('notification is-danger is-light has-text-weight-normal',
-          { hidden: !isError })
+          { hidden: !error })
       }
     >
       <button
@@ -28,9 +28,9 @@ export const ErrorNotification: React.FC<Props> = ({ isError, setIsError }) => {
         aria-label="delete"
         type="button"
         className="delete"
-        onClick={setIsError}
+        onClick={setError}
       />
-      {isError}
+      {error}
     </div>
   );
 };
