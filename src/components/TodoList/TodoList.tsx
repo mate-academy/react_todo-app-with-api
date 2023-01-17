@@ -2,6 +2,7 @@ import { CustomTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import TempTodo from '../TempTodo/TempTodo';
 import TodoComponent from '../Todo/Todo';
+import { Filter } from '../../types/Filter';
 
 type Props = {
   todos: Todo[];
@@ -24,13 +25,13 @@ const TodoList: React.FC<Props> = ({
   isToggling,
   onTitleChange,
 }) => {
-  let currentlyCanging = '';
+  let currentlyCanging = Filter.NONE;
 
   if (isToggling) {
     if (todos.some(todo => !todo.completed)) {
-      currentlyCanging = 'active';
+      currentlyCanging = Filter.ACTIVE;
     } else {
-      currentlyCanging = 'completed';
+      currentlyCanging = Filter.COMPLETED;
     }
   }
 

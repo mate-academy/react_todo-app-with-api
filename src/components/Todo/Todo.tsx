@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { useEffect, useState, useMemo } from 'react';
+import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 import TodoTitleField from '../TodoTitleField/TodoTitleFiled';
 
@@ -9,7 +10,7 @@ type Props = {
   deletingCompleted: boolean;
   onToggleStatus: () => void;
   isChanging: boolean;
-  currentlyChanging: string;
+  currentlyChanging: Filter;
   onTitleChange: (todo: Todo, value: string) => void;
 };
 
@@ -26,21 +27,25 @@ const TodoComponent: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const activeBecauseDeletingCompleted = todo.completed && deletingCompleted;
-  let isActive = useMemo(
-    () => activeBecauseDeletingCompleted || hasSpinner, [
+  const isActive = useMemo(
+    () => {
+      let isActiveTemp = activeBecauseDeletingCompleted || hasSpinner;
+
+      if (currentlyChanging) {
+        if (todo.completed && currentlyChanging === Filter.COMPLETED) {
+          isActiveTemp = true;
+        }
+
+        if (!todo.completed && currentlyChanging === Filter.ACTIVE) {
+          isActiveTemp = true;
+        }
+      }
+
+      return isActiveTemp;
+    }, [
       activeBecauseDeletingCompleted, hasSpinner,
     ],
   );
-
-  if (currentlyChanging) {
-    if (todo.completed && currentlyChanging === 'completed') {
-      isActive = true;
-    }
-
-    if (!todo.completed && currentlyChanging === 'active') {
-      isActive = true;
-    }
-  }
 
   useEffect(() => {
     if (!isChanging) {
