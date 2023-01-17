@@ -56,7 +56,7 @@ export const App: React.FC = () => {
   }, [activeTodosLength]);
 
   const completedTodos
-    = useMemo(() => (todos.filter(todo => todo.completed)),
+    = useMemo(() => (copyTodos.filter(todo => todo.completed)),
       [copyTodos, changedId]);
 
   const isSomeError = Object.entries(isError).some(el => el[1] === true);
@@ -175,7 +175,7 @@ export const App: React.FC = () => {
       });
 
     setTodos(filteredTodos);
-  }, [selectParametr, copyTodos]);
+  }, [selectParametr, copyTodos, activeToggleAll]);
 
   const handlesSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -216,8 +216,8 @@ export const App: React.FC = () => {
 
   const handleToggleAll = () => {
     const updatedTodo = activeToggleAll
-      ? todos
-      : todos.filter(todo => !todo.completed);
+      ? copyTodos
+      : copyTodos.filter(todo => !todo.completed);
 
     updateTodoCompleted(updatedTodo);
   };
@@ -283,7 +283,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoAppHeader
           newTodoField={newTodoField}
-          todosLength={todos.length}
+          todosLength={copyTodos.length}
           newTodoTitle={newTodoTitle}
           setNewTodoTitle={setNewTodoTitle}
           handlesSubmit={handlesSubmit}
@@ -307,7 +307,11 @@ export const App: React.FC = () => {
           handleKeyDown={handleKeyDown}
         />
 
-        {(todos.length > 0 || selectParametr !== SortType.all) && (
+        {(todos.length > 0
+          || (selectParametr !== SortType.all
+          && completedTodos.length !== 0)
+          || (selectParametr === SortType.completed
+          && completedTodos.length === 0)) && (
           <TodoAppFooter
             selectParametr={selectParametr}
             setSelectParametr={setSelectParametr}
