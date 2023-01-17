@@ -1,7 +1,6 @@
 import React, {
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -175,17 +174,15 @@ export const App: React.FC = () => {
 
   const todosNotCompleted = todos.filter(todo => !todo.completed);
 
-  const todosToToggle = useMemo(() => {
-    return todosNotCompleted.length > 0
-      ? todosNotCompleted
-      : todos;
-  }, [todosNotCompleted]);
+  const todosToTick = todosNotCompleted.length > 0
+    ? todosNotCompleted
+    : todos;
 
   const tickAllTodos = async () => {
     setIsTotalTick(true);
 
     try {
-      await Promise.all(todosToToggle.map(({ id, completed }) => (
+      await Promise.all(todosToTick.map(({ id, completed }) => (
         tickTodo(id, completed)
       )));
     } catch {
