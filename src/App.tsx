@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  KeyboardEvent, useContext, useEffect, useRef, useState,
+  useContext, useEffect, useRef, useState,
 } from 'react';
 import {
-  getTodos, addTodo, deleteTodo, completeTodo,
+  getTodos, addTodo, deleteTodo, completeTodo, editTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer';
@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | []>([]);
   const [title, setTitle] = useState<string>('');
   const [filter, setFilter] = useState(Filter.all);
-  const [Error, setError] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [isHidden, setIsHidden] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
@@ -40,8 +40,8 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleAdd = (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' || !user) {
+  const handleAdd = () => {
+    if (!user) {
       return;
     }
 
@@ -97,7 +97,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleCompletedChange = (id: number, data: boolean) => {
+  const handleStatusChange = (id: number, data: boolean) => {
     setSelectedTodoIds(prev => [...prev, id]);
 
     completeTodo(id, data)
@@ -112,9 +112,9 @@ export const App: React.FC = () => {
 
   const completeAll = () => {
     if (todos.every(todo => todo.completed)) {
-      todos.forEach(todo => handleCompletedChange(todo.id, false));
+      todos.forEach(todo => handleStatusChange(todo.id, false));
     } else {
-      todos.forEach(todo => handleCompletedChange(todo.id, true));
+      todos.forEach(todo => handleStatusChange(todo.id, true));
     }
   };
 
@@ -135,6 +135,29 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleDoubleClick = (id: number) => {
+    setSelectedTodoIds([id]);
+  };
+
+  const handleEditing = (id: number, data: string) => {
+    if (!data.trim()) {
+      handleDelete(id);
+
+      return;
+    }
+
+    editTodo(id, data)
+      .then(() => setTodos(prevTodos => {
+        prevTodos.find(todo => todo.id === id).title = data;
+
+        return prevTodos;
+      }))
+      .catch(() => setError('update'))
+      .finally(() => {
+        setSelectedTodoIds([]);
+      });
+  };
+
   const visibleTodos = !todos ? [] : handleFilter(todos, filter);
   const activeCount = !todos ? 0 : todos.filter(todo => !todo.completed).length;
 
@@ -150,6 +173,8 @@ export const App: React.FC = () => {
           setIsHidden={setIsHidden}
           isAdding={isAdding}
           completeAll={completeAll}
+          completedTodosCount={completedTodos.length}
+          todosCount={todos.length}
         />
 
         {(todos.length > 0 || isAdding) && (
@@ -159,8 +184,10 @@ export const App: React.FC = () => {
               title={title}
               isAdding={isAdding}
               handleDelete={handleDelete}
-              handleCompletedChange={handleCompletedChange}
+              handleStatusChange={handleStatusChange}
+              handleEditing={handleEditing}
               selectedTodoIds={selectedTodoIds}
+              handleDoubleClick={handleDoubleClick}
             />
 
             <Footer
@@ -177,7 +204,7 @@ export const App: React.FC = () => {
       <ErrorNotification
         isHidden={isHidden}
         setIsHidden={setIsHidden}
-        onError={Error}
+        onError={error}
       />
     </div>
   );
