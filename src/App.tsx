@@ -130,7 +130,7 @@ export const App: React.FC = () => {
   const handleUpdateToggle = useCallback((chosenTodo: Todo) => {
     setUpdatingDataIds(updatingData => [...updatingData, chosenTodo]);
 
-    updateTodo(chosenTodo.id, !chosenTodo.completed)
+    updateTodo(chosenTodo.id, !chosenTodo.completed, chosenTodo.title)
       .then((updatedTodo) => {
         setTodos(currentTodos => currentTodos.map(todo => (
           todo.id !== updatedTodo.id

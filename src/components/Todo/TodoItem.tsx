@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoLoader } from '../TodoLoader';
 import { TodoTitleField } from '../TodoTitleField';
@@ -22,7 +22,72 @@ export const TodoItem: React.FC<Props> = ({
   isUpdating,
 }) => {
   const { title, completed } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(title);
+
+  const handleUpdateToggle = () => {
+    if (onUpdate !== undefined) {
+      onUpdate(todo);
+    }
+  };
+
+  const handleDeleteTodo = () => {
+    if (onDelete !== undefined) {
+      onDelete(todo.id);
+    }
+  };
+
+  const renameTitle = () => {
+    if (currentTitle === title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!currentTitle && onDelete) {
+      onDelete(todo.id);
+      setIsEditing(false);
+      setCurrentTitle(title);
+
+      return;
+    }
+
+    const renamedTodo: Todo = {
+      ...todo,
+      title: currentTitle,
+      completed: !completed,
+    };
+
+    if (onUpdate) {
+      onUpdate(renamedTodo);
+      setIsEditing(false);
+    }
+  };
+
+  const handleOnSubmit = (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    renameTitle();
+  };
+
+  const onBlur = () => {
+    setIsEditing(false);
+
+    renameTitle();
+  };
+
+  const handleEscKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Escape') {
+      setCurrentTitle(title);
+
+      setIsEditing(false);
+    }
+  };
 
   return (
     <div
@@ -31,6 +96,7 @@ export const TodoItem: React.FC<Props> = ({
         'todo',
         { completed },
       )}
+      onDoubleClick={() => setIsEditing(true)}
     >
       <label className="todo__status-label">
         <input
@@ -38,16 +104,20 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => {
-            if (onUpdate !== undefined) {
-              onUpdate(todo);
-            }
-          }}
+          onClick={handleUpdateToggle}
         />
       </label>
 
       {isEditing
-        ? <TodoTitleField />
+        ? (
+          <TodoTitleField
+            onSubmit={handleOnSubmit}
+            currentTitle={currentTitle}
+            setCurrentTitle={setCurrentTitle}
+            onBlur={onBlur}
+            onKeyDown={handleEscKeyDown}
+          />
+        )
         : (
           <>
             <span data-cy="TodoTitle" className="todo__title">
@@ -57,11 +127,7 @@ export const TodoItem: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => {
-                if (onDelete !== undefined) {
-                  onDelete(todo.id);
-                }
-              }}
+              onClick={handleDeleteTodo}
             >
               ×
             </button>

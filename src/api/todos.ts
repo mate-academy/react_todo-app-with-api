@@ -20,6 +20,7 @@ export const deleteTodo = (todoId: number) => {
 export const updateTodo = (
   todoId: number,
   completed: boolean,
+  title: string,
 ) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { completed });
+  return client.patch<Todo>(`/todos/${todoId}`, { completed, title });
 };
