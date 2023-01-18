@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React,
 {
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -38,7 +39,7 @@ export const App: React.FC = () => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
-  const getErrorStatus = (currentError: ErrorValues) => {
+  const getErrorStatus = useCallback((currentError: ErrorValues) => {
     if (timerId) {
       clearTimeout(timerId);
     }
@@ -54,7 +55,7 @@ export const App: React.FC = () => {
     }, 3000);
 
     setTimerId(handleId);
-  };
+  }, [errorStatus, errorMessage]);
 
   const reloadTodos = async () => {
     if (user) {
@@ -67,6 +68,15 @@ export const App: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+
+    reloadTodos();
+  }, [user]);
 
   const addingTodos = async () => {
     if (user) {
@@ -154,15 +164,6 @@ export const App: React.FC = () => {
       setIdsForLoader([]);
     }
   };
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
-    reloadTodos();
-  }, []);
 
   const setFilterStatus = (todoStatus: FilterValues) => {
     setTodoFilter(todoStatus);
