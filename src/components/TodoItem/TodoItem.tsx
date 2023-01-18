@@ -63,46 +63,44 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isEditing
-        ? (
-          <form
-            onSubmit={event => {
-              event.preventDefault();
-              onSuccessfulEdit();
-            }}
+      {isEditing ? (
+        <form
+          onSubmit={event => {
+            event.preventDefault();
+            onSuccessfulEdit();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            ref={currentTitle}
+            placeholder="The empty placeholder will be deleted"
+            value={newTitle}
+            onChange={event => setNewTitle(event.target.value)}
+            onBlur={onSuccessfulEdit}
+            onKeyDown={onPressEsc}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
           >
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              ref={currentTitle}
-              placeholder="The empty placeholder will be deleted"
-              value={newTitle}
-              onChange={event => setNewTitle(event.target.value)}
-              onBlur={onSuccessfulEdit}
-              onKeyDown={onPressEsc}
-            />
-          </form>
-        )
-        : (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => setIsEditing(true)}
-            >
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => onDeleteItem(id)}
-            >
-              ×
-            </button>
-          </>
-        )}
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => onDeleteItem(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         data-cy="TodoLoader"

@@ -59,9 +59,12 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setHasError(false);
-    }, 3000);
+    const timer = setTimeout(
+      () => {
+        setHasError(false);
+        clearTimeout(timer);
+      }, 3000,
+    );
   }, [hasError]);
 
   const onFormSubmit = useCallback(
@@ -191,6 +194,8 @@ export const App: React.FC = () => {
     if (newTitle === title) {
       setHasError(true);
       setErrorType(ErrorType.rename);
+
+      return;
     }
 
     setTodos(currTodos => currTodos.map(todo => (

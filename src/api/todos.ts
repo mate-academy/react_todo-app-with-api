@@ -6,7 +6,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodos = async (data: Partial<Todo>) => {
-  return client.post('/todos', data);
+  return client.post<Todo>('/todos', data);
 };
 
 export const updateTodos = (id: number, data: Partial<Todo>) => {
