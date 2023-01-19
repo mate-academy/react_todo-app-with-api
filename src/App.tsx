@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import cn from 'classnames';
 import React, {
   useContext,
   useEffect,
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
   const [failedAddError, setAddError] = useState(false);
   const [failedDeleteError, setDeleteError] = useState(false);
   const [failedLoadError, setLoadError] = useState(false);
+  const [failedChangeError, setChangeError] = useState(false);
 
   const fetchTodos = async () => {
     try {
@@ -55,6 +57,8 @@ export const App: React.FC = () => {
   const cancelErrors = () => {
     setEmptyError(false);
     setAddError(false);
+    setDeleteError(false);
+    setLoadError(false);
   };
 
   const findNewTodoId = (): number => {
@@ -78,39 +82,20 @@ export const App: React.FC = () => {
     });
   };
 
-  const deleteTodos = (id: number) => {
-    try {
-      deleteTodo(id);
-      setVisibleList(prevTodos => {
-        return (prevTodos.filter(item => item.id !== id));
-      });
-      setTodoList(prevTodos => {
-        return (prevTodos.filter(item => item.id !== id));
-      });
-    } catch {
-      setDeleteError(true);
+  const deleteTodos = async (id: number) => {
+    if (id !== 0) {
+      try {
+        await deleteTodo(id);
+        setVisibleList(prevTodos => {
+          return (prevTodos.filter(item => item.id !== id));
+        });
+        setTodoList(prevTodos => {
+          return (prevTodos.filter(item => item.id !== id));
+        });
+      } catch {
+        setDeleteError(true);
+      }
     }
-  };
-
-  const onChangeCompleteTodo = (id: number, complete: boolean) => {
-    changeCompleteTodo(id, complete);
-    setVisibleList(prevTodos => {
-      return (prevTodos.map(
-        item => (item.id === id
-          ? { ...item, completed: !item.completed } : item),
-      ));
-    });
-
-    setTodoList(prevTodos => {
-      return (prevTodos.map(
-        item => (item.id === id
-          ? { ...item, completed: !item.completed } : item),
-      ));
-    });
-  };
-
-  const countActiveItems = (): number => {
-    return todoList.filter(item => !item.completed).length;
   };
 
   const filterTodos = async (filterBy: Filter) => {
@@ -128,9 +113,62 @@ export const App: React.FC = () => {
       case Filter.clearComplete:
         todoList.map(item => (item.completed && deleteTodos(item.id)));
         break;
+      case Filter.all:
+        setVisibleList(todoList);
+        break;
       default:
         break;
     }
+  };
+
+  const onChangeCompleteTodo = async (id: number, complete: boolean) => {
+    try {
+      await changeCompleteTodo(id, complete);
+      setVisibleList(prevTodos => {
+        return (prevTodos.map(
+          item => (item.id === id
+            ? { ...item, completed: !item.completed } : item),
+        ));
+      });
+
+      setTodoList(prevTodos => {
+        return (prevTodos.map(
+          item => (item.id === id
+            ? { ...item, completed: !item.completed } : item),
+        ));
+      });
+    } catch {
+      setChangeError(true);
+    }
+  };
+
+  const onChangeTodoTitle = async (id: number, title: string) => {
+    if (title.length !== 0) {
+      try {
+        await changeTitleTodo(id, title);
+
+        setVisibleList(prevTodos => {
+          return (prevTodos.map(
+            item => (item.id === id
+              ? { ...item, title } : item),
+          ));
+        });
+        setTodoList(prevTodos => {
+          return (prevTodos.map(
+            item => (item.id === id
+              ? { ...item, title } : item),
+          ));
+        });
+      } catch {
+        setChangeError(true);
+      }
+    } else {
+      deleteTodos(id);
+    }
+  };
+
+  const countActiveItems = (): number => {
+    return todoList.filter(item => !item.completed).length;
   };
 
   const isCompletedTodo = () => {
@@ -157,23 +195,6 @@ export const App: React.FC = () => {
         setTimeout(cancelErrors, 3000);
       }
     }
-  };
-
-  const onChangeTodoTitle = (id: number, title: string) => {
-    changeTitleTodo(id, title);
-
-    setVisibleList(prevTodos => {
-      return (prevTodos.map(
-        item => (item.id === id
-          ? { ...item, title } : item),
-      ));
-    });
-    setTodoList(prevTodos => {
-      return (prevTodos.map(
-        item => (item.id === id
-          ? { ...item, title } : item),
-      ));
-    });
   };
 
   const toggleAll = () => {
@@ -219,7 +240,10 @@ export const App: React.FC = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={cn(
+              'todoapp__toggle-all',
+              { active: todoList.filter(item => !item.completed).length === 0 },
+            )}
             onClick={() => {
               toggleAll();
             }}
@@ -297,6 +321,7 @@ export const App: React.FC = () => {
         failedAddError={failedAddError}
         failedDeleteError={failedDeleteError}
         failedLoadError={failedLoadError}
+        failedChangeError={failedChangeError}
       />
     </div>
   );

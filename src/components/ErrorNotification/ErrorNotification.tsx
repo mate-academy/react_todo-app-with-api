@@ -5,6 +5,7 @@ type Props = {
   failedAddError: boolean,
   failedDeleteError: boolean,
   failedLoadError: boolean,
+  failedChangeError: boolean,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
@@ -12,21 +13,31 @@ export const ErrorNotification: React.FC<Props> = ({
   failedAddError,
   failedDeleteError,
   failedLoadError,
+  failedChangeError,
 }) => {
   const [closed, setClosed] = useState(false);
 
+  const canselErrors = () => {
+    setClosed(true);
+  };
+
   useEffect(() => {
     setClosed(false);
-  }, [
-    emptyFieldError,
+    setTimeout(canselErrors, 3000);
+  }, [emptyFieldError,
     failedAddError,
     failedDeleteError,
     failedLoadError,
+    failedChangeError,
   ]);
 
   return (
     <>
-      {emptyFieldError && !closed && (
+      {(emptyFieldError
+        || failedAddError
+        || failedDeleteError
+        || failedLoadError
+        || failedChangeError) && !closed && (
         <div
           data-cy="ErrorNotification"
           className="notification is-danger is-light has-text-weight-normal"
@@ -41,64 +52,11 @@ export const ErrorNotification: React.FC<Props> = ({
           >
             Close Error
           </button>
-          Title can not be empty
-        </div>
-      )}
-
-      {failedAddError && !closed && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => {
-              setClosed(true);
-            }}
-          >
-            Close Error
-          </button>
-          Unable to add a todo
-        </div>
-      )}
-
-      {failedDeleteError && !closed && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => {
-              setClosed(true);
-            }}
-          >
-            Close Error
-          </button>
-          Unable to delete a todo
-        </div>
-      )}
-
-      {failedLoadError && !closed && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => {
-              setClosed(true);
-            }}
-          >
-            Close Error
-          </button>
-          Unable to load a todo
+          {emptyFieldError && 'Title can not be empty \n'}
+          {failedAddError && 'Unable to add a todo \n'}
+          {failedDeleteError && 'Unable to delete a todo \n'}
+          {failedLoadError && 'Unable to load a todo \n'}
+          {failedChangeError && 'Unable to update a todo \n'}
         </div>
       )}
     </>

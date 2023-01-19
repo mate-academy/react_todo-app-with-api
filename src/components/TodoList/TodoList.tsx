@@ -16,9 +16,15 @@ export const TodoList: React.FC<Props> = ({
   onChangeComplete,
   onChangeTodo,
 }) => {
-  const [deletingId, setDeletingId] = useState(Number);
+  const [todoInProcessId, setTodoInProcessId] = useState(Number);
   const [changingId, setChangingId] = useState(Number);
   const [changedTitle, setChangeTitle] = useState(String);
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setChangingId(0);
+    }
+  };
 
   return (
     <>
@@ -39,16 +45,25 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 onChange={() => {
+                  setTodoInProcessId(todo.id);
                   onChangeComplete(todo.id, !todo.completed);
+                  setTodoInProcessId(0);
                 }}
               />
             </label>
 
             {changingId === todo.id ? (
               <form
-                onSubmit={() => {
+                onSubmit={(event) => {
+                  event.preventDefault();
                   setChangingId(0);
-                  onChangeTodo(todo.id, changedTitle);
+                  if (todo.title !== changedTitle) {
+                    setTodoInProcessId(todo.id);
+                    onChangeTodo(todo.id, changedTitle);
+                    setTodoInProcessId(0);
+                  }
+
+                  setChangeTitle('');
                 }}
               >
                 <input
@@ -60,6 +75,12 @@ export const TodoList: React.FC<Props> = ({
                   onChange={(event) => {
                     setChangeTitle(event.target.value);
                   }}
+                  onBlur={() => {
+                    setChangingId(0);
+                  }}
+                  onKeyUp={(event) => {
+                    handleKeyUp(event);
+                  }}
                 />
               </form>
             ) : (
@@ -68,6 +89,7 @@ export const TodoList: React.FC<Props> = ({
                 className="todo__title"
                 onDoubleClick={() => {
                   setChangingId(todo.id);
+                  setChangeTitle(todo.title);
                 }}
               >
                 {todo.title}
@@ -78,9 +100,9 @@ export const TodoList: React.FC<Props> = ({
               className="todo__remove"
               data-cy="TodoDeleteButton"
               onClick={() => {
-                setDeletingId(todo.id);
+                setTodoInProcessId(todo.id);
                 onDelete(todo.id);
-                setDeletingId(0);
+                setTodoInProcessId(0);
               }}
             >
               ×
@@ -90,7 +112,7 @@ export const TodoList: React.FC<Props> = ({
               data-cy="TodoLoader"
               className={cn(
                 'modal overlay',
-                { 'is-active': deletingId === todo.id },
+                { 'is-active': todoInProcessId === todo.id },
               )}
             >
               <div className="modal-background has-background-white-ter" />
