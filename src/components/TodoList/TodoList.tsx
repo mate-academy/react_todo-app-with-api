@@ -23,38 +23,40 @@ export const TodoList: React.FC<Props> = ({
   const user = useContext(AuthContext);
 
   return (
-    <ul className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => (
-        <li>
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            isAdding={todo.isLoading}
-            onDeleteItem={onDeleteItem}
-            onToggleTodo={onToggleTodo}
-            onRenameTodo={onRenameTodo}
-          />
-        </li>
-      ))}
+    <section className="todoapp__main" data-cy="TodoList">
+      <ul className="todoapp__main" data-cy="TodoList">
+        {todos.map(todo => (
+          <li>
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              isAdding={todo.isLoading}
+              onDeleteItem={onDeleteItem}
+              onToggleTodo={onToggleTodo}
+              onRenameTodo={onRenameTodo}
+            />
+          </li>
+        ))}
 
-      {isAdding && user && (
-        <li>
-          <TodoItem
-            key={0}
-            todo={{
-              id: 0,
-              title: currentTitle,
-              completed: false,
-              userId: user.id,
-              isLoading: true,
-            }}
-            isAdding
-            onDeleteItem={onDeleteItem}
-            onToggleTodo={onToggleTodo}
-            onRenameTodo={onRenameTodo}
-          />
-        </li>
-      )}
-    </ul>
+        {isAdding && user && (
+          <li>
+            <TodoItem
+              key={0}
+              todo={{
+                id: 0,
+                title: currentTitle,
+                completed: false,
+                userId: user.id,
+                isLoading: true,
+              }}
+              isAdding
+              onDeleteItem={onDeleteItem}
+              onToggleTodo={onToggleTodo}
+              onRenameTodo={onRenameTodo}
+            />
+          </li>
+        )}
+      </ul>
+    </section>
   );
 };

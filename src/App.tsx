@@ -35,6 +35,10 @@ export const App: React.FC = () => {
 
   const complitedTodos: Todo[] = todos.filter(todo => todo.completed);
   const activeTodos: Todo[] = todos.filter(todo => !todo.completed);
+  const removeLoader = () => {
+    setTodos(currTodos => currTodos.map(todo => (
+      { ...todo, isLoading: false })));
+  };
 
   const loadTodos = async () => {
     try {
@@ -76,7 +80,7 @@ export const App: React.FC = () => {
         setIsAdding(true);
         try {
           await addTodos({
-            userId: user?.id || +new Date(),
+            userId: user?.id,
             title: queryTrim,
             completed: false,
           });
@@ -112,24 +116,26 @@ export const App: React.FC = () => {
     } catch {
       setHasError(true);
       setErrorType(ErrorType.delete);
+    } finally {
+      removeLoader();
     }
   };
 
   const onRemoveTodo = async (id: number) => {
-    setTodos(currTodos => currTodos.map(todo => (
-      todo.id === id
-        ? ({ ...todo, isLoading: true })
-        : todo)));
-
     try {
+      setTodos(currTodos => currTodos.map(todo => (
+        todo.id === id
+          ? ({ ...todo, isLoading: true })
+          : todo)));
+
       await deleteTodos(id);
 
       loadTodos();
     } catch {
-      setHasError(true);
       setErrorType(ErrorType.delete);
+      setHasError(true);
     } finally {
-      setHasError(false);
+      removeLoader();
     }
   };
 
@@ -147,25 +153,27 @@ export const App: React.FC = () => {
       setHasError(true);
       setErrorType(ErrorType.update);
     } finally {
-      setHasError(false);
+      removeLoader();
     }
   };
 
   const onAllToggleTodo = async () => {
-    setTodos(currTodos => currTodos.map(todo => {
-      if (!todo.completed) {
-        return { ...todo, isLoading: true };
-      }
-
-      if (currTodos.every(todoE => todoE.completed)) {
-        return { ...todo, isLoading: true };
-      }
-
-      return todo;
-    }));
+    const everyTodoCompleted = todos.every(todo => todo.completed);
 
     try {
-      if (todos.every(todo => todo.completed)) {
+      setTodos(currTodos => currTodos.map(todo => {
+        if (!todo.completed) {
+          return { ...todo, isLoading: true };
+        }
+
+        if (everyTodoCompleted) {
+          return { ...todo, isLoading: true };
+        }
+
+        return todo;
+      }));
+
+      if (everyTodoCompleted) {
         await Promise.all(todos.map(todo => (
           updateTodos(todo.id, { completed: false })
         )));
@@ -180,7 +188,7 @@ export const App: React.FC = () => {
       setHasError(true);
       setErrorType(ErrorType.update);
     } finally {
-      setHasError(false);
+      removeLoader();
     }
   };
 
@@ -211,7 +219,7 @@ export const App: React.FC = () => {
       setHasError(true);
       setErrorType(ErrorType.update);
     } finally {
-      setHasError(false);
+      removeLoader();
     }
   };
 
@@ -258,16 +266,14 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <>
-            <section className="todoapp__main" data-cy="TodoList">
-              <TodoList
-                todos={visibleTodos}
-                isAdding={isAdding}
-                onDeleteItem={onRemoveTodo}
-                onToggleTodo={onToggleTodo}
-                currentTitle={query}
-                onRenameTodo={onRenameTodo}
-              />
-            </section>
+            <TodoList
+              todos={visibleTodos}
+              isAdding={isAdding}
+              onDeleteItem={onRemoveTodo}
+              onToggleTodo={onToggleTodo}
+              currentTitle={query}
+              onRenameTodo={onRenameTodo}
+            />
 
             <Footer
               todoItemLeft={activeTodos.length}

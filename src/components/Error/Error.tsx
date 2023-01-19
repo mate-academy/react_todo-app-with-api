@@ -28,7 +28,7 @@ export const Error: React.FC<Props> = ({
         return 'Title can\'t be empty';
 
       case ErrorType.rename:
-        return 'Title is not  renamed';
+        return 'Title is not renamed';
 
       default:
         return 'Error';

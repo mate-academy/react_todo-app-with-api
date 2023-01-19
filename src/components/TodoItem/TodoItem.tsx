@@ -39,11 +39,16 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   }, [newTitle]);
 
+  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSuccessfulEdit();
+  };
+
   const onPressEsc = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Escape') {
         setIsEditing(false);
-        setNewTitle(todo.title);
+        setNewTitle(title);
       }
     }, [],
   );
@@ -65,10 +70,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEditing ? (
         <form
-          onSubmit={event => {
-            event.preventDefault();
-            onSuccessfulEdit();
-          }}
+          onSubmit={onFormSubmit}
         >
           <input
             data-cy="TodoTitleField"
@@ -89,7 +91,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={() => setIsEditing(true)}
           >
-            {todo.title}
+            {title}
           </span>
           <button
             type="button"
