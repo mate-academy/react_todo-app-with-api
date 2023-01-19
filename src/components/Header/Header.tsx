@@ -1,14 +1,14 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type Props = {
   title: string;
   setTitle: (arg: string) => void;
-  setIsHidden: (arg: boolean) => void;
-  handleAdd: (event: React.KeyboardEvent) => void;
+  setHidden: (arg: boolean) => void;
+  handleAdd: () => void;
   completeAll: () => void;
-  isAdding: boolean;
+  adding: boolean;
   completedTodosCount: number,
   todosCount: number,
 };
@@ -17,15 +17,22 @@ export const Header: React.FC<Props> = (
   {
     title,
     setTitle,
-    setIsHidden,
+    setHidden,
     handleAdd,
     completeAll,
-    isAdding,
+    adding,
     completedTodosCount,
     todosCount,
   },
 ) => {
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, []);
 
   return (
     <header className="todoapp__header">
@@ -51,14 +58,14 @@ export const Header: React.FC<Props> = (
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          disabled={isAdding === true}
+          disabled={adding === true}
           onChange={e => {
             setTitle(e.target.value);
-            setIsHidden(true);
+            setHidden(true);
           }}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              handleAdd(e);
+              handleAdd();
             }
           }}
         />

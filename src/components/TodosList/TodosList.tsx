@@ -1,31 +1,36 @@
 import classNames from 'classnames';
-import { useState } from 'react';
-import { Todo } from '../types/Todo';
+import React, { useState } from 'react';
+import { Todo } from '../../types/Todo';
+import { EditTodoInput } from '../EditTodoInput';
 
 type Props = {
   todos: Todo[];
   title: string;
-  isAdding: boolean;
+  adding: boolean;
   handleDelete: (id: number) => void;
   handleStatusChange: (id: number, data: boolean) => void;
   selectedTodoIds: number[];
   handleEditing: (id: number, data: string, oldData: string) => void;
   handleDoubleClick: (id: number) => void;
+  editing: boolean;
+  handleCancel: () => void;
 };
 
 export const TodosList: React.FC<Props> = (
   {
     todos,
     title,
-    isAdding,
+    adding,
     handleDelete,
     handleStatusChange,
     selectedTodoIds,
     handleEditing,
     handleDoubleClick,
+    editing,
+    handleCancel,
   },
 ) => {
-  const [editedTitle, setEditedTitle] = useState<string>(title);
+  const [editedTitle, setEditedTitle] = useState<string>('');
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -41,7 +46,7 @@ export const TodosList: React.FC<Props> = (
               type="checkbox"
               checked={todo.completed}
               className="todo__status"
-              onClick={() => {
+              onChange={() => {
                 return todo.completed
                   ? handleStatusChange(todo.id, false)
                   : handleStatusChange(todo.id, true);
@@ -49,25 +54,14 @@ export const TodosList: React.FC<Props> = (
             />
           </label>
 
-          {selectedTodoIds.some(id => id === todo.id)
+          {editing && selectedTodoIds.some(id => id === todo.id)
             ? (
-              <input
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                onChange={e => setEditedTitle(e.target.value)}
-                onBlur={() => handleEditing(todo.id, editedTitle, todo.title)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    handleEditing(todo.id, editedTitle, todo.title);
-                  }
-
-                  if (e.key === 'Escape') {
-                    handleEditing(todo.id, todo.title, todo.title);
-                  }
-                }}
-                value={editedTitle}
+              <EditTodoInput
+                todo={todo}
+                editedTitle={editedTitle}
+                setEditedTitle={setEditedTitle}
+                handleEditing={handleEditing}
+                handleCancel={handleCancel}
               />
             ) : (
               <>
@@ -108,7 +102,7 @@ export const TodosList: React.FC<Props> = (
         </div>
       ))}
 
-      {isAdding && (
+      {adding && (
         <div data-cy="Todo" className="todo">
           <label className="todo__status-label">
             <input

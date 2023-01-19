@@ -1,16 +1,17 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
+import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
-  isHidden: boolean;
-  setIsHidden: (arg: boolean) => void;
+  hidden: boolean;
+  setHidden: (arg: boolean) => void;
   onError: string;
 };
 
 export const ErrorNotification: React.FC<Props> = (
   {
-    isHidden,
-    setIsHidden,
+    hidden,
+    setHidden,
     onError,
   },
 ) => {
@@ -19,22 +20,22 @@ export const ErrorNotification: React.FC<Props> = (
       data-cy="ErrorNotification"
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: isHidden },
+        { hidden },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setIsHidden(true)}
+        onClick={() => setHidden(true)}
       />
-      {onError === 'add' && 'Unable to add a todo'}
+      {onError === ErrorType.add && 'Unable to add a todo'}
 
-      {onError === 'delete' && 'Unable to delete a todo'}
+      {onError === ErrorType.delete && 'Unable to delete a todo'}
 
-      {onError === 'update' && 'Unable to update a todo'}
+      {onError === ErrorType.update && 'Unable to update a todo'}
 
-      {onError === 'emty' && 'Title can\'t be empty'}
+      {onError === ErrorType.empty && 'Title can\'t be empty'}
     </div>
   );
 };
