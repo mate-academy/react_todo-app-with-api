@@ -44,19 +44,23 @@ export const TodoItem: React.FC<Props> = memo((props) => {
       event.preventDefault();
     }
 
-    if (newTitle.trim() === todo.title) {
+    const normalizeTitle = newTitle.trim();
+
+    if (normalizeTitle === todo.title) {
       cancelEditing();
 
       return;
     }
 
-    if (newTitle.trim() === '') {
+    if (normalizeTitle === '') {
       onDeleteTodo(todo.id);
+
+      return;
     }
 
     onUpdateTodo(
       todo.id,
-      { title: newTitle.trim() },
+      { title: normalizeTitle },
     );
     setIsTitleChange(false);
   }, [newTitle]);
