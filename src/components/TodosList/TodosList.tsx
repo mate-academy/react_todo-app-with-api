@@ -6,13 +6,13 @@ import { EditTodoInput } from '../EditTodoInput';
 type Props = {
   todos: Todo[];
   title: string;
-  adding: boolean;
+  isAdding: boolean;
   handleDelete: (id: number) => void;
   handleStatusChange: (id: number, data: boolean) => void;
   selectedTodoIds: number[];
   handleEditing: (id: number, data: string, oldData: string) => void;
   handleDoubleClick: (id: number) => void;
-  editing: boolean;
+  isEditing: boolean;
   handleCancel: () => void;
 };
 
@@ -20,17 +20,23 @@ export const TodosList: React.FC<Props> = (
   {
     todos,
     title,
-    adding,
+    isAdding,
     handleDelete,
     handleStatusChange,
     selectedTodoIds,
     handleEditing,
     handleDoubleClick,
-    editing,
+    isEditing,
     handleCancel,
   },
 ) => {
   const [editedTitle, setEditedTitle] = useState<string>('');
+
+  const handleOnChange = (id: number, completed: boolean) => {
+    return completed
+      ? handleStatusChange(id, false)
+      : handleStatusChange(id, true);
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -46,15 +52,11 @@ export const TodosList: React.FC<Props> = (
               type="checkbox"
               checked={todo.completed}
               className="todo__status"
-              onChange={() => {
-                return todo.completed
-                  ? handleStatusChange(todo.id, false)
-                  : handleStatusChange(todo.id, true);
-              }}
+              onChange={() => handleOnChange(todo.id, todo.completed)}
             />
           </label>
 
-          {editing && selectedTodoIds.some(id => id === todo.id)
+          {isEditing && selectedTodoIds.some(id => id === todo.id)
             ? (
               <EditTodoInput
                 todo={todo}
@@ -102,7 +104,7 @@ export const TodosList: React.FC<Props> = (
         </div>
       ))}
 
-      {adding && (
+      {isAdding && (
         <div data-cy="Todo" className="todo">
           <label className="todo__status-label">
             <input

@@ -5,10 +5,10 @@ import React, { useEffect, useRef } from 'react';
 type Props = {
   title: string;
   setTitle: (arg: string) => void;
-  setHidden: (arg: boolean) => void;
+  setIsHidden: (arg: boolean) => void;
   handleAdd: () => void;
   completeAll: () => void;
-  adding: boolean;
+  isAdding: boolean;
   completedTodosCount: number,
   todosCount: number,
 };
@@ -17,10 +17,10 @@ export const Header: React.FC<Props> = (
   {
     title,
     setTitle,
-    setHidden,
+    setIsHidden,
     handleAdd,
     completeAll,
-    adding,
+    isAdding,
     completedTodosCount,
     todosCount,
   },
@@ -28,7 +28,6 @@ export const Header: React.FC<Props> = (
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
@@ -58,10 +57,10 @@ export const Header: React.FC<Props> = (
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          disabled={adding === true}
+          disabled={isAdding === true}
           onChange={e => {
             setTitle(e.target.value);
-            setHidden(true);
+            setIsHidden(true);
           }}
           onKeyDown={e => {
             if (e.key === 'Enter') {

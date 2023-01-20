@@ -19,20 +19,19 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [filter, setFilter] = useState(Filter.all);
   const [error, setError] = useState<string>('');
-  const [hidden, setHidden] = useState(true);
-  const [adding, setAdding] = useState(false);
+  const [isHidden, setIsHidden] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
-  const [editing, setEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const user = useContext(AuthContext);
   const completedTodos = todos.filter(todo => todo.completed);
 
-  useEffect(() => {
-    if (user) {
-      getTodos(user.id)
-        .then(setTodos);
-    }
-  }, []);
+  const handleError = (errorType: ErrorType) => {
+    setError(errorType);
+    setIsHidden(false);
+    setTimeout(() => setIsHidden(true), 3000);
+  };
 
   const handleAdd = () => {
     if (!user) {
@@ -40,14 +39,12 @@ export const App: React.FC = () => {
     }
 
     if (!title.trim()) {
-      setError('empty');
-      setHidden(false);
-      setTimeout(() => setHidden(true), 3000);
+      handleError(ErrorType.empty);
 
       return;
     }
 
-    setAdding(true);
+    setIsAdding(true);
 
     const todo = {
       title,
@@ -60,13 +57,11 @@ export const App: React.FC = () => {
         prevTodos => [...prevTodos, result],
       ))
       .catch(() => {
-        setError(ErrorType.add);
-        setHidden(false);
+        handleError(ErrorType.add);
       })
       .finally(() => {
-        setAdding(false);
+        setIsAdding(false);
         setTitle('');
-        setTimeout(() => setHidden(true), 3000);
       });
   };
 
@@ -78,12 +73,10 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
       })
       .catch(() => {
-        setError(ErrorType.delete);
-        setHidden(false);
+        handleError(ErrorType.delete);
       })
       .finally(() => {
         setSelectedTodoIds([]);
-        setTimeout(() => setHidden(true), 3000);
       });
   };
 
@@ -101,12 +94,10 @@ export const App: React.FC = () => {
         return prevTodos;
       }))
       .catch(() => {
-        setError(ErrorType.update);
-        setHidden(false);
+        handleError(ErrorType.update);
       })
       .finally(() => {
         setSelectedTodoIds([]);
-        setTimeout(() => setHidden(true), 3000);
       });
   };
 
@@ -136,17 +127,17 @@ export const App: React.FC = () => {
   };
 
   const handleDoubleClick = (id: number) => {
-    setEditing(true);
+    setIsEditing(true);
     setSelectedTodoIds([id]);
   };
 
   const handleCancel = () => {
-    setEditing(false);
+    setIsEditing(false);
     setSelectedTodoIds([]);
   };
 
   const handleEditing = (id: number, data: string, oldData: string) => {
-    setEditing(false);
+    setIsEditing(false);
 
     if (!data.trim()) {
       handleDelete(id);
@@ -171,14 +162,22 @@ export const App: React.FC = () => {
         return prevTodos;
       }))
       .catch(() => {
-        setError(ErrorType.update);
-        setHidden(false);
+        handleError(ErrorType.update);
       })
       .finally(() => {
         setSelectedTodoIds(prev => prev.filter(todoId => todoId !== id));
-        setTimeout(() => setHidden(true), 3000);
       });
   };
+
+  useEffect(() => {
+    if (user) {
+      getTodos(user.id)
+        .then(setTodos)
+        .catch(() => {
+          handleError(ErrorType.load);
+        });
+    }
+  }, []);
 
   const visibleTodos = handleFilter(todos, filter);
   const activeCount = todos.filter(todo => !todo.completed).length;
@@ -192,24 +191,24 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           handleAdd={handleAdd}
-          setHidden={setHidden}
-          adding={adding}
+          setIsHidden={setIsHidden}
+          isAdding={isAdding}
           completeAll={completeAll}
           completedTodosCount={completedTodos.length}
           todosCount={todos.length}
         />
 
-        {(todos.length > 0 || adding) && (
+        {(todos.length > 0 || isAdding) && (
           <>
             <TodosList
               todos={visibleTodos}
               title={title}
-              adding={adding}
+              isAdding={isAdding}
               handleDelete={handleDelete}
               handleStatusChange={handleStatusChange}
               handleEditing={handleEditing}
               selectedTodoIds={selectedTodoIds}
-              editing={editing}
+              isEditing={isEditing}
               handleDoubleClick={handleDoubleClick}
               handleCancel={handleCancel}
             />
@@ -226,8 +225,8 @@ export const App: React.FC = () => {
       </div>
 
       <ErrorNotification
-        hidden={hidden}
-        setHidden={setHidden}
+        isHidden={isHidden}
+        setIsHidden={setIsHidden}
         onError={error}
       />
     </div>

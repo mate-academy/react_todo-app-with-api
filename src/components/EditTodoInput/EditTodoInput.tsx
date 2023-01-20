@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { KeyboardEvent, useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -20,8 +20,17 @@ export const EditTodoInput: React.FC<Props> = (
 ) => {
   const editTodoField = useRef<HTMLInputElement>(null);
 
+  const handleKeypress = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleEditing(todo.id, editedTitle, todo.title);
+    }
+
+    if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
   useEffect(() => {
-    // focus the element with `ref={editTodoField}`
     if (editTodoField.current) {
       editTodoField.current.focus();
     }
@@ -38,15 +47,7 @@ export const EditTodoInput: React.FC<Props> = (
         ref={editTodoField}
         onChange={e => setEditedTitle(e.target.value)}
         onBlur={() => handleEditing(todo.id, editedTitle, todo.title)}
-        onKeyDown={e => {
-          if (e.key === 'Enter') {
-            handleEditing(todo.id, editedTitle, todo.title);
-          }
-
-          if (e.key === 'Escape') {
-            handleCancel();
-          }
-        }}
+        onKeyDown={e => handleKeypress(e)}
       />
     </form>
   );

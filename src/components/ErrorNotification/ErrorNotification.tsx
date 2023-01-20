@@ -3,15 +3,15 @@ import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
-  hidden: boolean;
-  setHidden: (arg: boolean) => void;
+  isHidden: boolean;
+  setIsHidden: (arg: boolean) => void;
   onError: string;
 };
 
 export const ErrorNotification: React.FC<Props> = (
   {
-    hidden,
-    setHidden,
+    isHidden,
+    setIsHidden,
     onError,
   },
 ) => {
@@ -20,15 +20,17 @@ export const ErrorNotification: React.FC<Props> = (
       data-cy="ErrorNotification"
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden },
+        { hidden: isHidden },
       )}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setHidden(true)}
+        onClick={() => setIsHidden(true)}
       />
+      {onError === ErrorType.load && 'Unable to load a todos'}
+
       {onError === ErrorType.add && 'Unable to add a todo'}
 
       {onError === ErrorType.delete && 'Unable to delete a todo'}
