@@ -1,21 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 
 type Props = {
   newTodoField?: React.RefObject<HTMLInputElement>;
   title: string;
-  isAdding?: boolean;
-  onSubmit: (event?: React.FormEvent<HTMLFormElement>) => void;
-  onChange: React.Dispatch<React.SetStateAction<string>>;
+  isTodoAdding?: boolean;
+  onSubmitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
+  onInputChange: React.Dispatch<React.SetStateAction<string>>;
   cancelEditing?: () => void;
 };
 
-export const NewTodoField: React.FC<Props> = (props) => {
+export const NewTodoField: React.FC<Props> = memo((props) => {
   const {
     newTodoField,
     title,
-    isAdding,
-    onSubmit,
-    onChange,
+    isTodoAdding,
+    onSubmitForm,
+    onInputChange,
     cancelEditing,
   } = props;
 
@@ -37,7 +37,7 @@ export const NewTodoField: React.FC<Props> = (props) => {
   };
 
   return (
-    <form onSubmit={event => onSubmit(event)}>
+    <form onSubmit={onSubmitForm}>
       <input
         data-cy="NewTodoField"
         type="text"
@@ -45,12 +45,12 @@ export const NewTodoField: React.FC<Props> = (props) => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={title}
-        onChange={(event) => onChange(event.currentTarget.value)}
-        onBlur={() => onSubmit()}
-        disabled={isAdding}
-        onKeyDown={(event) => handleEscPress(event)}
+        onChange={(event) => onInputChange(event.currentTarget.value)}
+        onBlur={() => onSubmitForm()}
+        disabled={isTodoAdding}
+        onKeyDown={handleEscPress}
         tabIndex={0}
       />
     </form>
   );
-};
+});

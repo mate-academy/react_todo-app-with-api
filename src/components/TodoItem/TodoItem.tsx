@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import cn from 'classnames';
 
 import { TodoLoader } from '../TodoLoader/TodoLoader';
@@ -17,7 +17,7 @@ type Props = {
   onDeleteTodo?: (todoId: number) => Promise<void>;
 };
 
-export const TodoItem: React.FC<Props> = (props) => {
+export const TodoItem: React.FC<Props> = memo((props) => {
   const {
     todo,
     temporary = false,
@@ -32,12 +32,14 @@ export const TodoItem: React.FC<Props> = (props) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const [isTitleChange, setIsTitleChange] = useState(false);
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setIsTitleChange(false);
     setNewTitle(todo.title);
-  };
+  }, []);
 
-  const changeTodoTitle = (event?: React.FormEvent<HTMLFormElement>) => {
+  const changeTodoTitle = useCallback((
+    event?: React.FormEvent<HTMLFormElement>,
+  ) => {
     if (event) {
       event.preventDefault();
     }
@@ -52,9 +54,16 @@ export const TodoItem: React.FC<Props> = (props) => {
       onDeleteTodo(todo.id);
     }
 
-    onUpdateTodo(todo.id, { title: newTitle.trim() });
+    onUpdateTodo(
+      todo.id,
+      { title: newTitle.trim() },
+    );
     setIsTitleChange(false);
-  };
+  }, [newTitle]);
+
+  const isLoaderVisible = temporary
+    || ((isTodoDeleting || isTodoUpdating)
+      && selectedTodosId?.includes(todo.id));
 
   return (
     <div
@@ -70,7 +79,10 @@ export const TodoItem: React.FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
+          onClick={() => onUpdateTodo(
+            todo.id,
+            { completed: !todo.completed },
+          )}
         />
       </label>
 
@@ -78,8 +90,8 @@ export const TodoItem: React.FC<Props> = (props) => {
         <NewTodoField
           title={newTitle}
           newTodoField={newTodoField}
-          onChange={setNewTitle}
-          onSubmit={changeTodoTitle}
+          onInputChange={setNewTitle}
+          onSubmitForm={changeTodoTitle}
           cancelEditing={cancelEditing}
         />
       ) : (
@@ -103,12 +115,9 @@ export const TodoItem: React.FC<Props> = (props) => {
         </>
       )}
 
-      {(temporary
-        || (isTodoDeleting && selectedTodosId?.includes(todo.id))
-        || (isTodoUpdating && selectedTodosId?.includes(todo.id))
-      ) && (
+      {isLoaderVisible && (
         <TodoLoader />
       )}
     </div>
   );
-};
+});

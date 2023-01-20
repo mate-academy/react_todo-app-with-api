@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { memo } from 'react';
 import cn from 'classnames';
 
 import { NewTodoField } from '../NewTodoField/NewTodoField';
 
 type Props = {
   title: string;
-  isAdding: boolean;
+  isTodoAdding: boolean;
   isAllTodosCompleted: boolean;
-  onChange: React.Dispatch<React.SetStateAction<string>>;
+  onInputChange: React.Dispatch<React.SetStateAction<string>>;
   onSubmitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
-  onUpdateAll: () => void;
+  onUpdateAllTodos: () => void;
 };
 
-export const Header: React.FC<Props> = (props) => {
+export const Header: React.FC<Props> = memo((props) => {
   const {
     title,
-    isAdding,
+    isTodoAdding,
     isAllTodosCompleted,
-    onChange,
+    onInputChange,
     onSubmitForm,
-    onUpdateAll,
+    onUpdateAllTodos,
   } = props;
 
   return (
@@ -32,15 +32,15 @@ export const Header: React.FC<Props> = (props) => {
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
-        onClick={() => onUpdateAll()}
+        onClick={onUpdateAllTodos}
       />
 
       <NewTodoField
         title={title}
-        isAdding={isAdding}
-        onSubmit={onSubmitForm}
-        onChange={onChange}
+        isTodoAdding={isTodoAdding}
+        onSubmitForm={onSubmitForm}
+        onInputChange={onInputChange}
       />
     </header>
   );
-};
+});

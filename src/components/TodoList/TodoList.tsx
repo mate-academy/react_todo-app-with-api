@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { TodoItem } from '../TodoItem/TodoItem';
 
@@ -15,7 +15,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => Promise<void>;
 };
 
-export const TodoList: React.FC<Props> = (props) => {
+export const TodoList: React.FC<Props> = memo((props) => {
   const {
     todos,
     tempTodo,
@@ -50,4 +50,4 @@ export const TodoList: React.FC<Props> = (props) => {
       )}
     </section>
   );
-};
+});
