@@ -74,14 +74,14 @@ export const App: React.FC = () => {
   const onFormSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const queryTrim = query.trim();
+      const queryTrimed = query.trim();
 
-      if (queryTrim) {
+      if (queryTrimed && user) {
         setIsAdding(true);
         try {
           await addTodos({
             userId: user?.id,
-            title: queryTrim,
+            title: queryTrimed,
             completed: false,
           });
 
