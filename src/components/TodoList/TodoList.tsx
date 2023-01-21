@@ -10,6 +10,7 @@ type Props = {
   onItemRemove: (todoId: number) => void,
   loadingTodos: number[],
   onItemCheck: (todo: Todo) => void,
+  onEdit: (todo: Todo, newValue: string) => void,
 };
 
 export const TodoList:FC<Props> = ({
@@ -19,6 +20,7 @@ export const TodoList:FC<Props> = ({
   onItemRemove,
   loadingTodos,
   onItemCheck,
+  onEdit,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,6 +37,7 @@ export const TodoList:FC<Props> = ({
               onRemove={onItemRemove}
               isLoading={loadingTodos.includes(todo.id)}
               onCheck={onItemCheck}
+              onEdit={onEdit}
             />
           </CSSTransition>
         ))}

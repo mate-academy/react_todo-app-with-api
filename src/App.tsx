@@ -95,6 +95,10 @@ export const App: React.FC = () => {
     await Promise.all(promiseArray);
   };
 
+  const editTitle = async (todo: Todo, newTitle: string) => {
+    await patchTodo(todo, { title: newTitle });
+  };
+
   const deleteTodo = async (todoId: number) => {
     try {
       setLoadingTodos(prevState => prevState.concat(todoId));
@@ -182,6 +186,7 @@ export const App: React.FC = () => {
           onItemRemove={deleteTodo}
           loadingTodos={loadingTodos}
           onItemCheck={toggleTodo}
+          onEdit={editTitle}
         />
 
         {(todos.length > 0 || isAdding) && (

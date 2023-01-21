@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-autofocus */
-import { FC, useState } from 'react';
+import { FC, KeyboardEvent, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -8,6 +8,7 @@ type Props = {
   onRemove?: (todoId: number) => void,
   isLoading?: boolean,
   onCheck?: (todo: Todo) => void,
+  onEdit?: (todo: Todo, newValue: string) => void,
 };
 
 export const TodoComponent:FC<Props> = ({
@@ -15,9 +16,33 @@ export const TodoComponent:FC<Props> = ({
   onRemove,
   isLoading = false,
   onCheck,
+  onEdit,
 }) => {
-  const [selectedTodoId, setSelectedTodoId] = useState(-1);
   const { id, title, completed } = todo;
+  const [inputValue, setInputValue] = useState(title);
+  const [selectedTodoId, setSelectedTodoId] = useState(-1);
+
+  const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setSelectedTodoId(-1);
+      setInputValue(title);
+    }
+  };
+
+  const handleEdit = (newValue: string) => {
+    setSelectedTodoId(-1);
+    if (newValue.trim() === title) {
+      return;
+    }
+
+    if (newValue.trim().length === 0) {
+      onRemove?.(id);
+
+      return;
+    }
+
+    onEdit?.(todo, newValue);
+  };
 
   return (
     <div
@@ -34,15 +59,19 @@ export const TodoComponent:FC<Props> = ({
       </label>
 
       {id === selectedTodoId ? (
-        <form>
+        <form
+          onSubmit={() => handleEdit(inputValue)}
+        >
           <input
             data-cy="TodoTitleField"
             autoFocus
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            defaultValue={title}
-            onBlur={() => setSelectedTodoId(-1)}
+            value={inputValue}
+            onBlur={() => handleEdit(inputValue)}
+            onChange={event => setInputValue(event.currentTarget.value)}
+            onKeyDown={handleKeyPress}
           />
         </form>
       ) : (
