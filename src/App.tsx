@@ -142,6 +142,69 @@ export const App: React.FC = memo(() => {
       });
   }, []);
 
+  const handleToogleAllClick = () => {
+    const areAllTodosCompleted = todos.every(todo => todo.completed);
+
+    if (!areAllTodosCompleted) {
+      const uncomplitedTodosIds = todos.reduce((ids: number[], todo) => {
+        return todo.completed
+          ? ids
+          : [...ids, todo.id];
+      }, []);
+
+      setProcessings(prev => [...prev, ...uncomplitedTodosIds]);
+
+      const updatePromises: Promise<Todo>[] = uncomplitedTodosIds.map(id => {
+        return updateTodo(id, { completed: true });
+      });
+
+      Promise.all(updatePromises).then(updatedTodos => {
+        const updatedTodosIds = updatedTodos.map(todo => todo.id);
+
+        setTodos(prevTodos => {
+          return prevTodos.map(prevTodo => {
+            if (updatedTodosIds.includes(prevTodo.id)) {
+              return updatedTodos
+                .find(updatedTodo => updatedTodo.id === prevTodo.id)
+                  || prevTodo;
+            }
+
+            return prevTodo;
+          });
+        });
+      }).finally(() => {
+        setProcessings(prev => prev
+          .filter(id => !uncomplitedTodosIds.includes(id)));
+      });
+    } else {
+      const allTodosIds = todos.map(todo => todo.id);
+
+      setProcessings([...allTodosIds]);
+
+      const updatePromises: Promise<Todo>[] = allTodosIds.map(id => {
+        return updateTodo(id, { completed: false });
+      });
+
+      Promise.all(updatePromises).then(updatedTodos => {
+        const updatedTodosIds = updatedTodos.map(todo => todo.id);
+
+        setTodos(prevTodos => {
+          return prevTodos.map(prevTodo => {
+            if (updatedTodosIds.includes(prevTodo.id)) {
+              return updatedTodos
+                .find(updatedTodo => updatedTodo.id === prevTodo.id)
+                  || prevTodo;
+            }
+
+            return prevTodo;
+          });
+        });
+      }).finally(() => {
+        setProcessings([]);
+      });
+    }
+  };
+
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
@@ -191,7 +254,11 @@ export const App: React.FC = memo(() => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={cn(
+              'todoapp__toggle-all',
+              { active: todos.every(todo => todo.completed) },
+            )}
+            onClick={handleToogleAllClick}
           />
 
           <form onSubmit={handleFormSubmit}>
