@@ -7,6 +7,7 @@ export type Props = {
   onDeleteTodo(id: number): void,
   tempTodo: Todo | null,
   loadingTodoIds: number[],
+  onChangeStatus(id: number, status: boolean): void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   loadingTodoIds,
   tempTodo,
+  onChangeStatus,
 }) => {
   return (
     <ul className="todoapp__main" data-cy="TodoList">
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           isLoading={loadingTodoIds.includes(todo.id)}
+          onChangeStatus={onChangeStatus}
         />
       ))}
 
@@ -31,6 +34,7 @@ export const TodoList: React.FC<Props> = ({
           key={tempTodo.id}
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
+          onChangeStatus={onChangeStatus}
           isLoading
         />
       )}

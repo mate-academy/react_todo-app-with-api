@@ -6,12 +6,14 @@ export type Props = {
   todo: Todo,
   onDeleteTodo(id: number): void,
   isLoading: boolean,
+  onChangeStatus(id: number, status: boolean): void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDeleteTodo,
   isLoading,
+  onChangeStatus,
 }) => {
   return (
     <li
@@ -24,20 +26,23 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
+          onClick={() => onChangeStatus(todo.id, todo.completed)}
         />
       </label>
 
       <span data-cy="TodoTitle" className="todo__title">
         {todo.title}
       </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDeleteTodo(todo.id)}
-      >
-        ×
-      </button>
+      {!isLoading && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDeleteButton"
+          onClick={() => onDeleteTodo(todo.id)}
+        >
+          ×
+        </button>
+      )}
 
       <div
         data-cy="TodoLoader"

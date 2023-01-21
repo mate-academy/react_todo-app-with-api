@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 
 import { TodoList } from './components/TodoList/TodoList';
@@ -17,7 +18,9 @@ import { Todo } from './types/Todo';
 import { TypeError } from './types/TypeError';
 import { FilterType } from './types/FilterType';
 import { NewTodoField } from './components/NewTodoField/NewTodoField';
-import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { User } from './types/User';
 
 export const App: React.FC = () => {
@@ -31,6 +34,8 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [errorType, setErrorType] = useState<TypeError>(TypeError.NONE);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
+
+  const [isAllCompleted, SetIsAllCompleted] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -46,21 +51,22 @@ export const App: React.FC = () => {
   }
 
   useEffect(() => {
-    if (user) {
-      loadTodos(user);
-    }
-  }, []);
-
-  useEffect(() => {
-    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
+    }
+
+    if (user) {
+      loadTodos(user);
     }
   }, []);
 
   const activeTodosLength = todos.filter(todo => !todo.completed).length;
 
   const completedTodos = todos.filter(todo => todo.completed);
+
+  useEffect(() => {
+    SetIsAllCompleted(todos.every(todo => todo.completed));
+  }, [todos]);
 
   const onInputChange = (str: string) => {
     setQuery(str);
@@ -160,10 +166,40 @@ export const App: React.FC = () => {
         completed: !status,
       });
 
-      if (user) {
-        loadTodos(user);
-      }
+      setTodos(todos.map(todo => (
+        todo.id === id ? {
+          ...todo,
+          completed: !todo.completed,
+        } : todo)));
+    } catch {
+      setHasError(true);
+      setErrorType(TypeError.UPDATE);
+    } finally {
+      setLoadingTodoIds([]);
+    }
+  };
 
+  const toggleAll = async () => {
+    const todosToUpdate = todos
+      .filter(todo => todo.completed === isAllCompleted);
+
+    try {
+      setLoadingTodoIds(prevIds => [
+        ...prevIds,
+        ...todosToUpdate.map(todo => todo.id),
+      ]);
+
+      await Promise.all(todosToUpdate
+        .map(todo => onChangeStatus(todo.id, todo.completed)));
+
+      setTodos(todos.map(todo => (
+        todo.completed === isAllCompleted
+          ? {
+            ...todo,
+            completed: !todo.completed,
+          }
+          : todo
+      )));
     } catch {
       setHasError(true);
       setErrorType(TypeError.UPDATE);
@@ -196,7 +232,10 @@ export const App: React.FC = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames('todoapp__toggle-all', {
+              active: isAllCompleted,
+            })}
+            onClick={toggleAll}
           />
 
           <NewTodoField
@@ -208,7 +247,7 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {todos && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}
