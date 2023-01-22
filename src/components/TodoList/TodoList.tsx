@@ -6,20 +6,20 @@ type Props = {
   todos: Todo[]
   onDeleteTodo: (id: number) => unknown
   processings: number[]
-  onTodoStatusChange: (changedTodo: Todo) => unknown
+  onTodoUpdate: (changedTodo: Todo) => unknown
 };
 
 export const TodoList: FC<Props> = memo(({
-  todos, onDeleteTodo, processings, onTodoStatusChange,
+  todos, onDeleteTodo, processings, onTodoUpdate,
 }) => (
   <>
     {todos.map(todo => (
       <TodoItem
         key={todo.id}
         todo={todo}
-        onDeleteTodo={onDeleteTodo}
+        onDelete={onDeleteTodo}
         isProcessing={processings.includes(todo.id)}
-        onStatusChange={onTodoStatusChange}
+        onUpdate={onTodoUpdate}
       />
     ))}
   </>

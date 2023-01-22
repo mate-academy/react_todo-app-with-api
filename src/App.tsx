@@ -114,19 +114,19 @@ export const App: React.FC = memo(() => {
     });
   };
 
-  const handleTodoStatusChange = useCallback((changedTodo: Todo) => {
-    const { id, completed } = changedTodo;
+  const handleTodoUpdate = useCallback((changedTodo: Todo) => {
+    const { id } = changedTodo;
 
     setProcessings(prev => [...prev, id]);
 
-    updateTodo(id, { completed: !completed })
+    updateTodo(id, {
+      title: changedTodo.title,
+      completed: changedTodo.completed,
+    })
       .then((updatedTodo) => {
         setTodos(prevTodos => prevTodos.map(todo => {
           if (todo.id === updatedTodo.id) {
-            return {
-              ...todo,
-              completed: updatedTodo.completed,
-            };
+            return updatedTodo;
           }
 
           return todo;
@@ -283,12 +283,17 @@ export const App: React.FC = memo(() => {
                   todos={visibleTodoos}
                   onDeleteTodo={handleDeleteTodo}
                   processings={processings}
-                  onTodoStatusChange={handleTodoStatusChange}
+                  onTodoUpdate={handleTodoUpdate}
                 />
               )}
 
               {tempTodo && (
-                <TodoItem todo={tempTodo} isProcessing />
+                <TodoItem
+                  todo={tempTodo}
+                  onUpdate={handleTodoUpdate}
+                  onDelete={handleDeleteTodo}
+                  isProcessing
+                />
               )}
             </section>
 

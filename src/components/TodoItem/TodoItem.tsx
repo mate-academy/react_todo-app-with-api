@@ -1,58 +1,115 @@
 import cn from 'classnames';
-import { FC, memo } from 'react';
+import {
+  FC, FocusEvent, FormEvent, memo, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import './TodoItem.scss';
 
 type Props = {
   todo: Todo
-  onDeleteTodo?: (id: number) => unknown
+  onDelete: (id: number) => unknown
   isProcessing?: boolean
-  onStatusChange?: (changedTodo: Todo) => unknown
+  onUpdate: (changedTodo: Todo) => unknown
 };
 
 export const TodoItem: FC<Props> = memo(({
-  todo, onDeleteTodo, isProcessing, onStatusChange,
+  todo, onDelete, isProcessing, onUpdate,
 }) => {
   const { id, title, completed } = todo;
+  const todoTitleField = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempTitle, setTempTitle] = useState(title);
 
-  const handleDeleteClick = () => {
-    if (onDeleteTodo) {
-      onDeleteTodo(id);
+  const handleStatusChange = () => {
+    onUpdate({
+      ...todo,
+      completed: !completed,
+    });
+  };
+
+  const handleTitleChange = (
+    event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    event.preventDefault();
+
+    if (tempTitle === title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (tempTitle) {
+      onUpdate({
+        ...todo,
+        title: tempTitle,
+      });
+    } else {
+      onDelete(id);
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.code === 'Escape') {
+      setIsEditing(false);
     }
   };
 
-  const handleStatusChange = (changedTodo: Todo) => {
-    if (onStatusChange) {
-      onStatusChange(changedTodo);
+  useEffect(() => {
+    if (isEditing === true) {
+      todoTitleField.current?.focus();
     }
-  };
+  }, [isEditing]);
 
   return (
     <div
       data-cy="Todo"
       className={cn('todo', { completed })}
+      onDoubleClick={() => setIsEditing(true)}
     >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => handleStatusChange(todo)}
+          onChange={handleStatusChange}
           checked={completed}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={handleDeleteClick}
-      >
-        ×
-      </button>
+      {isEditing
+        ? (
+          <form onSubmit={handleTitleChange}>
+            <input
+              data-cy="TodoTitleField"
+              ref={todoTitleField}
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={tempTitle}
+              onChange={(event) => setTempTitle(event.target.value)}
+              onBlur={handleTitleChange}
+              onKeyDown={handleKeydown}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span data-cy="TodoTitle" className="todo__title">
+              {title}
+            </span>
+
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => onDelete(id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"
