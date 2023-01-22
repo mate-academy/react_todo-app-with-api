@@ -67,9 +67,11 @@ export const App: React.FC = () => {
   const handleSubmitForm = useCallback((
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
-    if (event) {
-      event.preventDefault();
+    if (!event) {
+      return;
     }
+
+    event.preventDefault();
 
     if (!title.trim()) {
       setErrorMessage('Title can\'t be empty');
