@@ -201,6 +201,8 @@ export const App: React.FC = () => {
     [todosFromServer, filterStatus],
   );
 
+  const isFooterVisible = todosFromServer.length !== 0 || tempTodo;
+
   if (isError) {
     setTimeout(() => setIsError(false), 3000);
   }
@@ -246,7 +248,7 @@ export const App: React.FC = () => {
         />
         {tempTodo && <TodoInfo todo={tempTodo} isAdding={isAdding} />}
 
-        {todosFromServer.length !== 0 && (
+        {isFooterVisible && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="todosCounter">
               {`${amountOfTodosToComplete} items left`}

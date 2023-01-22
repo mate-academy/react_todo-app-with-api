@@ -156,11 +156,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
           </>
         )}
 
-        <TodoLoader
-          isAdding={isAdding}
-          isDeleting={isDeleting}
-          isUpdating={isUpdating}
-        />
+        <TodoLoader isLoading={isAdding || isDeleting || isUpdating} />
       </div>
     );
   },
