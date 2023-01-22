@@ -145,64 +145,38 @@ export const App: React.FC = memo(() => {
   const handleToogleAllClick = () => {
     const areAllTodosCompleted = todos.every(todo => todo.completed);
 
-    if (!areAllTodosCompleted) {
-      const uncomplitedTodosIds = todos.reduce((ids: number[], todo) => {
+    const todosIdsForUpdate: number[] = areAllTodosCompleted
+      ? todos.map(todo => todo.id)
+      : todos.reduce((ids: number[], todo) => {
         return todo.completed
           ? ids
           : [...ids, todo.id];
       }, []);
 
-      setProcessings(prev => [...prev, ...uncomplitedTodosIds]);
+    setProcessings(prev => [...prev, ...todosIdsForUpdate]);
 
-      const updatePromises: Promise<Todo>[] = uncomplitedTodosIds.map(id => {
-        return updateTodo(id, { completed: true });
-      });
+    const updatePromises: Promise<Todo>[] = todosIdsForUpdate.map(id => {
+      return updateTodo(id, { completed: !areAllTodosCompleted });
+    });
 
-      Promise.all(updatePromises).then(updatedTodos => {
-        const updatedTodosIds = updatedTodos.map(todo => todo.id);
+    Promise.all(updatePromises).then(updatedTodos => {
+      const updatedTodosIds = updatedTodos.map(todo => todo.id);
 
-        setTodos(prevTodos => {
-          return prevTodos.map(prevTodo => {
-            if (updatedTodosIds.includes(prevTodo.id)) {
-              return updatedTodos
-                .find(updatedTodo => updatedTodo.id === prevTodo.id)
-                  || prevTodo;
-            }
+      setTodos(prevTodos => {
+        return prevTodos.map(prevTodo => {
+          if (updatedTodosIds.includes(prevTodo.id)) {
+            return updatedTodos
+              .find(updatedTodo => updatedTodo.id === prevTodo.id)
+                || prevTodo;
+          }
 
-            return prevTodo;
-          });
+          return prevTodo;
         });
-      }).finally(() => {
-        setProcessings(prev => prev
-          .filter(id => !uncomplitedTodosIds.includes(id)));
       });
-    } else {
-      const allTodosIds = todos.map(todo => todo.id);
-
-      setProcessings([...allTodosIds]);
-
-      const updatePromises: Promise<Todo>[] = allTodosIds.map(id => {
-        return updateTodo(id, { completed: false });
-      });
-
-      Promise.all(updatePromises).then(updatedTodos => {
-        const updatedTodosIds = updatedTodos.map(todo => todo.id);
-
-        setTodos(prevTodos => {
-          return prevTodos.map(prevTodo => {
-            if (updatedTodosIds.includes(prevTodo.id)) {
-              return updatedTodos
-                .find(updatedTodo => updatedTodo.id === prevTodo.id)
-                  || prevTodo;
-            }
-
-            return prevTodo;
-          });
-        });
-      }).finally(() => {
-        setProcessings([]);
-      });
-    }
+    }).finally(() => {
+      setProcessings(prev => prev
+        .filter(id => !todosIdsForUpdate.includes(id)));
+    });
   };
 
   useEffect(() => {
