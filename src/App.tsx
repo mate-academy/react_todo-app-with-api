@@ -128,12 +128,9 @@ export const App: React.FC = () => {
   };
 
   const onDeleteCompletedTodos = async () => {
-    try {
-      setLoadingTodoIds(prevIds => [
-        ...prevIds,
-        ...completedTodos.map(todo => todo.id),
-      ]);
+    setLoadingTodoIds(completedTodos.map(todo => todo.id));
 
+    try {
       const activeTodos = todos.filter(todo => !todo.completed);
 
       await Promise.all(completedTodos.map(todo => (
@@ -159,14 +156,14 @@ export const App: React.FC = () => {
   }
 
   const onChangeStatus = async (id: number, status: boolean) => {
-    setLoadingTodoIds([id]);
+    setLoadingTodoIds(prev => [...prev, id]);
 
     try {
       await updateTodo(id, {
         completed: !status,
       });
 
-      setTodos(todos.map(todo => (
+      setTodos(prevTodos => prevTodos.map(todo => (
         todo.id === id ? {
           ...todo,
           completed: !todo.completed,
@@ -183,23 +180,22 @@ export const App: React.FC = () => {
     const todosToUpdate = todos
       .filter(todo => todo.completed === isAllCompleted);
 
-    try {
-      setLoadingTodoIds(prevIds => [
-        ...prevIds,
-        ...todosToUpdate.map(todo => todo.id),
-      ]);
+    todosToUpdate.forEach(todo => onChangeStatus(todo.id, isAllCompleted));
+  };
 
-      await Promise.all(todosToUpdate
-        .map(todo => onChangeStatus(todo.id, todo.completed)));
+  const onRenameTodo = async (id: number, newTitle: string) => {
+    setLoadingTodoIds([id]);
+
+    try {
+      await updateTodo(id, {
+        title: newTitle,
+      });
 
       setTodos(todos.map(todo => (
-        todo.completed === isAllCompleted
-          ? {
-            ...todo,
-            completed: !todo.completed,
-          }
-          : todo
-      )));
+        todo.id === id ? {
+          ...todo,
+          title: newTitle,
+        } : todo)));
     } catch {
       setHasError(true);
       setErrorType(TypeError.UPDATE);
@@ -255,6 +251,7 @@ export const App: React.FC = () => {
               loadingTodoIds={loadingTodoIds}
               tempTodo={tempTodo}
               onChangeStatus={onChangeStatus}
+              onRenameTodo={onRenameTodo}
             />
 
             <Footer
