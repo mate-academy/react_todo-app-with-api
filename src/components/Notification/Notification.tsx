@@ -11,7 +11,10 @@ type Props = {
 
 export const Notification: React.FC<Props> = (
   {
-    text, type, setNotification, isHidden,
+    text,
+    type,
+    setNotification,
+    isHidden,
   },
 ) => {
   return (
