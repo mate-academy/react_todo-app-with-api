@@ -29,10 +29,8 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
   }, []);
 
   const handleEscPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (cancelEditing) {
-      if (event.key === 'Escape') {
-        cancelEditing();
-      }
+    if (cancelEditing && event.key === 'Escape') {
+      cancelEditing();
     }
   };
 
