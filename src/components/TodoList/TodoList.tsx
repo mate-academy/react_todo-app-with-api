@@ -8,6 +8,7 @@ type Props = {
   onDelete: (id: number) => void;
   onChangeTodo: (id: number, changedTitle: string) => void;
   onChangeComplete: (id: number, complete: boolean) => void,
+  isClearComplete: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,8 +16,9 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onChangeComplete,
   onChangeTodo,
+  isClearComplete,
 }) => {
-  const [todoInProcessId, setTodoInProcessId] = useState(Number);
+  const [todoInProcessId, setTodoInProcessId] = useState([0]);
   const [changingId, setChangingId] = useState(Number);
   const [changedTitle, setChangeTitle] = useState(String);
 
@@ -24,6 +26,41 @@ export const TodoList: React.FC<Props> = ({
     if (event.key === 'Escape') {
       setChangingId(0);
     }
+  };
+
+  const handleChangeTodo = async (id: number, completed: boolean) => {
+    setTodoInProcessId([...todoInProcessId, id]);
+    await onChangeComplete(id, !completed);
+    setTodoInProcessId(prevTodos => {
+      return (prevTodos.map(item => (item !== id ? item : 0)));
+    });
+    setTodoInProcessId([]);
+  };
+
+  const handleSubmitTodo = async (
+    event: React.FormEvent<HTMLFormElement>,
+    title: string,
+    id: number,
+  ) => {
+    event.preventDefault();
+    setChangingId(0);
+    if (title !== changedTitle) {
+      setTodoInProcessId([...todoInProcessId, id]);
+      await onChangeTodo(id, changedTitle);
+      setTodoInProcessId(prevTodos => {
+        return (prevTodos.map(item => (item !== id ? item : 0)));
+      });
+    }
+
+    setChangeTitle('');
+  };
+
+  const handleDelete = async (id: number) => {
+    setTodoInProcessId([...todoInProcessId, id]);
+    await onDelete(id);
+    setTodoInProcessId(prevTodos => {
+      return (prevTodos.map(item => (item !== id ? item : 0)));
+    });
   };
 
   return (
@@ -45,9 +82,7 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 onChange={() => {
-                  setTodoInProcessId(todo.id);
-                  onChangeComplete(todo.id, !todo.completed);
-                  setTodoInProcessId(0);
+                  handleChangeTodo(todo.id, todo.completed);
                 }}
               />
             </label>
@@ -55,15 +90,7 @@ export const TodoList: React.FC<Props> = ({
             {changingId === todo.id ? (
               <form
                 onSubmit={(event) => {
-                  event.preventDefault();
-                  setChangingId(0);
-                  if (todo.title !== changedTitle) {
-                    setTodoInProcessId(todo.id);
-                    onChangeTodo(todo.id, changedTitle);
-                    setTodoInProcessId(0);
-                  }
-
-                  setChangeTitle('');
+                  handleSubmitTodo(event, todo.title, todo.id);
                 }}
               >
                 <input
@@ -78,9 +105,7 @@ export const TodoList: React.FC<Props> = ({
                   onBlur={() => {
                     setChangingId(0);
                   }}
-                  onKeyUp={(event) => {
-                    handleKeyUp(event);
-                  }}
+                  onKeyUp={handleKeyUp}
                 />
               </form>
             ) : (
@@ -100,9 +125,7 @@ export const TodoList: React.FC<Props> = ({
               className="todo__remove"
               data-cy="TodoDeleteButton"
               onClick={() => {
-                setTodoInProcessId(todo.id);
-                onDelete(todo.id);
-                setTodoInProcessId(0);
+                handleDelete(todo.id);
               }}
             >
               ×
@@ -112,7 +135,10 @@ export const TodoList: React.FC<Props> = ({
               data-cy="TodoLoader"
               className={cn(
                 'modal overlay',
-                { 'is-active': todoInProcessId === todo.id },
+                {
+                  'is-active': todoInProcessId.includes(todo.id)
+                    || isClearComplete.includes(todo.id),
+                },
               )}
             >
               <div className="modal-background has-background-white-ter" />

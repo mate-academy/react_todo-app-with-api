@@ -28,12 +28,21 @@ export const App: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
 
   const [isAdding, setIsAdding] = useState(false);
+  const [isClearComplete, setClearComplete] = useState([0]);
 
   const [emptyFieldError, setEmptyError] = useState(false);
   const [failedAddError, setAddError] = useState(false);
   const [failedDeleteError, setDeleteError] = useState(false);
   const [failedLoadError, setLoadError] = useState(false);
   const [failedChangeError, setChangeError] = useState(false);
+
+  const cancelErrors = () => {
+    setEmptyError(false);
+    setAddError(false);
+    setDeleteError(false);
+    setLoadError(false);
+    setChangeError(false);
+  };
 
   const fetchTodos = async () => {
     try {
@@ -43,6 +52,7 @@ export const App: React.FC = () => {
       setVisibleList(loadedTodos);
     } catch {
       setLoadError(true);
+      setTimeout(cancelErrors, 3000);
     }
   };
 
@@ -54,13 +64,6 @@ export const App: React.FC = () => {
     fetchTodos();
   }, []);
 
-  const cancelErrors = () => {
-    setEmptyError(false);
-    setAddError(false);
-    setDeleteError(false);
-    setLoadError(false);
-  };
-
   const findNewTodoId = (): number => {
     if (todoList.length !== 0) {
       const max = todoList.reduce((a, b) => (a.id > b.id ? a : b));
@@ -68,7 +71,7 @@ export const App: React.FC = () => {
       return max.id + 1;
     }
 
-    return 1;
+    return 3456;
   };
 
   const pushTodos = async () => {
@@ -94,6 +97,7 @@ export const App: React.FC = () => {
         });
       } catch {
         setDeleteError(true);
+        setTimeout(cancelErrors, 3000);
       }
     }
   };
@@ -111,7 +115,10 @@ export const App: React.FC = () => {
         setVisibleList(todosForfilter);
         break;
       case Filter.clearComplete:
-        todoList.map(item => (item.completed && deleteTodos(item.id)));
+        todoList.map(item => (item.completed
+          && setClearComplete([...isClearComplete, item.id])));
+        await todoList.map(item => (item.completed && deleteTodos(item.id)));
+        setClearComplete([0]);
         break;
       case Filter.all:
         setVisibleList(todoList);
@@ -139,6 +146,7 @@ export const App: React.FC = () => {
       });
     } catch {
       setChangeError(true);
+      setTimeout(cancelErrors, 3000);
     }
   };
 
@@ -146,7 +154,6 @@ export const App: React.FC = () => {
     if (title.length !== 0) {
       try {
         await changeTitleTodo(id, title);
-
         setVisibleList(prevTodos => {
           return (prevTodos.map(
             item => (item.id === id
@@ -179,19 +186,19 @@ export const App: React.FC = () => {
     return false;
   };
 
-  const onSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (newTitle.trim() === '') {
       setEmptyError(true);
+      setTimeout(cancelErrors, 3000);
     } else {
       try {
         setIsAdding(true);
-        pushTodos();
-      } catch {
-        setAddError(true);
-      } finally {
+        await pushTodos();
         setIsAdding(false);
         setNewTitle('');
+      } catch {
+        setAddError(true);
         setTimeout(cancelErrors, 3000);
       }
     }
@@ -237,17 +244,21 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            data-cy="ToggleAllButton"
-            type="button"
-            className={cn(
-              'todoapp__toggle-all',
-              { active: todoList.filter(item => !item.completed).length === 0 },
-            )}
-            onClick={() => {
-              toggleAll();
-            }}
-          />
+          {todoList.length !== 0 && (
+            <button
+              data-cy="ToggleAllButton"
+              type="button"
+              className={cn(
+                'todoapp__toggle-all',
+                {
+                  active: todoList.filter(item => !item.completed).length === 0,
+                },
+              )}
+              onClick={() => {
+                toggleAll();
+              }}
+            />
+          )}
 
           <form
             onSubmit={(event) => {
@@ -276,6 +287,7 @@ export const App: React.FC = () => {
               todos={visibleTodoList}
               onDelete={deleteTodos}
               onChangeTodo={onChangeTodoTitle}
+              isClearComplete={isClearComplete}
             />
           </section>
         )}

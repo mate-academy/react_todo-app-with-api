@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 type Props = {
   emptyFieldError: boolean,
@@ -18,26 +18,21 @@ export const ErrorNotification: React.FC<Props> = ({
   const [closed, setClosed] = useState(false);
 
   const canselErrors = () => {
-    setClosed(true);
+    setClosed(false);
   };
 
-  useEffect(() => {
-    setClosed(false);
-    setTimeout(canselErrors, 3000);
-  }, [emptyFieldError,
-    failedAddError,
-    failedDeleteError,
-    failedLoadError,
-    failedChangeError,
-  ]);
+  const isError = () => {
+    if (emptyFieldError || failedAddError
+      || failedDeleteError || failedLoadError || failedChangeError) {
+      return true;
+    }
+
+    return false;
+  };
 
   return (
     <>
-      {(emptyFieldError
-        || failedAddError
-        || failedDeleteError
-        || failedLoadError
-        || failedChangeError) && !closed && (
+      {isError() && !closed && (
         <div
           data-cy="ErrorNotification"
           className="notification is-danger is-light has-text-weight-normal"
@@ -48,6 +43,7 @@ export const ErrorNotification: React.FC<Props> = ({
             className="delete"
             onClick={() => {
               setClosed(true);
+              setTimeout(canselErrors, 3000);
             }}
           >
             Close Error
