@@ -1,16 +1,15 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ErrorValues } from '../../types/ErrorValues';
 import { Todo } from '../../types/Todo';
+import { LoaderContext } from '../Context/LoadingContext';
+import { QueryContext } from '../Context/QueryContext';
 
 type Props = {
   todos: Todo[],
   newTodoField: React.RefObject<HTMLInputElement>,
-  query: string,
-  isAdding: boolean,
   getErrorStatus: (errStatus: ErrorValues) => void,
-  onSetterOfQuery: (settedQuery: string) => void,
   AddingTodos: () => void,
   changeAllTodosStatus: () => void,
 };
@@ -18,13 +17,13 @@ type Props = {
 export const TodosHeader: React.FC<Props> = ({
   todos,
   newTodoField,
-  query,
-  isAdding,
   getErrorStatus,
-  onSetterOfQuery,
   AddingTodos,
   changeAllTodosStatus,
 }) => {
+  const { isAdding } = useContext(LoaderContext);
+  const { query, setQuery } = useContext(QueryContext);
+
   useEffect(() => {
     if (newTodoField.current && !isAdding) {
       newTodoField.current.focus();
@@ -65,7 +64,7 @@ export const TodosHeader: React.FC<Props> = ({
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={query}
-            onChange={event => onSetterOfQuery(event.target.value)}
+            onChange={event => setQuery(event.target.value)}
             disabled={isAdding}
           />
         </form>

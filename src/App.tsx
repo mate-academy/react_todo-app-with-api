@@ -14,6 +14,8 @@ import {
   updatingTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
+import { LoaderContext } from './components/Context/LoadingContext';
+import { QueryContext } from './components/Context/QueryContext';
 import {
   ErrorNotification,
 } from './components/ErrorNotifications/ErrorNotifications';
@@ -31,11 +33,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(ErrorValues.DEFAULT);
   const [timerId, setTimerId] = useState<NodeJS.Timeout | null>(null);
 
-  const [query, setQuery] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
-
-  const [idsForLoader, setIdsForLoader] = useState<number[]>([]);
-
+  const { setIdsForLoader } = useContext(LoaderContext);
+  const { setIsAdding } = useContext(LoaderContext);
+  const { query, setQuery } = useContext(QueryContext);
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
     setTimerId(handleId);
   }, [errorStatus, errorMessage]);
 
-  const reloadTodos = async () => {
+  const reloadTodos = useCallback(async () => {
     if (user) {
       try {
         const response = await getTodos(user.id);
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
         getErrorStatus(ErrorValues.SERVER);
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -165,9 +165,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const setFilterStatus = (todoStatus: FilterValues) => {
+  const setFilterStatus = useCallback((todoStatus: FilterValues) => {
     setTodoFilter(todoStatus);
-  };
+  }, [todos]);
 
   let visibleTodos = [...todos];
 
@@ -195,12 +195,9 @@ export const App: React.FC = () => {
         <TodosHeader
           todos={todos}
           newTodoField={newTodoField}
-          query={query}
-          isAdding={isAdding}
           changeAllTodosStatus={changeAllTodosStatus}
           AddingTodos={addingTodos}
           getErrorStatus={getErrorStatus}
-          onSetterOfQuery={setQuery}
         />
 
         {todos.length > 0 && user && (
@@ -209,9 +206,6 @@ export const App: React.FC = () => {
               <TodosList
                 user={user}
                 todos={visibleTodos}
-                query={query}
-                isAdding={isAdding}
-                idsForLoader={idsForLoader}
                 deletingTodo={deletingTodo}
                 changeTodo={changeTodo}
               />

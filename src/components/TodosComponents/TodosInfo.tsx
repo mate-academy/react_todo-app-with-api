@@ -1,12 +1,17 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
+import { LoaderContext } from '../Context/LoadingContext';
 
 type Props = {
   todo: Todo,
   isAdding?: boolean,
   deletingTodo?: (id: number) => void,
-  idsForLoader: number[],
   changeTodo: (id: number, changes: Partial<Todo>) => void,
 };
 
@@ -14,7 +19,6 @@ export const TodoInfo: React.FC<Props> = ({
   todo,
   isAdding,
   deletingTodo,
-  idsForLoader,
   changeTodo,
 }) => {
   const { title, id, completed } = todo;
@@ -23,6 +27,7 @@ export const TodoInfo: React.FC<Props> = ({
   const [isFormExist, setIsFormExist] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
+  const { idsForLoader } = useContext(LoaderContext);
   const todoField = useRef<HTMLInputElement>(null);
   const loaderCondition = isAdding || isLoading || idsForLoader.includes(id);
 
