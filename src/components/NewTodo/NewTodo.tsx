@@ -7,19 +7,19 @@ import {
 
 interface Props {
   newTodoField: LegacyRef<HTMLInputElement>;
-  submitNewTodo: (str: string) => void;
+  createTodo: (str: string) => void;
   isAdding: boolean;
 }
 
 export const NewTodo: FC<Props> = memo(({
   newTodoField,
-  submitNewTodo,
+  createTodo,
   isAdding,
 }) => {
   const [title, setTitle] = useState('');
 
   const onSumbit = () => {
-    submitNewTodo(title);
+    createTodo(title);
     setTitle('');
   };
 

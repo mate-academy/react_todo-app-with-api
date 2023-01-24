@@ -7,7 +7,7 @@ interface Props {
   tempTodo: Todo | null;
   onDelete: (id: number) => void;
   deletingTodosId: number[];
-  onToggle: (id: number, status: boolean) => void;
+  onToggleTodoStatus: (id: number, status: boolean) => void;
   changeTodoTitle: (id: number, title: string) => void;
 }
 
@@ -16,7 +16,7 @@ export const TodoList: FC<Props> = memo(({
   tempTodo,
   onDelete,
   deletingTodosId,
-  onToggle,
+  onToggleTodoStatus,
   changeTodoTitle,
 }) => {
   return (
@@ -27,7 +27,7 @@ export const TodoList: FC<Props> = memo(({
           todo={todo}
           onDelete={onDelete}
           deletingTodosId={deletingTodosId}
-          onToggle={onToggle}
+          onToggleTodoStatus={onToggleTodoStatus}
           changeTodoTitle={changeTodoTitle}
         />
       ))}

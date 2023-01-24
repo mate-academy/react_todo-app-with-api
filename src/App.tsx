@@ -10,7 +10,7 @@ import {
 import cn from 'classnames';
 import { AuthContext } from './components/Auth/AuthContext';
 import {
-  createTodos, deleteTodo, getTodos, updateTodos,
+  createTodo, deleteTodo, getTodos, updateTodos,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
@@ -60,7 +60,7 @@ export const App: React.FC = () => {
 
         setTempTodo(currentTodo);
 
-        const newTodo = await createTodos(currentTodo);
+        const newTodo = await createTodo(currentTodo);
 
         setTodos(prev => [...prev, newTodo]);
       } catch (e) {
@@ -140,11 +140,11 @@ export const App: React.FC = () => {
   const changeTodoTitle = useCallback(async (id: number, title: string) => {
     setProcessingTodosId([id]);
     try {
-      await updateTodos(id, { title });
+      const updatedTodo = await updateTodos(id, { title });
 
       setTodos(prev => prev.map(todo => {
         if (todo.id === id) {
-          return { ...todo, title };
+          return updatedTodo;
         }
 
         return todo;
@@ -157,9 +157,7 @@ export const App: React.FC = () => {
   }, []);
 
   const visibleTodos = useMemo(() => (
-    completedFilter === Filter.all
-      ? todos
-      : getVisibleTodos(todos, completedFilter)
+    getVisibleTodos(todos, completedFilter)
   ), [completedFilter, todos]);
 
   async function getTodosFromServer() {
@@ -201,24 +199,24 @@ export const App: React.FC = () => {
 
           <NewTodo
             newTodoField={newTodoField}
-            submitNewTodo={submitNewTodo}
+            createTodo={submitNewTodo}
             isAdding={isAdding}
           />
         </header>
 
-        {!todos.length || (
+        {todos.length !== 0 && (
           <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
               onDelete={handleDeleteTodo}
               deletingTodosId={processingTodosId}
-              onToggle={toggleTodoStatus}
+              onToggleTodoStatus={toggleTodoStatus}
               changeTodoTitle={changeTodoTitle}
             />
 
             <Footer
-              length={todos.length}
+              todosArrayLength={todos.length}
               onCompletedFilterChange={handleChangeCompletedFilter}
               complitedFilter={completedFilter}
               deleteCompleted={deleteCompleted}

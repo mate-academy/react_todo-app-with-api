@@ -3,14 +3,14 @@ import cn from 'classnames';
 import { Filter } from '../../types/Filter';
 
 interface Props {
-  length: number;
+  todosArrayLength: number;
   onCompletedFilterChange: (str: Filter) => void;
   complitedFilter: Filter;
   deleteCompleted: () => void;
 }
 
 export const Footer: FC<Props> = memo(({
-  length,
+  todosArrayLength,
   onCompletedFilterChange,
   complitedFilter,
   deleteCompleted,
@@ -18,7 +18,7 @@ export const Footer: FC<Props> = memo(({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${length} items left`}
+        {`${todosArrayLength} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

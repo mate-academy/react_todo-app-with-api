@@ -6,7 +6,7 @@ interface Props {
   todo: Todo;
   onDelete: (id: number) => void;
   deletingTodosId: number[];
-  onToggle: (id: number, status: boolean) => void;
+  onToggleTodoStatus: (id: number, status: boolean) => void;
   changeTodoTitle: (id: number, title: string) => void;
 }
 
@@ -14,7 +14,7 @@ export const TodoItem: FC<Props> = memo(({
   todo,
   onDelete,
   deletingTodosId,
-  onToggle,
+  onToggleTodoStatus,
   changeTodoTitle,
 }) => {
   const [editingId, setEditingId] = useState(0);
@@ -57,7 +57,7 @@ export const TodoItem: FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => onToggle(todo.id, !todo.completed)}
+          onClick={() => onToggleTodoStatus(todo.id, !todo.completed)}
         />
       </label>
 
