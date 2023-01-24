@@ -8,8 +8,18 @@ type Props = {
 };
 
 export const TodoItem: FC<Props> = ({ todo }) => {
-  const { deleteSingleTodo, deleting } = useTodoContext();
+  const {
+    // prettier-ignore
+    deleteSingleTodo,
+    isLoading,
+    toggleTodo,
+    isUpdating,
+  } = useTodoContext();
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const todoToggle = () => {
+    toggleTodo(todo.id);
+  };
 
   return (
     <div
@@ -23,7 +33,8 @@ export const TodoItem: FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          defaultChecked={todo.completed}
+          onChange={todoToggle}
         />
       </label>
 
@@ -48,7 +59,8 @@ export const TodoItem: FC<Props> = ({ todo }) => {
           // prettier-ignore
           'is-active': todo && (todo.id === 0
             || isDeleting
-            || (deleting && todo.completed)),
+            || (isLoading && todo.completed)
+            || isUpdating === todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

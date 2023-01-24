@@ -5,11 +5,12 @@ import {
   useState,
   useEffect,
   useContext,
+  useMemo,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { Error, SetError, ErrorMsg } from '../types/Error';
 import { FilterStatus } from '../types/Filter';
-import { deleteTodo, getTodos } from '../api/todos';
+import { deleteTodo, getTodos, updateTodo } from '../api/todos';
 import { AuthContext } from '../components/Auth/AuthContext';
 import type { InitialState } from './todoContext';
 
@@ -21,7 +22,10 @@ export const useTodoStore = (initial: InitialState) => {
     initial.filter,
   );
   const [tempTodo, setTempTodo] = useState<Todo | null>(initial.tempTodo);
-  const [deleting, setDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(0);
+
+  const user = useContext(AuthContext);
 
   const setError: SetError = (err = false, msg = ErrorMsg.NoError) => {
     errorSet([err, msg]);
@@ -32,8 +36,6 @@ export const useTodoStore = (initial: InitialState) => {
   };
 
   const todoLength = todos.length;
-
-  const user = useContext(AuthContext);
 
   useEffect(() => {
     setError();
@@ -49,6 +51,46 @@ export const useTodoStore = (initial: InitialState) => {
 
   const renewTodos = (todo: Todo) => {
     setTodos(prev => [...prev, todo]);
+  };
+
+  const updateSingleTodo = async (
+    id: number,
+    todo: Todo,
+    updating: Dispatch<SetStateAction<number>>,
+  ): Promise<Todo> => {
+    updating(id);
+
+    try {
+      const res = await updateTodo(id, todo);
+
+      return res;
+    } catch {
+      setError(true, ErrorMsg.UpdateError);
+
+      return todo;
+    } finally {
+      updating(0);
+    }
+  };
+
+  const toggleTodo = (id: number) => {
+    const updatedTodo = todos.find(todo => todo.id === id) as Todo;
+    const todoIndex = todos.findIndex(todo => todo.id === id);
+
+    updateSingleTodo(
+      id,
+      {
+        ...updatedTodo,
+        completed: !updatedTodo.completed,
+      },
+      setIsUpdating,
+    ).then(res => {
+      return setTodos(prev => [
+        ...prev.slice(0, todoIndex),
+        res || updatedTodo,
+        ...prev.slice(todoIndex + 1),
+      ]);
+    });
   };
 
   const deleteSingleTodo = async (
@@ -67,24 +109,29 @@ export const useTodoStore = (initial: InitialState) => {
     setTodos(prev => prev.filter(todo => todo.id !== id));
   };
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed),
+    [todos],
+  );
 
   const clearCompletedTodos = () => {
-    completedTodos.map(todo => deleteSingleTodo(todo.id, setDeleting));
+    completedTodos.map(todo => deleteSingleTodo(todo.id, setIsLoading));
   };
 
-  const filteredTodos = todos.filter(todo => {
-    switch (filterStatus) {
-      case FilterStatus.Completed:
-        return todo.completed;
+  const filteredTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filterStatus) {
+        case FilterStatus.Completed:
+          return todo.completed;
 
-      case FilterStatus.Active:
-        return !todo.completed;
+        case FilterStatus.Active:
+          return !todo.completed;
 
-      default:
-        return todo;
-    }
-  });
+        default:
+          return todo;
+      }
+    });
+  }, [todos]);
 
   const addTempTodo = (todoTitle = '', userId = 0) => {
     if (todoTitle === '' || userId === 0) {
@@ -118,6 +165,8 @@ export const useTodoStore = (initial: InitialState) => {
     clearCompletedTodos,
     deleteSingleTodo,
     completedTodos,
-    deleting,
+    isLoading,
+    toggleTodo,
+    isUpdating,
   };
 };

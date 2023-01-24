@@ -19,7 +19,7 @@ export const TodoList = () => {
         {todos.length > 0 &&
           todos.map(todo => (
             <TodoItem
-              key={todo.id}
+              key={`todo__${todo.id}`}
               todo={todo}
             />
           ))}

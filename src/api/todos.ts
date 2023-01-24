@@ -15,4 +15,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-// Add more methods here
+export const updateTodo = (id: number, todo: Todo): Promise<Todo> => {
+  return client.patch(`/todos/${id}`, todo);
+};
