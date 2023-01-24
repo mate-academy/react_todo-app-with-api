@@ -4,5 +4,5 @@ export enum ErrorType {
   delete = 'delete',
   none = 'none',
   empty = 'empty',
-  rename = 'rename,',
+  rename = 'rename',
 }

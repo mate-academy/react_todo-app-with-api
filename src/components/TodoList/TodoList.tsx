@@ -26,9 +26,8 @@ export const TodoList: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       <ul className="todoapp__main" data-cy="TodoList">
         {todos.map(todo => (
-          <li>
+          <li key={todo.id}>
             <TodoItem
-              key={todo.id}
               todo={todo}
               isAdding={todo.isLoading}
               onDeleteItem={onDeleteItem}
