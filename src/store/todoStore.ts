@@ -106,8 +106,9 @@ export const useTodoStore = (initial: InitialState) => {
       completed: !todo.completed,
     }));
 
-    toggledTodos
-      .map(todo => toggleTodo(todo.id).then(() => setIsTogglingAll(false)));
+    toggledTodos.map(todo => {
+      return toggleTodo(todo.id).then(() => setIsTogglingAll(false));
+    });
   }, [todos]);
 
   const deleteSingleTodo = async (
@@ -148,7 +149,7 @@ export const useTodoStore = (initial: InitialState) => {
           return todo;
       }
     });
-  }, [todos]);
+  }, [todos, filterStatus]);
 
   const addTempTodo = useCallback((todoTitle = '', userId = 0) => {
     if (todoTitle === '' || userId === 0) {

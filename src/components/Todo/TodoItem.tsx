@@ -2,21 +2,16 @@ import { FC, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useTodoContext } from '../../store/todoContext';
+import { TodoLoader } from './TodoLoader';
 
 type Props = {
   todo: Todo;
 };
 
 export const TodoItem: FC<Props> = ({ todo }) => {
-  const {
-    // prettier-ignore
-    deleteSingleTodo,
-    isLoading,
-    toggleTodo,
-    isUpdating,
-    isTogglingAll,
-  } = useTodoContext();
+  const { deleteSingleTodo, toggleTodo } = useTodoContext();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const todoToggle = () => {
     toggleTodo(todo.id);
@@ -38,36 +33,34 @@ export const TodoItem: FC<Props> = ({ todo }) => {
           onChange={todoToggle}
         />
       </label>
+      {!isEditing ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
+            {todo.title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => deleteSingleTodo(todo.id, setIsDeleting)}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <form>
+          <input onBlur={() => setIsEditing(false)} />
+        </form>
+      )}
 
-      <span
-        data-cy="TodoTitle"
-        className="todo__title"
-      >
-        {todo.title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => deleteSingleTodo(todo.id, setIsDeleting)}
-      >
-        ×
-      </button>
-
-      <div
-        data-cy="TodoLoader"
-        className={cn('modal overlay', {
-          // prettier-ignore
-          'is-active': todo && (todo.id === 0
-            || isDeleting
-            || (isLoading && todo.completed)
-            || isUpdating === todo.id
-            || isTogglingAll),
-        })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      <TodoLoader
+        isDeleting={isDeleting}
+        todo={todo}
+      />
     </div>
   );
 };
