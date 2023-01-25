@@ -6,6 +6,7 @@ import {
   FormEvent,
   useState,
 } from 'react';
+import cn from 'classnames';
 import { useTodoContext } from '../../store/todoContext';
 import { AuthContext } from '../Auth/AuthContext';
 import { postTodos } from '../../api/todos';
@@ -23,6 +24,8 @@ export const TodoHeader = () => {
     renewTodos,
     setError,
     addTempTodo,
+    isAllTodosCompleted,
+    toggleAllTodos,
   } = useTodoContext();
 
   const user = useContext(AuthContext);
@@ -56,6 +59,14 @@ export const TodoHeader = () => {
     }
   };
 
+  const toggleAll = () => {
+    if (!isAllTodosCompleted) {
+      return;
+    }
+
+    toggleAllTodos();
+  };
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
@@ -68,7 +79,10 @@ export const TodoHeader = () => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: isAllTodosCompleted,
+        })}
+        onClick={toggleAll}
       />
 
       <form onSubmit={sendTodo}>

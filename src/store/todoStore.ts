@@ -6,6 +6,7 @@ import {
   useEffect,
   useContext,
   useMemo,
+  useCallback,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { Error, SetError, ErrorMsg } from '../types/Error';
@@ -24,6 +25,10 @@ export const useTodoStore = (initial: InitialState) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(initial.tempTodo);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(0);
+
+  // prettier-ignore
+  const isAllTodosCompleted = todos
+    .filter(todo => todo.completed).length === todos.length;
 
   const user = useContext(AuthContext);
 
@@ -93,6 +98,15 @@ export const useTodoStore = (initial: InitialState) => {
     });
   };
 
+  const toggleAllTodos = useCallback(() => {
+    const toggledTodos = todos.map(todo => ({
+      ...todo,
+      completed: !todo.completed,
+    }));
+
+    toggledTodos.map(todo => toggleTodo(todo.id));
+  }, [todos]);
+
   const deleteSingleTodo = async (
     id: number,
     isDeleting: Dispatch<SetStateAction<boolean>>,
@@ -133,7 +147,7 @@ export const useTodoStore = (initial: InitialState) => {
     });
   }, [todos]);
 
-  const addTempTodo = (todoTitle = '', userId = 0) => {
+  const addTempTodo = useCallback((todoTitle = '', userId = 0) => {
     if (todoTitle === '' || userId === 0) {
       setTempTodo(null);
 
@@ -148,7 +162,7 @@ export const useTodoStore = (initial: InitialState) => {
     };
 
     setTempTodo(todo);
-  };
+  }, []);
 
   return {
     todos: filteredTodos,
@@ -167,6 +181,8 @@ export const useTodoStore = (initial: InitialState) => {
     completedTodos,
     isLoading,
     toggleTodo,
+    toggleAllTodos,
     isUpdating,
+    isAllTodosCompleted,
   };
 };
