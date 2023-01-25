@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const TodoItem: FC<Props> = ({ todo: t }) => {
-  const [todo, setTodo] = useState<Todo | null>(t);
+  const [todo, setTodo] = useState<Todo | null>(null);
   const { deleteSingleTodo, toggleTodo, setError } = useTodoContext();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -35,6 +35,10 @@ export const TodoItem: FC<Props> = ({ todo: t }) => {
 
     return () => document.removeEventListener('keydown', cancelUpdate);
   }, []);
+
+  useEffect(() => {
+    setTodo(t);
+  }, [t]);
 
   if (!todo) {
     return null;
