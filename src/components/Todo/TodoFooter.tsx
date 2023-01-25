@@ -13,6 +13,10 @@ export const TodoFooter = () => {
     completedTodos,
   } = useTodoContext();
 
+  const filterStatusList = Object.keys(FilterStatus) as Array<
+  keyof typeof FilterStatus
+  >;
+
   return (
     <footer
       className="todoapp__footer"
@@ -29,21 +33,19 @@ export const TodoFooter = () => {
         className="filter"
         data-cy="Filter"
       >
-        {(Object.keys(FilterStatus) as Array<keyof typeof FilterStatus>).map(
-          status => (
-            <a
-              key={status}
-              data-cy={`FilterLink${status}`}
-              href={`#/${FilterStatus[status]}`}
-              className={cn('filter__link', {
-                selected: filterStatus === FilterStatus[status],
-              })}
-              onClick={() => changeFilterStatus(FilterStatus[status])}
-            >
-              {toCapitalCase(FilterStatus[status])}
-            </a>
-          ),
-        )}
+        {filterStatusList.map(status => (
+          <a
+            key={status}
+            data-cy={`FilterLink${status}`}
+            href={`#/${FilterStatus[status]}`}
+            className={cn('filter__link', {
+              selected: filterStatus === FilterStatus[status],
+            })}
+            onClick={() => changeFilterStatus(FilterStatus[status])}
+          >
+            {toCapitalCase(FilterStatus[status])}
+          </a>
+        ))}
       </nav>
 
       <button
