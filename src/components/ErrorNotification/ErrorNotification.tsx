@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
+import { Errors } from '../../types/Errors';
 
 type Props = {
-  emptyFieldError: boolean,
-  failedAddError: boolean,
-  failedDeleteError: boolean,
-  failedLoadError: boolean,
-  failedChangeError: boolean,
+  errors: Errors,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  emptyFieldError,
-  failedAddError,
-  failedDeleteError,
-  failedLoadError,
-  failedChangeError,
+  errors,
 }) => {
   const [closed, setClosed] = useState(false);
 
@@ -22,8 +15,8 @@ export const ErrorNotification: React.FC<Props> = ({
   };
 
   const isError = () => {
-    if (emptyFieldError || failedAddError
-      || failedDeleteError || failedLoadError || failedChangeError) {
+    if (errors.emptyField || errors.failedAdd
+      || errors.failedDelete || errors.failedLoad || errors.failedChange) {
       return true;
     }
 
@@ -48,11 +41,11 @@ export const ErrorNotification: React.FC<Props> = ({
           >
             Close Error
           </button>
-          {emptyFieldError && 'Title can not be empty \n'}
-          {failedAddError && 'Unable to add a todo \n'}
-          {failedDeleteError && 'Unable to delete a todo \n'}
-          {failedLoadError && 'Unable to load a todo \n'}
-          {failedChangeError && 'Unable to update a todo \n'}
+          {errors.emptyField && 'Title can not be empty \n'}
+          {errors.failedAdd && 'Unable to add a todo \n'}
+          {errors.failedDelete && 'Unable to delete a todo \n'}
+          {errors.failedLoad && 'Unable to load a todo \n'}
+          {errors.failedChange && 'Unable to update a todo \n'}
         </div>
       )}
     </>

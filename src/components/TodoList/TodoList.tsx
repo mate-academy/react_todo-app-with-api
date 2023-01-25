@@ -1,10 +1,12 @@
 import cn from 'classnames';
 import { useState } from 'react';
+import { Filter } from '../../types/Filter';
 
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[];
+  filterValue: Filter;
   onDelete: (id: number) => void;
   onChangeTodo: (id: number, changedTitle: string) => void;
   onChangeComplete: (id: number, complete: boolean) => void,
@@ -13,6 +15,7 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
+  filterValue,
   onDelete,
   onChangeComplete,
   onChangeTodo,
@@ -21,6 +24,17 @@ export const TodoList: React.FC<Props> = ({
   const [todoInProcessId, setTodoInProcessId] = useState([0]);
   const [changingId, setChangingId] = useState(Number);
   const [changedTitle, setChangeTitle] = useState(String);
+
+  const visibleTodoList = todos.filter(item => {
+    switch (filterValue) {
+      case Filter.active:
+        return !item.completed;
+      case Filter.completed:
+        return item.completed;
+      default:
+        return todos;
+    }
+  });
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
@@ -66,7 +80,7 @@ export const TodoList: React.FC<Props> = ({
   return (
     <>
       {todos && (
-        todos.map(todo => (
+        visibleTodoList.map(todo => (
           <div
             data-cy="Todo"
             className={cn(

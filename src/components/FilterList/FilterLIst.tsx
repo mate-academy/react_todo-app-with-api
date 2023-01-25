@@ -7,12 +7,14 @@ type Props = {
   itemCount: number,
   onFilter: (filterBy: Filter) => void,
   isCompletedTodo: boolean,
+  onClearComplete: () => {},
 };
 
 export const FilterList: React.FC<Props> = ({
   itemCount,
   onFilter,
   isCompletedTodo,
+  onClearComplete,
 }) => {
   const [filterBy, setFilterBy] = useState<Filter>(Filter.all);
 
@@ -68,11 +70,9 @@ export const FilterList: React.FC<Props> = ({
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => {
-            setFilter(Filter.clearComplete);
-          }}
+          onClick={onClearComplete}
         >
-          {Filter.clearComplete}
+          Clear complete
         </button>
       )}
     </>
