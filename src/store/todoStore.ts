@@ -25,6 +25,7 @@ export const useTodoStore = (initial: InitialState) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(initial.tempTodo);
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(0);
+  const [isTogglingAll, setIsTogglingAll] = useState(false);
 
   // prettier-ignore
   const isAllTodosCompleted = todos
@@ -82,7 +83,7 @@ export const useTodoStore = (initial: InitialState) => {
     const updatedTodo = todos.find(todo => todo.id === id) as Todo;
     const todoIndex = todos.findIndex(todo => todo.id === id);
 
-    updateSingleTodo(
+    return updateSingleTodo(
       id,
       {
         ...updatedTodo,
@@ -99,12 +100,14 @@ export const useTodoStore = (initial: InitialState) => {
   };
 
   const toggleAllTodos = useCallback(() => {
+    setIsTogglingAll(true);
     const toggledTodos = todos.map(todo => ({
       ...todo,
       completed: !todo.completed,
     }));
 
-    toggledTodos.map(todo => toggleTodo(todo.id));
+    toggledTodos
+      .map(todo => toggleTodo(todo.id).then(() => setIsTogglingAll(false)));
   }, [todos]);
 
   const deleteSingleTodo = async (
@@ -184,5 +187,6 @@ export const useTodoStore = (initial: InitialState) => {
     toggleAllTodos,
     isUpdating,
     isAllTodosCompleted,
+    isTogglingAll,
   };
 };

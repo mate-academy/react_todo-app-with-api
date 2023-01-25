@@ -14,6 +14,7 @@ export const TodoItem: FC<Props> = ({ todo }) => {
     isLoading,
     toggleTodo,
     isUpdating,
+    isTogglingAll,
   } = useTodoContext();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -60,7 +61,8 @@ export const TodoItem: FC<Props> = ({ todo }) => {
           'is-active': todo && (todo.id === 0
             || isDeleting
             || (isLoading && todo.completed)
-            || isUpdating === todo.id),
+            || isUpdating === todo.id
+            || isTogglingAll),
         })}
       >
         <div className="modal-background has-background-white-ter" />
