@@ -1,8 +1,22 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
+type TodoUpdateData = Pick<Todo, 'completed'> | Pick<Todo, 'title'>;
+
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-// Add more methods here
+export const postTodos = (data: Todo) => {
+  return client.post<Todo[]>('/todos', data);
+};
+
+export const deleteTodos = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
+};
+
+export const patchTodos = (
+  todoId: number, data: TodoUpdateData,
+) => {
+  return client.patch(`/todos/${todoId}`, data);
+};
