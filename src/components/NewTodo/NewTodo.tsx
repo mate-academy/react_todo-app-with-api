@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { postTodo } from '../../api/todos';
-import { Error } from '../../types';
+import { ErrorType } from '../../types';
 import { AppContext } from '../AppProvider/AppProvider';
 
 export const NewTodo = () => {
@@ -34,13 +34,13 @@ export const NewTodo = () => {
         await postTodo(todo);
         setTodos([...todos, todo]);
       } catch {
-        setError(Error.Add);
+        setError(ErrorType.Add);
       } finally {
         setTitle('');
         setTempTodo(null);
       }
     } else {
-      setError(Error.Title);
+      setError(ErrorType.Title);
     }
   };
 

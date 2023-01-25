@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useMemo } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { deleteTodo, getTodos, patchTodo } from './api/todos';
-import { Error } from './types';
+import { ErrorType } from './types';
 
 import { AppContext } from './components/AppProvider/AppProvider';
 import { Filter } from './components/Filter';
@@ -24,6 +24,18 @@ export const App: React.FC = () => {
   } = useContext(AppContext);
 
   useEffect(() => {
+    let timerId = 0;
+
+    if (error) {
+      timerId = window.setTimeout(
+        setError, 3000, ErrorType.None,
+      );
+    } else {
+      window.clearTimeout(timerId);
+    }
+  }, [error]);
+
+  useEffect(() => {
     (async function () {
       setTodos(await getTodos(userId || 0));
     }());
@@ -39,28 +51,14 @@ export const App: React.FC = () => {
 
   const isActive = completedTodos.length === todos.length;
 
-  useEffect(() => {
-    let timerId = 0;
-
-    if (error) {
-      timerId = window.setTimeout(
-        setError, 3000, Error.None,
-      );
-    } else {
-      window.clearTimeout(timerId);
-    }
-  }, [error]);
-
   const clearCompleted = async () => {
     setIsDeleting(true);
 
     await Promise.all(completedTodos.map(({ id }) => (
       deleteTodo(id)
-        .catch(() => setError(Error.Delete))
-        .then(() => {
-          setTodos(activeTodos);
-          setIsDeleting(false);
-        })
+        .then(() => setTodos(activeTodos))
+        .catch(() => setError(ErrorType.Delete))
+        .then(() => setIsDeleting(false))
     )));
   };
 
@@ -68,20 +66,17 @@ export const App: React.FC = () => {
     setIsLoadingMany(true);
     const status = Boolean(activeTodos.length);
     const newProp = { completed: status };
-
     const updatedTodos = todos.map(todo => ({
       ...todo,
       ...newProp,
     }));
 
-    await Promise.all(todos.map(todo => {
-      if (todo.completed !== status) {
-        return patchTodo(todo.id, newProp)
-          .catch(() => setError(Error.Update))
-          .then(() => {
-            setTodos(updatedTodos);
-            setIsLoadingMany(false);
-          });
+    await Promise.all(todos.map(({ completed, id }) => {
+      if (completed !== status) {
+        return patchTodo(id, newProp)
+          .then(() => setTodos(updatedTodos))
+          .catch(() => setError(ErrorType.Update))
+          .then(() => setIsLoadingMany(false));
       }
 
       return new Promise(res => res);
@@ -166,31 +161,31 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setError(Error.None)}
+          onClick={() => setError(ErrorType.None)}
         />
 
-        {error === Error.Add && (
+        {error === ErrorType.Add && (
           <>
             Unable to add a todo
             <br />
           </>
         )}
 
-        {error === Error.Delete && (
+        {error === ErrorType.Delete && (
           <>
             Unable to delete a todo
             <br />
           </>
         )}
 
-        {error === Error.Update && (
+        {error === ErrorType.Update && (
           <>
             Unable to update a todo
             <br />
           </>
         )}
 
-        {error === Error.Title && (
+        {error === ErrorType.Title && (
           'Title can\'t be empty'
         )}
       </div>

@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { deleteTodo, patchTodo } from '../../api/todos';
-import { Error } from '../../types';
+import { ErrorType } from '../../types';
 import { ITodo } from '../../types/ITodo';
 import { AppContext } from '../AppProvider/AppProvider';
 
@@ -66,7 +66,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
       await deleteTodo(todo.id);
       setTodos(filteredTodos);
     } catch {
-      setError(Error.Delete);
+      setError(ErrorType.Delete);
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +90,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
           : mappedTodo
       )));
     } catch {
-      setError(Error.Update);
+      setError(ErrorType.Update);
     } finally {
       setIsLoading(false);
     }
