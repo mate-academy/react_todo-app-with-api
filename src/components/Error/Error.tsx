@@ -5,7 +5,7 @@ import { useTodoContext } from '../../store/todoContext';
 export const Error = () => {
   const { error, setError } = useTodoContext();
 
-  const [isError, errorMsg] = error;
+  const [isError, ErrorMessage] = error;
 
   return (
     <div
@@ -20,7 +20,7 @@ export const Error = () => {
         className="delete"
         onClick={() => setError()}
       />
-      {errorMsg}
+      {ErrorMessage}
     </div>
   );
 };

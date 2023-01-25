@@ -9,7 +9,7 @@ import {
   useCallback,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { Error, SetError, ErrorMsg } from '../types/Error';
+import { Error, SetError, ErrorMessage } from '../types/Error';
 import { FilterStatus } from '../types/Filter';
 import { deleteTodo, getTodos, updateTodo } from '../api/todos';
 import { AuthContext } from '../components/Auth/AuthContext';
@@ -33,7 +33,7 @@ export const useTodoStore = (initial: InitialState) => {
 
   const user = useContext(AuthContext);
 
-  const setError: SetError = (err = false, msg = ErrorMsg.NoError) => {
+  const setError: SetError = (err = false, msg = ErrorMessage.NoError) => {
     errorSet([err, msg]);
   };
 
@@ -48,7 +48,7 @@ export const useTodoStore = (initial: InitialState) => {
 
     getTodos(user?.id || 0)
       .then(data => setTodos(prev => [...prev, ...data]))
-      .catch(() => setError(true, ErrorMsg.AddError));
+      .catch(() => setError(true, ErrorMessage.AddError));
   }, []);
 
   const changeFilterStatus = (status: FilterStatus) => {
@@ -71,7 +71,7 @@ export const useTodoStore = (initial: InitialState) => {
 
       return res;
     } catch {
-      setError(true, ErrorMsg.UpdateError);
+      setError(true, ErrorMessage.UpdateError);
 
       return todo;
     } finally {
@@ -119,7 +119,7 @@ export const useTodoStore = (initial: InitialState) => {
     try {
       await deleteTodo(id);
     } catch {
-      setError(true, ErrorMsg.DeleteError);
+      setError(true, ErrorMessage.DeleteError);
     } finally {
       isDeleting(false);
     }

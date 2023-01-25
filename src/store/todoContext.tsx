@@ -1,9 +1,5 @@
-import {
-  createContext,
-  useContext,
-  ReactNode,
-} from 'react';
-import { ErrorMsg, Error } from '../types/Error';
+import { createContext, useContext, ReactNode } from 'react';
+import { ErrorMessage, Error } from '../types/Error';
 import { FilterStatus } from '../types/Filter';
 import { Todo } from '../types/Todo';
 import { useTodoStore } from './todoStore';
@@ -19,7 +15,7 @@ export interface InitialState {
 const initialState: InitialState = {
   todos: [],
   newTodo: '',
-  error: [false, ErrorMsg.NoError],
+  error: [false, ErrorMessage.NoError],
   filter: FilterStatus.All,
   tempTodo: null,
 };

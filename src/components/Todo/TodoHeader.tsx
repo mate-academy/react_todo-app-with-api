@@ -10,7 +10,7 @@ import cn from 'classnames';
 import { useTodoContext } from '../../store/todoContext';
 import { AuthContext } from '../Auth/AuthContext';
 import { postTodos } from '../../api/todos';
-import { ErrorMsg } from '../../types/Error';
+import { ErrorMessage } from '../../types/Error';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const TodoHeader = () => {
@@ -48,14 +48,14 @@ export const TodoHeader = () => {
         // eslint-disable-next-line
         renewTodos(todo);
       } catch {
-        setError(true, ErrorMsg.AddError);
+        setError(true, ErrorMessage.AddError);
       } finally {
         getNewTodo('');
         addTempTodo();
         setIsAdding(false);
       }
     } else {
-      setError(true, ErrorMsg.TitleError);
+      setError(true, ErrorMessage.TitleError);
     }
   };
 
