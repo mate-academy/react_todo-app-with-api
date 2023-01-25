@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react';
 
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, patchTodo } from '../../api/todos';
 import { Error } from '../../types';
 import { ITodo } from '../../types/ITodo';
 import { AppContext } from '../AppProvider/AppProvider';
@@ -19,6 +19,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
   const [title, setTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [visibleTitle, setVisibleTitle] = useState(todo.title);
 
   const {
     setError,
@@ -37,6 +38,21 @@ export const Todo: React.FC<Props> = ({ todo }) => {
     || todo.id === 0 // temp todo
     || (isLoadingMany && shouldLoad)
     || (isDeleting && todo.completed);
+
+  useEffect(() => {
+    const cancelEdit = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+        setTitle(visibleTitle);
+      }
+    };
+
+    window.addEventListener('keydown', cancelEdit);
+
+    return () => {
+      window.removeEventListener('keydown', cancelEdit);
+    };
+  }, []);
 
   useEffect(() => {
     titleField.current?.focus();
@@ -60,30 +76,44 @@ export const Todo: React.FC<Props> = ({ todo }) => {
     if (!todo.title) {
       onDelete();
     }
-  }, []);
+  });
 
-  const updateTodo = (newProps: Partial<ITodo>) => {
-    setTodos(current => current.map(mappedTodo => (
-      mappedTodo.id === todo.id
-        ? { ...mappedTodo, ...newProps }
-        : mappedTodo
-    )));
+  const updateTodo = async (newProps: Partial<ITodo>) => {
+    setIsLoading(true);
+    setVisibleTitle(title);
+
+    try {
+      await patchTodo(todo.id, newProps);
+      setTodos(todos.map(mappedTodo => (
+        mappedTodo.id === todo.id
+          ? { ...mappedTodo, ...newProps }
+          : mappedTodo
+      )));
+    } catch {
+      setError(Error.Update);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // PATCH todo.completed
   const onCheck = () => {
-    const newProps = { completed: !todo.completed };
+    updateTodo({
+      completed: !todo.completed,
+    });
+  };
 
-    setIsLoading(true);
-    setTimeout(updateTodo, 800, newProps);
-    setTimeout(setIsLoading, 800, false);
+  const renameTodo = () => {
+    if (title !== todo.title) {
+      updateTodo({ title });
+    }
+
+    setIsEditing(false);
   };
 
   // PATCH todo.title
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateTodo({ title });
-    setIsEditing(false);
+    renameTodo();
   };
 
   return (
@@ -107,7 +137,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
         ? (
           <form
             onSubmit={onSubmit}
-            onBlur={() => setIsEditing(false)}
+            onBlur={renameTodo}
           >
             <input
               data-cy="TodoTitleField"
@@ -127,7 +157,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
               className="todo__title"
               onDoubleClick={() => setIsEditing(true)}
             >
-              {todo.title}
+              {visibleTitle}
             </span>
 
             <button

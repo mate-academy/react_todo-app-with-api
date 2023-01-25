@@ -1,9 +1,10 @@
+/* eslint-disable func-names */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import React, { useContext, useEffect, useMemo } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { deleteTodo, getTodos } from './api/todos';
+import { deleteTodo, getTodos, patchTodo } from './api/todos';
 import { Error } from './types';
 
 import { AppContext } from './components/AppProvider/AppProvider';
@@ -23,7 +24,6 @@ export const App: React.FC = () => {
   } = useContext(AppContext);
 
   useEffect(() => {
-    // eslint-disable-next-line func-names
     (async function () {
       setTodos(await getTodos(userId || 0));
     }());
@@ -51,33 +51,41 @@ export const App: React.FC = () => {
     }
   }, [error]);
 
-  const clearCompleted = () => {
+  const clearCompleted = async () => {
     setIsDeleting(true);
 
-    completedTodos.forEach(async ({ id }) => {
-      try {
-        await deleteTodo(id);
-      } catch {
-        setError(Error.Delete);
-      } finally {
-        if (!error) {
+    await Promise.all(completedTodos.map(({ id }) => (
+      deleteTodo(id)
+        .catch(() => setError(Error.Delete))
+        .then(() => {
           setTodos(activeTodos);
-        }
-
-        setIsDeleting(false);
-      }
-    });
+          setIsDeleting(false);
+        })
+    )));
   };
 
-  const completeAll = () => {
-    const newTodos = todos.map(todo => ({
+  const toggleAll = async () => {
+    setIsLoadingMany(true);
+    const status = Boolean(activeTodos.length);
+    const newProp = { completed: status };
+
+    const updatedTodos = todos.map(todo => ({
       ...todo,
-      completed: Boolean(activeTodos.length),
+      ...newProp,
     }));
 
-    setIsLoadingMany(true);
-    setTimeout(setTodos, 800, newTodos);
-    setTimeout(setIsLoadingMany, 800, false);
+    await Promise.all(todos.map(todo => {
+      if (todo.completed !== status) {
+        return patchTodo(todo.id, newProp)
+          .catch(() => setError(Error.Update))
+          .then(() => {
+            setTodos(updatedTodos);
+            setIsLoadingMany(false);
+          });
+      }
+
+      return new Promise(res => res);
+    }));
   };
 
   return (
@@ -93,7 +101,7 @@ export const App: React.FC = () => {
               className={cn('todoapp__toggle-all', {
                 active: isActive,
               })}
-              onClick={completeAll}
+              onClick={toggleAll}
             />
           )}
 
