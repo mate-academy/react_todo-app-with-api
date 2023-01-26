@@ -1,3 +1,5 @@
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from './TodoInfo';
 
@@ -22,40 +24,54 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos
-        .filter(todo => {
-          switch (filter) {
-            case 'active':
-              return !todo.completed;
+      <TransitionGroup>
+        {todos
+          .filter(todo => {
+            switch (filter) {
+              case 'active':
+                return !todo.completed;
 
-            case 'completed':
-              return todo.completed;
+              case 'completed':
+                return todo.completed;
 
-            default: return todo;
-          }
-        })
-        .map(todo => {
-          return (
+              default: return todo;
+            }
+          })
+          .map(todo => {
+            return (
+              <CSSTransition
+                key={todo.id}
+                timeout={300}
+                classNames="item"
+              >
+                <TodoInfo
+                  todo={todo}
+                  key={todo.id}
+                  todoIdsOnLoad={todoIdsOnLoad}
+                  onTodoDelete={onTodoDelete}
+                  onTodoComplete={onTodoComplete}
+                  saveInputChange={saveInputChange}
+                />
+              </CSSTransition>
+            );
+          })}
+
+        {todoOnLoad && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
             <TodoInfo
-              todo={todo}
-              key={todo.id}
+              todo={todoOnLoad}
               todoIdsOnLoad={todoIdsOnLoad}
               onTodoDelete={onTodoDelete}
               onTodoComplete={onTodoComplete}
               saveInputChange={saveInputChange}
             />
-          );
-        })}
-
-      {todoOnLoad && (
-        <TodoInfo
-          todo={todoOnLoad}
-          todoIdsOnLoad={todoIdsOnLoad}
-          onTodoDelete={onTodoDelete}
-          onTodoComplete={onTodoComplete}
-          saveInputChange={saveInputChange}
-        />
-      )}
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };

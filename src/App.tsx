@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 
@@ -15,14 +14,13 @@ import {
   patchTodos,
 } from './api/todos';
 
-import { AuthContext } from './components/Auth/AuthContext';
 import { Filter, Filters } from './components/React/Filter';
+import { AuthContext } from './components/Auth/AuthContext';
 import { NewTodo } from './components/React/NewTodo';
-
 import { TodoList } from './components/React/TodoList';
 import { Todo } from './types/Todo';
 
-export enum Errors {
+enum Errors {
   Server = 'Unable to load data from the Server',
   Post = 'Unable to add the Todo',
   Add = 'Title can\'t be empty',
@@ -44,13 +42,13 @@ export const App: React.FC = () => {
 
   const putTodoOnLoad = (todoId: number) => {
     setTodoIdsOnLoad([...todoIdsOnLoad, todoId]);
-  }; // ok
+  };
 
   const putAllTodosOnLoad = (selectedTodos: Todo[]) => {
     const selectedTodoIds = selectedTodos.map(todo => todo.id);
 
     setTodoIdsOnLoad(selectedTodoIds);
-  }; // ok
+  };
 
   const fetch = () => {
     if (user) {
@@ -59,13 +57,13 @@ export const App: React.FC = () => {
         .catch(() => setError(Errors.Server))
         .finally(() => setTodoIdsOnLoad([]));
     }
-  }; // ok
+  };
 
   const deleteData = (id: number) => {
     deleteTodos(id)
       .then(() => fetch())
       .catch(() => setError(Errors.Delete));
-  }; // ok
+  };
 
   const patch = async (
     id: number,
@@ -141,12 +139,12 @@ export const App: React.FC = () => {
     } finally {
       setTodoIdsOnLoad([]);
     }
-  }; // at least working, needs consultations OK
+  };
 
   const handleTodoDeleteButton = (id: number) => {
     deleteData(id);
     putTodoOnLoad(id);
-  }; // ok
+  };
 
   const handleClearButton = () => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -154,16 +152,16 @@ export const App: React.FC = () => {
     putAllTodosOnLoad(completedTodos);
 
     completedTodos.map(todo => deleteData(todo.id));
-  }; // ok
+  };
 
   const handleToggleAll = () => {
     setToggle(!toggle);
     todos.forEach(todo => patch(todo.id, toggle, true));
 
     putAllTodosOnLoad(todos);
-  }; // ok
+  };
 
-  const handleErrorCloser = () => setError(''); // ok
+  const handleErrorCloser = () => setError('');
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -199,16 +197,16 @@ export const App: React.FC = () => {
         setTodoOnLoad(null);
       }
     }
-  }; // ok
+  };
 
   const handleCompletedCheckBox = async (id: number, completed: boolean) => {
     patch(id, completed);
-  }; // ok
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.currentTarget.value);
     setError('');
-  }; // ok
+  };
 
   const handleExtraInputChange = (id: number, title: string) => {
     if (!title) {
@@ -219,11 +217,12 @@ export const App: React.FC = () => {
     }
 
     patch(id, title);
-  }; // ok
+  };
 
-  const handleTodosFilter = (filterType: Filters) => setFilter(filterType); // ok
+  const handleTodosFilter = (filterType: Filters) => setFilter(filterType);
 
-  useEffect(() => fetch(), []); // ok
+  useEffect(() => fetch(), []);
+
   useEffect(() => {
     const allCompleted = todos.every(todo => (todo.completed));
 
@@ -232,7 +231,7 @@ export const App: React.FC = () => {
     } else {
       setToggle(false);
     }
-  }, [todos]); // ok
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -271,6 +270,7 @@ export const App: React.FC = () => {
               onTodoComplete={handleCompletedCheckBox}
               saveInputChange={handleExtraInputChange}
             />
+
             <Filter
               filter={filter}
               todos={todos}
