@@ -1,14 +1,12 @@
-import { Todo } from '../types/Todo';
+import { Todo, TodoUpdateData } from '../types/Todo';
 import { client } from '../utils/fetchClient';
-
-type TodoUpdateData = Pick<Todo, 'completed'> | Pick<Todo, 'title'>;
 
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
 export const postTodos = (data: Todo) => {
-  return client.post<Todo[]>('/todos', data);
+  return client.post<Todo>('/todos', data);
 };
 
 export const deleteTodos = (todoId: number) => {
@@ -18,5 +16,5 @@ export const deleteTodos = (todoId: number) => {
 export const patchTodos = (
   todoId: number, data: TodoUpdateData,
 ) => {
-  return client.patch(`/todos/${todoId}`, data);
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };

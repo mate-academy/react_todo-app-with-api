@@ -1,20 +1,28 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
+
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 import {
-  getTodos, postTodos, deleteTodos, patchTodos,
+  getTodos,
+  postTodos,
+  deleteTodos,
+  patchTodos,
 } from './api/todos';
+
 import { AuthContext } from './components/Auth/AuthContext';
-import { Filter } from './components/React/Filter';
+import { Filter, Filters } from './components/React/Filter';
 import { NewTodo } from './components/React/NewTodo';
+
 import { TodoList } from './components/React/TodoList';
 import { Todo } from './types/Todo';
 
-enum Errors {
+export enum Errors {
   Server = 'Unable to load data from the Server',
   Post = 'Unable to add the Todo',
   Add = 'Title can\'t be empty',
@@ -23,113 +31,141 @@ enum Errors {
 }
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState<Filters>(Filters.All);
   const [error, setError] = useState('');
   const [input, setInput] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [todoOnload, setTodoOnLoad] = useState<Todo | null>(null);
-  const [todoIdsOnRemove, setTodoIdsOnRemove] = useState<number[]>([]);
-  const [isAnyCompleted, setCompletedTodos] = useState(false);
+  const [todoIdsOnLoad, setTodoIdsOnLoad] = useState<number[]>([]);
   const [toggle, setToggle] = useState(false);
 
-  const focusInput = () => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  };
+  const putTodoOnLoad = (todoId: number) => {
+    setTodoIdsOnLoad([...todoIdsOnLoad, todoId]);
+  }; // ok
 
-  const resetLoadingTodos = (id: number) => {
-    const remainingIds = [...todoIdsOnRemove]
-      .filter(todoId => todoId !== id);
+  const putAllTodosOnLoad = (selectedTodos: Todo[]) => {
+    const selectedTodoIds = selectedTodos.map(todo => todo.id);
 
-    setTodoIdsOnRemove([...remainingIds]);
-  };
+    setTodoIdsOnLoad(selectedTodoIds);
+  }; // ok
 
-  const putOnLoad = (loadingTodos: Todo[]) => {
-    setTodoIdsOnRemove(
-      [...todoIdsOnRemove, ...loadingTodos.map(todo => todo.id)],
-    );
-  };
-
-  const downloadDataAPI = () => {
+  const fetch = () => {
     if (user) {
       getTodos(user.id)
-        .then(todosFromServer => {
-          setTodos(todosFromServer);
-          setTodoOnLoad(null);
-
-          const someCompleted = todosFromServer.some(todo => todo.completed);
-          const allCompleted = todosFromServer.every(todo => todo.completed);
-
-          setCompletedTodos(someCompleted);
-
-          if (allCompleted) {
-            setToggle(true);
-          } else {
-            setToggle(false);
-          }
-
-          focusInput();
-        })
+        .then(todosFromServer => setTodos(todosFromServer))
         .catch(() => setError(Errors.Server))
-        .finally(() => setTodoIdsOnRemove([]));
+        .finally(() => setTodoIdsOnLoad([]));
     }
-  };
+  }; // ok
 
-  const deleteDataAPI = (id: number) => {
+  const deleteData = (id: number) => {
     deleteTodos(id)
-      .then(() => downloadDataAPI())
-      .catch(() => {
-        setError(Errors.Delete);
-        console.log(todos.map(todo => todo.title));
-      })
-      .finally(() => {
-        resetLoadingTodos(id);
+      .then(() => fetch())
+      .catch(() => setError(Errors.Delete));
+  }; // ok
+
+  const patch = async (
+    id: number,
+    data: boolean | string,
+    toggleMode = false,
+  ) => {
+    let updatedTodos: Todo[];
+
+    if (todoIdsOnLoad.length) {
+      return;
+    }
+
+    try {
+      putTodoOnLoad(id);
+
+      await patchTodos(
+        id,
+        typeof data === 'string'
+          ? { title: data }
+          : { completed: !data },
+      );
+
+      if (toggleMode) {
+        updatedTodos = [...todos].map(todo => {
+          switch (data) {
+            case true:
+              return {
+                ...todo,
+                completed: false,
+              };
+
+            case false:
+              return {
+                ...todo,
+                completed: true,
+              };
+
+            default: return todo;
+          }
+        });
+
+        setTodos(updatedTodos);
+
+        return;
+      }
+
+      updatedTodos = todos.map(todo => {
+        if (todo.id === id) {
+          switch (typeof data) {
+            case 'string':
+
+              return {
+                ...todo,
+                title: data,
+              };
+
+            case 'boolean':
+              return {
+                ...todo,
+                completed: !data,
+              };
+
+            default: return todo;
+          }
+        }
+
+        return todo;
       });
-  };
 
-  const updateDataAPI = (id: number, data: boolean | string) => {
-    patchTodos(
-      id,
-      typeof data === 'string'
-        ? { title: data }
-        : { completed: !data },
-    )
-      .then(() => downloadDataAPI())
-      .catch(() => {
-        setError(Errors.Update);
-      })
-      .finally(() => resetLoadingTodos(id));
-  };
+      setTodos(updatedTodos);
+    } catch {
+      setError(Errors.Update);
+    } finally {
+      setTodoIdsOnLoad([]);
+    }
+  }; // at least working, needs consultations OK
 
-  const handleTodoDeleteButton = (todoId: number) => {
-    deleteDataAPI(todoId);
-    setTodoIdsOnRemove([...todoIdsOnRemove, todoId]);
-  };
+  const handleTodoDeleteButton = (id: number) => {
+    deleteData(id);
+    putTodoOnLoad(id);
+  }; // ok
 
   const handleClearButton = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    putOnLoad(completedTodos);
+    putAllTodosOnLoad(completedTodos);
 
-    completedTodos.map(todo => deleteDataAPI(todo.id));
-  };
+    completedTodos.map(todo => deleteData(todo.id));
+  }; // ok
 
   const handleToggleAll = () => {
     setToggle(!toggle);
-    putOnLoad(todos);
+    todos.forEach(todo => patch(todo.id, toggle, true));
 
-    todos.map(todo => updateDataAPI(todo.id, toggle));
-  };
+    putAllTodosOnLoad(todos);
+  }; // ok
 
-  const handleErrorCloser = () => setError('');
+  const handleErrorCloser = () => setError(''); // ok
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!input) {
@@ -140,7 +176,7 @@ export const App: React.FC = () => {
     }
 
     if (user) {
-      const newTodo = {
+      const newTodoTemplate: Todo = {
         id: 0,
         userId: user.id,
         title: input,
@@ -148,44 +184,55 @@ export const App: React.FC = () => {
       };
 
       setIsAdding(true);
-      setTodoOnLoad(newTodo);
 
-      postTodos(newTodo)
-        .then(() => setIsAdding(false))
-        .catch(() => setError(Errors.Post))
-        .finally(() => downloadDataAPI());
+      try {
+        setTodoOnLoad(newTodoTemplate);
+
+        const newTodo = await postTodos(newTodoTemplate);
+
+        setTodos([...todos, newTodo]);
+      } catch {
+        setError(Errors.Post);
+      } finally {
+        setInput('');
+        setIsAdding(false);
+        setTodoOnLoad(null);
+      }
     }
+  }; // ok
 
-    setInput('');
-  };
-
-  const handleCompletedCheckBox = (todoId: number, completed: boolean) => {
-    setTodoIdsOnRemove([...todoIdsOnRemove, todoId]);
-    updateDataAPI(todoId, completed);
-  };
+  const handleCompletedCheckBox = async (id: number, completed: boolean) => {
+    patch(id, completed);
+  }; // ok
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.currentTarget.value);
     setError('');
-  };
+  }; // ok
 
   const handleExtraInputChange = (id: number, title: string) => {
     if (!title) {
-      deleteDataAPI(id);
+      putTodoOnLoad(id);
+      deleteData(id);
+
+      return;
     }
 
-    setTodoIdsOnRemove([...todoIdsOnRemove, id]);
-    updateDataAPI(id, title);
-  };
+    patch(id, title);
+  }; // ok
 
-  const handleTodosFilter = (filterType: string) => setFilter(filterType);
+  const handleTodosFilter = (filterType: Filters) => setFilter(filterType); // ok
 
+  useEffect(() => fetch(), []); // ok
   useEffect(() => {
-    downloadDataAPI();
-    focusInput();
-  }, []);
+    const allCompleted = todos.every(todo => (todo.completed));
 
-  todos.map(todo => todo.title);
+    if (allCompleted) {
+      setToggle(true);
+    } else {
+      setToggle(false);
+    }
+  }, [todos]); // ok
 
   return (
     <div className="todoapp">
@@ -205,9 +252,9 @@ export const App: React.FC = () => {
           )}
 
           <NewTodo
-            newTodoField={newTodoField}
             input={input}
             isAdding={isAdding}
+            todoOnload={todoOnload}
             onInputChange={handleInputChange}
             onSubmit={handleFormSubmit}
           />
@@ -219,15 +266,14 @@ export const App: React.FC = () => {
               todos={todos}
               filter={filter}
               todoOnLoad={todoOnload}
-              todoIdsOnRemove={todoIdsOnRemove}
-              error={error}
+              todoIdsOnLoad={todoIdsOnLoad}
               onTodoDelete={handleTodoDeleteButton}
               onTodoComplete={handleCompletedCheckBox}
               saveInputChange={handleExtraInputChange}
             />
             <Filter
               filter={filter}
-              isAnyCompleted={isAnyCompleted}
+              todos={todos}
               onFilterChange={handleTodosFilter}
               onCompletedClear={handleClearButton}
             />
@@ -248,7 +294,7 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => handleErrorCloser()}
+          onClick={handleErrorCloser}
         />
         {error}
       </div>

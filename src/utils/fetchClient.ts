@@ -1,4 +1,5 @@
-import { Todo } from '../types/Todo';
+import { Todo, TodoUpdateData } from '../types/Todo';
+import { UserData } from '../types/User';
 
 const BASE_URL = 'https://mate.academy/students-api';
 
@@ -13,7 +14,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data: Todo | null = null,
+  data: Todo | UserData | TodoUpdateData | null = null,
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -37,7 +38,11 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
+  post: <T>(url: string, data: Todo | UserData) => (
+    request<T>(url, 'POST', data)
+  ),
+  patch: <T>(url: string, data: TodoUpdateData) => (
+    request<T>(url, 'PATCH', data)
+  ),
   delete: (url: string) => request(url, 'DELETE'),
 };
