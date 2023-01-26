@@ -6,16 +6,23 @@ type Props = {
   todo: Todo
   onDeleteTodo?: (id: number) => void
   isDelete?: boolean
+  onStatusChange: (changedTodo: Todo) => void
 };
 
 export const TodoItem: FC<Props> = memo(({
-  todo, onDeleteTodo, isDelete,
+  todo, onDeleteTodo, isDelete, onStatusChange,
 }) => {
   const { id, title, completed } = todo;
 
   const handleDeleteClick = () => {
     if (onDeleteTodo) {
       onDeleteTodo(id);
+    }
+  };
+
+  const handleStatusChange = (changedTodo: Todo) => {
+    if (onStatusChange) {
+      onStatusChange(changedTodo);
     }
   };
 
@@ -29,6 +36,7 @@ export const TodoItem: FC<Props> = memo(({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          onChange={() => handleStatusChange(todo)}
           checked={completed}
         />
       </label>

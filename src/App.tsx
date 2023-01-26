@@ -4,7 +4,9 @@ import React, {
 } from 'react';
 // import cn from 'classnames';
 
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { AuthContext } from './components/components/Auth/AuthContext';
 import { ErrorMessage } from './components/components/ErrorMessage';
 import { TodoList } from './components/components/TodoList';
@@ -24,6 +26,7 @@ export const App: React.FC = memo(() => {
   const [newTodoToAdd, setNewTodoToAdd] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodosIds, setDeletingTodosIds] = useState<number[]>([]);
+  const [, setStatusChange] = useState<number[]>([]);
 
   const handleFilterOptionClick = (newOption: FilterTypes) => {
     if (selectedFilterType !== newOption) {
@@ -139,6 +142,34 @@ export const App: React.FC = memo(() => {
     });
   };
 
+  const handleTodoStatusChange = useCallback((changedTodo: Todo) => {
+    const { id, completed } = changedTodo;
+
+    setStatusChange(prev => [...prev, id]);
+
+    updateTodo(id, { completed: !completed })
+      .then((updatedTodo) => {
+        setTodos(prevTodos => prevTodos.map(todo => {
+          if (todo.id === updatedTodo.id) {
+            return {
+              ...todo,
+              completed: updatedTodo.completed,
+            };
+          }
+
+          return todo;
+        }));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setStatusChange(prev => {
+          return prev.filter(deletingId => deletingId !== id);
+        });
+      });
+  }, []);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -170,6 +201,7 @@ export const App: React.FC = memo(() => {
               todos={visibleTodos}
               onDeleteTodo={handleDeleteTodo}
               deletingTodosIds={deletingTodosIds}
+              onTodoStatusChange={handleTodoStatusChange}
             />
 
             <Footer
