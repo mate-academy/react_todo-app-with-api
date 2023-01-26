@@ -6,3 +6,15 @@ export const getTodos = (userId: number) => {
 };
 
 // Add more methods here
+export const deleteTodoById = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
+};
+
+export const createTodo = (fieldsToCreate: Omit<Todo, 'id'>) => {
+  return client.post<Todo>('/todos', fieldsToCreate);
+};
+
+// eslint-disable-next-line max-len
+export const updateTodoById = (fieldsToUpdate: Partial<Todo>, todoId: number) => {
+  return client.patch<Todo>(`/todos/${todoId}`, fieldsToUpdate);
+};
