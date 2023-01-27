@@ -2,19 +2,16 @@ import React, { memo } from 'react';
 import cn from 'classnames';
 
 type Props = {
-  error: string,
-  onChange: (value: string) => void,
+  error: string[],
+  close: (message: string) => void,
 };
 
 export const ErrorNotification: React.FC<Props> = memo((props) => {
-  const { error, onChange } = props;
-
-  setTimeout(() => onChange, 3000);
+  const { error, close } = props;
 
   return (
     <div
       data-cy="ErrorNotification"
-      // className="notification is-danger is-light has-text-weight-normal"
       className={cn(
         'notification is-danger is-light has-text-weight-normal', {
           hidden: !error,
@@ -26,7 +23,7 @@ export const ErrorNotification: React.FC<Props> = memo((props) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onChange('')}
+        onClick={() => close('')}
       />
       {error}
     </div>

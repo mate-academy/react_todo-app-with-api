@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -20,66 +19,51 @@ import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 
 import {
-  createTodo,
+  addTodo,
   deleteTodo,
   getTodos,
   updateTodoOnServer,
 } from './api/todos';
 
 import { getFilterTodos, isAllCompleted } from './components/helperFunction';
+import { useError } from './controllers/useError';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [tempNewTodo, setTempNewTodo] = useState<Todo | null>(null);
   const [completedFilter, setCompletedFilter] = useState<Filter>(Filter.all);
   const [processingTodoIds, setProcessingTodoId] = useState<number[]>([]);
   const [isToggleAll, setIsToggleAll] = useState(false);
+  const [isAddingTodo, setIsAddingTodo] = useState(false);
 
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  const handleError = (message: string): void => {
-    setTimeout(() => setErrorMessage(message), 3000);
-  };
+  const [showError, closeError, errorMessages] = useError();
 
   const filterTodos = useMemo(() => {
     return getFilterTodos(todos, completedFilter);
   }, [todos, completedFilter]);
 
-  const createTodoClick = useCallback(
-    (title: string) => {
-      if (!title) {
-        setErrorMessage('Title can\'t be empty');
+  const onAddTodo = useCallback(async (fieldsForCreate: Omit<Todo, 'id'>) => {
+    try {
+      setIsAddingTodo(true);
+      setTempNewTodo({
+        ...fieldsForCreate,
+        id: 0,
+      });
 
-        return;
-      }
+      const newTodo = await addTodo(fieldsForCreate);
 
-      if (user) {
-        setTempTodo({
-          id: 0,
-          title,
-          completed: false,
-          userId: user.id,
-        });
+      setTodos(prevState => [...prevState, newTodo]);
+    } catch {
+      showError('Unable to add todo');
 
-        createTodo(title, user.id)
-          .then(newTodo => {
-            setTodos(prev => [...prev, {
-              id: newTodo.id,
-              userId: newTodo.userId,
-              title: newTodo.title,
-              completed: newTodo.completed,
-            }]);
-          })
-          .catch(() => setErrorMessage('Unable to add a todo'))
-          .finally(() => {
-            setTempTodo(null);
-          });
-      }
-    },
-    [user],
-  );
+      throw Error('Error while adding todo');
+    } finally {
+      setIsAddingTodo(false);
+      setTempNewTodo(null);
+    }
+  },
+  [showError]);
 
   const deleteTodoClick = useCallback(
     (id: number) => {
@@ -91,11 +75,11 @@ export const App: React.FC = () => {
             .filter(todo => todo.id !== id))
         ))
         .catch(() => {
-          setErrorMessage('Unable to delete a todo');
+          showError('Unable to delete a todo');
         })
         .finally(() => setProcessingTodoId([]));
     },
-    [],
+    [showError],
   );
 
   const deleteTodoCompleted = useCallback(
@@ -122,22 +106,25 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  const toggleTodoStatus = useCallback(async (id: number, status: boolean) => {
-    setProcessingTodoId([id]);
+  const changeFilterStatus = useCallback(
+    async (id: number, status: boolean) => {
+      setProcessingTodoId([id]);
 
-    try {
-      await updateTodoOnServer(id, { completed: status });
-      setTodos(prev => prev.map(todo => {
-        return todo.id === id
-          ? { ...todo, completed: status }
-          : todo;
-      }));
-    } catch (e) {
-      setErrorMessage('Unable to update a todo');
-    } finally {
-      setProcessingTodoId([0]);
-    }
-  }, []);
+      try {
+        await updateTodoOnServer(id, { completed: status });
+        setTodos(prev => prev.map(todo => {
+          return todo.id === id
+            ? { ...todo, completed: status }
+            : todo;
+        }));
+      } catch (e) {
+        showError('Unable to update a todo');
+      } finally {
+        setProcessingTodoId([0]);
+      }
+    },
+    [showError],
+  );
 
   const toggleAll = async () => {
     const completedTodoId = todos
@@ -154,7 +141,7 @@ export const App: React.FC = () => {
       setTodos(todos.map(todo => ({ ...todo, completed: !isToggleAll })));
       setIsToggleAll(prev => !prev);
     } catch (e) {
-      setErrorMessage('Unable to update a todo');
+      showError('Unable to update a todo');
     } finally {
       setProcessingTodoId([0]);
     }
@@ -172,21 +159,19 @@ export const App: React.FC = () => {
         todo.id === updatedTodo.id ? updatedTodo : todo
       )));
     } catch (e) {
-      setErrorMessage('Unable to update a todo');
+      showError('Unable to update a todo');
     } finally {
       setProcessingTodoId([0]);
     }
-  }, []);
+  }, [showError]);
 
   useEffect(() => {
     if (user) {
       getTodos(user.id)
         .then(setTodos)
-        .catch(() => {
-          handleError('Unable to load a todos');
-        });
+        .catch(() => showError('Can\'t load todos'));
     }
-  }, [user]);
+  }, [showError, user]);
 
   useEffect(() => setIsToggleAll(isAllCompleted(todos)), [todos]);
 
@@ -197,8 +182,9 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <Header
-          newTodoField={newTodoField}
-          createTodo={createTodoClick}
+          isAddingTodo={isAddingTodo}
+          showError={showError}
+          onAddTodo={onAddTodo}
           toggleAll={toggleAll}
         />
 
@@ -206,11 +192,11 @@ export const App: React.FC = () => {
           <>
             <TodoList
               todos={filterTodos}
-              tempTodo={tempTodo}
-              handleDeleteClick={deleteTodoClick}
+              tempNewTodo={tempNewTodo}
+              deleteTodo={deleteTodoClick}
               processingTodoIds={processingTodoIds}
               updateTodo={updateTodo}
-              toggleTodoStatus={toggleTodoStatus}
+              changeFilterStatus={changeFilterStatus}
             />
 
             <Footer
@@ -223,11 +209,8 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {errorMessage && (
-        <ErrorNotification
-          error={errorMessage}
-          onChange={setErrorMessage}
-        />
+      {errorMessages.length > 0 && (
+        <ErrorNotification error={errorMessages} close={closeError} />
       )}
     </div>
   );

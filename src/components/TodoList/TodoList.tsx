@@ -4,21 +4,21 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[],
-  tempTodo: Todo | null,
-  handleDeleteClick: (todoId: number) => void,
+  tempNewTodo: Todo | null,
+  deleteTodo: (todoId: number) => void,
   processingTodoIds: number[],
   updateTodo: (todoToUpdate: Todo) => void,
-  toggleTodoStatus: (id: number, status: boolean) => void,
+  changeFilterStatus: (id: number, status: boolean) => void,
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
   const {
     todos,
-    tempTodo,
-    handleDeleteClick,
+    tempNewTodo,
+    deleteTodo,
     processingTodoIds,
     updateTodo,
-    toggleTodoStatus,
+    changeFilterStatus,
   } = props;
 
   return (
@@ -27,42 +27,21 @@ export const TodoList: React.FC<Props> = memo((props) => {
         <TodoItem
           key={todo.id}
           todo={todo}
-          handleDeleteClick={handleDeleteClick}
+          deleteTodo={deleteTodo}
           processingTodoIds={processingTodoIds}
           updateTodo={updateTodo}
-          toggleTodoStatus={toggleTodoStatus}
+          changeFilterStatus={changeFilterStatus}
         />
       ))}
 
-      {tempTodo && (
-        <div data-cy="Todo" className="todo">
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-          >
-            {tempTodo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-          >
-            ×
-          </button>
-
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+      {tempNewTodo && (
+        <TodoItem
+          todo={tempNewTodo}
+          deleteTodo={deleteTodo}
+          processingTodoIds={processingTodoIds}
+          updateTodo={updateTodo}
+          changeFilterStatus={changeFilterStatus}
+        />
       )}
     </section>
   );

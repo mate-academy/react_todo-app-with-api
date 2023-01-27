@@ -4,19 +4,19 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  handleDeleteClick: (todoId: number) => void,
+  deleteTodo: (todoId: number) => void,
   processingTodoIds: number[],
   updateTodo: (todoToUpdate: Todo) => void,
-  toggleTodoStatus: (id: number, status: boolean) => void,
+  changeFilterStatus: (id: number, status: boolean) => void,
 };
 
 export const TodoItem: React.FC<Props> = memo((props) => {
   const {
     todo,
-    handleDeleteClick,
+    deleteTodo,
     processingTodoIds,
     updateTodo,
-    toggleTodoStatus,
+    changeFilterStatus,
   } = props;
 
   const [editingId, setEditingId] = useState(0);
@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
 
   const handleEditingTodo = () => {
     if (!editTodoTitle) {
-      handleDeleteClick(todo.id);
+      deleteTodo(todo.id);
       setEditingId(0);
 
       return;
@@ -57,7 +57,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => toggleTodoStatus(todo.id, !todo.completed)}
+          onClick={() => changeFilterStatus(todo.id, !todo.completed)}
         />
       </label>
 
@@ -86,7 +86,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={() => handleDeleteClick(todo.id)}
+            onClick={() => deleteTodo(todo.id)}
           >
             ×
           </button>

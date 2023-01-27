@@ -1,26 +1,61 @@
-import React, { FC, memo, useState } from 'react';
+import {
+  FC,
+  memo, useContext, useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Todo } from '../../types/Todo';
+import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  newTodoField: React.RefObject<HTMLInputElement>,
-  createTodo: (title: string) => void;
+  isAddingTodo: boolean,
+  showError: (message: string) => void,
+  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>;
   toggleAll: () => void;
 };
 
 export const Header: FC<Props> = memo((props) => {
   const {
-    newTodoField,
-    createTodo,
+    onAddTodo,
+    showError,
     toggleAll,
+    isAddingTodo,
   } = props;
 
-  const [title, setTitle] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
 
-  const onSubmit = () => {
-    setIsAdding(true);
-    createTodo(title);
-    setTitle('');
-    setIsAdding(false);
+  const [title, setTitle] = useState('');
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isAddingTodo]);
+
+  const onSubmit = async () => {
+    if (!title) {
+      showError('Title is required');
+
+      return;
+    }
+
+    if (!user) {
+      showError('User not found');
+
+      return;
+    }
+
+    try {
+      await onAddTodo({
+        title,
+        userId: user.id,
+        completed: false,
+      });
+      setTitle('');
+    } catch {
+    /* empty */
+    }
   };
 
   return (
@@ -46,7 +81,7 @@ export const Header: FC<Props> = memo((props) => {
           placeholder="What needs to be done?"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          disabled={isAdding}
+          disabled={isAddingTodo}
         />
       </form>
     </header>
