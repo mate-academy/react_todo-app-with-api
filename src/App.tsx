@@ -70,18 +70,8 @@ export const App: React.FC = () => {
     fetchTodos();
   }, []);
 
-  const findNewTodoId = (): number => {
-    if (todoList.length !== 0) {
-      const max = todoList.reduce((a, b) => (a.id > b.id ? a : b));
-
-      return max.id + 1;
-    }
-
-    return 1;
-  };
-
   const pushTodos = async () => {
-    const pushedTodo = await pushTodo(findNewTodoId(), newTitle, user?.id);
+    const pushedTodo = await pushTodo(newTitle, user?.id);
 
     setTodoList(prevTodos => {
       return [...prevTodos, pushedTodo];

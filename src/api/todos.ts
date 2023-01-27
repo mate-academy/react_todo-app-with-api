@@ -6,12 +6,10 @@ export const getTodos = (userId?: number) => {
 };
 
 export const pushTodo = (
-  id: number,
   title: string,
   userId?: number,
 ) => {
   return client.post<Todo>(`/todos?userId=${userId}`, {
-    id,
     createdAt: new Date(),
     userId,
     completed: false,
