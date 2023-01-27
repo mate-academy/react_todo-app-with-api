@@ -18,7 +18,7 @@ import { Filter, Filters } from './components/React/Filter';
 import { AuthContext } from './components/Auth/AuthContext';
 import { NewTodo } from './components/React/NewTodo';
 import { TodoList } from './components/React/TodoList';
-import { Todo } from './types/Todo';
+import { Todo, TodoUpdateData } from './types/Todo';
 
 enum Errors {
   Server = 'Unable to load data from the Server',
@@ -38,7 +38,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [todoOnload, setTodoOnLoad] = useState<Todo | null>(null);
   const [todoIdsOnLoad, setTodoIdsOnLoad] = useState<number[]>([]);
-  const [toggle, setToggle] = useState(false);
+  const [isActiveToggle, setIsActiveToggle] = useState(false);
 
   const putTodoOnLoad = (todoId: number) => {
     setTodoIdsOnLoad([...todoIdsOnLoad, todoId]);
@@ -71,6 +71,11 @@ export const App: React.FC = () => {
     toggleMode = false,
   ) => {
     let updatedTodos: Todo[];
+    const dataForUpdate: TodoUpdateData = (
+      typeof data === 'string'
+        ? { title: data }
+        : { completed: !data }
+    );
 
     if (todoIdsOnLoad.length) {
       return;
@@ -81,9 +86,7 @@ export const App: React.FC = () => {
 
       await patchTodos(
         id,
-        typeof data === 'string'
-          ? { title: data }
-          : { completed: !data },
+        dataForUpdate,
       );
 
       if (toggleMode) {
@@ -155,8 +158,8 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    setToggle(!toggle);
-    todos.forEach(todo => patch(todo.id, toggle, true));
+    setIsActiveToggle(!isActiveToggle);
+    todos.forEach(todo => patch(todo.id, isActiveToggle, true));
 
     putAllTodosOnLoad(todos);
   };
@@ -227,9 +230,9 @@ export const App: React.FC = () => {
     const allCompleted = todos.every(todo => (todo.completed));
 
     if (allCompleted) {
-      setToggle(true);
+      setIsActiveToggle(true);
     } else {
-      setToggle(false);
+      setIsActiveToggle(false);
     }
   }, [todos]);
 
@@ -244,7 +247,7 @@ export const App: React.FC = () => {
               data-cy="ToggleAllButton"
               type="button"
               className={classNames(
-                'todoapp__toggle-all', { active: toggle },
+                'todoapp__toggle-all', { active: isActiveToggle },
               )}
               onClick={() => handleToggleAll()}
             />

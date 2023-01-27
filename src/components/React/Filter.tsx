@@ -33,50 +33,48 @@ export const Filter: React.FC<Props> = ({
   const isCompletedTodo = todos.some(todo => todo.completed);
 
   return (
-    <>
-      <footer className="todoapp__footer" data-cy="Footer">
-        <span className="todo-count" data-cy="todosCounter">
-          {`${activeTodos} items left`}
-        </span>
+    <footer className="todoapp__footer" data-cy="Footer">
+      <span className="todo-count" data-cy="todosCounter">
+        {`${activeTodos} items left`}
+      </span>
 
-        <nav className="filter" data-cy="Filter">
-          <a
-            data-cy="FilterLinkAll"
-            href="#/"
-            className={compareFilter(Filters.All)}
-            onClick={() => onFilterChange(Filters.All)}
-          >
-            All
-          </a>
-
-          <a
-            data-cy="FilterLinkActive"
-            href="#/active"
-            className={compareFilter(Filters.Active)}
-            onClick={() => onFilterChange(Filters.Active)}
-          >
-            Active
-          </a>
-          <a
-            data-cy="FilterLinkCompleted"
-            href="#/completed"
-            className={compareFilter(Filters.Completed)}
-            onClick={() => onFilterChange(Filters.Completed)}
-          >
-            Completed
-          </a>
-        </nav>
-
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => onCompletedClear()}
-          style={!isCompletedTodo ? { visibility: 'hidden' } : {}}
+      <nav className="filter" data-cy="Filter">
+        <a
+          data-cy="FilterLinkAll"
+          href="#/"
+          className={compareFilter(Filters.All)}
+          onClick={() => onFilterChange(Filters.All)}
         >
-          Clear completed
-        </button>
-      </footer>
-    </>
+          All
+        </a>
+
+        <a
+          data-cy="FilterLinkActive"
+          href="#/active"
+          className={compareFilter(Filters.Active)}
+          onClick={() => onFilterChange(Filters.Active)}
+        >
+          Active
+        </a>
+        <a
+          data-cy="FilterLinkCompleted"
+          href="#/completed"
+          className={compareFilter(Filters.Completed)}
+          onClick={() => onFilterChange(Filters.Completed)}
+        >
+          Completed
+        </a>
+      </nav>
+
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => onCompletedClear()}
+        style={!isCompletedTodo ? { visibility: 'hidden' } : {}}
+      >
+        Clear completed
+      </button>
+    </footer>
   );
 };
