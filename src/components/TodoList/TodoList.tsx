@@ -5,13 +5,20 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   selectedTodoIds: number[],
+  newTodoField: React.RefObject<HTMLInputElement>;
   removeTodo: (todoId: number) => void;
   toggleTodoStatus: (todoId: number, status: boolean) => void;
+  updateTodo: (todoId: number, newData: Partial<Todo>) => void;
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
   const {
-    todos, removeTodo, toggleTodoStatus, selectedTodoIds,
+    todos,
+    removeTodo,
+    toggleTodoStatus,
+    selectedTodoIds,
+    newTodoField,
+    updateTodo,
   } = props;
 
   return (
@@ -23,6 +30,8 @@ export const TodoList: React.FC<Props> = memo((props) => {
           selectedTodoIds={selectedTodoIds}
           removeTodo={removeTodo}
           toggleTodoStatus={toggleTodoStatus}
+          newTodoField={newTodoField}
+          updateTodo={updateTodo}
         />
       ))}
     </section>

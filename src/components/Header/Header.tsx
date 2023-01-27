@@ -4,10 +4,10 @@ import cn from 'classnames';
 type Props = {
   title: string;
   isAdding: boolean;
-  isEachTodoCompleted
+  isEachTodoCompleted: boolean;
+  newTodoField: React.RefObject<HTMLInputElement>
   onChange: (query: string) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  newTodoField: React.RefObject<HTMLInputElement>
   toggleAllTodosStatus: () => void;
 };
 

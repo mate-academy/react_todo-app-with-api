@@ -61,12 +61,6 @@ export const App: React.FC = () => {
   }, [todos, filterStatus]);
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
     if (user) {
       getTodos(user.id)
         .then(setTodos)
@@ -181,6 +175,30 @@ export const App: React.FC = () => {
       }
     }, [todos]);
 
+  const updateTodo = useCallback(async (
+    todoId: number,
+    fieldsToUpdate: Partial<Todo>,
+  ) => {
+    try {
+      setSelectedTodoIds(prevTododIds => [
+        ...prevTododIds,
+        todoId,
+      ]);
+
+      await editTodo(todoId, fieldsToUpdate);
+
+      setTodos(currentTodos => currentTodos.map(todo => (
+        todo.id === todoId
+          ? { ...todo, ...fieldsToUpdate }
+          : todo
+      )));
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setSelectedTodoIds([]);
+    }
+  }, []);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -203,6 +221,8 @@ export const App: React.FC = () => {
               selectedTodoIds={selectedTodoIds}
               removeTodo={removeTodo}
               toggleTodoStatus={toggleTodoStatus}
+              newTodoField={newTodoField}
+              updateTodo={updateTodo}
             />
 
             {tempTodo
@@ -211,6 +231,8 @@ export const App: React.FC = () => {
                   todo={tempTodo}
                   isAdding={isAdding}
                   removeTodo={removeTodo}
+                  updateTodo={updateTodo}
+                  newTodoField={newTodoField}
                   toggleTodoStatus={toggleTodoStatus}
                   selectedTodoIds={selectedTodoIds}
                 />
