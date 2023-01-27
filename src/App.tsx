@@ -199,16 +199,16 @@ export const App: React.FC = memo(() => {
           newTodoField={newTodoField}
           onAddTodo={addNewTodo}
           isAdding={isAdding}
-          onChangeAllTodos={changeAllTodos}
+          changeAllTodos={changeAllTodos}
         />
 
         {todos.length > 0 && (
           <>
             <TodoList
               todos={filteredTodos}
-              onTodoDelete={removeTodo}
+              removeTodo={removeTodo}
               tempTodo={tempTodo}
-              onChangeTodo={changeTodo}
+              changeTodo={changeTodo}
               newTodoField={newTodoField}
               isUpdating={isUpdating}
             />
@@ -216,8 +216,8 @@ export const App: React.FC = memo(() => {
               amountOfActiveTodos={amountOfActiveTodos}
               hasCompletedTodos={hasCompletedTodos}
               filterType={filterType}
-              onChangeType={setFilterType}
-              onRemoveCompleted={removeAllCompleted}
+              setFilterType={setFilterType}
+              setIsRemoveCompleted={removeAllCompleted}
             />
           </>
         )}
@@ -226,7 +226,7 @@ export const App: React.FC = memo(() => {
       <ErrorNotification
         isError={isError}
         errorMessage={errorMessage}
-        onCloseErrorMessage={handleCloseErrorMessage}
+        closeErrorMessage={handleCloseErrorMessage}
       />
     </div>
   );

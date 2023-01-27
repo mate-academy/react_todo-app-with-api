@@ -6,16 +6,16 @@ type Props = {
   amountOfActiveTodos: number;
   hasCompletedTodos: boolean;
   filterType: FilterType;
-  onChangeType: React.Dispatch<React.SetStateAction<FilterType>>;
-  onRemoveCompleted:() => void;
+  setFilterType: React.Dispatch<React.SetStateAction<FilterType>>;
+  setIsRemoveCompleted:() => void;
 };
 
 export const Footer: React.FC<Props> = memo(({
   amountOfActiveTodos,
   hasCompletedTodos,
   filterType,
-  onChangeType,
-  onRemoveCompleted,
+  setFilterType,
+  setIsRemoveCompleted,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -25,7 +25,7 @@ export const Footer: React.FC<Props> = memo(({
 
       <Filter
         filterType={filterType}
-        onChangeType={onChangeType}
+        setFilterType={setFilterType}
       />
 
       {hasCompletedTodos && (
@@ -33,7 +33,7 @@ export const Footer: React.FC<Props> = memo(({
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => onRemoveCompleted()}
+          onClick={() => setIsRemoveCompleted()}
         >
           Clear completed
         </button>

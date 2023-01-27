@@ -7,8 +7,8 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDelete:(todoId: number) => Promise<void>;
-  onChangeTodo:(todoId: number, fieldsToUpdate: Partial<Todo>) => Promise<void>;
+  removeTodo:(todoId: number) => Promise<void>;
+  changeTodo:(todoId: number, fieldsToUpdate: Partial<Todo>) => Promise<void>;
   newTodoField:React.RefObject<HTMLInputElement>;
   isUpdating:boolean;
   temporary?: boolean
@@ -16,8 +16,8 @@ type Props = {
 
 export const TodoInfo: React.FC<Props> = memo(({
   todo,
-  onDelete,
-  onChangeTodo,
+  removeTodo,
+  changeTodo,
   newTodoField,
   isUpdating,
   temporary = false,
@@ -35,7 +35,7 @@ export const TodoInfo: React.FC<Props> = memo(({
   const handleDeleteTodo = async () => {
     setIsLoading(true);
 
-    await onDelete(id);
+    await removeTodo(id);
 
     setIsLoading(false);
   };
@@ -46,7 +46,7 @@ export const TodoInfo: React.FC<Props> = memo(({
   ) => {
     setIsLoading(true);
 
-    await onChangeTodo(todoId, fieldsToUpdate);
+    await changeTodo(todoId, fieldsToUpdate);
 
     setIsLoading(false);
   };
@@ -109,8 +109,8 @@ export const TodoInfo: React.FC<Props> = memo(({
         <NewTodoField
           title={newTitle}
           newTodoField={newTodoField}
-          onInputChange={setNewTitle}
-          onSubmitForm={changeTodoTitle}
+          setNewTitle={setNewTitle}
+          submitForm={changeTodoTitle}
           cancelEditing={cancelEditing}
         />
       ) : (

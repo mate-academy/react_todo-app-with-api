@@ -4,19 +4,19 @@ import { TodoInfo } from '../TodoInfo';
 
 type Props = {
   todos: Todo[];
-  onTodoDelete:(todoId: number) => Promise<void>;
+  removeTodo:(todoId: number) => Promise<void>;
   tempTodo: Todo | null;
-  onChangeTodo:(todoId: number, fieldsToUpdate: Partial<Todo>) => Promise<void>;
+  changeTodo:(todoId: number, fieldsToUpdate: Partial<Todo>) => Promise<void>;
   newTodoField:React.RefObject<HTMLInputElement>;
   isUpdating:boolean
 };
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
-  onTodoDelete,
+  removeTodo,
   tempTodo,
   newTodoField,
-  onChangeTodo,
+  changeTodo,
   isUpdating,
 }) => {
   return (
@@ -25,8 +25,8 @@ export const TodoList: React.FC<Props> = memo(({
         <TodoInfo
           todo={todo}
           key={todo.id}
-          onDelete={onTodoDelete}
-          onChangeTodo={onChangeTodo}
+          removeTodo={removeTodo}
+          changeTodo={changeTodo}
           newTodoField={newTodoField}
           isUpdating={isUpdating}
         />
@@ -35,8 +35,8 @@ export const TodoList: React.FC<Props> = memo(({
       {tempTodo && (
         <TodoInfo
           todo={tempTodo}
-          onDelete={onTodoDelete}
-          onChangeTodo={onChangeTodo}
+          removeTodo={removeTodo}
+          changeTodo={changeTodo}
           newTodoField={newTodoField}
           isUpdating={isUpdating}
           temporary

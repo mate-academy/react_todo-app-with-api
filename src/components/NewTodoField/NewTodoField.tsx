@@ -4,8 +4,8 @@ type Props = {
   newTodoField?: React.RefObject<HTMLInputElement>;
   title: string;
   isTodoAdding?: boolean;
-  onSubmitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
-  onInputChange: React.Dispatch<React.SetStateAction<string>>;
+  submitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
+  setNewTitle: React.Dispatch<React.SetStateAction<string>>;
   cancelEditing?: () => void;
 };
 
@@ -14,8 +14,8 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
     newTodoField,
     title,
     isTodoAdding,
-    onSubmitForm,
-    onInputChange,
+    submitForm,
+    setNewTitle,
     cancelEditing,
   } = props;
 
@@ -35,7 +35,7 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
   };
 
   return (
-    <form onSubmit={onSubmitForm}>
+    <form onSubmit={submitForm}>
       <input
         data-cy="NewTodoField"
         type="text"
@@ -43,8 +43,8 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={title}
-        onChange={(event) => onInputChange(event.currentTarget.value)}
-        onBlur={() => onSubmitForm()}
+        onChange={(event) => setNewTitle(event.currentTarget.value)}
+        onBlur={() => submitForm()}
         disabled={isTodoAdding}
         onKeyDown={handleEscPress}
         tabIndex={0}

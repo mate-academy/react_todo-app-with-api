@@ -4,14 +4,14 @@ type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;
   onAddTodo: (newTitle: string) => Promise<void>;
   isAdding: boolean;
-  onChangeAllTodos:() => void;
+  changeAllTodos:() => void;
 };
 
 export const Header: React.FC<Props> = memo(({
   newTodoField,
   onAddTodo,
   isAdding,
-  onChangeAllTodos,
+  changeAllTodos,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -28,7 +28,7 @@ export const Header: React.FC<Props> = memo(({
         data-cy="ToggleAllButton"
         type="button"
         className="todoapp__toggle-all active"
-        onClick={onChangeAllTodos}
+        onClick={changeAllTodos}
       />
 
       <form onSubmit={handleSubmit}>
