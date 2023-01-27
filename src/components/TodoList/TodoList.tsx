@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
         <Todo key={todo.id} todo={todo} />
       ))}
 
-      {tempTodo && <Todo key={0} todo={tempTodo} />}
+      {tempTodo && <Todo todo={tempTodo} />}
     </>
   );
 };

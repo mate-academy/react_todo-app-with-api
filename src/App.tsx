@@ -138,11 +138,7 @@ export const App: React.FC = () => {
               type="button"
               className="todoapp__clear-completed"
               onClick={clearCompleted}
-              style={{
-                visibility: `${completedTodos.length
-                  ? 'visible'
-                  : 'hidden'}`,
-              }}
+              disabled={!completedTodos.length}
             >
               Clear completed
             </button>

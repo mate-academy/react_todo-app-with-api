@@ -72,15 +72,15 @@ export const Todo: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  useEffect(() => {
-    if (!todo.title) {
-      onDelete();
-    }
-  });
-
   const updateTodo = async (newProps: Partial<ITodo>) => {
     setIsLoading(true);
     setVisibleTitle(title);
+
+    if (!title) {
+      onDelete();
+
+      return;
+    }
 
     try {
       await patchTodo(todo.id, newProps);
@@ -110,7 +110,6 @@ export const Todo: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
   };
 
-  // PATCH todo.title
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     renameTodo();
