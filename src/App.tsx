@@ -12,9 +12,10 @@ import {
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { FilterTypes } from './types/FilterTypes';
-import { ErrorNotification } from './components/ErrorNotification';
+import { ErrorNotifications } from './components/ErrorNotifications';
 import { TodoItem } from './components/TodoItem';
 import { getFilteredTodos } from './helpers/getFiltereTodos';
+import { useErrors } from './hooks/useErrors';
 
 export const App: React.FC = memo(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,19 +23,12 @@ export const App: React.FC = memo(() => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
   const [selectedFilterType, setSelectedFilterType] = useState(FilterTypes.ALL);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [processings, setProcessings] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const showErrorMessage = (message: string) => {
-    setErrorMessage(message);
-
-    setTimeout(() => {
-      showErrorMessage('');
-    }, 3000);
-  };
+  const [showErrorMessage, closeError, errorMessages] = useErrors([]);
 
   const handleFilterOptionClick = (newOption: FilterTypes) => {
     if (selectedFilterType !== newOption) {
@@ -134,7 +128,7 @@ export const App: React.FC = memo(() => {
         }));
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        showErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setProcessings(prevProcessings => {
@@ -296,9 +290,9 @@ export const App: React.FC = memo(() => {
         )}
       </div>
 
-      <ErrorNotification
-        errorMessage={errorMessage}
-        onCloseBtnClick={() => setErrorMessage('')}
+      <ErrorNotifications
+        errorMessages={errorMessages}
+        onCloseBtnClick={closeError}
       />
     </div>
   );
