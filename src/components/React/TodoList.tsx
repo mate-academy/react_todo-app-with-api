@@ -9,7 +9,7 @@ type Props = {
   todoOnLoad: Todo | null,
   todoIdsOnLoad: number[],
   onTodoDelete: (id: number) => void,
-  onTodoComplete: (id: number, completed: boolean) => void,
+  onTodoComplete: (todo: Todo) => void,
   saveInputChange: (id: number, title: string) => void
 };
 

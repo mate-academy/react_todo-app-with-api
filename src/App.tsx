@@ -67,81 +67,40 @@ export const App: React.FC = () => {
 
   const patch = async (
     id: number,
-    data: boolean | string,
+    data: TodoUpdateData,
     toggleMode = false,
   ) => {
-    let updatedTodos: Todo[];
-    const dataForUpdate: TodoUpdateData = (
-      typeof data === 'string'
-        ? { title: data }
-        : { completed: !data }
-    );
-
-    if (todoIdsOnLoad.length) {
-      return;
-    }
+    putTodoOnLoad(id);
 
     try {
-      putTodoOnLoad(id);
+      await patchTodos(id, data);
 
-      await patchTodos(
-        id,
-        dataForUpdate,
-      );
+      setTodos((prevTodos) => {
+        return (
+          prevTodos.map(todo => {
+            if (toggleMode) {
+              return { ...todo, ...data };
+            }
 
-      if (toggleMode) {
-        updatedTodos = [...todos].map(todo => {
-          switch (data) {
-            case true:
-              return {
-                ...todo,
-                completed: false,
-              };
+            if (todo.id === id) {
+              return { ...todo, ...data };
+            }
 
-            case false:
-              return {
-                ...todo,
-                completed: true,
-              };
-
-            default: return todo;
-          }
-        });
-
-        setTodos(updatedTodos);
-
-        return;
-      }
-
-      updatedTodos = todos.map(todo => {
-        if (todo.id === id) {
-          switch (typeof data) {
-            case 'string':
-
-              return {
-                ...todo,
-                title: data,
-              };
-
-            case 'boolean':
-              return {
-                ...todo,
-                completed: !data,
-              };
-
-            default: return todo;
-          }
-        }
-
-        return todo;
+            return todo;
+          })
+        );
       });
-
-      setTodos(updatedTodos);
     } catch {
       setError(Errors.Update);
     } finally {
-      setTodoIdsOnLoad([]);
+      setTodoIdsOnLoad((prevTodoIds) => (
+        prevTodoIds.filter(todoId => todoId !== id)
+      ));
     }
+  };
+
+  const handleCompletedCheckBox = async (todo: Todo) => {
+    patch(todo.id, { completed: !todo.completed });
   };
 
   const handleTodoDeleteButton = (id: number) => {
@@ -159,7 +118,8 @@ export const App: React.FC = () => {
 
   const handleToggleAll = () => {
     setIsActiveToggle(!isActiveToggle);
-    todos.forEach(todo => patch(todo.id, isActiveToggle, true));
+
+    todos.forEach(todo => patch(todo.id, { completed: !isActiveToggle }, true));
 
     putAllTodosOnLoad(todos);
   };
@@ -202,10 +162,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleCompletedCheckBox = async (id: number, completed: boolean) => {
-    patch(id, completed);
-  };
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.currentTarget.value);
     setError('');
@@ -219,7 +175,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    patch(id, title);
+    patch(id, { title });
   };
 
   const handleTodosFilter = (filterType: Filters) => setFilter(filterType);
@@ -228,6 +184,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const allCompleted = todos.every(todo => (todo.completed));
+
+    // setTodoIdsOnLoad([]);
+    // console.log(todoIdsOnLoad);
 
     if (allCompleted) {
       setIsActiveToggle(true);
