@@ -185,9 +185,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     const allCompleted = todos.every(todo => (todo.completed));
 
-    // setTodoIdsOnLoad([]);
-    // console.log(todoIdsOnLoad);
-
     if (allCompleted) {
       setIsActiveToggle(true);
     } else {
