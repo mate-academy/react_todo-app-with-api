@@ -14,8 +14,6 @@ import { client } from '../../utils/fetchClient';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  isLoading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>
   setError: Dispatch<SetStateAction<ErrorType>>;
   setTempTodo: Dispatch<SetStateAction<TempTodo | null>>;
   isAllCompleted: boolean
@@ -24,15 +22,14 @@ type Props = {
 };
 
 export const Header:React.FC<Props> = ({
-  isLoading,
   setError,
-  setLoading,
   setTempTodo,
   setTodos,
   isAllCompleted,
   handleToggleAll,
 }) => {
   const [newTitle, setNewTitle] = useState('');
+  const [isLoading, setLoading] = useState(false);
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);

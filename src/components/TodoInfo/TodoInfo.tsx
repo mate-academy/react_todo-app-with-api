@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
@@ -6,27 +5,34 @@ import { TempTodo, Todo } from '../../types/Todo';
 type Props = {
   todo: Todo | TempTodo;
   onDelete?: (id: number) => void;
-  isLoading?: boolean;
   handleStatusChange?: (todo: Todo) => void
-  updatingTodoId?: number | null
-  updatingTodoIds?: number[]
+  updatingTodoIds?: number[];
+  editTodo?: (todo: Todo, newTitle:string) => void;
 };
 export const TodoInfo:React.FC<Props>
   = ({
     onDelete,
     todo,
-    isLoading,
     handleStatusChange,
-    updatingTodoId,
     updatingTodoIds,
+    editTodo,
   }) => {
-    const [isEditing] = useState(false);
+    const [isEditing, setEditing] = useState(false);
+    const [title, setTitle] = useState(todo.title);
 
-    console.log('rendering todo');
     const isLoaderActive = todo.id === 0
-      || (isLoading && todo.completed)
-      || updatingTodoId === todo.id
       || updatingTodoIds?.includes(todo.id);
+
+    const handleEdit = () => {
+      if (!title && onDelete) {
+        onDelete(todo.id);
+      }
+
+      if (editTodo) {
+        editTodo(todo, title);
+        setEditing(false);
+      }
+    };
 
     return (
       <div
@@ -49,13 +55,26 @@ export const TodoInfo:React.FC<Props>
         </label>
 
         {isEditing ? (
-          <form>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleEdit();
+            }}
+          >
             <input
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              defaultValue={todo.title}
+              value={title}
+              onBlur={handleEdit}
+              onChange={event => setTitle(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  setEditing(false);
+                  setTitle(todo.title);
+                }
+              }}
             />
           </form>
         ) : (
@@ -63,8 +82,9 @@ export const TodoInfo:React.FC<Props>
             <span
               data-cy="TodoTitle"
               className="todo__title"
+              onDoubleClick={() => setEditing(true)}
             >
-              {todo.title}
+              {title}
             </span>
             <button
               type="button"
