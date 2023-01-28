@@ -7,10 +7,15 @@ type Props = {
   onDeleteTodo: (id: number) => void
   deletingTodosIds: number[]
   onTodoStatusChange: (changedTodo: Todo) => void
+  tempTodo: Todo | null
 };
 
 export const TodoList: FC<Props> = memo(({
-  todos, onDeleteTodo, deletingTodosIds, onTodoStatusChange,
+  todos,
+  onDeleteTodo,
+  deletingTodosIds,
+  onTodoStatusChange,
+  tempTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,6 +28,8 @@ export const TodoList: FC<Props> = memo(({
           onStatusChange={onTodoStatusChange}
         />
       ))}
+
+      {tempTodo && <TodoItem todo={tempTodo} />}
     </section>
   );
 });

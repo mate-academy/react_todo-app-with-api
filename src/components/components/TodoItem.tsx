@@ -6,7 +6,7 @@ type Props = {
   todo: Todo
   onDeleteTodo?: (id: number) => void
   isDelete?: boolean
-  onStatusChange: (changedTodo: Todo) => void
+  onStatusChange?: (changedTodo: Todo) => void
 };
 
 export const TodoItem: FC<Props> = memo(({

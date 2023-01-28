@@ -34,13 +34,13 @@ export const App: React.FC = memo(() => {
     }
   };
 
-  const showErrorMessage = (message: string) => {
+  const showErrorMessage = useCallback((message: string) => {
     setErrorMessage(message);
 
     setTimeout(() => {
       showErrorMessage('');
     }, 3000);
-  };
+  }, []);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -56,13 +56,15 @@ export const App: React.FC = memo(() => {
           showErrorMessage('Unable to load a todos');
         });
     }
-  }, []);
+  }, [showErrorMessage, user]);
 
   const visibleTodos = useMemo(() => {
     return getFilteredTodos(todos, selectedFilterType);
   }, [todos, selectedFilterType]);
 
-  const filterOptions = Object.values(FilterTypes);
+  const filterOptions = useMemo(() => {
+    return Object.values(FilterTypes);
+  }, []);
 
   const activeItemsCounter = useMemo(() => {
     return todos.filter(({ completed }) => !completed).length;
@@ -120,7 +122,7 @@ export const App: React.FC = memo(() => {
           return prev.filter(deletingId => deletingId !== id);
         });
       });
-  }, []);
+  }, [showErrorMessage]);
 
   const handleClearCompletedClick = () => {
     const completedTodosIds = todos.reduce((ids: number[], todo) => {
@@ -195,21 +197,23 @@ export const App: React.FC = memo(() => {
           </form>
         </header>
 
-        {(todos.length > 0 || tempTodo) && (
+        {(todos.length > 0 || !!tempTodo) && (
           <>
             <TodoList
               todos={visibleTodos}
               onDeleteTodo={handleDeleteTodo}
               deletingTodosIds={deletingTodosIds}
               onTodoStatusChange={handleTodoStatusChange}
+              tempTodo={tempTodo}
             />
 
             <Footer
-              filterClick={handleFilterOptionClick}
+              setFilterType={handleFilterOptionClick}
               itemsCounter={activeItemsCounter}
               filterOptions={filterOptions}
               filterType={selectedFilterType}
               handleClearCompletedClick={handleClearCompletedClick}
+              visibleTodos={visibleTodos}
             />
           </>
         )}
