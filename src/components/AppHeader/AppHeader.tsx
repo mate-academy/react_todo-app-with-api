@@ -11,6 +11,7 @@ type Props = {
   addingNewTodo: (event: React.FormEvent) => void,
   newTitle: (event: string) => void,
   isAdding: boolean,
+  changeAllTodos: () => void,
 };
 
 export const AppHeader: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const AppHeader: React.FC<Props> = ({
   addingNewTodo,
   newTitle,
   isAdding,
+  changeAllTodos,
 }) => {
   return (
     <header className="todoapp__header">
@@ -30,6 +32,7 @@ export const AppHeader: React.FC<Props> = ({
           type="button"
           className={classNames('todoapp__toggle-all',
             { active: isAllCompleted })}
+          onClick={changeAllTodos}
         />
       )}
 

@@ -148,6 +148,12 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const changeAllTodos = useCallback(() => (
+    todos.map(todo => (
+      updateTodo(todo.id, { completed: !todo.completed })
+    ))
+  ), [todos]);
+
   const amountOfActive = useMemo(() => (
     todos.filter(
       todo => !todo.completed,
@@ -189,6 +195,7 @@ export const App: React.FC = () => {
           addingNewTodo={addingNewTodo}
           newTitle={setNewTodoTitle}
           isAdding={isAdding}
+          changeAllTodos={changeAllTodos}
         />
 
         {(todos.length !== 0 || tempTodo) && (
