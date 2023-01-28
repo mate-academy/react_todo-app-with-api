@@ -2,7 +2,7 @@
 import React, {
   useCallback, useContext, useEffect, useState,
 } from 'react';
-import { deleteTodo, getTodos } from './api/todos';
+import { deleteTodo, getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
@@ -22,6 +22,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
 
   const getTodosFromServer = async () => {
     if (!user) {
@@ -43,7 +44,12 @@ export const App: React.FC = () => {
 
   const addTodo = async (title: string) => {
     setLoading(true);
-    setTempTodo({ id: 0, title, completed: false });
+    setTempTodo({
+      id: 0,
+      title,
+      completed: false,
+      userId: 0,
+    });
 
     try {
       const todo = {
@@ -67,14 +73,14 @@ export const App: React.FC = () => {
   const handleDelete = useCallback(async (id: number) => {
     try {
       setDeletingTodoId(id);
-
       await deleteTodo(id);
       setTodos(current => current.filter(
         item => item.id !== id,
       ));
-      setDeletingTodoId(null);
     } catch {
       setError(ErrorType.RemovalError);
+    } finally {
+      setDeletingTodoId(null);
     }
   }, [deleteTodo]);
 
@@ -86,13 +92,35 @@ export const App: React.FC = () => {
   const deleteCompletedTodos = async () => {
     try {
       setLoading(true);
-      await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      await Promise.all(
+        completedTodos.map(todo => deleteTodo(todo.id)),
+      );
       setTodos(activeTodos);
       setLoading(false);
     } catch (err) {
       setError(ErrorType.RemovalError);
     }
   };
+
+  const handleStatusChange = useCallback(async (todo: Todo) => {
+    try {
+      const updatedTodo = { ...todo, completed: !todo.completed };
+
+      setTodos(current => {
+        return current
+          .map(el => (
+            el.id === todo.id
+              ? updatedTodo
+              : el));
+      });
+      setUpdatingTodoId(todo.id);
+      await updateTodo(todo.id, { completed: !todo.completed });
+    } catch {
+      setError(ErrorType.ModificationError);
+    } finally {
+      setUpdatingTodoId(null);
+    }
+  }, [updateTodo]);
 
   return (
     <div className="todoapp">
@@ -113,6 +141,8 @@ export const App: React.FC = () => {
           handleDelete={handleDelete}
           deletingTodoId={deletingTodoId}
           isLoading={isLoading}
+          handleStatusChange={handleStatusChange}
+          updatingTodoId={updatingTodoId}
         />
         <Footer
           activeTodosCount={activeTodosCount}

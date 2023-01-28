@@ -10,6 +10,8 @@ type Props = {
   handleDelete: (id: number) => void;
   deletingTodoId: number | null;
   isLoading: boolean;
+  handleStatusChange: (todo: Todo) => void
+  updatingTodoId: number | null
 };
 
 export const TodoList:React.FC<Props> = memo(
@@ -20,6 +22,8 @@ export const TodoList:React.FC<Props> = memo(
     handleDelete,
     deletingTodoId,
     isLoading,
+    handleStatusChange,
+    updatingTodoId,
   }) => {
     const visibleTodos = todos.filter(todo => {
       switch (filterStatus) {
@@ -41,6 +45,8 @@ export const TodoList:React.FC<Props> = memo(
             onDelete={handleDelete}
             deletingTodoId={deletingTodoId}
             isLoading={isLoading}
+            handleStatusChange={handleStatusChange}
+            updatingTodoId={updatingTodoId}
           />
         ))}
         {tempTodo && (

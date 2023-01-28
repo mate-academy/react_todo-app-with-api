@@ -7,6 +7,8 @@ type Props = {
   onDelete?: (id: number) => void;
   deletingTodoId?: number | null;
   isLoading?: boolean;
+  handleStatusChange?: (todo: Todo) => void
+  updatingTodoId?: number | null
 };
 export const TodoInfo:React.FC<Props> = memo(
   ({
@@ -14,12 +16,15 @@ export const TodoInfo:React.FC<Props> = memo(
     todo,
     deletingTodoId,
     isLoading,
+    handleStatusChange,
+    updatingTodoId,
   }) => {
     const [isEditing] = useState(false);
 
     const isLoaderActive = (deletingTodoId === todo.id)
       || todo.id === 0
-      || (isLoading && todo.completed);
+      || (isLoading && todo.completed)
+      || updatingTodoId === todo.id;
 
     return (
       <div
@@ -33,7 +38,11 @@ export const TodoInfo:React.FC<Props> = memo(
             type="checkbox"
             className="todo__status"
             checked={todo.completed}
-            readOnly
+            onChange={() => {
+              if (handleStatusChange) {
+                handleStatusChange(todo);
+              }
+            }}
           />
         </label>
 
