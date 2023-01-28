@@ -9,16 +9,14 @@ type Props = {
   cancelEditing?: () => void;
 };
 
-export const NewTodoField: React.FC<Props> = memo((props) => {
-  const {
-    newTodoField,
-    title,
-    isTodoAdding,
-    submitForm,
-    setNewTitle,
-    cancelEditing,
-  } = props;
-
+export const NewTodoField: React.FC<Props> = memo(({
+  newTodoField,
+  title,
+  isTodoAdding,
+  submitForm,
+  setNewTitle,
+  cancelEditing,
+}) => {
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField) {
