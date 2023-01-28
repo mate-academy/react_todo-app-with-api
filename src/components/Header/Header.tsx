@@ -1,27 +1,40 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import cn from 'classnames';
 import React, {
   Dispatch,
   SetStateAction,
+  useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import { ErrorType } from '../../types/ErrorType';
+import { TempTodo, Todo } from '../../types/Todo';
+import { client } from '../../utils/fetchClient';
+import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
   isLoading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>
   setError: Dispatch<SetStateAction<ErrorType>>;
-  newTitle: string;
-  setNewTitle: Dispatch<SetStateAction<string>>
-  addTodo: (title: string) => void;
+  setTempTodo: Dispatch<SetStateAction<TempTodo | null>>;
+  isAllCompleted: boolean
+  setTodos: Dispatch<SetStateAction<Todo[]>>;
+  handleToggleAll: () => {}
 };
 
 export const Header:React.FC<Props> = ({
   isLoading,
   setError,
-  newTitle,
-  setNewTitle,
-  addTodo,
+  setLoading,
+  setTempTodo,
+  setTodos,
+  isAllCompleted,
+  handleToggleAll,
 }) => {
+  const [newTitle, setNewTitle] = useState('');
+
+  const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,6 +42,34 @@ export const Header:React.FC<Props> = ({
       newTodoField.current.focus();
     }
   }, [isLoading]);
+
+  const addTodo = async (title: string) => {
+    setLoading(true);
+    setTempTodo({
+      id: 0,
+      title,
+      completed: false,
+      userId: 0,
+    });
+
+    try {
+      const todo = {
+        userId: user?.id,
+        title,
+        completed: false,
+      };
+
+      const newTodo = await client.post<Todo>('/todos', todo);
+
+      setTodos(current => [...current, newTodo]);
+      setNewTitle('');
+    } catch (err) {
+      setError(ErrorType.InsertionError);
+    } finally {
+      setTempTodo(null);
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,7 +90,9 @@ export const Header:React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all',
+          { active: isAllCompleted })}
+        onClick={() => handleToggleAll()}
       />
 
       <form

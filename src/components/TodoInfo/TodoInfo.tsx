@@ -5,26 +5,26 @@ import { TempTodo, Todo } from '../../types/Todo';
 type Props = {
   todo: Todo | TempTodo;
   onDelete?: (id: number) => void;
-  deletingTodoId?: number | null;
   isLoading?: boolean;
   handleStatusChange?: (todo: Todo) => void
   updatingTodoId?: number | null
+  updatingTodoIds?: number[]
 };
 export const TodoInfo:React.FC<Props> = memo(
   ({
     onDelete,
     todo,
-    deletingTodoId,
     isLoading,
     handleStatusChange,
     updatingTodoId,
+    updatingTodoIds,
   }) => {
     const [isEditing] = useState(false);
 
-    const isLoaderActive = (deletingTodoId === todo.id)
-      || todo.id === 0
+    const isLoaderActive = todo.id === 0
       || (isLoading && todo.completed)
-      || updatingTodoId === todo.id;
+      || updatingTodoId === todo.id
+      || updatingTodoIds?.includes(todo.id);
 
     return (
       <div
