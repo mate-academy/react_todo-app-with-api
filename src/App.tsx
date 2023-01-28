@@ -113,9 +113,12 @@ export const App: React.FC = () => {
 
   const onClearComplete = async () => {
     todoList.map(item => (item.completed
-      && setClearComplete([...isClearComplete, item.id])));
+      && setClearComplete((prevState) => [...prevState, item.id])));
 
-    await todoList.map(item => (item.completed && removeTodo(item.id)));
+    await Promise.all(
+      todoList
+        .map(async (item) => (item.completed && removeTodo(item.id))),
+    );
 
     setClearComplete([0]);
   };
