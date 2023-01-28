@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useCallback, useContext, useEffect, useState,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 import { deleteTodo, getTodos, updateTodo } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -45,7 +47,7 @@ export const App: React.FC = () => {
     setIsAllCompleted(todos.every(todo => todo.completed));
   }, [todos]);
 
-  const handleDelete = useCallback(async (id: number) => {
+  const handleDelete = async (id: number) => {
     try {
       setUpdatingTodoId(id);
       await deleteTodo(id);
@@ -57,7 +59,7 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoId(null);
     }
-  }, [deleteTodo]);
+  };
 
   const activeTodos = todos.filter(todo => !todo.completed);
   const activeTodosCount = activeTodos.length;
@@ -77,7 +79,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleStatusChange = useCallback(async (todo: Todo) => {
+  const handleStatusChange = async (todo: Todo) => {
     try {
       const updatedTodo = { ...todo, completed: !todo.completed };
 
@@ -95,7 +97,7 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoId(null);
     }
-  }, [updateTodo]);
+  };
 
   const handleToggleAll = async () => {
     try {

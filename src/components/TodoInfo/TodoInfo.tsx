@@ -1,4 +1,5 @@
-import React, { memo, useState } from 'react';
+/* eslint-disable no-console */
+import React, { useState } from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
 
@@ -10,8 +11,8 @@ type Props = {
   updatingTodoId?: number | null
   updatingTodoIds?: number[]
 };
-export const TodoInfo:React.FC<Props> = memo(
-  ({
+export const TodoInfo:React.FC<Props>
+  = ({
     onDelete,
     todo,
     isLoading,
@@ -21,6 +22,7 @@ export const TodoInfo:React.FC<Props> = memo(
   }) => {
     const [isEditing] = useState(false);
 
+    console.log('rendering todo');
     const isLoaderActive = todo.id === 0
       || (isLoading && todo.completed)
       || updatingTodoId === todo.id
@@ -89,5 +91,4 @@ export const TodoInfo:React.FC<Props> = memo(
         </div>
       </div>
     );
-  },
-);
+  };
