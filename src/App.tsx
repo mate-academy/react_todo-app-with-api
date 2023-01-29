@@ -11,40 +11,26 @@ import { AuthContext } from './components/Auth/AuthContext';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
-import { ErrorNotification } from
-  './components/ErrorNotification/ErrorNotification';
+import { ErrorMessage } from
+  './components/ErrorMessage/ErrorMessage';
 
 import { todoApi } from './api/todos';
 
 import { Todo } from './types/Todo';
 import { CompletedFilter } from './types/CompletedFilter';
+import { filterTodosByCompleted, getCompletedTodoIds } from './heppers/helpers';
+import { useError } from './controllers/useErrors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [completedFilter, setCompletedFilter] = useState(CompletedFilter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
 
+  const [showError, closeErrorMessage, errorMessages] = useError();
+
   const user = useContext(AuthContext);
-
-  const closeErrorMessage = useCallback((message: string) => {
-    setErrorMessages((prev) => {
-      const messageIndex = prev.indexOf(message);
-      const messagesCopy = [...prev];
-
-      messagesCopy.splice(messageIndex, 1);
-
-      return messagesCopy;
-    });
-  }, []);
-
-  const showError = useCallback((message: string) => {
-    setErrorMessages((prev) => [message, ...prev]);
-
-    setTimeout(() => closeErrorMessage(message), 3000);
-  }, [closeErrorMessage]);
 
   useEffect(() => {
     if (user) {
@@ -90,8 +76,7 @@ export const App: React.FC = () => {
   }, [showError]);
 
   const deleteCompletedTodos = useCallback(async () => {
-    const completedTodoIds = todos.filter(todo => todo.completed)
-      .map(todo => todo.id);
+    const completedTodoIds = getCompletedTodoIds(todos);
 
     completedTodoIds.forEach(id => deleteTodo(id));
   }, [deleteTodo, todos]);
@@ -100,16 +85,9 @@ export const App: React.FC = () => {
     todos.filter(todo => !todo.completed)
   ), [todos, completedFilter]);
 
-  const visibleTodos = useMemo(() => {
-    if (completedFilter === CompletedFilter.All) {
-      return todos;
-    }
-
-    return todos.filter((todo) => (CompletedFilter.Completed === completedFilter
-      ? todo.completed
-      : !todo.completed
-    ));
-  }, [todos, completedFilter]);
+  const visibleTodos = useMemo(() => (
+    filterTodosByCompleted(todos, completedFilter)
+  ), [todos, completedFilter]);
 
   const shouldRenderContent = todos.length > 0 || !!tempTodo;
 
@@ -144,10 +122,7 @@ export const App: React.FC = () => {
       </div>
 
       {errorMessages.length > 0 && (
-        <ErrorNotification
-          messages={errorMessages}
-          close={closeErrorMessage}
-        />
+        <ErrorMessage messages={errorMessages} close={closeErrorMessage} />
       )}
     </div>
   );

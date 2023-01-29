@@ -7,7 +7,7 @@ interface Props {
   close: (message: string) => void;
 }
 
-export const ErrorNotification: React.FC<Props> = memo((
+export const ErrorMessage: React.FC<Props> = memo((
   { messages, close },
 ) => (
   <>
