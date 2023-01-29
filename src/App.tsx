@@ -33,12 +33,6 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
     if (user) {
       try {
         getTodos(user.id)
@@ -117,6 +111,14 @@ export const App: React.FC = () => {
     }), [],
   );
 
+  const completedTodosLength = useMemo(() => (
+    todos.filter(
+      todo => todo.completed,
+    ).length
+  ), [todos]);
+
+  const isAllCompleted = completedTodosLength === todos.length;
+
   const updateTodo = useCallback(async (
     todoId: number,
     dataToUpdate: Partial<Todo>,
@@ -144,14 +146,20 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to update a todo');
     } finally {
-      setLoadingTodosIds([]);
+      setLoadingTodosIds([0]);
     }
   }, []);
 
   const changeAllTodos = useCallback(() => (
-    todos.map(todo => (
-      updateTodo(todo.id, { completed: !todo.completed })
-    ))
+    // eslint-disable-next-line array-callback-return
+    todos.map(todo => {
+      const todoNeedToBeUpdated = (!todo.completed && !isAllCompleted)
+        || isAllCompleted;
+
+      if (todoNeedToBeUpdated) {
+        updateTodo(todo.id, { completed: !todo.completed });
+      }
+    })
   ), [todos]);
 
   const amountOfActive = useMemo(() => (
@@ -159,12 +167,6 @@ export const App: React.FC = () => {
       todo => !todo.completed,
     ).length
   ), []);
-
-  const completedTodosLength = useMemo(() => (
-    todos.filter(
-      todo => todo.completed,
-    ).length
-  ), [todos]);
 
   const clearCompletedTodos = useCallback(
     () => {
@@ -175,8 +177,6 @@ export const App: React.FC = () => {
       });
     }, [todos],
   );
-
-  const isAllCompleted = completedTodosLength === todos.length;
 
   const onCloseError = () => (
     setError('')

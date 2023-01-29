@@ -17,12 +17,39 @@ export const TodoItem: React.FC<Props> = ({
   onUpdateTodo = () => {},
 }) => {
   const [isTodoDeleted, setIsTodoDeleted] = useState(false);
+  const [titleQuery, setTitleQuery] = useState(todo.title);
+  const [changingTodoId, setChangingTodoId] = useState(0);
 
   const handleDeletedTodo = () => {
     setIsTodoDeleted(true);
 
     if (onTodoDelete) {
       onTodoDelete(todo.id);
+    }
+  };
+
+  const handeChangeTodoTitle = () => {
+    if (!titleQuery.trim()) {
+      handleDeletedTodo();
+      setChangingTodoId(0);
+
+      return;
+    }
+
+    if (todo.title !== titleQuery) {
+      onUpdateTodo(
+        todo.id,
+        { title: titleQuery },
+      );
+      setChangingTodoId(0);
+    }
+
+    setChangingTodoId(0);
+  };
+
+  const handleCancelChangingTodoTitle = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setChangingTodoId(0);
     }
   };
 
@@ -49,17 +76,38 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={handleDeletedTodo}
-      >
-        ×
-      </button>
+      { changingTodoId === todo.id ? (
+        <form onSubmit={() => handeChangeTodoTitle()}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            value={titleQuery}
+            onChange={(event) => setTitleQuery(event.target.value)}
+            onBlur={() => handeChangeTodoTitle()}
+            onKeyDown={(event) => handleCancelChangingTodoTitle(event)}
+          />
+        </form>
+      )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setChangingTodoId(todo.id)}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={handleDeletedTodo}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       {isLoaderNeeded && <Loader />}
     </div>
