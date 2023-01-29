@@ -137,7 +137,6 @@ export const App: React.FC = () => {
       });
 
       return response;
-      // setTodos((prevTodos) => [...prevTodos, response]);
     } catch {
       showError('Unable to update a todo');
 

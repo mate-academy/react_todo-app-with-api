@@ -20,7 +20,6 @@ export const TodoList: React.FC<Props> = memo(
           <TodoInfo
             todo={todo}
             onDeleteTodo={onDeleteTodo}
-            isNewTodoLoading={isNewTodoLoading}
             onChangeTodoStatus={onChangeTodoStatus}
           />
         ))}
