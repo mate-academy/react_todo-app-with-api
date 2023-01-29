@@ -8,9 +8,9 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { postTodo } from '../../api/todos';
 import { ErrorType } from '../../types/ErrorType';
 import { TempTodo, Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
@@ -56,7 +56,7 @@ export const Header:React.FC<Props> = ({
         completed: false,
       };
 
-      const newTodo = await client.post<Todo>('/todos', todo);
+      const newTodo = await postTodo(todo);
 
       setTodos(current => [...current, newTodo]);
       setNewTitle('');
