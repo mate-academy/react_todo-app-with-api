@@ -22,7 +22,6 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isToggledAll, setIsToggledAll] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [todosToUpdate, setTodosToUpdate] = useState<Todo[]>([]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -195,6 +194,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDeleteTodo={onDeleteTodo}
               isLoading={isLoading}
+              todosToUpdate={todosToUpdate}
               onUpdateTodo={onUpdateTodo}
             />
             {tempTodo && (

@@ -9,6 +9,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => void,
   isLoading:boolean
   onUpdateTodo: (todo: Todo) => void;
+  isUpdating?: boolean;
 };
 
 export const TodoInfo: React.FC <Props> = memo(({
@@ -16,6 +17,7 @@ export const TodoInfo: React.FC <Props> = memo(({
   onDeleteTodo,
   isLoading,
   onUpdateTodo,
+  isUpdating,
 }) => {
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -118,7 +120,7 @@ export const TodoInfo: React.FC <Props> = memo(({
           </>
         )}
 
-      {todo.id === 0 && (
+      {(todo.id === 0 || isUpdating) && (
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
