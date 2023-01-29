@@ -7,16 +7,22 @@ type Props = {
   onDeleteTodo: (todoId: number) => void;
   tempTodo: Todo | null;
   isNewTodoLoading: boolean;
+  onChangeTodoStatus: (todo: Todo) => void;
 };
 
 export const TodoList: React.FC<Props> = memo(
   ({
-    todos, onDeleteTodo, tempTodo, isNewTodoLoading,
+    todos, onDeleteTodo, tempTodo, isNewTodoLoading, onChangeTodoStatus,
   }) => {
     return (
       <section className="todoapp__main" data-cy="TodoList">
         {todos.map((todo) => (
-          <TodoInfo todo={todo} onDeleteTodo={onDeleteTodo} />
+          <TodoInfo
+            todo={todo}
+            onDeleteTodo={onDeleteTodo}
+            isNewTodoLoading={isNewTodoLoading}
+            onChangeTodoStatus={onChangeTodoStatus}
+          />
         ))}
 
         {tempTodo && (
@@ -24,6 +30,7 @@ export const TodoList: React.FC<Props> = memo(
             todo={tempTodo}
             onDeleteTodo={onDeleteTodo}
             isNewTodoLoading={isNewTodoLoading}
+            onChangeTodoStatus={onChangeTodoStatus}
           />
         )}
       </section>

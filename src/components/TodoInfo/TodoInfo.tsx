@@ -6,12 +6,12 @@ type Props = {
   todo: Todo;
   onDeleteTodo: (todoId: number) => void;
   isNewTodoLoading?: boolean;
+  onChangeTodoStatus: (todo: Todo) => void;
 };
 
 export const TodoInfo: React.FC<Props> = memo(
-  ({ todo, onDeleteTodo, isNewTodoLoading }) => {
+  ({ todo, onDeleteTodo, isNewTodoLoading, onChangeTodoStatus }) => {
     const [isLoading, setIsLoading] = useState(false);
-
     const handleDeleteTodo = async (todoId: number) => {
       setIsLoading(true);
 
@@ -33,6 +33,7 @@ export const TodoInfo: React.FC<Props> = memo(
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
+            onClick={() => onChangeTodoStatus(todo)}
             defaultChecked
           />
         </label>

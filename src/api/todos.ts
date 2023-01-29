@@ -13,3 +13,10 @@ export const createTodo
 export const deleteTodoById = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const updateTodoOnServer = (
+  todoId: number,
+  fieldsToUpdate: Partial<Todo>,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, fieldsToUpdate);
+};
