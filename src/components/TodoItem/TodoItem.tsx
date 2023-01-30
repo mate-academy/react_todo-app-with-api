@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/Loader';
@@ -7,16 +7,54 @@ interface Props {
   todo: Todo,
   onDeleteTodo: (todoId: number) => Promise<any>;
   onChangeTodoStatus: (todoId: number, status: boolean) => void;
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Todo>
+  ) => Promise<void>;
+  newTodoField: React.RefObject<HTMLInputElement>;
   isDeleting: boolean,
+  isAdding?: boolean;
 }
 
 export const TodoItem: React.FC<Props> = memo(({
   todo,
   onDeleteTodo,
   onChangeTodoStatus,
+  newTodoField,
   isDeleting,
+  isAdding,
+  onUpdateTodo,
 }) => {
   const isLoading = todo.id === 0 || isDeleting;
+  const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [isTitleChange, setIsTitleChange] = useState(false);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [isTitleChange]);
+
+  const submitEditedTodo = () => {
+    if (!isTitleChange) {
+      onDeleteTodo(todo.id);
+      setIsTitleChange(false);
+
+      return;
+    }
+
+    if (todo.title !== editedTitle) {
+      onUpdateTodo(todo.id, { title: editedTitle });
+    }
+
+    setIsTitleChange(false);
+  };
+
+  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape' && isTitleChange) {
+      setIsTitleChange(false);
+    }
+  };
 
   return (
     <div
@@ -35,18 +73,43 @@ export const TodoItem: React.FC<Props> = memo(({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {!isTitleChange
+        ? (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setIsTitleChange(true)}
+            >
+              {todo.title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDeleteTodo(todo.id)}
-      >
-        ×
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => onDeleteTodo(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )
+        : (
+          <form onSubmit={submitEditedTodo}>
+            <input
+              data-cy="NewTodoField"
+              type="text"
+              ref={newTodoField}
+              className="todo__title-field"
+              placeholder="What needs to be done?"
+              disabled={isAdding}
+              value={editedTitle}
+              onChange={(event) => setEditedTitle(event.target.value)}
+              onBlur={submitEditedTodo}
+              onKeyDown={cancelEditing}
+            />
+          </form>
+        )}
 
       <Loader isLoading={isLoading} />
 

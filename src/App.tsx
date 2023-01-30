@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
   useCallback,
+  useRef,
 } from 'react';
 
 import { AuthContext } from './components/Auth/AuthContext';
@@ -33,6 +34,7 @@ export const App: React.FC = () => {
   const [showError, closeErrorMessage, errorMessages] = useError();
 
   const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -164,6 +166,8 @@ export const App: React.FC = () => {
               onDeleteTodo={deleteTodo}
               onChangeTodoStatus={changeTodoStatus}
               deletingTodoIds={deletingTodoIds}
+              onUpdateTodo={updateTodoFields}
+              newTodoField={newTodoField}
             />
 
             <Footer

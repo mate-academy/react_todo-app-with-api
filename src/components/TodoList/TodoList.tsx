@@ -4,18 +4,25 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
   todos: Todo[],
+  newTodoField: React.RefObject<HTMLInputElement>;
   onDeleteTodo: (todoId: number) => Promise<any>;
   onChangeTodoStatus: (todoId: number, status: boolean) => void;
   tempTodo: Todo | null;
   deletingTodoIds: number[];
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Todo>
+  ) => Promise<void>;
 }
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
+  newTodoField,
   onDeleteTodo,
   onChangeTodoStatus,
   tempTodo,
   deletingTodoIds,
+  onUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,6 +33,8 @@ export const TodoList: React.FC<Props> = memo(({
           onDeleteTodo={onDeleteTodo}
           onChangeTodoStatus={onChangeTodoStatus}
           isDeleting={deletingTodoIds.includes(todo.id)}
+          onUpdateTodo={onUpdateTodo}
+          newTodoField={newTodoField}
         />
       )))}
 
@@ -35,6 +44,8 @@ export const TodoList: React.FC<Props> = memo(({
           onDeleteTodo={onDeleteTodo}
           onChangeTodoStatus={onChangeTodoStatus}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
+          onUpdateTodo={onUpdateTodo}
+          newTodoField={newTodoField}
         />
       )}
     </section>
