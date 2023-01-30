@@ -18,7 +18,7 @@ import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo, TodoCompleteStatus } from './types/Todo';
-import { todoFilteredCompleted, getTodoCompletedId } from './helpers/helpers';
+import { filteredTodos, getTodoCompletedId } from './helpers/helpers';
 
 export const App: React.FC = memo(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -48,8 +48,6 @@ export const App: React.FC = memo(() => {
         .catch(() => showErrorMessage('Failed request for todos'));
     }
   }, []);
-
-  const userId = user ? user.id : 0;
 
   const addTodo = async (todoData: Omit<Todo, 'id'>) => {
     try {
@@ -94,12 +92,16 @@ export const App: React.FC = memo(() => {
   };
 
   const filteredTodosByStatus = useMemo(() => (
-    todoFilteredCompleted(todoFilterComplete, todos)),
+    filteredTodos(todoFilterComplete, todos)),
   [todoFilterComplete, todos]);
 
-  const uncompletedTodos = todos.filter(todo => !todo.completed);
+  const uncompletedTodos = useMemo(
+    () => todos.filter(todo => !todo.completed), [todos],
+  );
 
-  const todoCompletedFiltered = todos.filter(todo => todo.completed);
+  const todoCompletedFiltered = useMemo(
+    () => todos.filter(todo => todo.completed), [todos],
+  );
   const visibleListContent = todos.length !== 0 || temporaryTodo;
 
   const completedTodos = useCallback(() => {
@@ -164,7 +166,6 @@ export const App: React.FC = memo(() => {
         <Header
           onSubmit={addTodo}
           showErrorMessage={showErrorMessage}
-          userId={userId}
           temporaryTodo={temporaryTodo}
           toggleAllTodos={toggleAllTodos}
           visibleTogglerButton={visibleTogglerButton}

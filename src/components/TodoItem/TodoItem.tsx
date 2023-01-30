@@ -1,4 +1,6 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, {
+  memo, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -18,7 +20,7 @@ export const TodoItem: React.FC<Props> = memo(({
   updatingTodoIds,
 }) => {
   const [todoTitleField, setTodoTitleField] = useState(todo.title);
-  const [isEditing, setIsEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const isLoading = todo.id === 0
     || deletingTodoIds.includes(todo.id) || updatingTodoIds.includes(todo.id);
 
