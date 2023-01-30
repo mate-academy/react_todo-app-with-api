@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import React, {
   FormEvent,
   memo,
@@ -13,6 +14,8 @@ type Props = {
   isAddingTodo: boolean;
   onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => void;
   userId?: number;
+  shouldRenderActiveToggle: boolean;
+  handleToggleTodosStatus: () => void;
 };
 
 export const NewTodos: React.FC<Props> = memo((props) => {
@@ -21,6 +24,8 @@ export const NewTodos: React.FC<Props> = memo((props) => {
     showErrorMessage,
     isAddingTodo,
     onAddTodo,
+    shouldRenderActiveToggle,
+    handleToggleTodosStatus,
   } = props;
   const user = useContext(AuthContext);
   const [title, setTitle] = useState('');
@@ -57,7 +62,11 @@ export const NewTodos: React.FC<Props> = memo((props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn(
+          'todoapp__toggle-all',
+          { active: shouldRenderActiveToggle },
+        )}
+        onClick={handleToggleTodosStatus}
       />
 
       <form

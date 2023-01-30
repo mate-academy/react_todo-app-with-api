@@ -99,11 +99,11 @@ export const App: React.FC = () => {
 
   const updateTodo = useCallback(async (
     todoId: number,
-    updateData: Partial<Pick<Todo, 'title' | 'completed'>>
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     setUpdatingTodosIds(prev => {
       if (!prev.includes(todoId)) {
-        return [...prev, todoId]
+        return [...prev, todoId];
       }
 
       return prev;
@@ -115,14 +115,14 @@ export const App: React.FC = () => {
           return todo;
         }
 
-        return Object.assign(todo, updateData)
+        return Object.assign(todo, updateData);
       }));
     } catch {
-      showErrorMessage('Unable to update todo')
+      showErrorMessage('Unable to update todo');
     } finally {
-      setUpdatingTodosIds(prev => prev.
-        filter(id => id !== todoId))
-    };
+      setUpdatingTodosIds(prev => prev
+        .filter(id => id !== todoId));
+    }
   }, [showErrorMessage]);
 
   const incompleteTodos = useMemo(
@@ -139,6 +139,18 @@ export const App: React.FC = () => {
     return getFilterTodos(todos, filterType);
   }, [todos, filterType]);
 
+  const shouldRenderActiveToggle = todos.length === amountOfCompletedTodos;
+
+  const handleToggleTodosStatus = useCallback(() => {
+    const wantedTodoStatus = !shouldRenderActiveToggle;
+
+    todos.forEach(todo => {
+      if (todo.completed !== wantedTodoStatus) {
+        updateTodo(todo.id, { completed: wantedTodoStatus });
+      }
+    });
+  }, [shouldRenderActiveToggle, todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -151,6 +163,8 @@ export const App: React.FC = () => {
           isAddingTodo={isAddingTodo}
           onAddTodo={onAddTodo}
           userId={user?.id}
+          shouldRenderActiveToggle={shouldRenderActiveToggle}
+          handleToggleTodosStatus={handleToggleTodosStatus}
         />
 
         {todos.length > 0 && (

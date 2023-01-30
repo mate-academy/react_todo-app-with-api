@@ -32,8 +32,7 @@ export const TodoList: React.FC<Props> = memo((props) => {
           key={todo.id}
           onRemoveTodo={onRemoveTodo}
           isDeleting={removingTodosIds.includes(todo.id)
-            || updatingTodoIds.includes(todo.id)
-          }
+            || updatingTodoIds.includes(todo.id)}
           updateTodo={updateTodo}
         />
       ))}
