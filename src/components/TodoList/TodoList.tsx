@@ -5,6 +5,7 @@ import { TodoItem } from '../TodoItem/TodoItem';
 interface Props {
   todos: Todo[],
   onDeleteTodo: (todoId: number) => Promise<any>;
+  onChangeTodoStatus: (todoId: number, status: boolean) => void;
   tempTodo: Todo | null;
   deletingTodoIds: number[];
 }
@@ -12,6 +13,7 @@ interface Props {
 export const TodoList: React.FC<Props> = memo(({
   todos,
   onDeleteTodo,
+  onChangeTodoStatus,
   tempTodo,
   deletingTodoIds,
 }) => {
@@ -22,6 +24,7 @@ export const TodoList: React.FC<Props> = memo(({
           todo={todo}
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
+          onChangeTodoStatus={onChangeTodoStatus}
           isDeleting={deletingTodoIds.includes(todo.id)}
         />
       )))}
@@ -30,6 +33,7 @@ export const TodoList: React.FC<Props> = memo(({
         <TodoItem
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
+          onChangeTodoStatus={onChangeTodoStatus}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
         />
       )}

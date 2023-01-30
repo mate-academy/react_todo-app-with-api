@@ -26,7 +26,8 @@ export const App: React.FC = () => {
   const [completedFilter, setCompletedFilter] = useState(CompletedFilter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
-  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);// eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const [showError, closeErrorMessage, errorMessages] = useError();
 
@@ -75,6 +76,25 @@ export const App: React.FC = () => {
     }
   }, [showError]);
 
+  const changeTodoStatus = useCallback(async (
+    todoId: number, status: boolean,
+  ) => {
+    setSelectedTodoIds([todoId]);
+
+    try {
+      await todoApi.updateTodo(todoId, { completed: status });
+      setTodos(prev => prev.map(todo => (
+        todo.id === todoId
+          ? { ...todo, completed: status }
+          : todo
+      )));
+    } catch {
+      showError('Unable to update todo status');
+    } finally {
+      setSelectedTodoIds([]);
+    }
+  }, []);
+
   const deleteCompletedTodos = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
 
@@ -108,6 +128,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               tempTodo={tempTodo}
               onDeleteTodo={deleteTodo}
+              onChangeTodoStatus={changeTodoStatus}
               deletingTodoIds={deletingTodoIds}
             />
 

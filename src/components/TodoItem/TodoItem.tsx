@@ -6,12 +6,14 @@ import { Loader } from '../Loader/Loader';
 interface Props {
   todo: Todo,
   onDeleteTodo: (todoId: number) => Promise<any>;
+  onChangeTodoStatus: (todoId: number, status: boolean) => void;
   isDeleting: boolean,
 }
 
 export const TodoItem: React.FC<Props> = memo(({
   todo,
   onDeleteTodo,
+  onChangeTodoStatus,
   isDeleting,
 }) => {
   const isLoading = todo.id === 0 || isDeleting;
@@ -29,6 +31,7 @@ export const TodoItem: React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onClick={() => onChangeTodoStatus(todo.id, !todo.completed)}
         />
       </label>
 

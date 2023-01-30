@@ -13,8 +13,16 @@ const createTodo = (fieldsToCreate: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', fieldsToCreate);
 };
 
+const updateTodo = (
+  todoId: number,
+  fieldsToUpdate: Partial<Todo>,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, fieldsToUpdate);
+};
+
 export const todoApi = {
   getTodos,
   createTodo,
   deleteTodo,
+  updateTodo,
 };
