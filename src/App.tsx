@@ -18,6 +18,7 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterStatus } from './types/FilterStatus';
+import { ErrorMessage } from './types/ErrorMessage';
 import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
@@ -54,6 +55,7 @@ export const App: React.FC = () => {
         case FilterStatus.Completed:
           return todo.completed;
 
+        case FilterStatus.All:
         default:
           return todo;
       }
@@ -64,7 +66,7 @@ export const App: React.FC = () => {
     if (user) {
       getTodos(user.id)
         .then(setTodos)
-        .catch(() => setErrorMessage('Something went wrong'));
+        .catch(() => setErrorMessage(ErrorMessage.UnableToLoad));
     }
   }, []);
 
@@ -73,7 +75,7 @@ export const App: React.FC = () => {
       event.preventDefault();
 
       if (!title.trim()) {
-        setErrorMessage('Title can\'t be empty');
+        setErrorMessage(ErrorMessage.TitleCantBeEmpty);
 
         return;
       }
@@ -100,7 +102,7 @@ export const App: React.FC = () => {
 
             setTodos(currentTodos => [...currentTodos, newTodo]);
           } catch (error) {
-            setErrorMessage('Unable to add a todo');
+            setErrorMessage(ErrorMessage.UnableToAdd);
           } finally {
             setIsAdding(false);
             setTempTodo(null);
@@ -120,7 +122,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(ErrorMessage.UnableToDelete);
     } finally {
       setSelectedTodoIds([]);
     }
@@ -146,7 +148,7 @@ export const App: React.FC = () => {
             : todo
         )));
       } catch {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorMessage.UnableToUpdate);
       } finally {
         setSelectedTodoIds([]);
       }
@@ -169,7 +171,7 @@ export const App: React.FC = () => {
           { ...todo, completed: !isEachTodoCompleted }
         )));
       } catch {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorMessage.UnableToUpdate);
       } finally {
         setSelectedTodoIds([]);
       }
@@ -193,7 +195,7 @@ export const App: React.FC = () => {
           : todo
       )));
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.UnableToUpdate);
     } finally {
       setSelectedTodoIds([]);
     }
@@ -252,7 +254,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         error={errorMessage}
-        onClosingErrorMessage={setErrorMessage}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );
