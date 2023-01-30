@@ -31,6 +31,8 @@ export const useTodoStore = (initial: InitialState) => {
   const isAllTodosCompleted = todos
     .filter(todo => todo.completed).length === todos.length;
 
+  const isATodoCompeleted = todos.some(todo => todo.completed);
+
   const user = useContext(AuthContext);
 
   const setError: SetError = (err = false, msg = ErrorMessage.NoError) => {
@@ -99,6 +101,26 @@ export const useTodoStore = (initial: InitialState) => {
     });
   };
 
+  const completeTodo = (id: number) => {
+    const updatedTodo = todos.find(todo => todo.id === id) as Todo;
+    const todoIndex = todos.findIndex(todo => todo.id === id);
+
+    return updateSingleTodo(
+      id,
+      {
+        ...updatedTodo,
+        completed: true,
+      },
+      setIsUpdating,
+    ).then(res => {
+      return setTodos(prev => [
+        ...prev.slice(0, todoIndex),
+        res || updatedTodo,
+        ...prev.slice(todoIndex + 1),
+      ]);
+    });
+  };
+
   const toggleAllTodos = useCallback(() => {
     setIsTogglingAll(true);
     const toggledTodos = todos.map(todo => ({
@@ -108,6 +130,19 @@ export const useTodoStore = (initial: InitialState) => {
 
     toggledTodos.map(todo => {
       return toggleTodo(todo.id).then(() => setIsTogglingAll(false));
+    });
+  }, [todos]);
+
+
+  const completeAllTodos = useCallback(() => {
+    setIsTogglingAll(true);
+    const completedTodos = todos.map(todo => ({
+      ...todo,
+      completed: true,
+    }));
+
+    completedTodos.map(todo => {
+      return completeTodo(todo.id).then(() => setIsTogglingAll(false));
     });
   }, [todos]);
 
@@ -188,6 +223,8 @@ export const useTodoStore = (initial: InitialState) => {
     toggleAllTodos,
     isUpdating,
     isAllTodosCompleted,
+    isATodoCompeleted,
     isTogglingAll,
+    completeAllTodos,
   };
 };

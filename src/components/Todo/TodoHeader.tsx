@@ -25,6 +25,8 @@ export const TodoHeader = () => {
     setError,
     addTempTodo,
     isAllTodosCompleted,
+    isATodoCompeleted,
+    completeAllTodos,
     toggleAllTodos,
   } = useTodoContext();
 
@@ -60,11 +62,15 @@ export const TodoHeader = () => {
   };
 
   const toggleAll = () => {
-    if (!isAllTodosCompleted) {
+    if (isAllTodosCompleted) {
+      toggleAllTodos();
+
       return;
     }
 
-    toggleAllTodos();
+    if (isATodoCompeleted) {
+      completeAllTodos();
+    }
   };
 
   useEffect(() => {
