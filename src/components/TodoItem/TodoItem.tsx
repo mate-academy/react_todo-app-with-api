@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   removeTodo: (id: number) => void;
-  updateTodo: (id: number) => void;
+  updateTodo: (id: number, field: Partial<Todo>) => void;
   areAllUpdating: boolean;
 };
 
@@ -18,14 +18,51 @@ export const TodoItem: React.FC<Props> = ({
   const { id, completed, title } = todo;
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRenamingField, setShowRenamingField] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
+  const newTitleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (newTitleField.current) {
+      newTitleField.current.focus();
+    }
+  }, [showRenamingField]);
 
   useEffect(() => {
     setIsLoading(false);
   }, [todo]);
 
-  const handleTodoUpdate = (todoId: number) => {
+  const handleDeletingTodo = (todoId: number) => {
+    removeTodo(todoId);
+    setIsDeleting(todoId);
+  };
+
+  const handleTodoUpdate = (todoId: number, todoField: Partial<Todo>) => {
     setIsLoading(true);
-    updateTodo(todoId);
+    updateTodo(todoId, todoField);
+  };
+
+  const handleNewTitleSubmit = () => {
+    setShowRenamingField(false);
+
+    const trimmedNewTitle = newTitle.trim();
+
+    if (trimmedNewTitle === '') {
+      handleDeletingTodo(id);
+
+      return;
+    }
+
+    if (title !== newTitle) {
+      handleTodoUpdate(id, { title: trimmedNewTitle });
+    }
+  };
+
+  const cancelRenaming = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setShowRenamingField(false);
+    }
   };
 
   return (
@@ -39,25 +76,48 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => handleTodoUpdate(id)}
+          onClick={() => handleTodoUpdate(id, { completed: !completed })}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        { title }
-      </span>
+      {(
+        showRenamingField
+          ? (
+            <form onSubmit={handleNewTitleSubmit}>
+              <input
+                data-cy="TodoTitleField"
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                value={newTitle}
+                onChange={event => setNewTitle(event.target.value)}
+                onBlur={handleNewTitleSubmit}
+                onKeyDown={cancelRenaming}
+                ref={newTitleField}
+              />
+            </form>
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setShowRenamingField(true)}
+              >
+                { title }
+              </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => {
-          removeTodo(id);
-          setIsDeleting(id);
-        }}
-      >
-        ×
-      </button>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => handleDeletingTodo(id)}
+              >
+                ×
+              </button>
+            </>
+          )
+      )}
 
       <div
         data-cy="TodoLoader"

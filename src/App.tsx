@@ -100,18 +100,18 @@ export const App: React.FC = () => {
     });
   }, [todos]);
 
-  const updateTodoStatus = useCallback((todoId: number) => {
+  const updateTodoStatus = useCallback((
+    todoId: number,
+    todoField: Partial<Todo>,
+  ) => {
     setErrorMessage('');
-    const todoToUpdate = todos.find(todo => todo.id === todoId);
-    const newCompletedValue = !todoToUpdate?.completed;
-
-    updateTodo(todoId, { completed: newCompletedValue })
+    updateTodo(todoId, todoField)
       .then(() => {
         setAreAllUpdating(false);
 
         setTodos(currentTodos => currentTodos.map(todo => (
           todo.id === todoId
-            ? { ...todo, completed: newCompletedValue }
+            ? { ...todo, ...todoField }
             : todo
         )));
       })
@@ -129,7 +129,7 @@ export const App: React.FC = () => {
 
     if (allTodosCompleted) {
       todos.forEach(todo => {
-        updateTodoStatus(todo.id);
+        updateTodoStatus(todo.id, { completed: false });
       });
 
       return;
@@ -138,7 +138,7 @@ export const App: React.FC = () => {
     todos.forEach(todo => (
       todo.completed
         ? todo
-        : updateTodoStatus(todo.id)
+        : updateTodoStatus(todo.id, { completed: true })
     ));
   }, [todos]);
 

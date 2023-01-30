@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   removeTodo: (id: number) => void;
-  updateTodo: (id: number) => void;
+  updateTodo: (id: number, field: Partial<Todo>) => void;
   areAllUpdating: boolean;
 };
 
