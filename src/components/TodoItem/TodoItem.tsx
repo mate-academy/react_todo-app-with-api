@@ -32,21 +32,25 @@ export const TodoItem: FC<Props> = memo(({
   ) => {
     event.preventDefault();
 
-    if (tempTitle === title) {
+    const trimmedTempTitle = tempTitle.trim();
+
+    if (trimmedTempTitle === title) {
+      setTempTitle(trimmedTempTitle);
       setIsEditing(false);
 
       return;
     }
 
-    if (tempTitle) {
+    if (trimmedTempTitle) {
       onUpdate({
         ...todo,
-        title: tempTitle,
+        title: trimmedTempTitle,
       });
     } else {
       onDelete(id);
     }
 
+    setTempTitle(trimmedTempTitle);
     setIsEditing(false);
   };
 

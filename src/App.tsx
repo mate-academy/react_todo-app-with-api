@@ -39,7 +39,8 @@ export const App: React.FC = memo(() => {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newTodoTitle) {
+    if (!newTodoTitle.trim()) {
+      setNewTodoTitle('');
       showErrorMessage("Title can't be empty");
 
       return;
@@ -48,7 +49,7 @@ export const App: React.FC = memo(() => {
     if (user) {
       const newTodo = {
         userId: user.id,
-        title: newTodoTitle,
+        title: newTodoTitle.trim(),
         completed: false,
       };
 
