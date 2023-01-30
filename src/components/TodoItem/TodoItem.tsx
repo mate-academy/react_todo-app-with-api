@@ -5,12 +5,13 @@ import { Loader } from '../Loader/Loader';
 
 interface Props {
   todo: Todo,
-  onDeleteTodo: (todoId: number) => Promise<any>;
+  deleteTodo: (todoId: number) => Promise<void>;
   onChangeTodoStatus: (todoId: number, status: boolean) => void;
   onUpdateTodo: (
     todoId: number,
-    fieldsToUpdate: Partial<Todo>
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>;
+
   newTodoField: React.RefObject<HTMLInputElement>;
   isDeleting: boolean,
   isAdding?: boolean;
@@ -18,12 +19,12 @@ interface Props {
 
 export const TodoItem: React.FC<Props> = memo(({
   todo,
-  onDeleteTodo,
+  deleteTodo,
   onChangeTodoStatus,
+  onUpdateTodo,
   newTodoField,
   isDeleting,
   isAdding,
-  onUpdateTodo,
 }) => {
   const isLoading = todo.id === 0 || isDeleting;
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -37,7 +38,7 @@ export const TodoItem: React.FC<Props> = memo(({
 
   const submitEditedTodo = () => {
     if (!isTitleChange) {
-      onDeleteTodo(todo.id);
+      deleteTodo(todo.id);
       setIsTitleChange(false);
 
       return;
@@ -88,7 +89,7 @@ export const TodoItem: React.FC<Props> = memo(({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onDeleteTodo(todo.id)}
+              onClick={() => deleteTodo(todo.id)}
             >
               ×
             </button>

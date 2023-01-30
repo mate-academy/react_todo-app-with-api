@@ -15,7 +15,7 @@ const createTodo = (fieldsToCreate: Omit<Todo, 'id'>) => {
 
 const updateTodo = (
   todoId: number,
-  fieldsToUpdate: Partial<Todo>,
+  fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
 ) => {
   return client.patch<Todo>(`/todos/${todoId}`, fieldsToUpdate);
 };

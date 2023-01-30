@@ -99,7 +99,7 @@ export const App: React.FC = () => {
 
   const updateTodoFields = useCallback(async (
     todoId: number,
-    fieldsToUpdate: Partial<Todo>,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     try {
       const updatedTodo = await todoApi.updateTodo(todoId, fieldsToUpdate);
@@ -162,10 +162,10 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
-              onDeleteTodo={deleteTodo}
-              onChangeTodoStatus={changeTodoStatus}
+              deleteTodo={deleteTodo}
+              changeTodoStatus={changeTodoStatus}
               deletingTodoIds={deletingTodoIds}
-              onUpdateTodo={updateTodoFields}
+              updateTodoFields={updateTodoFields}
               newTodoField={newTodoField}
             />
 

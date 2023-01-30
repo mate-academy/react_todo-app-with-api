@@ -11,21 +11,20 @@ import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 interface Props {
-  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>;
-  isAddingTodo: boolean,
+  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>;
   showError: (message: string) => void;
   onChangeAllTodos: () => void;
   isAllTodosCompleted: boolean;
+  isAddingTodo: boolean,
 }
 
-export const Header: React.FC<Props> = memo((props) => {
-  const {
-    showError,
-    isAddingTodo,
-    onAddTodo,
-    onChangeAllTodos,
-    isAllTodosCompleted,
-  } = props;
+export const Header: React.FC<Props> = memo(({
+  onAddTodo,
+  showError,
+  onChangeAllTodos,
+  isAllTodosCompleted,
+  isAddingTodo,
+}) => {
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 

@@ -4,25 +4,26 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
   todos: Todo[],
-  newTodoField: React.RefObject<HTMLInputElement>;
-  onDeleteTodo: (todoId: number) => Promise<any>;
-  onChangeTodoStatus: (todoId: number, status: boolean) => void;
   tempTodo: Todo | null;
+  newTodoField: React.RefObject<HTMLInputElement>;
   deletingTodoIds: number[];
-  onUpdateTodo: (
+
+  deleteTodo: (todoId: number) => Promise<void>;
+  changeTodoStatus: (todoId: number, status: boolean) => void;
+  updateTodoFields: (
     todoId: number,
-    fieldsToUpdate: Partial<Todo>
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>;
 }
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
-  newTodoField,
-  onDeleteTodo,
-  onChangeTodoStatus,
   tempTodo,
+  newTodoField,
   deletingTodoIds,
-  onUpdateTodo,
+  deleteTodo,
+  changeTodoStatus,
+  updateTodoFields,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -30,10 +31,10 @@ export const TodoList: React.FC<Props> = memo(({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onDeleteTodo={onDeleteTodo}
-          onChangeTodoStatus={onChangeTodoStatus}
+          deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(todo.id)}
-          onUpdateTodo={onUpdateTodo}
+          onChangeTodoStatus={changeTodoStatus}
+          onUpdateTodo={updateTodoFields}
           newTodoField={newTodoField}
         />
       )))}
@@ -41,10 +42,10 @@ export const TodoList: React.FC<Props> = memo(({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          onDeleteTodo={onDeleteTodo}
-          onChangeTodoStatus={onChangeTodoStatus}
+          deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
-          onUpdateTodo={onUpdateTodo}
+          onChangeTodoStatus={changeTodoStatus}
+          onUpdateTodo={updateTodoFields}
           newTodoField={newTodoField}
         />
       )}
