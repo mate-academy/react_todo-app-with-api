@@ -9,13 +9,6 @@ export const addTodo = (fieldsToCreate: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', fieldsToCreate);
 };
 
-export const createTodo = (
-  title: string,
-  userId: number,
-) => {
-  return client.post<Todo>('/todos', { title, userId });
-};
-
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
