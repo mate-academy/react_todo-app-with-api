@@ -12,7 +12,7 @@ import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoInfo } from './components/TodoInfo/TodoInfo';
 import { TodoList } from './components/TodoList/TodoList';
-import { FilterTypes } from './types/Enums';
+import { ErrorTypes, FilterTypes } from './types/Enums';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
@@ -27,6 +27,18 @@ export const App: React.FC = () => {
 
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      getTodos(user.id)
+        .then(setTodos)
+        .catch(() => (setErrorMessage(ErrorTypes.UnableToLoad)));
+    }
+
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [user]);
 
   const handleButtonClickAll = () => {
     setFilterType(FilterTypes.All);
@@ -43,8 +55,8 @@ export const App: React.FC = () => {
   const onSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!todoTitle) {
-      setErrorMessage('Title can not be empty');
+    if (!todoTitle.trim()) {
+      setErrorMessage(ErrorTypes.EmptyTitle);
 
       return;
     }
@@ -67,7 +79,7 @@ export const App: React.FC = () => {
             userId: response.userId,
           }]);
         })
-        .catch(() => setErrorMessage('Unable to add a todo'))
+        .catch(() => setErrorMessage(ErrorTypes.UnableToAdd))
         .finally(() => {
           setIsLoading(false);
           setTempTodo(null);
@@ -83,12 +95,12 @@ export const App: React.FC = () => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id))
       ))
       .catch(() => {
-        setErrorMessage('Impossible to delete todo');
+        setErrorMessage(ErrorTypes.UnableToDelete);
       });
     setIsLoading(false);
   }, []);
 
-  const onClickClearCompleted = () => {
+  const clearCompleated = () => {
     todos.forEach(todo => {
       if (todo.completed) {
         onDeleteTodo(todo.id);
@@ -113,7 +125,7 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorTypes.UnableToUpdate);
       })
       .finally(() => {
         setTodosToUpdate([]);
@@ -147,6 +159,9 @@ export const App: React.FC = () => {
       case FilterTypes.COMPLETED:
         return todos.filter(todo => todo.completed);
 
+      case FilterTypes.All:
+        return todos;
+
       default:
         return todos;
     }
@@ -161,18 +176,6 @@ export const App: React.FC = () => {
   const todosLeft = visibleTodos.filter(todo => !todo.completed);
   const todosCompleted = visibleTodos.filter(todo => todo.completed).length;
   const toggledAlltodos = visibleTodos.every(todo => todo.completed);
-
-  useEffect(() => {
-    if (user) {
-      getTodos(user.id)
-        .then(setTodos)
-        .catch(() => (setErrorMessage('Unable to load a todos')));
-    }
-
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [user]);
 
   return (
     <div className="todoapp">
@@ -193,7 +196,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               onDeleteTodo={onDeleteTodo}
-              isLoading={isLoading}
+              isLoading={false}
               onUpdateTodo={onUpdateTodo}
               todosToUpdate={todosToUpdate}
             />
@@ -204,7 +207,7 @@ export const App: React.FC = () => {
                 isLoading={isLoading}
                 onDeleteTodo={onDeleteTodo}
                 onUpdateTodo={onUpdateTodo}
-                todosToUpdate={todosToUpdate}
+                isUpdating={false}
               />
             )}
 
@@ -215,7 +218,7 @@ export const App: React.FC = () => {
               handleButtonClickActive={handleButtonClickActive}
               handleButtonClickCompleted={handleButtonClickCompleted}
               todosCompleted={todosCompleted}
-              onClickClearCompleted={onClickClearCompleted}
+              clearCompleated={clearCompleated}
             />
           </>
         )}

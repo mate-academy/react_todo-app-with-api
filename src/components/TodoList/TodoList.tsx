@@ -17,6 +17,8 @@ export const TodoList: React.FC<Props> = memo(({
   onUpdateTodo,
   todosToUpdate,
 }) => {
+  const todosIdToUpdate = todosToUpdate.map(todo => todo.id);
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
@@ -26,7 +28,7 @@ export const TodoList: React.FC<Props> = memo(({
           onDeleteTodo={onDeleteTodo}
           isLoading={isLoading}
           onUpdateTodo={onUpdateTodo}
-          todosToUpdate={todosToUpdate}
+          isUpdating={todosIdToUpdate.includes(todo.id)}
         />
       ))}
     </section>

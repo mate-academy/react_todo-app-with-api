@@ -10,7 +10,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => void,
   isLoading: boolean,
   onUpdateTodo: (todo: Todo) => void,
-  todosToUpdate: Todo[],
+  isUpdating: boolean
 };
 
 export const TodoInfo: React.FC <Props> = memo(({
@@ -18,7 +18,7 @@ export const TodoInfo: React.FC <Props> = memo(({
   onDeleteTodo,
   isLoading,
   onUpdateTodo,
-  todosToUpdate,
+  isUpdating,
 }) => {
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -67,7 +67,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     setIsEditing(false);
   };
 
-  const isLoaderNeeded = todo.id === 0 || todosToUpdate.includes(todo);
+  const isLoaderNeeded = todo.id === 0 || isUpdating;
 
   return (
     <div
@@ -82,7 +82,7 @@ export const TodoInfo: React.FC <Props> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onChange={() => onUpdateTodo(todo)}
+          onChange={() => onUpdateTodo({ ...todo, completed: !todo.completed })}
         />
       </label>
 
