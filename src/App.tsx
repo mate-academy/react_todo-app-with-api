@@ -130,6 +130,16 @@ export const App: React.FC = () => {
 
   const shouldRenderActiveToggle = todos.length === completedTodosAmount;
 
+  const handleToogleTodoStatus = useCallback(() => {
+    const todoStatusUWant = shouldRenderActiveToggle;
+
+    todos.forEach(todo => {
+      if (todo.completed !== todoStatusUWant) {
+        updateTodo(todo.id, { completed: todoStatusUWant });
+      }
+    });
+  }, [shouldRenderActiveToggle, todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -141,6 +151,7 @@ export const App: React.FC = () => {
           isAddingTodo={isAddingTodo}
           onAddTodo={onAddTodo}
           shouldRenderActiveToggle={shouldRenderActiveToggle}
+          handleToogleTodoStatus={handleToogleTodoStatus}
         />
         {todos.length > 0 && (
           <>
