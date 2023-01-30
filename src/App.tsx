@@ -35,9 +35,9 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [complitedFilter, setComplitedFilter] = useState(FilterType.ALL);
-  const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isNewTodoLoading, setIsNewTodoLoading] = useState(false);
+  const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -68,20 +68,28 @@ export const App: React.FC = () => {
 
   const deleteTodo = useCallback(async (todoId: number) => {
     try {
-      const respondResult = await deleteTodoById(todoId);
+      const deleteResponse = await deleteTodoById(todoId);
 
       setTodos(prevTodos => (
         prevTodos.filter(todo => todo.id !== todoId)
       ));
 
-      return respondResult;
+      return deleteResponse;
     } catch (deleteError) {
       return setErrorMessage('Unable to delete a todo');
     }
   }, []);
 
+  const clearCompletedTodos = useCallback(() => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+      }
+    });
+  }, [todos]);
+
   const addTodo = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.FormEvent<HTMLFormElement>, title: string) => {
       event.preventDefault();
 
       try {
@@ -114,7 +122,7 @@ export const App: React.FC = () => {
       } catch (addTodoError) {
         setErrorMessage('Unable to add a todo');
       }
-    }, [todos, user, title],
+    }, [todos, user],
   );
 
   const toggleTodoStatus = useCallback(async (
@@ -122,7 +130,7 @@ export const App: React.FC = () => {
     updatedTodoStatus: boolean,
   ) => {
     try {
-      const updatedTodo = await updateTodoById(
+      const updateResponse = await updateTodoById(
         { completed: updatedTodoStatus }, todoId,
       );
 
@@ -134,18 +142,61 @@ export const App: React.FC = () => {
         })
       ));
 
-      return updatedTodo;
+      return updateResponse;
     } catch (updateError) {
       return setErrorMessage('Unable to update a todo');
     }
   }, [todos, user]);
 
-  const clearCompletedTodos = useCallback(() => {
-    todos.forEach(todo => {
-      if (todo.completed) {
-        deleteTodo(todo.id);
-      }
-    });
+  const toggleAllTodos = useCallback(async () => {
+    const isAllTodoCompleted = todos.every(todo => todo.completed);
+
+    const updatingTodosIds = todos
+      .filter(todo => (
+        todo.completed === isAllTodoCompleted
+      ))
+      .map(todo => todo.id);
+
+    setUpdatingTodos(updatingTodosIds);
+
+    try {
+      const updatedResponse = await Promise.all(todos.map(todo => (
+        updateTodoById({ completed: !isAllTodoCompleted }, todo.id)
+      )));
+
+      setTodos(prevTodos => (prevTodos.map(todo => {
+        return isAllTodoCompleted
+          ? { ...todo, completed: false }
+          : { ...todo, completed: true };
+      })));
+
+      return updatedResponse;
+    } catch (toggleAllError) {
+      return setErrorMessage('Unable to update todos');
+    } finally {
+      setUpdatingTodos([]);
+    }
+  }, [todos]);
+
+  const updateTodoTitle = useCallback(async (
+    todoId: number,
+    newTitle: string,
+  ) => {
+    try {
+      const updatedResponse = await updateTodoById({ title: newTitle }, todoId);
+
+      setTodos(prevTodos => (
+        prevTodos.map(todo => {
+          return todo.id === todoId
+            ? { ...todo, title: newTitle }
+            : todo;
+        })
+      ));
+
+      return updatedResponse;
+    } catch (updateError) {
+      return setErrorMessage('Unable to update todos');
+    }
   }, [todos]);
 
   return (
@@ -156,18 +207,20 @@ export const App: React.FC = () => {
         <Header
           newTodoField={newTodoField}
           addTodo={addTodo}
-          title={title}
-          setTitle={setTitle}
           isNewTodoLoading={isNewTodoLoading}
+          toggleAllTodos={toggleAllTodos}
         />
-        {todos.length > 0 && (
+        {(todos.length > 0 || tempTodo) && (
           <>
             <TodoList
+              newTodoField={newTodoField}
               todos={visibleTodos}
               deleteTodo={deleteTodo}
               tempTodo={tempTodo}
               isNewTodoLoading={isNewTodoLoading}
               toggleTodoStatus={toggleTodoStatus}
+              updatingTodos={updatingTodos}
+              updateTodoTitle={updateTodoTitle}
             />
             <Footer
               uncompletedTodosLength={uncompletedTodosLength}

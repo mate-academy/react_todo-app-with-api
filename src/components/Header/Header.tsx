@@ -1,23 +1,26 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 // import { Todo } from '../../types/Todo';
 
 interface Props {
   newTodoField: React.RefObject<HTMLInputElement>,
-  addTodo: (event: React.FormEvent<HTMLFormElement>) => Promise<void>,
-  title: string,
-  setTitle: (title: string) => void,
+  addTodo: (
+    event: React.FormEvent<HTMLFormElement>,
+    title: string
+  ) => Promise<void>,
   isNewTodoLoading: boolean,
+  toggleAllTodos: () => void,
 }
 
 export const Header: React.FC<Props> = memo(({
   newTodoField,
   addTodo,
-  title,
-  setTitle,
   isNewTodoLoading,
+  toggleAllTodos,
 }) => {
+  const [title, setTitle] = useState('');
+
   const handleAddTodo = async (event: React.FormEvent<HTMLFormElement>) => {
-    await addTodo(event);
+    await addTodo(event, title);
 
     setTitle('');
   };
@@ -29,6 +32,7 @@ export const Header: React.FC<Props> = memo(({
         data-cy="ToggleAllButton"
         type="button"
         className="todoapp__toggle-all active"
+        onClick={toggleAllTodos}
       />
 
       <form onSubmit={(event) => handleAddTodo(event)}>
