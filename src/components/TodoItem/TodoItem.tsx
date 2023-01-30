@@ -98,10 +98,10 @@ export const TodoItem: React.FC<Props> = memo((props) => {
         : (
           <form onSubmit={submitEditedTodo}>
             <input
-              data-cy="NewTodoField"
+              data-cy="TodoTitleField"
               type="text"
               ref={newTodoField}
-              className="todoapp__new-todo"
+              className="todo__title-field"
               placeholder="What needs to be done?"
               disabled={isAdding}
               value={editedTitle}
