@@ -28,8 +28,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
+  const [, setSelectedTodoIds] = useState<number[]>([]);
 
   const [showError, closeErrorMessage, errorMessages] = useError();
 
