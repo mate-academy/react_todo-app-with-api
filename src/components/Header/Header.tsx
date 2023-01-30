@@ -9,6 +9,7 @@ type HeaderProps = {
   isAddingTodo: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>
+  shouldRenderActiveToggle: boolean
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   showError,
   isAddingTodo,
   onAddTodo,
+  shouldRenderActiveToggle,
 }) => {
   const [title, setTitle] = useState('');
   const user = useContext(AuthContext);
@@ -58,7 +60,9 @@ export const Header: React.FC<HeaderProps> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className={cn('todoapp__toggle-all', { active: true })}
+        className={cn('todoapp__toggle-all', {
+          active: shouldRenderActiveToggle,
+        })}
       />
 
       <form onSubmit={onSubmitForm}>

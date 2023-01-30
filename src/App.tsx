@@ -124,6 +124,12 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const completedTodosAmount = useMemo(() => {
+    return visibleTodos.filter(todo => todo.completed).length;
+  }, [visibleTodos]);
+
+  const shouldRenderActiveToggle = todos.length === completedTodosAmount;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -134,6 +140,7 @@ export const App: React.FC = () => {
           showError={() => setError('Title is required')}
           isAddingTodo={isAddingTodo}
           onAddTodo={onAddTodo}
+          shouldRenderActiveToggle={shouldRenderActiveToggle}
         />
         {todos.length > 0 && (
           <>
