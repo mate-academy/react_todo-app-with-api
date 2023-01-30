@@ -186,6 +186,7 @@ export const App: React.FC = () => {
           showError={showError}
           onAddTodo={onAddTodo}
           toggleAll={toggleAll}
+          isToggleAll={isToggleAll}
         />
 
         {todos.length > 0 && (

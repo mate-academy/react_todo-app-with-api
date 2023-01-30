@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
@@ -12,6 +13,7 @@ type Props = {
   showError: (message: string) => void,
   onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>;
   toggleAll: () => void;
+  isToggleAll: boolean,
 };
 
 export const Header: FC<Props> = memo((props) => {
@@ -20,6 +22,7 @@ export const Header: FC<Props> = memo((props) => {
     showError,
     toggleAll,
     isAddingTodo,
+    isToggleAll,
   } = props;
 
   const user = useContext(AuthContext);
@@ -64,7 +67,8 @@ export const Header: FC<Props> = memo((props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all',
+          { active: isToggleAll })}
         onClick={toggleAll}
       />
 
