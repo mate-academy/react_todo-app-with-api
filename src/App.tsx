@@ -146,7 +146,7 @@ export const App: React.FC = () => {
     } catch (updateError) {
       return setErrorMessage('Unable to update a todo');
     }
-  }, [todos, user]);
+  }, [todos]);
 
   const toggleAllTodos = useCallback(async () => {
     const isAllTodoCompleted = todos.every(todo => todo.completed);

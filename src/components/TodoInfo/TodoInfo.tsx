@@ -26,7 +26,7 @@ export const TodoInfo:React.FC<Props> = memo(({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
-  const [title, setTitle] = useState(todo.title);
+  const [editedTitle, setEditedTitle] = useState(todo.title);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -40,17 +40,23 @@ export const TodoInfo:React.FC<Props> = memo(({
     setIsLoading(false);
   };
 
+  const handleToggleTodo = async () => {
+    setIsLoading(true);
+    await toggleTodoStatus(todo.id, !todo.completed);
+    setIsLoading(false);
+  };
+
   const handleUpdateTodo = async () => {
     setIsTitleEditing(false);
-    if (!title) {
+    if (!editedTitle) {
       handleDeleteTodo();
 
       return;
     }
 
-    if (title !== todo.title) {
+    if (editedTitle !== todo.title) {
       setIsLoading(true);
-      await updateTodoTitle(todo.id, title);
+      await updateTodoTitle(todo.id, editedTitle);
       setIsLoading(false);
     }
   };
@@ -79,7 +85,7 @@ export const TodoInfo:React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => toggleTodoStatus(todo.id, !todo.completed)}
+          onChange={handleToggleTodo}
         />
       </label>
 
@@ -97,8 +103,8 @@ export const TodoInfo:React.FC<Props> = memo(({
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              value={editedTitle}
+              onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={() => handleUpdateTodo()}
               onKeyDown={(event) => handleCancelEditing(event)}
             />
