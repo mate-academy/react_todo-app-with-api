@@ -44,7 +44,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const loadTodos = useCallback(async () => {
+  const loadTodos = async () => {
     if (!user) {
       return;
     }
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Something went wrong while loading todos');
     }
-  }, []);
+  };
 
   useEffect(() => {
     loadTodos();
@@ -239,11 +239,11 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               tempTodo={tempTodo}
               isDeleting={isDeleting}
-              deleteTodo={removeTodo}
-              selectedTodoIds={selectedTodoIds}
               isTodoUpdating={isTodoUpdating}
               newTodoField={newTodoField}
+              selectedTodoIds={selectedTodoIds}
               updateTodo={editTodo}
+              deleteTodo={removeTodo}
             />
 
             <Footer
