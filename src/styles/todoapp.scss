@@ -130,4 +130,7 @@
       text-decoration: none;
     }
   }
+  &__hidden {
+    visibility: hidden;
+  }
 }
