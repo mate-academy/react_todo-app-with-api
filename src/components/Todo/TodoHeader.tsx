@@ -72,7 +72,7 @@ export const TodoHeader = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [newTodo]);
 
   return (
     <header className="todoapp__header">
