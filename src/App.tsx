@@ -26,7 +26,8 @@ export const App: React.FC = () => {
   const [completedFilter, setCompletedFilter] = useState(CompletedFilter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
-  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);// eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const [showError, closeErrorMessage, errorMessages] = useError();
@@ -95,6 +96,37 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const updateTodoFields = useCallback(async (
+    todoId: number,
+    fieldsToUpdate: Partial<Todo>,
+  ) => {
+    try {
+      const updatedTodo = await todoApi.updateTodo(todoId, fieldsToUpdate);
+
+      setTodos((current) => current.map(todo => (
+        todo.id === updatedTodo.id
+          ? updatedTodo
+          : todo
+      )));
+    } catch {
+      showError('Unable to update todo');
+    }
+  }, []);
+
+  const isAllTodosCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
+
+  const changeAllTodosStatus = useCallback(async () => {
+    todos.forEach(todo => {
+      const isTodoNeedToUpdate = !isAllTodosCompleted && !todo.completed;
+
+      if (isTodoNeedToUpdate || isAllTodosCompleted) {
+        updateTodoFields(todo.id, { completed: !todo.completed });
+      }
+    });
+  }, [todos, isAllTodosCompleted]);
+
   const deleteCompletedTodos = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
 
@@ -120,6 +152,8 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           isAddingTodo={isAddingTodo}
           showError={showError}
+          onChangeAllTodos={changeAllTodosStatus}
+          isAllTodosCompleted={isAllTodosCompleted}
         />
 
         {shouldRenderContent && (
