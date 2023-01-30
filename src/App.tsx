@@ -56,7 +56,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, newTodo]);
     } catch {
-      showError(TodoErrors.UnableToAddTodo);
+      showError(TodoErrors.UnableToAdd);
     } finally {
       setIsAdding(false);
       setTempTodo(null);
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
-      showError(TodoErrors.UnableToDeleteTodo);
+      showError(TodoErrors.UnableToDelete);
     } finally {
       setDeletingTodoIds(prev => prev.filter(id => id !== todoId));
     }
@@ -97,7 +97,7 @@ export const App: React.FC = () => {
           : todo
       )));
     } catch {
-      showError(TodoErrors.UnableToaupdateTdo);
+      showError(TodoErrors.UnableToaupdate);
     } finally {
       setUpdatingTodoIds(prev => prev.filter(id => id !== updatedTodo.id));
     }

@@ -57,7 +57,9 @@ export const Header: React.FC<Props> = React.memo(({
       });
 
       setTitle('');
-    } catch { /* empty */ }
+    } catch {
+      showError(TodoErrors.UnableToAdd);
+    }
   };
 
   return (

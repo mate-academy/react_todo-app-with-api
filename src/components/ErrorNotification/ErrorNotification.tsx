@@ -9,25 +9,23 @@ type Props = {
 export const ErrorNotification: React.FC<Props> = React.memo(({
   closeError,
   errorMessages,
-}) => {
-  return (
-    <>
-      {errorMessages.map(message => (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => closeError(message)}
-          />
+}) => (
+  <>
+    {errorMessages.map(message => (
+      <div
+        data-cy="ErrorNotification"
+        className="notification is-danger is-light has-text-weight-normal"
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => closeError(message)}
+        />
 
-          {message}
-          <br />
-        </div>
-      ))}
-    </>
-  );
-});
+        {message}
+        <br />
+      </div>
+    ))}
+  </>
+));

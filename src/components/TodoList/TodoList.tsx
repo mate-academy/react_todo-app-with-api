@@ -30,9 +30,9 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onDeleteTodo={deleteTodo}
+          deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(todo.id)}
-          onUpdateTodo={updateTodo}
+          updateTodo={updateTodo}
           isUpdating={updatingTodoIds.includes(todo.id)}
           showError={showError}
           updateTodoTitle={updateTodoTitle}
@@ -41,9 +41,9 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          onDeleteTodo={deleteTodo}
+          deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
-          onUpdateTodo={updateTodo}
+          updateTodo={updateTodo}
           isUpdating={updatingTodoIds.includes(tempTodo.id)}
           showError={showError}
           updateTodoTitle={updateTodoTitle}

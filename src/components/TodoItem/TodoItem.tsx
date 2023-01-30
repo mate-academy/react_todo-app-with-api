@@ -7,9 +7,9 @@ import { TodoErrors } from '../../types/Errors';
 
 type Props = {
   todo: Todo,
-  onDeleteTodo: (todoId: number) => Promise<any>,
+  deleteTodo: (todoId: number) => Promise<any>,
   isDeleting: boolean;
-  onUpdateTodo: (todo: Todo) => Promise<any>,
+  updateTodo: (todo: Todo) => Promise<any>,
   isUpdating: boolean,
   showError: (message: string) => void,
   updateTodoTitle: (todo: Todo) => void,
@@ -17,9 +17,9 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  onDeleteTodo,
+  deleteTodo,
   isDeleting,
-  onUpdateTodo,
+  updateTodo,
   isUpdating,
   showError,
   updateTodoTitle,
@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
 
     if (newTitle === '') {
-      onDeleteTodo(todo.id);
+      deleteTodo(todo.id);
 
       return;
     }
@@ -48,7 +48,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         title: newTitle,
       });
     } catch {
-      showError(TodoErrors.UnableToaupdateTdo);
+      showError(TodoErrors.UnableToaupdate);
     }
 
     setIsEditing(false);
@@ -77,7 +77,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => onUpdateTodo({
+          onClick={() => updateTodo({
             ...todo,
             completed: !completed,
           })}
@@ -115,7 +115,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onDeleteTodo(id)}
+              onClick={() => deleteTodo(id)}
             >
               ×
             </button>

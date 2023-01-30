@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { createUser, getUserByEmail } from '../../api/users';
+import { TodoErrors } from '../../types/Errors';
 import { User } from '../../types/User';
 
 export type Props = {
@@ -31,7 +32,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
       onLogin(user);
     } catch (error) {
-      setErrorMessage('Unknown user, please login first');
+      setErrorMessage(TodoErrors.UnknownUser);
     }
   }, []);
 
@@ -63,7 +64,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         await loadUser();
       }
     } catch (error) {
-      setErrorMessage('Something went wrong');
+      setErrorMessage(TodoErrors.SomethingWentWrong);
     } finally {
       setLoading(false);
     }
