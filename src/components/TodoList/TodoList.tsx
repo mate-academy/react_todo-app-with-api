@@ -8,7 +8,10 @@ type Props = {
   showError: (message: string) => void;
   onDeleteTodo: (todoId: number) => void;
   loadingTodosIds: number[];
-  onUpdateTodo: (todoId: number, fieldsToUpdate: Todo) => void;
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>)
+  => Promise<void>;
 };
 
 export const TodoList: FC<Props> = React.memo((props) => {
@@ -23,7 +26,7 @@ export const TodoList: FC<Props> = React.memo((props) => {
           key={todo.id}
           todo={todo}
           onDelete={onDeleteTodo}
-          loadingTodosIds={loadingTodosIds}
+          shouldShowLoader={loadingTodosIds.includes(todo.id)}
           onUpdate={onUpdateTodo}
         />
       ))}
@@ -32,7 +35,7 @@ export const TodoList: FC<Props> = React.memo((props) => {
         <TodoItem
           todo={temporaryNewTodo}
           onDelete={onDeleteTodo}
-          loadingTodosIds={loadingTodosIds}
+          shouldShowLoader={loadingTodosIds.includes(temporaryNewTodo.id)}
           onUpdate={onUpdateTodo}
         />
       )}

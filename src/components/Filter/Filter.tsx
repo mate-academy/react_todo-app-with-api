@@ -1,14 +1,13 @@
 import React, { FC } from 'react';
 import cn from 'classnames';
 import { Filters } from '../../types/Filters';
-import { Todo } from '../../types/Todo';
 
 type Props = {
   activeTodosNumber: number;
   removeCompleted: () => void;
   selectedStatus: Filters;
   setSelectedStatus: (selectedStatus: Filters) => void;
-  completedTodos: Todo[];
+  completedTodosIds: number[];
 };
 
 export const Filter: FC<Props> = React.memo((props) => {
@@ -17,7 +16,7 @@ export const Filter: FC<Props> = React.memo((props) => {
     setSelectedStatus,
     activeTodosNumber,
     removeCompleted,
-    completedTodos,
+    completedTodosIds,
   } = props;
 
   return (
@@ -69,7 +68,7 @@ export const Filter: FC<Props> = React.memo((props) => {
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
+      {completedTodosIds.length > 0 && (
         <button
           data-cy="ClearCompletedButton"
           type="button"

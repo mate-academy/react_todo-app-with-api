@@ -2,6 +2,7 @@
 import React, {
   FC, FormEvent, useEffect, useRef, useState, useContext,
 } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
@@ -9,11 +10,13 @@ type Props = {
   onAddTodo: (todoInfo: Omit<Todo, 'id'>) => void;
   showError: (message: string) => void;
   isAddingTodo: boolean;
+  isAllCompletedTodos: boolean;
+  handleToggleAll: () => void;
 };
 
 export const NewTodoField: FC<Props> = React.memo((props) => {
   const {
-    showError, isAddingTodo, onAddTodo,
+    showError, isAddingTodo, onAddTodo, isAllCompletedTodos, handleToggleAll,
   } = props;
 
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -58,7 +61,8 @@ export const NewTodoField: FC<Props> = React.memo((props) => {
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: isAllCompletedTodos })}
+        onClick={handleToggleAll}
       />
 
       <form onSubmit={handleFormSubmit}>

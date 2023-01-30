@@ -51,7 +51,50 @@ export const App: React.FC = () => {
     });
   }, [todos, selectedStatus]);
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodosIds = useMemo(() => (
+    todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id)
+  ), [todos]);
+
+  const isAllCompletedTodos = todos.length === completedTodosIds.length;
+
+  const editTodo = useCallback(async (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    setLoadingTodosIds((prevIds) => ([...prevIds, todoId]));
+
+    try {
+      await updateTodo(todoId, fieldsToUpdate);
+
+      setTodos((prevTodos) => (prevTodos.map(
+        todo => {
+          const isUpdated = todo.id === todoId;
+
+          return isUpdated
+            ? Object.assign(todo, fieldsToUpdate)
+            : todo;
+        },
+      )));
+    } catch {
+      showError('Unable to update a todo');
+    } finally {
+      setLoadingTodosIds((prevIds) => (prevIds.filter(
+        todoIdToEdit => todoIdToEdit !== todoId,
+      )));
+    }
+  }, []);
+
+  const handleToggleAll = useCallback(() => {
+    const desiredStatus = !isAllCompletedTodos;
+
+    todos.forEach(async (todo) => {
+      if (todo.completed !== desiredStatus) {
+        await editTodo(todo.id, { completed: desiredStatus });
+      }
+    });
+  }, [isAllCompletedTodos, todos]);
 
   const [isAddingTodo, temporaryNewTodo, addTodo] = useAddingTodo(
     {
@@ -61,34 +104,11 @@ export const App: React.FC = () => {
 
   const [deleteTodo, removeCompleted] = useDeletingTodos(
     {
-      setLoadingTodosIds, setTodos, showError, completedTodos,
+      setLoadingTodosIds, setTodos, showError, completedTodosIds,
     },
   );
 
   const shouldRenederTodos = temporaryNewTodo || todos.length > 0;
-
-  const editTodo = useCallback(
-    (todoId: number, fieldsToUpdate: Todo) => {
-      setLoadingTodosIds((prevIds) => ([...prevIds, todoId]));
-
-      updateTodo(todoId, fieldsToUpdate)
-        .then(() => setTodos((prevTodos) => (prevTodos.map(
-          todo => {
-            const isUpdated = todo.id === todoId;
-
-            return isUpdated
-              ? fieldsToUpdate
-              : todo;
-          },
-        ))))
-        .catch(() => showError('Unable to update a todo'))
-        .finally(() => {
-          setLoadingTodosIds((prevIds) => (prevIds.filter(
-            todoIdToEdit => todoIdToEdit !== todoId,
-          )));
-        });
-    }, [],
-  );
 
   return (
     <div className="todoapp">
@@ -99,6 +119,8 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           showError={showError}
           isAddingTodo={isAddingTodo}
+          isAllCompletedTodos={isAllCompletedTodos}
+          handleToggleAll={handleToggleAll}
         />
 
         {shouldRenederTodos && (
@@ -117,7 +139,7 @@ export const App: React.FC = () => {
               removeCompleted={removeCompleted}
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
-              completedTodos={completedTodos}
+              completedTodosIds={completedTodosIds}
             />
           </>
         )}

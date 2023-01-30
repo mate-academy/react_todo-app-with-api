@@ -13,6 +13,9 @@ export const deleteTodoById = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, fieldsToUpdate: Todo) => {
+export const updateTodo = (
+  todoId: number,
+  fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+) => {
   return client.patch(`/todos/${todoId}`, fieldsToUpdate);
 };

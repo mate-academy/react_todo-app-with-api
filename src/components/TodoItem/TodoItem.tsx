@@ -1,17 +1,20 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
   onDelete: (todoId: number) => void;
-  loadingTodosIds: number[];
-  onUpdate: (todoId: number, fieldsToUpdate: Todo) => void;
+  shouldShowLoader: boolean;
+  onUpdate: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>)
+  => Promise<void>;
 };
 
-export const TodoItem: FC<Props> = (props) => {
+export const TodoItem: FC<Props> = React.memo((props) => {
   const {
-    todo, onDelete, loadingTodosIds, onUpdate,
+    todo, onDelete, shouldShowLoader, onUpdate,
   } = props;
 
   return (
@@ -25,8 +28,9 @@ export const TodoItem: FC<Props> = (props) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          readOnly
           onClick={() => {
-            onUpdate(todo.id, { ...todo, completed: !todo.completed });
+            onUpdate(todo.id, { completed: !todo.completed });
           }}
         />
       </label>
@@ -68,7 +72,7 @@ export const TodoItem: FC<Props> = (props) => {
         className={cn(
           'modal overlay',
           {
-            'is-active': todo.id === 0 || loadingTodosIds.includes(todo.id),
+            'is-active': todo.id === 0 || shouldShowLoader,
           },
         )}
       >
@@ -77,4 +81,4 @@ export const TodoItem: FC<Props> = (props) => {
       </div>
     </div>
   );
-};
+});

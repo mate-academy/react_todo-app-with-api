@@ -6,7 +6,7 @@ type Props = {
   setLoadingTodosIds: React.Dispatch<React.SetStateAction<number[]>>;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   showError: ((message: string) => void);
-  completedTodos: Todo[];
+  completedTodosIds: number[];
 };
 
 type HookOutput = [
@@ -19,7 +19,7 @@ export const useDeletingTodos = (props: Props): HookOutput => {
     setLoadingTodosIds,
     setTodos,
     showError,
-    completedTodos,
+    completedTodosIds,
   } = props;
 
   const deleteTodo = useCallback((todoId: number) => {
@@ -38,7 +38,7 @@ export const useDeletingTodos = (props: Props): HookOutput => {
   }, []);
 
   const removeCompleted = () => (
-    completedTodos.forEach(todo => deleteTodo(todo.id))
+    completedTodosIds.forEach(id => deleteTodo(id))
   );
 
   return [deleteTodo, removeCompleted];
