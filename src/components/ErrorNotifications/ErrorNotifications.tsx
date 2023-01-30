@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import cn from 'classnames';
 import uniqid from 'uniqid';
 
@@ -8,7 +8,7 @@ type Props = {
   onCloseBtnClick: ((errorMessage: string) => void),
 };
 
-export const ErrorNotifications: FC<Props> = ({
+export const ErrorNotifications: FC<Props> = memo(({
   errorMessages,
   onCloseBtnClick,
 }) => {
@@ -37,4 +37,4 @@ export const ErrorNotifications: FC<Props> = ({
       ))}
     </>
   );
-};
+});

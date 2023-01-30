@@ -110,13 +110,13 @@ export const App: React.FC = memo(() => {
   };
 
   const handleTodoUpdate = useCallback((changedTodo: Todo) => {
-    const { id } = changedTodo;
+    const { id, title, completed } = changedTodo;
 
     setProcessings(prev => [...prev, id]);
 
     updateTodo(id, {
-      title: changedTodo.title,
-      completed: changedTodo.completed,
+      title,
+      completed,
     })
       .then((updatedTodo) => {
         setTodos(prevTodos => prevTodos.map(todo => {
@@ -150,7 +150,7 @@ export const App: React.FC = memo(() => {
 
     setProcessings(prev => [...prev, ...todosIdsForUpdate]);
 
-    const updatePromises: Promise<Todo>[] = todosIdsForUpdate.map(id => {
+    const updatePromises: Promise<Todo>[] = todosIdsForUpdate.map((id) => {
       return updateTodo(id, { completed: !areAllTodosCompleted });
     });
 

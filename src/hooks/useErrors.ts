@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type HookOutput = [
   (message: string) => void,
@@ -9,7 +9,7 @@ type HookOutput = [
 export const useErrors = (initialErrors = []): HookOutput => {
   const [errorMessages, setErrorMessages] = useState<string[]>(initialErrors);
 
-  const closeError = (message: string) => {
+  const closeError = useCallback((message: string) => {
     setErrorMessages(prev => {
       const messageIndex = prev.indexOf(message);
 
@@ -19,15 +19,15 @@ export const useErrors = (initialErrors = []): HookOutput => {
 
       return messagesCopy;
     });
-  };
+  }, []);
 
-  const showErrorMessage = (message: string) => {
+  const showErrorMessage = useCallback((message: string) => {
     setErrorMessages(prev => [...prev, message]);
 
     setTimeout(() => {
       closeError(message);
     }, 3000);
-  };
+  }, []);
 
   return [showErrorMessage, closeError, errorMessages];
 };
