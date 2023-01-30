@@ -62,7 +62,9 @@ export const AppFooter: React.FC<Props> = ({
           onChangeStatusFilter('All');
           clearCompletedTodos();
         }}
-        hidden={completedTodosLength === 0}
+        style={{
+          visibility: !completedTodosLength ? 'hidden' : 'visible',
+        }}
       >
         Clear completed
       </button>
