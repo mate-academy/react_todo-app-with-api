@@ -14,8 +14,16 @@ const deleteTodo = (id: number) => {
     .then(Boolean);
 };
 
+const updateTodo = (
+  todoId: number,
+  updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+) => {
+  return client.patch(`/todos/${todoId}`, updateData);
+};
+
 export const todoApi = {
   getTodos,
   addTodo,
   deleteTodo,
+  updateTodo,
 };
