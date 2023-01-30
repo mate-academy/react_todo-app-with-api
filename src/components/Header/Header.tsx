@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { memo, useState } from 'react';
 // import { createTodo } from '../../api/todos';
 
@@ -6,12 +7,20 @@ type Props = {
   setIsError: (error: boolean) => void;
   onErrorMessage: (error: string) => void;
   onAddTodo: (newTitle: string) => void;
-  isNewTodoLoading: boolean;
+  isAdding: boolean;
+  shouldRanderActiveToggle: boolean;
+  handelTodosStatus: () => void;
 };
 
 export const Header: React.FC<Props> = memo(
   ({
-    newTodoField, setIsError, onErrorMessage, onAddTodo, isNewTodoLoading,
+    newTodoField,
+    setIsError,
+    onErrorMessage,
+    onAddTodo,
+    isAdding,
+    shouldRanderActiveToggle,
+    handelTodosStatus,
   }) => {
     const [title, setTitle] = useState('');
 
@@ -20,7 +29,7 @@ export const Header: React.FC<Props> = memo(
 
       if (!title) {
         setIsError(true);
-        onErrorMessage('Title can\'t be empty');
+        onErrorMessage("Title can't be empty");
 
         return;
       }
@@ -35,7 +44,10 @@ export const Header: React.FC<Props> = memo(
         <button
           data-cy="ToggleAllButton"
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all', {
+            active: shouldRanderActiveToggle,
+          })}
+          onClick={handelTodosStatus}
         />
 
         <form onSubmit={handlerSubmitTodo}>
@@ -47,7 +59,7 @@ export const Header: React.FC<Props> = memo(
             onChange={(event) => setTitle(event.currentTarget.value)}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
-            disabled={isNewTodoLoading}
+            disabled={isAdding}
           />
         </form>
       </header>

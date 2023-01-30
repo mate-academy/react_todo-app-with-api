@@ -29,8 +29,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>(FilterType.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isNewTodoLoading, setIsNewTodoLoading] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
+  const [updatingTodosIds, setUpdatingTodoIds] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -83,7 +84,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    setIsNewTodoLoading(true);
+    setIsAdding(true);
 
     setTempTodo({
       id: 0,
@@ -112,35 +113,37 @@ export const App: React.FC = () => {
       return false;
     } finally {
       setTempTodo(null);
-      setIsNewTodoLoading(false);
+      setIsAdding(false);
     }
   };
 
-  const toggleTodoStatus = async (todoToUpdate: Todo) => {
-    const { completed, id } = todoToUpdate;
+  const updateTodo = async (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    setUpdatingTodoIds((prevIds) => {
+      if (!prevIds.includes(todoId)) {
+        return [...prevIds, todoId];
+      }
 
-    const updatedTodo = {
-      ...todoToUpdate,
-      completed: !completed,
-    };
+      return prevIds;
+    });
 
     try {
-      const response = await updateTodoOnServer(id, updatedTodo);
+      const response = await updateTodoOnServer(todoId, fieldsToUpdate);
 
-      setTodos((prev) => {
-        const findIndexTodo = prev.findIndex(todo => todo.id === id);
-        const copyTodos = [...prev];
+      setTodos((prevTodo) => prevTodo.map((todo) => {
+        if (todo.id === todoId) {
+          return response;
+        }
 
-        copyTodos[findIndexTodo] = updatedTodo;
-
-        return copyTodos;
-      });
-
-      return response;
-    } catch {
-      showError('Unable to update a todo');
-
-      return false;
+        return todo;
+      }));
+    } catch (error) {
+      setErrorMessage('Unable to update a tod');
+    } finally {
+      setUpdatingTodoIds((prevTodos) => (
+        prevTodos.filter((prevTodoId) => prevTodoId !== todoId)));
     }
   };
 
@@ -167,6 +170,18 @@ export const App: React.FC = () => {
     });
   }, [todos]);
 
+  const isAllTodosCompleted = todos.length === completedTodosLength;
+
+  const handelTodosStatus = useCallback(() => {
+    const wantedTodoStatus = !isAllTodosCompleted;
+
+    todos.forEach((todo) => {
+      if (todo.completed !== wantedTodoStatus) {
+        updateTodo(todo.id, { completed: wantedTodoStatus });
+      }
+    });
+  }, [isAllTodosCompleted, todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -177,15 +192,18 @@ export const App: React.FC = () => {
           setIsError={setIsError}
           onErrorMessage={setErrorMessage}
           onAddTodo={addTodo}
-          isNewTodoLoading={isNewTodoLoading}
+          isAdding={isAdding}
+          shouldRanderActiveToggle={isAllTodosCompleted}
+          handelTodosStatus={handelTodosStatus}
         />
 
         <TodoList
           todos={visibleTodos}
           onDeleteTodo={deleteTodo}
           tempTodo={tempTodo}
-          isNewTodoLoading={isNewTodoLoading}
-          onChangeTodoStatus={toggleTodoStatus}
+          isAdding={isAdding}
+          onUpdateTodo={updateTodo}
+          updatingTodosIds={updatingTodosIds}
         />
 
         {todos.length > 0 && (

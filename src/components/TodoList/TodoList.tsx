@@ -6,13 +6,22 @@ type Props = {
   todos: Todo[];
   onDeleteTodo: (todoId: number) => void;
   tempTodo: Todo | null;
-  isNewTodoLoading: boolean;
-  onChangeTodoStatus: (todo: Todo) => void;
+  isAdding: boolean;
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => void;
+  updatingTodosIds: number[];
 };
 
 export const TodoList: React.FC<Props> = memo(
   ({
-    todos, onDeleteTodo, tempTodo, isNewTodoLoading, onChangeTodoStatus,
+    todos,
+    onDeleteTodo,
+    tempTodo,
+    isAdding,
+    onUpdateTodo,
+    updatingTodosIds,
   }) => {
     return (
       <section className="todoapp__main" data-cy="TodoList">
@@ -20,7 +29,8 @@ export const TodoList: React.FC<Props> = memo(
           <TodoInfo
             todo={todo}
             onDeleteTodo={onDeleteTodo}
-            onChangeTodoStatus={onChangeTodoStatus}
+            onUpdateTodo={onUpdateTodo}
+            shouldShowLoader={updatingTodosIds.includes(todo.id)}
           />
         ))}
 
@@ -28,8 +38,9 @@ export const TodoList: React.FC<Props> = memo(
           <TodoInfo
             todo={tempTodo}
             onDeleteTodo={onDeleteTodo}
-            isNewTodoLoading={isNewTodoLoading}
-            onChangeTodoStatus={onChangeTodoStatus}
+            isAdding={isAdding}
+            onUpdateTodo={onUpdateTodo}
+            shouldShowLoader={updatingTodosIds.includes(tempTodo.id)}
           />
         )}
       </section>

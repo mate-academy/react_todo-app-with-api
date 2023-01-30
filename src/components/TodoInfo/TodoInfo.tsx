@@ -5,13 +5,21 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   onDeleteTodo: (todoId: number) => void;
-  isNewTodoLoading?: boolean;
-  onChangeTodoStatus: (todo: Todo) => void;
+  isAdding?: boolean;
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => void;
+  shouldShowLoader: boolean;
 };
 
 export const TodoInfo: React.FC<Props> = memo(
   ({
-    todo, onDeleteTodo, isNewTodoLoading, onChangeTodoStatus,
+    todo,
+    onDeleteTodo,
+    isAdding,
+    onUpdateTodo,
+    shouldShowLoader,
   }) => {
     const [isLoading, setIsLoading] = useState(false);
     const handleDeleteTodo = async (todoId: number) => {
@@ -22,13 +30,18 @@ export const TodoInfo: React.FC<Props> = memo(
       setIsLoading(false);
     };
 
-    const handleUpdateStatusTodo = async () => {
+    const handleUpdateTodo = async (
+      todoId: number,
+      fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+    ) => {
       setIsLoading(true);
 
-      await onChangeTodoStatus(todo);
+      await onUpdateTodo(todoId, fieldsToUpdate);
 
       setIsLoading(false);
     };
+
+    // const isLoading = todo.id === 0 || isDeleting || isUpdating;
 
     return (
       <div
@@ -43,7 +56,8 @@ export const TodoInfo: React.FC<Props> = memo(
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            onClick={handleUpdateStatusTodo}
+            onClick={() => (
+              handleUpdateTodo(todo.id, { completed: !todo.completed }))}
             defaultChecked
           />
         </label>
@@ -63,7 +77,7 @@ export const TodoInfo: React.FC<Props> = memo(
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': isLoading || isNewTodoLoading,
+            'is-active': isLoading || isAdding || shouldShowLoader,
           })}
         >
           <div className="modal-background has-background-white-ter" />
