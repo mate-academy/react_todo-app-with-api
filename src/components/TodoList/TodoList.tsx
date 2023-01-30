@@ -41,7 +41,7 @@ export const TodoList:React.FC<Props> = ({
           todo={todo}
           onDelete={handleDelete}
           handleStatusChange={handleStatusChange}
-          updatingTodoIds={updatingTodoIds}
+          updatingTodo={updatingTodoIds?.includes(todo.id)}
           editTodo={editTodo}
         />
       ))}

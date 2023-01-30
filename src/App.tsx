@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
     setIsAllCompleted(todos.every(todo => todo.completed));
   }, [todos]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = useCallback(async (id: number) => {
     try {
       setUpdatingTodoIds([id]);
       await deleteTodo(id);
@@ -57,7 +58,7 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoIds([]);
     }
-  };
+  }, [deleteTodo]);
 
   const activeTodos = todos.filter(todo => !todo.completed);
   const activeTodosCount = activeTodos.length;
@@ -97,7 +98,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAll = async () => {
+  const handleToggleAll = useCallback(async () => {
     try {
       const newStatus = !isAllCompleted;
       const updatedTodos = todos.filter(
@@ -118,9 +119,9 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoIds([]);
     }
-  };
+  }, [updateTodo]);
 
-  const editTodo = async (todoToEdit: Todo, newTitle: string) => {
+  const editTodo = useCallback(async (todoToEdit: Todo, newTitle: string) => {
     try {
       setUpdatingTodoIds([todoToEdit.id]);
       await updateTodo(todoToEdit.id, { title: newTitle });
@@ -129,7 +130,7 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoIds([]);
     }
-  };
+  }, [updateTodo]);
 
   return (
     <div className="todoapp">
