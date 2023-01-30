@@ -13,7 +13,7 @@ import { AuthContext } from '../Auth/AuthContext';
 type Props = {
   showError: (message: string) => void,
   isAdding: boolean,
-  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>,
+  addTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>,
   toggleAll: () => void,
   isActiveToggleAll: boolean,
 };
@@ -21,7 +21,7 @@ type Props = {
 export const Header: React.FC<Props> = React.memo(({
   showError,
   isAdding,
-  onAddTodo,
+  addTodo,
   toggleAll,
   isActiveToggleAll,
 }) => {
@@ -50,7 +50,7 @@ export const Header: React.FC<Props> = React.memo(({
     }
 
     try {
-      await onAddTodo({
+      await addTodo({
         title,
         userId: user.id,
         completed: false,

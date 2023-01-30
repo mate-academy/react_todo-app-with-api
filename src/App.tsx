@@ -48,7 +48,7 @@ export const App: React.FC = () => {
     }
   }, [user]);
 
-  const onAddTodo = useCallback(async (fieldsForCreate: Omit<Todo, 'id'>) => {
+  const addTodo = useCallback(async (fieldsForCreate: Omit<Todo, 'id'>) => {
     try {
       setIsAdding(true);
       setTempTodo({ ...fieldsForCreate, id: 0 });
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
     }
   }, [showError]);
 
-  const onDeleteTodo = useCallback(async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
       setDeletingTodoIds(prev => [...prev, todoId]);
 
@@ -77,17 +77,17 @@ export const App: React.FC = () => {
     }
   }, [showError]);
 
-  const onDeleteCompleted = useCallback(async () => {
+  const deleteCompleted = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
 
-    completedTodoIds.forEach(id => onDeleteTodo(id));
-  }, [onDeleteTodo, todos]);
+    completedTodoIds.forEach(id => deleteTodo(id));
+  }, [deleteTodo, todos]);
 
   const visibleTodos = useMemo(() => (
     filterTodosByCompleted(todos, filterStatus)
   ), [filterStatus, todos]);
 
-  const onUpdateTodo = useCallback(async (updatedTodo: Todo) => {
+  const updateTodo = useCallback(async (updatedTodo: Todo) => {
     try {
       setUpdatingTodoIds(prev => [...prev, updatedTodo.id]);
       await todoApi.updateTodo(updatedTodo.id, updatedTodo);
@@ -109,12 +109,12 @@ export const App: React.FC = () => {
 
     if (todos.length !== activeTodoIds.length
       && todos.length !== completedTodos.length) {
-      activeTodoIds.forEach(todo => onUpdateTodo({
+      activeTodoIds.forEach(todo => updateTodo({
         ...todo,
         completed: true,
       }));
     } else {
-      todos.forEach(todo => onUpdateTodo({
+      todos.forEach(todo => updateTodo({
         ...todo,
         completed: !todo.completed,
       }));
@@ -122,7 +122,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const updateTodoTitle = useCallback(async (updatedTodo: Todo) => {
-    onUpdateTodo(updatedTodo);
+    updateTodo(updatedTodo);
   }, [todos]);
 
   const shouldRenderContent = todos.length !== 0 || !!tempTodo;
@@ -135,7 +135,7 @@ export const App: React.FC = () => {
         <Header
           showError={showError}
           isAdding={isAdding}
-          onAddTodo={onAddTodo}
+          addTodo={addTodo}
           toggleAll={toggleAll}
           isActiveToggleAll={isActiveToggleAll}
         />
@@ -145,9 +145,9 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
-              onDeleteTodo={onDeleteTodo}
+              deleteTodo={deleteTodo}
               deletingTodoIds={deletingTodoIds}
-              onUpdateTodo={onUpdateTodo}
+              updateTodo={updateTodo}
               updatingTodoIds={updatingTodoIds}
               showError={showError}
               updateTodoTitle={updateTodoTitle}
@@ -157,7 +157,7 @@ export const App: React.FC = () => {
               uncompletedTodosAmount={uncompletedTodosAmount}
               setFilterStatus={setFilterStatus}
               filterStatus={filterStatus}
-              onDeleteCompleted={onDeleteCompleted}
+              deleteCompleted={deleteCompleted}
             />
           </>
         )}

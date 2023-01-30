@@ -5,9 +5,9 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  onDeleteTodo: (todoId: number) => Promise<any>;
+  deleteTodo: (todoId: number) => Promise<any>;
   deletingTodoIds: number[],
-  onUpdateTodo: (todo: Todo) => Promise<any>,
+  updateTodo: (todo: Todo) => Promise<any>,
   updatingTodoIds: number[],
   showError: (message: string) => void,
   updateTodoTitle: (todo: Todo) => void,
@@ -17,9 +17,9 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  onDeleteTodo,
+  deleteTodo,
   deletingTodoIds,
-  onUpdateTodo,
+  updateTodo,
   updatingTodoIds,
   showError,
   updateTodoTitle,
@@ -30,9 +30,9 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onDeleteTodo={onDeleteTodo}
+          onDeleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(todo.id)}
-          onUpdateTodo={onUpdateTodo}
+          onUpdateTodo={updateTodo}
           isUpdating={updatingTodoIds.includes(todo.id)}
           showError={showError}
           updateTodoTitle={updateTodoTitle}
@@ -41,9 +41,9 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          onDeleteTodo={onDeleteTodo}
+          onDeleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
-          onUpdateTodo={onUpdateTodo}
+          onUpdateTodo={updateTodo}
           isUpdating={updatingTodoIds.includes(tempTodo.id)}
           showError={showError}
           updateTodoTitle={updateTodoTitle}
