@@ -6,15 +6,20 @@ type TodoItemProps = {
   todo: Todo;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDeleteTodo: (todoId: number) => Promise<any>,
-  isDeliting: boolean,
+  shouldShowLoader: boolean,
+  updateTodo: (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>,
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   onDeleteTodo,
-  isDeliting,
+  shouldShowLoader,
+  updateTodo,
 }) => {
-  const isLoading = todo.id === 0 && isDeliting;
+  const isLoading = todo.id === 0 && shouldShowLoader;
 
   return (
     <div
@@ -31,6 +36,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
+          readOnly
+          onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 

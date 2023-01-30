@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import React, { useState, FormEvent, useContext } from 'react';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
@@ -57,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: true })}
       />
 
       <form onSubmit={onSubmitForm}>

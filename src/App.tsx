@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState(Filters.ALL);
   const [isAddingTodo, setIsEddingTodo] = useState(false);
   const [delitingTodoIds, setDelitingTodoIds] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -94,6 +95,35 @@ export const App: React.FC = () => {
     completedTodoIds.forEach(id => onDeleteTodo(id), [onDeleteTodo, todos]);
   }, []);
 
+  const updateTodo = useCallback(async (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    setUpdatingTodoIds(prevIds => {
+      if (!prevIds.includes(todoId)) {
+        return [...prevIds, todoId];
+      }
+
+      return prevIds;
+    });
+
+    try {
+      await todoApi.updateTodo(todoId, updateData);
+      setTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return Object.assign(todo, updateData);
+      }));
+    } catch {
+      setError('Unable to update a todo');
+    } finally {
+      setUpdatingTodoIds(prevTodos => prevTodos
+        .filter(prevTodoId => prevTodoId !== todoId));
+    }
+  }, []);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -112,6 +142,8 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onDeleteTodo={onDeleteTodo}
               delitingTodoIds={delitingTodoIds}
+              updateTodo={updateTodo}
+              updatingTodoIds={updatingTodoIds}
             />
             <Footer
               activeTodos={activeTodosCount}

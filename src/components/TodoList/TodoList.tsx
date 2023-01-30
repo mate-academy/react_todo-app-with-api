@@ -8,10 +8,20 @@ type TodoListProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDeleteTodo: (todoId: number) => Promise<any>,
   delitingTodoIds: number[],
+  updateTodo: (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>,
+  updatingTodoIds: number[],
 };
 
 export const TodoList: React.FC<TodoListProps> = memo(({
-  todos, tempTodo, onDeleteTodo, delitingTodoIds,
+  todos,
+  tempTodo,
+  onDeleteTodo,
+  delitingTodoIds,
+  updateTodo,
+  updatingTodoIds,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -19,7 +29,10 @@ export const TodoList: React.FC<TodoListProps> = memo(({
         todo={todo}
         key={todo.id}
         onDeleteTodo={onDeleteTodo}
-        isDeliting={delitingTodoIds.includes(todo.id)}
+        shouldShowLoader={
+          delitingTodoIds.includes(todo.id) || updatingTodoIds.includes(todo.id)
+        }
+        updateTodo={updateTodo}
       />
     ))}
 
@@ -27,7 +40,8 @@ export const TodoList: React.FC<TodoListProps> = memo(({
       <TodoItem
         todo={tempTodo}
         onDeleteTodo={onDeleteTodo}
-        isDeliting={delitingTodoIds.includes(tempTodo.id)}
+        shouldShowLoader={delitingTodoIds.includes(tempTodo.id)}
+        updateTodo={updateTodo}
       />
     )}
   </section>
