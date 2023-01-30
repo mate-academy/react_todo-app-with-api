@@ -98,7 +98,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAll = useCallback(async () => {
+  const handleToggleAll = async () => {
     try {
       const newStatus = !isAllCompleted;
       const updatedTodos = todos.filter(
@@ -119,7 +119,7 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodoIds([]);
     }
-  }, [updateTodo]);
+  };
 
   const editTodo = useCallback(async (todoToEdit: Todo, newTitle: string) => {
     try {
