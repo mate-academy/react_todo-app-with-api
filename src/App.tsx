@@ -127,7 +127,7 @@ export const App: React.FC = () => {
       setUpdatingTodoIds(currIds => currIds
         .filter(currId => currId !== todoId));
     }
-  }, [user?.id]);
+  }, []);
 
   const isTodoExist = todosList.length > 0
     || filterCondition !== FilterCondition.ALL;
