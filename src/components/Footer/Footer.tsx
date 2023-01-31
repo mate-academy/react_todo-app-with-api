@@ -8,7 +8,7 @@ type Props = {
   hasCompletedTodos: boolean;
   filterType: FilterStatus;
   onChangeType: React.Dispatch<React.SetStateAction<FilterStatus>>;
-  onDeleteCompletedTodos: () => void;
+  deleteCompletedTodos: () => void;
 };
 
 export const Footer: React.FC<Props> = memo((props) => {
@@ -17,7 +17,7 @@ export const Footer: React.FC<Props> = memo((props) => {
     hasCompletedTodos,
     filterType: filterStatus,
     onChangeType,
-    onDeleteCompletedTodos,
+    deleteCompletedTodos,
   } = props;
 
   return (
@@ -69,7 +69,7 @@ export const Footer: React.FC<Props> = memo((props) => {
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={onDeleteCompletedTodos}
+          onClick={deleteCompletedTodos}
         >
           Clear completed
         </button>

@@ -14,7 +14,7 @@ type Props = {
   isTodoUpdating?: boolean;
   newTodoField?: React.RefObject<HTMLInputElement>;
   onUpdateTodo?: (todoId: number, newData: Partial<Todo>) => Promise<void>;
-  onDeleteTodo?: (todoId: number) => Promise<void>;
+  removeTodo?: (todoId: number) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = memo((props) => {
@@ -26,7 +26,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
     isTodoUpdating,
     newTodoField,
     onUpdateTodo = () => {},
-    onDeleteTodo = () => {},
+    removeTodo = () => {},
   } = props;
 
   const [newTitle, setNewTitle] = useState(todo.title);
@@ -53,7 +53,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
     }
 
     if (normalizeTitle === '') {
-      onDeleteTodo(todo.id);
+      removeTodo(todo.id);
 
       return;
     }
@@ -112,7 +112,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={() => onDeleteTodo(todo.id)}
+            onClick={() => removeTodo(todo.id)}
           >
             ×
           </button>

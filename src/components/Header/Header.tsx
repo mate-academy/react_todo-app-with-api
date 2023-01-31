@@ -7,8 +7,8 @@ type Props = {
   title: string;
   isTodoAdding: boolean;
   isAllTodosCompleted: boolean;
-  onInputChange: React.Dispatch<React.SetStateAction<string>>;
-  onSubmitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  handleSubmitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
   onUpdateAllTodos: () => void;
 };
 
@@ -17,8 +17,8 @@ export const Header: React.FC<Props> = memo((props) => {
     title,
     isTodoAdding,
     isAllTodosCompleted,
-    onInputChange,
-    onSubmitForm,
+    setTitle,
+    handleSubmitForm,
     onUpdateAllTodos,
   } = props;
 
@@ -38,8 +38,8 @@ export const Header: React.FC<Props> = memo((props) => {
       <NewTodoField
         title={title}
         isTodoAdding={isTodoAdding}
-        onSubmitForm={onSubmitForm}
-        onInputChange={onInputChange}
+        onSubmitForm={handleSubmitForm}
+        onInputChange={setTitle}
       />
     </header>
   );

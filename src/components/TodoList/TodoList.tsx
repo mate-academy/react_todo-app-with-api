@@ -12,7 +12,7 @@ type Props = {
   isTodoUpdating: boolean;
   newTodoField: React.RefObject<HTMLInputElement>;
   onUpdateTodo: (todoId: number, newData: Partial<Todo>) => Promise<void>;
-  onDeleteTodo: (todoId: number) => Promise<void>;
+  removeTodo: (todoId: number) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
@@ -24,7 +24,7 @@ export const TodoList: React.FC<Props> = memo((props) => {
     isTodoUpdating,
     newTodoField,
     onUpdateTodo,
-    onDeleteTodo,
+    removeTodo,
   } = props;
 
   return (
@@ -38,7 +38,7 @@ export const TodoList: React.FC<Props> = memo((props) => {
           isTodoUpdating={isTodoUpdating}
           newTodoField={newTodoField}
           onUpdateTodo={onUpdateTodo}
-          onDeleteTodo={onDeleteTodo}
+          removeTodo={removeTodo}
         />
       ))}
 

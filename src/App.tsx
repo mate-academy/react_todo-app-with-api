@@ -102,12 +102,7 @@ export const App: React.FC = () => {
 
           setTodos(currentTodos => [
             ...currentTodos,
-            {
-              id: addedTodo.id,
-              userId: addedTodo.userId,
-              title: addedTodo.title,
-              completed: addedTodo.completed,
-            },
+            addedTodo,
           ]);
         } catch (error) {
           setErrorMessage('Unable to add a todo');
@@ -236,8 +231,8 @@ export const App: React.FC = () => {
         title={title}
         isTodoAdding={isTodoAdding}
         isAllTodosCompleted={isAllTodosCompleted}
-        onInputChange={setTitle}
-        onSubmitForm={handleSubmitForm}
+        setTitle={setTitle}
+        handleSubmitForm={handleSubmitForm}
         onUpdateAllTodos={updateAllTodos}
       />
 
@@ -251,7 +246,7 @@ export const App: React.FC = () => {
             isTodoUpdating={isTodoUpdating}
             newTodoField={newTodoField}
             onUpdateTodo={changeTodo}
-            onDeleteTodo={removeTodo}
+            removeTodo={removeTodo}
           />
 
           <Footer
