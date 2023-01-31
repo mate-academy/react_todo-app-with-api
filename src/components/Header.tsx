@@ -66,9 +66,9 @@ export const Header: React.FC<Props> = ({
       });
 
       createTodo(query, user.id)
-        .then(result => {
+        .then(todo => {
           addTodo({
-            ...result,
+            ...todo,
           });
         })
         .catch(() => {

@@ -8,8 +8,7 @@ type Props = {
   newTodo: Todo | null,
   isLoading: boolean,
   deleteTodo: (todoId: number) => void,
-  deletedTodoIds: number[],
-  activeTodoIds: number[],
+  loadingTodoIds: number[],
   updateTodoData: (todoId: number, data: object) => void,
 };
 
@@ -19,8 +18,7 @@ export const TodoList: React.FC<Props> = ({
   newTodo,
   isLoading,
   deleteTodo,
-  deletedTodoIds,
-  activeTodoIds,
+  loadingTodoIds,
   updateTodoData,
 }) => {
   return (
@@ -31,8 +29,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           deleteTodo={deleteTodo}
           isActive={isLoading}
-          deletedTodoIds={deletedTodoIds}
-          activeTodoIds={activeTodoIds}
+          loadingTodoIds={loadingTodoIds}
           updateTodoData={updateTodoData}
         />
       ))}
@@ -42,8 +39,7 @@ export const TodoList: React.FC<Props> = ({
           todo={newTodo}
           deleteTodo={deleteTodo}
           isActive={isAdding}
-          deletedTodoIds={deletedTodoIds}
-          activeTodoIds={activeTodoIds}
+          loadingTodoIds={loadingTodoIds}
           updateTodoData={updateTodoData}
         />
       )}

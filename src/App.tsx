@@ -22,8 +22,7 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newTodo, setNewTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
-  const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -35,24 +34,24 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const addTodo = (value: Todo) => {
+  const addTodo = (todo: Todo) => {
     setTodos(currentTodos => {
       return [
         ...currentTodos,
-        value,
+        todo,
       ];
     });
 
-    setActiveTodoIds([]);
+    setLoadingTodoIds([]);
   };
 
-  const handleFilter = (value: Filter) => {
-    setFilterOption(value);
+  const handleFilter = (filterValue: Filter) => {
+    setFilterOption(filterValue);
   };
 
   const deleteTodo = (todoId: number) => {
     setIsLoading(true);
-    setDeletedTodoIds(currentId => [...currentId, todoId]);
+    setLoadingTodoIds(currentId => [...currentId, todoId]);
 
     removeTodo(todoId)
       .then(() => {
@@ -67,13 +66,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setDeletedTodoIds([]);
+        setLoadingTodoIds([]);
       });
   };
 
   const toggleAll = (todoId: number, status: boolean) => {
     setIsLoading(true);
-    setActiveTodoIds(currentId => [...currentId, todoId]);
+    setLoadingTodoIds(currentId => [...currentId, todoId]);
 
     updateTodo(todoId, { completed: status })
       .then(() => {
@@ -91,13 +90,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setActiveTodoIds([]);
+        setLoadingTodoIds([]);
       });
   };
 
   const updateTodoData = (todoId: number, data: object) => {
     setIsLoading(true);
-    setActiveTodoIds(currentId => [...currentId, todoId]);
+    setLoadingTodoIds(currentId => [...currentId, todoId]);
 
     updateTodo(todoId, data)
       .then(() => {
@@ -119,7 +118,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setActiveTodoIds([]);
+        setLoadingTodoIds([]);
       });
   };
 
@@ -176,8 +175,7 @@ export const App: React.FC = () => {
               newTodo={newTodo}
               deleteTodo={deleteTodo}
               isLoading={isLoading}
-              deletedTodoIds={deletedTodoIds}
-              activeTodoIds={activeTodoIds}
+              loadingTodoIds={loadingTodoIds}
               updateTodoData={updateTodoData}
             />
             <Footer

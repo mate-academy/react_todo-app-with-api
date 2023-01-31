@@ -6,8 +6,7 @@ type Props = {
   todo: Todo,
   deleteTodo: (todoId: number) => void,
   isActive: boolean,
-  deletedTodoIds: number[],
-  activeTodoIds: number[],
+  loadingTodoIds: number[],
   updateTodoData: (todoId: number, data: object) => void,
 };
 
@@ -15,8 +14,7 @@ export const TodoDetails: React.FC<Props> = ({
   todo,
   deleteTodo,
   isActive,
-  deletedTodoIds,
-  activeTodoIds,
+  loadingTodoIds,
   updateTodoData,
 }) => {
   const [isRenamingTodo, setIsRenamingTodo] = useState(false);
@@ -30,20 +28,12 @@ export const TodoDetails: React.FC<Props> = ({
     }
   });
 
-  const isDeleted = (todoId: number) => {
-    return deletedTodoIds?.includes(todoId);
-  };
-
   const isLoadingTodo = (todoId: number) => {
-    if (deletedTodoIds.length !== 0) {
-      return isDeleted(todoId) && isActive;
-    }
-
-    if (activeTodoIds.length === 0) {
+    if (loadingTodoIds.length === 0) {
       return isActive;
     }
 
-    return activeTodoIds.includes(todoId) && isActive;
+    return loadingTodoIds.includes(todoId) && isActive;
   };
 
   const toggleTodoStatus = () => {
