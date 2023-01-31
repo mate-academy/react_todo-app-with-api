@@ -1,48 +1,45 @@
-import React, { memo, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
+import { deleteTodo } from '../../api/todos';
 
 type Props = {
   todo: Todo,
-  deleteTodo: (todoId: number) => void,
+  onDeleteTodo: (todoId: number) => void,
   processingTodoIds: number[],
-  updateTodo: (todoToUpdate: Todo) => void,
-  changeFilterStatus: (id: number, status: boolean) => void,
+  updateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => Promise<void>,
 };
 
 export const TodoItem: React.FC<Props> = memo((props) => {
   const {
     todo,
-    deleteTodo,
+    onDeleteTodo,
     processingTodoIds,
     updateTodo,
-    changeFilterStatus,
   } = props;
 
-  const [editingId, setEditingId] = useState(0);
-  const [editTodoTitle, setEditTodoTitle] = useState(todo.title);
+  const [shouldShowInput, setShouldShowInput] = useState(false);
 
-  const handleEditingTodo = () => {
-    if (!editTodoTitle) {
-      deleteTodo(todo.id);
-      setEditingId(0);
+  const cancelEditing = useCallback(() => {
+    setShouldShowInput(false);
+  }, []);
 
-      return;
-    }
+  const updateTitle = useCallback(async (title: string) => {
+    await updateTodo(todo.id, { title });
+  },
+  [todo.id, updateTodo]);
 
-    if (todo.title !== editTodoTitle) {
-      updateTodo({ ...todo, id: editingId, title: editTodoTitle });
-      setEditingId(0);
-    }
-
-    setEditingId(0);
-  };
-
-  const onCancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setEditingId(0);
-    }
-  };
+  const deleteTodoById = useCallback(async () => {
+    await deleteTodo(todo.id);
+  }, [todo.id]);
 
   return (
     <div
@@ -56,42 +53,39 @@ export const TodoItem: React.FC<Props> = memo((props) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked
-          onClick={() => changeFilterStatus(todo.id, !todo.completed)}
+          checked={todo.completed}
+          readOnly
+          onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 
-      {editingId === todo.id ? (
-        <form onSubmit={() => handleEditingTodo()}>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            value={editTodoTitle}
-            onChange={(e) => setEditTodoTitle(e.target.value)}
-            onBlur={() => handleEditingTodo()}
-            onKeyDown={(e) => onCancelEditing(e)}
+      {shouldShowInput
+        ? (
+          <TodoTitleField
+            cancelEditing={cancelEditing}
+            oldTitle={todo.title}
+            updateTitle={updateTitle}
+            deleteTodoById={deleteTodoById}
           />
-        </form>
-      ) : (
-        <>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-            onDoubleClick={() => setEditingId(todo.id)}
-          >
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => deleteTodo(todo.id)}
-          >
-            ×
-          </button>
-        </>
-      )}
+        ) : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setShouldShowInput(true)}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => onDeleteTodo(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"

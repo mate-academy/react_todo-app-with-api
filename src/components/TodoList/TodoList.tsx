@@ -5,20 +5,21 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[],
   tempNewTodo: Todo | null,
-  deleteTodo: (todoId: number) => void,
+  onDeleteTodo: (todoId: number) => void,
   processingTodoIds: number[],
-  updateTodo: (todoToUpdate: Todo) => void,
-  changeFilterStatus: (id: number, status: boolean) => void,
+  updateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => Promise<void>,
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
   const {
     todos,
     tempNewTodo,
-    deleteTodo,
+    onDeleteTodo,
     processingTodoIds,
     updateTodo,
-    changeFilterStatus,
   } = props;
 
   return (
@@ -27,20 +28,18 @@ export const TodoList: React.FC<Props> = memo((props) => {
         <TodoItem
           key={todo.id}
           todo={todo}
-          deleteTodo={deleteTodo}
+          onDeleteTodo={onDeleteTodo}
           processingTodoIds={processingTodoIds}
           updateTodo={updateTodo}
-          changeFilterStatus={changeFilterStatus}
         />
       ))}
 
       {tempNewTodo && (
         <TodoItem
           todo={tempNewTodo}
-          deleteTodo={deleteTodo}
+          onDeleteTodo={onDeleteTodo}
           processingTodoIds={processingTodoIds}
           updateTodo={updateTodo}
-          changeFilterStatus={changeFilterStatus}
         />
       )}
     </section>

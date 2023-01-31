@@ -1,5 +1,5 @@
 import {
-  FC,
+  FC, FormEvent,
   memo, useContext, useEffect,
   useRef,
   useState,
@@ -12,17 +12,17 @@ type Props = {
   isAddingTodo: boolean,
   showError: (message: string) => void,
   onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>;
-  toggleAll: () => void;
-  isToggleAll: boolean,
+  handleToggleTodosStatus: () => void;
+  shouldRenderActiveToggle: boolean,
 };
 
 export const Header: FC<Props> = memo((props) => {
   const {
     onAddTodo,
     showError,
-    toggleAll,
+    shouldRenderActiveToggle,
     isAddingTodo,
-    isToggleAll,
+    handleToggleTodosStatus,
   } = props;
 
   const user = useContext(AuthContext);
@@ -36,7 +36,9 @@ export const Header: FC<Props> = memo((props) => {
     }
   }, [isAddingTodo]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!title) {
       showError('Title is required');
 
@@ -68,15 +70,11 @@ export const Header: FC<Props> = memo((props) => {
         data-cy="ToggleAllButton"
         type="button"
         className={cn('todoapp__toggle-all',
-          { active: isToggleAll })}
-        onClick={toggleAll}
+          { active: shouldRenderActiveToggle })}
+        onClick={handleToggleTodosStatus}
       />
 
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
-      >
+      <form onSubmit={onSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

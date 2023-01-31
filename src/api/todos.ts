@@ -10,7 +10,8 @@ export const addTodo = (fieldsToCreate: Omit<Todo, 'id'>) => {
 };
 
 export const deleteTodo = (todoId: number) => {
-  return client.delete(`/todos/${todoId}`);
+  return client.delete<number>(`/todos/${todoId}`)
+    .then(Boolean);
 };
 
 export const updateTodoOnServer = (

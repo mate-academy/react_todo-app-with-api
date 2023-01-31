@@ -25,7 +25,10 @@ import {
   updateTodoOnServer,
 } from './api/todos';
 
-import { getFilterTodos, isAllCompleted } from './components/helperFunction';
+import {
+  getCompletedTodoIds,
+  getFilterTodos,
+} from './components/helperFunction';
 import { useError } from './controllers/useError';
 
 export const App: React.FC = () => {
@@ -33,7 +36,6 @@ export const App: React.FC = () => {
   const [tempNewTodo, setTempNewTodo] = useState<Todo | null>(null);
   const [completedFilter, setCompletedFilter] = useState<Filter>(Filter.all);
   const [processingTodoIds, setProcessingTodoId] = useState<number[]>([]);
-  const [isToggleAll, setIsToggleAll] = useState(false);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
 
   const user = useContext(AuthContext);
@@ -65,105 +67,76 @@ export const App: React.FC = () => {
   },
   [showError]);
 
-  const deleteTodoClick = useCallback(
-    (id: number) => {
-      setProcessingTodoId([id]);
+  const onDeleteTodo = useCallback(async (todoId: number) => {
+    try {
+      setProcessingTodoId(prev => [...prev, todoId]);
 
-      deleteTodo(id)
-        .then(() => (
-          setTodos(currentTodos => currentTodos
-            .filter(todo => todo.id !== id))
-        ))
-        .catch(() => {
-          showError('Unable to delete a todo');
-        })
-        .finally(() => setProcessingTodoId([]));
-    },
-    [showError],
-  );
+      await deleteTodo(todoId);
+
+      setTodos(prev => prev.filter(todo => todo.id !== todoId));
+    } catch {
+      showError('Unable to delete a todo');
+    } finally {
+      setProcessingTodoId(prev => prev.filter(id => id !== todoId));
+    }
+  },
+  [showError]);
 
   const deleteTodoCompleted = useCallback(
     () => {
-      const completedTodoId = todos
-        .filter(todo => todo.completed)
-        .map(todo => todo.id);
+      const completedTodoIds = getCompletedTodoIds(todos);
 
-      setProcessingTodoId(completedTodoId);
+      completedTodoIds.forEach(id => onDeleteTodo(id));
+    },
+    [onDeleteTodo, todos],
+  );
 
-      const deletePromises = todos.map(todo => {
-        if (todo.completed) {
-          return deleteTodo(todo.id)
-            .then(() => setTodos(prev => prev
-              .filter(prevTodo => !completedTodoId.includes(prevTodo.id))));
+  const updateTodo = useCallback(async (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    setProcessingTodoId(prevIds => {
+      if (!prevIds.includes(todoId)) {
+        return [...prevIds, todoId];
+      }
+
+      return prevIds;
+    });
+
+    try {
+      const updatedTodo = await updateTodoOnServer(todoId, fieldsToUpdate);
+
+      setTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
         }
 
-        return Promise.resolve();
-      });
-
-      Promise.all(deletePromises)
-        .finally(() => setProcessingTodoId([]));
-    },
-    [todos],
-  );
-
-  const changeFilterStatus = useCallback(
-    async (id: number, status: boolean) => {
-      setProcessingTodoId([id]);
-
-      try {
-        await updateTodoOnServer(id, { completed: status });
-        setTodos(prev => prev.map(todo => {
-          return todo.id === id
-            ? { ...todo, completed: status }
-            : todo;
-        }));
-      } catch (e) {
-        showError('Unable to update a todo');
-      } finally {
-        setProcessingTodoId([0]);
-      }
-    },
-    [showError],
-  );
-
-  const toggleAll = async () => {
-    const completedTodoId = todos
-      .filter(todo => todo.completed === isToggleAll)
-      .map(todo => todo.id);
-
-    setProcessingTodoId(completedTodoId);
-
-    try {
-      await Promise.all(todos.map(todo => (
-        updateTodoOnServer(todo.id, { completed: !isToggleAll })
-      )));
-
-      setTodos(todos.map(todo => ({ ...todo, completed: !isToggleAll })));
-      setIsToggleAll(prev => !prev);
-    } catch (e) {
+        return updatedTodo;
+      }));
+    } catch {
       showError('Unable to update a todo');
     } finally {
-      setProcessingTodoId([0]);
-    }
-  };
-
-  const updateTodo = useCallback(async (todoToUpdate: Todo) => {
-    try {
-      const { id, ...fieldsToUpdate } = todoToUpdate;
-
-      setProcessingTodoId([id]);
-
-      const updatedTodo = await updateTodoOnServer(id, fieldsToUpdate);
-
-      setTodos(currentTodos => currentTodos.map(todo => (
-        todo.id === updatedTodo.id ? updatedTodo : todo
-      )));
-    } catch (e) {
-      showError('Unable to update a todo');
-    } finally {
-      setProcessingTodoId([0]);
+      setProcessingTodoId(prev => prev.filter(id => id !== todoId));
     }
   }, [showError]);
+
+  const completedTodosAmount = useMemo(() => {
+    return todos.filter(todo => todo.completed).length;
+  }, [todos]);
+
+  const isAllTodosCompleted = todos.length === completedTodosAmount;
+
+  const handleToggleTodosStatus = useCallback(() => {
+    const wantedTodoStatus = !isAllTodosCompleted;
+
+    Promise.all(todos.map(
+      async (todo) => {
+        if (todo.completed !== wantedTodoStatus) {
+          updateTodo(todo.id, { completed: wantedTodoStatus });
+        }
+      },
+    ));
+  }, [isAllTodosCompleted, todos, updateTodo]);
 
   useEffect(() => {
     if (user) {
@@ -172,8 +145,6 @@ export const App: React.FC = () => {
         .catch(() => showError('Can\'t load todos'));
     }
   }, [showError, user]);
-
-  useEffect(() => setIsToggleAll(isAllCompleted(todos)), [todos]);
 
   return (
     <div className="todoapp">
@@ -185,8 +156,8 @@ export const App: React.FC = () => {
           isAddingTodo={isAddingTodo}
           showError={showError}
           onAddTodo={onAddTodo}
-          toggleAll={toggleAll}
-          isToggleAll={isToggleAll}
+          shouldRenderActiveToggle={isAllTodosCompleted}
+          handleToggleTodosStatus={handleToggleTodosStatus}
         />
 
         {todos.length > 0 && (
@@ -194,10 +165,9 @@ export const App: React.FC = () => {
             <TodoList
               todos={filterTodos}
               tempNewTodo={tempNewTodo}
-              deleteTodo={deleteTodoClick}
+              onDeleteTodo={onDeleteTodo}
               processingTodoIds={processingTodoIds}
               updateTodo={updateTodo}
-              changeFilterStatus={changeFilterStatus}
             />
 
             <Footer

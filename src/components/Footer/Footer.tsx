@@ -73,7 +73,7 @@ export const Footer: React.FC<Props> = memo((props) => {
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => handleClearCompleted()}
+          onClick={handleClearCompleted}
         >
           Clear completed
         </button>
