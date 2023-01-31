@@ -46,7 +46,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
-      console.log('focus');
     }
 
     if (user) {
@@ -162,8 +161,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-      <button onClick={() => newTodoField.current?.focus()}>focus</button>
-
       <div className="todoapp__content">
         <Header
           ref={newTodoField}
