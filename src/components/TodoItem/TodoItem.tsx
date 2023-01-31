@@ -1,6 +1,7 @@
-import React, { FC } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoTotleField } from '../TodoTitleField';
 
 type Props = {
   todo: Todo;
@@ -21,6 +22,16 @@ export const TodoItem: FC<Props> = React.memo((props) => {
   } = props;
   const isLoading = todo.id === 0 || isDeleting;
 
+  const [shouldShowInputm, setShouldShowInput] = useState(false);
+
+  const cancelEditing = useCallback(() => {
+    setShouldShowInput(false);
+  }, []);
+
+  const updateTitle = useCallback(async (title: string) => {
+    await updateTodo(todo.id, { title });
+  }, [todo.id]);
+
   return (
     <div
       data-cy="Todo"
@@ -40,16 +51,33 @@ export const TodoItem: FC<Props> = React.memo((props) => {
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">{todo.title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onRemoveTodo(todo.id)}
-      >
-        ×
-      </button>
-
+      {shouldShowInputm
+        ? (
+          <TodoTotleField
+            updateTitle={updateTitle}
+            cancelEditing={cancelEditing}
+            oldTitle={todo.title}
+          />
+        )
+        : (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setShouldShowInput(true)}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDeleteButton"
+              onClick={() => onRemoveTodo(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', { 'is-active': isLoading })}
