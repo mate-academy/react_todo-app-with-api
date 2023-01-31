@@ -5,7 +5,7 @@ It is the third part of the React Todo App with API.
 Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
 and implement the ability to toggle and rename todos.
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+> Here is [the working example](https://RedkoSerhii.github.io/react_todo-app-with-api/)
 
 ## Toggling a todo status
 
