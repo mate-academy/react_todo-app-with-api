@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  // useMemo,
   useRef,
   useState,
 } from 'react';
@@ -105,7 +106,7 @@ export const App: React.FC = () => {
     todoIdToDelete.forEach(itemId => deleteTodo(itemId));
   }, [deleteTodo, todosList]);
 
-  const updateTodos = useCallback(async (
+  const updateTodo = useCallback(async (
     todoId: number,
     newData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
@@ -161,13 +162,14 @@ export const App: React.FC = () => {
           setIsError={setIsError}
           setErrorText={setErrorText}
           isAdding={isAdding}
+          updateTodo={updateTodo}
         />
         <TodoList
           todosList={todosList}
           tempNewTask={tempNewTask}
           deleteTodo={deleteTodo}
           deletingTodoIds={deletingTodoIds}
-          updateTodos={updateTodos}
+          updateTodo={updateTodo}
           updatingTodoIds={updatingTodoIds}
 
         />

@@ -8,7 +8,7 @@ type Props = {
   tempNewTask: Todo | null,
   deleteTodo: (value: number) => void,
   deletingTodoIds: number[],
-  updateTodos: (
+  updateTodo: (
     todoId: number,
     newData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => void,
@@ -20,7 +20,7 @@ export const TodoList: React.FC<Props> = memo(({
   tempNewTask,
   deleteTodo,
   deletingTodoIds,
-  updateTodos,
+  updateTodo,
   updatingTodoIds,
 }) => {
   return (
@@ -41,7 +41,7 @@ export const TodoList: React.FC<Props> = memo(({
               className="todo__status"
               checked={todo.completed}
               readOnly
-              onClick={() => updateTodos(
+              onClick={() => updateTodo(
                 todo.id, { completed: !todo.completed },
               )}
             />

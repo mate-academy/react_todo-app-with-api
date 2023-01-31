@@ -16,10 +16,12 @@ export const Footer: React.FC<Props> = memo(({
   setFilterCondition,
   deleteCompletedTodos,
 }) => {
+  const uncompletedTodo = todosList.filter(todo => todo.completed === false);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todosList.length} items left`}
+        {`${uncompletedTodo.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
