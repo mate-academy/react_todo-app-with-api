@@ -1,21 +1,40 @@
-import { memo } from 'react';
+import { memo, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
 
 type Props = {
   todo: Todo;
   onDeleteTodo: (todoId: number) => Promise<void>;
-  isDeleting: boolean;
+  shouldshowLoader: boolean | number[];
+  updateTodo: (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = memo((props) => {
   const {
     todo,
     onDeleteTodo,
-    isDeleting,
+    shouldshowLoader,
+    updateTodo,
   } = props;
 
-  const isLoading = todo.id === 0 || isDeleting;
+  const isLoading = todo.id === 0 || shouldshowLoader;
+  const todoId = todo.id;
+  const [shouldShowInput, setShouldShowInput] = useState(false);
+  const cancelEditing = useCallback(() => {
+    setShouldShowInput(false);
+  }, []);
+
+  const updateTitle = useCallback(async (title: string) => {
+    await updateTodo(todoId, { title });
+  }, [todoId]);
+
+  const deleteTodo = useCallback(async () => {
+    await onDeleteTodo(todoId);
+  }, [todoId]);
 
   return (
     <div
@@ -32,21 +51,40 @@ export const TodoItem: React.FC<Props> = memo((props) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
+      {
+        shouldShowInput
+          ? (
+            <TodoTitleField
+              cancelEditing={cancelEditing}
+              oldTitle={todo.title}
+              updateTitle={updateTitle}
+              deleteTodo={deleteTodo}
+            />
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setShouldShowInput(true)}
+              >
+                {todo.title}
+              </span>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => onDeleteTodo(todo.id)}
-      >
-        ×
-      </button>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => onDeleteTodo(todo.id)}
+              >
+                ×
+              </button>
+            </>
+          )
+      }
 
       <div
         data-cy="TodoLoader"

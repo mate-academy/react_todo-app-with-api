@@ -7,6 +7,11 @@ type Props = {
   tempTodo: Todo | null;
   onDeleteTodo: (todoId: number) => Promise<void>;
   deletingTodoIds: number[];
+  updateTodo: (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>;
+  updatingTodoIds: number[];
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
@@ -15,6 +20,8 @@ export const TodoList: React.FC<Props> = memo((props) => {
     tempTodo,
     onDeleteTodo,
     deletingTodoIds,
+    updateTodo,
+    updatingTodoIds,
   } = props;
 
   return (
@@ -24,7 +31,11 @@ export const TodoList: React.FC<Props> = memo((props) => {
           todo={todo}
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
-          isDeleting={deletingTodoIds.includes(todo.id)}
+          shouldshowLoader={
+            deletingTodoIds.includes(todo.id) || updatingTodoIds
+          }
+          updateTodo={updateTodo}
+          // updatingTodoIds={updatingTodoIds}
         />
       ))}
 
@@ -32,7 +43,9 @@ export const TodoList: React.FC<Props> = memo((props) => {
         <TodoItem
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
-          isDeleting={deletingTodoIds.includes(tempTodo.id)}
+          shouldshowLoader={deletingTodoIds.includes(tempTodo.id)}
+          updateTodo={updateTodo}
+
         />
       )}
     </section>

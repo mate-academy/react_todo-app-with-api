@@ -31,7 +31,6 @@ export const App: React.FC = () => {
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
 
@@ -111,13 +110,14 @@ export const App: React.FC = () => {
     });
 
     try {
-      await todoApi.updateTodo(todoId, updateData);
+      const updatedTodo = await todoApi.updateTodo(todoId, updateData);
+
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== todoId) {
           return todo;
         }
 
-        return Object.assign(todo, updateData);
+        return Object.assign(todo, updatedTodo);
       }));
     } catch {
       showError('Unable to update a todo');
@@ -126,6 +126,18 @@ export const App: React.FC = () => {
         .filter(prevTodoId => prevTodoId !== todoId));
     }
   }, []);
+
+  const isAllTodosCompleted = todos.length === amountOfActiveTodo;
+
+  const handleToggleTodoStatus = useCallback(() => {
+    const todoStatus = !isAllTodosCompleted;
+
+    todos.forEach(todo => {
+      if (todo.completed !== todoStatus) {
+        updateTodo(todo.id, { completed: todoStatus });
+      }
+    });
+  }, [isAllTodosCompleted, todos]);
 
   return (
     <div className="todoapp">
@@ -137,6 +149,8 @@ export const App: React.FC = () => {
           showError={showError}
           isAddingTodo={isAddingTodo}
           onAddTodo={onAddTodo}
+          shouldRenderActiveToggle={isAllTodosCompleted}
+          handleToggleTodoStatus={handleToggleTodoStatus}
         />
 
         {shouldRenderContent && (
@@ -146,6 +160,9 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onDeleteTodo={onDeleteTodo}
               deletingTodoIds={deletingTodoIds}
+              updateTodo={updateTodo}
+              updatingTodoIds={updatingTodoIds}
+
             />
 
             <Footer

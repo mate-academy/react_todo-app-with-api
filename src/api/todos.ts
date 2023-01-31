@@ -16,11 +16,11 @@ const deleteTodo = (id: number) => {
 
 const updateTodo = (
   todoId: number,
-  updateData: Partial<Pick<Todo, 'title' | 'completed'>>
+  updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
 ) => {
   const url = `/todos/${todoId}`;
 
-  return client.patch(url, updateData);
+  return client.patch<Todo>(url, updateData);
 };
 
 export const todoApi = {
