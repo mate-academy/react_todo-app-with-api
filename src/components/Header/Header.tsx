@@ -2,6 +2,7 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
+import cn from 'classnames';
 import { AuthContext } from '../Auth/AuthContext';
 import { Todo } from '../../types/Todo';
 import { ErrorTypes } from '../../types/ErrorTypes';
@@ -10,6 +11,8 @@ type Props = {
   addTodo: (fieldsToCreate: Omit<Todo, 'id'>) => Promise<void>;
   isAddingTodo: boolean;
   showError: (message: string) => void;
+  isAllTodosCompleted: boolean;
+  toggleAllTodosStatus: () => void;
 };
 
 export const Header: React.FC<Props> = React.memo(
@@ -17,6 +20,8 @@ export const Header: React.FC<Props> = React.memo(
     addTodo,
     isAddingTodo,
     showError,
+    isAllTodosCompleted,
+    toggleAllTodosStatus,
   }) => {
     const user = useContext(AuthContext);
     const newTodoField = useRef<HTMLInputElement>(null);
@@ -59,7 +64,11 @@ export const Header: React.FC<Props> = React.memo(
         <button
           data-cy="ToggleAllButton"
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn(
+            'todoapp__toggle-all',
+            { active: isAllTodosCompleted },
+          )}
+          onClick={() => toggleAllTodosStatus()}
         />
 
         <form

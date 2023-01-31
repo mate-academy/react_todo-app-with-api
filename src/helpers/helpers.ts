@@ -14,6 +14,6 @@ export const filterTodosByCompleted = (
 
     case FilterTypes.ALL:
     default:
-      return [...todos];
+      return todos;
   }
 };

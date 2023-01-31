@@ -105,12 +105,26 @@ export const App: React.FC = () => {
   }, [todos, completedFilter]);
 
   const activeTodosAmount = useMemo(() => {
-    return visibleTodos.filter(todo => !todo.completed).length;
-  }, [visibleTodos]);
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
 
   const completedTodosAmount = useMemo(() => {
-    return visibleTodos.filter(todo => todo.completed).length;
-  }, [visibleTodos]);
+    return todos.filter(todo => todo.completed).length;
+  }, [todos]);
+
+  const isAllTodosCompleted = useMemo(() => {
+    return todos.length === completedTodosAmount;
+  }, [todos, completedTodosAmount]);
+
+  const toggleAllTodosStatus = useCallback(() => {
+    const wantedTodoStatus = !isAllTodosCompleted;
+
+    Promise.all(todos.map(async (todo) => {
+      if (todo.completed !== wantedTodoStatus) {
+        await updateTodo(todo.id, { completed: wantedTodoStatus });
+      }
+    }));
+  }, [isAllTodosCompleted, todos]);
 
   return (
     <div className="todoapp">
@@ -121,6 +135,8 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           isAddingTodo={isAddingTodo}
           showError={showError}
+          isAllTodosCompleted={isAllTodosCompleted}
+          toggleAllTodosStatus={toggleAllTodosStatus}
         />
 
         {(todos.length || tempTodo) && (

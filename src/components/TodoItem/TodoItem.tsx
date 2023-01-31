@@ -5,19 +5,19 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   deleteTodo: (todoId: number) => Promise<void>;
-  shouldShowLoader: boolean;
   updateTodo: (
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => Promise<void>;
+  shouldShowLoader: boolean;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(
   ({
     todo,
     deleteTodo,
-    shouldShowLoader,
     updateTodo,
+    shouldShowLoader,
   }) => {
     return (
       <div

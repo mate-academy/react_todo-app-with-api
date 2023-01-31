@@ -26,5 +26,3 @@ export const todosApi = {
   deleteTodo,
   updateTodo,
 };
-
-// Add more methods here
