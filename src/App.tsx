@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useState, useMemo, useCallback,
+  useContext, useEffect, useState, useMemo,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
 import { TodoList } from './components/TodoList/TodoList';
@@ -7,12 +7,13 @@ import { Filter } from './components/Filter/Filter';
 import { NewTodoField } from './components/NewTodoField/NewTodoField';
 import { Todo } from './types/Todo';
 import { Filters } from './types/Filters';
-import { getTodos, updateTodo } from './api/todos';
+import { getTodos } from './api/todos';
 import { ErrorNotification } from
   './components/ErrorNotification/ErrorNotification';
 import { useAddingTodo } from './controllers/useAddingTodo';
 import { useDeletingTodos } from './controllers/useDeletingTodos';
 import { useError } from './controllers/useError';
+import { useUpdatingTodo } from './controllers/useUpdatingTodo';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
@@ -59,43 +60,6 @@ export const App: React.FC = () => {
 
   const isAllCompletedTodos = todos.length === completedTodosIds.length;
 
-  const editTodo = useCallback(async (
-    todoId: number,
-    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
-  ) => {
-    setLoadingTodosIds((prevIds) => ([...prevIds, todoId]));
-
-    try {
-      await updateTodo(todoId, fieldsToUpdate);
-
-      setTodos((prevTodos) => (prevTodos.map(
-        todo => {
-          const isUpdated = todo.id === todoId;
-
-          return isUpdated
-            ? Object.assign(todo, fieldsToUpdate)
-            : todo;
-        },
-      )));
-    } catch {
-      showError('Unable to update a todo');
-    } finally {
-      setLoadingTodosIds((prevIds) => (prevIds.filter(
-        todoIdToEdit => todoIdToEdit !== todoId,
-      )));
-    }
-  }, []);
-
-  const handleToggleAll = useCallback(() => {
-    const desiredStatus = !isAllCompletedTodos;
-
-    todos.forEach(async (todo) => {
-      if (todo.completed !== desiredStatus) {
-        await editTodo(todo.id, { completed: desiredStatus });
-      }
-    });
-  }, [isAllCompletedTodos, todos]);
-
   const [isAddingTodo, temporaryNewTodo, addTodo] = useAddingTodo(
     {
       setTodos, showError,
@@ -105,6 +69,12 @@ export const App: React.FC = () => {
   const [deleteTodo, removeCompleted] = useDeletingTodos(
     {
       setLoadingTodosIds, setTodos, showError, completedTodosIds,
+    },
+  );
+
+  const [editTodo, handleToggleAll] = useUpdatingTodo(
+    {
+      setLoadingTodosIds, setTodos, showError, isAllCompletedTodos, todos,
     },
   );
 
