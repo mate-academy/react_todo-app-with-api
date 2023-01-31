@@ -15,7 +15,8 @@ interface Props {
   cancelEditing: () => void,
   oldTitle: string,
   updateTitle: (title: string) => Promise<void>,
-  deleteTodoById: () => Promise<void>
+  deleteTodoById: () => Promise<void>,
+  onDeleteTodo: () => void,
 }
 
 export const TodoTitleField: FC<Props> = memo((props) => {
@@ -23,7 +24,8 @@ export const TodoTitleField: FC<Props> = memo((props) => {
     cancelEditing,
     oldTitle,
     updateTitle,
-    deleteTodoById,
+    // deleteTodoById,
+    onDeleteTodo,
   } = props;
   const [title, setTitle] = useState(oldTitle);
 
@@ -41,7 +43,9 @@ export const TodoTitleField: FC<Props> = memo((props) => {
 
   const saveChanges = async () => {
     if (!title.trim()) {
-      deleteTodoById();
+      onDeleteTodo();
+
+      return;
     }
 
     if (oldTitle !== title) {

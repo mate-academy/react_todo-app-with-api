@@ -68,6 +68,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
             oldTitle={todo.title}
             updateTitle={updateTitle}
             deleteTodoById={deleteTodoById}
+            onDeleteTodo={() => onDeleteTodo(todo.id)}
           />
         ) : (
           <>
