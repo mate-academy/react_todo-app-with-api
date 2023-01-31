@@ -16,6 +16,7 @@ type Props = {
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>,
+  isAddingTodo?: boolean,
 };
 
 export const TodoItem: React.FC<Props> = memo((props) => {
@@ -24,6 +25,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
     onDeleteTodo,
     processingTodoIds,
     updateTodo,
+    isAddingTodo,
   } = props;
 
   const [shouldShowInput, setShouldShowInput] = useState(false);
@@ -90,7 +92,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': processingTodoIds.includes(todo.id),
+          'is-active': processingTodoIds.includes(todo.id) || isAddingTodo,
         })}
       >
         <div className="modal-background has-background-white-ter" />

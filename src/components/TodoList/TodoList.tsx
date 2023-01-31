@@ -11,6 +11,7 @@ type Props = {
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>,
+  isAddingTodo: boolean,
 };
 
 export const TodoList: React.FC<Props> = memo((props) => {
@@ -20,6 +21,7 @@ export const TodoList: React.FC<Props> = memo((props) => {
     onDeleteTodo,
     processingTodoIds,
     updateTodo,
+    isAddingTodo,
   } = props;
 
   return (
@@ -36,6 +38,7 @@ export const TodoList: React.FC<Props> = memo((props) => {
 
       {tempNewTodo && (
         <TodoItem
+          isAddingTodo={isAddingTodo}
           todo={tempNewTodo}
           onDeleteTodo={onDeleteTodo}
           processingTodoIds={processingTodoIds}

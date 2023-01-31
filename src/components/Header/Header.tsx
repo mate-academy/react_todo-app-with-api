@@ -11,7 +11,7 @@ import { AuthContext } from '../Auth/AuthContext';
 type Props = {
   isAddingTodo: boolean,
   showError: (message: string) => void,
-  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<any>;
+  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>;
   handleToggleTodosStatus: () => void;
   shouldRenderActiveToggle: boolean,
 };

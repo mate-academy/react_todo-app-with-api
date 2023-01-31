@@ -168,6 +168,7 @@ export const App: React.FC = () => {
               onDeleteTodo={onDeleteTodo}
               processingTodoIds={processingTodoIds}
               updateTodo={updateTodo}
+              isAddingTodo={isAddingTodo}
             />
 
             <Footer
