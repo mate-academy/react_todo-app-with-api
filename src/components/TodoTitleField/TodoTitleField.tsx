@@ -4,17 +4,31 @@ import {
   useState,
   KeyboardEvent,
   FormEvent,
+  useRef,
+  useEffect,
 } from 'react';
 
 type Props = {
   oldTitle: string;
   cancelEditing: () => void;
   updateTitle: (title: string) => Promise<void>;
+  deleteEmptyTodo: () => Promise<void>;
 };
 
 export const TodoTotleField: FC<Props> = memo((props) => {
-  const { cancelEditing, oldTitle, updateTitle } = props;
+  const {
+    cancelEditing,
+    oldTitle,
+    updateTitle,
+    deleteEmptyTodo,
+  } = props;
   const [title, setTitle] = useState(oldTitle);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleCancelingEddit = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -23,7 +37,14 @@ export const TodoTotleField: FC<Props> = memo((props) => {
   };
 
   const saveChanges = async () => {
-    await updateTitle(title);
+    if (!title.trim()) {
+      deleteEmptyTodo();
+    }
+
+    if (oldTitle !== title) {
+      await updateTitle(title);
+    }
+
     cancelEditing();
   };
 
@@ -41,6 +62,7 @@ export const TodoTotleField: FC<Props> = memo((props) => {
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         onKeyDown={handleCancelingEddit}
+        ref={inputRef}
       />
     </form>
   );

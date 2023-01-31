@@ -32,6 +32,10 @@ export const TodoItem: FC<Props> = React.memo((props) => {
     await updateTodo(todo.id, { title });
   }, [todo.id]);
 
+  const deleteEmptyTodo = useCallback(async () => {
+    await onRemoveTodo(todo.id);
+  }, [todo.id]);
+
   return (
     <div
       data-cy="Todo"
@@ -57,6 +61,7 @@ export const TodoItem: FC<Props> = React.memo((props) => {
             updateTitle={updateTitle}
             cancelEditing={cancelEditing}
             oldTitle={todo.title}
+            deleteEmptyTodo={deleteEmptyTodo}
           />
         )
         : (
