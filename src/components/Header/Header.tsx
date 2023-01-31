@@ -29,7 +29,6 @@ export const Header: React.FC<Props> = React.memo(
     const [title, setTitle] = useState('');
 
     useEffect(() => {
-      // focus the element with `ref={newTodoField}`
       if (newTodoField.current) {
         newTodoField.current.focus();
       }

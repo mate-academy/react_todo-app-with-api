@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoTitleInput } from '../TodoTitleInput/TodoTitleInput';
 
 type Props = {
   todo: Todo;
@@ -19,6 +20,8 @@ export const TodoItem: React.FC<Props> = React.memo(
     updateTodo,
     shouldShowLoader,
   }) => {
+    const [shouldShowInput, setShouldShowInput] = useState(false);
+
     return (
       <div
         data-cy="Todo"
@@ -38,18 +41,36 @@ export const TodoItem: React.FC<Props> = React.memo(
           />
         </label>
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {todo.title}
-        </span>
+        {shouldShowInput
+          ? (
+            <TodoTitleInput
+              oldTitle={todo.title}
+              currentTodoId={todo.id}
+              setShouldShowInput={setShouldShowInput}
+              updateTodo={updateTodo}
+              deleteTodo={deleteTodo}
+            />
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setShouldShowInput(true)}
+              >
+                {todo.title}
+              </span>
 
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-          onClick={() => deleteTodo(todo.id)}
-        >
-          ×
-        </button>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => deleteTodo(todo.id)}
+              >
+                ×
+              </button>
+            </>
+          )}
 
         <div
           data-cy="TodoLoader"
