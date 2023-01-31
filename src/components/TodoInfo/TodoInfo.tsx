@@ -75,11 +75,7 @@ export const TodoInfo: React.FC<Props> = ({
             <input
               data-cy="NewTodoField"
               type="text"
-              key={todo.id}
               value={newTitle}
-              onDoubleClick={() => {
-                setIsEditing(true);
-              }}
               onChange={(event) => {
                 setNewTitle(event.target.value);
               }}
@@ -92,7 +88,7 @@ export const TodoInfo: React.FC<Props> = ({
               ref={newTodoField}
               onBlur={titleEditHandler}
               className="todo__title-field"
-              placeholder="What needs to be done?"
+              placeholder="If the title is empty todo will be deleted"
               disabled={!isEditing}
             />
           </form>
@@ -100,7 +96,6 @@ export const TodoInfo: React.FC<Props> = ({
         : (
           <>
             <span
-              key={todo.id}
               data-cy="TodoTitle"
               className="todo__title"
               onDoubleClick={() => {
