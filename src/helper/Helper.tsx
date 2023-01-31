@@ -7,9 +7,6 @@ export const filteredTodos = (
 ) => {
   return todos.filter(todo => {
     switch (completedFilter) {
-      case CompletedFilter.All:
-        return todo;
-
       case CompletedFilter.Active:
         return todo.completed === false;
 
@@ -17,7 +14,7 @@ export const filteredTodos = (
         return todo.completed === true;
 
       default:
-        return null;
+        return todo;
     }
   });
 };

@@ -2,7 +2,7 @@
 
 import cn from 'classnames';
 import React, {
-  useRef, useEffect, useState, useContext,
+  useRef, useEffect, useState, useContext, memo,
 } from 'react';
 import { addTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
@@ -17,7 +17,7 @@ type Props = {
   toggleAll: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = memo(({
   todos,
   isAllTodosCompleted,
   setTemporaryTodo,
@@ -94,4 +94,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

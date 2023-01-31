@@ -6,7 +6,6 @@ import { Todo } from '../types/Todo';
 type Props = {
   todos: Todo[];
   completedFilter: CompletedFilter;
-  hasCompletedTodos: boolean,
   removeCompletedTodos: () => void;
   setCompletedFilter: (filter: CompletedFilter) => void;
 };
@@ -14,7 +13,6 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   todos,
   completedFilter,
-  hasCompletedTodos,
   removeCompletedTodos,
   setCompletedFilter,
 }) => {
@@ -62,13 +60,13 @@ export const Footer: React.FC<Props> = ({
       </nav>
 
       <button
-        disabled={!hasCompletedTodos}
+        disabled={uncompletedTodosAmount === todos.length}
         data-cy="ClearCompletedButton"
         type="button"
         className={cn('todoapp__clear-completed', {
-          inVisible: !hasCompletedTodos,
+          inVisible: uncompletedTodosAmount === todos.length,
         })}
-        onClick={() => removeCompletedTodos()}
+        onClick={removeCompletedTodos}
       >
         Clear completed
       </button>

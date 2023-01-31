@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoInfo } from './TodoInfo';
 
@@ -10,7 +11,7 @@ type Props = {
   updateTodo: (todoToChange: Todo) => void,
 };
 
-export const Todolist: React.FC<Props> = ({
+export const Todolist: React.FC<Props> = memo(({
   todos,
   deletingTodosIds,
   updatingTodosIds,
@@ -42,4 +43,4 @@ export const Todolist: React.FC<Props> = ({
       )}
     </section>
   );
-};
+});

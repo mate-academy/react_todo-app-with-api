@@ -9,7 +9,7 @@ import { CompletedFilter } from './types/CompletedFilter';
 import { Header } from './components/Header';
 import { Todolist } from './components/Todolist';
 import { Footer } from './components/Footer';
-import { Errornotification } from './components/Errornotification';
+import { ErrorNotification } from './components/ErrorNotification';
 import { filteredTodos } from './helper/Helper';
 
 export const App: React.FC = () => {
@@ -21,9 +21,6 @@ export const App: React.FC = () => {
   const [updatingTodosIds, setUpdatingTodosIds] = useState([0]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-
-  const hasCompletedTodos = todos
-    .filter(todoItem => todoItem.completed).length > 0;
 
   const showError = useCallback((message: string) => {
     setErrorMessage(message);
@@ -104,14 +101,22 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(currentTodo => currentTodo.id !== todoId));
-
+      })
+      .catch(() => {
+        showError('Unable to delete a todo');
         setDeletingTodosIds(
           (currentDeletetingTodos) => (
             currentDeletetingTodos.filter(deletingId => deletingId !== todoId)
           ),
         );
       })
-      .catch(() => showError('Unable to delete a todo'));
+      .finally(() => {
+        setDeletingTodosIds(
+          (currentDeletetingTodos) => (
+            currentDeletetingTodos.filter(deletingId => deletingId !== todoId)
+          ),
+        );
+      });
   };
 
   const removeCompletedTodos = () => {
@@ -149,7 +154,6 @@ export const App: React.FC = () => {
             <Footer
               completedFilter={completedFilter}
               todos={todos}
-              hasCompletedTodos={hasCompletedTodos}
               removeCompletedTodos={removeCompletedTodos}
               setCompletedFilter={setCompletedFilter}
             />
@@ -158,7 +162,7 @@ export const App: React.FC = () => {
       </div>
 
       {errorMessage && (
-        <Errornotification
+        <ErrorNotification
           message={errorMessage}
           close={closeErrorMessage}
         />

@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, {
+  useState, useRef, useEffect, memo,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -10,7 +12,7 @@ type Props = {
   updateTodo: (todoToChange: Todo) => void,
 };
 
-export const TodoInfo: React.FC<Props> = ({
+export const TodoInfo: React.FC<Props> = memo(({
   todo,
   deletingTodosIds,
   updatingTodosIds,
@@ -21,6 +23,12 @@ export const TodoInfo: React.FC<Props> = ({
   const [changingTodoTitle, setChangingTodoTitle] = useState(todo.title);
 
   const todoTitleField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (todoTitleField.current) {
+      todoTitleField.current.focus();
+    }
+  }, [isEditing]);
 
   const isProcessingWithLoaderOverlay = deletingTodosIds
     .includes(todo.id || 0) || updatingTodosIds.includes(todo.id || 0);
@@ -38,7 +46,7 @@ export const TodoInfo: React.FC<Props> = ({
       setIsEditing(false);
     }
 
-    if (changingTodoTitle !== todo.title) {
+    if (changingTodoTitle !== todo.title && changingTodoTitle.length > 0) {
       const todoToChange = {
         id: todo.id,
         ...todo,
@@ -75,7 +83,7 @@ export const TodoInfo: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={() => onChangeTodoTitle()}>
+        <form onSubmit={onChangeTodoTitle}>
           <input
             type="text"
             data-cy="TodoTitleField"
@@ -120,4 +128,4 @@ export const TodoInfo: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
