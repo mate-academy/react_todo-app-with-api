@@ -42,8 +42,6 @@ export const TodoTitleField: FC<Props> = memo((props) => {
   const saveChanges = async () => {
     if (!title.trim()) {
       deleteTodoById();
-
-      return;
     }
 
     if (oldTitle !== title) {
