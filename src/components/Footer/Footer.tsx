@@ -8,6 +8,7 @@ interface Props {
   completedFilter: CompletedFilter,
   setCompletedFilter: (v: CompletedFilter) => void;
   onDeleteCompleted: () => void;
+  completedTodosLength: number,
 }
 
 export const Footer: React.FC<Props> = memo(({
@@ -15,6 +16,7 @@ export const Footer: React.FC<Props> = memo(({
   completedFilter,
   setCompletedFilter,
   onDeleteCompleted,
+  completedTodosLength,
 }) => (
 
   <footer className="todoapp__footer" data-cy="Footer">
@@ -62,7 +64,9 @@ export const Footer: React.FC<Props> = memo(({
     <button
       data-cy="ClearCompletedButton"
       type="button"
-      className="todoapp__clear-completed"
+      className={cn('todoapp__clear-completed', {
+        'is-invisible': !completedTodosLength,
+      })}
       onClick={onDeleteCompleted}
     >
       Clear completed

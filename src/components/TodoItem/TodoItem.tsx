@@ -37,7 +37,7 @@ export const TodoItem: React.FC<Props> = memo(({
   }, [isTitleChange]);
 
   const submitEditedTodo = () => {
-    if (!isTitleChange) {
+    if (!editedTitle) {
       deleteTodo(todo.id);
       setIsTitleChange(false);
 

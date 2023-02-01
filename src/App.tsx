@@ -144,6 +144,10 @@ export const App: React.FC = () => {
 
   const shouldRenderContent = todos.length > 0 || !!tempTodo;
 
+  const completedTodosLength = useMemo(() => (
+    todos.filter(todo => todo.completed).length
+  ), [todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -174,6 +178,7 @@ export const App: React.FC = () => {
               completedFilter={completedFilter}
               setCompletedFilter={setCompletedFilter}
               onDeleteCompleted={deleteCompletedTodos}
+              completedTodosLength={completedTodosLength}
             />
           </>
         )}
