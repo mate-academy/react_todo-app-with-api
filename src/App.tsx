@@ -6,6 +6,7 @@ import React,
   useRef,
   useState,
   useCallback,
+  useMemo,
 } from 'react';
 import {
   addTodo,
@@ -21,6 +22,7 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { FilterStatus } from './types/Filter';
 import { TodoItem } from './components/Todo';
+import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -45,33 +47,35 @@ export const App: React.FC = () => {
       getTodos(user.id)
         .then(setTodos)
         .catch(() => {
-          setError('Can\'t load todos');
+          setError(ErrorMessage.unableToLoad);
         });
     }
   }, []);
 
   const remainingTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
-  const filteredTodos = todos.filter(todo => {
-    switch (filterStatus) {
-      case 'Completed':
-        return todo.completed;
+  const filteredTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filterStatus) {
+        case 'Completed':
+          return todo.completed;
 
-      case 'Active':
-        return !todo.completed;
+        case 'Active':
+          return !todo.completed;
 
-      default:
-        return true;
-    }
-  });
+        default:
+          return true;
+      }
+    });
+  }, [todos, filterStatus]);
 
-  const handleSubmitButton = (
+  const handleSubmitButton = useCallback((
     e: React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
 
-    if (!title) {
-      setError('Title can\'t be empty');
+    if (!title.trim()) {
+      setError(ErrorMessage.emptyTitle);
 
       return;
     }
@@ -95,16 +99,16 @@ export const App: React.FC = () => {
             completed: addedTodo.completed,
           }]);
         })
-        .catch(() => setError('Unable to add a todo'))
+        .catch(() => setError(ErrorMessage.unableToAdd))
         .finally(() => {
           setTitle('');
           setIsAdding(false);
           setTempTodo(null);
         });
     }
-  };
+  }, [title, user]);
 
-  const handleDeleteButton = (todoId: number) => {
+  const handleDeleteButton = useCallback((todoId: number) => {
     setDeletingDataIds(prev => [...prev, todoId]);
 
     deleteTodo(todoId)
@@ -113,11 +117,11 @@ export const App: React.FC = () => {
           return deletedTodo.filter(todo => todo.id !== todoId);
         });
       })
-      .catch(() => setError('Unable to delete a todo'))
+      .catch(() => setError(ErrorMessage.unableToDelete))
       .finally(() => {
         setDeletingDataIds([]);
       });
-  };
+  }, []);
 
   const handleClearButton = () => {
     todos.forEach(todo => {
@@ -144,7 +148,7 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setError('Unable to update a todo');
+        setError(ErrorMessage.unableToUpdate);
       })
       .finally(() => {
         setUpdatingDataIds([]);
