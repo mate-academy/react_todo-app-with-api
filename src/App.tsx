@@ -55,24 +55,22 @@ export const App: React.FC = () => {
   const remainingTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
   const filteredTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filterStatus) {
-        case 'Completed':
-          return todo.completed;
+    switch (filterStatus) {
+      case 'Completed':
+        return todos.filter(todo => todo.completed);
 
-        case 'Active':
-          return !todo.completed;
+      case 'Active':
+        return todos.filter(todo => !todo.completed);
 
-        default:
-          return true;
-      }
-    });
+      default:
+        return todos;
+    }
   }, [todos, filterStatus]);
 
   const handleSubmitButton = useCallback((
-    e: React.FormEvent<HTMLFormElement>,
+    event: React.FormEvent<HTMLFormElement>,
   ) => {
-    e.preventDefault();
+    event.preventDefault();
 
     if (!title.trim()) {
       setError(ErrorMessage.emptyTitle);

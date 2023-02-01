@@ -1,5 +1,6 @@
 import cn from 'classnames';
 import { FilterStatus } from '../../types/Filter';
+import { FilterStates } from './FilterStates';
 
 type Props = {
   setFilterStatus: React.Dispatch<React.SetStateAction<FilterStatus>>,
@@ -12,9 +13,11 @@ export const Filter: React.FC<Props> = ({ setFilterStatus, filterStatus }) => {
       <a
         data-cy="FilterLinkAll"
         href="#/"
-        // className="filter__link selected"
-        className={cn('filter__link', { selected: filterStatus === 'All' })}
-        onClick={() => setFilterStatus('All')}
+        className={cn(
+          'filter__link',
+          { selected: filterStatus === FilterStates.All },
+        )}
+        onClick={() => setFilterStatus(FilterStates.All)}
       >
         All
       </a>
@@ -22,8 +25,11 @@ export const Filter: React.FC<Props> = ({ setFilterStatus, filterStatus }) => {
       <a
         data-cy="FilterLinkActive"
         href="#/active"
-        className={cn('filter__link', { selected: filterStatus === 'Active' })}
-        onClick={() => setFilterStatus('Active')}
+        className={cn(
+          'filter__link',
+          { selected: filterStatus === FilterStates.Active },
+        )}
+        onClick={() => setFilterStatus(FilterStates.Active)}
       >
         Active
       </a>
@@ -31,9 +37,9 @@ export const Filter: React.FC<Props> = ({ setFilterStatus, filterStatus }) => {
         data-cy="FilterLinkCompleted"
         href="#/completed"
         className={cn('filter__link', {
-          selected: filterStatus === 'Completed',
+          selected: filterStatus === FilterStates.Completed,
         })}
-        onClick={() => setFilterStatus('Completed')}
+        onClick={() => setFilterStatus(FilterStates.Completed)}
       >
         Completed
       </a>
