@@ -7,10 +7,10 @@ export const getFilterTodos = (
 ) => {
   return todos.filter(todo => {
     switch (completedFilter) {
-      case Filter.completed:
+      case Filter.Completed:
         return todo.completed;
 
-      case Filter.active:
+      case Filter.Active:
         return !todo.completed;
 
       default:

@@ -39,9 +39,9 @@ export const Footer: React.FC<Props> = memo((props) => {
           data-cy="FilterLinkAll"
           href="#/"
           className={cn('filter__link', {
-            selected: completedFilter === Filter.all,
+            selected: completedFilter === Filter.All,
           })}
-          onClick={() => setCompletedFilter(Filter.all)}
+          onClick={() => setCompletedFilter(Filter.All)}
         >
           All
         </a>
@@ -50,9 +50,9 @@ export const Footer: React.FC<Props> = memo((props) => {
           data-cy="FilterLinkActive"
           href="#/active"
           className={cn('filter__link', {
-            selected: completedFilter === Filter.active,
+            selected: completedFilter === Filter.Active,
           })}
-          onClick={() => setCompletedFilter(Filter.active)}
+          onClick={() => setCompletedFilter(Filter.Active)}
         >
           Active
         </a>
@@ -60,9 +60,9 @@ export const Footer: React.FC<Props> = memo((props) => {
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={cn('filter__link', {
-            selected: completedFilter === Filter.completed,
+            selected: completedFilter === Filter.Completed,
           })}
-          onClick={() => setCompletedFilter(Filter.completed)}
+          onClick={() => setCompletedFilter(Filter.Completed)}
         >
           Completed
         </a>

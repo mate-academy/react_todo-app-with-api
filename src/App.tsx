@@ -34,7 +34,7 @@ import { useError } from './controllers/useError';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempNewTodo, setTempNewTodo] = useState<Todo | null>(null);
-  const [completedFilter, setCompletedFilter] = useState<Filter>(Filter.all);
+  const [completedFilter, setCompletedFilter] = useState<Filter>(Filter.All);
   const [processingTodoIds, setProcessingTodoId] = useState<number[]>([]);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
 

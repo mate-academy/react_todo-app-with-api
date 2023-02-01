@@ -24,7 +24,6 @@ export const TodoTitleField: FC<Props> = memo((props) => {
     cancelEditing,
     oldTitle,
     updateTitle,
-    // deleteTodoById,
     onDeleteTodo,
   } = props;
   const [title, setTitle] = useState(oldTitle);

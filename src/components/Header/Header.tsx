@@ -51,16 +51,12 @@ export const Header: FC<Props> = memo((props) => {
       return;
     }
 
-    try {
-      await onAddTodo({
-        title,
-        userId: user.id,
-        completed: false,
-      });
-      setTitle('');
-    } catch {
-    /* empty */
-    }
+    await onAddTodo({
+      title,
+      userId: user.id,
+      completed: false,
+    });
+    setTitle('');
   };
 
   return (
