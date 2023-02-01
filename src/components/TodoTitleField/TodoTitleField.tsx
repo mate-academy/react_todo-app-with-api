@@ -3,20 +3,30 @@ import {
   useState,
   KeyboardEvent,
   FormEvent,
+  useRef,
+  useEffect,
 } from 'react';
 
 interface TodoTitleFieldProps {
   oldTitle: string;
   cancelEditing: () => void;
   updateTitle: (title: string) => Promise<void>;
+  deleteTodo: () => Promise<void>;
 }
 
 export const TodoTitleField = memo<TodoTitleFieldProps>(({
   oldTitle,
   cancelEditing,
   updateTitle,
+  deleteTodo,
 }) => {
   const [title, setTitle] = useState(oldTitle);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleCanceling = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -25,7 +35,14 @@ export const TodoTitleField = memo<TodoTitleFieldProps>(({
   };
 
   const saveChanges = async () => {
-    await updateTitle(title);
+    if (!title.trim()) {
+      deleteTodo();
+    }
+
+    if (oldTitle !== title) {
+      await updateTitle(title);
+    }
+
     cancelEditing();
   };
 
@@ -43,6 +60,7 @@ export const TodoTitleField = memo<TodoTitleFieldProps>(({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         onKeyDown={handleCanceling}
+        ref={inputRef}
       />
     </form>
   );

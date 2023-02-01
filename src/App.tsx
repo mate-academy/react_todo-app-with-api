@@ -146,9 +146,9 @@ export const App: React.FC = () => {
   const handleToggleTodosStatus = useCallback(() => {
     const neededTodosStatus = !shouldRenderActiveToggle;
 
-    todos.forEach(todo => {
+    todos.forEach(async (todo) => {
       if (todo.completed !== neededTodosStatus) {
-        updateTodo(todo.id, { completed: neededTodosStatus });
+        await updateTodo(todo.id, { completed: neededTodosStatus });
       }
     });
   }, [shouldRenderActiveToggle, todos, updateTodo]);

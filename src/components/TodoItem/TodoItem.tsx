@@ -38,6 +38,10 @@ export const TodoItem: FC<TodoItemProps> = memo(
       await updateTodo(todoId, { title });
     }, [todoId, updateTodo]);
 
+    const deleteTodobyId = useCallback(async () => {
+      await deleteTodo(todoId);
+    }, [deleteTodo, todoId]);
+
     return (
       <div
         data-cy="Todo"
@@ -64,6 +68,7 @@ export const TodoItem: FC<TodoItemProps> = memo(
                 oldTitle={todo.title}
                 cancelEditing={cancelEditing}
                 updateTitle={updateTitle}
+                deleteTodo={deleteTodobyId}
               />
             )
             : (
