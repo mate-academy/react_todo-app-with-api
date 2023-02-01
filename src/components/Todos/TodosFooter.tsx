@@ -1,26 +1,32 @@
 import { FC, memo, useContext } from 'react';
 import { TodosContext } from './TodosContext';
 
-export const TodosFooter: FC<{ todosCount: number }> = memo(({
-  todosCount,
-}) => {
+export const TodosFooter: FC = memo(() => {
   const {
+    todos,
     setTodos,
     filterType,
     setFilterType,
   } = useContext(TodosContext);
 
+  const total = todos.length;
+  const completed = todos.filter(t => t.completed).length;
+  const active = total - completed;
+
   return (
     <div className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${todosCount} items left`}
+        {`${active} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
         <a
           data-cy="FilterLinkAll"
           href="#/"
-          className={`filter__link ${filterType === 'all' ? 'selected' : ''}`}
+          className={`filter__link ${
+            filterType === 'all' ? 'selected'
+              : ''} ${
+            !total ? 'is-disabled' : ''}`}
           onClick={() => setFilterType('all')}
         >
           All
@@ -29,7 +35,10 @@ export const TodosFooter: FC<{ todosCount: number }> = memo(({
         <a
           data-cy="FilterLinkActive"
           href="#/active"
-          className={`filter__link ${filterType === 'active' ? 'selected' : ''}`}
+          className={`filter__link ${
+            filterType === 'active' ? 'selected'
+              : ''} ${
+            !active ? 'is-disabled' : ''}`}
           onClick={() => setFilterType('active')}
         >
           Active
@@ -37,7 +46,13 @@ export const TodosFooter: FC<{ todosCount: number }> = memo(({
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"
-          className={`filter__link ${filterType === 'completed' ? 'selected' : ''}`}
+          className={
+            `filter__link ${
+              filterType === 'completed' ? 'selected' : ''
+            } ${
+              !completed ? 'is-disabled' : ''
+            }`
+          }
           onClick={() => setFilterType('completed')}
         >
           Completed
@@ -47,7 +62,9 @@ export const TodosFooter: FC<{ todosCount: number }> = memo(({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
+        className={`todoapp__clear-completed ${
+          !completed ? 'is-disabled' : ''
+        }`}
         onClick={() => setTodos(prev => prev.filter(item => !item.completed))}
       >
         Clear completed

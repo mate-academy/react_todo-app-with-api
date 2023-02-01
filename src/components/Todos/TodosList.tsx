@@ -43,7 +43,7 @@ export const TodosList = () => {
           todo={todo}
           setTodos={setTodos}
           setErrors={setErrors}
-          pending={pendingTodos.includes(todo.id)}
+          pending={pendingTodos.includes(todo.id) || todo.id === 0}
           setPendingTodos={setPendingTodos}
         />
       ))}

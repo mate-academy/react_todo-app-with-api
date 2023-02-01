@@ -10,15 +10,25 @@ import { TodosContext } from './TodosContext';
 
 export const TodosError = memo(() => {
   const parentRef = useRef(null);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>();
   const { errors, setErrors } = useContext(TodosContext);
   const { length } = errors;
   const getKey = useCallback((index: number) => `error_${index}`, []);
 
-  const closeErrors = useCallback(() => {
-    if (length) {
-      setErrors([]);
+  const clearErrors = () => {
+    setErrors([]);
+  };
+
+  const debounceClearErrors = () => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
     }
-  }, [length, setErrors]);
+
+    timeoutId.current = setTimeout(() => {
+      clearErrors();
+      timeoutId.current = null;
+    }, 3000);
+  };
 
   useEffect(() => {
     if (parentRef.current) {
@@ -27,23 +37,21 @@ export const TodosError = memo(() => {
   }, []);
 
   if (length) {
-    setInterval(() => {
-      closeErrors();
-    }, 3000);
+    debounceClearErrors();
   }
 
   return (
     <div
       ref={parentRef}
       data-cy="ErrorNotification"
-      className={`notification is-danger is-light has-text-weight-normal ${!errors.length ? 'hidden' : ''}`}
+      className={`notification is-danger is-light has-text-weight-normal ${!length ? 'hidden' : ''}`}
     >
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
         aria-label="hide errors"
-        onClick={closeErrors}
+        onClick={clearErrors}
       />
 
       {errors.map((error, i) => (

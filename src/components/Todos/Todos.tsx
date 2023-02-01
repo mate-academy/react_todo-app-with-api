@@ -14,7 +14,12 @@ import { TodosContext } from './TodosContext';
 
 export const Todos = memo(
   () => {
-    const { todos, setTodos } = useContext(TodosContext);
+    const {
+      todos,
+      setTodos,
+      setErrors,
+      setPendingTodos,
+    } = useContext(TodosContext);
     const parentRef = useRef(null);
 
     useEffect(() => {
@@ -26,10 +31,19 @@ export const Todos = memo(
     const allChecked = todos.every(todo => todo.completed);
 
     const checkAll = () => {
+      setPendingTodos(todos.map(todo => todo.id));
       setTodos(prev => prev.map(todo => {
-        if (!todo.completed) {
-          updateTodo(todo.id, { completed: !allChecked });
-        }
+        updateTodo(todo.id, { completed: !allChecked })
+          .catch(() => {
+            setErrors(prevErrors => [
+              'Unable to update a todo',
+              ...prevErrors,
+            ]);
+          })
+          .finally(() => {
+            setPendingTodos(prevPTodos => prevPTodos
+              .filter(id => id !== todo.id));
+          });
 
         return {
           ...todo,
@@ -48,7 +62,8 @@ export const Todos = memo(
             <button
               data-cy="ToggleAllButton"
               type="button"
-              className={`todoapp__toggle-all ${allChecked ? 'active' : ''}`}
+              className={`todoapp__toggle-all ${
+                allChecked && todosCount ? 'active' : ''}`}
               aria-label="Toggle list"
               onClick={checkAll}
             />
@@ -57,7 +72,7 @@ export const Todos = memo(
           {!!todosCount && (
             <>
               <TodosList />
-              <TodosFooter todosCount={todosCount} />
+              <TodosFooter />
             </>
           )}
         </div>

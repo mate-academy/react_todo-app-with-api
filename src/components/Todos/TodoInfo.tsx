@@ -50,8 +50,8 @@ export const TodoInfo: FC<Props> = memo(({
 
   const addErrorCallback = useCallback((newError: string) => {
     return (prev: string[]) => [
-      ...prev,
       newError,
+      ...prev,
     ];
   }, []);
 
@@ -118,7 +118,10 @@ export const TodoInfo: FC<Props> = memo(({
         })]);
       })
       .catch(_ => {
-        setErrors(prev => [...prev, 'Unable to update a todo']);
+        setErrors(prev => [
+          'Unable to update a todo',
+          ...prev,
+        ]);
       }).finally(() => {
         setPendingTodos(prev => prev.filter(id => id !== todo.id));
       });
