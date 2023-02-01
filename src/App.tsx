@@ -92,8 +92,8 @@ export const App: React.FC = () => {
   const onDeleteCompleted = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
 
-    completedTodoIds.forEach(id => onDeleteTodo(id), [onDeleteTodo, todos]);
-  }, []);
+    completedTodoIds.forEach(id => onDeleteTodo(id));
+  }, [onDeleteTodo, todos]);
 
   const updateTodo = useCallback(async (
     todoId: number,
