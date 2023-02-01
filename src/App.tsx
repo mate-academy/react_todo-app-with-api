@@ -178,6 +178,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Something went wrong while updating todo');
     } finally {
+      setSelectedTodoIds([]);
       setIsTodoUpdating(false);
     }
   }, []);
