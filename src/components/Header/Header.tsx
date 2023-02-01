@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = memo(({
           disabled={isAddingTodo}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          data-cy="NewTodoField"
+          data-cy="TodoTitleField"
           type="text"
           ref={newTodoField}
           className="todoapp__new-todo"

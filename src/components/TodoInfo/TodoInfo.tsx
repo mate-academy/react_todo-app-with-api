@@ -1,4 +1,6 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, {
+  memo, useState, useCallback,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
@@ -27,7 +29,7 @@ export const TodoInfo: React.FC<Props> = memo(({
   } = todo;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [changeTitle, setChangeTitle] = useState(false);
+  const [isTitleChanging, setIsTitleChanging] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
   const handleDeleteTodo = async () => {
@@ -46,7 +48,7 @@ export const TodoInfo: React.FC<Props> = memo(({
   };
 
   const cancelUpdate = useCallback(() => {
-    setChangeTitle(false);
+    setIsTitleChanging(false);
     setNewTitle(title);
   }, []);
 
@@ -75,7 +77,7 @@ export const TodoInfo: React.FC<Props> = memo(({
       todo.id,
       { title: normalizeTitle },
     );
-    setChangeTitle(false);
+    setIsTitleChanging(false);
   }, [newTitle]);
 
   return (
@@ -94,7 +96,7 @@ export const TodoInfo: React.FC<Props> = memo(({
         />
       </label>
 
-      {changeTitle ? (
+      {isTitleChanging ? (
         <TodoTitleField
           title={newTitle}
           newTodoField={newTodoField}
@@ -107,7 +109,7 @@ export const TodoInfo: React.FC<Props> = memo(({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setChangeTitle(true)}
+            onDoubleClick={() => setIsTitleChanging(true)}
           >
             {todo.title}
           </span>

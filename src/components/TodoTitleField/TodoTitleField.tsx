@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useRef, useEffect } from 'react';
 
 type Props = {
   newTodoField?: React.RefObject<HTMLInputElement>;
@@ -10,20 +10,17 @@ type Props = {
 };
 
 export const TodoTitleField: React.FC<Props> = memo(({
-  newTodoField,
+  // newTodoField,
   title,
   isTodoAdding,
   submitForm,
   setTitle,
   cancelUpdate,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField) {
-      if (newTodoField.current) {
-        newTodoField.current.focus();
-      }
-    }
+    inputRef.current?.focus();
   }, []);
 
   const handleCanceling = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -35,9 +32,10 @@ export const TodoTitleField: React.FC<Props> = memo(({
   return (
     <form onSubmit={submitForm}>
       <input
+        data-cy="TodoTitleField"
         type="text"
-        ref={newTodoField}
-        className="todoapp__new-todo"
+        ref={inputRef}
+        className="todo__title-field"
         placeholder="What needs to be done?"
         value={title}
         onChange={(event) => setTitle(event.currentTarget.value)}
