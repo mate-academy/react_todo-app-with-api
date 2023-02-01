@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     getFilteredTodos(todos, statusFilter)
   ), [todos, statusFilter]);
 
-  const addingNewTodo = (event: React.FormEvent) => {
+  const addingNewTodo = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     if (!newTodoTitle.trim()) {
@@ -88,7 +88,7 @@ export const App: React.FC = () => {
           setIsAdding(false);
         });
     }
-  };
+  }, [newTodoTitle]);
 
   const removeTodo = useCallback(
     ((selectedTodoId: number) => {
@@ -150,9 +150,8 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const changeAllTodos = useCallback(() => (
-    // eslint-disable-next-line array-callback-return
-    todos.map(todo => {
+  const toggleTodosStatuses = useCallback(() => (
+    todos.forEach(todo => {
       const todoNeedToBeUpdated = (!todo.completed && !isAllCompleted)
         || isAllCompleted;
 
@@ -162,7 +161,7 @@ export const App: React.FC = () => {
     })
   ), [todos]);
 
-  const amountOfActive = useMemo(() => (
+  const amountOfActiveTodos = useMemo(() => (
     todos.filter(
       todo => !todo.completed,
     ).length
@@ -178,9 +177,9 @@ export const App: React.FC = () => {
     }, [todos],
   );
 
-  const onCloseError = () => (
+  const onCloseError = useCallback(() => (
     setError('')
-  );
+  ), []);
 
   return (
     <div className="todoapp">
@@ -188,14 +187,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <AppHeader
-          todos={todos}
+          lengthOfTodos={todos.length}
           newTodoField={newTodoField}
           isAllCompleted={isAllCompleted}
           newTodoTitle={newTodoTitle}
           addingNewTodo={addingNewTodo}
           newTitle={setNewTodoTitle}
           isAdding={isAdding}
-          changeAllTodos={changeAllTodos}
+          toggleTodosStatuses={toggleTodosStatuses}
         />
 
         {(todos.length !== 0 || tempTodo) && (
@@ -209,7 +208,7 @@ export const App: React.FC = () => {
             />
 
             <AppFooter
-              amountOfActive={amountOfActive}
+              amountOfActiveTodos={amountOfActiveTodos}
               completedTodosLength={completedTodosLength}
               statusFilter={statusFilter}
               onChangeStatusFilter={setStatusFilter}
