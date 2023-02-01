@@ -1,16 +1,42 @@
-import { FC, memo } from 'react';
+import {
+  FC,
+  memo,
+  useCallback,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
 
 interface TodoItemProps {
   todo: Todo;
   deleteTodo: (todoId: number) => Promise<unknown>;
-  isDeleting: boolean;
+  shouldShowLoader: boolean;
+  updateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>;
 }
 
 export const TodoItem: FC<TodoItemProps> = memo(
-  ({ todo, deleteTodo, isDeleting }) => {
-    const isLoading = todo.id === 0 || isDeleting;
+  ({
+    todo,
+    deleteTodo,
+    shouldShowLoader,
+    updateTodo,
+  }) => {
+    const todoId = todo.id;
+    const isLoading = todoId === 0 || shouldShowLoader;
+
+    const [shouldShowInput, setShouldShowInput] = useState(false);
+
+    const cancelEditing = useCallback(() => {
+      setShouldShowInput(false);
+    }, []);
+
+    const updateTitle = useCallback(async (title: string) => {
+      await updateTodo(todoId, { title });
+    }, [todoId, updateTodo]);
 
     return (
       <div
@@ -25,25 +51,42 @@ export const TodoItem: FC<TodoItemProps> = memo(
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            defaultChecked
+            checked={todo.completed}
+            readOnly
+            onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
           />
         </label>
 
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-        >
-          {todo.title}
-        </span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-          onClick={() => deleteTodo(todo.id)}
-        >
-          ×
-        </button>
+        {
+          shouldShowInput
+            ? (
+              <TodoTitleField
+                oldTitle={todo.title}
+                cancelEditing={cancelEditing}
+                updateTitle={updateTitle}
+              />
+            )
+            : (
+              <>
+                <span
+                  data-cy="TodoTitle"
+                  className="todo__title"
+                  onDoubleClick={() => setShouldShowInput(true)}
+                >
+                  {todo.title}
+                </span>
 
+                <button
+                  type="button"
+                  className="todo__remove"
+                  data-cy="TodoDeleteButton"
+                  onClick={() => deleteTodo(todo.id)}
+                >
+                  ×
+                </button>
+              </>
+            )
+        }
         <div
           data-cy="TodoLoader"
           className={cn('modal overlay', { 'is-active': isLoading })}
