@@ -29,9 +29,9 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState(FilterType.ALL);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [title, setTitle] = useState('');
+  const [selectedTodosId, setSelectedTodosId] = useState<number []>([]);
 
   useEffect(() => {
     if (newTodoField.current) {
@@ -84,12 +84,17 @@ export const App: React.FC = () => {
 
   const removeTodo = useCallback(async (todoId: number) => {
     try {
+      setSelectedTodosId(todosIds => [
+        ...todosIds,
+        todoId,
+      ]);
       await deleteTodo(todoId);
 
       setTodos(prevTodos => prevTodos.filter(
         todo => todo.id !== todoId,
       ));
       setErrorMessage('');
+      setSelectedTodosId(todosIds => todosIds.filter(id => id !== todoId));
     } catch (error) {
       setErrorMessage(ErrorType.REMOVE);
     }
@@ -108,7 +113,10 @@ export const App: React.FC = () => {
     updateData: Partial<Todo>,
   ) => {
     try {
-      setIsUpdating(true);
+      setSelectedTodosId(todosIds => [
+        ...todosIds,
+        todoId,
+      ]);
       await updateTodo(todoId, updateData);
 
       setTodos(prevTodos => prevTodos.map(todo => (
@@ -116,7 +124,7 @@ export const App: React.FC = () => {
           ? { ...todo, ...updateData }
           : todo
       )));
-      setIsUpdating(false);
+      setSelectedTodosId(todosIds => todosIds.filter(id => id !== todoId));
     } catch (error) {
       setErrorMessage(ErrorType.UPDATE);
     }
@@ -130,9 +138,7 @@ export const App: React.FC = () => {
     todoId: number,
     updateData: Partial<Todo>,
   ) => {
-    setIsUpdating(true);
     await onUpdateTodo(todoId, updateData);
-    setIsUpdating(false);
   };
 
   const changeAllTodos = useCallback(() => {
@@ -189,7 +195,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               isAddingTodo={isAddingTodo}
               onUpdateTodo={onUpdateTodo}
-              isUpdating={isUpdating}
+              selectedTodosId={selectedTodosId}
             />
             <Footer
               activeTodos={activeTodos}

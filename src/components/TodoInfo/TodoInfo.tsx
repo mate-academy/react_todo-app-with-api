@@ -8,8 +8,8 @@ interface Props {
   newTodoField?: React.RefObject<HTMLInputElement>;
   removeTodo: (todoId: number) => Promise<void>;
   isAddingTodo: boolean;
-  isUpdating: boolean;
   onUpdateTodo: (todoId: number, updateData: Partial<Todo>) => Promise<void>
+  selectedTodosId?: number[];
 }
 
 export const TodoInfo: React.FC<Props> = memo(({
@@ -17,8 +17,8 @@ export const TodoInfo: React.FC<Props> = memo(({
   newTodoField,
   removeTodo,
   isAddingTodo,
-  isUpdating,
   onUpdateTodo,
+  selectedTodosId,
 }) => {
   const {
     id,
@@ -42,11 +42,7 @@ export const TodoInfo: React.FC<Props> = memo(({
     todoId: number,
     updateData: Partial<Todo>,
   ) => {
-    setIsLoading(true);
-
     await onUpdateTodo(todoId, updateData);
-
-    setIsLoading(false);
   };
 
   const cancelUpdate = useCallback(() => {
@@ -134,7 +130,8 @@ export const TodoInfo: React.FC<Props> = memo(({
           'overlay',
           {
             'is-active': isLoading
-            || isAddingTodo || isUpdating,
+            || isAddingTodo
+            || selectedTodosId?.includes(todo.id),
           },
         )}
       >

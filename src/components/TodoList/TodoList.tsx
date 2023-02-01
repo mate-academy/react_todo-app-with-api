@@ -7,8 +7,8 @@ interface Props {
   removeTodo: (todoId: number) => Promise<void>,
   tempTodo: Todo | null,
   isAddingTodo: boolean,
-  isUpdating: boolean,
   onUpdateTodo: (todoId: number, updateData: Partial<Todo>) => Promise<void>
+  selectedTodosId: number[];
 }
 
 export const TodoList: React.FC<Props> = memo(({
@@ -16,8 +16,9 @@ export const TodoList: React.FC<Props> = memo(({
   removeTodo,
   tempTodo,
   isAddingTodo,
-  isUpdating,
   onUpdateTodo,
+  selectedTodosId,
+
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -28,7 +29,7 @@ export const TodoList: React.FC<Props> = memo(({
           removeTodo={removeTodo}
           isAddingTodo={false}
           onUpdateTodo={onUpdateTodo}
-          isUpdating={false}
+          selectedTodosId={selectedTodosId}
         />
       ))}
 
@@ -38,7 +39,6 @@ export const TodoList: React.FC<Props> = memo(({
           todo={tempTodo}
           removeTodo={removeTodo}
           onUpdateTodo={onUpdateTodo}
-          isUpdating={isUpdating}
         />
       )}
     </section>
