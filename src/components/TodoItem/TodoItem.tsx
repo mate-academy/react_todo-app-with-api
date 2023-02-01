@@ -6,17 +6,16 @@ type Props = {
   todo: Todo;
   onTodoDelete?: (todoId: number) => Promise<void>;
   isDeleting?: boolean;
-  onEditTodo?: (todoId: number, dataToUpdate: Partial<Todo>) => Promise<void>
+  onEditTodo?: (todoId: number,
+    dataToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>) => Promise<void>
 };
 
-export const TodoItem: React.FC<Props> = memo((props) => {
-  const {
-    todo,
-    onTodoDelete = () => {},
-    isDeleting,
-    onEditTodo = () => {},
-  } = props;
-
+export const TodoItem: React.FC<Props> = memo(({
+  todo,
+  onTodoDelete = () => { },
+  isDeleting,
+  onEditTodo = () => { },
+}) => {
   const todoTitleField = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [tempTitle, setTempTitle] = useState(todo.title);

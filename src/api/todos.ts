@@ -15,7 +15,7 @@ export const removeTodo = (todoId: number) => {
 
 export const updateTodo = (
   todoId: number,
-  fieldsToUpdate: Partial<Todo>,
+  fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
 ) => {
   return client.patch(`/todos/${todoId}`, fieldsToUpdate);
 };

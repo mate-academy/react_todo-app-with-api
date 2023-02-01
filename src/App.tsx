@@ -25,7 +25,6 @@ import { getFilteredTodos } from './components/helpers/getFilteredTodos';
 import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
 
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -120,7 +119,7 @@ export const App: React.FC = () => {
 
   const editTodo = useCallback(async (
     todoId: number,
-    fieldsToUpdate: Partial<Todo>,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     setSelectedTodosIds(prev => [...prev, todoId]);
     try {
@@ -143,7 +142,7 @@ export const App: React.FC = () => {
 
   const toggleAllTodos = async (
     todoId: number,
-    fieldsToUpdate: Partial<Todo>,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     await editTodo(todoId, fieldsToUpdate);
   };
@@ -174,6 +173,8 @@ export const App: React.FC = () => {
     todos.filter(todo => todo.completed).length
   ), [todos]);
 
+  const shouldShowAll = todos.length > 0 || tempTodo;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -188,7 +189,7 @@ export const App: React.FC = () => {
           isAllTodosCompleted={isAllTodosCompleted}
         />
 
-        {(todos.length > 0 || tempTodo) && (
+        {shouldShowAll && (
           <>
             <TodoList
               todos={filteredTodos}

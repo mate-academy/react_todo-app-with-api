@@ -10,16 +10,14 @@ type Props = {
   isAllTodosCompleted: boolean;
 };
 
-export const Header: React.FC<Props> = memo((props) => {
-  const {
-    newTitle,
-    setNewTitle,
-    onAddNewTodo,
-    isAdding,
-    onChangeAllTodos,
-    isAllTodosCompleted,
-  } = props;
-
+export const Header: React.FC<Props> = memo(({
+  newTitle,
+  setNewTitle,
+  onAddNewTodo,
+  isAdding,
+  onChangeAllTodos,
+  isAllTodosCompleted,
+}) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,7 +47,7 @@ export const Header: React.FC<Props> = memo((props) => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
+          onChange={(event) => setNewTitle(event.target.value)}
           disabled={isAdding}
         />
       </form>
