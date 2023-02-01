@@ -102,7 +102,7 @@ export const App: React.FC = () => {
     updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     setUpdatingTodoIds(prevIds => {
-      if (prevIds.includes(todoId)) {
+      if (!prevIds.includes(todoId)) {
         return [...prevIds, todoId];
       }
 
@@ -117,7 +117,7 @@ export const App: React.FC = () => {
           return todo;
         }
 
-        return Object.assign(todo, updatedTodo);
+        return updatedTodo;
       }));
     } catch {
       showError('Unable to update a todo');
@@ -162,7 +162,6 @@ export const App: React.FC = () => {
               deletingTodoIds={deletingTodoIds}
               updateTodo={updateTodo}
               updatingTodoIds={updatingTodoIds}
-
             />
 
             <Footer

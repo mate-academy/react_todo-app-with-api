@@ -31,9 +31,11 @@ export const Filter: React.FC<Props> = memo((props) => {
           'filter__link',
           { selected: filterType === FilterType.Active },
         )}
+        onClick={() => setFilterType(FilterType.Active)}
       >
         Active
       </a>
+
       <a
         data-cy="FilterLinkCompleted"
         href="#/completed"

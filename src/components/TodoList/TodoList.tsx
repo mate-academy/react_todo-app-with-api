@@ -32,10 +32,10 @@ export const TodoList: React.FC<Props> = memo((props) => {
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
           shouldshowLoader={
-            deletingTodoIds.includes(todo.id) || updatingTodoIds
+            deletingTodoIds.includes(todo.id)
+              || updatingTodoIds.includes(todo.id)
           }
           updateTodo={updateTodo}
-          // updatingTodoIds={updatingTodoIds}
         />
       ))}
 
@@ -45,7 +45,6 @@ export const TodoList: React.FC<Props> = memo((props) => {
           onDeleteTodo={onDeleteTodo}
           shouldshowLoader={deletingTodoIds.includes(tempTodo.id)}
           updateTodo={updateTodo}
-
         />
       )}
     </section>

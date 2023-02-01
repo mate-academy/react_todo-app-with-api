@@ -6,7 +6,7 @@ import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
 type Props = {
   todo: Todo;
   onDeleteTodo: (todoId: number) => Promise<void>;
-  shouldshowLoader: boolean | number[];
+  shouldshowLoader: boolean;
   updateTodo: (
     todoId: number,
     updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
@@ -44,7 +44,6 @@ export const TodoItem: React.FC<Props> = memo((props) => {
         { completed: todo.completed },
       )}
     >
-
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
