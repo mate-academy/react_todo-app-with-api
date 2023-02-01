@@ -44,11 +44,11 @@ export const TodoItem: React.FC<Props> = React.memo(
         {shouldShowInput
           ? (
             <TodoTitleInput
-              oldTitle={todo.title}
+              currentTitle={todo.title}
               currentTodoId={todo.id}
               setShouldShowInput={setShouldShowInput}
-              updateTodo={updateTodo}
               deleteTodo={deleteTodo}
+              updateTodo={updateTodo}
             />
           )
           : (

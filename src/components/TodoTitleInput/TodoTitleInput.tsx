@@ -1,27 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-// import cn from 'classnames';
 
 type Props = {
-  oldTitle: string;
+  currentTitle: string;
   currentTodoId: number;
   setShouldShowInput: (value: boolean) => void;
+  deleteTodo: (todoId: number) => Promise<void>;
   updateTodo: (
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => Promise<void>;
-  deleteTodo: (todoId: number) => Promise<void>;
 };
 
 export const TodoTitleInput: React.FC<Props> = React.memo(
   ({
-    oldTitle,
+    currentTitle,
     currentTodoId,
     setShouldShowInput,
     updateTodo,
     deleteTodo,
   }) => {
-    const [newTitle, setNewTitle] = useState(oldTitle);
+    const [newTitle, setNewTitle] = useState(currentTitle);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,7 +41,7 @@ export const TodoTitleInput: React.FC<Props> = React.memo(
         return;
       }
 
-      if (newTitle !== oldTitle) {
+      if (newTitle !== currentTitle) {
         await updateTodo(currentTodoId, { title: newTitle });
       }
 

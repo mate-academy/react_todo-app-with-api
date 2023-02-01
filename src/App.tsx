@@ -38,10 +38,9 @@ export const App: React.FC = () => {
 
   const addTodo = useCallback(async (fieldsToCreate: Omit<Todo, 'id'>) => {
     setIsAddingTodo(true);
+    setTempTodo({ ...fieldsToCreate, id: 0 });
 
     try {
-      setTempTodo({ ...fieldsToCreate, id: 0 });
-
       const newTodo = await todosApi.addTodo(fieldsToCreate);
 
       setTodos((prevTodos => [...prevTodos, newTodo]));
@@ -79,11 +78,11 @@ export const App: React.FC = () => {
       const updatedTodo = await todosApi.updateTodo(todoId, fieldsToUpdate);
 
       setTodos(prevTodos => prevTodos.map(todo => {
-        if (todo.id !== todoId) {
-          return todo;
+        if (todo.id === todoId) {
+          return updatedTodo;
         }
 
-        return updatedTodo;
+        return todo;
       }));
     } catch {
       showError(ErrorTypes.OnUpdate);

@@ -24,9 +24,10 @@ export const Header: React.FC<Props> = React.memo(
     toggleAllTodosStatus,
   }) => {
     const user = useContext(AuthContext);
-    const newTodoField = useRef<HTMLInputElement>(null);
 
     const [title, setTitle] = useState('');
+
+    const newTodoField = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
       if (newTodoField.current) {
