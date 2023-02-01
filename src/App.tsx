@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  memo,
   useCallback,
   useContext, useEffect, useMemo, useState,
 } from 'react';
@@ -20,7 +19,7 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Todo, TodoCompleteStatus } from './types/Todo';
 import { filteredTodos, getTodoCompletedId } from './helpers/helpers';
 
-export const App: React.FC = memo(() => {
+export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -32,7 +31,6 @@ export const App: React.FC = memo(() => {
     = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds]
     = useState<number[]>([]);
-  const [isTodosCompleted, setIsTodosCompleted] = useState(false);
 
   const showErrorMessage = useCallback((error: string) => {
     setErrorMessage(error);
@@ -99,12 +97,13 @@ export const App: React.FC = memo(() => {
     () => todos.filter(todo => !todo.completed), [todos],
   );
 
-  const todoCompletedFiltered = useMemo(
+  const completedTodos = useMemo(
     () => todos.filter(todo => todo.completed), [todos],
   );
+
   const visibleListContent = todos.length !== 0 || temporaryTodo;
 
-  const completedTodos = useCallback(() => {
+  const getCompletedTodos = useCallback(() => {
     const filtredTodos = getTodoCompletedId(todos);
 
     return filtredTodos.forEach(id => deletedTodo(id));
@@ -132,31 +131,23 @@ export const App: React.FC = memo(() => {
     }
   };
 
-  const toggleAllTodos = () => {
-    setIsTodosCompleted(true);
-    if (isTodosCompleted === false) {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          updatingTodo({
-            ...todo,
-            completed: !todo.completed,
-          });
-        }
-      });
-
-      setIsTodosCompleted(true);
-    } else {
-      todos.forEach(todo => {
+  const toggleAllTodos = useCallback(() => {
+    todos.forEach(todo => {
+      if (!completedTodos.includes(todo)) {
         updatingTodo({
           ...todo,
           completed: !todo.completed,
         });
-      });
-      setIsTodosCompleted(false);
-    }
-  };
+      } else if (completedTodos.length === todos.length) {
+        updatingTodo({
+          ...todo,
+          completed: !todo.completed,
+        });
+      }
+    });
+  }, [completedTodos]);
 
-  const visibleTogglerButton = todoCompletedFiltered.length !== todos.length;
+  const visibleTogglerButton = completedTodos.length !== todos.length;
 
   return (
     <div className="todoapp">
@@ -185,9 +176,9 @@ export const App: React.FC = memo(() => {
             <Footer
               todoFilterComplete={todoFilterComplete}
               setTodoToComplete={setTodoFilterComplete}
-              completedTodos={completedTodos}
+              getCompletedTodos={getCompletedTodos}
               uncompletedTodos={uncompletedTodos}
-              todoCompletedFiltered={todoCompletedFiltered}
+              completedTodos={completedTodos}
             />
           </>
         )}
@@ -201,4 +192,4 @@ export const App: React.FC = memo(() => {
       </div>
     </div>
   );
-});
+};

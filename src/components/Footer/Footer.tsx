@@ -6,17 +6,17 @@ import { TodoCompleteStatus, Todo } from '../../types/Todo';
 export type Props = {
   todoFilterComplete: TodoCompleteStatus
   setTodoToComplete: (value: TodoCompleteStatus) => void
-  completedTodos: () => void
+  getCompletedTodos: () => void
   uncompletedTodos: Todo[]
-  todoCompletedFiltered: Todo[]
+  completedTodos: Todo[]
 };
 
 export const Footer: React.FC<Props> = memo(({
   todoFilterComplete,
   setTodoToComplete,
-  completedTodos,
+  getCompletedTodos,
   uncompletedTodos,
-  todoCompletedFiltered,
+  completedTodos,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -63,10 +63,10 @@ export const Footer: React.FC<Props> = memo(({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className={todoCompletedFiltered.length > 0
+        className={completedTodos.length > 0
           ? 'todoapp__clear-completed'
           : 'todoapp__hidden'}
-        onClick={completedTodos}
+        onClick={getCompletedTodos}
       >
         Clear completed
       </button>

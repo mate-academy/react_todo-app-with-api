@@ -14,6 +14,6 @@ export const deletingTodo = (todoId: number) => {
 };
 
 export const updatingTodoOnServer
-  = (filedsToUpdate: Partial<Todo>) => {
+  = (filedsToUpdate: Partial<Pick<Todo, 'id'>>) => {
     return client.patch<Todo>(`/todos/${filedsToUpdate.id}`, filedsToUpdate);
   };
