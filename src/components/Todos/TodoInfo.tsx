@@ -32,9 +32,42 @@ export const TodoInfo: FC<Props> = memo(({
     if (titleRef.current
       && !titleRef.current.contains(event.target as Node)
     ) {
+      if (titleRef.current.innerText !== todo.title) {
+        setPendingTodos(prev => [...prev, todo.id]);
+        updateTodo(todo.id, { title: titleRef.current.innerText })
+          .then(() => {
+            setTodos(prev => prev.map(item => {
+              if (item.id === todo.id && titleRef.current) {
+                return {
+                  ...item,
+                  title: titleRef.current.innerText,
+                };
+              }
+
+              return item;
+            }));
+          })
+          .catch(() => {
+            setErrors(prevErrors => [
+              'Unable to update a todo',
+              ...prevErrors,
+            ]);
+          })
+          .finally(() => {
+            setPendingTodos(prevPTodos => prevPTodos
+              .filter(id => id !== todo.id));
+          });
+      }
+
       setEditMode(false);
     }
-  }, [setEditMode]);
+  }, [
+    todo,
+    setTodos,
+    setEditMode,
+    setPendingTodos,
+    titleRef.current?.innerText,
+  ]);
 
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
