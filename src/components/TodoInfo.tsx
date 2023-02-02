@@ -31,7 +31,7 @@ export const TodoInfo: React.FC<Props> = memo(({
   }, [isEditing]);
 
   const isProcessingWithLoaderOverlay = deletingTodosIds
-    .includes(todo.id || 0) || updatingTodosIds.includes(todo.id || 0);
+    .includes(todo.id) || updatingTodosIds.includes(todo.id);
 
   const onChangeTodoStatus = () => {
     updateTodo({
@@ -42,17 +42,15 @@ export const TodoInfo: React.FC<Props> = memo(({
 
   const onChangeTodoTitle = () => {
     if (changingTodoTitle.length === 0) {
-      handleDeleteTodo(todo.id || 0);
+      handleDeleteTodo(todo.id);
       setIsEditing(false);
     }
 
     if (changingTodoTitle !== todo.title && changingTodoTitle.length > 0) {
       const todoToChange = {
-        id: todo.id,
         ...todo,
+        title: changingTodoTitle,
       };
-
-      todoToChange.title = changingTodoTitle;
 
       updateTodo(todoToChange);
       setIsEditing(false);
@@ -78,7 +76,7 @@ export const TodoInfo: React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onClick={() => onChangeTodoStatus()}
+          onClick={onChangeTodoStatus}
         />
       </label>
 
@@ -110,7 +108,7 @@ export const TodoInfo: React.FC<Props> = memo(({
             type="button"
             className="todo__remove"
             data-cy="TodoDeleteButton"
-            onClick={() => handleDeleteTodo(todo.id || 0)}
+            onClick={() => handleDeleteTodo(todo.id)}
           >
             ×
           </button>

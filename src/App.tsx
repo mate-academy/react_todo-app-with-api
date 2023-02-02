@@ -44,18 +44,18 @@ export const App: React.FC = () => {
     return filteredTodos(todos, completedFilter);
   }, [todos, completedFilter]);
 
-  const updateTodo = (todoToChange: Todo) => {
+  const updateTodo = useCallback((updatedTodo: Todo) => {
     setUpdatingTodosIds(
-      (prev) => [...prev, todoToChange.id || 0],
+      (prev) => [...prev, updatedTodo.id],
     );
 
-    updateTodoById(todoToChange.id || 0, {
-      title: todoToChange.title,
-      completed: todoToChange.completed,
+    updateTodoById(updatedTodo.id, {
+      title: updatedTodo.title,
+      completed: updatedTodo.completed,
     }).then(() => {
       setTodos(currentTodos => currentTodos.map(todo => {
-        if (todo.id === todoToChange.id) {
-          return todoToChange;
+        if (todo.id === updatedTodo.id) {
+          return updatedTodo;
         }
 
         return todo;
@@ -63,12 +63,14 @@ export const App: React.FC = () => {
 
       setUpdatingTodosIds((currentUpdatingTodos) => (
         currentUpdatingTodos
-          .filter(updatingId => updatingId !== todoToChange.id)
+          .filter(updatingId => updatingId !== updatedTodo.id)
       ));
     }).catch(() => showError('Unable to update a todo'));
-  };
+  }, []);
 
-  const isAllTodosCompleted = todos.every(todo => todo.completed);
+  const isAllTodosCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
 
   const toggleAll = () => {
     if (!isAllTodosCompleted) {

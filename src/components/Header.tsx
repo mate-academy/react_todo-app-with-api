@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = memo(({
     event.preventDefault();
 
     if (title) {
-      const todoForBack: Todo = {
+      const todoForBack: Omit<Todo, 'id'> = {
         userId: user?.id || 0,
         title,
         completed: false,
