@@ -1,8 +1,17 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-// eslint-disable-next-line object-curly-newline
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-// eslint-disable-next-line object-curly-newline
-import { getTodos, createTodo, deleteTodo, updateTodo } from './api/todos';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  FC,
+} from 'react';
+import {
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateStateTodo,
+  updateTitleTodo,
+} from './api/todos';
 import { filterTotos } from './helpers/filter';
 import {
   ErrorNotification,
@@ -13,7 +22,7 @@ import {
 } from './components';
 import { Todo, FilterTypes, ErrorTypes } from './types';
 
-export const App: React.FC = () => {
+export const App: FC = () => {
   const user = useAuthContext();
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
@@ -110,7 +119,7 @@ export const App: React.FC = () => {
   };
 
   const updateStateTodoHandler = (id: number, state: boolean) => {
-    updateTodo(id, state).then((res) => {
+    updateStateTodo(id, state).then((res) => {
       setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === res.id
         ? { ...todo, completed: res.completed }
         : { ...todo })));
@@ -143,7 +152,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    updateTodo(selectedTodoById, value)
+    updateTitleTodo(selectedTodoById, value)
       .then((res) => {
         setTodos((prevTodos) => prevTodos
           .map((todo) => (todo.id === res.id

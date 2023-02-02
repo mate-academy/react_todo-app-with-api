@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, FC } from 'react';
 
 type Props = {
   isErrorNoteShown: boolean;
@@ -7,7 +7,7 @@ type Props = {
 };
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
-export const ErrorNotification: React.FC<Props> = ({
+export const ErrorNotification: FC<Props> = ({
   isErrorNoteShown,
   setErrorNoteShown,
   error,

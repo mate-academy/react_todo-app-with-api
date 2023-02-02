@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, FC } from 'react';
 import { Todo } from '../types';
 import { TodoItem } from './TodoItem';
 
@@ -13,7 +13,7 @@ export type Props = {
   updateTitleTodo: (value: string) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: FC<Props> = ({
   todos,
   deleteTodo,
   toggleTodo,
@@ -28,20 +28,22 @@ export const TodoList: React.FC<Props> = ({
       className="todoapp__main"
       data-cy="TodoList"
     >
-      {todos.map((todo) => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          toggleTodo={toggleTodo}
-          // ============================
-          isRenamingTodo={isRenamingTodo}
-          setIsRenamingTodo={setIsRenamingTodo}
-          selectedTodoById={selectedTodoById}
-          dblClickHandler={dblClickHandler}
-          updateTitleTodo={updateTitleTodo}
-        />
-      ))}
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <TodoItem
+              todo={todo}
+              deleteTodo={deleteTodo}
+              toggleTodo={toggleTodo}
+              isRenamingTodo={isRenamingTodo}
+              setIsRenamingTodo={setIsRenamingTodo}
+              selectedTodoById={selectedTodoById}
+              dblClickHandler={dblClickHandler}
+              updateTitleTodo={updateTitleTodo}
+            />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };

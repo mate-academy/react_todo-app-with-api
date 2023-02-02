@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, FC } from 'react';
 import classNames from 'classnames';
 import { FilterTypes } from '../types';
 
@@ -10,7 +10,7 @@ type Props = {
   deleteCompletedTodos: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: FC<Props> = ({
   typeFilter,
   setTypeFilter,
   completedTodosCount,

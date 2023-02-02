@@ -37,7 +37,7 @@ export const RenamingTodoByDoubleClick: FC<Props> = ({
         data-cy="NewTodoField"
         type="text"
         value={value}
-        className="todoapp__renaming-todo"
+        className="todoapp__new-todo renaming-todo"
         onChange={(e) => setValue(e.target.value)}
         placeholder="Empty todo will be deleted"
         onBlur={() => updateTitleTodo(value)}

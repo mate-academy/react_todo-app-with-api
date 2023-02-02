@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, FC } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types';
 import { RenamingTodoByDoubleClick } from './RenamingTodoByDoubleClick';
@@ -14,7 +14,7 @@ type Props = {
   updateTitleTodo: (value: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: FC<Props> = ({
   todo: { id, title, completed },
   deleteTodo,
   toggleTodo,
