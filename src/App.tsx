@@ -105,20 +105,15 @@ export const App: React.FC = () => {
   };
 
   const deleteCompletedTodosHandler = () => {
-    todos.forEach((todo) =>
-      todo.completed ? deleteTodoHandler(todo.id) : todo,
-    );
+    todos
+      .forEach((todo) => (todo.completed ? deleteTodoHandler(todo.id) : todo));
   };
 
   const updateStateTodoHandler = (id: number, state: boolean) => {
     updateTodo(id, state).then((res) => {
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) =>
-          todo.id === res.id
-            ? { ...todo, completed: res.completed }
-            : { ...todo },
-        ),
-      );
+      setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === res.id
+        ? { ...todo, completed: res.completed }
+        : { ...todo })));
     });
   };
 
@@ -134,11 +129,9 @@ export const App: React.FC = () => {
   };
 
   const completedAllTodoHandler = () => {
-    todos.forEach((todo) =>
-      allCompleted
-        ? updateStateTodoHandler(todo.id, false)
-        : updateStateTodoHandler(todo.id, true),
-    );
+    todos.forEach((todo) => (allCompleted
+      ? updateStateTodoHandler(todo.id, false)
+      : updateStateTodoHandler(todo.id, true)));
   };
 
   const updateTitleTodoHandler = (value: string) => {
@@ -152,11 +145,10 @@ export const App: React.FC = () => {
 
     updateTodo(selectedTodoById, value)
       .then((res) => {
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.id === res.id ? { ...todo, title: res.title } : { ...todo },
-          ),
-        );
+        setTodos((prevTodos) => prevTodos
+          .map((todo) => (todo.id === res.id
+            ? { ...todo, title: res.title }
+            : { ...todo })));
       })
       .catch(() => {
         setError(ErrorTypes.Update);
