@@ -22,6 +22,7 @@ import {
 } from './api/todos';
 import { FilterType } from './types/Filter';
 import { Todo } from './types/Todo';
+import { Error } from './types/Error';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -67,7 +68,7 @@ export const App: React.FC = () => {
     if (user) {
       getTodos(user.id)
         .then(setTodos)
-        .catch(() => setErrorMessage('Something went wrong'));
+        .catch(() => setErrorMessage(Error.ErrorUser));
     }
   }, []);
 
@@ -76,7 +77,7 @@ export const App: React.FC = () => {
       event.preventDefault();
 
       if (!title.trim()) {
-        setErrorMessage('Title can\'t be empty');
+        setErrorMessage(Error.ErorrTitle);
 
         return;
       }
@@ -103,7 +104,7 @@ export const App: React.FC = () => {
 
             setTodos(currentTodos => [...currentTodos, newTodo]);
           } catch (error) {
-            setErrorMessage('Unable to add a todo');
+            setErrorMessage(Error.UnableToADD);
           } finally {
             setIsAdding(false);
             setTempTodo(null);
@@ -123,7 +124,7 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(Error.UnableToDELETE);
     } finally {
       setSelectedTodoId([]);
     }
@@ -155,7 +156,7 @@ export const App: React.FC = () => {
           : todo
       )));
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(Error.UnableToUPDATE);
     } finally {
       setSelectedTodoId([]);
     }
@@ -173,7 +174,7 @@ export const App: React.FC = () => {
             : todo
         )));
       } catch {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(Error.UnableToUPDATE);
       } finally {
         setSelectedTodoId([]);
       }
@@ -195,7 +196,7 @@ export const App: React.FC = () => {
         { ...todo, completed: !isEveryTodoCompleted }
       )));
     } catch {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(Error.UnableToUPDATE);
     } finally {
       setSelectedTodoId([]);
     }
