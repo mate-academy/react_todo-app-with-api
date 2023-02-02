@@ -144,7 +144,7 @@ export const App: React.FC = () => {
       setTodos(prevTodos => (
         prevTodos.map(todo => {
           return todo.id === todoId
-            ? { ...todo, completed: updatedTodoStatus }
+            ? updateResponse
             : todo;
         })
       ));
