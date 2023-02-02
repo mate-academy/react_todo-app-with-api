@@ -6,7 +6,7 @@ type Props = {
   activeTodos: number;
   completedFilter: FilterType;
   onChangeType: (str: FilterType) => void;
-  completedTodos: number;
+  completedTodos: boolean;
   onDeleteComplited: () => void;
 };
 

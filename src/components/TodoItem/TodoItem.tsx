@@ -1,4 +1,9 @@
-import React, { memo, useRef, useState } from 'react';
+import React, {
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -19,6 +24,12 @@ export const TodoItem: React.FC<Props> = memo(({
   const todoTitleField = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [tempTitle, setTempTitle] = useState(todo.title);
+
+  useEffect(() => {
+    if (isEditing === true) {
+      todoTitleField.current?.focus();
+    }
+  }, [isEditing]);
 
   const handleTitleChange = () => {
     if (!tempTitle) {

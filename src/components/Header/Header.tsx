@@ -1,7 +1,8 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 import cn from 'classnames';
 
 type Props = {
+  newTodoField: React.RefObject<HTMLInputElement>;
   newTitle: string;
   setNewTitle: (title: string) => void;
   onAddNewTodo: (event: React.FormEvent) => void;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = memo(({
+  newTodoField,
   newTitle,
   setNewTitle,
   onAddNewTodo,
@@ -18,14 +20,6 @@ export const Header: React.FC<Props> = memo(({
   onChangeAllTodos,
   isAllTodosCompleted,
 }) => {
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, []);
-
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line */}

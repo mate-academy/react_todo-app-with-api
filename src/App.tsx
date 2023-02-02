@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -26,6 +27,7 @@ import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [completedFilter, setCompletedFilter] = useState(FilterType.All);
@@ -35,6 +37,12 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTodosIds, setSelectedTodosIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [tempTodo]);
 
   useEffect(() => {
     if (user) {
@@ -76,7 +84,7 @@ export const App: React.FC = () => {
           setTodos(currentTodos => [...currentTodos, newTodo]);
 
           setNewTitle('');
-        } catch (e) {
+        } catch {
           setErrorText('Unable to add a todo');
         } finally {
           setIsAdding(false);
@@ -140,13 +148,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const toggleAllTodos = async (
-    todoId: number,
-    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
-  ) => {
-    await editTodo(todoId, fieldsToUpdate);
-  };
-
   const isAllTodosCompleted = useMemo(() => (
     todos.every(todo => todo.completed)
   ), [todos]);
@@ -156,7 +157,7 @@ export const App: React.FC = () => {
       const isTodoNeedToUpdate = !isAllTodosCompleted && !todo.completed;
 
       if (isTodoNeedToUpdate || isAllTodosCompleted) {
-        toggleAllTodos(todo.id, { completed: !todo.completed });
+        editTodo(todo.id, { completed: !todo.completed });
       }
     });
   }, [todos, isAllTodosCompleted]);
@@ -169,8 +170,8 @@ export const App: React.FC = () => {
     todos.filter(todo => !todo.completed).length
   ), [todos]);
 
-  const completedTodosLength = useMemo(() => (
-    todos.filter(todo => todo.completed).length
+  const hascompletedTodos = useMemo(() => (
+    todos.some(todo => todo.completed)
   ), [todos]);
 
   const shouldShowAll = todos.length > 0 || tempTodo;
@@ -181,6 +182,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          newTodoField={newTodoField}
           newTitle={newTitle}
           setNewTitle={setNewTitle}
           onAddNewTodo={addNewTodo}
@@ -207,7 +209,7 @@ export const App: React.FC = () => {
               activeTodos={activeTodosLength}
               completedFilter={completedFilter}
               onChangeType={setCompletedFilter}
-              completedTodos={completedTodosLength}
+              completedTodos={hascompletedTodos}
               onDeleteComplited={deleteAllComplitedTodos}
             />
           </>
