@@ -8,7 +8,7 @@ import { AuthContext } from '../Auth/AuthContext';
 
 export type Props = {
   onSubmit: (todo: Omit<Todo, 'id'>) => void
-  showErrorMessage: (v: string) => void
+  showErrorMessage: (error: string) => void
   temporaryTodo: Todo | null
   toggleAllTodos: () => void
   visibleTogglerButton: boolean
@@ -41,7 +41,7 @@ export const Header: React.FC<Props> = memo(({
       return;
     }
 
-    if (title === '') {
+    if (!title.length) {
       showErrorMessage('Title can\'t be empty');
 
       return;

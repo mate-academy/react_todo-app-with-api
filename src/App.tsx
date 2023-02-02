@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext, useEffect, useMemo, useState,
@@ -12,7 +11,6 @@ import {
 import { AuthContext } from './components/Auth/AuthContext';
 // eslint-disable-next-line max-len
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
-// eslint-disable-next-line import/no-cycle
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
@@ -20,7 +18,6 @@ import { Todo, TodoCompleteStatus } from './types/Todo';
 import { filteredTodos, getTodoCompletedId } from './helpers/helpers';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoFilterComplete,
@@ -101,7 +98,7 @@ export const App: React.FC = () => {
     () => todos.filter(todo => todo.completed), [todos],
   );
 
-  const visibleListContent = todos.length !== 0 || temporaryTodo;
+  const shouldBeVisibleListContent = todos.length !== 0 || temporaryTodo;
 
   const getCompletedTodos = useCallback(() => {
     const filtredTodos = getTodoCompletedId(todos);
@@ -114,10 +111,11 @@ export const App: React.FC = () => {
       setUpdatingTodoIds(todoprev => [...todoprev, todoForUpdating.id]);
 
       const {
+        id,
         ...valuesToUpdate
       } = todoForUpdating;
 
-      const updatedTodo = await updatingTodoOnServer(valuesToUpdate);
+      const updatedTodo = await updatingTodoOnServer(valuesToUpdate, id);
 
       setTodos((currentTodo) => currentTodo.map(todo => (
         todo.id === updatedTodo.id
@@ -133,12 +131,10 @@ export const App: React.FC = () => {
 
   const toggleAllTodos = useCallback(() => {
     todos.forEach(todo => {
-      if (!completedTodos.includes(todo)) {
-        updatingTodo({
-          ...todo,
-          completed: !todo.completed,
-        });
-      } else if (completedTodos.length === todos.length) {
+      const isToggleAllTodos = !completedTodos.includes(todo)
+    || completedTodos.length === todos.length;
+
+      if (isToggleAllTodos) {
         updatingTodo({
           ...todo,
           completed: !todo.completed,
@@ -162,7 +158,7 @@ export const App: React.FC = () => {
           visibleTogglerButton={visibleTogglerButton}
         />
 
-        {visibleListContent && (
+        {shouldBeVisibleListContent && (
           <>
             <TodoList
               todos={filteredTodosByStatus}

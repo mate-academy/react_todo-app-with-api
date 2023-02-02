@@ -6,9 +6,9 @@ import { Todo } from '../../types/Todo';
 
 export type Props = {
   todo: Todo
-  deletedTodo: (value: number) => void
+  deletedTodo: (todoId: number) => void
   deletingTodoIds: number[]
-  onUpdatingTodo: (value: Todo) => void
+  onUpdatingTodo: (todoId: Todo) => void
   updatingTodoIds: number[]
 };
 
@@ -59,7 +59,7 @@ export const TodoItem: React.FC<Props> = memo(({
         });
       }
 
-      if (todoTitleField === '') {
+      if (!todoTitleField.length) {
         deletedTodo(todo.id);
       }
 
@@ -70,7 +70,7 @@ export const TodoItem: React.FC<Props> = memo(({
     <div
       data-cy="Todo"
       className={classNames('todo',
-        { completed: todo.completed === true })}
+        { completed: todo.completed })}
     >
 
       <label

@@ -5,10 +5,10 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 export type Props = {
   todos: Todo[]
-  deletedTodo: (value: number) => void
+  deletedTodo: (todoId: number) => void
   temporaryTodo: Todo | null
   deletingTodoIds: number[]
-  onUpdatingTodo: (value: Todo) => void
+  onUpdatingTodo: (todoId: Todo) => void
   updatingTodoIds: number[]
 };
 

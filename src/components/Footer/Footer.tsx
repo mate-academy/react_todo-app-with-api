@@ -5,7 +5,7 @@ import { TodoCompleteStatus, Todo } from '../../types/Todo';
 
 export type Props = {
   todoFilterComplete: TodoCompleteStatus
-  setTodoToComplete: (value: TodoCompleteStatus) => void
+  setTodoToComplete: (todoStatus: TodoCompleteStatus) => void
   getCompletedTodos: () => void
   uncompletedTodos: Todo[]
   completedTodos: Todo[]

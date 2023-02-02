@@ -4,7 +4,7 @@ import React, { memo } from 'react';
 
 export type Props = {
   errorMessage: string
-  setErrorMessage:(v:string) => void
+  setErrorMessage:(error:string) => void
 };
 
 export const ErrorNotification: React.FC<Props> = memo(({
