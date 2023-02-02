@@ -8,7 +8,7 @@ interface Props {
   deleteTodo: (todoId: number) => void,
   isNewTodoLoading?: boolean,
   toggleTodoStatus: (todoId: number, checked: boolean) => void,
-  shouldTodoUpdate?: boolean,
+  isUpdating?: boolean,
   updateTodoTitle: (
     todoId: number,
     newTitle: string,
@@ -21,10 +21,9 @@ export const TodoInfo:React.FC<Props> = memo(({
   deleteTodo,
   isNewTodoLoading,
   toggleTodoStatus,
-  shouldTodoUpdate,
+  isUpdating,
   updateTodoTitle,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
@@ -34,30 +33,16 @@ export const TodoInfo:React.FC<Props> = memo(({
     }
   }, [isTitleEditing]);
 
-  const handleDeleteTodo = async () => {
-    setIsLoading(true);
-    await deleteTodo(todo.id);
-    setIsLoading(false);
-  };
-
-  const handleToggleTodo = async () => {
-    setIsLoading(true);
-    await toggleTodoStatus(todo.id, !todo.completed);
-    setIsLoading(false);
-  };
-
   const handleUpdateTodo = async () => {
     setIsTitleEditing(false);
     if (!editedTitle) {
-      handleDeleteTodo();
+      deleteTodo(todo.id);
 
       return;
     }
 
     if (editedTitle !== todo.title) {
-      setIsLoading(true);
-      await updateTodoTitle(todo.id, editedTitle);
-      setIsLoading(false);
+      updateTodoTitle(todo.id, editedTitle);
     }
   };
 
@@ -69,7 +54,7 @@ export const TodoInfo:React.FC<Props> = memo(({
     }
   };
 
-  const isProcessing = isLoading || isNewTodoLoading || shouldTodoUpdate;
+  const isLoading = isNewTodoLoading || isUpdating;
 
   return (
     <div
@@ -85,7 +70,7 @@ export const TodoInfo:React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={handleToggleTodo}
+          onChange={() => toggleTodoStatus(todo.id, !todo.completed)}
         />
       </label>
 
@@ -105,8 +90,8 @@ export const TodoInfo:React.FC<Props> = memo(({
               placeholder="Empty todo will be deleted"
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
-              onBlur={() => handleUpdateTodo()}
-              onKeyDown={(event) => handleCancelEditing(event)}
+              onBlur={handleUpdateTodo}
+              onKeyDown={handleCancelEditing}
             />
           </form>
         )
@@ -123,7 +108,7 @@ export const TodoInfo:React.FC<Props> = memo(({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={handleDeleteTodo}
+              onClick={() => deleteTodo(todo.id)}
             >
               ×
             </button>
@@ -133,7 +118,7 @@ export const TodoInfo:React.FC<Props> = memo(({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isProcessing,
+          'is-active': isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

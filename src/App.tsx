@@ -66,8 +66,13 @@ export const App: React.FC = () => {
     return filterTodos(todos, complitedFilter);
   }, [complitedFilter, todos]);
 
+  const isAllTodosCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
+
   const deleteTodo = useCallback(async (todoId: number) => {
     try {
+      setUpdatingTodos(prev => [...prev, todoId]);
       const deleteResponse = await deleteTodoById(todoId);
 
       setTodos(prevTodos => (
@@ -77,6 +82,8 @@ export const App: React.FC = () => {
       return deleteResponse;
     } catch (deleteError) {
       return setErrorMessage('Unable to delete a todo');
+    } finally {
+      setUpdatingTodos([]);
     }
   }, []);
 
@@ -89,9 +96,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const addTodo = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>, title: string) => {
-      event.preventDefault();
-
+    async (title: string) => {
       try {
         if (!title.trim()) {
           setErrorMessage('Title can\'t be empty');
@@ -117,10 +122,11 @@ export const App: React.FC = () => {
 
           setTodos(prevTodos => [...prevTodos, newTodo]);
           setTempTodo(null);
-          setIsNewTodoLoading(false);
         }
       } catch (addTodoError) {
         setErrorMessage('Unable to add a todo');
+      } finally {
+        setIsNewTodoLoading(false);
       }
     }, [todos, user],
   );
@@ -130,6 +136,7 @@ export const App: React.FC = () => {
     updatedTodoStatus: boolean,
   ) => {
     try {
+      setUpdatingTodos(prev => [...prev, todoId]);
       const updateResponse = await updateTodoById(
         { completed: updatedTodoStatus }, todoId,
       );
@@ -145,50 +152,34 @@ export const App: React.FC = () => {
       return updateResponse;
     } catch (updateError) {
       return setErrorMessage('Unable to update a todo');
-    }
-  }, [todos]);
-
-  const toggleAllTodos = useCallback(async () => {
-    const isAllTodoCompleted = todos.every(todo => todo.completed);
-
-    const updatingTodosIds = todos
-      .filter(todo => (
-        todo.completed === isAllTodoCompleted
-      ))
-      .map(todo => todo.id);
-
-    setUpdatingTodos(updatingTodosIds);
-
-    try {
-      const updatedResponse = await Promise.all(todos.map(todo => (
-        updateTodoById({ completed: !isAllTodoCompleted }, todo.id)
-      )));
-
-      setTodos(prevTodos => (prevTodos.map(todo => {
-        return isAllTodoCompleted
-          ? { ...todo, completed: false }
-          : { ...todo, completed: true };
-      })));
-
-      return updatedResponse;
-    } catch (toggleAllError) {
-      return setErrorMessage('Unable to update todos');
     } finally {
       setUpdatingTodos([]);
     }
   }, [todos]);
+
+  const toggleAllTodos = useCallback(() => {
+    const todosChangingStatus = todos.filter(todo => (
+      todo.completed === isAllTodosCompleted
+    ));
+
+    todosChangingStatus.forEach(todo => {
+      toggleTodoStatus(todo.id, !isAllTodosCompleted);
+    });
+  }, [todos, isAllTodosCompleted]);
 
   const updateTodoTitle = useCallback(async (
     todoId: number,
     newTitle: string,
   ) => {
     try {
+      setUpdatingTodos(prev => [...prev, todoId]);
+
       const updatedResponse = await updateTodoById({ title: newTitle }, todoId);
 
       setTodos(prevTodos => (
         prevTodos.map(todo => {
           return todo.id === todoId
-            ? { ...todo, title: newTitle }
+            ? updatedResponse
             : todo;
         })
       ));
@@ -196,6 +187,8 @@ export const App: React.FC = () => {
       return updatedResponse;
     } catch (updateError) {
       return setErrorMessage('Unable to update todos');
+    } finally {
+      setUpdatingTodos([]);
     }
   }, [todos]);
 

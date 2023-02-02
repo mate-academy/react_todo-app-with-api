@@ -35,7 +35,7 @@ export const TodoList: React.FC<Props> = memo(({
           deleteTodo={deleteTodo}
           key={todo.id}
           toggleTodoStatus={toggleTodoStatus}
-          shouldTodoUpdate={updatingTodos.includes(todo.id)}
+          isUpdating={updatingTodos.includes(todo.id)}
           updateTodoTitle={updateTodoTitle}
         />
       ))}
