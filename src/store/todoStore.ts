@@ -133,7 +133,6 @@ export const useTodoStore = (initial: InitialState) => {
     });
   }, [todos]);
 
-
   const completeAllTodos = useCallback(() => {
     setIsTogglingAll(true);
     const completedTodos = todos.map(todo => ({
