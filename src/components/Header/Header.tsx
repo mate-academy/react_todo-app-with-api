@@ -1,9 +1,8 @@
 import React, { memo } from 'react';
 import cn from 'classnames';
 
-import { NewTodoField } from '../NewTodoField/NewTodoField';
-
 type Props = {
+  newTodoField?: React.RefObject<HTMLInputElement>;
   title: string;
   isTodoAdding: boolean;
   isAllTodosCompleted: boolean;
@@ -14,6 +13,7 @@ type Props = {
 
 export const Header: React.FC<Props> = memo((props) => {
   const {
+    newTodoField,
     title,
     isTodoAdding,
     isAllTodosCompleted,
@@ -35,12 +35,21 @@ export const Header: React.FC<Props> = memo((props) => {
         onClick={onUpdateAllTodos}
       />
 
-      <NewTodoField
-        title={title}
-        isTodoAdding={isTodoAdding}
-        onSubmitForm={handleSubmitForm}
-        onInputChange={setTitle}
-      />
+      <form
+        onSubmit={event => handleSubmitForm(event)}
+      >
+        <input
+          disabled={isTodoAdding}
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          data-cy="TodoTitleField"
+          type="text"
+          ref={newTodoField}
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+        />
+      </form>
+
     </header>
   );
 });

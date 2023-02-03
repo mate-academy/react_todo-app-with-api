@@ -254,7 +254,7 @@ export const App: React.FC = () => {
             hasCompletedTodos={hasCompletedTodos}
             filterType={filterStatus}
             onChangeType={setFilterStatus}
-            onDeleteCompletedTodos={removeCompletedTodos}
+            deleteCompletedTodos={removeCompletedTodos}
           />
         </>
       )}

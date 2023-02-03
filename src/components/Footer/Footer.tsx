@@ -64,16 +64,18 @@ export const Footer: React.FC<Props> = memo((props) => {
         </a>
       </nav>
 
-      {hasCompletedTodos && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={deleteCompletedTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed "
+        style={{
+          visibility: !hasCompletedTodos ? 'hidden' : 'visible',
+        }}
+        onClick={deleteCompletedTodos}
+      >
+        Clear completed
+      </button>
+
     </footer>
   );
 });

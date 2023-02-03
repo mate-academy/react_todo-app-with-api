@@ -40,7 +40,7 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
         data-cy="NewTodoField"
         type="text"
         ref={newTodoField}
-        className="todoapp__new-todo"
+        className="todo__title-field"
         placeholder="What needs to be done?"
         value={title}
         onChange={(event) => onInputChange(event.currentTarget.value)}
