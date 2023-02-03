@@ -6,7 +6,6 @@ type Props = {
   error: string;
 };
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const ErrorNotification: FC<Props> = ({
   isErrorNoteShown,
   setErrorNoteShown,
@@ -23,6 +22,7 @@ export const ErrorNotification: FC<Props> = ({
         type="button"
         className="delete"
         onClick={() => setErrorNoteShown(false)}
+        aria-label="delete"
       />
       {error}
     </div>

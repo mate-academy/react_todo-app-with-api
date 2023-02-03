@@ -13,14 +13,6 @@ export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const updateTodo = (id: number, data: boolean | string) => {
-  if (typeof data === 'boolean') {
-    return client.patch<Todo>(`/todos/${id}`, { completed: data });
-  }
-
-  return client.patch<Todo>(`/todos/${id}`, { title: data });
-};
-
 export const updateStateTodo = (id: number, data: boolean) => {
   return client.patch<Todo>(`/todos/${id}`, { completed: data });
 };

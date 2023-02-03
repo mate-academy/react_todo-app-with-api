@@ -12,7 +12,6 @@ type Props = {
 
 type Ref = HTMLInputElement;
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const Header = forwardRef<Ref, Props>((props, ref) => {
   const {
     title,
@@ -35,6 +34,7 @@ export const Header = forwardRef<Ref, Props>((props, ref) => {
         type="button"
         className={classNames('todoapp__toggle-all', { active: allCompleted })}
         onClick={completedAllTodo}
+        aria-label="toggle-all"
       />
       <form onSubmit={handleSubmit}>
         <input
