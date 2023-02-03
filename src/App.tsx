@@ -57,8 +57,6 @@ export const App: React.FC = () => {
       setTodos(prev => [...prev, newTodo]);
     } catch {
       showError(Errors.UnableToAdd);
-
-      throw Error(Errors.UnableToAdd);
     } finally {
       setTempTodo(null);
       setIsAddingTodo(false);
