@@ -4,7 +4,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { AuthContext } from './components/Auth/AuthContext';
@@ -27,7 +26,6 @@ import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [completedFilter, setCompletedFilter] = useState(FilterType.All);
@@ -37,12 +35,6 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedTodosIds, setSelectedTodosIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [tempTodo]);
 
   useEffect(() => {
     if (user) {
@@ -182,7 +174,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          newTodoField={newTodoField}
           newTitle={newTitle}
           setNewTitle={setNewTitle}
           onAddNewTodo={addNewTodo}
