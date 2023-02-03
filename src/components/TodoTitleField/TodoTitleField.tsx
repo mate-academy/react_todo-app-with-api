@@ -53,7 +53,7 @@ export const TodoTitleField: FC<Props> = memo((props) => {
     >
       <input
         type="text"
-        className="todo__title input"
+        className="todo__title-field"
         onBlur={saveChanges}
         value={title}
         onChange={(event) => setTitle(event.target.value)}
