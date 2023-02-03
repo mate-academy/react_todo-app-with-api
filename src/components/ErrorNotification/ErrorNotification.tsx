@@ -32,10 +32,6 @@ export const ErrorNotification:React.FC<Props> = memo(({
       />
 
       {errorMessage}
-      {/* Unable to add a todo
-      <br />
-      <br />
-      Unable to update a todo */}
     </div>
   );
 });

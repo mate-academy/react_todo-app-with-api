@@ -1,10 +1,14 @@
 import React, { memo, useState } from 'react';
+import cn from 'classnames';
+import { Todo } from '../../types/Todo';
 
 interface Props {
   newTodoField: React.RefObject<HTMLInputElement>,
   addTodo: (title: string) => Promise<void>,
   isNewTodoLoading: boolean,
   toggleAllTodos: () => void,
+  isAllTodosCompleted: boolean,
+  todos: Todo[];
 }
 
 export const Header: React.FC<Props> = memo(({
@@ -12,6 +16,8 @@ export const Header: React.FC<Props> = memo(({
   addTodo,
   isNewTodoLoading,
   toggleAllTodos,
+  isAllTodosCompleted,
+  todos,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -28,7 +34,10 @@ export const Header: React.FC<Props> = memo(({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: isAllTodosCompleted,
+          'is-invisible': !todos.length,
+        })}
         onClick={toggleAllTodos}
       />
 

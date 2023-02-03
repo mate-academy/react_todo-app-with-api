@@ -37,7 +37,7 @@ export const App: React.FC = () => {
   const [complitedFilter, setComplitedFilter] = useState(FilterType.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isNewTodoLoading, setIsNewTodoLoading] = useState(false);
-  const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
+  const [updatingTodosIds, setUpdatingTodosIdsIds] = useState<number[]>([]);
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
 
   const deleteTodo = useCallback(async (todoId: number) => {
     try {
-      setUpdatingTodos(prev => [...prev, todoId]);
+      setUpdatingTodosIdsIds(prev => [...prev, todoId]);
       const deleteResponse = await deleteTodoById(todoId);
 
       setTodos(prevTodos => (
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
     } catch (deleteError) {
       return setErrorMessage('Unable to delete a todo');
     } finally {
-      setUpdatingTodos([]);
+      setUpdatingTodosIdsIds([]);
     }
   }, []);
 
@@ -131,50 +131,20 @@ export const App: React.FC = () => {
     }, [todos, user],
   );
 
-  const toggleTodoStatus = useCallback(async (
+  const updateTodo = useCallback(async (
     todoId: number,
-    updatedTodoStatus: boolean,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     try {
-      setUpdatingTodos(prev => [...prev, todoId]);
-      const updateResponse = await updateTodoById(
-        { completed: updatedTodoStatus }, todoId,
-      );
+      setUpdatingTodosIdsIds(prevIds => {
+        if (!prevIds.includes(todoId)) {
+          return [...prevIds, todoId];
+        }
 
-      setTodos(prevTodos => (
-        prevTodos.map(todo => {
-          return todo.id === todoId
-            ? updateResponse
-            : todo;
-        })
-      ));
+        return prevIds;
+      });
 
-      return updateResponse;
-    } catch (updateError) {
-      return setErrorMessage('Unable to update a todo');
-    } finally {
-      setUpdatingTodos([]);
-    }
-  }, [todos]);
-
-  const toggleAllTodos = useCallback(() => {
-    const todosChangingStatus = todos.filter(todo => (
-      todo.completed === isAllTodosCompleted
-    ));
-
-    todosChangingStatus.forEach(todo => {
-      toggleTodoStatus(todo.id, !isAllTodosCompleted);
-    });
-  }, [todos, isAllTodosCompleted]);
-
-  const updateTodoTitle = useCallback(async (
-    todoId: number,
-    newTitle: string,
-  ) => {
-    try {
-      setUpdatingTodos(prev => [...prev, todoId]);
-
-      const updatedResponse = await updateTodoById({ title: newTitle }, todoId);
+      const updatedResponse = await updateTodoById(updateData, todoId);
 
       setTodos(prevTodos => (
         prevTodos.map(todo => {
@@ -186,11 +156,21 @@ export const App: React.FC = () => {
 
       return updatedResponse;
     } catch (updateError) {
-      return setErrorMessage('Unable to update todos');
+      return setErrorMessage('Unable to update a todo');
     } finally {
-      setUpdatingTodos([]);
+      setUpdatingTodosIdsIds([]);
     }
   }, [todos]);
+
+  const toggleAllTodos = useCallback(() => {
+    const todosChangingStatus = todos.filter(todo => (
+      todo.completed === isAllTodosCompleted
+    ));
+
+    todosChangingStatus.forEach(todo => {
+      updateTodo(todo.id, { completed: !isAllTodosCompleted });
+    });
+  }, [todos, isAllTodosCompleted]);
 
   return (
     <div className="todoapp">
@@ -202,6 +182,8 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           isNewTodoLoading={isNewTodoLoading}
           toggleAllTodos={toggleAllTodos}
+          isAllTodosCompleted={isAllTodosCompleted}
+          todos={todos}
         />
         {(todos.length > 0 || tempTodo) && (
           <>
@@ -211,9 +193,8 @@ export const App: React.FC = () => {
               deleteTodo={deleteTodo}
               tempTodo={tempTodo}
               isNewTodoLoading={isNewTodoLoading}
-              toggleTodoStatus={toggleTodoStatus}
-              updatingTodos={updatingTodos}
-              updateTodoTitle={updateTodoTitle}
+              updatingTodosIds={updatingTodosIds}
+              updateTodo={updateTodo}
             />
             <Footer
               uncompletedTodosLength={uncompletedTodosLength}

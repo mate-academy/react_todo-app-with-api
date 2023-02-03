@@ -8,11 +8,10 @@ interface Props {
   deleteTodo: (todoId: number) => void,
   tempTodo: Todo | null,
   isNewTodoLoading: boolean,
-  toggleTodoStatus: (todoId: number, checked: boolean) => void,
-  updatingTodos: number[],
-  updateTodoTitle: (
+  updatingTodosIds: number[],
+  updateTodo: (
     todoId: number,
-    newTitle: string,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => void,
 }
 
@@ -22,9 +21,8 @@ export const TodoList: React.FC<Props> = memo(({
   deleteTodo,
   tempTodo,
   isNewTodoLoading,
-  toggleTodoStatus,
-  updatingTodos,
-  updateTodoTitle,
+  updatingTodosIds,
+  updateTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -34,9 +32,8 @@ export const TodoList: React.FC<Props> = memo(({
           todo={todo}
           deleteTodo={deleteTodo}
           key={todo.id}
-          toggleTodoStatus={toggleTodoStatus}
-          isUpdating={updatingTodos.includes(todo.id)}
-          updateTodoTitle={updateTodoTitle}
+          isUpdating={updatingTodosIds.includes(todo.id)}
+          updateTodo={updateTodo}
         />
       ))}
 
@@ -47,8 +44,7 @@ export const TodoList: React.FC<Props> = memo(({
           deleteTodo={deleteTodo}
           key={tempTodo?.id}
           isNewTodoLoading={isNewTodoLoading}
-          toggleTodoStatus={toggleTodoStatus}
-          updateTodoTitle={updateTodoTitle}
+          updateTodo={updateTodo}
         />
       )}
     </section>

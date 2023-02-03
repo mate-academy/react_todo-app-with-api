@@ -7,11 +7,10 @@ interface Props {
   todo: Todo,
   deleteTodo: (todoId: number) => void,
   isNewTodoLoading?: boolean,
-  toggleTodoStatus: (todoId: number, checked: boolean) => void,
   isUpdating?: boolean,
-  updateTodoTitle: (
+  updateTodo: (
     todoId: number,
-    newTitle: string,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => void,
 }
 
@@ -20,9 +19,8 @@ export const TodoInfo:React.FC<Props> = memo(({
   todo,
   deleteTodo,
   isNewTodoLoading,
-  toggleTodoStatus,
   isUpdating,
-  updateTodoTitle,
+  updateTodo,
 }) => {
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -42,7 +40,7 @@ export const TodoInfo:React.FC<Props> = memo(({
     }
 
     if (editedTitle !== todo.title) {
-      updateTodoTitle(todo.id, editedTitle);
+      updateTodo(todo.id, { title: editedTitle });
     }
   };
 
@@ -70,7 +68,7 @@ export const TodoInfo:React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => toggleTodoStatus(todo.id, !todo.completed)}
+          onChange={() => updateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 
