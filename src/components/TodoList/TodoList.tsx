@@ -3,33 +3,33 @@ import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo/TodoInfo';
 
 type Props = {
-  newTodoField: React.RefObject<HTMLInputElement>
   todos: Todo[];
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  removeTodo: (todoId: number) => Promise<void>;
-  changeTodo:(id: number, itemsToUpdate: Partial<Todo>) => Promise<void>
-  isTodoUpdating: boolean;
+  newTodoField: React.RefObject<HTMLInputElement>;
+  selectedTodoIds: number[];
+  removeTodo: (todoId: number) => void;
+  changeTodo:(id: number, itemsToUpdate: Partial<Todo>) => void;
+  toggleTodo: (id: number, statusTodo: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
+  selectedTodoIds,
   removeTodo,
   changeTodo,
-  setErrorMessage,
-  isTodoUpdating,
   newTodoField,
+  toggleTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
         <TodoInfo
-          newTodoField={newTodoField}
-          todo={todo}
-          removeTodo={removeTodo}
           key={todo.id}
+          todo={todo}
+          newTodoField={newTodoField}
+          selectedTodoIds={selectedTodoIds}
+          toggleTodo={toggleTodo}
+          removeTodo={removeTodo}
           changeTodo={changeTodo}
-          isTodoUpdating={isTodoUpdating}
-          setErrorMessage={setErrorMessage}
         />
       ))}
     </section>

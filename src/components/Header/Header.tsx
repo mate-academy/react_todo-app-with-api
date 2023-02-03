@@ -1,46 +1,25 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo } from 'react';
 import cn from 'classnames';
-import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface Props {
-  newTodoField: React.RefObject<HTMLInputElement>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
-  setHasError: React.Dispatch<React.SetStateAction<boolean>>;
+  title: string,
+  setTitle: (string: string) => void,
   isTodoAdding: boolean;
-  createTodo: (newTitle: string) => Promise<void>;
-  changeAllTodos: () => void;
+  newTodoField: React.RefObject<HTMLInputElement>;
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  toggleAllTodos: () => void;
   isAllTodosCompleted: boolean;
 }
 
 export const Header: React.FC<Props> = memo(({
-  newTodoField,
-  setErrorMessage,
-  setHasError,
+  title,
+  setTitle,
   isTodoAdding,
-  createTodo,
-  changeAllTodos,
+  newTodoField,
+  handleSubmit,
+  toggleAllTodos,
   isAllTodosCompleted,
 }) => {
-  const [title, setTitle] = useState('');
-
-  useEffect(() => {
-    setHasError(false);
-  }, []);
-
-  const handleAddNewTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (title.length < 1 || !title.trim()) {
-      setHasError(true);
-      setErrorMessage(ErrorMessage.EmptyTitle);
-    }
-
-    if (title.trim()) {
-      createTodo(title);
-      setTitle('');
-    }
-  };
-
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -51,10 +30,10 @@ export const Header: React.FC<Props> = memo(({
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
-        onClick={changeAllTodos}
+        onClick={toggleAllTodos}
       />
 
-      <form onSubmit={handleAddNewTodo}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
