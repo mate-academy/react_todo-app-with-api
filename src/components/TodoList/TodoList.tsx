@@ -33,8 +33,8 @@ export const TodoList: React.FC<Props> = memo(({
           key={todo.id}
           deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(todo.id)}
-          onChangeTodoStatus={changeTodoStatus}
-          onUpdateTodo={updateTodoFields}
+          changeTodoStatus={changeTodoStatus}
+          updateTodo={updateTodoFields}
           newTodoField={newTodoField}
         />
       )))}
@@ -44,8 +44,8 @@ export const TodoList: React.FC<Props> = memo(({
           todo={tempTodo}
           deleteTodo={deleteTodo}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
-          onChangeTodoStatus={changeTodoStatus}
-          onUpdateTodo={updateTodoFields}
+          changeTodoStatus={changeTodoStatus}
+          updateTodo={updateTodoFields}
           newTodoField={newTodoField}
         />
       )}

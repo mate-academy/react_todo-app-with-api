@@ -21,6 +21,7 @@ import { Todo } from './types/Todo';
 import { CompletedFilter } from './types/CompletedFilter';
 import { filterTodosByCompleted, getCompletedTodoIds } from './heppers/helpers';
 import { useError } from './controllers/useErrors';
+import { Errors } from './types/Errors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -39,7 +40,7 @@ export const App: React.FC = () => {
     if (user) {
       todoApi.getTodos(user.id)
         .then(setTodos)
-        .catch(() => showError('Todos loading failed'));
+        .catch(() => showError(Errors.LoadingFailed));
     }
   }, [user]);
 
@@ -55,9 +56,9 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, newTodo]);
     } catch {
-      showError('Unable to add a todo');
+      showError(Errors.UnableToAdd);
 
-      throw Error('Error while adding todo');
+      throw Error(Errors.UnableToAdd);
     } finally {
       setTempTodo(null);
       setIsAddingTodo(false);
@@ -72,7 +73,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
-      showError('Unable to delete todo');
+      showError(Errors.UnableToDelete);
     } finally {
       setDeletingTodoIds(prev => prev.filter(id => id !== todoId));
     }
@@ -91,7 +92,7 @@ export const App: React.FC = () => {
           : todo
       )));
     } catch {
-      showError('Unable to update todo status');
+      showError(Errors.UnableToUpdateStatus);
     } finally {
       setSelectedTodoIds([]);
     }
@@ -110,7 +111,7 @@ export const App: React.FC = () => {
           : todo
       )));
     } catch {
-      showError('Unable to update todo');
+      showError(Errors.UnableToUpdate);
     }
   }, []);
 
@@ -157,7 +158,7 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           isAddingTodo={isAddingTodo}
           showError={showError}
-          onChangeAllTodos={changeAllTodosStatus}
+          changeAllTodos={changeAllTodosStatus}
           isAllTodosCompleted={isAllTodosCompleted}
         />
 
@@ -177,7 +178,7 @@ export const App: React.FC = () => {
               activeTodos={activeTodos}
               completedFilter={completedFilter}
               setCompletedFilter={setCompletedFilter}
-              onDeleteCompleted={deleteCompletedTodos}
+              deleteCompletedTodos={deleteCompletedTodos}
               completedTodosLength={completedTodosLength}
             />
           </>

@@ -9,11 +9,12 @@ import {
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
+import { Errors } from '../../types/Errors';
 
 interface Props {
   onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>;
   showError: (message: string) => void;
-  onChangeAllTodos: () => void;
+  changeAllTodos: () => void;
   isAllTodosCompleted: boolean;
   isAddingTodo: boolean,
 }
@@ -21,7 +22,7 @@ interface Props {
 export const Header: React.FC<Props> = memo(({
   onAddTodo,
   showError,
-  onChangeAllTodos,
+  changeAllTodos,
   isAllTodosCompleted,
   isAddingTodo,
 }) => {
@@ -40,13 +41,13 @@ export const Header: React.FC<Props> = memo(({
     event.preventDefault();
 
     if (!newTodoTitle.trim()) {
-      showError('Title can\'t be empty');
+      showError(Errors.TitleCantBeEmpty);
 
       return;
     }
 
     if (!user) {
-      showError('User is not found');
+      showError(Errors.UserNotFound);
 
       return;
     }
@@ -71,7 +72,7 @@ export const Header: React.FC<Props> = memo(({
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
-        onClick={onChangeAllTodos}
+        onClick={changeAllTodos}
       />
 
       <form onSubmit={submitForm}>

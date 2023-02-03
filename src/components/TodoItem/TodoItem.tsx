@@ -6,8 +6,8 @@ import { Loader } from '../Loader/Loader';
 interface Props {
   todo: Todo,
   deleteTodo: (todoId: number) => Promise<void>;
-  onChangeTodoStatus: (todoId: number, status: boolean) => void;
-  onUpdateTodo: (
+  changeTodoStatus: (todoId: number, status: boolean) => void;
+  updateTodo: (
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>;
@@ -20,8 +20,8 @@ interface Props {
 export const TodoItem: React.FC<Props> = memo(({
   todo,
   deleteTodo,
-  onChangeTodoStatus,
-  onUpdateTodo,
+  changeTodoStatus,
+  updateTodo,
   newTodoField,
   isDeleting,
   isAdding,
@@ -45,7 +45,7 @@ export const TodoItem: React.FC<Props> = memo(({
     }
 
     if (todo.title !== editedTitle) {
-      onUpdateTodo(todo.id, { title: editedTitle });
+      updateTodo(todo.id, { title: editedTitle });
     }
 
     setIsTitleChange(false);
@@ -70,7 +70,7 @@ export const TodoItem: React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={() => onChangeTodoStatus(todo.id, !todo.completed)}
+          onClick={() => changeTodoStatus(todo.id, !todo.completed)}
         />
       </label>
 
