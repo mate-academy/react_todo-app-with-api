@@ -12,10 +12,10 @@ import { AuthContext } from '../Auth/AuthContext';
 import { Errors } from '../../types/Errors';
 
 interface Props {
-  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>;
-  showError: (message: string) => void;
-  changeAllTodos: () => void;
-  isAllTodosCompleted: boolean;
+  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>,
+  showError: (message: string) => void,
+  changeAllTodos: () => void,
+  isAllTodosCompleted: boolean,
   isAddingTodo: boolean,
 }
 

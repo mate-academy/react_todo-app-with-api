@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
-  const [, setSelectedTodoIds] = useState<number[]>([]);
+  const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
   const [showError, closeErrorMessage, errorMessages] = useError();
 
@@ -102,6 +102,14 @@ export const App: React.FC = () => {
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
+    setSelectedTodoIds(prevIds => {
+      if (!prevIds.includes(todoId)) {
+        return [...prevIds, todoId];
+      }
+
+      return prevIds;
+    });
+
     try {
       const updatedTodo = await todoApi.updateTodo(todoId, fieldsToUpdate);
 
@@ -112,6 +120,8 @@ export const App: React.FC = () => {
       )));
     } catch {
       showError(Errors.UnableToUpdate);
+    } finally {
+      setSelectedTodoIds([]);
     }
   }, []);
 
@@ -120,14 +130,26 @@ export const App: React.FC = () => {
   ), [todos]);
 
   const changeAllTodosStatus = useCallback(async () => {
-    todos.forEach(todo => {
-      const isTodoNeedToUpdate = !isAllTodosCompleted && !todo.completed;
+    const todoIdsToUpdate = todos
+      .filter(todo => todo.completed === isAllTodosCompleted)
+      .map(todo => todo.id);
 
-      if (isTodoNeedToUpdate || isAllTodosCompleted) {
-        updateTodoFields(todo.id, { completed: !todo.completed });
-      }
-    });
-  }, [todos, isAllTodosCompleted]);
+    setSelectedTodoIds(todoIdsToUpdate);
+
+    try {
+      await Promise.all(todos.map(todo => (
+        updateTodoFields(todo.id, { completed: !isAllTodosCompleted })
+      )));
+
+      setTodos(todos.map(todo => (
+        { ...todo, completed: !isAllTodosCompleted }
+      )));
+    } catch {
+      showError(Errors.UnableToUpdateStatus);
+    } finally {
+      setSelectedTodoIds([]);
+    }
+  }, [todos]);
 
   const deleteCompletedTodos = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
@@ -172,6 +194,7 @@ export const App: React.FC = () => {
               deletingTodoIds={deletingTodoIds}
               updateTodoFields={updateTodoFields}
               newTodoField={newTodoField}
+              selectedTodoIds={selectedTodoIds}
             />
 
             <Footer

@@ -5,16 +5,17 @@ import { Loader } from '../Loader/Loader';
 
 interface Props {
   todo: Todo,
-  deleteTodo: (todoId: number) => Promise<void>;
-  changeTodoStatus: (todoId: number, status: boolean) => void;
+  deleteTodo: (todoId: number) => Promise<void>,
+  changeTodoStatus: (todoId: number, status: boolean) => void,
   updateTodo: (
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
-  ) => Promise<void>;
+  ) => Promise<void>,
+  selectedTodoIds: number[],
 
-  newTodoField: React.RefObject<HTMLInputElement>;
+  newTodoField: React.RefObject<HTMLInputElement>,
   isDeleting: boolean,
-  isAdding?: boolean;
+  isAdding?: boolean,
 }
 
 export const TodoItem: React.FC<Props> = memo(({
@@ -25,8 +26,11 @@ export const TodoItem: React.FC<Props> = memo(({
   newTodoField,
   isDeleting,
   isAdding,
+  selectedTodoIds,
 }) => {
-  const isLoading = todo.id === 0 || isDeleting;
+  const isChanging = selectedTodoIds.includes(todo.id);
+  const isLoading = todo.id === 0 || isDeleting
+    || isChanging;
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [isTitleChange, setIsTitleChange] = useState(false);
 
@@ -54,6 +58,7 @@ export const TodoItem: React.FC<Props> = memo(({
   const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape' && isTitleChange) {
       setIsTitleChange(false);
+      setEditedTitle(todo.title);
     }
   };
 
