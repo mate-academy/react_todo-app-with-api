@@ -22,6 +22,17 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 
+enum MessageOfError {
+  todosLoadError = 'Something went wrong while loading todos',
+  todosAddError =
+  'Something went wrong while adding a todo. Please, try again later',
+  emptyTitleError = 'Title can\'t be empty',
+  todoDeletingError =
+  'Something went wrong while deleting a todo. Please, try again later',
+  todosUpdateError = 'Something went wrong while updating todo',
+  invalidTypeError = 'Invalid type',
+}
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -55,7 +66,7 @@ export const App: React.FC = () => {
 
       setTodos(loadedTodos);
     } catch (error) {
-      setErrorMessage('Something went wrong while loading todos');
+      setErrorMessage(MessageOfError.todosLoadError);
     }
   };
 
@@ -94,7 +105,7 @@ export const App: React.FC = () => {
         ]);
       } catch (error) {
         // eslint-disable-next-line max-len
-        setErrorMessage('Something went wrong while adding a todo. Please, try again later');
+        setErrorMessage(MessageOfError.todosAddError);
       } finally {
         setIsAdding(false);
         setTempTodo(null);
@@ -112,7 +123,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!title.trim()) {
-      setErrorMessage('Title can\'t be empty');
+      setErrorMessage(MessageOfError.emptyTitleError);
 
       return;
     }
@@ -137,7 +148,7 @@ export const App: React.FC = () => {
       setSelectedTodoIds(todosIds => todosIds.filter(id => id !== todoId));
     } catch (error) {
       // eslint-disable-next-line max-len
-      setErrorMessage('Something went wrong while deleting a todo. Please, try again later');
+      setErrorMessage(MessageOfError.todoDeletingError);
     } finally {
       setIsDeleting(false);
     }
@@ -176,7 +187,7 @@ export const App: React.FC = () => {
         };
       }));
     } catch (error) {
-      setErrorMessage('Something went wrong while updating todo');
+      setErrorMessage(MessageOfError.todosUpdateError);
     } finally {
       setSelectedTodoIds([]);
       setIsTodoUpdating(false);
@@ -208,7 +219,7 @@ export const App: React.FC = () => {
       case FilterType.Completed:
         return todos.filter(todo => todo.completed);
       default:
-        throw new Error('Invalid type');
+        throw new Error(MessageOfError.invalidTypeError);
     }
   }, [todos, filterType]);
 

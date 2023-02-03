@@ -3,6 +3,7 @@ import React, { memo, useEffect } from 'react';
 type Props = {
   newTodoField?: React.RefObject<HTMLInputElement>;
   title: string;
+  className: string,
   isAdding?: boolean,
   submitForm: (event?: React.FormEvent<HTMLFormElement>) => void;
   changeInput: React.Dispatch<React.SetStateAction<string>>;
@@ -13,6 +14,7 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
   const {
     newTodoField,
     title,
+    className,
     isAdding,
     submitForm,
     changeInput,
@@ -40,14 +42,13 @@ export const NewTodoField: React.FC<Props> = memo((props) => {
         data-cy="NewTodoField"
         type="text"
         ref={newTodoField}
-        className="todoapp__new-todo"
+        className={className}
         placeholder="What needs to be done?"
         value={title}
         onChange={(event) => changeInput(event.currentTarget.value)}
         onBlur={() => submitForm()}
         disabled={isAdding}
         onKeyDown={handleEscPress}
-        tabIndex={0}
       />
     </form>
   );

@@ -36,6 +36,7 @@ export const Header: React.FC<Props> = memo((props) => {
 
       <NewTodoField
         title={title}
+        className="todoapp__new-todo"
         isAdding={isAdding}
         submitForm={submitForm}
         changeInput={changeInput}

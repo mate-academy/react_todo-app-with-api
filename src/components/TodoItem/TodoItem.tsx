@@ -92,6 +92,7 @@ export const TodoItem: React.FC<Props> = memo((props) => {
       {isTitleChanged ? (
         <NewTodoField
           title={newTitle}
+          className="todo__title-field"
           newTodoField={newTodoField}
           changeInput={setNewTitle}
           submitForm={changeTodoTitle}
