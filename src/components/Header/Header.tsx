@@ -62,7 +62,9 @@ export const Header: React.FC<Props> = memo((props) => {
       });
 
       setTitle('');
-    } catch { /* empty */ }
+    } catch {
+      showError('Unable to add a todo');
+    }
   };
 
   return (
@@ -75,7 +77,7 @@ export const Header: React.FC<Props> = memo((props) => {
           'todoapp__toggle-all',
           { active: shouldRenderActiveToggle },
         )}
-        onClick={() => handleToggleTodoStatus}
+        onClick={handleToggleTodoStatus}
       />
 
       <form

@@ -127,7 +127,9 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const isAllTodosCompleted = todos.length === amountOfActiveTodo;
+  const isAllTodosCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
 
   const handleToggleTodoStatus = useCallback(() => {
     const todoStatus = !isAllTodosCompleted;
