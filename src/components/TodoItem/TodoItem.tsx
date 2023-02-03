@@ -18,7 +18,7 @@ export const TodoItem: React.FC<Props> = memo(({
 }) => {
   const [isTodoDeleted, setIsTodoDeleted] = useState(false);
   const [titleQuery, setTitleQuery] = useState(todo.title);
-  const [changingTodoId, setChangingTodoId] = useState(0);
+  const [isTodoChanging, setIsTodoChanging] = useState(false);
 
   const handleDeletedTodo = () => {
     setIsTodoDeleted(true);
@@ -31,7 +31,7 @@ export const TodoItem: React.FC<Props> = memo(({
   const handeChangeTodoTitle = () => {
     if (!titleQuery.trim()) {
       handleDeletedTodo();
-      setChangingTodoId(0);
+      setIsTodoChanging(false);
 
       return;
     }
@@ -41,15 +41,15 @@ export const TodoItem: React.FC<Props> = memo(({
         todo.id,
         { title: titleQuery },
       );
-      setChangingTodoId(0);
+      setIsTodoChanging(false);
     }
 
-    setChangingTodoId(0);
+    setIsTodoChanging(false);
   };
 
   const handleCancelChangingTodoTitle = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setChangingTodoId(0);
+      setIsTodoChanging(false);
     }
   };
 
@@ -76,7 +76,7 @@ export const TodoItem: React.FC<Props> = memo(({
         />
       </label>
 
-      { changingTodoId === todo.id ? (
+      { isTodoChanging ? (
         <form onSubmit={() => handeChangeTodoTitle()}>
           <input
             data-cy="TodoTitleField"
@@ -94,7 +94,7 @@ export const TodoItem: React.FC<Props> = memo(({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => setChangingTodoId(todo.id)}
+              onDoubleClick={() => setIsTodoChanging(true)}
             >
               {todo.title}
             </span>
