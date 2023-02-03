@@ -102,7 +102,7 @@ export const Header: React.FC<Props> = ({
     });
 
     if (countCompleted === todos.length) {
-      promises = todos.map((todo, index) => {
+      promises = todos.map((_, index) => {
         return patchAllToggledTodos(index, false);
       });
     }
