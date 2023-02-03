@@ -8,7 +8,7 @@ type Props = {
   todosList: Todo[],
   isAdding?: boolean,
   tempNewTask: Todo | null,
-  deleteTodo: (value: number) => void,
+  deleteTodo: (value: number) => Promise<void>,
   deletingTodoIds: number[],
   updateTodo: (
     todoId: number,

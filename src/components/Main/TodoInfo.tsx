@@ -5,12 +5,12 @@ import { TodoTitleField } from './TodoTitleField';
 
 type Props = {
   todo: Todo,
-  deleteTodo: (value: number) => void,
+  deleteTodo: (value: number) => Promise<void>,
   deletingTodoIds: number[],
   updateTodo: (
     todoId: number,
     newData: Partial<Pick<Todo, 'title' | 'completed'>>,
-  ) => void,
+  ) => Promise<void>,
   updatingTodoIds: number[],
 };
 
@@ -51,6 +51,7 @@ export const TodoInfo: React.FC<Props> = memo(({
             updateTodo={updateTodo}
             prevTitle={todo.title}
             setIsTitleUpdating={setIsTitleUpdating}
+            deleteTodo={deleteTodo}
           />
         )
         : (

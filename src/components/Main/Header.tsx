@@ -7,7 +7,7 @@ import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
   todosList: Todo[],
-  onSubmit: (todoData: Omit<Todo, 'id'>) => void,
+  onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>,
   newTodoField: React.RefObject<HTMLInputElement>,
   setIsError: (value: boolean) => void,
   setErrorText: (value: string) => void,
@@ -15,7 +15,7 @@ type Props = {
   updateTodo: (
     todoId: number,
     newData: Partial<Pick<Todo, 'title' | 'completed'>>,
-  ) => void,
+  ) => Promise<void>,
 };
 
 export const Header: React.FC<Props> = memo(({
@@ -30,18 +30,13 @@ export const Header: React.FC<Props> = memo(({
   const [title, setTitle] = useState('');
   const user = useContext(AuthContext);
 
-  const uncompletedTodo = todosList.filter(todo => todo.completed === false);
+  const activeTodoList = todosList.filter(todo => todo.completed === false);
+  const wantedStatus = activeTodoList.length > 0;
 
   const toggleAlltodos = () => {
-    if (!uncompletedTodo.length) {
-      todosList.map(todo => {
-        return updateTodo(todo.id, { completed: false });
-      });
-    }
-
     todosList.forEach(todo => {
-      if (todo.completed === false) {
-        updateTodo(todo.id, { completed: true });
+      if (todo.completed !== wantedStatus) {
+        updateTodo(todo.id, { completed: wantedStatus });
       }
     });
   };
