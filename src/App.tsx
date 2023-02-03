@@ -60,10 +60,14 @@ export const App: React.FC = () => {
     }
   }, [deleteTodo]);
 
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const activeTodosCount = activeTodos.length;
-  const completedTodos = todos.filter(todo => todo.completed);
-  const completedTodosCount = completedTodos.length;
+  const filterTodos = (completed: boolean): [Todo[], number] => {
+    const filtered = todos.filter(todo => todo.completed === completed);
+
+    return [filtered, filtered.length];
+  };
+
+  const [activeTodos, activeTodosCount] = filterTodos(false);
+  const [completedTodos, completedTodosCount] = filterTodos(true);
 
   const deleteCompletedTodos = async () => {
     try {
