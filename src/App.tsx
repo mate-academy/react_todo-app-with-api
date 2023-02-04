@@ -32,7 +32,6 @@ export const App: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
 
   const [updatingTodosIds, setUpdatingTodoIds] = useState<number[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -67,8 +66,8 @@ export const App: React.FC = () => {
     try {
       const deleteResponse = await deleteTodoById(todoId);
 
-      // eslint-disable-next-line max-len
-      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== todoId));
+      setTodos((currentTodos) => currentTodos
+        .filter((todo) => todo.id !== todoId));
 
       return deleteResponse;
     } catch (error) {
@@ -105,12 +104,10 @@ export const App: React.FC = () => {
       setTodos((prevTodos) => [...prevTodos, response]);
 
       // eslint-disable-next-line consistent-return
-      return response;
     } catch (error) {
       showError('Unable to add a todo');
 
       // eslint-disable-next-line consistent-return
-      return false;
     } finally {
       setTempTodo(null);
       setIsAdding(false);
@@ -130,11 +127,11 @@ export const App: React.FC = () => {
     });
 
     try {
-      const response = await updateTodoOnServer(todoId, fieldsToUpdate);
+      const updatedTodo = await updateTodoOnServer(todoId, fieldsToUpdate);
 
       setTodos((prevTodo) => prevTodo.map((todo) => {
         if (todo.id === todoId) {
-          return response;
+          return updatedTodo;
         }
 
         return todo;
@@ -172,7 +169,7 @@ export const App: React.FC = () => {
 
   const isAllTodosCompleted = todos.length === completedTodosLength;
 
-  const handelTodosStatus = useCallback(() => {
+  const handleTodosStatus = useCallback(() => {
     const wantedTodoStatus = !isAllTodosCompleted;
 
     todos.forEach((todo) => {
@@ -194,7 +191,7 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           isAdding={isAdding}
           shouldRanderActiveToggle={isAllTodosCompleted}
-          handelTodosStatus={handelTodosStatus}
+          handelTodosStatus={handleTodosStatus}
         />
 
         <TodoList

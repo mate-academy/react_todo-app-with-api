@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { memo, useState } from 'react';
-// import { createTodo } from '../../api/todos';
 
 type Props = {
   newTodoField: React.RefObject<HTMLInputElement>;

@@ -23,7 +23,10 @@ export const Footer: React.FC<Props> = memo(({
         {`${notCompletedTodosLength} items left`}
       </span>
 
-      <Filter filterStatus={filterStatus} onFilterStatus={changeStatusFilter} />
+      <Filter
+        filterStatus={filterStatus}
+        onFilterStatus={changeStatusFilter}
+      />
 
       <button
         data-cy="ClearCompletedButton"

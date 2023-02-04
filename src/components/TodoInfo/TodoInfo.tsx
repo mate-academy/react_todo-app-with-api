@@ -11,7 +11,7 @@ type Props = {
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => void;
-  shouldShowLoader: boolean;
+  shouldShowLoader?: boolean;
 };
 
 export const TodoInfo: React.FC<Props> = memo(
@@ -32,14 +32,6 @@ export const TodoInfo: React.FC<Props> = memo(
       [todo.id],
     );
 
-    const handleDeleteTodo = async (todoId: number) => {
-      setIsLoading(true);
-
-      await onDeleteTodo(todoId);
-
-      setIsLoading(false);
-    };
-
     const handleUpdateTodo = async (
       todoId: number,
       fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
@@ -53,7 +45,11 @@ export const TodoInfo: React.FC<Props> = memo(
 
     const deleteTodoById = useCallback(
       async () => {
+        setIsLoading(true);
+
         await onDeleteTodo(todo.id);
+
+        setIsLoading(false);
       },
       [todo.id],
     );
@@ -97,7 +93,7 @@ export const TodoInfo: React.FC<Props> = memo(
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => handleDeleteTodo(todo.id)}
+              onClick={deleteTodoById}
             >
               ×
             </button>

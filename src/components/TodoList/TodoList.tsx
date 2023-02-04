@@ -40,7 +40,6 @@ export const TodoList: React.FC<Props> = memo(
             onDeleteTodo={onDeleteTodo}
             isAdding={isAdding}
             onUpdateTodo={onUpdateTodo}
-            shouldShowLoader={updatingTodosIds.includes(tempTodo.id)}
           />
         )}
       </section>
