@@ -1,30 +1,49 @@
 import cn from 'classnames';
-import { FC, memo } from 'react';
+import {
+  FC, memo, useCallback, useState,
+} from 'react';
+import { deleteTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { TodoTitleField } from './TodoTitleField';
 
 type Props = {
   todo: Todo
-  onDeleteTodo?: (id: number) => void
+  handleDeleteTodo?: (id: number) => void
   isDelete?: boolean
-  onStatusChange?: (changedTodo: Todo) => void
+  updateTodo: (
+    todoId: number,
+    newData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>,
+  updatingTodoIds: number[],
 };
 
 export const TodoItem: FC<Props> = memo(({
-  todo, onDeleteTodo, isDelete, onStatusChange,
+  todo,
+  handleDeleteTodo,
+  isDelete,
+  updateTodo,
+  updatingTodoIds,
 }) => {
   const { id, title, completed } = todo;
+  const [shouldShowInput, setShouldShowInput] = useState(false);
 
   const handleDeleteClick = () => {
-    if (onDeleteTodo) {
-      onDeleteTodo(id);
+    if (handleDeleteTodo) {
+      handleDeleteTodo(id);
     }
   };
 
-  const handleStatusChange = (changedTodo: Todo) => {
-    if (onStatusChange) {
-      onStatusChange(changedTodo);
-    }
-  };
+  const cancelEditing = useCallback(() => {
+    setShouldShowInput(false);
+  }, []);
+
+  const updateTitle = useCallback(async (newTitle: string) => {
+    await updateTodo(todo.id, { title: newTitle });
+  }, [todo.id, updateTodo]);
+
+  const deleteTodoById = useCallback(async () => {
+    await deleteTodo(todo.id);
+  }, [todo.id]);
 
   return (
     <div
@@ -36,29 +55,49 @@ export const TodoItem: FC<Props> = memo(({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => handleStatusChange(todo)}
           checked={completed}
+          onClick={() => updateTodo(todo.id, { completed: !completed })}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={handleDeleteClick}
-      >
-        ×
-      </button>
+      {
+        shouldShowInput
+          ? (
+            <TodoTitleField
+              oldTitle={title}
+              cancelEditing={cancelEditing}
+              updateTitle={updateTitle}
+              deleteTodo={deleteTodoById}
+            />
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setShouldShowInput(true)}
+              >
+                {title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={handleDeleteClick}
+              >
+                ×
+              </button>
+            </>
+          )
+      }
 
       <div
         data-cy="TodoLoader"
         className={cn(
           'modal',
           'overlay',
-          { 'is-active': isDelete || id === 0 },
+          // eslint-disable-next-line max-len
+          { 'is-active': isDelete || id === 0 || updatingTodoIds.includes(todo.id) },
         )}
       >
         <div className="modal-background has-background-white-ter" />

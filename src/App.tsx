@@ -2,10 +2,10 @@
 import React, {
   memo, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
-// import cn from 'classnames';
 
+import cn from 'classnames';
 import {
-  addTodo, deleteTodo, getTodos, updateTodo,
+  addTodo, deleteTodo, getTodos, changeTodo,
 } from './api/todos';
 import { AuthContext } from './components/components/Auth/AuthContext';
 import { ErrorMessage } from './components/components/ErrorMessage';
@@ -26,7 +26,7 @@ export const App: React.FC = memo(() => {
   const [newTodoToAdd, setNewTodoToAdd] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodosIds, setDeletingTodosIds] = useState<number[]>([]);
-  const [, setStatusChange] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
   const handleFilterOptionClick = (newOption: FilterTypes) => {
     if (selectedFilterType !== newOption) {
@@ -144,33 +144,45 @@ export const App: React.FC = memo(() => {
     });
   };
 
-  const handleTodoStatusChange = useCallback((changedTodo: Todo) => {
-    const { id, completed } = changedTodo;
+  const updateTodo = useCallback(async (
+    todoId: number,
+    newData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => {
+    setUpdatingTodoIds(curr => [...curr, todoId]);
 
-    setStatusChange(prev => [...prev, id]);
+    try {
+      const updatedTodo = await changeTodo(todoId, newData);
 
-    updateTodo(id, { completed: !completed })
-      .then((updatedTodo) => {
-        setTodos(prevTodos => prevTodos.map(todo => {
-          if (todo.id === updatedTodo.id) {
-            return {
-              ...todo,
-              completed: updatedTodo.completed,
-            };
-          }
-
-          return todo;
-        }));
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
-        setStatusChange(prev => {
-          return prev.filter(deletingId => deletingId !== id);
-        });
-      });
+      setTodos(currentTodo => currentTodo.map(todo => {
+        return todo.id === todoId
+          ? updatedTodo
+          : todo;
+      }));
+    } catch {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setUpdatingTodoIds(currIds => currIds
+        .filter(currId => currId !== todoId));
+    }
   }, []);
+
+  const complitedItemsCounter = useMemo(() => {
+    return visibleTodos.filter(todo => todo.completed).length;
+  }, [visibleTodos]);
+
+  const isAllTodosCompleted = visibleTodos.length === complitedItemsCounter;
+
+  const handleToggleTodosStatus = useCallback(() => {
+    const wantedTodoStatus = !isAllTodosCompleted;
+
+    Promise.all(todos.map(
+      async (todo) => {
+        if (todo.completed !== wantedTodoStatus) {
+          await updateTodo(todo.id, { completed: wantedTodoStatus });
+        }
+      },
+    ));
+  }, [isAllTodosCompleted, todos, updateTodo]);
 
   return (
     <div className="todoapp">
@@ -181,7 +193,9 @@ export const App: React.FC = memo(() => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={cn('todoapp__toggle-all',
+              { active: isAllTodosCompleted })}
+            onClick={handleToggleTodosStatus}
           />
 
           <form onSubmit={handleFormSubmit}>
@@ -201,10 +215,11 @@ export const App: React.FC = memo(() => {
           <>
             <TodoList
               todos={visibleTodos}
-              onDeleteTodo={handleDeleteTodo}
+              handleDeleteTodo={handleDeleteTodo}
               deletingTodosIds={deletingTodosIds}
-              onTodoStatusChange={handleTodoStatusChange}
               tempTodo={tempTodo}
+              updateTodo={updateTodo}
+              updatingTodoIds={updatingTodoIds}
             />
 
             <Footer
@@ -221,7 +236,7 @@ export const App: React.FC = memo(() => {
 
       <ErrorMessage
         errorMessage={errorMessage}
-        onCloseBtnClick={() => setErrorMessage('')}
+        handleCloseError={() => setErrorMessage('')}
       />
     </div>
   );

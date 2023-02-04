@@ -4,18 +4,23 @@ import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[]
-  onDeleteTodo: (id: number) => void
+  handleDeleteTodo: (id: number) => void
   deletingTodosIds: number[]
-  onTodoStatusChange: (changedTodo: Todo) => void
   tempTodo: Todo | null
+  updateTodo: (
+    todoId: number,
+    newData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>,
+  updatingTodoIds: number[],
 };
 
 export const TodoList: FC<Props> = memo(({
   todos,
-  onDeleteTodo,
+  handleDeleteTodo,
   deletingTodosIds,
-  onTodoStatusChange,
   tempTodo,
+  updateTodo,
+  updatingTodoIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -23,13 +28,20 @@ export const TodoList: FC<Props> = memo(({
         <TodoItem
           key={todo.id}
           todo={todo}
-          onDeleteTodo={onDeleteTodo}
+          handleDeleteTodo={handleDeleteTodo}
           isDelete={deletingTodosIds.includes(todo.id)}
-          onStatusChange={onTodoStatusChange}
+          updateTodo={updateTodo}
+          updatingTodoIds={updatingTodoIds}
         />
       ))}
 
-      {tempTodo && <TodoItem todo={tempTodo} />}
+      {tempTodo && (
+        <TodoItem
+          todo={tempTodo}
+          updateTodo={updateTodo}
+          updatingTodoIds={[]}
+        />
+      )}
     </section>
   );
 });
