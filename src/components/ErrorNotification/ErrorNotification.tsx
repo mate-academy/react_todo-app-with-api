@@ -1,22 +1,19 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { memo, useEffect } from 'react';
 import classnames from 'classnames';
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
-import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
-  error: ErrorType;
-  setError: Dispatch<SetStateAction<ErrorType>>
+  error: string;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 };
 
-export const ErrorMessage:React.FC<Props> = ({
-  error,
-  setError,
-}) => {
+export const ErrorNotification: React.FC<Props> = memo((props) => {
+  const { error, setErrorMessage } = props;
+
   useEffect(() => {
     setTimeout(() => {
-      setError(ErrorType.None);
+      setErrorMessage('');
     }, 3000);
-  }, [error]);
+  });
 
   return (
     <div
@@ -26,13 +23,14 @@ export const ErrorMessage:React.FC<Props> = ({
         { hidden: !error },
       )}
     >
+      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setError(ErrorType.None)}
+        onClick={() => setErrorMessage('')}
       />
       {error}
     </div>
   );
-};
+});

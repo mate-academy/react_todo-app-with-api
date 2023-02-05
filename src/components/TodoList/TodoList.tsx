@@ -1,56 +1,39 @@
-import React from 'react';
-import { FilterStatus } from '../../types/FilterStatus';
-import { TempTodo, Todo } from '../../types/Todo';
-import { TodoInfo } from '../TodoInfo';
+import React, { memo } from 'react';
+import { Todo } from '../../types/Todo';
+import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[];
-  filterStatus: FilterStatus;
-  tempTodo:TempTodo | null
-  handleDelete: (id: number) => void;
-  handleStatusChange: (todo: Todo) => void;
-  updatingTodoIds: number[];
-  editTodo: (todo: Todo, newTitle:string) => void;
+  selectedTodoIds: number[],
+  newTodoField: React.RefObject<HTMLInputElement>;
+  removeTodo: (todoId: number) => void;
+  toggleTodoStatus: (todoId: number, status: boolean) => void;
+  updateTodo: (todoId: number, newData: Partial<Todo>) => void;
 };
 
-export const TodoList:React.FC<Props> = ({
-  todos,
-  filterStatus,
-  tempTodo,
-  handleDelete,
-  handleStatusChange,
-  updatingTodoIds,
-  editTodo,
-}) => {
-  const visibleTodos = todos.filter(todo => {
-    switch (filterStatus) {
-      case FilterStatus.Active:
-        return !todo.completed;
-      case FilterStatus.Completed:
-        return todo.completed;
-      default:
-        return todo;
-    }
-  });
+export const TodoList: React.FC<Props> = memo((props) => {
+  const {
+    todos,
+    removeTodo,
+    toggleTodoStatus,
+    selectedTodoIds,
+    newTodoField,
+    updateTodo,
+  } = props;
 
   return (
-    <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos.map(todo => (
-        <TodoInfo
+    <ul className="todoapp__main" data-cy="TodoList">
+      {todos.map(todo => (
+        <TodoItem
           key={todo.id}
           todo={todo}
-          onDelete={handleDelete}
-          handleStatusChange={handleStatusChange}
-          updatingTodo={updatingTodoIds?.includes(todo.id)}
-          editTodo={editTodo}
+          selectedTodoIds={selectedTodoIds}
+          removeTodo={removeTodo}
+          toggleTodoStatus={toggleTodoStatus}
+          newTodoField={newTodoField}
+          updateTodo={updateTodo}
         />
       ))}
-      {tempTodo && (
-        <TodoInfo
-          key={tempTodo.id}
-          todo={tempTodo}
-        />
-      )}
-    </section>
+    </ul>
   );
-};
+});

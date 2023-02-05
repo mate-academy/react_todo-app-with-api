@@ -1,111 +1,52 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { memo } from 'react';
 import classnames from 'classnames';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { postTodo } from '../../api/todos';
-import { ErrorType } from '../../types/ErrorType';
-import { TempTodo, Todo } from '../../types/Todo';
-import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  setError: Dispatch<SetStateAction<ErrorType>>;
-  setTempTodo: Dispatch<SetStateAction<TempTodo | null>>;
-  isAllCompleted: boolean
-  setTodos: Dispatch<SetStateAction<Todo[]>>;
-  handleToggleAll: () => {}
+  title: string;
+  isAdding: boolean;
+  isEachTodoCompleted: boolean;
+  newTodoField: React.RefObject<HTMLInputElement>
+  onChange: (query: string) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  toggleAllTodosStatus: () => void;
 };
 
-export const Header:React.FC<Props> = ({
-  setError,
-  setTempTodo,
-  setTodos,
-  isAllCompleted,
-  handleToggleAll,
-}) => {
-  const [newTitle, setNewTitle] = useState('');
-  const [isLoading, setLoading] = useState(false);
-
-  const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [isLoading]);
-
-  const addTodo = async (title: string) => {
-    setLoading(true);
-    setTempTodo({
-      id: 0,
-      title,
-      completed: false,
-      userId: 0,
-    });
-
-    try {
-      const todo = {
-        userId: user?.id,
-        title,
-        completed: false,
-      };
-
-      const newTodo = await postTodo(todo);
-
-      setTodos(current => [...current, newTodo]);
-      setNewTitle('');
-    } catch (err) {
-      setError(ErrorType.InsertionError);
-    } finally {
-      setTempTodo(null);
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (newTitle === '') {
-      setError(ErrorType.TitleError);
-
-      return;
-    }
-
-    if (newTodoField.current) {
-      addTodo(newTitle);
-      setNewTitle('');
-    }
-  };
+export const Header: React.FC<Props> = memo((props) => {
+  const {
+    title,
+    isAdding,
+    newTodoField,
+    isEachTodoCompleted,
+    onChange,
+    onSubmit,
+    toggleAllTodosStatus,
+  } = props;
 
   return (
     <header className="todoapp__header">
+      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className={classnames('todoapp__toggle-all',
-          { active: isAllCompleted })}
-        onClick={() => handleToggleAll()}
+        className={classnames(
+          'todoapp__toggle-all',
+          { active: isEachTodoCompleted },
+        )}
+        onClick={() => toggleAllTodosStatus()}
       />
 
-      <form
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={onSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
           ref={newTodoField}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={isLoading}
-          value={newTitle}
-          onChange={(event) => setNewTitle(event.target.value)}
+          disabled={isAdding}
+          value={title}
+          onChange={(event) => onChange(event.target.value)}
         />
       </form>
     </header>
   );
-};
+});
