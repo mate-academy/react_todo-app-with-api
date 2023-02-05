@@ -9,6 +9,7 @@ type Props = {
   todo: Todo,
   onDeleteTodo: (todoId: number) => void,
   isLoading: boolean,
+  isDeleting: boolean,
   onUpdateTodo: (todo: Todo) => void,
   isUpdating: boolean
 };
@@ -19,6 +20,7 @@ export const TodoInfo: React.FC <Props> = memo(({
   isLoading,
   onUpdateTodo,
   isUpdating,
+  isDeleting,
 }) => {
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -67,7 +69,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     setIsEditing(false);
   };
 
-  const isLoaderNeeded = todo.id === 0 || isUpdating;
+  const isLoaderNeeded = todo.id === 0 || isUpdating || isDeleting;
 
   return (
     <div
@@ -120,9 +122,10 @@ export const TodoInfo: React.FC <Props> = memo(({
           </>
         )}
 
-      {isLoaderNeeded && (
+      { isLoaderNeeded && (
         <Loader
           isLoading={isLoading}
+          isDeleting={isDeleting}
         />
       )}
     </div>

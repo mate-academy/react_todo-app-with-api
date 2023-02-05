@@ -8,6 +8,7 @@ type Props = {
   isLoading: boolean,
   onUpdateTodo: (todo: Todo) => void;
   todosToUpdate: Todo[],
+  deletingTodosIds: number[],
 };
 
 export const TodoList: React.FC<Props> = memo(({
@@ -16,6 +17,7 @@ export const TodoList: React.FC<Props> = memo(({
   isLoading,
   onUpdateTodo,
   todosToUpdate,
+  deletingTodosIds,
 }) => {
   const todosIdToUpdate = todosToUpdate.map(todo => todo.id);
 
@@ -27,6 +29,7 @@ export const TodoList: React.FC<Props> = memo(({
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           isLoading={isLoading}
+          isDeleting={deletingTodosIds.includes(todo.id)}
           onUpdateTodo={onUpdateTodo}
           isUpdating={todosIdToUpdate.includes(todo.id)}
         />

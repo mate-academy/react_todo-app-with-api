@@ -24,16 +24,9 @@ export const Footer: React.FC<Props> = memo(({
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
-      {filterType
-        ? (
-          <span className="todo-count" data-cy="todosCounter">
-            {`${todosLeft.length} items left`}
-          </span>
-        ) : (
-          <span className="todo-count" data-cy="todosCounter">
-            0 items left
-          </span>
-        )}
+      <span className="todo-count" data-cy="todosCounter">
+        {`${todosLeft.length} items left`}
+      </span>
 
       <Filter
         filterType={filterType}

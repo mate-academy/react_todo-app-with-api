@@ -22,6 +22,7 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [deletingTodosIds, setDeletingTodosIds] = useState<number[]>([]);
   const [isToggledAll, setIsToggledAll] = useState(false);
   const [todosToUpdate, setTodosToUpdate] = useState<Todo[]>([]);
 
@@ -57,9 +58,12 @@ export const App: React.FC = () => {
 
     if (!todoTitle.trim()) {
       setErrorMessage(ErrorTypes.EmptyTitle);
+      setTodoTitle('');
 
       return;
     }
+
+    setIsLoading(true);
 
     if (user) {
       setTempTodo({
@@ -69,7 +73,6 @@ export const App: React.FC = () => {
         userId: user.id,
       });
 
-      setIsLoading(true);
       addTodo(todoTitle, user.id)
         .then(response => {
           setTodos(prev => [...prev, {
@@ -88,16 +91,18 @@ export const App: React.FC = () => {
     }
   }, [todoTitle, user]);
 
-  const onDeleteTodo = useCallback((id: number) => {
-    setIsLoading(true);
-    deleteTodo(id)
-      .then(() => (
-        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id))
-      ))
-      .catch(() => {
-        setErrorMessage(ErrorTypes.UnableToDelete);
-      });
-    setIsLoading(false);
+  const onDeleteTodo = useCallback(async (todoId: number) => {
+    try {
+      setDeletingTodosIds(prev => [...prev, todoId]);
+
+      await deleteTodo(todoId);
+
+      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+    } catch (error) {
+      setErrorMessage('todo is not delete');
+    } finally {
+      setDeletingTodosIds(prev => prev.filter(id => id !== todoId));
+    }
   }, []);
 
   const clearCompleated = () => {
@@ -196,7 +201,8 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               onDeleteTodo={onDeleteTodo}
-              isLoading={false}
+              isLoading={isLoading}
+              deletingTodosIds={deletingTodosIds}
               onUpdateTodo={onUpdateTodo}
               todosToUpdate={todosToUpdate}
             />
@@ -205,6 +211,7 @@ export const App: React.FC = () => {
               <TodoInfo
                 todo={tempTodo}
                 isLoading={isLoading}
+                isDeleting={deletingTodosIds.includes(tempTodo.id)}
                 onDeleteTodo={onDeleteTodo}
                 onUpdateTodo={onUpdateTodo}
                 isUpdating={false}
