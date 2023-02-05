@@ -48,6 +48,8 @@ export const TodoInfo: React.FC <Props> = memo(({
     event.preventDefault();
 
     if (editingTodoTitle === todo.title) {
+      setIsEditing(false);
+
       return;
     }
 
@@ -126,6 +128,7 @@ export const TodoInfo: React.FC <Props> = memo(({
         <Loader
           isLoading={isLoading}
           isDeleting={isDeleting}
+          isUpdating={isUpdating}
         />
       )}
     </div>
