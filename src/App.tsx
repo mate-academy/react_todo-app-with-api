@@ -95,7 +95,7 @@ export const App: React.FC = () => {
       setTodos(currentTodos => currentTodos.filter(
         todo => todo.id !== todoId,
       ));
-    } catch (e) {
+    } catch {
       setErrorMessage('Unable to delete a todo');
     } finally {
       setDeletedTodoID(prev => {
@@ -133,19 +133,12 @@ export const App: React.FC = () => {
           ? { ...todo, ...fieldsToUpdate }
           : todo
       )));
-    } catch (error) {
+    } catch {
       setErrorMessage('Unable to update a todo');
     } finally {
       setDeletedTodoID(todosIds => todosIds.filter(id => id !== todoId));
     }
   }, []);
-
-  const toggleAllTodos = async (
-    todoId: number,
-    fieldsToUpdate: Partial<Todo>,
-  ) => {
-    await changeTodo(todoId, fieldsToUpdate);
-  };
 
   const isAllTodosCompleted = useMemo(() => (
     todos.every(todo => todo.completed)
@@ -156,7 +149,7 @@ export const App: React.FC = () => {
       const isTodoNeedToUpdate = !isAllTodosCompleted && !todo.completed;
 
       if (isTodoNeedToUpdate || isAllTodosCompleted) {
-        toggleAllTodos(todo.id, { completed: !todo.completed });
+        changeTodo(todo.id, { completed: !todo.completed });
       }
     });
   }, [todos, isAllTodosCompleted]);

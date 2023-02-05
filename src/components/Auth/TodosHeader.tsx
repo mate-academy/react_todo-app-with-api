@@ -24,7 +24,7 @@ export const TodosHeader: React.FC<Props> = memo(({
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [isAdded]);
 
   return (
     <header className="todoapp__header">

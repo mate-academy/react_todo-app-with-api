@@ -11,9 +11,8 @@ export const getVisibleTodos = (filteredTodos: Todo[],
       case Filters.COMPLETED:
         return todo.completed;
 
-      case Filters.ALL:
       default:
-        return true;
+        return todo;
     }
   });
 };
