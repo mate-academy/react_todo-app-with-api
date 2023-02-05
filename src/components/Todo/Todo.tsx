@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 import TodoTitleField from '../TodoTitleField/TodoTitleFiled';
@@ -67,11 +67,17 @@ const TodoComponent: React.FC<Props> = ({
     setIsEditing(true);
   };
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      setIsEditing(false);
-    }
-  });
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsEditing(false);
+      }
+    };
+
+    document.addEventListener('keydown', listener);
+
+    return () => document.removeEventListener('keydown', listener);
+  }, []);
 
   const titleChangeHandler = (value: string) => {
     setIsEditing(false);
@@ -91,6 +97,8 @@ const TodoComponent: React.FC<Props> = ({
     onTitleChange(todo, value);
   };
 
+  const handleDelete = () => deleteHandler(todo.id);
+
   const titleAndButton = (
     <>
       <span
@@ -104,7 +112,7 @@ const TodoComponent: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDeleteButton"
-        onClick={() => deleteHandler(todo.id)}
+        onClick={handleDelete}
       >
         ×
       </button>

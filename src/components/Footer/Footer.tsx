@@ -12,6 +12,10 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   left, onFilter, completed, onClearCompleted, currentFilter,
 }) => {
+  const onClickHandler = () => {
+    onFilter(Filter.ALL);
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
@@ -25,9 +29,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames(
             'filter__link', { selected: currentFilter === Filter.ALL },
           )}
-          onClick={() => {
-            onFilter(Filter.ALL);
-          }}
+          onClick={onClickHandler}
         >
           All
         </a>
