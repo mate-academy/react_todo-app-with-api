@@ -30,8 +30,9 @@ export const Header: React.FC<Props> = memo(({
   const [title, setTitle] = useState('');
   const user = useContext(AuthContext);
 
-  const activeTodoList = todosList.filter(todo => todo.completed === false);
-  const wantedStatus = activeTodoList.length > 0;
+  const completedTodosList = todosList.filter(todo => todo.completed === true);
+  const wantedStatus = completedTodosList.length !== todosList.length;
+  const isToggleActive = !wantedStatus;
 
   const toggleAlltodos = () => {
     todosList.forEach(todo => {
@@ -73,7 +74,7 @@ export const Header: React.FC<Props> = memo(({
           data-cy="ToggleAllButton"
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: false,
+            active: isToggleActive,
           })}
           onClick={toggleAlltodos}
         />
