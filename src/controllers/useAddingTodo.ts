@@ -7,11 +7,11 @@ type Props = {
   showError: ((message: string) => void);
 };
 
-type HookOutput = [
-  boolean,
-  Todo | null,
-  (todoInfo: Omit<Todo, 'id'>) => void,
-];
+type HookOutput = {
+  isAddingTodo: boolean,
+  temporaryNewTodo: Todo | null,
+  addTodo: (todoInfo: Omit<Todo, 'id'>) => void,
+};
 
 export const useAddingTodo = (props: Props): HookOutput => {
   const {
@@ -41,5 +41,5 @@ export const useAddingTodo = (props: Props): HookOutput => {
       });
   }, []);
 
-  return [isAddingTodo, temporaryNewTodo, addTodo];
+  return { isAddingTodo, temporaryNewTodo, addTodo };
 };

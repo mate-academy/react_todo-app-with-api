@@ -35,7 +35,7 @@ export const TodoList: FC<Props> = React.memo((props) => {
         <TodoItem
           todo={temporaryNewTodo}
           onDelete={onDeleteTodo}
-          shouldShowLoader={loadingTodosIds.includes(temporaryNewTodo.id)}
+          shouldShowLoader
           onUpdate={onUpdateTodo}
         />
       )}

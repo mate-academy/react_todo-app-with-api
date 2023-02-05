@@ -37,19 +37,17 @@ export const App: React.FC = () => {
   ), [todos]);
 
   const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      switch (selectedStatus) {
-        case Filters.Active:
-          return !todo.completed;
+    switch (selectedStatus) {
+      case Filters.Active:
+        return todos.filter(todo => !todo.completed);
 
-        case Filters.Completed:
-          return todo.completed;
+      case Filters.Completed:
+        return todos.filter(todo => todo.completed);
 
-        case Filters.All:
-        default:
-          return todo;
-      }
-    });
+      case Filters.All:
+      default:
+        return todos;
+    }
   }, [todos, selectedStatus]);
 
   const completedTodosIds = useMemo(() => (
@@ -60,7 +58,7 @@ export const App: React.FC = () => {
 
   const isAllCompletedTodos = todos.length === completedTodosIds.length;
 
-  const [isAddingTodo, temporaryNewTodo, addTodo] = useAddingTodo(
+  const { isAddingTodo, temporaryNewTodo, addTodo } = useAddingTodo(
     {
       setTodos, showError,
     },
