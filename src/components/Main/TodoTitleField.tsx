@@ -37,7 +37,7 @@ export const TodoTitleField: React.FC<Props> = memo(({
   }, []);
 
   const confirmEditing = async () => {
-    if (newTitle.length === 0) {
+    if (!newTitle.trim()) {
       deleteTodo(todoId);
       setIsTitleUpdating(false);
     }
@@ -54,7 +54,6 @@ export const TodoTitleField: React.FC<Props> = memo(({
 
   const handleKeysEvents = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setNewTitle(() => prevTitle);
       setIsTitleUpdating(false);
     }
 

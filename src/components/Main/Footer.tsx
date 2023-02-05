@@ -17,6 +17,7 @@ export const Footer: React.FC<Props> = memo(({
   deleteCompletedTodos,
 }) => {
   const uncompletedTodo = todosList.filter(todo => todo.completed === false);
+  const isSomeCompleted = todosList.some(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -60,15 +61,16 @@ export const Footer: React.FC<Props> = memo(({
           Completed
         </a>
       </nav>
-
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={deleteCompletedTodos}
-      >
-        Clear completed
-      </button>
+      {isSomeCompleted && (
+        <button
+          data-cy="ClearCompletedButton"
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={deleteCompletedTodos}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 });

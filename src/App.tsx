@@ -148,7 +148,7 @@ export const App: React.FC = () => {
           setErrorText(ErorrMessage.ON_UPLOAD);
         });
     }
-  }, [todosList.length]);
+  }, [todosList.length, filterCondition]);
 
   return (
     <div className="todoapp">
