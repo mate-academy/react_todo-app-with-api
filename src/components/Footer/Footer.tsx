@@ -6,7 +6,7 @@ type Props = {
   activeTodosQuantity: number,
   filterType: FilterType,
   setFilterTodo: (str: FilterType) => void,
-  clearCompletedTodos: () => void,
+  deleteAllComplitedTodos: () => void,
   completedTodosQuantity: number
 };
 
@@ -14,7 +14,7 @@ export const Footer: React.FC<Props> = memo(({
   activeTodosQuantity,
   filterType,
   setFilterTodo,
-  clearCompletedTodos,
+  deleteAllComplitedTodos,
   completedTodosQuantity,
 }) => {
   return (
@@ -63,7 +63,7 @@ export const Footer: React.FC<Props> = memo(({
         className={cn('todoapp__clear-completed', {
           'is-invisible': !completedTodosQuantity,
         })}
-        onClick={clearCompletedTodos}
+        onClick={deleteAllComplitedTodos}
       >
         Clear completed
       </button>

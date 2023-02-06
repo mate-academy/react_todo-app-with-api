@@ -194,9 +194,9 @@ export const App: React.FC = () => {
         <Header
           newTitle={newTitle}
           setNewTitle={setNewTitle}
-          onAddNewTodo={addNewTodo}
+          addNewTodo={addNewTodo}
           isAdding={isAdding}
-          onChangeAllTodos={changeAllTodos}
+          changeAllTodos={changeAllTodos}
           isAllTodosCompleted={isAllTodosCompleted}
         />
 
@@ -219,7 +219,7 @@ export const App: React.FC = () => {
               completedTodosQuantity={completedTodosQuantity}
               filterType={filterTodo}
               setFilterTodo={setFilterTodo}
-              clearCompletedTodos={deleteAllComplitedTodos}
+              deleteAllComplitedTodos={deleteAllComplitedTodos}
             />
           </>
         )}

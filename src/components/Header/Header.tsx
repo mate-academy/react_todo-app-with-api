@@ -4,18 +4,18 @@ import cn from 'classnames';
 type Props = {
   newTitle: string;
   setNewTitle: (title: string) => void;
-  onAddNewTodo: (event: React.FormEvent) => void;
+  addNewTodo: (event: React.FormEvent) => void;
   isAdding: boolean;
-  onChangeAllTodos: () => void;
+  changeAllTodos: () => void;
   isAllTodosCompleted: boolean;
 };
 
 export const Header: React.FC<Props> = memo(({
   newTitle,
   setNewTitle,
-  onAddNewTodo,
+  addNewTodo,
   isAdding,
-  onChangeAllTodos,
+  changeAllTodos,
   isAllTodosCompleted,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
@@ -36,10 +36,10 @@ export const Header: React.FC<Props> = memo(({
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
-        onClick={onChangeAllTodos}
+        onClick={changeAllTodos}
       />
 
-      <form onSubmit={onAddNewTodo}>
+      <form onSubmit={addNewTodo}>
         <input
           data-cy="NewTodoField"
           type="text"
