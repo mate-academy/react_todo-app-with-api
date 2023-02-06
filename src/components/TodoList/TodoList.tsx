@@ -1,39 +1,51 @@
-import React, { memo } from 'react';
+import React from 'react';
+
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[];
-  selectedTodoIds: number[],
-  newTodoField: React.RefObject<HTMLInputElement>;
-  removeTodo: (todoId: number) => void;
-  toggleTodoStatus: (todoId: number, status: boolean) => void;
-  updateTodo: (todoId: number, newData: Partial<Todo>) => void;
+  tempTodo: Todo | null;
+  deleteTodo: (todoId: number) => Promise<void>;
+  updateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>;
+  deletingTodoIds: number[];
+  updatingTodoIds: number[];
 };
 
-export const TodoList: React.FC<Props> = memo((props) => {
-  const {
+export const TodoList: React.FC<Props> = React.memo(
+  ({
     todos,
-    removeTodo,
-    toggleTodoStatus,
-    selectedTodoIds,
-    newTodoField,
+    tempTodo,
+    deleteTodo,
     updateTodo,
-  } = props;
+    deletingTodoIds,
+    updatingTodoIds,
+  }) => {
+    return (
+      <ul className="todoapp__main" data-cy="TodoList">
+        {todos.map(todo => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            updateTodo={updateTodo}
+            shouldShowLoader={deletingTodoIds.includes(todo.id)
+              || updatingTodoIds.includes(todo.id)}
+          />
+        ))}
 
-  return (
-    <ul className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          selectedTodoIds={selectedTodoIds}
-          removeTodo={removeTodo}
-          toggleTodoStatus={toggleTodoStatus}
-          newTodoField={newTodoField}
-          updateTodo={updateTodo}
-        />
-      ))}
-    </ul>
-  );
-});
+        {tempTodo && (
+          <TodoItem
+            todo={tempTodo}
+            deleteTodo={deleteTodo}
+            updateTodo={updateTodo}
+            shouldShowLoader
+          />
+        )}
+      </ul>
+    );
+  },
+);

@@ -1,118 +1,89 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { Loader } from '../Loader/Loader';
+import { TodoTitleInput } from '../TodoTitleInput';
 
 type Props = {
   todo: Todo;
-  isAdding?: boolean;
-  selectedTodoIds: number[];
-  newTodoField: React.RefObject<HTMLInputElement>;
-  removeTodo: (todoId: number) => void;
-  toggleTodoStatus: (todoId: number, status: boolean) => void;
-  updateTodo: (todoId: number, newData: Partial<Todo>) => void;
+  deleteTodo: (todoId: number) => Promise<void>;
+  updateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>;
+  shouldShowLoader: boolean;
 };
 
-export const TodoItem: React.FC<Props> = memo((props) => {
-  const {
+export const TodoItem: React.FC<Props> = React.memo(
+  ({
     todo,
-    removeTodo,
-    toggleTodoStatus,
+    deleteTodo,
     updateTodo,
-    selectedTodoIds,
-    isAdding,
-    newTodoField,
-  } = props;
+    shouldShowLoader,
+  }) => {
+    const [shouldShowInput, setShouldShowInput] = useState(false);
 
-  const [isEditingTodo, setIsEditingTodo] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(todo.title);
-
-  const isLoading = isAdding || (selectedTodoIds.includes(todo.id));
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [isEditingTodo]);
-
-  const submitEditedTodo = () => {
-    if (!editedTitle) {
-      removeTodo(todo.id);
-      setIsEditingTodo(false);
-
-      return;
-    }
-
-    if (todo.title !== editedTitle) {
-      updateTodo(todo.id, { title: editedTitle });
-    }
-
-    setIsEditingTodo(false);
-  };
-
-  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape' && isEditingTodo) {
-      setIsEditingTodo(false);
-    }
-  };
-
-  return (
-    <div
-      data-cy="Todo"
-      className={classnames(
-        'todo',
-        {
-          completed: todo.completed,
-        },
-      )}
-    >
-      <label className="todo__status-label">
-        <input
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          onClick={() => toggleTodoStatus(todo.id, !todo.completed)}
-        />
-      </label>
-
-      {!isEditingTodo
-        ? (
-          <>
-            <span
-              data-cy="TodoTitle"
-              className="todo__title"
-              onDoubleClick={() => setIsEditingTodo(true)}
-            >
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              data-cy="TodoDeleteButton"
-              onClick={() => removeTodo(todo.id)}
-            >
-              ×
-            </button>
-          </>
-        )
-        : (
-          <form onSubmit={submitEditedTodo}>
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              ref={newTodoField}
-              className="todo__title-field"
-              placeholder="What needs to be done?"
-              disabled={isAdding}
-              value={editedTitle}
-              onChange={(event) => setEditedTitle(event.target.value)}
-              onBlur={submitEditedTodo}
-              onKeyDown={cancelEditing}
-            />
-          </form>
+    return (
+      <div
+        data-cy="Todo"
+        className={classnames(
+          'todo',
+          { completed: todo.completed },
         )}
+      >
+        <label className="todo__status-label">
+          <input
+            data-cy="TodoStatus"
+            type="checkbox"
+            className="todo__status"
+            checked={todo.completed}
+            readOnly
+            onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
+          />
+        </label>
 
-      <Loader isLoading={isLoading} />
-    </div>
-  );
-});
+        {shouldShowInput
+          ? (
+            <TodoTitleInput
+              currentTitle={todo.title}
+              currentTodoId={todo.id}
+              setShouldShowInput={setShouldShowInput}
+              deleteTodo={deleteTodo}
+              updateTodo={updateTodo}
+            />
+          )
+          : (
+            <>
+              <span
+                data-cy="TodoTitle"
+                className="todo__title"
+                onDoubleClick={() => setShouldShowInput(true)}
+              >
+                {todo.title}
+              </span>
+
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => deleteTodo(todo.id)}
+              >
+                ×
+              </button>
+            </>
+          )}
+
+        <div
+          data-cy="TodoLoader"
+          className={classnames(
+            'modal',
+            'overlay',
+            { 'is-active': shouldShowLoader },
+          )}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      </div>
+    );
+  },
+);

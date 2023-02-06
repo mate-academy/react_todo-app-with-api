@@ -1,52 +1,96 @@
-import React, { memo } from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import classnames from 'classnames';
+import { AuthContext } from '../Auth/AuthContext';
+import { Todo } from '../../types/Todo';
+import { ErrorTypes } from '../../types/ErrorTypes';
 
 type Props = {
-  title: string;
-  isAdding: boolean;
-  isEachTodoCompleted: boolean;
-  newTodoField: React.RefObject<HTMLInputElement>
-  onChange: (query: string) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  addTodo: (fieldsToCreate: Omit<Todo, 'id'>) => Promise<void>;
+  isAddingTodo: boolean;
+  showError: (message: string) => void;
+  isAllTodosCompleted: boolean;
   toggleAllTodosStatus: () => void;
 };
 
-export const Header: React.FC<Props> = memo((props) => {
-  const {
-    title,
-    isAdding,
-    newTodoField,
-    isEachTodoCompleted,
-    onChange,
-    onSubmit,
+export const Header: React.FC<Props> = React.memo(
+  ({
+    addTodo,
+    isAddingTodo,
+    showError,
+    isAllTodosCompleted,
     toggleAllTodosStatus,
-  } = props;
+  }) => {
+    const user = useContext(AuthContext);
 
-  return (
-    <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        data-cy="ToggleAllButton"
-        type="button"
-        className={classnames(
-          'todoapp__toggle-all',
-          { active: isEachTodoCompleted },
-        )}
-        onClick={() => toggleAllTodosStatus()}
-      />
+    const [title, setTitle] = useState('');
 
-      <form onSubmit={onSubmit}>
-        <input
-          data-cy="NewTodoField"
-          type="text"
-          ref={newTodoField}
-          className="todoapp__new-todo"
-          placeholder="What needs to be done?"
-          disabled={isAdding}
-          value={title}
-          onChange={(event) => onChange(event.target.value)}
+    const newTodoField = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (newTodoField.current) {
+        newTodoField.current.focus();
+      }
+    }, [isAddingTodo]);
+
+    const handleFormSubmit = async () => {
+      if (!title.trim()) {
+        showError(ErrorTypes.EmptyTitle);
+
+        return;
+      }
+
+      if (!user) {
+        showError(ErrorTypes.UserNotFound);
+
+        return;
+      }
+
+      const fieldsToCreate = {
+        userId: user.id,
+        title,
+        completed: false,
+      };
+
+      await addTodo(fieldsToCreate);
+
+      setTitle('');
+    };
+
+    return (
+      <header className="todoapp__header">
+        <button
+          data-cy="ToggleAllButton"
+          type="button"
+          className={classnames(
+            'todoapp__toggle-all',
+            { active: isAllTodosCompleted },
+          )}
+          onClick={() => toggleAllTodosStatus()}
         />
-      </form>
-    </header>
-  );
-});
+
+        <form
+          action="/api/users"
+          method="POST"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleFormSubmit();
+          }}
+        >
+          <input
+            data-cy="NewTodoField"
+            type="text"
+            ref={newTodoField}
+            className="todoapp__new-todo"
+            placeholder="What needs to be done?"
+            disabled={isAddingTodo}
+            value={title}
+            onChange={(event) => setTitle(event.currentTarget.value)}
+          />
+        </form>
+      </header>
+    );
+  },
+);
