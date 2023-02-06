@@ -4,7 +4,8 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 
 type Props = {
   todos: Todo[],
-  onDeleteTodo: (todoId: number) => void,
+  tempTodo: Todo | null,
+  removeTodo: (todoId: number) => void,
   isLoading: boolean,
   onUpdateTodo: (todo: Todo) => void;
   todosToUpdate: Todo[],
@@ -13,11 +14,12 @@ type Props = {
 
 export const TodoList: React.FC<Props> = memo(({
   todos,
-  onDeleteTodo,
+  removeTodo,
   isLoading,
   onUpdateTodo,
   todosToUpdate,
   deletingTodosIds,
+  tempTodo,
 }) => {
   const todosIdToUpdate = todosToUpdate.map(todo => todo.id);
 
@@ -27,13 +29,24 @@ export const TodoList: React.FC<Props> = memo(({
         <TodoInfo
           key={todo.id}
           todo={todo}
-          onDeleteTodo={onDeleteTodo}
+          removeTodo={removeTodo}
           isLoading={isLoading}
           isDeleting={deletingTodosIds.includes(todo.id)}
           onUpdateTodo={onUpdateTodo}
           isUpdating={todosIdToUpdate.includes(todo.id)}
         />
       ))}
+
+      {tempTodo && (
+        <TodoInfo
+          todo={tempTodo}
+          isLoading={isLoading}
+          isDeleting={deletingTodosIds.includes(tempTodo.id)}
+          removeTodo={removeTodo}
+          onUpdateTodo={onUpdateTodo}
+          isUpdating={false}
+        />
+      )}
     </section>
   );
 });

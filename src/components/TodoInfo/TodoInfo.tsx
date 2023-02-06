@@ -7,7 +7,7 @@ import { Loader } from '../Loader/Loader';
 
 type Props = {
   todo: Todo,
-  onDeleteTodo: (todoId: number) => void,
+  removeTodo: (todoId: number) => void,
   isLoading: boolean,
   isDeleting: boolean,
   onUpdateTodo: (todo: Todo) => void,
@@ -16,7 +16,7 @@ type Props = {
 
 export const TodoInfo: React.FC <Props> = memo(({
   todo,
-  onDeleteTodo,
+  removeTodo,
   isLoading,
   onUpdateTodo,
   isUpdating,
@@ -55,7 +55,7 @@ export const TodoInfo: React.FC <Props> = memo(({
 
     if (editingTodoTitle === '') {
       setEditingTodoTitle('');
-      onDeleteTodo(todo.id);
+      removeTodo(todo.id);
 
       return;
     }
@@ -117,7 +117,7 @@ export const TodoInfo: React.FC <Props> = memo(({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => onDeleteTodo(todo.id)}
+              onClick={() => removeTodo(todo.id)}
             >
               ×
             </button>
