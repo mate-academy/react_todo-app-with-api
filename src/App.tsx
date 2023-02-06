@@ -58,6 +58,7 @@ export const App: React.FC = () => {
         case FilterType.Completed:
           return todo.completed;
 
+        case FilterType.All:
         default:
           return todo;
       }
