@@ -1,8 +1,16 @@
+// import classNames from "classnames";
+
+import classNames from 'classnames';
+import { Todo } from '../../types/Todo';
+
 type Props = {
   value: string;
   setValue: React.Dispatch<React.SetStateAction<string>>;
   handleKeyDown: (event: any) => void;
   isAdding: boolean;
+  areTodosCompleted: Todo | undefined;
+  setStatusCompleted: () => void;
+  setStatusNotCompleted:() => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -10,6 +18,9 @@ export const Header: React.FC<Props> = ({
   setValue,
   handleKeyDown,
   isAdding,
+  areTodosCompleted,
+  setStatusCompleted,
+  setStatusNotCompleted,
 }) => {
   return (
     <header className="todoapp__header">
@@ -17,7 +28,10 @@ export const Header: React.FC<Props> = ({
         data-cy="ToggleAllButton"
         aria-label="button"
         type="button"
-        className="todoapp__toggle-all active"
+        onClick={areTodosCompleted ? setStatusCompleted : setStatusNotCompleted}
+        className={classNames(
+          'todoapp__toggle-all', { active: !areTodosCompleted },
+        )}
       />
 
       <form>

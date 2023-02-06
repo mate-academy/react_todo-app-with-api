@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import classnames from 'classnames';
 import {
-  createTodo, getTodos, deleteTodo, updateTodo,
+  createTodo, getTodos, deleteTodo, updateTodo, updateTodoTitle,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
@@ -11,6 +11,7 @@ import { Filters } from './types/Filters';
 import { Header } from './components/Auth/Header';
 import { TodoList } from './components/Auth/TodoList';
 import { FooterTodo } from './components/Auth/FooterTodo';
+import { Loader } from './components/Auth/Loader';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,12 +27,16 @@ export const App: React.FC = () => {
   const [isEmpty, setIsEmpty] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [isLoadingTodos, setIsLoadingTodos] = useState(true);
+  const [isLoadingNewName, setIsLoadingNewName] = useState(true);
+
+  const areTodosCompleted = todos.find(todo => !todo.completed);
 
   const updateTodoCompleted = (todoNew: Todo) => {
     setTodos(
       todos.map((todo) => (todo.id !== todoNew.id
         ? todo
-        : { ...todo, completed: !todoNew.completed })),
+        : { ...todo, completed: !todo.completed })),
     );
   };
 
@@ -44,7 +49,6 @@ export const App: React.FC = () => {
       .catch(() => setIsUpdate(true));
   };
 
-  // lkojmol
   const updateTodoName = (todoNew: Todo) => {
     setTodos(
       todos.map((todo) => (todo.id !== todoNew.id
@@ -55,16 +59,34 @@ export const App: React.FC = () => {
   };
 
   const updateTODOTitle = (todoId: number | undefined, title: string) => {
-    updateTodo(todoId, title)
-      .then((todo) => updateTodoName(todo))
+    updateTodoTitle(todoId, title)
+      .then((todo) => {
+        updateTodoName(todo);
+        setIsLoadingNewName(false);
+      })
       .catch(() => setIsUpdate(true));
   };
 
   const completedTodo = todos.filter((todo) => todo.completed);
+
   const clearCompleted = () => {
-    completedTodo.filter((todo) => deleteTodo(todo.id)
-      .then()
-      .catch(() => setIsDelete(true)));
+    setTodos(
+      completedTodo.filter((todo) => deleteTodo(todo.id)
+        .then()
+        .catch(() => setIsDelete(true))),
+    );
+  };
+
+  const setStatusCompleted = () => {
+    todos.forEach(todo => updateTodo(todo.id, !todo.completed)
+      .then(() => setTodos(todos.map((tod) => ({ ...tod, completed: true }))))
+      .catch(() => setIsUpdate(true)));
+  };
+
+  const setStatusNotCompleted = () => {
+    todos.forEach(toDo => updateTodo(toDo.id, !toDo.completed)
+      .then(() => setTodos(todos.map((t) => ({ ...t, completed: false }))))
+      .catch(() => setIsUpdate(true)));
   };
 
   const updateTodos = (todoId: unknown) => setTodos(todos
@@ -76,7 +98,6 @@ export const App: React.FC = () => {
       .catch(() => setIsDelete(true));
   };
 
-  // dfbdzsg
   const addNewTodo = (todo: Todo) => setTodos([...todos, todo]);
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter') {
@@ -94,9 +115,11 @@ export const App: React.FC = () => {
   useEffect(() => {
     setIsHidden(true);
     getTodos(user?.id)
-      .then(setTodos)
+      .then((todoss) => {
+        setTodos(todoss);
+        setIsLoadingTodos(false);
+      })
       .catch(() => setIsError(true));
-
     setTimeout(() => {
       setIsHidden(true);
       setIsDelete(false);
@@ -107,7 +130,7 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, [todos]);
+  }, []);
 
   const filterList = (todoss: Todo[]): Todo[] | undefined => todoss
     .filter((todo) => {
@@ -140,22 +163,30 @@ export const App: React.FC = () => {
             setValue={setValue}
             handleKeyDown={handleKeyDown}
             isAdding={isAdding}
+            areTodosCompleted={areTodosCompleted}
+            setStatusCompleted={setStatusCompleted}
+            setStatusNotCompleted={setStatusNotCompleted}
           />
           {todos.length !== 0 && (
             <>
-              <TodoList
-                filteredList={filteredList}
-                removeTodo={removeTodo}
-                updateTODOCompleted={updateTODOCompleted}
-                updateTODOTitle={updateTODOTitle}
-              />
-
-              <FooterTodo
-                todos={todos}
-                setCurrentFilter={setCurrentFilter}
-                clearCompleted={clearCompleted}
-                currentFilter={currentFilter}
-              />
+              {isLoadingTodos ? <Loader />
+                : (
+                  <>
+                    <TodoList
+                      filteredList={filteredList}
+                      removeTodo={removeTodo}
+                      updateTODOCompleted={updateTODOCompleted}
+                      updateTODOTitle={updateTODOTitle}
+                      isLoadingNewName={isLoadingNewName}
+                    />
+                    <FooterTodo
+                      todos={todos}
+                      setCurrentFilter={setCurrentFilter}
+                      clearCompleted={clearCompleted}
+                      currentFilter={currentFilter}
+                    />
+                  </>
+                )}
             </>
           )}
 
