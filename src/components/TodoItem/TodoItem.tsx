@@ -102,8 +102,8 @@ export const TodoItem: React.FC<Props> = memo((props) => {
             <input
               data-cy="NewTodoField"
               type="text"
+              className="todo__title-field"
               ref={newTodoField}
-              className="todoapp__new-todo"
               placeholder="What needs to be done?"
               disabled={isAdding}
               value={editedTitle}
