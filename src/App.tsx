@@ -21,6 +21,7 @@ import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
 import { FilterStatus } from './types/FilterStatus';
 import { getCompletedTodoIds } from './helpers/helpers';
+import { ErrorMessages } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -29,7 +30,7 @@ export const App: React.FC = () => {
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodos, setDeletingTodos] = useState<number[]>([]);
-  const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
+  const [updatingTodos] = useState<number[]>([]);
 
   const showError = (text: string) => {
     setIsError(text);
@@ -50,7 +51,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, newTodo]);
     } catch (error) {
-      showError('Unable to add a todo');
+      showError(ErrorMessages.ADD);
 
       throw Error('Error while adding todo');
     } finally {
@@ -59,7 +60,7 @@ export const App: React.FC = () => {
     }
   }, [showError]);
 
-  const onDeleteTodo = useCallback(async (todoId: number) => {
+  const deleteTodoId = useCallback(async (todoId: number) => {
     try {
       setDeletingTodos(prev => [...prev, todoId]);
 
@@ -67,47 +68,47 @@ export const App: React.FC = () => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
-      showError('Unable to delete a todo');
+      showError(ErrorMessages.DELETE);
     } finally {
       setDeletingTodos(prev => prev.filter(id => id !== todoId));
     }
   }, [showError]);
 
   const onUpdateTodo = useCallback(async (
-    todoId: number,
-    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+    changedTodo: Todo,
   ) => {
-    setUpdatingTodos(prevIds => {
-      if (!prevIds.includes(todoId)) {
-        return [...prevIds, todoId];
-      }
+    // setUpdatingTodos(prevIds => {
+    //   if (!prevIds.includes(changedTodo)) {
+    //     return [...prevIds, changedTodo];
+    //   }
 
-      return prevIds;
-    });
+    //   return prevIds;
+    // });
 
     try {
-      const updatedTodo = await updateTodo(todoId, updateData);
+      const { id, title, completed } = changedTodo;
+      const updatedTodo = await updateTodo(id, { title, completed });
 
       setTodos(prevTodos => prevTodos.map(todo => {
-        if (todo.id !== todoId) {
+        if (todo.id !== id) {
           return todo;
         }
 
         return updatedTodo;
       }));
     } catch {
-      showError('Unable to update a todo');
-    } finally {
-      setUpdatingTodos(prevTodos => prevTodos
-        .filter(prevTodoId => prevTodoId !== todoId));
+      showError(ErrorMessages.UPDATE);
+    // } finally {
+    //   setUpdatingTodos(prevTodos => prevTodos
+    //     .filter(prevTodoId => prevTodoId !== changedTodo));
     }
   }, [showError]);
 
-  const onDeleteCompleted = useCallback(async () => {
+  const deleteCompletedTodos = useCallback(async () => {
     const completedTodoIds = getCompletedTodoIds(todos);
 
-    completedTodoIds.forEach(id => onDeleteTodo(id));
-  }, [onDeleteTodo, todos]);
+    completedTodoIds.forEach(id => deleteTodoId(id));
+  }, [deleteTodoId, todos]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
@@ -127,20 +128,22 @@ export const App: React.FC = () => {
   }, []);
 
   const filteredTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filteredStatus) {
-        case FilterStatus.COMPLETED: {
-          return todo.completed;
-        }
-
-        case FilterStatus.ACTIVE: {
-          return !todo.completed;
-        }
-
-        default:
-          return todo;
+    switch (filteredStatus) {
+      case FilterStatus.COMPLETED: {
+        return todos.filter(todo => (
+          todo.completed
+        ));
       }
-    });
+
+      case FilterStatus.ACTIVE: {
+        return todos.filter(todo => (
+          !todo.completed
+        ));
+      }
+
+      default:
+        return todos;
+    }
   }, [todos, filteredStatus]);
 
   const activeTodoQuantity = useMemo(() => (
@@ -160,7 +163,9 @@ export const App: React.FC = () => {
 
     todos.forEach(async (todo) => {
       if (todo.completed !== wantedTodoStatus) {
-        await onUpdateTodo(todo.id, { completed: wantedTodoStatus });
+        await onUpdateTodo(
+          { ...todo, completed: wantedTodoStatus },
+        );
       }
     });
   }, [isAllTodosCompleted, todos]);
@@ -184,7 +189,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={filteredTodos}
               tempTodo={tempTodo}
-              onDeleteTodo={onDeleteTodo}
+              deleteTodoId={deleteTodoId}
               deletingTodos={deletingTodos}
               onUpdateTodo={onUpdateTodo}
               updatingTodos={updatingTodos}
@@ -194,7 +199,7 @@ export const App: React.FC = () => {
               activeTodoQuantity={activeTodoQuantity}
               filterType={filteredStatus}
               setFilteredStatus={setFilteredStatus}
-              onDeleteCompleted={onDeleteCompleted}
+              deleteCompletedTodos={deleteCompletedTodos}
             />
           </>
         )}

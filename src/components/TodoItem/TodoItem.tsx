@@ -2,22 +2,22 @@ import React, { FC, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
-import { updateTodo } from '../../api/todos';
 
 interface Props {
   todo: Todo;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onDeleteTodo: (todoId: number) => Promise<any>;
+  deleteTodoId: (todoId: number) => Promise<any>;
   shouldShowLoader: boolean;
   onUpdateTodo: (
-    todoId: number,
-    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+    changedTodo: Todo
+    // todoId: number,
+    // updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => Promise<void>;
 }
 
 export const TodoItem: FC<Props> = React.memo(({
   todo,
-  onDeleteTodo,
+  deleteTodoId,
   shouldShowLoader,
   onUpdateTodo,
 }) => {
@@ -31,11 +31,11 @@ export const TodoItem: FC<Props> = React.memo(({
   }, []);
 
   const updateTitle = useCallback(async (title: string) => {
-    await updateTodo(todoId, { title });
+    await onUpdateTodo({ ...todo, title });
   }, [todoId]);
 
   const deleteTodoById = useCallback(async () => {
-    await onDeleteTodo(todoId);
+    await deleteTodoId(todoId);
   }, [todoId]);
 
   return (
@@ -50,7 +50,9 @@ export const TodoItem: FC<Props> = React.memo(({
           className="todo__status"
           checked={todo.completed}
           readOnly
-          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
+          onChange={() => onUpdateTodo(
+            { ...todo, completed: !todo.completed },
+          )}
         />
       </label>
 
@@ -77,7 +79,7 @@ export const TodoItem: FC<Props> = React.memo(({
                 type="button"
                 className="todo__remove"
                 data-cy="TodoDeleteButton"
-                onClick={() => onDeleteTodo(todo.id)}
+                onClick={() => deleteTodoId(todo.id)}
               >
                 ×
               </button>

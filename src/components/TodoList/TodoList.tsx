@@ -6,11 +6,12 @@ type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onDeleteTodo: (todoId: number) => Promise<any>;
+  deleteTodoId: (todoId: number) => Promise<any>;
   deletingTodos: number[];
   onUpdateTodo: (
-    todoId: number,
-    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+    changedTodo: Todo
+    // todoId: number,
+    // updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => Promise<void>;
   updatingTodos: number[];
 };
@@ -18,7 +19,7 @@ type Props = {
 export const TodoList: React.FC<Props> = memo(({
   todos,
   tempTodo,
-  onDeleteTodo,
+  deleteTodoId,
   deletingTodos,
   onUpdateTodo,
   updatingTodos,
@@ -29,7 +30,7 @@ export const TodoList: React.FC<Props> = memo(({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onDeleteTodo={onDeleteTodo}
+          deleteTodoId={deleteTodoId}
           shouldShowLoader={
             deletingTodos.includes(todo.id)
             || updatingTodos.includes(todo.id)
@@ -41,7 +42,7 @@ export const TodoList: React.FC<Props> = memo(({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          onDeleteTodo={onDeleteTodo}
+          deleteTodoId={deleteTodoId}
           shouldShowLoader={deletingTodos.includes(tempTodo.id)}
           onUpdateTodo={onUpdateTodo}
         />
