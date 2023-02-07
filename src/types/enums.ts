@@ -5,6 +5,7 @@ export enum FilterCondition {
 }
 
 export enum ErorrMessage {
+  UNVALID_USER = 'Unknown user',
   ON_ADD = 'Unable to add a todo',
   ON_DELETE = 'Unable to delete a todo',
   UNVALID_TITLE = 'Title can`t be empty',

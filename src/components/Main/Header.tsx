@@ -1,16 +1,21 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { memo, useContext, useState } from 'react';
+import React, {
+  memo,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+} from 'react';
 import cn from 'classnames';
 import { ErorrMessage } from '../../types/enums';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
-  todosList: Todo[],
+  todos: Todo[],
   onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>,
-  newTodoField: React.RefObject<HTMLInputElement>,
   setIsError: (value: boolean) => void,
-  setErrorText: (value: string) => void,
+  showError: (value: ErorrMessage) => void,
   isAdding: boolean,
   updateTodo: (
     todoId: number,
@@ -19,25 +24,32 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = memo(({
-  todosList,
-  newTodoField,
+  todos,
   onSubmit,
   setIsError,
-  setErrorText,
+  showError,
   isAdding,
   updateTodo,
 }) => {
   const [title, setTitle] = useState('');
   const user = useContext(AuthContext);
+  const newTodoField = useRef<HTMLInputElement>(null);
 
-  const completedTodosList = todosList.filter(todo => todo.completed === true);
-  const wantedStatus = completedTodosList.length !== todosList.length;
-  const isToggleActive = !wantedStatus;
+  useEffect(() => {
+    // focus the element with `ref={newTodoField}`
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [todos.length]);
 
-  const toggleAlltodos = () => {
-    todosList.forEach(todo => {
-      if (todo.completed !== wantedStatus) {
-        updateTodo(todo.id, { completed: wantedStatus });
+  const completedTodos = todos.filter(todo => todo.completed === true);
+  const isRequiredStatus = completedTodos.length !== todos.length;
+  const isToggleCompletionActive = !isRequiredStatus;
+
+  const toggleCompletionAlltodos = () => {
+    todos.forEach(async (todo) => {
+      if (todo.completed !== isRequiredStatus) {
+        await updateTodo(todo.id, { completed: isRequiredStatus });
       }
     });
   };
@@ -48,13 +60,14 @@ export const Header: React.FC<Props> = memo(({
     const IsValidTitle = title.trim().length > 0;
 
     if (!IsValidTitle) {
-      setIsError(true);
-      setErrorText(ErorrMessage.UNVALID_TITLE);
+      showError(ErorrMessage.UNVALID_TITLE);
 
       return;
     }
 
     if (!user) {
+      showError(ErorrMessage.UNVALID_USER);
+
       return;
     }
 
@@ -69,14 +82,14 @@ export const Header: React.FC<Props> = memo(({
 
   return (
     <header className="todoapp__header">
-      {todosList.length > 0 && (
+      {todos.length > 0 && (
         <button
           data-cy="ToggleAllButton"
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: isToggleActive,
+            active: isToggleCompletionActive,
           })}
-          onClick={toggleAlltodos}
+          onClick={toggleCompletionAlltodos}
         />
       )}
 

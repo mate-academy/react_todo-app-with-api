@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useState,
   KeyboardEvent,
+  SyntheticEvent,
   useRef,
   useEffect,
 } from 'react';
@@ -36,7 +37,9 @@ export const TodoTitleField: React.FC<Props> = memo(({
     }
   }, []);
 
-  const confirmEditing = async () => {
+  const confirmEditing = async (event: SyntheticEvent) => {
+    event.preventDefault();
+
     if (!newTitle.trim()) {
       deleteTodo(todoId);
       setIsTitleUpdating(false);
@@ -56,23 +59,11 @@ export const TodoTitleField: React.FC<Props> = memo(({
     if (event.key === 'Escape') {
       setIsTitleUpdating(false);
     }
-
-    if (event.key === 'Enter') {
-      confirmEditing();
-      setIsTitleUpdating(false);
-    }
   };
 
   return (
     <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (prevTitle === newTitle) {
-          return;
-        }
-
-        updateTodo(todoId, { title: newTitle });
-      }}
+      onSubmit={confirmEditing}
     >
       <input
         type="text"

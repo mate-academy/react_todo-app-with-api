@@ -1,13 +1,12 @@
 import React, { memo } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-// import { TodoTitleField } from './TodoTitleField';
 import { TodoInfo } from './TodoInfo';
 
 type Props = {
-  todosList: Todo[],
+  todos: Todo[],
   isAdding?: boolean,
-  tempNewTask: Todo | null,
+  tempTodo: Todo | null,
   deleteTodo: (value: number) => Promise<void>,
   deletingTodoIds: number[],
   updateTodo: (
@@ -18,8 +17,8 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = memo(({
-  todosList,
-  tempNewTask,
+  todos,
+  tempTodo,
   deleteTodo,
   deletingTodoIds,
   updateTodo,
@@ -27,7 +26,7 @@ export const TodoList: React.FC<Props> = memo(({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todosList.map(todo => (
+      {todos.map(todo => (
         <TodoInfo
           todo={todo}
           deleteTodo={deleteTodo}
@@ -37,12 +36,12 @@ export const TodoList: React.FC<Props> = memo(({
         />
       ))}
 
-      {tempNewTask && (
+      {tempTodo && (
         <div
           data-cy="Todo"
           className={cn(
             'todo',
-            { completed: tempNewTask.completed },
+            { completed: tempTodo.completed },
           )}
         >
           <label className="todo__status-label">
@@ -55,7 +54,7 @@ export const TodoList: React.FC<Props> = memo(({
           </label>
 
           <span data-cy="TodoTitle" className="todo__title">
-            {tempNewTask.title}
+            {tempTodo.title}
           </span>
           <button
             type="button"

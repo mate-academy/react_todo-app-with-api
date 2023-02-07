@@ -3,10 +3,10 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  // useMemo,
-  useRef,
+  useMemo,
   useState,
 } from 'react';
+
 import cn from 'classnames';
 import {
   getTodos,
@@ -14,6 +14,7 @@ import {
   removeTodo,
   changeTodo,
 } from './api/todos';
+
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
 import { FilterCondition, ErorrMessage } from './types/enums';
@@ -22,38 +23,39 @@ import { TodoList } from './components/Main/TodoList';
 import { Footer } from './components/Main/Footer';
 
 export const App: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = useContext(AuthContext);
-  const newTodoField = useRef<HTMLInputElement>(null);
 
-  const [todosList, setTodosList] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [isError, setIsError] = useState(false);
-  const [errorText, setErrorText] = useState('');
-  const [filterCondition, setFilterCondition] = useState(FilterCondition.ALL);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [statusFilter, setStatusFilter] = useState(FilterCondition.ALL);
   const [isAdding, setIsAdding] = useState(false);
-  const [tempNewTask, setTempNewTask] = useState<Todo | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
-  if (isError) {
-    setTimeout(() => setIsError(false), 3000);
-  }
+  let errorTimer: NodeJS.Timeout;
 
-  const getSelected = useCallback(
-    (allTodos: Todo[]): Todo[] => {
-      switch (filterCondition) {
-        case FilterCondition.COMPLETED:
-          return allTodos.filter(item => item.completed === true);
+  const showError = useCallback((message: ErorrMessage) => {
+    setIsError(true);
+    setErrorMessage(message);
 
-        case FilterCondition.ACTIVE:
-          return allTodos.filter(item => item.completed === false);
+    errorTimer = setTimeout(() => setIsError(() => false), 3000);
+  }, []);
 
-        case FilterCondition.ALL:
-        default:
-          return allTodos;
-      }
-    }, [filterCondition],
-  );
+  const FilteredTodos = useMemo(() => {
+    switch (statusFilter) {
+      case FilterCondition.COMPLETED:
+        return todos.filter(item => item.completed);
+
+      case FilterCondition.ACTIVE:
+        return todos.filter(item => !item.completed);
+
+      case FilterCondition.ALL:
+      default:
+        return todos;
+    }
+  }, [todos, statusFilter]);
 
   const addTodo = useCallback(async (todoData: Omit<Todo, 'id'>) => {
     const fullTodoData = { ...todoData, userId: user?.id };
@@ -64,19 +66,19 @@ export const App: React.FC = () => {
         id: 0,
       };
 
-      setTempNewTask(temporaryTodo);
+      setTempTodo(temporaryTodo);
 
       setIsAdding(true);
       const newTodo = await createTodo(fullTodoData);
 
-      setTodosList(currentTodos => [...currentTodos, newTodo]);
+      setTodos(currentTodos => [...currentTodos, newTodo]);
     } catch {
-      setErrorText(ErorrMessage.ON_ADD);
+      showError(ErorrMessage.ON_ADD);
     } finally {
-      setTempNewTask(null);
+      setTempTodo(null);
       setIsAdding(false);
     }
-  }, [user?.id]);
+  }, []);
 
   const deleteTodo = useCallback(async (idToDelete: number) => {
     try {
@@ -84,29 +86,28 @@ export const App: React.FC = () => {
 
       await removeTodo(idToDelete);
 
-      setTodosList((currentTodos: Todo[]) => currentTodos
+      setTodos((currentTodos: Todo[]) => currentTodos
         .filter(task => task.id !== idToDelete));
     } catch {
-      setIsError(true);
-      setErrorText(ErorrMessage.ON_DELETE);
+      showError(ErorrMessage.ON_DELETE);
     } finally {
       setDeletingTodoIds(currId => currId.filter(id => id !== idToDelete));
     }
   }, []);
 
-  const getCompletedTodos = (allTodos: Todo[]) => {
+  const getCompletedTodosId = (allTodos: Todo[]) => {
     const completedTodos = allTodos.filter(todo => todo.completed === true);
 
     return completedTodos.map(todo => todo.id);
   };
 
   const deleteCompletedTodos = useCallback(() => {
-    const todoIdToDelete = getCompletedTodos(todosList);
+    const todoIdToDelete = getCompletedTodosId(todos);
 
-    todoIdToDelete.forEach(itemId => deleteTodo(itemId));
-  }, [deleteTodo, todosList]);
+    todoIdToDelete.forEach(Id => deleteTodo(Id));
+  }, [deleteTodo, todos]);
 
-  const updateTodo = useCallback(async (
+  const modifyTodo = useCallback(async (
     todoId: number,
     newData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
@@ -115,40 +116,36 @@ export const App: React.FC = () => {
     try {
       const updatedTodo = await changeTodo(todoId, newData);
 
-      setTodosList(currentTodo => currentTodo.map(todo => {
+      setTodos(currentTodo => currentTodo.map(todo => {
         return todo.id === todoId
           ? updatedTodo
           : todo;
       }));
     } catch {
-      setIsError(true);
-      setErrorText(ErorrMessage.ON_UPDATE);
+      showError(ErorrMessage.ON_UPDATE);
     } finally {
       setUpdatingTodoIds(currIds => currIds
         .filter(currId => currId !== todoId));
     }
   }, []);
 
-  const isTodoExist = todosList.length > 0
-    || filterCondition !== FilterCondition.ALL;
+  const isTodosExist = todos.length > 0
+    || statusFilter !== FilterCondition.ALL;
 
   useEffect(() => {
-    // focus the element with `ref={newTodoField}`
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-
     if (user) {
       getTodos(user?.id)
-        .then(getSelected)
-        .then(setTodosList)
+        .then(setTodos)
         .catch(() => {
-          setTodosList([]);
-          setIsError(true);
-          setErrorText(ErorrMessage.ON_UPLOAD);
+          setTodos([]);
+          showError(ErorrMessage.ON_UPLOAD);
         });
     }
-  }, [todosList.length, filterCondition]);
+
+    return () => {
+      window.clearInterval(errorTimer);
+    };
+  }, [showError, todos.length, user]);
 
   return (
     <div className="todoapp">
@@ -156,29 +153,28 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todosList={todosList}
+          todos={todos}
           onSubmit={addTodo}
-          newTodoField={newTodoField}
           setIsError={setIsError}
-          setErrorText={setErrorText}
+          showError={showError}
           isAdding={isAdding}
-          updateTodo={updateTodo}
+          updateTodo={modifyTodo}
         />
         <TodoList
-          todosList={todosList}
-          tempNewTask={tempNewTask}
+          todos={FilteredTodos}
+          tempTodo={tempTodo}
           deleteTodo={deleteTodo}
           deletingTodoIds={deletingTodoIds}
-          updateTodo={updateTodo}
+          updateTodo={modifyTodo}
           updatingTodoIds={updatingTodoIds}
 
         />
 
-        {isTodoExist && (
+        {isTodosExist && (
           <Footer
-            todosList={todosList}
-            filterCondition={filterCondition}
-            setFilterCondition={setFilterCondition}
+            todos={todos}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
             deleteCompletedTodos={deleteCompletedTodos}
           />
         )}
@@ -197,7 +193,7 @@ export const App: React.FC = () => {
           className="delete"
           onClick={() => setIsError(false)}
         />
-        {errorText}
+        {errorMessage}
       </div>
     </div>
   );

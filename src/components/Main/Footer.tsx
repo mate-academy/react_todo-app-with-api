@@ -1,23 +1,26 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterCondition } from '../../types/enums';
 
 type Props = {
-  todosList: Todo[],
-  filterCondition: FilterCondition,
-  setFilterCondition: (value: FilterCondition) => void,
+  todos: Todo[],
+  statusFilter: FilterCondition,
+  setStatusFilter: (value: FilterCondition) => void,
   deleteCompletedTodos: () => void,
 };
 
 export const Footer: React.FC<Props> = memo(({
-  todosList,
-  filterCondition,
-  setFilterCondition,
+  todos,
+  statusFilter,
+  setStatusFilter,
   deleteCompletedTodos,
 }) => {
-  const uncompletedTodo = todosList.filter(todo => todo.completed === false);
-  const isSomeCompleted = todosList.some(todo => todo.completed);
+  const uncompletedTodo = useMemo(() => (
+    todos.filter(todo => todo.completed === false)), [todos]);
+
+  const isSomeCompleted = useMemo(() => (
+    todos.some(todo => todo.completed)), [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -31,9 +34,9 @@ export const Footer: React.FC<Props> = memo(({
           href="#/"
           className={cn('filter__link',
             {
-              selected: filterCondition === FilterCondition.ALL,
+              selected: statusFilter === FilterCondition.ALL,
             })}
-          onClick={() => setFilterCondition(FilterCondition.ALL)}
+          onClick={() => setStatusFilter(FilterCondition.ALL)}
         >
           All
         </a>
@@ -43,9 +46,9 @@ export const Footer: React.FC<Props> = memo(({
           href="#/active"
           className={cn('filter__link',
             {
-              selected: filterCondition === FilterCondition.ACTIVE,
+              selected: statusFilter === FilterCondition.ACTIVE,
             })}
-          onClick={() => setFilterCondition(FilterCondition.ACTIVE)}
+          onClick={() => setStatusFilter(FilterCondition.ACTIVE)}
         >
           Active
         </a>
@@ -54,13 +57,14 @@ export const Footer: React.FC<Props> = memo(({
           href="#/completed"
           className={cn('filter__link',
             {
-              selected: filterCondition === FilterCondition.COMPLETED,
+              selected: statusFilter === FilterCondition.COMPLETED,
             })}
-          onClick={() => setFilterCondition(FilterCondition.COMPLETED)}
+          onClick={() => setStatusFilter(FilterCondition.COMPLETED)}
         >
           Completed
         </a>
       </nav>
+
       {isSomeCompleted && (
         <button
           data-cy="ClearCompletedButton"
