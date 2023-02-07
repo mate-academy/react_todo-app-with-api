@@ -20,7 +20,11 @@ type HookOutput = [
 
 export const useUpdatingTodo = (props: Props): HookOutput => {
   const {
-    setLoadingTodosIds, setTodos, showError, isAllCompletedTodos, todos,
+    setLoadingTodosIds,
+    setTodos,
+    showError,
+    isAllCompletedTodos,
+    todos,
   } = props;
 
   const editTodo = useCallback(async (

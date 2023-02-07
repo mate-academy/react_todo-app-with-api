@@ -15,7 +15,10 @@ type Props = {
 
 export const TodoItem: FC<Props> = React.memo((props) => {
   const {
-    todo, onDelete, shouldShowLoader, onUpdate,
+    todo,
+    onDelete,
+    shouldShowLoader,
+    onUpdate,
   } = props;
 
   const [shouldShowUpdateForm, setShouldShowUpdateForm] = useState(false);

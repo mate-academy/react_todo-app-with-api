@@ -16,7 +16,11 @@ type Props = {
 
 export const NewTodoField: FC<Props> = React.memo((props) => {
   const {
-    showError, isAddingTodo, onAddTodo, isAllCompletedTodos, handleToggleAll,
+    showError,
+    isAddingTodo,
+    onAddTodo,
+    isAllCompletedTodos,
+    handleToggleAll,
   } = props;
 
   const newTodoField = useRef<HTMLInputElement>(null);

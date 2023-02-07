@@ -15,7 +15,10 @@ enum Keyboard {
 
 export const TodoTitleField: FC<Props> = React.memo((props) => {
   const {
-    prevTitle, stopEditing, updateTitle, deleteTodoById,
+    prevTitle,
+    stopEditing,
+    updateTitle,
+    deleteTodoById,
   } = props;
 
   const [newTitle, setNewTitle] = useState(prevTitle);

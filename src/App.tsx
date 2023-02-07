@@ -66,13 +66,20 @@ export const App: React.FC = () => {
 
   const [deleteTodo, removeCompleted] = useDeletingTodos(
     {
-      setLoadingTodosIds, setTodos, showError, completedTodosIds,
+      setLoadingTodosIds,
+      setTodos,
+      showError,
+      completedTodosIds,
     },
   );
 
   const [editTodo, handleToggleAll] = useUpdatingTodo(
     {
-      setLoadingTodosIds, setTodos, showError, isAllCompletedTodos, todos,
+      setLoadingTodosIds,
+      setTodos,
+      showError,
+      isAllCompletedTodos,
+      todos,
     },
   );
 
