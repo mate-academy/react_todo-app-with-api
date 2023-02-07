@@ -1,26 +1,62 @@
-import { memo, useState } from 'react';
+import {
+  memo,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
-  newTodoField: React.RefObject<HTMLInputElement>,
+  todos: Todo[],
   isLoading: boolean,
-  onToggleAll: () => void
+  setIsLoading: (state: boolean) => void,
   toggledAlltodos:boolean;
   onAddTodo: (newTitle: string) => void,
+  updatingTodo: (todo: Todo) => void,
 };
 
 export const Header: React.FC<Props> = memo(({
-  newTodoField,
+  todos,
   isLoading,
+  setIsLoading,
   onAddTodo,
-  onToggleAll,
+  updatingTodo,
   toggledAlltodos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
+  const [isToggledAll, setIsToggledAll] = useState(false);
+
+  const newTodoField = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     await onAddTodo(todoTitle);
     setTodoTitle('');
+  };
+
+  useEffect(() => {
+    if (newTodoField.current) {
+      newTodoField.current.focus();
+    }
+  }, [todos.length]);
+
+  const onToggleAll = () => {
+    setIsLoading(true);
+    if (isToggledAll === false) {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          updatingTodo({ ...todo, completed: !todo.completed });
+        }
+      });
+      setIsToggledAll(true);
+    } else {
+      todos.forEach(todo => {
+        updatingTodo({ ...todo, completed: !todo.completed });
+      });
+      setIsToggledAll(false);
+    }
+
+    setIsLoading(false);
   };
 
   return (

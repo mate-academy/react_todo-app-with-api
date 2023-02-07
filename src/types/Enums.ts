@@ -10,4 +10,5 @@ export enum ErrorTypes {
   UnableToAdd = 'Unable to add a todo',
   UnableToDelete = 'Impossible to delete todo',
   UnableToUpdate = 'Unable to update a todo',
+  NotDelete = 'todo is not delete',
 }
