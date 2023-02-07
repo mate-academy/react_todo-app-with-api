@@ -1,7 +1,8 @@
 import classNames from 'classnames';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { ActionStateContext } from '../../context/ActionStateContext';
 import { Todo } from '../../types/Todo';
+import { TodoEdit } from '../TodoEdit';
 
 type Props = {
   todo: Todo,
@@ -19,8 +20,9 @@ export const TodoItem: React.FC<Props> = ({
     selectedIdArr,
     isDeleting,
   } = useContext(ActionStateContext);
-  const isProcessing = (
-    id === 0 || ((isUpdating || isDeleting) && selectedIdArr.includes(id)));
+  const [isEditing, setIsEditing] = useState(false);
+  const isInAction = (isUpdating || isDeleting) && selectedIdArr.includes(id);
+  const isProcessing = id === 0 || isInAction;
 
   return (
     <div
@@ -40,18 +42,33 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {title}
-      </span>
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDeleteButton"
-        onClick={() => deleteTodo(id)}
-      >
-        ×
-      </button>
+      {!isEditing ? (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDeleteButton"
+            onClick={() => deleteTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      ) : (
+        <TodoEdit
+          todoId={id}
+          prevTitle={title}
+          deleteTodo={deleteTodo}
+          updateTodo={updateTodo}
+          setIsEditing={setIsEditing}
+        />
+      )}
 
       <div
         data-cy="TodoLoader"
