@@ -24,9 +24,7 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>({
-    id: 0, completed: false, userId: 0, title: 'temptodo',
-  });
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState(Filters.ALL);
   const [isAddingTodo, setIsEddingTodo] = useState(false);
@@ -73,7 +71,7 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setIsEddingTodo(false);
     }
-  }, []);
+  }, [errorMessage]);
 
   const onDeleteTodo = useCallback(async (todoId: number) => {
     try {
@@ -108,13 +106,14 @@ export const App: React.FC = () => {
     });
 
     try {
-      await todoApi.updateTodo(todoId, updateData);
+      const updatedTodo = await todoApi.updateTodo(todoId, updateData);
+
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== todoId) {
           return todo;
         }
 
-        return Object.assign(todo, updateData);
+        return updatedTodo;
       }));
     } catch {
       setError('Unable to update a todo');
@@ -131,11 +130,11 @@ export const App: React.FC = () => {
   const isAllTodosCompleted = todos.length === completedTodosAmount;
 
   const handleToogleTodoStatus = useCallback(() => {
-    const todoStatusUWant = isAllTodosCompleted;
-
     todos.forEach(todo => {
-      if (todo.completed !== todoStatusUWant) {
-        updateTodo(todo.id, { completed: todoStatusUWant });
+      const isNeedToUpdate = !isAllTodosCompleted && !todo.completed;
+
+      if (isNeedToUpdate || isAllTodosCompleted) {
+        updateTodo(todo.id, { completed: !todo.completed });
       }
     });
   }, [isAllTodosCompleted, todos]);
