@@ -3,9 +3,18 @@ import classNames from 'classnames';
 
 type Props = {
   errorMessage: string;
+  setErrorMessage: (message: string) => void;
 };
 
-export const ErrorNotification: React.FC<Props> = memo(({ errorMessage }) => {
+export const ErrorNotification: React.FC<Props> = memo(({
+  errorMessage, setErrorMessage,
+}) => {
+  if (errorMessage) {
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+  }
+
   return (
     <div
       data-cy="ErrorNotification"

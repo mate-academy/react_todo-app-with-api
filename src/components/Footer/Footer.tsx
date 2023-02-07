@@ -6,9 +6,7 @@ type Props = {
   filterTodos: string,
   todosLeft: Todo[],
   todosCompleted: number,
-  onClickAll: () => void,
-  onClickActive: () => void,
-  onClickCompleted: () => void,
+  onFilterTypeBotton: (filterTypeButton: string) => void,
   onClickClearComplited: () => void,
 };
 
@@ -16,9 +14,7 @@ export const Footer: React.FC<Props> = memo(({
   filterTodos,
   todosLeft,
   todosCompleted,
-  onClickAll,
-  onClickActive,
-  onClickCompleted,
+  onFilterTypeBotton,
   onClickClearComplited,
 }) => {
   return (
@@ -42,7 +38,7 @@ export const Footer: React.FC<Props> = memo(({
             'filter__link',
             { selected: filterTodos === 'All' },
           )}
-          onClick={onClickAll}
+          onClick={() => onFilterTypeBotton('All')}
         >
           All
         </a>
@@ -54,7 +50,7 @@ export const Footer: React.FC<Props> = memo(({
             'filter__link',
             { selected: filterTodos === 'Active' },
           )}
-          onClick={onClickActive}
+          onClick={() => onFilterTypeBotton('Active')}
         >
           Active
         </a>
@@ -65,7 +61,7 @@ export const Footer: React.FC<Props> = memo(({
             'filter__link',
             { selected: filterTodos === 'Completed' },
           )}
-          onClick={onClickCompleted}
+          onClick={() => onFilterTypeBotton('Completed')}
         >
           Completed
         </a>

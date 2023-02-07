@@ -24,7 +24,7 @@ export const TodoInfo: React.FC <Props> = memo(({
   const todoTitleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing === true) {
+    if (isEditing) {
       todoTitleField.current?.focus();
     }
   }, [isEditing]);
@@ -49,7 +49,6 @@ export const TodoInfo: React.FC <Props> = memo(({
     }
 
     if (editingTodoTitle === '') {
-      setEditingTodoTitle('');
       onDeleteTodo(todo.id);
 
       return;
