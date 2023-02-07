@@ -76,7 +76,6 @@ export const TodoInfo:FC<Props> = ({
               onChange={event => setNewTitle(event.target.value)}
               onKeyDown={event => {
                 if (event.key === 'Escape') {
-                  setNewTitle(title);
                   setEditing(false);
                 }
               }}

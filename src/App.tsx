@@ -186,7 +186,8 @@ export const App: FC = () => {
               editTitleTodo={editTitleTodo}
             />
             <Footer
-              todos={visibleTodos}
+              todos={todos}
+              visibleTodos={visibleTodos}
               filter={filter}
               setFilter={setFilter}
               onTodoDelete={removeTodo}

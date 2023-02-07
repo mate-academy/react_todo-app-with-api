@@ -5,6 +5,7 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[],
+  visibleTodos: Todo[],
   filter: FilterType,
   setFilter: (filter: FilterType) => void,
   onTodoDelete:(todoId: number) => void,
@@ -13,13 +14,14 @@ type Props = {
 
 export const Footer: React.FC<Props> = ({
   todos,
+  visibleTodos,
   filter,
   setFilter,
   onTodoDelete,
   completedTodos,
 }) => {
   const onRemoveCompleted = () => {
-    todos.forEach(todo => {
+    visibleTodos.forEach(todo => {
       if (todo.completed) {
         onTodoDelete(todo.id);
       }
@@ -29,7 +31,7 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {todos.length}
+        {todos.length - todos.filter(todo => todo.completed).length}
         {' '}
         items left
       </span>
@@ -78,7 +80,7 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        onClick={() => onRemoveCompleted()}
+        onClick={onRemoveCompleted}
         style={{
           visibility: completedTodos.length
             ? 'visible'

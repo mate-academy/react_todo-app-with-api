@@ -36,7 +36,7 @@ export const Header: React.FC<Props> = ({
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
-        onClick={() => toggleAllTodosStatus()}
+        onClick={toggleAllTodosStatus}
       />
 
       <form
