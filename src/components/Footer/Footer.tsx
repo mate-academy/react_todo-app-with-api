@@ -1,21 +1,40 @@
-import cn from 'classnames';
+import classNames from 'classnames';
 import React from 'react';
+import { removeTodo } from '../../api/todos';
 import { FilterStatus } from '../../types/FilterStatus';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  onStatusClick: (status: FilterStatus) => void;
+  setStatus: (status: FilterStatus) => void;
   todos: Todo[];
   filterStatus: FilterStatus;
+  setTodos: (todos: Todo[]) => void,
 };
 
 export const Footer: React.FC<Props> = ({
-  onStatusClick,
+  setStatus,
   todos,
   filterStatus,
+  setTodos,
 }) => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const activeTodosCount = activeTodos.length;
+
+  const clearCompletedTodo = () => {
+    const completedTodos = todos.filter(todo => (
+      todo.completed
+    ));
+
+    const inCompletedTodos = todos.filter(todo => (
+      !todo.completed
+    ));
+
+    setTodos(inCompletedTodos);
+
+    completedTodos.forEach(async (todo) => {
+      await removeTodo(todo.id);
+    });
+  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -27,9 +46,9 @@ export const Footer: React.FC<Props> = ({
         <a
           data-cy="FilterLinkAll"
           href="#/"
-          className={cn('filter__link',
+          className={classNames('filter__link',
             { selected: filterStatus === FilterStatus.All })}
-          onClick={() => onStatusClick(FilterStatus.All)}
+          onClick={() => setStatus(FilterStatus.All)}
         >
           All
         </a>
@@ -37,18 +56,18 @@ export const Footer: React.FC<Props> = ({
         <a
           data-cy="FilterLinkActive"
           href="#/active"
-          className={cn('filter__link',
+          className={classNames('filter__link',
             { selected: filterStatus === FilterStatus.Active })}
-          onClick={() => onStatusClick(FilterStatus.Active)}
+          onClick={() => setStatus(FilterStatus.Active)}
         >
           Active
         </a>
         <a
           data-cy="FilterLinkCompleted"
           href="#/completed"
-          className={cn('filter__link',
+          className={classNames('filter__link',
             { selected: filterStatus === FilterStatus.Completed })}
-          onClick={() => onStatusClick(FilterStatus.Completed)}
+          onClick={() => setStatus(FilterStatus.Completed)}
         >
           Completed
         </a>
@@ -57,7 +76,10 @@ export const Footer: React.FC<Props> = ({
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames('todoapp__clear-completed', {
+          'todoapp__clear-completed--hide': todos.every(x => !x.completed),
+        })}
+        onClick={clearCompletedTodo}
       >
         Clear completed
       </button>

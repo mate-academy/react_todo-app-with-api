@@ -1,4 +1,5 @@
 import React from 'react';
+import { ErrorType } from '../../types/ErrorType';
 import { FilterStatus } from '../../types/FilterStatus';
 import { TempTodo, Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
@@ -7,21 +8,13 @@ type Props = {
   todos: Todo[];
   filterStatus: FilterStatus;
   tempTodo: TempTodo | null,
-  onSetTodos: (todos: Todo[]) => void,
-  onSetError: (message: string) => void,
+  setTodos: (todos: Todo[]) => void,
+  setError: (message: ErrorType) => void,
   addedTodoIsLoading: boolean,
 };
 
-export const TodoList: React.FC<Props> = ({
-  todos,
-  filterStatus,
-  onSetTodos,
-  onSetError,
-  tempTodo,
-  addedTodoIsLoading,
-
-}) => {
-  const visibleTodos = todos.filter(todo => {
+const getVisibleTodosByFilter = (todos: Todo[], filterStatus: FilterStatus) => {
+  return todos.filter(todo => {
     switch (filterStatus) {
       case FilterStatus.Active:
         return !todo.completed;
@@ -31,6 +24,18 @@ export const TodoList: React.FC<Props> = ({
         return todo;
     }
   });
+};
+
+export const TodoList: React.FC<Props> = ({
+  todos,
+  filterStatus,
+  setTodos,
+  setError,
+  tempTodo,
+  addedTodoIsLoading,
+
+}) => {
+  const visibleTodos = getVisibleTodosByFilter(todos, filterStatus);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -39,8 +44,8 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           todos={todos}
-          onSetTodos={onSetTodos}
-          onSetError={onSetError}
+          setTodos={setTodos}
+          setError={setError}
         />
       ))}
       {tempTodo && (

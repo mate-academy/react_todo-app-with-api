@@ -1,43 +1,49 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import classNames from 'classnames';
 import React, { useContext, useState } from 'react';
-import { creatTodo } from '../../api/todos';
+import { createTodo, updateTodo } from '../../api/todos';
+import { ErrorType } from '../../types/ErrorType';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
 
 type Props = {
   submitTodo: (todo: Todo) => void,
-  onSetError: (message: string) => void,
-  onAddTempTodo: (title: string) => void,
-  onSetTempTodo: (tempTodo: null) => void,
-  onSetLoading: (isLoading: boolean) => void,
+  setError: (message: ErrorType) => void,
+  addTempTodo: (title: string) => void,
+  setTempTodo: (tempTodo: null) => void,
+  setLoading: (isLoading: boolean) => void,
+  setTodos: (todos: Todo[]) => void,
+  todos: Todo[],
 };
 
 export const Header: React.FC<Props> = ({
   submitTodo,
-  onSetError,
-  onAddTempTodo,
-  onSetTempTodo,
-  onSetLoading,
+  setError,
+  addTempTodo,
+  setTempTodo,
+  setLoading,
+  todos,
+  setTodos,
 }) => {
   const [title, setTitle] = useState('');
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [isTitleInputDisabled, setIsTitleInputDisabled] = useState(false);
   const user = useContext(AuthContext);
 
   const creatNewTodo = async () => {
-    setIsDisabled(true);
-    onAddTempTodo(title);
-    onSetLoading(true);
+    setIsTitleInputDisabled(true);
+    addTempTodo(title);
+    setLoading(true);
 
     try {
-      const createdTodo = await creatTodo(title, user?.id || 0);
+      const createdTodo = await createTodo(title, user?.id || 0);
 
       submitTodo(createdTodo);
     } catch {
-      onSetError('Unable to add a todo');
+      setError(ErrorType.AddingError);
     } finally {
-      setIsDisabled(false);
-      onSetTempTodo(null);
-      onSetLoading(true);
+      setIsTitleInputDisabled(false);
+      setTempTodo(null);
+      setLoading(false);
     }
   };
 
@@ -48,8 +54,19 @@ export const Header: React.FC<Props> = ({
       creatNewTodo();
       setTitle('');
     } else {
-      onSetError('Title can\'t be empty');
+      setError(ErrorType.TitleError);
     }
+  };
+
+  const onToggleAllClick = () => {
+    const updatedTodos = todos.map(todo => (
+      { ...todo, completed: !todos.every(x => x.completed) }));
+
+    setTodos(updatedTodos);
+
+    updatedTodos.forEach(async (todo) => {
+      await updateTodo(todo.id, todo.completed, todo.title);
+    });
   };
 
   return (
@@ -57,7 +74,10 @@ export const Header: React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: todos.every(x => x.completed),
+        })}
+        onClick={onToggleAllClick}
       />
 
       <form onSubmit={onSubmit}>
@@ -68,7 +88,7 @@ export const Header: React.FC<Props> = ({
           onChange={(event) => setTitle(event.target.value)}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={isDisabled}
+          disabled={isTitleInputDisabled}
         />
       </form>
     </header>

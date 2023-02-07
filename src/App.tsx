@@ -8,14 +8,15 @@ import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
+import { ErrorType } from './types/ErrorType';
 import { FilterStatus } from './types/FilterStatus';
 import { TempTodo, Todo } from './types/Todo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(ErrorType.None);
+  const [isLoading, setIsLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState(FilterStatus.All);
 
   const user = useContext(AuthContext);
@@ -30,7 +31,7 @@ export const App: React.FC = () => {
 
       setTodos(receivedTodos);
     } catch (err) {
-      setError('No todos were loaded!');
+      setError(ErrorType.LoadingError);
     }
   };
 
@@ -57,23 +58,26 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           submitTodo={submitTodo}
-          onSetError={setError}
-          onAddTempTodo={addTempTodo}
-          onSetTempTodo={setTempTodo}
-          onSetLoading={setLoading}
+          setError={setError}
+          addTempTodo={addTempTodo}
+          setTempTodo={setTempTodo}
+          setLoading={setIsLoading}
+          setTodos={setTodos}
+          todos={todos}
         />
         <TodoList
           todos={todos}
           filterStatus={filterStatus}
-          onSetTodos={setFiltredTodos}
-          onSetError={setError}
+          setTodos={setFiltredTodos}
+          setError={setError}
           tempTodo={tempTodo}
-          addedTodoIsLoading={loading}
+          addedTodoIsLoading={isLoading}
         />
         <Footer
-          onStatusClick={setFilterStatus}
+          setStatus={setFilterStatus}
           todos={todos}
           filterStatus={filterStatus}
+          setTodos={setTodos}
         />
       </div>
 

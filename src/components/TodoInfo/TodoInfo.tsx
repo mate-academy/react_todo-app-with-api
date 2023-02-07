@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
 import { removeTodo, updateTodo } from '../../api/todos';
+import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   todo: Todo | TempTodo,
   todos?: Todo[],
-  onSetTodos?: (todos: Todo[]) => void,
-  onSetError?: (message: string) => void,
+  setTodos?: (todos: Todo[]) => void,
+  setError?: (message: ErrorType) => void,
   addedTodoIsLoading?: boolean,
 };
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  onSetTodos,
+  setTodos,
   todos,
-  onSetError,
+  setError,
   addedTodoIsLoading,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -27,12 +28,12 @@ export const TodoInfo: React.FC<Props> = ({
 
     try {
       await removeTodo(todo.id);
-      if (onSetTodos) {
-        onSetTodos(filteredTodos as Todo[]);
+      if (setTodos) {
+        setTodos(filteredTodos as Todo[]);
       }
     } catch {
-      if (onSetError) {
-        onSetError('Unable to delete a todo');
+      if (setError) {
+        setError(ErrorType.RemovingError);
       }
     } finally {
       setLoading(false);
@@ -55,12 +56,12 @@ export const TodoInfo: React.FC<Props> = ({
         return item;
       });
 
-      if (onSetTodos) {
-        onSetTodos(updatedTodos as Todo[]);
+      if (setTodos) {
+        setTodos(updatedTodos as Todo[]);
       }
     } catch {
-      if (onSetError) {
-        onSetError('Unable to update the todo');
+      if (setError) {
+        setError(ErrorType.UpdatingError);
       }
     } finally {
       setLoading(false);
