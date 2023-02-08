@@ -41,8 +41,10 @@ export const App: React.FC = () => {
     }
   }, [user]);
 
-  const visibleTodos = useMemo(() => filterTodos(todos, filterType),
-    [filterType, todos]);
+  const visibleTodos = useMemo(
+    () => filterTodos(todos, filterType),
+    [filterType, todos],
+  );
 
   const uncompletedTodosAmount = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
@@ -99,19 +101,24 @@ export const App: React.FC = () => {
     updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
     try {
-      await updateTodo(todoId, updateData);
+      const updatedTodo = await updateTodo(todoId, updateData);
 
       setTodos(prev => prev.map(todo => {
         return todo.id !== todoId
           ? todo
-          : { ...todo, ...updateData };
+          : updatedTodo;
       }));
     } catch {
       setErrorMessage(Errors.UpdateError);
     }
   }, []);
 
+  const closeError = useCallback(() => {
+    setErrorMessage(Errors.None);
+  }, []);
+
   const isAllTodosCompleted = todos.length === completedTodos.length;
+  const shouldRenderTodos = todos.length > 0 || tempTodo;
 
   const toggleTodosStatus = useCallback(() => {
     setTodos(prev => prev.map(todo => {
@@ -136,7 +143,7 @@ export const App: React.FC = () => {
           toggleTodosStatus={toggleTodosStatus}
         />
 
-        {(todos.length > 0 || tempTodo) && (
+        {shouldRenderTodos && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -160,7 +167,7 @@ export const App: React.FC = () => {
       {errorMessage && (
         <ErrorNotification
           message={errorMessage}
-          setMessage={setErrorMessage}
+          closeError={closeError}
         />
       )}
     </div>

@@ -15,3 +15,7 @@ export const filterTodos = (
       return todo;
   }
 });
+
+export const createUncompletedTodosTitle = (uncompletedTodosAmount: number) => {
+  return `${uncompletedTodosAmount} item${uncompletedTodosAmount > 1 ? 's' : ''} left`;
+};

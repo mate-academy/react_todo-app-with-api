@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import classNames from 'classnames';
 import { FilterTypes } from '../../types/FilterTypes';
 import { Todo } from '../../types/Todo';
+import { createUncompletedTodosTitle } from '../../helpers/helpers';
 
 interface Props {
   uncompletedTodosAmount: number,
@@ -23,7 +24,7 @@ export const Footer: React.FC<Props> = memo((props) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {`${uncompletedTodosAmount} item${uncompletedTodosAmount > 1 ? 's' : ''} left`}
+        {createUncompletedTodosTitle(uncompletedTodosAmount)}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -63,16 +64,15 @@ export const Footer: React.FC<Props> = memo((props) => {
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onDeleteCompletedTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={onDeleteCompletedTodos}
+        style={{ visibility: completedTodos.length ? 'visible' : 'hidden' }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 });

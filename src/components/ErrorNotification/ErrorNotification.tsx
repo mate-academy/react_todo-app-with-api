@@ -3,20 +3,18 @@ import { Errors } from '../../types/Errors';
 
 interface Props {
   message: Errors,
-  setMessage: (message: Errors) => void,
+  closeError: () => void,
 }
 
 export const ErrorNotification: React.FC<Props> = memo((props) => {
   const {
     message,
-    setMessage,
+    closeError,
   } = props;
 
   useEffect(() => {
-    setTimeout(() => {
-      setMessage(Errors.None);
-    }, 3000);
-  }, [setMessage]);
+    setTimeout(closeError, 3000);
+  }, [closeError]);
 
   return (
     <div
@@ -28,7 +26,7 @@ export const ErrorNotification: React.FC<Props> = memo((props) => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setMessage(Errors.None)}
+        onClick={closeError}
       />
       {message}
     </div>
