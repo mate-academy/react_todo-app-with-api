@@ -7,7 +7,7 @@ import {
   createTodo,
   getTodos,
   removeTodo,
-  update,
+  amendTodo,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -106,7 +106,7 @@ export const App: React.FC = () => {
 
     try {
       setIsUpdating(true);
-      await update(id, data);
+      await amendTodo(id, data);
       setUserTodos(current => current.map(todo => {
         if (todo.id === id) {
           return {

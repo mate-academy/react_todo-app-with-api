@@ -25,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   const isProcessing = id === 0 || isInAction;
 
   return (
-    <div
+    <li
       data-cy="Todo"
       className={classNames(
         'todo',
@@ -80,6 +80,6 @@ export const TodoItem: React.FC<Props> = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-    </div>
+    </li>
   );
 };

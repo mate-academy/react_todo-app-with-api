@@ -20,13 +20,12 @@ export const TodoList: React.FC<Props> = React.memo(
       <section className="todoapp__main" data-cy="TodoList">
         <ul>
           {todos.map((todo) => (
-            <li key={todo.id}>
-              <TodoItem
-                todo={todo}
-                deleteTodo={deleteTodo}
-                updateTodo={updateTodo}
-              />
-            </li>
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              deleteTodo={deleteTodo}
+              updateTodo={updateTodo}
+            />
           ))}
 
           {tempTodo && (
