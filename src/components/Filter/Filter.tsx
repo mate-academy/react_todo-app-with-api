@@ -4,16 +4,12 @@ import { FilterTypes } from '../../types/Enums';
 
 type Props = {
   filterType: string,
-  handleButtonClickAll: () => void,
-  handleButtonClickActive: () => void,
-  handleButtonClickCompleted: () => void,
+  setFilterType: (value: FilterTypes) => void,
 };
 
 export const Filter: React.FC<Props> = ({
   filterType,
-  handleButtonClickAll,
-  handleButtonClickActive,
-  handleButtonClickCompleted,
+  setFilterType,
 
 }) => (
   <nav className="filter" data-cy="Filter">
@@ -24,7 +20,7 @@ export const Filter: React.FC<Props> = ({
         'filter__link',
         { selected: filterType === FilterTypes.All },
       )}
-      onClick={handleButtonClickAll}
+      onClick={() => setFilterType(FilterTypes.All)}
     >
       All
     </a>
@@ -36,7 +32,7 @@ export const Filter: React.FC<Props> = ({
         'filter__link',
         { selected: filterType === FilterTypes.ACTIVE },
       )}
-      onClick={handleButtonClickActive}
+      onClick={() => setFilterType(FilterTypes.ACTIVE)}
     >
       Active
     </a>
@@ -47,7 +43,7 @@ export const Filter: React.FC<Props> = ({
         'filter__link',
         { selected: filterType === FilterTypes.COMPLETED },
       )}
-      onClick={handleButtonClickCompleted}
+      onClick={() => setFilterType(FilterTypes.COMPLETED)}
     >
       Completed
     </a>

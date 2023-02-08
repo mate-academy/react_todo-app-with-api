@@ -10,7 +10,6 @@ type Props = {
   todos: Todo[],
   isLoading: boolean,
   setIsLoading: (state: boolean) => void,
-  toggledAlltodos:boolean;
   onAddTodo: (newTitle: string) => void,
   updatingTodo: (todo: Todo) => void,
 };
@@ -21,10 +20,8 @@ export const Header: React.FC<Props> = memo(({
   setIsLoading,
   onAddTodo,
   updatingTodo,
-  toggledAlltodos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
-  const [isToggledAll, setIsToggledAll] = useState(false);
 
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -40,23 +37,16 @@ export const Header: React.FC<Props> = memo(({
     }
   }, [todos.length]);
 
+  const completedTodos = todos.filter(todo => todo.completed === true);
+  const isNeedToChangeStaTus = completedTodos.length !== todos.length;
+
   const onToggleAll = () => {
     setIsLoading(true);
-    if (isToggledAll === false) {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          updatingTodo({ ...todo, completed: !todo.completed });
-        }
-      });
-      setIsToggledAll(true);
-    } else {
-      todos.forEach(todo => {
-        updatingTodo({ ...todo, completed: !todo.completed });
-      });
-      setIsToggledAll(false);
-    }
-
-    setIsLoading(false);
+    todos.forEach(async (todo) => {
+      if (todo.completed !== isNeedToChangeStaTus) {
+        await updatingTodo({ ...todo, completed: isNeedToChangeStaTus });
+      }
+    });
   };
 
   return (
@@ -65,9 +55,9 @@ export const Header: React.FC<Props> = memo(({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className={toggledAlltodos
-          ? ('todoapp__toggle-all active')
-          : ('todoapp__toggle-all')}
+        className={isNeedToChangeStaTus
+          ? ('todoapp__toggle-all')
+          : ('todoapp__toggle-all active')}
         onClick={onToggleAll}
       />
 

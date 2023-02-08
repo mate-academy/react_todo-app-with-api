@@ -32,7 +32,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     }
   }, [isEditing]);
 
-  const cancelEditingTodo = (
+  const handlePressKey = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
@@ -41,7 +41,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     }
   };
 
-  const changeTodoTitle = (
+  const handleSubmit = (
     event: React.FormEvent<HTMLFormElement>
     | React.FocusEvent<HTMLInputElement, Element>,
   ) => {
@@ -71,7 +71,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     setIsEditing(false);
   };
 
-  const isLoaderNeeded = todo.id === 0 || isUpdating || isDeleting;
+  const isSaving = todo.id === 0 || isUpdating || isDeleting;
 
   return (
     <div
@@ -92,7 +92,7 @@ export const TodoInfo: React.FC <Props> = memo(({
 
       {isEditing
         ? (
-          <form onSubmit={changeTodoTitle}>
+          <form onSubmit={handleSubmit}>
             <input
               data-cy="TodoTitleField"
               type="text"
@@ -101,8 +101,8 @@ export const TodoInfo: React.FC <Props> = memo(({
               value={editingTodoTitle}
               placeholder="Emty todo will be deleted"
               onChange={(event) => setEditingTodoTitle(event.target.value)}
-              onBlur={changeTodoTitle}
-              onKeyDown={cancelEditingTodo}
+              onBlur={handleSubmit}
+              onKeyDown={handlePressKey}
             />
           </form>
         ) : (
@@ -124,7 +124,7 @@ export const TodoInfo: React.FC <Props> = memo(({
           </>
         )}
 
-      { isLoaderNeeded && (
+      { isSaving && (
         <Loader
           isLoading={isLoading}
           isDeleting={isDeleting}

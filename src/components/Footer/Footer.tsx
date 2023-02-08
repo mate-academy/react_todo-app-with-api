@@ -1,27 +1,27 @@
 import { memo } from 'react';
+import { FilterTypes } from '../../types/Enums';
 import { Todo } from '../../types/Todo';
 import { Filter } from '../Filter/Filter';
 
 type Props = {
   filterType: string,
-  incompletedTodos: Todo[],
-  completedTodosAmount: number,
-  handleButtonClickAll: () => void,
-  handleButtonClickActive: () => void,
-  handleButtonClickCompleted: () => void,
+  setFilterType: (value: FilterTypes) => void,
   deleteCompleated: () => void,
+  filteredTodos: Todo[],
 
 };
 
 export const Footer: React.FC<Props> = memo(({
   filterType,
-  incompletedTodos,
-  completedTodosAmount,
-  handleButtonClickAll,
-  handleButtonClickActive,
-  handleButtonClickCompleted,
+  filteredTodos,
+  setFilterType,
   deleteCompleated,
 }) => {
+  const incompletedTodos = filteredTodos
+    .filter(todo => !todo.completed);
+  const completedTodosAmount = filteredTodos
+    .filter(todo => todo.completed).length;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
@@ -30,23 +30,18 @@ export const Footer: React.FC<Props> = memo(({
 
       <Filter
         filterType={filterType}
-        handleButtonClickAll={handleButtonClickAll}
-        handleButtonClickActive={handleButtonClickActive}
-        handleButtonClickCompleted={handleButtonClickCompleted}
+        setFilterType={setFilterType}
       />
 
-      {completedTodosAmount !== 0 && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={deleteCompleated}
-          disabled={!completedTodosAmount}
-        >
-          Clear completed
-        </button>
-      )}
-
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={deleteCompleated}
+        disabled={!completedTodosAmount}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 });

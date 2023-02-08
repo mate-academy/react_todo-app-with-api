@@ -53,18 +53,6 @@ export const App: React.FC = () => {
     }
   }, [showError, user]);
 
-  const handleButtonClickAll = () => {
-    setFilterType(FilterTypes.All);
-  };
-
-  const handleButtonClickActive = () => {
-    setFilterType(FilterTypes.ACTIVE);
-  };
-
-  const handleButtonClickCompleted = () => {
-    setFilterType(FilterTypes.COMPLETED);
-  };
-
   const addNewTodo = useCallback(async (newTitle: string) => {
     if (!newTitle.trim()) {
       showError(ErrorTypes.EmptyTitle);
@@ -127,16 +115,11 @@ export const App: React.FC = () => {
     setTodosToUpdate(prev => [...prev, todoToUpdate]);
 
     updateTodo(todoToUpdate.id, todoToUpdate.title, todoToUpdate.completed)
-      .then((udpatedTodo) => {
+      .then((updatedTodo) => {
         setTodos(currentTodos => currentTodos.map(todo => (
-          todo.id !== udpatedTodo.id
+          todo.id !== updatedTodo.id
             ? todo
-            : {
-              id: udpatedTodo.id,
-              userId: udpatedTodo.userId,
-              title: udpatedTodo.title,
-              completed: udpatedTodo.completed,
-            }
+            : updatedTodo
         )));
       })
       .catch(() => {
@@ -147,7 +130,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const visibleTodos = useMemo(() => {
+  const filteredTodos = useMemo(() => {
     switch (filterType) {
       case FilterTypes.ACTIVE:
         return todos.filter(todo => !todo.completed);
@@ -163,11 +146,6 @@ export const App: React.FC = () => {
     }
   }, [todos, filterType]);
 
-  const incompletedTodos = visibleTodos.filter(todo => !todo.completed);
-  const completedTodosAmount = visibleTodos
-    .filter(todo => todo.completed).length;
-  const toggledAlltodos = visibleTodos.every(todo => todo.completed);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -179,12 +157,11 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           setIsLoading={setIsLoading}
           onAddTodo={addNewTodo}
-          toggledAlltodos={toggledAlltodos}
         />
         {todos.length !== 0 && (
           <>
             <TodoList
-              todos={visibleTodos}
+              todos={filteredTodos}
               tempTodo={tempTodo}
               removeTodo={removeTodo}
               isLoading={isLoading}
@@ -195,11 +172,8 @@ export const App: React.FC = () => {
 
             <Footer
               filterType={filterType}
-              incompletedTodos={incompletedTodos}
-              handleButtonClickAll={handleButtonClickAll}
-              handleButtonClickActive={handleButtonClickActive}
-              handleButtonClickCompleted={handleButtonClickCompleted}
-              completedTodosAmount={completedTodosAmount}
+              filteredTodos={filteredTodos}
+              setFilterType={setFilterType}
               deleteCompleated={deleteCompleated}
             />
           </>
