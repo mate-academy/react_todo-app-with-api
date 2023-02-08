@@ -46,41 +46,41 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main">
       {todos.map((todo) => (
-        todo.id === selectedTodoId
-          ? (
-            <>
-              <Form
-                todo={todo}
-                onSubmit={handleSubmit}
-                todos={todos}
-                userId={userId}
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-              />
+        <div
+          key={todo.id}
+          className={classNames(
+            'todo',
+            { completed: todo.completed },
+          )}
+        >
+          <label
+            className="todo__status-label"
+          >
+            <input
+              type="checkbox"
+              className="todo__status"
+              checked={todo.completed}
+            />
+          </label>
+          {selectedTodoId === todo.id
+            ? (
+              <>
+                <Form
+                  todo={todo}
+                  onSubmit={handleSubmit}
+                  todos={todos}
+                  userId={userId}
+                  className="todo__title-field"
+                  placeholder="Empty todo will be deleted"
+                />
 
-              <TodoModal
-                editing={editing}
-              />
-            </>
-          )
-          : (
-            <>
-              <div
-                key={todo.id}
-                className={classNames(
-                  'todo',
-                  { completed: todo.completed },
-                )}
-              >
-                <label
-                  className="todo__status-label"
-                >
-                  <input
-                    type="checkbox"
-                    className="todo__status"
-                    checked={todo.completed}
-                  />
-                </label>
+                <TodoModal
+                  editing={editing}
+                />
+              </>
+            )
+            : (
+              <>
                 <span
                   className="todo__title"
                   onDoubleClick={() => {
@@ -99,9 +99,9 @@ export const TodoList: React.FC<Props> = ({
                 >
                   ×
                 </button>
-              </div>
-            </>
-          )
+              </>
+            )}
+        </div>
       ))}
     </section>
   );
