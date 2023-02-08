@@ -19,7 +19,8 @@ import {
   getTodos,
   addTodo,
   removeTodo,
-  updateTodo,
+  updateTodoStatus,
+  updateTodoTitle,
 } from './api/todos';
 
 const USER_ID = 6160;
@@ -27,7 +28,6 @@ const USER_ID = 6160;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Errors>(Errors.NoError);
-  const [isEditing] = useState(false);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>(todos);
   const [selectedFilter, setSelectedFilter] = useState<Filters>(Filters.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -38,8 +38,29 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
+  const saveEditedTitle = (
+    todoId: number,
+    todoTitle: string,
+    setEditingTodoId: (value: number) => void,
+  ) => {
+    setLoadingTodoIds([...loadingTodoIds, todoId]);
+    updateTodoTitle(todoId, todoTitle)
+      .then(() => {
+        getTodos(USER_ID)
+          .then(todosFromServer => {
+            setTodos(todosFromServer);
+            setFilteredTodos(todosFromServer);
+            setLoadingTodoIds([]);
+            setEditingTodoId(0);
+          })
+          .catch(() => {
+            setError(Errors.CantUpdate);
+          });
+      });
+  };
+
   const toggleTodoStatus = (todoId: number, completed: boolean) => {
-    updateTodo(todoId, !completed)
+    updateTodoStatus(todoId, !completed)
       .then(() => {
         setLoadingTodoIds([...loadingTodoIds, todoId]);
         getTodos(USER_ID)
@@ -56,11 +77,11 @@ export const App: React.FC = () => {
 
   const toggleAllTodoStatus = () => {
     const everyTodoCompleted = todos.every(todo => todo.completed);
+    const noTodoCompleted = todos.every(todo => !todo.completed);
     const someTodosCompleted = todos.some(todo => todo.completed)
       && !everyTodoCompleted;
-    const noTodosCompleted = todos.every(todo => !todo.completed);
-    const updatedTodos: Todo[] = [];
 
+    const updatedTodos: Todo[] = [];
     const loadingTodoIdsToAdd: number[] = [];
 
     todos.forEach(todo => {
@@ -71,7 +92,7 @@ export const App: React.FC = () => {
         loadingTodoIdsToAdd.push(todo.id);
       }
 
-      if (everyTodoCompleted || noTodosCompleted) {
+      if (everyTodoCompleted || noTodoCompleted) {
         updatedTodo = { ...todo, completed: !todo.completed };
         loadingTodoIdsToAdd.push(todo.id);
       }
@@ -83,7 +104,7 @@ export const App: React.FC = () => {
 
     Promise.all(
       updatedTodos
-        .map(todo => updateTodo(todo.id, todo.completed)),
+        .map(todo => updateTodoStatus(todo.id, todo.completed)),
     )
       .then(() => {
         getTodos(USER_ID)
@@ -221,12 +242,12 @@ export const App: React.FC = () => {
         />
         <>
           <Main
-            isEditing={isEditing}
             filteredTodos={filteredTodos}
             deleteTodo={deleteTodo}
             tempTodo={tempTodo}
             loadingTodoIds={loadingTodoIds}
             toggleTodoStatus={toggleTodoStatus}
+            saveEditedTitle={saveEditedTitle}
           />
           <Footer
             activeTodos={activeTodos}
