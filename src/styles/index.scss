@@ -2,6 +2,10 @@ iframe {
   display: none;
 }
 
+html {
+  background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 100%);
+}
+
 body {
   min-width: 230px;
   max-width: 550px;
@@ -21,6 +25,8 @@ body {
 }
 
 @import "./vars";
+@import "./fonts/fonts";
+@import "./item";
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
