@@ -69,7 +69,7 @@ export const Footer: React.FC<Props> = memo((props) => {
         type="button"
         className="todoapp__clear-completed"
         onClick={onDeleteCompletedTodos}
-        style={{ visibility: completedTodos.length ? 'visible' : 'hidden' }}
+        disabled={!completedTodos.length}
       >
         Clear completed
       </button>
