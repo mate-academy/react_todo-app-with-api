@@ -81,7 +81,6 @@ export const App: React.FC = () => {
   };
 
   const onDeleteTodo = useCallback((id: number) => {
-    setIsLoading(true);
     deleteTodo(id)
       .then(() => (
         setTodos(currentTodos => currentTodos
@@ -90,10 +89,9 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
       });
-    setIsLoading(false);
-  }, []);
+  }, [todos]);
 
-  const onUpdateTodo = (chosenTodo: Todo) => {
+  const onUpdateTodo = useCallback((chosenTodo: Todo) => {
     setTodosToUpdate(prev => [...prev, chosenTodo]);
 
     updateTodo(chosenTodo.id, {
@@ -117,9 +115,10 @@ export const App: React.FC = () => {
       .finally(() => {
         setTodosToUpdate([]);
       });
-  };
+  }, [todos]);
 
-  const onToggleAll = () => {
+  const onToggleAll = useCallback(() => {
+    setIsLoading(true);
     const isAllTodosCompleter = todos.every(todo => todo.completed);
 
     todos.forEach(todo => {
@@ -129,15 +128,16 @@ export const App: React.FC = () => {
         onUpdateTodo({ ...todo, completed: !todo.completed });
       }
     });
-  };
+    setIsLoading(false);
+  }, [todos]);
 
-  const onClickClearCompleted = () => {
+  const onClickClearCompleted = useCallback(() => {
     todos.forEach(todo => {
       if (todo.completed) {
         onDeleteTodo(todo.id);
       }
     });
-  };
+  }, [todos]);
 
   let visibleTodos = todos;
 

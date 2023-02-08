@@ -16,7 +16,6 @@ export const TodoList: React.FC<Props> = memo(({
   isLoading,
   onUpdateTodo,
   todosToUpdate,
-
 }) => {
   const idTodosToUpdate = todosToUpdate.map(todo => todo.id);
 

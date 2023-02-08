@@ -65,6 +65,8 @@ export const TodoInfo: React.FC <Props> = memo(({
     setIsEditing(false);
   };
 
+  const showLoader = isUpdating || isLoading;
+
   return (
     <div
       data-cy="Todo"
@@ -119,11 +121,11 @@ export const TodoInfo: React.FC <Props> = memo(({
           </>
         )}
 
-      {(todo.id === 0 || isUpdating) && (
+      {(todo.id === 0 || showLoader) && (
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': isLoading,
+            'is-active': showLoader,
           })}
         >
           <div className="modal-background has-background-white-ter" />
