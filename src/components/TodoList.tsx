@@ -9,7 +9,7 @@ type Props = {
   onRemove: (todoId: number) => void
   userId: number
   onTodoUpdate: (todo: Todo) => void
-  setReload: (state: boolean) => void
+  handleStatusUpdate: (todo: Todo) => void
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,7 +17,7 @@ export const TodoList: React.FC<Props> = ({
   onRemove,
   userId,
   onTodoUpdate,
-  setReload,
+  handleStatusUpdate,
 }) => {
   const [editing, setEditing] = useState(false);
   const [selectedTodoId, setSelectedTodoId] = useState(0);
@@ -30,9 +30,9 @@ export const TodoList: React.FC<Props> = ({
 
       return todo;
     });
-    setReload(true);
     onTodoUpdate(updatedTodo);
     setSelectedTodoId(0);
+    setEditing(true);
   };
 
   const handleDoubleClick = (todoId: number) => {
@@ -60,6 +60,10 @@ export const TodoList: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               checked={todo.completed}
+              onChange={() => {
+                handleStatusUpdate(todo);
+                setEditing(true);
+              }}
             />
           </label>
           {selectedTodoId === todo.id
