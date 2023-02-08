@@ -43,11 +43,11 @@ export const App: React.FC = () => {
     try {
       const newTodo = await todosApi.addTodo(fieldsToCreate);
 
-      setTodos((prevTodos => [...prevTodos, newTodo]));
+      setTodos(prevTodos => [...prevTodos, newTodo]);
     } catch {
       showError(ErrorTypes.OnAdd);
 
-      throw Error('Unable to add todo');
+      throw Error(ErrorTypes.OnAdd);
     } finally {
       setTempTodo(null);
       setIsAddingTodo(false);
@@ -55,16 +55,16 @@ export const App: React.FC = () => {
   }, []);
 
   const deleteTodo = useCallback(async (todoId: number) => {
-    setDeletingTodoIds((prevIds => [...prevIds, todoId]));
+    setDeletingTodoIds(prevIds => [...prevIds, todoId]);
 
     try {
       await todosApi.deleteTodo(todoId);
 
-      setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== todoId));
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
     } catch {
       showError(ErrorTypes.OnDelete);
     } finally {
-      setDeletingTodoIds((prevIds => prevIds.filter(id => id !== todoId)));
+      setDeletingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }
   }, []);
 
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>,
   ) => {
-    setUpdatingTodoIds((prevIds => [...prevIds, todoId]));
+    setUpdatingTodoIds(prevIds => [...prevIds, todoId]);
 
     try {
       const updatedTodo = await todosApi.updateTodo(todoId, fieldsToUpdate);
