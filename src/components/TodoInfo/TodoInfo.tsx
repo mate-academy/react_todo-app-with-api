@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
 import { removeTodo, updateTodo } from '../../api/todos';
@@ -72,11 +72,17 @@ export const TodoInfo: React.FC<Props> = ({
     setIsEditing(true);
   };
 
-  useEffect(() => {
-    if (!todo.title) {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!newTitle) {
       deleteTodo();
+    } else {
+      updateTodos();
     }
-  }, []);
+
+    setIsEditing(false);
+  };
 
   const isActive = loading || addedTodoIsLoading;
 
@@ -100,11 +106,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       {isEditing ? (
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateTodos();
-            setIsEditing(false);
-          }}
+          onSubmit={handleSubmit}
         >
           <input
             data-cy="TodoTitleField"
