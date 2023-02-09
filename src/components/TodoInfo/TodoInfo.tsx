@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
 
@@ -35,6 +35,14 @@ export const TodoInfo:React.FC<Props> = React.memo(({
     }
   };
 
+  const editingTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingTodoField.current) {
+      editingTodoField.current.focus();
+    }
+  }, [isEditing]);
+
   return (
     <div
       data-cy="Todo"
@@ -67,6 +75,7 @@ export const TodoInfo:React.FC<Props> = React.memo(({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
+            ref={editingTodoField}
             value={title}
             onBlur={handleEdit}
             onChange={event => setTitle(event.target.value)}
