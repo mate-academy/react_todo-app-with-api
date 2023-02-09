@@ -3,6 +3,7 @@ import { Todo } from '../../types/Todo';
 import TempTodo from '../TempTodo/TempTodo';
 import TodoComponent from '../Todo/Todo';
 import { Filter } from '../../types/Filter';
+import './TodoList.scss';
 
 type Props = {
   todos: Todo[];
@@ -25,31 +26,36 @@ const TodoList: React.FC<Props> = ({
   isToggling,
   onTitleChange,
 }) => {
-  let currentlyCanging = Filter.NONE;
+  let currentlyChanging = Filter.NONE;
 
   if (isToggling) {
     if (todos.some(todo => !todo.completed)) {
-      currentlyCanging = Filter.ACTIVE;
+      currentlyChanging = Filter.ACTIVE;
     } else {
-      currentlyCanging = Filter.COMPLETED;
+      currentlyChanging = Filter.COMPLETED;
     }
   }
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(
-        todo => (
-          <TodoComponent
-            todo={todo}
-            key={todo.id}
-            onDeleteTodo={onDeleteTodo}
-            deletingCompleted={deletingCompleted}
-            onToggleStatus={() => onToggleStatus(todo)}
-            isChanging={isChanging}
-            currentlyChanging={currentlyCanging}
-            onTitleChange={onTitleChange}
-          />
-        ),
+        todo => {
+          const toggleStatusHandler = () => onToggleStatus(todo);
+
+          return (
+            <li key={todo.id}>
+              <TodoComponent
+                todo={todo}
+                onDeleteTodo={onDeleteTodo}
+                deletingCompleted={deletingCompleted}
+                onToggleStatus={toggleStatusHandler}
+                isChanging={isChanging}
+                currentlyChanging={currentlyChanging}
+                onTitleChange={onTitleChange}
+              />
+            </li>
+          );
+        },
       )}
       {customTodo && (
         <TempTodo

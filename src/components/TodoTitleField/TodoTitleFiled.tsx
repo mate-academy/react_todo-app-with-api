@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './TodoTitleField.scss';
 
 type Props = {
   onTitleChange: (value: string) => void;
@@ -26,7 +25,7 @@ const TodoTitleField: React.FC<Props> = ({ onTitleChange, currentTitle }) => {
     <form className="todoTitleField" onSubmit={formSubmitHandler}>
       <input
         type="text"
-        className="todoTitleField__input"
+        className="todo__title-field"
         onBlur={onBlur}
         onChange={onInput}
         value={inputTitle}

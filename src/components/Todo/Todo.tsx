@@ -31,19 +31,17 @@ const TodoComponent: React.FC<Props> = ({
     () => {
       let isActiveTemp = activeBecauseDeletingCompleted || hasSpinner;
 
-      if (currentlyChanging) {
-        if (todo.completed && currentlyChanging === Filter.COMPLETED) {
-          isActiveTemp = true;
-        }
+      if (todo.completed && currentlyChanging === Filter.COMPLETED) {
+        isActiveTemp = true;
+      }
 
-        if (!todo.completed && currentlyChanging === Filter.ACTIVE) {
-          isActiveTemp = true;
-        }
+      if (!todo.completed && currentlyChanging === Filter.ACTIVE) {
+        isActiveTemp = true;
       }
 
       return isActiveTemp;
     }, [
-      activeBecauseDeletingCompleted, hasSpinner,
+      activeBecauseDeletingCompleted, hasSpinner, currentlyChanging,
     ],
   );
 

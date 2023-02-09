@@ -24,7 +24,6 @@ export const App: React.FC = () => {
   const [todosFromTheServer, setTodosFromTheServer] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorCount, setErrorCount] = useState(0);
-  const [todosToShow, setTodosToShow] = useState(todosFromTheServer);
   const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.ALL);
   const [isAdding, setIsAdding] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
@@ -38,15 +37,16 @@ export const App: React.FC = () => {
     todoFromServer => !todoFromServer.completed,
   ).length === 0;
 
-  const filterTodos = (type: Filter) => {
-    setCurrentFilter(type);
-    switch (type) {
+  const onFilter = (type: Filter) => setCurrentFilter(type);
+
+  const filterTodos = () => {
+    switch (currentFilter) {
       case Filter.COMPLETED: {
         const completedTodos = todosFromTheServer.filter(
           todo => todo.completed,
         );
 
-        setTodosToShow(completedTodos);
+        return completedTodos;
         break;
       }
 
@@ -55,15 +55,17 @@ export const App: React.FC = () => {
           todo => !todo.completed,
         );
 
-        setTodosToShow(activeTodos);
+        return activeTodos;
         break;
       }
 
       default: {
-        setTodosToShow(todosFromTheServer);
+        return todosFromTheServer;
       }
     }
   };
+
+  let todosToShow = filterTodos();
 
   useEffect(() => {
     if (!user) {
@@ -73,17 +75,13 @@ export const App: React.FC = () => {
     getTodos(user.id)
       .then(gotTodos => {
         setTodosFromTheServer(gotTodos);
-        setTodosToShow([...gotTodos]);
+        todosToShow = [...gotTodos];
       })
       .catch(() => {
         setErrorMessage('Unable to get todos');
         setErrorCount(prev => prev + 1);
       });
   }, [user]);
-
-  useEffect(() => {
-    filterTodos(currentFilter);
-  }, [todosFromTheServer]);
 
   const onFormSubmit = (value: string) => {
     setIsAdding(true);
@@ -261,7 +259,7 @@ export const App: React.FC = () => {
               completed={
                 todosFromTheServer.filter(todo => todo.completed).length
               }
-              onFilter={filterTodos}
+              onFilter={onFilter}
               onClearCompleted={clearCompleted}
               currentFilter={currentFilter}
             />

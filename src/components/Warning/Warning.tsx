@@ -28,6 +28,10 @@ const Warning: React.FC<Props> = ({ message, errorCount }) => {
     };
   }, [errorCount]);
 
+  const clickHandler = () => {
+    setIsShown(false);
+  };
+
   return (
     <div
       data-cy="ErrorNotification"
@@ -43,9 +47,7 @@ const Warning: React.FC<Props> = ({ message, errorCount }) => {
         type="button"
         className="delete"
         aria-label="Hide error button"
-        onClick={() => {
-          setIsShown(false);
-        }}
+        onClick={clickHandler}
       />
 
       {message}
