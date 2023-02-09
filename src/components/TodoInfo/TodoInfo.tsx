@@ -118,6 +118,8 @@ export const TodoInfo: React.FC<Props> = ({
             onChange={(event) => {
               setNewTitle(event.target.value);
             }}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </form>
       ) : (
