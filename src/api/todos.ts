@@ -5,4 +5,14 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-// Add more methods here
+export const addTodo = (todo: Todo) => {
+  return client.post<Todo>('/todos', todo);
+};
+
+export const deleteTodo = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
+};
+// eslint-disable-next-line
+export const updateTodo = (todoId: number, data: any) => {
+  return client.patch(`/todos/${todoId}`, data);
+};
