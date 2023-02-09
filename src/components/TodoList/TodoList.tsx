@@ -1,41 +1,28 @@
 import React from 'react';
 import { ErrorType } from '../../types/ErrorType';
-import { FilterStatus } from '../../types/FilterStatus';
+import { FilterBy } from '../../types/FilterBy';
 import { TempTodo, Todo } from '../../types/Todo';
+import { getVisibleTodosByFilter } from '../../utils/filterTodos';
 import { TodoInfo } from '../TodoInfo';
 
 type Props = {
   todos: Todo[];
-  filterStatus: FilterStatus;
+  filterBy: FilterBy;
   tempTodo: TempTodo | null,
   setTodos: (todos: Todo[]) => void,
   setError: (message: ErrorType) => void,
   addedTodoIsLoading: boolean,
 };
 
-const getVisibleTodosByFilter = (todos: Todo[], filterStatus: FilterStatus) => {
-  return todos.filter(todo => {
-    switch (filterStatus) {
-      case FilterStatus.Active:
-        return !todo.completed;
-      case FilterStatus.Completed:
-        return todo.completed;
-      default:
-        return todo;
-    }
-  });
-};
-
 export const TodoList: React.FC<Props> = ({
   todos,
-  filterStatus,
+  filterBy,
   setTodos,
   setError,
   tempTodo,
   addedTodoIsLoading,
-
 }) => {
-  const visibleTodos = getVisibleTodosByFilter(todos, filterStatus);
+  const visibleTodos = getVisibleTodosByFilter(todos, filterBy);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

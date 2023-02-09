@@ -9,7 +9,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { ErrorType } from './types/ErrorType';
-import { FilterStatus } from './types/FilterStatus';
+import { FilterBy } from './types/FilterBy';
 import { TempTodo, Todo } from './types/Todo';
 
 export const App: React.FC = () => {
@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [error, setError] = useState(ErrorType.None);
   const [isLoading, setIsLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState(FilterStatus.All);
+  const [filterBy, setFilterBy] = useState(FilterBy.All);
 
   const user = useContext(AuthContext);
 
@@ -67,16 +67,16 @@ export const App: React.FC = () => {
         />
         <TodoList
           todos={todos}
-          filterStatus={filterStatus}
+          filterBy={filterBy}
           setTodos={setFiltredTodos}
           setError={setError}
           tempTodo={tempTodo}
           addedTodoIsLoading={isLoading}
         />
         <Footer
-          setStatus={setFilterStatus}
+          setStatus={setFilterBy}
           todos={todos}
-          filterStatus={filterStatus}
+          filterStatus={filterBy}
           setTodos={setTodos}
         />
       </div>

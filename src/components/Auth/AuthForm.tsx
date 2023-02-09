@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { createUser, getUserByEmail } from '../../api/users';
+import { ErrorType } from '../../types/ErrorType';
 import { User } from '../../types/User';
 
 export type Props = {
@@ -10,9 +11,9 @@ export type Props = {
 export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [needToRegister, setNeedToRegister] = useState(false);
+  const [isNeedToRegister, setIsNeedToRegister] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorType.None);
 
   const saveUser = (user: User) => {
     localStorage.setItem('user', JSON.stringify(user));
@@ -41,7 +42,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
     if (user) {
       saveUser(user);
     } else {
-      setNeedToRegister(true);
+      setIsNeedToRegister(true);
     }
   };
 
@@ -53,17 +54,17 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    setErrorMessage('');
+    setErrorMessage(ErrorType.None);
     setIsLoading(true);
 
     try {
-      if (needToRegister) {
+      if (isNeedToRegister) {
         await registerUser();
       } else {
         await loadUser();
       }
     } catch (error) {
-      setErrorMessage('Something went wrtong');
+      setErrorMessage(ErrorType.RegisteringError);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +73,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   return (
     <form onSubmit={handleSubmit} className="box mt-5">
       <h1 className="title is-3">
-        {needToRegister ? 'You need to register' : 'Log in to open todos'}
+        {isNeedToRegister ? 'You need to register' : 'Log in to open todos'}
       </h1>
 
       <div className="field">
@@ -89,10 +90,10 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
             type="email"
             id="user-email"
             className={classNames('input', {
-              'is-danger': !needToRegister && errorMessage,
+              'is-danger': !isNeedToRegister && errorMessage,
             })}
             placeholder="Enter your email"
-            disabled={isLoading || needToRegister}
+            disabled={isLoading || isNeedToRegister}
             value={email}
             required
             onChange={e => setEmail(e.target.value)}
@@ -103,12 +104,12 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
           </span>
         </div>
 
-        {!needToRegister && errorMessage && (
+        {!isNeedToRegister && errorMessage && (
           <p className="help is-danger">{errorMessage}</p>
         )}
       </div>
 
-      {needToRegister && (
+      {isNeedToRegister && (
         <div className="field">
           <label className="label" htmlFor="user-name">
             Your Name
@@ -123,7 +124,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
               type="text"
               id="user-name"
               className={classNames('input', {
-                'is-danger': needToRegister && errorMessage,
+                'is-danger': isNeedToRegister && errorMessage,
               })}
               placeholder="Enter your name"
               required
@@ -138,7 +139,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
             </span>
           </div>
 
-          {needToRegister && errorMessage && (
+          {isNeedToRegister && errorMessage && (
             <p className="help is-danger">{errorMessage}</p>
           )}
         </div>
@@ -151,7 +152,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
             'is-loading': isLoading,
           })}
         >
-          {needToRegister ? 'Register' : 'Login'}
+          {isNeedToRegister ? 'Register' : 'Login'}
         </button>
       </div>
     </form>

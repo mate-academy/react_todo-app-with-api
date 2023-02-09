@@ -1,13 +1,13 @@
 import classNames from 'classnames';
 import React from 'react';
 import { removeTodo } from '../../api/todos';
-import { FilterStatus } from '../../types/FilterStatus';
+import { FilterBy } from '../../types/FilterBy';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  setStatus: (status: FilterStatus) => void;
+  setStatus: (status: FilterBy) => void;
   todos: Todo[];
-  filterStatus: FilterStatus;
+  filterStatus: FilterBy;
   setTodos: (todos: Todo[]) => void,
 };
 
@@ -47,8 +47,8 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkAll"
           href="#/"
           className={classNames('filter__link',
-            { selected: filterStatus === FilterStatus.All })}
-          onClick={() => setStatus(FilterStatus.All)}
+            { selected: filterStatus === FilterBy.All })}
+          onClick={() => setStatus(FilterBy.All)}
         >
           All
         </a>
@@ -57,8 +57,8 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkActive"
           href="#/active"
           className={classNames('filter__link',
-            { selected: filterStatus === FilterStatus.Active })}
-          onClick={() => setStatus(FilterStatus.Active)}
+            { selected: filterStatus === FilterBy.Active })}
+          onClick={() => setStatus(FilterBy.Active)}
         >
           Active
         </a>
@@ -66,8 +66,8 @@ export const Footer: React.FC<Props> = ({
           data-cy="FilterLinkCompleted"
           href="#/completed"
           className={classNames('filter__link',
-            { selected: filterStatus === FilterStatus.Completed })}
-          onClick={() => setStatus(FilterStatus.Completed)}
+            { selected: filterStatus === FilterBy.Completed })}
+          onClick={() => setStatus(FilterBy.Completed)}
         >
           Completed
         </a>
