@@ -10,6 +10,7 @@ type Props = {
   isLoading:boolean
   onUpdateTodo: (todo: Todo) => void;
   isUpdating?: boolean;
+  deletingTodoId: number | null
 };
 
 export const TodoInfo: React.FC <Props> = memo(({
@@ -18,6 +19,7 @@ export const TodoInfo: React.FC <Props> = memo(({
   isLoading,
   onUpdateTodo,
   isUpdating,
+  deletingTodoId,
 }) => {
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -65,7 +67,7 @@ export const TodoInfo: React.FC <Props> = memo(({
     setIsEditing(false);
   };
 
-  const showLoader = isUpdating || isLoading;
+  const showLoader = isUpdating || deletingTodoId === todo.id;
 
   return (
     <div
@@ -125,7 +127,7 @@ export const TodoInfo: React.FC <Props> = memo(({
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active': showLoader,
+            'is-active': isLoading || showLoader,
           })}
         >
           <div className="modal-background has-background-white-ter" />

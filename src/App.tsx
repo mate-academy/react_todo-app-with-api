@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState('All');
   const [todoTitle, setTodoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosToUpdate, setTodosToUpdate] = useState<Todo[]>([]);
 
@@ -89,6 +90,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
       });
+    setDeletingTodoId(id);
   }, [todos]);
 
   const onUpdateTodo = useCallback((chosenTodo: Todo) => {
@@ -180,6 +182,7 @@ export const App: React.FC = () => {
               isLoading={isLoading}
               todosToUpdate={todosToUpdate}
               onUpdateTodo={onUpdateTodo}
+              deletingTodoId={deletingTodoId}
             />
             {tempTodo && (
               <TodoInfo
@@ -187,6 +190,7 @@ export const App: React.FC = () => {
                 isLoading={isLoading}
                 onDeleteTodo={onDeleteTodo}
                 onUpdateTodo={onUpdateTodo}
+                deletingTodoId={deletingTodoId}
               />
             )}
             <Footer
