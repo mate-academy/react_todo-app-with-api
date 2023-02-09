@@ -8,7 +8,7 @@ type Props = {
   removeTodo: (todoId: number) => void,
   isLoading: boolean,
   updatingTodo: (todo: Todo) => void,
-  todosToUpdate: Todo[],
+  todosToUpdate: number[],
   deletingTodosIds: number[],
 };
 
@@ -21,7 +21,7 @@ export const TodoList: React.FC<Props> = memo(({
   deletingTodosIds,
   tempTodo,
 }) => {
-  const todosIdToUpdate = todosToUpdate.map(todo => todo.id);
+  const todosIdToUpdate = todosToUpdate;
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodosIds, setDeletingTodosIds] = useState<number[]>([]);
-  const [todosToUpdate, setTodosToUpdate] = useState<Todo[]>([]);
+  const [updatingTodosIds, setUpdatingTodosIds] = useState<number[]>([]);
 
   const user = useContext(AuthContext);
 
@@ -112,7 +112,7 @@ export const App: React.FC = () => {
   };
 
   const updatingTodo = (todoToUpdate: Todo) => {
-    setTodosToUpdate(prev => [...prev, todoToUpdate]);
+    setUpdatingTodosIds(prev => [...prev, todoToUpdate.id]);
 
     updateTodo(todoToUpdate.id, todoToUpdate.title, todoToUpdate.completed)
       .then((updatedTodo) => {
@@ -126,7 +126,7 @@ export const App: React.FC = () => {
         showError(ErrorTypes.UnableToUpdate);
       })
       .finally(() => {
-        setTodosToUpdate([]);
+        setUpdatingTodosIds([]);
       });
   };
 
@@ -167,7 +167,7 @@ export const App: React.FC = () => {
               isLoading={isLoading}
               deletingTodosIds={deletingTodosIds}
               updatingTodo={updatingTodo}
-              todosToUpdate={todosToUpdate}
+              todosToUpdate={updatingTodosIds}
             />
 
             <Footer
