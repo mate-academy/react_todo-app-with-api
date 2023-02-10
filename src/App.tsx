@@ -70,11 +70,9 @@ export const App: React.FC = () => {
   const completedTodo = todos.filter((todo) => todo.completed);
 
   const clearCompleted = () => {
-    setTodos(
-      completedTodo.filter((todo) => deleteTodo(todo.id)
-        .then()
-        .catch(() => setIsDelete(true))),
-    );
+    completedTodo.filter((todo) => deleteTodo(todo.id)
+      .then()
+      .catch(() => setIsDelete(true)));
   };
 
   const setStatusCompleted = () => {
@@ -130,7 +128,7 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, []);
+  }, [todos]);
 
   const filterList = (todoss: Todo[]): Todo[] | undefined => todoss
     .filter((todo) => {
