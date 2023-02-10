@@ -2,21 +2,23 @@ import classNames from 'classnames';
 import { Filter, Todo } from '../types/Todo';
 
 type Props = {
-  todos: Todo[],
+  activeTodos: Todo[],
   filter: string,
   onSetFilter: (filter: string) => void,
-  onSetClearHandler: (selectedTodosIds: number[]) => void
+  handleRemoveTodo: (selectedTodosIds: number) => void
+  completedTodos: Todo[]
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
+  activeTodos,
   onSetFilter,
   filter,
-  onSetClearHandler,
+  handleRemoveTodo,
+  completedTodos,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
-      {`${todos.filter((todo) => !todo.completed).length} items left`}
+      {`${activeTodos.length} items left`}
     </span>
 
     <nav className="filter">
@@ -59,20 +61,22 @@ export const Footer: React.FC<Props> = ({
         Completed
       </a>
     </nav>
-    {todos.find((todo) => todo.completed) && (
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={() => {
-          const selectedTodosIds = todos
-            .filter((todo) => todo.completed)
-            .map((todo) => todo.id);
+    <button
+      type="button"
+      className="todoapp__clear-completed"
+      onClick={() => {
+        completedTodos.forEach((todo) => {
+          handleRemoveTodo(todo.id);
+        });
+      }}
+      style={{
+        visibility: completedTodos.length
+          ? ('visible')
+          : ('hidden'),
+      }}
+    >
+      Clear completed
+    </button>
 
-          onSetClearHandler(selectedTodosIds);
-        }}
-      >
-        Clear completed
-      </button>
-    )}
   </footer>
 );

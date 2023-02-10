@@ -3,12 +3,7 @@
 
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
-import {
-  getTodos,
-  patchTodo,
-  postTodo,
-  removeTodo,
-} from './api/todos';
+import * as todosAPI from './api/todos';
 import { Footer } from './components/Footer';
 import { Form } from './components/Form';
 import { TodoList } from './components/TodoList';
@@ -21,126 +16,117 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState('');
-  const [isItError, setIsItError] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isReloading, setIsReloading] = useState(false);
+  const [todosBeingTransform, setTodosBeingTransform] = useState<number[]>([]);
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   useEffect(() => {
-    getTodos(USER_ID)
+    todosAPI.getTodos(USER_ID)
       .then((data) => {
         setTodos(data);
         setError('');
       })
       .catch(() => {
-        setIsItError(true);
         setError(Errors.LOADING);
       })
       .finally(() => {
         setTimeout(() => {
-          setIsItError(false);
+          setError('');
         }, 3000);
       });
-  }, [isReloading]);
+  }, []);
 
-  const handleAddTodo = (todo: Todo) => {
-    if (!todo.title) {
+  const handleAddTodo = (todoData: Omit<Todo, 'id'>) => {
+    if (!todoData.title) {
       setError(Errors.TITLE);
-      setIsItError(true);
 
       setTimeout(() => {
-        setIsItError(false);
+        setError('');
       }, 3000);
 
       return;
     }
 
-    setTempTodo(todo);
+    setTempTodo({ ...todoData, id: 0 });
 
-    postTodo(todo)
-      .then(() => (
+    todosAPI.addTodo(todoData)
+      .then((newTodo) => (
         setTimeout(() => {
-          setTodos([...todos, todo]);
+          setTodos([...todos, newTodo]);
           setTempTodo(null);
         }, 3000)
       ))
       .catch(() => {
         setError(Errors.ADDING);
-        setIsItError(true);
 
         setTimeout(() => {
-          setIsItError(false);
+          setError('');
         }, 3000);
       });
   };
 
   const handleRemoveTodo = (todoId: number) => {
-    removeTodo(todoId)
+    setTodosBeingTransform(current => [...current, todoId]);
+    todosAPI.deleteTodo(todoId)
       .then(() => {
-        const filteredTodos = todos.filter((todo) => todo.id !== todoId);
-
-        setTodos(filteredTodos);
+        setTodos(
+          (currentTodos) => currentTodos.filter((todo) => todo.id !== todoId),
+        );
       })
       .catch(() => {
         setError(Errors.REMOVING);
-        setIsItError(true);
 
         setTimeout(() => {
-          setIsItError(false);
+          setError('');
         }, 3000);
+      })
+
+      .finally(() => {
+        setTodosBeingTransform(
+          todosBeingTransform.filter((id) => id !== todoId),
+        );
       });
   };
 
-  const handleUpdateTodo = (updatedTodo: Todo) => {
-    patchTodo(updatedTodo.id, updatedTodo)
+  const handleUpdateTodo = (todoToUpdate: Todo) => {
+    setTodosBeingTransform(current => [...current, todoToUpdate.id]);
+    todosAPI.updateTodo(todoToUpdate)
       .then(() => {
-        setTodos(todos);
-        setTimeout(() => {
-          setIsReloading(true);
-        }, 300);
+        setTodos(
+          todos.map((todo) => {
+            if (todo.id === todoToUpdate.id) {
+              return todoToUpdate;
+            }
+
+            return todo;
+          }),
+        );
       })
       .catch(() => {
         setError(Errors.UPDATING);
-        setIsItError(true);
 
         setTimeout(() => {
-          setIsItError(false);
+          setError('');
         }, 3000);
       })
 
       .finally(() => (
-        setIsReloading(false)
-      ));
-  };
-
-  // const handleClear = (todoIds: number[]) => {
-  //   todoIds.map((id) => {
-  //     return handleRemoveTodo(id);
-  //   });
-  // };
-
-  const handleClearTodos = async (todoIds: number[]) => {
-    try {
-      await Promise.all(todoIds.map((id) => handleRemoveTodo(id)));
-    } catch (mistake) {
-      setError(Errors.REMOVING);
-    }
-  };
-
-  const handleStatusUpdate = (todoToUpdate: Todo) => {
-    const updatedTodo = { ...todoToUpdate, completed: !todoToUpdate.completed };
-
-    handleUpdateTodo(updatedTodo);
+        setTodosBeingTransform(
+          todosBeingTransform.filter((id) => id !== todoToUpdate.id),
+        )));
   };
 
   const handleToggleAll = () => {
     todos.forEach((todo) => {
       if (!todo.completed) {
-        handleStatusUpdate(todo);
+        return { ...todo, completed: !todo.completed };
       }
 
       if (todos.every((element) => element.completed)) {
-        todos.forEach((item) => handleStatusUpdate(item));
+        return { ...todo, completed: !todo.completed };
       }
+
+      return 0;
     });
   };
 
@@ -155,6 +141,9 @@ export const App: React.FC = () => {
           return true;
       }
     });
+
+  const activeTodos = todos.filter((todo) => !todo.completed);
+  const completedTodos = todos.filter((todo) => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -176,7 +165,6 @@ export const App: React.FC = () => {
           />
           <Form
             onSubmit={handleAddTodo}
-            todos={todos}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             userId={USER_ID}
@@ -185,64 +173,67 @@ export const App: React.FC = () => {
         {todos && (
           <>
             <TodoList
-              userId={USER_ID}
-              onRemove={handleRemoveTodo}
+              userID={USER_ID}
+              setSelectedTodoId={setSelectedTodoId}
+              selectedTodoId={selectedTodoId}
+              onTodoDelete={handleRemoveTodo}
               todos={visibleTodos}
               onTodoUpdate={handleUpdateTodo}
-              handleStatusUpdate={handleStatusUpdate}
+              todosBeingTransform={todosBeingTransform}
             />
             {tempTodo && (
-              <div
-                id="0"
-                key={tempTodo.id}
-                className={classNames(
-                  'todo',
-                  { completed: tempTodo.completed },
-                )}
-              >
-                <label
-                  className="todo__status-label"
+              <>
+                <div
+                  key={tempTodo.id}
+                  className={classNames(
+                    'todo',
+                    { completed: tempTodo.completed },
+                  )}
                 >
-                  <input
-                    type="checkbox"
-                    className="todo__status"
-                    checked={tempTodo.completed}
-                  />
-                </label>
-                <span
-                  className="todo__title"
-                >
-                  {tempTodo.title}
-                </span>
-                <button
-                  type="button"
-                  className="todo__remove"
-                >
-                  ×
-                </button>
-                <div className="loader" />
-              </div>
+                  <label
+                    className="todo__status-label"
+                  >
+                    <input
+                      type="checkbox"
+                      className="todo__status"
+                      checked={tempTodo.completed}
+                    />
+                  </label>
+                  <span
+                    className="todo__title"
+                  >
+                    {tempTodo.title}
+                  </span>
+                  <button
+                    type="button"
+                    className="todo__remove"
+                  >
+                    ×
+                  </button>
+                </div>
+              </>
             )}
             <Footer
-              todos={todos}
+              activeTodos={activeTodos}
+              completedTodos={completedTodos}
               filter={filter}
               onSetFilter={setFilter}
-              onSetClearHandler={handleClearTodos}
+              handleRemoveTodo={handleRemoveTodo}
             />
           </>
         )}
-        {isItError && (
+        {error && (
           <div
             className={classNames(
               'notification is-danger is-light has-text-weight-normal',
-              { hidden: !isItError },
+              { hidden: !error },
             )}
           >
             <button
               type="button"
               className="delete"
               onClick={() => {
-                setIsItError(false);
+                setError('');
               }}
             />
             {error}

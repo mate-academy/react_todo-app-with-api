@@ -1,53 +1,32 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React from 'react';
 import { Todo } from '../types/Todo';
 import { Form } from './Form';
-import { TodoModal } from './TodoModal';
+import { Loader } from './Loader';
 
 type Props = {
   todos: Todo[],
-  onRemove: (todoId: number) => void
-  userId: number
+  onTodoDelete: (todoId: number) => void
   onTodoUpdate: (todo: Todo) => void
-  handleStatusUpdate: (todo: Todo) => void
+  todosBeingTransform: number[],
+  setSelectedTodoId: (number: number) => void
+  selectedTodoId: number | null
+  userID: number,
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  onRemove,
-  userId,
+  onTodoDelete,
   onTodoUpdate,
-  handleStatusUpdate,
+  todosBeingTransform,
+  setSelectedTodoId,
+  selectedTodoId,
+  userID,
 }) => {
-  const [editing, setEditing] = useState(false);
-  const [selectedTodoId, setSelectedTodoId] = useState(0);
-
-  const handleSubmit = (updatedTodo: Todo) => {
-    todos.map((todo) => {
-      if (todo.id === updatedTodo.id) {
-        return updatedTodo;
-      }
-
-      return todo;
-    });
-    onTodoUpdate(updatedTodo);
-    setSelectedTodoId(0);
-    setEditing(true);
-  };
-
-  const handleDoubleClick = (todoId: number) => {
-    setEditing(true);
-    setSelectedTodoId(todoId);
-    setTimeout(() => {
-      setEditing(false);
-    }, 300);
-  };
-
   return (
     <section className="todoapp__main">
       {todos.map((todo) => (
         <div
-          key={todo.id}
           className={classNames(
             'todo',
             { completed: todo.completed },
@@ -56,39 +35,38 @@ export const TodoList: React.FC<Props> = ({
           <label
             className="todo__status-label"
           >
+            {todosBeingTransform.includes(todo.id) && (
+              <Loader />
+            )}
             <input
               type="checkbox"
               className="todo__status"
               checked={todo.completed}
               onChange={() => {
-                handleStatusUpdate(todo);
-                setEditing(true);
+                onTodoUpdate({
+                  ...todo,
+                  completed: !todo.completed,
+                });
               }}
             />
           </label>
-          {selectedTodoId === todo.id
+          {selectedTodoId
             ? (
-              <>
-                <Form
-                  todo={todo}
-                  onSubmit={handleSubmit}
-                  todos={todos}
-                  userId={userId}
-                  className="todo__title-field"
-                  placeholder="Empty todo will be deleted"
-                />
-
-                <TodoModal
-                  editing={editing}
-                />
-              </>
+              <Form
+                todo={todo}
+                onSubmit={() => { }}
+                userId={userID}
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+              />
             )
             : (
               <>
                 <span
+                  key={todo.id}
                   className="todo__title"
                   onDoubleClick={() => {
-                    handleDoubleClick(todo.id);
+                    setSelectedTodoId(todo.id);
                   }}
                 >
                   {todo.title}
@@ -98,7 +76,7 @@ export const TodoList: React.FC<Props> = ({
                   type="button"
                   className="todo__remove"
                   onClick={() => {
-                    onRemove(todo.id);
+                    onTodoDelete(todo.id);
                   }}
                 >
                   ×

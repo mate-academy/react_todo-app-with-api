@@ -5,15 +5,16 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const postTodo = (data: Todo) => {
+export const addTodo = (data: Omit<Todo, 'id'>): Promise<Todo> => {
   return client.post('/todos/', data);
 };
 
-export const patchTodo = (todoId: number, data: Todo) => {
-  return client.patch(`/todos/${todoId}`, data);
+// eslint-disable-next-line object-curly-newline
+export const updateTodo = ({ id, title, userId, completed }: Todo) => {
+  return client.patch(`/todos/${id}`, { title, userId, completed });
 };
 
-export const removeTodo = (todoId: number) => {
+export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
