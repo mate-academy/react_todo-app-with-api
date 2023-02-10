@@ -75,37 +75,75 @@ export const App: React.FC = () => {
       });
   };
 
+  const getUpdatedTodos = (
+    todosToUpdate: Todo[],
+    everyTodoCompleted: boolean,
+    noTodoCompleted: boolean,
+    someTodosCompleted: boolean,
+  ) => {
+    const updatedTodos: Todo[] = [];
+
+    todosToUpdate.forEach(todo => {
+      let updatedTodo = { ...todo };
+
+      if (someTodosCompleted && !todo.completed) {
+        updatedTodo = { ...todo, completed: !todo.completed };
+      }
+
+      if (everyTodoCompleted || noTodoCompleted) {
+        updatedTodo = { ...todo, completed: !todo.completed };
+      }
+
+      updatedTodos.push(updatedTodo);
+    });
+
+    return updatedTodos;
+  };
+
+  const getLoadingTodoIds = (
+    todosToLoad: Todo[],
+    everyTodoCompleted: boolean,
+    noTodoCompleted: boolean,
+    someTodosCompleted: boolean,
+  ) => {
+    const loadingTodoIdsToAdd: number[] = [];
+
+    todosToLoad.forEach(todo => {
+      if (someTodosCompleted && !todo.completed) {
+        loadingTodoIdsToAdd.push(todo.id);
+      }
+
+      if (everyTodoCompleted || noTodoCompleted) {
+        loadingTodoIdsToAdd.push(todo.id);
+      }
+    });
+
+    return loadingTodoIdsToAdd;
+  };
+
+  const updateTodosStatus = (todosToUpdate: Todo[]) => {
+    return Promise.all(
+      todosToUpdate
+        .map(todo => updateTodoStatus(todo.id, todo.completed)),
+    );
+  };
+
   const toggleAllTodoStatus = () => {
     const everyTodoCompleted = todos.every(todo => todo.completed);
     const noTodoCompleted = todos.every(todo => !todo.completed);
     const someTodosCompleted = todos.some(todo => todo.completed)
       && !everyTodoCompleted;
 
-    const updatedTodos: Todo[] = [];
-    const loadingTodoIdsToAdd: number[] = [];
-
-    todos.forEach(todo => {
-      let updatedTodo = { ...todo };
-
-      if (someTodosCompleted && !todo.completed) {
-        updatedTodo = { ...todo, completed: !todo.completed };
-        loadingTodoIdsToAdd.push(todo.id);
-      }
-
-      if (everyTodoCompleted || noTodoCompleted) {
-        updatedTodo = { ...todo, completed: !todo.completed };
-        loadingTodoIdsToAdd.push(todo.id);
-      }
-
-      updatedTodos.push(updatedTodo);
-    });
+    const updatedTodos = getUpdatedTodos(
+      todos, everyTodoCompleted, noTodoCompleted, someTodosCompleted,
+    );
+    const loadingTodoIdsToAdd = getLoadingTodoIds(
+      todos, everyTodoCompleted, noTodoCompleted, someTodosCompleted,
+    );
 
     setLoadingTodoIds(loadingTodoIdsToAdd);
 
-    Promise.all(
-      updatedTodos
-        .map(todo => updateTodoStatus(todo.id, todo.completed)),
-    )
+    updateTodosStatus(updatedTodos)
       .then(() => {
         getTodos(USER_ID)
           .then(todosFromServer => {

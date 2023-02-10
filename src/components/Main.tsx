@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 
 type Props = {
@@ -44,6 +44,12 @@ export const Main: React.FC<Props> = ({
     }
   };
 
+  const newTodoField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    newTodoField.current?.focus();
+  }, [editingTodoId]);
+
   return (
     <section className="todoapp__main">
       {filteredTodos.map(todo => (
@@ -67,8 +73,11 @@ export const Main: React.FC<Props> = ({
             ? (
               <form onSubmit={(event) => {
                 event.preventDefault();
+                if (newTitle !== todo.title) {
+                  saveEditedTitle(todo.id, newTitle, setEditingTodoId);
+                }
+
                 handleEditSubmit(todo.id, todo.title);
-                saveEditedTitle(todo.id, newTitle, setEditingTodoId);
               }}
               >
                 <input
@@ -79,14 +88,19 @@ export const Main: React.FC<Props> = ({
                   onChange={changeEditField}
                   onBlur={(event) => {
                     event.preventDefault();
+                    if (newTitle !== todo.title) {
+                      saveEditedTitle(todo.id, newTitle, setEditingTodoId);
+                    }
+
                     handleEditSubmit(todo.id, todo.title);
-                    saveEditedTitle(todo.id, newTitle, setEditingTodoId);
                   }}
                   onKeyDown={(event) => {
                     if (event.key === 'Escape') {
                       setEditingTodoId(0);
                     }
                   }}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  ref={newTodoField}
                 />
               </form>
             )
@@ -118,22 +132,6 @@ export const Main: React.FC<Props> = ({
           </div>
         </div>
       ))}
-      {/* This todo is being edited
-      <div className="todo">
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <div className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div> */}
-
-      {/* This todo is in loadind state */}
       {tempTodo && (
         <div className="todo">
           <label className="todo__status-label">

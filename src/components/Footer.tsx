@@ -20,62 +20,56 @@ export const Footer: React.FC<Props> = ({
   filterByCompleted,
   selectedFilter,
   clearCompletedTodos,
-}) => {
-  const hasFilterAll = selectedFilter === Filters.All;
-  const hasFilterActive = selectedFilter === Filters.Active;
-  const hasFilterCompleted = selectedFilter === Filters.Completed;
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${activeTodos.length} items left`}
+    </span>
 
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodos.length} items left`}
-      </span>
+    <nav className="filter">
+      <a
+        href="#/"
+        className={cn(
+          'filter__link',
+          { selected: selectedFilter === Filters.All },
+        )}
+        onClick={filterByAll}
+      >
+        All
+      </a>
 
-      <nav className="filter">
-        <a
-          href="#/"
-          className={cn(
-            'filter__link',
-            { selected: hasFilterAll },
-          )}
-          onClick={filterByAll}
-        >
-          All
-        </a>
+      <a
+        href="#/active"
+        className={cn(
+          'filter__link',
+          { selected: selectedFilter === Filters.Active },
+        )}
+        onClick={filterByActive}
+      >
+        Active
+      </a>
 
-        <a
-          href="#/active"
-          className={cn(
-            'filter__link',
-            { selected: hasFilterActive },
-          )}
-          onClick={filterByActive}
-        >
-          Active
-        </a>
+      <a
+        href="#/completed"
+        className={cn(
+          'filter__link',
+          { selected: selectedFilter === Filters.Completed },
+        )}
+        onClick={filterByCompleted}
+      >
+        Completed
+      </a>
+    </nav>
+    {completedTodos.length > 0 && (
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={clearCompletedTodos}
 
-        <a
-          href="#/completed"
-          className={cn(
-            'filter__link',
-            { selected: hasFilterCompleted },
-          )}
-          onClick={filterByCompleted}
-        >
-          Completed
-        </a>
-      </nav>
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={clearCompletedTodos}
+      >
+        Clear completed
+      </button>
+    )}
 
-        >
-          Clear completed
-        </button>
-      )}
-
-    </footer>
-  );
-};
+  </footer>
+);
