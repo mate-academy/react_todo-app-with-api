@@ -35,19 +35,21 @@ export const Main: React.FC<Props> = ({
   };
 
   const handleEditSubmit = (todoId: number, todoTitle: string) => {
+    if (newTitle !== todoTitle) {
+      saveEditedTitle(todoId, newTitle, setEditingTodoId);
+    }
+
     if (newTitle === '') {
       deleteTodo(todoId);
     }
 
-    if (newTitle === todoTitle) {
-      setEditingTodoId(0);
-    }
+    setEditingTodoId(0);
   };
 
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const editingField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    newTodoField.current?.focus();
+    editingField.current?.focus();
   }, [editingTodoId]);
 
   return (
@@ -73,10 +75,6 @@ export const Main: React.FC<Props> = ({
             ? (
               <form onSubmit={(event) => {
                 event.preventDefault();
-                if (newTitle !== todo.title) {
-                  saveEditedTitle(todo.id, newTitle, setEditingTodoId);
-                }
-
                 handleEditSubmit(todo.id, todo.title);
               }}
               >
@@ -88,10 +86,6 @@ export const Main: React.FC<Props> = ({
                   onChange={changeEditField}
                   onBlur={(event) => {
                     event.preventDefault();
-                    if (newTitle !== todo.title) {
-                      saveEditedTitle(todo.id, newTitle, setEditingTodoId);
-                    }
-
                     handleEditSubmit(todo.id, todo.title);
                   }}
                   onKeyDown={(event) => {
@@ -99,8 +93,7 @@ export const Main: React.FC<Props> = ({
                       setEditingTodoId(0);
                     }
                   }}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  ref={newTodoField}
+                  ref={editingField}
                 />
               </form>
             )
