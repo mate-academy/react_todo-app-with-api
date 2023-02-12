@@ -16,6 +16,9 @@ type Props = {
   deleteTodo: (id: number) => void;
   updateTodo: (todo: Todo, update: 'title' | 'complete') => void;
   clearCompleted: () => void;
+  toggleAll: () => void;
+  setLoadingAll: (value: boolean) => void;
+  loadingAll: boolean;
 };
 
 export const TodoContent: React.FC<Props> = ({
@@ -28,9 +31,13 @@ export const TodoContent: React.FC<Props> = ({
   deleteTodo,
   clearCompleted,
   updateTodo,
+  toggleAll,
+  setLoadingAll,
+  loadingAll,
 }) => {
   const [filter, setFilter] = useState<Filter>(Filter.all);
   const [hasIncompleteTodos, setHasIncompleteTodos] = useState(false);
+  const [activateToggleAll, setActivateToggleAll] = useState(false);
 
   const onSwitchFilter = (f: Filter) => {
     setFilter(f);
@@ -41,14 +48,19 @@ export const TodoContent: React.FC<Props> = ({
     if (todos?.some((todo) => todo.completed)) {
       setHasIncompleteTodos(true);
     }
+
+    setActivateToggleAll(todos?.every((t) => t.completed) || false);
   });
 
   return (
     <div className="todoapp__content">
       <TodoHeader
+        activateToggleAll={activateToggleAll}
         onError={onError}
         createTodo={createTodo}
         isInputDisabled={isInputDisabled}
+        setLoadingAll={setLoadingAll}
+        toggleAll={toggleAll}
       />
 
       <TodoMain
@@ -56,6 +68,7 @@ export const TodoContent: React.FC<Props> = ({
         tempTodo={tempTodo}
         deleteTodo={deleteTodo}
         updateTodo={updateTodo}
+        loadingAll={loadingAll}
       />
 
       {todos && (

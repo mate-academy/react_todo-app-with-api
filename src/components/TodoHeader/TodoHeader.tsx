@@ -6,12 +6,18 @@ type Props = {
   onError: (value: ErrorMessages | null) => void;
   createTodo: (title: string) => void;
   isInputDisabled: boolean;
+  activateToggleAll: boolean;
+  setLoadingAll: (value: boolean) => void;
+  toggleAll: () => void;
 };
 
 export const TodoHeader: React.FC<Props> = ({
   onError,
   createTodo,
   isInputDisabled,
+  activateToggleAll,
+  setLoadingAll,
+  toggleAll,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
 
@@ -33,8 +39,12 @@ export const TodoHeader: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        className={cn('todoapp__toggle-all')}
+        className={cn('todoapp__toggle-all', { active: activateToggleAll })}
         aria-label="mark all"
+        onClick={() => {
+          toggleAll();
+          setLoadingAll(true);
+        }}
       />
 
       {/* Add a todo on form submit */}

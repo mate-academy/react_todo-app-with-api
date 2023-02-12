@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorMessages | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(false);
 
   const filterTodos = (filterBy: Filter) => {
     setFilteredTodos(
@@ -72,15 +73,17 @@ export const App: React.FC = () => {
   const updateTodo = async (todo: Todo, update: 'title' | 'complete') => {
     if (update === 'complete') {
       await patchTodo({ ...todo, completed: !todo.completed })
-        .then((res) => setFilteredTodos(
-          filteredTodos.map((t) => {
-            if (t.id === res.id) {
-              return res;
-            }
+        .then((res) => {
+          setFilteredTodos(
+            filteredTodos.map((t) => {
+              if (res.id === t.id) {
+                return res;
+              }
 
-            return t;
-          }),
-        ))
+              return t;
+            }),
+          );
+        })
         .catch(() => {
           setError(ErrorMessages.updateTodo);
         });
@@ -93,6 +96,26 @@ export const App: React.FC = () => {
         removeTodo(todo.id);
       }
     });
+  };
+
+  const toggleAll = async () => {
+    const isAllComplete = !filteredTodos?.every((t) => t.completed);
+
+    await filteredTodos.forEach((todo) => {
+      if (todo.completed !== isAllComplete) {
+        patchTodo({ ...todo, completed: isAllComplete })
+          .then((res) => res)
+          .catch(() => {
+            setError(ErrorMessages.updateTodo);
+          });
+      }
+    });
+
+    setFilteredTodos(
+      filteredTodos.map((t) => ({ ...t, completed: isAllComplete })),
+    );
+
+    setLoadingAll(false);
   };
 
   useEffect(() => {
@@ -124,6 +147,9 @@ export const App: React.FC = () => {
         deleteTodo={removeTodo}
         updateTodo={updateTodo}
         clearCompleted={clearCompleted}
+        toggleAll={toggleAll}
+        loadingAll={loadingAll}
+        setLoadingAll={setLoadingAll}
       />
 
       {error && <Errors error={error} setError={setError} />}

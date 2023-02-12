@@ -7,6 +7,7 @@ type Props = {
   tempTodo: Todo | null;
   deleteTodo: (id: number) => void;
   updateTodo: (todo: Todo, update: 'title' | 'complete') => void;
+  loadingAll: boolean;
 };
 
 export const TodoMain: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoMain: React.FC<Props> = ({
   tempTodo,
   deleteTodo,
   updateTodo,
+  loadingAll,
 }) => {
   const [activateEditById, setActivateEditById] = useState<number>(-1);
   const [activateLoadingOnTodo, setActivateLoadingOnTodo] = useState(0);
@@ -86,13 +88,15 @@ export const TodoMain: React.FC<Props> = ({
                   ×
                 </button>
 
-                {activateLoadingOnTodo === id && (
+                {activateLoadingOnTodo === id || loadingAll ? (
                   <div className="modal overlay is-active">
                     <div
                       className="modal-background has-background-white-ter"
                     />
                     <div className="loader" />
                   </div>
+                ) : (
+                  <></>
                 )}
               </>
             )}
