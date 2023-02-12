@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
-import { Errors } from './components/Errors';
-import { TodoContent } from './components/TodoContent';
-import { UserWarning } from './UserWarning';
-import { getTodos, addTodo, deleteTodo } from './api/todos';
-import { Todo } from './types/Todo';
-import { Filter } from './types/Filter';
-import { ErrorMessages } from './types/ErrorMessages';
+import React, { useEffect, useState } from "react";
+import { Errors } from "./components/Errors";
+import { TodoContent } from "./components/TodoContent";
+import { UserWarning } from "./UserWarning";
+import { getTodos, addTodo, deleteTodo } from "./api/todos";
+import { Todo } from "./types/Todo";
+import { Filter } from "./types/Filter";
+import { ErrorMessages } from "./types/ErrorMessages";
 
 const USER_ID = 6232;
 
@@ -18,19 +18,20 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const filterTodos = (filterBy: Filter) => {
-    switch (filterBy) {
-      case Filter.active:
-        setFilteredTodos(todos.filter((todo) => todo.completed === false));
-        break;
+    setFilteredTodos(
+      todos.filter((todo) => {
+        switch (filterBy) {
+          case Filter.active:
+            return todo.completed === false;
 
-      case Filter.completed:
-        setFilteredTodos(todos.filter((todo) => todo.completed === true));
-        break;
+          case Filter.completed:
+            return todo.completed === true;
 
-      default:
-        setFilteredTodos(todos);
-        break;
-    }
+          default:
+            return todo;
+        }
+      })
+    );
   };
 
   const createTodo = async (title: string) => {
