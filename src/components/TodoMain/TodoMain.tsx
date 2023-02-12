@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -21,15 +21,36 @@ export const TodoMain: React.FC<Props> = ({
   const [activateLoadingOnTodo, setActivateLoadingOnTodo] = useState(0);
   const [tempTodoTitle, setTempTodoTitle] = useState('');
 
-  const onSubmitChanges = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    setActivateEditById(-1);
+  const updateTitle = async (todo: Todo) => {
+    if (todo) {
+      if (todo.title !== tempTodoTitle) {
+        setActivateEditById(0);
+        setActivateLoadingOnTodo(todo.id);
+        await updateTodo({ ...todo, title: tempTodoTitle }, 'title');
+        setActivateLoadingOnTodo(-1);
+      }
+    }
   };
 
   const onDelete = (id: number) => {
     setActivateLoadingOnTodo(id);
     deleteTodo(id);
+  };
+
+  const onSubmitChanges = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const findTodo = todos?.find((todo) => todo.id === activateEditById);
+
+    if (findTodo) {
+      if (tempTodoTitle === '') {
+        onDelete(findTodo.id);
+      } else {
+        updateTitle(findTodo);
+      }
+    }
+
+    setActivateEditById(-1);
   };
 
   const activateEdit = (title: string, id: number) => {
@@ -42,6 +63,14 @@ export const TodoMain: React.FC<Props> = ({
     await updateTodo(todo, 'complete');
     setActivateLoadingOnTodo(-1);
   };
+
+  useEffect(() => {
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'Escape') {
+        setActivateEditById(0);
+      }
+    });
+  }, []);
 
   return (
     <section className="todoapp__main">
@@ -62,6 +91,7 @@ export const TodoMain: React.FC<Props> = ({
               <>
                 <form onSubmit={onSubmitChanges}>
                   <input
+                    onBlur={() => updateTitle(todo)}
                     type="text"
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"

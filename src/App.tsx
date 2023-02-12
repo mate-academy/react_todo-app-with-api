@@ -71,23 +71,24 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = async (todo: Todo, update: 'title' | 'complete') => {
-    if (update === 'complete') {
-      await patchTodo({ ...todo, completed: !todo.completed })
-        .then((res) => {
-          setFilteredTodos(
-            filteredTodos.map((t) => {
-              if (res.id === t.id) {
-                return res;
-              }
+    const data
+      = update === 'title' ? todo : { ...todo, completed: !todo.completed };
 
-              return t;
-            }),
-          );
-        })
-        .catch(() => {
-          setError(ErrorMessages.updateTodo);
-        });
-    }
+    await patchTodo(data)
+      .then((res) => {
+        setFilteredTodos(
+          filteredTodos.map((t) => {
+            if (res.id === t.id) {
+              return res;
+            }
+
+            return t;
+          }),
+        );
+      })
+      .catch(() => {
+        setError(ErrorMessages.updateTodo);
+      });
   };
 
   const clearCompleted = () => {
