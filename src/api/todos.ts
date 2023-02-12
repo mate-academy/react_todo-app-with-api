@@ -18,6 +18,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const getTodo = (todoId: number) => {
-  return client.get<Todo>(`/todos/${todoId}`);
+export const updateTodoStatus = (todoId: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${todoId}`, { completed });
 };

@@ -2,10 +2,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { CSSTransition } from 'react-transition-group';
 import * as todosAPI from './api/todos';
 import { Footer } from './components/Footer';
-import { Form } from './components/Form';
+import { NewTodoForm } from './components/NewTodoForm';
+import { Loader } from './components/Loader';
 import { TodoList } from './components/TodoList';
 import { Errors, Filter, Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -18,7 +20,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingTransform, setTodosBeingTransform] = useState<number[]>([]);
-  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
+  const errorMessageRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     todosAPI.getTodos(USER_ID)
@@ -54,7 +56,7 @@ export const App: React.FC = () => {
         setTimeout(() => {
           setTodos([...todos, newTodo]);
           setTempTodo(null);
-        }, 3000)
+        }, 500)
       ))
       .catch(() => {
         setError(Errors.ADDING);
@@ -117,7 +119,7 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    todos.forEach((todo) => {
+    const updatedTodos = todos.map((todo) => {
       if (!todo.completed) {
         return { ...todo, completed: !todo.completed };
       }
@@ -126,8 +128,10 @@ export const App: React.FC = () => {
         return { ...todo, completed: !todo.completed };
       }
 
-      return 0;
+      return todo;
     });
+
+    updatedTodos.forEach((todo) => handleUpdateTodo(todo));
   };
 
   const visibleTodos = todos
@@ -156,6 +160,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <button
+            data-cy="toggle_all_button"
             type="button"
             className={classNames(
               'todoapp__toggle-all',
@@ -163,7 +168,7 @@ export const App: React.FC = () => {
             )}
             onClick={handleToggleAll}
           />
-          <Form
+          <NewTodoForm
             onSubmit={handleAddTodo}
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
@@ -173,9 +178,6 @@ export const App: React.FC = () => {
         {todos && (
           <>
             <TodoList
-              userID={USER_ID}
-              setSelectedTodoId={setSelectedTodoId}
-              selectedTodoId={selectedTodoId}
               onTodoDelete={handleRemoveTodo}
               todos={visibleTodos}
               onTodoUpdate={handleUpdateTodo}
@@ -193,6 +195,7 @@ export const App: React.FC = () => {
                   <label
                     className="todo__status-label"
                   >
+                    <Loader />
                     <input
                       type="checkbox"
                       className="todo__status"
@@ -223,21 +226,29 @@ export const App: React.FC = () => {
           </>
         )}
         {error && (
-          <div
-            className={classNames(
-              'notification is-danger is-light has-text-weight-normal',
-              { hidden: !error },
-            )}
+          <CSSTransition
+            nodeRef={errorMessageRef}
+            in={error !== ''}
+            timeout={500}
+            classNames="notification"
           >
-            <button
-              type="button"
-              className="delete"
-              onClick={() => {
-                setError('');
-              }}
-            />
-            {error}
-          </div>
+            <div
+              className={classNames(
+                'notification is-danger is-light has-text-weight-normal',
+                { hidden: !error },
+              )}
+              ref={errorMessageRef}
+            >
+              <button
+                type="button"
+                className="delete"
+                onClick={() => {
+                  setError('');
+                }}
+              />
+              {error}
+            </div>
+          </CSSTransition>
         )}
       </div>
     </div>

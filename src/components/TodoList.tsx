@@ -1,17 +1,14 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { Form } from './Form';
 import { Loader } from './Loader';
+import { UpdateTodoForm } from './UpdateTodoForm';
 
 type Props = {
   todos: Todo[],
   onTodoDelete: (todoId: number) => void
   onTodoUpdate: (todo: Todo) => void
   todosBeingTransform: number[],
-  setSelectedTodoId: (number: number) => void
-  selectedTodoId: number | null
-  userID: number,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,64 +16,69 @@ export const TodoList: React.FC<Props> = ({
   onTodoDelete,
   onTodoUpdate,
   todosBeingTransform,
-  setSelectedTodoId,
-  selectedTodoId,
-  userID,
 }) => {
+  const [selectedTodoId, setSelectedTodoId] = useState<number>(0);
+  const editingRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    editingRef.current?.focus();
+  }, [selectedTodoId]);
+
   return (
     <section className="todoapp__main">
-      {todos.map((todo) => (
+      {todos.map((visibleTodo) => (
         <div
+          key={visibleTodo.id}
           className={classNames(
             'todo',
-            { completed: todo.completed },
+            { completed: visibleTodo.completed },
           )}
         >
-          <label
-            className="todo__status-label"
-          >
-            {todosBeingTransform.includes(todo.id) && (
+          <label className="todo__status-label">
+            {todosBeingTransform.includes(visibleTodo.id) && (
               <Loader />
             )}
             <input
               type="checkbox"
               className="todo__status"
-              checked={todo.completed}
+              checked={visibleTodo.completed}
               onChange={() => {
                 onTodoUpdate({
-                  ...todo,
-                  completed: !todo.completed,
+                  ...visibleTodo,
+                  completed: !visibleTodo.completed,
                 });
               }}
             />
           </label>
-          {selectedTodoId
+          {selectedTodoId === visibleTodo.id
             ? (
-              <Form
-                todo={todo}
-                onSubmit={() => { }}
-                userId={userID}
+              <UpdateTodoForm
+                todo={visibleTodo}
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
+                onTodoDelete={onTodoDelete}
+                setSelectedTodoId={setSelectedTodoId}
+                editingRef={editingRef}
+                onTodoUpdate={onTodoUpdate}
               />
             )
             : (
               <>
                 <span
-                  key={todo.id}
+                  ref={editingRef}
                   className="todo__title"
                   onDoubleClick={() => {
-                    setSelectedTodoId(todo.id);
+                    setSelectedTodoId(visibleTodo.id);
                   }}
                 >
-                  {todo.title}
+                  {visibleTodo.title}
                 </span>
 
                 <button
                   type="button"
                   className="todo__remove"
                   onClick={() => {
-                    onTodoDelete(todo.id);
+                    onTodoDelete(visibleTodo.id);
                   }}
                 >
                   ×
