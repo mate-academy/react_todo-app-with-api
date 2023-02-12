@@ -35,16 +35,18 @@ export const TodoHeader: React.FC<Props> = ({
     setNewTodoTitle('');
   };
 
+  const handleToggleAll = async () => {
+    setLoadingAll(true);
+    await toggleAll();
+  };
+
   return (
     <header className="todoapp__header">
       <button
         type="button"
         className={cn('todoapp__toggle-all', { active: activateToggleAll })}
         aria-label="mark all"
-        onClick={() => {
-          toggleAll();
-          setLoadingAll(true);
-        }}
+        onClick={handleToggleAll}
       />
 
       {/* Add a todo on form submit */}

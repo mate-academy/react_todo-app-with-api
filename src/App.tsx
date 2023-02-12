@@ -101,21 +101,20 @@ export const App: React.FC = () => {
   const toggleAll = async () => {
     const isAllComplete = !filteredTodos?.every((t) => t.completed);
 
-    await filteredTodos.forEach((todo) => {
+    await filteredTodos.map(async (todo) => {
       if (todo.completed !== isAllComplete) {
-        patchTodo({ ...todo, completed: isAllComplete })
-          .then((res) => res)
+        await patchTodo({ ...todo, completed: isAllComplete })
+          .then(() => {
+            setLoadingAll(false);
+            setFilteredTodos(
+              filteredTodos.map((t) => ({ ...t, completed: isAllComplete })),
+            );
+          })
           .catch(() => {
             setError(ErrorMessages.updateTodo);
           });
       }
     });
-
-    setFilteredTodos(
-      filteredTodos.map((t) => ({ ...t, completed: isAllComplete })),
-    );
-
-    setLoadingAll(false);
   };
 
   useEffect(() => {
