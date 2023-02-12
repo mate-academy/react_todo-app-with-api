@@ -14,6 +14,7 @@ type Props = {
   tempTodo: Todo | null;
   isInputDisabled: boolean;
   deleteTodo: (id: number) => void;
+  updateTodo: (todo: Todo, update: 'title' | 'complete') => void;
   clearCompleted: () => void;
 };
 
@@ -26,6 +27,7 @@ export const TodoContent: React.FC<Props> = ({
   isInputDisabled,
   deleteTodo,
   clearCompleted,
+  updateTodo,
 }) => {
   const [filter, setFilter] = useState<Filter>(Filter.all);
   const [hasIncompleteTodos, setHasIncompleteTodos] = useState(false);
@@ -49,7 +51,12 @@ export const TodoContent: React.FC<Props> = ({
         isInputDisabled={isInputDisabled}
       />
 
-      <TodoMain todos={todos} tempTodo={tempTodo} deleteTodo={deleteTodo} />
+      <TodoMain
+        todos={todos}
+        tempTodo={tempTodo}
+        deleteTodo={deleteTodo}
+        updateTodo={updateTodo}
+      />
 
       {todos && (
         <TodoFooter

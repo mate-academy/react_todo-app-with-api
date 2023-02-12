@@ -6,9 +6,15 @@ type Props = {
   todos: Todo[] | null;
   tempTodo: Todo | null;
   deleteTodo: (id: number) => void;
+  updateTodo: (todo: Todo, update: 'title' | 'complete') => void;
 };
 
-export const TodoMain: React.FC<Props> = ({ todos, tempTodo, deleteTodo }) => {
+export const TodoMain: React.FC<Props> = ({
+  todos,
+  tempTodo,
+  deleteTodo,
+  updateTodo,
+}) => {
   const [activateEditById, setActivateEditById] = useState<number>(-1);
   const [activateLoadingOnTodo, setActivateLoadingOnTodo] = useState(0);
   const [tempTodoTitle, setTempTodoTitle] = useState('');
@@ -29,6 +35,12 @@ export const TodoMain: React.FC<Props> = ({ todos, tempTodo, deleteTodo }) => {
     setActivateEditById(id);
   };
 
+  const updateComplete = async (todo: Todo) => {
+    setActivateLoadingOnTodo(todo.id);
+    await updateTodo(todo, 'complete');
+    setActivateLoadingOnTodo(-1);
+  };
+
   return (
     <section className="todoapp__main">
       {todos?.map((todo) => {
@@ -37,7 +49,11 @@ export const TodoMain: React.FC<Props> = ({ todos, tempTodo, deleteTodo }) => {
         return (
           <div className={cn('todo', { completed })} key={id}>
             <label className="todo__status-label">
-              <input type="checkbox" className="todo__status" checked />
+              <input
+                type="checkbox"
+                className="todo__status"
+                onChange={() => updateComplete(todo)}
+              />
             </label>
 
             {activateEditById === id ? (

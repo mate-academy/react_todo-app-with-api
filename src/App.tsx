@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Errors } from './components/Errors';
 import { TodoContent } from './components/TodoContent';
 import { UserWarning } from './UserWarning';
-import { getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  getTodos, addTodo, deleteTodo, patchTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { ErrorMessages } from './types/ErrorMessages';
@@ -67,6 +69,24 @@ export const App: React.FC = () => {
       });
   };
 
+  const updateTodo = async (todo: Todo, update: 'title' | 'complete') => {
+    if (update === 'complete') {
+      await patchTodo({ ...todo, completed: !todo.completed })
+        .then((res) => setFilteredTodos(
+          filteredTodos.map((t) => {
+            if (t.id === res.id) {
+              return res;
+            }
+
+            return t;
+          }),
+        ))
+        .catch(() => {
+          setError(ErrorMessages.updateTodo);
+        });
+    }
+  };
+
   const clearCompleted = () => {
     filteredTodos.forEach((todo) => {
       if (todo.completed) {
@@ -102,6 +122,7 @@ export const App: React.FC = () => {
         tempTodo={tempTodo}
         isInputDisabled={isInputDisabled}
         deleteTodo={removeTodo}
+        updateTodo={updateTodo}
         clearCompleted={clearCompleted}
       />
 
