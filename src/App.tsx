@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingTransform, setTodosBeingTransform] = useState<number[]>([]);
   const errorMessageRef = useRef<HTMLInputElement>(null);
+  const hasActiveTodos = todos.some((todo) => !todo.completed);
 
   useEffect(() => {
     todosAPI.getTodos(USER_ID)
@@ -95,7 +96,7 @@ export const App: React.FC = () => {
     todosAPI.updateTodo(todoToUpdate)
       .then(() => {
         setTodos(
-          todos.map((todo) => {
+          (current) => current.map((todo) => {
             if (todo.id === todoToUpdate.id) {
               return todoToUpdate;
             }
@@ -114,24 +115,14 @@ export const App: React.FC = () => {
 
       .finally(() => (
         setTodosBeingTransform(
-          todosBeingTransform.filter((id) => id !== todoToUpdate.id),
+          current => current.filter((id) => id !== todoToUpdate.id),
         )));
   };
 
   const handleToggleAll = () => {
-    const updatedTodos = todos.map((todo) => {
-      if (!todo.completed) {
-        return { ...todo, completed: !todo.completed };
-      }
-
-      if (todos.every((element) => element.completed)) {
-        return { ...todo, completed: !todo.completed };
-      }
-
-      return todo;
+    todos.forEach((todo) => {
+      handleUpdateTodo({ ...todo, completed: hasActiveTodos });
     });
-
-    updatedTodos.forEach((todo) => handleUpdateTodo(todo));
   };
 
   const visibleTodos = todos
@@ -164,7 +155,7 @@ export const App: React.FC = () => {
             type="button"
             className={classNames(
               'todoapp__toggle-all',
-              { active: todos.some((todo) => !todo.completed) },
+              { active: !hasActiveTodos },
             )}
             onClick={handleToggleAll}
           />
