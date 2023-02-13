@@ -6,21 +6,21 @@ export interface TodoListProps {
   todos: Todo[],
   onDeleteTodo: (todoId: number) => void;
   tempTodo: Todo | null,
-  deletingTodoIds: number[],
+  onDeletingTodoIds: number[],
   updateTodo:(
     todoId: number,
     fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
   ) => Promise<void>,
-  updatingTodosIds: number[],
+  onUpdatingTodosIds: number[],
 }
 
 export const TodoList: FC<TodoListProps> = memo(({
   todos,
   onDeleteTodo,
   tempTodo,
-  deletingTodoIds,
+  onDeletingTodoIds,
   updateTodo,
-  updatingTodosIds,
+  onUpdatingTodosIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -29,9 +29,9 @@ export const TodoList: FC<TodoListProps> = memo(({
           key={todo.id}
           todo={todo}
           onDeleteTodo={onDeleteTodo}
-          isDeleting={deletingTodoIds.includes(todo.id)}
+          isDeleting={onDeletingTodoIds.includes(todo.id)}
           updateTodo={updateTodo}
-          isUpdating={updatingTodosIds.includes(todo.id)}
+          isUpdating={onUpdatingTodosIds.includes(todo.id)}
 
         />
       ))}
@@ -39,9 +39,9 @@ export const TodoList: FC<TodoListProps> = memo(({
         <TodoItem
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
-          isDeleting={deletingTodoIds.includes(tempTodo.id)}
+          isDeleting={onDeletingTodoIds.includes(tempTodo.id)}
           updateTodo={updateTodo}
-          isUpdating={updatingTodosIds.includes(tempTodo.id)}
+          isUpdating={onUpdatingTodosIds.includes(tempTodo.id)}
         />
       )}
     </section>

@@ -31,13 +31,13 @@ export const TodoItem: FC<Props> = memo(({
 
   const [shouldShowInput, setShouldShowInput] = useState(false);
 
-  const cancelEditing = useCallback(() => setShouldShowInput(false), []);
+  const handleCancelEditing = useCallback(() => setShouldShowInput(false), []);
 
-  const updateTitle = useCallback(async (title: string) => {
+  const handleUpdateTitle = useCallback(async (title: string) => {
     await updateTodo(todo.id, { title });
   }, [todo.id]);
 
-  const deleteTodoById = useCallback(async () => {
+  const handleDeleteTodoById = useCallback(async () => {
     await onDeleteTodo(todo.id);
   }, [todo.id]);
 
@@ -60,9 +60,9 @@ export const TodoItem: FC<Props> = memo(({
       {shouldShowInput
         ? (
           <TodoTitleField
-            deleteTodoById={deleteTodoById}
-            updateTitle={updateTitle}
-            cancelEditing={cancelEditing}
+            onDeleteTodoById={handleDeleteTodoById}
+            onUpdateTitle={handleUpdateTitle}
+            onCancelEditing={handleCancelEditing}
             oldTitle={todo.title}
           />
         ) : (

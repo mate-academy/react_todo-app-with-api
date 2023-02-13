@@ -199,9 +199,9 @@ export const App: FC = () => {
               todos={visibleTodos}
               onDeleteTodo={onDeleteTodo}
               tempTodo={tempTodo}
-              deletingTodoIds={deletingTodoIds}
+              onDeletingTodoIds={deletingTodoIds}
               updateTodo={updatingTodo}
-              updatingTodosIds={updatingTodosIds}
+              onUpdatingTodosIds={updatingTodosIds}
             />
             <Footer
               uncompletedTodosLength={uncompletedTodosLength}

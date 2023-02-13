@@ -1,11 +1,12 @@
 import { Todo } from '../types/Todo';
+import { FilterType } from '../types/FilterType';
 
 export function filterTodo(todo: Todo, currentStatus: string) {
   switch (currentStatus) {
-    case 'Active':
+    case FilterType.ACTIVE:
       return !todo.completed;
 
-    case 'Completed':
+    case FilterType.COMPLETED:
       return todo.completed;
 
     default:

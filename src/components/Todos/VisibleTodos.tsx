@@ -28,6 +28,10 @@ export const VisibleTodos: React.FC<Props> = ({
   status,
   activeTodoId,
 }) => {
+  // const todoToShow = () => {
+  //   (todo: Todo) => filterTodo(todo, status);
+  // };
+
   return (
     <>
       {todos

@@ -6,22 +6,20 @@ import React, {
   useState,
 } from 'react';
 
+import { Keyboard } from '../../types/Keyboard';
+
 interface Props {
   oldTitle: string,
-  cancelEditing: () => void,
-  updateTitle: (title: string) => Promise<void>,
-  deleteTodoById: () => Promise<void>,
-}
-
-enum Keyboard {
-  Escape = 'Escape',
+  onCancelEditing: () => void,
+  onUpdateTitle: (title: string) => Promise<void>,
+  onDeleteTodoById: () => Promise<void>,
 }
 
 export const TodoTitleField: FC<Props> = memo(({
   oldTitle,
-  cancelEditing,
-  updateTitle,
-  deleteTodoById,
+  onCancelEditing,
+  onUpdateTitle,
+  onDeleteTodoById,
 }) => {
   const [title, setTitle] = useState(oldTitle);
 
@@ -29,27 +27,27 @@ export const TodoTitleField: FC<Props> = memo(({
 
   const handleCanceling = (event: React.KeyboardEvent) => {
     if (event.key === Keyboard.Escape) {
-      cancelEditing();
+      onCancelEditing();
     }
   };
 
   const handleMouseContext = (event: React.MouseEvent) => {
     if ('contextmenu') {
       event.preventDefault();
-      cancelEditing();
+      onCancelEditing();
     }
   };
 
   const saveChanges = async () => {
     if (oldTitle !== title) {
-      await updateTitle(title);
+      await onUpdateTitle(title);
     }
 
     if (!title.trim()) {
-      deleteTodoById();
+      onDeleteTodoById();
     }
 
-    cancelEditing();
+    onCancelEditing();
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
