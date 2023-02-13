@@ -12,8 +12,8 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   left, onFilter, completed, onClearCompleted, currentFilter,
 }) => {
-  const onClickHandler = () => {
-    onFilter(Filter.ALL);
+  const onClickHandler = (filter: Filter) => () => {
+    onFilter(filter);
   };
 
   return (
@@ -29,7 +29,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames(
             'filter__link', { selected: currentFilter === Filter.ALL },
           )}
-          onClick={onClickHandler}
+          onClick={onClickHandler(Filter.ALL)}
         >
           All
         </a>
@@ -40,9 +40,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames(
             'filter__link', { selected: currentFilter === Filter.ACTIVE },
           )}
-          onClick={() => {
-            onFilter(Filter.ACTIVE);
-          }}
+          onClick={onClickHandler(Filter.ACTIVE)}
         >
           Active
         </a>
@@ -52,9 +50,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames(
             'filter__link', { selected: currentFilter === Filter.COMPLETED },
           )}
-          onClick={() => {
-            onFilter(Filter.COMPLETED);
-          }}
+          onClick={onClickHandler(Filter.COMPLETED)}
         >
           Completed
         </a>

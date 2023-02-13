@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import classNames from 'classnames';
 
 type Props = {
@@ -9,12 +9,12 @@ type Props = {
 const Warning: React.FC<Props> = ({ message, errorCount }) => {
   const [isShown, setIsShown] = useState(false);
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
+  const timer: { current: NodeJS.Timeout | undefined } = useRef(undefined);
 
+  useEffect(() => {
     if (message) {
       setIsShown(true);
-      timer = setTimeout(() => {
+      timer.current = setTimeout(() => {
         setIsShown(false);
       }, 3000);
     } else {
@@ -23,7 +23,7 @@ const Warning: React.FC<Props> = ({ message, errorCount }) => {
 
     return () => {
       if (timer) {
-        clearTimeout(timer);
+        clearTimeout(timer.current);
       }
     };
   }, [errorCount]);

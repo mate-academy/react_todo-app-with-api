@@ -38,30 +38,32 @@ const TodoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(
-        todo => {
-          const toggleStatusHandler = () => onToggleStatus(todo);
+      <ul className="todo_list">
+        {todos.map(
+          todo => {
+            const toggleStatusHandler = () => onToggleStatus(todo);
 
-          return (
-            <li key={todo.id}>
-              <TodoComponent
-                todo={todo}
-                onDeleteTodo={onDeleteTodo}
-                deletingCompleted={deletingCompleted}
-                onToggleStatus={toggleStatusHandler}
-                isChanging={isChanging}
-                currentlyChanging={currentlyChanging}
-                onTitleChange={onTitleChange}
-              />
-            </li>
-          );
-        },
-      )}
-      {customTodo && (
-        <TempTodo
-          todo={{ ...customTodo, id: 0 }}
-        />
-      )}
+            return (
+              <li key={todo.id}>
+                <TodoComponent
+                  todo={todo}
+                  onDeleteTodo={onDeleteTodo}
+                  deletingCompleted={deletingCompleted}
+                  onToggleStatus={toggleStatusHandler}
+                  isChanging={isChanging}
+                  currentlyChanging={currentlyChanging}
+                  onTitleChange={onTitleChange}
+                />
+              </li>
+            );
+          },
+        )}
+        {customTodo && (
+          <TempTodo
+            todo={{ ...customTodo, id: 0 }}
+          />
+        )}
+      </ul>
     </section>
   );
 };
