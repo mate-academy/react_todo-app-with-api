@@ -30,7 +30,7 @@ export const TodoTitleField: React.FC<FieldProps> = memo(({
   }, []);
 
   const handleCanceling = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape' || event.key === 'Enter') {
+    if (event.key === 'Escape') {
       cancelEditing();
     }
   };
