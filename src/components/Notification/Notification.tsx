@@ -13,26 +13,19 @@ export const Notification: React.FC<Props> = ({
   setHideNotification,
 }) => {
   return (
-    <>
-      { message.length > 0 && (
-        <div
-          className={cn(
-            'notification is-danger is-light has-text-weight-normal',
-            { hidden },
-          )}
-        >
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button
-            type="button"
-            className="delete"
-            onClick={() => setHideNotification(true)}
-          />
-          {message}
-
-          {/* show only one message at a time */}
-          {/* Unable to update a todo */}
-        </div>
+    <div
+      className={cn(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden },
       )}
-    </>
+    >
+      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+      <button
+        type="button"
+        className="delete"
+        onClick={() => setHideNotification(true)}
+      />
+      {message}
+    </div>
   );
 };

@@ -6,12 +6,14 @@ type Props = {
   todos: Todo[],
   onDeleteTodo: (id: number) => void,
   updatingTodos: number[],
+  onUpdateTodo: (todoId: number, todoData: Partial<Todo>) => void
 };
 
 export const Todos: React.FC<Props> = ({
   todos,
   onDeleteTodo,
   updatingTodos,
+  onUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main">
@@ -29,6 +31,7 @@ export const Todos: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               defaultChecked={completed}
+              onChange={() => onUpdateTodo(id, { completed: !completed })}
             />
           </label>
 

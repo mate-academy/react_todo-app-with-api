@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from './api/todos';
 import { Header } from './components/Header';
 import { Todos } from './components/Todos';
 import { Footer } from './components/Footer';
@@ -18,7 +20,7 @@ export const App: React.FC = () => {
   const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
   const [filter, setFilter] = useState(FilterOptions.All);
   const [notification, setNotification] = useState(Error.None);
-  const [hideNotification, setHideNotification] = useState(false);
+  const [hideNotification, setHideNotification] = useState(true);
 
   const handleError = (error: Error) => {
     setHideNotification(false);
@@ -39,6 +41,43 @@ export const App: React.FC = () => {
         setUpdatingTodos(current => current
           .filter(updatingId => updatingId !== id));
       });
+  };
+
+  const hasActiveTodo = todos.some(({ completed }) => !completed);
+
+  const handleUpdateTodo = (
+    todoId: number,
+    todoData: Partial<Todo>,
+  ) => {
+    setUpdatingTodos(current => [...current, todoId]);
+
+    updateTodo(todoId, todoData)
+      .then((updatedTodo) => {
+        setTodos(current => current.map(
+          todo => (todo.id === todoId ? updatedTodo : todo),
+        ));
+      })
+      .catch(() => handleError(Error.CantUpdate))
+      .finally(() => {
+        setUpdatingTodos(current => current
+          .filter(id => id !== todoId));
+      });
+  };
+
+  const toggleCompleteTodo = () => {
+    if (hasActiveTodo) {
+      todos.forEach(({ id, completed }) => {
+        if (!completed) {
+          handleUpdateTodo(id, { completed: true });
+        }
+      });
+
+      return;
+    }
+
+    todos.forEach(({ id }) => {
+      handleUpdateTodo(id, { completed: false });
+    });
   };
 
   useEffect(() => {
@@ -104,12 +143,15 @@ export const App: React.FC = () => {
         <Header
           setNewTodoTitle={setNewTodoTitle}
           onInputError={() => handleError(Error.EmptyTitle)}
+          toggleCompleteTodo={toggleCompleteTodo}
+          hasActiveTodo={hasActiveTodo}
           disable={updatingTodos}
         />
         <Todos
           todos={filteredTodos}
           onDeleteTodo={handleDeleteTodo}
           updatingTodos={updatingTodos}
+          onUpdateTodo={handleUpdateTodo}
         />
         <Footer
           todos={todos}
