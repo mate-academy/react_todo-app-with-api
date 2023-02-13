@@ -33,6 +33,13 @@ export const TodoTitleField: FC<Props> = memo(({
     }
   };
 
+  const handleMouseContext = (event: React.MouseEvent) => {
+    if ('contextmenu') {
+      event.preventDefault();
+      cancelEditing();
+    }
+  };
+
   const saveChanges = async () => {
     if (oldTitle !== title) {
       await updateTitle(title);
@@ -65,6 +72,7 @@ export const TodoTitleField: FC<Props> = memo(({
         onBlur={saveChanges}
         onChange={(event) => setTitle(event.target.value)}
         onKeyDown={handleCanceling}
+        onContextMenu={handleMouseContext}
         ref={inputRef}
       />
     </form>
