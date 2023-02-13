@@ -86,7 +86,9 @@ export const Main: React.FC<Props> = ({
           {editingTodoId === todo.id
             ? (
               <form onSubmit={(event) => handleSubmitChanges(
-                event, todo.id, todo.title,
+                event,
+                todo.id,
+                todo.title,
               )}
               >
                 <input
@@ -96,7 +98,9 @@ export const Main: React.FC<Props> = ({
                   value={newTitle}
                   onChange={changeEditField}
                   onBlur={(event) => handleSubmitChanges(
-                    event, todo.id, todo.title,
+                    event,
+                    todo.id,
+                    todo.title,
                   )}
                   onKeyDown={handleEscape}
                   ref={editingField}
