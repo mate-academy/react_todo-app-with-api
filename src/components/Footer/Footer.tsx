@@ -62,7 +62,7 @@ export const Footer: FC<FooterProps> = memo(({
 
       <button
         style={{
-          visibility: !completedTodosLength ? 'hidden' : 'visible',
+          visibility: completedTodosLength ? 'visible' : 'hidden',
         }}
         data-cy="ClearCompletedButton"
         type="button"
