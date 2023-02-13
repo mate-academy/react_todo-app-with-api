@@ -76,7 +76,7 @@ export const App: React.FC = () => {
   };
 
   const getUpdatedTodos = (
-    todosToUpdate: Todo[],
+    todosToUpdate: Todo[] = [],
     everyTodoCompleted: boolean,
     noTodoCompleted: boolean,
     someTodosCompleted: boolean,
@@ -101,7 +101,7 @@ export const App: React.FC = () => {
   };
 
   const getLoadingTodoIds = (
-    todosToLoad: Todo[],
+    todosToLoad: Todo[] = [],
     everyTodoCompleted: boolean,
     noTodoCompleted: boolean,
     someTodosCompleted: boolean,
@@ -109,11 +109,8 @@ export const App: React.FC = () => {
     const loadingTodoIdsToAdd: number[] = [];
 
     todosToLoad.forEach(todo => {
-      if (someTodosCompleted && !todo.completed) {
-        loadingTodoIdsToAdd.push(todo.id);
-      }
-
-      if (everyTodoCompleted || noTodoCompleted) {
+      if ((someTodosCompleted && !todo.completed)
+        || (everyTodoCompleted || noTodoCompleted)) {
         loadingTodoIdsToAdd.push(todo.id);
       }
     });
@@ -135,10 +132,16 @@ export const App: React.FC = () => {
       && !everyTodoCompleted;
 
     const updatedTodos = getUpdatedTodos(
-      todos, everyTodoCompleted, noTodoCompleted, someTodosCompleted,
+      todos,
+      everyTodoCompleted,
+      noTodoCompleted,
+      someTodosCompleted,
     );
     const loadingTodoIdsToAdd = getLoadingTodoIds(
-      todos, everyTodoCompleted, noTodoCompleted, someTodosCompleted,
+      todos,
+      everyTodoCompleted,
+      noTodoCompleted,
+      someTodosCompleted,
     );
 
     setLoadingTodoIds(loadingTodoIdsToAdd);

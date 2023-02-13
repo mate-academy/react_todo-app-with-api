@@ -34,7 +34,19 @@ export const Main: React.FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
-  const handleEditSubmit = (todoId: number, todoTitle: string) => {
+  const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditingTodoId(0);
+    }
+  };
+
+  const handleSubmitChanges = (
+    event: React.SyntheticEvent,
+    todoId: number,
+    todoTitle: string,
+  ) => {
+    event.preventDefault();
+
     if (newTitle !== todoTitle) {
       saveEditedTitle(todoId, newTitle, setEditingTodoId);
     }
@@ -73,10 +85,9 @@ export const Main: React.FC<Props> = ({
 
           {editingTodoId === todo.id
             ? (
-              <form onSubmit={(event) => {
-                event.preventDefault();
-                handleEditSubmit(todo.id, todo.title);
-              }}
+              <form onSubmit={(event) => handleSubmitChanges(
+                event, todo.id, todo.title,
+              )}
               >
                 <input
                   type="text"
@@ -84,15 +95,10 @@ export const Main: React.FC<Props> = ({
                   placeholder="Empty todo will be deleted"
                   value={newTitle}
                   onChange={changeEditField}
-                  onBlur={(event) => {
-                    event.preventDefault();
-                    handleEditSubmit(todo.id, todo.title);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Escape') {
-                      setEditingTodoId(0);
-                    }
-                  }}
+                  onBlur={(event) => handleSubmitChanges(
+                    event, todo.id, todo.title,
+                  )}
+                  onKeyDown={handleEscape}
                   ref={editingField}
                 />
               </form>
