@@ -5,6 +5,16 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import './styles/index.scss';
 
 import { App } from './App';
+import { AuthProvider } from './components/Auth/AuthContext';
+import { TodosProvider } from './components/Context/TodosContext';
+
+const Root = () => (
+  <AuthProvider>
+    <TodosProvider>
+      <App />
+    </TodosProvider>
+  </AuthProvider>
+);
 
 createRoot(document.getElementById('root') as HTMLDivElement)
-  .render(<App />);
+  .render(<Root />);
