@@ -30,12 +30,15 @@ export const Todos: React.FC<Props> = ({
     id: number,
     todoTitle: string,
   ) => {
-    if (todoTitle !== titleValue) {
-      updateTodo(id, { title: titleValue });
-    }
-
     if (!todoTitle.length) {
       deleteTodo(id);
+      setEditTodoId(null);
+
+      return;
+    }
+
+    if (todoTitle !== titleValue) {
+      updateTodo(id, { title: titleValue });
     }
 
     setEditTodoId(null);
