@@ -48,11 +48,15 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const onDeleteCompleted = useCallback(async () => {
+  // назва delitTodoBYId = onDeleteTodo; змінити функція футер деліт;
+
+  const deleteAllCompletetById = useCallback(async () => {
     const complitedTodoIds = getComplitedTodoIds(todos);
 
+    console.log(complitedTodoIds);
+
     complitedTodoIds.forEach((id) => onDeleteTodo(id));
-  }, []);
+  }, [todos]);
 
   const uncomplitedTodosCount = useMemo(() => {
     const uncomplitedTodos = todos.filter((todo) => !todo.completed);
@@ -110,13 +114,14 @@ export const App: React.FC = () => {
     });
 
     try {
-      await patchTodos(todoId, updateData);
+      const updatedTodo = await patchTodos(todoId, updateData);
+
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== todoId) {
           return todo;
         }
 
-        return Object.assign(todo, updateData);
+        return updatedTodo;
       }));
     } catch {
       showError('Unable to update a todo');
@@ -124,8 +129,7 @@ export const App: React.FC = () => {
       setUpdatingTodoIds(prevTodos => prevTodos
         .filter(prevTodoId => prevTodoId !== todoId));
     }
-  },
-  []);
+  }, []);
 
   const complitedTodos = todos.filter((todo) => todo.completed);
 
@@ -174,7 +178,7 @@ export const App: React.FC = () => {
               uncomplitedTodosCount={uncomplitedTodosCount}
               complitedFilter={complitedFiler}
               setComplitedFilter={setComplitedFilter}
-              onDeleteCompleted={onDeleteCompleted}
+              deleteAllCompletetById={deleteAllCompletetById}
             />
           </>
         )}
