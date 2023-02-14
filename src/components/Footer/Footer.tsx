@@ -9,19 +9,19 @@ type Props = {
   todos: Todo[],
   currentFilter: string,
   onSelectFilter: Dispatch<SetStateAction<FilterOptions>>,
-  onDeleteTodo: (id: number) => void,
+  deleteTodo: (id: number) => void,
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   currentFilter,
   onSelectFilter,
-  onDeleteTodo,
+  deleteTodo,
 }) => {
   const completedTodos = todos.filter(({ completed }) => completed);
   const activeTodos = todos.filter(({ completed }) => !completed);
   const clearCompleted = () => completedTodos
-    .forEach(({ id }) => onDeleteTodo(id));
+    .forEach(({ id }) => deleteTodo(id));
 
   return (
     <>

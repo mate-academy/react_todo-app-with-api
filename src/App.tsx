@@ -149,15 +149,15 @@ export const App: React.FC = () => {
         />
         <Todos
           todos={filteredTodos}
-          onDeleteTodo={handleDeleteTodo}
+          deleteTodo={handleDeleteTodo}
           updatingTodos={updatingTodos}
-          onUpdateTodo={handleUpdateTodo}
+          updateTodo={handleUpdateTodo}
         />
         <Footer
           todos={todos}
           currentFilter={filter}
           onSelectFilter={setFilter}
-          onDeleteTodo={handleDeleteTodo}
+          deleteTodo={handleDeleteTodo}
         />
       </div>
 

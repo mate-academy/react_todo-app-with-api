@@ -1,88 +1,133 @@
 import cn from 'classnames';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[],
-  onDeleteTodo: (id: number) => void,
+  deleteTodo: (id: number) => void,
   updatingTodos: number[],
-  onUpdateTodo: (todoId: number, todoData: Partial<Todo>) => void
+  updateTodo: (todoId: number, todoData: Partial<Todo>) => void,
 };
 
 export const Todos: React.FC<Props> = ({
   todos,
-  onDeleteTodo,
+  deleteTodo,
   updatingTodos,
-  onUpdateTodo,
+  updateTodo,
 }) => {
+  const [editTodoId, setEditTodoId] = useState<number | null>(null);
+  const [titleValue, setTitleValue] = useState<string>('');
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editTodoId]);
+
+  const handleTitleUpdate = (
+    id: number,
+    todoTitle: string,
+  ) => {
+    if (todoTitle !== titleValue) {
+      updateTodo(id, { title: titleValue });
+    }
+
+    if (!todoTitle.length) {
+      deleteTodo(id);
+    }
+
+    setEditTodoId(null);
+  };
+
   return (
     <section className="todoapp__main">
       {todos.map(({
         id,
         title,
         completed,
-      }) => (
-        <div
-          className={cn('todo', { completed })}
-          key={id}
-        >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              defaultChecked={completed}
-              onChange={() => onUpdateTodo(id, { completed: !completed })}
-            />
-          </label>
-
-          <span className="todo__title">
-            {title}
-          </span>
-
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => onDeleteTodo(id)}
+      }) => {
+        return (
+          <div
+            className={cn('todo', { completed })}
+            key={id}
           >
-            ×
-          </button>
+            <label className="todo__status-label">
+              <input
+                type="checkbox"
+                className="todo__status"
+                defaultChecked={completed}
+                onChange={() => updateTodo(
+                  id,
+                  { completed: !completed },
+                )}
+              />
+            </label>
 
-          <div className={cn(
-            'modal overlay',
-            { 'is-active': updatingTodos.includes(id) },
-          )}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
+            {id === editTodoId ? (
+              <>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleTitleUpdate(id, title);
+                  }}
+                >
+                  <input
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={titleValue}
+                    onChange={(e) => setTitleValue(e.target.value)}
+                    ref={inputRef}
+                    onBlur={() => handleTitleUpdate(id, title)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') {
+                        setTitleValue(title);
+                        setEditTodoId(null);
+                      }
+                    }}
+                  />
+                </form>
+
+                <div className="modal overlay">
+                  <div className="modal-background has-background-white-ter" />
+                  <div className="loader" />
+                </div>
+              </>
+            ) : (
+              <>
+                <span
+                  className="todo__title"
+                  onDoubleClick={() => {
+                    setEditTodoId(id);
+                    setTitleValue(title);
+                  }}
+                >
+                  {title}
+                </span>
+
+                <button
+                  type="button"
+                  className="todo__remove"
+                  onClick={() => deleteTodo(id)}
+                >
+                  ×
+                </button>
+
+                <div className={cn(
+                  'modal overlay',
+                  { 'is-active': updatingTodos.includes(id) },
+                )}
+                >
+                  <div className="modal-background has-background-white-ter" />
+                  <div className="loader" />
+                </div>
+              </>
+            ) }
           </div>
-
-        </div>
-      ))}
-
-      {/* This todo is being edited */}
-      {/* <div className="todo">
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-          />
-        </label> */}
-
-      {/* This form is shown instead of the title and remove button */}
-      {/* <form>
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
-          />
-        </form>
-
-        <div className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div> */}
+        );
+      })}
     </section>
   );
 };
