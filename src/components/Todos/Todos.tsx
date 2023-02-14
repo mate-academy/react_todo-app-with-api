@@ -30,7 +30,7 @@ export const Todos: React.FC<Props> = ({
     id: number,
     todoTitle: string,
   ) => {
-    if (!titleValue.length) {
+    if (!titleValue) {
       deleteTodo(id);
       setEditTodoId(null);
 
