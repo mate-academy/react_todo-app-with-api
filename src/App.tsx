@@ -21,6 +21,7 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
+import { Errors } from './types/Errors';
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -43,7 +44,7 @@ export const App: FC = () => {
       getTodos(user.id)
         .then(setTodos)
         .catch(() => {
-          setErrorMessage('Unable to load todos');
+          setErrorMessage(Errors.LOAD);
         });
     }
 
@@ -76,7 +77,7 @@ export const App: FC = () => {
         return Object.assign(todo, fieldsToUpdate);
       }));
     } catch {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(Errors.UPDATE);
     } finally {
       setUpdatingTodosIds(prevTodosIds => prevTodosIds.filter(id => (
         id !== todoId)));
@@ -90,7 +91,7 @@ export const App: FC = () => {
         setTodos(allTodos => allTodos.filter(todo => todo.id !== todoId))
       ))
       .catch(() => {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(Errors.DELETE);
       })
       .finally(() => (
         setDeletingTodoIds(prev => prev.filter(id => id !== todoId))));
@@ -101,7 +102,7 @@ export const App: FC = () => {
       event.preventDefault();
 
       if (!title.trim()) {
-        setErrorMessage('Title can\'t be empty');
+        setErrorMessage(Errors.EMPTY);
 
         return;
       }
@@ -123,7 +124,7 @@ export const App: FC = () => {
           .then(newTodo => {
             setTodos(prev => [...prev, newTodo]);
           })
-          .catch(() => setErrorMessage('Unable to add a todo'))
+          .catch(() => setErrorMessage(Errors.ADD))
           .finally(() => {
             setIsAdding(false);
             setTitle('');

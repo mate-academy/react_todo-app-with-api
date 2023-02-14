@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { createUser, getUserByEmail } from '../../api/users';
 import { User } from '../../types/User';
+import { Errors } from '../../types/Errors';
 
 export type Props = {
   onLogin: (user: User) => void,
@@ -31,7 +32,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
       onLogin(user);
     } catch (error) {
-      setErrorMessage('Need to login');
+      setErrorMessage(Errors.LOGIN);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -64,7 +65,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         await loadUser();
       }
     } catch (error) {
-      setErrorMessage('Something went wrong');
+      setErrorMessage(Errors.WRONG);
     } finally {
       setLoading(false);
     }
