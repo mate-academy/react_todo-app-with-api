@@ -1,12 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../types/Todo';
-
-enum Filters {
-  Active = 'active',
-  Completed = 'completed',
-  All = 'all',
-}
+import { Filters } from '../utils/filters';
 
 type Props = {
   todos: Todo[],

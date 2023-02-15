@@ -10,22 +10,10 @@ import { NewTodoForm } from './components/NewTodoForm';
 import { FormMain } from './components/FormMain';
 import { FormFooter } from './components/FormFooter';
 import { FormErrors } from './components/FormErrors';
+import { Filters } from './utils/filters';
+import { ErrorMessage } from './utils/ErrosMessages';
 
 const USER_ID = 6146;
-
-enum Filters {
-  Active = 'active',
-  Completed = 'completed',
-  All = 'all',
-}
-
-enum ErrorMessage {
-  Loading = 'Unable to load todos',
-  Adding = 'Unable to add todo',
-  Deleting = 'Unable to delete todo',
-  Updating = 'Unable to update todo',
-  Empty = 'Title cant be empty',
-}
 
 export const App: React.FC = () => {
   const [processedTodos, setProcessedTodos] = useState<number[]>([]);
