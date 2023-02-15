@@ -1,7 +1,8 @@
-import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { createUser, getUserByEmail } from '../../api/users';
 import { User } from '../../types/User';
+import { Errors } from '../../types/Errors';
 
 export type Props = {
   onLogin: (user: User) => void,
@@ -11,7 +12,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [needToRegister, setNeedToRegister] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const saveUser = (user: User) => {
@@ -30,8 +31,8 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
       const user = JSON.parse(userData) as User;
 
       onLogin(user);
-    } catch (error) {
-      // Need to login
+    } catch {
+      setErrorMessage(Errors.Login);
     }
   }, []);
 
@@ -54,7 +55,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
     event.preventDefault();
 
     setErrorMessage('');
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       if (needToRegister) {
@@ -65,7 +66,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
     } catch (error) {
       setErrorMessage('Something went wrong');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -82,7 +83,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
         <div
           className={classNames('control has-icons-left', {
-            'is-loading': loading,
+            'is-loading': isLoading,
           })}
         >
           <input
@@ -92,7 +93,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
               'is-danger': !needToRegister && errorMessage,
             })}
             placeholder="Enter your email"
-            disabled={loading || needToRegister}
+            disabled={isLoading || needToRegister}
             value={email}
             required
             onChange={e => setEmail(e.target.value)}
@@ -116,7 +117,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
           <div
             className={classNames('control has-icons-left', {
-              'is-loading': loading,
+              'is-loading': isLoading,
             })}
           >
             <input
@@ -128,7 +129,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
               placeholder="Enter your name"
               required
               minLength={4}
-              disabled={loading}
+              disabled={isLoading}
               value={name}
               onChange={e => setName(e.target.value)}
             />
@@ -148,7 +149,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
         <button
           type="submit"
           className={classNames('button is-primary', {
-            'is-loading': loading,
+            'is-loading': isLoading,
           })}
         >
           {needToRegister ? 'Register' : 'Login'}

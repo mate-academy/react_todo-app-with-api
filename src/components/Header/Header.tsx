@@ -51,12 +51,12 @@ export const Header: FunctionComponent<HeaderProps> = ({
     }
   }, []);
 
-  const onChangeHandler = useCallback(
+  const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),
     [],
   );
 
-  const onSubmitHandler = useCallback(
+  const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setErrorMessage(Errors.None);
@@ -111,7 +111,7 @@ export const Header: FunctionComponent<HeaderProps> = ({
         />
       )}
 
-      <form onSubmit={onSubmitHandler}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
@@ -119,7 +119,7 @@ export const Header: FunctionComponent<HeaderProps> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={onChangeHandler}
+          onChange={handleChange}
           disabled={isAdding}
         />
       </form>

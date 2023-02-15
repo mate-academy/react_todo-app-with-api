@@ -98,7 +98,6 @@ export const Footer: FunctionComponent<FooterProps> = ({
       >
         Clear completed
       </button>
-
     </footer>
   );
 };
