@@ -1,26 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Filter } from '../../types/Filter';
+import { Todo } from '../../types/Todo';
 
 type Props = {
-  todosLength: number | undefined;
+  todos: Todo[] | null;
   selectFilter: Filter;
   switchFilter: (selector: Filter) => void;
-  hasIncompleteTodos: boolean;
   clearCompleted: () => void;
 };
 
 export const TodoFooter: React.FC<Props> = ({
-  todosLength,
+  todos,
   selectFilter,
   switchFilter,
-  hasIncompleteTodos,
   clearCompleted,
 }) => {
+  const [hasIncompleteTodos, setHasIncompleteTodos] = useState(false);
+
+  useEffect(() => {
+    if (todos?.some((todo) => todo.completed)) {
+      setHasIncompleteTodos(true);
+    } else {
+      setHasIncompleteTodos(false);
+    }
+  });
+
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${todosLength} items left`}</span>
+      <span className="todo-count">{`${todos?.length} items left`}</span>
 
       {/* Active filter should have a 'selected' class */}
       <nav className="filter">
@@ -55,15 +64,16 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {hasIncompleteTodos && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={clearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={clearCompleted}
+        style={{
+          visibility: hasIncompleteTodos ? 'visible' : 'hidden',
+        }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

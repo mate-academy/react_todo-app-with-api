@@ -19,6 +19,7 @@ type Props = {
   toggleAll: () => void;
   setLoadingAll: (value: boolean) => void;
   loadingAll: boolean;
+  focusTitleInput: boolean;
 };
 
 export const TodoContent: React.FC<Props> = ({
@@ -34,9 +35,9 @@ export const TodoContent: React.FC<Props> = ({
   toggleAll,
   setLoadingAll,
   loadingAll,
+  focusTitleInput,
 }) => {
   const [filter, setFilter] = useState<Filter>(Filter.all);
-  const [hasIncompleteTodos, setHasIncompleteTodos] = useState(false);
   const [activateToggleAll, setActivateToggleAll] = useState(false);
 
   const onSwitchFilter = (f: Filter) => {
@@ -45,10 +46,6 @@ export const TodoContent: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (todos?.some((todo) => todo.completed)) {
-      setHasIncompleteTodos(true);
-    }
-
     setActivateToggleAll(todos?.every((t) => t.completed) || false);
   });
 
@@ -61,6 +58,7 @@ export const TodoContent: React.FC<Props> = ({
         isInputDisabled={isInputDisabled}
         setLoadingAll={setLoadingAll}
         toggleAll={toggleAll}
+        focusTitleInput={focusTitleInput}
       />
 
       <TodoMain
@@ -73,10 +71,9 @@ export const TodoContent: React.FC<Props> = ({
 
       {todos && (
         <TodoFooter
-          todosLength={todos?.length}
+          todos={todos}
           selectFilter={filter}
           switchFilter={(selectedFilter) => onSwitchFilter(selectedFilter)}
-          hasIncompleteTodos={hasIncompleteTodos}
           clearCompleted={clearCompleted}
         />
       )}

@@ -1,4 +1,6 @@
-import React, { FormEvent, useState } from 'react';
+import React, {
+  FormEvent, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 import { ErrorMessages } from '../../types/ErrorMessages';
 
@@ -9,6 +11,7 @@ type Props = {
   activateToggleAll: boolean;
   setLoadingAll: (value: boolean) => void;
   toggleAll: () => void;
+  focusTitleInput: boolean;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -18,8 +21,10 @@ export const TodoHeader: React.FC<Props> = ({
   activateToggleAll,
   setLoadingAll,
   toggleAll,
+  focusTitleInput,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
+  const inputTitle = useRef<HTMLInputElement>(null);
 
   const addTodo = (e: FormEvent) => {
     e.preventDefault();
@@ -40,6 +45,12 @@ export const TodoHeader: React.FC<Props> = ({
     await toggleAll();
   };
 
+  useEffect(() => {
+    if (focusTitleInput && inputTitle.current) {
+      inputTitle.current?.focus();
+    }
+  }, [focusTitleInput]);
+
   return (
     <header className="todoapp__header">
       <button
@@ -58,6 +69,7 @@ export const TodoHeader: React.FC<Props> = ({
           value={newTodoTitle}
           onChange={(e) => setNewTodoTitle(e.target.value)}
           disabled={isInputDisabled}
+          ref={inputTitle}
         />
       </form>
     </header>

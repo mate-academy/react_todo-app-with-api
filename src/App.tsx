@@ -19,16 +19,18 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [loadingAll, setLoadingAll] = useState(false);
+  const [todosToDelete, setTodosToDelete] = useState<number[]>([]);
+  const [focusTitleInput, setFocusTitleInput] = useState(false);
 
   const filterTodos = (filterBy: Filter) => {
     setFilteredTodos(
       todos.filter((todo) => {
         switch (filterBy) {
           case Filter.active:
-            return todo.completed === false;
+            return !todo.completed;
 
           case Filter.completed:
-            return todo.completed === true;
+            return todo.completed;
 
           default:
             return todo;
@@ -55,19 +57,25 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(ErrorMessages.addTodo);
-      });
+      })
+      .finally(() => setFocusTitleInput(true));
 
     setIsInputDisabled(false);
   };
 
-  const removeTodo = async (id: number) => {
-    await deleteTodo(id)
+  const removeTodo = (todoId: number) => {
+    setTodosToDelete((current) => [...current, todoId]);
+
+    deleteTodo(todoId)
       .then(() => {
-        setFilteredTodos(filteredTodos.filter((todo) => todo.id !== id));
+        setFilteredTodos(filteredTodos.filter((todo) => todo.id !== todoId));
       })
       .catch(() => {
         setError(ErrorMessages.deleteTodo);
-      });
+      })
+      .finally(() => setTodosToDelete(
+        todosToDelete.filter((id) => id !== todoId),
+      ));
   };
 
   const updateTodo = async (todo: Todo, update: 'title' | 'complete') => {
@@ -76,15 +84,13 @@ export const App: React.FC = () => {
 
     await patchTodo(data)
       .then((res) => {
-        setFilteredTodos(
-          filteredTodos.map((t) => {
-            if (res.id === t.id) {
-              return res;
-            }
+        setFilteredTodos((current) => current.map((t) => {
+          if (res.id === t.id) {
+            return res;
+          }
 
-            return t;
-          }),
-        );
+          return t;
+        }));
       })
       .catch(() => {
         setError(ErrorMessages.updateTodo);
@@ -92,7 +98,7 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    filteredTodos.forEach((todo) => {
+    filteredTodos.map(async (todo) => {
       if (todo.completed) {
         removeTodo(todo.id);
       }
@@ -127,7 +133,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setError(ErrorMessages.loadingTodos);
       });
-  }, []);
+  }, [todosToDelete]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -150,6 +156,7 @@ export const App: React.FC = () => {
         toggleAll={toggleAll}
         loadingAll={loadingAll}
         setLoadingAll={setLoadingAll}
+        focusTitleInput={focusTitleInput}
       />
 
       {error && <Errors error={error} setError={setError} />}
