@@ -41,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
             <input
               type="checkbox"
               className="todo__status"
-              checked={visibleTodo.completed}
+              defaultChecked={visibleTodo.completed}
               onChange={() => {
                 onTodoUpdate({
                   ...visibleTodo,

@@ -27,6 +27,8 @@ export const UpdateTodoForm: React.FC<Props> = ({
 
     if (!title) {
       onTodoDelete(todo.id);
+
+      return;
     }
 
     if (title === todo.title) {

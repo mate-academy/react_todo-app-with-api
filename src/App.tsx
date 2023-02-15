@@ -99,9 +99,7 @@ export const App: React.FC = () => {
         }, 3000);
       })
 
-      .finally(() => {
-        disableTodosTransformation(todoId);
-      });
+      .finally(() => disableTodosTransformation(todoId));
   };
 
   const handleUpdateTodo = (todoToUpdate: Todo) => {
@@ -126,9 +124,7 @@ export const App: React.FC = () => {
         }, 3000);
       })
 
-      .finally(() => (
-        disableTodosTransformation(todoToUpdate.id)
-      ));
+      .finally(() => disableTodosTransformation(todoToUpdate.id));
   };
 
   const handleToggleAll = () => {
@@ -204,7 +200,7 @@ export const App: React.FC = () => {
                     <input
                       type="checkbox"
                       className="todo__status"
-                      checked={tempTodo.completed}
+                      defaultChecked={tempTodo.completed}
                     />
                   </label>
                   <span
