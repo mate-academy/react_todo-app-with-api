@@ -10,9 +10,9 @@ export const postTodos = (data: any) => {
 };
 
 export const deleteTodos = (id: number) => {
-  return client.delete(`/todos/${id.toString()}`);
+  return client.delete(`/todos/${id}`);
 };
 
 export const patchTodos = (id: number, data: any) => {
-  return client.patch<Todo>(`/todos/${id.toString()}`, data);
+  return client.patch<Todo>(`/todos/${id}`, data);
 };
