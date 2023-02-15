@@ -32,7 +32,7 @@ export const FormFooter: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === 'all' },
+            { selected: filter === Filters.All },
           )}
           onClick={() => {
             setFilter(Filters.All);
@@ -45,7 +45,7 @@ export const FormFooter: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === 'active' },
+            { selected: filter === Filters.Active },
           )}
           onClick={() => {
             setFilter(Filters.Active);
@@ -58,7 +58,7 @@ export const FormFooter: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === 'completed' },
+            { selected: filter === Filters.Completed },
           )}
           onClick={() => {
             setFilter(Filters.Completed);

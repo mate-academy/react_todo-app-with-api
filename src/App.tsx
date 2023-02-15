@@ -56,7 +56,7 @@ export const App: React.FC = () => {
   }, [todo]);
 
   const addTodo = (todoData: Omit<Todo, 'id'>) => {
-    if (todoData.title !== '') {
+    if (todoData.title) {
       setProcessedTodos(prev => [...prev, 0]);
       setTodos([...todos, {
         id: 0,
