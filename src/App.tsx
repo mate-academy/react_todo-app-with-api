@@ -5,10 +5,8 @@ import classNames from 'classnames';
 import React, {
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
-import { CSSTransition } from 'react-transition-group';
 import * as todosAPI from './api/todos';
 import { Footer } from './components/Footer';
 import { NewTodoForm } from './components/NewTodoForm';
@@ -25,7 +23,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingTransform, setTodosBeingTransform] = useState<number[]>([]);
-  const errorMessageRef = useRef<HTMLInputElement>(null);
+
   const hasActiveTodos = todos.some((todo) => !todo.completed);
 
   useEffect(() => {
@@ -227,29 +225,21 @@ export const App: React.FC = () => {
           </>
         )}
         {error && (
-          <CSSTransition
-            nodeRef={errorMessageRef}
-            in={error !== ''}
-            timeout={500}
-            classNames="notification"
+          <div
+            className={classNames(
+              'notification is-danger is-light has-text-weight-normal',
+              { hidden: !error },
+            )}
           >
-            <div
-              className={classNames(
-                'notification is-danger is-light has-text-weight-normal',
-                { hidden: !error },
-              )}
-              ref={errorMessageRef}
-            >
-              <button
-                type="button"
-                className="delete"
-                onClick={() => {
-                  setError('');
-                }}
-              />
-              {error}
-            </div>
-          </CSSTransition>
+            <button
+              type="button"
+              className="delete"
+              onClick={() => {
+                setError('');
+              }}
+            />
+            {error}
+          </div>
         )}
       </div>
     </div>

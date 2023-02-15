@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 
 type Props = {
@@ -17,6 +17,7 @@ export const NewTodoForm: React.FC<Props> = ({
   const [title, setTitle] = useState<string>('');
   const [completed] = useState(false);
   const [tempDisable, setTempDisable] = useState(false);
+  const titleFieldRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,6 +37,14 @@ export const NewTodoForm: React.FC<Props> = ({
     }, 500);
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (titleFieldRef.current) {
+        titleFieldRef.current.focus();
+      }
+    }, 300);
+  }, []);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -49,6 +58,7 @@ export const NewTodoForm: React.FC<Props> = ({
           setTitle(event.target.value);
         }}
         disabled={tempDisable}
+        ref={titleFieldRef}
       />
     </form>
   );
