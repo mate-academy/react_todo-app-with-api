@@ -2,7 +2,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { CSSTransition } from 'react-transition-group';
 import * as todosAPI from './api/todos';
 import { Footer } from './components/Footer';
@@ -68,8 +73,18 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleRemoveTodo = (todoId: number) => {
+  const enableTodosTransformation = (todoId: number) => {
     setTodosBeingTransform(current => [...current, todoId]);
+  };
+
+  const disableTodosTransformation = (todoId: number) => {
+    setTodosBeingTransform(
+      todosBeingTransform.filter((id) => id !== todoId),
+    );
+  };
+
+  const handleRemoveTodo = (todoId: number) => {
+    enableTodosTransformation(todoId);
     todosAPI.deleteTodo(todoId)
       .then(() => {
         setTodos(
@@ -85,14 +100,12 @@ export const App: React.FC = () => {
       })
 
       .finally(() => {
-        setTodosBeingTransform(
-          todosBeingTransform.filter((id) => id !== todoId),
-        );
+        disableTodosTransformation(todoId);
       });
   };
 
   const handleUpdateTodo = (todoToUpdate: Todo) => {
-    setTodosBeingTransform(current => [...current, todoToUpdate.id]);
+    enableTodosTransformation(todoToUpdate.id);
     todosAPI.updateTodo(todoToUpdate)
       .then(() => {
         setTodos(
@@ -114,9 +127,8 @@ export const App: React.FC = () => {
       })
 
       .finally(() => (
-        setTodosBeingTransform(
-          current => current.filter((id) => id !== todoToUpdate.id),
-        )));
+        disableTodosTransformation(todoToUpdate.id)
+      ));
   };
 
   const handleToggleAll = () => {
@@ -125,17 +137,19 @@ export const App: React.FC = () => {
     });
   };
 
-  const visibleTodos = todos
-    .filter((todo) => {
-      switch (filter) {
-        case Filter.ACTIVE:
-          return !todo.completed;
-        case Filter.COMPLETED:
-          return todo.completed;
-        default:
-          return true;
-      }
-    });
+  const visibleTodos = useMemo(() => {
+    return todos
+      .filter((todo) => {
+        switch (filter) {
+          case Filter.ACTIVE:
+            return !todo.completed;
+          case Filter.COMPLETED:
+            return todo.completed;
+          default:
+            return true;
+        }
+      });
+  }, [filter, todos]);
 
   const activeTodos = todos.filter((todo) => !todo.completed);
   const completedTodos = todos.filter((todo) => todo.completed);
