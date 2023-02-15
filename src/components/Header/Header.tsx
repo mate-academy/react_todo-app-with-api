@@ -1,5 +1,7 @@
 import cn from 'classnames';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, {
+  Dispatch, SetStateAction, useEffect, useRef, useState,
+} from 'react';
 
 type Props = {
   setNewTodoTitle: Dispatch<SetStateAction<string>>;
@@ -17,9 +19,13 @@ export const Header: React.FC<Props> = ({
   disable,
 }) => {
   const [titleInput, setTitleInput] = useState('');
+  const [wasSubmited, setWasSubmited] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleTitleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setWasSubmited(true);
 
     if (titleInput.length) {
       setNewTodoTitle(titleInput);
@@ -29,7 +35,15 @@ export const Header: React.FC<Props> = ({
     if (!titleInput.length) {
       onInputError();
     }
+
+    inputRef.current?.focus();
   };
+
+  useEffect(() => {
+    if (wasSubmited) {
+      inputRef.current?.focus();
+    }
+  });
 
   return (
     <header className="todoapp__header">
@@ -46,11 +60,13 @@ export const Header: React.FC<Props> = ({
       <form onSubmit={handleTitleSubmit}>
         <input
           type="text"
+          ref={inputRef}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={titleInput}
           onChange={(event) => setTitleInput(event.target.value)}
           disabled={disable.length > 0}
+          onBlur={() => setWasSubmited(false)}
         />
       </form>
     </header>
