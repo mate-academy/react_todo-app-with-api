@@ -5,7 +5,7 @@ type Props = {
   setNewTodoTitle: Dispatch<SetStateAction<string>>;
   onInputError: () => void;
   toggleCompleteTodo: () => void;
-  hasActiveTodo: boolean;
+  hasAllCompleted: boolean;
   disable: number[];
 };
 
@@ -13,7 +13,7 @@ export const Header: React.FC<Props> = ({
   setNewTodoTitle,
   onInputError,
   toggleCompleteTodo,
-  hasActiveTodo,
+  hasAllCompleted,
   disable,
 }) => {
   const [titleInput, setTitleInput] = useState('');
@@ -38,13 +38,11 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={cn(
           'todoapp__toggle-all',
-          { active: hasActiveTodo },
+          { active: hasAllCompleted },
         )}
-        // className="todoapp__toggle-all active"
         onClick={toggleCompleteTodo}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleTitleSubmit}>
         <input
           type="text"

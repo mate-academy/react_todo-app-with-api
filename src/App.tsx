@@ -44,6 +44,7 @@ export const App: React.FC = () => {
   };
 
   const hasActiveTodo = todos.some(({ completed }) => !completed);
+  const hasAllCompleted = todos.every(({ completed }) => completed);
 
   const handleUpdateTodo = (
     todoId: number,
@@ -144,7 +145,7 @@ export const App: React.FC = () => {
           setNewTodoTitle={setNewTodoTitle}
           onInputError={() => handleError(Error.EmptyTitle)}
           toggleCompleteTodo={toggleCompleteTodo}
-          hasActiveTodo={hasActiveTodo}
+          hasAllCompleted={hasAllCompleted}
           disable={updatingTodos}
         />
         <Todos
