@@ -198,8 +198,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       {error && (
         <FormErrors errorMsg={errorMsg} error={error} setError={setError} />)}
     </div>

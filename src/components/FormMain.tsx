@@ -20,7 +20,7 @@ export const FormMain: React.FC<Props> = (
   const [title, setTitle] = useState(todoTobeEdited?.title || '');
 
   const onSubmit = (td: Todo) => {
-    if (td.title === '') {
+    if (title === '') {
       onRemove(td.id);
     }
 
