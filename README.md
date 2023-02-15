@@ -28,7 +28,7 @@ Implement the ability to edit a todo title on double click:
 
 - show the edit form instead of the title and remove button;
 - saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
+- save changes when the field loses focus (`onhandleInput`);
 - if new title is the same as the old one just cancel editing;
 - cancel editing on `Esс` key `keyup` event;
 - if the new title is empty delete the todo the same way the `x` button does it;
@@ -41,4 +41,4 @@ Implement the ability to edit a todo title on double click:
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://serhii-yunnikov.github.io/react_todo-app-with-api/) and add it to the PR description.
