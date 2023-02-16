@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useMemo, useRef, useState,
+  useContext, useMemo, useRef, useState,
 } from 'react';
 import classnames from 'classnames';
 import {
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  useMemo(() => {
     setIsHidden(true);
     getTodos(user?.id)
       .then((todoss) => {
