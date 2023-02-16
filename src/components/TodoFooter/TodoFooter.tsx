@@ -17,19 +17,15 @@ export const TodoFooter: React.FC<Props> = ({
   switchFilter,
   clearCompleted,
 }) => {
-  const [hasIncompleteTodos, setHasIncompleteTodos] = useState(false);
+  const [inCompleteTodos, setIncompleteTodos] = useState(0);
 
   useEffect(() => {
-    if (todos?.some((todo) => todo.completed)) {
-      setHasIncompleteTodos(true);
-    } else {
-      setHasIncompleteTodos(false);
-    }
-  });
+    setIncompleteTodos(todos?.filter((todo) => !todo.completed).length || 0);
+  }, [todos]);
 
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${todos?.length} items left`}</span>
+      <span className="todo-count">{`${inCompleteTodos} items left`}</span>
 
       {/* Active filter should have a 'selected' class */}
       <nav className="filter">
@@ -69,7 +65,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={clearCompleted}
         style={{
-          visibility: hasIncompleteTodos ? 'visible' : 'hidden',
+          visibility: inCompleteTodos !== todos?.length ? 'visible' : 'hidden',
         }}
       >
         Clear completed

@@ -47,7 +47,7 @@ export const TodoContent: React.FC<Props> = ({
 
   useEffect(() => {
     setActivateToggleAll(todos?.every((t) => t.completed) || false);
-  });
+  }, []);
 
   return (
     <div className="todoapp__content">

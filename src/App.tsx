@@ -66,9 +66,14 @@ export const App: React.FC = () => {
   const removeTodo = (todoId: number) => {
     setTodosToDelete((current) => [...current, todoId]);
 
+    const updatedList = () => {
+      return filteredTodos.filter((todo) => todo.id !== todoId);
+    };
+
     deleteTodo(todoId)
       .then(() => {
-        setFilteredTodos(filteredTodos.filter((todo) => todo.id !== todoId));
+        setFilteredTodos(updatedList);
+        setTodos(updatedList);
       })
       .catch(() => {
         setError(ErrorMessages.deleteTodo);
@@ -82,15 +87,20 @@ export const App: React.FC = () => {
     const data
       = update === 'title' ? todo : { ...todo, completed: !todo.completed };
 
+    const updatedList = (res: Todo) => {
+      return filteredTodos.map((t) => {
+        if (res.id === t.id) {
+          return res;
+        }
+
+        return t;
+      });
+    };
+
     await patchTodo(data)
       .then((res) => {
-        setFilteredTodos((current) => current.map((t) => {
-          if (res.id === t.id) {
-            return res;
-          }
-
-          return t;
-        }));
+        setFilteredTodos(updatedList(res));
+        setTodos(updatedList(res));
       })
       .catch(() => {
         setError(ErrorMessages.updateTodo);
@@ -107,15 +117,17 @@ export const App: React.FC = () => {
 
   const toggleAll = async () => {
     const isAllComplete = !filteredTodos?.every((t) => t.completed);
+    const updatedList = () => {
+      return filteredTodos.map((t) => ({ ...t, completed: isAllComplete }));
+    };
 
     await filteredTodos.map(async (todo) => {
       if (todo.completed !== isAllComplete) {
         await patchTodo({ ...todo, completed: isAllComplete })
           .then(() => {
             setLoadingAll(false);
-            setFilteredTodos(
-              filteredTodos.map((t) => ({ ...t, completed: isAllComplete })),
-            );
+            setFilteredTodos(updatedList);
+            setTodos(updatedList);
           })
           .catch(() => {
             setError(ErrorMessages.updateTodo);
