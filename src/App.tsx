@@ -1,5 +1,5 @@
 import React, {
-  useContext, useMemo, useRef, useState,
+  useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import classnames from 'classnames';
 import {
@@ -125,10 +125,13 @@ export const App: React.FC = () => {
     }, 3000);
 
     setIsAdding(true);
+  }, [todos]);
+
+  useEffect(() => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-  }, [todos]);
+  }, []);
 
   const filterList = (todoss: Todo[]): Todo[] | undefined => todoss
     .filter((todo) => {
