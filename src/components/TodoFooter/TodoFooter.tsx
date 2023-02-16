@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 import { Filter } from '../../types/Filter';
@@ -9,6 +9,7 @@ type Props = {
   selectFilter: Filter;
   switchFilter: (selector: Filter) => void;
   clearCompleted: () => void;
+  inCompleteTodos: number;
 };
 
 export const TodoFooter: React.FC<Props> = ({
@@ -16,13 +17,8 @@ export const TodoFooter: React.FC<Props> = ({
   selectFilter,
   switchFilter,
   clearCompleted,
+  inCompleteTodos,
 }) => {
-  const [inCompleteTodos, setIncompleteTodos] = useState(0);
-
-  useEffect(() => {
-    setIncompleteTodos(todos?.filter((todo) => !todo.completed).length || 0);
-  }, [todos]);
-
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">{`${inCompleteTodos} items left`}</span>

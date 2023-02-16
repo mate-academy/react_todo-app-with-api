@@ -20,6 +20,7 @@ type Props = {
   setLoadingAll: (value: boolean) => void;
   loadingAll: boolean;
   focusTitleInput: boolean;
+  inCompleteTodos: number;
 };
 
 export const TodoContent: React.FC<Props> = ({
@@ -36,6 +37,7 @@ export const TodoContent: React.FC<Props> = ({
   setLoadingAll,
   loadingAll,
   focusTitleInput,
+  inCompleteTodos,
 }) => {
   const [filter, setFilter] = useState<Filter>(Filter.all);
   const [activateToggleAll, setActivateToggleAll] = useState(false);
@@ -75,6 +77,7 @@ export const TodoContent: React.FC<Props> = ({
           selectFilter={filter}
           switchFilter={(selectedFilter) => onSwitchFilter(selectedFilter)}
           clearCompleted={clearCompleted}
+          inCompleteTodos={inCompleteTodos}
         />
       )}
     </div>

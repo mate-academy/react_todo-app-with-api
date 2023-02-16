@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [loadingAll, setLoadingAll] = useState(false);
   const [todosToDelete, setTodosToDelete] = useState<number[]>([]);
   const [focusTitleInput, setFocusTitleInput] = useState(false);
+  const [inCompleteTodos, setIncompleteTodos] = useState(0);
 
   const filterTodos = (filterBy: Filter) => {
     setFilteredTodos(
@@ -147,6 +148,10 @@ export const App: React.FC = () => {
       });
   }, [todosToDelete]);
 
+  useEffect(() => {
+    setIncompleteTodos(todos?.filter((todo) => !todo.completed).length || 0);
+  }, [todos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -169,6 +174,7 @@ export const App: React.FC = () => {
         loadingAll={loadingAll}
         setLoadingAll={setLoadingAll}
         focusTitleInput={focusTitleInput}
+        inCompleteTodos={inCompleteTodos}
       />
 
       {error && <Errors error={error} setError={setError} />}
