@@ -1,8 +1,8 @@
-import cn from 'classnames';
-import React, { FC, memo, RefObject } from 'react';
+import classNames from 'classnames';
+import React, { FC, RefObject } from 'react';
 
 export interface Props {
-  newTodoField: RefObject<HTMLInputElement>,
+  newTodoField: (RefObject<HTMLInputElement>),
   title: string,
   onSetTitle: (value: string) => void,
   isAdding: boolean,
@@ -11,7 +11,7 @@ export interface Props {
   toggleAll: () => void,
 }
 
-export const Header: FC<Props> = memo(({
+export const Header: FC<Props> = ({
   newTodoField,
   title,
   onSetTitle: setTitle,
@@ -27,7 +27,7 @@ export const Header: FC<Props> = memo(({
         onClick={toggleAll}
         data-cy="ToggleAllButton"
         type="button"
-        className={cn(
+        className={classNames(
           'todoapp__toggle-all', {
             active: isAllTodosCompleted,
           },
@@ -48,4 +48,4 @@ export const Header: FC<Props> = memo(({
       </form>
     </header>
   );
-});
+};

@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC, memo } from 'react';
+import { FC } from 'react';
 
 interface Props {
   errorMessage: string;
   setErrorMessage: (value: string) => void,
 }
-export const ErrorNotification: FC<Props> = memo(({
+export const ErrorNotification: FC<Props> = ({
   errorMessage, setErrorMessage,
 }) => {
   return (
@@ -24,4 +24,4 @@ export const ErrorNotification: FC<Props> = memo(({
       </div>
     </>
   );
-});
+};

@@ -52,8 +52,8 @@ export const App: FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // eslint-disable-neвмівпівпxt-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const updatingTodo = useCallback(async (
     todoId: number,
@@ -167,7 +167,7 @@ export const App: FC = () => {
   const toggleAll = useCallback(() => {
     todos.forEach(todo => {
       if (todo.completed === isAllTodosCompleted) {
-        updateTodo(todo.id, { completed: !isAllTodosCompleted });
+        updatingTodo(todo.id, { completed: !isAllTodosCompleted });
       }
     });
   }, [isAllTodosCompleted, todos]);
@@ -200,9 +200,9 @@ export const App: FC = () => {
               todos={visibleTodos}
               onDeleteTodo={onDeleteTodo}
               tempTodo={tempTodo}
-              onDeletingTodoIds={deletingTodoIds}
+              deletingTodoIds={deletingTodoIds}
               updateTodo={updatingTodo}
-              onUpdatingTodosIds={updatingTodosIds}
+              updatingTodosIds={updatingTodosIds}
             />
             <Footer
               uncompletedTodosLength={uncompletedTodosLength}
