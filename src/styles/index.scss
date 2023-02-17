@@ -17,6 +17,9 @@ body {
 .notification.hidden {
   min-height: 0;
   opacity: 0;
+}
+
+.delete.hidden {
   pointer-events: none;
 }
 

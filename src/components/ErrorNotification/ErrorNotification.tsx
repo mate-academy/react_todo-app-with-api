@@ -51,12 +51,11 @@ export const ErrorNotification: React.FC<Props> = React.memo(
       >
         <button
           type="button"
-          className="delete"
+          className={classNames('delete', {
+            hidden: !isErrorShown,
+          })}
           onClick={onCloseNotification}
           aria-label="Close notification about an error"
-          style={{
-            pointerEvents: isErrorShown ? 'all' : 'none',
-          }}
         />
 
         {errorMessage}
