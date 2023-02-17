@@ -1,0 +1,191 @@
+import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+
+import { deleteTodoOnServer, updateTodoOnServer } from '../../api/todos';
+
+import { ErrorType } from '../../enums/ErrorType';
+import { Todo } from '../../types/Todo';
+import { OnChangeFunc } from '../../types/OnChangeFunc';
+
+type Props = {
+  todo: Todo;
+  isLoading: boolean;
+  onDeleteTodo: (todoId: number) => void;
+  onChangeTodo: OnChangeFunc;
+  showError: (errorType: ErrorType) => void;
+  hideError: () => void;
+};
+
+export const TodoItem: React.FC<Props> = React.memo(
+  ({
+    todo,
+    isLoading,
+    onDeleteTodo,
+    onChangeTodo,
+    showError,
+    hideError,
+  }) => {
+    const { id, title, completed } = todo;
+
+    const [isWaiting, setIsWaiting] = useState(false);
+    const [isEditAllowed, setIsEditAllowed] = useState(false);
+    const [editedTitle, setEditedTitle] = useState(title);
+
+    const editFormRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+      if (editFormRef.current && isEditAllowed) {
+        editFormRef.current.focus();
+      }
+    }, [isEditAllowed]);
+
+    const handleDeletingTodo = (onError?: () => void): void => {
+      hideError();
+      setIsWaiting(true);
+
+      deleteTodoOnServer(id)
+        .then(() => onDeleteTodo(id))
+        .catch(() => {
+          showError(ErrorType.Delete);
+          setIsWaiting(false);
+
+          if (onError) {
+            onError();
+          }
+        });
+    };
+
+    const handleChange: OnChangeFunc = (
+      todoId,
+      propName,
+      newPropValue,
+      onError,
+    ) => {
+      hideError();
+      setIsWaiting(true);
+
+      updateTodoOnServer(todoId, { [propName]: newPropValue })
+        .then(() => onChangeTodo(todoId, propName, newPropValue))
+        .catch(() => {
+          showError(ErrorType.Update);
+
+          if (onError) {
+            onError();
+          }
+        })
+        .finally(() => setIsWaiting(false));
+    };
+
+    const handleStatusChange = (): void => {
+      handleChange(id, 'completed', !completed);
+    };
+
+    const handleTitleChange = (): void => {
+      const newTitle = editedTitle.trim();
+
+      setIsEditAllowed(false);
+      setEditedTitle(newTitle);
+
+      if (newTitle === title) {
+        return;
+      }
+
+      const onError = (): void => {
+        setEditedTitle(title);
+      };
+
+      if (!newTitle) {
+        handleDeletingTodo(onError);
+
+        return;
+      }
+
+      handleChange(id, 'title', newTitle, onError);
+    };
+
+    const cancelTitleChange = (
+      event: React.KeyboardEvent<HTMLInputElement>,
+    ): void => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      setIsEditAllowed(false);
+      setEditedTitle(title);
+    };
+
+    return (
+      <div
+        className={classNames('todo', {
+          completed,
+        })}
+      >
+        <label className="todo__status-label">
+          <input
+            type="checkbox"
+            className="todo__status"
+            checked={completed}
+            onChange={handleStatusChange}
+          />
+        </label>
+
+        {isEditAllowed ? (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              handleTitleChange();
+            }}
+          >
+            <input
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editedTitle}
+              onChange={(event) => setEditedTitle(event.target.value)}
+              onBlur={handleTitleChange}
+              onKeyUp={cancelTitleChange}
+              ref={editFormRef}
+            />
+          </form>
+        ) : (
+          <>
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label="Press Enter to edit the title"
+              className="todo__title"
+              onKeyUp={(event) => {
+                if (event.key !== 'Enter') {
+                  return;
+                }
+
+                setIsEditAllowed(true);
+              }}
+              onDoubleClick={() => setIsEditAllowed(true)}
+            >
+              {title}
+            </span>
+
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => handleDeletingTodo()}
+            >
+              {'\u00d7'}
+            </button>
+          </>
+        )}
+
+        <div
+          className={classNames('modal', 'overlay', {
+            'is-active': isLoading || isWaiting,
+          })}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      </div>
+    );
+  },
+);
