@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [title, setTitle] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [, setTempTodo] = useState<Todo | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isError, setIsError] = useState(false);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = async (todoToDelete: Todo) => {
     try {
-      await deleteTodo(USER_ID, todoToDelete.id);
+      await deleteTodo(todoToDelete.id);
 
       setTodos(currentTodos => (
         currentTodos.filter(todo => todo.id !== todoToDelete.id)
@@ -215,6 +215,7 @@ export const App: React.FC = () => {
               handleUpdateTodoTitle={handleUpdateTodoTitle}
               setIsError={setIsError}
               setErrorMessage={setErrorMessage}
+              tempTodo={tempTodo}
             />
             <Footer
               howManyActiveTodosLeft={howManyActiveTodosLeft}
