@@ -24,7 +24,6 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [title, setTitle] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isError, setIsError] = useState(false);
   const [isInputDisabled, setIsInputDisabled] = useState(false);

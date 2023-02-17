@@ -55,12 +55,12 @@ export const TodoList:React.FC<Props> = ({
         >
           <TodoInfo
             todo={tempTodo}
-            onDeleteTodo={onDeleteTodo}
-            handleUpdateTodoStatus={handleUpdateTodoStatus}
+            onDeleteTodo={() => {}}
+            handleUpdateTodoStatus={() => {}}
             isUpdatingTodoId={tempTodo.id}
-            handleUpdateTodoTitle={handleUpdateTodoTitle}
-            setIsError={setIsError}
-            setErrorMessage={setErrorMessage}
+            handleUpdateTodoTitle={() => {}}
+            setIsError={() => {}}
+            setErrorMessage={() => {}}
           />
         </CSSTransition>
       )}

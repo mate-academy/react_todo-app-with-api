@@ -42,6 +42,14 @@ export const TodoInfo:React.FC<Props> = ({
     }
   };
 
+  const handleOnBlurInput = () => {
+    setIsFormVisible(false);
+    setNewTitle(todo.title);
+    setIsError(true);
+    setErrorMessage(ErrorMessages.UPDATE);
+    closeNotification(setIsError, false, 3000);
+  };
+
   const cancelTitleCahnge = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsFormVisible(false);
@@ -77,12 +85,7 @@ export const TodoInfo:React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
-              onBlur={() => {
-                handleTitleChange();
-                setIsError(true);
-                setErrorMessage(ErrorMessages.UPDATE);
-                closeNotification(setIsError, false, 3000);
-              }}
+              onBlur={handleOnBlurInput}
               onKeyDown={cancelTitleCahnge}
             />
           </form>
