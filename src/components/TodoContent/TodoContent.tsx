@@ -48,7 +48,13 @@ export const TodoContent: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    setActivateToggleAll(todos?.every((t) => t.completed) || false);
+    setActivateToggleAll(() => {
+      if (todos?.length) {
+        return todos?.every((t) => t.completed);
+      }
+
+      return false;
+    });
   }, []);
 
   return (
@@ -61,6 +67,7 @@ export const TodoContent: React.FC<Props> = ({
         setLoadingAll={setLoadingAll}
         toggleAll={toggleAll}
         focusTitleInput={focusTitleInput}
+        inCompleteTodos={inCompleteTodos}
       />
 
       <TodoMain
@@ -71,7 +78,7 @@ export const TodoContent: React.FC<Props> = ({
         loadingAll={loadingAll}
       />
 
-      {todos && (
+      {todos?.length ? (
         <TodoFooter
           todos={todos}
           selectFilter={filter}
@@ -79,6 +86,8 @@ export const TodoContent: React.FC<Props> = ({
           clearCompleted={clearCompleted}
           inCompleteTodos={inCompleteTodos}
         />
+      ) : (
+        <></>
       )}
     </div>
   );

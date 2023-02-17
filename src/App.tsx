@@ -55,6 +55,7 @@ export const App: React.FC = () => {
         setTempTodo(null);
 
         setFilteredTodos((state) => [...state, response]);
+        setTodos((state) => [...state, response]);
       })
       .catch(() => {
         setError(ErrorMessages.addTodo);

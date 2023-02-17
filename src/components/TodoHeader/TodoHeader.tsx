@@ -12,6 +12,7 @@ type Props = {
   setLoadingAll: (value: boolean) => void;
   toggleAll: () => void;
   focusTitleInput: boolean;
+  inCompleteTodos: number;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoHeader: React.FC<Props> = ({
   setLoadingAll,
   toggleAll,
   focusTitleInput,
+  inCompleteTodos,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const inputTitle = useRef<HTMLInputElement>(null);
@@ -38,6 +40,8 @@ export const TodoHeader: React.FC<Props> = ({
 
     createTodo(todoName);
     setNewTodoTitle('');
+
+    inputTitle.current?.focus();
   };
 
   const handleToggleAll = async () => {
@@ -49,16 +53,18 @@ export const TodoHeader: React.FC<Props> = ({
     if (focusTitleInput && inputTitle.current) {
       inputTitle.current?.focus();
     }
-  }, [focusTitleInput]);
+  }, [focusTitleInput, inCompleteTodos]);
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: activateToggleAll })}
-        aria-label="mark all"
-        onClick={handleToggleAll}
-      />
+      {inCompleteTodos > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: activateToggleAll })}
+          aria-label="mark all"
+          onClick={handleToggleAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={addTodo}>
