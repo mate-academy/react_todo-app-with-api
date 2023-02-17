@@ -25,7 +25,7 @@ export const TodoAppHeader: React.FC<Props> = React.memo(
       if (newTodoField.current) {
         newTodoField.current.focus();
       }
-    }, []);
+    }, [isAdding]);
 
     const handleNewTodoFieldSubmit = (event: React.FormEvent) => {
       event.preventDefault();

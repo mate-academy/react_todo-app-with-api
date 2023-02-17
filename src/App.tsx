@@ -106,12 +106,12 @@ export const App: React.FC = () => {
   ) => {
     setErrorMessage('');
     updateTodo(todoId, todoField)
-      .then(() => {
+      .then((updatedTodo) => {
         setAreAllUpdating(false);
 
         setTodos(currentTodos => currentTodos.map(todo => (
-          todo.id === todoId
-            ? { ...todo, ...todoField }
+          todo.id === updatedTodo.id
+            ? updatedTodo
             : todo
         )));
       })
@@ -127,19 +127,15 @@ export const App: React.FC = () => {
   const toggleTodosCompleted = useCallback(() => {
     setAreAllUpdating(true);
 
-    if (allTodosCompleted) {
-      todos.forEach(todo => {
+    todos.forEach(todo => {
+      if (allTodosCompleted) {
         updateTodoStatus(todo.id, { completed: false });
-      });
 
-      return;
-    }
+        return;
+      }
 
-    todos.forEach(todo => (
-      todo.completed
-        ? todo
-        : updateTodoStatus(todo.id, { completed: true })
-    ));
+      updateTodoStatus(todo.id, { completed: true });
+    });
   }, [todos]);
 
   return (
