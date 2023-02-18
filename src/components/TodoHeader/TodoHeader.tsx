@@ -5,7 +5,7 @@ import { addTodoOnServer } from '../../api/todos';
 import { ErrorType } from '../../enums/ErrorType';
 
 import { Todo } from '../../types/Todo';
-import { UserIdContext } from '../../contexts/UserIdContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
 type Props = {
   activeTodosNum: number;
@@ -28,7 +28,7 @@ export const TodoHeader: React.FC<Props> = React.memo(
     const [newTodoTitle, setNewTodoTitle] = useState('');
     const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-    const userId = useContext(UserIdContext);
+    const user = useContext(AuthContext);
 
     const handleAddingNewTodo = (
       event: React.FormEvent<HTMLFormElement>,
@@ -48,8 +48,8 @@ export const TodoHeader: React.FC<Props> = React.memo(
 
       setIsInputDisabled(true);
 
-      addTodoOnServer(userId, {
-        userId,
+      addTodoOnServer(user?.id || 0, {
+        userId: user?.id || 0,
         title,
         completed: false,
       })

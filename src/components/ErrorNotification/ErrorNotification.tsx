@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ErrorType } from '../../enums/ErrorType';
 
@@ -11,25 +11,27 @@ type Props = {
 
 export const ErrorNotification: React.FC<Props> = React.memo(
   ({ errorType, isErrorShown, onCloseNotification }) => {
-    let errorMessage = '';
+    const [errorMessage, setErrorMessage] = useState('');
 
-    switch (errorType) {
-      case ErrorType.Add:
-      case ErrorType.Delete:
-      case ErrorType.Update:
-      case ErrorType.Download:
-        errorMessage = `Unable to ${errorType} a todo`;
+    useEffect(() => {
+      switch (errorType) {
+        case ErrorType.Add:
+        case ErrorType.Delete:
+        case ErrorType.Update:
+        case ErrorType.Download:
+          setErrorMessage(`Unable to ${errorType} a todo`);
 
-        break;
+          break;
 
-      case ErrorType.EmptyTitle:
-        errorMessage = 'Title can\'t be empty';
+        case ErrorType.EmptyTitle:
+          setErrorMessage("Title can't be empty");
 
-        break;
+          break;
 
-      default:
-        errorMessage = '';
-    }
+        default:
+          setErrorMessage('');
+      }
+    }, [errorType]);
 
     useEffect(() => {
       const timerId = setTimeout(() => onCloseNotification(), 3000);

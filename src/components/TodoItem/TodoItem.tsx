@@ -10,20 +10,20 @@ import { OnChangeFunc } from '../../types/OnChangeFunc';
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  onDeleteTodo: (todoId: number) => void;
-  onChangeTodo: OnChangeFunc;
-  showError: (errorType: ErrorType) => void;
-  hideError: () => void;
+  onDeleteTodo?: (todoId: number) => void;
+  onChangeTodo?: OnChangeFunc;
+  showError?: (errorType: ErrorType) => void;
+  hideError?: () => void;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(
   ({
     todo,
     isLoading,
-    onDeleteTodo,
-    onChangeTodo,
-    showError,
-    hideError,
+    onDeleteTodo = () => {},
+    onChangeTodo = () => {},
+    showError = () => {},
+    hideError = () => {},
   }) => {
     const { id, title, completed } = todo;
 

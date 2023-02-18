@@ -17,8 +17,8 @@ import { Todo } from './types/Todo';
 
 import { FilterType } from './enums/FilterType';
 import { ErrorType } from './enums/ErrorType';
-import { UserIdContext } from './contexts/UserIdContext';
 import { OnChangeFunc } from './types/OnChangeFunc';
+import { AuthContext } from './contexts/AuthContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -29,10 +29,10 @@ export const App: React.FC = () => {
   const [isAllToggled, setIsAllToggled] = useState(false);
   const [isClearCompleted, setIsClearCompleted] = useState(false);
 
-  const userId = useContext(UserIdContext);
+  const user = useContext(AuthContext);
 
   useEffect(() => {
-    getTodos(userId)
+    getTodos(user?.id || 0)
       .then((userTodos) => setTodos(userTodos))
       .catch(() => {
         setErrorType(ErrorType.Download);

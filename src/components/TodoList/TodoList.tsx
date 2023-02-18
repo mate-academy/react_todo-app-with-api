@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { TodoItem } from '../TodoItem';
-import { UserIdContext } from '../../contexts/UserIdContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
 import { ErrorType } from '../../enums/ErrorType';
 import { Todo } from '../../types/Todo';
@@ -33,13 +33,13 @@ export const TodoList: React.FC<Props> = React.memo(
     showError,
     hideError,
   }) => {
-    const userId = useContext(UserIdContext);
+    const user = useContext(AuthContext);
 
     const tempTodo: OptionalTodo = !tempTodoTitle
       ? null
       : {
         id: 0,
-        userId,
+        userId: user?.id || 0,
         title: tempTodoTitle,
         completed: false,
       };
@@ -81,10 +81,6 @@ export const TodoList: React.FC<Props> = React.memo(
             >
               <TodoItem
                 todo={tempTodo}
-                showError={() => {}}
-                hideError={() => {}}
-                onDeleteTodo={() => {}}
-                onChangeTodo={() => {}}
                 isLoading
               />
             </CSSTransition>

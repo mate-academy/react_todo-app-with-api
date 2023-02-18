@@ -1,3 +1,5 @@
+import { RequestMethod } from '../enums/RequestMethod';
+
 const BASE_URL = 'https://mate.academy/students-api';
 
 function wait(delay: number) {
@@ -6,11 +8,9 @@ function wait(delay: number) {
   });
 }
 
-type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
-
 function request<T>(
   url: string,
-  method: RequestMethod = 'GET',
+  method: RequestMethod = RequestMethod.GET,
   data: unknown = null,
 ): Promise<T> {
   const options: RequestInit = { method };
@@ -35,7 +35,11 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: unknown) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: unknown) => request<T>(url, 'PATCH', data),
-  delete: (url: string) => request(url, 'DELETE'),
+  post: <T>(url: string, data: unknown) => {
+    return request<T>(url, RequestMethod.POST, data);
+  },
+  patch: <T>(url: string, data: unknown) => {
+    return request<T>(url, RequestMethod.PATCH, data);
+  },
+  delete: (url: string) => request(url, RequestMethod.DELETE),
 };
