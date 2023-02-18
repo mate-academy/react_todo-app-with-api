@@ -1,6 +1,8 @@
 import cn from 'classnames';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { postTodo } from '../../api/todos';
 import { FilterStatus } from '../../types/FilterStatus';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   activeTodosCount: number;
@@ -8,6 +10,9 @@ type Props = {
   filterStatus: FilterStatus,
   deleteCompletedTodos: () => void;
   completedTodosCount: number;
+  setUndoActive: Dispatch<SetStateAction<boolean>>
+  undoActive: boolean
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
 };
 
 export const Footer:React.FC<Props> = ({
@@ -16,7 +21,32 @@ export const Footer:React.FC<Props> = ({
   filterStatus,
   deleteCompletedTodos,
   completedTodosCount,
+  setUndoActive,
+  undoActive,
+  setTodos,
 }) => {
+  const [isUndoing, setUndoing] = useState(false);
+
+  const handleUndo = () => {
+    const deletedTodoStr = localStorage.getItem('deletedTodo');
+
+    if (deletedTodoStr) {
+      const deletedTodo = JSON.parse(deletedTodoStr);
+
+      setUndoing(true);
+
+      postTodo(deletedTodo)
+        .then((newTodo) => {
+          setTodos(current => [...current, newTodo]);
+        }).finally(() => {
+          setUndoing(false);
+          setUndoActive(false);
+        });
+    }
+
+    localStorage.removeItem('deletedTodo');
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
@@ -52,8 +82,21 @@ export const Footer:React.FC<Props> = ({
         >
           Completed
         </a>
-
       </nav>
+
+      <a
+        data-cy="FilterLinkCompleted"
+        href="#/completed"
+        className="filter__link has-background-warning is-outlined"
+        style={{
+          visibility: undoActive
+            ? 'visible'
+            : 'hidden',
+        }}
+        onClick={handleUndo}
+      >
+        {isUndoing ? 'Undoing...' : 'Undo'}
+      </a>
 
       <button
         data-cy="ClearCompletedButton"

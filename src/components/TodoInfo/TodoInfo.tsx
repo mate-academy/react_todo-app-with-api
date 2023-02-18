@@ -1,4 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { TempTodo, Todo } from '../../types/Todo';
 
@@ -16,8 +20,6 @@ export const TodoInfo:React.FC<Props> = React.memo(({
   updatingTodo,
   editTodo,
 }) => {
-  // eslint-disable-next-line no-console
-  console.log('rendering todoinfo');
   const [isEditing, setEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
@@ -102,6 +104,7 @@ export const TodoInfo:React.FC<Props> = React.memo(({
             data-cy="TodoDeleteButton"
             onClick={() => {
               if (onDelete) {
+                localStorage.setItem('deletedTodo', JSON.stringify(todo));
                 onDelete(todo.id);
               }
             }}

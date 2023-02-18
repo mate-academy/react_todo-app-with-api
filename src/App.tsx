@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [isAllCompleted, setIsAllCompleted] = useState(false);
+  const [undoActive, setUndoActive] = useState(false);
 
   const getTodosFromServer = async () => {
     if (!user) {
@@ -48,6 +49,12 @@ export const App: React.FC = () => {
 
   const handleDelete = useCallback(async (id: number) => {
     try {
+      setUndoActive(true);
+      setTimeout(() => {
+        setUndoActive(false);
+        localStorage.removeItem('deletedTodo');
+      }, 3000);
+
       setUpdatingTodoIds([id]);
       await deleteTodo(id);
       setTodos(current => current.filter(
@@ -163,6 +170,9 @@ export const App: React.FC = () => {
           filterStatus={filterStatus}
           deleteCompletedTodos={deleteCompletedTodos}
           completedTodosCount={completedTodosCount}
+          setUndoActive={setUndoActive}
+          undoActive={undoActive}
+          setTodos={setTodos}
         />
       </div>
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FilterStatus } from '../../types/FilterStatus';
 import { TempTodo, Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
