@@ -1,6 +1,6 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Todo } from '../../types';
+import { Todo, TodoData } from '../../types';
 import { TodoItem } from '../TodoItem';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
   processedTodos: Todo[],
   tempTodo: Todo | null,
   onDelete: (todo: Todo) => void,
-  onUpdate: (todo: Todo, fields: Partial<Todo>) => void,
+  onUpdate: (todo: Todo, data: TodoData) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -37,7 +37,6 @@ export const TodoList: React.FC<Props> = ({
         ))}
         {tempTodo && (
           <CSSTransition
-            key={0}
             timeout={300}
             classNames="temp-item"
           >

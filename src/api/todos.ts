@@ -1,4 +1,4 @@
-import { Todo } from '../types';
+import { Todo, TodoData } from '../types';
 import { client } from '../utils';
 
 export const USER_ID = 5554;
@@ -7,14 +7,27 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export const addTodo = (todo: Todo) => {
-  return client.post<Todo>(`/todos?userId=${USER_ID}`, todo);
+export const addTodo = (todo: Omit<Todo, 'id'>) => {
+  return client.post<Todo>('/todos', todo);
 };
 
-export const deleteTodo = (todoId: number) => {
-  return client.delete(`/todos/${todoId}?userId=${USER_ID}`);
+export const deleteTodoById = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, fieldsToUpdate: Partial<Todo>) => {
-  return client.patch<Todo>(`/todos/${todoId}?userId=${USER_ID}`, fieldsToUpdate);
+export const updateTodoById = (
+  todoId: number,
+  fieldsToUpdate: TodoData,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, fieldsToUpdate);
+};
+
+export const addTodoWithTitle = (title: string) => {
+  const todo = {
+    userId: USER_ID,
+    completed: false,
+    title,
+  };
+
+  return addTodo(todo);
 };

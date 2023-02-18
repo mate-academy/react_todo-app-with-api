@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 import { FilterBy } from '../../types';
 
 type Props = {
@@ -23,11 +23,10 @@ export const Footer: React.FC<Props> = React.memo(
         {`${activeTodosCount} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: filterType === FilterBy.ALL },
           )}
@@ -38,7 +37,7 @@ export const Footer: React.FC<Props> = React.memo(
 
         <a
           href="#/active"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: filterType === FilterBy.ACTIVE },
           )}
@@ -49,7 +48,7 @@ export const Footer: React.FC<Props> = React.memo(
 
         <a
           href="#/completed"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: filterType === FilterBy.COMPLETED },
           )}

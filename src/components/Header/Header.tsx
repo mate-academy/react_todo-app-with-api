@@ -1,66 +1,58 @@
 import React, {
-  FormEvent, useEffect, useRef, useState,
+  ChangeEvent,
+  FormEvent, useCallback, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
-import { ErrorMessage, Todo } from '../../types';
-import { USER_ID } from '../../api/todos';
 
 type Props = {
-  onAdd: (todo: Todo) => void,
-  onToggleAll: (completed: boolean) => void,
-  onError: (message: ErrorMessage) => void,
   hasActive: boolean,
-  creating: boolean
+  isCreating: boolean,
+  isToggleButtonVisible: boolean,
+  onToggleAll: () => void,
+  onAdd: (title: string) => void,
 };
 
 export const Header: React.FC<Props> = React.memo(
   ({
     onAdd,
-    onError,
-    creating,
+    isCreating,
     hasActive,
     onToggleAll,
+    isToggleButtonVisible,
   }) => {
     const [todoTitle, setTodoTitle] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-      if (!creating) {
+      if (!isCreating) {
         setTodoTitle('');
         inputRef.current?.focus();
       }
-    }, [creating]);
+    }, [isCreating]);
 
     const handleSubmit = (event: FormEvent) => {
       event.preventDefault();
 
-      if (!todoTitle) {
-        onError(ErrorMessage.TITLE);
-
-        return;
-      }
-
-      const newTodo = {
-        id: 0,
-        userId: USER_ID,
-        title: todoTitle,
-        completed: false,
-      };
-
-      onAdd(newTodo);
+      onAdd(todoTitle);
     };
+
+    const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+      setTodoTitle(event.target.value);
+    }, []);
 
     return (
       <header className="todoapp__header">
-        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-        <button
-          type="button"
-          className={classNames(
-            'todoapp__toggle-all',
-            { active: !hasActive },
-          )}
-          onClick={() => onToggleAll(!hasActive)}
-        />
+        {isToggleButtonVisible && (
+          <button
+            aria-label="Toggle all todos"
+            type="button"
+            className={classNames(
+              'todoapp__toggle-all',
+              { active: !hasActive },
+            )}
+            onClick={() => onToggleAll()}
+          />
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -71,8 +63,8 @@ export const Header: React.FC<Props> = React.memo(
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             value={todoTitle}
-            onChange={({ target }) => setTodoTitle(target.value)}
-            disabled={creating}
+            onChange={handleInput}
+            disabled={isCreating}
           />
         </form>
       </header>

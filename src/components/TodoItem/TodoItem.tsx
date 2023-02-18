@@ -1,11 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types';
+import { Todo, TodoData } from '../../types';
 
 type Props = {
   todo: Todo,
   onDelete: () => void,
-  onUpdate: (fields: Partial<Todo>) => void,
+  onUpdate: (data: TodoData) => void,
   beingProcessed?: boolean,
 };
 
@@ -21,8 +28,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const todoRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const startEditing = () => setBeingEdited(true);
-  const finishEditing = () => setBeingEdited(false);
+  const startEditing = useCallback(() => setBeingEdited(true), []);
+  const finishEditing = useCallback(() => setBeingEdited(false), []);
 
   useEffect(() => {
     todoRef.current?.addEventListener('dblclick', startEditing);
@@ -40,7 +47,13 @@ export const TodoItem: React.FC<Props> = React.memo(({
     onUpdate({ completed: !todo.completed });
   };
 
-  const handleRename = () => {
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  }, []);
+
+  const handleRename = (event: FormEvent) => {
+    event.preventDefault();
+
     if (!newTitle) {
       onDelete();
 
@@ -74,10 +87,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       {beingEdited
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleRename();
-            }}
+            onSubmit={handleRename}
           >
             <input
               ref={inputRef}
@@ -85,7 +95,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
-              onChange={({ target }) => setNewTitle(target.value)}
+              onChange={handleInput}
               onBlur={handleRename}
             />
           </form>
