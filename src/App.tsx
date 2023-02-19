@@ -127,6 +127,31 @@ export const App: React.FC = () => {
       });
   };
 
+  const hasUncompletedTodo = todos.some(todo => !todo.completed);
+  const hasAllTodosCompleted = todos.every(todo => todo.completed);
+
+  const toggleCompleteAllTodos = () => {
+    if (hasUncompletedTodo) {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          handleUpdateTodo({
+            ...todo,
+            completed: true,
+          });
+        }
+      });
+    }
+
+    if (hasAllTodosCompleted) {
+      todos.forEach(todo => {
+        handleUpdateTodo({
+          ...todo,
+          completed: false,
+        });
+      });
+    }
+  };
+
   const filteredTodos = useMemo(() => {
     switch (filterStatus) {
       case FilterStatus.Active:
@@ -149,6 +174,8 @@ export const App: React.FC = () => {
           setError={setErrorMessage}
           isLoading={isLoading}
           addTodo={addTodo}
+          hasUncompletedTodo={hasAllTodosCompleted}
+          toggleCompleteAllTodos={toggleCompleteAllTodos}
         />
 
         <TodoList
@@ -164,6 +191,7 @@ export const App: React.FC = () => {
           setFilter={setFilterStatus}
           filterStatus={filterStatus}
           clearCompletedTodos={clearCompletedTodos}
+          todos={todos}
         />
       </div>
 

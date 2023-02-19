@@ -1,3 +1,5 @@
+import cn from 'classnames';
+
 import {
   Dispatch, SetStateAction, useEffect, useRef,
 } from 'react';
@@ -9,6 +11,8 @@ type Props = {
   setError: Dispatch<SetStateAction<Error>>;
   isLoading: boolean;
   addTodo: () => Promise<void>;
+  hasUncompletedTodo: boolean;
+  toggleCompleteAllTodos: () => void;
 };
 
 export const Header:React.FC<Props> = ({
@@ -17,6 +21,8 @@ export const Header:React.FC<Props> = ({
   isLoading,
   addTodo,
   setError,
+  hasUncompletedTodo,
+  toggleCompleteAllTodos,
 }) => {
   const newTodoField = useRef<HTMLInputElement>(null);
 
@@ -47,7 +53,12 @@ export const Header:React.FC<Props> = ({
       <button
         data-cy="ToggleAllButton"
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: hasUncompletedTodo,
+        })}
+        onClick={() => {
+          toggleCompleteAllTodos();
+        }}
       />
 
       <form
