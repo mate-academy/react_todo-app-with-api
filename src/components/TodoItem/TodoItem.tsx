@@ -39,23 +39,31 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
     }, [isEditAllowed]);
 
-    const handleDeletingTodo = (onError?: () => void): void => {
+    const handleDeleteWithExtraError = async (
+      onError?: () => void,
+    ): Promise<void> => {
       hideError();
       setIsWaiting(true);
 
-      deleteTodoOnServer(id)
-        .then(() => onDeleteTodo(id))
-        .catch(() => {
-          showError(ErrorType.Delete);
-          setIsWaiting(false);
+      try {
+        await deleteTodoOnServer(id);
 
-          if (onError) {
-            onError();
-          }
-        });
+        onDeleteTodo(id);
+      } catch {
+        showError(ErrorType.Delete);
+        setIsWaiting(false);
+
+        if (onError) {
+          onError();
+        }
+      }
     };
 
-    const handleChange: OnChangeFunc = (
+    const handleDelete = (): void => {
+      handleDeleteWithExtraError();
+    };
+
+    const handleChange: OnChangeFunc = async (
       todoId,
       propName,
       newPropValue,
@@ -64,16 +72,19 @@ export const TodoItem: React.FC<Props> = React.memo(
       hideError();
       setIsWaiting(true);
 
-      updateTodoOnServer(todoId, { [propName]: newPropValue })
-        .then(() => onChangeTodo(todoId, propName, newPropValue))
-        .catch(() => {
-          showError(ErrorType.Update);
+      try {
+        await updateTodoOnServer(todoId, { [propName]: newPropValue });
 
-          if (onError) {
-            onError();
-          }
-        })
-        .finally(() => setIsWaiting(false));
+        onChangeTodo(todoId, propName, newPropValue);
+      } catch {
+        showError(ErrorType.Update);
+
+        if (onError) {
+          onError();
+        }
+      } finally {
+        setIsWaiting(false);
+      }
     };
 
     const handleStatusChange = (): void => {
@@ -95,7 +106,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       };
 
       if (!newTitle) {
-        handleDeletingTodo(onError);
+        handleDeleteWithExtraError(onError);
 
         return;
       }
@@ -170,7 +181,8 @@ export const TodoItem: React.FC<Props> = React.memo(
             <button
               type="button"
               className="todo__remove"
-              onClick={() => handleDeletingTodo()}
+              onClick={handleDelete}
+              aria-label="Press Enter to delete the todo"
             >
               {'\u00d7'}
             </button>

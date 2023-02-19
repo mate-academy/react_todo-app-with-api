@@ -6,6 +6,7 @@ import { ErrorType } from '../../enums/ErrorType';
 
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../../contexts/AuthContext';
+import { TodoToPost } from '../../types/TodoToPost';
 
 type Props = {
   activeTodosNum: number;
@@ -28,11 +29,11 @@ export const TodoHeader: React.FC<Props> = React.memo(
     const [newTodoTitle, setNewTodoTitle] = useState('');
     const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-    const user = useContext(AuthContext);
+    const { id: userId = 0 } = useContext(AuthContext) || {};
 
-    const handleAddingNewTodo = (
+    const handleAddingNewTodo = async (
       event: React.FormEvent<HTMLFormElement>,
-    ): void => {
+    ): Promise<void> => {
       event.preventDefault();
 
       const title = newTodoTitle.trim();
@@ -48,18 +49,23 @@ export const TodoHeader: React.FC<Props> = React.memo(
 
       setIsInputDisabled(true);
 
-      addTodoOnServer(user?.id || 0, {
-        userId: user?.id || 0,
+      const newTodo: TodoToPost = {
+        userId,
         title,
         completed: false,
-      })
-        .then((newTodo) => onAddNewTodo(newTodo))
-        .catch(() => showError(ErrorType.Add))
-        .finally(() => {
-          showTempTodo('');
-          setNewTodoTitle('');
-          setIsInputDisabled(false);
-        });
+      };
+
+      try {
+        const createdTodo = await addTodoOnServer(userId, newTodo);
+
+        onAddNewTodo(createdTodo);
+      } catch {
+        showError(ErrorType.Add);
+      } finally {
+        showTempTodo('');
+        setNewTodoTitle('');
+        setIsInputDisabled(false);
+      }
     };
 
     return (

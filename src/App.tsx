@@ -29,10 +29,10 @@ export const App: React.FC = () => {
   const [isAllToggled, setIsAllToggled] = useState(false);
   const [isClearCompleted, setIsClearCompleted] = useState(false);
 
-  const user = useContext(AuthContext);
+  const { id: userId = 0 } = useContext(AuthContext) || {};
 
   useEffect(() => {
-    getTodos(user?.id || 0)
+    getTodos(userId)
       .then((userTodos) => setTodos(userTodos))
       .catch(() => {
         setErrorType(ErrorType.Download);
@@ -89,7 +89,7 @@ export const App: React.FC = () => {
     [],
   );
 
-  const onToggleTodosStatus = useCallback((): void => {
+  const onToggleTodosStatus = useCallback(async (): Promise<void> => {
     const todosToToggle = activeTodosNum !== 0
       ? filterTodos(todos, FilterType.Active)
       : filterTodos(todos, FilterType.All);
@@ -97,46 +97,53 @@ export const App: React.FC = () => {
     setIsAllToggled(true);
     hideError();
 
-    Promise.all(
-      todosToToggle.map(({ id, completed }) => {
-        return updateTodoOnServer(id, { completed: !completed })
-          .then(() => id);
-      }),
-    )
-      .then((ids) => {
-        setTodos((oldTodos) => {
-          return oldTodos.map((todo) => {
-            if (!ids.includes(todo.id)) {
-              return todo;
-            }
+    try {
+      const todosIds = await Promise.all(
+        todosToToggle.map(({ id, completed }) => {
+          return updateTodoOnServer(id, { completed: !completed }).then(
+            () => id,
+          );
+        }),
+      );
 
-            return {
-              ...todo,
-              completed: !todo.completed,
-            };
-          });
+      setTodos((oldTodos) => {
+        return oldTodos.map((todo) => {
+          if (!todosIds.includes(todo.id)) {
+            return todo;
+          }
+
+          return {
+            ...todo,
+            completed: !todo.completed,
+          };
         });
-      })
-      .catch(() => showError(ErrorType.Update))
-      .finally(() => setIsAllToggled(false));
+      });
+    } catch {
+      showError(ErrorType.Update);
+    } finally {
+      setIsAllToggled(false);
+    }
   }, [todos]);
 
-  const onClearCompleted = useCallback((): void => {
+  const onClearCompleted = useCallback(async (): Promise<void> => {
     const completedTodos = filterTodos(todos, FilterType.Completed);
 
     setIsClearCompleted(true);
     hideError();
 
-    Promise.all(
-      completedTodos.map(({ id }) => deleteTodoOnServer(id).then(() => id)),
-    )
-      .then((ids) => {
-        setTodos((oldTodos) => {
-          return oldTodos.filter((todo) => !ids.includes(todo.id));
-        });
-      })
-      .catch(() => showError(ErrorType.Delete))
-      .finally(() => setIsClearCompleted(false));
+    try {
+      const todosIds = await Promise.all(
+        completedTodos.map(({ id }) => deleteTodoOnServer(id).then(() => id)),
+      );
+
+      setTodos((oldTodos) => {
+        return oldTodos.filter((todo) => !todosIds.includes(todo.id));
+      });
+    } catch {
+      showError(ErrorType.Delete);
+    } finally {
+      setIsClearCompleted(false);
+    }
   }, [todos]);
 
   return (

@@ -33,13 +33,13 @@ export const TodoList: React.FC<Props> = React.memo(
     showError,
     hideError,
   }) => {
-    const user = useContext(AuthContext);
+    const { id: userId = 0 } = useContext(AuthContext) || {};
 
     const tempTodo: OptionalTodo = !tempTodoTitle
       ? null
       : {
         id: 0,
-        userId: user?.id || 0,
+        userId,
         title: tempTodoTitle,
         completed: false,
       };
