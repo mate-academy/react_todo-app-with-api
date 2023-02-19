@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   hasActiveTodos: boolean,
@@ -9,6 +10,7 @@ type Props = {
   onAddTodo: (title: string) => void,
   isInputDisabled: boolean,
   handleUpdateAllTodosStatus: () => void,
+  todos: Todo[],
 };
 
 export const Header: React.FC<Props> = ({
@@ -18,16 +20,19 @@ export const Header: React.FC<Props> = ({
   onAddTodo,
   isInputDisabled,
   handleUpdateAllTodosStatus,
+  todos,
 }) => (
   <header className="todoapp__header">
-    <button
-      type="button"
-      className={classNames(
-        'todoapp__toggle-all',
-        { active: !hasActiveTodos },
-      )}
-      onClick={handleUpdateAllTodosStatus}
-    />
+    {todos.length > 0 && (
+      <button
+        type="button"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: !hasActiveTodos },
+        )}
+        onClick={handleUpdateAllTodosStatus}
+      />
+    )}
 
     {/* Add a todo on form submit */}
     <form onSubmit={(event) => {

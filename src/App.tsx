@@ -202,6 +202,7 @@ export const App: React.FC = () => {
           onTitleChange={setTitle}
           onAddTodo={handleAddTodo}
           handleUpdateAllTodosStatus={handleUpdateAllTodosStatus}
+          todos={todos}
         />
 
         {!!todos.length && (
