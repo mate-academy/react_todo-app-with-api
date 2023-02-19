@@ -4,7 +4,7 @@ import { TodoInfo } from './TodoInfo';
 type Props = {
   filteredList: Todo[] | undefined;
   removeTodo: (todoId: number | undefined) => void;
-  updateTODOCompleted: (todoId: number | undefined, completed: boolean) => void;
+  updateTODOCompleted: (todoNew: Todo) => void;
   updateTODOTitle: (todoId: number | undefined, title: string) => void;
   isLoadingNewName: boolean;
 };

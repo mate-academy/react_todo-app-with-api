@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
   const [isLoadingNewName, setIsLoadingNewName] = useState(true);
 
-  const areTodosCompleted = todos.find(todo => !todo.completed);
+  const areTodosCompleted = !!todos.find(todo => !todo.completed);
 
   const updateTodoCompleted = (todoNew: Todo) => {
     setTodos(
@@ -41,10 +41,9 @@ export const App: React.FC = () => {
   };
 
   const updateTODOCompleted = (
-    todoId: number | undefined,
-    completed: boolean,
+    todoNew: Todo,
   ) => {
-    updateTodo(todoId, completed)
+    updateTodo(todoNew.id, !todoNew.completed)
       .then((todo) => updateTodoCompleted(todo))
       .catch(() => setIsUpdate(true));
   };
@@ -97,9 +96,10 @@ export const App: React.FC = () => {
   };
 
   const addNewTodo = (todo: Todo) => setTodos([...todos, todo]);
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       if (value !== '') {
+        event.preventDefault();
         createTodo(value, user?.id)
           .then((todo) => addNewTodo(todo))
           .catch(() => setIsError(true));
@@ -117,17 +117,18 @@ export const App: React.FC = () => {
         setTodos(todoss);
         setIsLoadingTodos(false);
       })
-      .catch(() => setIsError(true));
-    setTimeout(() => {
-      setIsHidden(true);
-      setIsDelete(false);
-      setIsEmpty(false);
-    }, 3000);
+      .catch(() => setIsError(true))
+      .finally(() => {
+        setIsHidden(true);
+        setIsDelete(false);
+        setIsEmpty(false);
+      });
 
     setIsAdding(true);
   }, [todos]);
 
   useEffect(() => {
+  // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }

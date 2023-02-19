@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[];
   setCurrentFilter: React.Dispatch<React.SetStateAction<Filters>>;
-  clearCompleted: (todos: Todo[]) => void;
+  clearCompleted: () => void;
   currentFilter: Filters;
 };
 
@@ -61,7 +61,7 @@ export const FooterTodo: React.FC<Props> = ({
           data-cy="ClearCompletedButton"
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => clearCompleted(todos)}
+          onClick={() => clearCompleted()}
         >
           Clear completed
         </button>

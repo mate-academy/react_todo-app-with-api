@@ -5,7 +5,7 @@ import { Loader } from './Loader';
 
 type Props = {
   todo: Todo;
-  updateTODOCompleted: (todoId: number | undefined, completed: boolean) => void;
+  updateTODOCompleted: (todoNew: Todo) => void;
   removeTodo: (todoId: number | undefined) => void;
   updateTODOTitle: (todoId: number | undefined, title: string) => void;
 };
@@ -17,11 +17,11 @@ export const TodoInfo: React.FC<Props> = ({
   updateTODOTitle,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
-  const [currentTodoId, setCurrentTodoId] = useState(3);
+  const [currentTodoId, setCurrentTodoId] = useState(0);
   const [value, setValue] = useState<string>(todo.title);
 
   const handle = (
-    event: React.KeyboardEvent<HTMLSpanElement>,
+    event: React.KeyboardEvent<HTMLInputElement>,
     id: number,
     title: string,
   ) => {
@@ -39,7 +39,7 @@ export const TodoInfo: React.FC<Props> = ({
   };
 
   const handleKeyUp = (
-    event: React.KeyboardEvent<HTMLSpanElement>,
+    event: React.KeyboardEvent<HTMLInputElement>,
     id: number,
     title: string,
   ) => {
@@ -64,7 +64,7 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
           defaultChecked
           onClick={() => {
-            updateTODOCompleted(todo.id, !todo.completed);
+            updateTODOCompleted(todo);
             setIsVisible(true);
           }}
         />

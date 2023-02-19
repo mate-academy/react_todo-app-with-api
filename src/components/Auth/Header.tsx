@@ -6,9 +6,9 @@ import { Todo } from '../../types/Todo';
 type Props = {
   value: string;
   setValue: React.Dispatch<React.SetStateAction<string>>;
-  handleKeyDown: (event: any) => void;
+  handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   isAdding: boolean;
-  areTodosCompleted: Todo | undefined;
+  areTodosCompleted?: Todo | boolean;
   setStatusCompleted: () => void;
   setStatusNotCompleted:() => void;
 };
