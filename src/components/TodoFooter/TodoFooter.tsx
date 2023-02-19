@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import { capitalizeFirstLetter } from '../../helpers/capitalizeFirstLetter';
 
 import { FilterType } from '../../enums/FilterType';
 
@@ -35,7 +36,7 @@ export const TodoFooter: React.FC<Props> = React.memo(
               })}
               onClick={() => onSelectFilter(option)}
             >
-              {option[0].toUpperCase() + option.slice(1)}
+              {capitalizeFirstLetter(option)}
             </a>
           ))}
         </nav>
@@ -43,7 +44,7 @@ export const TodoFooter: React.FC<Props> = React.memo(
         <button
           type="button"
           className={classNames('todoapp__clear-completed', {
-            hidden: completedTodosNum === 0,
+            hidden: !completedTodosNum,
           })}
           onClick={onClearCompleted}
         >

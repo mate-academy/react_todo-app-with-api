@@ -1,12 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { addTodoOnServer } from '../../api/todos';
 
 import { ErrorType } from '../../enums/ErrorType';
 
 import { Todo } from '../../types/Todo';
-import { AuthContext } from '../../contexts/AuthContext';
 import { TodoToPost } from '../../types/TodoToPost';
+import { useAuth } from '../../hooks/useAuth';
 
 type Props = {
   activeTodosNum: number;
@@ -29,11 +29,11 @@ export const TodoHeader: React.FC<Props> = React.memo(
     const [newTodoTitle, setNewTodoTitle] = useState('');
     const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-    const { id: userId = 0 } = useContext(AuthContext) || {};
+    const { id: userId } = useAuth();
 
-    const handleAddingNewTodo = async (
+    const handleAddNewTodo = async (
       event: React.FormEvent<HTMLFormElement>,
-    ): Promise<void> => {
+    ) => {
       event.preventDefault();
 
       const title = newTodoTitle.trim();
@@ -73,13 +73,13 @@ export const TodoHeader: React.FC<Props> = React.memo(
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: activeTodosNum === 0,
+            active: !activeTodosNum,
           })}
           onClick={onToggleTodosStatus}
           aria-label="Toggle all todos"
         />
 
-        <form onSubmit={handleAddingNewTodo}>
+        <form onSubmit={handleAddNewTodo}>
           <input
             type="text"
             className="todoapp__new-todo"

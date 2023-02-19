@@ -39,9 +39,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
     }, [isEditAllowed]);
 
-    const handleDeleteWithExtraError = async (
-      onError?: () => void,
-    ): Promise<void> => {
+    const handleDeleteTodo = async (onError?: () => void) => {
       hideError();
       setIsWaiting(true);
 
@@ -59,11 +57,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
     };
 
-    const handleDelete = (): void => {
-      handleDeleteWithExtraError();
-    };
-
-    const handleChange: OnChangeFunc = async (
+    const handleChangeTodo: OnChangeFunc = async (
       todoId,
       propName,
       newPropValue,
@@ -87,11 +81,11 @@ export const TodoItem: React.FC<Props> = React.memo(
       }
     };
 
-    const handleStatusChange = (): void => {
-      handleChange(id, 'completed', !completed);
+    const handleStatusChange = () => {
+      handleChangeTodo(id, 'completed', !completed);
     };
 
-    const handleTitleChange = (): void => {
+    const handleTitleChange = () => {
       const newTitle = editedTitle.trim();
 
       setIsEditAllowed(false);
@@ -101,22 +95,22 @@ export const TodoItem: React.FC<Props> = React.memo(
         return;
       }
 
-      const onError = (): void => {
+      const onError = () => {
         setEditedTitle(title);
       };
 
       if (!newTitle) {
-        handleDeleteWithExtraError(onError);
+        handleDeleteTodo(onError);
 
         return;
       }
 
-      handleChange(id, 'title', newTitle, onError);
+      handleChangeTodo(id, 'title', newTitle, onError);
     };
 
     const cancelTitleChange = (
       event: React.KeyboardEvent<HTMLInputElement>,
-    ): void => {
+    ) => {
       if (event.key !== 'Escape') {
         return;
       }
@@ -181,7 +175,7 @@ export const TodoItem: React.FC<Props> = React.memo(
             <button
               type="button"
               className="todo__remove"
-              onClick={handleDelete}
+              onClick={() => handleDeleteTodo()}
               aria-label="Press Enter to delete the todo"
             >
               {'\u00d7'}

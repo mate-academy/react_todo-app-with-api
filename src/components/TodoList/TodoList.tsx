@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { TodoItem } from '../TodoItem';
-import { AuthContext } from '../../contexts/AuthContext';
 
 import { ErrorType } from '../../enums/ErrorType';
 import { Todo } from '../../types/Todo';
-import { OptionalTodo } from '../../types/OptionalTodo';
 import { OnChangeFunc } from '../../types/OnChangeFunc';
+import { useAuth } from '../../hooks/useAuth';
 
 type Props = {
   todos: Todo[];
@@ -33,16 +32,16 @@ export const TodoList: React.FC<Props> = React.memo(
     showError,
     hideError,
   }) => {
-    const { id: userId = 0 } = useContext(AuthContext) || {};
+    const { id: userId } = useAuth();
 
-    const tempTodo: OptionalTodo = !tempTodoTitle
-      ? null
-      : {
+    const getTempTodo = () => {
+      return {
         id: 0,
         userId,
         title: tempTodoTitle,
         completed: false,
       };
+    };
 
     const isLoading = (isTodoCompleted: boolean): boolean => {
       const hasTodoToBeToggled = activeTodosNum === 0
@@ -73,14 +72,14 @@ export const TodoList: React.FC<Props> = React.memo(
             </CSSTransition>
           ))}
 
-          {tempTodo && (
+          {tempTodoTitle && (
             <CSSTransition
               key={0}
               timeout={300}
               classNames="temp-item"
             >
               <TodoItem
-                todo={tempTodo}
+                todo={getTempTodo()}
                 isLoading
               />
             </CSSTransition>

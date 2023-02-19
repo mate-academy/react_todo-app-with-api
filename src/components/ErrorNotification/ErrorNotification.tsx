@@ -5,12 +5,11 @@ import { ErrorType } from '../../enums/ErrorType';
 
 type Props = {
   errorType: ErrorType;
-  isErrorShown: boolean;
   onCloseNotification: () => void;
 };
 
 export const ErrorNotification: React.FC<Props> = React.memo(
-  ({ errorType, isErrorShown, onCloseNotification }) => {
+  ({ errorType, onCloseNotification }) => {
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
@@ -29,7 +28,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(
           break;
 
         default:
-          setErrorMessage('');
+          break;
       }
     }, [errorType]);
 
@@ -47,14 +46,14 @@ export const ErrorNotification: React.FC<Props> = React.memo(
           'is-light',
           'has-text-weight-normal',
           {
-            hidden: !isErrorShown,
+            hidden: errorType === ErrorType.None,
           },
         )}
       >
         <button
           type="button"
           className={classNames('delete', {
-            hidden: !isErrorShown,
+            hidden: errorType === ErrorType.None,
           })}
           onClick={onCloseNotification}
           aria-label="Close notification about an error"

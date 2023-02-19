@@ -14,7 +14,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const saveUser = (user: User) => {
+  const handleSaveUser = (user: User) => {
     localStorage.setItem('user', JSON.stringify(user));
     onLogin(user);
   };
@@ -31,7 +31,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
 
       onLogin(user);
     } catch (error) {
-      setErrorMessage('Something went wrtong');
+      setErrorMessage('Something went wrong');
     }
   }, []);
 
@@ -39,14 +39,14 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
     const user = await getUserByEmail(email);
 
     if (user) {
-      saveUser(user);
+      handleSaveUser(user);
     } else {
       setNeedToRegister(true);
     }
   };
 
   const registerUser = () => {
-    return createUser({ name, email }).then(saveUser);
+    return createUser({ name, email }).then(handleSaveUser);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {

@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -18,33 +17,30 @@ import { Todo } from './types/Todo';
 import { FilterType } from './enums/FilterType';
 import { ErrorType } from './enums/ErrorType';
 import { OnChangeFunc } from './types/OnChangeFunc';
-import { AuthContext } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(FilterType.All);
   const [errorType, setErrorType] = useState(ErrorType.None);
-  const [isErrorShown, setIsErrorShown] = useState(false);
   const [tempTodoTitle, setTempTodoTitle] = useState('');
   const [isAllToggled, setIsAllToggled] = useState(false);
   const [isClearCompleted, setIsClearCompleted] = useState(false);
 
-  const { id: userId = 0 } = useContext(AuthContext) || {};
+  const { id: userId } = useAuth();
 
   useEffect(() => {
     getTodos(userId)
       .then((userTodos) => setTodos(userTodos))
       .catch(() => {
         setErrorType(ErrorType.Download);
-        setIsErrorShown(true);
       });
   }, []);
 
-  const activeTodosNum = useMemo(() => {
-    return todos.reduce((num, todo) => {
-      return todo.completed ? num : num + 1;
-    }, 0);
-  }, [todos]);
+  const activeTodosNum = useMemo(
+    () => filterTodos(todos, FilterType.Active).length,
+    [todos],
+  );
   const completedTodosNum = todos.length - activeTodosNum;
 
   const filteredTodos = useMemo(
@@ -52,27 +48,27 @@ export const App: React.FC = () => {
     [selectedFilter, todos],
   );
 
-  const showError = useCallback((error: ErrorType) => {
+  const handleShowError = useCallback((error: ErrorType) => {
     setErrorType(error);
-    setIsErrorShown(true);
-  }, []);
-  const hideError = useCallback(() => {
-    setIsErrorShown(false);
   }, []);
 
-  const onAddTodo = useCallback(
-    (newTodo: Todo): void => setTodos((oldTodos) => [...oldTodos, newTodo]),
+  const handleHideError = useCallback(() => {
+    setErrorType(ErrorType.None);
+  }, []);
+
+  const handleAddTodo = useCallback(
+    (newTodo: Todo) => setTodos((oldTodos) => [...oldTodos, newTodo]),
     [],
   );
 
-  const onDeleteTodo = useCallback((todoId: number): void => {
-    return setTodos((oldTodos) => {
-      return oldTodos.filter((todo) => todo.id !== todoId);
+  const handleDeleteTodo = useCallback((todoId: number) => {
+    setTodos((oldTodos) => {
+      return oldTodos.filter(({ id }) => id !== todoId);
     });
   }, []);
 
-  const onChangeTodo: OnChangeFunc = useCallback(
-    (todoId, propName, newPropValue): void => {
+  const handleChangeTodo: OnChangeFunc = useCallback(
+    (todoId, propName, newPropValue) => {
       setTodos((oldTodos) => {
         return oldTodos.map((todo) => {
           if (todo.id !== todoId) {
@@ -89,13 +85,14 @@ export const App: React.FC = () => {
     [],
   );
 
-  const onToggleTodosStatus = useCallback(async (): Promise<void> => {
-    const todosToToggle = activeTodosNum !== 0
-      ? filterTodos(todos, FilterType.Active)
-      : filterTodos(todos, FilterType.All);
+  const handleToggleTodosStatus = useCallback(async () => {
+    const filterType = activeTodosNum === 0
+      ? FilterType.All
+      : FilterType.Active;
+    const todosToToggle = filterTodos(todos, filterType);
 
     setIsAllToggled(true);
-    hideError();
+    handleHideError();
 
     try {
       const todosIds = await Promise.all(
@@ -119,17 +116,17 @@ export const App: React.FC = () => {
         });
       });
     } catch {
-      showError(ErrorType.Update);
+      handleShowError(ErrorType.Update);
     } finally {
       setIsAllToggled(false);
     }
   }, [todos]);
 
-  const onClearCompleted = useCallback(async (): Promise<void> => {
+  const handleClearCompleted = useCallback(async () => {
     const completedTodos = filterTodos(todos, FilterType.Completed);
 
     setIsClearCompleted(true);
-    hideError();
+    handleHideError();
 
     try {
       const todosIds = await Promise.all(
@@ -137,10 +134,10 @@ export const App: React.FC = () => {
       );
 
       setTodos((oldTodos) => {
-        return oldTodos.filter((todo) => !todosIds.includes(todo.id));
+        return oldTodos.filter(({ id }) => !todosIds.includes(id));
       });
     } catch {
-      showError(ErrorType.Delete);
+      handleShowError(ErrorType.Delete);
     } finally {
       setIsClearCompleted(false);
     }
@@ -153,11 +150,11 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           activeTodosNum={activeTodosNum}
-          showError={showError}
-          hideError={hideError}
+          showError={handleShowError}
+          hideError={handleHideError}
           showTempTodo={setTempTodoTitle}
-          onAddNewTodo={onAddTodo}
-          onToggleTodosStatus={onToggleTodosStatus}
+          onAddNewTodo={handleAddTodo}
+          onToggleTodosStatus={handleToggleTodosStatus}
         />
 
         <TodoList
@@ -166,10 +163,10 @@ export const App: React.FC = () => {
           tempTodoTitle={tempTodoTitle}
           isClearCompleted={isClearCompleted}
           isAllToggled={isAllToggled}
-          showError={showError}
-          hideError={hideError}
-          onDeleteTodo={onDeleteTodo}
-          onChangeTodo={onChangeTodo}
+          showError={handleShowError}
+          hideError={handleHideError}
+          onDeleteTodo={handleDeleteTodo}
+          onChangeTodo={handleChangeTodo}
         />
 
         {todos.length > 0 && (
@@ -178,15 +175,14 @@ export const App: React.FC = () => {
             completedTodosNum={completedTodosNum}
             selectedFilter={selectedFilter}
             onSelectFilter={setSelectedFilter}
-            onClearCompleted={onClearCompleted}
+            onClearCompleted={handleClearCompleted}
           />
         )}
       </div>
 
       <ErrorNotification
         errorType={errorType}
-        isErrorShown={isErrorShown}
-        onCloseNotification={hideError}
+        onCloseNotification={handleHideError}
       />
     </div>
   );

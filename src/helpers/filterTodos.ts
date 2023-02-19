@@ -6,11 +6,12 @@ export function filterTodos(
   todos: Todo[],
   selectedFilter: FilterType,
 ): Todo[] {
+  if (selectedFilter === FilterType.All) {
+    return todos;
+  }
+
   return todos.filter((todo) => {
     switch (selectedFilter) {
-      case FilterType.All:
-        return true;
-
       case FilterType.Active:
         return !todo.completed;
 
