@@ -35,7 +35,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorType(ErrorType.Download);
       });
-  }, []);
+  }, [userId]);
 
   const activeTodosNum = useMemo(
     () => filterTodos(todos, FilterType.Active).length,

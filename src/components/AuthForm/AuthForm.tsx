@@ -146,7 +146,7 @@ export const AuthForm: React.FC<Props> = ({ onLogin }) => {
             </span>
           </div>
 
-          {needToRegister && errorMessage && (
+          {errorMessage && (
             <p className="help is-danger">{errorMessage}</p>
           )}
         </div>

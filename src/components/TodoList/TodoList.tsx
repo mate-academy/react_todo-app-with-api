@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { TodoItem } from '../TodoItem';
@@ -34,19 +34,19 @@ export const TodoList: React.FC<Props> = React.memo(
   }) => {
     const { id: userId } = useAuth();
 
-    const getTempTodo = () => {
-      return {
+    const tempTodo = useMemo(
+      () => ({
         id: 0,
         userId,
         title: tempTodoTitle,
         completed: false,
-      };
-    };
+      }),
+      [userId, tempTodoTitle],
+    );
 
     const isLoading = (isTodoCompleted: boolean): boolean => {
-      const hasTodoToBeToggled = activeTodosNum === 0
-        ? isTodoCompleted
-        : !isTodoCompleted;
+      const hasTodoToBeToggled =
+        activeTodosNum === 0 ? isTodoCompleted : !isTodoCompleted;
       const isTodoToggled = isAllToggled && hasTodoToBeToggled;
 
       return (isTodoCompleted && isClearCompleted) || isTodoToggled;
@@ -79,7 +79,7 @@ export const TodoList: React.FC<Props> = React.memo(
               classNames="temp-item"
             >
               <TodoItem
-                todo={getTempTodo()}
+                todo={tempTodo}
                 isLoading
               />
             </CSSTransition>

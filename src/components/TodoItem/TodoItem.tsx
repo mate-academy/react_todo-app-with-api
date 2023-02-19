@@ -51,9 +51,7 @@ export const TodoItem: React.FC<Props> = React.memo(
         showError(ErrorType.Delete);
         setIsWaiting(false);
 
-        if (onError) {
-          onError();
-        }
+        onError?.();
       }
     };
 
@@ -73,9 +71,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       } catch {
         showError(ErrorType.Update);
 
-        if (onError) {
-          onError();
-        }
+        onError?.();
       } finally {
         setIsWaiting(false);
       }
