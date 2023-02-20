@@ -5,6 +5,7 @@ import { Todo } from '../../types/Todo';
 import { ErrorMessages } from '../../types/ErrorMessages';
 
 type Props = {
+  hasTodos: boolean,
   hasActiveTodos: number,
   inProcessed: boolean,
   onSubmitAddTodo: (newTodo: Todo) => void,
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = React.memo(({
+  hasTodos,
   hasActiveTodos,
   inProcessed,
   onSubmitAddTodo,
@@ -52,14 +54,16 @@ export const Header: React.FC<Props> = React.memo(({
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: !hasActiveTodos,
-        })}
-        onClick={() => onToggleUpdateTodos(!hasActiveTodos)}
-      />
+      {hasTodos && (
+        // eslint-disable-next-line jsx-a11y/control-has-associated-label
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: !hasActiveTodos,
+          })}
+          onClick={() => onToggleUpdateTodos(!hasActiveTodos)}
+        />
+      )}
 
       <form
         onSubmit={handleAddTodo}

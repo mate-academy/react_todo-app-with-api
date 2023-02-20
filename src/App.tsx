@@ -35,6 +35,7 @@ export const App: FC = () => {
     setErrorMessage,
   ] = useState<ErrorMessages>(ErrorMessages.NOUN);
 
+  const hasTodos = !!todos.length;
   const countActiveTodos = todos.filter(todo => !todo.completed).length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
 
@@ -49,24 +50,23 @@ export const App: FC = () => {
     }
   }, [hasError]);
 
+  const getAllTodos = async () => {
+    try {
+      const todosData = await getTodos();
+
+      setTodos(todosData);
+    } catch (error) {
+      showErrorMessage(ErrorMessages.ONLOAD);
+    }
+  };
+
   useEffect(() => {
-    const onLoadGetTodos = async () => {
-      try {
-        const todosData = await getTodos();
-
-        setTodos(todosData);
-      } catch (error) {
-        showErrorMessage(ErrorMessages.ONLOAD);
-      }
-    };
-
-    onLoadGetTodos();
+    getAllTodos();
   }, []);
 
   const handleAddTodo = useCallback(async (newTodo: Todo) => {
     try {
       setTempTodo(newTodo);
-
       const addedTodo = await addTodo(newTodo);
 
       setTodos(currentTodos => [...currentTodos, addedTodo]);
@@ -140,6 +140,7 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
+          hasTodos={hasTodos}
           hasActiveTodos={countActiveTodos}
           inProcessed={!!tempTodo}
           onSubmitAddTodo={handleAddTodo}
