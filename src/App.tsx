@@ -19,7 +19,7 @@ const USER_ID = 6101;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(Filter.ALL);
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosBeingTransform, setTodosBeingTransform] = useState<number[]>([]);
@@ -225,11 +225,10 @@ export const App: React.FC = () => {
           </>
         )}
         {error && (
-          <div
-            className={classNames(
-              'notification is-danger is-light has-text-weight-normal',
-              { hidden: !error },
-            )}
+          <div className={classNames(
+            'notification is-danger is-light has-text-weight-normal',
+            { hidden: !error },
+          )}
           >
             <button
               type="button"

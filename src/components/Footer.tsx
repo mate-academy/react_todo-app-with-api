@@ -4,7 +4,7 @@ import { Filter, Todo } from '../types/Todo';
 type Props = {
   activeTodos: Todo[],
   filter: string,
-  onSetFilter: (filter: string) => void,
+  onSetFilter: (filter: Filter) => void,
   handleRemoveTodo: (selectedTodosIds: number) => void
   completedTodos: Todo[]
 };
