@@ -127,7 +127,7 @@ export const App: React.FC = () => {
     setNewTitle('');
   };
 
-  const toggleTodo = (toggledTodo: Todo) => {
+  const updateTodo = (toggledTodo: Todo) => {
     enableTodoProcessing(toggledTodo.id);
 
     todosApi.updateTodo({
@@ -138,6 +138,12 @@ export const App: React.FC = () => {
         setTodos(current => current.map(todo => (
           todo.id === updatedTodo.id ? updatedTodo : todo
         )));
+      })
+      .catch(() => {
+        setErrorMessage(ErrorType.UpdatingError);
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
       })
       .finally(() => {
         disableTodoProcessing(toggledTodo.id);
@@ -150,9 +156,9 @@ export const App: React.FC = () => {
 
   const hasActiveTodo = todos.some(todo => todo.completed);
 
-  const handleToggle = () => {
+  const handleToggleAll = () => {
     todos.forEach(todo => {
-      toggleTodo({ ...todo, completed: !hasActiveTodo });
+      updateTodo({ ...todo, completed: hasActiveTodo });
     });
   };
 
@@ -162,25 +168,31 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          handleToggle={handleToggle}
+          handleToggle={handleToggleAll}
           newTitle={newTitle}
           setNewTitle={setNewTitle}
           onSubmit={handleSubmit}
           completed={completedTodos.length === todos.length}
         />
-        <Main
-          todos={visibleTodos}
-          toggleTodo={toggleTodo}
-          deleteTodo={deleteTodo}
-          processedTodos={processingTodoIds}
-        />
 
-        <Footer
-          todos={visibleTodos}
-          status={status}
-          setStatus={setStatus}
-          clearCompleted={clearCompleted}
-        />
+        {todos.length > 0 && (
+          <>
+            <Main
+              todos={visibleTodos}
+              toggleTodo={updateTodo}
+              deleteTodo={deleteTodo}
+              processedTodos={processingTodoIds}
+            />
+
+            <Footer
+              todos={visibleTodos}
+              status={status}
+              setStatus={setStatus}
+              clearCompleted={clearCompleted}
+            />
+          </>
+        )}
+
       </div>
 
       {errorMessage && (

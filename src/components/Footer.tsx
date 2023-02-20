@@ -22,7 +22,11 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodos.length} items left`}
+        {status === 'completed' ? (
+          `${completedTodos.length} items left`
+        ) : (
+          `${activeTodos.length} items left`
+        )}
       </span>
 
       <nav className="filter">
@@ -57,15 +61,20 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={clearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames(
+          'todoapp__clear-completed',
+        )}
+        onClick={clearCompleted}
+        style={{
+          visibility: completedTodos.length
+            ? ('visible')
+            : ('hidden'),
+        }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
