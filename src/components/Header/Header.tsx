@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -26,11 +27,19 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
 }) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    setIsTitleDisabled(true);
     event.preventDefault();
+    setIsTitleDisabled(true);
     createTodo(todoTitle);
     setTempTodo({ id: 0 });
   };
+
+  const inputReference = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isTitleDisabled && document.activeElement !== inputReference.current) {
+      inputReference.current?.focus();
+    }
+  }, [isTitleDisabled]);
 
   return (
     <header className="todoapp__header">
@@ -46,6 +55,7 @@ export const Header: React.FC<Props> = ({
 
       <form onSubmit={handleSubmit}>
         <input
+          ref={inputReference}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"

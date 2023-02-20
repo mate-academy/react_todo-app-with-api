@@ -26,7 +26,11 @@ export const TodoFilter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todoCount} items left`}
+        {todoCount <= 1 ? (
+          `${todoCount} item left`
+        ) : (
+          `${todoCount} items left`
+        )}
       </span>
 
       <nav className="filter">
@@ -64,18 +68,17 @@ export const TodoFilter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {renderClearCompleted && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => {
-            setProcessingTodoIds([...processingTodoIds, ...completedTodoIds]);
-            removeCompletedTodos();
-          }}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => {
+          setProcessingTodoIds([...processingTodoIds, ...completedTodoIds]);
+          removeCompletedTodos();
+        }}
+        disabled={!renderClearCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import {
   deleteTodo,
@@ -36,7 +33,7 @@ export const App: React.FC = () => {
   const areAllTodosCompleted
     = !todos.some(todo => !todo.completed);
 
-  const todoCount = todos.length;
+  const todoCount = todos.filter(todo => !todo.completed).length;
 
   const changeTodosFilter = (filter: FilterBy) => {
     setTodoFilter(filter);
@@ -77,8 +74,13 @@ export const App: React.FC = () => {
     updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
         setTodos(current => [
-          ...current.filter(td => td.id !== todo.id),
-          { ...todo, completed: !todo.completed },
+          ...current.map(td => {
+            if (td.id === todo.id) {
+              return { ...todo, completed: !todo.completed };
+            }
+
+            return (td);
+          }),
         ]);
       })
       .catch(() => {
@@ -101,6 +103,28 @@ export const App: React.FC = () => {
     }
   };
 
+  const updateTitle = (title: string, todoId: number) => {
+    setProcessingTodoIds(current => [...current, todoId]);
+    updateTodo(todoId, { title })
+      .then(() => {
+        setTodos(current => [
+          ...current.map(todo => {
+            if (todo.id === todoId) {
+              return { ...todo, title };
+            }
+
+            return (todo);
+          }),
+        ]);
+      })
+      .catch(() => {
+        setError(ErrorOf.update);
+      })
+      .finally(() => {
+        setProcessingTodoIds(current => current.filter(id => id !== todoId));
+      });
+  };
+
   const removeTodo = (todoId: number) => {
     setProcessingTodoIds(current => [...current, todoId]);
     deleteTodo(todoId)
@@ -121,7 +145,9 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     changeTodosFilter(todoFilter);
-    setCompletedTodoIds(todos.filter(todo => todo.completed).map(todo => todo.id));
+    setCompletedTodoIds(todos.filter(
+      todo => todo.completed,
+    ).map(todo => todo.id));
   }, [todos]);
 
   useEffect(() => {
@@ -155,6 +181,7 @@ export const App: React.FC = () => {
         />
 
         <TodoList
+          updateTitle={updateTitle}
           removeTodo={removeTodo}
           tempTodo={tempTodo}
           todoTitle={todoTitle}
