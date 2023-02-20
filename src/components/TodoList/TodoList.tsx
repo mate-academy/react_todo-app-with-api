@@ -1,6 +1,5 @@
 import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { ErrorMessages } from '../../types/ErrorMessages';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
 import '../../styles/transitiongroup.scss';
@@ -11,8 +10,6 @@ type Props = {
   handleUpdateTodoStatus: (todo: Todo) => void,
   isUpdatingTodoId: number,
   handleUpdateTodoTitle: (todo: Todo, newTitle: string) => void,
-  setIsError: (value: boolean) => void,
-  setErrorMessage: (value: ErrorMessages) => void,
   tempTodo: Todo | null,
 };
 
@@ -22,8 +19,6 @@ export const TodoList:React.FC<Props> = ({
   handleUpdateTodoStatus,
   isUpdatingTodoId,
   handleUpdateTodoTitle,
-  setIsError,
-  setErrorMessage,
   tempTodo,
 }) => (
   <section className="todoapp__main">
@@ -41,8 +36,6 @@ export const TodoList:React.FC<Props> = ({
             handleUpdateTodoStatus={handleUpdateTodoStatus}
             isUpdatingTodoId={isUpdatingTodoId}
             handleUpdateTodoTitle={handleUpdateTodoTitle}
-            setIsError={setIsError}
-            setErrorMessage={setErrorMessage}
           />
         </CSSTransition>
       ))}
@@ -59,8 +52,6 @@ export const TodoList:React.FC<Props> = ({
             handleUpdateTodoStatus={() => {}}
             isUpdatingTodoId={tempTodo.id}
             handleUpdateTodoTitle={() => {}}
-            setIsError={() => {}}
-            setErrorMessage={() => {}}
           />
         </CSSTransition>
       )}

@@ -1,8 +1,6 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { ErrorMessages } from '../../types/ErrorMessages';
 import { Todo } from '../../types/Todo';
-import { closeNotification } from '../../utils/closeNotification';
 
 type Props = {
   todo: Todo,
@@ -10,8 +8,6 @@ type Props = {
   handleUpdateTodoStatus: (todo: Todo) => void,
   isUpdatingTodoId: number,
   handleUpdateTodoTitle: (todo: Todo, newTitle: string) => void,
-  setIsError: (value: boolean) => void,
-  setErrorMessage: (value: ErrorMessages) => void,
 };
 
 export const TodoInfo:React.FC<Props> = ({
@@ -20,8 +16,6 @@ export const TodoInfo:React.FC<Props> = ({
   handleUpdateTodoStatus,
   isUpdatingTodoId,
   handleUpdateTodoTitle,
-  setIsError,
-  setErrorMessage,
 }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -40,14 +34,6 @@ export const TodoInfo:React.FC<Props> = ({
       handleUpdateTodoTitle(todo, newTitle);
       setIsFormVisible(false);
     }
-  };
-
-  const handleOnBlurInput = () => {
-    setIsFormVisible(false);
-    setNewTitle(todo.title);
-    setIsError(true);
-    setErrorMessage(ErrorMessages.UPDATE);
-    closeNotification(setIsError, false, 3000);
   };
 
   const cancelTitleCahnge = (event: React.KeyboardEvent) => {
@@ -85,7 +71,7 @@ export const TodoInfo:React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
-              onBlur={handleOnBlurInput}
+              onBlur={handleTitleChange}
               onKeyDown={cancelTitleCahnge}
             />
           </form>

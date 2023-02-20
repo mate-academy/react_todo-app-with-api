@@ -39,15 +39,19 @@ export const App: React.FC = () => {
   const howManyActiveTodosLeft = activeTodos.length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
 
+  const showError = (message: ErrorMessages) => {
+    setIsError(true);
+    setErrorMessage(message);
+    closeNotification(setIsError, false, 3000);
+  };
+
   const loadTodos = async () => {
     try {
       const loadedTodos = await getTodos(USER_ID);
 
       setTodos(loadedTodos);
     } catch (error) {
-      setIsError(true);
-      closeNotification(setIsError, false, 3000);
-      throw new Error(`There is an error: ${error}`);
+      showError(ErrorMessages.LOAD);
     }
   };
 
@@ -61,9 +65,7 @@ export const App: React.FC = () => {
 
   const handleAddTodo = async (todoTitle: string) => {
     if (todoTitle.length === 0) {
-      setIsError(true);
-      setErrorMessage(ErrorMessages.TITLE);
-      closeNotification(setIsError, false, 3000);
+      showError(ErrorMessages.TITLE);
 
       return;
     }
@@ -87,9 +89,7 @@ export const App: React.FC = () => {
         ...currentTodos, newTodo,
       ]));
     } catch {
-      setIsError(true);
-      setErrorMessage(ErrorMessages.ADD);
-      closeNotification(setIsError, false, 3000);
+      showError(ErrorMessages.ADD);
     } finally {
       setTempTodo(null);
       setIsInputDisabled(false);
@@ -104,9 +104,7 @@ export const App: React.FC = () => {
         currentTodos.filter(todo => todo.id !== todoToDelete.id)
       ));
     } catch {
-      setIsError(true);
-      setErrorMessage(ErrorMessages.DELETE);
-      closeNotification(setIsError, false, 3000);
+      showError(ErrorMessages.DELETE);
     }
   };
 
@@ -138,9 +136,7 @@ export const App: React.FC = () => {
         ));
       });
     } catch {
-      setIsError(true);
-      setErrorMessage(ErrorMessages.UPDATE);
-      closeNotification(setIsError, false, 3000);
+      showError(ErrorMessages.UPDATE);
     } finally {
       setIsUpdatingTodoId(0);
     }
@@ -178,9 +174,7 @@ export const App: React.FC = () => {
         ));
       });
     } catch {
-      setIsError(true);
-      setErrorMessage(ErrorMessages.UPDATE);
-      closeNotification(setIsError, false, 3000);
+      showError(ErrorMessages.UPDATE);
     } finally {
       setIsUpdatingTodoId(0);
     }
@@ -213,8 +207,6 @@ export const App: React.FC = () => {
               handleUpdateTodoStatus={handleUpdateTodoStatus}
               isUpdatingTodoId={isUpdatingTodoId}
               handleUpdateTodoTitle={handleUpdateTodoTitle}
-              setIsError={setIsError}
-              setErrorMessage={setErrorMessage}
               tempTodo={tempTodo}
             />
             <Footer
