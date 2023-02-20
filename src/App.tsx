@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   addTodo,
   deleteTodo,
@@ -33,8 +38,21 @@ export const App: React.FC = () => {
   ] = useState<ErrorMessages>(ErrorMessages.NONE);
   const [isUpdatingTodoId, setIsUpdatingTodoId] = useState(0);
 
-  const activeTodos = todos
-    .filter(todo => !todo.completed);
+  const changeTitle = (newTitle: string) => {
+    setTitle(newTitle);
+  };
+
+  const changeFilterBy = (filter: FilterBy) => {
+    setFilterBy(filter);
+  };
+
+  const changeIsError = (value: boolean) => {
+    setIsError(value);
+  };
+
+  const activeTodos = useMemo(() => (
+    todos.filter(todo => !todo.completed)
+  ), [todos]);
   const hasActiveTodos = activeTodos.length > 0;
   const howManyActiveTodosLeft = activeTodos.length;
   const hasCompletedTodos = todos.some(todo => todo.completed);
@@ -45,7 +63,7 @@ export const App: React.FC = () => {
     closeNotification(setIsError, false, 3000);
   };
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     try {
       const loadedTodos = await getTodos(USER_ID);
 
@@ -53,15 +71,15 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorMessages.LOAD);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadTodos();
   }, []);
 
-  const preparedTodos = useMemo(() => {
-    return prepareTodo(todos, filterBy);
-  }, [todos, filterBy]);
+  const preparedTodos = useMemo(() => (
+    prepareTodo(todos, filterBy)
+  ), [todos, filterBy]);
 
   const handleAddTodo = async (todoTitle: string) => {
     if (todoTitle.length === 0) {
@@ -85,9 +103,13 @@ export const App: React.FC = () => {
 
       setTempTodo(newTodo);
 
-      setTodos(currentTodos => ([
-        ...currentTodos, newTodo,
-      ]));
+      try {
+        const loadedTodos = await getTodos(USER_ID);
+
+        setTodos(loadedTodos);
+      } catch (error) {
+        showError(ErrorMessages.LOAD);
+      }
     } catch {
       showError(ErrorMessages.ADD);
     } finally {
@@ -128,13 +150,13 @@ export const App: React.FC = () => {
         newStatus,
       );
 
-      setTodos(currentTodos => {
-        return currentTodos.map(todo => (
+      setTodos(currentTodos => (
+        currentTodos.map(todo => (
           todo.id === todoToUpdate.id
             ? updatedTodo
             : todo
-        ));
-      });
+        ))
+      ));
     } catch {
       showError(ErrorMessages.UPDATE);
     } finally {
@@ -193,13 +215,14 @@ export const App: React.FC = () => {
           hasActiveTodos={hasActiveTodos}
           isInputDisabled={isInputDisabled}
           title={title}
-          onTitleChange={setTitle}
+          onTitleChange={changeTitle}
           onAddTodo={handleAddTodo}
           handleUpdateAllTodosStatus={handleUpdateAllTodosStatus}
           todos={todos}
+          showError={showError}
         />
 
-        {!!todos.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={preparedTodos}
@@ -213,7 +236,7 @@ export const App: React.FC = () => {
               howManyActiveTodosLeft={howManyActiveTodosLeft}
               hasCompletedTodos={hasCompletedTodos}
               filterBy={filterBy}
-              onFilterBy={setFilterBy}
+              onFilterBy={changeFilterBy}
               onDeleteCopletedTodos={handleDeleteCompletedTodos}
             />
           </>
@@ -223,7 +246,7 @@ export const App: React.FC = () => {
       <Notification
         isError={isError}
         errorMessage={errorMessage}
-        onIsError={setIsError}
+        onIsError={changeIsError}
       />
     </div>
   );

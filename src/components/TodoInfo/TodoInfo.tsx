@@ -23,6 +23,8 @@ export const TodoInfo:React.FC<Props> = ({
   const handleTitleChange = () => {
     if (!newTitle) {
       onDeleteTodo(todo);
+
+      return;
     }
 
     if (newTitle === todo.title) {
@@ -43,6 +45,11 @@ export const TodoInfo:React.FC<Props> = ({
     }
   };
 
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleTitleChange();
+  };
+
   return (
     <div className={classNames(
       'todo',
@@ -60,11 +67,7 @@ export const TodoInfo:React.FC<Props> = ({
 
       {isFormVisible
         ? (
-          <form onSubmit={(event) => {
-            event.preventDefault();
-            handleTitleChange();
-          }}
-          >
+          <form onSubmit={(event) => handleFormSubmit(event)}>
             <input
               type="text"
               className="todo__title-field"
@@ -73,6 +76,8 @@ export const TodoInfo:React.FC<Props> = ({
               onChange={(event) => setNewTitle(event.target.value)}
               onBlur={handleTitleChange}
               onKeyDown={cancelTitleCahnge}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         ) : (
