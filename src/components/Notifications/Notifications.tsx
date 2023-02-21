@@ -2,55 +2,29 @@ import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { ErrorTypes } from '../../types/ErrorTypes';
 import { TodosContext } from '../TodosProvider';
+import { GetErrorMessage } from '../../utils/GetErrorMessage';
 
 export const Notifications: React.FC = React.memo(() => {
   const [isHidden, setIsHidden] = useState(true);
-  let errorMessage = '';
-
-  const { errorType } = useContext(TodosContext);
-
+  const { errorType, errorTypeHandler } = useContext(TodosContext);
+  const errorMessage = GetErrorMessage(errorType);
+  let timeOutId = 0;
   const closeNotification = () => {
-    const timeOutId = window.setTimeout(() => {
+    timeOutId = window.setTimeout(() => {
       setIsHidden(true);
-      window.clearTimeout(timeOutId);
+      errorTypeHandler(ErrorTypes.NONE);
     }, 3000);
   };
 
   useEffect(() => {
     if (errorType !== ErrorTypes.NONE) {
+      window.clearTimeout(timeOutId);
       setIsHidden(false);
       closeNotification();
     } else {
       setIsHidden(true);
     }
   }, [errorType]);
-
-  switch (errorType) {
-    case ErrorTypes.NONE:
-      break;
-    case ErrorTypes.EMPTY_TITLE:
-      errorMessage = 'Title can\'t be empty';
-      break;
-
-    case ErrorTypes.ADD_ERROR:
-      errorMessage = 'Unable to add a todo';
-      break;
-
-    case ErrorTypes.UPLOAD_ERROR:
-      errorMessage = 'Unable to upload todos';
-      break;
-
-    case ErrorTypes.UPDATE_ERROR:
-      errorMessage = 'Unable to update a todo';
-      break;
-
-    case ErrorTypes.DELETE_ERROR:
-      errorMessage = 'Unable to delete a todo';
-      break;
-
-    default:
-      throw new Error('Unexpected type of error');
-  }
 
   return (
     <div

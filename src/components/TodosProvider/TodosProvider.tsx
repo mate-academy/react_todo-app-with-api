@@ -37,6 +37,7 @@ type ContextType = {
   handleFilter: (value: Filter) => void,
   clearAll: (todos: Todo[]) => void,
   handleUpdate: (todo: Todo, title: string) => void,
+  errorTypeHandler: (error: ErrorTypes) => void,
 };
 
 export const TodosContext = React.createContext<ContextType>({
@@ -54,6 +55,7 @@ export const TodosContext = React.createContext<ContextType>({
   handleFilter: () => {},
   clearAll: () => {},
   handleUpdate: () => {},
+  errorTypeHandler: () => {},
 });
 
 interface Props {
@@ -207,6 +209,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
+  const errorTypeHandler = (value: ErrorTypes) => {
+    setErrorType(value);
+  };
+
   const contextValue = useMemo(() => {
     return {
       query,
@@ -223,6 +229,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       handleFilter,
       clearAll,
       handleUpdate,
+      errorTypeHandler,
     };
   }, [todos, query, filter, errorType, tempTodo, processedTodos]);
 
