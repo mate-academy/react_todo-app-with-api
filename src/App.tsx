@@ -141,8 +141,6 @@ export const App: React.FC = () => {
     }
 
     setTodoWithLoader(editedTodo.id);
-    // setEditingId(editedTodo.id);
-
     const undatedTodo = { ...editedTodo, title: newTitle };
 
     try {
