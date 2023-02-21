@@ -65,7 +65,7 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div
-      className={classNames("todo", {
+      className={classNames('todo', {
         completed,
       })}
     >
@@ -87,6 +87,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             onKeyUp={handleEscape}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
         </form>
@@ -110,8 +111,8 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div
-        className={classNames("modal overlay", {
-          "is-active": updatingStage.includes(id),
+        className={classNames('modal overlay', {
+          'is-active': updatingStage.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
