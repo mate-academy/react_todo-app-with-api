@@ -1,17 +1,10 @@
 import React, { useContext } from 'react';
 import cn from 'classnames';
 import { AddTodoForm } from '../AddTodoForm';
-import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodosProvider';
 
-type Props = {
-  todos: Todo[];
-};
-export const Header: React.FC<Props> = (
-  {
-    todos,
-  },
-) => {
+export const Header: React.FC = () => {
+  const { todos } = useContext(TodosContext);
   const activeTodos = todos.filter(todo => !todo.completed);
   const todosToToggle = activeTodos.length > 0 ? activeTodos : todos;
   const { handleStatusAll } = useContext(TodosContext);
