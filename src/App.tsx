@@ -89,7 +89,6 @@ export const App: React.FC = () => {
     }
 
     const todoToAdd = {
-      id: 0,
       title: todoTitle,
       userId: USER_ID,
       completed: false,
