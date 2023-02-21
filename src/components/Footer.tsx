@@ -10,13 +10,19 @@ type Props = {
   clearCompleted: () => void,
 };
 
-export const TodoAppFooter: React.FC<Props> = ({
+export const Footer: React.FC<Props> = ({
   itemsLeft,
   filterByStatus,
   setFilterByStatus,
   areTodosCompleted,
   clearCompleted,
 }) => {
+  const setFilterStatus = (status: Status) => () => {
+    setFilterByStatus(status);
+  };
+
+  const clearCompletedTodos = () => clearCompleted();
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
@@ -30,7 +36,7 @@ export const TodoAppFooter: React.FC<Props> = ({
             'filter__link',
             { selected: filterByStatus === Status.All },
           )}
-          onClick={() => setFilterByStatus(Status.All)}
+          onClick={setFilterStatus(Status.All)}
         >
           All
         </a>
@@ -41,7 +47,7 @@ export const TodoAppFooter: React.FC<Props> = ({
             'filter__link',
             { selected: filterByStatus === Status.Active },
           )}
-          onClick={() => setFilterByStatus(Status.Active)}
+          onClick={setFilterStatus(Status.Active)}
         >
           Active
         </a>
@@ -52,7 +58,7 @@ export const TodoAppFooter: React.FC<Props> = ({
             'filter__link',
             { selected: filterByStatus === Status.Completed },
           )}
-          onClick={() => setFilterByStatus(Status.Completed)}
+          onClick={setFilterStatus(Status.Completed)}
         >
           Completed
         </a>
@@ -62,7 +68,7 @@ export const TodoAppFooter: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         style={{ visibility: areTodosCompleted ? 'visible' : 'hidden' }}
-        onClick={() => clearCompleted()}
+        onClick={clearCompletedTodos}
       >
         Clear completed
       </button>

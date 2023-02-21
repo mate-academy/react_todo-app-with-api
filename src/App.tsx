@@ -1,14 +1,14 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { TypeError } from './types/TypeError';
 import { UserWarning } from './UserWarning';
-import { TodoAppHeader } from './components/TodoAppHeader';
-import { TodoAppTodo } from './components/TodoAppTodo';
-import { TodoAppFooter } from './components/TodoAppFooter';
+import { Header } from './components/Header';
+import { TodoItem } from './components/TodoItem';
+import { Footer } from './components/Footer';
 import {
   getTodos,
   createTodo,
@@ -31,7 +31,6 @@ export const App: React.FC = () => {
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
   const areAllTodosCompleted = todos.every(todo => todo.completed);
-  let visibleTodos;
 
   const deleteHandler = (todoId?: number) => {
     setTypeError('');
@@ -121,7 +120,6 @@ export const App: React.FC = () => {
 
     createTodo(data)
       .then((addedTodo) => {
-        setTempTodo(null);
         setTodos([...todos, addedTodo]);
         setTitleTodo('');
       })
@@ -129,8 +127,13 @@ export const App: React.FC = () => {
         setTypeError(TypeError.Add);
         setTextError(TypeError.Add);
       })
-      .finally(() => setDisableInput(false));
+      .finally(() => {
+        setTempTodo(null);
+        setDisableInput(false);
+      });
   };
+
+  const closeErrorMessage = () => setTypeError('');
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -147,19 +150,18 @@ export const App: React.FC = () => {
     return () => clearTimeout(timerId);
   }, [typeError]);
 
-  switch (filterByStatus) {
-    case Status.Active:
-      visibleTodos = activeTodos;
-      break;
+  const visibleTodos = useMemo(() => {
+    switch (filterByStatus) {
+      case Status.Active:
+        return activeTodos;
 
-    case Status.Completed:
-      visibleTodos = completedTodos;
-      break;
+      case Status.Completed:
+        return completedTodos;
 
-    default:
-      visibleTodos = todos;
-      break;
-  }
+      default:
+        return todos;
+    }
+  }, [filterByStatus, todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -170,7 +172,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoAppHeader
+        <Header
           allTodosCompleted={areAllTodosCompleted}
           disableInput={disableInput}
           titleTodo={titleTodo}
@@ -179,7 +181,7 @@ export const App: React.FC = () => {
           onToggleAll={toggleAllHandler}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <section className="todoapp__main">
               <TransitionGroup>
@@ -189,7 +191,7 @@ export const App: React.FC = () => {
                     timeout={500}
                     classNames="item"
                   >
-                    <TodoAppTodo
+                    <TodoItem
                       todo={todo}
                       deleteHandler={deleteHandler}
                       isProcessed={idTodosLoading.includes(todo.id)}
@@ -203,7 +205,7 @@ export const App: React.FC = () => {
                     timeout={500}
                     classNames="temp-item"
                   >
-                    <TodoAppTodo
+                    <TodoItem
                       todo={tempTodo}
                       isProcessed
                     />
@@ -212,7 +214,7 @@ export const App: React.FC = () => {
               </TransitionGroup>
             </section>
 
-            <TodoAppFooter
+            <Footer
               itemsLeft={activeTodos.length}
               filterByStatus={filterByStatus}
               setFilterByStatus={setFilterByStatus}
@@ -229,13 +231,13 @@ export const App: React.FC = () => {
           'is-danger',
           'is-light',
           'has-text-weight-normal',
-          { hidden: typeError.length === 0 },
+          { hidden: !typeError },
         )}
       >
         <button
           type="button"
           className="delete"
-          onClick={() => setTypeError('')}
+          onClick={closeErrorMessage}
         />
         {textError}
       </div>

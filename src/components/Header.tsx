@@ -11,7 +11,7 @@ type Props = {
   onToggleAll: () => void,
 };
 
-export const TodoAppHeader: React.FC<Props> = ({
+export const Header: React.FC<Props> = ({
   allTodosCompleted,
   disableInput,
   titleTodo,
@@ -19,6 +19,17 @@ export const TodoAppHeader: React.FC<Props> = ({
   addHandler,
   onToggleAll,
 }) => {
+  const submitNewTitle = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    addHandler();
+  };
+
+  const titleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!disableInput) {
+      setTitleTodo(event.target.value);
+    }
+  };
+
   return (
     <header className="todoapp__header">
       <button
@@ -31,21 +42,14 @@ export const TodoAppHeader: React.FC<Props> = ({
       />
 
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          addHandler();
-        }}
+        onSubmit={submitNewTitle}
       >
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={titleTodo}
-          onChange={(event) => {
-            if (!disableInput) {
-              setTitleTodo(event.target.value);
-            }
-          }}
+          onChange={titleInput}
         />
       </form>
     </header>

@@ -9,7 +9,7 @@ type Props = {
   onUpdate?: (todoId: number, title?: string) => void,
 };
 
-export const TodoAppTodo: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = ({
   todo,
   deleteHandler = () => {},
   isProcessed,
@@ -30,6 +30,26 @@ export const TodoAppTodo: React.FC<Props> = ({
     setIsFormUpdate(false);
   };
 
+  const changeStatusTodo = () => onUpdate(todo.id);
+  const startEditing = () => setIsFormUpdate(true);
+  const deletingTodo = () => deleteHandler(todo.id);
+  const titleUpdate = () => updateHandler();
+  const submitUpdetedTitle = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateHandler();
+  };
+
+  const newTitleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
+
+  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsFormUpdate(false);
+      setNewTitle(todo.title);
+    }
+  };
+
   return (
     <div
       className={classNames(
@@ -42,16 +62,13 @@ export const TodoAppTodo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onUpdate(todo.id)}
+          onChange={changeStatusTodo}
         />
       </label>
 
       {isFormUpdate ? (
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateHandler();
-          }}
+          onSubmit={submitUpdetedTitle}
         >
           <input
             type="text"
@@ -60,21 +77,16 @@ export const TodoAppTodo: React.FC<Props> = ({
             value={newTitle}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
-            onChange={(event) => setNewTitle(event.target.value)}
-            onBlur={() => updateHandler()}
-            onKeyUp={(event) => {
-              if (event.key === 'Escape') {
-                setIsFormUpdate(false);
-                setNewTitle(todo.title);
-              }
-            }}
+            onChange={newTitleInput}
+            onBlur={titleUpdate}
+            onKeyUp={cancelEditing}
           />
         </form>
       ) : (
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setIsFormUpdate(true)}
+            onDoubleClick={startEditing}
           >
             {todo.title}
           </span>
@@ -82,7 +94,7 @@ export const TodoAppTodo: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => deleteHandler(todo.id)}
+            onClick={deletingTodo}
           >
             &times;
           </button>
