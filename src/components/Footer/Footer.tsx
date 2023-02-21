@@ -7,13 +7,12 @@ import { TodosContext } from '../TodosProvider';
 type Props = {
   todos: Todo[];
 };
-export const Footer: React.FC<Props> = (
-  {
-    todos,
-  },
-) => {
+export const Footer: React.FC<Props> = ({ todos }) => {
   const itemsLeft = todos.filter(todo => !todo.completed).length;
   const completed = todos.filter(todo => todo.completed);
+
+  console.log(completed);
+
   const {
     handleFilter,
     filter,

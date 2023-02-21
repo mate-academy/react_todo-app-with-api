@@ -27,9 +27,14 @@ export const EditInput: React.FC<Props> = ({ todo, setEditedTodoId }) => {
     setEditedTodoId(0);
   };
 
+  const handleOnBlur = () => {
+    handleUpdate(todo, editedQuery);
+    setEditedTodoId(0);
+  };
+
   const reset = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setEditedTodoId(0);
+      handleOnBlur();
     }
   };
 
@@ -43,9 +48,7 @@ export const EditInput: React.FC<Props> = ({ todo, setEditedTodoId }) => {
         onChange={handleQuery}
         /* eslint-disable-next-line jsx-a11y/no-autofocus */
         autoFocus
-        onBlur={() => {
-          setEditedTodoId(0);
-        }}
+        onBlur={handleOnBlur}
         onKeyUp={reset}
       />
       <input type="submit" hidden />

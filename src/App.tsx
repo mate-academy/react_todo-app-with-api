@@ -39,7 +39,7 @@ export const App: React.FC = () => {
 
         {!!todos.length
           && (
-            <Footer todos={todos} />
+            <Footer todos={visibleTodos} />
           )}
       </div>
       <Notifications />
