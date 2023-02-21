@@ -48,13 +48,13 @@ export const TodoItem: React.FC<Props> = React.memo(({
   };
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(event.target.value);
+    setNewTitle(event.target.value.trimStart());
   }, []);
 
   const handleRename = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!newTitle.trim()) {
+    if (!newTitle) {
       onDelete();
 
       return;

@@ -66,7 +66,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleAddWithTitle = useCallback(async (title: string) => {
-    if (!title.trim()) {
+    if (!title) {
       pushNotification(ErrorMessage.TITLE);
 
       return;

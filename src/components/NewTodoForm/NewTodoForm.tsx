@@ -43,7 +43,7 @@ export const NewTodoForm: React.FC<Props> = React.memo(({
   };
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setTodoTitle(event.target.value);
+    setTodoTitle(event.target.value.trimStart());
   }, []);
 
   return (
