@@ -16,55 +16,34 @@ export const Footer: React.FC<Props> = React.memo(({
   setFilterBy,
   onRemoveCompletedTodo,
   hasCompletedTodos,
-}) => {
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${quantity} items left`}
-      </span>
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${quantity} items left`}
+    </span>
 
-      {/* Active filter should have a 'selected' class */}
-      <nav className="filter">
+    <nav className="filter">
+      {Object.values(FilterBy).map(filterType => (
         <a
+          key={filterType}
           href="#/"
           className={cn('filter__link', {
-            selected: filterBy === FilterBy.ALL,
+            selected: filterBy === filterType,
           })}
-          onClick={() => setFilterBy(FilterBy.ALL)}
+          onClick={() => setFilterBy(filterType)}
         >
-          All
+          {filterType}
         </a>
+      ))}
+    </nav>
 
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.ACTIVE,
-          })}
-          onClick={() => setFilterBy(FilterBy.ACTIVE)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.COMPLETED,
-          })}
-          onClick={() => setFilterBy(FilterBy.COMPLETED)}
-        >
-          Completed
-        </a>
-      </nav>
-
-      {/* don't show this button if there are no completed todos */}
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={onRemoveCompletedTodo}
-        disabled={!hasCompletedTodos}
-      >
-        Clear completed
-      </button>
-    </footer>
-  );
-});
+    <button
+      type="button"
+      className="todoapp__clear-completed"
+      onClick={onRemoveCompletedTodo}
+      disabled={!hasCompletedTodos}
+    >
+      Clear completed
+    </button>
+  </footer>
+));

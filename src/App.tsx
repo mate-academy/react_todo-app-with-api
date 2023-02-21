@@ -36,8 +36,14 @@ export const App: FC = () => {
   ] = useState<ErrorMessages>(ErrorMessages.NOUN);
 
   const hasTodos = !!todos.length;
-  const countActiveTodos = todos.filter(todo => !todo.completed).length;
-  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const countActiveTodos = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
+  const hasCompletedTodos = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
 
   const showErrorMessage = useCallback((message: ErrorMessages) => {
     setHasError(true);
@@ -132,6 +138,14 @@ export const App: FC = () => {
     }));
   }, [todos]);
 
+  const handleHasError = useCallback((isError: boolean) => {
+    setHasError(isError);
+  }, []);
+
+  const handleFilterBy = useCallback((filterType: FilterBy) => {
+    setFilterBy(filterType);
+  }, []);
+
   const visibleTodos = useMemo(() => (
     getFilteredTodos(todos, filterBy)
   ), [todos, filterBy]);
@@ -147,7 +161,7 @@ export const App: FC = () => {
       <div className="todoapp__content">
         <Header
           hasTodos={hasTodos}
-          hasActiveTodos={countActiveTodos}
+          someActiveTodos={countActiveTodos}
           inProcessed={!!tempTodo}
           onSubmitAddTodo={handleAddTodo}
           onToggleUpdateTodos={toggleUpdateTodos}
@@ -166,7 +180,7 @@ export const App: FC = () => {
           <Footer
             quantity={countActiveTodos}
             filterBy={filterBy}
-            setFilterBy={setFilterBy}
+            setFilterBy={handleFilterBy}
             hasCompletedTodos={hasCompletedTodos}
             onRemoveCompletedTodo={removeCompletedTodo}
           />
@@ -175,7 +189,7 @@ export const App: FC = () => {
 
       <Notification
         hasError={hasError}
-        setHasError={setHasError}
+        setHasError={handleHasError}
         errorMessage={errorMessage}
       />
     </div>
