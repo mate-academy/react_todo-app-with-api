@@ -11,7 +11,12 @@ import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { ErrorNotifications } from './components/ErrorNotifications';
 import { Todo } from './types/Todo';
-import { getTodos, addTodo, removeTodo } from './api/todos';
+import {
+  getTodos,
+  addTodo,
+  removeTodo,
+  changeTodo,
+} from './api/todos';
 import { Filter } from './types/Filter';
 import { filterTodos } from './utils/filterTodos';
 import { Error } from './types/Error';
@@ -26,11 +31,9 @@ export const App: React.FC = () => {
   const [isAddWaiting, setIsAddWaiting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleteWaiting, setIsDeleteWaiting] = useState(false);
-  const [onRemoveTodoIds, setOnRemoveTodoIds] = useState<number[]>([]);
-
-  const changeRemoveTodoIds = useCallback((value: number[]) => {
-    setOnRemoveTodoIds(value);
-  }, []);
+  const [todosIdsToRemove, setTodosIdsToRemove] = useState<number[]>([]);
+  const [todosIdsToUpdate, setTodosIdsToUpdate] = useState<number[]>([]);
+  const [isUpdateWaiting, setIsUpdateWaiting] = useState(false);
 
   const removeError = () => {
     window.setTimeout(() => setError(Error.NONE), 3000);
@@ -63,10 +66,8 @@ export const App: React.FC = () => {
       await addTodo(USER_ID, newTodo);
 
       const demoTodo = {
+        ...newTodo,
         id: 0,
-        userId: USER_ID,
-        title: todoTitle,
-        completed: false,
       };
 
       setTempTodo(demoTodo);
@@ -93,12 +94,48 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const changeCompletedStatus = async (todoId: number, status: boolean) => {
+    try {
+      setIsUpdateWaiting(true);
+
+      const changedData = {
+        completed: status,
+      };
+
+      await changeTodo(USER_ID, todoId, changedData);
+      await loadTodosFromServer();
+    } catch {
+      setError(Error.ONUPDATE);
+    } finally {
+      setIsUpdateWaiting(false);
+    }
+  };
+
+  const changeTodoTitle = async (todoId: number, newTitle: string) => {
+    try {
+      setIsUpdateWaiting(true);
+
+      const changedData = {
+        title: newTitle,
+      };
+
+      await changeTodo(USER_ID, todoId, changedData);
+      await loadTodosFromServer();
+    } catch {
+      setError(Error.ONUPDATE);
+    } finally {
+      setIsUpdateWaiting(false);
+    }
+  };
+
   const visibleTodos = filterTodos(todos, filterType);
 
   const completedTodos = useMemo(() => todos
     .filter(todo => todo.completed), [todos]);
 
   const activeTodos = todos.length - completedTodos.length;
+
+  const isAllTodosCompleted = completedTodos.length === todos.length;
 
   const onFilterTypeChange = useCallback((value: Filter) => {
     setFilterType(value);
@@ -114,10 +151,41 @@ export const App: React.FC = () => {
 
   const completedTodoIds = completedTodos.map(todo => todo.id);
 
+  const changeTodosIdsToRemove = useCallback((value: number) => {
+    setTodosIdsToRemove((currentIds) => [...currentIds, value]);
+  }, []);
+
   const deleteCompletedTodos = () => {
-    setOnRemoveTodoIds(completedTodoIds);
+    completedTodoIds.map(id => changeTodosIdsToRemove(id));
 
     completedTodoIds.map(id => deleteTodo(id));
+  };
+
+  const removeDeleteId = (removedId: number) => {
+    setTodosIdsToRemove((currentIds) => currentIds
+      .filter(id => id !== removedId));
+  };
+
+  const changeTodosIdsToUpdate = (value: number) => {
+    setTodosIdsToUpdate((currentIds) => [...currentIds, value]);
+  };
+
+  const removeUpdatedId = (idToRemove: number) => {
+    setTodosIdsToUpdate((currentIds) => currentIds
+      .filter(id => id !== idToRemove));
+  };
+
+  const resetTodosIdsToUpdate = () => {
+    setTodosIdsToUpdate([]);
+  };
+
+  const toggleAllTodosStatus = async (status: boolean) => {
+    todos.map(todo => changeTodosIdsToUpdate(todo.id));
+
+    await Promise.all(todos
+      .map(todo => changeCompletedStatus(todo.id, status)));
+
+    resetTodosIdsToUpdate();
   };
 
   if (!USER_ID) {
@@ -135,17 +203,26 @@ export const App: React.FC = () => {
           handleErrors={handleErrors}
           addNewTodo={addNewTodo}
           isLoading={isAddWaiting}
+          isAllTodosCompleted={isAllTodosCompleted}
+          toggleAllTodosStatus={toggleAllTodosStatus}
         />
 
-        {todos.length > 0 && (
+        {(todos.length > 0 || tempTodo !== null) && (
           <>
             <TodoList
               todos={visibleTodos}
               tempTodo={tempTodo}
               deleteTodo={deleteTodo}
               isDeleteWaiting={isDeleteWaiting}
-              onRemoveTodoIds={onRemoveTodoIds}
-              changeRemoveTodoIds={changeRemoveTodoIds}
+              todosIdsToRemove={todosIdsToRemove}
+              changeTodosIdsToRemove={changeTodosIdsToRemove}
+              removeDeleteId={removeDeleteId}
+              changeCompletedStatus={changeCompletedStatus}
+              isUpdateWaiting={isUpdateWaiting}
+              todosIdsToUpdate={todosIdsToUpdate}
+              changeTodosIdsToUpdate={changeTodosIdsToUpdate}
+              removeUpdatedId={removeUpdatedId}
+              changeTodoTitle={changeTodoTitle}
             />
 
             <TodoFilter

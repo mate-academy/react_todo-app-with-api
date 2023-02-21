@@ -8,7 +8,7 @@ type Props = {
   onFilterTypeChange: (value: Filter) => void;
   completedTodos: number;
   activeTodos: number;
-  deleteCompletedTodos : () => void;
+  deleteCompletedTodos: () => void;
 };
 
 export const TodoFilter: React.FC<Props> = React.memo(

@@ -13,3 +13,8 @@ export const addTodo = (userId: number, data: any) => {
 export const removeTodo = (userId: number, todoId: number) => {
   return client.delete(`/todos/${todoId}?userId=${userId}`);
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const changeTodo = (userId: number, todoId: number, data: any) => {
+  return client.patch(`/todos/${todoId}?userId=${userId}`, data);
+};

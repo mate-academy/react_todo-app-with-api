@@ -7,8 +7,15 @@ type Props = {
   tempTodo: Todo | null;
   deleteTodo: (todoId: number) => void;
   isDeleteWaiting: boolean;
-  onRemoveTodoIds: number[];
-  changeRemoveTodoIds: (id: number[]) => void;
+  todosIdsToRemove: number[];
+  changeTodosIdsToRemove: (id: number) => void;
+  removeDeleteId: (id: number) => void;
+  changeCompletedStatus: (todoId: number, status: boolean) => void;
+  isUpdateWaiting: boolean;
+  todosIdsToUpdate: number[];
+  changeTodosIdsToUpdate: (value: number) => void;
+  removeUpdatedId: (value: number) => void;
+  changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoList: React.FC<Props> = (
@@ -17,8 +24,15 @@ export const TodoList: React.FC<Props> = (
     tempTodo,
     deleteTodo,
     isDeleteWaiting,
-    onRemoveTodoIds,
-    changeRemoveTodoIds,
+    todosIdsToRemove,
+    changeTodosIdsToRemove,
+    removeDeleteId,
+    changeCompletedStatus,
+    isUpdateWaiting,
+    todosIdsToUpdate,
+    changeTodosIdsToUpdate,
+    removeUpdatedId,
+    changeTodoTitle,
   },
 ) => {
   return (
@@ -29,8 +43,15 @@ export const TodoList: React.FC<Props> = (
           key={todo.id}
           deleteTodo={deleteTodo}
           isDeleteWaiting={isDeleteWaiting}
-          changeRemoveTodoIds={changeRemoveTodoIds}
-          onRemoveTodoIds={onRemoveTodoIds}
+          changeTodosIdsToRemove={changeTodosIdsToRemove}
+          removeDeleteId={removeDeleteId}
+          todosIdsToRemove={todosIdsToRemove}
+          changeCompletedStatus={changeCompletedStatus}
+          isUpdateWaiting={isUpdateWaiting}
+          todosIdsToUpdate={todosIdsToUpdate}
+          changeTodosIdsToUpdate={changeTodosIdsToUpdate}
+          removeUpdatedId={removeUpdatedId}
+          changeTodoTitle={changeTodoTitle}
         />
       ))}
 
