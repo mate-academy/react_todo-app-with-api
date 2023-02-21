@@ -164,7 +164,7 @@ export const App: FC = () => {
 
   const isAllTodosCompleted = completedTodosLength === todos.length;
 
-  const toggleAll = useCallback(() => {
+  const onToggleAll = useCallback(() => {
     todos.forEach(todo => {
       if (todo.completed === isAllTodosCompleted) {
         updatingTodo(todo.id, { completed: !isAllTodosCompleted });
@@ -192,7 +192,7 @@ export const App: FC = () => {
           isAdding={isAdding}
           onFormSubmit={addTodo}
           isAllTodosCompleted={isAllTodosCompleted}
-          toggleAll={toggleAll}
+          onToggleAll={onToggleAll}
         />
         {(todos.length !== 0 || tempTodo) && (
           <>
