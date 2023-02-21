@@ -1,24 +1,50 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, { useContext } from 'react';
+import { TodosList } from './components/TodosList';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { Notifications } from './components/Notifications';
+import { TodosContext } from './components/TodosProvider';
+import { Filter } from './types/Status';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos,
+    filter,
+  } = useContext(TodosContext);
+
+  let visibleTodos = todos;
+
+  visibleTodos = todos.filter(todo => {
+    switch (filter) {
+      case Filter.ALL:
+        return true;
+
+      case Filter.ACTIVE:
+        return !todo.completed;
+
+      case Filter.COMPLETED:
+        return todo.completed;
+
+      default:
+        throw new Error('Unexpected status');
+    }
+  });
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header todos={todos} />
+        <TodosList todos={visibleTodos} />
+
+        {todos.length > 0
+          && (
+            <Footer todos={visibleTodos} />
+          )}
+      </div>
+      <Notifications />
+    </div>
   );
 };
