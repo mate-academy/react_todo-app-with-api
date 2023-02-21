@@ -23,14 +23,12 @@ const temporaryTodo: Todo = {
 };
 
 type ContextType = {
-  query: string,
   filter: Filter,
   errorType: ErrorTypes,
   tempTodo: Todo | null,
   todos: Todo[],
   processedTodos: Todo[],
-  handleInput: (value: string) => void,
-  handleFormSubmit: () => void,
+  handleFormSubmit: (value: string) => void,
   handleDeleteTodo: (todoId: number) => void,
   handleStatus: (todo: Todo) => void,
   handleStatusAll: (todos: Todo[]) => void,
@@ -42,12 +40,10 @@ type ContextType = {
 
 export const TodosContext = React.createContext<ContextType>({
   todos: [],
-  query: '',
   tempTodo: temporaryTodo,
   filter: Filter.ALL,
   errorType: ErrorTypes.NONE,
   processedTodos: [],
-  handleInput: () => {},
   handleFormSubmit: () => {},
   handleDeleteTodo: () => {},
   handleStatus: () => {},
@@ -64,17 +60,10 @@ interface Props {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [errorType, setErrorType] = useState<ErrorTypes>(ErrorTypes.NONE);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processedTodos, setProcessedTodos] = useState<Todo[]>([]);
-
-  const newTodo: RequestTodo = {
-    userId: USER_ID,
-    title: query,
-    completed: false,
-  };
 
   const getTodosFromServer = async () => {
     try {
@@ -90,15 +79,16 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     getTodosFromServer();
   }, []);
 
-  const handleInput = (value: string) => {
-    setQuery(value);
-  };
-
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (query: string) => {
     if (query.trim() === '') {
-      setQuery('');
       setErrorType(ErrorTypes.EMPTY_TITLE);
     } else {
+      const newTodo: RequestTodo = {
+        userId: USER_ID,
+        title: query,
+        completed: false,
+      };
+
       setTempTodo({
         ...newTodo,
         id: 0,
@@ -108,7 +98,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         await addTodo(USER_ID, newTodo);
         await getTodosFromServer();
         setTempTodo(null);
-        setQuery('');
       } catch (error) {
         setErrorType(ErrorTypes.ADD_ERROR);
       }
@@ -215,13 +204,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const contextValue = useMemo(() => {
     return {
-      query,
       todos,
       filter,
       errorType,
       tempTodo,
       processedTodos,
-      handleInput,
       handleFormSubmit,
       handleDeleteTodo,
       handleStatus,
@@ -231,7 +218,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       handleUpdate,
       errorTypeHandler,
     };
-  }, [todos, query, filter, errorType, tempTodo, processedTodos]);
+  }, [todos, filter, errorType, tempTodo, processedTodos]);
 
   return (
     <TodosContext.Provider value={contextValue}>

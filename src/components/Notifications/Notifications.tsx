@@ -35,8 +35,8 @@ export const Notifications: React.FC = React.memo(() => {
         },
       )}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="close__error-button"
         type="button"
         className="delete"
         onClick={() => {

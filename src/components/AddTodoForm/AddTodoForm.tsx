@@ -1,19 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { TodosContext } from '../TodosProvider';
 
 export const AddTodoForm: React.FC = () => {
   const {
-    query,
-    handleInput,
     handleFormSubmit,
   } = useContext(TodosContext);
+
+  const [query, setQuery] = useState('');
   const isFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    handleFormSubmit();
+    handleFormSubmit(query);
+    setQuery('');
   };
 
-  const handleQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleInput(event.target.value);
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
   };
 
   return (
@@ -27,7 +28,7 @@ export const AddTodoForm: React.FC = () => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={query}
-        onChange={handleQuery}
+        onChange={handleInput}
       />
       <input type="submit" hidden />
     </form>

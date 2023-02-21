@@ -5,7 +5,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { Notifications } from './components/Notifications';
 import { TodosContext } from './components/TodosProvider';
-import { Filter } from './types/Status';
+import { TodosFilter } from './utils/TodosFilter';
 
 export const App: React.FC = () => {
   const {
@@ -13,28 +13,14 @@ export const App: React.FC = () => {
     filter,
   } = useContext(TodosContext);
 
-  const visibleTodos = todos.filter(todo => {
-    switch (filter) {
-      case Filter.ALL:
-        return true;
-
-      case Filter.ACTIVE:
-        return !todo.completed;
-
-      case Filter.COMPLETED:
-        return todo.completed;
-
-      default:
-        throw new Error('Unexpected status');
-    }
-  });
+  const visibleTodos = TodosFilter(todos, filter);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header todos={todos} />
+        <Header todos={visibleTodos} />
         <TodosList todos={visibleTodos} />
 
         {!!todos.length
