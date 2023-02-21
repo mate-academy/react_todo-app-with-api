@@ -21,7 +21,7 @@ export const TodoInfo:React.FC<Props> = ({
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const handleTitleChange = () => {
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       onDeleteTodo(todo);
 
       return;
