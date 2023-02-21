@@ -28,10 +28,10 @@ export const TodosList: React.FC<Props> = (
             classNames="item"
           >
             <TodoItem
-              setEditedTodoId={setEditedTodoId}
-              editedTodoId={editedTodoId}
               key={todo.id}
               todo={todo}
+              setEditedTodoId={setEditedTodoId}
+              editedTodoId={editedTodoId}
             />
           </CSSTransition>
         ))}

@@ -18,9 +18,8 @@ export const Header: React.FC<Props> = (
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="todoapp__toggle-all__button"
         type="button"
         className={cn(
           'todoapp__toggle-all',
