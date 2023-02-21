@@ -40,7 +40,7 @@ export const App: React.FC = () => {
   const removeFromUpdateStage = (id: number) => {
     setTimeout(() => {
       setUpdatingStage(prev => prev.filter(prevInd => prevInd !== id));
-    }, 500);
+    }, 200);
   };
 
   const filteredTodos = useMemo(() => {

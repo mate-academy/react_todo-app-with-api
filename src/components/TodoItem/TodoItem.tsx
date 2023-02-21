@@ -47,8 +47,16 @@ export const TodoItem: React.FC<Props> = ({
     handleUpdateTitle(todo);
   };
 
+  const rejectChanges = () => {
+    handleEditingTodo(0);
+  };
+
   const handleBlur = () => {
-    saveChanges();
+    if (title === tempTitle) {
+      rejectChanges();
+    } else {
+      saveChanges();
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -59,7 +67,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setTempTitle(title);
-      handleEditingTodo(0);
+      rejectChanges();
     }
   };
 
