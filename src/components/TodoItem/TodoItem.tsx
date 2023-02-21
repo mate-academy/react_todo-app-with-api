@@ -9,22 +9,22 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoTitleField } from '../TodoTitleField/TodoTitleFields';
 
-  type Props = {
-    todo: Todo,
-    isDeleting: boolean,
-    onDeleteTodo: (todoId: number) => void,
-    updateTodo: (
-      todoId: number,
-      fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
-    ) => Promise<void>,
-    isUpdating: boolean,
-  };
+type Props = {
+  todo: Todo,
+  isDeleting: boolean,
+  onDeleteTodo: (todoId: number) => void,
+  onUpdateTodo: (
+    todoId: number,
+    fieldsToUpdate: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => Promise<void>,
+  isUpdating: boolean,
+};
 
 export const TodoItem: FC<Props> = memo(({
   todo,
   isDeleting,
   onDeleteTodo,
-  updateTodo,
+  onUpdateTodo,
   isUpdating,
 }) => {
   const isLoading = todo.id === 0 || isDeleting || isUpdating;
@@ -34,7 +34,7 @@ export const TodoItem: FC<Props> = memo(({
   const handleCancelEditing = useCallback(() => setShouldShowInput(false), []);
 
   const handleUpdateTitle = useCallback(async (title: string) => {
-    await updateTodo(todo.id, { title });
+    await onUpdateTodo(todo.id, { title });
   }, [todo.id]);
 
   const handleDeleteTodoById = useCallback(async () => {
@@ -54,7 +54,7 @@ export const TodoItem: FC<Props> = memo(({
           className="todo__status"
           checked={todo.completed}
           readOnly
-          onClick={() => updateTodo(todo.id, { completed: !todo.completed })}
+          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
       {shouldShowInput

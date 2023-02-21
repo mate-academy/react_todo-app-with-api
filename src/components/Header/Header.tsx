@@ -8,7 +8,7 @@ export interface Props {
   isAdding: boolean,
   onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   isAllTodosCompleted: boolean,
-  toggleAll: () => void,
+  onToggleAll: () => void,
 }
 
 export const Header: FC<Props> = ({
@@ -18,13 +18,13 @@ export const Header: FC<Props> = ({
   isAdding,
   onFormSubmit,
   isAllTodosCompleted,
-  toggleAll,
+  onToggleAll,
 }) => {
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
-        onClick={toggleAll}
+        onClick={onToggleAll}
         data-cy="ToggleAllButton"
         type="button"
         className={classNames(
