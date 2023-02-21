@@ -5,7 +5,7 @@ import {
 type Props = {
   cancelEditing: () => void
   oldTitle: string
-  updateTitle: (title: string) => Promise<any>
+  updateTitle: (title: string) => Promise<void>
   deleteTodoById: () => Promise<void>
 };
 
@@ -41,8 +41,6 @@ export const TodoTitleField: FC<Props> = memo((props) => {
   };
 
   const handleCanceling = async (event: KeyboardEvent) => {
-    console.log(event);
-
     if (event.key === 'Escape') {
       await cancelEditing();
     }
@@ -57,7 +55,7 @@ export const TodoTitleField: FC<Props> = memo((props) => {
         value={title}
         onChange={e => setTitle(e.target.value)}
         onKeyDown={handleCanceling}
-        ref={() => inputRef}
+        ref={inputRef}
       />
     </form>
   );

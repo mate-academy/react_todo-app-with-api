@@ -48,12 +48,8 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // назва delitTodoBYId = onDeleteTodo; змінити функція футер деліт;
-
   const deleteAllCompletetById = useCallback(async () => {
     const complitedTodoIds = getComplitedTodoIds(todos);
-
-    console.log(complitedTodoIds);
 
     complitedTodoIds.forEach((id) => onDeleteTodo(id));
   }, [todos]);

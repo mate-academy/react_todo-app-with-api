@@ -16,8 +16,14 @@ type Props = {
 
 export const TodoList: FC<Props> = React.memo((props) => {
   const {
-    todos, deletingTodoIds, tempTodo, onDeleteTodo, updateTodo, updatingTodoIds,
+    todos,
+    deletingTodoIds,
+    tempTodo,
+    onDeleteTodo,
+    updateTodo,
+    updatingTodoIds
   } = props;
+
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,10 +32,8 @@ export const TodoList: FC<Props> = React.memo((props) => {
           todo={todo}
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
-          shouldShowLoader={
-            deletingTodoIds.includes(todo.id)
-            || updatingTodoIds.includes(todo.id)
-          }
+          shouldShowLoader={deletingTodoIds.includes(todo.id)
+            || updatingTodoIds.includes(todo.id)}
           updateTodo={updateTodo}
         />
       ))}
@@ -45,6 +49,5 @@ export const TodoList: FC<Props> = React.memo((props) => {
           updateTodo={updateTodo}
         />
       )}
-    </section>
-  );
-});
+    </section>)
+})

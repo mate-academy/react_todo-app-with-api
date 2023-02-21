@@ -3,6 +3,7 @@ import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoTitleField } from './TodoTitleField';
 import { deleteTodos } from '../api/todos';
+import { Loader } from './Loader';
 
 type Props = {
   todo: Todo
@@ -43,6 +44,7 @@ export const TodoItem: FC<Props> = ({
       className={cn('todo', { 'todo completed': todo.completed })}
       key={todo.id}
     >
+
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -65,7 +67,6 @@ export const TodoItem: FC<Props> = ({
 
         : (
           <>
-
             <span
               data-cy="TodoTitle"
               className="todo__title"
@@ -87,13 +88,7 @@ export const TodoItem: FC<Props> = ({
           </>
         )}
 
-      <div
-        data-cy="TodoLoader"
-        className={cn('modal overlay', { 'is-active': isLoading })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      <Loader isLoading={isLoading} />
     </div>
-  );
+  )
 };
