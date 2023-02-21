@@ -65,6 +65,8 @@ export const App: FC = () => {
   }, []);
 
   const handleAddTodo = useCallback(async (newTodo: Todo) => {
+    setHasError(false);
+
     try {
       setTempTodo(newTodo);
       const addedTodo = await addTodo(newTodo);
@@ -78,6 +80,8 @@ export const App: FC = () => {
   }, []);
 
   const handleRemoveTodo = useCallback(async (todoToRemove: Todo) => {
+    setHasError(false);
+
     try {
       setTodosInProcessed(currentTodos => [...currentTodos, todoToRemove]);
       await deleteTodo(todoToRemove.id);
@@ -99,6 +103,8 @@ export const App: FC = () => {
   }, [todos]);
 
   const handleUpdateTodo = useCallback(async (todoToUpdate: Todo) => {
+    setHasError(false);
+
     try {
       setTodosInProcessed(currentTodos => [...currentTodos, todoToUpdate]);
       const updatedTodo = await updateTodo(todoToUpdate);
