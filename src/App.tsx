@@ -4,7 +4,7 @@ import React, {
 import classNames from 'classnames';
 import debounce from 'lodash.debounce';
 import {
-  Footer, Header, Notification, TodoList,
+  NewTodoForm, Notification, TodoList, Filter,
 } from './components';
 import {
   ErrorMessage, FilterBy, Todo, TodoData,
@@ -35,7 +35,6 @@ export const App: React.FC = () => {
   const hasActiveTodos = !!activeTodosCount;
   const hasCompletedTodos = !!(todos.length - activeTodosCount);
   const isFooterVisible = !!(todos.length || tempTodo);
-  const isCreating = !!tempTodo;
 
   const clearNotification = useCallback(() => {
     setHasError(false);
@@ -52,22 +51,22 @@ export const App: React.FC = () => {
     clearNotificationWithDelay();
   }, []);
 
+  const fetchTodos = async () => {
+    try {
+      const todosFromServer = await getTodos();
+
+      setTodos(todosFromServer);
+    } catch {
+      pushNotification(ErrorMessage.LOAD);
+    }
+  };
+
   useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        const todosFromServer = await getTodos();
-
-        setTodos(todosFromServer);
-      } catch {
-        pushNotification(ErrorMessage.LOAD);
-      }
-    };
-
     fetchTodos();
   }, []);
 
   const handleAddWithTitle = useCallback(async (title: string) => {
-    if (!title) {
+    if (!title.trim()) {
       pushNotification(ErrorMessage.TITLE);
 
       return;
@@ -82,9 +81,8 @@ export const App: React.FC = () => {
     });
 
     try {
-      const addedTodo = await addTodoWithTitle(title);
-
-      setTodos((currTodos) => [...currTodos, addedTodo]);
+      await addTodoWithTitle(title);
+      await fetchTodos();
     } catch {
       pushNotification(ErrorMessage.ADD);
     } finally {
@@ -100,10 +98,7 @@ export const App: React.FC = () => {
 
     try {
       await deleteTodoById(todoToDelete.id);
-
-      setTodos(currTodos => (
-        currTodos.filter(todo => todo.id !== todoToDelete.id)
-      ));
+      await fetchTodos();
     } catch {
       pushNotification(ErrorMessage.DELETE);
     } finally {
@@ -123,10 +118,7 @@ export const App: React.FC = () => {
       await Promise.all(
         completedTodos.map(todo => deleteTodoById(todo.id)),
       );
-
-      setTodos(currTodos => (
-        currTodos.filter(todo => !completedTodos.includes(todo))
-      ));
+      await fetchTodos();
     } catch {
       pushNotification(ErrorMessage.DELETE_ALL);
     } finally {
@@ -144,15 +136,8 @@ export const App: React.FC = () => {
     setProcessedTodos(prevTodos => [...prevTodos, todoToUpdate]);
 
     try {
-      const updatedTodo = await updateTodoById(todoToUpdate.id, fieldsToUpdate);
-
-      setTodos(currTodos => (
-        currTodos.map(todo => (
-          todo.id === todoToUpdate.id
-            ? updatedTodo
-            : todo
-        ))
-      ));
+      await updateTodoById(todoToUpdate.id, fieldsToUpdate);
+      await fetchTodos();
     } catch {
       pushNotification(ErrorMessage.UPDATE);
     } finally {
@@ -179,21 +164,10 @@ export const App: React.FC = () => {
     };
 
     try {
-      const updatedTodos = await Promise.all(
+      await Promise.all(
         todosToToggle.map(todo => updateTodoById(todo.id, updatedData)),
       );
-
-      setTodos(currTodos => (
-        currTodos.map(todo => {
-          const updatedTodo = updatedTodos.find(t => t.id === todo.id) || null;
-
-          if (updatedTodo) {
-            return updatedTodo;
-          }
-
-          return todo;
-        })
-      ));
+      await fetchTodos();
     } catch {
       pushNotification(ErrorMessage.UPDATE_ALL);
     } finally {
@@ -202,6 +176,10 @@ export const App: React.FC = () => {
       ));
     }
   };
+
+  const selectFilter = useCallback((filter: FilterBy) => {
+    setFilterBy(filter);
+  }, []);
 
   return (
     <div
@@ -213,30 +191,49 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
-          onAdd={handleAddWithTitle}
-          onToggleAll={handleToggleAll}
-          hasActive={hasActiveTodos}
-          isCreating={isCreating}
-          isToggleButtonVisible={hasTodos}
-        />
+        <header className="todoapp__header">
+          {hasTodos && (
+            <button
+              aria-label="Toggle all todos"
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: !hasActiveTodos },
+              )}
+              onClick={handleToggleAll}
+            />
+          )}
 
-        <TodoList
-          todos={visibleTodos}
-          processedTodos={processedTodos}
-          tempTodo={tempTodo}
-          onDelete={handleDelete}
-          onUpdate={handleUpdateTodo}
-        />
+          <NewTodoForm onAdd={handleAddWithTitle} />
+        </header>
+
+        <section className="todoapp__main">
+          <TodoList
+            todos={visibleTodos}
+            processedTodos={processedTodos}
+            tempTodo={tempTodo}
+            onDelete={handleDelete}
+            onUpdate={handleUpdateTodo}
+          />
+        </section>
 
         {isFooterVisible && (
-          <Footer
-            activeTodosCount={activeTodosCount}
-            filterType={filterBy}
-            setFilter={setFilterBy}
-            isClearButtonVisible={hasCompletedTodos}
-            onDeleteCompleted={handleDeleteCompleted}
-          />
+          <footer className="todoapp__footer">
+            <span className="todo-count">
+              {`${activeTodosCount} items left`}
+            </span>
+
+            <Filter selectedFilter={filterBy} onFilterSelect={selectFilter} />
+
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              disabled={!hasCompletedTodos}
+              onClick={handleDeleteCompleted}
+            >
+              Clear completed
+            </button>
+          </footer>
         )}
       </div>
 

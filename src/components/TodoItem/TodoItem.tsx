@@ -54,7 +54,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const handleRename = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       onDelete();
 
       return;

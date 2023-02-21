@@ -19,36 +19,34 @@ export const TodoList: React.FC<Props> = ({
   onUpdate,
 }) => {
   return (
-    <section className="todoapp__main">
-      <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition
-            key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoItem
-              todo={todo}
-              onDelete={() => onDelete(todo)}
-              onUpdate={(fields) => onUpdate(todo, fields)}
-              beingProcessed={processedTodos.includes(todo)}
-            />
-          </CSSTransition>
-        ))}
-        {tempTodo && (
-          <CSSTransition
-            timeout={300}
-            classNames="temp-item"
-          >
-            <TodoItem
-              todo={tempTodo}
-              onDelete={() => {}}
-              onUpdate={() => {}}
-              beingProcessed
-            />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </section>
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
+            onDelete={() => onDelete(todo)}
+            onUpdate={(fields) => onUpdate(todo, fields)}
+            beingProcessed={processedTodos.includes(todo)}
+          />
+        </CSSTransition>
+      ))}
+      {tempTodo && (
+        <CSSTransition
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoItem
+            todo={tempTodo}
+            onDelete={() => {}}
+            onUpdate={() => {}}
+            beingProcessed
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   );
 };
