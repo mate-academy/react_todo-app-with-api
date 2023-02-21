@@ -45,7 +45,7 @@ export const TodosList: React.FC<Props> = (
             <TodoItem
               key={0}
               todo={tempTodo}
-              editedTodoId={editedTodoId}
+              editedTodoId={-1}
               setEditedTodoId={setEditedTodoId}
             />
           </CSSTransition>

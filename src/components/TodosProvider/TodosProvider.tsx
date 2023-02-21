@@ -103,9 +103,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
 
       try {
-        const todoFromServer = await addTodo(USER_ID, newTodo);
-
-        setTodos(prevState => [...prevState, todoFromServer]);
+        await addTodo(USER_ID, newTodo);
+        await getTodosFromServer();
         setTempTodo(null);
         setQuery('');
       } catch (error) {
@@ -123,7 +122,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       const deletionResponse = await deleteTodo(todoId);
 
       if (await deletionResponse === 1) {
-        setTodos(prevState => prevState.filter(todo => todo.id !== todoId));
+        await getTodosFromServer();
       }
     } catch (error) {
       setErrorType(ErrorTypes.DELETE_ERROR);
@@ -140,8 +139,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       const response = await Promise.all(deletionPromises);
 
       if (response.every(res => res === 1)) {
-        setTodos(prevState => prevState
-          .filter(todo => processedTodos.find(t => t.id === todo.id)));
+        await getTodosFromServer();
         setProcessedTodos([]);
       }
     } catch (error) {
@@ -156,16 +154,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     };
 
     try {
-      const updatedTodo = await updateTodoCompletion(todo.id, completion);
-
-      setTodos(prevState => prevState.map(currentTodo => {
-        if (currentTodo.id === updatedTodo.id) {
-          return updatedTodo;
-        }
-
-        return currentTodo;
-      }));
-
+      await updateTodoCompletion(todo.id, completion);
+      await getTodosFromServer();
       setProcessedTodos([]);
     } catch (error) {
       setErrorType(ErrorTypes.UPDATE_ERROR);
@@ -185,17 +175,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
 
       await Promise.all(completionPromises);
-      setTodos(prevState => prevState.map(todo => {
-        const todoToChange = todosToComplete.find(t => t.id === todo.id);
-
-        if (todoToChange) {
-          todoToChange.completed = !todoToChange.completed;
-
-          return todoToChange;
-        }
-
-        return todo;
-      }));
+      await getTodosFromServer();
 
       setProcessedTodos([]);
     } catch (error) {
@@ -218,9 +198,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       if (title !== todo.title) {
         try {
-          const todoFromServer = await updateTodo(todo.id, updatedData);
-
-          setTodos(prevState => [...prevState, todoFromServer]);
+          await updateTodo(todo.id, updatedData);
+          await getTodosFromServer();
         } catch (error) {
           setErrorType(ErrorTypes.UPDATE_ERROR);
         }

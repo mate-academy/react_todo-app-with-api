@@ -13,9 +13,7 @@ export const App: React.FC = () => {
     filter,
   } = useContext(TodosContext);
 
-  let visibleTodos = todos;
-
-  visibleTodos = todos.filter(todo => {
+  const visibleTodos = todos.filter(todo => {
     switch (filter) {
       case Filter.ALL:
         return true;
@@ -39,9 +37,9 @@ export const App: React.FC = () => {
         <Header todos={todos} />
         <TodosList todos={visibleTodos} />
 
-        {todos.length > 0
+        {!!todos.length
           && (
-            <Footer todos={visibleTodos} />
+            <Footer todos={todos} />
           )}
       </div>
       <Notifications />

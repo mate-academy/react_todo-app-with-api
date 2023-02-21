@@ -28,8 +28,13 @@ export const TodoItem: React.FC<Props> = (
     setTodoId(id);
   };
 
+  const handleDoubleClick = (event: React.MouseEvent<HTMLSpanElement>) => {
+    if (event.detail === 2) {
+      setEditedTodoId(todo.id);
+    }
+  };
+
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       className={cn(
         'todo',
@@ -37,11 +42,6 @@ export const TodoItem: React.FC<Props> = (
           completed: todo.completed,
         },
       )}
-      onClick={(event) => {
-        if (event.detail === 2) {
-          setEditedTodoId(todo.id);
-        }
-      }}
     >
       <label className="todo__status-label">
         <input
@@ -64,7 +64,13 @@ export const TodoItem: React.FC<Props> = (
         )
         : (
           <>
-            <span className="todo__title">{todo.title}</span>
+            <span
+              aria-hidden="true"
+              className="todo__title"
+              onClick={handleDoubleClick}
+            >
+              {todo.title}
+            </span>
             <button
               type="button"
               className="todo__remove"
