@@ -72,7 +72,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
     if (tempTitle.trim() === '') {
       removeTodoFromServer(id);
-
+      
       return;
     }
 
