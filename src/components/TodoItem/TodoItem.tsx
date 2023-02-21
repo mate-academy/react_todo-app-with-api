@@ -7,16 +7,16 @@ type Props = {
   removeTodoFromServer: (id: number) => void;
   updateTodoOnServer: (todo: Todo) => void;
   updatingStage: number[];
-  handleEditingTodo: (id: number) => void;
+  handleTodoEditor: (id: number) => void;
   editedTodoId: number;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   removeTodoFromServer,
   updateTodoOnServer,
   updatingStage,
-  handleEditingTodo,
+  handleTodoEditor,
   editedTodoId,
 }) => {
   const [tempTitle, setTempTitle] = useState(todo.title);
@@ -43,24 +43,39 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const saveChanges = () => {
-    handleEditingTodo(0);
+    handleTodoEditor(0);
     handleUpdateTitle(todo);
   };
 
   const rejectChanges = () => {
-    handleEditingTodo(0);
+    handleTodoEditor(0);
   };
 
   const handleBlur = () => {
-    if (title === tempTitle) {
-      rejectChanges();
-    } else {
-      saveChanges();
+    switch (tempTitle.trim()) {
+      case title:
+        rejectChanges();
+        break;
+
+      case '':
+        removeTodoFromServer(id);
+        break;
+
+      default:
+        saveChanges();
+        break;
     }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (tempTitle.trim() === '') {
+      removeTodoFromServer(id);
+
+      return;
+    }
+
     saveChanges();
   };
 
@@ -85,6 +100,7 @@ export const TodoItem: React.FC<Props> = ({
           onChange={() => handleUpdateStatus(todo)}
         />
       </label>
+
       {isBeingEditedNow ? (
         <form onSubmit={handleSubmit}>
           <input
@@ -103,7 +119,7 @@ export const TodoItem: React.FC<Props> = ({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => handleEditingTodo(id)}
+            onDoubleClick={() => handleTodoEditor(id)}
           >
             {title}
           </span>
@@ -128,4 +144,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
