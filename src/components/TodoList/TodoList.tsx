@@ -30,7 +30,7 @@ export const TodoList: FC<TodoListProps> = memo(({
           todo={todo}
           onDeleteTodo={onDeleteTodo}
           isDeleting={deletingTodoIds.includes(todo.id)}
-          updateTodo={updateTodo}
+          onUpdateTodo={updateTodo}
           isUpdating={updatingTodosIds.includes(todo.id)}
 
         />
@@ -40,7 +40,7 @@ export const TodoList: FC<TodoListProps> = memo(({
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
           isDeleting={deletingTodoIds.includes(tempTodo.id)}
-          updateTodo={updateTodo}
+          onUpdateTodo={updateTodo}
           isUpdating={updatingTodosIds.includes(tempTodo.id)}
         />
       )}
