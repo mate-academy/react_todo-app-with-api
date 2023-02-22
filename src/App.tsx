@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
@@ -12,8 +10,9 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Filter } from './types/Filter';
 import { getVisibleTodos } from './utils/helpers';
 import { Footer } from './components/Footer';
-import { ErrorNotification } from './components/ErrorMessage/ErrorNotification';
-import { Errors } from './types/Errors';
+import { ErrorNotification } from
+  './components/ErrorNotification/ErrorNotification';
+import { ErrorType } from './types/ErrorType';
 
 export const USER_ID = 6344;
 
@@ -21,19 +20,19 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [numberOfActive, setNumberOfActive] = useState(0);
   const [numberOfCompleted, setNumberOfCompleted] = useState(0);
-  const [errorMessage, setErrorMessage] = useState<Errors>(Errors.NO_ERROR);
-  const [hasError, setHasErrorMessage] = useState(false);
+  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.NONE);
+  const [hasError, setHasError] = useState(false);
   const [filterValue, setFilterValue] = useState<Filter>(Filter.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodosIds, setProcessingTodosIds] = useState<number[]>([]);
 
-  const showError = useCallback((message: Errors) => {
-    setErrorMessage(message);
-    setHasErrorMessage(true);
+  const showError = (message: ErrorType) => {
+    setErrorType(message);
+    setHasError(true);
     setTimeout(() => {
-      setHasErrorMessage(false);
+      setHasError(false);
     }, 3000);
-  }, []);
+  };
 
   const fetchTodos = useCallback(async () => {
     try {
@@ -41,7 +40,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch (error) {
-      showError(Errors.LOAD);
+      showError(ErrorType.LOAD);
     }
   }, []);
 
@@ -70,13 +69,12 @@ export const App: React.FC = () => {
       await Promise.all(
         todos.filter(todo => todo.completed).map(todo => {
           setProcessingTodosIds(currentIds => [...currentIds, todo.id]);
-          console.log('clickclearcompleted');
 
           return deleteTodo(todo.id);
         }),
       );
     } catch {
-      showError(Errors.DELETE);
+      showError(ErrorType.DELETE);
     }
 
     await fetchTodos();
@@ -97,7 +95,7 @@ export const App: React.FC = () => {
           }),
       );
     } catch {
-      showError(Errors.UPDATE);
+      showError(ErrorType.UPDATE);
     }
 
     await fetchTodos();
@@ -110,7 +108,7 @@ export const App: React.FC = () => {
     try {
       await deleteTodo(todoId);
     } catch {
-      showError(Errors.DELETE);
+      showError(ErrorType.DELETE);
     }
 
     await fetchTodos();
@@ -125,7 +123,7 @@ export const App: React.FC = () => {
     try {
       await patchTodo(todoId, { completed: !completed });
     } catch {
-      showError(Errors.UPDATE);
+      showError(ErrorType.UPDATE);
     }
 
     await fetchTodos();
@@ -143,7 +141,7 @@ export const App: React.FC = () => {
     try {
       await addTodo(USER_ID, title);
     } catch (error) {
-      showError(Errors.ADD);
+      showError(ErrorType.ADD);
     }
 
     await fetchTodos();
@@ -158,7 +156,7 @@ export const App: React.FC = () => {
     try {
       await patchTodo(todoId, { title });
     } catch {
-      showError(Errors.UPDATE);
+      showError(ErrorType.UPDATE);
     }
 
     await fetchTodos();
@@ -201,8 +199,8 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         isHidden={!hasError}
-        message={errorMessage}
-        setIsHidden={setHasErrorMessage}
+        errorMessage={errorType}
+        setIsHidden={setHasError}
       />
 
     </div>

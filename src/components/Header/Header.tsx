@@ -1,12 +1,11 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
 import cn from 'classnames';
-import { Errors } from '../../types/Errors';
+import { ErrorType } from '../../types/ErrorType';
 
 interface Props {
   numberOfActive: number;
   isNoTodos: boolean;
-  showError: (message: Errors) => void;
+  showError: (message: ErrorType) => void;
   onToogle: () => void;
   createTodo: (title: string) => void;
 }
@@ -30,7 +29,7 @@ export const Header: React.FC<Props> = React.memo(
       const title = newTitle.trim();
 
       if (!title) {
-        showError(Errors.EMPTY_TITLE);
+        showError(ErrorType.EMPTY_TITLE);
         setNewTitle('');
 
         return;

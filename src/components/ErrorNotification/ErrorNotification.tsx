@@ -1,17 +1,17 @@
 import cn from 'classnames';
 import React from 'react';
-import { Errors } from '../../types/Errors';
+import { ErrorType } from '../../types/ErrorType';
 
 interface Props {
   isHidden: boolean,
-  message: Errors,
+  errorMessage: ErrorType,
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ErrorNotification: React.FC<Props> = (
   {
     isHidden,
-    message,
+    errorMessage,
     setIsHidden,
   },
 ) => {
@@ -28,7 +28,7 @@ export const ErrorNotification: React.FC<Props> = (
         className="delete"
         onClick={() => setIsHidden(false)}
       />
-      {message}
+      {errorMessage}
     </div>
   );
 };

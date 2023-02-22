@@ -1,5 +1,5 @@
-export enum Errors {
-  NO_ERROR = 'Type of error not detected',
+export enum ErrorType {
+  NONE = 'Type of error not detected',
   ADD = 'Unable to add a todo',
   DELETE = 'Unable to delete a todo',
   UPDATE = 'Unable to update a todo',
