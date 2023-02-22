@@ -79,7 +79,7 @@ export const TodoItem:React.FC<Props> = ({
             ref={ref}
             onKeyUp={(event) => {
               if (event.key === 'Escape') {
-                setIsEdit(true);
+                setIsEdit(false);
               }
             }}
           />
