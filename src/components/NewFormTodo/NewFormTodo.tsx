@@ -29,7 +29,7 @@ export const NewFormTodo: React.FC<Props> = ({
         placeholder="What needs to be done?"
         value={title}
         onChange={({ target }) => {
-          handleTitleTodo(target.value.trim());
+          handleTitleTodo(target.value);
         }}
         disabled={isInputVisible}
       />

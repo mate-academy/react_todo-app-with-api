@@ -35,7 +35,9 @@ export const App: React.FC = () => {
   const [isToggle, setIsToggle] = useState(false);
   const [isClearCompleted, setClearCompleted] = useState(false);
   const [editingId, setEditingId] = useState(0);
-  const isAllTodosActive = todos.every(todo => todo.completed);
+  const isAllTodosActive = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
   const [isEdit, setIsEdit] = useState(false);
 
   const getTodos = async () => {
@@ -57,16 +59,19 @@ export const App: React.FC = () => {
   }, []);
 
   const addTodo = useCallback(async (titleOfTodo: string) => {
-    if (!titleOfTodo) {
+    const preparedTitle = titleOfTodo.trim();
+
+    if (!preparedTitle) {
       setErrorType(ErrorType.TITLE);
       setHasError(true);
+      setTitle('');
 
       return;
     }
 
     const newTodo: RequestTodo = {
       userId: USER_ID,
-      title: titleOfTodo,
+      title: preparedTitle,
       completed: false,
     };
 
