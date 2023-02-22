@@ -1,4 +1,6 @@
 import React from 'react';
+import '../../styles/transition.scss';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
@@ -37,42 +39,56 @@ export const TodoList: React.FC<Props> = (
 ) => {
   return (
     <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          isDeleteWaiting={isDeleteWaiting}
-          changeTodosIdsToRemove={changeTodosIdsToRemove}
-          removeDeleteId={removeDeleteId}
-          todosIdsToRemove={todosIdsToRemove}
-          changeCompletedStatus={changeCompletedStatus}
-          isUpdateWaiting={isUpdateWaiting}
-          todosIdsToUpdate={todosIdsToUpdate}
-          changeTodosIdsToUpdate={changeTodosIdsToUpdate}
-          removeUpdatedId={removeUpdatedId}
-          changeTodoTitle={changeTodoTitle}
-        />
-      ))}
+      <TransitionGroup>
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoItem
+              todo={todo}
+              key={todo.id}
+              deleteTodo={deleteTodo}
+              isDeleteWaiting={isDeleteWaiting}
+              changeTodosIdsToRemove={changeTodosIdsToRemove}
+              removeDeleteId={removeDeleteId}
+              todosIdsToRemove={todosIdsToRemove}
+              changeCompletedStatus={changeCompletedStatus}
+              isUpdateWaiting={isUpdateWaiting}
+              todosIdsToUpdate={todosIdsToUpdate}
+              changeTodosIdsToUpdate={changeTodosIdsToUpdate}
+              removeUpdatedId={removeUpdatedId}
+              changeTodoTitle={changeTodoTitle}
+            />
+          </CSSTransition>
+        ))}
 
-      {tempTodo !== null && (
-        <div className="todo">
-          <label className="todo__status-label">
-            <input type="checkbox" className="todo__status" />
-          </label>
+        {tempTodo !== null && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <div className="todo">
+              <label className="todo__status-label">
+                <input type="checkbox" className="todo__status" />
+              </label>
 
-          <span className="todo__title">
-            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-            {tempTodo!.title}
-          </span>
-          <button type="button" className="todo__remove">×</button>
+              <span className="todo__title">
+                {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+                {tempTodo!.title}
+              </span>
+              <button type="button" className="todo__remove">×</button>
 
-          <div className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
+              <div className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
