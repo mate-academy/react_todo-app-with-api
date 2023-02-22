@@ -1,20 +1,23 @@
 import cn from 'classnames';
-import React from 'react';
+import React, { useContext } from 'react';
 import { FilterTypes } from '../../types/FIlterTypes';
 import { Todo } from '../../types/Todo';
+import { TodosContext } from '../TodosProvider';
 
 type Props = {
   filterType: FilterTypes,
   handleFilterType: (filter: FilterTypes) => void,
-  hasCompletedTodos: boolean,
-  deleteAllCompleted: () => void,
   activeTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = React.memo(({
   filterType,
-  handleFilterType, hasCompletedTodos, deleteAllCompleted, activeTodos,
+  handleFilterType,
+  activeTodos,
 }) => {
+  const { completedTodos, deleteAllCompleted } = useContext(TodosContext);
+  const hasCompletedTodos = completedTodos.length > 0;
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">

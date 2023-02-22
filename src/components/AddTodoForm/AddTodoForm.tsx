@@ -1,14 +1,14 @@
-import React, { FormEvent, useCallback, useState } from 'react';
+import React, {
+  FormEvent,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { TodosContext } from '../TodosProvider';
 
-type Props = {
-  handleAddTodo: (todoTitle: string) => void,
-  inputDisabled: boolean,
-};
-
-export const AddTodoForm: React.FC<Props> = React.memo(({
-  handleAddTodo, inputDisabled,
-}) => {
+export const AddTodoForm: React.FC = React.memo(() => {
   const [todoTitle, setTodoTitle] = useState('');
+  const { handleAddTodo, inputDisabled } = useContext(TodosContext);
 
   const handleInput = useCallback((
     event: React.ChangeEvent<HTMLInputElement>,

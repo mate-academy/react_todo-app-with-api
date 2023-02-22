@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import cn from 'classnames';
-import { ErrorMessage } from '../../types/ErrorMessage';
+import { TodosContext } from '../TodosProvider';
 
-type Props = {
-  hasError: boolean,
-  changeHasError: (value: boolean) => void,
-  errorMessage: ErrorMessage | string,
-};
+export const Notification: React.FC = React.memo(() => {
+  const {
+    hasError,
+    changeHasError,
+    errorMessage,
+  } = useContext(TodosContext);
 
-export const Notification: React.FC<Props> = React.memo(({
-  errorMessage, changeHasError, hasError,
-}) => {
   useEffect(() => {
     const timerId = window.setTimeout(() => changeHasError(false), 3000);
 

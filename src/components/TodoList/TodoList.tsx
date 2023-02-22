@@ -1,20 +1,17 @@
 import cn from 'classnames';
-import React from 'react';
+import React, { useContext } from 'react';
 
-import { Todo, UpdateData } from '../../types/Todo';
+import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
+import { TodosContext } from '../TodosProvider';
 
 type Props = {
   todos: Todo[],
-  tempTodo: Todo | null,
-  handleDelete: (todo: Todo) => void,
-  processedTodos: Todo[],
-  handleUpdateTodo: (todo: Todo, fieldsToUpdate: UpdateData) => void,
 };
 
-export const TodoList: React.FC<Props> = ({
-  todos, tempTodo, handleDelete, processedTodos, handleUpdateTodo,
-}) => {
+export const TodoList: React.FC<Props> = ({ todos }) => {
+  const { tempTodo } = useContext(TodosContext);
+
   return (
     <section className="todoapp__main">
       {todos.map(todo => (
@@ -26,9 +23,6 @@ export const TodoList: React.FC<Props> = ({
         >
           <TodoItem
             todo={todo}
-            onDelete={() => handleDelete(todo)}
-            onProcess={processedTodos.some(procTodo => procTodo.id === todo.id)}
-            onUpdate={(fields) => handleUpdateTodo(todo, fields)}
           />
         </div>
       ))}

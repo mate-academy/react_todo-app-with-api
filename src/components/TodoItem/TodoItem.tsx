@@ -1,23 +1,31 @@
 import cn from 'classnames';
-import React, { FormEvent, useCallback, useState } from 'react';
-import { Todo, UpdateData } from '../../types/Todo';
+import React, {
+  FormEvent,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { Todo } from '../../types/Todo';
+import { TodosContext } from '../TodosProvider';
 
 type Props = {
   todo: Todo,
-  onDelete: () => void,
-  onProcess: boolean,
-  onUpdate: (fieldsToUpdate: UpdateData) => void,
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  onDelete,
-  onProcess,
-  onUpdate,
 }) => {
   const { title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const {
+    handleDelete,
+    handleUpdateTodo,
+    processedTodos,
+  } = useContext(TodosContext);
+
+  const onDelete = useCallback(() => handleDelete(todo), [todo]);
+  const onProcess = processedTodos.some(procTodo => procTodo.id === todo.id);
 
   const handleClick = useCallback((
     event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
@@ -28,7 +36,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   }, []);
 
   const handleToggle = useCallback(() => {
-    onUpdate({ completed: !completed });
+    handleUpdateTodo(todo, { completed: !completed });
   }, [completed]);
 
   const handleEscapeKey = useCallback(
@@ -53,7 +61,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       onDelete();
     }
 
-    onUpdate({ title: newTitle.trim() });
+    handleUpdateTodo(todo, { title: newTitle.trim() });
     setIsEditing(false);
   }, [newTitle, title]);
 
