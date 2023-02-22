@@ -5,8 +5,8 @@ export function activeTodosAmount(todos: Todo[]): number {
   return todos.filter(todo => !todo.completed).length;
 }
 
-export function completedTodosAmount(todos: Todo[]): number {
-  return todos.filter(todo => todo.completed).length;
+export function isDone(todos: Todo[]): boolean {
+  return todos.some(todo => todo.completed);
 }
 
 export function filterTodos(

@@ -18,8 +18,8 @@ import { ErrorType } from './types/ErrorType';
 import { UserContext } from './UserContext';
 import {
   activeTodosAmount,
-  completedTodosAmount,
   filterTodos,
+  isDone,
 } from './helpers';
 import { EditTodo } from './types/EditTodo';
 
@@ -176,10 +176,10 @@ export const App: React.FC = () => {
         {todos.length && (
           <Footer
             activeTodosAmount={activeTodosAmount(todos)}
-            completedTodosAmount={completedTodosAmount(todos)}
             filterByStatus={filterByStatus}
             setFilterByStatus={setFilterByStatus}
             onClearCompleted={clearCompleted}
+            isDone={isDone(todos)}
           />
         )}
       </div>
