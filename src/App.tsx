@@ -188,6 +188,8 @@ export const App: React.FC = () => {
     resetTodosIdsToUpdate();
   };
 
+  const haveTodos = todos.length !== 0;
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -204,6 +206,7 @@ export const App: React.FC = () => {
           addNewTodo={addNewTodo}
           isLoading={isAddWaiting}
           isAllTodosCompleted={isAllTodosCompleted}
+          haveTodos={haveTodos}
           toggleAllTodosStatus={toggleAllTodosStatus}
         />
 

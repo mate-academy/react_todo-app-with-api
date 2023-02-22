@@ -10,6 +10,7 @@ type Props = {
   isLoading: boolean;
   isAllTodosCompleted: boolean;
   toggleAllTodosStatus: (status: boolean) => void;
+  haveTodos: boolean;
 };
 
 export const TodoForm: React.FC<Props> = (
@@ -21,6 +22,7 @@ export const TodoForm: React.FC<Props> = (
     isLoading,
     isAllTodosCompleted,
     toggleAllTodosStatus,
+    haveTodos,
   },
 ) => {
   const changeTitle = (event: ChangeEvent<HTMLInputElement>) => {
@@ -57,20 +59,20 @@ export const TodoForm: React.FC<Props> = (
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          {
-            active: isAllTodosCompleted,
-          },
-        )}
-        aria-label="Toggle-active"
-        onClick={handleToggleButtonClick}
-      />
+      {haveTodos && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            {
+              active: isAllTodosCompleted,
+            },
+          )}
+          aria-label="Toggle-active"
+          onClick={handleToggleButtonClick}
+        />
+      )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onFormSubmit}>
         <input
           type="text"
