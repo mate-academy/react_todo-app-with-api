@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   removeTodoFromServer: (id: number) => void;
   updateTodoOnServer: (todo: Todo) => void;
-  updatingStage: number[];
+  inProgressTodoId: number[];
   handleTodoEditor: (id: number) => void;
   editedTodoId: number;
 };
@@ -15,7 +15,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   removeTodoFromServer,
   updateTodoOnServer,
-  updatingStage,
+  inProgressTodoId,
   handleTodoEditor,
   editedTodoId,
 }) => {
@@ -72,7 +72,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
     if (tempTitle.trim() === '') {
       removeTodoFromServer(id);
-      
+
       return;
     }
 
@@ -136,7 +136,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
       <div
         className={classNames('modal overlay', {
-          'is-active': updatingStage.includes(id),
+          'is-active': inProgressTodoId.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

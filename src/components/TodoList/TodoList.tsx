@@ -8,7 +8,7 @@ type Props = {
   todos: Todo[];
   removeTodoFromServer: (id: number) => void;
   updateTodoOnServer: (todo: Todo) => void;
-  updatingStage: number[];
+  inProgressTodoId: number[];
   handleTodoEditor: (id: number) => void;
   editedTodoId: number;
   tempTodo: TempTodo | null;
@@ -18,7 +18,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   todos,
   removeTodoFromServer,
   updateTodoOnServer,
-  updatingStage,
+  inProgressTodoId,
   handleTodoEditor,
   editedTodoId,
   tempTodo,
@@ -30,7 +30,7 @@ export const TodoList: React.FC<Props> = React.memo(({
         key={todo.id}
         removeTodoFromServer={removeTodoFromServer}
         updateTodoOnServer={updateTodoOnServer}
-        updatingStage={updatingStage}
+        inProgressTodoId={inProgressTodoId}
         handleTodoEditor={handleTodoEditor}
         editedTodoId={editedTodoId}
       />

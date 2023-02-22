@@ -17,15 +17,15 @@ import { ErrorMessages } from './types/ErrorMessages';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterType, setFilterType] = useState(FilterType.All);
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [errorType, setErrorType] = useState<ErrorMessages>(ErrorMessages.None);
   const [isErrorHidden, setIsErrorHidden] = useState(true);
-  const [updatingStage, setUpdatingStage] = useState<number[]>([]);
+  const [inProgressTodoId, setInProgressTodoId] = useState<number[]>([]);
   const [editedTodoId, setEditedTodoId] = useState(0);
   const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
   const [isMainInputDisabled, setIsMainInputDisabled] = useState(false);
 
-  const isSomeThingDone = todos.some((todo) => todo.completed);
+  const isSomethingDone = todos.some((todo) => todo.completed);
   const activeTodosAmount = todos.filter((todo) => !todo.completed).length;
 
   const loadTodos = async () => {
@@ -73,25 +73,24 @@ export const App: React.FC = () => {
 
   const removeTodoFromServer = useCallback(async (todoId: number) => {
     try {
-      setUpdatingStage((prev) => [...prev, todoId]);
+      setInProgressTodoId((prev) => [...prev, todoId]);
       await removeTodo(todoId);
       await loadTodos();
     } catch (error) {
       setErrorType(ErrorMessages.Delete);
       setIsErrorHidden(false);
     } finally {
-      setUpdatingStage((prev) => prev.filter((prevId) => prevId !== todoId));
+      setInProgressTodoId((prev) => prev.filter((prevId) => prevId !== todoId));
     }
   }, []);
 
   const removeCompletedTodos = () => {
-    const completedTodosId = todos
+    todos
       .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
-    completedTodosId.forEach(id => {
-      removeTodoFromServer(id);
-    });
+      .map(todo => todo.id)
+      .forEach(id => {
+        removeTodoFromServer(id);
+      });
   };
 
   const saveTempTodo = useCallback((todo: TempTodo) => {
@@ -100,14 +99,14 @@ export const App: React.FC = () => {
 
   const updateTodoOnServer = useCallback(async (todo: Todo) => {
     try {
-      setUpdatingStage(prev => [...prev, todo.id]);
+      setInProgressTodoId(prev => [...prev, todo.id]);
       await updateTodo(todo);
       await loadTodos();
     } catch (error) {
       setErrorType(ErrorMessages.Update);
       setIsErrorHidden(false);
     } finally {
-      setUpdatingStage(prev => prev.filter(id => id !== todo.id));
+      setInProgressTodoId(prev => prev.filter(id => id !== todo.id));
     }
   }, []);
 
@@ -157,7 +156,7 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           removeTodoFromServer={removeTodoFromServer}
           updateTodoOnServer={updateTodoOnServer}
-          updatingStage={updatingStage}
+          inProgressTodoId={inProgressTodoId}
           handleTodoEditor={handleTodoEditor}
           editedTodoId={editedTodoId}
           tempTodo={tempTodo}
@@ -167,7 +166,7 @@ export const App: React.FC = () => {
           filterType={filterType}
           removeCompletedTodos={removeCompletedTodos}
           handleFiltering={handleFiltering}
-          isSomeThingDone={isSomeThingDone}
+          isSomethingDone={isSomethingDone}
           activeTodosAmount={activeTodosAmount}
         />
       </div>

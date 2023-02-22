@@ -1,5 +1,6 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
+import { ErrorMessages } from '../types/ErrorMessages';
 
 export const USER_ID = 6350;
 
@@ -21,7 +22,7 @@ export async function removeTodo(id: number) {
   try {
     await client.delete(`/todos/${id}`);
   } catch (error) {
-    throw Error('Unable to delete a todo');
+    throw Error(ErrorMessages.Delete);
   }
 }
 
@@ -29,6 +30,6 @@ export async function updateTodo(todo: Todo) {
   try {
     await client.patch(`/todos/${todo.id}`, todo);
   } catch (error) {
-    throw Error('Unable to delete a todo');
+    throw Error(ErrorMessages.Update);
   }
 }
