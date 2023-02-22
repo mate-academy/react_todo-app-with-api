@@ -33,17 +33,17 @@ export const App: React.FC = () => {
   const [isToggled, setIsToggled] = useState(false);
   const userId = useContext(UserContext);
 
+  const getTodosFromServer = useCallback(async () => {
+    try {
+      const todosFromServer = await getTodos(userId);
+
+      setTodos(todosFromServer);
+    } catch (error) {
+      setErrorType(ErrorType.Load);
+    }
+  }, []);
+
   useEffect(() => {
-    const getTodosFromServer = async () => {
-      try {
-        const todosFromServer = await getTodos(userId);
-
-        setTodos(todosFromServer);
-      } catch (error) {
-        setErrorType(ErrorType.Load);
-      }
-    };
-
     getTodosFromServer();
   }, []);
 

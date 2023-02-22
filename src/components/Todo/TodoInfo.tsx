@@ -172,6 +172,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           >
             {title}
           </span>
+
           <button
             type="button"
             className="todo__remove"

@@ -27,9 +27,9 @@ export const Header: React.FC<Props> = React.memo(({
   const [isInvalidInput, setIsInvalidInput] = useState(false);
   const userId = useContext(UserContext);
 
-  async function handleAddNewTodo(
+  const handleAddNewTodo = async (
     event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> {
+  ) => {
     event.preventDefault();
     const title = newTodoName.trim();
 
@@ -60,7 +60,7 @@ export const Header: React.FC<Props> = React.memo(({
       setNewTodoName('');
       setIsInvalidInput(false);
     }
-  }
+  };
 
   return (
     <header className="todoapp__header">
