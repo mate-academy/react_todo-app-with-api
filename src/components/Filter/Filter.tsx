@@ -1,6 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import { FilterBy } from '../../types';
+import { capitalize } from '../../utils';
 
 type Props = {
   selectedFilter: FilterBy,
@@ -12,37 +13,18 @@ export const Filter: React.FC<Props> = React.memo(({
   onFilterSelect,
 }) => (
   <nav className="filter">
-    <a
-      href="#/"
-      className={cn(
-        'filter__link',
-        { selected: selectedFilter === FilterBy.ALL },
-      )}
-      onClick={() => onFilterSelect(FilterBy.ALL)}
-    >
-      All
-    </a>
-
-    <a
-      href="#/active"
-      className={cn(
-        'filter__link',
-        { selected: selectedFilter === FilterBy.ACTIVE },
-      )}
-      onClick={() => onFilterSelect(FilterBy.ACTIVE)}
-    >
-      Active
-    </a>
-
-    <a
-      href="#/completed"
-      className={cn(
-        'filter__link',
-        { selected: selectedFilter === FilterBy.COMPLETED },
-      )}
-      onClick={() => onFilterSelect(FilterBy.COMPLETED)}
-    >
-      Completed
-    </a>
+    {Object.values(FilterBy).map(filterBy => (
+      <a
+        key={filterBy}
+        href="#/"
+        className={cn(
+          'filter__link',
+          { selected: selectedFilter === filterBy },
+        )}
+        onClick={() => onFilterSelect(filterBy)}
+      >
+        {capitalize(filterBy)}
+      </a>
+    ))}
   </nav>
 ));
