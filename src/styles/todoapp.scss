@@ -1,3 +1,6 @@
+// .todoapp__clear-completed:disabled {
+//   opacity: 0;
+// }
 
 .todoapp {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -128,6 +131,11 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &:disabled {
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }
