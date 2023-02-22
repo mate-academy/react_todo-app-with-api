@@ -67,7 +67,7 @@ export const Header: React.FC<Props> = React.memo(({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !activeTodosAmount,
+          active: activeTodosAmount,
         })}
         onClick={toggleStatus}
         aria-label="Toggle all todos"

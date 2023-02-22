@@ -30,7 +30,9 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
   const [tempTodoName, setTempTodoName] = useState('');
   const [isClearCompleted, setIsClearCompleted] = useState(false);
+
   const [isToggled, setIsToggled] = useState(false);
+
   const userId = useContext(UserContext);
 
   const getTodosFromServer = useCallback(async () => {
@@ -173,7 +175,7 @@ export const App: React.FC = () => {
           isToggled={isToggled}
         />
 
-        {todos.length && (
+        {!!todos.length && (
           <Footer
             activeTodosAmount={activeTodosAmount(todos)}
             filterByStatus={filterByStatus}
@@ -184,10 +186,12 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification
-        errorType={errorType}
-        onNotificationClose={hideError}
-      />
+      {errorType && (
+        <ErrorNotification
+          errorType={errorType}
+          onNotificationClose={hideError}
+        />
+      )}
     </div>
   );
 };

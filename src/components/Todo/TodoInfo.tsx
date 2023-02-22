@@ -124,6 +124,16 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     setIsEditTitle(title);
   };
 
+  const handleKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    setIsEditing(true);
+  };
+
   return (
     <div
       className={classNames('todo', {
@@ -161,13 +171,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
             tabIndex={0}
             aria-label="Press Enter to edit the title"
             className="todo__title"
-            onKeyUp={(event) => {
-              if (event.key !== 'Enter') {
-                return;
-              }
-
-              setIsEditing(true);
-            }}
+            onKeyUp={handleKeyUp}
             onDoubleClick={() => setIsEditing(true)}
           >
             {title}
