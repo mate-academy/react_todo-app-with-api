@@ -178,7 +178,11 @@ export const App: React.FC = () => {
   };
 
   const toggleAllTodosStatus = async (status: boolean) => {
-    todos.map(todo => changeTodosIdsToUpdate(todo.id));
+    todos.forEach(todo => {
+      if (todo.completed !== status) {
+        changeTodosIdsToUpdate(todo.id);
+      }
+    });
 
     await Promise.all(todos
       .map(todo => changeCompletedStatus(todo.id, status)));

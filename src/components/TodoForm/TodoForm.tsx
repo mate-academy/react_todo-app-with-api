@@ -46,15 +46,7 @@ export const TodoForm: React.FC<Props> = (
   };
 
   const handleToggleButtonClick = () => {
-    let completedValue;
-
-    if (isAllTodosCompleted) {
-      completedValue = false;
-    } else {
-      completedValue = true;
-    }
-
-    toggleAllTodosStatus(completedValue);
+    toggleAllTodosStatus(!isAllTodosCompleted);
   };
 
   return (
