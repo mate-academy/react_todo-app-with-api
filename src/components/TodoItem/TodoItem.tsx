@@ -28,8 +28,23 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const todoRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const startEditing = useCallback(() => setBeingEdited(true), []);
-  const finishEditing = useCallback(() => setBeingEdited(false), []);
+  const handleCancelEdit = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setNewTitle(title);
+      setBeingEdited(false);
+      document.removeEventListener('keyup', handleCancelEdit);
+    }
+  };
+
+  const finishEditing = useCallback(() => {
+    setBeingEdited(false);
+    document.removeEventListener('keyup', handleCancelEdit);
+  }, []);
+
+  const startEditing = useCallback(() => {
+    setBeingEdited(true);
+    document.addEventListener('keyup', handleCancelEdit);
+  }, []);
 
   useEffect(() => {
     todoRef.current?.addEventListener('dblclick', startEditing);
