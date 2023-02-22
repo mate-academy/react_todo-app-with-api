@@ -92,7 +92,7 @@ export const TodoItem: React.FC<Props> = (
     setShowForm(false);
     await changeTodoTitle(id, newTitle);
     removeUpdatedId(id);
-    setNewTitle(title);
+    setNewTitle(newTitle);
   };
 
   const hideForm = (event: React.KeyboardEvent<HTMLInputElement>) => {
