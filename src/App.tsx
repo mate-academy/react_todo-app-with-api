@@ -141,9 +141,33 @@ export const App: React.FC = () => {
   };
 
   const toggleTodosStatus = useCallback(async () => {
-    return (activeTodos.length)
-      ? activeTodos.forEach(todo => changeTodo(todo))
-      : completedTodos.forEach(todo => changeTodo(todo));
+    const todosToToggle = (activeTodos.length)
+      ? activeTodos
+      : completedTodos;
+
+    setActiveTodosId(prevTodosId => [
+      ...prevTodosId, ...todosToToggle.map(todo => todo.id),
+    ]);
+
+    try {
+      await Promise.all(todosToToggle.map(todo => {
+        const todoToUpdate = {
+          ...todo,
+          completed: !todo.completed,
+        };
+
+        return updateTodo(todoToUpdate);
+      }));
+      await getAllTodos(USER_ID);
+    } catch {
+      setHasError(true);
+      setError(ErrorType.UPDATE_ERROR);
+      // eslint-disable-next-line no-console
+      console.warn('An occur error while updating todo');
+    } finally {
+      setActiveTodosId(prevTodosId => prevTodosId
+        .filter(todoId => !todosToToggle.some(todo => todoId === todo.id)));
+    }
   }, [activeTodos, completedTodos]);
 
   const filteredTodos = useMemo(() => getFilteredTodos(todos, filterType),
