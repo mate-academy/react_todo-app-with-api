@@ -16,12 +16,12 @@ import {
   callEditTodo,
   callGetTodos,
 } from './api/todos';
-import { Notifications } from './components/Notifications';
 import { ErrorType } from './types/ErrorType';
 import { FilterBy } from './types/FilterBy';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { RequestTodo } from './types/RequestTodo';
+import { Notifications } from './components/Notificiations';
 
 const USER_ID = 6414;
 

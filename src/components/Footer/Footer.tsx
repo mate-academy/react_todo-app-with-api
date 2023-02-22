@@ -7,17 +7,13 @@ type Props = {
   todos: Todo[],
   onFilterBy: (filter: FilterBy) => void,
   filterBy: FilterBy,
-  // notCompletedTodos:number,
   onClearCompleted: (id: number) => void,
-  // isClearButtonVisible: boolean;
 };
 
 export const Footer: React.FC<Props> = React.memo(({
   todos,
   onFilterBy,
   filterBy,
-  // notCompletedTodos,
-  // isClearButtonVisible,
   onClearCompleted,
 }) => {
   const completedTodos = todos.filter((todo) => todo.completed);
