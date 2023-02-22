@@ -5,15 +5,20 @@ type Props = {
   addNewTodo: (title: string) => void;
   updateAllTodosStatus: (isCompleted: boolean) => void;
   isAllTodosCompleted: boolean;
+  isTodosThere: number;
+  addError: (errorMessage: string) => void;
+  removeError: () => void;
 };
 
 export const Header: React.FC<Props> = React.memo(({
   addNewTodo,
   updateAllTodosStatus,
   isAllTodosCompleted,
+  isTodosThere,
+  addError,
+  removeError,
 }) => {
   const [query, setQuery] = useState('');
-  const [isTitleEmpty, setIsTitleEmpty] = useState(false);
   const [isAllCompleted, setIsAllCompleted] = useState(false);
 
   useEffect(() => {
@@ -22,17 +27,17 @@ export const Header: React.FC<Props> = React.memo(({
 
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
-    setIsTitleEmpty(false);
+    removeError();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (query) {
-      addNewTodo(query.trim());
+    if (query.length > 0) {
+      addNewTodo(query);
       setQuery('');
-      setIsTitleEmpty(false);
+      removeError();
     } else {
-      setIsTitleEmpty(true);
+      addError('Title can\'t be empty');
     }
   };
 
@@ -46,13 +51,15 @@ export const Header: React.FC<Props> = React.memo(({
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        // eslint-disable-next-line
-        className={cn('todoapp__toggle-all', { 'active': isAllCompleted })}
-        aria-label="Toogle all"
-        onClick={toggleTodosStatusForAll}
-      />
+      {!!isTodosThere && (
+        <button
+          type="button"
+          // eslint-disable-next-line
+          className={cn('todoapp__toggle-all', { 'active': isAllCompleted })}
+          aria-label="Toogle all"
+          onClick={toggleTodosStatusForAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
@@ -64,11 +71,6 @@ export const Header: React.FC<Props> = React.memo(({
           onChange={(event) => handleInput(event)}
         />
       </form>
-      {isTitleEmpty && (
-        <p className="todoapp__notification-empty">
-          {'Title can\'t be empty'}
-        </p>
-      )}
     </header>
   );
 });

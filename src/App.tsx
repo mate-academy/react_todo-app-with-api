@@ -28,6 +28,7 @@ export const App: React.FC = () => {
   const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [completedTodoLength, setCompletedTodoLength] = useState(0);
+  const [selectedFilter, setSelectedFilter] = useState(Filter.All);
 
   const getTodosFromServer = async (uri: string) => {
     try {
@@ -70,7 +71,7 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  }, []);
+  }, [todos]);
 
   const removeTodo = useCallback(async (todo: Todo) => {
     try {
@@ -158,14 +159,6 @@ export const App: React.FC = () => {
     getTodosFromServer(`?userId=${USER_ID}`);
   }, []);
 
-  useEffect(() => {
-    setVisibleTodos(todos);
-  }, [todos]);
-
-  const removeError = useCallback(() => {
-    setCurrentError('');
-  }, []);
-
   const filterTodos = useCallback((type: Filter) => {
     switch (type) {
       case Filter.All:
@@ -181,6 +174,22 @@ export const App: React.FC = () => {
         setVisibleTodos(todos);
     }
   }, [todos]);
+
+  useEffect(() => {
+    filterTodos(selectedFilter);
+  }, [todos]);
+
+  const addError = useCallback((errorMessage: string) => {
+    setCurrentError(errorMessage);
+  }, []);
+
+  const removeError = useCallback(() => {
+    setCurrentError('');
+  }, []);
+
+  const changeSelectedFilter = useCallback((select: Filter) => {
+    setSelectedFilter(select);
+  }, []);
 
   const countOfActiveTodos = useMemo(() => (
     todos.filter(todo => !todo.completed).length
@@ -202,6 +211,9 @@ export const App: React.FC = () => {
           addNewTodo={addNewTodo}
           updateAllTodosStatus={updateAllTodosStatus}
           isAllTodosCompleted={isAllTodosCompleted}
+          isTodosThere={todos.length}
+          addError={addError}
+          removeError={removeError}
         />
         {!(todos.length === 0) && (
           <>
@@ -218,6 +230,8 @@ export const App: React.FC = () => {
               countOfActiveTodos={countOfActiveTodos}
               completedTodoLength={completedTodoLength}
               removeAllCompletedTodos={removeAllCompletedTodos}
+              selectedFilter={selectedFilter}
+              changeSelectedFilter={changeSelectedFilter}
             />
           </>
         )}
