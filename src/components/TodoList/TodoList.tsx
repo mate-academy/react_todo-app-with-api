@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import React from 'react';
 
 import { Todo, UpdateData } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
@@ -6,13 +7,13 @@ import { TodoItem } from '../TodoItem';
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  handleDelete: (todoId: number) => void,
-  processedTodosId: number[],
-  handleUpdateTodo: (todoId: number, fieldsToUpdate: UpdateData) => void,
+  handleDelete: (todo: Todo) => void,
+  processedTodos: Todo[],
+  handleUpdateTodo: (todo: Todo, fieldsToUpdate: UpdateData) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos, tempTodo, handleDelete, processedTodosId, handleUpdateTodo,
+  todos, tempTodo, handleDelete, processedTodos, handleUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main">
@@ -25,9 +26,9 @@ export const TodoList: React.FC<Props> = ({
         >
           <TodoItem
             todo={todo}
-            onDelete={() => handleDelete(todo.id)}
-            toDelete={processedTodosId.includes(todo.id)}
-            onUpdate={(fields) => handleUpdateTodo(todo.id, fields)}
+            onDelete={() => handleDelete(todo)}
+            onProcess={processedTodos.some(procTodo => procTodo.id === todo.id)}
+            onUpdate={(fields) => handleUpdateTodo(todo, fields)}
           />
         </div>
       ))}

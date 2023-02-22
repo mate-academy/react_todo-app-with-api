@@ -5,31 +5,31 @@ import { Todo, UpdateData } from '../../types/Todo';
 type Props = {
   todo: Todo,
   onDelete: () => void,
-  toDelete: boolean,
+  onProcess: boolean,
   onUpdate: (fieldsToUpdate: UpdateData) => void,
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDelete,
-  toDelete,
+  onProcess,
   onUpdate,
 }) => {
   const { title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
-  const handleClick = (
+  const handleClick = useCallback((
     event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
   ) => {
     if (event.detail === 2) {
       setIsEditing(true);
     }
-  };
+  }, []);
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     onUpdate({ completed: !completed });
-  };
+  }, [completed]);
 
   const handleEscapeKey = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -40,7 +40,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }, [],
   );
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     if (newTitle === title) {
@@ -55,11 +55,13 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
     onUpdate({ title: newTitle.trim() });
     setIsEditing(false);
-  };
+  }, [newTitle, title]);
 
-  const handleNewTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewTitle = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewTitle(event.target.value);
-  };
+  }, []);
 
   return (
     <>
@@ -107,7 +109,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': toDelete,
+        'is-active': onProcess,
       })}
       >
         <div className="modal-background has-background-white-ter" />

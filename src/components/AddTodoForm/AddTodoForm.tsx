@@ -1,27 +1,29 @@
-import { FormEvent, useState } from 'react';
+import React, { FormEvent, useCallback, useState } from 'react';
 
 type Props = {
   handleAddTodo: (todoTitle: string) => void,
   inputDisabled: boolean,
 };
 
-export const AddTodoForm: React.FC<Props> = ({
+export const AddTodoForm: React.FC<Props> = React.memo(({
   handleAddTodo, inputDisabled,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInput = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const { value } = event.target;
 
     setTodoTitle(value);
-  };
+  }, []);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     handleAddTodo(todoTitle.trim());
     setTodoTitle('');
-  };
+  }, [todoTitle]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -35,4 +37,4 @@ export const AddTodoForm: React.FC<Props> = ({
       />
     </form>
   );
-};
+});

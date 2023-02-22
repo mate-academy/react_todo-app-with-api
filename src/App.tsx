@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -20,8 +21,6 @@ import { ErrorMessage } from './types/ErrorMessage';
 import { FilterTypes } from './types/FIlterTypes';
 import { Todo, UpdateData } from './types/Todo';
 import { UserWarning } from './UserWarning';
-import { getActiveTodosId } from './utils/getActiveTodosId';
-import { getCompletedTodosId } from './utils/getCompletedTodosId';
 import { getFilteredTodos } from './utils/getFilteredTodos';
 
 const USER_ID = 6359;
@@ -33,9 +32,9 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [processedTodosId, setProcessedTodosId] = useState<number[]>([]);
+  const [processedTodos, setProcessedTodos] = useState<Todo[]>([]);
 
-  const fetchUserTodos = async () => {
+  const fetchUserTodos = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
@@ -44,13 +43,13 @@ export const App: React.FC = () => {
       setErrorMessage(ErrorMessage.FIND);
       setHasError(true);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUserTodos();
   }, []);
 
-  const handleAddTodo = async (todoTitle: string) => {
+  const handleAddTodo = useCallback(async (todoTitle: string) => {
     if (!todoTitle) {
       setErrorMessage(ErrorMessage.EMPTY_TITLE);
       setHasError(true);
@@ -79,71 +78,103 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setInputDisabled(false);
     }
-  };
+  }, []);
 
-  const handleDelete = async (todoId: number) => {
-    setProcessedTodosId((currentIds) => [...currentIds, todoId]);
+  const handleDelete = useCallback(async (todo: Todo) => {
+    setProcessedTodos((currentTodos) => [...currentTodos, todo]);
 
     try {
-      await deleteTodo(todoId);
+      await deleteTodo(todo.id);
       await fetchUserTodos();
     } catch (error) {
       setHasError(true);
       setErrorMessage(ErrorMessage.DELETE);
     } finally {
-      setProcessedTodosId([]);
+      setProcessedTodos([]);
     }
-  };
+  }, []);
 
   const visibleTodos = useMemo(() => {
     return getFilteredTodos(todos, filterType);
   }, [todos, filterType]);
 
-  const handleFilterType = (filter: FilterTypes) => {
+  const handleFilterType = useCallback((filter: FilterTypes) => {
     setFilterType(filter);
-  };
+  }, []);
 
-  const handleUpdateTodo = async (
-    todoId: number,
+  const handleUpdateTodo = useCallback(async (
+    todo: Todo,
     fieldsToUpdate: UpdateData,
   ) => {
-    setProcessedTodosId((currentIds) => [...currentIds, todoId]);
-
+    setProcessedTodos(currentTodos => [...currentTodos, todo]);
     try {
-      await updateTodo(todoId, fieldsToUpdate);
+      await updateTodo(todo.id, fieldsToUpdate);
       await fetchUserTodos();
     } catch {
       setErrorMessage(ErrorMessage.UPDATE);
     } finally {
-      setProcessedTodosId([]);
+      setProcessedTodos(currentTodos => (
+        currentTodos.filter(currTodo => currTodo.id !== todo.id)));
     }
-  };
+  }, []);
 
-  const hasCompletedTodos = getCompletedTodosId(todos).length > 0;
-  const activeTodos = getActiveTodosId(todos);
+  const activeTodos = useMemo(() => {
+    return getFilteredTodos(todos, FilterTypes.ACTIVE);
+  }, [todos]);
+  const completedTodos = useMemo(() => {
+    return getFilteredTodos(todos, FilterTypes.COMPLETED);
+  }, [todos]);
   const hasActiveTodos = activeTodos.length > 0;
 
-  const handleToggleAll = () => {
+  const handleToggleAll = useCallback(async () => {
     if (hasActiveTodos) {
-      activeTodos.forEach(
-        ({ id }) => handleUpdateTodo(id, { completed: true }),
-      );
+      try {
+        setProcessedTodos((currentTodos) => [...currentTodos, ...activeTodos]);
+
+        await Promise.all(
+          activeTodos.map(({ id }) => updateTodo(id, { completed: true })),
+        );
+        await fetchUserTodos();
+      } catch {
+        setErrorMessage(ErrorMessage.UPDATE);
+      } finally {
+        setProcessedTodos([]);
+      }
 
       return;
     }
 
-    todos.forEach(
-      ({ id }) => handleUpdateTodo(id, { completed: false }),
-    );
-  };
+    try {
+      setProcessedTodos((currentTodos) => [...currentTodos, ...todos]);
 
-  const changeHasError = (value: boolean) => setHasError(value);
+      await Promise.all(
+        todos.map(({ id }) => updateTodo(id, { completed: false })),
+      );
+      await fetchUserTodos();
+    } catch {
+      setErrorMessage(ErrorMessage.UPDATE);
+    } finally {
+      setProcessedTodos([]);
+    }
+  }, [activeTodos, todos]);
 
-  const deleteAllCompleted = async () => {
-    const completedTodos = getCompletedTodosId(todos);
+  const changeHasError = useCallback((value: boolean) => (
+    setHasError(value)
+  ), []);
 
-    await completedTodos.forEach(id => handleDelete(id));
-  };
+  const deleteAllCompleted = useCallback(async () => {
+    try {
+      setProcessedTodos((currentTodos) => [...currentTodos, ...completedTodos]);
+      await Promise.all(
+        completedTodos.map(todo => handleDelete(todo)),
+      );
+      await fetchUserTodos();
+    } catch {
+      setErrorMessage(ErrorMessage.DELETE);
+    } finally {
+      setProcessedTodos([]);
+    }
+  }, [completedTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -175,14 +206,14 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               tempTodo={tempTodo}
               handleDelete={handleDelete}
-              processedTodosId={processedTodosId}
+              processedTodos={processedTodos}
               handleUpdateTodo={handleUpdateTodo}
             />
 
             <Footer
               filterType={filterType}
               handleFilterType={handleFilterType}
-              hasCompletedTodos={hasCompletedTodos}
+              hasCompletedTodos={completedTodos.length > 0}
               deleteAllCompleted={deleteAllCompleted}
               activeTodos={activeTodos}
             />

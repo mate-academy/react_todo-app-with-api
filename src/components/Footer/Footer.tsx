@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import React from 'react';
 import { FilterTypes } from '../../types/FIlterTypes';
 import { Todo } from '../../types/Todo';
 
@@ -10,7 +11,7 @@ type Props = {
   activeTodos: Todo[],
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   filterType,
   handleFilterType, hasCompletedTodos, deleteAllCompleted, activeTodos,
 }) => {
@@ -63,4 +64,4 @@ export const Footer: React.FC<Props> = ({
       </button>
     </footer>
   );
-};
+});

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
@@ -8,7 +8,7 @@ type Props = {
   errorMessage: ErrorMessage | string,
 };
 
-export const Notification: React.FC<Props> = ({
+export const Notification: React.FC<Props> = React.memo(({
   errorMessage, changeHasError, hasError,
 }) => {
   useEffect(() => {
@@ -35,4 +35,4 @@ export const Notification: React.FC<Props> = ({
       {errorMessage}
     </div>
   );
-};
+});
