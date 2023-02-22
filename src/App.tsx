@@ -129,13 +129,11 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = filterTodos(todos, filterType);
-
   const completedTodos = useMemo(() => todos
     .filter(todo => todo.completed), [todos]);
-
   const activeTodos = todos.length - completedTodos.length;
-
   const isAllTodosCompleted = completedTodos.length === todos.length;
+  const haveTodos = todos.length !== 0;
 
   const onFilterTypeChange = useCallback((value: Filter) => {
     setFilterType(value);
@@ -187,8 +185,6 @@ export const App: React.FC = () => {
 
     resetTodosIdsToUpdate();
   };
-
-  const haveTodos = todos.length !== 0;
 
   if (!USER_ID) {
     return <UserWarning />;
