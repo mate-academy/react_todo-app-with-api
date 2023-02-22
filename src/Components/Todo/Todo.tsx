@@ -8,8 +8,8 @@ import { ChangeFunction } from '../../types/ChangeFunction';
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  DeleteTodo?: (todoId: number) => void;
-  ChangeTodo?: ChangeFunction;
+  onDeleteTodo?: (todoId: number) => void;
+  onChangeTodo?: ChangeFunction;
   showError?: (errorType: ErrorMessage) => void;
   hideError?: () => void;
 };
@@ -17,8 +17,8 @@ type Props = {
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   isLoading,
-  DeleteTodo = () => {},
-  ChangeTodo = () => {},
+  onDeleteTodo = () => {},
+  onChangeTodo = () => {},
   showError = () => {},
   hideError = () => {},
 }) => {
@@ -42,7 +42,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
     try {
       await deleteTodos(id);
-      DeleteTodo(id);
+      onDeleteTodo(id);
     } catch {
       showError(ErrorMessage.Delete);
       setIsWaiting(false);
@@ -63,7 +63,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     try {
       await updateTodoOnServer(todoId, { [propName]: newPropValue });
 
-      ChangeTodo(todoId, propName, newPropValue);
+      onChangeTodo(todoId, propName, newPropValue);
     } catch {
       showError(ErrorMessage.Update);
 
@@ -178,7 +178,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
       <div
         className={classNames('modal', 'overlay', {
-          'is-active': isLoading || isWaiting,
+          'is-active': isWaiting && isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

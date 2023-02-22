@@ -12,43 +12,41 @@ type Props = {
 
 const filterOptions = Object.values(TodoStatus);
 
-export const Filter: React.FC<Props> = React.memo(
-  ({
-    counterActiveTodos,
-    counterCompletedTodos,
-    selectedFilter,
-    onFilterSelect,
-    onClearCompleted,
-  }) => {
-    return (
-      <footer className="todoapp__footer">
-        <span className="todo-count">{`${counterActiveTodos} items left`}</span>
+export const Filter: React.FC<Props> = React.memo(({
+  counterActiveTodos,
+  counterCompletedTodos,
+  selectedFilter,
+  onFilterSelect,
+  onClearCompleted,
+}) => {
+  return (
+    <footer className="todoapp__footer">
+      <span className="todo-count">{`${counterActiveTodos} items left`}</span>
 
-        <nav className="filter">
-          {filterOptions.map((option) => (
-            <a
-              key={option}
-              href={`#/${option}`}
-              className={classNames('filter__link', {
-                selected: option === selectedFilter,
-              })}
-              onClick={() => onFilterSelect(option)}
-            >
-              {option[0].toUpperCase() + option.slice(1)}
-            </a>
-          ))}
-        </nav>
+      <nav className="filter">
+        {filterOptions.map((option) => (
+          <a
+            key={option}
+            href={`#/${option}`}
+            className={classNames('filter__link', {
+              selected: option === selectedFilter,
+            })}
+            onClick={() => onFilterSelect(option)}
+          >
+            {option[0].toUpperCase() + option.slice(1)}
+          </a>
+        ))}
+      </nav>
 
-        <button
-          type="button"
-          className={classNames('todoapp__clear-completed', {
-            hidden: !counterCompletedTodos,
-          })}
-          onClick={onClearCompleted}
-        >
-          Clear completed
-        </button>
-      </footer>
-    );
-  },
-);
+      <button
+        type="button"
+        className={classNames('todoapp__clear-completed', {
+          hidden: !counterCompletedTodos,
+        })}
+        onClick={onClearCompleted}
+      >
+        Clear completed
+      </button>
+    </footer>
+  );
+});

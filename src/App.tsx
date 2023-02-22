@@ -13,7 +13,8 @@ import { Filter } from './Components/Filter';
 import { Error } from './Components/Error';
 import { Todo, TodoStatus } from './types/Todo';
 import { ErrorMessage } from './types/ErrorMessage';
-import { filterTodos } from './Components/filterTodo';
+import { filterTodos } from './helpers/filterTodo';
+import { closeError } from './helpers/closeError';
 import { UserIdContext } from './utils/context';
 import { ChangeFunction } from './types/ChangeFunction';
 
@@ -24,28 +25,33 @@ export const App: React.FC = () => {
   const [creatingTodoTitle, setCreatingTodoTitle] = useState('');
   const [isClearCompleted, setIsClearCompleted] = useState(false);
   const [isAllToggled, setIsAllToggled] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const userId = useContext(UserIdContext);
 
-  useEffect(() => {
-    getTodos(userId)
-      .then((userTodos) => setTodos(userTodos))
-      .catch(() => {
-        setErrorType(ErrorMessage.Download);
-      });
-  }, [userId]);
+  const getTodosFromServer = async () => {
+    try {
+      const userTodos = await getTodos(userId);
 
-  const counterActiveTodos = useMemo(
-    () => filterTodos(todos, TodoStatus.Active).length,
-    [todos],
-  );
+      setTodos(userTodos);
+    } catch (error) {
+      setIsError(true);
+      closeError(setIsError, false, 3000);
+    }
+  };
+
+  useEffect(() => {
+    getTodosFromServer();
+  }, []);
+
+  const counterActiveTodos = useMemo(() => (
+    filterTodos(todos, TodoStatus.Active).length),
+  [todos]);
 
   const counterCompletedTodos = todos.length - counterActiveTodos;
 
-  const filteredTodos = useMemo(
-    () => filterTodos(todos, selectedFilter),
-    [selectedFilter, todos],
-  );
+  const filteredTodos = useMemo(() => filterTodos(todos, selectedFilter),
+    [selectedFilter, todos]);
 
   const showError = useCallback((error: ErrorMessage) => {
     setErrorType(error);
@@ -55,12 +61,12 @@ export const App: React.FC = () => {
     setErrorType(ErrorMessage.None);
   }, []);
 
-  const AddTodo = useCallback(
+  const addTodo = useCallback(
     (newTodo: Todo) => setTodos((oldTodos) => [...oldTodos, newTodo]),
     [],
   );
 
-  const DeleteTodo = useCallback((todoId: number) => {
+  const onDeleteTodo = useCallback((todoId: number) => {
     setTodos((oldTodos) => {
       return oldTodos.filter(({ id }) => id !== todoId);
     });
@@ -85,7 +91,7 @@ export const App: React.FC = () => {
   );
 
   const handleToggleTodosStatus = useCallback(async () => {
-    const filterType = counterActiveTodos === 0
+    const filterType = counterActiveTodos
       ? TodoStatus.All
       : TodoStatus.Active;
     const todosToToggle = filterTodos(todos, filterType);
@@ -152,7 +158,7 @@ export const App: React.FC = () => {
           showError={showError}
           hideError={hideError}
           showCreatingTodo={setCreatingTodoTitle}
-          addNewTodo={AddTodo}
+          addNewTodo={addTodo}
           onToggleTodosStatus={handleToggleTodosStatus}
         />
 
@@ -162,13 +168,13 @@ export const App: React.FC = () => {
           counterActiveTodos={counterActiveTodos}
           showError={showError}
           hideError={hideError}
-          DeleteTodo={DeleteTodo}
-          ChangeTodo={handleChangeTodo}
+          onDeleteTodo={onDeleteTodo}
+          onChangeTodo={handleChangeTodo}
           isClearCompleted={isClearCompleted}
           isAllToggled={isAllToggled}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Filter
             counterActiveTodos={counterActiveTodos}
             counterCompletedTodos={counterCompletedTodos}
@@ -179,6 +185,7 @@ export const App: React.FC = () => {
         )}
 
         <Error
+          isError={isError}
           errorMessage={errorType}
           onErrorClose={hideError}
         />

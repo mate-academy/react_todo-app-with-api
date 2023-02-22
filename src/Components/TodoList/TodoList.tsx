@@ -14,8 +14,8 @@ type Props = {
   isAllToggled: boolean;
   showError: (errorType: ErrorMessage) => void;
   hideError: () => void;
-  DeleteTodo: (todoId: number) => void;
-  ChangeTodo: ChangeFunction;
+  onDeleteTodo: (todoId: number) => void;
+  onChangeTodo: ChangeFunction;
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -23,8 +23,8 @@ export const TodoList: React.FC<Props> = React.memo(({
   counterActiveTodos,
   creatingTodoTitle,
   isClearCompleted,
-  DeleteTodo,
-  ChangeTodo,
+  onDeleteTodo,
+  onChangeTodo,
   showError,
   hideError,
   isAllToggled,
@@ -63,14 +63,14 @@ export const TodoList: React.FC<Props> = React.memo(({
               todo={todo}
               showError={showError}
               hideError={hideError}
-              DeleteTodo={DeleteTodo}
-              ChangeTodo={ChangeTodo}
+              onDeleteTodo={onDeleteTodo}
+              onChangeTodo={onChangeTodo}
               isLoading={isLoading(todo.completed)}
             />
           </CSSTransition>
         ))}
 
-        {creatingTodo && (
+        {!creatingTodo && (
           <CSSTransition
             key={0}
             timeout={300}
