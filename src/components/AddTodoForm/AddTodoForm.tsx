@@ -2,12 +2,10 @@ import React, { useContext, useState } from 'react';
 import { TodosContext } from '../TodosProvider';
 
 export const AddTodoForm: React.FC = () => {
-  const {
-    handleFormSubmit,
-  } = useContext(TodosContext);
-
+  const { handleFormSubmit } = useContext(TodosContext);
   const [query, setQuery] = useState('');
-  const isFormSubmit = (event: React.FormEvent) => {
+
+  const handleOnFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     handleFormSubmit(query);
     setQuery('');
@@ -19,9 +17,7 @@ export const AddTodoForm: React.FC = () => {
 
   return (
     <form
-      onSubmit={(event) => {
-        isFormSubmit(event);
-      }}
+      onSubmit={handleOnFormSubmit}
     >
       <input
         type="text"
@@ -30,7 +26,6 @@ export const AddTodoForm: React.FC = () => {
         value={query}
         onChange={handleInput}
       />
-      <input type="submit" hidden />
     </form>
   );
 };

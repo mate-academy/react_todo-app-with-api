@@ -1,7 +1,7 @@
 import { Todo } from '../types/Todo';
 import { Filter } from '../types/Status';
 
-export const TodosFilter = (todos: Todo[], filter: Filter) => {
+export const todosFilter = (todos: Todo[], filter: Filter) => {
   return todos.filter(todo => {
     switch (filter) {
       case Filter.ALL:

@@ -9,13 +9,11 @@ type Props = {
   editedTodoId: number;
   setEditedTodoId: (todoId: number) => void;
 };
-export const TodoItem: React.FC<Props> = (
-  {
-    todo,
-    editedTodoId,
-    setEditedTodoId,
-  },
-) => {
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  editedTodoId,
+  setEditedTodoId,
+}) => {
   const [todoId, setTodoId] = useState(0);
   const {
     handleDeleteTodo,

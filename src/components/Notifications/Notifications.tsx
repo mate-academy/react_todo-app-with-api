@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { ErrorTypes } from '../../types/ErrorTypes';
 import { TodosContext } from '../TodosProvider';
-import { GetErrorMessage } from '../../utils/GetErrorMessage';
+import { getErrorMessage } from '../../utils/GetErrorMessage';
 
 export const Notifications: React.FC = React.memo(() => {
   const [isHidden, setIsHidden] = useState(true);
   const { errorType, errorTypeHandler } = useContext(TodosContext);
-  const errorMessage = GetErrorMessage(errorType);
+  const errorMessage = getErrorMessage(errorType);
   let timeOutId = 0;
   const closeNotification = () => {
     timeOutId = window.setTimeout(() => {

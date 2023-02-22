@@ -4,10 +4,9 @@ import { AddTodoForm } from '../AddTodoForm';
 import { TodosContext } from '../TodosProvider';
 
 export const Header: React.FC = () => {
-  const { todos } = useContext(TodosContext);
+  const { todos, handleStatusAll } = useContext(TodosContext);
   const activeTodos = todos.filter(todo => !todo.completed);
-  const todosToToggle = activeTodos.length > 0 ? activeTodos : todos;
-  const { handleStatusAll } = useContext(TodosContext);
+  const todosToToggle = activeTodos.length ? activeTodos : todos;
 
   return (
     <header className="todoapp__header">
@@ -17,7 +16,7 @@ export const Header: React.FC = () => {
         className={cn(
           'todoapp__toggle-all',
           {
-            active: activeTodos.length === 0,
+            active: !activeTodos.length,
           },
         )}
         onClick={() => {
@@ -25,7 +24,6 @@ export const Header: React.FC = () => {
         }}
       />
 
-      {/* Add a todo on form submit */}
       <AddTodoForm />
     </header>
   );

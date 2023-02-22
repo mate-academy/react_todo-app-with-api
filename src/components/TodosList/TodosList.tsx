@@ -8,15 +8,13 @@ import { TodosContext } from '../TodosProvider';
 type Props = {
   todos: Todo[];
 };
-export const TodosList: React.FC<Props> = (
-  {
-    todos,
-  },
-) => {
+export const TodosList: React.FC<Props> = ({ todos }) => {
   const [editedTodoId, setEditedTodoId] = useState(0);
-  const {
-    tempTodo,
-  } = useContext(TodosContext);
+  const { tempTodo } = useContext(TodosContext);
+
+  const handleSetTodoId = (todoId: number) => {
+    setEditedTodoId(todoId);
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -30,7 +28,7 @@ export const TodosList: React.FC<Props> = (
             <TodoItem
               key={todo.id}
               todo={todo}
-              setEditedTodoId={setEditedTodoId}
+              setEditedTodoId={handleSetTodoId}
               editedTodoId={editedTodoId}
             />
           </CSSTransition>
@@ -46,7 +44,7 @@ export const TodosList: React.FC<Props> = (
               key={0}
               todo={tempTodo}
               editedTodoId={-1}
-              setEditedTodoId={setEditedTodoId}
+              setEditedTodoId={handleSetTodoId}
             />
           </CSSTransition>
         )}

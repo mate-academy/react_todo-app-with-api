@@ -1,25 +1,17 @@
 import React, { useContext } from 'react';
 import cn from 'classnames';
-import { Todo } from '../../types/Todo';
 import { Filter } from '../../types/Status';
 import { TodosContext } from '../TodosProvider';
 
 type Props = {
-  todos: Todo[];
+  filter: Filter;
+  handleFilter: (value: Filter) => void;
 };
-export const Footer: React.FC<Props> = ({ todos }) => {
+export const Footer: React.FC<Props> = ({ filter, handleFilter }) => {
+  const { todos, clearAll } = useContext(TodosContext);
   const itemsLeft = todos.filter(todo => !todo.completed).length;
   const completed = todos.filter(todo => todo.completed);
-
-  const {
-    handleFilter,
-    filter,
-    clearAll,
-  } = useContext(TodosContext);
-
-  const handleClick = (value: Filter) => {
-    handleFilter(value);
-  };
+  const filterValues = Object.values(Filter);
 
   return (
     <footer className="todoapp__footer">
@@ -28,50 +20,23 @@ export const Footer: React.FC<Props> = ({ todos }) => {
       </span>
 
       <nav className="filter">
-        <a
-          href="#/"
-          className={cn(
-            'filter__link',
-            {
-              selected: filter === Filter.ALL,
-            },
-          )}
-          onClick={() => {
-            handleClick(Filter.ALL);
-          }}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn(
-            'filter__link',
-            {
-              selected: filter === Filter.ACTIVE,
-            },
-          )}
-          onClick={() => {
-            handleClick(Filter.ACTIVE);
-          }}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn(
-            'filter__link',
-            {
-              selected: filter === Filter.COMPLETED,
-            },
-          )}
-          onClick={() => {
-            handleClick(Filter.COMPLETED);
-          }}
-        >
-          Completed
-        </a>
+        {filterValues.map(filterValue => (
+          <a
+            key={filterValue}
+            href={`#/${filterValue}`}
+            className={cn(
+              'filter__link',
+              {
+                selected: filter === filterValue,
+              },
+            )}
+            onClick={() => {
+              handleFilter(filterValue as Filter);
+            }}
+          >
+            {filterValue}
+          </a>
+        ))}
       </nav>
 
       <button
@@ -79,7 +44,7 @@ export const Footer: React.FC<Props> = ({ todos }) => {
         className={cn(
           'todoapp__clear-completed',
           {
-            hidden: completed.length === 0,
+            hidden: !completed.length,
           },
         )}
         onClick={() => {

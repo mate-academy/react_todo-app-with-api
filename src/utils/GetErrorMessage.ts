@@ -1,6 +1,6 @@
 import { ErrorTypes } from '../types/ErrorTypes';
 
-export const GetErrorMessage = (error: ErrorTypes) => {
+export const getErrorMessage = (error: ErrorTypes) => {
   switch (error) {
     case ErrorTypes.NONE:
       return ErrorTypes.NONE;

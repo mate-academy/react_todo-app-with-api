@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { Filter } from '../../types/Status';
 import { ErrorTypes } from '../../types/ErrorTypes';
 import {
   addTodo,
@@ -23,7 +22,6 @@ const temporaryTodo: Todo = {
 };
 
 type ContextType = {
-  filter: Filter,
   errorType: ErrorTypes,
   tempTodo: Todo | null,
   todos: Todo[],
@@ -32,7 +30,6 @@ type ContextType = {
   handleDeleteTodo: (todoId: number) => void,
   handleStatus: (todo: Todo) => void,
   handleStatusAll: (todos: Todo[]) => void,
-  handleFilter: (value: Filter) => void,
   clearAll: (todos: Todo[]) => void,
   handleUpdate: (todo: Todo, title: string) => void,
   errorTypeHandler: (error: ErrorTypes) => void,
@@ -41,14 +38,12 @@ type ContextType = {
 export const TodosContext = React.createContext<ContextType>({
   todos: [],
   tempTodo: temporaryTodo,
-  filter: Filter.ALL,
   errorType: ErrorTypes.NONE,
   processedTodos: [],
   handleFormSubmit: () => {},
   handleDeleteTodo: () => {},
   handleStatus: () => {},
   handleStatusAll: () => {},
-  handleFilter: () => {},
   clearAll: () => {},
   handleUpdate: () => {},
   errorTypeHandler: () => {},
@@ -60,7 +55,6 @@ interface Props {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [errorType, setErrorType] = useState<ErrorTypes>(ErrorTypes.NONE);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processedTodos, setProcessedTodos] = useState<Todo[]>([]);
@@ -174,10 +168,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const handleFilter = (value: Filter) => {
-    setFilter(value);
-  };
-
   const handleUpdate = async (todo: Todo, title: string) => {
     setProcessedTodos([todo]);
     if (title.trim() === '') {
@@ -195,6 +185,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           setErrorType(ErrorTypes.UPDATE_ERROR);
         }
       }
+
+      setProcessedTodos([]);
     }
   };
 
@@ -205,7 +197,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const contextValue = useMemo(() => {
     return {
       todos,
-      filter,
       errorType,
       tempTodo,
       processedTodos,
@@ -213,12 +204,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       handleDeleteTodo,
       handleStatus,
       handleStatusAll,
-      handleFilter,
       clearAll,
       handleUpdate,
       errorTypeHandler,
     };
-  }, [todos, filter, errorType, tempTodo, processedTodos]);
+  }, [todos, errorType, tempTodo, processedTodos]);
 
   return (
     <TodosContext.Provider value={contextValue}>

@@ -51,7 +51,6 @@ export const EditInput: React.FC<Props> = ({ todo, setEditedTodoId }) => {
         onBlur={handleOnBlur}
         onKeyUp={reset}
       />
-      <input type="submit" hidden />
     </form>
   );
 };
