@@ -7,20 +7,17 @@ type Props = {
   todos: Todo[],
   onFilterBy: (filter: FilterBy) => void,
   filterBy: FilterBy,
-  // notCompletedTodos:number,
   onClearCompleted: (id: number) => void,
-  // isClearButtonVisible: boolean;
 };
 
 export const Footer: React.FC<Props> = React.memo(({
   todos,
   onFilterBy,
   filterBy,
-  // notCompletedTodos,
-  // isClearButtonVisible,
   onClearCompleted,
 }) => {
-  const completedTodos = todos.filter((todo) => todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
+  const isVisible = !!completedTodos.length;
   const activeTodos = todos.filter((todo) => !todo.completed);
   const handleClearCompleted = () => {
     completedTodos.map((todo) => onClearCompleted(todo.id));
@@ -73,15 +70,14 @@ export const Footer: React.FC<Props> = React.memo(({
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleClearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        disabled={!isVisible}
+        onClick={handleClearCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 });

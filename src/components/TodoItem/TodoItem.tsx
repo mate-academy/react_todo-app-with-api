@@ -32,6 +32,35 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const isTodoLoad = id === deletingTodoId || isClearCompletedActive
     || isToggle;
 
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = event.target.value;
+
+    setValue(newTitle);
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const trimTodoTitle = value.trim();
+
+    if (trimTodoTitle === todo.title) {
+      setValue(todo.title);
+      handleEditingId(0);
+
+      return;
+    }
+
+    if (!trimTodoTitle) {
+      deleteTodo(todo.id);
+
+      return;
+    }
+
+    editTodoTitle(todo, value);
+    setValue(todo.title);
+    handleEditingId(0);
+  };
+
   return (
     <div
       onMouseEnter={() => {
@@ -67,20 +96,18 @@ export const TodoItem: React.FC<Props> = React.memo(({
       {editingId === id && (
         <form
           onSubmit={(e) => {
-            e.preventDefault();
-            editTodoTitle(todo, value);
+            handleSubmit(e);
           }}
         >
           <input
             type="text"
             value={value}
+            placeholder="Empty todo will be deleted"
             className="todo__title-field"
-            onChange={({ target }) => {
-              setValue(target.value);
+            onChange={(event) => {
+              handleInput(event);
             }}
-            onBlur={() => {
-              handleEditingId(0);
-            }}
+            onBlur={handleSubmit}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />

@@ -1,6 +1,6 @@
 export enum ErrorType {
   LOAD = 'load',
-  TITLE = 'Title can\'t be empty',
+  TITLE = '',
   ADD = 'add',
   DELETE = 'delete',
   UPDATE = 'update',

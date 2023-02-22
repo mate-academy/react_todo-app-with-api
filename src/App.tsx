@@ -171,15 +171,13 @@ export const App: React.FC = () => {
       const updatedCompleted = !todos.every(todo => todo.completed);
 
       await Promise.all(
-        todos.map(async (todo) => {
-          if (todo.completed !== updatedCompleted) {
+        todos
+          .filter(todo => todo.completed !== updatedCompleted)
+          .map(async (todo) => {
             const todoUpdated = { ...todo, completed: updatedCompleted };
 
             return callEditTodo(todoUpdated);
-          }
-
-          return Promise.resolve();
-        }),
+          }),
       );
 
       await getTodos();

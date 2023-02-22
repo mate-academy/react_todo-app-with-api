@@ -33,9 +33,7 @@ export const Header: React.FC<Props> = ({
           {
             active: isAllTodosActive,
           })}
-        onClick={() => {
-          handleToggleStatus();
-        }}
+        onClick={handleToggleStatus}
       />
     )}
 
