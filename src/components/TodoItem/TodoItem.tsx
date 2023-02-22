@@ -137,6 +137,8 @@ export const TodoItem: React.FC<Props> = (
               onChange={handleTitleEdit}
               onBlur={saveNewTitle}
               onKeyUp={hideForm}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         )
