@@ -3,6 +3,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useMemo,
 } from 'react';
 
 import {
@@ -51,7 +52,8 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const allTodosCompleted = todos.every(todo => todo.completed);
+  const allTodosCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)), []);
 
   if (isError) {
     let timerId;
