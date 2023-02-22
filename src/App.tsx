@@ -5,7 +5,6 @@ import React, {
 } from 'react';
 import { Header } from './components/Header';
 import { Todo } from './types/Todo';
-import { UserWarning } from './UserWarning';
 import {
   getTodos, deleteTodo, patchTodo, addTodo,
 } from './api/todos';
@@ -165,10 +164,6 @@ export const App: React.FC = () => {
     await fetchTodos();
     setProcessingTodosIds([]);
   }, []);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
 
   return (
     <div className="todoapp">
