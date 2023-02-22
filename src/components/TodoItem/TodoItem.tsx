@@ -10,7 +10,7 @@ type Props = {
   changeTitle: (todoChangeTitle: Todo, newTitle: string) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   removeTodo,
   changeStatus,
@@ -26,15 +26,33 @@ export const TodoItem: React.FC<Props> = ({
     setIsInputActive(status);
   };
 
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAddedTitle(event.target.value);
+  };
+
+  const handleSaveChanges = () => {
+    if (title !== addedTitle) {
+      changeTitle(todo, addedTitle);
+    }
+
+    if (!addedTitle) {
+      removeTodo(todo);
+    }
+
+    changeInputActiveStatus(false);
+    setAddedTitle(title);
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    changeTitle(todo, addedTitle);
-    changeInputActiveStatus(false);
+    handleSaveChanges();
   };
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAddedTitle(event.target.value);
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      handleSaveChanges();
+    }
   };
 
   return (
@@ -58,9 +76,14 @@ export const TodoItem: React.FC<Props> = ({
             onSubmit={handleSubmit}
           >
             <input
+              className="todo__title-field"
               type="text"
               value={addedTitle}
               onChange={handleInput}
+              onBlur={handleSaveChanges}
+              onKeyUp={handleKeyUp}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         )
@@ -89,4 +112,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

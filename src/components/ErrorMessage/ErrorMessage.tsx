@@ -5,7 +5,6 @@ type Props = {
   setMessage: () => void,
 };
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const ErrorMessage: React.FC<Props> = ({ message, setMessage }) => {
   return (
     <div className="notification is-danger is-light has-text-weight-normal">
@@ -13,13 +12,9 @@ export const ErrorMessage: React.FC<Props> = ({ message, setMessage }) => {
         type="button"
         className="delete"
         onClick={setMessage}
+        aria-label="Close error"
       />
       {message}
-      {/* Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo */}
     </div>
   );
 };

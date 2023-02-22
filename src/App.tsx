@@ -1,5 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+} from 'react';
 
 // components
 import { UserWarning } from './UserWarning';
@@ -23,6 +27,7 @@ import { getFilteredTodos } from './utils/getFilteredTodos';
 // types
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
+import { ErrorMessages } from './types/ErrorMessages';
 
 const USER_ID = 6354;
 
@@ -32,32 +37,36 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const [isLoadingFailed, setIsLoadingFailed] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorMessages.NONE);
 
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
 
-  const visibleTodos = getFilteredTodos(todos, filterBy);
-  const completedTodos = todos.filter(todo => todo.completed === true);
+  const visibleTodos = useMemo(() => (
+    getFilteredTodos(todos, filterBy)
+  ), [todos]);
+
+  const completedTodos = useMemo(() => (
+    todos.filter(todo => todo.completed === true)
+  ), [todos]);
 
   const numberOfNotCompletedTodos = todos.length - completedTodos.length;
   const isClearAllButtonVisible = Boolean(!completedTodos.length);
-
+  const isToogleButtonVisible = Boolean(!numberOfNotCompletedTodos);
   const isSubmitButtonDisabled = Boolean(tempTodo?.title.length);
 
-  const addErrorMessage = useCallback((newMessage: string) => {
+  const addErrorMessage = useCallback((newMessage: ErrorMessages) => {
     setErrorMessage(newMessage);
   }, []);
 
   const getAllTodos = useCallback(async () => {
-    setIsLoadingFailed(false);
-
     try {
       const allTodos = await getTodos(USER_ID);
 
+      setIsLoadingFailed(false);
       setTodos(allTodos);
     } catch {
       setIsLoadingFailed(true);
-      addErrorMessage('Unable to update a todo');
+      addErrorMessage(ErrorMessages.LOAD);
     }
   }, []);
 
@@ -66,14 +75,14 @@ export const App: React.FC = () => {
   }, []);
 
   const clearMessage = useCallback(() => {
-    setErrorMessage('');
-  }, []);
+    setErrorMessage(ErrorMessages.NONE);
+  }, [errorMessage]);
 
   const addNewTodo = useCallback(async (title: string) => {
     clearMessage();
 
     if (!title) {
-      addErrorMessage('Title can\'t be empty');
+      addErrorMessage(ErrorMessages.TITLE);
 
       return;
     }
@@ -91,7 +100,7 @@ export const App: React.FC = () => {
       await addTodo(USER_ID, newTodo);
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to load todos');
+      addErrorMessage(ErrorMessages.ADD);
     } finally {
       setTempTodo(null);
     }
@@ -106,7 +115,7 @@ export const App: React.FC = () => {
       await deleteTodo(USER_ID, todo);
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to update a todo');
+      addErrorMessage(ErrorMessages.DELETE);
     } finally {
       setTodosWithLoader(currentTodos => (
         currentTodos.filter(t => t.id !== todo.id)
@@ -126,7 +135,7 @@ export const App: React.FC = () => {
       );
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to delete completed todos');
+      addErrorMessage(ErrorMessages.DELETE_COMPLETED);
     } finally {
       setTodosWithLoader(currentTodos => (
         currentTodos.filter(todo => todo.completed !== true)
@@ -135,6 +144,8 @@ export const App: React.FC = () => {
   }, [completedTodos]);
 
   const changeStatus = useCallback(async (todoChangeStatus: Todo) => {
+    clearMessage();
+
     const newTodoStatus = !todoChangeStatus.completed;
     const todoIdChangeStatus = todoChangeStatus.id;
 
@@ -144,19 +155,19 @@ export const App: React.FC = () => {
       await updateStatusTodo(todoIdChangeStatus, newTodoStatus);
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to update a todo');
+      addErrorMessage(ErrorMessages.UPDATE);
     } finally {
-      clearMessage();
       setTodosWithLoader(currentTodos => (
         currentTodos.filter(t => t.id !== todoChangeStatus.id)
       ));
     }
-  }, []);
+  }, [todos]);
 
   const changeTitle = useCallback(async (
     todoChangeTitle: Todo,
     newTitle: string,
   ) => {
+    clearMessage();
     const todoIdChangeTitle = todoChangeTitle.id;
 
     setTodosWithLoader(currentTodos => [...currentTodos, todoChangeTitle]);
@@ -165,16 +176,17 @@ export const App: React.FC = () => {
       await updateTitleTodo(todoIdChangeTitle, newTitle);
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to update a todo');
+      addErrorMessage(ErrorMessages.UPDATE);
     } finally {
-      clearMessage();
       setTodosWithLoader(currentTodos => (
         currentTodos.filter(t => t.id !== todoChangeTitle.id)
       ));
     }
-  }, []);
+  }, [todos]);
 
   const toggleStatusForAllTodos = useCallback(async () => {
+    clearMessage();
+
     const statusForUpdate = todos.length !== completedTodos.length;
 
     const arrayForUpdate = todos.filter(todo => (
@@ -188,7 +200,7 @@ export const App: React.FC = () => {
       );
       await getAllTodos();
     } catch {
-      addErrorMessage('Unable to update status of all todos');
+      addErrorMessage(ErrorMessages.UPDATE_ALL);
     }
   }, [todos]);
 
@@ -208,6 +220,7 @@ export const App: React.FC = () => {
               addErrorMessage={addErrorMessage}
               isSubmitButtonDisabled={isSubmitButtonDisabled}
               toggleStatusForAllTodos={toggleStatusForAllTodos}
+              isToogleButtonVisible={isToogleButtonVisible}
             />
 
             <TodoList

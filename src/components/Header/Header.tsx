@@ -1,18 +1,21 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState } from 'react';
+import cn from 'classnames';
+import { ErrorMessages } from '../../types/ErrorMessages';
 
 type Props = {
   addNewTodo: (newtodo: string) => void,
-  addErrorMessage: (newMessage: string) => void,
+  addErrorMessage: (newMessage: ErrorMessages) => void,
   isSubmitButtonDisabled: boolean,
+  isToogleButtonVisible: boolean,
   toggleStatusForAllTodos: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   addNewTodo,
   addErrorMessage,
   isSubmitButtonDisabled,
   toggleStatusForAllTodos,
+  isToogleButtonVisible,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
@@ -20,9 +23,10 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
 
     if (!todoTitle) {
-      addErrorMessage('Unable to update a todo');
+      addErrorMessage(ErrorMessages.TITLE);
     }
 
+    addErrorMessage(ErrorMessages.NONE);
     addNewTodo(todoTitle.trim());
     setTodoTitle('');
   };
@@ -33,14 +37,15 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: isToogleButtonVisible,
+        })}
         onClick={handleToggle}
+        aria-label="Toogle all as completed"
       />
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleSubmit}
       >
@@ -55,4 +60,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

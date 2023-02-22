@@ -10,61 +10,59 @@ type Props = {
   isClearAllButtonVisible: boolean,
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   setFilterBy,
   filterBy,
   removeAllCompletedTodos,
   numberOfNotCompletedTodos,
   isClearAllButtonVisible,
-}) => {
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${numberOfNotCompletedTodos} items left`}
-      </span>
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${numberOfNotCompletedTodos} items left`}
+    </span>
 
-      {/* Active filter should have a 'selected' class */}
-      <nav className="filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterBy === FilterType.ALL,
-          })}
-          onClick={() => setFilterBy(FilterType.ALL)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterBy === FilterType.ACTIVE,
-          })}
-          onClick={() => setFilterBy(FilterType.ACTIVE)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterBy === FilterType.COMPLETED,
-          })}
-          onClick={() => setFilterBy(FilterType.COMPLETED)}
-        >
-          Completed
-        </a>
-      </nav>
-
-      {/* don't show this button if there are no completed todos */}
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={removeAllCompletedTodos}
-        disabled={isClearAllButtonVisible}
+    {/* Active filter should have a 'selected' class */}
+    <nav className="filter">
+      <a
+        href="#/"
+        className={cn('filter__link', {
+          selected: filterBy === FilterType.ALL,
+        })}
+        onClick={() => setFilterBy(FilterType.ALL)}
       >
-        Clear completed
-      </button>
-    </footer>
-  );
-};
+        All
+      </a>
+
+      <a
+        href="#/active"
+        className={cn('filter__link', {
+          selected: filterBy === FilterType.ACTIVE,
+        })}
+        onClick={() => setFilterBy(FilterType.ACTIVE)}
+      >
+        Active
+      </a>
+
+      <a
+        href="#/completed"
+        className={cn('filter__link', {
+          selected: filterBy === FilterType.COMPLETED,
+        })}
+        onClick={() => setFilterBy(FilterType.COMPLETED)}
+      >
+        Completed
+      </a>
+    </nav>
+
+    {/* don't show this button if there are no completed todos */}
+    <button
+      type="button"
+      className="todoapp__clear-completed"
+      onClick={removeAllCompletedTodos}
+      disabled={isClearAllButtonVisible}
+    >
+      Clear completed
+    </button>
+  </footer>
+));

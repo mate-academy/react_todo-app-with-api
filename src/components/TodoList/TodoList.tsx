@@ -11,35 +11,33 @@ type Props = {
   changeTitle: (todoChangeTitle: Todo, newTitle: string) => void,
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   removeTodo,
   changeStatus,
   changeTitle,
   todosWithLoader,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          removeTodo={removeTodo}
-          changeStatus={changeStatus}
-          changeTitle={changeTitle}
-          isProcessed={todosWithLoader.includes(todo)}
-        />
-      ))}
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          removeTodo={removeTodo}
-          changeStatus={changeStatus}
-          changeTitle={changeTitle}
-          isProcessed
-        />
-      )}
-    </section>
-  );
-};
+}) => (
+  <section className="todoapp__main">
+    {todos.map(todo => (
+      <TodoItem
+        todo={todo}
+        key={todo.id}
+        removeTodo={removeTodo}
+        changeStatus={changeStatus}
+        changeTitle={changeTitle}
+        isProcessed={todosWithLoader.includes(todo)}
+      />
+    ))}
+    {tempTodo && (
+      <TodoItem
+        todo={tempTodo}
+        removeTodo={removeTodo}
+        changeStatus={changeStatus}
+        changeTitle={changeTitle}
+        isProcessed
+      />
+    )}
+  </section>
+));
