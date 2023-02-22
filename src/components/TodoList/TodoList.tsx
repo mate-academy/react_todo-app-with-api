@@ -1,41 +1,63 @@
 import React from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
-import { TodoItem } from '../TodoItem/TodoItem';
+import { TodoItem } from '../TodoItem';
+import '../../styles/transitiongroup.scss';
 
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  isBeingAdded: boolean,
-  onRemove: (todoId: number) => void,
-  onUpdate: (todo: Todo, props: Partial<Todo>) => void;
+  onDeleteTodo: (todo: Todo) => void,
+  handleUpdateTodoStatus: (todo: Todo) => void,
+  isUpdatingTodoId: number,
+  handleUpdateTodoTitle: (todo: Todo, newTitle: string) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  isBeingAdded,
-  onRemove,
-  onUpdate,
+  onDeleteTodo,
+  handleUpdateTodoStatus,
+  isUpdatingTodoId,
+  handleUpdateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          onRemove={onRemove}
-          onUpdate={(props) => onUpdate(todo, props)}
-          isBeingAdded={isBeingAdded}
-        />
-      ))}
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          onRemove={onRemove}
-          onUpdate={() => {}}
-          isBeingAdded={isBeingAdded}
-        />
-      )}
+      <TransitionGroup>
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoItem
+              todo={todo}
+              key={todo.id}
+              onDeleteTodo={onDeleteTodo}
+              handleUpdateTodoStatus={handleUpdateTodoStatus}
+              isUpdatingTodoId={isUpdatingTodoId}
+              handleUpdateTodoTitle={handleUpdateTodoTitle}
+            />
+          </CSSTransition>
+        ))}
+
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoItem
+              todo={tempTodo}
+              onDeleteTodo={() => {}}
+              handleUpdateTodoStatus={() => {}}
+              isUpdatingTodoId={tempTodo.id}
+              handleUpdateTodoTitle={() => {}}
+            />
+          </CSSTransition>
+
+        )}
+      </TransitionGroup>
     </section>
   );
 };

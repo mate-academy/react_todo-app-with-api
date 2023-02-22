@@ -1,58 +1,55 @@
-import React, { FormEvent, useEffect, useRef } from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { FormEvent } from 'react';
 import classNames from 'classnames';
+import { Todo } from '../../types/Todo';
 
 type Props = {
+  title: string,
+  hasActiveTodos: boolean,
+  onTitleChange: (newTitle: string) => void,
+  isInputDisabled: boolean,
   onAddTodo: (title: string) => void,
-  todoTitle: string,
-  setTodoTitle: (todoTitle: string) => void,
-  isBeingAdded: boolean,
-  onStatusAll: (completed: boolean) => void,
-  hasActive: boolean,
+  todos: Todo[],
+  handleUpdateAllTodosStatus: () => void,
 };
 
 export const Header: React.FC<Props> = ({
+  title,
+  hasActiveTodos,
+  onTitleChange,
+  isInputDisabled,
   onAddTodo,
-  todoTitle,
-  setTodoTitle,
-  isBeingAdded,
-  onStatusAll,
-  hasActive,
+  todos,
+  handleUpdateAllTodosStatus,
 }) => {
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const trimmedTitle = title.trim();
 
-    onAddTodo(todoTitle);
+    onAddTodo(trimmedTitle);
   };
-
-  const newTodoField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
-    }
-  }, [isBeingAdded]);
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: !hasActive },
-        )}
-        onClick={() => onStatusAll(!hasActive)}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: !hasActiveTodos },
+          )}
+          onClick={handleUpdateAllTodosStatus}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          ref={newTodoField}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={todoTitle}
-          onChange={(e) => setTodoTitle(e.target.value)}
-          disabled={isBeingAdded}
+          value={title}
+          onChange={(e) => onTitleChange(e.target.value)}
+          disabled={isInputDisabled}
         />
       </form>
     </header>

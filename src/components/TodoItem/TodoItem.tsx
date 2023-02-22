@@ -1,51 +1,53 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
-
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  onRemove: (todoId: number) => void,
-  isBeingAdded: boolean,
-  onUpdate: (props: Partial<Todo>) => void,
+  onDeleteTodo: (todo: Todo) => void,
+  handleUpdateTodoStatus: (todo: Todo) => void,
+  isUpdatingTodoId: number,
+  handleUpdateTodoTitle: (todo: Todo, newTitle: string) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onRemove,
-  isBeingAdded,
-  onUpdate,
+  onDeleteTodo,
+  handleUpdateTodoStatus,
+  isUpdatingTodoId,
+  handleUpdateTodoTitle,
 }) => {
   const { title, completed, id } = todo;
   const [newTitle, setNewTitle] = useState(title);
-  const [isInputShowing, setIsInputShowing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
-  const handleCancelEdit = (event: React.KeyboardEvent) => {
+  const handleTitleChange = () => {
+    if (!newTitle.trim()) {
+      onDeleteTodo(todo);
+    }
+
+    if (newTitle === title) {
+      setIsFormVisible(false);
+      setNewTitle(title);
+    }
+
+    if (newTitle !== title) {
+      handleUpdateTodoTitle(todo, newTitle);
+      setIsFormVisible(false);
+    }
+  };
+
+  const cancelTitleEdit = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setIsInputShowing(false);
+      setIsFormVisible(false);
+      setNewTitle(title);
     }
   };
 
-  const handleStatus = () => {
-    onUpdate({ completed: !todo.completed });
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleTitleChange();
   };
-
-  const handleRename = () => {
-    if (!newTitle) {
-      onRemove(id);
-    }
-
-    if (title !== newTitle) {
-      onUpdate({ title: newTitle });
-    }
-  };
-
-  useEffect(() => {
-    if (isBeingAdded) {
-      inputRef.current?.focus();
-    }
-  }, [isBeingAdded]);
 
   return (
     <div className={classNames('todo',
@@ -55,18 +57,15 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={completed}
-          onChange={handleStatus}
+          defaultChecked={completed}
+          onClick={() => handleUpdateTodoStatus(todo)}
         />
       </label>
 
-      {isInputShowing
+      {isFormVisible
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleRename();
-            }}
+            onSubmit={(event) => handleFormSubmit(event)}
           >
             <input
               type="text"
@@ -74,16 +73,15 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={({ target }) => setNewTitle(target.value)}
-              onBlur={handleRename}
-              onKeyDown={handleCancelEdit}
-              ref={inputRef}
+              onBlur={handleTitleChange}
+              onKeyDown={cancelTitleEdit}
             />
           </form>
         ) : (
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setIsInputShowing(true)}
+              onDoubleClick={() => setIsFormVisible(true)}
             >
               {title}
             </span>
@@ -91,7 +89,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => onRemove(id)}
+              onClick={() => onDeleteTodo(todo)}
             >
               ×
             </button>
@@ -100,7 +98,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div className={classNames(
         'modal overlay',
-        { 'is-active': isBeingAdded },
+        { 'is-active': isUpdatingTodoId === id },
       )}
       >
         <div className="modal-background has-background-white-ter" />

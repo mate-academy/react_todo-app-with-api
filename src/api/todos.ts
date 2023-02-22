@@ -12,12 +12,19 @@ export const addTodo = (todo: Todo) => {
 };
 
 export const deleteTodo = (todoId: number) => {
-  return client.delete(`/todos/${todoId}?userId=${USER_ID}`);
+  return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (
+export const updateTodoTitle = (
   todoId: number,
-  propsToUpdate: Partial<Todo>,
-) => {
-  return client.patch<Todo>(`/todos/${todoId}?userId=${USER_ID}`, propsToUpdate);
+  newTitle: string,
+): Promise<Todo> => {
+  return client.patch<Todo>(`/todos/${todoId}?userId=${USER_ID}`, { title: newTitle });
+};
+
+export const updateTodoStatus = (
+  todoId: number,
+  newStatus: boolean,
+): Promise<Todo> => {
+  return client.patch<Todo>(`/todos/${todoId}?userId=${USER_ID}`, { completed: newStatus });
 };

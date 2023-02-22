@@ -4,24 +4,24 @@ import classNames from 'classnames';
 import { FilterBy } from '../../types/FilterBy';
 
 type Props = {
+  activeTodosLeft: number,
+  hasCompletedTodos: boolean,
   filterBy: FilterBy,
-  setFilterBy: (filterBy: FilterBy) => void;
-  countActiveTodos: number,
-  isClearButtonVisible: boolean,
-  onClearCompleted: () => void;
+  onFilterBy: (filterBy: FilterBy) => void,
+  onDeleteCompletedTodos: () => void,
 };
 
 export const Footer: React.FC<Props> = ({
+  activeTodosLeft,
+  hasCompletedTodos,
   filterBy,
-  setFilterBy,
-  countActiveTodos,
-  isClearButtonVisible,
-  onClearCompleted,
+  onFilterBy,
+  onDeleteCompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${countActiveTodos} items left`}
+        {`${activeTodosLeft} items left`}
       </span>
 
       <nav className="filter">
@@ -29,7 +29,7 @@ export const Footer: React.FC<Props> = ({
           href="#/"
           className={classNames('filter__link',
             { selected: filterBy === FilterBy.ALL })}
-          onClick={() => setFilterBy(FilterBy.ALL)}
+          onClick={() => onFilterBy(FilterBy.ALL)}
         >
           All
         </a>
@@ -38,7 +38,7 @@ export const Footer: React.FC<Props> = ({
           href="#/active"
           className={classNames('filter__link',
             { selected: filterBy === FilterBy.ACTIVE })}
-          onClick={() => setFilterBy(FilterBy.ACTIVE)}
+          onClick={() => onFilterBy(FilterBy.ACTIVE)}
         >
           Active
         </a>
@@ -47,21 +47,18 @@ export const Footer: React.FC<Props> = ({
           href="#/completed"
           className={classNames('filter__link',
             { selected: filterBy === FilterBy.COMPLETED })}
-          onClick={() => setFilterBy(FilterBy.COMPLETED)}
+          onClick={() => onFilterBy(FilterBy.COMPLETED)}
         >
           Completed
         </a>
       </nav>
 
       <button
-        style={{
-          visibility: isClearButtonVisible ? 'visible' : 'hidden',
-        }}
         type="button"
         className="todoapp__clear-completed"
-        onClick={onClearCompleted}
+        onClick={onDeleteCompletedTodos}
       >
-        Clear completed
+        {hasCompletedTodos && 'Clear completed'}
       </button>
     </footer>
   );
