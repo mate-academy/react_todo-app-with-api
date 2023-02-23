@@ -13,7 +13,7 @@ import {
   getTodos,
   updateTodo,
 } from './api/todos';
-import { Todo } from './types/Todo';
+import { Todo, TodoData } from './types/Todo';
 import { UserWarning } from './UserWarning';
 import { FilterBy } from './types/FilterBy';
 import { warningTimer } from './utils/warningTimer';
@@ -70,14 +70,17 @@ export const App: FC = () => {
     getAllTodos();
   }, []);
 
-  const handleAddTodo = useCallback(async (newTodo: Todo) => {
+  const handleAddTodo = useCallback(async (newTodo: TodoData) => {
     setHasError(false);
 
     try {
-      setTempTodo(newTodo);
-      const addedTodo = await addTodo(newTodo);
+      setTempTodo({
+        id: 0,
+        ...newTodo,
+      });
+      await addTodo(newTodo);
 
-      setTodos(currentTodos => [...currentTodos, addedTodo]);
+      await getAllTodos();
     } catch (error) {
       showErrorMessage(ErrorMessages.ONADD);
     } finally {
@@ -92,8 +95,7 @@ export const App: FC = () => {
       setTodosInProcessed(currentTodos => [...currentTodos, todoToRemove]);
       await deleteTodo(todoToRemove.id);
 
-      setTodos(currentTodos => currentTodos
-        .filter(todo => todo.id !== todoToRemove.id));
+      await getAllTodos();
     } catch (error) {
       showErrorMessage(ErrorMessages.ONDELETE);
     } finally {
@@ -113,13 +115,9 @@ export const App: FC = () => {
 
     try {
       setTodosInProcessed(currentTodos => [...currentTodos, todoToUpdate]);
-      const updatedTodo = await updateTodo(todoToUpdate);
+      await updateTodo(todoToUpdate);
 
-      setTodos(currentTodos => currentTodos.map(todo => {
-        return todo.id === updatedTodo.id
-          ? updatedTodo
-          : todo;
-      }));
+      await getAllTodos();
     } catch (error) {
       showErrorMessage(ErrorMessages.ONUPDATE);
     } finally {

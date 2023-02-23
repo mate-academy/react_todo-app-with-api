@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { USER_ID } from '../../api/todos';
-import { Todo } from '../../types/Todo';
+import { TodoData } from '../../types/Todo';
 import { ErrorMessages } from '../../types/ErrorMessages';
 
 type Props = {
   hasTodos: boolean,
   someActiveTodos: number,
   inProcessed: boolean,
-  onSubmitAddTodo: (newTodo: Todo) => void,
+  onSubmitAddTodo: (newTodo: TodoData) => void,
   onToggleUpdateTodos: (todoStatus: boolean) => void,
   showErrorMessage: (message: ErrorMessages) => void,
 };
@@ -42,7 +42,6 @@ export const Header: React.FC<Props> = React.memo(({
     }
 
     const newTodo = {
-      id: 0,
       title: trimTitle,
       userId: USER_ID,
       completed: false,
