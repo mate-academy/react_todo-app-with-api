@@ -26,7 +26,7 @@ export const TodoItem:React.FC<Props> = ({
       deleteTodoFromServer(todo.id);
     }
 
-    if (editedText) {
+    if (editedText !== todo.title) {
       const newTodo = {
         ...todo,
         title: editedText,
@@ -80,6 +80,7 @@ export const TodoItem:React.FC<Props> = ({
             onKeyUp={(event) => {
               if (event.key === 'Escape') {
                 setIsEdit(false);
+                setEditedText(todo.title);
               }
             }}
           />
