@@ -4,6 +4,7 @@ import {
   addTodo,
   deleteTodo,
   getTodos,
+  updateTodoStatus,
   updateTodoTitle,
 } from './api/todos';
 import { Footer } from './components/Footer';
@@ -118,28 +119,63 @@ export const App: React.FC = () => {
     filteredCompleted.map(todo => handleDelete(todo.id));
   };
 
+  const handleUpdateCompleted = async (updatedTodo: Todo) => {
+    setUpdatedTodoId(updatedTodo.id);
+    try {
+      const newUpdatedTodo = await updateTodoStatus(
+        USER_ID,
+        updatedTodo.id,
+        !updatedTodo.completed,
+      );
+
+      setTodos(prevTodos => {
+        return prevTodos.map(todo => (
+          todo.id === updatedTodo.id
+            ? newUpdatedTodo
+            : todo
+        ));
+      });
+    } catch {
+      setError(true);
+      setErrorType(ErrorNotifications.UPDATE_STATUS);
+    } finally {
+      setUpdatedTodoId(0);
+    }
+  };
+
+  const handleUpdateFullCompleted = async () => {
+    if (todos.every(todo => todo.completed)) {
+      todos.forEach(todo => (
+        todo.completed
+          ? handleUpdateCompleted(todo)
+          : todo
+      ));
+    } else {
+      todos.forEach(todo => (
+        todo.completed
+          ? todo
+          : handleUpdateCompleted(todo)
+      ));
+    }
+  };
+
   const handleUpdateTitle = async (updatedTodo: Todo, newTitle: string) => {
     setUpdatedTodoId(updatedTodo.id);
 
     try {
-      await updateTodoTitle(
+      const newUpdatedTodo = await updateTodoTitle(
         USER_ID,
         updatedTodo.id,
         newTitle,
       );
-      // first and second solutions works,
-      // so I used this solution and commented the second one
-      const updatedTodos = await getTodos(USER_ID);
 
-      setTodos(updatedTodos);
-
-      // setTodos(prevTodos => {
-      //   return prevTodos.map(todo => (
-      //     todo.id === updatedTodo.id
-      //       ? newUpdatedTodo
-      //       : todo
-      //   ));
-      // });
+      setTodos(prevTodos => {
+        return prevTodos.map(todo => (
+          todo.id === updatedTodo.id
+            ? newUpdatedTodo
+            : todo
+        ));
+      });
     } catch {
       setError(true);
       setErrorType(ErrorNotifications.UPDATE);
@@ -160,12 +196,14 @@ export const App: React.FC = () => {
           handleSubmit={handleSubmit}
           tempTodo={tempTodo}
           activeTodosAmount={activeTodosAmount}
+          handleUpdateFullCompleted={handleUpdateFullCompleted}
         />
         <TodoList
           todos={visibleTodos}
           handleDelete={handleDelete}
           handleUpdateTitle={handleUpdateTitle}
           updatedTodoId={updatedTodoId}
+          handleUpdateCompleted={handleUpdateCompleted}
         />
         {todos.length && (
           <Footer

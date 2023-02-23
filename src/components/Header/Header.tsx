@@ -9,6 +9,7 @@ type Props = {
   handleSubmit: () => void;
   tempTodo: Todo | null;
   todos: Todo[];
+  handleUpdateFullCompleted: () => void,
   activeTodosAmount: number,
 };
 
@@ -17,6 +18,7 @@ export const Header: React.FC<Props> = (
     setQuery,
     query,
     handleSubmit,
+    handleUpdateFullCompleted,
     tempTodo,
     todos,
     activeTodosAmount,
@@ -32,6 +34,7 @@ export const Header: React.FC<Props> = (
               active: activeTodosAmount,
             },
           )}
+          onClick={() => handleUpdateFullCompleted()}
           aria-label="some label"
         />
       )}

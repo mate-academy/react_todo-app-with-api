@@ -21,3 +21,11 @@ export const updateTodoTitle = (
 ) => {
   return client.patch<NewTodo>(`/todos/${todoId}?userId=${userId}`, { title: todoNewTitle });
 };
+
+export const updateTodoStatus = (
+  userId: number,
+  todoId: number,
+  todoNewStatus: boolean,
+) => {
+  return client.patch<NewTodo>(`/todos/${todoId}?userId=${userId}`, { completed: todoNewStatus });
+};

@@ -7,6 +7,7 @@ type Props = {
   handleDelete: (todoId: number) => void,
   handleUpdateTitle: (updatedTodo: Todo, newTitle: string) => void,
   updatedTodoId: number,
+  handleUpdateCompleted: (todo: Todo) => void,
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   handleDelete,
   handleUpdateTitle,
   updatedTodoId,
+  handleUpdateCompleted,
 }) => {
   return (
     <section className="todoapp__main">
@@ -24,6 +26,7 @@ export const TodoList: React.FC<Props> = React.memo(({
           handleDelete={handleDelete}
           handleUpdateTitle={handleUpdateTitle}
           updatedTodoId={updatedTodoId}
+          handleUpdateCompleted={handleUpdateCompleted}
         />
       ))}
     </section>

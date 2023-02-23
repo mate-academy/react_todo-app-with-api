@@ -8,6 +8,7 @@ type Props = {
   handleDelete: (todoId: number) => void,
   handleUpdateTitle: (updatedTodo: Todo, newTitle: string) => void,
   updatedTodoId: number,
+  handleUpdateCompleted: (todo: Todo) => void,
 };
 
 export const TodoInfo: React.FC<Props> = React.memo(({
@@ -15,6 +16,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
   handleDelete,
   updatedTodoId,
   handleUpdateTitle,
+  handleUpdateCompleted,
 }) => {
   const { title, completed } = todo;
   const [removedTodoId, setRemovedTodoId] = useState(0);
@@ -49,6 +51,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           checked={completed}
+          onClick={() => handleUpdateCompleted(todo)}
         />
       </label>
 
