@@ -7,24 +7,23 @@ import { TodoPost } from '../../types/TodoPost';
 import { UserContext } from '../../UserContext';
 
 type Props = {
-  activeTodosAmount: number;
+  activeTodosQuantity: number;
   showError: (errorType: ErrorType) => void;
-  hideError: () => void;
   showTempTodo: (tempTodoTitle: string) => void;
   addNewTodo: (newTodo: Todo) => void;
   toggleStatus: () => void;
 };
 
 export const Header: React.FC<Props> = React.memo(({
-  activeTodosAmount,
+  activeTodosQuantity,
   showError,
-  hideError,
   showTempTodo,
   addNewTodo,
   toggleStatus,
 }) => {
   const [newTodoName, setNewTodoName] = useState('');
   const [isInvalidInput, setIsInvalidInput] = useState(false);
+
   const userId = useContext(UserContext);
 
   const handleAddNewTodo = async (
@@ -38,10 +37,6 @@ export const Header: React.FC<Props> = React.memo(({
 
       return;
     }
-
-    hideError();
-    showTempTodo(title);
-    setIsInvalidInput(true);
 
     const newTodo: TodoPost = {
       userId,
@@ -67,7 +62,7 @@ export const Header: React.FC<Props> = React.memo(({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: activeTodosAmount,
+          active: activeTodosQuantity,
         })}
         onClick={toggleStatus}
         aria-label="Toggle all todos"

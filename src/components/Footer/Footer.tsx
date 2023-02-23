@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { FilterStatus } from '../../types/FilterStatus';
 
 type Props = {
-  activeTodosAmount: number;
+  activeTodosQuantity: number;
   filterByStatus: FilterStatus;
-  isDone: boolean;
+  isTodosDone: boolean;
   setFilterByStatus: (newFilter: FilterStatus) => void;
   onClearCompleted: () => void;
 };
@@ -13,15 +13,15 @@ type Props = {
 const filterOptions = Object.values(FilterStatus);
 
 export const Footer: React.FC<Props> = React.memo(({
-  activeTodosAmount,
+  activeTodosQuantity,
   filterByStatus,
-  isDone,
+  isTodosDone,
   setFilterByStatus,
   onClearCompleted,
 }) => {
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${activeTodosAmount} items left`}</span>
+      <span className="todo-count">{`${activeTodosQuantity} items left`}</span>
 
       <nav className="filter">
         {filterOptions.map((option) => (
@@ -41,8 +41,8 @@ export const Footer: React.FC<Props> = React.memo(({
       <button
         type="button"
         className="todoapp__clear-completed"
-        style={{ visibility: isDone ? 'visible' : 'hidden' }}
-        disabled={!isDone}
+        style={{ visibility: isTodosDone ? 'visible' : 'hidden' }}
+        disabled={!isTodosDone}
         onClick={onClearCompleted}
       >
         Clear completed

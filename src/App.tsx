@@ -18,6 +18,7 @@ import { ErrorType } from './types/ErrorType';
 import { UserContext } from './UserContext';
 import {
   activeTodosAmount,
+  clearNotification,
   filterTodos,
   isDone,
 } from './helpers';
@@ -30,7 +31,6 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
   const [tempTodoName, setTempTodoName] = useState('');
   const [isClearCompleted, setIsClearCompleted] = useState(false);
-
   const [isToggled, setIsToggled] = useState(false);
 
   const userId = useContext(UserContext);
@@ -42,6 +42,7 @@ export const App: React.FC = () => {
       setTodos(todosFromServer);
     } catch (error) {
       setErrorType(ErrorType.Load);
+      clearNotification(setErrorType, 3000);
     }
   }, []);
 
@@ -149,15 +150,17 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  const activeTodosQuantity = activeTodosAmount(todos);
+  const isTodosDone = isDone(todos);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <Header
-          activeTodosAmount={activeTodosAmount(todos)}
+          activeTodosQuantity={activeTodosQuantity}
           showError={showError}
-          hideError={hideError}
           showTempTodo={setTempTodoName}
           addNewTodo={addNewTodo}
           toggleStatus={toggleStatus}
@@ -165,7 +168,7 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={filteredTodos}
-          activeTodosAmount={activeTodosAmount(todos)}
+          activeTodosQuantity={activeTodosQuantity}
           tempTodoName={tempTodoName}
           showError={showError}
           hideError={hideError}
@@ -177,11 +180,11 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            activeTodosAmount={activeTodosAmount(todos)}
+            activeTodosQuantity={activeTodosQuantity}
             filterByStatus={filterByStatus}
             setFilterByStatus={setFilterByStatus}
             onClearCompleted={clearCompleted}
-            isDone={isDone(todos)}
+            isTodosDone={isTodosDone}
           />
         )}
       </div>

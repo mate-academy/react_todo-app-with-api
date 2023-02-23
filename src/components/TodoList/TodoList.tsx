@@ -10,7 +10,7 @@ import { TodoInfo } from '../Todo/TodoInfo';
 type Props = {
   todos: Todo[];
   tempTodoName: string;
-  activeTodosAmount: number,
+  activeTodosQuantity: number,
   isClearCompleted: boolean;
   isToggled: boolean,
   showError: (errorType: ErrorType) => void;
@@ -22,7 +22,7 @@ type Props = {
 export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodoName,
-  activeTodosAmount,
+  activeTodosQuantity,
   isClearCompleted,
   isToggled,
   showError,
@@ -32,19 +32,17 @@ export const TodoList: React.FC<Props> = React.memo(({
 }) => {
   const userId = useContext(UserContext);
 
-  const tempTodo: OptionalTodo = useMemo(
-    () => ({
-      id: 0,
-      userId,
-      title: tempTodoName,
-      completed: false,
-    }),
-    [userId, tempTodoName],
-  );
+  const tempTodo: OptionalTodo = useMemo(() => ({
+    id: 0,
+    userId,
+    title: tempTodoName,
+    completed: false,
+  }),
+  [userId, tempTodoName]);
 
   const isLoading = (isTodoCompleted: boolean): boolean => {
     const hasTodoToBeToggled
-    = !activeTodosAmount
+    = !activeTodosQuantity
       ? isTodoCompleted
       : !isTodoCompleted;
     const isTodoToggled = isToggled && hasTodoToBeToggled;

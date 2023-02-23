@@ -6,10 +6,8 @@ type Props = {
   children: ReactNode;
 };
 
-export const UserProvider: React.FC<Props> = ({ children }) => {
-  return (
-    <UserContext.Provider value={6373}>
-      {children}
-    </UserContext.Provider>
-  );
-};
+export const UserProvider: React.FC<Props> = ({ children }) => (
+  <UserContext.Provider value={6373}>
+    {children}
+  </UserContext.Provider>
+);

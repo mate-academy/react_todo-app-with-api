@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
+import { errorMessage } from '../../helpers';
 
 type Props = {
   errorType: ErrorType;
@@ -11,25 +12,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
   errorType,
   onNotificationClose,
 }) => {
-  let errorMessage = '';
-
-  switch (errorType) {
-    case ErrorType.Add:
-    case ErrorType.Delete:
-    case ErrorType.Update:
-    case ErrorType.Load:
-      errorMessage = `Unable to ${errorType} a todo`;
-
-      break;
-
-    case ErrorType.EmptyTitle:
-      errorMessage = 'Title can\'t be empty';
-
-      break;
-
-    default:
-      errorMessage = '';
-  }
+  const errorText = errorMessage(errorType);
 
   useEffect(() => {
     const timerId = setTimeout(() => onNotificationClose(), 3000);
@@ -51,13 +34,11 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
     >
       <button
         type="button"
-        className={classNames('delete', {
-          hidden: errorType === ErrorType.None,
-        })}
+        className="delete"
         onClick={onNotificationClose}
         aria-label="Close notification about an error"
       />
-      {errorMessage}
+      {errorText}
     </div>
   );
 });
