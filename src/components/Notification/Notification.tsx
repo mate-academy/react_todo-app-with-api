@@ -26,7 +26,11 @@ export const Notification:React.FC<Props> = React.memo(
           onClick={() => setIsError(false)}
         />
         {/* show only one message at a time */}
-        {`Unable to ${typeError} a todo`}
+        {
+          typeError.length > 10
+            ? (`${typeError}`)
+            : (`Unable to ${typeError} a todo`)
+        }
       </div>
     );
   },
