@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [completedTodoLength, setCompletedTodoLength] = useState(0);
   const [selectedFilter, setSelectedFilter] = useState(Filter.All);
 
-  const getTodosFromServer = async (uri: string) => {
+  const getTodosFromServer = useCallback(async (uri: string) => {
     try {
       setCurrentError('');
 
@@ -39,15 +39,15 @@ export const App: React.FC = () => {
       setVisibleTodos(data);
       setTodos(data);
 
-      const completedTodoLenth = data.filter(todo => todo.completed);
+      const completedTodosFromServer = data.filter(todo => todo.completed);
 
-      setCompletedTodoLength(completedTodoLenth.length);
+      setCompletedTodoLength(completedTodosFromServer.length);
     } catch (error) {
       if (error instanceof Error) {
         setCurrentError(error.message);
       }
     }
-  };
+  }, []);
 
   const addNewTodo = useCallback(async (title: string) => {
     setCurrentError('');
@@ -215,7 +215,7 @@ export const App: React.FC = () => {
           addError={addError}
           removeError={removeError}
         />
-        {!(todos.length === 0) && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}

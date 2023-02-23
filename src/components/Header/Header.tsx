@@ -32,7 +32,7 @@ export const Header: React.FC<Props> = React.memo(({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (query.length > 0) {
+    if (query.trim()) {
       addNewTodo(query);
       setQuery('');
       removeError();
