@@ -5,7 +5,7 @@ type Props = {
   todo: Todo;
   onDelete: (todoId: number) => () => void;
   isDeleting: boolean;
-  onUpdate: (todo: Todo) => () => void;
+  onUpdateStatus: (todo: Todo) => () => void;
   isUpdating: boolean;
 };
 
@@ -13,7 +13,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   isDeleting,
-  onUpdate,
+  onUpdateStatus: onUpdateStatus,
   isUpdating,
 }) => {
   return (
@@ -23,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked
-          onChange={onUpdate(todo)}
+          onChange={onUpdateStatus(todo)}
         />
       </label>
 

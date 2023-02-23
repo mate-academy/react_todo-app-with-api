@@ -155,18 +155,19 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleUpdateTodo = (todo: Todo) => () => {
+  const handleUpdateTodoStatus = (todo: Todo) => () => {
     setIsUpdating(true);
 
-    updateTodo(todo)
+    updateTodo({ ...todo, completed: !todo.completed })
       .then(() => {
-        const updatedTodo = {
-          ...todo,
-          completed: !todo.completed,
-        };
-        const updatedTodos = [...todos];
+        const updatedTodos = todos.map((t) => {
+          if (t.id === todo.id) {
+            return { ...t, completed: !todo.completed };
+          }
 
-        updatedTodos[updatedTodos.indexOf(todo)] = updatedTodo;
+          return t;
+        });
+
         setTodos(updatedTodos);
         setIsUpdating(false);
       })
@@ -195,7 +196,7 @@ export const App: React.FC = () => {
             todos={visibleTodos}
             onDeleteTodo={handleDeleteTodo}
             isDeleting={isDeleting}
-            onUpdateTodo={handleUpdateTodo}
+            onUpdateTodoStatus={handleUpdateTodoStatus}
             isUpdating={isUpdating}
           />
         )}
