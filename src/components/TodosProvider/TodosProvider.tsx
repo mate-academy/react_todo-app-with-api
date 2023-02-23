@@ -62,9 +62,12 @@ export const TodosProvider: React.FC<any> = (
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processedTodos, setProcessedTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
-  const [inputDisabled, setInputDisabled] = useState(false);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState<ErrorMessage>(ErrorMessage.NONE);
+  const [inputDisabled, setInputDisabled] = useState<boolean>(false);
 
   const fetchUserTodos = useCallback(async () => {
     try {

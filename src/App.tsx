@@ -56,7 +56,7 @@ export const App: React.FC = () => {
           <AddTodoForm />
         </header>
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
