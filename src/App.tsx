@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   addTodo,
@@ -64,7 +64,6 @@ export const App: React.FC = () => {
       await addTodo(USER_ID, query);
       await getTodosFromServer();
       setisAllStatusCompleted(false);
-
       setQuery('');
       setTempTodo(null);
     } catch {
@@ -100,6 +99,7 @@ export const App: React.FC = () => {
       await upgradeTodo(todo);
 
       await getTodosFromServer();
+      setisAllStatusCompleted(false);
     } catch {
       pushError('update');
     } finally {
@@ -152,6 +152,12 @@ export const App: React.FC = () => {
     return todos.map(todo => handlerStatus(todo));
   };
 
+  const ref = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    ref.current?.focus();
+  }, [todos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -181,6 +187,7 @@ export const App: React.FC = () => {
               value={query}
               onChange={((event) => setQuery(event.target.value))}
               disabled={isDisabled}
+              ref={ref}
 
             />
           </form>
