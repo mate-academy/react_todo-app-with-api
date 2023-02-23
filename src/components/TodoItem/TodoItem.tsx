@@ -40,7 +40,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
 
     changeInputActiveStatus(false);
-    setAddedTitle(title);
+    // setAddedTitle(title);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

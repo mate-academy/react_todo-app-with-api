@@ -36,20 +36,20 @@ export const App: React.FC = () => {
   const [todosWithLoader, setTodosWithLoader] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const [isLoadingFailed, setIsLoadingFailed] = useState(false);
   const [errorMessage, setErrorMessage] = useState(ErrorMessages.NONE);
 
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
 
   const visibleTodos = useMemo(() => (
     getFilteredTodos(todos, filterBy)
-  ), [todos]);
+  ), [todos, filterBy]);
 
   const completedTodos = useMemo(() => (
     todos.filter(todo => todo.completed === true)
   ), [todos]);
 
   const numberOfNotCompletedTodos = todos.length - completedTodos.length;
+
   const isClearAllButtonVisible = Boolean(!completedTodos.length);
   const isToogleButtonVisible = Boolean(!numberOfNotCompletedTodos);
   const isSubmitButtonDisabled = Boolean(tempTodo?.title.length);
@@ -62,10 +62,8 @@ export const App: React.FC = () => {
     try {
       const allTodos = await getTodos(USER_ID);
 
-      setIsLoadingFailed(false);
       setTodos(allTodos);
     } catch {
-      setIsLoadingFailed(true);
       addErrorMessage(ErrorMessages.LOAD);
     }
   }, []);
@@ -88,13 +86,17 @@ export const App: React.FC = () => {
     }
 
     const newTodo = {
-      id: 0,
       userId: USER_ID,
       title,
       completed: false,
     };
 
-    setTempTodo(newTodo);
+    const todoForLoader = {
+      ...newTodo,
+      id: 0,
+    };
+
+    setTempTodo(todoForLoader);
 
     try {
       await addTodo(USER_ID, newTodo);
@@ -193,6 +195,8 @@ export const App: React.FC = () => {
       todo.completed !== statusForUpdate
     ));
 
+    setTodosWithLoader(currentTodos => [...currentTodos, ...arrayForUpdate]);
+
     try {
       await Promise.all(
         arrayForUpdate
@@ -213,7 +217,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        {!isLoadingFailed && (
+        {todos.length && (
           <>
             <Header
               addNewTodo={addNewTodo}
@@ -243,9 +247,9 @@ export const App: React.FC = () => {
         />
       </div>
 
-      {errorMessage && (
+      {errorMessage !== ErrorMessages.NONE && (
         <ErrorMessage
-          message={errorMessage}
+          typeOfError={errorMessage}
           setMessage={clearMessage}
         />
       )}
