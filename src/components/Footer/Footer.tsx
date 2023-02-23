@@ -25,35 +25,19 @@ export const Footer: React.FC<Props> = React.memo(({
       </span>
 
       <nav className="filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: FilterTypes.ALL === filterType,
-          })}
-          onClick={() => handleFilterType(FilterTypes.ALL)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: FilterTypes.ACTIVE === filterType,
-          })}
-          onClick={() => handleFilterType(FilterTypes.ACTIVE)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: FilterTypes.COMPLETED === filterType,
-          })}
-          onClick={() => handleFilterType(FilterTypes.COMPLETED)}
-        >
-          Completed
-        </a>
+        {(Object.keys(FilterTypes)).map((key) => {
+          return (
+            <a
+              href="#/"
+              className={cn('filter__link', {
+                selected: key === filterType,
+              })}
+              onClick={() => handleFilterType(key as FilterTypes)}
+            >
+              {key}
+            </a>
+          );
+        })}
       </nav>
 
       <button

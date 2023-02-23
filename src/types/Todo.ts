@@ -6,3 +6,5 @@ export interface Todo {
 }
 
 export type UpdateData = Pick<Todo, 'title'> | Pick<Todo, 'completed'>;
+
+export type NewTodo = Omit<Todo, 'id'>;

@@ -93,13 +93,12 @@ export const TodosProvider: React.FC<any> = (
     }
 
     const newTodo = {
-      id: 0,
       userId: USER_ID,
       title: todoTitle,
       completed: false,
     };
 
-    setTempTodo(newTodo);
+    setTempTodo({ ...newTodo, id: 0 });
 
     try {
       setInputDisabled(true);
@@ -147,14 +146,14 @@ export const TodosProvider: React.FC<any> = (
   }, []);
 
   const activeTodos = useMemo(() => {
-    return getFilteredTodos(todos, FilterTypes.ACTIVE);
+    return getFilteredTodos(todos, FilterTypes.Active);
   }, [todos]);
   const completedTodos = useMemo(() => {
-    return getFilteredTodos(todos, FilterTypes.COMPLETED);
+    return getFilteredTodos(todos, FilterTypes.Completed);
   }, [todos]);
 
   const handleToggleAll = useCallback(async () => {
-    if (activeTodos.length > 0) {
+    if (activeTodos.length) {
       try {
         setProcessedTodos((currentTodos) => [...currentTodos, ...activeTodos]);
 

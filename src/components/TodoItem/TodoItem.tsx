@@ -3,6 +3,8 @@ import React, {
   FormEvent,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
@@ -71,6 +73,14 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setNewTitle(event.target.value);
   }, []);
 
+  const inputElement = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputElement.current?.focus();
+    }
+  }, [isEditing]);
+
   return (
     <>
       <label className="todo__status-label">
@@ -92,8 +102,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               onBlur={handleSubmit}
               onChange={handleNewTitle}
               onKeyDown={handleEscapeKey}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={isEditing}
+              ref={inputElement}
             />
           </form>
         ) : (

@@ -17,7 +17,7 @@ import { getFilteredTodos } from './utils/getFilteredTodos';
 import { TodosContext } from './components/TodosProvider';
 
 export const App: React.FC = () => {
-  const [filterType, setFilterType] = useState(FilterTypes.ALL);
+  const [filterType, setFilterType] = useState<FilterTypes>(FilterTypes.All);
   const {
     todos,
     USER_ID,

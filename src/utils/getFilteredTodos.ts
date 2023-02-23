@@ -5,20 +5,17 @@ export const getFilteredTodos = (todos: Todo[], filterType: FilterTypes) => {
   let filteredTodos = todos;
 
   switch (filterType) {
-    case FilterTypes.ACTIVE:
+    case FilterTypes.Active:
       filteredTodos = filteredTodos.filter(todo => !todo.completed);
       break;
 
-    case FilterTypes.COMPLETED:
+    case FilterTypes.Completed:
       filteredTodos = filteredTodos.filter(todo => todo.completed);
       break;
 
-    case FilterTypes.ALL:
-      filteredTodos = todos;
-      break;
-
+    case FilterTypes.All:
     default:
-      throw new Error('Unexpected filter type');
+      filteredTodos = todos;
   }
 
   return filteredTodos;
