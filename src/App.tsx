@@ -98,6 +98,7 @@ export const App: React.FC = () => {
       ...prev,
       todoId,
     ]);
+
     try {
       await deleteTodo(todoId);
       await fetchTodos(USER_ID);
@@ -156,11 +157,35 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleChangeStatus = () => {
-    return hasActiveTodos.length
-      ? hasActiveTodos.forEach(todo => handleUpdateTodo(todo))
-      : todos.forEach(todo => handleUpdateTodo(todo));
-  };
+  const handleChangeStatus = useCallback(async () => {
+    const todosToToggle = (hasActiveTodos.length)
+      ? hasActiveTodos
+      : todos;
+
+      setActiveTodoIds(prevTodosId => [
+      ...prevTodosId, ...todosToToggle.map(todo => todo.id),
+    ]);
+
+    try {
+      await Promise.all(todosToToggle.map(todo => {
+        const todoToUpdate = {
+          ...todo,
+          completed: !todo.completed,
+        };
+
+        return updateTodo(todoToUpdate);
+      }));
+      await fetchTodos(USER_ID);
+    } catch {
+      setIsError(true);
+      setErrorMassage(ErrorType.UPDATE_ERROR);
+    } finally {
+      setActiveTodoIds(prevTodosId => prevTodosId
+        .filter(todoId => !todosToToggle.some(todo => todoId === todo.id)));
+    }
+  }, [activeTodoIds, hasCompletedTodos]);
+
+
 
   const allCompleted = todos.every(todo => todo.completed);
 
