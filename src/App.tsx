@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { TodoSelector } from './types/TodoSelector';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -20,6 +20,7 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -129,6 +130,7 @@ export const App: React.FC = () => {
         setIsDeleting(false);
       })
       .catch(() => {
+        setIsDeleting(false);
         setError(new Error('Unable to delete a todo'));
         deleteErrorMessageAfterDelay(3000);
       });
@@ -146,9 +148,32 @@ export const App: React.FC = () => {
             setIsDeleting(false);
           })
           .catch(() => {
+            setIsDeleting(false);
             setError(new Error('Unable to delete a todo'));
             deleteErrorMessageAfterDelay(3000);
           });
+      });
+  };
+
+  const handleUpdateTodo = (todo: Todo) => () => {
+    setIsUpdating(true);
+
+    updateTodo(todo)
+      .then(() => {
+        const updatedTodo = {
+          ...todo,
+          completed: !todo.completed,
+        };
+        const updatedTodos = [...todos];
+
+        updatedTodos[updatedTodos.indexOf(todo)] = updatedTodo;
+        setTodos(updatedTodos);
+        setIsUpdating(false);
+      })
+      .catch(() => {
+        setIsUpdating(false);
+        setError(new Error('Unable to update a todo'));
+        deleteErrorMessageAfterDelay(3000);
       });
   };
 
@@ -170,6 +195,8 @@ export const App: React.FC = () => {
             todos={visibleTodos}
             onDeleteTodo={handleDeleteTodo}
             isDeleting={isDeleting}
+            onUpdateTodo={handleUpdateTodo}
+            isUpdating={isUpdating}
           />
         )}
 

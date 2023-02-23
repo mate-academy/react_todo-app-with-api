@@ -5,13 +5,26 @@ type Props = {
   todo: Todo;
   onDelete: (todoId: number) => () => void;
   isDeleting: boolean;
+  onUpdate: (todo: Todo) => () => void;
+  isUpdating: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, onDelete, isDeleting }) => {
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  onDelete,
+  isDeleting,
+  onUpdate,
+  isUpdating,
+}) => {
   return (
     <div key={todo.id} className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label">
-        <input type="checkbox" className="todo__status" checked />
+        <input
+          type="checkbox"
+          className="todo__status"
+          checked
+          onChange={onUpdate(todo)}
+        />
       </label>
 
       <span className="todo__title">{todo.title}</span>
@@ -28,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({ todo, onDelete, isDeleting }) => {
       {/* overlay will cover the todo while it is being updated */}
       <div className="modal overlay">
         <div className="modal-background has-background-white-ter" />
-        {isDeleting && <div className="loader" />}
+        {(isDeleting || isUpdating) && <div className="loader" />}
       </div>
     </div>
   );

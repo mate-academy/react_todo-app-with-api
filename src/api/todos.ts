@@ -12,3 +12,7 @@ export const postTodo = (todo: Todo) => {
 export const deleteTodo = (todoId: number) => {
   return client.delete<Todo>(`/todos/${todoId}`);
 };
+
+export const updateTodo = (todo: Todo) => {
+  return client.patch<Todo>(`/todos/${todo.id}`, todo);
+};
