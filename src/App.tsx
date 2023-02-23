@@ -26,20 +26,20 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodosIds, setProcessingTodosIds] = useState<number[]>([]);
 
-  const showError = (message: ErrorType) => {
+  const showError = useCallback((message: ErrorType) => {
     setErrorType(message);
     setHasError(true);
     setTimeout(() => {
       setHasError(false);
     }, 3000);
-  };
+  }, []);
 
   const fetchTodos = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
-    } catch (error) {
+    } catch {
       showError(ErrorType.LOAD);
     }
   }, []);

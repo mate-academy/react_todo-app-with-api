@@ -31,6 +31,7 @@ export const Header: React.FC<Props> = React.memo(
       if (!title) {
         showError(ErrorType.EMPTY_TITLE);
         setNewTitle('');
+        setIsInputDisabled(false);
 
         return;
       }
