@@ -119,9 +119,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       <div className={cn(
         'modal overlay',
-        {
-          'is-active': loaderCondition,
-        },
+        { 'is-active': loaderCondition },
       )}
       >
         <div className="modal-background has-background-white-ter" />
