@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[],
   handleDelete: (todoId: number) => void,
   handleUpdateTitle: (updatedTodo: Todo, newTitle: string) => void,
-  updatedTodoId: number,
+  updatedTodoId: number | boolean,
   handleUpdateCompleted: (todo: Todo) => void,
 };
 

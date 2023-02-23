@@ -28,7 +28,7 @@ export const App: React.FC = () => {
     = useState<ErrorNotifications>(ErrorNotifications.NONE);
   const [query, setQuery] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [updatedTodoId, setUpdatedTodoId] = useState(0);
+  const [updatedTodoId, setUpdatedTodoId] = useState<number | boolean>(0);
   const setErrorType = (error: ErrorNotifications) => {
     setErrorMessage(error);
   };
@@ -143,22 +143,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdateFullCompleted = async () => {
-    if (todos.every(todo => todo.completed)) {
-      todos.forEach(todo => (
-        todo.completed
-          ? handleUpdateCompleted(todo)
-          : todo
-      ));
-    } else {
-      todos.forEach(todo => (
-        todo.completed
-          ? todo
-          : handleUpdateCompleted(todo)
-      ));
-    }
-  };
-
   const handleUpdateTitle = async (updatedTodo: Todo, newTitle: string) => {
     setUpdatedTodoId(updatedTodo.id);
 
@@ -184,6 +168,30 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleUpdateFullCompleted = async () => {
+    setUpdatedTodoId(true);
+    try {
+      if (todos.every(todo => todo.completed)) {
+        todos.forEach(todo => (
+          todo.completed
+            ? handleUpdateCompleted(todo)
+            : todo
+        ));
+      } else {
+        todos.forEach(todo => (
+          todo.completed
+            ? todo
+            : handleUpdateCompleted(todo)
+        ));
+      }
+    } catch {
+      setError(true);
+      setErrorType(ErrorNotifications.UPDATE_STATUS);
+    } finally {
+      setUpdatedTodoId(false);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -197,6 +205,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           activeTodosAmount={activeTodosAmount}
           handleUpdateFullCompleted={handleUpdateFullCompleted}
+          setUpdatedTodoId={setUpdatedTodoId}
         />
         <TodoList
           todos={visibleTodos}

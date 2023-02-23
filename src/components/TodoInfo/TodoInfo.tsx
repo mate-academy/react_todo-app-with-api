@@ -7,7 +7,7 @@ type Props = {
   todo: Todo,
   handleDelete: (todoId: number) => void,
   handleUpdateTitle: (updatedTodo: Todo, newTitle: string) => void,
-  updatedTodoId: number,
+  updatedTodoId: number | boolean,
   handleUpdateCompleted: (todo: Todo) => void,
 };
 
@@ -99,7 +99,11 @@ export const TodoInfo: React.FC<Props> = React.memo(({
         'modal',
         'overlay',
         {
-          'is-active': removedTodoId || updatedTodoId === todo.id,
+          'is-active':
+            removedTodoId
+            || updatedTodoId === todo.id
+            // i cant just write  || updatedTodoId , because in this case type should be boolean
+            || updatedTodoId === true,
         },
       )}
       >
