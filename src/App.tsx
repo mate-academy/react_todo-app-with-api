@@ -15,7 +15,7 @@ import { Notification } from './components/Notification';
 import { TodoList } from './components/TodoList';
 import { ErrorMessage } from './types/ErrorMessage';
 import { FilterBy } from './types/Filter';
-import { Todo } from './types/Todo';
+import { Todo, NewTodo } from './types/Todo';
 import { getFiltredTodos } from './utils/getFiltredTodos';
 
 export const App: React.FC = () => {
@@ -55,6 +55,7 @@ export const App: React.FC = () => {
   const activeTodosAmount = todos.filter(todo => !todo.completed).length;
   const isFooterVisible = !!todos.length;
   const isClearButtonVisible = !!(todos.length - activeTodosAmount);
+  const expendIconVisibility = (todos.length > 0);
 
   const clearNotification = useCallback(() => {
     setHasError(false);
@@ -85,15 +86,14 @@ export const App: React.FC = () => {
       return;
     }
 
-    const todoToAdd: Todo = {
-      id: 0,
+    const todoToAdd: NewTodo = {
       userId: USER_ID,
       completed: false,
       title,
       isLoading: true,
     };
 
-    setTempTodo(todoToAdd);
+    setTempTodo({ ...todoToAdd, id: 0 });
 
     try {
       const todoAdder = await addTodo(USER_ID, todoToAdd);
@@ -156,7 +156,7 @@ export const App: React.FC = () => {
     clearNotification();
     const activeTodos = getFiltredTodos(todos, FilterBy.ACTIVE);
 
-    if (activeTodos.length > 0) {
+    if (activeTodos.length) {
       activeTodos.forEach(
         todo => handleUpdateTodo(todo, { completed: true }),
       );
@@ -179,7 +179,7 @@ export const App: React.FC = () => {
           todoTitle={todoTitle}
           setTodoTitle={setTodoTitle}
           isBeingLoading={isBeingLoading}
-          showExpendIcon={todos.length > 0}
+          showExpendIcon={expendIconVisibility}
           onStatusAll={handleStatusOfAllTodos}
         />
 

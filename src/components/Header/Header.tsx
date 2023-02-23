@@ -35,8 +35,8 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       {showExpendIcon
         && (
-          // eslint-disable-next-line jsx-a11y/control-has-associated-label
           <button
+            aria-label="toggle all active button"
             type="button"
             className="todoapp__toggle-all active"
             onClick={() => onStatusAll()}
@@ -50,7 +50,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={todoTitle}
-          onChange={(e) => setTodoTitle(e.target.value)}
+          onChange={(event) => setTodoTitle(event.target.value)}
           disabled={isBeingLoading}
         />
       </form>

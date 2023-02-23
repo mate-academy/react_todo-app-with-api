@@ -5,3 +5,5 @@ export interface Todo {
   completed: boolean;
   isLoading?: boolean;
 }
+
+export type NewTodo = Omit<Todo, 'id'>;

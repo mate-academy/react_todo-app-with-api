@@ -52,10 +52,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (isBeingLoading) {
+    if (isInputShowing) {
       inputRef.current?.focus();
     }
-  }, [isBeingLoading]);
+  }, [isInputShowing]);
 
   return (
     <div className={classNames('todo',
@@ -72,9 +72,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {isInputShowing
         ? (
-          <form
-            onSubmit={handleSubmit}
-          >
+          <form onSubmit={handleSubmit}>
             <input
               type="text"
               className="todo__title-field"
@@ -83,8 +81,7 @@ export const TodoItem: React.FC<Props> = ({
               onChange={({ target }) => setNewTitle(target.value)}
               onBlur={handleSubmit}
               onKeyDown={handleCancelEdit}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={isInputShowing}
+              ref={inputRef}
             />
           </form>
         ) : (
