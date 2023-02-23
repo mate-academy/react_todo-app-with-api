@@ -1,5 +1,5 @@
 export enum ErrorMessages {
-  NOUN = '',
+  NONE = '',
   ONLOAD = 'Unable to load todos',
   EMPTY = 'Title can\'t be empty',
   ONADD = 'Unable to add a todo',

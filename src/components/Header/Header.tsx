@@ -63,9 +63,7 @@ export const Header: React.FC<Props> = React.memo(({
         />
       )}
 
-      <form
-        onSubmit={handleAddTodo}
-      >
+      <form onSubmit={handleAddTodo}>
         <input
           type="text"
           ref={titleField}

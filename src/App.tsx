@@ -16,7 +16,6 @@ import {
 import { Todo, TodoData } from './types/Todo';
 import { UserWarning } from './UserWarning';
 import { FilterBy } from './types/FilterBy';
-import { warningTimer } from './utils/warningTimer';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header';
 import { Notification } from './components/Notification';
@@ -33,7 +32,7 @@ export const App: FC = () => {
   const [
     errorMessage,
     setErrorMessage,
-  ] = useState<ErrorMessages>(ErrorMessages.NOUN);
+  ] = useState<ErrorMessages>(ErrorMessages.NONE);
 
   const hasTodos = !!todos.length;
   const countActiveTodos = useMemo(
@@ -49,12 +48,6 @@ export const App: FC = () => {
     setHasError(true);
     setErrorMessage(message);
   }, []);
-
-  useEffect(() => {
-    if (hasError) {
-      warningTimer(setHasError, false, 3000);
-    }
-  }, [hasError]);
 
   const getAllTodos = async () => {
     try {
@@ -105,9 +98,9 @@ export const App: FC = () => {
   }, []);
 
   const removeCompletedTodo = useCallback(() => {
-    const compeletedTodos = todos.filter(todo => todo.completed);
-
-    compeletedTodos.forEach(todo => handleRemoveTodo(todo));
+    todos.forEach(todo => (
+      todo.completed && handleRemoveTodo(todo)
+    ));
   }, [todos]);
 
   const handleUpdateTodo = useCallback(async (todoToUpdate: Todo) => {
@@ -128,12 +121,12 @@ export const App: FC = () => {
   }, []);
 
   const toggleUpdateTodos = useCallback((todoStatus: boolean) => {
-    const todosToToggle = todos.filter(todo => todo.completed === todoStatus);
-
-    todosToToggle.forEach(todo => handleUpdateTodo({
-      ...todo,
-      completed: !todo.completed,
-    }));
+    todos.forEach(todo => (
+      todo.completed === todoStatus && handleUpdateTodo({
+        ...todo,
+        completed: !todo.completed,
+      })
+    ));
   }, [todos]);
 
   const handleHasError = useCallback((isError: boolean) => {

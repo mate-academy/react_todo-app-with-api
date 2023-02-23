@@ -96,7 +96,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
               onChange={(event) => setTodoTitle(event.target.value)}
               onBlur={handleOnSubmit}
               onKeyUp={onKeyUpCancelEditing}
-            // value="Todo is being edited now"
             />
           </form>
         ) : (
@@ -113,8 +112,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
             </button>
           </>
         )}
-
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         className={cn('modal overlay', {
           'is-active': isLoading,

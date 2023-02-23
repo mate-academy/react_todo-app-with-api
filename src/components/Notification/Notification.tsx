@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
+import { warningTimer } from '../../utils/warningTimer';
 
 type Props = {
   hasError: boolean,
@@ -11,20 +12,28 @@ export const Notification: React.FC<Props> = React.memo(({
   hasError,
   setHasError,
   errorMessage,
-}) => (
-  <div
-    className={cn(
-      'notification is-danger is-light has-text-weight-normal',
-      { hidden: !hasError },
-    )}
-  >
-    <button
-      type="button"
-      aria-label="delete completed todo"
-      className="delete"
-      onClick={() => setHasError(false)}
-    />
+}) => {
+  useEffect(() => {
+    if (hasError) {
+      warningTimer(setHasError, false, 3000);
+    }
+  }, [hasError]);
 
-    {errorMessage}
-  </div>
-));
+  return (
+    <div
+      className={cn(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden: !hasError },
+      )}
+    >
+      <button
+        type="button"
+        aria-label="delete completed todo"
+        className="delete"
+        onClick={() => setHasError(false)}
+      />
+
+      {errorMessage}
+    </div>
+  );
+});
