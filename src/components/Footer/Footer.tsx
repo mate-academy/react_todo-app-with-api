@@ -5,7 +5,7 @@ import { Filter } from '../../types/Filter';
 interface Props {
   currentFilter: Filter,
   numberOfActive: number,
-  numberOfCompleted: number,
+  hasCompleted: boolean,
   onFilterSelection: (value: Filter) => void,
   onClearCompleted: () => void;
 }
@@ -13,7 +13,7 @@ interface Props {
 export const Footer:React.FC<Props> = React.memo(({
   currentFilter,
   numberOfActive,
-  numberOfCompleted,
+  hasCompleted,
   onFilterSelection,
   onClearCompleted,
 }) => {
@@ -44,7 +44,7 @@ export const Footer:React.FC<Props> = React.memo(({
         type="button"
         onClick={onClearCompleted}
         className={cn('todoapp__clear-completed', {
-          'hidden-button': Boolean(!numberOfCompleted),
+          'hidden-button': hasCompleted,
         })}
       >
         Clear completed

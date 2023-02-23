@@ -185,12 +185,12 @@ export const App: React.FC = () => {
           processingTodosIds={processingTodosIds}
         />
 
-        {!!todos.length && (
+        {Boolean(todos.length) && (
           <Footer
             currentFilter={filterValue}
             onFilterSelection={handleFilterSelection}
             numberOfActive={numberOfActive}
-            numberOfCompleted={numberOfCompleted}
+            hasCompleted={Boolean(!numberOfCompleted)}
             onClearCompleted={handleClearCompleted}
           />
         )}
