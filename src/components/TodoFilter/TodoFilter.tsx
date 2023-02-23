@@ -75,15 +75,18 @@ export const TodoFilter: React.FC<Props> = React.memo(
           </a>
         </nav>
 
-        {completedTodos !== 0 && (
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={() => handleClearButtonClick()}
-          >
-            Clear completed
-          </button>
-        )}
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__clear-completed',
+            {
+              filter__hide: completedTodos === 0,
+            },
+          )}
+          onClick={handleClearButtonClick}
+        >
+          Clear completed
+        </button>
       </footer>
     );
   },

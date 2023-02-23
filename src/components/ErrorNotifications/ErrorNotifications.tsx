@@ -38,7 +38,7 @@ export const ErrorNotifications: React.FC<Props> = (
         type="button"
         className="delete"
         aria-label="Delete"
-        onClick={() => handleCloseButtonClick()}
+        onClick={handleCloseButtonClick}
       />
 
       {/* show only one message at a time */}

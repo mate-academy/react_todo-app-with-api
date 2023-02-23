@@ -35,11 +35,11 @@ export const App: React.FC = () => {
   const [todosIdsToUpdate, setTodosIdsToUpdate] = useState<number[]>([]);
   const [isUpdateWaiting, setIsUpdateWaiting] = useState(false);
 
-  const removeError = () => {
+  const removeError = useCallback(() => {
     window.setTimeout(() => setError(Error.NONE), 3000);
-  };
+  }, []);
 
-  const loadTodosFromServer = async () => {
+  const loadTodosFromServer = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
@@ -47,13 +47,13 @@ export const App: React.FC = () => {
     } catch {
       setError(Error.ONLOAD);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadTodosFromServer();
   }, []);
 
-  const addNewTodo = async () => {
+  const addNewTodo = useCallback(async () => {
     try {
       setIsAddWaiting(true);
 
@@ -79,7 +79,7 @@ export const App: React.FC = () => {
       setIsAddWaiting(false);
       setTempTodo(null);
     }
-  };
+  }, [todoTitle]);
 
   const deleteTodo = useCallback(async (todoId: number) => {
     try {
@@ -139,25 +139,26 @@ export const App: React.FC = () => {
     setFilterType(value);
   }, []);
 
-  const onTodoTitleChange = (value: string) => {
+  const onTodoTitleChange = useCallback((value: string) => {
     setTodoTitle(value);
-  };
+  }, []);
 
-  const handleErrors = (currentError: Error) => {
+  const handleErrors = useCallback((currentError: Error) => {
     setError(currentError);
-  };
+  }, []);
 
-  const completedTodoIds = completedTodos.map(todo => todo.id);
+  const completedTodoIds = useMemo(() => completedTodos
+    .map(todo => todo.id), [completedTodos]);
 
   const changeTodosIdsToRemove = useCallback((value: number) => {
     setTodosIdsToRemove((currentIds) => [...currentIds, value]);
   }, []);
 
-  const deleteCompletedTodos = () => {
+  const deleteCompletedTodos = useCallback(() => {
     completedTodoIds.map(id => changeTodosIdsToRemove(id));
 
     completedTodoIds.map(id => deleteTodo(id));
-  };
+  }, [completedTodoIds]);
 
   const removeDeleteId = (removedId: number) => {
     setTodosIdsToRemove((currentIds) => currentIds
@@ -177,7 +178,7 @@ export const App: React.FC = () => {
     setTodosIdsToUpdate([]);
   };
 
-  const toggleAllTodosStatus = async (status: boolean) => {
+  const toggleAllTodosStatus = useCallback(async (status: boolean) => {
     todos.forEach(todo => {
       if (todo.completed !== status) {
         changeTodosIdsToUpdate(todo.id);
@@ -188,7 +189,7 @@ export const App: React.FC = () => {
       .map(todo => changeCompletedStatus(todo.id, status)));
 
     resetTodosIdsToUpdate();
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
