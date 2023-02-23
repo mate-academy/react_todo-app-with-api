@@ -16,3 +16,11 @@ export const deleteTodo = (userId: number, todoId: number) => {
 export const completedTodo = (userId: number, todoId: number, todo: object) => {
   return client.patch(`/todos/${todoId}?userId=${userId}`, todo);
 };
+
+export const updateTodoTitle = (
+  userId: number,
+  todoId: number,
+  todo: object,
+) => {
+  return client.patch(`/todos/${todoId}?userId=${userId}`, todo);
+};

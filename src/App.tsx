@@ -6,6 +6,7 @@ import {
   addTodo,
   deleteTodo,
   completedTodo,
+  updateTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header/Header';
@@ -100,6 +101,30 @@ export const App: React.FC = () => {
     setEditingTodosId(cur => cur.filter(id => id !== todoId));
   };
 
+  const handleDeleteCompleted = () => {
+    const completedTodosId = todos
+      .filter(todo => todo.completed === true).map(todo => todo.id);
+
+    completedTodosId.forEach(todoId => handleDeleteTodo(todoId));
+  };
+
+  const handleUpdateTodoTitle = async (
+    todoId: number,
+    newTitle: string,
+  ) => {
+    setEditingTodosId(cur => [...cur, todoId]);
+    try {
+      setDisableInput(true);
+      await updateTodoTitle(USER_ID, todoId, { title: newTitle });
+      getAllTodos();
+    } catch {
+      setIsError(true);
+      setErrorText('Unable to update a todo title');
+    }
+
+    setEditingTodosId([]);
+  };
+
   const toggleAll = async () => {
     todos.forEach(todo => handleCompletedTodo(todo.id, todo.completed));
   };
@@ -120,14 +145,13 @@ export const App: React.FC = () => {
 
   const showForm = (todoId: number) => {
     setFormShowedForId(todoId);
-    console.log(formShowedForId);
   };
 
   const changeFilter = (selectedFilter: FilterBy) => {
     setFilterBy(selectedFilter);
   };
 
-  const hasActiveTodos = todos.some(todo => todo.completed === false);
+  const hasActiveTodos = todos.some(todo => !todo.completed);
 
   let filteredTodos = todos;
 
@@ -166,6 +190,7 @@ export const App: React.FC = () => {
           editingTodosId={editingTodosId}
           formShowedForId={formShowedForId}
           showForm={showForm}
+          handleUpdateTodoTitle={handleUpdateTodoTitle}
         />
 
         {todos.length !== 0
@@ -174,6 +199,7 @@ export const App: React.FC = () => {
             changeFilter={changeFilter}
             itemsCounter={filteredTodos.length}
             hasCompletedTodos={hasCompletedTodos}
+            handleDeleteCompleted={handleDeleteCompleted}
           />
         )}
 

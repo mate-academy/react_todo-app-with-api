@@ -6,12 +6,14 @@ interface Props {
   changeFilter: (FilterBy: FilterBy) => void;
   itemsCounter: number;
   hasCompletedTodos: boolean;
+  handleDeleteCompleted: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
   changeFilter,
   itemsCounter,
   hasCompletedTodos,
+  handleDeleteCompleted,
 }) => {
   const [activeBtn, setActiveBtn] = useState(FilterBy.All);
 
@@ -62,7 +64,11 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      <button type="button" className="todoapp__clear-completed">
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={handleDeleteCompleted}
+      >
         {hasCompletedTodos && 'Clear completed'}
       </button>
     </footer>
