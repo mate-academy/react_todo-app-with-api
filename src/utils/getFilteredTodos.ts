@@ -13,7 +13,7 @@ export const getFilteredTodos = (todos: Todo[], filterType: FilterTypes) => {
       filteredTodos = filteredTodos.filter(todo => todo.completed);
       break;
 
-    case FilterTypes.All:
+    // case FilterTypes.All:
     default:
       filteredTodos = todos;
   }

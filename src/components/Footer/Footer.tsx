@@ -25,10 +25,10 @@ export const Footer: React.FC<Props> = React.memo(({
       </span>
 
       <nav className="filter">
-        {(Object.keys(FilterTypes)).map((key) => {
+        {(Object.values(FilterTypes)).map((key) => {
           return (
             <a
-              href="#/"
+              href={`#/${key}`}
               className={cn('filter__link', {
                 selected: key === filterType,
               })}
