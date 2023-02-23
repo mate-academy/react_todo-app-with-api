@@ -20,44 +20,42 @@ export const TodoList: React.FC<Props> = ({
   handleUpdateTodoStatus,
   isUpdatingTodoId,
   handleUpdateTodoTitle,
-}) => {
-  return (
-    <section className="todoapp__main">
-      <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition
+}) => (
+  <section className="todoapp__main">
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
             key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoItem
-              todo={todo}
-              key={todo.id}
-              onDeleteTodo={onDeleteTodo}
-              handleUpdateTodoStatus={handleUpdateTodoStatus}
-              isUpdatingTodoId={isUpdatingTodoId}
-              handleUpdateTodoTitle={handleUpdateTodoTitle}
-            />
-          </CSSTransition>
-        ))}
+            onDeleteTodo={onDeleteTodo}
+            handleUpdateTodoStatus={handleUpdateTodoStatus}
+            isUpdatingTodoId={isUpdatingTodoId}
+            handleUpdateTodoTitle={handleUpdateTodoTitle}
+          />
+        </CSSTransition>
+      ))}
 
-        {tempTodo && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <TodoItem
-              todo={tempTodo}
-              onDeleteTodo={() => {}}
-              handleUpdateTodoStatus={() => {}}
-              isUpdatingTodoId={tempTodo.id}
-              handleUpdateTodoTitle={() => {}}
-            />
-          </CSSTransition>
+      {tempTodo && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoItem
+            todo={tempTodo}
+            onDeleteTodo={() => {}}
+            handleUpdateTodoStatus={() => {}}
+            isUpdatingTodoId={tempTodo.id}
+            handleUpdateTodoTitle={() => {}}
+          />
+        </CSSTransition>
 
-        )}
-      </TransitionGroup>
-    </section>
-  );
-};
+      )}
+    </TransitionGroup>
+  </section>
+);

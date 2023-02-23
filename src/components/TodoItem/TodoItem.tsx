@@ -75,6 +75,8 @@ export const TodoItem: React.FC<Props> = ({
               onChange={({ target }) => setNewTitle(target.value)}
               onBlur={handleTitleChange}
               onKeyDown={cancelTitleEdit}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         ) : (

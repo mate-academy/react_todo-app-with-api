@@ -36,11 +36,11 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [isUpdatingTodoId, setIsUpdatingTodoId] = useState(0);
 
-  const showError = (message: ErrorMessages) => {
+  const showError = useCallback((message: ErrorMessages) => {
     setHasError(true);
     setErrorMessage(message);
     closeNotification(setHasError, false, 3000);
-  };
+  }, []);
 
   const fetchTodos = useCallback(async () => {
     try {
@@ -63,8 +63,8 @@ export const App: React.FC = () => {
   const activeTodos = useMemo(() => (
     todos.filter(todo => !todo.completed)
   ), [todos]);
-  const hasActiveTodos = activeTodos.length > 0;
   const activeTodosLeft = activeTodos.length;
+  const hasActiveTodos = activeTodos.length > 0;
   const hasCompletedTodos = todos.some(todo => todo.completed);
 
   const changeTodoTitle = useCallback((newTitle: string) => {
