@@ -1,5 +1,5 @@
 export interface NewTodo {
-  id: number;
+  // id: number;
   userId: number;
   title: string;
   completed: boolean;

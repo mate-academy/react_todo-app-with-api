@@ -81,7 +81,6 @@ export const App: React.FC = () => {
         userId: USER_ID,
         title: query,
         completed: false,
-        id: todos.length + 1,
       };
 
       setTempTodo({
@@ -90,9 +89,9 @@ export const App: React.FC = () => {
       });
       try {
         handleSetQuery('');
-        const justCreatedTodo = await addTodo(USER_ID, addedTodo);
+        const justCreatedTodo = await addTodo(addedTodo);
 
-        setTodos(prevTodos => [...prevTodos, justCreatedTodo]);
+        setTodos((prevTodos) => [...prevTodos, justCreatedTodo]);
       } catch (error) {
         setError(true);
         setErrorType(ErrorNotifications.ADD);
