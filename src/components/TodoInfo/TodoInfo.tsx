@@ -41,8 +41,10 @@ export const TodoInfo: React.FC<Props> = ({
       return;
     }
 
+    const trimmedTitle = newTitle.trim();
+
     event.preventDefault();
-    onEditTitle(todo, newTitle);
+    onEditTitle(todo, trimmedTitle);
     setIsRenaiming(false);
   };
 

@@ -24,7 +24,9 @@ export const AddTodoForm: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    addTodo(todoTitle);
+    const trimmedTitle = todoTitle.trim();
+
+    addTodo(trimmedTitle);
     clearForm();
   };
 
