@@ -30,7 +30,6 @@ export const Footer: React.FC<Props> = ({
         {`${todosLeft} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         {Object.values(FilterType).map(type => (
           <a
@@ -47,8 +46,6 @@ export const Footer: React.FC<Props> = ({
           </a>
         ))}
       </nav>
-
-      {/* don't show this button if there are no completed todos */}
 
       <button
         type="button"

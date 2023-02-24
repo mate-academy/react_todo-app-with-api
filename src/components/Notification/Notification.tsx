@@ -25,7 +25,6 @@ export const Notification: React.FC<Props> = ({
         onClick={() => handleError(false)}
       />
 
-      {/* show only one message at a time */}
       {`${errorType}`}
     </div>
   );

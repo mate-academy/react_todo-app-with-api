@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { debounce } from 'lodash';
 import React, {
   useCallback,
