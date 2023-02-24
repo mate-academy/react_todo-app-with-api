@@ -69,6 +69,7 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(getVisibleTodos, [todos, todoSelector]);
 
   const hasCompletedTodos = todos.some((todo) => todo.completed);
+  const areAllTodosCompleted = todos.every((todo) => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -140,18 +141,7 @@ export const App: React.FC = () => {
     todos
       .filter((todo) => todo.completed)
       .forEach((todo) => {
-        setIsDeleting(true);
-
-        deleteTodo(todo.id)
-          .then(() => {
-            setTodos((prevTodos) => prevTodos.filter((t) => t.id !== todo.id));
-            setIsDeleting(false);
-          })
-          .catch(() => {
-            setIsDeleting(false);
-            setError(new Error('Unable to delete a todo'));
-            deleteErrorMessageAfterDelay(3000);
-          });
+        handleDeleteTodo(todo.id)();
       });
   };
 
@@ -178,6 +168,14 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleUpdateAllTodosStatus = () => {
+    todos
+      .filter((todo) => todo.completed)
+      .forEach((todo) => {
+        handleDeleteTodo(todo.id)();
+      });
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -188,6 +186,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           onChangeTodoInput={handleTodoInputChanging}
           onSubmitTodo={handleAddTodo}
+          onUpdateAllTodosStatus={handleUpdateAllTodosStatus}
+          areAllTodosCompleted={areAllTodosCompleted}
         />
 
         {todos.length > 0 && (
