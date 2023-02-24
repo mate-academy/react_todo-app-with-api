@@ -19,12 +19,12 @@ export const Header: React.FC<Props> = React.memo(({
   toggleTodosStatus,
 }) => {
   const [title, setTitle] = useState('');
-  const [count, setCount] = useState(0);
+  const [autoFocus, setAutoFocus] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (count) {
+    if (autoFocus) {
       inputRef.current?.focus();
     }
   }, [isInputDisabled]);
@@ -33,7 +33,7 @@ export const Header: React.FC<Props> = React.memo(({
     event.preventDefault();
     handleAddTodo(userId, title);
     setTitle('');
-    setCount(prev => prev + 1);
+    setAutoFocus(true);
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
