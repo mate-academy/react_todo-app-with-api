@@ -10,7 +10,7 @@ import {
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { FilterType } from './types/FilterTypes';
-import { Todo } from './types/Todo';
+import { Todo, TodoData } from './types/Todo';
 import { Notification } from './components/Notification';
 import { FilterTodos } from './utils/filterTodos';
 // import { TodoForm } from './components/TodoForm';
@@ -91,21 +91,23 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const editTodoOnServer = useCallback(async (todoId: number, data: {}) => {
-    try {
-      setTodosIdInProcess((prevState) => (
-        [...prevState, todoId]
-      ));
-      await editTodo(todoId, data);
-      await getTodosFromServer();
-    } catch {
-      notify('Unable to update a todo');
-    } finally {
-      setTodosIdInProcess((prevState) => (
-        prevState.filter(id => id !== todoId)
-      ));
-    }
-  }, []);
+  const editTodoOnServer = useCallback(
+    async (todoId: number, data: TodoData) => {
+      try {
+        setTodosIdInProcess((prevState) => (
+          [...prevState, todoId]
+        ));
+        await editTodo(todoId, data);
+        await getTodosFromServer();
+      } catch {
+        notify('Unable to update a todo');
+      } finally {
+        setTodosIdInProcess((prevState) => (
+          prevState.filter(id => id !== todoId)
+        ));
+      }
+    }, [],
+  );
 
   const handleFilterSelect = useCallback((filterType: FilterType) => {
     setSelectedFilter(filterType);
@@ -170,6 +172,48 @@ export const App: React.FC = () => {
     await editTodoOnServer(todo.id, { title: todo.title });
   }, []);
 
+  // const handleToggleAll = useCallback(
+  //   () => {
+  //     const toggle = activeTodos.length ? activeTodos : todos;
+
+  //     toggle.forEach(todo => {
+  //       handleToggleComplete(todo);
+  //     });
+
+  //     // toggle.forEach(todo => {
+  //     //   editTodoOnServer(todo.id, {
+  //     //     ...todo,
+  //     //     completed: !todo.completed,
+  //     //   });
+  //     // });
+  //   }, [activeTodos],
+  // );
+
+  const handleToggleAll = useCallback(
+    async () => {
+      const toggle = activeTodos.length ? activeTodos : todos;
+      const todoId = toggle.map(todo => todo.id);
+
+      try {
+        setTodosIdInProcess((prevState) => (
+          [...prevState, ...todoId]
+        ));
+        await Promise.all(
+          toggle.map(todo => (
+            editTodo(todo.id, { completed: !todo.completed })
+          )),
+        );
+        getTodosFromServer();
+      } catch {
+        notify('Unable to update a todo');
+      } finally {
+        setTodosIdInProcess((prevState) => (
+          prevState.filter(id => !todoId.includes(id))
+        ));
+      }
+    }, [activeTodos],
+  );
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -179,8 +223,14 @@ export const App: React.FC = () => {
           {/* this buttons is active only if there are some active todos */}
           <button
             type="button"
-            className="todoapp__toggle-all active"
+            // className="todoapp__toggle-all active"
+            className={classnames(
+              'todoapp__toggle-all', {
+                active: todos.length === completedTodos.length,
+              },
+            )}
             aria-label="Toggle all active todos"
+            onClick={handleToggleAll}
           />
 
           {/* Add a todo on form submit */}
