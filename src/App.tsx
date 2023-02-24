@@ -73,7 +73,10 @@ export const App: React.FC = () => {
 
     try {
       setIsInputDisabled(true);
-      setTempTodo({ ...newTodo, id: 0 });
+      setTempTodo({
+        ...newTodo,
+        id: 0,
+      });
       await addTodo(newTodo);
       await getAllTodos(USER_ID);
     } catch {
