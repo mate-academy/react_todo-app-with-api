@@ -16,7 +16,7 @@ export const removeTodo = async (userId: number, todoId: number) => {
 export const updateTodo = async (
   userId: number,
   todoId: number,
-  data: any,
+  data: object,
 ) => {
   return client.patch(`/todos/${todoId}?userId=${userId}`, data);
 };

@@ -1,6 +1,8 @@
-import classNames from 'classnames';
 import React from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
+import { TodoInfo } from '../TodoInfo';
+import '../../styles/transitiongroup.scss';
 
 type Props = {
   todos: Todo[],
@@ -8,8 +10,9 @@ type Props = {
   tempTodo: Todo | null,
   handleUpdateTodo: (
     todoId: number,
-    value: boolean,
+    value: boolean | string,
   ) => void,
+  isProcessedIds: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,80 +20,39 @@ export const TodoList: React.FC<Props> = ({
   handleDeleteTodo,
   tempTodo,
   handleUpdateTodo,
+  isProcessedIds,
 }) => (
   <section className="todoapp__main">
-    {todos.map(todo => {
-      return (
-        <div
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
           key={todo.id}
-          className={classNames(
-            'todo',
-            {
-              completed: todo.completed,
-            },
-          )}
+          timeout={300}
+          classNames="item"
         >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onClick={() => handleUpdateTodo(
-                todo.id,
-                !todo.completed,
-              )}
-            />
-          </label>
-
-          <span className="todo__title">{todo.title}</span>
-
-          {/* Remove button appears only on hover */}
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => handleDeleteTodo(todo.id)}
-          >
-            ×
-          </button>
-
-          {/* overlay will cover the todo while it is being updated */}
-          <div className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      );
-    })}
-    {tempTodo && (
-      <div
-        key={tempTodo.id}
-        className="todo"
-      >
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-            checked={tempTodo.completed}
+          <TodoInfo
+            todo={todo}
+            handleDeleteTodo={handleDeleteTodo}
+            handleUpdateTodo={handleUpdateTodo}
+            isProcessedIds={isProcessedIds}
           />
-        </label>
+        </CSSTransition>
+      ))}
 
-        <span className="todo__title">{tempTodo.title}</span>
-
-        {/* Remove button appears only on hover */}
-        <button
-          type="button"
-          className="todo__remove"
-          onClick={() => handleDeleteTodo(tempTodo.id)}
+      {tempTodo && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
         >
-          ×
-        </button>
-
-        {/* overlay will cover the todo while it is being updated */}
-        <div className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-    )}
+          <TodoInfo
+            todo={tempTodo}
+            handleDeleteTodo={() => {}}
+            handleUpdateTodo={() => {}}
+            isProcessedIds={isProcessedIds}
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </section>
 );

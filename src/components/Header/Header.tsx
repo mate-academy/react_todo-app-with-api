@@ -10,6 +10,7 @@ type Props = {
   handleInput: (input: string) => void,
   handleAddTodo: (todoTitle: string) => void,
   isTitleDisabled: boolean,
+  handleAllTodosStatus: () => void,
 };
 
 export const Header: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const Header: React.FC<Props> = ({
   handleInput,
   handleAddTodo,
   isTitleDisabled,
+  handleAllTodosStatus,
 }) => {
   const activeTodos = useMemo(() => {
     return todos.some(todo => !todo.completed);
@@ -26,15 +28,17 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all', {
-            active: activeTodos,
-          },
-        )}
-        disabled={activeTodos}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all', {
+              active: !activeTodos,
+            },
+          )}
+          onClick={handleAllTodosStatus}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <TodoForm

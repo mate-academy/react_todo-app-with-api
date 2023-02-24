@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [hasError, setHasError] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
+  const [isProcessedIds, setIsProcessedId] = useState<number[]>([]);
 
   const fetchAllTodos = async () => {
     try {
@@ -51,17 +52,17 @@ export const App: React.FC = () => {
     prepareTodos(todos, filterType)
   ), [todos, filterType]);
 
-  const handleError = (error: boolean) => {
+  const handleError = useCallback((error: boolean) => {
     setHasError(error);
-  };
+  }, []);
 
-  const handleInput = (input: string) => {
+  const handleInput = useCallback((input: string) => {
     setTitle(input);
-  };
+  }, []);
 
-  const handleFilterType = (filter: FilterType) => {
+  const handleFilterType = useCallback((filter: FilterType) => {
     setFilterType(filter);
-  };
+  }, []);
 
   const clearError = useCallback(() => {
     setHasError(false);
@@ -72,7 +73,7 @@ export const App: React.FC = () => {
     [],
   );
 
-  const handleAddTodo = async (todoTitle: string) => {
+  const handleAddTodo = useCallback(async (todoTitle: string) => {
     const todoTitleTrim = todoTitle.trim();
 
     if (!todoTitleTrim.length) {
@@ -95,11 +96,16 @@ export const App: React.FC = () => {
 
       const newTodo = await addTodo(USER_ID, todoToAdd);
 
+      setIsProcessedId(currIds => [...currIds, newTodo.id]);
       setTempTodo(newTodo);
 
-      setTodos(currTodos => ([
-        ...currTodos, newTodo,
-      ]));
+      try {
+        const loadedTodos = await getTodos(USER_ID);
+
+        setTodos(loadedTodos);
+      } catch (error) {
+        setErrorType(ErrorType.Update);
+      }
     } catch (error) {
       setHasError(true);
       setErrorType(ErrorType.Add);
@@ -108,11 +114,13 @@ export const App: React.FC = () => {
       setTitle('');
       setTempTodo(null);
       setIsTitleDisabled(false);
+      setIsProcessedId([]);
     }
-  };
+  }, []);
 
-  const handleDeleteTodo = async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
+      setIsProcessedId(currIds => [...currIds, todoId]);
       await removeTodo(USER_ID, todoId);
 
       setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId));
@@ -120,29 +128,67 @@ export const App: React.FC = () => {
       setHasError(true);
       setErrorType(ErrorType.Delete);
       clearErrorAfterDelay();
+    } finally {
+      setIsProcessedId([]);
     }
-  };
+  }, []);
 
-  const handleCompletedTodos = () => {
-    todos.forEach(todo => {
-      if (todo.completed) {
-        handleDeleteTodo(todo.id);
-      }
-    });
-  };
-
-  const handleUpdateTodo = async (todoId: number, value: boolean) => {
+  const handleCompletedTodos = useCallback(async () => {
     try {
-      const newData = {
-        completed: value,
-      };
-
-      await updateTodo(USER_ID, todoId, newData);
-      await fetchAllTodos();
+      todos.forEach(todo => {
+        if (todo.completed) {
+          handleDeleteTodo(todo.id);
+        }
+      });
     } catch (error) {
-      setHasError(true);
       setErrorType(ErrorType.Update);
-      clearErrorAfterDelay();
+      setHasError(true);
+    }
+  }, [todos]);
+
+  const handleUpdateTodo = useCallback(
+    async (todoId: number, value: boolean | string) => {
+      try {
+        setIsProcessedId(currIds => [...currIds, todoId]);
+
+        let newData = {};
+
+        if (typeof value === 'boolean') {
+          newData = {
+            completed: value,
+          };
+        }
+
+        if (typeof value === 'string') {
+          newData = {
+            title: value,
+          };
+        }
+
+        await updateTodo(USER_ID, todoId, newData);
+        await fetchAllTodos();
+      } catch (error) {
+        setHasError(true);
+        setErrorType(ErrorType.Update);
+        clearErrorAfterDelay();
+      } finally {
+        setIsProcessedId([]);
+      }
+    }, [],
+  );
+
+  const handleAllTodosStatus = async () => {
+    try {
+      const areTodosCompleted = todos.every(todo => todo.completed);
+
+      todos.forEach(todo => {
+        handleUpdateTodo(todo.id, !areTodosCompleted);
+      });
+    } catch (error) {
+      setErrorType(ErrorType.Update);
+      setHasError(true);
+    } finally {
+      setIsProcessedId([]);
     }
   };
 
@@ -158,6 +204,7 @@ export const App: React.FC = () => {
           handleInput={handleInput}
           handleAddTodo={handleAddTodo}
           isTitleDisabled={isTitleDisabled}
+          handleAllTodosStatus={handleAllTodosStatus}
         />
 
         {todos.length > 0 && (
@@ -167,6 +214,7 @@ export const App: React.FC = () => {
               handleDeleteTodo={handleDeleteTodo}
               tempTodo={tempTodo}
               handleUpdateTodo={handleUpdateTodo}
+              isProcessedIds={isProcessedIds}
             />
             <Footer
               todos={todos}
