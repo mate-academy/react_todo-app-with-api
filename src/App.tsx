@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   addTodo,
   deleteTodo,
@@ -60,46 +65,48 @@ export const App: React.FC = () => {
     todos.filter(todo => !todo.completed).length
   ), [todos]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const filterTodosBy = useCallback(
+    (condition: Filter) => {
+      setFilter(condition);
+    }, [Filter],
+  );
 
-  const filterTodosBy = (condition: Filter) => {
-    setFilter(condition);
-  };
+  const handleSetQuery = useCallback(
+    (value: string) => {
+      setQuery(value);
+    }, [query],
+  );
 
-  const handleSetQuery = (value: string) => {
-    setQuery(value);
-  };
-
-  const handleSubmit = async () => {
-    if (!query.trim()) {
-      setError(true);
-      setErrorType(ErrorNotifications.TITLE);
-    } else {
-      const addedTodo: NewTodo = {
-        userId: USER_ID,
-        title: query,
-        completed: false,
-      };
-
-      setTempTodo({
-        ...addedTodo,
-        id: 0,
-      });
-      const justCreatedTodo = await addTodo(addedTodo);
-
-      try {
-        handleSetQuery('');
-        setTodos((prevTodos) => [...prevTodos, justCreatedTodo]);
-      } catch (error) {
+  const handleSubmit = useCallback(
+    async () => {
+      if (!query.trim()) {
         setError(true);
-        setErrorType(ErrorNotifications.ADD);
-      } finally {
-        setTempTodo(null);
+        setErrorType(ErrorNotifications.TITLE);
+      } else {
+        const addedTodo: NewTodo = {
+          userId: USER_ID,
+          title: query,
+          completed: false,
+        };
+
+        setTempTodo({
+          ...addedTodo,
+          id: 0,
+        });
+        const justCreatedTodo = await addTodo(addedTodo);
+
+        try {
+          handleSetQuery('');
+          setTodos((prevTodos) => [...prevTodos, justCreatedTodo]);
+        } catch (error) {
+          setError(true);
+          setErrorType(ErrorNotifications.ADD);
+        } finally {
+          setTempTodo(null);
+        }
       }
-    }
-  };
+    }, [query],
+  );
 
   const handleDelete = async (todoId: number) => {
     try {
@@ -189,6 +196,10 @@ export const App: React.FC = () => {
       setUpdatedTodoId(0);
     }
   };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
