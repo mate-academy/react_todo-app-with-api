@@ -3,8 +3,8 @@ import cn from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
 
 interface Props {
-  numberOfActive: number;
-  isNoTodos: boolean;
+  isActiveToogle: boolean;
+  isHiddenToogle: boolean;
   showError: (message: ErrorType) => void;
   onToogle: () => void;
   createTodo: (title: string) => void;
@@ -12,8 +12,8 @@ interface Props {
 
 export const Header: React.FC<Props> = React.memo(
   ({
-    numberOfActive,
-    isNoTodos,
+    isActiveToogle,
+    isHiddenToogle,
     showError,
     onToogle,
     createTodo,
@@ -51,8 +51,8 @@ export const Header: React.FC<Props> = React.memo(
           aria-label="toogle_completed"
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: Boolean(!numberOfActive),
-            hidden: isNoTodos,
+            active: isActiveToogle,
+            'hidden-button': isHiddenToogle,
           })}
           onClick={onToogle}
         />
