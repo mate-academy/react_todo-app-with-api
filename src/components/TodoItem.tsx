@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { Todo } from '../types/Todo';
-
 type Props = {
-  todo: Todo,
+  todoTitle: string,
 };
 
-export const TodoItem: React.FC<Props> = ({ todo }) => {
+export const TodoItem: React.FC<Props> = ({ todoTitle }) => {
   return (
     <div className="todo">
       <label className="todo__status-label">
@@ -20,7 +18,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <span
         className="todo__title"
       >
-        {todo.title}
+        {todoTitle}
       </span>
 
       <button type="button" className="todo__remove">×</button>

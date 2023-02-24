@@ -54,6 +54,7 @@ export const Main: React.FC<Props> = ({
         };
 
         const deleting = () => {
+          setChangingFormId(id);
           onDeleteTodo(id);
         };
 
@@ -73,47 +74,45 @@ export const Main: React.FC<Props> = ({
               />
             </label>
 
-            {(changeCheck && changingFormId === id)
-              ? (
-                <>
-                  <form onSubmit={onSubmitChanges}>
-                    <input
-                      type="text"
-                      className="todo__title-field"
-                      placeholder="Empty todo will be deleted"
-                      value={changingTitle}
-                      onChange={onChangeTitle}
+            {(changeCheck && changingFormId === id) ? (
+              <>
+                <form onSubmit={onSubmitChanges}>
+                  <input
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={changingTitle}
+                    onChange={onChangeTitle}
+                  />
+                </form>
+              </>
+            ) : (
+              <>
+                <span
+                  className="todo__title"
+                  onDoubleClick={changeForm}
+                >
+                  {title}
+                </span>
+
+                <button
+                  type="button"
+                  className="todo__remove"
+                  onClick={deleting}
+                >
+                  ×
+                </button>
+
+                {(loading && changingFormId === id) && (
+                  <div className="modal overlay is-active">
+                    <div
+                      className="modal-background has-background-white-ter"
                     />
-                  </form>
-                </>
-              )
-              : (
-                <>
-                  <span
-                    className="todo__title"
-                    onDoubleClick={changeForm}
-                  >
-                    {title}
-                  </span>
-
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    onClick={deleting}
-                  >
-                    ×
-                  </button>
-
-                  {(loading && changingFormId === id) && (
-                    <div className="modal overlay is-active">
-                      <div
-                        className="modal-background has-background-white-ter"
-                      />
-                      <div className="loader" />
-                    </div>
-                  )}
-                </>
-              )}
+                    <div className="loader" />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         );
       })}

@@ -8,7 +8,7 @@ import { UserWarning } from './UserWarning';
 import { Error } from './types/Error';
 import { Todo } from './types/Todo';
 
-const USER_ID = 6192;
+const USER_ID = 0;
 
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
@@ -35,13 +35,11 @@ export const App: React.FC = () => {
         onHidden={setHidden}
       />
 
-      {!error.length || (
-        <Errors
-          errorMessage={error}
-          errorVisibility={hidden}
-          onHidden={setHidden}
-        />
-      )}
+      <Errors
+        errorMessage={error}
+        errorVisibility={hidden}
+        onHidden={setHidden}
+      />
     </div>
   );
 };

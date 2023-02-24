@@ -43,17 +43,17 @@ export const Content: React.FC<Props> = ({
 
     setIsAdded(true);
 
-    if (newTodoTitle.length) {
+    if (newTodoTitle.trim().length) {
       const newTodoData = {
         userId,
-        title: newTodoTitle,
+        title: newTodoTitle.trim(),
         completed: false,
       };
 
       setTempTodo({
         id: 0,
         userId,
-        title: newTodoTitle,
+        title: newTodoTitle.trim(),
         completed: false,
       });
 
@@ -114,13 +114,13 @@ export const Content: React.FC<Props> = ({
   ) => {
     const newData = {
       userId,
-      title,
+      title: title.trim(),
       completed: !completed,
     };
 
     setisLoading(true);
 
-    if (title.length) {
+    if (title.trim().length) {
       updateTodo(id, newData)
         .then(result => {
           const newTodos = todos.map(todo => {
@@ -205,7 +205,7 @@ export const Content: React.FC<Props> = ({
         setTodoTitle={setChangingTodoTitle}
       />
 
-      {!tempTodo || <TodoItem todo={tempTodo} />}
+      {tempTodo && <TodoItem todoTitle={tempTodo.title} />}
 
       {(todos?.length || tempTodo) && (
         <Footer
