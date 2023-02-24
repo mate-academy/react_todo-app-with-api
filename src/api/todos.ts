@@ -7,7 +7,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (todo: NewTodo) => {
-  return client.post<NewTodo>('/todos', todo);
+  return client.post<Todo>('/todos', todo);
 };
 
 export const deleteTodo = (todoId: number) => {
@@ -19,7 +19,7 @@ export const updateTodoTitle = (
   todoId: number,
   todoNewTitle: string,
 ) => {
-  return client.patch<NewTodo>(`/todos/${todoId}?userId=${userId}`, { title: todoNewTitle });
+  return client.patch<Todo>(`/todos/${todoId}?userId=${userId}`, { title: todoNewTitle });
 };
 
 export const updateTodoStatus = (
@@ -27,5 +27,5 @@ export const updateTodoStatus = (
   todoId: number,
   todoNewStatus: boolean,
 ) => {
-  return client.patch<NewTodo>(`/todos/${todoId}?userId=${userId}`, { completed: todoNewStatus });
+  return client.patch<Todo>(`/todos/${todoId}?userId=${userId}`, { completed: todoNewStatus });
 };

@@ -1,12 +1,10 @@
 import { Todo } from '../types/Todo';
 import { Filter } from '../types/filter';
-import { NewTodo } from '../types/newTodo';
 
 export const getVisibleTodos = (
-  todos: (Todo | NewTodo)[],
+  todos: Todo[],
   filterBy: Filter,
-): (Todo | NewTodo
-  )[] => (
+): Todo[] => (
   todos.filter(todo => {
     switch (filterBy) {
       case Filter.COMPLETED:

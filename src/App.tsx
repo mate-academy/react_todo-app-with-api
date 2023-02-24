@@ -87,10 +87,10 @@ export const App: React.FC = () => {
         ...addedTodo,
         id: 0,
       });
+      const justCreatedTodo = await addTodo(addedTodo);
+
       try {
         handleSetQuery('');
-        const justCreatedTodo = await addTodo(addedTodo);
-
         setTodos((prevTodos) => [...prevTodos, justCreatedTodo]);
       } catch (error) {
         setError(true);
@@ -120,13 +120,13 @@ export const App: React.FC = () => {
 
   const handleUpdateCompleted = async (updatedTodo: Todo) => {
     setUpdatedTodoId(updatedTodo.id);
-    try {
-      const newUpdatedTodo = await updateTodoStatus(
-        USER_ID,
-        updatedTodo.id,
-        !updatedTodo.completed,
-      );
+    const newUpdatedTodo = await updateTodoStatus(
+      USER_ID,
+      updatedTodo.id,
+      !updatedTodo.completed,
+    );
 
+    try {
       setTodos(prevTodos => {
         return prevTodos.map(todo => (
           todo.id === updatedTodo.id
@@ -205,21 +205,24 @@ export const App: React.FC = () => {
           handleUpdateFullCompleted={handleUpdateFullCompleted}
           setUpdatedTodoId={setUpdatedTodoId}
         />
-        <TodoList
-          todos={visibleTodos}
-          handleDelete={handleDelete}
-          handleUpdateTitle={handleUpdateTitle}
-          updatedTodoId={updatedTodoId}
-          handleUpdateCompleted={handleUpdateCompleted}
-        />
-        {todos.length && (
-          <Footer
-            filter={filter}
-            filterTodosBy={filterTodosBy}
-            activeTodosAmount={activeTodosAmount}
-            isThereCompleted={isThereCompleted}
-            removeCompletedTodos={removeCompletedTodos}
-          />
+
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={visibleTodos}
+              handleDelete={handleDelete}
+              handleUpdateTitle={handleUpdateTitle}
+              updatedTodoId={updatedTodoId}
+              handleUpdateCompleted={handleUpdateCompleted}
+            />
+            <Footer
+              filter={filter}
+              filterTodosBy={filterTodosBy}
+              activeTodosAmount={activeTodosAmount}
+              isThereCompleted={isThereCompleted}
+              removeCompletedTodos={removeCompletedTodos}
+            />
+          </>
         )}
 
       </div>
