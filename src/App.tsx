@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [activeTodosId, setActiveTodosId] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const USER_ID = 6381;
 
@@ -50,7 +50,6 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getAllTodos(USER_ID);
-    setIsLoading(true);
   }, []);
 
   const activeTodos = useMemo(() => getActiveTodos(todos), [todos]);
