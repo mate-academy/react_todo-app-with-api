@@ -31,7 +31,7 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [hasError, setHasError] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
-  const [isProcessedIds, setIsProcessedId] = useState<number[]>([]);
+  const [isProcessedIds, setIsProcessedIds] = useState<number[]>([]);
 
   const fetchAllTodos = async () => {
     try {
@@ -96,16 +96,12 @@ export const App: React.FC = () => {
 
       const newTodo = await addTodo(USER_ID, todoToAdd);
 
-      setIsProcessedId(currIds => [...currIds, newTodo.id]);
+      setIsProcessedIds(currIds => [...currIds, newTodo.id]);
       setTempTodo(newTodo);
 
-      try {
-        const loadedTodos = await getTodos(USER_ID);
+      const loadedTodos = await getTodos(USER_ID);
 
-        setTodos(loadedTodos);
-      } catch (error) {
-        setErrorType(ErrorType.Update);
-      }
+      setTodos(loadedTodos);
     } catch (error) {
       setHasError(true);
       setErrorType(ErrorType.Add);
@@ -114,13 +110,13 @@ export const App: React.FC = () => {
       setTitle('');
       setTempTodo(null);
       setIsTitleDisabled(false);
-      setIsProcessedId([]);
+      setIsProcessedIds([]);
     }
   }, []);
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
-      setIsProcessedId(currIds => [...currIds, todoId]);
+      setIsProcessedIds(currIds => [...currIds, todoId]);
       await removeTodo(USER_ID, todoId);
 
       setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId));
@@ -129,17 +125,17 @@ export const App: React.FC = () => {
       setErrorType(ErrorType.Delete);
       clearErrorAfterDelay();
     } finally {
-      setIsProcessedId([]);
+      setIsProcessedIds([]);
     }
   }, []);
 
   const handleCompletedTodos = useCallback(async () => {
     try {
-      todos.forEach(todo => {
+      await Promise.all(todos.map(async todo => {
         if (todo.completed) {
-          handleDeleteTodo(todo.id);
+          await handleDeleteTodo(todo.id);
         }
-      });
+      }));
     } catch (error) {
       setErrorType(ErrorType.Update);
       setHasError(true);
@@ -149,8 +145,6 @@ export const App: React.FC = () => {
   const handleUpdateTodo = useCallback(
     async (todoId: number, value: boolean | string) => {
       try {
-        setIsProcessedId(currIds => [...currIds, todoId]);
-
         let newData = {};
 
         if (typeof value === 'boolean') {
@@ -165,6 +159,8 @@ export const App: React.FC = () => {
           };
         }
 
+        setIsProcessedIds(currIds => [...currIds, todoId]);
+
         await updateTodo(USER_ID, todoId, newData);
         await fetchAllTodos();
       } catch (error) {
@@ -172,7 +168,7 @@ export const App: React.FC = () => {
         setErrorType(ErrorType.Update);
         clearErrorAfterDelay();
       } finally {
-        setIsProcessedId([]);
+        setIsProcessedIds([]);
       }
     }, [],
   );
@@ -181,14 +177,12 @@ export const App: React.FC = () => {
     try {
       const areTodosCompleted = todos.every(todo => todo.completed);
 
-      todos.forEach(todo => {
-        handleUpdateTodo(todo.id, !areTodosCompleted);
+      todos.forEach(async todo => {
+        await handleUpdateTodo(todo.id, !areTodosCompleted);
       });
     } catch (error) {
       setErrorType(ErrorType.Update);
       setHasError(true);
-    } finally {
-      setIsProcessedId([]);
     }
   };
 
