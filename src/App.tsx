@@ -2,7 +2,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { TodoSelector } from './types/TodoSelector';
-import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodo, updateTodo,
+} from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -46,9 +48,9 @@ export const App: React.FC = () => {
   };
 
   const getVisibleTodos = () => {
-    const needsToFilter =
-      todoSelector === TodoSelector.ACTIVE ||
-      todoSelector === TodoSelector.COMPLETED;
+    const needsToFilter
+      = todoSelector === TodoSelector.ACTIVE
+      || todoSelector === TodoSelector.COMPLETED;
 
     if (!needsToFilter) {
       return todos;
@@ -69,7 +71,7 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(getVisibleTodos, [todos, todoSelector]);
 
   const hasCompletedTodos = todos.some((todo) => todo.completed);
-  let areAllTodosCompleted = todos.every((todo) => todo.completed);
+  const areAllTodosCompleted = todos.every((todo) => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -175,12 +177,12 @@ export const App: React.FC = () => {
           ...todo,
           completed: true,
         };
-      } else {
-        return {
-          ...todo,
-          completed: false,
-        };
       }
+
+      return {
+        ...todo,
+        completed: false,
+      };
     });
 
     setTodos(updatedTodos);

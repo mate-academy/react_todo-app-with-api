@@ -13,7 +13,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   isDeleting,
-  onUpdateStatus: onUpdateStatus,
+  onUpdateStatus,
   isUpdating,
 }) => {
   return (
