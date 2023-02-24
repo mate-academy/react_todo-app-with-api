@@ -4,7 +4,10 @@ import React, {
 import { Todo } from './types/Todo';
 
 import {
-  addTodo, deleteTodo, getTodos, updateTodo,
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
 } from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -16,6 +19,7 @@ import { UserWarning } from './UserWarning';
 import { getActiveTodos } from './utils/getActiveTodos';
 import { getCompletedTodos } from './utils/getCompletedTodos';
 import { ErrorType } from './types/ErrorType';
+import { Loader } from './components/Loader';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -25,6 +29,7 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [activeTodosId, setActiveTodosId] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const USER_ID = 6381;
 
@@ -38,11 +43,14 @@ export const App: React.FC = () => {
       setError(ErrorType.UPLOAD_ERROR);
       // eslint-disable-next-line no-console
       console.warn('An occur error while loading todos');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     getAllTodos(USER_ID);
+    setIsLoading(true);
   }, []);
 
   const activeTodos = useMemo(() => getActiveTodos(todos), [todos]);
@@ -58,7 +66,6 @@ export const App: React.FC = () => {
     }
 
     const newTodo = {
-      id: 0,
       userId,
       title,
       completed: false,
@@ -66,7 +73,7 @@ export const App: React.FC = () => {
 
     try {
       setIsInputDisabled(true);
-      setTempTodo(newTodo);
+      setTempTodo({ ...newTodo, id: 0 });
       await addTodo(newTodo);
       await getAllTodos(USER_ID);
     } catch {
@@ -189,34 +196,38 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
-        <Header
-          hasTodos={todos.length}
-          hasActiveTodos={activeTodos.length}
-          userId={USER_ID}
-          handleAddTodo={handleAddTodo}
-          isInputDisabled={isInputDisabled}
-          toggleTodosStatus={toggleTodosStatus}
-        />
+      {isLoading
+        ? <Loader />
+        : (
+          <div className="todoapp__content">
+            <Header
+              hasTodos={todos.length}
+              hasActiveTodos={activeTodos.length}
+              userId={USER_ID}
+              handleAddTodo={handleAddTodo}
+              isInputDisabled={isInputDisabled}
+              toggleTodosStatus={toggleTodosStatus}
+            />
 
-        <TodoList
-          todos={filteredTodos}
-          tempTodo={tempTodo}
-          handleDeleteTodo={handleDeleteTodo}
-          activeTodosId={activeTodosId}
-          changeTodo={changeTodo}
-        />
+            <TodoList
+              todos={filteredTodos}
+              tempTodo={tempTodo}
+              handleDeleteTodo={handleDeleteTodo}
+              activeTodosId={activeTodosId}
+              changeTodo={changeTodo}
+            />
 
-        {!!todos.length && (
-          <Footer
-            activeTodos={activeTodos.length}
-            hasCompletedTodos={completedTodos.length}
-            filterType={filterType}
-            changeFilterType={changeFilterType}
-            deleteCompleted={deleteCompletedTodos}
-          />
+            {!!todos.length && (
+              <Footer
+                activeTodos={activeTodos.length}
+                hasCompletedTodos={completedTodos.length}
+                filterType={filterType}
+                changeFilterType={changeFilterType}
+                deleteCompleted={deleteCompletedTodos}
+              />
+            )}
+          </div>
         )}
-      </div>
 
       <Notification
         error={error}
