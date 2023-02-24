@@ -69,7 +69,7 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(getVisibleTodos, [todos, todoSelector]);
 
   const hasCompletedTodos = todos.some((todo) => todo.completed);
-  const areAllTodosCompleted = todos.every((todo) => todo.completed);
+  let areAllTodosCompleted = todos.every((todo) => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -145,17 +145,17 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleUpdateTodoStatus = (todo: Todo) => () => {
+  const handleUpdateTodoStatus = (updatedTodo: Todo) => () => {
     setIsUpdating(true);
 
-    updateTodo({ ...todo, completed: !todo.completed })
+    updateTodo(updatedTodo)
       .then(() => {
-        const updatedTodos = todos.map((t) => {
-          if (t.id === todo.id) {
-            return { ...t, completed: !todo.completed };
+        const updatedTodos = todos.map((todo) => {
+          if (todo.id === updatedTodo.id) {
+            return updatedTodo;
           }
 
-          return t;
+          return todo;
         });
 
         setTodos(updatedTodos);
@@ -169,11 +169,21 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateAllTodosStatus = () => {
-    todos
-      .filter((todo) => todo.completed)
-      .forEach((todo) => {
-        handleDeleteTodo(todo.id)();
-      });
+    const updatedTodos = todos.map((todo) => {
+      if (!areAllTodosCompleted) {
+        return {
+          ...todo,
+          completed: true,
+        };
+      } else {
+        return {
+          ...todo,
+          completed: false,
+        };
+      }
+    });
+
+    setTodos(updatedTodos);
   };
 
   return (

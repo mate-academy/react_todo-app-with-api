@@ -23,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked
-          onChange={onUpdateStatus(todo)}
+          onChange={onUpdateStatus({ ...todo, completed: !todo.completed })}
         />
       </label>
 
