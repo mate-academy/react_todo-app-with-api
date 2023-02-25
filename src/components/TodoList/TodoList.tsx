@@ -8,7 +8,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => () => void;
   isStatusUpdating: boolean;
   onUpdateTodoStatus: (todo: Todo) => () => void;
-  isTitleUpdating: boolean;
+  titleUpdatingTodoId: number | null;
   editedTitleValue: string;
   onUpdateTodoTitle: (todo: Todo) => () => void;
   onChangeTodoTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -22,7 +22,7 @@ export const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   isStatusUpdating,
   onUpdateTodoStatus,
-  isTitleUpdating,
+  titleUpdatingTodoId,
   editedTitleValue,
   onUpdateTodoTitle,
   onChangeTodoTitle,
@@ -39,7 +39,7 @@ export const TodoList: React.FC<Props> = ({
             onDelete={onDeleteTodo}
             isStatusUpdating={isStatusUpdating}
             onUpdateStatus={onUpdateTodoStatus}
-            isTitleUpdating={isTitleUpdating}
+            isTitleUpdating={titleUpdatingTodoId === todo.id ? true : false}
             editedTitleValue={editedTitleValue}
             onUpdateTitle={onUpdateTodoTitle}
             onChangeTitle={onChangeTodoTitle}
@@ -56,7 +56,7 @@ export const TodoList: React.FC<Props> = ({
           onDelete={onDeleteTodo}
           isStatusUpdating={isStatusUpdating}
           onUpdateStatus={onUpdateTodoStatus}
-          isTitleUpdating={isTitleUpdating}
+          isTitleUpdating={titleUpdatingTodoId ? true : false}
           editedTitleValue={editedTitleValue}
           onUpdateTitle={onUpdateTodoTitle}
           onChangeTitle={onChangeTodoTitle}

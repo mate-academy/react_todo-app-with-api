@@ -21,7 +21,9 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isStatusUpdating, setIsStatusUpdating] = useState(false);
-  const [isTitleUpdating, setIsTitleUpdating] = useState(false);
+  const [titleUpdatingTodoId, setTitleUpdatingTodoId] = useState<number | null>(
+    null,
+  );
   const [editedTitleValue, setEditedTitleValue] = useState('');
 
   useEffect(() => {
@@ -188,7 +190,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodoTitle = (todo: Todo) => () => {
-    setIsTitleUpdating(true);
+    setTitleUpdatingTodoId(todo.id);
     setEditedTitleValue(todo.title);
   };
 
@@ -222,7 +224,7 @@ export const App: React.FC = () => {
             onDeleteTodo={handleDeleteTodo}
             isStatusUpdating={isStatusUpdating}
             onUpdateTodoStatus={handleUpdateTodoStatus}
-            isTitleUpdating={isTitleUpdating}
+            titleUpdatingTodoId={titleUpdatingTodoId}
             editedTitleValue={editedTitleValue}
             onUpdateTodoTitle={handleUpdateTodoTitle}
             onChangeTodoTitle={handleChangeTodoTitle}
