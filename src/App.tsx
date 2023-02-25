@@ -29,7 +29,8 @@ export const App: React.FC = () => {
   const activeTodosAmount = todos.filter(todo => !todo.completed).length;
   const isCompletedTodos = todos.some(todo => todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
-  const isAllCompleted = todos.length === completedTodos.length;
+  const isAllCompleted = (
+    todos.length === completedTodos.length && todos.length > 0);
 
   const autoCloseNotification = useCallback(() => {
     setTimeout(() => {
@@ -48,11 +49,12 @@ export const App: React.FC = () => {
       const data = await getTodos(USER_ID);
 
       setTodos(data);
-      setIsLoading(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
       addErrorMessage(ErrorType.GET);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -186,12 +188,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {errorType && (
-        <Notification
-          errorType={errorType}
-          onCloseNotification={handleCloseNotification}
-        />
-      )}
+      <Notification
+        errorType={errorType}
+        onCloseNotification={handleCloseNotification}
+      />
     </div>
   );
 };
