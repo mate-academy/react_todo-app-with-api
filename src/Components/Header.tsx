@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 import { ErrorMessages } from '../types/ErrorMessages';
 
 interface HeaderPropsType {
-  todos: Todo[],
   handleAddTodo: (inputQuery: string) => void,
   showError: (errorMessage: ErrorMessages) => void,
-  toggleAllTodos: () => void,
+  handleToggleAllTodos: () => void,
+  isAllTodosCompleted: boolean,
 }
 
 export const Header: React.FC<HeaderPropsType> = ({
-  todos,
   handleAddTodo,
   showError,
-  toggleAllTodos,
+  handleToggleAllTodos,
+  isAllTodosCompleted,
 }) => {
-  const isActive = todos.filter(todo => !todo.completed);
   const [inputTitle, setInputTitle] = useState('');
 
   const handleOnSubmit = () => {
@@ -34,10 +32,10 @@ export const Header: React.FC<HeaderPropsType> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: isActive },
+          { active: isAllTodosCompleted },
         )}
         aria-label="Add todo"
-        onClick={() => toggleAllTodos()}
+        onClick={handleToggleAllTodos}
       />
       <form
         onSubmit={handleOnSubmit}

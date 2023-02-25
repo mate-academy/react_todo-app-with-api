@@ -6,14 +6,24 @@ interface FooterPropsType {
   todosToShow: Todo[],
   selectedStatus: string,
   setSelectedStatus: (selectedStatus: string) => void,
+  clearCompletedTodos: () => void,
+  setIsAllTodosCompleted: (isAllTodosCompleted: boolean) => void,
 }
 
 export const Footer: React.FC<FooterPropsType> = ({
   todosToShow,
   selectedStatus,
   setSelectedStatus,
+  clearCompletedTodos,
+  setIsAllTodosCompleted,
 }) => {
   const todoLeft = todosToShow.filter(todo => !todo.completed).length;
+  const isAnyCompleted = todosToShow.some(todo => todo.completed);
+
+  const handleClearCompletedTodos = () => {
+    clearCompletedTodos();
+    setIsAllTodosCompleted(false);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -54,9 +64,16 @@ export const Footer: React.FC<FooterPropsType> = ({
           Completed
         </a>
       </nav>
-      <button type="button" className="todoapp__clear-completed">
-        Clear completed
-      </button>
+
+      {isAnyCompleted && (
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={handleClearCompletedTodos}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };

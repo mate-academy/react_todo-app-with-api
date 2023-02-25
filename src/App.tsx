@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [errorMessage, setErrorMessage] = useState(ErrorMessages.NONE);
   const [hasError, setHasError] = useState(false);
+  const [isAllTodosCompleted, setIsAllTodosCompleted] = useState(false);
 
   const showError = (error: ErrorMessages) => {
     setHasError(true);
@@ -125,16 +126,47 @@ export const App: React.FC = () => {
     }
   };
 
+  const clearCompletedTodos = async () => {
+    const allCompletedTodos = todos.filter(todo => todo.completed);
+
+    const deleteCompletedTodos = async (todoId: number) => {
+      clearError();
+
+      try {
+        await deleteTodo(todoId);
+      } catch (error) {
+        showError(ErrorMessages.ONDELETE);
+      }
+    };
+
+    allCompletedTodos.forEach(todo => deleteCompletedTodos(todo.id));
+    fetchTodos();
+  };
+
+  useEffect(() => {
+    const isAllCompleted = todosToShow.every(todo => todo.completed);
+
+    if (isAllCompleted) {
+      setIsAllTodosCompleted(true);
+    } else {
+      setIsAllTodosCompleted(false);
+    }
+  }, [todosToShow]);
+
+  const handleToggleAllTodos = () => {
+    toggleAllTodos();
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
           handleAddTodo={handleAddTodo}
           showError={showError}
-          toggleAllTodos={toggleAllTodos}
+          handleToggleAllTodos={handleToggleAllTodos}
+          isAllTodosCompleted={isAllTodosCompleted}
         />
         <TodoList
           todosToShow={todosToShow}
@@ -146,6 +178,8 @@ export const App: React.FC = () => {
             todosToShow={todosToShow}
             selectedStatus={selectedStatus}
             setSelectedStatus={setSelectedStatus}
+            clearCompletedTodos={clearCompletedTodos}
+            setIsAllTodosCompleted={setIsAllTodosCompleted}
           />
         )}
       </div>
