@@ -200,7 +200,44 @@ export const App: React.FC = () => {
     setEditedTitleValue(value);
   };
 
-  const handleSubmitUpdatedTodoTitle = () => {};
+  const handleSubmitUpdatedTodoTitle =
+    (todo: Todo) => (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if (!editedTitleValue.trim()) {
+        setError(new Error("Title can't be empty"));
+        deleteErrorMessageAfterDelay(3000);
+
+        return;
+      }
+
+      const updatedTodo = {
+        ...todo,
+        title: editedTitleValue.trim(),
+      };
+
+      setTitleUpdatingTodoId(todo.id);
+
+      updateTodo(updatedTodo)
+        .then(() => {
+          setTodos((prevTodos) => {
+            return prevTodos.map((t) => {
+              if (t.id === updatedTodo.id) {
+                return updatedTodo;
+              }
+
+              return t;
+            });
+          });
+
+          setTitleUpdatingTodoId(null);
+        })
+        .catch(() => {
+          setTitleUpdatingTodoId(null);
+          setError(new Error('Unable to update a todo'));
+          deleteErrorMessageAfterDelay(3000);
+        });
+    };
 
   return (
     <div className="todoapp">

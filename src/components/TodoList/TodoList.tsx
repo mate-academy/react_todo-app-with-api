@@ -12,7 +12,9 @@ type Props = {
   editedTitleValue: string;
   onUpdateTodoTitle: (todo: Todo) => () => void;
   onChangeTodoTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmitUpdatedTodoTitle: () => void;
+  onSubmitUpdatedTodoTitle: (
+    todo: Todo,
+  ) => (e: React.FormEvent<HTMLFormElement>) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -39,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
             onDelete={onDeleteTodo}
             isStatusUpdating={isStatusUpdating}
             onUpdateStatus={onUpdateTodoStatus}
-            isTitleUpdating={titleUpdatingTodoId === todo.id ? true : false}
+            isTitleUpdating={titleUpdatingTodoId === todo.id}
             editedTitleValue={editedTitleValue}
             onUpdateTitle={onUpdateTodoTitle}
             onChangeTitle={onChangeTodoTitle}
@@ -56,7 +58,7 @@ export const TodoList: React.FC<Props> = ({
           onDelete={onDeleteTodo}
           isStatusUpdating={isStatusUpdating}
           onUpdateStatus={onUpdateTodoStatus}
-          isTitleUpdating={titleUpdatingTodoId ? true : false}
+          isTitleUpdating={!!titleUpdatingTodoId}
           editedTitleValue={editedTitleValue}
           onUpdateTitle={onUpdateTodoTitle}
           onChangeTitle={onChangeTodoTitle}

@@ -13,7 +13,9 @@ type Props = {
   editedTitleValue: string;
   onUpdateTitle: (todo: Todo) => () => void;
   onChangeTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmitUpdatedTitle: () => void;
+  onSubmitUpdatedTitle: (
+    todo: Todo,
+  ) => (e: React.FormEvent<HTMLFormElement>) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -56,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       {isTitleUpdating && (
-        <form onSubmit={onSubmitUpdatedTitle}>
+        <form onSubmit={onSubmitUpdatedTitle(todo)}>
           <input
             type="text"
             className="todoapp__new-todo"
