@@ -15,7 +15,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   onDeleteTodo,
   isDeleting,
-  onUpdateTodoStatus: onUpdateTodoStatus,
+  onUpdateTodoStatus,
   isUpdating,
 }) => {
   return (
