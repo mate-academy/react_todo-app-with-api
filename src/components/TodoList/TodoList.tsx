@@ -4,19 +4,29 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  onDeleteTodo: (todoId: number) => () => void;
   isDeleting: boolean;
-  onUpdateTodoStatus: (todo: Todo) => () => void;
+  onDeleteTodo: (todoId: number) => () => void;
   isStatusUpdating: boolean;
+  onUpdateTodoStatus: (todo: Todo) => () => void;
+  isTitleUpdating: boolean;
+  editedTitleValue: string;
+  onUpdateTodoTitle: (todo: Todo) => () => void;
+  onChangeTodoTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmitUpdatedTodoTitle: () => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  onDeleteTodo,
   isDeleting,
-  onUpdateTodoStatus,
+  onDeleteTodo,
   isStatusUpdating,
+  onUpdateTodoStatus,
+  isTitleUpdating,
+  editedTitleValue,
+  onUpdateTodoTitle,
+  onChangeTodoTitle,
+  onSubmitUpdatedTodoTitle,
 }) => {
   return (
     <section className="todoapp__main">
@@ -29,6 +39,11 @@ export const TodoList: React.FC<Props> = ({
             onDelete={onDeleteTodo}
             isStatusUpdating={isStatusUpdating}
             onUpdateStatus={onUpdateTodoStatus}
+            isTitleUpdating={isTitleUpdating}
+            editedTitleValue={editedTitleValue}
+            onUpdateTitle={onUpdateTodoTitle}
+            onChangeTitle={onChangeTodoTitle}
+            onSubmitUpdatedTitle={onSubmitUpdatedTodoTitle}
           />
         );
       })}
@@ -41,6 +56,11 @@ export const TodoList: React.FC<Props> = ({
           onDelete={onDeleteTodo}
           isStatusUpdating={isStatusUpdating}
           onUpdateStatus={onUpdateTodoStatus}
+          isTitleUpdating={isTitleUpdating}
+          editedTitleValue={editedTitleValue}
+          onUpdateTitle={onUpdateTodoTitle}
+          onChangeTitle={onChangeTodoTitle}
+          onSubmitUpdatedTitle={onSubmitUpdatedTodoTitle}
         />
       )}
     </section>

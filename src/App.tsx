@@ -21,6 +21,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isStatusUpdating, setIsStatusUpdating] = useState(false);
+  const [isTitleUpdating, setIsTitleUpdating] = useState(false);
+  const [editedTitleValue, setEditedTitleValue] = useState('');
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -79,14 +81,12 @@ export const App: React.FC = () => {
     return !todo.completed ? acc + 1 : acc;
   }, 0);
 
-  const handleTodoSelection = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    setTodoSelector(event.currentTarget.textContent);
+  const handleTodoSelection = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setTodoSelector(e.currentTarget.textContent);
   };
 
-  const handleTodoInputChanging = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const { value } = event.target;
+  const handleTodoInputChanging = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
 
     setInputValue(value);
   };
@@ -187,6 +187,19 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleUpdateTodoTitle = (todo: Todo) => () => {
+    setIsTitleUpdating(true);
+    setEditedTitleValue(todo.title);
+  };
+
+  const handleChangeTodoTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    setEditedTitleValue(value);
+  };
+
+  const handleSubmitUpdatedTodoTitle = () => {};
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -205,10 +218,15 @@ export const App: React.FC = () => {
           <TodoList
             tempTodo={tempTodo}
             todos={visibleTodos}
-            onDeleteTodo={handleDeleteTodo}
             isDeleting={isDeleting}
-            onUpdateTodoStatus={handleUpdateTodoStatus}
+            onDeleteTodo={handleDeleteTodo}
             isStatusUpdating={isStatusUpdating}
+            onUpdateTodoStatus={handleUpdateTodoStatus}
+            isTitleUpdating={isTitleUpdating}
+            editedTitleValue={editedTitleValue}
+            onUpdateTodoTitle={handleUpdateTodoTitle}
+            onChangeTodoTitle={handleChangeTodoTitle}
+            onSubmitUpdatedTodoTitle={handleSubmitUpdatedTodoTitle}
           />
         )}
 
