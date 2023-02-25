@@ -22,40 +22,21 @@ export const Footer: React.FC<Props> = React.memo(({
       {`${numberOfNotCompletedTodos} items left`}
     </span>
 
-    {/* Active filter should have a 'selected' class */}
     <nav className="filter">
-      <a
-        href="#/"
-        className={cn('filter__link', {
-          selected: filterBy === FilterType.ALL,
-        })}
-        onClick={() => setFilterBy(FilterType.ALL)}
-      >
-        All
-      </a>
-
-      <a
-        href="#/active"
-        className={cn('filter__link', {
-          selected: filterBy === FilterType.ACTIVE,
-        })}
-        onClick={() => setFilterBy(FilterType.ACTIVE)}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={cn('filter__link', {
-          selected: filterBy === FilterType.COMPLETED,
-        })}
-        onClick={() => setFilterBy(FilterType.COMPLETED)}
-      >
-        Completed
-      </a>
+      {Object.values(FilterType).map((type) => (
+        <a
+          key={type}
+          href={`#/${type}`}
+          className={cn('filter__link', {
+            selected: filterBy === type,
+          })}
+          onClick={() => setFilterBy(type)}
+        >
+          {type}
+        </a>
+      ))}
     </nav>
 
-    {/* don't show this button if there are no completed todos */}
     <button
       type="button"
       className="todoapp__clear-completed"

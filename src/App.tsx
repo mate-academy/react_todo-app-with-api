@@ -36,7 +36,8 @@ export const App: React.FC = () => {
   const [todosWithLoader, setTodosWithLoader] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const [errorMessage, setErrorMessage] = useState(ErrorMessages.NONE);
+  const [errorMessage, setErrorMessage]
+  = useState<ErrorMessages>(ErrorMessages.NONE);
 
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
 
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
   ), [todos, filterBy]);
 
   const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed === true)
+    todos.filter(todo => todo.completed)
   ), [todos]);
 
   const numberOfNotCompletedTodos = todos.length - completedTodos.length;
@@ -53,6 +54,7 @@ export const App: React.FC = () => {
   const isClearAllButtonVisible = Boolean(!completedTodos.length);
   const isToogleButtonVisible = Boolean(!numberOfNotCompletedTodos);
   const isSubmitButtonDisabled = Boolean(tempTodo?.title.length);
+  const isTodoListVisible = Boolean(todos.length > 0);
 
   const addErrorMessage = useCallback((newMessage: ErrorMessages) => {
     setErrorMessage(newMessage);
@@ -140,7 +142,7 @@ export const App: React.FC = () => {
       addErrorMessage(ErrorMessages.DELETE_COMPLETED);
     } finally {
       setTodosWithLoader(currentTodos => (
-        currentTodos.filter(todo => todo.completed !== true)
+        currentTodos.filter(todo => !todo.completed)
       ));
     }
   }, [completedTodos]);
@@ -217,25 +219,23 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        {todos.length && (
-          <>
-            <Header
-              addNewTodo={addNewTodo}
-              addErrorMessage={addErrorMessage}
-              isSubmitButtonDisabled={isSubmitButtonDisabled}
-              toggleStatusForAllTodos={toggleStatusForAllTodos}
-              isToogleButtonVisible={isToogleButtonVisible}
-            />
+        <Header
+          addNewTodo={addNewTodo}
+          addErrorMessage={addErrorMessage}
+          isSubmitButtonDisabled={isSubmitButtonDisabled}
+          toggleStatusForAllTodos={toggleStatusForAllTodos}
+          isToogleButtonVisible={isToogleButtonVisible}
+        />
 
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              removeTodo={removeTodo}
-              changeStatus={changeStatus}
-              changeTitle={changeTitle}
-              todosWithLoader={todosWithLoader}
-            />
-          </>
+        {isTodoListVisible && (
+          <TodoList
+            todos={visibleTodos}
+            tempTodo={tempTodo}
+            removeTodo={removeTodo}
+            changeStatus={changeStatus}
+            changeTitle={changeTitle}
+            todosWithLoader={todosWithLoader}
+          />
         )}
 
         <Footer
