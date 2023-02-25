@@ -6,7 +6,7 @@ type Props = {
   onDelete: (todoId: number) => () => void;
   isDeleting: boolean;
   onUpdateStatus: (todo: Todo) => () => void;
-  isUpdating: boolean;
+  isStatusUpdating: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -14,7 +14,7 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   isDeleting,
   onUpdateStatus,
-  isUpdating,
+  isStatusUpdating,
 }) => {
   return (
     <div key={todo.id} className={cn('todo', { completed: todo.completed })}>
@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being updated */}
       <div className="modal overlay">
         <div className="modal-background has-background-white-ter" />
-        {(isDeleting || isUpdating) && <div className="loader" />}
+        {(isDeleting || isStatusUpdating) && <div className="loader" />}
       </div>
     </div>
   );

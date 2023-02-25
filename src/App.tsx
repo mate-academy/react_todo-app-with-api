@@ -2,9 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { TodoSelector } from './types/TodoSelector';
-import {
-  deleteTodo, getTodos, postTodo, updateTodo,
-} from './api/todos';
+import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -22,7 +20,7 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -48,9 +46,9 @@ export const App: React.FC = () => {
   };
 
   const getVisibleTodos = () => {
-    const needsToFilter
-      = todoSelector === TodoSelector.ACTIVE
-      || todoSelector === TodoSelector.COMPLETED;
+    const needsToFilter =
+      todoSelector === TodoSelector.ACTIVE ||
+      todoSelector === TodoSelector.COMPLETED;
 
     if (!needsToFilter) {
       return todos;
@@ -148,7 +146,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodoStatus = (updatedTodo: Todo) => () => {
-    setIsUpdating(true);
+    setIsStatusUpdating(true);
 
     updateTodo(updatedTodo)
       .then(() => {
@@ -162,10 +160,10 @@ export const App: React.FC = () => {
           });
         });
 
-        setIsUpdating(false);
+        setIsStatusUpdating(false);
       })
       .catch(() => {
-        setIsUpdating(false);
+        setIsStatusUpdating(false);
         setError(new Error('Unable to update a todo'));
         deleteErrorMessageAfterDelay(3000);
       });
@@ -210,7 +208,7 @@ export const App: React.FC = () => {
             onDeleteTodo={handleDeleteTodo}
             isDeleting={isDeleting}
             onUpdateTodoStatus={handleUpdateTodoStatus}
-            isUpdating={isUpdating}
+            isStatusUpdating={isStatusUpdating}
           />
         )}
 
