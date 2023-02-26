@@ -18,8 +18,8 @@ type Props = {
     todo: Todo,
   ) => (
     e:
-    | React.FormEvent<HTMLFormElement>
-    | React.FocusEvent<HTMLInputElement, Element>,
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement, Element>,
   ) => void;
 };
 
@@ -78,7 +78,9 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being updated */}
       <div className="modal overlay">
         <div className="modal-background has-background-white-ter" />
-        {(isDeleting || isStatusUpdating) && <div className="loader" />}
+        {(isDeleting || isStatusUpdating || isTitleUpdating) && (
+          <div className="loader" />
+        )}
       </div>
     </div>
   );
