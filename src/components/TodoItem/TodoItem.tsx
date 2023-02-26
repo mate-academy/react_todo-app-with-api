@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/no-autofocus */
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -62,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({
           <input
             type="text"
             className="todoapp__new-todo"
-            placeholder="What needs to be done?"
+            autoFocus
             value={editedTitleValue}
             onChange={onChangeTitle}
           />
