@@ -39,6 +39,19 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setTitleUpdatingTodoId(null);
+      }
+    };
+    window.addEventListener('keyup', handleEsc);
+
+    return () => {
+      window.removeEventListener('keyup', handleEsc);
+    };
+  }, []);
+
   const deleteErrorMessage = () => {
     setError(null);
   };
