@@ -47,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {!isTitleUpdating && (
-        <span className="todo__title" onClick={onUpdateTitle(todo)}>
+        <span className="todo__title" onDoubleClick={onUpdateTitle(todo)}>
           {todo.title}
         </span>
       )}
