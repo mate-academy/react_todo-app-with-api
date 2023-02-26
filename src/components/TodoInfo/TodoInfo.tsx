@@ -9,7 +9,7 @@ type Props = {
   activeTodoId: number[],
   hendeleCheckboxChange: (id: number, completed: boolean) => void,
   editTodo: (id: number, newTitle: string) => void,
-  isUpdatedTodo: boolean,
+  updatedTodoID: number[],
 };
 
 export const TodoInfo: React.FC<Props> = React.memo(({
@@ -19,11 +19,11 @@ export const TodoInfo: React.FC<Props> = React.memo(({
   activeTodoId,
   hendeleCheckboxChange,
   editTodo,
-  isUpdatedTodo,
+  updatedTodoID,
 }) => {
   const { title, completed, id } = todoList;
   const isSpinerActive = deletedTodosId.includes(id)
-    || activeTodoId.includes(id);
+    || activeTodoId.includes(id) || updatedTodoID.includes(id);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
 
@@ -35,10 +35,10 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     }
   }, [isEditing]);
 
-  const handleSubmitEdit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitEdit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (newTitle.trim()) {
-      editTodo(id, newTitle);
+      await editTodo(id, newTitle);
     }
 
     if (newTitle.length === 0) {
@@ -121,7 +121,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
         className={classNames(
           'modal',
           'overlay',
-          { 'is-active': isSpinerActive || isUpdatedTodo },
+          { 'is-active': isSpinerActive },
         )}
       >
         <div className="modal-background has-background-white-ter" />

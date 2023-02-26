@@ -15,7 +15,7 @@ type Props = {
   onDelete: (id: number) => void,
   hendeleCheckboxChange: (id: number, completed: boolean) => void,
   editTodo: (id: number, newTitle: string) => void,
-  isUpdatedTodo: boolean,
+  updatedTodoID: number[],
 };
 
 export const TodoList: React.FC<Props> = React.memo(
@@ -28,7 +28,7 @@ export const TodoList: React.FC<Props> = React.memo(
     activeTodoId,
     hendeleCheckboxChange,
     editTodo,
-    isUpdatedTodo,
+    updatedTodoID,
   }) => {
     return (
       <section className="todoapp__main" data-cy="TodoList">
@@ -47,7 +47,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 activeTodoId={activeTodoId}
                 hendeleCheckboxChange={hendeleCheckboxChange}
                 editTodo={editTodo}
-                isUpdatedTodo={isUpdatedTodo}
+                updatedTodoID={updatedTodoID}
               />
             </CSSTransition>
           ))}
@@ -66,7 +66,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 activeTodoId={activeTodoId}
                 hendeleCheckboxChange={hendeleCheckboxChange}
                 editTodo={editTodo}
-                isUpdatedTodo={isUpdatedTodo}
+                updatedTodoID={updatedTodoID}
               />
             </CSSTransition>
           )}

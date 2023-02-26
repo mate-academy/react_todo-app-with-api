@@ -7,21 +7,24 @@ import {
 } from 'react';
 import { AuthContext } from '../Auth/AuthContext';
 import { Todo } from '../../types/Todo';
+import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   isUploadError: boolean,
   onAdd: (todo: Todo) => void,
-  setIsEmptyTitle: (title: boolean) => void,
   isTodoLoading: boolean,
   toggleAll: () => void,
+  setError: (value: ErrorType) => void,
+  setIsError: (value: boolean) => void
 };
 
 export const NewTodoField: React.FC<Props> = ({
   isUploadError,
   onAdd,
-  setIsEmptyTitle,
   isTodoLoading,
   toggleAll,
+  setError,
+  setIsError,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
@@ -41,7 +44,8 @@ export const NewTodoField: React.FC<Props> = ({
       onAdd(newTodo);
       setNewTodoTitle('');
     } else {
-      setIsEmptyTitle(true);
+      setError(ErrorType.EmptyTitle);
+      setIsError(true);
     }
   };
 

@@ -19,5 +19,5 @@ export const patchTodo = (todoId: number, completed: boolean) => {
 };
 
 export const updateTodo = (todoId: number, updateData: Partial<Todo>) => {
-  client.patch(`/todos/${todoId}`, updateData);
+  return client.patch(`/todos/${todoId}`, updateData);
 };

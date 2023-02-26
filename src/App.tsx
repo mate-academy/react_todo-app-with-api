@@ -17,20 +17,23 @@ import { NewTodoField } from './components/NewTodoField/NewTodoField';
 import { TodoFilters } from './components/TodoFilters/TodoFilters';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
+import {
+  ErrorNotification,
+} from './components/ErrorNotification/ErrorNotification';
+import { ErrorType } from './types/ErrorType';
 
 export const App: React.FC = () => {
-  const [isLoadError, setIsLoadError] = useState(false);
   const [isUploadError, setIsUploadError] = useState(false);
-  const [isRemoveError, setIsRemoveError] = useState(false);
+  const [error, setError] = useState(ErrorType.None);
+  const [isError, setIsError] = useState(false);
+
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filtredTodos, setFiltredTodos] = useState<Todo[]>([]);
-  const [isEmptyTitle, setIsEmptyTitle] = useState(false);
   const [isTodoLoading, setIsTodoLoading] = useState(false);
-  const [isUpdatedError, setIsUpdatedError] = useState(false);
   const [deletedTodosId, setDeletedTodosId] = useState<number[]>([]);
   const [activeTodoId, setActiveTodoId] = useState<number[]>([]);
-  const [isUpdatedTodo, setIsUpdatedTodo] = useState(false);
+  const [updatedTodoID, setUpdatedTodoID] = useState<number[]>([]);
 
   const user = useContext(AuthContext);
 
@@ -41,33 +44,36 @@ export const App: React.FC = () => {
 
         setTodos(getTodosFromServer);
       }
-    } catch (error) {
-      setIsLoadError(true);
+    } catch (e) {
+      setError(ErrorType.LoadError);
+      setIsError(true);
     }
   };
 
   const uploadTodosOnServer = async (todo: Todo) => {
     if (user) {
+      setIsTodoLoading(true);
+
       try {
-        setIsTodoLoading(true);
         setActiveTodoId([0]);
         setTempTodo(todo);
-
         const newTodo = await createTodo({
           title: todo.title,
           userId: todo.userId,
           completed: false,
         });
 
-        setTodos(prevTodos => [...prevTodos, newTodo]);
-        setIsTodoLoading(false);
         setTempTodo(null);
+        setTodos(prevTodos => [...prevTodos, newTodo]);
         setActiveTodoId([]);
+        setIsTodoLoading(false);
       } catch {
         setIsUploadError(true);
         setTodos(todos);
         setTempTodo(null);
         setIsTodoLoading(false);
+        setError(ErrorType.UploadError);
+        setIsError(true);
       }
     }
   };
@@ -82,7 +88,8 @@ export const App: React.FC = () => {
 
       setTodos(visibleTodos);
     } catch {
-      setIsRemoveError(true);
+      setError(ErrorType.RemoveError);
+      setIsError(true);
     }
 
     setDeletedTodosId([]);
@@ -100,13 +107,14 @@ export const App: React.FC = () => {
     setTodos(updatedTodos);
 
     try {
+      setUpdatedTodoID(prevIds => [...prevIds, id]);
       await updateTodo(id, { title: newTitle });
-      setIsUpdatedTodo(true);
     } catch {
-      setIsUpdatedError(true);
+      setError(ErrorType.UpdatedError);
+      setIsError(true);
     }
 
-    setIsUpdatedTodo(false);
+    setUpdatedTodoID([]);
   };
 
   const clearCompleted = async () => {
@@ -130,8 +138,6 @@ export const App: React.FC = () => {
 
   const hendeleCheckboxChange = async (id: number, completed: boolean) => {
     try {
-      setIsUpdatedError(false);
-
       await updateTodo(id, { completed: !completed });
 
       const checkedTodoList = todos.map(todo => {
@@ -144,7 +150,8 @@ export const App: React.FC = () => {
 
       setTodos(checkedTodoList);
     } catch {
-      setIsUpdatedError(true);
+      setError(ErrorType.UpdatedError);
+      setIsError(true);
     }
   };
 
@@ -173,22 +180,14 @@ export const App: React.FC = () => {
         });
       }
     } catch {
-      setIsUpdatedError(true);
+      setError(ErrorType.UpdatedError);
+      setIsError(true);
     }
   };
 
   useEffect(() => {
     loadTodosFromServer();
   }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoadError(false);
-      setIsEmptyTitle(false);
-    }, 3000);
-
-    clearTimeout(timer);
-  }, [isLoadError, isEmptyTitle]);
 
   return (
     <div className="todoapp">
@@ -199,7 +198,8 @@ export const App: React.FC = () => {
           onAdd={uploadTodosOnServer}
           toggleAll={toggleAll}
           isUploadError={isUploadError}
-          setIsEmptyTitle={setIsEmptyTitle}
+          setError={setError}
+          setIsError={setIsError}
           isTodoLoading={isTodoLoading}
         />
         <TodoList
@@ -211,7 +211,7 @@ export const App: React.FC = () => {
           onDelete={hendleRemoveTodo}
           hendeleCheckboxChange={hendeleCheckboxChange}
           editTodo={editTodo}
-          isUpdatedTodo={isUpdatedTodo}
+          updatedTodoID={updatedTodoID}
         />
         <TodoFilters
           todos={todos}
@@ -221,84 +221,12 @@ export const App: React.FC = () => {
         />
       </div>
 
-      {isLoadError && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setIsLoadError(false)}
-          />
-
-          Unable to load a todos
-        </div>
-      )}
-
-      {isEmptyTitle && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setIsEmptyTitle(false)}
-          />
-
-          Title can&apos;t be empty
-        </div>
-      )}
-
-      {isUploadError && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setIsUploadError(false)}
-          />
-
-          Unable to add a todo
-        </div>
-      )}
-
-      {isRemoveError && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setIsRemoveError(false)}
-          />
-
-          Unable to delete a todo
-        </div>
-      )}
-
-      {isUpdatedError && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setIsUpdatedError(false)}
-          />
-
-          Unable to update a todo
-        </div>
+      {isError && (
+        <ErrorNotification
+          error={error}
+          setIsError={setIsError}
+          isError={isError}
+        />
       )}
     </div>
   );
