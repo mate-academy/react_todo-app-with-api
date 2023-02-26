@@ -45,6 +45,7 @@ export const App: React.FC = () => {
         setTitleUpdatingTodoId(null);
       }
     };
+
     window.addEventListener('keyup', handleEsc);
 
     return () => {
@@ -224,6 +225,12 @@ export const App: React.FC = () => {
 
       if (editedTitleValue.trim() === todo.title) {
         setTitleUpdatingTodoId(null);
+
+        return;
+      }
+
+      if (!editedTitleValue.trim()) {
+        handleDeleteTodo(todo.id)();
 
         return;
       }
