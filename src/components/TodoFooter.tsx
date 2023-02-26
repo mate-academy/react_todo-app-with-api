@@ -1,17 +1,21 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
-export type Status = 'all' | 'active' | 'completed';
+export enum Status {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
 
 type Props = {
   todos: Todo[];
-  status: Status;
-  setStatus: (status: Status) => void;
+  todosStatus: Status;
+  setTodosStatus: (todosStatus: Status) => void;
   onClearCompleted: () => void;
 };
 
 export const ToDoFooter: React.FC<Props> = ({
-  todos, setStatus, status, onClearCompleted,
+  todos, setTodosStatus, todosStatus, onClearCompleted,
 }) => {
   const completedTodos = todos.filter(todo => todo.completed);
   const activeTodos = todos.filter(todo => !todo.completed);
@@ -24,14 +28,13 @@ export const ToDoFooter: React.FC<Props> = ({
         {`${activeTodos.length} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"
           className={classNames('filter__link', {
-            selected: status === 'all',
+            selected: todosStatus === Status.All,
           })}
-          onClick={() => setStatus('all')}
+          onClick={() => setTodosStatus(Status.All)}
         >
           All
         </a>
@@ -39,9 +42,9 @@ export const ToDoFooter: React.FC<Props> = ({
         <a
           href="#/active"
           className={classNames('filter__link', {
-            selected: status === 'active',
+            selected: todosStatus === Status.Active,
           })}
-          onClick={() => setStatus('active')}
+          onClick={() => setTodosStatus(Status.Active)}
         >
           Active
         </a>
@@ -49,15 +52,14 @@ export const ToDoFooter: React.FC<Props> = ({
         <a
           href="#/completed"
           className={classNames('filter__link', {
-            selected: status === 'completed',
+            selected: todosStatus === Status.Completed,
           })}
-          onClick={() => setStatus('completed')}
+          onClick={() => setTodosStatus(Status.Completed)}
         >
           Completed
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         data-cy="ClearCompletedButton"

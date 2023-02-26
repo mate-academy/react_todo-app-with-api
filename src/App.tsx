@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [status, setStatus] = useState<Status>('all');
+  const [todosStatus, setTodosStatus] = useState<Status>(Status.All);
   const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
 
   useEffect(() => {
@@ -104,21 +104,46 @@ export const App: React.FC = () => {
 
   let visibleTodos = todos;
 
-  if (status === 'active') {
+  if (todosStatus === Status.Active) {
     visibleTodos = todos.filter(todo => !todo.completed);
   }
 
-  if (status === 'completed') {
+  if (todosStatus === Status.Completed) {
     visibleTodos = todos.filter(todo => todo.completed);
   }
 
-  const completedTodos = todos.filter(td => td.completed);
+  const completedTodos = visibleTodos.filter(td => td.completed);
 
   const clearCompleted = () => {
     completedTodos.forEach(td => {
       deleteTodo(td.id);
     });
     setTodos(current => current.filter(todo => !todo.completed));
+  };
+
+  const hasUncompletedTodo = todos.some(todo => !todo.completed);
+  const hasAllTodosCompleted = todos.every(todo => todo.completed);
+
+  const toggleCompleteAllTodos = () => {
+    if (hasUncompletedTodo) {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          updateTodo({
+            ...todo,
+            completed: true,
+          });
+        }
+      });
+    }
+
+    if (hasAllTodosCompleted) {
+      todos.forEach(todo => {
+        updateTodo({
+          ...todo,
+          completed: false,
+        });
+      });
+    }
   };
 
   return (
@@ -130,6 +155,8 @@ export const App: React.FC = () => {
           onSubmit={handleSubmit}
           newTodoTitle={newTodoTitle}
           setNewTodoTitle={setNewTodoTitle}
+          hasUncompletedTodo={hasAllTodosCompleted}
+          toggleCompleteAllTodos={toggleCompleteAllTodos}
         />
 
         <TodoMain
@@ -142,8 +169,8 @@ export const App: React.FC = () => {
           <ToDoFooter
             onClearCompleted={clearCompleted}
             todos={todos}
-            status={status}
-            setStatus={setStatus}
+            todosStatus={todosStatus}
+            setTodosStatus={setTodosStatus}
           />
         )}
       </div>
