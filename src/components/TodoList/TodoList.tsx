@@ -16,8 +16,8 @@ type Props = {
     todo: Todo,
   ) => (
     e:
-      | React.FormEvent<HTMLFormElement>
-      | React.FocusEvent<HTMLInputElement, Element>,
+    | React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement, Element>,
   ) => void;
 };
 

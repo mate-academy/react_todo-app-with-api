@@ -2,7 +2,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import { TodoSelector } from './types/TodoSelector';
-import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodo, updateTodo,
+} from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -50,9 +52,9 @@ export const App: React.FC = () => {
   };
 
   const getVisibleTodos = () => {
-    const needsToFilter =
-      todoSelector === TodoSelector.ACTIVE ||
-      todoSelector === TodoSelector.COMPLETED;
+    const needsToFilter
+      = todoSelector === TodoSelector.ACTIVE
+      || todoSelector === TodoSelector.COMPLETED;
 
     if (!needsToFilter) {
       return todos;
@@ -200,12 +202,11 @@ export const App: React.FC = () => {
     setEditedTitleValue(value);
   };
 
-  const handleSubmitUpdatedTodoTitle =
-    (todo: Todo) =>
-    (
+  const handleSubmitUpdatedTodoTitle
+    = (todo: Todo) => (
       e:
-        | React.FormEvent<HTMLFormElement>
-        | React.FocusEvent<HTMLInputElement, Element>,
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement, Element>,
     ) => {
       e.preventDefault();
 
