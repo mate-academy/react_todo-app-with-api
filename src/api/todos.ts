@@ -25,4 +25,3 @@ export const updateTodo = (
 ) => {
   return client.patch(`/todos/${todoId}`, data);
 };
-// Add more methods here

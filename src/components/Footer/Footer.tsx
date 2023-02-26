@@ -6,6 +6,7 @@ type Props = {
   filterBy: FilterBy,
   setFilterBy: (FilterBy:FilterBy) => void,
   isActiveTodo: boolean,
+  todosAmount: number,
   clearCompleatedTodos: () => void,
 };
 
@@ -14,6 +15,7 @@ export const Footer: React.FC<Props> = (
     filterBy,
     setFilterBy,
     isActiveTodo,
+    todosAmount,
     clearCompleatedTodos,
   },
 ) => {
@@ -26,7 +28,7 @@ export const Footer: React.FC<Props> = (
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        3 items left
+        {`${todosAmount} items left`}
       </span>
 
       {/* Active filter should have a 'selected' class */}

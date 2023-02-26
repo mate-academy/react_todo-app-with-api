@@ -20,7 +20,8 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const isActiveTodo = todos.some((todo) => todo.completed === true);
+  const isActiveTodo = todos.some((todo) => todo.completed);
+  const todosAmount = todos.filter(todo => !todo.completed).length;
 
   const getTodoFromServer = async () => {
     try {
@@ -66,12 +67,15 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateTodoOnServer = async (todo: Todo) => {
+  const updateTodoOnServer = async (todo: Todo, changeStatus?: boolean) => {
     const todoId = todo.id;
     const todoCopy = {
       ...todo,
-      completed: !todo.completed,
     };
+
+    if (changeStatus === true) {
+      todoCopy.completed = !todo.completed;
+    }
 
     try {
       await updateTodo(todoId, todoCopy);
@@ -84,7 +88,7 @@ export const App: React.FC = () => {
 
   const updateAllTodos = async () => {
     todos.forEach(todo => {
-      updateTodoOnServer(todo);
+      updateTodoOnServer(todo, true);
     });
   };
 
@@ -94,6 +98,10 @@ export const App: React.FC = () => {
     completedTodos.forEach(todo => {
       removeTodoOnServer(todo.id);
     });
+  };
+
+  const clearErrorMessage = () => {
+    setErrorMessage('');
   };
 
   const visibleTodos = () => {
@@ -134,7 +142,7 @@ export const App: React.FC = () => {
           isTodosLoaded={isTodosLoaded}
         />
 
-        {!visibleTodos.length && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos()}
@@ -147,11 +155,18 @@ export const App: React.FC = () => {
               setFilterBy={setFilterBy}
               isActiveTodo={isActiveTodo}
               clearCompleatedTodos={clearCompleatedTodos}
+              todosAmount={todosAmount}
             />
           </>
         )}
       </div>
-      <Notification errorMessage={errorMessage} />
+      {errorMessage
+      && (
+        <Notification
+          errorMessage={errorMessage}
+          clearErrorMessage={clearErrorMessage}
+        />
+      ) }
     </div>
   );
 };
