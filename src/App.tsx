@@ -201,7 +201,12 @@ export const App: React.FC = () => {
   };
 
   const handleSubmitUpdatedTodoTitle =
-    (todo: Todo) => (e: React.FormEvent<HTMLFormElement>) => {
+    (todo: Todo) =>
+    (
+      e:
+        | React.FormEvent<HTMLFormElement>
+        | React.FocusEvent<HTMLInputElement, Element>,
+    ) => {
       e.preventDefault();
 
       if (!editedTitleValue.trim()) {

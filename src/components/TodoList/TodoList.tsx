@@ -14,7 +14,11 @@ type Props = {
   onChangeTodoTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmitUpdatedTodoTitle: (
     todo: Todo,
-  ) => (e: React.FormEvent<HTMLFormElement>) => void;
+  ) => (
+    e:
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement, Element>,
+  ) => void;
 };
 
 export const TodoList: React.FC<Props> = ({

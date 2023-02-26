@@ -16,7 +16,11 @@ type Props = {
   onChangeTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmitUpdatedTitle: (
     todo: Todo,
-  ) => (e: React.FormEvent<HTMLFormElement>) => void;
+  ) => (
+    e:
+      | React.FormEvent<HTMLFormElement>
+      | React.FocusEvent<HTMLInputElement, Element>,
+  ) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -66,6 +70,7 @@ export const TodoItem: React.FC<Props> = ({
             autoFocus
             value={editedTitleValue}
             onChange={onChangeTitle}
+            onBlur={onSubmitUpdatedTitle(todo)}
           />
         </form>
       )}
