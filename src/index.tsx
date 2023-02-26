@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import './styles/index.scss';
 
 import { App } from './App';
-import { UserIdProvider } from './utils/context';
+import { UserIdProvider } from './contexts/AuthContext';
 
 createRoot(document.getElementById('root') as HTMLDivElement)
   .render(

@@ -1,34 +1,36 @@
 import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
-import { addTodos } from '../../api/todos';
+import { addTodoOnServer } from '../../api/todos';
+
+import { ErrorType } from '../../enums/ErrorType';
+
 import { Todo } from '../../types/Todo';
-import { TodoPost } from '../../types/TodoPost';
-import { ErrorMessage } from '../../types/ErrorMessage';
-import { UserIdContext } from '../../utils/context';
+import { TodoToPost } from '../../types/TodoToPost';
+import { UserIdContext } from '../../contexts/AuthContext';
 
 type Props = {
-  counterActiveTodos: number;
-  showError: (errorType: ErrorMessage) => void;
+  activeTodosNum: number;
+  showError: (errorType: ErrorType) => void;
   hideError: () => void;
-  showCreatingTodo: (creatingTodoTitle: string) => void;
-  addNewTodo: (newTodo: Todo) => void;
+  showTempTodo: (tempTodoTitle: string) => void;
+  onAddNewTodo: (newTodo: Todo) => void;
   onToggleTodosStatus: () => void;
 };
 
-export const Header: React.FC<Props> = React.memo(({
-  counterActiveTodos,
+export const TodoHeader: React.FC<Props> = React.memo(({
+  activeTodosNum,
   showError,
   hideError,
-  showCreatingTodo,
-  addNewTodo,
+  showTempTodo,
+  onAddNewTodo,
   onToggleTodosStatus,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [hasInputDisabled, setHasInputDisabled] = useState(false);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const userId = useContext(UserIdContext);
 
-  const handleAddingNewTodo = async (
+  const handleAddNewTodo = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -36,32 +38,33 @@ export const Header: React.FC<Props> = React.memo(({
     const title = newTodoTitle.trim();
 
     if (!title) {
-      showError(ErrorMessage.EmptyTitle);
+      showError(ErrorType.EmptyTitle);
+      setNewTodoTitle('');
 
       return;
     }
 
     hideError();
-    showCreatingTodo(title);
+    showTempTodo(title);
 
-    setHasInputDisabled(true);
+    setIsInputDisabled(true);
 
-    const newTodo: TodoPost = {
+    const newTodo: TodoToPost = {
       userId,
       title,
       completed: false,
     };
 
     try {
-      const createdTodo = await addTodos(userId, newTodo);
+      const createdTodo = await addTodoOnServer(userId, newTodo);
 
-      addNewTodo(createdTodo);
+      onAddNewTodo(createdTodo);
     } catch {
-      showError(ErrorMessage.Add);
+      showError(ErrorType.Add);
     } finally {
-      showCreatingTodo('');
+      showTempTodo('');
       setNewTodoTitle('');
-      setHasInputDisabled(false);
+      setIsInputDisabled(false);
     }
   };
 
@@ -70,20 +73,20 @@ export const Header: React.FC<Props> = React.memo(({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !counterActiveTodos,
+          active: !activeTodosNum,
         })}
         onClick={onToggleTodosStatus}
         aria-label="Toggle all todos"
       />
 
-      <form onSubmit={handleAddingNewTodo}>
+      <form onSubmit={handleAddNewTodo}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={newTodoTitle}
           onChange={(event) => setNewTodoTitle(event.target.value)}
-          disabled={hasInputDisabled}
+          disabled={isInputDisabled}
         />
       </form>
     </header>

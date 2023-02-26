@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+
+import { deleteTodoOnServer, updateTodoOnServer } from '../../api/todos';
+
+import { ErrorType } from '../../enums/ErrorType';
 import { Todo } from '../../types/Todo';
-import { deleteTodos, updateTodoOnServer } from '../../api/todos';
-import { ErrorMessage } from '../../types/ErrorMessage';
-import { ChangeFunction } from '../../types/ChangeFunction';
+import { OnChangeFunc } from '../../types/OnChangeFunc';
 
 type Props = {
   todo: Todo;
   isLoading: boolean;
   onDeleteTodo?: (todoId: number) => void;
-  onChangeTodo?: ChangeFunction;
-  showError?: (errorType: ErrorMessage) => void;
+  onChangeTodo?: OnChangeFunc;
+  showError?: (errorType: ErrorType) => void;
   hideError?: () => void;
 };
 
@@ -22,36 +24,37 @@ export const TodoItem: React.FC<Props> = React.memo(({
   showError = () => {},
   hideError = () => {},
 }) => {
-  const { title, completed, id } = todo;
+  const { id, title, completed } = todo;
 
-  const [isEdited, setIsEdit] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [isEditAllowed, setIsEditAllowed] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
 
   const editFormRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (editFormRef.current && isEdited) {
+    if (editFormRef.current && isEditAllowed) {
       editFormRef.current.focus();
     }
-  }, [isEdited]);
+  }, [isEditAllowed]);
 
   const handleDeleteTodo = async (onError?: () => void) => {
     hideError();
     setIsWaiting(true);
 
     try {
-      await deleteTodos(id);
+      await deleteTodoOnServer(id);
+
       onDeleteTodo(id);
     } catch {
-      showError(ErrorMessage.Delete);
+      showError(ErrorType.Delete);
       setIsWaiting(false);
 
       onError?.();
     }
   };
 
-  const handleChangeTodo: ChangeFunction = async (
+  const handleChangeTodo: OnChangeFunc = async (
     todoId,
     propName,
     newPropValue,
@@ -65,7 +68,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
       onChangeTodo(todoId, propName, newPropValue);
     } catch {
-      showError(ErrorMessage.Update);
+      showError(ErrorType.Update);
 
       onError?.();
     } finally {
@@ -80,7 +83,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const handleTitleChange = () => {
     const newTitle = editedTitle.trim();
 
-    setIsEdit(false);
+    setIsEditAllowed(false);
     setEditedTitle(newTitle);
 
     if (newTitle === title) {
@@ -107,7 +110,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       return;
     }
 
-    setIsEdit(false);
+    setIsEditAllowed(false);
     setEditedTitle(title);
   };
 
@@ -126,59 +129,58 @@ export const TodoItem: React.FC<Props> = React.memo(({
         />
       </label>
 
-      {isEdited
-        ? (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleTitleChange();
+      {isEditAllowed ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            handleTitleChange();
+          }}
+        >
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            onChange={(event) => setEditedTitle(event.target.value)}
+            onBlur={handleTitleChange}
+            onKeyUp={cancelTitleChange}
+            ref={editFormRef}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label="Press Enter to edit the title"
+            className="todo__title"
+            onKeyUp={(event) => {
+              if (event.key !== 'Enter') {
+                return;
+              }
+
+              setIsEditAllowed(true);
             }}
+            onDoubleClick={() => setIsEditAllowed(true)}
           >
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={editedTitle}
-              onChange={(event) => setEditedTitle(event.target.value)}
-              onBlur={handleTitleChange}
-              onKeyUp={cancelTitleChange}
-              ref={editFormRef}
-            />
-          </form>
-        )
-        : (
-          <>
-            <span
-              role="button"
-              tabIndex={0}
-              aria-label="Press Enter to edit the title"
-              className="todo__title"
-              onKeyUp={(event) => {
-                if (event.key !== 'Enter') {
-                  return;
-                }
+            {title}
+          </span>
 
-                setIsEdit(true);
-              }}
-              onDoubleClick={() => setIsEdit(true)}
-            >
-              {title}
-            </span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => handleDeleteTodo()}
-              aria-label="Press Enter to delete the todo"
-            >
-              {'\u00d7'}
-            </button>
-          </>
-        )}
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => handleDeleteTodo()}
+            aria-label="Press Enter to delete the todo"
+          >
+            {'\u00d7'}
+          </button>
+        </>
+      )}
 
       <div
         className={classNames('modal', 'overlay', {
-          'is-active': isWaiting && isLoading,
+          'is-active': isLoading || isWaiting,
         })}
       >
         <div className="modal-background has-background-white-ter" />

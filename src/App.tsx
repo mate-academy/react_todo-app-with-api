@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useContext,
@@ -5,74 +6,75 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { deleteTodoOnServer, getTodos, updateTodoOnServer } from './api/todos';
+import { filterTodos } from './helpers/filterTodos';
 
-import { getTodos, deleteTodos, updateTodoOnServer } from './api/todos';
-import { Header } from './Components/Header';
-import { TodoList } from './Components/TodoList';
-import { Filter } from './Components/Filter';
-import { Error } from './Components/Error';
-import { Todo, TodoStatus } from './types/Todo';
-import { ErrorMessage } from './types/ErrorMessage';
-import { filterTodos } from './helpers/filterTodo';
-import { closeError } from './helpers/closeError';
-import { UserIdContext } from './utils/context';
-import { ChangeFunction } from './types/ChangeFunction';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { TodoFooter } from './components/TodoFooter';
+import { ErrorNotification } from './components/ErrorNotification';
+
+import { Todo } from './types/Todo';
+
+import { FilterType } from './enums/FilterType';
+import { ErrorType } from './enums/ErrorType';
+import { OnChangeFunc } from './types/OnChangeFunc';
+import { UserIdContext } from './contexts/AuthContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState(TodoStatus.All);
-  const [errorType, setErrorType] = useState(ErrorMessage.None);
-  const [creatingTodoTitle, setCreatingTodoTitle] = useState('');
-  const [isClearCompleted, setIsClearCompleted] = useState(false);
+  const [selectFilter, setSelectFilter] = useState<FilterType>(FilterType.All);
+  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
+  const [tempTodoTitle, setTempTodoTitle] = useState('');
   const [isAllToggled, setIsAllToggled] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [isClearCompleted, setIsClearCompleted] = useState(false);
 
   const userId = useContext(UserIdContext);
 
-  const getTodosFromServer = async () => {
+  const userTodos = async () => {
     try {
-      const userTodos = await getTodos(userId);
+      const loadedTodos = await getTodos(userId);
 
-      setTodos(userTodos);
+      setTodos(loadedTodos);
     } catch (error) {
-      setIsError(true);
-      closeError(setIsError, false, 3000);
+      setErrorType(ErrorType.Download);
     }
   };
 
   useEffect(() => {
-    getTodosFromServer();
+    userTodos();
   }, []);
 
-  const counterActiveTodos = useMemo(() => (
-    filterTodos(todos, TodoStatus.Active).length),
-  [todos]);
+  const activeTodosNum = useMemo(
+    () => filterTodos(todos, FilterType.Active).length,
+    [todos],
+  );
 
-  const counterCompletedTodos = todos.length - counterActiveTodos;
+  const counterCompletedTodos = todos.length - activeTodosNum;
 
-  const filteredTodos = useMemo(() => filterTodos(todos, selectedFilter),
-    [selectedFilter, todos]);
+  const filteredTodos = useMemo(() => filterTodos(todos, selectFilter),
+    [selectFilter, todos]);
 
-  const showError = useCallback((error: ErrorMessage) => {
+  const handleShowError = useCallback((error: ErrorType) => {
     setErrorType(error);
   }, []);
 
-  const hideError = useCallback(() => {
-    setErrorType(ErrorMessage.None);
+  const handleHideError = useCallback(() => {
+    setErrorType(ErrorType.None);
   }, []);
 
-  const addTodo = useCallback(
+  const handleAddTodo = useCallback(
     (newTodo: Todo) => setTodos((oldTodos) => [...oldTodos, newTodo]),
     [],
   );
 
-  const onDeleteTodo = useCallback((todoId: number) => {
+  const handleDeleteTodo = useCallback((todoId: number) => {
     setTodos((oldTodos) => {
       return oldTodos.filter(({ id }) => id !== todoId);
     });
   }, []);
 
-  const handleChangeTodo: ChangeFunction = useCallback(
+  const handleChangeTodo: OnChangeFunc = useCallback(
     (todoId, propName, newPropValue) => {
       setTodos((oldTodos) => {
         return oldTodos.map((todo) => {
@@ -91,13 +93,13 @@ export const App: React.FC = () => {
   );
 
   const handleToggleTodosStatus = useCallback(async () => {
-    const filterType = counterActiveTodos
-      ? TodoStatus.All
-      : TodoStatus.Active;
+    const filterType = activeTodosNum === 0
+      ? FilterType.All
+      : FilterType.Active;
     const todosToToggle = filterTodos(todos, filterType);
 
     setIsAllToggled(true);
-    hideError();
+    handleHideError();
 
     try {
       const todosIds = await Promise.all(
@@ -121,28 +123,28 @@ export const App: React.FC = () => {
         });
       });
     } catch {
-      showError(ErrorMessage.Update);
+      handleShowError(ErrorType.Update);
     } finally {
       setIsAllToggled(false);
     }
   }, [todos]);
 
-  const onClearCompleted = useCallback(async () => {
-    const completedTodos = filterTodos(todos, TodoStatus.Completed);
+  const handleClearCompleted = useCallback(async () => {
+    const completedTodos = filterTodos(todos, FilterType.Completed);
 
     setIsClearCompleted(true);
-    hideError();
+    handleHideError();
 
     try {
       const todosIds = await Promise.all(
-        completedTodos.map(({ id }) => deleteTodos(id).then(() => id)),
+        completedTodos.map(({ id }) => deleteTodoOnServer(id).then(() => id)),
       );
 
       setTodos((oldTodos) => {
         return oldTodos.filter(({ id }) => !todosIds.includes(id));
       });
     } catch {
-      showError(ErrorMessage.Delete);
+      handleShowError(ErrorType.Delete);
     } finally {
       setIsClearCompleted(false);
     }
@@ -153,43 +155,42 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header
-          counterActiveTodos={counterActiveTodos}
-          showError={showError}
-          hideError={hideError}
-          showCreatingTodo={setCreatingTodoTitle}
-          addNewTodo={addTodo}
+        <TodoHeader
+          activeTodosNum={activeTodosNum}
+          showError={handleShowError}
+          hideError={handleHideError}
+          showTempTodo={setTempTodoTitle}
+          onAddNewTodo={handleAddTodo}
           onToggleTodosStatus={handleToggleTodosStatus}
         />
 
         <TodoList
           todos={filteredTodos}
-          creatingTodoTitle={creatingTodoTitle}
-          counterActiveTodos={counterActiveTodos}
-          showError={showError}
-          hideError={hideError}
-          onDeleteTodo={onDeleteTodo}
-          onChangeTodo={handleChangeTodo}
+          activeTodosNum={activeTodosNum}
+          tempTodoTitle={tempTodoTitle}
           isClearCompleted={isClearCompleted}
           isAllToggled={isAllToggled}
+          showError={handleShowError}
+          hideError={handleHideError}
+          onDeleteTodo={handleDeleteTodo}
+          onChangeTodo={handleChangeTodo}
         />
 
         {!!todos.length && (
-          <Filter
-            counterActiveTodos={counterActiveTodos}
+          <TodoFooter
+            activeTodosNum={activeTodosNum}
             counterCompletedTodos={counterCompletedTodos}
-            selectedFilter={selectedFilter}
-            onFilterSelect={setSelectedFilter}
-            onClearCompleted={onClearCompleted}
+            selectFilter={selectFilter}
+            onSelectFilter={setSelectFilter}
+            onClearCompleted={handleClearCompleted}
           />
         )}
-
-        <Error
-          isError={isError}
-          errorMessage={errorType}
-          onErrorClose={hideError}
-        />
       </div>
+
+      <ErrorNotification
+        errorType={errorType}
+        onCloseNotification={handleHideError}
+      />
     </div>
   );
 };

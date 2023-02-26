@@ -1,4 +1,4 @@
-export enum ErrorMessage {
+export enum ErrorType {
   None = 'none',
   Download = 'download',
   Add = 'add',
