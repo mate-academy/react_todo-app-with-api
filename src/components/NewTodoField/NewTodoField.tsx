@@ -15,7 +15,6 @@ type Props = {
   isTodoLoading: boolean,
   toggleAll: () => void,
   setError: (value: ErrorType) => void,
-  setIsError: (value: boolean) => void
 };
 
 export const NewTodoField: React.FC<Props> = ({
@@ -24,7 +23,6 @@ export const NewTodoField: React.FC<Props> = ({
   isTodoLoading,
   toggleAll,
   setError,
-  setIsError,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
@@ -45,7 +43,6 @@ export const NewTodoField: React.FC<Props> = ({
       setNewTodoTitle('');
     } else {
       setError(ErrorType.EmptyTitle);
-      setIsError(true);
     }
   };
 

@@ -5,23 +5,22 @@ import { ErrorType } from '../../types/ErrorType';
 
 type Props = {
   error: ErrorType,
-  setIsError: (value: boolean) => void,
-  isError: boolean
+  setError: (value: ErrorType) => void,
 };
 
 export const ErrorNotification: React.FC<Props> = memo(
-  ({ error, setIsError, isError }) => {
+  ({ error, setError }) => {
     const [errorMesage, setErrorMesage] = useState('');
 
     useEffect(() => {
       const timer = setTimeout(() => {
-        setIsError(false);
+        setError(ErrorType.None);
       }, 3000);
 
       return () => {
         clearTimeout(timer);
       };
-    }, [isError]);
+    }, [error]);
 
     useMemo(() => {
       switch (error) {
@@ -56,7 +55,7 @@ export const ErrorNotification: React.FC<Props> = memo(
           type="button"
           className="delete"
           aria-label="Delete"
-          onClick={() => setIsError(false)}
+          onClick={() => setError(ErrorType.None)}
         />
         {errorMesage}
       </div>

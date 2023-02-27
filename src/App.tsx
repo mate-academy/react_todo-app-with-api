@@ -25,7 +25,6 @@ import { ErrorType } from './types/ErrorType';
 export const App: React.FC = () => {
   const [isUploadError, setIsUploadError] = useState(false);
   const [error, setError] = useState(ErrorType.None);
-  const [isError, setIsError] = useState(false);
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -46,7 +45,6 @@ export const App: React.FC = () => {
       }
     } catch (e) {
       setError(ErrorType.LoadError);
-      setIsError(true);
     }
   };
 
@@ -63,17 +61,14 @@ export const App: React.FC = () => {
           completed: false,
         });
 
-        setTempTodo(null);
         setTodos(prevTodos => [...prevTodos, newTodo]);
         setActiveTodoId([]);
-        setIsTodoLoading(false);
       } catch {
         setIsUploadError(true);
-        setTodos(todos);
+        setError(ErrorType.UploadError);
+      } finally {
         setTempTodo(null);
         setIsTodoLoading(false);
-        setError(ErrorType.UploadError);
-        setIsError(true);
       }
     }
   };
@@ -89,7 +84,6 @@ export const App: React.FC = () => {
       setTodos(visibleTodos);
     } catch {
       setError(ErrorType.RemoveError);
-      setIsError(true);
     }
 
     setDeletedTodosId([]);
@@ -111,7 +105,6 @@ export const App: React.FC = () => {
       await updateTodo(id, { title: newTitle });
     } catch {
       setError(ErrorType.UpdatedError);
-      setIsError(true);
     }
 
     setUpdatedTodoID([]);
@@ -151,7 +144,6 @@ export const App: React.FC = () => {
       setTodos(checkedTodoList);
     } catch {
       setError(ErrorType.UpdatedError);
-      setIsError(true);
     }
   };
 
@@ -181,7 +173,6 @@ export const App: React.FC = () => {
       }
     } catch {
       setError(ErrorType.UpdatedError);
-      setIsError(true);
     }
   };
 
@@ -199,7 +190,6 @@ export const App: React.FC = () => {
           toggleAll={toggleAll}
           isUploadError={isUploadError}
           setError={setError}
-          setIsError={setIsError}
           isTodoLoading={isTodoLoading}
         />
         <TodoList
@@ -221,11 +211,10 @@ export const App: React.FC = () => {
         />
       </div>
 
-      {isError && (
+      {error !== ErrorType.None && (
         <ErrorNotification
           error={error}
-          setIsError={setIsError}
-          isError={isError}
+          setError={setError}
         />
       )}
     </div>
