@@ -184,7 +184,7 @@ export const App: React.FC = () => {
           loadingForToggle={loadingForToggle}
         />
 
-        {todos.length > 0 && (
+        {(todos.length > 0 || !!tempTodo) && (
           <Footer
             todos={visibleTodos}
             status={status}
