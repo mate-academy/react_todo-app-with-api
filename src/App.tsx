@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { getTodos } from './api/todos';
 import { Content } from './components/Content';
 import { Errors } from './components/Errors';
-import { UserWarning } from './UserWarning';
 
 import { Error } from './types/Error';
 import { Todo } from './types/Todo';
+import { UserContext } from './UserContext';
 
-const USER_ID = 0;
+// const USER_ID = 6192;
 
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Error>(Error.success);
   const [hidden, setHidden] = useState(true);
 
-  useEffect(() => {
-    getTodos(USER_ID).then(setAllTodos);
-  }, []);
+  const userId = useContext(UserContext);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  useEffect(() => {
+    getTodos(userId).then(setAllTodos);
+  }, []);
 
   return (
     <div className="todoapp">
@@ -30,7 +28,7 @@ export const App: React.FC = () => {
       <Content
         todos={allTodos}
         changeTodos={setAllTodos}
-        userId={USER_ID}
+        userId={userId}
         onError={setError}
         onHidden={setHidden}
       />
