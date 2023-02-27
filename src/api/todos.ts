@@ -8,7 +8,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const createTodo
-= (newTodo: TodoPost, userId: number): Promise<Todo> => {
+= (userId: number, newTodo: TodoPost): Promise<Todo> => {
   return client.post<Todo>(`/todos?userId=${userId}`, newTodo);
 };
 

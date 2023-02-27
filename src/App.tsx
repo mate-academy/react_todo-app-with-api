@@ -160,7 +160,7 @@ export const App: React.FC = () => {
         <Header
           activeTodosQuantity={ativeTodosQuantity}
           showTempTodo={setTempTodoName}
-          createNewTodo={addNewTodo}
+          addNewTodo={addNewTodo}
           showError={showError}
           toggleStatus={toggleStatus}
         />

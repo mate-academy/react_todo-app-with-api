@@ -9,7 +9,7 @@ import { TodoPost } from '../../types/TodoPost';
 type Props = {
   activeTodosQuantity: number;
   showTempTodo: (tempTodoTilte: string) => void;
-  createNewTodo: (newTodo: Todo) => void;
+  addNewTodo: (newTodo: Todo) => void;
   showError: (possibleError: ErrorTypes) => void;
   toggleStatus: () => void;
 };
@@ -17,7 +17,7 @@ type Props = {
 export const Header: React.FC<Props> = ({
   activeTodosQuantity,
   showTempTodo,
-  createNewTodo,
+  addNewTodo,
   showError,
   toggleStatus,
 }) => {
@@ -26,7 +26,7 @@ export const Header: React.FC<Props> = ({
 
   const userId = useContext(UserIdContext);
 
-  const handleCreateNewTodo = async (
+  const handleAddNewTodo = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -48,7 +48,7 @@ export const Header: React.FC<Props> = ({
     try {
       const createdTodo = await createTodo(userId, newTodo);
 
-      createNewTodo(createdTodo);
+      addNewTodo(createdTodo);
     } catch {
       showError(ErrorTypes.Add);
     } finally {
@@ -69,7 +69,7 @@ export const Header: React.FC<Props> = ({
         aria-label="Toggle all todos"
       />
 
-      <form onSubmit={handleCreateNewTodo}>
+      <form onSubmit={handleAddNewTodo}>
         <input
           type="text"
           className="todoapp__new-todo"
