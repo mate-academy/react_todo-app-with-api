@@ -15,6 +15,7 @@ import { FilterTypes } from './types/FIlterTypes';
 import { UserWarning } from './UserWarning';
 import { getFilteredTodos } from './utils/getFilteredTodos';
 import { TodosContext } from './components/TodosProvider';
+import { Loader } from './components/Loader';
 
 export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterTypes>(FilterTypes.All);
@@ -23,6 +24,7 @@ export const App: React.FC = () => {
     USER_ID,
     activeTodos,
     handleToggleAll,
+    isLoading,
   } = useContext(TodosContext);
 
   const hasActiveTodos = activeTodos.length > 0;
@@ -43,33 +45,37 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: !hasActiveTodos,
-            })}
-            onClick={handleToggleAll}
-          />
+      {isLoading
+        ? <Loader />
+        : (
+          <div className="todoapp__content">
+            <header className="todoapp__header">
+              <button
+                type="button"
+                className={cn('todoapp__toggle-all', {
+                  active: !hasActiveTodos,
+                })}
+                onClick={handleToggleAll}
+              />
 
-          <AddTodoForm />
-        </header>
+              <AddTodoForm />
+            </header>
 
-        {!!todos.length && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-            />
+            {!!todos.length && (
+              <>
+                <TodoList
+                  todos={visibleTodos}
+                />
 
-            <Footer
-              filterType={filterType}
-              handleFilterType={handleFilterType}
-              activeTodos={activeTodos}
-            />
-          </>
+                <Footer
+                  filterType={filterType}
+                  handleFilterType={handleFilterType}
+                  activeTodos={activeTodos}
+                />
+              </>
+            )}
+          </div>
         )}
-      </div>
 
       <Notification />
     </div>

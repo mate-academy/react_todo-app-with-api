@@ -35,6 +35,7 @@ export type ContextType = {
   changeHasError: (value: boolean) => void,
   deleteAllCompleted: () => void,
   USER_ID: number,
+  isLoading: boolean,
 };
 
 export const TodosContext = React.createContext<ContextType>({
@@ -53,6 +54,7 @@ export const TodosContext = React.createContext<ContextType>({
   changeHasError: () => { },
   deleteAllCompleted: () => { },
   USER_ID,
+  isLoading: true,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,6 +65,7 @@ export const TodosProvider: React.FC<any> = (
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processedTodos, setProcessedTodos] = useState<Todo[]>([]);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [
     errorMessage,
     setErrorMessage,
@@ -77,6 +80,8 @@ export const TodosProvider: React.FC<any> = (
     } catch (error) {
       setErrorMessage(ErrorMessage.FIND);
       setHasError(true);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -221,8 +226,9 @@ export const TodosProvider: React.FC<any> = (
       changeHasError,
       deleteAllCompleted,
       USER_ID,
+      isLoading,
     };
-  }, [todos, processedTodos, tempTodo, errorMessage, hasError]);
+  }, [todos, processedTodos, tempTodo, errorMessage, hasError, isLoading]);
 
   return (
     <TodosContext.Provider value={contextValue}>
