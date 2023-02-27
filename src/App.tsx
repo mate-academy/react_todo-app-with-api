@@ -76,6 +76,7 @@ export const App: React.FC = () => {
       showError(ErrorType.EMPTY_TITLE);
     } else {
       const todoToAdd = {
+        id: 0,
         title: todoTitle,
         userId: USER_ID,
         completed: false,
@@ -84,6 +85,7 @@ export const App: React.FC = () => {
       try {
         setIsInputEnabled(false);
         setTitle('');
+        setTempTodo(todoToAdd);
 
         const newTodo = await addTodo(USER_ID, todoToAdd);
 
@@ -107,7 +109,7 @@ export const App: React.FC = () => {
 
   const removeTodo = async (removingTodo: Todo) => {
     try {
-      setTodosIdInProcess(currentId => [...currentId, removingTodo.id]);
+      setTodosIdInProcess(currentIds => [...currentIds, removingTodo.id]);
       await deleteTodo(removingTodo.id);
 
       setTodos(currentTodos => (
@@ -116,7 +118,9 @@ export const App: React.FC = () => {
     } catch {
       showError(ErrorType.DELETE);
     } finally {
-      setTodosIdInProcess([]);
+      setTodosIdInProcess(
+        currentIds => currentIds.filter(todoId => todoId !== removingTodo.id),
+      );
     }
   };
 
@@ -130,10 +134,9 @@ export const App: React.FC = () => {
 
   const updateTitleOfTodo = async (updatingTodo: Todo, newTitle: string) => {
     try {
-      setTodosIdInProcess(currentId => [...currentId, updatingTodo.id]);
+      setTodosIdInProcess(currentIds => [...currentIds, updatingTodo.id]);
 
       const updatedTodo: Todo = await updateTodoTitle(
-        USER_ID,
         updatingTodo.id,
         newTitle,
       );
@@ -148,7 +151,9 @@ export const App: React.FC = () => {
     } catch {
       showError(ErrorType.UPDATE);
     } finally {
-      setTodosIdInProcess([]);
+      setTodosIdInProcess(
+        currentIds => currentIds.filter(todoId => todoId !== updatingTodo.id),
+      );
     }
   };
 
@@ -156,10 +161,9 @@ export const App: React.FC = () => {
     const newStatus = !updatingTodo.completed;
 
     try {
-      setTodosIdInProcess(currentId => [...currentId, updatingTodo.id]);
+      setTodosIdInProcess(currentIds => [...currentIds, updatingTodo.id]);
 
       const updatedTodo: Todo = await updateTodoStatus(
-        USER_ID,
         updatingTodo.id,
         newStatus,
       );
@@ -174,11 +178,13 @@ export const App: React.FC = () => {
     } catch {
       showError(ErrorType.UPDATE);
     } finally {
-      setTodosIdInProcess([]);
+      setTodosIdInProcess(
+        currentIds => currentIds.filter(todoId => todoId !== updatingTodo.id),
+      );
     }
   };
 
-  const updateAllTodosStatus = async () => {
+  const updateAllTodosStatus = () => {
     const isAllCompleted = todos.every(todo => todo.completed);
 
     const todosToUdape = todos

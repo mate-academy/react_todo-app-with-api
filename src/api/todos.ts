@@ -17,19 +17,17 @@ export const deleteTodo = (todoId: number) => {
 };
 
 export const updateTodoStatus = (
-  userId: number,
   todoId: number,
   status: boolean,
 ): Promise<Todo> => {
-  return client.patch(`/todos/${todoId}?userId=${userId}`, { completed: status });
+  return client.patch(`/todos/${todoId}`, { completed: status });
 };
 
 export const updateTodoTitle = (
-  userId: number,
   todoId: number,
   title: string,
 ): Promise<Todo> => {
-  return client.patch(`/todos/${todoId}?userId=${userId}`, { title });
+  return client.patch(`/todos/${todoId}`, { title });
 };
 
 export function generateErrorMessage(errorType: ErrorType) {

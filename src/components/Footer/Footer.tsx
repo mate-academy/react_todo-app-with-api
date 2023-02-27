@@ -35,6 +35,8 @@ export const Footer:React.FC<Props> = ({
     event.preventDefault();
   };
 
+  const filters = useMemo(() => Object.values(Filter), []);
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
@@ -42,38 +44,19 @@ export const Footer:React.FC<Props> = ({
       </span>
 
       <nav className="filter">
-        <a
-          href="#/all"
-          className={classNames(
-            'filter__link',
-            { selected: filterBy === Filter.ALL },
-          )}
-          onClick={handleFilterClick(Filter.ALL)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames(
-            'filter__link',
-            { selected: filterBy === Filter.ACTIVE },
-          )}
-          onClick={handleFilterClick(Filter.ACTIVE)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames(
-            'filter__link',
-            { selected: filterBy === Filter.COMPLETED },
-          )}
-          onClick={handleFilterClick(Filter.COMPLETED)}
-        >
-          Completed
-        </a>
+        {filters.map(filter => (
+          <a
+            key={filter}
+            href={`#/${filter}`}
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === filter },
+            )}
+            onClick={handleFilterClick(filter as Filter)}
+          >
+            {filter}
+          </a>
+        ))}
       </nav>
 
       <button
