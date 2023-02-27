@@ -15,46 +15,44 @@ type Props = {
   handleUpdateTodo: (todo: Todo) => void,
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   fetchDeleteTodo,
   activeTodoIds,
   handleUpdateTodo,
-}) => {
-  return (
-    <section className="todoapp__main">
-      <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition
-            key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoItem
-              todo={todo}
-              fetchDeleteTodo={fetchDeleteTodo}
-              isLoading={activeTodoIds.some(id => id === todo.id)}
-              handleUpdateTodo={handleUpdateTodo}
-            />
-          </CSSTransition>
-        ))}
+}) => (
+  <section className="todoapp__main">
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
+            fetchDeleteTodo={fetchDeleteTodo}
+            isLoading={activeTodoIds.some(id => id === todo.id)}
+            handleUpdateTodo={handleUpdateTodo}
+          />
+        </CSSTransition>
+      ))}
 
-        {tempTodo && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <TodoItem
-              todo={tempTodo}
-              fetchDeleteTodo={fetchDeleteTodo}
-              isLoading
-              handleUpdateTodo={handleUpdateTodo}
-            />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </section>
-  );
-};
+      {tempTodo && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoItem
+            todo={tempTodo}
+            fetchDeleteTodo={fetchDeleteTodo}
+            isLoading
+            handleUpdateTodo={handleUpdateTodo}
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  </section>
+));

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
-import { errorMasseges } from '../../utils/errorMasseges';
+import { errorMassages } from '../../utils/errorMassages';
 
 type Props = {
   errorMassage: ErrorType,
@@ -26,7 +26,7 @@ export const ErrorMassage: React.FC<Props> = React.memo(({
   }, [isError]);
 
   useEffect(() => {
-    errorMasseges(errorMassage, setError);
+    errorMassages(errorMassage, setError);
   }, [errorMassage]);
 
   return (

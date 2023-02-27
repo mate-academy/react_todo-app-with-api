@@ -162,7 +162,7 @@ export const App: React.FC = () => {
       ? hasActiveTodos
       : todos;
 
-      setActiveTodoIds(prevTodosId => [
+    setActiveTodoIds(prevTodosId => [
       ...prevTodosId, ...todosToToggle.map(todo => todo.id),
     ]);
 
@@ -184,8 +184,6 @@ export const App: React.FC = () => {
         .filter(todoId => !todosToToggle.some(todo => todoId === todo.id)));
     }
   }, [activeTodoIds, hasCompletedTodos]);
-
-
 
   const allCompleted = todos.every(todo => todo.completed);
 

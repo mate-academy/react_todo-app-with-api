@@ -9,7 +9,7 @@ type Props = {
   handleUpdateTodo: (todo: Todo, title?: string) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   fetchDeleteTodo,
   isLoading,
@@ -110,4 +110,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

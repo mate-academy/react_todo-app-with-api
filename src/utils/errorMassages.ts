@@ -1,6 +1,6 @@
 import { ErrorType } from '../types/ErrorType';
 
-export function errorMasseges(
+export function errorMassages(
   massage: ErrorType,
   callback: (massage: ErrorType
   ) => void,

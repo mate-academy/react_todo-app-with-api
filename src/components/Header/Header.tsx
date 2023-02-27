@@ -9,7 +9,7 @@ type Props = {
   handleChangeStatus: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   hasTodos,
   allCompleted,
   fetchNewTodo,
@@ -64,4 +64,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});
