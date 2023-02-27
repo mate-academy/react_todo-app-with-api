@@ -20,6 +20,11 @@ body {
   pointer-events: none;
 }
 
+.hidden-button {
+  visibility: hidden;
+}
+
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
+@import "./transition.scss";
