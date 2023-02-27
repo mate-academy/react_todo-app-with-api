@@ -7,7 +7,7 @@ type Props = {
   handleError: (error: boolean) => void,
 };
 
-export const Notification: React.FC<Props> = ({
+export const Notification: React.FC<Props> = React.memo(({
   errorType,
   hasError,
   handleError,
@@ -28,4 +28,4 @@ export const Notification: React.FC<Props> = ({
       {`${errorType}`}
     </div>
   );
-};
+});

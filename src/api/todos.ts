@@ -1,11 +1,12 @@
 import { Todo } from '../types/Todo';
+import { TodoToAdd } from '../types/TodoToAdd';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = async (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const addTodo = async (userId: number, todo: Todo) => {
+export const addTodo = async (userId: number, todo: TodoToAdd) => {
   return client.post<Todo>(`/todos?userId=${userId}`, todo);
 };
 

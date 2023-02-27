@@ -15,7 +15,7 @@ type Props = {
   isProcessedIds: number[],
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   handleDeleteTodo,
   tempTodo,
@@ -55,4 +55,4 @@ export const TodoList: React.FC<Props> = ({
       )}
     </TransitionGroup>
   </section>
-);
+));

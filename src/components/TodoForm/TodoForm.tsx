@@ -7,7 +7,7 @@ type Props = {
   isTitleDisabled: boolean,
 };
 
-export const TodoForm: React.FC<Props> = ({
+export const TodoForm: React.FC<Props> = React.memo(({
   title,
   handleInput,
   handleAddTodo,
@@ -30,4 +30,4 @@ export const TodoForm: React.FC<Props> = ({
       disabled={isTitleDisabled}
     />
   </form>
-);
+));

@@ -13,7 +13,7 @@ type Props = {
   handleAllTodosStatus: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   title,
   todos,
   handleInput,
@@ -47,4 +47,4 @@ export const Header: React.FC<Props> = ({
       />
     </header>
   );
-};
+});

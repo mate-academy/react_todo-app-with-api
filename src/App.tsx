@@ -12,6 +12,7 @@ import {
   updateTodo,
 } from './api/todos';
 import { Footer } from './components/Footer';
+import { Loader } from './components/Loader';
 import { Header } from './components/Header';
 import { Notification } from './components/Notification';
 import { TodoList } from './components/TodoList';
@@ -31,15 +32,19 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.None);
   const [isProcessedIds, setIsProcessedIds] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchAllTodos = async () => {
     try {
+      setIsLoading(true);
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
     } catch (error) {
       setHasError(true);
       setErrorType(ErrorType.Update);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,7 +89,6 @@ export const App: React.FC = () => {
     }
 
     const todoToAdd = {
-      id: 0,
       title: todoTitleTrim,
       userId: USER_ID,
       completed: false,
@@ -191,14 +195,18 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
 
-        <Header
-          title={title}
-          todos={todos}
-          handleInput={handleInput}
-          handleAddTodo={handleAddTodo}
-          isTitleDisabled={isTitleDisabled}
-          handleAllTodosStatus={handleAllTodosStatus}
-        />
+        {isLoading
+          ? (<Loader />)
+          : (
+            <Header
+              title={title}
+              todos={todos}
+              handleInput={handleInput}
+              handleAddTodo={handleAddTodo}
+              isTitleDisabled={isTitleDisabled}
+              handleAllTodosStatus={handleAllTodosStatus}
+            />
+          )}
 
         {todos.length > 0 && (
           <>
