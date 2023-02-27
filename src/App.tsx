@@ -192,43 +192,41 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
+      {isLoading
+        ? (<Loader />)
+        : (
+          <div className="todoapp__content">
+            <>
+              <Header
+                title={title}
+                todos={todos}
+                handleInput={handleInput}
+                handleAddTodo={handleAddTodo}
+                isTitleDisabled={isTitleDisabled}
+                handleAllTodosStatus={handleAllTodosStatus}
+              />
 
-        {isLoading
-          ? (<Loader />)
-          : (
-            <Header
-              title={title}
-              todos={todos}
-              handleInput={handleInput}
-              handleAddTodo={handleAddTodo}
-              isTitleDisabled={isTitleDisabled}
-              handleAllTodosStatus={handleAllTodosStatus}
-            />
-          )}
-
-        {todos.length > 0 && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-              handleDeleteTodo={handleDeleteTodo}
-              tempTodo={tempTodo}
-              handleUpdateTodo={handleUpdateTodo}
-              isProcessedIds={isProcessedIds}
-            />
-            <Footer
-              todos={todos}
-              filterType={filterType}
-              handleFilterType={handleFilterType}
-              handleCompletedTodos={handleCompletedTodos}
-            />
-          </>
+              {!!todos.length && (
+                <>
+                  <TodoList
+                    todos={visibleTodos}
+                    handleDeleteTodo={handleDeleteTodo}
+                    tempTodo={tempTodo}
+                    handleUpdateTodo={handleUpdateTodo}
+                    isProcessedIds={isProcessedIds}
+                  />
+                  <Footer
+                    todos={todos}
+                    filterType={filterType}
+                    handleFilterType={handleFilterType}
+                    handleCompletedTodos={handleCompletedTodos}
+                  />
+                </>
+              )}
+            </>
+          </div>
         )}
 
-      </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       {hasError && (
         <Notification
           errorType={errorType}
