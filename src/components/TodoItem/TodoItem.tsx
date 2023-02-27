@@ -49,6 +49,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const closeFormByEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsDoubleClicked(false);
+      setNewTitle(title);
     }
   };
 
