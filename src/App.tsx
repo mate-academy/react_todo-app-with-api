@@ -28,7 +28,7 @@ export const App: React.FC = () => {
   const [updatingTodoId, setUpdatingTodoId] = useState(0);
   const [loadingForToggle, setLoadingForToggle] = useState(false);
 
-  const visibletodos = useMemo(() => {
+  const visibleTodos = useMemo(() => {
     return getVisibleTodos(todos, status);
   }, [todos, status]);
 
@@ -175,7 +175,7 @@ export const App: React.FC = () => {
           setLoadingForToggle={setLoadingForToggle}
         />
         <TodoList
-          todos={visibletodos}
+          todos={visibleTodos}
           handleDeleteTodo={handleDeleteTodo}
           tempTodo={tempTodo}
           handleUpdateTodoStatus={handleUpdateTodoStatus}
@@ -186,7 +186,7 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <Footer
-            todos={visibletodos}
+            todos={visibleTodos}
             status={status}
             setStatus={setStatus}
             handleDeleteCompletedTodos={handleDeleteCompletedTodos}

@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
+import React, { useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
   toggleAll: () => void,
   setLoadingForToggle: (s: boolean) => void,
 };
-export const Header:React.FC<Props> = ({
+export const Header:React.FC<Props> = React.memo(({
   todos,
   name,
   setName,
@@ -20,7 +21,9 @@ export const Header:React.FC<Props> = ({
   toggleAll,
   setLoadingForToggle,
 }) => {
-  const isActive = todos.filter(todo => !todo.completed).length > 0;
+  const isActive = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length > 0;
+  }, [todos]);
   const trimedName = name.trimStart();
 
   return (
@@ -54,4 +57,4 @@ export const Header:React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

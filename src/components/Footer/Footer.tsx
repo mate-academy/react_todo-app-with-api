@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import React, { useMemo } from 'react';
 import { Status } from '../../types/Status';
 import { Todo } from '../../types/Todo';
 
@@ -8,14 +9,18 @@ type Props = {
   setStatus: (status: Status) => void;
   handleDeleteCompletedTodos: () => void;
 };
-export const Footer:React.FC<Props> = ({
+export const Footer:React.FC<Props> = React.memo(({
   todos,
   status,
   setStatus,
   handleDeleteCompletedTodos,
 }) => {
-  const activeTodosAmount = todos.filter(todo => !todo.completed).length;
-  const completedTodo = todos.filter(todo => todo.completed);
+  const activeTodosAmount = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
+  const completedTodo = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
   return (
     <footer className="todoapp__footer">
@@ -42,7 +47,7 @@ export const Footer:React.FC<Props> = ({
       </nav>
 
       {/* don't show this button if there are no completed todos */}
-      {completedTodo.length > 0
+      {!!completedTodo.length
        && (
          <button
            type="button"
@@ -54,4 +59,4 @@ export const Footer:React.FC<Props> = ({
        )}
     </footer>
   );
-};
+});

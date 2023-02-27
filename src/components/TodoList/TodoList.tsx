@@ -21,35 +21,33 @@ export const TodoList:React.FC<Props> = ({
   updatingTodoId,
   handleUpdateTodoName,
   loadingForToggle,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {todos.map(todo => (
-        (
-          <TodoInfo
-            todo={todo}
-            key={todo.id}
-            handleDeleteTodo={handleDeleteTodo}
-            handleUpdateTodoStatus={handleUpdateTodoStatus}
-            updatingTodoId={updatingTodoId}
-            handleUpdateTodoName={handleUpdateTodoName}
-            loadingForToggle={loadingForToggle}
-          />
-        )
-
-      ))}
-
-      {tempTodo && (
+}) => (
+  <section className="todoapp__main">
+    {todos.map(todo => (
+      (
         <TodoInfo
-          todo={tempTodo}
-          key={0}
+          todo={todo}
+          key={todo.id}
           handleDeleteTodo={handleDeleteTodo}
           handleUpdateTodoStatus={handleUpdateTodoStatus}
-          updatingTodoId={tempTodo.id}
+          updatingTodoId={updatingTodoId}
           handleUpdateTodoName={handleUpdateTodoName}
           loadingForToggle={loadingForToggle}
         />
-      ) }
-    </section>
-  );
-};
+      )
+
+    ))}
+
+    {tempTodo && (
+      <TodoInfo
+        todo={tempTodo}
+        key={0}
+        handleDeleteTodo={handleDeleteTodo}
+        handleUpdateTodoStatus={handleUpdateTodoStatus}
+        updatingTodoId={tempTodo.id}
+        handleUpdateTodoName={handleUpdateTodoName}
+        loadingForToggle={loadingForToggle}
+      />
+    ) }
+  </section>
+);

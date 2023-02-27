@@ -1,4 +1,6 @@
+/* eslint-disable import/no-duplicates */
 import classNames from 'classnames';
+import React from 'react';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -7,7 +9,7 @@ type Props = {
   errorType:string,
 };
 
-export const Notification:React.FC<Props> = ({
+export const Notification:React.FC<Props> = React.memo(({
   errorType,
   hasError,
   setHasError,
@@ -52,4 +54,4 @@ export const Notification:React.FC<Props> = ({
       {`${errorType}`}
     </div>
   );
-};
+});
