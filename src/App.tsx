@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState, useEffect, useCallback, useMemo,
+} from 'react';
 import {
   deleteTodo,
   getTodos,
@@ -57,11 +59,14 @@ export const App: React.FC = () => {
     completedTodosToDelete.forEach(todo => handleDeleteTodo(todo.id));
   }, [todos]);
 
-  const visibleTodos = getFilteredTodos(todos, filterType);
+  const visibleTodos = useMemo(
+    () => getFilteredTodos(todos, filterType),
+    [todos, filterType],
+  );
 
-  const isSomeTodosCompleted: boolean = todos.some(item => item.completed);
+  const isSomeTodosCompleted = todos.some(item => item.completed);
 
-  const isAllTodosCompleted: boolean = todos.every(item => item.completed);
+  const isAllTodosCompleted = todos.every(item => item.completed);
 
   const handleTogglingTodo = useCallback(async (
     todoId: number,
@@ -75,7 +80,10 @@ export const App: React.FC = () => {
       setTodos((prevTodos: Todo[]): Todo[] => {
         return prevTodos.map((item: Todo) => {
           if (item.id === todoId) {
-            item.completed = todoStatus; // eslint-disable-line no-param-reassign
+            return {
+              ...item,
+              completed: todoStatus,
+            };
           }
 
           return item;
@@ -90,17 +98,20 @@ export const App: React.FC = () => {
 
   const updateTitle = useCallback(async (
     todoId: number,
-    title: string,
+    newTitle: string,
   ) => {
     setLoadingTodoIds(prevIds => ([...prevIds, todoId]));
     try {
-      await updateTodoTitle(todoId, title);
+      await updateTodoTitle(todoId, newTitle);
       setErrorMessage(ErrorMessages.NoError);
 
       setTodos((prevTodos: Todo[]): Todo[] => {
         return prevTodos.map((item: Todo) => {
           if (item.id === todoId) {
-            item.title = title; // eslint-disable-line no-param-reassign
+            return {
+              ...item,
+              title: newTitle,
+            };
           }
 
           return item;
@@ -146,6 +157,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const amountOfActive = getFilteredTodos(todos, FilterOptions.Active).length;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -172,15 +185,17 @@ export const App: React.FC = () => {
         {tempTodo && (
           <TodoItem
             todo={tempTodo}
-            loadingTodoIds={loadingTodoIds}
+            // handleDeleteTodo={handleDeleteTodo}
+            // handleTogglingTodo={handleTogglingTodo}
           />
         )}
 
-        {!!todos.length && (
+        {(!!todos.length || tempTodo) && (
           <Footer
             setFilterType={setFilterType}
             isSomeTodosCompleted={isSomeTodosCompleted}
             deleteCompletedTodos={deleteCompletedTodos}
+            amountOfActive={amountOfActive}
           />
         )}
 

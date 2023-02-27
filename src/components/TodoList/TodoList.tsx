@@ -10,7 +10,7 @@ type Props = {
   updateTitle: (todoId: number, title: string) => void,
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   handleDeleteTodo,
   loadingTodoIds,
@@ -18,15 +18,19 @@ export const TodoList: React.FC<Props> = ({
   updateTitle,
 }) => (
   <section className="todoapp__main">
-    {todos.map((todo) => (
-      <TodoItem
-        todo={todo}
-        key={todo.id}
-        handleDeleteTodo={handleDeleteTodo}
-        handleTogglingTodo={handleTogglingTodo}
-        loadingTodoIds={loadingTodoIds}
-        updateTitle={updateTitle}
-      />
-    ))}
+    {todos.map((todo) => {
+      const isLoading = loadingTodoIds.includes(todo.id);
+
+      return (
+        <TodoItem
+          todo={todo}
+          key={todo.id}
+          handleDeleteTodo={handleDeleteTodo}
+          handleTogglingTodo={handleTogglingTodo}
+          isLoading={isLoading}
+          updateTitle={updateTitle}
+        />
+      );
+    })}
   </section>
-);
+));

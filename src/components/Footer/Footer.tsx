@@ -5,13 +5,15 @@ import { FilterOptions } from '../../types/FilterOptions';
 type Props = {
   setFilterType: Dispatch<SetStateAction<FilterOptions>>
   deleteCompletedTodos: () => void,
-  isSomeTodosCompleted: boolean
+  isSomeTodosCompleted: boolean,
+  amountOfActive: number,
 };
 
 export const Footer: React.FC<Props> = React.memo(({
   setFilterType,
   isSomeTodosCompleted,
   deleteCompletedTodos,
+  amountOfActive,
 }) => {
   const [selectedOption, setSelectedOption] = useState<FilterOptions>(
     FilterOptions.All,
@@ -20,7 +22,7 @@ export const Footer: React.FC<Props> = React.memo(({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        3 items left
+        {`${amountOfActive} items left`}
       </span>
 
       <nav className="filter">

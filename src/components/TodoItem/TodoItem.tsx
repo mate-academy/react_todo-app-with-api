@@ -6,14 +6,14 @@ type Props = {
   todo: Todo
   handleDeleteTodo?: (id: number) => void,
   handleTogglingTodo?: (todoId: number, todoStatus: boolean) => void,
-  loadingTodoIds: number[],
+  isLoading?: boolean,
   updateTitle?: (todoId: number, title: string) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   handleDeleteTodo = () => { },
-  loadingTodoIds,
+  isLoading = true,
   handleTogglingTodo = () => { },
   updateTitle = () => { },
 }) => {
@@ -21,10 +21,14 @@ export const TodoItem: React.FC<Props> = ({
   const [title, setTitle] = useState<string>(todo.title);
 
   const handleTitleEditing = () => {
-    if (!title.length) {
-      handleDeleteTodo(todo.id);
-    } else if (todo.title !== title) {
-      updateTitle(todo.id, title);
+    switch (title) {
+      case '':
+        handleDeleteTodo(todo.id);
+        break;
+      case todo.title:
+        break;
+      default:
+        updateTitle(todo.id, title);
     }
 
     setIsTodoOnEdit(false);
@@ -68,6 +72,8 @@ export const TodoItem: React.FC<Props> = ({
               onChange={(event) => setTitle(event.target.value)}
               value={title}
               onKeyDown={handleCancelEditing}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         )
@@ -96,7 +102,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div className={classNames(
         'modal overlay',
-        { 'is-active': loadingTodoIds.includes(todo.id) },
+        { 'is-active': isLoading },
       )}
       >
         <div className="modal-background has-background-white-ter" />
@@ -104,4 +110,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
