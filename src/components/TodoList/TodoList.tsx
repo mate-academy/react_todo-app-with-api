@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   CSSTransition,
   TransitionGroup,
@@ -14,7 +15,7 @@ type Props = {
   processedTodos: Todo[];
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   onDelete,
   tempTodo,
@@ -58,4 +59,4 @@ export const TodoList: React.FC<Props> = ({
       )}
     </TransitionGroup>
   </section>
-);
+));

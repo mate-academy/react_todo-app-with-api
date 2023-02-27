@@ -7,7 +7,6 @@ import {
   updateTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
-import { UserWarning } from './UserWarning';
 import { getVisibleTodos } from './utils/helper';
 import { FilterType } from './types/FilterType';
 import { TodoList } from './components/TodoList';
@@ -39,7 +38,7 @@ export const App: React.FC = () => {
     setSelectedFilter(filter);
   };
 
-  const getTodosFromServer = async () => {
+  const handleLoadingTodos = async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
@@ -51,19 +50,25 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    getTodosFromServer();
+    handleLoadingTodos();
   }, []);
 
   const visibleTodos = useMemo(() => (
     getVisibleTodos(selectedFilter, todos)
   ), [todos, selectedFilter]);
-  const isCompleted = visibleTodos.some(todo => todo.completed);
-  const isAllCompleted = visibleTodos.length > 0
-    ? visibleTodos.every(todo => todo.completed)
-    : false;
-  const countOfActive = visibleTodos.filter(todo => !todo.completed).length;
+  const isCompleted = useMemo(() => (
+    visibleTodos.some(todo => todo.completed)
+  ), [visibleTodos]);
+  const isAllCompleted = useMemo(() => (
+    visibleTodos.length > 0
+      ? visibleTodos.every(todo => todo.completed)
+      : false
+  ), [visibleTodos]);
+  const countOfActive = useMemo(() => (
+    visibleTodos.filter(todo => !todo.completed).length
+  ), [visibleTodos]);
 
-  const addTodo = async (title: string) => {
+  const handleAddTodo = async (title: string) => {
     if (!title) {
       handleError(ErrorMessage.Title);
       clearNotification(handleError, 3000);
@@ -72,18 +77,20 @@ export const App: React.FC = () => {
     }
 
     const newTodo = {
-      id: 0,
       title,
       userId: USER_ID,
       completed: false,
     };
 
-    setTempTodo(newTodo);
+    setTempTodo({
+      ...newTodo,
+      id: 0,
+    });
 
     try {
       setIsInputDisabled(true);
       await createTodo(USER_ID, newTodo);
-      await getTodosFromServer();
+      await handleLoadingTodos();
     } catch (error) {
       handleError(ErrorMessage.Add);
       clearNotification(handleError, 3000);
@@ -93,13 +100,13 @@ export const App: React.FC = () => {
     }
   };
 
-  const removeTodo = async (todoToRemove: Todo) => {
+  const handleRemoveTodo = async (todoToRemove: Todo) => {
     const { id } = todoToRemove;
 
     try {
       setProcessedTodos(curTodos => [...curTodos, todoToRemove]);
       await deleteTodo(USER_ID, id);
-      await getTodosFromServer();
+      await handleLoadingTodos();
     } catch (error) {
       handleError(ErrorMessage.Delete);
       clearNotification(handleError, 3000);
@@ -112,15 +119,15 @@ export const App: React.FC = () => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
 
     try {
-      await Promise.all(completedTodos.map(todo => removeTodo(todo)));
-      await getTodosFromServer();
+      await Promise.all(completedTodos.map(todo => handleRemoveTodo(todo)));
+      await handleLoadingTodos();
     } catch (error) {
       handleError(ErrorMessage.Delete);
       clearNotification(handleError, 3000);
     }
   };
 
-  const editStatusOfTodo = async (
+  const handleEditStatusOfTodo = async (
     todoToEdit: Todo,
     status: boolean,
   ) => {
@@ -129,7 +136,7 @@ export const App: React.FC = () => {
     try {
       setProcessedTodos(curTodos => [...curTodos, todoToEdit]);
       await updateTodoStatus(USER_ID, id, status);
-      await getTodosFromServer();
+      await handleLoadingTodos();
     } catch (error) {
       handleError(ErrorMessage.Update);
       clearNotification(handleError, 3000);
@@ -142,15 +149,15 @@ export const App: React.FC = () => {
     try {
       if (isAllCompleted) {
         await Promise.all(visibleTodos.map(todo => (
-          editStatusOfTodo(todo, false))));
+          handleEditStatusOfTodo(todo, false))));
       } else {
         const activeTodos = visibleTodos.filter(todo => !todo.completed);
 
         await Promise.all(activeTodos.map(todo => (
-          editStatusOfTodo(todo, true))));
+          handleEditStatusOfTodo(todo, true))));
       }
 
-      await getTodosFromServer();
+      await handleLoadingTodos();
     } catch (error) {
       handleError(ErrorMessage.Update);
       clearNotification(handleError, 3000);
@@ -162,7 +169,7 @@ export const App: React.FC = () => {
     title: string,
   ) => {
     if (!title) {
-      await removeTodo(todoToEdit);
+      await handleRemoveTodo(todoToEdit);
 
       return;
     }
@@ -172,7 +179,7 @@ export const App: React.FC = () => {
     try {
       setProcessedTodos(curTodos => [...curTodos, todoToEdit]);
       await updateTodoTitle(USER_ID, id, title);
-      await getTodosFromServer();
+      await handleLoadingTodos();
     } catch (errror) {
       handleError(ErrorMessage.Update);
       clearNotification(handleError, 3000);
@@ -181,17 +188,13 @@ export const App: React.FC = () => {
     }
   };
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <Header
-          addTodo={addTodo}
+          addTodo={handleAddTodo}
           isAllCompleted={isAllCompleted}
           isInputDisabled={isInputDisabled}
           editStatusOfAllTodos={editStatusOfAllTodos}
@@ -199,8 +202,8 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={visibleTodos}
-          onDelete={removeTodo}
-          onEditStatus={editStatusOfTodo}
+          onDelete={handleRemoveTodo}
+          onEditStatus={handleEditStatusOfTodo}
           tempTodo={tempTodo}
           onEditTitle={editTitleOfTodo}
           processedTodos={processedTodos}

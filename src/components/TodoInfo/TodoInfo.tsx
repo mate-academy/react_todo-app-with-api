@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   processedTodos: Todo[];
 };
 
-export const TodoInfo: React.FC<Props> = ({
+export const TodoInfo: React.FC<Props> = React.memo(({
   todo,
   onDelete,
   onEditStatus,
@@ -129,4 +129,4 @@ export const TodoInfo: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
