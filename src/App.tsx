@@ -145,43 +145,42 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  const handleUpdateTodo = useCallback(
-    async (todoId: number, value: boolean | string) => {
-      try {
-        let newData = {};
+  const handleUpdateTodo = async (todoId: number, value: boolean | string) => {
+    try {
+      let newData = {};
 
-        if (typeof value === 'boolean') {
-          newData = {
-            completed: value,
-          };
-        }
-
-        if (typeof value === 'string') {
-          newData = {
-            title: value,
-          };
-        }
-
-        setIsProcessedIds(currIds => [...currIds, todoId]);
-
-        await updateTodo(USER_ID, todoId, newData);
-        await fetchAllTodos();
-      } catch (error) {
-        setHasError(true);
-        setErrorType(ErrorType.Update);
-        clearErrorAfterDelay();
-      } finally {
-        setIsProcessedIds([]);
+      if (typeof value === 'boolean') {
+        newData = {
+          completed: value,
+        };
       }
-    }, [],
-  );
+
+      if (typeof value === 'string') {
+        newData = {
+          title: value,
+        };
+      }
+
+      setIsProcessedIds(currIds => [...currIds, todoId]);
+
+      await updateTodo(USER_ID, todoId, newData);
+      await fetchAllTodos();
+      setIsProcessedIds([]);
+    } catch (error) {
+      setHasError(true);
+      setErrorType(ErrorType.Update);
+      clearErrorAfterDelay();
+    }
+  };
 
   const handleAllTodosStatus = async () => {
     try {
       const areTodosCompleted = todos.every(todo => todo.completed);
 
-      todos.forEach(async todo => {
-        await handleUpdateTodo(todo.id, !areTodosCompleted);
+      todos.forEach(todo => {
+        if (todo.completed !== !areTodosCompleted) {
+          handleUpdateTodo(todo.id, !areTodosCompleted);
+        }
       });
     } catch (error) {
       setErrorType(ErrorType.Update);
