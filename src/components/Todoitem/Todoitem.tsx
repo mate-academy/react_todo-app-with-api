@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  memo,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -10,7 +15,7 @@ type Props = {
   onUpdate: (props: Partial<Todo>) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   todo,
   onRemove,
   isBeingLoading,
@@ -113,4 +118,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

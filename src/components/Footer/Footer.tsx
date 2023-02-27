@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import classNames from 'classnames';
 
 import { FilterBy } from '../../types/Filter';
@@ -11,7 +11,7 @@ type Props = {
   onClearCompleted: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = memo(({
   filterBy,
   setFilterBy,
   activeTodosAmount,
@@ -67,4 +67,4 @@ export const Footer: React.FC<Props> = ({
       </button>
     </footer>
   );
-};
+});

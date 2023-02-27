@@ -52,7 +52,9 @@ export const App: React.FC = () => {
     getFiltredTodos(todos, filterBy)
   ), [todos, filterBy]);
 
-  const activeTodosAmount = todos.filter(todo => !todo.completed).length;
+  const activeTodosAmount = useMemo(() => (
+    todos.filter(todo => !todo.completed).length), [todos]);
+
   const isFooterVisible = !!todos.length;
   const isClearButtonVisible = !!(todos.length - activeTodosAmount);
   const expendIconVisibility = (todos.length > 0);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../Todoitem/Todoitem';
 
@@ -9,7 +9,7 @@ type Props = {
   onUpdate: (todo: Todo, props: Partial<Todo>) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = memo(({
   todos,
   tempTodo,
   onRemove,
@@ -36,4 +36,4 @@ export const TodoList: React.FC<Props> = ({
       )}
     </section>
   );
-};
+});

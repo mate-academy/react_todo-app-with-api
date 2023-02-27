@@ -1,4 +1,9 @@
-import React, { FormEvent, useEffect, useRef } from 'react';
+import React, {
+  memo,
+  FormEvent,
+  useEffect,
+  useRef,
+} from 'react';
 
 type Props = {
   onAddTodo: (title: string) => void,
@@ -9,7 +14,7 @@ type Props = {
   onStatusAll: () => void,
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = memo(({
   onAddTodo,
   todoTitle,
   setTodoTitle,
@@ -56,4 +61,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});
