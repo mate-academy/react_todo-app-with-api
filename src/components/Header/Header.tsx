@@ -14,7 +14,7 @@ type Props = {
   toggleStatus: () => void;
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   activeTodosQuantity,
   showTempTodo,
   addNewTodo,
@@ -81,4 +81,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});
