@@ -1,6 +1,6 @@
 import React from 'react';
 import { Todo } from '../../types/Todo';
-import { TodoItem } from '../TodoItem/TodoItem';
+import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[];
@@ -53,7 +53,7 @@ export const TodoList: React.FC<Props> = ({
         />
       ))}
 
-      {tempTodo !== null && (
+      {tempTodo && (
         <div className="todo">
           <label className="todo__status-label">
             <input type="checkbox" className="todo__status" />

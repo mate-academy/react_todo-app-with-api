@@ -1,14 +1,13 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useState,
   useCallback,
   useMemo,
 } from 'react';
-import { Header } from './components/Header/Header';
-import { TodoList } from './components/TodoList/TodoList';
-import { Errors } from './components/Errors/Errors';
-import { Footer } from './components/Footer/Footer';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Errors } from './components/Errors';
+import { Footer } from './components/Footer';
 import { Filter } from './types/Filter';
 import { Todo } from './types/Todo';
 import {
@@ -129,7 +128,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const visibleTodos = filterTodos(todos, filterType);
+  const visibleTodos = useMemo(() => (
+    filterTodos(todos, filterType)
+  ), [todos, filterType]);
 
   const completedTodos = useMemo(() => todos
     .filter(todo => todo.completed), [todos]);
@@ -185,6 +186,8 @@ export const App: React.FC = () => {
     resetTodosIdsToUpdate();
   };
 
+  const renderTodoList = todos.length > 0 || tempTodo !== null;
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -205,7 +208,7 @@ export const App: React.FC = () => {
           toggleAllTodosStatus={toggleAllTodosStatus}
         />
 
-        {(todos.length > 0 || tempTodo !== null) && (
+        {(renderTodoList) && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -226,7 +229,7 @@ export const App: React.FC = () => {
             <Footer
               filterType={filterType}
               setFilterTypeWrapper={setFilterTypeWrapper}
-              completedTodos={completedTodos.length}
+              todos={todos}
               todosCounter={todosCounter}
               deleteCompletedTodos={deleteCompletedTodos}
             />
