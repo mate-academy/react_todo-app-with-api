@@ -30,14 +30,18 @@ export const TodoItem: React.FC<Props> = ({
   }, [isTodoEdition]);
 
   const saveNewTitle = () => {
+    const newTitle = title.trim();
+
     setIsTodoEdition(false);
 
-    if (title === todo.title) {
+    if (newTitle === todo.title) {
       setIsTodoEdition(false);
+
+      return;
     }
 
-    if (title) {
-      updateTitle(todo.id, title);
+    if (newTitle) {
+      updateTitle(todo.id, newTitle);
     } else {
       onButtonRemove(todo.id);
     }

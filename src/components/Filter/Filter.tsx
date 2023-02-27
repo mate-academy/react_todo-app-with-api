@@ -27,38 +27,18 @@ export const Filter: React.FC<Props> = ({
       </span>
 
       <nav className="filter">
-        <a
-          href="#/"
-          className={cn(
-            'filter__link',
-            { selected: filterBy === 'all' },
-          )}
-          onClick={() => setFilterBy(FilterBy.all)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn(
-            'filter__link',
-            { selected: filterBy === 'active' },
-          )}
-          onClick={() => setFilterBy(FilterBy.active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn(
-            'filter__link',
-            { selected: filterBy === 'completed' },
-          )}
-          onClick={() => setFilterBy(FilterBy.completed)}
-        >
-          Completed
-        </a>
+        {Object.values(FilterBy).map(filterType => (
+          <a
+            href="#/"
+            className={cn(
+              'filter__link',
+              { selected: filterBy === filterType },
+            )}
+            onClick={() => setFilterBy(filterType)}
+          >
+            {filterType}
+          </a>
+        ))}
       </nav>
 
       <button

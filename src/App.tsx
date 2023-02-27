@@ -21,6 +21,7 @@ import { NewTodo } from './components/NewTodo';
 import { Filter } from './components/Filter';
 import { TodoWarning } from './components/TodoWarning';
 import { ErrorMessage } from './types/ErrorMessage';
+import { getVisibleTodos } from './utils/visibleTodos';
 
 const USER_ID = 6401;
 
@@ -53,7 +54,10 @@ export const App: React.FC = () => {
   }, []);
 
   const allTodosCompleted = useMemo(() => (
-    todos.every(todo => todo.completed)), []);
+    todos.every(todo => todo.completed)), [todos]);
+
+  const visibleTodos
+    = useMemo(() => getVisibleTodos(todos, filterBy), [todos, filterBy]);
 
   if (isError) {
     let timerId;
@@ -68,10 +72,12 @@ export const App: React.FC = () => {
   }
 
   const addTodoToServer = async () => {
+    const newTitle = title.trim();
+
     try {
-      if (title) {
+      if (newTitle) {
         const newTodo = {
-          title,
+          title: newTitle,
           userId: USER_ID,
           completed: false,
         };
@@ -108,6 +114,7 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
       setTodos(current => current.filter(todo => todo.id !== todoId));
     } catch {
+      setIsError(true);
       setErrorMessage(ErrorMessage.deleteTodo);
     } finally {
       setLoadingTodoIds([0]);
@@ -205,8 +212,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <TodoList
-              todos={todos}
-              filterBy={filterBy}
+              visibleTodos={visibleTodos}
               tempTodo={tempTodo}
               onButtonRemove={onButtonRemove}
               loadingTodoIds={loadingTodoIds}
