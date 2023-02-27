@@ -5,7 +5,7 @@ interface Props {
   tempTodo: Todo,
 }
 
-export const TempTodoInfo: React.FC<Props> = ({ tempTodo }) => (
+export const TempTodoInfo: React.FC<Props> = React.memo(({ tempTodo }) => (
   <div className="todo">
     <label className="todo__status-label">
       <input type="checkbox" className="todo__status" />
@@ -19,4 +19,4 @@ export const TempTodoInfo: React.FC<Props> = ({ tempTodo }) => (
       <div className="loader" />
     </div>
   </div>
-);
+));

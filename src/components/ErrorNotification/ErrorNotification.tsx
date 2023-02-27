@@ -8,7 +8,7 @@ interface Props {
   setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const ErrorNotification: React.FC<Props> = (
+export const ErrorNotification: React.FC<Props> = React.memo((
   {
     isHidden,
     errorMessage,
@@ -31,4 +31,4 @@ export const ErrorNotification: React.FC<Props> = (
       {errorMessage}
     </div>
   );
-};
+});
