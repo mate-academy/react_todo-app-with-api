@@ -11,41 +11,41 @@ import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { FilterByStatus } from './types/FilterByStatus';
-import { PossibleError } from './types/PossibleError';
+import { ErrorTypes } from './types/PossibleError';
 import { getTodos, removeTodo, updateTodoOnServer } from './api/todos';
 import {
   completedTodosLength,
   activeTodosLength,
+  clearNotification,
   filterTodos,
 } from './utils/functions';
 import { UserIdContext } from './utils/context';
 import { ChangeTodo } from './types/ChangeTodo';
-
-// const USER_ID = 6383;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredByStatus, setFilteredByStatus]
   = useState<FilterByStatus>(FilterByStatus.All);
   const [possibleError, setPossibleError]
-  = useState<PossibleError>(PossibleError.None);
+  = useState<ErrorTypes>(ErrorTypes.None);
   const [tempTodoName, setTempTodoName] = useState('');
   const [isClearCompleted, setIsClearCompleted] = useState(false);
   const [isToggled, setIsToggled] = useState(false);
 
   const userId = useContext(UserIdContext);
 
+  const getTodosFromServer = useCallback(async () => {
+    try {
+      const todosFromServer = await getTodos(userId);
+
+      setTodos(todosFromServer);
+    } catch (error) {
+      setPossibleError(ErrorTypes.Download);
+      clearNotification(setPossibleError, 3000);
+    }
+  }, []);
+
   useEffect(() => {
-    const getTodosFromServer = async () => {
-      try {
-        const todosFromServer = await getTodos(userId);
-
-        setTodos(todosFromServer);
-      } catch (error) {
-        setPossibleError(PossibleError.Download);
-      }
-    };
-
     getTodosFromServer();
   }, []);
 
@@ -54,12 +54,12 @@ export const App: React.FC = () => {
     [filteredByStatus, todos],
   );
 
-  const showError = useCallback((error: PossibleError) => {
+  const showError = useCallback((error: ErrorTypes) => {
     setPossibleError(error);
   }, []);
 
   const hideError = useCallback(() => {
-    setPossibleError(PossibleError.None);
+    setPossibleError(ErrorTypes.None);
   }, []);
 
   const addNewTodo = useCallback(
@@ -121,7 +121,7 @@ export const App: React.FC = () => {
         });
       });
     } catch {
-      showError(PossibleError.Update);
+      showError(ErrorTypes.Update);
     } finally {
       setIsToggled(false);
     }
@@ -142,11 +142,14 @@ export const App: React.FC = () => {
         return prevTodos.filter(({ id }) => !todosAllId.includes(id));
       });
     } catch {
-      showError(PossibleError.Delete);
+      showError(ErrorTypes.Delete);
     } finally {
       setIsClearCompleted(false);
     }
   }, [todos]);
+
+  const ativeTodosQuantity = activeTodosLength(todos);
+  const completedTodosQuantity = completedTodosLength(todos);
 
   return (
     <div className="todoapp">
@@ -155,11 +158,10 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <Header
-          activeTodosLength={activeTodosLength(todos)}
+          activeTodosQuantity={ativeTodosQuantity}
           showTempTodo={setTempTodoName}
           createNewTodo={addNewTodo}
           showError={showError}
-          hideError={hideError}
           toggleStatus={toggleStatus}
         />
 
@@ -172,13 +174,13 @@ export const App: React.FC = () => {
           showError={showError}
           hideError={hideError}
           isToggled={isToggled}
-          activeTodosLength={activeTodosLength(todos)}
+          activeTodosQuantity={ativeTodosQuantity}
         />
 
         {todos.length && (
           <Footer
-            activeTodosLength={activeTodosLength(todos)}
-            completedTodosLength={completedTodosLength(todos)}
+            activeTodosQuantity={ativeTodosQuantity}
+            completedTodosQuantity={completedTodosQuantity}
             filteredByStatus={filteredByStatus}
             setFilteredByStatus={setFilteredByStatus}
             onClearCompleted={onClearCompleted}

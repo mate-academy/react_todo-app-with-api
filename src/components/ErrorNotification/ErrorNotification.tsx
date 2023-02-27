@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { PossibleError } from '../../types/PossibleError';
+import { ErrorTypes } from '../../types/PossibleError';
+import { errorMessage } from '../../utils/functions';
 
 type Props = {
-  possibleError: PossibleError;
+  possibleError: ErrorTypes;
   onErrorNotificationClose: () => void;
 };
 
@@ -11,28 +12,12 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
   possibleError,
   onErrorNotificationClose,
 }) => {
-  let errorMessage = '';
-
-  switch (possibleError) {
-    case PossibleError.Add:
-    case PossibleError.Delete:
-    case PossibleError.Update:
-    case PossibleError.Download:
-      errorMessage = `Unable to ${possibleError} a todo`;
-
-      break;
-
-    case PossibleError.EmptyTitle:
-      errorMessage = 'Title can`t be empty';
-
-      break;
-
-    default:
-      errorMessage = '';
-  }
+  const errorText = errorMessage(possibleError);
 
   useEffect(() => {
-    setTimeout(() => onErrorNotificationClose(), 3000);
+    const timerId = setTimeout(() => onErrorNotificationClose(), 3000);
+
+    return () => clearTimeout(timerId);
   }, []);
 
   return (
@@ -43,19 +28,17 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
         'is-light',
         'has-text-weight-normal',
         {
-          hidden: possibleError === PossibleError.None,
+          hidden: possibleError === ErrorTypes.None,
         },
       )}
     >
       <button
         type="button"
-        className={classNames('delete', {
-          hidden: possibleError === PossibleError.None,
-        })}
+        className="delete"
         onClick={onErrorNotificationClose}
         aria-label="Close notification about an error"
       />
-      {errorMessage}
+      {errorText}
     </div>
   );
 });

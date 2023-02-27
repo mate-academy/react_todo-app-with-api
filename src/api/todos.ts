@@ -1,12 +1,14 @@
 import { Todo } from '../types/Todo';
 import { TodoToUpdate } from '../types/TodoToUpdate';
 import { client } from '../utils/fetchClient';
+import { TodoPost } from '../types/TodoPost';
 
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const createTodo = (newTodo: unknown, userId: {}): Promise<Todo> => {
+export const createTodo
+= (newTodo: TodoPost, userId: number): Promise<Todo> => {
   return client.post<Todo>(`/todos?userId=${userId}`, newTodo);
 };
 

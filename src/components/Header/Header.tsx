@@ -3,24 +3,22 @@ import classNames from 'classnames';
 import { UserIdContext } from '../../utils/context';
 import { Todo } from '../../types/Todo';
 import { createTodo } from '../../api/todos';
-import { PossibleError } from '../../types/PossibleError';
+import { ErrorTypes } from '../../types/PossibleError';
 import { TodoPost } from '../../types/TodoPost';
 
 type Props = {
-  activeTodosLength: number;
+  activeTodosQuantity: number;
   showTempTodo: (tempTodoTilte: string) => void;
   createNewTodo: (newTodo: Todo) => void;
-  showError: (possibleError: PossibleError) => void;
-  hideError: () => void;
+  showError: (possibleError: ErrorTypes) => void;
   toggleStatus: () => void;
 };
 
 export const Header: React.FC<Props> = ({
-  activeTodosLength,
+  activeTodosQuantity,
   showTempTodo,
   createNewTodo,
   showError,
-  hideError,
   toggleStatus,
 }) => {
   const [newTodoName, setNewTodoName] = useState('');
@@ -36,15 +34,10 @@ export const Header: React.FC<Props> = ({
     const title = newTodoName.trim();
 
     if (!title) {
-      showError(PossibleError.EmptyTitle);
+      showError(ErrorTypes.EmptyTitle);
 
       return;
     }
-
-    hideError();
-    showTempTodo(title);
-
-    setIsInputIncorrect(true);
 
     const newTodo: TodoPost = {
       userId,
@@ -57,7 +50,7 @@ export const Header: React.FC<Props> = ({
 
       createNewTodo(createdTodo);
     } catch {
-      showError(PossibleError.Add);
+      showError(ErrorTypes.Add);
     } finally {
       showTempTodo('');
       setNewTodoName('');
@@ -70,7 +63,7 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !activeTodosLength,
+          active: !activeTodosQuantity,
         })}
         onClick={toggleStatus}
         aria-label="Toggle all todos"

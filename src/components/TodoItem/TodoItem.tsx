@@ -7,13 +7,13 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { removeTodo, updateTodoOnServer } from '../../api/todos';
-import { PossibleError } from '../../types/PossibleError';
+import { ErrorTypes } from '../../types/PossibleError';
 import { ChangeTodo } from '../../types/ChangeTodo';
 
 type Props = {
   todo: Todo;
   deleteTodo?: (todoId: number) => void;
-  showError?: (possibleError: PossibleError) => void;
+  showError?: (possibleError: ErrorTypes) => void;
   hideError?: () => void;
   isLoading: boolean;
   changeTodo?: ChangeTodo,
@@ -49,7 +49,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
       deleteTodo(id);
     } catch {
-      showError(PossibleError.Delete);
+      showError(ErrorTypes.Delete);
       setIsWaiting(false);
 
       onError?.();
@@ -66,11 +66,11 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setIsWaiting(true);
 
     try {
-      await updateTodoOnServer(todoId, { [title]: newValue });
+      await updateTodoOnServer(todoId, { [name]: newValue });
 
       changeTodo(todoId, name, newValue);
     } catch {
-      showError(PossibleError.Update);
+      showError(ErrorTypes.Update);
 
       onError?.();
     } finally {
@@ -122,6 +122,14 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setEditTitle(title);
   };
 
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    setIsEditing(true);
+  };
+
   return (
     <div
       className={classNames('todo',
@@ -158,13 +166,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             tabIndex={0}
             aria-label="Press Enter to edit title"
             className="todo__title"
-            onKeyUp={(event) => {
-              if (event.key !== 'Enter') {
-                return;
-              }
-
-              setIsEditing(true);
-            }}
+            onKeyUp={handleKeyUp}
             onDoubleClick={() => setIsEditing(true)}
           >
             {title}

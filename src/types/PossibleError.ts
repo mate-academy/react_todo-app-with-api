@@ -1,4 +1,4 @@
-export enum PossibleError {
+export enum ErrorTypes {
   None = 'none',
   Download = 'download',
   Add = 'add',

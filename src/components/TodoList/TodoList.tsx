@@ -2,17 +2,16 @@ import React, { useContext, useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 import { UserIdContext } from '../../utils/context';
-import { PossibleError } from '../../types/PossibleError';
+import { ErrorTypes } from '../../types/PossibleError';
 import { PossibleTodo } from '../../types/PossibleTodo';
 import { ChangeTodo } from '../../types/ChangeTodo';
-// import { activeTodosLength } from '../../utils/functions';
 
 type Props = {
   todos: Todo[];
   tempTodoName: string;
-  activeTodosLength: number;
+  activeTodosQuantity: number;
   deleteTodo: (todoId: number) => void;
-  showError: (possibleError: PossibleError) => void;
+  showError: (possibleError: ErrorTypes) => void;
   hideError: () => void;
   isClearCompleted: boolean;
   isToggled: boolean;
@@ -22,7 +21,7 @@ type Props = {
 export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodoName,
-  activeTodosLength,
+  activeTodosQuantity,
   isToggled,
   deleteTodo,
   showError,
@@ -43,7 +42,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   );
 
   const isLoading = (isTodoCompleted: boolean): boolean => {
-    const hasTodoBeToggled = !activeTodosLength
+    const hasTodoBeToggled = !activeTodosQuantity
       ? isTodoCompleted
       : !isTodoCompleted;
     const isTodoToggled = isToggled && hasTodoBeToggled;
@@ -69,9 +68,6 @@ export const TodoList: React.FC<Props> = React.memo(({
         <TodoItem
           key={0}
           todo={tempTodo}
-          showError={() => {}}
-          hideError={() => {}}
-          deleteTodo={() => {}}
           isLoading
         />
       )}
