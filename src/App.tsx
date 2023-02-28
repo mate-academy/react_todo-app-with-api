@@ -146,10 +146,10 @@ export const App: React.FC = () => {
   //     }));
   // };
 
-  const dispatchTitle = (e: string) => {
+  const dispatchTitle = (newTitle: string) => {
     dispatch({
       type: ReducerType.TITLE,
-      newTitle: e,
+      newTitle,
     });
   };
 
