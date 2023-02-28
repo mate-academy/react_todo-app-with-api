@@ -36,36 +36,38 @@ export const App: React.FC = () => {
   const [selectFilter, setSelectFilter] = useState<FilterTodos>(FilterTodos.ALL);
 
   const activeTodos = todos.filter(({ completed }) => !completed);
+  const allCompleted = todos.filter(({ completed }) => completed);
+  const isAllCompleted = allCompleted.length === todos.length;
 
   const pushError = (message: string) => {
     setErrorMessage(message);
     warningTimer(setErrorMessage, '', 3000);
   };
 
-  const handleEventChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
     setTitle(value);
   };
 
   const handleAddTodo = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!title.trim().length) {
-      pushError('Title can\'t be empty');
-      setTitle('');
-
-      return;
-    }
-
-    const newTodo = {
-      id: 0,
-      title,
-      userId: USER_ID,
-      completed: false,
-    };
-
     try {
+      e.preventDefault();
+
+      if (!title.trim().length) {
+        pushError('Title can\'t be empty');
+        setTitle('');
+
+        return;
+      }
+
+      const newTodo = {
+        id: 0,
+        title,
+        userId: USER_ID,
+        completed: false,
+      };
+
       setCreatingTodo(newTodo);
 
       const addedTodo = await createTodo(USER_ID, newTodo);
@@ -93,10 +95,6 @@ export const App: React.FC = () => {
         .filter(({ id }) => id !== removeTodo.id));
     }
   }, []);
-
-  const allCompleted = todos.filter(({ completed }) => completed);
-
-  const isAllCompleted = allCompleted.length === todos.length;
 
   const clearCompleted = useCallback(() => {
     allCompleted.forEach(async todo => {
@@ -207,7 +205,7 @@ export const App: React.FC = () => {
           onToogleUpdateTodos={toogleUpdateTodos}
           onSubmit={handleAddTodo}
           title={title}
-          onEventChange={handleEventChange}
+          onEventChange={handleChangeEvent}
         />
 
         <TodoList

@@ -34,18 +34,14 @@ export const TodoItem: React.FC<Props> = ({
     const trimTodoTitle = todoTitle.trim();
 
     if (trimTodoTitle === todo.title) {
-      setTodoTitle(title);
-
-      return;
+      return setTodoTitle(title);
     }
 
     if (!trimTodoTitle) {
-      onRemoveTodo(todo);
-
-      return;
+      return onRemoveTodo(todo);
     }
 
-    onHandleUpdate({
+    return onHandleUpdate({
       ...todo,
       title: todoTitle,
     });
