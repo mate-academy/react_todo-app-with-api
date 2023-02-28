@@ -7,12 +7,12 @@ interface Props {
   errorMessage: string;
 }
 
-export const TodoWarning: React.FC<Props> = ({
-  isError,
-  setIsError,
-  errorMessage,
-}) => {
-  return (
+export const TodoWarning: React.FC<Props> = React.memo(
+  ({
+    isError,
+    setIsError,
+    errorMessage,
+  }) => (
     <div
       className={cn(
         'notification',
@@ -31,5 +31,5 @@ export const TodoWarning: React.FC<Props> = ({
 
       {errorMessage}
     </div>
-  );
-};
+  ),
+);

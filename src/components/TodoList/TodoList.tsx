@@ -1,3 +1,4 @@
+import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TempTodo } from '../../types/TempTodo';
 import { TodoItem } from '../Todoitem';
@@ -11,39 +12,41 @@ interface Props {
   updateTitle: (id: number, newTitle: string) => void
 }
 
-export const TodoList: React.FC<Props> = ({
-  visibleTodos,
-  tempTodo,
-  onButtonRemove,
-  loadingTodoIds,
-  ToggleStatusCompleted,
-  updateTitle,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {visibleTodos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          onButtonRemove={onButtonRemove}
-          loadingTodoIds={loadingTodoIds}
-          ToggleStatusCompleted={ToggleStatusCompleted}
-          updateTitle={updateTitle}
-        />
-      ))}
-
-      {tempTodo && (
-        <>
+export const TodoList: React.FC<Props> = React.memo(
+  ({
+    visibleTodos,
+    tempTodo,
+    onButtonRemove,
+    loadingTodoIds,
+    ToggleStatusCompleted,
+    updateTitle,
+  }) => {
+    return (
+      <section className="todoapp__main">
+        {visibleTodos.map(todo => (
           <TodoItem
-            key={tempTodo?.id}
-            todo={tempTodo}
+            key={todo.id}
+            todo={todo}
             onButtonRemove={onButtonRemove}
             loadingTodoIds={loadingTodoIds}
             ToggleStatusCompleted={ToggleStatusCompleted}
             updateTitle={updateTitle}
           />
-        </>
-      )}
-    </section>
-  );
-};
+        ))}
+
+        {tempTodo && (
+          <>
+            <TodoItem
+              key={tempTodo?.id}
+              todo={tempTodo}
+              onButtonRemove={onButtonRemove}
+              loadingTodoIds={loadingTodoIds}
+              ToggleStatusCompleted={ToggleStatusCompleted}
+              updateTitle={updateTitle}
+            />
+          </>
+        )}
+      </section>
+    );
+  },
+);
