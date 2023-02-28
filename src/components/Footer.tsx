@@ -19,16 +19,16 @@ export const Footer: React.FC<Props> = ({
   onChange,
   onClearCompleted,
 }) => {
-  const onAllClick = () => {
-    onChange(Filter.all);
+  const handleAllClick = () => {
+    onChange(Filter.All);
   };
 
-  const onActiveClick = () => {
-    onChange(Filter.active);
+  const handleActiveClick = () => {
+    onChange(Filter.Active);
   };
 
-  const onCompletedClick = () => {
-    onChange(Filter.completed);
+  const handleCompletedClick = () => {
+    onChange(Filter.Completed);
   };
 
   return (
@@ -42,9 +42,9 @@ export const Footer: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.all },
+            { selected: filter === Filter.All },
           )}
-          onClick={onAllClick}
+          onClick={handleAllClick}
         >
           All
         </a>
@@ -53,9 +53,9 @@ export const Footer: React.FC<Props> = ({
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.active },
+            { selected: filter === Filter.Active },
           )}
-          onClick={onActiveClick}
+          onClick={handleActiveClick}
         >
           Active
         </a>
@@ -64,9 +64,9 @@ export const Footer: React.FC<Props> = ({
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.completed },
+            { selected: filter === Filter.Completed },
           )}
-          onClick={onCompletedClick}
+          onClick={handleCompletedClick}
         >
           Completed
         </a>

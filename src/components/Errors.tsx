@@ -14,7 +14,7 @@ export const Errors: React.FC<Props> = ({
   errorVisibility,
   onHidden,
 }) => {
-  const onCloseClick = () => {
+  const handleCloseClick = () => {
     onHidden(true);
   };
 
@@ -35,7 +35,7 @@ export const Errors: React.FC<Props> = ({
         type="button"
         className="delete"
         aria-label="Close error"
-        onClick={onCloseClick}
+        onClick={handleCloseClick}
       />
 
       {errorMessage}
