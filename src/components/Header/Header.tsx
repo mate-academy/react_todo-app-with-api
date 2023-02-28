@@ -14,19 +14,19 @@ type Props = {
   setUpdatedTodoId: (type: boolean) => void,
 };
 
-export const Header: React.FC<Props> = (
-  {
-    setQuery,
-    query,
-    handleSubmit,
-    handleUpdateFullCompleted,
-    tempTodo,
-    todos,
-    activeTodosAmount,
-    setUpdatedTodoId,
-  },
-) => {
-  return (
+export const Header: React.FC<Props> = React.memo(
+  (
+    {
+      setQuery,
+      query,
+      handleSubmit,
+      handleUpdateFullCompleted,
+      tempTodo,
+      todos,
+      activeTodosAmount,
+      setUpdatedTodoId,
+    },
+  ) => (
     <header className="todoapp__header">
       {todos.length > 0 && (
         <button
@@ -50,5 +50,5 @@ export const Header: React.FC<Props> = (
         tempTodo={tempTodo}
       />
     </header>
-  );
-};
+  ),
+);

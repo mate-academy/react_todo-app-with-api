@@ -24,19 +24,17 @@ export const Footer: React.FC<Props> = React.memo(
       </span>
 
       <nav className="filter">
-        {Object.values(Filter).map(element => {
-          return (
-            <a
-              href="#/"
-              className={cn('filter__link', {
-                selected: filter === element,
-              })}
-              onClick={() => filterTodosBy(element)}
-            >
-              {element}
-            </a>
-          );
-        })}
+        {Object.values(Filter).map(element => (
+          <a
+            href="#/"
+            className={cn('filter__link', {
+              selected: filter === element,
+            })}
+            onClick={() => filterTodosBy(element)}
+          >
+            {element}
+          </a>
+        ))}
       </nav>
 
       {isThereCompleted && (

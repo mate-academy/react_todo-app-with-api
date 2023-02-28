@@ -8,29 +8,31 @@ type Props = {
   tempTodo: Todo | null,
 };
 
-export const AddTodoForm: React.FC<Props> = ({
-  setQuery,
-  query,
-  handleSubmit,
-  tempTodo,
-}) => {
-  const submitForm = (event: React.FormEvent) => {
-    event.preventDefault();
-    handleSubmit();
-  };
+export const AddTodoForm: React.FC<Props> = React.memo(
+  ({
+    setQuery,
+    query,
+    handleSubmit,
+    tempTodo,
+  }) => {
+    const submitForm = (event: React.FormEvent) => {
+      event.preventDefault();
+      handleSubmit();
+    };
 
-  return (
-    <form
-      onSubmit={(event) => submitForm(event)}
-    >
-      <input
-        type="text"
-        className="todoapp__new-todo"
-        placeholder="What needs to be done?"
-        value={query}
-        onChange={event => setQuery(event.target.value)}
-        disabled={!!tempTodo}
-      />
-    </form>
-  );
-};
+    return (
+      <form
+        onSubmit={(event) => submitForm(event)}
+      >
+        <input
+          type="text"
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+          value={query}
+          onChange={event => setQuery(event.target.value)}
+          disabled={!!tempTodo}
+        />
+      </form>
+    );
+  },
+);

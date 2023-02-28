@@ -201,6 +201,12 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  // const event = new Date();
+
+  // event.setHours(event.getHours() + 2);
+
+  // console.log(event);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -217,7 +223,7 @@ export const App: React.FC = () => {
           setUpdatedTodoId={setUpdatedTodoId}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
