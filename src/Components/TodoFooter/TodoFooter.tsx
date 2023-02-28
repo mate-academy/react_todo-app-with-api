@@ -14,43 +14,39 @@ type Props = {
 
 const filterOptions = Object.values(FilterType);
 
-export const TodoFooter: React.FC<Props> = React.memo(
-  ({
-    activeTodosNum,
-    counterCompletedTodos,
-    selectFilter,
-    onSelectFilter,
-    onClearCompleted,
-  }) => {
-    return (
-      <footer className="todoapp__footer">
-        <span className="todo-count">{`${activeTodosNum} items left`}</span>
+export const TodoFooter: React.FC<Props> = React.memo(({
+  activeTodosNum,
+  counterCompletedTodos,
+  selectFilter,
+  onSelectFilter,
+  onClearCompleted,
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">{`${activeTodosNum} items left`}</span>
 
-        <nav className="filter">
-          {filterOptions.map((option) => (
-            <a
-              key={option}
-              href={`#/${option}`}
-              className={classNames('filter__link', {
-                selected: option === selectFilter,
-              })}
-              onClick={() => onSelectFilter(option)}
-            >
-              {capitalizeFirstLetter(option)}
-            </a>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          className={classNames('todoapp__clear-completed', {
-            hidden: !counterCompletedTodos,
+    <nav className="filter">
+      {filterOptions.map((option) => (
+        <a
+          key={option}
+          href={`#/${option}`}
+          className={classNames('filter__link', {
+            selected: option === selectFilter,
           })}
-          onClick={onClearCompleted}
+          onClick={() => onSelectFilter(option)}
         >
-          Clear completed
-        </button>
-      </footer>
-    );
-  },
-);
+          {capitalizeFirstLetter(option)}
+        </a>
+      ))}
+    </nav>
+
+    <button
+      type="button"
+      className={classNames('todoapp__clear-completed', {
+        hidden: !counterCompletedTodos,
+      })}
+      onClick={onClearCompleted}
+    >
+      Clear completed
+    </button>
+  </footer>
+));

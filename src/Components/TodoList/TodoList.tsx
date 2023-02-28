@@ -78,6 +78,10 @@ export const TodoList: React.FC<Props> = React.memo(({
             <TodoItem
               todo={tempTodo}
               isLoading
+              showError={showError}
+              hideError={hideError}
+              onDeleteTodo={onDeleteTodo}
+              onChangeTodo={onChangeTodo}
             />
           </CSSTransition>
         )}

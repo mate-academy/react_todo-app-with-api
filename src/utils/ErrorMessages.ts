@@ -1,6 +1,6 @@
 import { ErrorType } from '../enums/ErrorType';
 
-export function errorMess(
+export function errorMessages(
   message: ErrorType,
   callback: (message: ErrorType) => void,
 ) {

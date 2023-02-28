@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 
 import { ErrorType } from '../../enums/ErrorType';
-import { errorMess } from '../../utils/ErrorMess';
+import { errorMessages } from '../../utils/ErrorMessages';
 
 type Props = {
   errorType: ErrorType;
@@ -16,7 +16,7 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    errorMess(errorType, setErrorMessage);
+    errorMessages(errorType, setErrorMessage);
   }, [errorType]);
 
   useEffect(() => {
