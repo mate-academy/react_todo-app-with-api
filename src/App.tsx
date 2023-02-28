@@ -19,16 +19,25 @@ const USER_ID = 6358;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorType, setErrorType] = useState(ErrorType.NONE);
+  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.NONE);
   const [sortType, setSortType] = useState<SortType>(SortType.ALL);
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodos, setProcessingTodos] = useState<number[]>([]);
 
-  const isTodos = todos.length !== 0;
-  const activeTodosAmount = todos.filter(todo => !todo.completed).length;
-  const isCompletedTodos = todos.some(todo => todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
+  const hasTodos = todos.length !== 0;
+  const activeTodosAmount = useMemo(
+    () => todos.filter(todo => !todo.completed).length, [todos],
+  );
+
+  const isCompletedTodos = useMemo(
+    () => todos.some(todo => todo.completed), [todos],
+  );
+
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed), [todos],
+  );
+
   const isAllCompleted = (
     todos.length === completedTodos.length && todos.length > 0);
 
@@ -177,7 +186,7 @@ export const App: React.FC = () => {
           onUpdateTodo={handleUpdateTodo}
         />
 
-        {isTodos && (
+        {hasTodos && (
           <Footer
             activeTodosAmount={activeTodosAmount}
             onSort={handleSortTodos}

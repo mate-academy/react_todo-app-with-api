@@ -9,7 +9,7 @@ interface Props {
   onUpdateTodo: (id: number, title: string, status: boolean,) => void;
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   onDeleteTodo,
   processingTodos,
@@ -119,4 +119,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

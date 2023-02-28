@@ -11,7 +11,7 @@ interface Props {
   onUpdateTodo: (id: number, title: string, status: boolean,) => void;
 }
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   onDeleteTodo,
@@ -51,4 +51,4 @@ export const TodoList: React.FC<Props> = ({
       )}
     </TransitionGroup>
   </section>
-);
+));
