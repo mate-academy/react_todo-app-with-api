@@ -5,14 +5,14 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   deleteTodo: (todoId:number) => void;
-  isUpdatingIds:number[];
+  updatingTodoIds:number[];
   updateTodo: (todo: Todo, key:keyof Todo, value: string | boolean) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
-  isUpdatingIds,
+  updatingTodoIds,
   updateTodo,
 }) => {
   const { title, completed, id } = todo;
@@ -122,7 +122,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         className={classNames('modal', 'overlay', {
-          'is-active': isUpdatingIds.includes(id),
+          'is-active': updatingTodoIds.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

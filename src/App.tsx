@@ -18,12 +18,28 @@ import { UserWarning } from './UserWarning';
 
 const USER_ID = 6398;
 
+const filterTodos = (todos:Todo[], selectedStatus: TodoStatus) => (
+  todos.filter(todo => {
+    switch (selectedStatus) {
+      case TodoStatus.Active:
+        return !todo.completed;
+
+      case TodoStatus.Completed:
+        return todo.completed;
+
+      case TodoStatus.All:
+      default:
+        return true;
+    }
+  })
+);
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(TodoStatus.All);
   const [errorType, setErrorType] = useState(Errors.None);
   const [hasErrorNotification, setHasErrorNotification] = useState(false);
-  const [isUpdatingIds, setIsUpdatingIds] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
   const hideErrorNotifications = () => setHasErrorNotification(false);
   const showErrorNotification = (error:Errors) => {
@@ -47,17 +63,21 @@ export const App: React.FC = () => {
   }, []);
 
   const addNewTodo = async (title: string) => {
-    try {
-      const newTodo = {
-        title,
-        userId: USER_ID,
-        completed: false,
-      };
+    if (title.trim()) {
+      try {
+        const newTodo = {
+          title,
+          userId: USER_ID,
+          completed: false,
+        };
 
-      await addTodos(newTodo);
-      await fetchAllTodos();
-    } catch {
-      showErrorNotification(Errors.Add);
+        await addTodos(newTodo);
+        await fetchAllTodos();
+      } catch {
+        showErrorNotification(Errors.Add);
+      }
+    } else {
+      showErrorNotification(Errors.EmptyTitle);
     }
   };
 
@@ -80,27 +100,18 @@ export const App: React.FC = () => {
       [key]: value,
     };
 
-    setIsUpdatingIds((currentIds) => [...currentIds, todo.id]);
+    setUpdatingTodoIds((currentIds) => [...currentIds, todo.id]);
 
     try {
       await editTodos(todo.id, editedTodo);
       await fetchAllTodos();
-      // setIsLoaded(true);
-      setIsUpdatingIds([]);
+      setUpdatingTodoIds([]);
     } catch (error) {
       showErrorNotification(Errors.Edit);
     }
   };
 
-  let visibleTodos = [...todos];
-
-  if (selectedStatus === TodoStatus.Active) {
-    visibleTodos = todos.filter(todo => !todo.completed);
-  }
-
-  if (selectedStatus === TodoStatus.Completed) {
-    visibleTodos = todos.filter(todo => todo.completed);
-  }
+  const visibleTodos = filterTodos(todos, selectedStatus);
 
   const clearCompleted = () => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
@@ -140,14 +151,14 @@ export const App: React.FC = () => {
                   todo={todo}
                   deleteTodo={deleteTodoFromServer}
                   updateTodo={updateTodo}
-                  isUpdatingIds={isUpdatingIds}
+                  updatingTodoIds={updatingTodoIds}
                 />
               </CSSTransition>
             ))}
           </TransitionGroup>
         </section>
 
-        {visibleTodos.length > 0
+        {todos.length > 0
           && (
             <Footer
               selectStatus={setSelectedStatus}
@@ -159,14 +170,11 @@ export const App: React.FC = () => {
 
       </div>
 
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      {hasErrorNotification
-        && (
-          <Notification
-            notificationMessage={errorType}
-            hideErrorNotifications={hideErrorNotifications}
-          />
-        )}
+      <Notification
+        notificationMessage={errorType}
+        hasErrorNotification={hasErrorNotification}
+        hideErrorNotifications={hideErrorNotifications}
+      />
     </div>
   );
 };
