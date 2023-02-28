@@ -26,7 +26,7 @@ export const Content: React.FC<Props> = ({
   onError,
   onHidden,
 }) => {
-  const [filter, setFilter] = useState<Filter>(Filter.all);
+  const [filter, setFilter] = useState<Filter>(Filter.All);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isAdded, setIsAdded] = useState(false);
@@ -154,13 +154,13 @@ export const Content: React.FC<Props> = ({
   useEffect(() => {
     setVisibleTodos(todos.filter(todo => {
       switch (filter) {
-        case (Filter.all):
+        case (Filter.All):
           return !!todo;
 
-        case (Filter.active):
+        case (Filter.Active):
           return !todo.completed;
 
-        case (Filter.completed):
+        case (Filter.Completed):
           return todo.completed;
 
         default:
