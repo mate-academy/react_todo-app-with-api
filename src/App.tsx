@@ -14,14 +14,17 @@ import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { FilterBy } from './types/FilterBy';
 import { Notification } from './components/Notification';
+import { NewTodo } from './types/NewTodo';
+import { ErrorNotifications } from './types/ErrorNotifications';
 
 const USER_ID = 6259;
+let isToggled = false;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
   const [isError, setIsError] = useState(false);
-  const [errorText, setErrorText] = useState('');
+  const [errorText, setErrorText] = useState(ErrorNotifications.NONE);
   const [todoTitle, setTodoTitle] = useState('');
   const [disableInput, setDisableInput] = useState(false);
   const [editingTodosId, setEditingTodosId] = useState<number[]>([]);
@@ -35,9 +38,8 @@ export const App: React.FC = () => {
       setTodos(data);
       setDisableInput(false);
     } catch (error) {
-      setErrorText('Error with loading todos');
+      setErrorText(ErrorNotifications.LOADING);
       setIsError(true);
-      throw new Error('Error with loading todos');
     }
   };
 
@@ -46,40 +48,35 @@ export const App: React.FC = () => {
   }, []);
 
   const handleAddTodo = async (todoText: string) => {
-    if (todoTitle.length === 0) {
+    if (!todoTitle.trim()) {
       setIsError(true);
-      setErrorText('Title can\'t be empty');
+      setErrorText(ErrorNotifications.TITLE);
+    } else {
+      const newTodoBody: NewTodo = {
+        title: todoText,
+        userId: USER_ID,
+        completed: false,
+      };
 
-      return;
-    }
-
-    const newTodoBody = {
-      id: 0,
-      title: todoText,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    try {
-      setDisableInput(true);
-      setTodoTitle('');
-      await addTodo(USER_ID, newTodoBody);
-      getAllTodos();
-    } catch {
-      setIsError(true);
-      setErrorText('Unable to add a todo');
+      try {
+        setTodoTitle('');
+        await addTodo(USER_ID, newTodoBody);
+        getAllTodos();
+      } catch {
+        setIsError(true);
+        setErrorText(ErrorNotifications.ADD);
+      }
     }
   };
 
   const handleDeleteTodo = async (todoId: number) => {
     setEditingTodosId(cur => [...cur, todoId]);
     try {
-      setDisableInput(true);
       await deleteTodo(USER_ID, todoId);
       getAllTodos();
     } catch {
       setIsError(true);
-      setErrorText('Unable to delete a todo');
+      setErrorText(ErrorNotifications.DELETE);
     }
 
     setEditingTodosId(cur => cur.filter(id => id !== todoId));
@@ -90,12 +87,11 @@ export const App: React.FC = () => {
 
     setEditingTodosId(cur => [...cur, todoId]);
     try {
-      setDisableInput(true);
       await completedTodo(USER_ID, todoId, { completed });
       getAllTodos();
     } catch {
       setIsError(true);
-      setErrorText('Unable to update a todo');
+      setErrorText(ErrorNotifications.UPDATE_STATUS);
     }
 
     setEditingTodosId(cur => cur.filter(id => id !== todoId));
@@ -119,17 +115,21 @@ export const App: React.FC = () => {
       getAllTodos();
     } catch {
       setIsError(true);
-      setErrorText('Unable to update a todo title');
+      setErrorText(ErrorNotifications.UPDATE);
     }
 
     setEditingTodosId([]);
   };
 
   const toggleAll = async () => {
-    todos.forEach(todo => handleCompletedTodo(todo.id, todo.completed));
+    todos.forEach(todo => handleCompletedTodo(todo.id, isToggled));
+    isToggled = !isToggled;
   };
 
   const hasCompletedTodos = todos.some(todo => todo.completed === true);
+
+  const activeTodosCounter = todos
+    .filter(todo => todo.completed === false).length;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -153,7 +153,7 @@ export const App: React.FC = () => {
 
   const hasActiveTodos = todos.some(todo => !todo.completed);
 
-  let filteredTodos = todos;
+  let filteredTodos = [...todos];
 
   switch (filterBy) {
     case FilterBy.Active:
@@ -180,6 +180,7 @@ export const App: React.FC = () => {
           handleAddTodo={handleAddTodo}
           disableInput={disableInput}
           toggleAll={toggleAll}
+          itemsCounter={filteredTodos.length}
         />
 
         <TodoList
@@ -197,7 +198,7 @@ export const App: React.FC = () => {
         && (
           <Footer
             changeFilter={changeFilter}
-            itemsCounter={filteredTodos.length}
+            itemsCounter={activeTodosCounter}
             hasCompletedTodos={hasCompletedTodos}
             handleDeleteCompleted={handleDeleteCompleted}
           />
