@@ -111,6 +111,23 @@ export const App: React.FC = () => {
     [],
   );
 
+  // const updateTodoFromServer = useCallback(
+  //   (todoId: number, data: object) => {
+  //     Api.updateTodo(todoId, data)
+  //       .then(() => {
+  //         getTodosFromServer();
+  //       })
+  //       .catch(() => {
+  //         setError('Unable to update a todo');
+  //         setTimeout(() => setError(''), 3000);
+  //       })
+  //       .finally(() => {
+
+  //       });
+  //   },
+  //   [],
+  // );
+
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
