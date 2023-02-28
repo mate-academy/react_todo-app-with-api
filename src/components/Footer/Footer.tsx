@@ -4,7 +4,7 @@ import { FilterByStatus } from '../../types/FilterByStatus';
 
 type Props = {
   activeTodosQuantity: number;
-  completedTodosQuantity: number;
+  isTodosCompleted: boolean;
   filteredByStatus: FilterByStatus;
   setFilteredByStatus: (newFilter: FilterByStatus) => void;
   onClearCompleted: () => void;
@@ -14,7 +14,7 @@ const filteredItems = Object.values(FilterByStatus);
 
 export const Footer: React.FC<Props> = React.memo(({
   activeTodosQuantity,
-  completedTodosQuantity,
+  isTodosCompleted,
   filteredByStatus,
   setFilteredByStatus,
   onClearCompleted,
@@ -43,8 +43,8 @@ export const Footer: React.FC<Props> = React.memo(({
       <button
         type="button"
         className="todoapp__clear-completed"
-        style={{ visibility: completedTodosQuantity ? 'visible' : 'hidden' }}
-        disabled={!completedTodosQuantity}
+        style={{ visibility: isTodosCompleted ? 'visible' : 'hidden' }}
+        disabled={!isTodosCompleted}
         onClick={onClearCompleted}
       >
         Clear completed

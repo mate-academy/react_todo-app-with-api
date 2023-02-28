@@ -2,8 +2,8 @@ import { Todo } from '../types/Todo';
 import { FilterByStatus } from '../types/FilterByStatus';
 import { ErrorTypes } from '../types/PossibleError';
 
-export function completedTodosLength(todos: Todo[]): number {
-  return todos.filter(todo => todo.completed).length;
+export function isCompleted(todos: Todo[]): boolean {
+  return todos.some(todo => todo.completed);
 }
 
 export function activeTodosLength(todos: Todo[]): number {

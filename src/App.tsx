@@ -14,7 +14,7 @@ import { FilterByStatus } from './types/FilterByStatus';
 import { ErrorTypes } from './types/PossibleError';
 import { getTodos, removeTodo, updateTodoOnServer } from './api/todos';
 import {
-  completedTodosLength,
+  isCompleted,
   activeTodosLength,
   clearNotification,
   filterTodos,
@@ -149,7 +149,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const ativeTodosQuantity = activeTodosLength(todos);
-  const completedTodosQuantity = completedTodosLength(todos);
+  const isTodosCompleted = isCompleted(todos);
 
   return (
     <div className="todoapp">
@@ -180,7 +180,7 @@ export const App: React.FC = () => {
         {todos.length && (
           <Footer
             activeTodosQuantity={ativeTodosQuantity}
-            completedTodosQuantity={completedTodosQuantity}
+            isTodosCompleted={isTodosCompleted}
             filteredByStatus={filteredByStatus}
             setFilteredByStatus={setFilteredByStatus}
             onClearCompleted={onClearCompleted}
