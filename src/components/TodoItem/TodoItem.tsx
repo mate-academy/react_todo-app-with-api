@@ -21,7 +21,7 @@ type Props = {
   changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   deleteTodo,
   isDeleteWaiting,
@@ -168,4 +168,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

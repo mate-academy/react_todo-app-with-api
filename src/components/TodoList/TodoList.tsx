@@ -18,7 +18,7 @@ type Props = {
   changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   deleteTodo,
@@ -32,45 +32,43 @@ export const TodoList: React.FC<Props> = ({
   changeTodosIdsToUpdate,
   removeUpdatedId,
   changeTodoTitle,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          isDeleteWaiting={isDeleteWaiting}
-          changeRemoveTodoIds={changeRemoveTodoIds}
-          removeDeleteId={removeDeleteId}
-          todosIdsToRemove={todosIdsToRemove}
-          changeCompletedStatus={changeCompletedStatus}
-          isUpdateWaiting={isUpdateWaiting}
-          todosIdsToUpdate={todosIdsToUpdate}
-          changeTodosIdsToUpdate={changeTodosIdsToUpdate}
-          removeUpdatedId={removeUpdatedId}
-          changeTodoTitle={changeTodoTitle}
-        />
-      ))}
+}) => (
+  <section className="todoapp__main">
+    {todos.map(todo => (
+      <TodoItem
+        todo={todo}
+        key={todo.id}
+        deleteTodo={deleteTodo}
+        isDeleteWaiting={isDeleteWaiting}
+        changeRemoveTodoIds={changeRemoveTodoIds}
+        removeDeleteId={removeDeleteId}
+        todosIdsToRemove={todosIdsToRemove}
+        changeCompletedStatus={changeCompletedStatus}
+        isUpdateWaiting={isUpdateWaiting}
+        todosIdsToUpdate={todosIdsToUpdate}
+        changeTodosIdsToUpdate={changeTodosIdsToUpdate}
+        removeUpdatedId={removeUpdatedId}
+        changeTodoTitle={changeTodoTitle}
+      />
+    ))}
 
-      {tempTodo && (
-        <div className="todo">
-          <label className="todo__status-label">
-            <input type="checkbox" className="todo__status" />
-          </label>
+    {tempTodo && (
+      <div className="todo">
+        <label className="todo__status-label">
+          <input type="checkbox" className="todo__status" />
+        </label>
 
-          <span className="todo__title">
-            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-            {tempTodo!.title}
-          </span>
-          <button type="button" className="todo__remove">×</button>
+        <span className="todo__title">
+          {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+          {tempTodo!.title}
+        </span>
+        <button type="button" className="todo__remove">×</button>
 
-          <div className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
+        <div className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
         </div>
-      )}
-    </section>
-  );
-};
+      </div>
+    )}
+  </section>
+));

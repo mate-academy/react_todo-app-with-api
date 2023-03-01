@@ -13,7 +13,7 @@ type Props = {
   haveTodos: boolean;
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   todoTitle,
   setTodoTitleWrapper,
   setErrorWrapper,
@@ -83,4 +83,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

@@ -8,7 +8,7 @@ type Props = {
   removeError: () => void;
 };
 
-export const Errors: React.FC<Props> = ({
+export const Errors: React.FC<Props> = React.memo(({
   error,
   setErrorWrapper,
   removeError,
@@ -39,26 +39,11 @@ export const Errors: React.FC<Props> = ({
         onClick={() => handleCloseButtonClick()}
       />
 
-      {/* show only one message at a time */}
-      {error === Error.ONLOAD && (
-        'Unable to load todos'
-      )}
-
-      {error === Error.EMPTY && (
-        "Title can't be empty"
-      )}
-
-      {error === Error.ONADD && (
-        'Unable to add a todo'
-      )}
-
-      {error === Error.ONDELETE && (
-        'Unable to delete a todo'
-      )}
-
-      {error === Error.ONUPDATE && (
-        'Unable to update a todo'
+      {error === Error.EMPTY ? (
+        'Title can\'t be empty'
+      ) : (
+        `Unable to ${error} a todo`
       )}
     </div>
   );
-};
+});

@@ -39,7 +39,7 @@ export const App: React.FC = () => {
     window.setTimeout(() => setError(Error.NONE), 3000);
   };
 
-  const loadTodosFromServer = async () => {
+  const loadTodosFromServer = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     } catch {
       setError(Error.ONLOAD);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadTodosFromServer();
@@ -151,7 +151,9 @@ export const App: React.FC = () => {
     setError(currentError);
   };
 
-  const completedTodoIds = completedTodos.map(todo => todo.id);
+  const completedTodoIds = useMemo(
+    () => completedTodos.map(todo => todo.id), [completedTodos],
+  );
 
   const deleteCompletedTodos = () => {
     setOnRemoveTodoIds(completedTodoIds);
