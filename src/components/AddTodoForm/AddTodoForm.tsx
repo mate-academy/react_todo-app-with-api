@@ -39,19 +39,16 @@ export const AddTodoForm:React.FC<Props> = ({
     <form
       onSubmit={handleSubmit}
     >
-      {isAddingTodo
-        ? <Loader />
-        : (
-          <input
-            type="text"
-            className="todoapp__new-todo"
-            placeholder="What needs to be done?"
-            value={todoTitle}
-            onChange={handleInput}
-            disabled={isAddingTodo}
-          />
-        )}
-
+      <input
+        type="text"
+        className="todoapp__new-todo"
+        placeholder={isAddingTodo
+          ? 'Adding todo...'
+          : 'What needs to be done?'}
+        value={todoTitle}
+        onChange={handleInput}
+        disabled={isAddingTodo}
+      />
     </form>
   );
 };
