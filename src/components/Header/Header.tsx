@@ -6,7 +6,7 @@ interface Props {
   todoTitle: string,
   todoTitleChange: (value: string) => void,
   handleAddTodo: (todoTitle: string) => void,
-  disableInput: boolean,
+  isLoading: boolean,
   toggleAll: () => void,
   itemsCounter: number,
 }
@@ -16,7 +16,7 @@ export const Header: React.FC<Props> = ({
   todoTitle,
   todoTitleChange,
   handleAddTodo,
-  disableInput,
+  isLoading,
   toggleAll,
   itemsCounter,
 }) => (
@@ -45,7 +45,7 @@ export const Header: React.FC<Props> = ({
         placeholder="What needs to be done?"
         value={todoTitle}
         onChange={event => todoTitleChange(event.target.value)}
-        disabled={disableInput}
+        disabled={isLoading}
       />
     </form>
   </header>

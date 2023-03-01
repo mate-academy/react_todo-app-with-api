@@ -6,22 +6,22 @@ interface Props {
   todos: Todo[],
   handleDeleteTodo: (todo: number) => void;
   handleComplitedTodo: (todoId: number, toggle: boolean) => void;
-  disableInput: boolean;
   editingTodosId: number[];
   formShowedForId: number;
   showForm: (todoId: number) => void;
   handleUpdateTodoTitle: (todoId: number, newTitle: string) => void,
+  tempTodo: Todo | null,
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   handleDeleteTodo,
   handleComplitedTodo,
-  disableInput,
   editingTodosId,
   formShowedForId,
   showForm,
   handleUpdateTodoTitle,
+  tempTodo,
 }) => {
   const [newTitle, setNewTitle] = useState('');
 
@@ -43,6 +43,30 @@ export const TodoList: React.FC<Props> = ({
       setNewTitle('');
     }
   };
+
+  const tempTodoItem = (
+    <div
+      className="todo"
+    >
+      <label className="todo__status-label">
+
+        <input
+          type="checkbox"
+          className="todo__status"
+        />
+
+      </label>
+
+      <span className="todo__title">
+        {tempTodo?.title}
+      </span>
+
+      <div className="modal overlay is-active">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+    </div>
+  );
 
   return (
     <section className="todoapp__main">
@@ -101,7 +125,7 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 defaultChecked={todo.completed}
-                onClick={() => handleComplitedTodo(todo.id, true)}
+                onClick={() => handleComplitedTodo(todo.id, todo.completed)}
               />
 
             </label>
@@ -109,7 +133,7 @@ export const TodoList: React.FC<Props> = ({
             {formTitleChange}
 
             <div className={cn('modal', 'overlay', {
-              'is-active': disableInput && editingTodosId.includes(todo.id),
+              'is-active': editingTodosId.includes(todo.id),
             })}
             >
               <div className="modal-background has-background-white-ter" />
@@ -118,6 +142,8 @@ export const TodoList: React.FC<Props> = ({
           </div>
         );
       })}
+
+      {tempTodo && tempTodoItem}
 
     </section>
   );

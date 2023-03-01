@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
 import {
@@ -16,6 +15,7 @@ import { FilterBy } from './types/FilterBy';
 import { Notification } from './components/Notification';
 import { NewTodo } from './types/NewTodo';
 import { ErrorNotifications } from './types/ErrorNotifications';
+import { getFilteredTodos } from './utils/getFilteredTodos';
 
 const USER_ID = 6259;
 let isToggled = false;
@@ -26,17 +26,19 @@ export const App: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(ErrorNotifications.NONE);
   const [todoTitle, setTodoTitle] = useState('');
-  const [disableInput, setDisableInput] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [editingTodosId, setEditingTodosId] = useState<number[]>([]);
   const [formShowedForId, setFormShowedForId] = useState(0);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const getAllTodos = async () => {
     try {
-      setDisableInput(true);
+      setIsLoading(true);
       const data = await getTodos(USER_ID);
 
       setTodos(data);
-      setDisableInput(false);
+      setIsLoading(false);
+      setTempTodo(null);
     } catch (error) {
       setErrorText(ErrorNotifications.LOADING);
       setIsError(true);
@@ -58,8 +60,11 @@ export const App: React.FC = () => {
         completed: false,
       };
 
+      const tempTodoBody = { ...newTodoBody, id: 0 };
+
       try {
         setTodoTitle('');
+        setTempTodo(tempTodoBody);
         await addTodo(USER_ID, newTodoBody);
         getAllTodos();
       } catch {
@@ -70,7 +75,6 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = async (todoId: number) => {
-    setEditingTodosId(cur => [...cur, todoId]);
     try {
       await deleteTodo(USER_ID, todoId);
       getAllTodos();
@@ -78,8 +82,6 @@ export const App: React.FC = () => {
       setIsError(true);
       setErrorText(ErrorNotifications.DELETE);
     }
-
-    setEditingTodosId(cur => cur.filter(id => id !== todoId));
   };
 
   const handleCompletedTodo = async (todoId: number, toggle: boolean) => {
@@ -110,9 +112,10 @@ export const App: React.FC = () => {
   ) => {
     setEditingTodosId(cur => [...cur, todoId]);
     try {
-      setDisableInput(true);
+      setIsLoading(true);
       await updateTodoTitle(USER_ID, todoId, { title: newTitle });
       getAllTodos();
+      setIsLoading(false);
     } catch {
       setIsError(true);
       setErrorText(ErrorNotifications.UPDATE);
@@ -153,19 +156,7 @@ export const App: React.FC = () => {
 
   const hasActiveTodos = todos.some(todo => !todo.completed);
 
-  let filteredTodos = [...todos];
-
-  switch (filterBy) {
-    case FilterBy.Active:
-      filteredTodos = todos.filter(todo => todo.completed === false);
-      break;
-    case FilterBy.Complited:
-      filteredTodos = todos.filter(todo => todo.completed === true);
-      break;
-    case FilterBy.All:
-    default:
-      filteredTodos = todos;
-  }
+  const filteredTodos = getFilteredTodos(todos, filterBy);
 
   return (
     <div className="todoapp">
@@ -178,7 +169,7 @@ export const App: React.FC = () => {
           todoTitle={todoTitle}
           todoTitleChange={todoTitleChange}
           handleAddTodo={handleAddTodo}
-          disableInput={disableInput}
+          isLoading={isLoading}
           toggleAll={toggleAll}
           itemsCounter={filteredTodos.length}
         />
@@ -187,11 +178,11 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           handleDeleteTodo={handleDeleteTodo}
           handleComplitedTodo={handleCompletedTodo}
-          disableInput={disableInput}
           editingTodosId={editingTodosId}
           formShowedForId={formShowedForId}
           showForm={showForm}
           handleUpdateTodoTitle={handleUpdateTodoTitle}
+          tempTodo={tempTodo}
         />
 
         {todos.length !== 0
