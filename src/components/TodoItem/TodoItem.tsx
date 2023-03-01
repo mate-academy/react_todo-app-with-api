@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   todosLoadingState: Todo[],
   onRemoveTodo: (todo: Todo) => void;
-  onToogleUpdateTodo: (todo: Todo) => void;
+  onToogleTodo: (todo: Todo) => void;
   onHandleUpdate: (todo: Todo) => void;
 };
 
@@ -14,12 +14,16 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   todosLoadingState,
   onRemoveTodo,
-  onToogleUpdateTodo,
+  onToogleTodo,
   onHandleUpdate,
 }) => {
   const { title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
 
   const eventChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -67,14 +71,14 @@ export const TodoItem: React.FC<Props> = ({
         'todo',
         { completed },
       )}
-      onDoubleClick={() => setIsEditing(true)}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
           onClick={() => {
-            onToogleUpdateTodo(todo);
+            onToogleTodo(todo);
           }}
         />
       </label>
@@ -86,6 +90,8 @@ export const TodoItem: React.FC<Props> = ({
             value={todoTitle}
             placeholder="Empty todo will be deleted"
             className="todo__title-field"
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
             onChange={eventChange}
             onBlur={handleOnSubmit}
             onKeyUp={handleCancelEditing}

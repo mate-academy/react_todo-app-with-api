@@ -7,7 +7,7 @@ type Props = {
   todos: Todo[];
   creatingTodo: Todo | null;
   onRemoveTodo: (todo: Todo) => void;
-  onToogleUpdateTodo: (todo: Todo) => void;
+  onToogleTodo: (todo: Todo) => void;
   onHandleUpdate: (todo: Todo) => void;
   todosLoadingState: Todo[];
 };
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   todos,
   creatingTodo,
   onRemoveTodo,
-  onToogleUpdateTodo,
+  onToogleTodo,
   onHandleUpdate,
   todosLoadingState,
 }) => {
@@ -34,7 +34,7 @@ export const TodoList: React.FC<Props> = React.memo(({
               key={todo.id}
               todosLoadingState={todosLoadingState}
               onRemoveTodo={onRemoveTodo}
-              onToogleUpdateTodo={onToogleUpdateTodo}
+              onToogleTodo={onToogleTodo}
               onHandleUpdate={onHandleUpdate}
             />
           </CSSTransition>
@@ -50,7 +50,7 @@ export const TodoList: React.FC<Props> = React.memo(({
               todo={creatingTodo}
               todosLoadingState={todosLoadingState}
               onRemoveTodo={() => { }}
-              onToogleUpdateTodo={onToogleUpdateTodo}
+              onToogleTodo={onToogleTodo}
               onHandleUpdate={onHandleUpdate}
             />
           </CSSTransition>

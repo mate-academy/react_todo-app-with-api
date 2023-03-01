@@ -119,7 +119,7 @@ export const App: React.FC = () => {
     }));
   };
 
-  const onToogleUpdateTodo = useCallback(async (todoTogle: Todo) => {
+  const onToogleTodo = useCallback(async (todoTogle: Todo) => {
     try {
       setTodosInProcessed(currentTodos => [...currentTodos, todoTogle]);
       const todoChangeStatus = await toogleTodo(USER_ID, todoTogle.id, !todoTogle.completed);
@@ -133,7 +133,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const toogleUpdateTodos = useCallback(() => {
+  const onToogleAllTodos = useCallback(() => {
     todos.map(async (todoToogle) => {
       try {
         setTodosInProcessed(currentTodos => [...currentTodos, todoToogle]);
@@ -202,7 +202,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           isAllCompleted={isAllCompleted}
-          onToogleUpdateTodos={toogleUpdateTodos}
+          onToogleAllTodos={onToogleAllTodos}
           onSubmit={handleAddTodo}
           title={title}
           onEventChange={handleChangeEvent}
@@ -212,7 +212,7 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           creatingTodo={creatingTodo}
           onRemoveTodo={onRemoveTodo}
-          onToogleUpdateTodo={onToogleUpdateTodo}
+          onToogleTodo={onToogleTodo}
           todosLoadingState={todosInProcessed}
           onHandleUpdate={handleUpdateTodo}
         />

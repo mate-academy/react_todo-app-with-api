@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 type Props = {
   isAllCompleted: boolean;
-  onToogleUpdateTodos: () => void;
+  onToogleAllTodos: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   title: string
   onEventChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -11,7 +11,7 @@ type Props = {
 
 export const Header: React.FC<Props> = ({
   isAllCompleted,
-  onToogleUpdateTodos,
+  onToogleAllTodos,
   onSubmit,
   title,
   onEventChange,
@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = ({
           'todoapp__toggle-all',
           { active: isAllCompleted },
         )}
-        onClick={onToogleUpdateTodos}
+        onClick={onToogleAllTodos}
       />
 
       <form onSubmit={onSubmit}>
