@@ -3,7 +3,11 @@ import React, {
 } from 'react';
 import classnames from 'classnames';
 import {
-  createTodo, getTodos, deleteTodo, updateTodo, updateTodoTitle,
+  createTodo,
+  getTodos,
+  deleteTodo,
+  updateTodo,
+  updateTodoTitle,
 } from './api/todos';
 import { AuthContext } from './components/Auth/AuthContext';
 import { Todo } from './types/Todo';
@@ -27,22 +31,20 @@ export const App: React.FC = () => {
   const [isEmpty, setIsEmpty] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [isLoadingTodos, setIsLoadingTodos] = useState(true);
-  const [isLoadingNewName, setIsLoadingNewName] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingNewName, setIsLoadingNewName] = useState(false);
 
-  const areTodosCompleted = !!todos.find(todo => !todo.completed);
+  const areTodosCompleted = !!todos.find((todo) => !todo.completed);
 
   const updateTodoCompleted = (todoNew: Todo) => {
     setTodos(
-      todos.map((todo) => (todo.id !== todoNew.id
-        ? todo
-        : { ...todo, completed: !todo.completed })),
+      todos.map((todo) => (
+        todo.id !== todoNew.id ? todo : { ...todo, completed: !todo.completed }
+      )),
     );
   };
 
-  const updateTODOCompleted = (
-    todoNew: Todo,
-  ) => {
+  const updateTODOCompleted = (todoNew: Todo) => {
     updateTodo(todoNew.id, !todoNew.completed)
       .then((todo) => updateTodoCompleted(todo))
       .catch(() => setIsUpdate(true));
@@ -50,9 +52,8 @@ export const App: React.FC = () => {
 
   const updateTodoName = (todoNew: Todo) => {
     setTodos(
-      todos.map((todo) => (todo.id !== todoNew.id
-        ? todo
-        : { ...todo, title: todoNew.title }
+      todos.map((todo) => (
+        todo.id !== todoNew.id ? todo : { ...todo, title: todoNew.title }
       )),
     );
   };
@@ -61,9 +62,11 @@ export const App: React.FC = () => {
     updateTodoTitle(todoId, title)
       .then((todo) => {
         updateTodoName(todo);
-        setIsLoadingNewName(false);
       })
-      .catch(() => setIsUpdate(true));
+      .catch(() => {
+        setIsUpdate(true);
+        setIsLoadingNewName(true);
+      });
   };
 
   const completedTodo = todos.filter((todo) => todo.completed);
@@ -75,23 +78,27 @@ export const App: React.FC = () => {
   };
 
   const setStatusCompleted = () => {
-    todos.forEach(todo => updateTodo(todo.id, !todo.completed)
+    todos.forEach((todo) => updateTodo(todo.id, !todo.completed)
       .then(() => setTodos(todos.map((tod) => ({ ...tod, completed: true }))))
       .catch(() => setIsUpdate(true)));
   };
 
   const setStatusNotCompleted = () => {
-    todos.forEach(toDo => updateTodo(toDo.id, !toDo.completed)
+    todos.forEach((toDo) => updateTodo(toDo.id, !toDo.completed)
       .then(() => setTodos(todos.map((t) => ({ ...t, completed: false }))))
       .catch(() => setIsUpdate(true)));
   };
 
-  const updateTodos = (todoId: unknown) => setTodos(todos
-    .filter((todo) => todo.id !== todoId));
+  const updateTodos = (todoId: unknown) => setTodos(
+    todos.filter((todo) => todo.id !== todoId),
+  );
 
   const removeTodo = (todoId: number | undefined) => {
     deleteTodo(todoId)
-      .then((todoID) => updateTodos(todoID))
+      .then((todoID) => {
+        updateTodos(todoID);
+        setIsLoading(false);
+      })
       .catch(() => setIsDelete(true));
   };
 
@@ -102,7 +109,7 @@ export const App: React.FC = () => {
         event.preventDefault();
         createTodo(value, user?.id)
           .then((todo) => addNewTodo(todo))
-          .catch(() => setIsError(true));
+          .catch(() => setIsAdding(true));
         setValue('');
       } else {
         setIsEmpty(true);
@@ -115,42 +122,42 @@ export const App: React.FC = () => {
     getTodos(user?.id)
       .then((todoss) => {
         setTodos(todoss);
-        setIsLoadingTodos(false);
+        setIsLoading(false);
       })
-      .catch(() => setIsError(true))
-      .finally(() => {
-        setIsHidden(true);
-        setIsDelete(false);
-        setIsEmpty(false);
-      });
+      .catch(() => setIsError(true));
 
     setIsAdding(true);
   }, [todos]);
 
   useEffect(() => {
-  // focus the element with `ref={newTodoField}`
+    // focus the element with `ref={newTodoField}`
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
+
+    setTimeout(() => {
+      setIsHidden(true);
+    }, 3000);
   }, []);
 
-  const filterList = (todoss: Todo[]): Todo[] | undefined => todoss
-    .filter((todo) => {
-      if (!todo) {
-        return [];
-      }
+  const filterList = (
+    todoss: Todo[],
+  ): Todo[] | undefined => todoss.filter((todo) => {
+    if (!todo) {
+      return [];
+    }
 
-      switch (currentFilter) {
-        case Filters.Active:
-          return !todo.completed;
+    switch (currentFilter) {
+      case Filters.Active:
+        return !todo.completed;
 
-        case Filters.Completed:
-          return todo.completed;
+      case Filters.Completed:
+        return todo.completed;
 
-        default:
-          return todo;
-      }
-    });
+      default:
+        return todo;
+    }
+  });
 
   const filteredList = useMemo(() => filterList(todos), [currentFilter, todos]);
 
@@ -171,24 +178,25 @@ export const App: React.FC = () => {
           />
           {todos.length !== 0 && (
             <>
-              {isLoadingTodos ? <Loader />
-                : (
-                  <>
-                    <TodoList
-                      filteredList={filteredList}
-                      removeTodo={removeTodo}
-                      updateTODOCompleted={updateTODOCompleted}
-                      updateTODOTitle={updateTODOTitle}
-                      isLoadingNewName={isLoadingNewName}
-                    />
-                    <FooterTodo
-                      todos={todos}
-                      setCurrentFilter={setCurrentFilter}
-                      clearCompleted={clearCompleted}
-                      currentFilter={currentFilter}
-                    />
-                  </>
-                )}
+              {isLoading ? (
+                <Loader />
+              ) : (
+                <>
+                  <TodoList
+                    filteredList={filteredList}
+                    removeTodo={removeTodo}
+                    updateTODOCompleted={updateTODOCompleted}
+                    updateTODOTitle={updateTODOTitle}
+                    isLoadingNewName={isLoadingNewName}
+                  />
+                  <FooterTodo
+                    todos={todos}
+                    setCurrentFilter={setCurrentFilter}
+                    clearCompleted={clearCompleted}
+                    currentFilter={currentFilter}
+                  />
+                </>
+              )}
             </>
           )}
 
@@ -212,7 +220,7 @@ export const App: React.FC = () => {
                 }}
                 className="delete"
               />
-              Unable to add a todo
+              Unable to add a todos
             </div>
           )}
           {isDelete && (
@@ -252,7 +260,9 @@ export const App: React.FC = () => {
                   setIsHidden(true);
                 }}
               />
-              {'Title can\'t be empty'}
+              `
+              Title cant be empty
+              `
             </div>
           )}
           {isUpdate && (
@@ -270,6 +280,23 @@ export const App: React.FC = () => {
                 }}
               />
               Unable to update a todo
+            </div>
+          )}
+          {!isAdding && (
+            <div
+              data-cy="ErrorNotification"
+              className="notification is-danger is-light has-text-weight-normal"
+            >
+              <button
+                aria-label="button"
+                data-cy="HideErrorButton"
+                type="button"
+                className="delete"
+                onClick={() => {
+                  setIsHidden(true);
+                }}
+              />
+              Unable to add a todo
             </div>
           )}
         </div>

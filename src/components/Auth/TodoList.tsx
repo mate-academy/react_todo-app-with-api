@@ -14,6 +14,7 @@ export const TodoList: React.FC<Props> = ({
   removeTodo,
   updateTODOCompleted,
   updateTODOTitle,
+  isLoadingNewName,
 }) => {
   return (
     <ul>
@@ -26,6 +27,7 @@ export const TodoList: React.FC<Props> = ({
                 updateTODOCompleted={updateTODOCompleted}
                 removeTodo={removeTodo}
                 updateTODOTitle={updateTODOTitle}
+                isLoadingNewName={isLoadingNewName}
               />
             </li>
             {' '}

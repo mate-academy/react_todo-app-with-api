@@ -8,6 +8,7 @@ type Props = {
   updateTODOCompleted: (todoNew: Todo) => void;
   removeTodo: (todoId: number | undefined) => void;
   updateTODOTitle: (todoId: number | undefined, title: string) => void;
+  isLoadingNewName: boolean;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -15,10 +16,17 @@ export const TodoInfo: React.FC<Props> = ({
   updateTODOCompleted,
   removeTodo,
   updateTODOTitle,
+  isLoadingNewName,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [currentTodoId, setCurrentTodoId] = useState(0);
   const [value, setValue] = useState<string>(todo.title);
+
+  const onBlur = (id: number, val: string) => {
+    updateTODOTitle(id, val);
+    setIsVisible(true);
+    setCurrentTodoId(0);
+  };
 
   const handle = (
     event: React.KeyboardEvent<HTMLInputElement>,
@@ -45,8 +53,8 @@ export const TodoInfo: React.FC<Props> = ({
   ) => {
     if (event.key === 'Escape') {
       updateTODOTitle(id, title);
-      setIsVisible(true);
       setCurrentTodoId(0);
+      setIsVisible(true);
     }
   };
 
@@ -71,30 +79,37 @@ export const TodoInfo: React.FC<Props> = ({
       </label>
 
       {isVisible && currentTodoId !== todo.id ? (
+
         <>
-          <Loader />
-          <span
-            aria-hidden="true"
-            data-cy="TodoTitle"
-            className="todo__title"
-            onClick={() => setCurrentTodoId(todo.id)}
-            onDoubleClick={() => {
-              setValue(todo.title);
-              setIsVisible(false);
-            }}
-          >
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDeleteButton"
-            onClick={() => removeTodo(todo.id)}
-          >
-            ×
-          </button>
+          {' '}
+          {isLoadingNewName ? <Loader /> : (
+            <>
+              <span
+                aria-hidden="true"
+                data-cy="TodoTitle"
+                className="todo__title"
+                onClick={() => setCurrentTodoId(todo.id)}
+                onDoubleClick={() => {
+                  setValue(todo.title);
+                  setIsVisible(false);
+                }}
+              >
+                {todo.title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDeleteButton"
+                onClick={() => removeTodo(todo.id)}
+              >
+                ×
+              </button>
+            </>
+          )}
         </>
+
       ) : (
+
         <form>
           <input
             data-cy="TodoTitleField"
@@ -112,9 +127,7 @@ export const TodoInfo: React.FC<Props> = ({
               handle(event, todo.id, value);
             }}
             onBlur={() => {
-              updateTODOTitle(todo.id, value);
-              setIsVisible(true);
-              setCurrentTodoId(0);
+              onBlur(todo.id, value);
             }}
           />
         </form>

@@ -13,7 +13,7 @@ export const createTodo = (title: string, userId?: number) => {
   });
 };
 
-export const updateTodo = (todoId?: number, value?: boolean) => {
+export const updateTodo = (todoId: number, value: boolean) => {
   return client.patch<Todo>(`/todos/${todoId}`, {
     completed: value,
   });

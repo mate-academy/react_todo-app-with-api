@@ -15,12 +15,13 @@ export const FooterTodo: React.FC<Props> = ({
   clearCompleted,
   currentFilter,
 }) => {
+  const filterLeftTodos = todos?.filter((todo) => !todo.completed)?.length;
   const findTodoCompleted = todos.some((todo) => todo.completed);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="todosCounter">
-        {` ${todos?.filter((todo) => !todo.completed)?.length} items left`}
+        {` ${filterLeftTodos} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -56,16 +57,15 @@ export const FooterTodo: React.FC<Props> = ({
           Completed
         </a>
       </nav>
-      {findTodoCompleted && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => clearCompleted()}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={clearCompleted}
+        style={{ visibility: findTodoCompleted ? 'visible' : 'hidden' }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
