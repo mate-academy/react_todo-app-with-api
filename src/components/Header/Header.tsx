@@ -8,6 +8,7 @@ type Props = {
   activeTodosCount: number;
   visibleTodos: Todo[];
   updateTodo: (todo: Todo, key:keyof Todo, value: string | boolean) => void;
+  tempTodo: Todo | null;
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<Props> = ({
   updateTodo,
   activeTodosCount,
   visibleTodos,
+  tempTodo,
 }) => {
   const handleToggleAllButton = () => {
     const activeTodos = activeTodosCount
@@ -40,6 +42,7 @@ export const Header: React.FC<Props> = ({
 
       <AddTodoForm
         addNewTodo={addNewTodo}
+        tempTodo={tempTodo}
       />
     </header>
   );

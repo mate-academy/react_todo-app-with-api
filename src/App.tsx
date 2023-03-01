@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
   addTodos,
@@ -40,6 +45,7 @@ export const App: React.FC = () => {
   const [errorType, setErrorType] = useState(Errors.None);
   const [hasErrorNotification, setHasErrorNotification] = useState(false);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const hideErrorNotifications = () => setHasErrorNotification(false);
   const showErrorNotification = (error:Errors) => {
@@ -62,7 +68,7 @@ export const App: React.FC = () => {
     fetchAllTodos();
   }, []);
 
-  const addNewTodo = async (title: string) => {
+  const addNewTodo = useCallback(async (title: string) => {
     if (title.trim()) {
       try {
         const newTodo = {
@@ -71,26 +77,30 @@ export const App: React.FC = () => {
           completed: false,
         };
 
+        setTempTodo({ ...newTodo, id: 0 });
+
         await addTodos(newTodo);
         await fetchAllTodos();
       } catch {
         showErrorNotification(Errors.Add);
+      } finally {
+        setTempTodo(null);
       }
     } else {
       showErrorNotification(Errors.EmptyTitle);
     }
-  };
+  }, []);
 
-  const deleteTodoFromServer = async (todoId:number) => {
+  const deleteTodoFromServer = useCallback(async (todoId:number) => {
     try {
       await deleteTodos(todoId);
       await fetchAllTodos();
     } catch {
       showErrorNotification(Errors.Delete);
     }
-  };
+  }, []);
 
-  const updateTodo = async (
+  const updateTodo = useCallback(async (
     todo: Todo,
     key:keyof Todo,
     value: string | boolean,
@@ -109,17 +119,21 @@ export const App: React.FC = () => {
     } catch (error) {
       showErrorNotification(Errors.Edit);
     }
-  };
+  }, []);
 
-  const visibleTodos = filterTodos(todos, selectedStatus);
+  const visibleTodos = useMemo(() => {
+    return filterTodos(todos, selectedStatus);
+  }, [todos, selectedStatus]);
 
-  const clearCompleted = () => {
+  const clearCompleted = useCallback(() => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
 
     completedTodos.forEach(({ id }) => deleteTodoFromServer(id));
-  };
+  }, []);
 
-  const activeTodosCount = visibleTodos.filter(todo => !todo.completed).length;
+  const activeTodosCount = useMemo(() => {
+    return visibleTodos.filter(todo => !todo.completed).length;
+  }, [visibleTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -135,6 +149,7 @@ export const App: React.FC = () => {
           updateTodo={updateTodo}
           activeTodosCount={activeTodosCount}
           visibleTodos={visibleTodos}
+          tempTodo={tempTodo}
         />
 
         <section className="todoapp__main">
