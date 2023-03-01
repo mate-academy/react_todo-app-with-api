@@ -135,6 +135,10 @@ export const App: React.FC = () => {
     return visibleTodos.filter(todo => !todo.completed).length;
   }, [visibleTodos]);
 
+  const complitedTodosCount = useMemo(() => {
+    return visibleTodos.filter(todo => todo.completed).length;
+  }, [visibleTodos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -179,6 +183,7 @@ export const App: React.FC = () => {
               selectStatus={setSelectedStatus}
               selectedStatus={selectedStatus}
               activeTodosCount={activeTodosCount}
+              complitedTodosCount={complitedTodosCount}
               clearCompleted={clearCompleted}
             />
           )}

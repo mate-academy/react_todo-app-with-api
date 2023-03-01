@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { Loader } from '../Loader';
 
 type Props = {
   addNewTodo: (title: string) => void;
