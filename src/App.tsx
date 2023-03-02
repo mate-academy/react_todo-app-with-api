@@ -123,7 +123,7 @@ export const App: React.FC = () => {
     completeTodo(id, data)
       .then(() => setAllTodos(prevTodos => {
         const allTodosCopy = [...prevTodos];
-        const changingTodo = allTodosCopy.find(todo => todo.id === id);
+        const changingTodo = { ...allTodosCopy.find(todo => todo.id === id) };
 
         if (changingTodo) {
           changingTodo.completed = data;
@@ -173,7 +173,7 @@ export const App: React.FC = () => {
         .then(() => setAllTodos(prevTodos => {
           const allTodosCopy = [...prevTodos];
 
-          const selectedTodo = allTodosCopy.find(todo => todo.id === id);
+          const selectedTodo = { ...allTodosCopy.find(todo => todo.id === id) };
 
           if (selectedTodo) {
             selectedTodo.title = newData;
