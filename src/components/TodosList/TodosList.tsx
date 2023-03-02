@@ -9,7 +9,6 @@ type Props = {
   toggleStatusTodo: (todo: Todo) => void,
   renameTodo: (todo: Todo, newTitle: string) => void,
   loading: { todoId: number, isLoading: boolean },
-  // setLoading: (loading: { todoId: number, isLoading: boolean }) => void,
 };
 
 export const TodosList: React.FC<Props> = ({
