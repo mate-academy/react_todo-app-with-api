@@ -1,7 +1,6 @@
 import React, {
   useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
-import classnames from 'classnames';
 import {
   createTodo,
   getTodos,
@@ -16,6 +15,8 @@ import { Header } from './components/Auth/Header';
 import { TodoList } from './components/Auth/TodoList';
 import { FooterTodo } from './components/Auth/FooterTodo';
 import { Loader } from './components/Auth/Loader';
+import { ErrorType } from './types/ErrorType';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,14 +24,14 @@ export const App: React.FC = () => {
   const newTodoField = useRef<HTMLInputElement>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [value, setValue] = useState('');
-
+  const [error, setError] = useState(ErrorType.None);
   const [currentFilter, setCurrentFilter] = useState(Filters.All);
-  const [isError, setIsError] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
+  // const [isError, setIsError] = useState(false);
+  // const [isDelete, setIsDelete] = useState(false);
+  // const [isHidden, setIsHidden] = useState(false);
+  // const [isEmpty, setIsEmpty] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [isUpdate, setIsUpdate] = useState(false);
+  // const [isUpdate, setIsUpdate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingNewName, setIsLoadingNewName] = useState(false);
 
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
   const updateTODOCompleted = (todoNew: Todo) => {
     updateTodo(todoNew.id, !todoNew.completed)
       .then((todo) => updateTodoCompleted(todo))
-      .catch(() => setIsUpdate(true));
+      .catch(() => setError(ErrorType.UpdatedError));
   };
 
   const updateTodoName = (todoNew: Todo) => {
@@ -64,7 +65,7 @@ export const App: React.FC = () => {
         updateTodoName(todo);
       })
       .catch(() => {
-        setIsUpdate(true);
+        setError(ErrorType.UpdatedError);
         setIsLoadingNewName(true);
       });
   };
@@ -74,19 +75,19 @@ export const App: React.FC = () => {
   const clearCompleted = () => {
     completedTodo.filter((todo) => deleteTodo(todo.id)
       .then()
-      .catch(() => setIsDelete(true)));
+      .catch(() => setError(ErrorType.RemoveError)));
   };
 
   const setStatusCompleted = () => {
     todos.forEach((todo) => updateTodo(todo.id, !todo.completed)
       .then(() => setTodos(todos.map((tod) => ({ ...tod, completed: true }))))
-      .catch(() => setIsUpdate(true)));
+      .catch(() => setError(ErrorType.UpdatedError)));
   };
 
   const setStatusNotCompleted = () => {
     todos.forEach((toDo) => updateTodo(toDo.id, !toDo.completed)
       .then(() => setTodos(todos.map((t) => ({ ...t, completed: false }))))
-      .catch(() => setIsUpdate(true)));
+      .catch(() => setError(ErrorType.UpdatedError)));
   };
 
   const updateTodos = (todoId: unknown) => setTodos(
@@ -99,7 +100,7 @@ export const App: React.FC = () => {
         updateTodos(todoID);
         setIsLoading(false);
       })
-      .catch(() => setIsDelete(true));
+      .catch(() => setError(ErrorType.RemoveError));
   };
 
   const addNewTodo = (todo: Todo) => setTodos([...todos, todo]);
@@ -112,19 +113,18 @@ export const App: React.FC = () => {
           .catch(() => setIsAdding(true));
         setValue('');
       } else {
-        setIsEmpty(true);
+        setError(ErrorType.UpdatedError);
       }
     }
   };
 
   useMemo(() => {
-    setIsHidden(true);
     getTodos(user?.id)
       .then((todoss) => {
         setTodos(todoss);
         setIsLoading(false);
       })
-      .catch(() => setIsError(true));
+      .catch(() => setError(ErrorType.LoadError));
 
     setIsAdding(true);
   }, [todos]);
@@ -134,10 +134,6 @@ export const App: React.FC = () => {
     if (newTodoField.current) {
       newTodoField.current.focus();
     }
-
-    setTimeout(() => {
-      setIsHidden(true);
-    }, 3000);
   }, []);
 
   const filterList = (
@@ -199,105 +195,11 @@ export const App: React.FC = () => {
               )}
             </>
           )}
-
-          {isError && (
-            <div
-              data-cy="ErrorNotification"
-              className={classnames(
-                'notification is-danger is-light has-text-weight-normal',
-                {
-                  hidden: isHidden,
-                },
-              )}
-            >
-              <button
-                aria-label="button"
-                data-cy="HideErrorButton"
-                type="button"
-                hidden
-                onClick={() => {
-                  setIsHidden(true);
-                }}
-                className="delete"
-              />
-              Unable to add a todos
-            </div>
-          )}
-          {isDelete && (
-            <div
-              data-cy="ErrorNotification"
-              className={classnames(
-                'notification is-danger is-light has-text-weight-normal',
-                {
-                  hidden: isHidden,
-                },
-              )}
-            >
-              <button
-                aria-label="button"
-                data-cy="HideErrorButton"
-                type="button"
-                hidden
-                onClick={() => {
-                  setIsHidden(true);
-                }}
-                className="delete"
-              />
-              Unable to delete a todo
-            </div>
-          )}
-          {isEmpty && (
-            <div
-              data-cy="ErrorNotification"
-              className="notification is-danger is-light has-text-weight-normal"
-            >
-              <button
-                aria-label="button"
-                data-cy="HideErrorButton"
-                type="button"
-                className="delete"
-                onClick={() => {
-                  setIsHidden(true);
-                }}
-              />
-              `
-              Title cant be empty
-              `
-            </div>
-          )}
-          {isUpdate && (
-            <div
-              data-cy="ErrorNotification"
-              className="notification is-danger is-light has-text-weight-normal"
-            >
-              <button
-                aria-label="button"
-                data-cy="HideErrorButton"
-                type="button"
-                className="delete"
-                onClick={() => {
-                  setIsHidden(true);
-                }}
-              />
-              Unable to update a todo
-            </div>
-          )}
-          {!isAdding && (
-            <div
-              data-cy="ErrorNotification"
-              className="notification is-danger is-light has-text-weight-normal"
-            >
-              <button
-                aria-label="button"
-                data-cy="HideErrorButton"
-                type="button"
-                className="delete"
-                onClick={() => {
-                  setIsHidden(true);
-                }}
-              />
-              Unable to add a todo
-            </div>
+          {error !== ErrorType.None && (
+            <ErrorNotification
+              error={error}
+              setError={setError}
+            />
           )}
         </div>
       </div>
