@@ -53,6 +53,12 @@
       transform: translateY(2px) rotate(90deg);
       line-height: 0;
     }
+
+    &.hidden {
+      min-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
   }
 
   &__new-todo {
@@ -128,6 +134,12 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &.hidden {
+      min-height: 0;
+      opacity: 0;
+      pointer-events: none;
     }
   }
 }
