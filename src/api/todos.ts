@@ -1,19 +1,20 @@
-import { RequestTodo } from '../types/RequestTodo';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-export const callGetTodos = (userId: number) => {
+export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const callAddTodo = (todo: RequestTodo) => {
-  return client.post<Todo>('/todos', todo);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const addTodo = (userId: number, data: any) => {
+  return client.post<Todo>(`/todos?userId=${userId}`, data);
 };
 
-export const callDeleteTodo = (id: number) => {
-  return client.delete(`/todos/${id}`);
+export const removeTodo = (userId: number, todoId: number) => {
+  return client.delete(`/todos/${todoId}?userId=${userId}`);
 };
 
-export const callEditTodo = (todo: Todo) => {
-  return client.patch(`/todos/${todo.id}`, todo);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const changeTodo = (userId: number, todoId: number, data: any) => {
+  return client.patch(`/todos/${todoId}?userId=${userId}`, data);
 };

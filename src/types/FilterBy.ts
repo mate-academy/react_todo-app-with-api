@@ -1,4 +1,4 @@
-export enum FilterBy {
+export enum Filter {
   ALL,
   COMPLETED,
   ACTIVE,

@@ -1,40 +1,66 @@
 import React, { useEffect } from 'react';
-import cn from 'classnames';
-import { ErrorType } from '../../types/ErrorType';
+import classNames from 'classnames';
+import { Error } from '../../types/Error';
 
 type Props = {
-  errorType: ErrorType,
-  hasError: boolean,
-  clearNotification: () => void,
+  error: Error,
+  handleErrors: (value: Error) => void;
+  removeError: () => void;
 };
 
-export const Notifications: React.FC<Props> = React.memo(({
-  errorType,
-  hasError,
-  clearNotification,
-}) => {
-  useEffect(() => {
-    const timerId = window.setTimeout(() => clearNotification(), 3000);
+export const Notifications: React.FC<Props> = (
+  {
+    error,
+    handleErrors,
+    removeError,
+  },
+) => {
+  const handleCloseButtonClick = () => {
+    handleErrors(Error.NONE);
+  };
 
-    return () => {
-      window.clearTimeout(timerId);
-    };
-  }, [errorType]);
+  useEffect(() => {
+    removeError();
+  }, [error]);
 
   return (
-    <div
-      className={cn(
-        'notification is-danger is-light has-text-weight-normal',
-        { hidden: !hasError },
-      )}
+    <div className={classNames(
+      'notification',
+      'is-danger',
+      'is-light',
+      'has-text-weight-normal',
+      {
+        hidden: error === Error.NONE,
+      },
+    )}
     >
       <button
         type="button"
-        aria-label="error"
         className="delete"
-        onClick={clearNotification}
+        aria-label="Delete"
+        onClick={handleCloseButtonClick}
       />
-      {errorType}
+
+      {/* show only one message at a time */}
+      {error === Error.ONLOAD && (
+        'Unable to load todos'
+      )}
+
+      {error === Error.EMPTY && (
+        "Title can't be empty"
+      )}
+
+      {error === Error.ONADD && (
+        'Unable to add a todo'
+      )}
+
+      {error === Error.ONDELETE && (
+        'Unable to delete a todo'
+      )}
+
+      {error === Error.ONUPDATE && (
+        'Unable to update a todo'
+      )}
     </div>
   );
-});
+};

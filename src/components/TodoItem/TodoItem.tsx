@@ -1,140 +1,173 @@
-import React, { useState } from 'react';
-import cn from 'classnames';
+import classNames from 'classnames';
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todo: Todo,
-  isClearCompleted: boolean,
-  deleteTodo: (id: number) => void,
-  deletingTodoId: number,
-  editTodoStatus: (todo: Todo) => void,
-  isToggle: boolean,
-  editTodoTitle: (todo: Todo, newTitle: string) => void,
-  handleEditingId: (id: number) => void,
-  editingId: number,
+  todo: Todo;
+  deleteTodo: (todoId: number) => void;
+  isDeleteWaiting: boolean;
+  changeTodosIdsToRemove: (id: number) => void;
+  removeDeleteId: (id: number) => void;
+  todosIdsToRemove: number[];
+  changeCompletedStatus: (todoId: number, status: boolean) => void;
+  isUpdateWaiting: boolean;
+  todosIdsToUpdate: number[];
+  changeTodosIdsToUpdate: (value: number) => void;
+  removeUpdatedId: (value: number) => void;
+  changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = React.memo(({
-  todo,
-  isClearCompleted,
-  deleteTodo,
-  deletingTodoId,
-  editTodoStatus,
-  isToggle,
-  editTodoTitle,
-  handleEditingId,
-  editingId,
-}) => {
+export const TodoItem: React.FC<Props> = (
+  {
+    todo,
+    deleteTodo,
+    isDeleteWaiting,
+    changeTodosIdsToRemove,
+    removeDeleteId,
+    todosIdsToRemove,
+    changeCompletedStatus,
+    isUpdateWaiting,
+    todosIdsToUpdate,
+    changeTodosIdsToUpdate,
+    removeUpdatedId,
+    changeTodoTitle,
+  },
+) => {
   const { title, completed, id } = todo;
-  const [value, setValue] = useState(title);
-  const [isHovered, setHovered] = useState(false);
-  const isClearCompletedActive = completed && isClearCompleted;
-  const isTodoLoad = id === deletingTodoId || isClearCompletedActive
-    || isToggle;
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = event.target.value;
+  const [showForm, setShowForm] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
-    setValue(newTitle);
+  const handleDoubleClick = () => {
+    setShowForm(true);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleDeleteButtonClick = async (todoId: number) => {
+    changeTodosIdsToRemove(id);
+
+    await deleteTodo(todoId);
+
+    removeDeleteId(todoId);
+  };
+
+  const toggleTodoStatus = async (todoId: number, status: boolean) => {
+    changeTodosIdsToUpdate(todoId);
+
+    const newStatus = !status;
+
+    await changeCompletedStatus(todoId, newStatus);
+
+    removeUpdatedId(todoId);
+  };
+
+  const handleTitleEdit = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setNewTitle(value);
+  };
+
+  const saveNewTitle = async (event: FormEvent) => {
     event.preventDefault();
 
-    const trimTodoTitle = value.trim();
+    const normalizedNewTitle = newTitle.trim();
 
-    if (trimTodoTitle === todo.title) {
-      setValue(todo.title);
-      handleEditingId(0);
-
-      return;
-    }
-
-    if (!trimTodoTitle) {
-      deleteTodo(todo.id);
+    if (normalizedNewTitle === title) {
+      setShowForm(false);
 
       return;
     }
 
-    editTodoTitle(todo, value);
-    setValue(todo.title);
-    handleEditingId(0);
+    if (normalizedNewTitle.length === 0) {
+      setShowForm(false);
+      handleDeleteButtonClick(id);
+
+      return;
+    }
+
+    changeTodosIdsToUpdate(id);
+    setShowForm(false);
+    await changeTodoTitle(id, newTitle);
+    removeUpdatedId(id);
+    setNewTitle(newTitle);
   };
+
+  const hideForm = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const { key } = event;
+
+    if (key === 'Escape') {
+      setShowForm(false);
+      setNewTitle(title);
+    }
+  };
+
+  const isTodoChanging = (isDeleteWaiting && todosIdsToRemove.includes(id))
+    || (isUpdateWaiting && todosIdsToUpdate.includes(id));
 
   return (
     <div
-      onMouseEnter={() => {
-        setHovered(true);
-      }}
-      onMouseLeave={() => setHovered(false)}
-      className={cn('todo',
-        { completed })}
+      className={classNames(
+        'todo',
+        {
+          completed,
+        },
+      )}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => {
-            editTodoStatus(todo);
-          }}
+          onClick={() => toggleTodoStatus(id, completed)}
         />
       </label>
 
-      {editingId !== id && (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onDoubleClick={() => {
-            handleEditingId(id);
-          }}
-        >
-          {title}
-        </span>
-      )}
+      {showForm
+        ? (
+          <form onSubmit={saveNewTitle}>
+            <input
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTitle}
+              onChange={handleTitleEdit}
+              onBlur={saveNewTitle}
+              onKeyUp={hideForm}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+            />
+          </form>
+        )
+        : (
+          <>
+            <span className="todo__title">
+              {title}
+            </span>
 
-      {editingId === id && (
-        <form
-          onSubmit={(e) => {
-            handleSubmit(e);
-          }}
-        >
-          <input
-            type="text"
-            value={value}
-            placeholder="Empty todo will be deleted"
-            className="todo__title-field"
-            onChange={(event) => {
-              handleInput(event);
-            }}
-            onBlur={handleSubmit}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-          />
-        </form>
-      )}
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => handleDeleteButtonClick(id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
-      {(editingId !== id && isHovered) && (
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDeleteButton"
-          onClick={() => {
-            deleteTodo(id);
-          }}
-        >
-          ×
-        </button>
+      <div className={classNames(
+        'modal overlay',
+        {
+          'is-active': isTodoChanging,
+        },
       )}
-
-      <div
-        className={cn('modal overlay', {
-          'is-active': isTodoLoad,
-        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
     </div>
   );
-});
+};

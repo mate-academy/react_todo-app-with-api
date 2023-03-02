@@ -1,67 +1,92 @@
 import React from 'react';
+import '../../styles/transition.scss';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
-import { TodoItem } from '../TodoItem';
+import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
-  todos: Todo[],
-  isClearCompleted: boolean,
-  tempTodo: Todo | null,
-  deleteTodo: (id: number) => void,
-  deletingTodoId: number,
-  editTodoStatus: (todo: Todo) => void,
-  isToggle: boolean,
-  editTodoTitle: (todo: Todo, newTitle: string) => void,
-  editingId: number,
-  handleEditingId: (id: number) => void,
+  todos: Todo[];
+  tempTodo: Todo | null;
+  deleteTodo: (todoId: number) => void;
+  isDeleteWaiting: boolean;
+  todosIdsToRemove: number[];
+  changeTodosIdsToRemove: (id: number) => void;
+  removeDeleteId: (id: number) => void;
+  changeCompletedStatus: (todoId: number, status: boolean) => void;
+  isUpdateWaiting: boolean;
+  todosIdsToUpdate: number[];
+  changeTodosIdsToUpdate: (value: number) => void;
+  removeUpdatedId: (value: number) => void;
+  changeTodoTitle: (todoId: number, newTitle: string) => void;
 };
 
-export const TodoList: React.FC<Props> = React.memo(({
-  todos,
-  isClearCompleted,
-  tempTodo,
-  deleteTodo,
-  deletingTodoId,
-  editTodoStatus,
-  isToggle,
-  editTodoTitle,
-  handleEditingId,
-  editingId,
-}) => (
+export const TodoList: React.FC<Props> = (
+  {
+    todos,
+    tempTodo,
+    deleteTodo,
+    isDeleteWaiting,
+    todosIdsToRemove,
+    changeTodosIdsToRemove,
+    removeDeleteId,
+    changeCompletedStatus,
+    isUpdateWaiting,
+    todosIdsToUpdate,
+    changeTodosIdsToUpdate,
+    removeUpdatedId,
+    changeTodoTitle,
+  },
+) => (
   <section className="todoapp__main">
-    {todos.map(todo => (
-      <TodoItem
-        todo={todo}
-        key={todo.id}
-        isClearCompleted={isClearCompleted}
-        deleteTodo={deleteTodo}
-        deletingTodoId={deletingTodoId}
-        editTodoStatus={editTodoStatus}
-        isToggle={isToggle}
-        editTodoTitle={editTodoTitle}
-        handleEditingId={handleEditingId}
-        editingId={editingId}
-      />
-    ))}
-
-    {tempTodo && (
-      <div data-cy="Todo" className="todo">
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
+            key={todo.id}
+            deleteTodo={deleteTodo}
+            isDeleteWaiting={isDeleteWaiting}
+            changeTodosIdsToRemove={changeTodosIdsToRemove}
+            removeDeleteId={removeDeleteId}
+            todosIdsToRemove={todosIdsToRemove}
+            changeCompletedStatus={changeCompletedStatus}
+            isUpdateWaiting={isUpdateWaiting}
+            todosIdsToUpdate={todosIdsToUpdate}
+            changeTodosIdsToUpdate={changeTodosIdsToUpdate}
+            removeUpdatedId={removeUpdatedId}
+            changeTodoTitle={changeTodoTitle}
           />
-        </label>
+        </CSSTransition>
+      ))}
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {tempTodo.title}
-        </span>
+      {tempTodo !== null && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <div className="todo">
+            <label className="todo__status-label">
+              <input type="checkbox" className="todo__status" />
+            </label>
 
-        <div data-cy="TodoLoader" className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-    )}
+            <span className="todo__title">
+              {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+              {tempTodo!.title}
+            </span>
+            <button type="button" className="todo__remove">×</button>
+
+            <div className="modal overlay is-active">
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
+          </div>
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   </section>
-));
+);
