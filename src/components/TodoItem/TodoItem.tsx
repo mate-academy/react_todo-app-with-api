@@ -16,7 +16,6 @@ export const TodoItem: React.FC<Props> = ({
   toggleStatusTodo,
   renameTodo,
   loading,
-  // setLoading,
 }) => {
   const [isRenamed, setIsRenamed] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
