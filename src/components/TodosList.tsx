@@ -34,7 +34,7 @@ export const TodosList: React.FC<Props> = ({
     setSelectedTodoIds(prevIds => [...prevIds, id]);
   };
 
-  const [todoNewTitle, setTodoNewTitle] = useState<string>('');
+  const [todoNewTitle, setTodoNewTitle] = useState('');
 
   return (
     <section className="todoapp__main">

@@ -7,7 +7,7 @@ type Props = {
   setIsError: Dispatch<SetStateAction<ErrorTypes | null>>;
 };
 
-const errors = {
+const Errors = {
   [ErrorTypes.Load]: 'Unable to load todos',
   [ErrorTypes.Add]: 'Unable to add a todo',
   [ErrorTypes.Delete]: 'Unable to delete a todo',
@@ -32,7 +32,7 @@ export const ErrorNotifications: React.FC<Props> = ({
         onClick={() => setIsError(null)}
       />
 
-      {error && errors[error]}
+      {error && Errors[error]}
     </div>
   );
 };

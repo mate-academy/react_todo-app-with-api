@@ -24,22 +24,22 @@ const USER_ID = 6335;
 export const App: React.FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<ErrorTypes | null>(null);
-  const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [title, setTitle] = useState<string>('');
-  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [filter, setFilter] = useState(Filter.All);
+  const [title, setTitle] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const clearError = () => setError(null);
+  const pushError = (erroType: ErrorTypes, time = 3000) => {
+    setError(erroType);
+    setTimeout(() => setError(null), time);
+  };
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(setAllTodos)
-      .catch(() => {
-        setError(ErrorTypes.Load);
-        setTimeout(clearError, 3000);
-      });
+      .catch(() => pushError(ErrorTypes.Load));
   }, []);
 
   const filterHandler = (array: Todo[], filterType: string) => {
@@ -55,8 +55,7 @@ export const App: React.FC = () => {
 
   const addTodoHandler = useCallback(() => {
     if (!title.trim()) {
-      setError(ErrorTypes.Empty);
-      setTimeout(clearError, 3000);
+      pushError(ErrorTypes.Add);
 
       return;
     }
@@ -99,10 +98,7 @@ export const App: React.FC = () => {
       .then(() => setAllTodos(
         prevAllTodos => prevAllTodos.filter(prevTodo => prevTodo.id !== id),
       ))
-      .catch(() => {
-        setError(ErrorTypes.Delete);
-        setTimeout(clearError, 3000);
-      });
+      .catch(() => pushError(ErrorTypes.Delete));
   }, []);
 
   const activeTodos = useMemo(
@@ -116,7 +112,7 @@ export const App: React.FC = () => {
   );
 
   const deleteAllCompletedHandler = useCallback(() => {
-    completedTodos.forEach(
+    completedTodos.map(
       completedTodo => deleteTodoHandler(completedTodo.id),
     );
   }, [allTodos]);
@@ -126,29 +122,25 @@ export const App: React.FC = () => {
 
     completeTodo(id, data)
       .then(() => setAllTodos(prevTodos => {
-        const changingTodo = prevTodos.find(todo => todo.id === id);
+        const allTodosCopy = [...prevTodos];
+        const changingTodo = allTodosCopy.find(todo => todo.id === id);
 
         if (changingTodo) {
           changingTodo.completed = data;
         }
 
-        return [...prevTodos];
+        return allTodosCopy;
       }))
-      .catch(() => {
-        setError(ErrorTypes.Update);
-        setTimeout(clearError, 3000);
-      })
+      .catch(() => pushError(ErrorTypes.Update))
       .finally(() => setSelectedTodoIds([]));
   }, []);
 
   const completeAll = useCallback(() => {
-    if (allTodos.every(todo => todo.completed)) {
-      Promise.all(allTodos.map(
-        todo => todoStatusChangeHandler(todo.id, false),
-      ));
-    } else {
-      Promise.all(allTodos.map(todo => todoStatusChangeHandler(todo.id, true)));
-    }
+    Promise.all(allTodos.map(
+      todo => todoStatusChangeHandler(
+        todo.id, !allTodos.every(todoItem => todoItem.completed),
+      ),
+    ));
   }, [allTodos]);
 
   const doubleClickHandler = useCallback((id: number) => {
@@ -179,13 +171,15 @@ export const App: React.FC = () => {
 
       editTodo(id, newData)
         .then(() => setAllTodos(prevTodos => {
-          const selectedTodo = prevTodos.find(todo => todo.id === id);
+          const allTodosCopy = [...prevTodos];
+
+          const selectedTodo = allTodosCopy.find(todo => todo.id === id);
 
           if (selectedTodo) {
             selectedTodo.title = newData;
           }
 
-          return [...prevTodos];
+          return allTodosCopy;
         }))
         .catch(() => setError(ErrorTypes.Update))
         .finally(() => {
