@@ -26,12 +26,7 @@ export const App: React.FC = () => {
   const [value, setValue] = useState('');
   const [error, setError] = useState(ErrorType.None);
   const [currentFilter, setCurrentFilter] = useState(Filters.All);
-  // const [isError, setIsError] = useState(false);
-  // const [isDelete, setIsDelete] = useState(false);
-  // const [isHidden, setIsHidden] = useState(false);
-  // const [isEmpty, setIsEmpty] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  // const [isUpdate, setIsUpdate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingNewName, setIsLoadingNewName] = useState(false);
 
