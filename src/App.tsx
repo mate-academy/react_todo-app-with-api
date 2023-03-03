@@ -117,23 +117,24 @@ export const App: React.FC = () => {
     );
   }, [allTodos]);
 
-  const todoStatusChangeHandler = useCallback((id: number, data: boolean) => {
-    setSelectedTodoIds(prev => [...prev, id]);
+  const todoStatusChangeHandler = useCallback(
+    (id: number, isCompeled: boolean) => {
+      setSelectedTodoIds(prev => [...prev, id]);
 
-    completeTodo(id, data)
-      .then(() => setAllTodos(prevTodos => {
-        const allTodosCopy = [...prevTodos];
-        const changingTodo = { ...allTodosCopy.find(todo => todo.id === id) };
+      completeTodo(id, isCompeled)
+        .then(() => setAllTodos(prevTodos => {
+          const todosCopy = JSON.parse(JSON.stringify(prevTodos));
 
-        if (changingTodo) {
-          changingTodo.completed = data;
-        }
-
-        return allTodosCopy;
-      }))
-      .catch(() => pushError(ErrorTypes.Update))
-      .finally(() => setSelectedTodoIds([]));
-  }, []);
+          return todosCopy.map(
+            (todo: Todo) => (
+              todo.id === id ? { ...todo, completed: isCompeled } : todo
+            ),
+          );
+        }))
+        .catch(() => pushError(ErrorTypes.Update))
+        .finally(() => setSelectedTodoIds([]));
+    }, [],
+  );
 
   const completeAll = useCallback(() => {
     Promise.all(allTodos.map(
@@ -171,15 +172,13 @@ export const App: React.FC = () => {
 
       editTodo(id, newData)
         .then(() => setAllTodos(prevTodos => {
-          const allTodosCopy = [...prevTodos];
+          const todosCopy = JSON.parse(JSON.stringify(prevTodos));
 
-          const selectedTodo = { ...allTodosCopy.find(todo => todo.id === id) };
-
-          if (selectedTodo) {
-            selectedTodo.title = newData;
-          }
-
-          return allTodosCopy;
+          return todosCopy.map(
+            (todo: Todo) => (
+              todo.id === id ? { ...todo, title: newData } : todo
+            ),
+          );
         }))
         .catch(() => setError(ErrorTypes.Update))
         .finally(() => {
