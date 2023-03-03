@@ -1,6 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import debounce from 'lodash.debounce';
+
 import classNames from 'classnames';
 import {
   addTodo,
@@ -14,30 +21,33 @@ import { Todo } from './types/Todo';
 import { filterTodos } from './utils/filterTodos';
 import { Footer } from './components/Footer';
 import { FilterBy } from './types/FilterBy';
+import { NewTodoForm } from './components/NewTodoForm';
 
 const USER_ID = 6408;
 
 export const App: React.FC = () => {
-  const [query, setQuery] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState(FilterBy.all);
   const [isError, setIsError] = useState(false);
   const [typeError, setTypeError] = useState('');
-  const [isDisabled, setIsDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [tempTodos, setTempTodos] = useState<Todo[]>([]);
-  const [isAllStatusCompleted, setisAllStatusCompleted] = useState(false);
 
-  const pushError = (message: string) => {
+  const completedTodos = useMemo(() => todos.filter(t => t.completed), [todos]);
+
+  const countTodos = todos.length - completedTodos.length;
+
+  const visibleData = useMemo(() => {
+    return filterTodos(todos, filterBy);
+  }, [todos, filterBy]);
+
+  const clearError = useCallback(debounce(() => setIsError(false), 3000), []);
+
+  const pushError = useCallback((message: string) => {
     setIsError(true);
     setTypeError(message);
-    window.setTimeout(() => {
-      setIsError(false);
-    }, 3000);
-  };
-
-  const completedTodos = todos.filter(t => t.completed);
-  const countTodos = todos.length - completedTodos.length;
+    clearError();
+  }, []);
 
   const getTodosFromServer = async () => {
     try {
@@ -45,12 +55,17 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch {
-      pushError('upload');
+      pushError('Unable to upload a todo');
     }
   };
 
-  const addTodosOnServer = async () => {
-    setIsDisabled(true);
+  const addTodosOnServer = async (query: string) => {
+    if (!query.trim()) {
+      pushError('Title can\'t be empty');
+
+      return;
+    }
+
     try {
       const todo = {
         id: 0,
@@ -63,14 +78,9 @@ export const App: React.FC = () => {
 
       await addTodo(USER_ID, query);
       await getTodosFromServer();
-      setisAllStatusCompleted(false);
-      setQuery('');
       setTempTodo(null);
     } catch {
-      pushError('add');
-      setQuery('');
-    } finally {
-      setIsDisabled(false);
+      pushError('Unable to add a todo');
     }
   };
 
@@ -85,9 +95,8 @@ export const App: React.FC = () => {
 
       await deleteTodo(id);
       await getTodosFromServer();
-      setisAllStatusCompleted(false);
     } catch {
-      pushError('delete');
+      pushError('Unable to delete a todo');
     } finally {
       setTempTodos([]);
     }
@@ -99,9 +108,8 @@ export const App: React.FC = () => {
       await upgradeTodo(todo);
 
       await getTodosFromServer();
-      setisAllStatusCompleted(false);
     } catch {
-      pushError('update');
+      pushError('Unable to update a todo');
     } finally {
       setTempTodos([]);
     }
@@ -111,51 +119,31 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const visibleData = filterTodos(todos, filterBy);
-
-  const handlerSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!query.trim()) {
-      return pushError('Title can\'t be empty');
-    }
-
-    return addTodosOnServer();
-  };
-
-  const removeAllComplited = () => {
+  const removeAllComplited = useCallback(() => {
     completedTodos.map(t => deleteTodoFromServer(t.id));
-  };
+  }, [completedTodos]);
 
-  const removeTodo = (id: number) => {
+  const removeTodo = useCallback((id: number) => {
     deleteTodoFromServer(id);
-  };
+  }, []);
 
-  const handlerStatus = (todo: Todo) => {
+  const handlerStatus = useCallback((todo: Todo) => {
     const updateTodo = {
       ...todo,
       completed: !todo.completed,
     };
 
     upgradeTodoFromServer(updateTodo);
-  };
+  }, []);
 
-  const handlerAllStatus = (status: boolean) => {
-    if (!status) {
-      setisAllStatusCompleted(true);
+  const handlerAllStatus = useCallback(() => {
+    if (todos.length !== completedTodos.length) {
       const noCompletedTodos = todos.filter(todo => !todo.completed);
 
       return noCompletedTodos.map(todo => handlerStatus(todo));
     }
 
-    setisAllStatusCompleted(false);
-
     return todos.map(todo => handlerStatus(todo));
-  };
-
-  const ref = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    ref.current?.focus();
   }, [todos]);
 
   return (
@@ -164,7 +152,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           {!!todos.length && (
             <button
               type="button"
@@ -172,25 +159,12 @@ export const App: React.FC = () => {
                 'todoapp__toggle-all',
                 { active: todos.every(todo => todo.completed) },
               )}
-              onClick={() => {
-                handlerAllStatus(isAllStatusCompleted);
-              }}
+              onClick={handlerAllStatus}
             />
           )}
-
-          {/* Add a todo on form submit */}
-          <form onSubmit={(event) => handlerSubmit(event)}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={query}
-              onChange={((event) => setQuery(event.target.value))}
-              disabled={isDisabled}
-              ref={ref}
-
-            />
-          </form>
+          <NewTodoForm
+            addTodosOnServer={addTodosOnServer}
+          />
         </header>
         <TodoList
           todos={visibleData}
@@ -201,7 +175,6 @@ export const App: React.FC = () => {
           upgradeTodoFromServer={upgradeTodoFromServer}
           deleteTodoFromServer={deleteTodoFromServer}
         />
-        {/* Hide the footer if there are no todos */}
         {!!todos.length && (
           <Footer
             filterBy={filterBy}
@@ -214,8 +187,6 @@ export const App: React.FC = () => {
 
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <Notification
         setIsError={setIsError}
         typeError={typeError}

@@ -25,11 +25,8 @@ export const Notification:React.FC<Props> = React.memo(
           aria-label="delete-button"
           onClick={() => setIsError(false)}
         />
-        {/* show only one message at a time */}
         {
-          typeError.length > 10
-            ? (`${typeError}`)
-            : (`Unable to ${typeError} a todo`)
+          (`${typeError}`)
         }
       </div>
     );
