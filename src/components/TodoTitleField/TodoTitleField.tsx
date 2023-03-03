@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 interface TodoTitleFieldProps {
+  isUpdatingTodo: boolean;
   oldTitle: string;
   cancelEditing: () => void;
   updateTitle: (title: string) => Promise<void>;
@@ -19,6 +20,7 @@ export const TodoTitleField = memo<TodoTitleFieldProps>(({
   cancelEditing,
   updateTitle,
   deleteTodo,
+  isUpdatingTodo,
 }) => {
   const [title, setTitle] = useState(oldTitle);
 
@@ -54,6 +56,7 @@ export const TodoTitleField = memo<TodoTitleFieldProps>(({
   return (
     <form onSubmit={handleSubmit}>
       <input
+        disabled={isUpdatingTodo}
         className="todo__title-field"
         type="text"
         onBlur={saveChanges}

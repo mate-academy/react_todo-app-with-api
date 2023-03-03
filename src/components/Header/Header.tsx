@@ -8,6 +8,7 @@ import {
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { AuthContext } from '../Auth/AuthContext';
+import { ErrorMessage } from '../../types/Errors';
 
 interface HeaderProps {
   newTodoField: React.RefObject<HTMLInputElement>;
@@ -34,13 +35,13 @@ export const Header: React.FC<HeaderProps> = memo(
       event.preventDefault();
 
       if (!title.trim()) {
-        showError('Title is required');
+        showError(ErrorMessage.titleRequired);
 
         return;
       }
 
       if (!user) {
-        showError('User not found');
+        showError(ErrorMessage.userNotFound);
 
         return;
       }

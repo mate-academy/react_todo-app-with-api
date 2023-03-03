@@ -3,7 +3,8 @@ import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 interface TodoListProps {
-  todos: Todo[]
+  isUpdatingTodo: boolean;
+  todos: Todo[];
   tempTodo: Todo | null;
   deleteTodo: (todoId: number) => Promise<unknown>
   delitingTodoIds: number[];
@@ -21,6 +22,7 @@ export const TodoList: React.FC<TodoListProps> = memo(({
   delitingTodoIds,
   updateTodo,
   updatingTodoIds,
+  isUpdatingTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -32,6 +34,7 @@ export const TodoList: React.FC<TodoListProps> = memo(({
           shouldShowLoader={delitingTodoIds.includes(todo.id)
               || updatingTodoIds.includes(todo.id)}
           updateTodo={updateTodo}
+          isUpdatingTodo={isUpdatingTodo}
         />
       ))}
 
@@ -42,6 +45,7 @@ export const TodoList: React.FC<TodoListProps> = memo(({
           shouldShowLoader={delitingTodoIds.includes(tempTodo.id)
             || updatingTodoIds.includes(tempTodo.id)}
           updateTodo={updateTodo}
+          isUpdatingTodo={isUpdatingTodo}
         />
       )}
     </section>

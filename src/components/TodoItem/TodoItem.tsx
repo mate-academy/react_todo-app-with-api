@@ -9,6 +9,7 @@ import { Todo } from '../../types/Todo';
 import { TodoTitleField } from '../TodoTitleField/TodoTitleField';
 
 interface TodoItemProps {
+  isUpdatingTodo: boolean;
   todo: Todo;
   deleteTodo: (todoId: number) => Promise<unknown>;
   shouldShowLoader: boolean;
@@ -24,6 +25,7 @@ export const TodoItem: FC<TodoItemProps> = memo(
     deleteTodo,
     shouldShowLoader,
     updateTodo,
+    isUpdatingTodo,
   }) => {
     const todoId = todo.id;
     const isLoading = todoId === 0 || shouldShowLoader;
@@ -69,6 +71,7 @@ export const TodoItem: FC<TodoItemProps> = memo(
                 cancelEditing={cancelEditing}
                 updateTitle={updateTitle}
                 deleteTodo={deleteTodobyId}
+                isUpdatingTodo={isUpdatingTodo}
               />
             )
             : (

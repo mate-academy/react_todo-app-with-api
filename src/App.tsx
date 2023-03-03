@@ -17,11 +17,12 @@ import { FilterType } from './types/FilterType';
 import { Todo } from './types/Todo';
 import { getCompletedTodoIds } from './components/helpers/helpers';
 import { todosApi } from './api/todos';
+import { ErrorMessage } from './types/Errors';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [completedFilter, setCompletedFilter] = useState(FilterType.All);
-  const [isAddingTodo, setIsAddingTodo] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [delitingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
@@ -40,12 +41,12 @@ export const App: React.FC = () => {
     if (user) {
       todosApi.getTodos(user.id)
         .then(setTodos)
-        .catch(() => showError('Unable to load a todos'));
+        .catch(() => showError(ErrorMessage.loadTodosError));
     }
-  }, [user, isAddingTodo, showError]);
+  }, [user, isLoading, showError]);
 
   const addTodo = useCallback(async (fieldsToCreate: Omit<Todo, 'id'>) => {
-    setIsAddingTodo(true);
+    setIsLoading(true);
 
     try {
       setTempTodo({
@@ -57,12 +58,12 @@ export const App: React.FC = () => {
 
       setTodos(prev => [...prev, newTodo]);
     } catch {
-      showError('Unable to add a todo');
+      showError(ErrorMessage.addTodoError);
 
-      throw Error('Error while adding todo');
+      throw Error(ErrorMessage.whileAddingTodo);
     } finally {
       setTempTodo(null);
-      setIsAddingTodo(false);
+      setIsLoading(false);
     }
   }, [showError]);
 
@@ -74,7 +75,7 @@ export const App: React.FC = () => {
 
       setTodos(prev => prev.filter(todo => todo.id !== todoId));
     } catch {
-      showError('Unable to delete todo');
+      showError(ErrorMessage.deleteTodoError);
     } finally {
       setDeletingTodoIds(prev => prev.filter(id => id !== todoId));
     }
@@ -92,6 +93,8 @@ export const App: React.FC = () => {
       return prevIds;
     });
 
+    setIsLoading(true);
+
     try {
       const updatedTodo = await todosApi.updateTodo(todoId, updateData);
 
@@ -103,10 +106,11 @@ export const App: React.FC = () => {
         return updatedTodo;
       }));
     } catch {
-      showError('Unable to update a todo');
+      showError(ErrorMessage.updateTodoError);
     } finally {
       setUpdatingTodoIds(prevTodos => (
         prevTodos.filter(prevTodoId => prevTodoId !== todoId)));
+      setIsLoading(false);
     }
   }, [showError]);
 
@@ -128,6 +132,7 @@ export const App: React.FC = () => {
           todo.completed
         ));
 
+      case FilterType.All:
       default:
         return todos;
     }
@@ -161,7 +166,7 @@ export const App: React.FC = () => {
         <Header
           newTodoField={newTodoField}
           showError={showError}
-          isAddingTodo={isAddingTodo}
+          isAddingTodo={isLoading}
           addTodo={addTodo}
           shouldRenderActiveToggle={shouldRenderActiveToggle}
           handleToggleTodosStatus={handleToggleTodosStatus}
@@ -177,6 +182,7 @@ export const App: React.FC = () => {
                 delitingTodoIds={delitingTodoIds}
                 updateTodo={updateTodo}
                 updatingTodoIds={updatingTodoIds}
+                isUpdatingTodo={isLoading}
               />
               <Footer
                 activeTodosCount={activeTodosCount}
