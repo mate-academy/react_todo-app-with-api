@@ -4,19 +4,10 @@ import {
   TransitionGroup,
 } from 'react-transition-group';
 import './styles.scss';
-import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
+import { Props } from './Props';
 
-type Props = {
-  todos: Todo[];
-  onDelete: (value: number) => void;
-  onUpdate: (id: number, data: Partial<Todo>) => void;
-  isProcessing: (id: number) => boolean;
-  isCreated: boolean;
-  newTodo: Todo;
-};
-
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   onDelete,
   onUpdate,
@@ -59,4 +50,4 @@ export const TodoList: React.FC<Props> = ({
       </TransitionGroup>
     </ul>
   );
-};
+});

@@ -1,18 +1,14 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Filter } from '../../enums/Filter';
-import { Todo } from '../../types/Todo';
-
-type Props = {
-  filter: Filter,
-  setFilter: (value: Filter) => void;
-  onClear: () => void;
-  todos: Todo[];
-};
+import { Props } from './Props';
 
 export const TodoFilter: React.FC<Props> = React.memo(
   ({
-    filter, setFilter, onClear, todos,
+    filter,
+    setFilter,
+    onClear,
+    todos,
   }) => {
     const isAnyTodoCompleted = todos.some(todo => todo.completed);
     const quantityCompletedTodos = [...todos]
@@ -56,7 +52,7 @@ export const TodoFilter: React.FC<Props> = React.memo(
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => onClear()}
+          onClick={onClear}
           disabled={!isAnyTodoCompleted}
           style={{ opacity: isAnyTodoCompleted ? 1 : 0 }}
         >

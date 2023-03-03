@@ -1,8 +1,12 @@
 import {
+  ChangeEvent,
+  useCallback,
   useEffect, useMemo, useReducer, useState,
 } from 'react';
 import classNames from 'classnames';
-import { getTodos, removeTodo, updateTodo } from './api/todos';
+import {
+  addTodo, getTodos, removeTodo, updateTodo,
+} from './api/todos';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList';
 import { Filter } from './enums/Filter';
@@ -13,8 +17,6 @@ import { INITIAL_STATE_TEMPTODO } from './constants/initial_state_newTodo';
 import { USER_ID } from './constants/user_id';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Error } from './enums/Error';
-import { handlerError } from './utils/Errors';
-import { client } from './utils/fetchClient';
 import { TodoForm } from './components/TodoForm';
 import { reducer } from './reducer';
 import { ReducerType } from './enums/Reducer';
@@ -28,75 +30,89 @@ export const App: React.FC = () => {
   const [isError, setIsError] = useState<Error>(Error.RESET);
   const [isArrow, setIsArrow] = useState(false);
 
-  const isProcessing = (id: number) => {
-    if (processingIds.includes(id) || id === 0) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const ErrorTitle = handlerError(isError);
+  const isProcessing = useCallback((id: number) => {
+    return !!processingIds.includes(id) || id === 0;
+  }, [processingIds]);
 
   const onShowArrow = useMemo(() => {
-    return todos.every(todo => todo.completed)
-      ? setIsArrow(true)
-      : setIsArrow(false);
+    return setIsArrow(todos.every(todo => todo.completed));
   }, [todos]);
 
   const visibleTodos = useMemo(() => {
     return filteredTodos(todos, filter);
   }, [todos, filter]);
 
+  const getTodosFromServer = async () => {
+    try {
+      const todosFromServer = await getTodos(USER_ID);
+
+      setTodos(todosFromServer);
+    } catch {
+      setIsError(Error.UPLOAD);
+    }
+  };
+
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => {
-        setIsError(Error.UPLOAD);
-      });
+    getTodosFromServer();
   }, []);
 
-  const onAdd = (todo: Todo) => {
-    const {
-      title, userId, completed,
-    } = todo;
-
+  const onAdd = useCallback((todo: Todo) => {
     setIsCreated(true);
 
-    return client.post<Todo>('/todos', { title, userId, completed })
-      .then(result => {
-        setTodos(prev => [...prev, result]);
-        dispatch({ type: ReducerType.RESET });
-      })
-      .catch(() => setIsError(Error.ADD))
-      .finally(() => setIsCreated(false));
-  };
+    const toAddTodo = async () => {
+      try {
+        const addedTodo = await addTodo(todo);
 
-  const onDelete = (todoIdToDelete: number) => {
+        setTodos(prev => [...prev, addedTodo]);
+        dispatch({ type: ReducerType.RESET });
+      } catch {
+        setIsError(Error.ADD);
+      } finally {
+        setIsCreated(false);
+      }
+    };
+
+    toAddTodo();
+  }, [todos]);
+
+  const onDelete = useCallback((todoIdToDelete: number) => {
     setProcessingIds(prev => [...prev, todoIdToDelete]);
 
-    removeTodo(todoIdToDelete)
-      .then(() => getTodos(USER_ID))
-      .then(setTodos)
-      .catch(() => setIsError(Error.REMOVE))
-      .then(() => setProcessingIds((prev) => {
-        return prev.filter(id => id !== todoIdToDelete);
-      }));
-  };
+    const toRemoveTodo = async () => {
+      try {
+        await removeTodo(todoIdToDelete);
 
-  const onUpdate = (todoID: number, data: Partial<Todo>) => {
+        await getTodosFromServer();
+      } catch {
+        setIsError(Error.REMOVE);
+      } finally {
+        setProcessingIds(prev => prev.filter(id => id !== todoIdToDelete));
+      }
+    };
+
+    toRemoveTodo();
+  }, [todos]);
+
+  const onUpdate = useCallback((todoID: number, data: Partial<Todo>) => {
     setProcessingIds(prev => [...prev, todoID]);
 
-    return updateTodo(todoID, data)
-      .then(() => setProcessingIds((prev) => {
-        return prev.filter(id => id !== todoID);
-      }))
-      .catch(() => setIsError(Error.UPDATE))
-      .then(() => getTodos(USER_ID))
-      .then(setTodos);
-  };
+    const toUpdateTodo = async () => {
+      try {
+        await updateTodo(todoID, data);
+        setProcessingIds((prev) => {
+          return prev.filter(id => id !== todoID);
+        });
+      } catch {
+        setIsError(Error.UPDATE);
+      } finally {
+        await getTodosFromServer();
+      }
+    };
 
-  const handleSubmit = (e: React.FormEvent) => {
+    toUpdateTodo();
+  }, [todos]);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
 
     if (!tempTodo.title.trim()) {
@@ -104,14 +120,14 @@ export const App: React.FC = () => {
     }
 
     return onAdd(tempTodo);
-  };
+  }, [tempTodo]);
 
-  const onClear = () => {
+  const onClear = useCallback(() => {
     visibleTodos
       .map(todo => (todo.completed ? onDelete(todo.id) : todo));
-  };
+  }, [visibleTodos]);
 
-  const handleArrow = () => {
+  const handleArrow = useCallback(() => {
     if (!isArrow) {
       todos.map(todo => (!todo.completed
         ? onUpdate(todo.id, { completed: true })
@@ -127,31 +143,14 @@ export const App: React.FC = () => {
 
       setIsArrow(false);
     }
-  };
+  }, [todos]);
 
-  // const handleSubmitRename = (
-  //   value: string,
-  //   idToRename: number,
-  //   e?: React.FormEvent,
-  // ) => {
-  //   if (e) {
-  //     e.preventDefault();
-  //   }
-
-  //   setProcessingIds(prev => [...prev, idToRename]);
-
-  //   return onUpdate(idToRename, { title: value })
-  //     .then(() => setProcessingIds((prev) => {
-  //       return prev.filter(id => id !== idToRename);
-  //     }));
-  // };
-
-  const dispatchTitle = (e: string) => {
+  const dispatchTitle = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     dispatch({
       type: ReducerType.TITLE,
-      newTitle: e,
+      newTitle: e.target.value,
     });
-  };
+  }, [tempTodo]);
 
   if (!USER_ID) {
     setIsError(Error.USER);
@@ -169,7 +168,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {!todos.length || (
+          {!!todos.length && (
             <button
               type="button"
               className={classNames('todoapp__toggle-all',
@@ -196,7 +195,7 @@ export const App: React.FC = () => {
           newTodo={tempTodo}
         />
 
-        {!todos.length || (
+        {!!todos.length && (
           <footer className="todoapp__footer">
             <TodoFilter
               filter={filter}
@@ -209,11 +208,11 @@ export const App: React.FC = () => {
 
       </div>
 
-      {!isError
-        || (
+      {!!isError
+        && (
           <ErrorMessage
-            setError={setIsError}
-            ErrorTitle={ErrorTitle}
+            setIsError={setIsError}
+            isError={isError}
           />
         ) }
     </div>
