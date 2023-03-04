@@ -1,7 +1,7 @@
 import { INITIAL_STATE_TEMPTODO } from '../constants/initial_state_newTodo';
 import { ReducerType } from '../enums/Reducer';
 import { Todo } from '../types/Todo';
-import { Action } from './Action';
+import { Action } from '../types/Action';
 
 export const reducer = (
   tempTodo: Todo,
