@@ -31,9 +31,8 @@ export const App: React.FC = () => {
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
   const [isEditing, setIsEditing] = useState(false);
 
-  const pushError = (erroType: ErrorTypes, time = 3000) => {
+  const pushError = (erroType: ErrorTypes) => {
     setError(erroType);
-    setTimeout(() => setError(null), time);
   };
 
   useEffect(() => {
@@ -55,7 +54,7 @@ export const App: React.FC = () => {
 
   const addTodoHandler = useCallback(() => {
     if (!title.trim()) {
-      pushError(ErrorTypes.Add);
+      pushError(ErrorTypes.Empty);
 
       return;
     }
@@ -84,7 +83,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setError(ErrorTypes.Add);
-        setTempTodo(null);
       })
       .finally(() => {
         setIsAdding(false);
@@ -98,7 +96,8 @@ export const App: React.FC = () => {
       .then(() => setAllTodos(
         prevAllTodos => prevAllTodos.filter(prevTodo => prevTodo.id !== id),
       ))
-      .catch(() => pushError(ErrorTypes.Delete));
+      .catch(() => pushError(ErrorTypes.Delete))
+      .finally(() => setSelectedTodoIds([]));
   }, []);
 
   const activeTodos = useMemo(
@@ -115,7 +114,7 @@ export const App: React.FC = () => {
     completedTodos.map(
       completedTodo => deleteTodoHandler(completedTodo.id),
     );
-  }, [allTodos]);
+  }, [completedTodos]);
 
   const todoStatusChangeHandler = useCallback(
     (id: number, isCompeled: boolean) => {
@@ -232,7 +231,7 @@ export const App: React.FC = () => {
 
       <ErrorNotifications
         error={error}
-        setIsError={setError}
+        setError={setError}
       />
     </div>
   );

@@ -59,56 +59,55 @@ export const TodosList: React.FC<Props> = ({
                 />
               </label>
 
-              {isEditing && selectedTodoIds.some(id => id === todo.id)
-                ? (
-                  <EditingForm
-                    todo={todo}
-                    todoNewTitle={todoNewTitle}
-                    setTodoNewTitle={setTodoNewTitle}
-                    editingHandler={editingHandler}
-                    cancelEditingHandler={cancelEditingHandler}
-                  />
-                ) : (
-                  <>
-                    <span
-                      className="todo__title"
-                      onDoubleClick={() => {
-                        onDoubleClick(todo.id);
-                        setTodoNewTitle(todo.title);
-                      }}
-                    >
-                      {todo.title}
-                    </span>
+              {isEditing && selectedTodoIds.some(id => id === todo.id) ? (
+                <EditingForm
+                  todo={todo}
+                  todoNewTitle={todoNewTitle}
+                  setTodoNewTitle={setTodoNewTitle}
+                  editingHandler={editingHandler}
+                  cancelEditingHandler={cancelEditingHandler}
+                />
+              ) : (
+                <>
+                  <span
+                    className="todo__title"
+                    onDoubleClick={() => {
+                      onDoubleClick(todo.id);
+                      setTodoNewTitle(todo.title);
+                    }}
+                  >
+                    {todo.title}
+                  </span>
 
-                    <button
-                      type="button"
-                      className="todo__remove"
-                      onClick={() => deleteButtonHandler(todo.id)}
-                    >
-                      ×
-                    </button>
+                  <button
+                    type="button"
+                    className="todo__remove"
+                    onClick={() => deleteButtonHandler(todo.id)}
+                  >
+                    ×
+                  </button>
 
+                  <div
+                    className={
+                      classNames(
+                        'modal overlay',
+                        {
+                          'is-active': selectedTodoIds.some(
+                            id => id === todo.id,
+                          ),
+                        },
+                      )
+                    }
+                  >
                     <div
-                      className={
-                        classNames(
-                          'modal overlay',
-                          {
-                            'is-active': selectedTodoIds.some(
-                              id => id === todo.id,
-                            ),
-                          },
-                        )
-                      }
-                    >
-                      <div
-                        className="
+                      className="
                           modal-background
                           has-background-white-ter"
-                      />
-                      <div className="loader" />
-                    </div>
-                  </>
-                )}
+                    />
+                    <div className="loader" />
+                  </div>
+                </>
+              )}
             </div>
           </CSSTransition>
         ))}

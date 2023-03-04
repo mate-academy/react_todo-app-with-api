@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { ErrorTypes } from '../types/ErrorTypes';
 
 type Props = {
   error: ErrorTypes | null;
-  setIsError: Dispatch<SetStateAction<ErrorTypes | null>>;
+  setError: Dispatch<SetStateAction<ErrorTypes | null>>;
 };
 
 const Errors = {
@@ -17,8 +17,14 @@ const Errors = {
 
 export const ErrorNotifications: React.FC<Props> = ({
   error,
-  setIsError,
+  setError,
 }) => {
+  useEffect(() => {
+    const timeoutID = setTimeout(() => setError(null), 3000);
+
+    return () => clearTimeout(timeoutID);
+  });
+
   return (
     <div className={classNames(
       'notification is-danger is-light has-text-weight-normal',
@@ -29,7 +35,7 @@ export const ErrorNotifications: React.FC<Props> = ({
         type="button"
         aria-label="close notification"
         className="delete"
-        onClick={() => setIsError(null)}
+        onClick={() => setError(null)}
       />
 
       {error && Errors[error]}
