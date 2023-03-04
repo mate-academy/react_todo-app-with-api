@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Props } from './Props';
 
 export const TodoInfoForm: React.FC<Props> = ({
@@ -8,6 +8,12 @@ export const TodoInfoForm: React.FC<Props> = ({
   todo,
 }) => {
   const [newValue, setValue] = useState(todo.title);
+
+  const inputEl = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputEl.current?.focus();
+  });
 
   const handleTitleSubmit = () => {
     if (!newValue) {
@@ -40,8 +46,7 @@ export const TodoInfoForm: React.FC<Props> = ({
         onBlur={handleTitleSubmit}
         onKeyDown={handleKeyDown}
         onChange={((e) => setValue(e.target.value))}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
+        ref={inputEl}
       />
     </form>
   );

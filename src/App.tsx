@@ -72,7 +72,7 @@ export const App: React.FC = () => {
       }
     };
 
-    toAddTodo();
+    return toAddTodo();
   }, [todos]);
 
   const onDelete = useCallback((todoIdToDelete: number) => {
@@ -90,7 +90,7 @@ export const App: React.FC = () => {
       }
     };
 
-    toRemoveTodo();
+    return toRemoveTodo();
   }, [todos]);
 
   const onUpdate = useCallback((todoID: number, data: Partial<Todo>) => {
@@ -109,7 +109,7 @@ export const App: React.FC = () => {
       }
     };
 
-    toUpdateTodo();
+    return toUpdateTodo();
   }, [todos]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {

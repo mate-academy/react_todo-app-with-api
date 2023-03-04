@@ -11,9 +11,7 @@ export const TodoInfoField: React.FC<Props> = React.memo(({
       className="todo__title"
       role="button"
       tabIndex={0}
-      onClick={(e) => (e.detail === 2
-        ? setIsEditing(true)
-        : setIsEditing(false))}
+      onClick={(e) => setIsEditing(e.detail === 2)}
       onKeyDown={() => {}}
     >
 
