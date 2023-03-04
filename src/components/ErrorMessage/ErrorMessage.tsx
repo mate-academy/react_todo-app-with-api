@@ -2,7 +2,10 @@ import { Error } from '../../enums/Error';
 import { Errors } from '../../utils/Errors';
 import { Props } from './Props';
 
-export const ErrorMessage: React.FC<Props> = ({ setIsError, isError }) => {
+export const ErrorMessage: React.FC<Props> = ({
+  setCurrentError,
+  currentError,
+}) => {
   return (
     <div
       className="notification is-danger is-light has-text-weight-normal"
@@ -11,9 +14,9 @@ export const ErrorMessage: React.FC<Props> = ({ setIsError, isError }) => {
         type="button"
         aria-label="reset Error"
         className="delete"
-        onClick={() => setIsError(Error.RESET)}
+        onClick={() => setCurrentError(Error.RESET)}
       />
-      {Errors[isError]}
+      {Errors[currentError]}
     </div>
   );
 };

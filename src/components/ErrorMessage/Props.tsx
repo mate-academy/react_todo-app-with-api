@@ -1,6 +1,6 @@
 import { Error } from '../../enums/Error';
 
 export type Props = {
-  setIsError: (value: Error) => void;
-  isError: Error
+  setCurrentError: (value: Error) => void;
+  currentError: Error
 };

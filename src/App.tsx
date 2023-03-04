@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [tempTodo, dispatch] = useReducer(reducer, INITIAL_STATE_TEMPTODO);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
   const [isCreated, setIsCreated] = useState(false);
-  const [isError, setIsError] = useState<Error>(Error.RESET);
+  const [currentError, setCurrentError] = useState<Error>(Error.RESET);
   const [isArrow, setIsArrow] = useState(false);
 
   const isProcessing = useCallback((id: number) => {
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch {
-      setIsError(Error.UPLOAD);
+      setCurrentError(Error.UPLOAD);
     }
   };
 
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
         setTodos(prev => [...prev, addedTodo]);
         dispatch({ type: ReducerType.RESET });
       } catch {
-        setIsError(Error.ADD);
+        setCurrentError(Error.ADD);
       } finally {
         setIsCreated(false);
       }
@@ -84,7 +84,7 @@ export const App: React.FC = () => {
 
         await getTodosFromServer();
       } catch {
-        setIsError(Error.REMOVE);
+        setCurrentError(Error.REMOVE);
       } finally {
         setProcessingIds(prev => prev.filter(id => id !== todoIdToDelete));
       }
@@ -103,7 +103,7 @@ export const App: React.FC = () => {
           return prev.filter(id => id !== todoID);
         });
       } catch {
-        setIsError(Error.UPDATE);
+        setCurrentError(Error.UPDATE);
       } finally {
         await getTodosFromServer();
       }
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
     e.preventDefault();
 
     if (!tempTodo.title.trim()) {
-      return setIsError(Error.TITLE);
+      return setCurrentError(Error.TITLE);
     }
 
     return onAdd(tempTodo);
@@ -124,10 +124,10 @@ export const App: React.FC = () => {
 
   const onClear = useCallback(() => {
     visibleTodos
-      .map(todo => (todo.completed ? onDelete(todo.id) : todo));
+      .forEach(todo => (todo.completed ? onDelete(todo.id) : todo));
   }, [visibleTodos]);
 
-  const handleArrow = useCallback(() => {
+  const setAllTodosActiveOrCompleted = useCallback(() => {
     if (!isArrow) {
       todos.map(todo => (!todo.completed
         ? onUpdate(todo.id, { completed: true })
@@ -143,7 +143,7 @@ export const App: React.FC = () => {
 
       setIsArrow(false);
     }
-  }, [todos]);
+  }, [todos, isArrow]);
 
   const dispatchTitle = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     dispatch({
@@ -153,13 +153,13 @@ export const App: React.FC = () => {
   }, [tempTodo]);
 
   if (!USER_ID) {
-    setIsError(Error.USER);
+    setCurrentError(Error.USER);
 
     return <UserWarning />;
   }
 
-  if (isError) {
-    window.setTimeout(() => setIsError(Error.RESET), 3000);
+  if (currentError) {
+    window.setTimeout(() => setCurrentError(Error.RESET), 3000);
   }
 
   return (
@@ -174,7 +174,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all',
                 { active: isArrow || onShowArrow })}
               aria-label="set all todos completed"
-              onClick={handleArrow}
+              onClick={setAllTodosActiveOrCompleted}
             />
           )}
 
@@ -208,11 +208,11 @@ export const App: React.FC = () => {
 
       </div>
 
-      {!!isError
+      {!!currentError
         && (
           <ErrorMessage
-            setIsError={setIsError}
-            isError={isError}
+            setCurrentError={setCurrentError}
+            currentError={currentError}
           />
         ) }
     </div>
