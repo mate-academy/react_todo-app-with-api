@@ -127,7 +127,7 @@ export const App: React.FC = () => {
       .forEach(todo => (todo.completed ? onDelete(todo.id) : todo));
   }, [visibleTodos]);
 
-  const setAllTodosActiveOrCompleted = useCallback(() => {
+  const toggleAll = useCallback(() => {
     if (!isArrow) {
       todos.map(todo => (!todo.completed
         ? onUpdate(todo.id, { completed: true })
@@ -174,7 +174,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all',
                 { active: isArrow || onShowArrow })}
               aria-label="set all todos completed"
-              onClick={setAllTodosActiveOrCompleted}
+              onClick={toggleAll}
             />
           )}
 
