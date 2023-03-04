@@ -5,14 +5,12 @@ import React, {
   useMemo,
 } from 'react';
 
-// components
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
 
-// utils for loading and updating
 import {
   getTodos,
   addTodo,
@@ -21,10 +19,8 @@ import {
   updateTitleTodo,
 } from './api/todos';
 
-// utils
 import { getFilteredTodos } from './utils/getFilteredTodos';
 
-// types
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
 import { ErrorMessages } from './types/ErrorMessages';
@@ -122,7 +118,7 @@ export const App: React.FC = () => {
       addErrorMessage(ErrorMessages.DELETE);
     } finally {
       setTodosWithLoader(currentTodos => (
-        currentTodos.filter(t => t.id !== todo.id)
+        currentTodos.filter(currentTodo => currentTodo.id !== todo.id)
       ));
     }
   }, []);

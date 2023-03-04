@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -21,6 +21,14 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
   const [isInputActive, setIsInputActive] = useState(false);
   const [addedTitle, setAddedTitle] = useState(title);
+
+  const editFormRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (editFormRef.current && isInputActive) {
+      editFormRef.current.focus();
+    }
+  }, [isInputActive]);
 
   const changeInputActiveStatus = (status: boolean) => {
     setIsInputActive(status);
@@ -81,8 +89,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
               onChange={handleInput}
               onBlur={handleSaveChanges}
               onKeyUp={handleKeyUp}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
+              ref={editFormRef}
             />
           </form>
         )
