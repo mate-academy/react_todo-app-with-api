@@ -1,11 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { SelectedBy } from '../types/SelectedBy';
 
 interface FooterPropsType {
   todosToShow: Todo[],
-  selectedStatus: string,
-  setSelectedStatus: (selectedStatus: string) => void,
+  selectedStatus: SelectedBy,
+  setSelectedStatus: (selectedStatus: SelectedBy) => void,
   clearCompletedTodos: () => void,
   setIsAllTodosCompleted: (isAllTodosCompleted: boolean) => void,
 }
@@ -35,9 +36,9 @@ export const Footer: React.FC<FooterPropsType> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === 'all' },
+            { selected: selectedStatus === SelectedBy.ALL },
           )}
-          onClick={() => setSelectedStatus('all')}
+          onClick={() => setSelectedStatus(SelectedBy.ALL)}
         >
           All
         </a>
@@ -46,9 +47,9 @@ export const Footer: React.FC<FooterPropsType> = ({
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === 'active' },
+            { selected: selectedStatus === SelectedBy.ACTIVE },
           )}
-          onClick={() => setSelectedStatus('active')}
+          onClick={() => setSelectedStatus(SelectedBy.ACTIVE)}
         >
           Active
         </a>
@@ -57,9 +58,9 @@ export const Footer: React.FC<FooterPropsType> = ({
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: selectedStatus === 'completed' },
+            { selected: selectedStatus === SelectedBy.COMPLETED },
           )}
-          onClick={() => setSelectedStatus('completed')}
+          onClick={() => setSelectedStatus(SelectedBy.COMPLETED)}
         >
           Completed
         </a>

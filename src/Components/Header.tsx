@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import classNames from 'classnames';
 import { ErrorMessages } from '../types/ErrorMessages';
 
@@ -17,7 +17,8 @@ export const Header: React.FC<HeaderPropsType> = ({
 }) => {
   const [inputTitle, setInputTitle] = useState('');
 
-  const handleOnSubmit = () => {
+  const handleOnSubmit = (event: FormEvent) => {
+    event.preventDefault();
     if (!inputTitle.trim()) {
       showError(ErrorMessages.ONTITLE);
     } else {
@@ -38,7 +39,7 @@ export const Header: React.FC<HeaderPropsType> = ({
         onClick={handleToggleAllTodos}
       />
       <form
-        onSubmit={handleOnSubmit}
+        onSubmit={(handleOnSubmit)}
       >
         <input
           type="text"

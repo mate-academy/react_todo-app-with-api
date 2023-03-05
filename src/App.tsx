@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Todo } from './types/Todo';
 import { Header } from './Components/Header';
 import { TodoList } from './Components/Todolist';
@@ -9,21 +9,25 @@ import {
 } from './api/todos';
 import { Notification } from './Components/Notification';
 import { ErrorMessages } from './types/ErrorMessages';
+import { SelectedBy } from './types/SelectedBy';
 
 const USER_ID = 6376;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todosToShow, setTodosToShow] = useState<Todo[]>(todos);
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [
+    selectedStatus,
+    setSelectedStatus,
+  ] = useState<SelectedBy>(SelectedBy.ALL);
   const [errorMessage, setErrorMessage] = useState(ErrorMessages.NONE);
   const [hasError, setHasError] = useState(false);
   const [isAllTodosCompleted, setIsAllTodosCompleted] = useState(false);
 
-  const showError = (error: ErrorMessages) => {
+  const showError = useCallback((error: ErrorMessages) => {
     setHasError(true);
     setErrorMessage(error);
-  };
+  }, [setHasError, setErrorMessage]);
 
   const clearError = () => {
     setHasError(false);
@@ -31,12 +35,12 @@ export const App: React.FC = () => {
 
   const fetchTodos = async () => {
     try {
-      setHasError(false);
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
     } catch {
       showError(ErrorMessages.ONLOAD);
+      setHasError(false);
     }
   };
 
@@ -51,7 +55,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleAddTodo = async (inputQuery: string) => {
+  const handleAddTodo = useCallback(async (inputQuery: string) => {
     clearError();
 
     const newTodo: Todo = {
@@ -63,7 +67,8 @@ export const App: React.FC = () => {
 
     setTodosToShow([
       ...todosToShow,
-      newTodo]);
+      newTodo,
+    ]);
 
     try {
       await addTodo(USER_ID, newTodo);
@@ -71,21 +76,28 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorMessages.ONADD);
     }
-  };
+  }, [clearError, setTodosToShow, addTodo, fetchTodos, showError]);
 
-  useEffect(() => {
-    const filteredTodos = todos.filter(todo => {
-      switch (selectedStatus) {
-        case 'all':
+  const filteringTodos = (
+    todosToFilter: Todo[],
+    selectedFilteringStatus: SelectedBy,
+  ) => {
+    return (todosToFilter.filter(todo => {
+      switch (selectedFilteringStatus) {
+        case SelectedBy.ALL:
           return true;
-        case 'active':
+        case SelectedBy.ACTIVE:
           return !todo.completed;
-        case 'completed':
+        case SelectedBy.COMPLETED:
           return todo.completed;
         default:
           return todo;
       }
-    });
+    }));
+  };
+
+  useEffect(() => {
+    const filteredTodos = filteringTodos(todos, selectedStatus);
 
     setTodosToShow(filteredTodos);
   }, [selectedStatus, todos]);
@@ -107,20 +119,11 @@ export const App: React.FC = () => {
     const isAllCompleted = todosToShow.every(todo => todo.completed);
 
     try {
-      if (!isAllCompleted) {
-        todosToShow.forEach(todo => {
-          if (!todo.completed) {
-            return handleUpdateTodo(todo.id, { completed: true });
-          }
+      todosToShow.forEach(todo => {
+        const newCompletedStatus = !isAllCompleted;
 
-          return null;
-        });
-      } else {
-        todosToShow.forEach(todo => handleUpdateTodo(
-          todo.id,
-          { completed: !todo.completed },
-        ));
-      }
+        handleUpdateTodo(todo.id, { completed: newCompletedStatus });
+      });
     } catch {
       showError(ErrorMessages.ONTOGGLEALL);
     }
@@ -153,9 +156,9 @@ export const App: React.FC = () => {
     }
   }, [todosToShow]);
 
-  const handleToggleAllTodos = () => {
+  const handleToggleAllTodos = useCallback(() => {
     toggleAllTodos();
-  };
+  }, [toggleAllTodos]);
 
   return (
     <div className="todoapp">
