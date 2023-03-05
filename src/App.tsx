@@ -17,8 +17,8 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [performancedTodo, setPerformancedTodo] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [error, setError] = useState(ErrorMessage.None);
-  const [status, setStatus] = useState(Status.All);
+  const [error, setError] = useState<ErrorMessage>(ErrorMessage.None);
+  const [status, setStatus] = useState<Status>(Status.All);
 
   const completedTodos = todos.filter(todo => todo.completed);
   const hasCompletedTodos = completedTodos.length > 0;
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
   const handleAddNewTodo = async (newTodoTitle: string) => {
     closeNotification();
 
-    if (!newTodoTitle.trim) {
+    if (!newTodoTitle.trim()) {
       setError(ErrorMessage.Title);
 
       return;
@@ -93,9 +93,7 @@ export const App: React.FC = () => {
 
     try {
       await deleteTodo(todoToDelete.id);
-      // setTodos(prevTodos => prevTodos.filter(
-      //   todo => todo.id !== todoToDelete.id,
-      // ));
+
       await fetchTodos();
     } catch {
       setError(ErrorMessage.Delete);
@@ -116,9 +114,7 @@ export const App: React.FC = () => {
 
     try {
       await updateTodoStatus(todo.id, !todo.completed);
-      // setTodos(prevTodos => prevTodos.map(t => (
-      //   t.id === todo.id ? updatedTodo : t
-      // )))
+
       await fetchTodos();
     } catch {
       setError(ErrorMessage.Update);
@@ -176,6 +172,7 @@ export const App: React.FC = () => {
           onAddNewTodo={handleAddNewTodo}
           onToggleAll={handleToggleAllStatus}
           isActiveToggle={!hasActiveTodos}
+          todos={todos}
         />
 
         <TodoList
@@ -187,7 +184,7 @@ export const App: React.FC = () => {
           onRename={handleTodoRename}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <footer className="todoapp__footer">
             <span className="todo-count">
               {`${countOfActiveTodos} items left`}

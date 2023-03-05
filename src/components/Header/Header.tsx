@@ -1,16 +1,19 @@
 import classNames from 'classnames';
 import React, { FormEvent, useState } from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   onAddNewTodo: (newTodoTitle: string) => Promise<void>,
   onToggleAll: () => void,
   isActiveToggle: boolean,
+  todos: Todo[],
 };
 
-export const Header:React.FC<Props> = ({
+export const Header:React.FC<Props> = React.memo(({
   onAddNewTodo,
   onToggleAll,
   isActiveToggle,
+  todos,
 }) => {
   const [title, setTitle] = useState('');
   const [disabled, setDisabled] = useState(false);
@@ -29,18 +32,17 @@ export const Header:React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      <button
-        aria-label="toggle"
-        type="button"
-        onClick={onToggleAll}
-        className={classNames('todoapp__toggle-all', {
-          active: isActiveToggle,
-        })}
-        // "todoapp__toggle-all active"
-      />
+      {!!todos.length && (
+        <button
+          aria-label="toggle"
+          type="button"
+          onClick={onToggleAll}
+          className={classNames('todoapp__toggle-all', {
+            active: isActiveToggle,
+          })}
+        />
+      )}
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleSubmit}
       >
@@ -55,4 +57,4 @@ export const Header:React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

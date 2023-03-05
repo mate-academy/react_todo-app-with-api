@@ -7,7 +7,10 @@ type Props = {
   closeNotification: () => void,
 };
 
-export const Notification: React.FC<Props> = ({ error, closeNotification }) => {
+export const Notification: React.FC<Props> = React.memo(({
+  error,
+  closeNotification,
+}) => {
   useEffect(() => {
     if (error !== ErrorMessage.None) {
       setTimeout(closeNotification, 3000);
@@ -21,13 +24,13 @@ export const Notification: React.FC<Props> = ({ error, closeNotification }) => {
         { hidden: error === ErrorMessage.None },
       )}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
+        aria-label="close notification error"
         className="delete"
         onClick={closeNotification}
       />
       {error}
     </div>
   );
-};
+});

@@ -10,7 +10,7 @@ type Props = {
   onRename: (todo: Todo, newTitle: string) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo, removeTodo, isLoading, onToggle, onRename,
 }) => {
   const { title, completed } = todo;
@@ -73,8 +73,6 @@ export const TodoItem: React.FC<Props> = ({
             onChange={handleInputNewTitle}
             onKeyUp={handleEscKeyUp}
             onBlur={handleTitleChange}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
           />
         </form>
       ) : (
@@ -101,4 +99,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

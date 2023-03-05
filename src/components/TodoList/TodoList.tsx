@@ -12,35 +12,33 @@ type Props = {
 
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   removeTodo,
   performancedTodo,
   onToggle,
   onRename,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          removeTodo={removeTodo}
-          isLoading={performancedTodo.includes(todo)}
-          onToggle={onToggle}
-          onRename={onRename}
-        />
-      ))}
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          removeTodo={removeTodo}
-          isLoading
-          onToggle={() => {}}
-          onRename={onRename}
-        />
-      )}
-    </section>
-  );
-};
+}) => (
+  <section className="todoapp__main">
+    {todos.map(todo => (
+      <TodoItem
+        key={todo.id}
+        todo={todo}
+        removeTodo={removeTodo}
+        isLoading={performancedTodo.includes(todo)}
+        onToggle={onToggle}
+        onRename={onRename}
+      />
+    ))}
+    {tempTodo && (
+      <TodoItem
+        todo={tempTodo}
+        removeTodo={removeTodo}
+        isLoading
+        onToggle={() => {}}
+        onRename={onRename}
+      />
+    )}
+  </section>
+));
