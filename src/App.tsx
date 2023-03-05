@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
+// eslint-disable-next-line import/no-cycle
 import { Footer } from './components/Footer/Footer';
 import { Notification } from './components/Notification/Notification';
 
@@ -23,8 +24,7 @@ export enum SortType {
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterBy, setFilterBy] = useState('All');
-  const [isError, setIsError] = useState(false);
+  const [filterBy, setFilterBy] = useState(SortType.ALL);
   const [inputDisable, setInputDisable] = useState(false);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -43,13 +43,16 @@ export const App: React.FC = () => {
           return todo.completed;
 
         default:
-          return [];
+          return true;
       }
     })
     );
   }, [filterBy, todos]);
 
-  const noCompleteTodos = todos.some((todo) => todo.completed);
+  const noCompleteTodos = useMemo(() => {
+    return todos.some((todo) => todo.completed);
+  }, [todos]);
+
   const isMustBeCompleted = todos.filter((todo) => !todo.completed).length;
 
   const loadTodosData = async () => {
@@ -57,13 +60,9 @@ export const App: React.FC = () => {
       const todosFromServer = await getTodos(USER_ID);
 
       setTempTodo(null);
-
       setInputDisable(false);
-      setIsError(false);
-
       setTodos(todosFromServer);
     } catch (error) {
-      setIsError(true);
       setErrorMessage("Can't load data...");
     }
   };
@@ -96,10 +95,8 @@ export const App: React.FC = () => {
 
       setTempTodo(null);
       loadTodosData();
-      setIsError(false);
     } catch (error) {
       setErrorMessage('Unable to update a todo');
-      setIsError(true);
     }
   };
 
@@ -116,7 +113,6 @@ export const App: React.FC = () => {
       if (title) {
         await addTodo(createNewTodo(title));
       } else {
-        setIsError(true);
         setErrorMessage('Empty title alowed');
       }
 
@@ -124,12 +120,11 @@ export const App: React.FC = () => {
     } catch {
       setTempTodo(null);
       setErrorMessage('Unable to add a todo');
-      setIsError(true);
       setInputDisable(false);
     }
   };
 
-  const handleFromSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = (event: React.FormEvent) => {
     setInputDisable(true);
 
     event.preventDefault();
@@ -144,7 +139,6 @@ export const App: React.FC = () => {
       loadTodosData();
     } catch (error) {
       setTempTodo(null);
-      setIsError(true);
       setErrorMessage('Unable to delete a todo');
     }
   };
@@ -173,13 +167,13 @@ export const App: React.FC = () => {
         <Header
           title={title}
           setTitle={setTitle}
-          onSubmit={handleFromSubmit}
+          onSubmit={handleFormSubmit}
           isDisabled={inputDisable}
           toggleAll={toggleAllComlpleted}
           noCompletedTodos={noCompleteTodos}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -188,7 +182,6 @@ export const App: React.FC = () => {
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodosData}
               setErrorMessage={setErrorMessage}
-              setIsError={setIsError}
             />
 
             <Footer
@@ -202,7 +195,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {isError && (
+      {errorMessage && (
         <Notification errorMessage={errorMessage} />
       )}
 

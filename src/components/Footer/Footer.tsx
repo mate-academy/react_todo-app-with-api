@@ -1,15 +1,15 @@
 import React from 'react';
 import classNames from 'classnames';
+// eslint-disable-next-line import/no-cycle
+import { SortType } from '../../App';
 
 type Props = {
   noCompleteTodos: boolean,
-  filterBy: string,
-  setFilterBy: (value: string) => void,
+  filterBy: SortType,
+  setFilterBy: (value: SortType) => void,
   clearCompleted: () => void,
   leftTodos: number,
 };
-
-const navigation = ['All', 'Active', 'Completed'];
 
 export const Footer: React.FC<Props> = React.memo(
   ({
@@ -26,20 +26,38 @@ export const Footer: React.FC<Props> = React.memo(
         </span>
 
         <nav className="filter">
+          <a
+            href="#/"
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === SortType.ALL },
+            )}
+            onClick={() => setFilterBy(SortType.ALL)}
+          >
+            All
+          </a>
 
-          {navigation.map((nav) => (
-            <a
-              key={nav}
-              href="#/"
-              className={classNames(
-                'filter__link',
-                { selected: filterBy === nav },
-              )}
-              onClick={() => setFilterBy(nav)}
-            >
-              {nav}
-            </a>
-          ))}
+          <a
+            href="#/"
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === SortType.ACTIVE },
+            )}
+            onClick={() => setFilterBy(SortType.ACTIVE)}
+          >
+            Active
+          </a>
+
+          <a
+            href="#/"
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === SortType.COMPLETED },
+            )}
+            onClick={() => setFilterBy(SortType.COMPLETED)}
+          >
+            Completed
+          </a>
         </nav>
 
         <button
@@ -56,5 +74,4 @@ export const Footer: React.FC<Props> = React.memo(
       </footer>
     );
   },
-
 );

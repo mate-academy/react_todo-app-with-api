@@ -9,7 +9,6 @@ type Props = {
   onCompletedChange: (value: Todo) => void,
   loadTodos: () => void,
   setErrorMessage:(value: string) => void,
-  setIsError:(value: boolean) => void
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,37 +18,32 @@ export const TodoList: React.FC<Props> = ({
   onCompletedChange,
   loadTodos,
   setErrorMessage,
-  setIsError,
 }) => {
   return (
     <section className="todoapp__main">
       <ul>
         {todos.map((todo) => (
-          <li>
+          <li key={todo.id}>
             <TodoItem
-              key={todo.id}
               todo={todo}
               onRemoveTodo={onRemoveTodo}
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodos}
               setErrorMessage={setErrorMessage}
-              setIsError={setIsError}
             />
           </li>
 
         ))}
 
         {isTemp && (
-          <li>
+          <li key={isTemp.id}>
             <TodoItem
-              key={isTemp.id}
               todo={isTemp}
               withLoader
               onRemoveTodo={onRemoveTodo}
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodos}
               setErrorMessage={setErrorMessage}
-              setIsError={setIsError}
             />
 
           </li>

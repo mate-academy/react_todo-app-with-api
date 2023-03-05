@@ -12,7 +12,6 @@ type Props = {
   onCompletedChange: (value: Todo) => void,
   loadTodos: () => void,
   setErrorMessage:(value: string) => void,
-  setIsError:(value: boolean) => void
 };
 
 export const TodoItem: React.FC<Props> = React.memo(
@@ -23,8 +22,6 @@ export const TodoItem: React.FC<Props> = React.memo(
     onCompletedChange,
     loadTodos,
     setErrorMessage,
-    setIsError,
-
   }) => {
     const { id, completed, title } = todo;
 
@@ -33,7 +30,7 @@ export const TodoItem: React.FC<Props> = React.memo(
 
     const [editedTitle, setEditedTitle] = useState(title);
 
-    const onHandleDeleteClick = () => {
+    const handleDelete = () => {
       onRemoveTodo(id);
       setHasLoader(true);
     };
@@ -56,7 +53,7 @@ export const TodoItem: React.FC<Props> = React.memo(
       setIsDoubleClick(false);
 
       if (!editedTitle.length) {
-        onHandleDeleteClick();
+        handleDelete();
       }
 
       try {
@@ -66,9 +63,7 @@ export const TodoItem: React.FC<Props> = React.memo(
           title: editedTitle,
           completed,
         });
-        setIsError(false);
       } catch (error) {
-        setIsError(true);
         setErrorMessage('Unable to update a todo');
       }
 
@@ -125,7 +120,7 @@ export const TodoItem: React.FC<Props> = React.memo(
         <button
           type="button"
           className="todo__remove"
-          onClick={onHandleDeleteClick}
+          onClick={handleDelete}
         >
           ×
         </button>
