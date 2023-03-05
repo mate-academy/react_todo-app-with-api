@@ -34,7 +34,6 @@ export const App: React.FC = () => {
   const [isDeleteWaiting, setIsDeleteWaiting] = useState(false);
   const [todosIdsToRemove, setTodosIdsToRemove] = useState<number[]>([]);
   const [todosIdsToUpdate, setTodosIdsToUpdate] = useState<number[]>([]);
-  const [isUpdateWaiting, setIsUpdateWaiting] = useState(false);
 
   const removeError = useCallback(() => {
     window.setTimeout(() => setError(Error.NONE), 3000);
@@ -97,7 +96,7 @@ export const App: React.FC = () => {
 
   const changeCompletedStatus = async (todoId: number, status: boolean) => {
     try {
-      setIsUpdateWaiting(true);
+      setIsDeleteWaiting(true);
 
       const changedData = {
         completed: status,
@@ -108,13 +107,13 @@ export const App: React.FC = () => {
     } catch {
       setError(Error.ONUPDATE);
     } finally {
-      setIsUpdateWaiting(false);
+      setIsDeleteWaiting(false);
     }
   };
 
   const changeTodoTitle = async (todoId: number, newTitle: string) => {
     try {
-      setIsUpdateWaiting(true);
+      setIsDeleteWaiting(true);
 
       const changedData = {
         title: newTitle,
@@ -125,7 +124,7 @@ export const App: React.FC = () => {
     } catch {
       setError(Error.ONUPDATE);
     } finally {
-      setIsUpdateWaiting(false);
+      setIsDeleteWaiting(false);
     }
   };
 
@@ -223,7 +222,6 @@ export const App: React.FC = () => {
               changeTodosIdsToRemove={changeTodosIdsToRemove}
               removeDeleteId={removeDeleteId}
               changeCompletedStatus={changeCompletedStatus}
-              isUpdateWaiting={isUpdateWaiting}
               todosIdsToUpdate={todosIdsToUpdate}
               changeTodosIdsToUpdate={changeTodosIdsToUpdate}
               removeUpdatedId={removeUpdatedId}

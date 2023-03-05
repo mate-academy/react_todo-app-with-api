@@ -14,7 +14,6 @@ type Props = {
   removeDeleteId: (id: number) => void;
   todosIdsToRemove: number[];
   changeCompletedStatus: (todoId: number, status: boolean) => void;
-  isUpdateWaiting: boolean;
   todosIdsToUpdate: number[];
   changeTodosIdsToUpdate: (value: number) => void;
   removeUpdatedId: (value: number) => void;
@@ -30,7 +29,6 @@ export const TodoItem: React.FC<Props> = (
     removeDeleteId,
     todosIdsToRemove,
     changeCompletedStatus,
-    isUpdateWaiting,
     todosIdsToUpdate,
     changeTodosIdsToUpdate,
     removeUpdatedId,
@@ -105,7 +103,7 @@ export const TodoItem: React.FC<Props> = (
   };
 
   const isTodoChanging = (isDeleteWaiting && todosIdsToRemove.includes(id))
-    || (isUpdateWaiting && todosIdsToUpdate.includes(id));
+    || (isDeleteWaiting && todosIdsToUpdate.includes(id));
 
   return (
     <div
