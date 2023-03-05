@@ -2,9 +2,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  FormEvent,
 } from 'react';
-import classnames from 'classnames';
 import {
   addTodo, deleteTodo, editTodo, getTodos,
 } from './api/todos';
@@ -13,13 +11,13 @@ import { FilterType } from './types/FilterTypes';
 import { Todo, TodoData } from './types/Todo';
 import { Notification } from './components/Notification';
 import { FilterTodos } from './utils/filterTodos';
-// import { TodoForm } from './components/TodoForm';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 
 const USER_ID = 6418;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todoTitle, setTodoTitle] = useState<string>('');
   const [tepmTodo, setTepmTodo] = useState<Todo | null>(null);
   const [todosIdInProcess, setTodosIdInProcess] = useState<number[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(FilterType.ALL);
@@ -31,6 +29,7 @@ export const App: React.FC = () => {
   const visibleTodos = FilterTodos(todos, selectedFilter);
   const completedTodos = FilterTodos(todos, FilterType.COMPLETED);
   const completedTodosId = completedTodos.map(todo => todo.id);
+  const isTodos = todos.length !== 0;
 
   const notify = (message: string) => {
     sethasLoadingError(true);
@@ -60,13 +59,20 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const addTodoToServer = useCallback(async (data: Omit<Todo, 'id'>) => {
+  const addTodoToServer = useCallback(async (title: string) => {
     try {
+      const newTodo = {
+        userId: USER_ID,
+        title,
+        completed: false,
+      };
+
       setTepmTodo({
-        ...data,
+        ...newTodo,
         id: 0,
       });
-      await addTodo(data);
+
+      await addTodo(newTodo);
       await getTodosFromServer();
     } catch {
       notify('Cant add new todo to the Server ...');
@@ -109,42 +115,19 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  const handleFilterSelect = useCallback((filterType: FilterType) => {
-    setSelectedFilter(filterType);
-  }, []);
-
   const handleCloseNotification = useCallback(() => {
     sethasLoadingError(false);
   }, []);
-
-  const handleTodoTitle = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-
-      setTodoTitle(value);
-    }, [],
-  );
-
-  const handleSubmitForm = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
-
-      const newTodo = {
-        userId: USER_ID,
-        title: todoTitle,
-        completed: false,
-      };
-
-      addTodoToServer(newTodo);
-      setTodoTitle('');
-    }, [todoTitle],
-  );
 
   const handleDeleteTodo = useCallback(
     (id: number) => {
       deleteTodoFromServer(id);
     }, [],
   );
+
+  const handleFilterSelect = useCallback((filterType: FilterType) => {
+    setSelectedFilter(filterType);
+  }, []);
 
   const handleClearCompletedTodos = useCallback(async () => {
     try {
@@ -171,23 +154,6 @@ export const App: React.FC = () => {
   const handleEditTodo = useCallback(async (todo: Todo) => {
     await editTodoOnServer(todo.id, { title: todo.title });
   }, []);
-
-  // const handleToggleAll = useCallback(
-  //   () => {
-  //     const toggle = activeTodos.length ? activeTodos : todos;
-
-  //     toggle.forEach(todo => {
-  //       handleToggleComplete(todo);
-  //     });
-
-  //     // toggle.forEach(todo => {
-  //     //   editTodoOnServer(todo.id, {
-  //     //     ...todo,
-  //     //     completed: !todo.completed,
-  //     //   });
-  //     // });
-  //   }, [activeTodos],
-  // );
 
   const handleToggleAll = useCallback(
     async () => {
@@ -219,31 +185,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button
-            type="button"
-            // className="todoapp__toggle-all active"
-            className={classnames(
-              'todoapp__toggle-all', {
-                active: todos.length === completedTodos.length,
-              },
-            )}
-            aria-label="Toggle all active todos"
-            onClick={handleToggleAll}
-          />
-
-          {/* Add a todo on form submit */}
-          <form onSubmit={handleSubmitForm}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={todoTitle}
-              onChange={handleTodoTitle}
-            />
-          </form>
-        </header>
+        <Header
+          addTodoToServer={addTodoToServer}
+          todos={todos}
+          completedTodos={completedTodos}
+          notify={notify}
+          handleToggleAll={handleToggleAll}
+        />
 
         <TodoList
           todos={visibleTodos}
@@ -254,67 +202,17 @@ export const App: React.FC = () => {
           onHandleEditTodo={handleEditTodo}
         />
 
-        {/* Hide the footer if there are no todos */}
-        <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${activeTodos.length} items left`}
-          </span>
-
-          {/* Active filter should have a 'selected' class */}
-          <nav className="filter">
-            <a
-              href="#/"
-              className={classnames('filter__link', {
-                selected: selectedFilter === FilterType.ALL,
-              })}
-              onClick={() => {
-                handleFilterSelect(FilterType.ALL);
-              }}
-            >
-              All
-            </a>
-
-            <a
-              href="#/active"
-              className={classnames('filter__link', {
-                selected: selectedFilter === FilterType.ACTIVE,
-              })}
-              onClick={() => {
-                handleFilterSelect(FilterType.ACTIVE);
-              }}
-            >
-              Active
-            </a>
-
-            <a
-              href="#/completed"
-              className={classnames('filter__link', {
-                selected: selectedFilter === FilterType.COMPLETED,
-              })}
-              onClick={() => {
-                handleFilterSelect(FilterType.COMPLETED);
-              }}
-            >
-              Completed
-            </a>
-          </nav>
-
-          {/* don't show this button if there are no completed todos */}
-          <button
-            type="button"
-            className={classnames('todoapp__clear-completed', {
-              'is-invisible': completedTodos.length === 0,
-            })}
-            onClick={handleClearCompletedTodos}
-          >
-            Clear completed
-          </button>
-
-        </footer>
+        {isTodos && (
+          <Footer
+            selectedFilter={selectedFilter}
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            handleFilterSelect={handleFilterSelect}
+            handleClearCompletedTodos={handleClearCompletedTodos}
+          />
+        )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <Notification
         message={errorMessage}
         onClose={handleCloseNotification}
