@@ -19,4 +19,8 @@
       border-color: rgba(175, 47, 47, 0.2);
     }
   }
+
+  &__hide {
+    visibility: hidden;
+  }
 }
