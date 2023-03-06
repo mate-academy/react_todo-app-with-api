@@ -24,12 +24,12 @@ export const Item: React.FC<Props> = ({
     }
   };
 
-  const changeTodoCompleteHandler = (item: Todo, changeName:boolean) => {
-    const result = item;
+  const changeTodoCompleteHandler = (changeName:boolean) => {
+    const result = todo;
 
     setLoader(true);
     if (!changeName) {
-      result.completed = !item.completed;
+      result.completed = !todo.completed;
     } else {
       result.title = title;
     }
@@ -50,7 +50,10 @@ export const Item: React.FC<Props> = ({
     }
   };
 
-  const changeTitleTodoHandler = (item: Todo, event: any) => {
+  const changeTitleTodoHandler = (
+    item: Todo,
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.key === 'Escape') {
       setChange(false);
       setTitle(item.title);
@@ -71,22 +74,24 @@ export const Item: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={() => changeTodoCompleteHandler(todo, false)}
+          onClick={() => changeTodoCompleteHandler(false)}
         />
       </label>
       {
         change ? (
           <form onSubmit={(e) => {
             e.preventDefault();
-            changeTodoCompleteHandler(todo, true);
+            changeTodoCompleteHandler(true);
           }}
           >
             <input
               value={title}
               className="todo__title-field"
               onChange={onChancheHandler}
-              onKeyDown={(event) => changeTitleTodoHandler(todo, event)}
-              onBlur={() => changeTodoCompleteHandler(todo, true)}
+              onKeyDown={
+                (event) => changeTitleTodoHandler(todo, event)
+              }
+              onBlur={() => changeTodoCompleteHandler(true)}
             />
           </form>
         ) : (
@@ -103,7 +108,6 @@ export const Item: React.FC<Props> = ({
               onClick={activeLoader}
             >
               ×
-
             </button>
           </>
         )
