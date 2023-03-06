@@ -39,6 +39,8 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setTempTodo(false);
+    setTitleTodo('');
     getTodos(USER_ID).then(res => {
       setLength(res.length);
       if (!res.length) {
@@ -64,8 +66,6 @@ export const App: React.FC = () => {
         );
 
         getListTodo();
-        setTitleTodo('');
-        setTempTodo(false);
       } catch (e) {
         setError('Oops, something were wrong, please try again later');
       }
