@@ -37,9 +37,9 @@ export const App: React.FC = () => {
 
   const countTodos = todos.length - completedTodos.length;
 
-  const visibleData = useMemo(() => (
-    filterTodos(todos, filterBy)
-  ), [todos, filterBy]);
+  const visibleData = useMemo(() => {
+    return filterTodos(todos, filterBy)
+  }, [todos, filterBy]);
 
   const clearError = useCallback(debounce(() => setIsError(false), 3000), []);
 
