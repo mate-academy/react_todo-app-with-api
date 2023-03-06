@@ -17,6 +17,8 @@ export const App: React.FC = () => {
   const [listTodo, setListTodo] = useState<Todo[]>([]);
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState(false);
+  const [showFooter, setShowFooter] = useState(true);
+  const [length, setLength] = useState(0);
 
   const getListTodo = async (filter?: boolean, type?: string) => {
     try {
@@ -36,7 +38,21 @@ export const App: React.FC = () => {
     getListTodo();
   }, []);
 
-  const clearError = useCallback(() => setError(''), []);
+  useEffect(() => {
+    getTodos(USER_ID).then(res => {
+      setLength(res.length);
+      if (!res.length) {
+        setShowFooter(false);
+      } else {
+        setShowFooter(true);
+      }
+    });
+  }, [listTodo]);
+
+  const clearError = useCallback(() => {
+    setTempTodo(false);
+    setError('');
+  }, []);
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -109,6 +125,7 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={titleTodo}
               onChange={onChangeHandler}
+              disabled={tempTodo}
             />
           </form>
         </header>
@@ -136,15 +153,18 @@ export const App: React.FC = () => {
             />
           )}
         </section>
-        <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${listTodo.length} items left`}
-          </span>
 
-          <Filter setFilter={getListTodo} />
+        {showFooter ? (
+          <footer className="todoapp__footer">
+            <span className="todo-count">
+              {`${length} items left`}
+            </span>
 
-          {renderClearButton}
-        </footer>
+            <Filter setFilter={getListTodo} />
+
+            {renderClearButton}
+          </footer>
+        ) : ''}
       </div>
 
       {error && <Error errorText={error} errorClear={clearError} />}
