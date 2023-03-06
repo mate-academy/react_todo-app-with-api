@@ -20,9 +20,9 @@ export const App: React.FC = () => {
   const [showFooter, setShowFooter] = useState(true);
   const [length, setLength] = useState(0);
 
-  const getListTodo = async (filter?: boolean, type?: string) => {
+  const getListTodo = async (type?: string) => {
     try {
-      const result = await getTodos(USER_ID, filter);
+      const result = await getTodos(USER_ID, type === 'completed');
 
       if (type === 'active') {
         setListTodo(result.filter((el:Todo) => !el.completed));
@@ -80,7 +80,7 @@ export const App: React.FC = () => {
     deleteTodo(id).then(() => getListTodo());
   };
 
-  const deleteAllCompleteTodo = () => {
+  const deleteAllCompletedTodos = () => {
     listTodo.forEach((todo: Todo) => {
       if (todo.completed) {
         deleteTodoHandler(todo.id);
@@ -94,7 +94,7 @@ export const App: React.FC = () => {
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={deleteAllCompleteTodo}
+          onClick={deleteAllCompletedTodos}
         >
           Clear completed
         </button>

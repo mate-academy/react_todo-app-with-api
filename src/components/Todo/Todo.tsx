@@ -7,7 +7,7 @@ type Props = {
   todo: Todo,
   temp?: boolean,
   deleteTodo?: (id: number) => void,
-  updateTodos?: (filter?: boolean, type?: string) => void
+  updateTodos?: (type?: string) => void
 };
 
 export const Item: React.FC<Props> = ({
@@ -41,7 +41,7 @@ export const Item: React.FC<Props> = ({
         if (!typeFilter) {
           updateTodos();
         } else {
-          updateTodos(false, typeFilter);
+          updateTodos(typeFilter);
         }
 
         setLoader(false);
