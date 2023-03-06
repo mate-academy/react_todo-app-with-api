@@ -37,9 +37,9 @@ export const App: React.FC = () => {
 
   const countTodos = todos.length - completedTodos.length;
 
-  const visibleData = useMemo(() => {
-    return filterTodos(todos, filterBy);
-  }, [todos, filterBy]);
+  const visibleData = useMemo(() => (
+    filterTodos(todos, filterBy)
+  ), [todos, filterBy]);
 
   const clearError = useCallback(debounce(() => setIsError(false), 3000), []);
 
@@ -78,9 +78,10 @@ export const App: React.FC = () => {
 
       await addTodo(USER_ID, query);
       await getTodosFromServer();
-      setTempTodo(null);
     } catch {
       pushError('Unable to add a todo');
+    } finally {
+      setTempTodo(null);
     }
   };
 
@@ -89,7 +90,7 @@ export const App: React.FC = () => {
       const selectTodo = todos.find(t => t.id === id);
 
       if (selectTodo) {
-        setTempTodos((prev) => ([...prev,
+        setTempTodos((current) => ([...current,
           selectTodo]));
       }
 
@@ -175,7 +176,7 @@ export const App: React.FC = () => {
           upgradeTodoFromServer={upgradeTodoFromServer}
           deleteTodoFromServer={deleteTodoFromServer}
         />
-        {!!todos.length && (
+        {todos.length > 0 && (
           <Footer
             filterBy={filterBy}
             setFilterBy={setFilterBy}

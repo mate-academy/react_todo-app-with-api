@@ -32,7 +32,7 @@ export const TodoItem:React.FC<Props> = React.memo(
     const handlerRename = useCallback(
       (event: React.FormEvent) => {
         event.preventDefault();
-        if (!editedText) {
+        if (!editedText.trim()) {
           deleteTodoFromServer(todo.id);
         }
 
