@@ -14,10 +14,13 @@ type Props = {
   addNewTodo: (ard: string) => void,
   todos: Todo[],
   onChange: (id: number, todoField: ChangeField) => void,
-
 };
 
-export const Header: React.FC<Props> = ({ addNewTodo, todos, onChange }) => {
+export const Header: React.FC<Props> = ({
+  addNewTodo,
+  todos,
+  onChange,
+}) => {
   const [input, setInput] = useState<string>('');
   const [isFormDisabled, setIsFormDisabled] = useState<boolean>(false);
 

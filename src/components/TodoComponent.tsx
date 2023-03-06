@@ -9,15 +9,17 @@ type Props = {
   todo: Todo,
   onDelete?: (id: number) => void,
   onChange?: (id: number, todoField: ChangeField) => void,
+  isTodoLoading?: boolean
 };
 
 export const TodoComponent: React.FC<Props> = ({
   todo,
   onDelete,
   onChange,
+  isTodoLoading,
 }) => {
   const { title, completed, id } = todo;
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(isTodoLoading || false);
   const [input, setInput] = useState<string>(title);
   const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
 
@@ -45,12 +47,8 @@ export const TodoComponent: React.FC<Props> = ({
   const handleTitleDoubleClick = (
     event: React.MouseEvent<HTMLSpanElement>,
   ) => {
-    switch (event.detail) {
-      case 2:
-        setIsInputVisible(true);
-        break;
-      default:
-        break;
+    if (event.detail === 2) {
+      setIsInputVisible(true);
     }
   };
 
@@ -123,22 +121,24 @@ export const TodoComponent: React.FC<Props> = ({
             />
           )
           : (
-            <span
-              className="todo__title"
-              onClick={handleTitleDoubleClick}
-            >
-              {title}
-            </span>
+            <>
+              <span
+                className="todo__title"
+                onClick={handleTitleDoubleClick}
+              >
+                {title}
+              </span>
+
+              <button
+                type="button"
+                className="todo__remove"
+                onClick={handleTodoDelete}
+              >
+                ×
+              </button>
+            </>
           )
       }
-
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={handleTodoDelete}
-      >
-        ×
-      </button>
 
       {
         (isLoading || id === 0) && (

@@ -40,8 +40,6 @@ export const Footer: React.FC<Props> = ({
       <span className="todo-count">
         {`${activeCount} items left`}
       </span>
-
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"

@@ -22,6 +22,7 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState<Status>(Status.All);
   const [error, setError] = useState<Error>(Error.NONE);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [todosInProcess, setTodosInProcess] = useState<number[]>([]);
 
   const setErrorStatus = (newError: Error) => {
     setError(newError);
@@ -59,9 +60,9 @@ export const App: React.FC = () => {
     setTempTodo({ ...todoToAdd, id: 0 });
 
     try {
-      const response = await addTodo(USER_ID, todoToAdd);
+      await addTodo(USER_ID, todoToAdd);
 
-      setTodos(currentTodos => [...currentTodos, response]);
+      await fetchTodos();
     } catch {
       setErrorStatus(Error.ADD);
     } finally {
@@ -70,26 +71,28 @@ export const App: React.FC = () => {
   };
 
   const deleteChosenTodo = async (todoId: number) => {
+    setTodosInProcess((prevState) => [...prevState, todoId]);
+
     try {
       await deleteTodo(USER_ID, todoId);
-
-      setTodos((currentTodos) => (
-        currentTodos.filter(({ id }) => id !== todoId)
-      ));
+      await fetchTodos();
     } catch {
       setErrorStatus(Error.DELETE);
+    } finally {
+      setTodosInProcess((current) => current.filter(id => id !== todoId));
     }
   };
 
   const changeChosenTodo = async (todoId: number, todoField: ChangeField) => {
-    try {
-      const newTodo = await changeTodo(USER_ID, todoId, todoField);
+    setTodosInProcess((prevState) => [...prevState, todoId]);
 
-      setTodos((currentTodos) => currentTodos.map((todo) => {
-        return todo.id === newTodo.id ? { ...todo, ...newTodo } : todo;
-      }));
+    try {
+      await changeTodo(USER_ID, todoId, todoField);
+      await fetchTodos();
     } catch {
       setErrorStatus(Error.CHANGE);
+    } finally {
+      setTodosInProcess((current) => current.filter(id => id !== todoId));
     }
   };
 
@@ -127,29 +130,26 @@ export const App: React.FC = () => {
         />
         {
           todos.length !== 0 && (
-            <TodoList
-              todos={todosByStatus}
-              onDelete={deleteChosenTodo}
-              onChange={changeChosenTodo}
-              tempTodo={tempTodo}
-            />
-          )
-        }
+            <>
+              <TodoList
+                todos={todosByStatus}
+                onDelete={deleteChosenTodo}
+                onChange={changeChosenTodo}
+                tempTodo={tempTodo}
+                todosInProcess={todosInProcess}
+              />
 
-        {
-          todos.length !== 0 && (
-            <Footer
-              todos={todos}
-              activeCount={activeCount}
-              status={status}
-              setStatus={setStatus}
-              onDelete={deleteChosenTodo}
-            />
+              <Footer
+                todos={todos}
+                activeCount={activeCount}
+                status={status}
+                setStatus={setStatus}
+                onDelete={deleteChosenTodo}
+              />
+            </>
           )
         }
       </div>
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorMessage error={error} onDeleteClick={setError} />
     </div>
   );
