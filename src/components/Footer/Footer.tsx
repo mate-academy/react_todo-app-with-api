@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { SortType } from '../../App';
 
 type Props = {
-  noCompleteTodos: boolean,
+  hasCompleteTodos: boolean,
   filterBy: SortType,
   setFilterBy: (value: SortType) => void,
   clearCompleted: () => void,
@@ -13,7 +13,7 @@ type Props = {
 
 export const Footer: React.FC<Props> = React.memo(
   ({
-    noCompleteTodos,
+    hasCompleteTodos,
     filterBy,
     setFilterBy,
     clearCompleted,
@@ -64,7 +64,7 @@ export const Footer: React.FC<Props> = React.memo(
           type="button"
           className={classNames(
             'todoapp__clear-completed',
-            { 'todoapp__clear-completed_none': !noCompleteTodos },
+            { 'todoapp__clear-completed_none': !hasCompleteTodos },
 
           )}
           onClick={clearCompleted}

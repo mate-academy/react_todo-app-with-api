@@ -49,11 +49,11 @@ export const App: React.FC = () => {
     );
   }, [filterBy, todos]);
 
-  const noCompleteTodos = useMemo(() => {
+  const hasCompleteTodos = useMemo(() => {
     return todos.some((todo) => todo.completed);
   }, [todos]);
 
-  const isMustBeCompleted = todos.filter((todo) => !todo.completed).length;
+  const mustBeCompleted = todos.filter((todo) => !todo.completed).length;
 
   const loadTodosData = async () => {
     try {
@@ -170,7 +170,7 @@ export const App: React.FC = () => {
           onSubmit={handleFormSubmit}
           isDisabled={inputDisable}
           toggleAll={toggleAllComlpleted}
-          noCompletedTodos={noCompleteTodos}
+          noCompletedTodos={hasCompleteTodos}
         />
 
         {!!todos.length && (
@@ -185,11 +185,11 @@ export const App: React.FC = () => {
             />
 
             <Footer
-              noCompleteTodos={noCompleteTodos}
+              hasCompleteTodos={hasCompleteTodos}
               filterBy={filterBy}
               setFilterBy={setFilterBy}
               clearCompleted={clearCompleted}
-              leftTodos={isMustBeCompleted}
+              leftTodos={mustBeCompleted}
             />
           </>
         )}
