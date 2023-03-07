@@ -1,7 +1,7 @@
 import { Todo } from '../types/Todo';
 import { Filter } from '../types/Filter';
 
-export const filteredTodos = (todos: Todo[], filter: Filter) => (
+export const getfilteredTodos = (todos: Todo[], filter: Filter) => (
   todos.filter(({ completed }) => {
     switch (filter) {
       case Filter.All:
@@ -19,6 +19,6 @@ export const filteredTodos = (todos: Todo[], filter: Filter) => (
   })
 );
 
-export const activeTodosCount = (todos: Todo[]) => (
+export const getActiveTodos = (todos: Todo[]) => (
   todos.filter(todo => !todo.completed)
 );

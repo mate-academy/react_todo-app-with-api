@@ -17,62 +17,62 @@ export const TodoFooter: React.FC<PropsType> = React.memo(
     activeTodos,
     completedTodos,
     handleDeleteCompleted,
-  }) => (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodos} items left`}
-      </span>
+  }) => {
+    const filterChangeHandler = (setting: Filter) => () => {
+      setFilter(setting);
+    };
 
-      <nav className="filter">
-        <a
-          href="#/"
-          className={classNames(
-            'filter__link',
-            { selected: filter === Filter.All },
-          )}
-          onClick={() => {
-            setFilter(Filter.All);
-          }}
+    return (
+      <footer className="todoapp__footer">
+        <span className="todo-count">
+          {`${activeTodos} items left`}
+        </span>
+
+        <nav className="filter">
+          <a
+            href="#/"
+            className={classNames(
+              'filter__link',
+              { selected: filter === Filter.All },
+            )}
+            onClick={filterChangeHandler(Filter.All)}
+          >
+            All
+          </a>
+
+          <a
+            href="#/active"
+            className={classNames(
+              'filter__link',
+              { selected: filter === Filter.Active },
+            )}
+            onClick={filterChangeHandler(Filter.Active)}
+          >
+            Active
+          </a>
+
+          <a
+            href="#/completed"
+            className={classNames(
+              'filter__link',
+              { selected: filter === Filter.Completed },
+            )}
+            onClick={filterChangeHandler(Filter.Completed)}
+          >
+            Completed
+          </a>
+        </nav>
+
+        {/* don't show this button if there are no completed todos */}
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={handleDeleteCompleted}
+          disabled={!completedTodos}
         >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames(
-            'filter__link',
-            { selected: filter === Filter.Active },
-          )}
-          onClick={() => {
-            setFilter(Filter.Active);
-          }}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames(
-            'filter__link',
-            { selected: filter === Filter.Completed },
-          )}
-          onClick={() => {
-            setFilter(Filter.Completed);
-          }}
-        >
-          Completed
-        </a>
-      </nav>
-
-      {/* don't show this button if there are no completed todos */}
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={() => handleDeleteCompleted()}
-        disabled={!completedTodos}
-      >
-        Clear completed
-      </button>
-    </footer>
-  ),
+          Clear completed
+        </button>
+      </footer>
+    );
+  },
 );

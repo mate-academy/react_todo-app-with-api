@@ -28,6 +28,14 @@ export const TodoHeader: React.FC<PropsType> = React.memo(
 
     const isCreatingNewTodo = !!tempTodo;
 
+    const onChangeHandler = () => {
+      hangleTaggleAllTodos(!activeTodosQuantity);
+    };
+
+    const onChangeInput = (value: string) => {
+      setInputValue(value);
+    };
+
     return (
       <header className="todoapp__header">
         {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -38,7 +46,7 @@ export const TodoHeader: React.FC<PropsType> = React.memo(
             'todoapp__toggle-all',
             { active: !activeTodosQuantity },
           )}
-          onClick={() => hangleTaggleAllTodos(!activeTodosQuantity)}
+          onClick={onChangeHandler}
         />
 
         <form onSubmit={handleSubmit}>
@@ -48,7 +56,7 @@ export const TodoHeader: React.FC<PropsType> = React.memo(
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
             onChange={(event) => {
-              setInputValue(event.target.value);
+              onChangeInput(event.target.value);
             }}
             disabled={isCreatingNewTodo}
           />

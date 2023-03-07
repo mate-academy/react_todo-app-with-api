@@ -6,7 +6,7 @@ type PropTypes = {
   todo: Todo;
   handleDeleteTodo: (todoDel: Todo) => void;
   deletingId: number[];
-  handleUpdate: (newField: Partial<Todo>) => void;
+  handleUpdate?: (updatingTodo: Todo, newField: Partial<Todo>) => void;
 };
 
 export const TodoItem: React.FC<PropTypes> = ({
@@ -21,6 +21,9 @@ export const TodoItem: React.FC<PropTypes> = ({
   const todoRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const startEditing = () => setIsEditing(true);
+  const finishEditing = () => setIsEditing(false);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
@@ -34,19 +37,12 @@ export const TodoItem: React.FC<PropTypes> = ({
     };
 
     window.addEventListener('keydown', handleKeyDown);
+    todoRef.current?.addEventListener('dblclick', startEditing);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      todoRef.current?.removeEventListener('dblclick', startEditing);
     };
-  }, []);
-
-  const startEditing = () => setIsEditing(true);
-  const finishEditing = () => setIsEditing(false);
-
-  useEffect(() => {
-    todoRef.current?.addEventListener('dblclick', startEditing);
-
-    return () => todoRef.current?.removeEventListener('dblclick', startEditing);
   }, []);
 
   useEffect(() => {
@@ -60,15 +56,25 @@ export const TodoItem: React.FC<PropTypes> = ({
       handleDeleteTodo(todo);
     }
 
-    if (title !== newValue) {
-      handleUpdate({ title: newValue });
+    if (title !== newValue && handleUpdate) {
+      handleUpdate(todo, { title: newValue });
     }
 
     finishEditing();
   };
 
   const handleToggle = () => {
-    handleUpdate({ completed: !completed });
+    if (handleUpdate) {
+      handleUpdate(todo, { completed: !completed });
+    }
+  };
+
+  const onChangeHandler = (value: string) => {
+    setNewValue(value);
+  };
+
+  const handleClick = () => {
+    handleDeleteTodo(todo);
   };
 
   return (
@@ -100,7 +106,7 @@ export const TodoItem: React.FC<PropTypes> = ({
               placeholder="Empty todo will be deleted"
               defaultValue={title}
               onChange={event => {
-                setNewValue(event.target.value);
+                onChangeHandler(event.target.value);
               }}
               value={newValue}
               onBlur={handleRename}
@@ -116,7 +122,7 @@ export const TodoItem: React.FC<PropTypes> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDeleteButton"
-              onClick={() => handleDeleteTodo(todo)}
+              onClick={handleClick}
             >
               ×
             </button>

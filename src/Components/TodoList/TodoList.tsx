@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 todo={todo}
                 deletingId={deletingId}
                 handleDeleteTodo={handleDeleteTodo}
-                handleUpdate={(newField) => handleUpdate(todo, newField)}
+                handleUpdate={handleUpdate}
               />
             </CSSTransition>
           ))}
@@ -46,7 +46,6 @@ export const TodoList: React.FC<Props> = React.memo(
                 todo={tempTodo}
                 handleDeleteTodo={handleDeleteTodo}
                 deletingId={deletingId}
-                handleUpdate={() => {}}
               />
             </CSSTransition>
           )}

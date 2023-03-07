@@ -1,12 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   getTodos,
   addTodo,
   deleteTodo,
   updateTodo,
 } from './api/todos';
-import { filteredTodos, activeTodosCount } from './helpers/functionsTodos';
+import { getfilteredTodos, getActiveTodos } from './helpers/functionsTodos';
 import { NotificationTodo } from './Components/NotificationTodo';
 import { TodoFooter } from './Components/TodoFooter';
 import { TodoHeader } from './Components/TodoHeader';
@@ -29,10 +33,10 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingId, setDeletingId] = useState<number[]>([]);
 
-  const visibeTodos = filteredTodos(todos, filter);
-  const activeTodosQuantity = activeTodosCount(todos).length;
+  const visibeTodos = getfilteredTodos(todos, filter);
+  const activeTodosQuantity = getActiveTodos(todos).length;
   const completedTodos = visibeTodos.length - activeTodosQuantity;
-  const completedTodoList = filteredTodos(todos, Filter.Completed);
+  const completedTodoList = getfilteredTodos(todos, Filter.Completed);
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -59,9 +63,9 @@ export const App: React.FC = () => {
     setError(false);
   }, []);
 
-  const clearInput = () => {
+  const clearInput = useCallback(() => {
     setInputValue('');
-  };
+  }, [inputValue]);
 
   const handleCreateTodo = useCallback((title: string) => {
     clearNotification();
@@ -115,7 +119,7 @@ export const App: React.FC = () => {
     clearNotification();
 
     completedTodoList.forEach(todo => handleDeleteTodo(todo));
-  }, [todos]);
+  }, [completedTodoList]);
 
   const handleUpdate = useCallback(
     (
@@ -142,9 +146,9 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  const handleToggle = (todo: Todo) => {
+  const handleToggle = useCallback((todo: Todo) => {
     handleUpdate(todo, { completed: !todo.completed });
-  };
+  }, []);
 
   const hangleTaggleAll = (isCompleted: boolean) => {
     const checkedTodoForToggle = todos
