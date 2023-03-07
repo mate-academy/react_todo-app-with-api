@@ -8,7 +8,7 @@ type Props = {
   deleteTodo: (todoId: number) => Promise<void>,
   toggleStatusTodo: (todo: Todo) => void,
   renameTodo: (todo: Todo, newTitle: string) => void,
-  loading: { todoId: number, isLoading: boolean },
+  loadableTodos: number[],
 };
 
 export const TodosList: React.FC<Props> = ({
@@ -17,10 +17,10 @@ export const TodosList: React.FC<Props> = ({
   deleteTodo,
   toggleStatusTodo,
   renameTodo,
-  loading,
+  loadableTodos,
 }) => {
   return (
-    <section className="todoapp__main">
+    <section className="todoapp__main" data-cy="TodoList">
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
@@ -28,7 +28,7 @@ export const TodosList: React.FC<Props> = ({
           deleteTodo={() => deleteTodo(todo.id)}
           toggleStatusTodo={() => toggleStatusTodo(todo)}
           renameTodo={renameTodo}
-          loading={loading}
+          loadableTodos={loadableTodos}
         />
       ))}
 
@@ -39,7 +39,7 @@ export const TodosList: React.FC<Props> = ({
           deleteTodo={() => deleteTodo(tempTodo.id)}
           toggleStatusTodo={() => toggleStatusTodo(tempTodo)}
           renameTodo={renameTodo}
-          loading={loading}
+          loadableTodos={loadableTodos}
         />
       )}
     </section>

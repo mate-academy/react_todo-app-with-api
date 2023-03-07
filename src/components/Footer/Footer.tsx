@@ -70,7 +70,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__clear-completed',
-          { hidden: todos.filter(todo => todo.completed).length === 0 },
+          { hidden: todos.every(todo => !todo.completed) },
         )}
         onClick={() => deleteCompletedTodos(completedTodo)}
       >

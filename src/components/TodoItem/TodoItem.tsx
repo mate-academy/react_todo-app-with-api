@@ -1,13 +1,14 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { TodoRename } from '../TodoInput';
 
 type Props = {
   todo: Todo,
   deleteTodo: () => void,
   toggleStatusTodo: () => void,
   renameTodo: (todo: Todo, newTitle: string) => void,
-  loading: { todoId: number, isLoading: boolean },
+  loadableTodos: number[],
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,36 +16,9 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   toggleStatusTodo,
   renameTodo,
-  loading,
+  loadableTodos,
 }) => {
   const [isRenamed, setIsRenamed] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(event.target.value);
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!newTitle) {
-      deleteTodo();
-
-      return;
-    }
-
-    if (newTitle !== todo.title) {
-      renameTodo(todo, newTitle);
-    }
-
-    setIsRenamed(false);
-  };
-
-  const reset = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      handleSubmit(event);
-    }
-  };
 
   return (
     <div
@@ -62,21 +36,12 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isRenamed ? (
-        <form
-          onSubmit={handleSubmit}
-        >
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={newTitle}
-            onChange={handleChange}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            onKeyUp={reset}
-            onBlur={handleSubmit}
-          />
-        </form>
+        <TodoRename
+          todo={todo}
+          setIsRenamed={setIsRenamed}
+          deleteTodo={deleteTodo}
+          renameTodo={renameTodo}
+        />
       ) : (
         <>
           <span
@@ -99,7 +64,7 @@ export const TodoItem: React.FC<Props> = ({
         'modal overlay',
         {
           'is-active':
-          todo.id === 0 || (todo.id === loading.todoId && loading.isLoading),
+            !todo.id || loadableTodos.includes(todo.id),
         },
       )}
       >

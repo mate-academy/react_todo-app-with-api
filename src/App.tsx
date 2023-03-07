@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<ErrorTypes>(ErrorTypes.NONE);
   const [status, setStatus] = useState<Status>(Status.ALL);
-  const [loading, setLoading] = useState({ todoId: 0, isLoading: false });
+  const [loadableTodos, setLoadableTodos] = useState<number[]>([]);
 
   const getTodosFromServer = async () => {
     try {
@@ -65,23 +65,35 @@ export const App: React.FC = () => {
 
   const deleteTodo = async (todoId: number) => {
     try {
-      setLoading({ todoId, isLoading: true });
+      setLoadableTodos(prevState => [
+        ...prevState,
+        todoId,
+      ]);
       await removeTodo(todoId);
     } catch {
       setError(ErrorTypes.DELETE_ERROR);
     } finally {
       await getTodosFromServer();
-      setLoading({ todoId: 0, isLoading: false });
+      setLoadableTodos([]);
     }
   };
 
   const deleteCompletedTodos = (deletedTodos: Todo[]) => {
+    const deletedTodosId = deletedTodos.map(todo => todo.id);
+
+    setLoadableTodos(prevState => [
+      ...prevState,
+      ...deletedTodosId,
+    ]);
     deletedTodos.map(todo => deleteTodo(todo.id));
   };
 
   const toggleStatusTodo = async (todo: Todo) => {
     try {
-      setLoading({ todoId: todo.id, isLoading: true });
+      setLoadableTodos(prevState => [
+        ...prevState,
+        todo.id,
+      ]);
       await updateTodo(todo.id, {
         ...todo,
         completed: !todo.completed,
@@ -90,7 +102,7 @@ export const App: React.FC = () => {
       setError(ErrorTypes.UPDATE_ERROR);
     } finally {
       await getTodosFromServer();
-      setLoading({ todoId: 0, isLoading: false });
+      setLoadableTodos([]);
     }
   };
 
@@ -100,7 +112,10 @@ export const App: React.FC = () => {
 
   const renameTodo = async (todo: Todo, newTitle: string) => {
     try {
-      setLoading({ todoId: todo.id, isLoading: true });
+      setLoadableTodos(prevState => [
+        ...prevState,
+        todo.id,
+      ]);
       await updateTodo(todo.id, {
         ...todo,
         title: newTitle,
@@ -109,7 +124,7 @@ export const App: React.FC = () => {
       setError(ErrorTypes.UPDATE_ERROR);
     } finally {
       await getTodosFromServer();
-      setLoading({ todoId: 0, isLoading: false });
+      setLoadableTodos([]);
     }
   };
 
@@ -146,10 +161,10 @@ export const App: React.FC = () => {
           deleteTodo={deleteTodo}
           toggleStatusTodo={toggleStatusTodo}
           renameTodo={renameTodo}
-          loading={loading}
+          loadableTodos={loadableTodos}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             status={status}

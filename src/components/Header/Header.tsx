@@ -38,7 +38,7 @@ export const Header: React.FC<Props> = ({
         className={classNames(
           'todoapp__toggle-all',
           { active: todos.every(todo => todo.completed) },
-          { hidden: todos.length === 0 },
+          { hidden: !todos.length },
         )}
         onClick={() => toggleAllTodos(completedTodo)}
       />
