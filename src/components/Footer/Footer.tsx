@@ -34,7 +34,7 @@ export const Footer: React.FC<Props> = React.memo(
             )}
             onClick={() => setFilterBy(SortType.ALL)}
           >
-            All
+            {SortType.ALL}
           </a>
 
           <a
@@ -45,7 +45,7 @@ export const Footer: React.FC<Props> = React.memo(
             )}
             onClick={() => setFilterBy(SortType.ACTIVE)}
           >
-            Active
+            {SortType.ACTIVE}
           </a>
 
           <a
@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = React.memo(
             )}
             onClick={() => setFilterBy(SortType.COMPLETED)}
           >
-            Completed
+            {SortType.COMPLETED}
           </a>
         </nav>
 

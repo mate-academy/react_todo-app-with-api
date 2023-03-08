@@ -40,7 +40,7 @@ export const Header: React.FC<Props> = React.memo(
             disabled={isDisabled}
             value={title}
             onChange={(event) => {
-              if (event.target.value !== ' ') {
+              if (event.target.value.trim() !== '') {
                 setTitle(event.target.value);
               }
             }}
