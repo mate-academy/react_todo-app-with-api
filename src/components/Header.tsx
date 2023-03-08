@@ -6,12 +6,16 @@ import {
   useEffect,
   SetStateAction,
   Dispatch,
+  FormEvent,
 } from 'react';
 import classNames from 'classnames';
 
 import { CustomError } from '../types/CustomError';
 import { NewTodo, Todo } from '../types/Todo';
+
 import { postTodo, updateTodo } from '../api/todos';
+import { useLoadStatusContext } from '../utils/LoadStatusContext';
+
 import { initData } from '../constants/initData';
 
 type Props = {
@@ -34,6 +38,7 @@ export const Header: FC<Props> = ({
   const [newTodo, setNewTodo] = useState<NewTodo>(initData.newTodo);
   const [inputDisabled, setInputDisabled] = useState(initData.inputDisabled);
 
+  const { setLoadingStatus } = useLoadStatusContext();
   const focusInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -42,7 +47,7 @@ export const Header: FC<Props> = ({
     }
   }, [tempTodo]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newTodo.title.length) {
       setError(CustomError.EmptyTitle, 3000);
@@ -52,9 +57,7 @@ export const Header: FC<Props> = ({
 
       postTodo(newTodo)
         .then((response) => {
-          setTodos((prevTodos) => {
-            return [...prevTodos, response];
-          });
+          setTodos(prevTodos => [...prevTodos, response]);
           setTempTodo(null);
           setNewTodo(initData.newTodo);
           setInputDisabled(false);
@@ -64,35 +67,7 @@ export const Header: FC<Props> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodo((prevState) => {
-      return { ...prevState, title: e.target.value };
-    });
-  };
-
-  // const setLoader = (todo: Todo, index: number) => {
-  //   setTodos((prevState) => {
-  //     return [
-  //       ...prevState.slice(0, index),
-  //       {
-  //         ...todo,
-  //         id: 0,
-  //       },
-  //       ...prevState.slice(index + 1, prevState.length),
-
-  //     ];
-  //   });
-  // };
-
-  const replaceTodo = (replacement: Todo, index: number) => {
-    setTodos(prevState => {
-      return [
-        ...prevState.slice(0, index),
-        {
-          ...replacement,
-        },
-        ...prevState.slice(index + 1, prevState.length),
-      ];
-    });
+    setNewTodo((prevState) => ({ ...prevState, title: e.target.value }));
   };
 
   const handleToggleAll = () => {
@@ -103,35 +78,45 @@ export const Header: FC<Props> = ({
       idsForToggle = todos.map(todo => todo.id);
     }
 
-    // todos.forEach((todo, index) => {
-    //   if (idsForToggle.some(id => id === todo.id)) {
-    //     setLoader(todo, index);
-    //   }
-    // });
-
     todos.forEach((todo, index) => {
       if (idsForToggle.some(id => id === todo.id)) {
-        const isCompleted = !todo.completed;
-        const data = { completed: isCompleted };
+        const data = { completed: !todo.completed };
+
+        setLoadingStatus(prevState => [...prevState, todo.id]);
 
         updateTodo(todo.id, data)
           .then((response: Todo) => {
-            replaceTodo(response, index);
-          });
+            setTodos(prevState => {
+              return [
+                ...prevState.slice(0, index),
+                {
+                  ...response,
+                },
+                ...prevState.slice(index + 1, prevState.length),
+              ];
+            });
+
+            setLoadingStatus(prevState => [
+              ...prevState.filter(id => id !== response.id),
+            ]);
+          })
+          .catch(() => setError(CustomError.Update));
       }
     });
   };
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        onClick={handleToggleAll}
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: !activeLeft },
-        )}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          onClick={handleToggleAll}
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: !activeLeft },
+          )}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input

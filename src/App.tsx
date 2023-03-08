@@ -7,18 +7,21 @@ import { ListOfTodos } from './components/ListOfTodos';
 import { Header } from './components/Header';
 import { UserWarning } from './UserWarning';
 
-import { getTodos } from './api/todos';
-
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { CustomError } from './types/CustomError';
 
+import { getTodos } from './api/todos';
 import { USER_ID } from './utils/fetchClient';
-import { initData } from './constants/initData';
 import { useError } from './utils/useError';
+import { LoadStatusContext } from './utils/LoadStatusContext';
+
+import { initData } from './constants/initData';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>(initData.todos);
+  const [loadingStatus, setLoadingStatus]
+    = useState<number[]>(initData.loadingState);
   const [filter, setFilter] = useState<Filter>(initData.filter);
   const [customError, setError]
     = useError(initData.customError);
@@ -70,44 +73,47 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="todoapp">
-      <h1 className="todoapp__title">todos</h1>
+    <LoadStatusContext.Provider value={{ loadingStatus, setLoadingStatus }}>
+      <div className="todoapp">
+        <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
-        <Header
-          todos={todos}
-          tempTodo={tempTodo}
-          setTodos={setTodos}
-          activeLeft={activeLeft}
-          setTempTodo={setTempTodo}
-          setError={setError}
-        />
+        <div className="todoapp__content">
+          <Header
+            todos={todos}
+            setTodos={setTodos}
+            tempTodo={tempTodo}
+            setTempTodo={setTempTodo}
+            activeLeft={activeLeft}
+            setError={setError}
+          />
 
-        <ListOfTodos
-          todos={filteredTodos}
-          setTodos={setTodos}
-          tempTodo={tempTodo}
-          setError={setError}
-        />
-
-        {!!todos.length && (
-          <FooterMenu
+          <ListOfTodos
             todos={filteredTodos}
             setTodos={setTodos}
-            activeLeft={activeLeft}
-            filter={filter}
-            setFilter={setFilter}
+            tempTodo={tempTodo}
+            setError={setError}
+          />
+
+          {!!todos.length && (
+            <FooterMenu
+              todos={filteredTodos}
+              setTodos={setTodos}
+              filter={filter}
+              setFilter={setFilter}
+              activeLeft={activeLeft}
+              setError={setError}
+            />
+          )}
+        </div>
+
+        {customError && (
+          <ErrorNotification
+            customError={customError}
             setError={setError}
           />
         )}
       </div>
 
-      {customError && (
-        <ErrorNotification
-          customError={customError}
-          setError={setError}
-        />
-      )}
-    </div>
+    </LoadStatusContext.Provider>
   );
 };

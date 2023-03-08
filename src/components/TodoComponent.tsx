@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { CustomError } from '../types/CustomError';
 import { updateTodo } from '../api/todos';
+import { useLoadStatusContext } from '../utils/LoadStatusContext';
 
 type Props = {
   completed: boolean,
@@ -27,23 +28,20 @@ export const TodoComponent: FC<Props> = ({
   setTodos,
   setError,
 }) => {
+  const { loadingStatus, setLoadingStatus } = useLoadStatusContext();
   const handleStatusChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const data = { completed: e.target.checked };
     const currentTodo = todos.find((todo: Todo) => todo.id === id);
 
     if (currentTodo) {
-      const index = todos.indexOf(currentTodo);
-
-      setTodos((prevState) => {
+      setLoadingStatus(prevState => {
         return [
-          ...prevState.slice(0, index),
-          {
-            ...currentTodo,
-            id: 0,
-          },
-          ...prevState.slice(index + 1, prevState.length),
+          ...prevState,
+          currentTodo.id,
         ];
       });
+
+      const index = todos.indexOf(currentTodo);
+      const data = { completed: e.target.checked };
 
       updateTodo(id, data)
         .then((response: Todo) => {
@@ -54,6 +52,12 @@ export const TodoComponent: FC<Props> = ({
                 ...response,
               },
               ...prevState.slice(index + 1, prevState.length),
+            ];
+          });
+
+          setLoadingStatus(prevState => {
+            return [
+              ...prevState.filter(stopLoadId => stopLoadId !== response.id),
             ];
           });
         })
@@ -89,7 +93,7 @@ export const TodoComponent: FC<Props> = ({
       <div className={classNames(
         'modal',
         'overlay',
-        { 'is-active': !id },
+        { 'is-active': loadingStatus.includes(id) },
       )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -57,11 +57,11 @@ export const ListOfTodos: FC<Props> = ({
     >
       {todos.map(({ id, title, completed }: Todo) => (
         <TodoComponent
-          setError={setError}
-          setTodos={setTodos}
-          todos={todos}
           key={id}
           id={id}
+          todos={todos}
+          setTodos={setTodos}
+          setError={setError}
           onRemove={onRemoveTodo}
           completed={completed}
           title={title}
