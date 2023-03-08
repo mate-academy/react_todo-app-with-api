@@ -69,19 +69,19 @@ export const Header: FC<Props> = ({
     });
   };
 
-  const setLoader = (todo: Todo, index: number) => {
-    setTodos((prevState) => {
-      return [
-        ...prevState.slice(0, index),
-        {
-          ...todo,
-          id: 0,
-        },
-        ...prevState.slice(index + 1, prevState.length),
+  // const setLoader = (todo: Todo, index: number) => {
+  //   setTodos((prevState) => {
+  //     return [
+  //       ...prevState.slice(0, index),
+  //       {
+  //         ...todo,
+  //         id: 0,
+  //       },
+  //       ...prevState.slice(index + 1, prevState.length),
 
-      ];
-    });
-  };
+  //     ];
+  //   });
+  // };
 
   const replaceTodo = (replacement: Todo, index: number) => {
     setTodos(prevState => {
@@ -96,19 +96,29 @@ export const Header: FC<Props> = ({
   };
 
   const handleToggleAll = () => {
+    let idsForToggle = todos.filter(todo => !todo.completed)
+      .map(todo => todo.id);
+
+    if (activeLeft === 0 || activeLeft === todos.length) {
+      idsForToggle = todos.map(todo => todo.id);
+    }
+
+    // todos.forEach((todo, index) => {
+    //   if (idsForToggle.some(id => id === todo.id)) {
+    //     setLoader(todo, index);
+    //   }
+    // });
+
     todos.forEach((todo, index) => {
-      const isCompleted = !todo.completed && (activeLeft < todos.length)
-        ? true
-        : !todo.completed;
+      if (idsForToggle.some(id => id === todo.id)) {
+        const isCompleted = !todo.completed;
+        const data = { completed: isCompleted };
 
-      const data = { completed: isCompleted };
-
-      setLoader(todo, index);
-
-      updateTodo(todo.id, data)
-        .then((response: Todo) => {
-          replaceTodo(response, index);
-        });
+        updateTodo(todo.id, data)
+          .then((response: Todo) => {
+            replaceTodo(response, index);
+          });
+      }
     });
   };
 
