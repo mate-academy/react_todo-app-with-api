@@ -1,4 +1,4 @@
-import { NewTodo, TodoCompletedData } from '../types/Todo';
+import { DataPatch, NewTodo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -13,6 +13,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, data: TodoCompletedData) => {
+export const updateTodo = (todoId: number, data: DataPatch) => {
   return client.patch(`/todos/${todoId}`, data);
 };

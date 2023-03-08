@@ -9,6 +9,7 @@ import { Todo } from '../types/Todo';
 import { CustomError } from '../types/CustomError';
 import { deleteTodo } from '../api/todos';
 import { TodoComponent } from './TodoComponent';
+import { useLoadStatusContext } from '../utils/LoadStatusContext';
 
 type Props = {
   tempTodo: Todo | null;
@@ -23,25 +24,18 @@ export const ListOfTodos: FC<Props> = ({
   setTodos,
   setError,
 }) => {
+  const { setLoadingStatus } = useLoadStatusContext();
   const onRemoveTodo = (id: number) => {
     const todoToDelete = todos.find(todo => todo.id === id);
 
     if (todoToDelete) {
-      setTodos((prevTodos) => {
-        return [
-          ...prevTodos.filter(todo => todo.id !== id),
-          {
-            ...todoToDelete,
-            id: 0,
-          },
-        ];
-      });
+      setLoadingStatus([id]);
 
       deleteTodo(id)
         .then(() => {
           setTodos((prevState) => {
             return [
-              ...prevState.filter(todo => todo.id),
+              ...prevState.filter(todo => todo.id !== id),
             ];
           });
         })

@@ -1,10 +1,12 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import classNames from 'classnames';
 
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 import { deleteTodo } from '../api/todos';
 import { CustomError } from '../types/CustomError';
+
+import { useLoadStatusContext } from '../utils/LoadStatusContext';
 
 type Props = {
   todos: Todo[],
@@ -23,39 +25,28 @@ export const FooterMenu: FC<Props> = ({
   setFilter,
   setError,
 }) => {
+  const { setLoadingStatus } = useLoadStatusContext();
   const handleClearCompleted = () => {
     const deleteIds = todos.filter(({ completed }: Todo) => completed)
       .map(({ id }: Todo) => id);
 
     if (deleteIds.length) {
-      setTodos((prevTodos) => {
-        return [
-          ...prevTodos.map(todo => {
-            if (todo.completed) {
-              return { ...todo, id: 0 };
-            }
-
-            return todo;
-          }),
-        ];
-      });
+      setLoadingStatus([...deleteIds]);
 
       deleteIds.forEach(id => {
-        deleteTodo(id);
-      });
-
-      setTodos((prevTodos) => {
-        return [...prevTodos.filter(({ id }: Todo) => id)];
+        deleteTodo(id)
+          .then(() => {
+            setTodos((prevTodos) => {
+              return [
+                ...prevTodos.filter(todo => todo.id !== id),
+              ];
+            });
+          });
       });
     } else {
       setError(CustomError.Delete, 3000);
     }
   };
-
-  const hasCompleted = useMemo(
-    () => todos.some(todo => todo.completed),
-    [todos],
-  );
 
   return (
     <footer
@@ -105,7 +96,7 @@ export const FooterMenu: FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={handleClearCompleted}
       >
-        {hasCompleted ? 'Clear completed' : null}
+        {activeLeft < todos.length ? 'Clear completed' : null}
       </button>
     </footer>
 

@@ -4,4 +4,5 @@ export enum CustomError {
   Update = 'Unable to update a todo',
   EmptyTitle = 'Title can\'t be empty',
   NoError = '',
+  Cancel = 'Editing canceled',
 }

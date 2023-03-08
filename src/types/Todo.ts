@@ -5,6 +5,11 @@ export interface Todo {
   completed: boolean;
 }
 
+export interface DataPatch {
+  completed?: boolean,
+  title?: string,
+}
+
 export interface NewTodo {
   title: string,
   userId: number,

@@ -39,5 +39,5 @@ export const client = {
   get: (url: string) => request<Todo[]>(url),
   post: (url: string, data: any) => request<Todo>(url, 'POST', data),
   patch: (url: string, data: any) => request<Todo>(url, 'PATCH', data),
-  delete: (url: string) => request(url, 'DELETE'),
+  delete: (url: string) => request<Todo>(url, 'DELETE'),
 };
