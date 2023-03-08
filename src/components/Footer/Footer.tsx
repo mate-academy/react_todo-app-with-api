@@ -18,8 +18,8 @@ export const Footer: React.FC<Props> = React.memo(
     setFilterBy,
     clearCompleted,
     leftTodos,
-  }) => {
-    return (
+  }) => (
+
       <footer className="todoapp__footer">
         <span className="todo-count">
           {`${leftTodos} items left`}
@@ -72,6 +72,5 @@ export const Footer: React.FC<Props> = React.memo(
           Clear completed
         </button>
       </footer>
-    );
-  },
-);
+    )
+)

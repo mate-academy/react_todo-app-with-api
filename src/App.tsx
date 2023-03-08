@@ -33,9 +33,6 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(() => {
     return (todos.filter((todo) => {
       switch (filterBy) {
-        case SortType.ALL:
-          return todos;
-
         case SortType.ACTIVE:
           return !todo.completed;
 
