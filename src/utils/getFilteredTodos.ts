@@ -6,10 +6,10 @@ export const getFilteredTodos = (todos: Todo[], filterBy: FilterBy) => {
 
   switch (filterBy) {
     case FilterBy.Active:
-      filteredTodos = todos.filter(todo => todo.completed === false);
+      filteredTodos = todos.filter(todo => !todo.completed);
       break;
     case FilterBy.Complited:
-      filteredTodos = todos.filter(todo => todo.completed === true);
+      filteredTodos = todos.filter(todo => todo.completed);
       break;
     case FilterBy.All:
     default:

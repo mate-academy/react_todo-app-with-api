@@ -15,7 +15,7 @@ export const Footer: React.FC<Props> = ({
   hasCompletedTodos,
   handleDeleteCompleted,
 }) => {
-  const [activeBtn, setActiveBtn] = useState(FilterBy.All);
+  const [activeBtn, setActiveBtn] = useState<FilterBy>(FilterBy.All);
 
   const handleClick = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,

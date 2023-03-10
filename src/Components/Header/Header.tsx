@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({
   itemsCounter,
 }) => (
   <header className="todoapp__header">
-    {itemsCounter > 0 && (
+    {!!itemsCounter && (
       <button
         type="button"
         className={cn(

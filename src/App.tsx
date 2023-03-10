@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -101,10 +101,11 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteCompleted = () => {
-    const completedTodosId = todos
-      .filter(todo => todo.completed === true).map(todo => todo.id);
-
-    completedTodosId.forEach(todoId => handleDeleteTodo(todoId));
+    todos.forEach(todo => {
+      if (todo.completed) {
+        handleDeleteTodo(todo.id);
+      }
+    });
   };
 
   const handleUpdateTodoTitle = async (
@@ -130,10 +131,10 @@ export const App: React.FC = () => {
     todos.forEach(todo => handleCompletedTodo(todo.id, isToggled));
   };
 
-  const hasCompletedTodos = todos.some(todo => todo.completed === true);
+  const hasCompletedTodos = todos.some(todo => todo.completed);
 
   const activeTodosCounter = todos
-    .filter(todo => todo.completed === false).length;
+    .filter(todo => !todo.completed).length;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -157,7 +158,9 @@ export const App: React.FC = () => {
 
   const hasActiveTodos = todos.some(todo => !todo.completed);
 
-  const filteredTodos = getFilteredTodos(todos, filterBy);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const filteredTodos = useMemo(() => getFilteredTodos(todos, filterBy) || [],
+    [todos, filterBy]);
 
   return (
     <div className="todoapp">
@@ -186,7 +189,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
         />
 
-        {todos.length !== 0
+        {!!todos.length
         && (
           <Footer
             changeFilter={changeFilter}
