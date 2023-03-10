@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useRef, useMemo,
+  useState, useEffect, useRef, useMemo, useCallback,
 } from 'react';
 import { TodosList } from './components/TodosList';
 import {
@@ -17,34 +17,30 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [messageError, setMessageError] = useState<string>('');
-  const [status, setStatus] = useState<TodoStatus>(TodoStatus.All);
-  const [textField, setTextField] = useState<string>('');
+  const [messageError, setMessageError] = useState('');
+  const [status, setStatus] = useState(TodoStatus.All);
+  const [textField, setTextField] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const handleDelete = (todoId: number) => {
+  const handleDelete = useCallback((todoId: number) => {
     setTodos((prev: Todo[]) => prev.filter((todo) => todo.id !== todoId));
-  };
+  }, []);
 
-  const handleUpdate = (todoToUpdate: Todo, title?: string) => {
-    setTodos((prev: Todo[]) => prev.map(todo => {
-      if (todo.id === todoToUpdate.id) {
-        updateTodo(USER_ID, todoToUpdate, title);
-
-        const requestBody = title
-          ? { ...todo, title }
-          : { ...todo, completed: !todo.completed };
-
-        return requestBody;
+  const handleUpdate = useCallback((todoToUpdate: Todo, title?: string) => {
+    setTodos((prev) => prev.map(todo => {
+      if (todo.id !== todoToUpdate.id) {
+        return todo;
       }
 
-      return todo;
+      updateTodo(USER_ID, todoToUpdate, title);
+
+      const requestBody = title
+        ? { ...todo, title }
+        : { ...todo, completed: !todo.completed };
+
+      return requestBody;
     }));
-  };
+  }, [setTodos]);
 
   const submitAction = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter') {
@@ -85,19 +81,16 @@ export const App: React.FC = () => {
     }
   };
 
-  const toggleAllHandler = () => {
+  const toggleAllHandler = async () => {
     const allCompleted = todos.every(item => item.completed);
 
     const updateTodoStatus = async (state: boolean) => {
       const todosToUpdate = todos
         .filter(item => (state ? !item.completed : item.completed));
 
-      setTodos(prev => prev.map(todo => {
+      setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.completed !== state) {
-          return {
-            ...todo,
-            isFetching: true,
-          };
+          return { ...todo, isFetching: true };
         }
 
         return todo;
@@ -105,27 +98,23 @@ export const App: React.FC = () => {
 
       try {
         const todoUpdateList = todosToUpdate.map(item => {
-          return updateTodo(USER_ID, item)
-            .then(res => res)
-            .catch(() => {
-              throw new Error('Unable to update todos');
-            });
+          return updateTodo(USER_ID, item);
         });
 
         await Promise.all(todoUpdateList);
 
-        getTodos(USER_ID)
-          .then(loadedTodos => {
-            setTodos(() => loadedTodos.map(todo => {
-              return state ? todo : { ...todo, completed: false };
-            }));
-          })
-          .catch(() => {
-            throw new Error('Unable to retrieve todos');
-          });
+        const loadedTodos = await getTodos(USER_ID);
+
+        setTodos(() => loadedTodos.map(todo => {
+          if (state) {
+            return todo;
+          }
+
+          return { ...todo, completed: false };
+        }));
       } catch (error) {
         setMessageError('Unable to update todos');
-        setTodos(prev => prev.map(todo => {
+        setTodos(prevTodos => prevTodos.map(todo => {
           if (todosToUpdate.find(item => item.id === todo.id)) {
             return { ...todo, isFetching: false };
           }
@@ -135,13 +124,7 @@ export const App: React.FC = () => {
       }
     };
 
-    if (!allCompleted) {
-      updateTodoStatus(true);
-
-      return;
-    }
-
-    updateTodoStatus(false);
+    updateTodoStatus(!allCompleted);
   };
 
   /* eslint-disable react-hooks/rules-of-hooks */
@@ -157,7 +140,7 @@ export const App: React.FC = () => {
     }
   }, [USER_ID]);
 
-  const filterStatus = (value: TodoStatus, setOfTodos: Todo[]) => {
+  const useFilterStatus = (value: TodoStatus, setOfTodos: Todo[]) => {
     const filteredTodos = useMemo(() => {
       switch (value) {
         case TodoStatus.All:
@@ -177,9 +160,9 @@ export const App: React.FC = () => {
     return filteredTodos;
   };
 
-  const updatedTodos = filterStatus(status, todos);
-  const completedTodos = todos.filter((todo: Todo) => todo.completed);
-  const activeTodos = todos.filter((todo: Todo) => !todo.completed);
+  const updatedTodos = useFilterStatus(status, todos);
+  const completedTodos = useFilterStatus(TodoStatus.Completed, todos);
+  const activeTodos = useFilterStatus(TodoStatus.Active, todos);
 
   const removeCompletedTodos = async () => {
     try {
@@ -196,6 +179,10 @@ export const App: React.FC = () => {
         .map(todo => (todo.completed ? { ...todo, isFetching: false } : todo)));
     }
   };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
