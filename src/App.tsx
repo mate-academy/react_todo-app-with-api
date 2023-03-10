@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-// import { AuthContext } from './components/Auth/AuthContext';
+import React, {
+  useState, useEffect, useRef, useMemo,
+} from 'react';
 import { TodosList } from './components/TodosList';
 import {
   getTodos, addTodo, removeTodo, updateTodo,
@@ -14,10 +15,8 @@ const USER_ID = 5760;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  // const user = useContext(AuthContext);
   const newTodoField = useRef<HTMLInputElement>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [error, setError] = useState<boolean>(false);
   const [messageError, setMessageError] = useState<string>('');
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.All);
   const [textField, setTextField] = useState<string>('');
@@ -55,7 +54,6 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!textField.trim()) {
-      setError(true);
       setMessageError("Title can't be empty");
 
       return;
@@ -80,7 +78,6 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setTodos((prev: any) => [...prev, newTodo]);
     } catch {
-      setError(true);
       setMessageError('Unable to add todo');
     } finally {
       setIsProcessing(false);
@@ -89,14 +86,14 @@ export const App: React.FC = () => {
   };
 
   const toggleAllHandler = () => {
-    const allCompeted = todos.every(item => item.completed);
+    const allCompleted = todos.every(item => item.completed);
 
-    const updateTodoStatus = (state: boolean) => {
-      const todosToUpdate
-        = todos.filter(item => (state ? !item.completed : item.completed));
+    const updateTodoStatus = async (state: boolean) => {
+      const todosToUpdate = todos
+        .filter(item => (state ? !item.completed : item.completed));
 
-      setTodos((prev: Todo[]) => prev.map((todo: Todo) => {
-        if (state ? !todo.completed : todo.completed) {
+      setTodos(prev => prev.map(todo => {
+        if (todo.completed !== state) {
           return {
             ...todo,
             isFetching: true,
@@ -106,25 +103,39 @@ export const App: React.FC = () => {
         return todo;
       }));
 
-      const todoUpdateList = todosToUpdate.map(item => {
-        return new Promise((resolve) => updateTodo(USER_ID, item)
-          .then((res) => resolve(res)));
-      });
-
-      Promise.all([...todoUpdateList])
-        .then(() => {
-          getTodos(USER_ID).then((loadedTodos) => {
-            setTodos((loadedTodos.map(todo => {
-              return state ? todo : {
-                ...todo,
-                completed: false,
-              };
-            })));
-          });
+      try {
+        const todoUpdateList = todosToUpdate.map(item => {
+          return updateTodo(USER_ID, item)
+            .then(res => res)
+            .catch(() => {
+              throw new Error('Unable to update todos');
+            });
         });
+
+        await Promise.all(todoUpdateList);
+
+        getTodos(USER_ID)
+          .then(loadedTodos => {
+            setTodos(() => loadedTodos.map(todo => {
+              return state ? todo : { ...todo, completed: false };
+            }));
+          })
+          .catch(() => {
+            throw new Error('Unable to retrieve todos');
+          });
+      } catch (error) {
+        setMessageError('Unable to update todos');
+        setTodos(prev => prev.map(todo => {
+          if (todosToUpdate.find(item => item.id === todo.id)) {
+            return { ...todo, isFetching: false };
+          }
+
+          return todo;
+        }));
+      }
     };
 
-    if (!allCompeted) {
+    if (!allCompleted) {
       updateTodoStatus(true);
 
       return;
@@ -141,38 +152,49 @@ export const App: React.FC = () => {
           setTodos(loadedTodos);
         })
         .catch(() => {
-          setError(true);
           setMessageError('Unable to fetch data');
         });
     }
   }, [USER_ID]);
 
-  function filterStatus(value: TodoStatus) {
-    switch (value) {
-      case TodoStatus.All:
-        return todos;
+  const filterStatus = (value: TodoStatus, setOfTodos: Todo[]) => {
+    const filteredTodos = useMemo(() => {
+      switch (value) {
+        case TodoStatus.All:
+          return todos;
 
-      case TodoStatus.Active:
-        return todos.filter((todo: Todo) => !todo.completed);
+        case TodoStatus.Active:
+          return todos.filter((todo: Todo) => !todo.completed);
 
-      case TodoStatus.Completed:
-        return todos.filter((todo: Todo) => todo.completed);
+        case TodoStatus.Completed:
+          return todos.filter((todo: Todo) => todo.completed);
 
-      default:
-        throw Error('Specify your status');
-    }
-  }
+        default:
+          throw Error('Specify your status');
+      }
+    }, [setOfTodos, value]);
 
-  const updatedTodos = filterStatus(status);
+    return filteredTodos;
+  };
+
+  const updatedTodos = filterStatus(status, todos);
   const completedTodos = todos.filter((todo: Todo) => todo.completed);
   const activeTodos = todos.filter((todo: Todo) => !todo.completed);
 
-  const removeCompletedTodos = () => {
-    completedTodos.forEach(async (todo: Todo) => {
-      await removeTodo(todo.id);
-    });
+  const removeCompletedTodos = async () => {
+    try {
+      setTodos(todos
+        .map(todo => (todo.completed ? { ...todo, isFetching: true } : todo)));
 
-    setTodos((prev: Todo[]) => prev.filter(todo => !todo.completed));
+      await Promise.all(completedTodos.map(todo => removeTodo(todo.id)));
+
+      setTodos(prev => prev.filter(todo => !todo.completed));
+    } catch {
+      setMessageError('Unable to delete todos');
+    } finally {
+      setTodos(prev => prev
+        .map(todo => (todo.completed ? { ...todo, isFetching: false } : todo)));
+    }
   };
 
   return (
@@ -210,7 +232,6 @@ export const App: React.FC = () => {
             deleteItem={handleDelete}
             tempTodo={tempTodo}
             setMessageError={setMessageError}
-            setError={setError}
             isProcessing={isProcessing}
             handleUpdate={handleUpdate}
           />
@@ -243,10 +264,8 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {!!error && (
+      {!!messageError.length && (
         <ErrorNotification
-          error={error}
-          setError={setError}
           message={messageError}
           setMessage={setMessageError}
         />

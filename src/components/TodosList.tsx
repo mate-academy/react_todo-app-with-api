@@ -7,7 +7,6 @@ type Props = {
   deleteItem: (todoId: number) => void,
   tempTodo: Todo | null,
   setMessageError: React.Dispatch<React.SetStateAction<string>>,
-  setError: React.Dispatch<React.SetStateAction<boolean>>
   isProcessing: boolean,
   handleUpdate: (todoToUpdate: Todo, title?: string) => void,
 };
@@ -17,7 +16,6 @@ export const TodosList: React.FC<Props> = ({
   deleteItem,
   tempTodo,
   setMessageError,
-  setError,
   isProcessing,
   handleUpdate,
 }) => {
@@ -29,7 +27,7 @@ export const TodosList: React.FC<Props> = ({
           todo={todo}
           deleteItem={deleteItem}
           setMessageError={setMessageError}
-          setError={setError}
+          // setError={setError}
           handleUpdate={handleUpdate}
           isFetching={todo.isFetching}
         />
@@ -40,7 +38,7 @@ export const TodosList: React.FC<Props> = ({
           todo={tempTodo}
           deleteItem={deleteItem}
           setMessageError={setMessageError}
-          setError={setError}
+          // setError={setError}
           handleUpdate={handleUpdate}
         />
       )}

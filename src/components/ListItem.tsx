@@ -8,7 +8,6 @@ type Props = {
   todo: Todo,
   deleteItem: (todoId: number) => void,
   setMessageError: React.Dispatch<React.SetStateAction<string>>,
-  setError: React.Dispatch<React.SetStateAction<boolean>>
   handleUpdate: (todoToUpdate: Todo, title?: string) => void,
   isFetching?: boolean | undefined,
 };
@@ -17,7 +16,6 @@ export const ListItem: React.FC<Props> = ({
   todo,
   deleteItem,
   setMessageError,
-  setError,
   handleUpdate,
   isFetching,
 }) => {
@@ -34,7 +32,6 @@ export const ListItem: React.FC<Props> = ({
       })
       .catch(() => {
         setIsLoading(false);
-        setError(true);
         setMessageError('Unable to delete todo');
       })
       .finally(() => {
@@ -42,33 +39,28 @@ export const ListItem: React.FC<Props> = ({
       });
   };
 
-  const updateHandler = () => {
+  const updateHandler = (isChanged: boolean) => {
+    if (inputChange === todo.title && isChanged) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!inputChange) {
+      deleteHandler();
+      setIsEditing(false);
+
+      return;
+    }
+
     setIsLoading(true);
 
-    updateTodo(5760, todo)
+    updateTodo(5760, todo, isChanged ? inputChange : undefined)
       .then(() => {
-        handleUpdate(todo);
-      })
-      .catch(() => {
-        setIsLoading(false);
-        setError(true);
-        setMessageError('Unable to update todo');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const updateInput = () => {
-    setIsLoading(true);
-
-    updateTodo(5760, todo, inputChange)
-      .then(() => {
-        handleUpdate(todo, inputChange);
+        handleUpdate(todo, isChanged ? inputChange : undefined);
       })
       .catch((error) => {
         setIsLoading(false);
-        setError(true);
         setMessageError(`Unable to update todo: ${error.message}`);
       })
       .finally(() => {
@@ -90,12 +82,13 @@ export const ListItem: React.FC<Props> = ({
       return;
     }
 
-    updateInput();
+    updateHandler(true);
     setIsEditing(false);
   };
 
   const handleEscapeKey = () => {
     setIsEditing(false);
+    setInputChange(todo.title);
   };
 
   const handleEditKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -123,9 +116,7 @@ export const ListItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked
-          onChange={() => {
-            updateHandler();
-          }}
+          onChange={() => updateHandler(false)}
         />
       </label>
 
@@ -142,7 +133,7 @@ export const ListItem: React.FC<Props> = ({
           }}
           onBlur={() => {
             setIsEditing(false);
-            updateInput();
+            updateHandler(true);
           }}
           onKeyUp={(event) => handleEditKeyUp(event)}
         />
