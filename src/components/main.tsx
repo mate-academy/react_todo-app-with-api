@@ -7,7 +7,8 @@ type Props = {
   todos: Todo[],
   addComplitedTodo: (todoId:number) => void,
   onTodoDelete: (id: number) => void,
-  onTodoChangingStatus: (todoId: number, todoStatus: boolean) => Promise<void>
+  onTodoChangingStatus: (todoId: number) => void,
+  onTodoChangingTitle: (todoId: number, title:string) => void,
   todoLoadingId: number[],
   tempTodo: Todo | null,
 };
@@ -17,6 +18,7 @@ export const Main: React.FC<Props> = ({
   addComplitedTodo,
   onTodoDelete,
   onTodoChangingStatus,
+  onTodoChangingTitle,
   todoLoadingId,
   tempTodo,
 }) => {
@@ -30,6 +32,7 @@ export const Main: React.FC<Props> = ({
             addComplitedTodo={addComplitedTodo}
             onTodoDelete={onTodoDelete}
             onTodoChangingStatus={onTodoChangingStatus}
+            onTodoChangingTitle={onTodoChangingTitle}
             todoLoadingId={todoLoadingId}
           />
         );

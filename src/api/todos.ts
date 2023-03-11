@@ -20,3 +20,9 @@ export const patchTodoStatus = (
 ) => {
   return client.patch<Todo>(`/todos/${todoId}`, data);
 };
+
+export const patchTodoTitle = (
+  todoId: number, data: Pick<Todo, 'title'>,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
+};

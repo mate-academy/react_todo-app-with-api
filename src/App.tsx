@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useState, useMemo,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Footer } from './components/footer';
@@ -10,22 +10,22 @@ import { Todo } from './types/Todo';
 import { SelectOptions } from './types/SelectOptions';
 import { ErrorType } from './types/ErrorType';
 import {
-  deleteTodos, getTodos, postTodos, patchTodoStatus,
+  deleteTodos, getTodos, postTodos, patchTodoStatus, patchTodoTitle,
 } from './api/todos';
 import { USER_ID } from './utils/userId';
+import { filterTodosBySelectOptions } from './utils/filterTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isError, setIsError] = useState(false);
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.ADD);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isResponce, setIsResponce] = useState(true);
   const [todoLoadingId, setTodoLoadingId] = useState<number[]>([]);
-  // const [selectedOption, setSelectedOption]
-  //   = useState<SelectOptions>(SelectOptions.ALL);
+  const [selectedOption, setSelectedOption]
+    = useState<SelectOptions>(SelectOptions.ALL);
 
   const filteredCompletedTodosId = useCallback((allTodos: Todo[]) => () => {
     return allTodos
@@ -33,36 +33,24 @@ export const App: React.FC = () => {
       .map(todoItem => todoItem.id);
   }, []);
 
-  const filterTodosBySelectOptions = (type: SelectOptions) => {
-    switch (type) {
-      case SelectOptions.ACTIVE:
-        setVisibleTodos(todos.filter((todo: Todo) => !todo.completed));
-        break;
-      case SelectOptions.COMPLETED:
-        setVisibleTodos(todos.filter((todo: Todo) => todo.completed));
-        break;
-      case SelectOptions.ALL:
-      default:
-        setVisibleTodos(todos);
-    }
+  const setOptionSelect = (type: SelectOptions) => {
+    setSelectedOption(type);
   };
-
-  // const setOptionSelect = (type: SelectOptions) => {
-  //   setSelectedOption(type);
-  //   filterTodosBySelectOptions(type);
-  // };
 
   const loadTodosFromServer = useCallback(async () => {
     try {
       const todosData = await getTodos(USER_ID);
 
       setTodos(todosData);
-      setVisibleTodos(todosData);
       setCompletedTodosId(filteredCompletedTodosId(todosData));
     } catch (err) {
       setIsError(true);
     }
   }, []);
+
+  const visibleTodos = useMemo(() => {
+    return filterTodosBySelectOptions(todos, selectedOption);
+  }, [todos, selectedOption]);
 
   const emptyTodo = useCallback((title = '') => {
     const emptyNewTodo = {
@@ -85,7 +73,6 @@ export const App: React.FC = () => {
 
       if (postNewTodo) {
         setTodos(prevState => ([...prevState, postNewTodo]));
-        setVisibleTodos(prevState => ([...prevState, postNewTodo]));
       }
     } catch {
       setErrorType(ErrorType.ADD);
@@ -105,7 +92,7 @@ export const App: React.FC = () => {
         setTodos(prevState => {
           return prevState.filter(todo => todo.id !== todoId);
         });
-        setTodoLoadingId([-1]);
+        setTodoLoadingId([]);
       }
     } catch {
       setErrorType(ErrorType.DELETE);
@@ -145,53 +132,41 @@ export const App: React.FC = () => {
     }
   };
 
-  // const addComplitedTodo = () => {
-  //   const completed = filteredCompletedTodosId(todos);
-
-  //   setCompletedTodosId(completed);
-  //   console.log('3');
-  // };
-
-  // const updateTodoStatus = (todoId:number, todoStatus: boolean) => {
-  //   const todoToUpdate = todos.find(todo => todo.id === todoId);
-
-  //   console.log('2');
-  //   if (todoToUpdate) {
-  //     todoToUpdate.completed = todoStatus;
-  //     // setVisibleTodos(prevTodos => [...prevTodos, todoToUpdate]);
-  //     addComplitedTodo(todoId);
-  //     // setOptionSelect(selectedOption);
-  //   }
-  // };
-
-  const patchTodoStatusOnServer = async (
-    todoId: number, todoStatus: boolean,
-  ) => {
+  const patchTodoStatusOnServer = async (todoId: number) => {
     try {
       setIsResponce(false);
-      setTodoLoadingId([todoId]);
       const currentTodo = todos.find(todo => todo.id === todoId);
 
-      const responce = await patchTodoStatus(todoId, { completed: todoStatus });
+      if (currentTodo) {
+        const newStatus = !currentTodo.completed;
 
-      if (responce && currentTodo) {
-        currentTodo.completed = todoStatus;
+        const responce = await patchTodoStatus(todoId, {
+          completed: newStatus,
+        });
 
-        setTodos(prevState => (
-          prevState.map(todo => (
-            todo.id === todoId
-              ? currentTodo
-              : todo
-          ))
-        ));
+        if (responce) {
+          currentTodo.completed = newStatus;
+          setTodos(prevState => (
+            prevState.map(todo => (
+              todo.id === todoId
+                ? currentTodo
+                : todo
+            ))
+          ));
+        }
       }
     } catch {
       setErrorType(ErrorType.UPDATE);
       setIsError(true);
     } finally {
       setIsResponce(true);
-      setTodoLoadingId([-1]);
+      setTodoLoadingId([]);
     }
+  };
+
+  const updateTodoStatus = (todoId: number) => {
+    setTodoLoadingId([todoId]);
+    patchTodoStatusOnServer(todoId);
   };
 
   const addTodo = (todo: Pick<Todo, 'userId' | 'title' | 'completed' >) => {
@@ -231,8 +206,57 @@ export const App: React.FC = () => {
       setIsError(true);
       setErrorType(ErrorType.DELETE);
     } finally {
-      setTodoLoadingId([-1]);
+      setTodoLoadingId([]);
     }
+  };
+
+  const isToggleAllActive = completedTodosId.length < 1
+    || completedTodosId.length === todos.length;
+
+  const onActiveToggle = async () => {
+    if (isToggleAllActive) {
+      setTodoLoadingId(todos.map(todo => todo.id));
+      await Promise.all(todos.map(
+        todo => patchTodoStatusOnServer(todo.id),
+      ));
+    }
+  };
+
+  const patchTodoTitleOnServer = async (
+    todoId: number, newTitle: string,
+  ) => {
+    try {
+      setIsResponce(false);
+      const currentTodo = todos.find(todo => todo.id === todoId);
+
+      if (currentTodo) {
+        const responce = await patchTodoTitle(todoId, {
+          title: newTitle,
+        });
+
+        if (responce) {
+          currentTodo.title = newTitle;
+          setTodos(prevState => (
+            prevState.map(todo => (
+              todo.id === todoId
+                ? currentTodo
+                : todo
+            ))
+          ));
+        }
+      }
+    } catch {
+      setErrorType(ErrorType.UPDATE);
+      setIsError(true);
+    } finally {
+      setIsResponce(true);
+      setTodoLoadingId([]);
+    }
+  };
+
+  const updateTodoTitle = (todoId: number, title: string) => {
+    setTodoLoadingId([todoId]);
+    patchTodoTitleOnServer(todoId, title);
   };
 
   if (!USER_ID) {
@@ -244,15 +268,21 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header onAddTodo={addTodo} inputDisable={isResponce} />
+        <Header
+          onAddTodo={addTodo}
+          inputDisable={isResponce}
+          isToggleAllActive={isToggleAllActive}
+          handleToggleClick={onActiveToggle}
+        />
 
         {!!todos.length
           && (
             <Main
               todos={visibleTodos}
               addComplitedTodo={addComplitedTodo}
-              onTodoChangingStatus={patchTodoStatusOnServer}
+              onTodoChangingStatus={updateTodoStatus}
               onTodoDelete={deleteTodo}
+              onTodoChangingTitle={updateTodoTitle}
               todoLoadingId={todoLoadingId}
               tempTodo={tempTodo}
             />
@@ -261,7 +291,7 @@ export const App: React.FC = () => {
         {!!todos.length
           && (
             <Footer
-              filterTodos={filterTodosBySelectOptions}
+              filterTodos={setOptionSelect}
               todosCount={todos.length}
               completedTodosCount={completedTodosId.length}
               deleteCompletedTodos={deleteCompletedTodos}
