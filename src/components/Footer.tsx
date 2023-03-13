@@ -27,8 +27,8 @@ export const Footer: React.FC<Props> = ({
 
       <nav className="filter">
         { Object.values(FilterValues).map((value) => (
-          <a
-            href="/#"
+          <button
+            type="button"
             key={value}
             className={classNames('filter__link', {
               selected: selectedFilter === value,
@@ -36,7 +36,7 @@ export const Footer: React.FC<Props> = ({
             onClick={() => onChange(value)}
           >
             {value}
-          </a>
+          </button>
         )) }
       </nav>
 
