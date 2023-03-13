@@ -43,6 +43,7 @@ export const TodoInfo: React.FC<Props> = ({
     }
 
     setIsTodoEditing(false);
+    setNewTitle(target.value.trim());
   };
 
   const onKeyUp = (e: React.KeyboardEvent) => {
@@ -93,7 +94,7 @@ export const TodoInfo: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={() => setIsTodoEditing(true)}
           >
-            {title}
+            {newTitle}
           </span>
           <button
             type="button"
