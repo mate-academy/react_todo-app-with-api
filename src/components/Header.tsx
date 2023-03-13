@@ -9,7 +9,6 @@ type Props = {
   toggleAll: () => void;
   isTodoAdding: boolean;
   isToggleAllActive: boolean;
-  onError: React.Dispatch<React.SetStateAction<boolean>>;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
   setErrorType: React.Dispatch<React.SetStateAction<string>>;
 };
@@ -18,18 +17,16 @@ export const Header: React.FC<Props> = ({
   title,
   todos,
   onAdd,
-  onError,
-  toggleAll,
   setTitle,
-  isTodoAdding,
+  toggleAll,
   setErrorType,
+  isTodoAdding,
   isToggleAllActive,
 }) => {
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!title.trim()) {
-      onError(true);
       setErrorType('empty title');
 
       return;

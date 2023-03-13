@@ -5,20 +5,21 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[];
-  onChange: React.Dispatch<React.SetStateAction<FilterValues>>;
+  activeTodos: Todo[];
   selectedFilter: string;
   clearCompletedTodos: () => void;
+  onChange: React.Dispatch<React.SetStateAction<FilterValues>>;
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
   onChange,
+  activeTodos,
   selectedFilter,
   clearCompletedTodos,
 }) => {
-  const notCompletedTodos = [...todos].filter(todo => !todo.completed);
-  const todosCountMessage = `${notCompletedTodos.length} items left`;
-  const isClearCompletedDisabled = todos.length === notCompletedTodos.length;
+  const todosCountMessage = `${activeTodos.length} items left`;
+  const isClearCompletedDisabled = todos.length === activeTodos.length;
 
   return (
     <footer className="todoapp__footer">
@@ -27,7 +28,7 @@ export const Footer: React.FC<Props> = ({
       <nav className="filter">
         { Object.values(FilterValues).map((value) => (
           <a
-            href="#/"
+            href="/#"
             key={value}
             className={classNames('filter__link', {
               selected: selectedFilter === value,

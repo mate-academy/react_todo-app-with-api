@@ -1,18 +1,14 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { TodoContent } from './TodoContent';
 
 type Props = {
   todo: Todo;
   isLoaderVisible: boolean;
   onDelete: (todoId: number) => void;
-  handleChangeTitle: (todo: Todo, newTitle: string) => void;
   handleChangeStatus: (todo: Todo) => void;
+  handleChangeTitle: (todo: Todo, newTitle: string) => void;
   setUpdatingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -24,24 +20,13 @@ export const TodoInfo: React.FC<Props> = ({
   setUpdatingTodoIds,
   handleChangeStatus,
 }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    if (todo?.completed) {
-      setIsCompleted(true);
-    } else {
-      setIsCompleted(false);
-    }
+    setIsCompleted(todo?.completed);
   }, [isLoaderVisible]);
-
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-    }
-  }, [isEditing]);
 
   function handleKeyUp(event: KeyboardEvent) {
     if (event.code === 'Escape') {
@@ -58,7 +43,7 @@ export const TodoInfo: React.FC<Props> = ({
     };
   }, []);
 
-  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     setIsEditing(false);
     event.preventDefault();
 
@@ -81,40 +66,6 @@ export const TodoInfo: React.FC<Props> = ({
     handleChangeStatus(todo);
   };
 
-  const todoContent = useMemo(() => (
-    isEditing
-      ? (
-        <form
-          onSubmit={onFormSubmit}
-          onBlur={onFormSubmit}
-        >
-          <input
-            type="text"
-            ref={inputRef}
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-            }}
-          />
-        </form>
-      ) : (
-        <>
-          <span>
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => onDelete(todo.id)}
-          >
-            ×
-          </button>
-        </>
-      )
-  ), [isEditing, query, onDelete]);
-
   return (
     <li className={classNames('todo', {
       completed: isCompleted,
@@ -135,7 +86,14 @@ export const TodoInfo: React.FC<Props> = ({
           setIsEditing(true);
         }}
       >
-        {todoContent}
+        <TodoContent
+          todo={todo}
+          query={query}
+          setQuery={setQuery}
+          onDelete={onDelete}
+          isEditing={isEditing}
+          onSubmit={handleFormSubmit}
+        />
       </div>
 
       <div

@@ -9,7 +9,7 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { Todolist } from './components/Todolist';
-import { FilterValues } from './constants';
+import { ErrorTypes, FilterValues } from './constants';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
 
@@ -19,166 +19,22 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState('');
   const [errorType, setErrorType] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(false);
   const [isTodoAdding, setIsTodoAdding] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
   const [removingTodoIds, setRemovingTodoIds] = useState<number[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(FilterValues.ALL);
-  const activeTodos = [...todos].filter(todoItem => !todoItem.completed);
+
+  const activeTodos = todos.filter(todoItem => !todoItem.completed);
+  const completedTodos = todos.filter(todoItem => todoItem.completed);
   const isEveryCompleted = todos.every(todoItem => todoItem.completed);
   const hasCompletedTodo = todos.some(todo => todo.completed);
-
-  const getTodosFromServer = async () => {
-    try {
-      const response = await getTodos(USER_ID);
-
-      setTodos(response);
-    } catch (error) {
-      setHasError(true);
-      setErrorType('upload');
-    }
-  };
-
-  const handleAddTodo = useCallback(async () => {
-    const newTodoToFetch = {
-      userId: USER_ID,
-      title,
-      completed: false,
-    };
-
-    const newTodoToShow = {
-      ...newTodoToFetch,
-      id: 0,
-    };
-
-    setIsTodoAdding(true);
-    setTempTodo(newTodoToShow);
-
-    try {
-      const addedTodo = await addTodo(newTodoToFetch);
-
-      setTodos(prevTodos => [...prevTodos, addedTodo]);
-
-      setHasError(false);
-    } catch (error) {
-      setHasError(true);
-      setErrorType('add');
-    } finally {
-      setIsTodoAdding(false);
-      setTempTodo(null);
-    }
-  }, [title]);
-
-  const handleDeleteTodo = useCallback(async (todoId: number) => {
-    setRemovingTodoIds(prevTodoIds => [...prevTodoIds, todoId]);
-
-    try {
-      await removeTodo(todoId);
-
-      const updatedTodos = [...todos].filter(todo => todo.id !== todoId);
-
-      setTodos(updatedTodos);
-    } catch (error) {
-      setHasError(true);
-      setErrorType('delete');
-    } finally {
-      setRemovingTodoIds(prevTodoIds => prevTodoIds
-        .filter((id) => id !== todoId));
-    }
-  }, [todos]);
-
-  const clearCompletedTodos = useCallback(async () => {
-    const completedTodosIds = [...todos]
-      .filter(todo => todo.completed)
-      .map((todo) => todo.id);
-
-    setRemovingTodoIds(completedTodosIds);
-
-    Promise.all(completedTodosIds.map((id) => removeTodo(id)))
-      .then(() => {
-        setTodos(activeTodos);
-      })
-      .catch(() => {
-        setHasError(true);
-        setErrorType('delete');
-      })
-      .finally(() => setRemovingTodoIds(prevTodoIds => prevTodoIds
-        .filter((id) => !completedTodosIds.includes(id))));
-  }, [hasCompletedTodo, activeTodos]);
-
-  const handleChangeStatus = useCallback(async (todo: Todo) => {
-    setUpdatingTodoIds(prevTodoIds => [...prevTodoIds, todo.id]);
-
-    const updatedTodo = {
-      ...todo,
-      completed: !todo.completed,
-    };
-
-    try {
-      await updateTodo(todo.id, updatedTodo);
-
-      const updatedTodos = [...todos].map(todoItem => {
-        const currentTodo = todoItem;
-
-        if (currentTodo.id === updatedTodo.id) {
-          currentTodo.completed = updatedTodo.completed;
-        }
-
-        return todoItem;
-      });
-
-      setTodos(updatedTodos);
-    } catch (error) {
-      setHasError(true);
-      setErrorType('update');
-    } finally {
-      setUpdatingTodoIds(prevTodoIds => prevTodoIds
-        .filter((id) => id !== todo.id));
-    }
-  }, [activeTodos]);
-
-  const handleChangeTitle = useCallback(async (
-    todo: Todo,
-    newTitle: string,
-  ) => {
-    setUpdatingTodoIds(prevTodoIds => [...prevTodoIds, todo.id]);
-
-    const updatedTodo = {
-      ...todo,
-      title: newTitle,
-    };
-
-    try {
-      await updateTodo(todo.id, updatedTodo);
-
-      const updatedTodos = [...todos].map(todoItem => {
-        const currentTodo = todoItem;
-
-        if (currentTodo.id === updatedTodo.id) {
-          currentTodo.title = updatedTodo.title;
-        }
-
-        return todoItem;
-      });
-
-      setTodos(updatedTodos);
-    } catch (error) {
-      setHasError(true);
-      setErrorType('update');
-    } finally {
-      setUpdatingTodoIds(prevTodoIds => prevTodoIds
-        .filter((id) => id !== todo.id));
-    }
-  }, [title, updatingTodoIds, todos]);
-
-  useEffect(() => {
-    getTodosFromServer();
-  }, []);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const activeTodosIds = todos
+    .filter(todo => !todo.completed)
+    .map((todo) => todo.id);
+  const completedTodosIds = todos
+    .filter(todo => todo.completed)
+    .map((todo) => todo.id);
 
   const visibleTodos = todos.filter(todo => {
     switch (selectedFilter) {
@@ -192,39 +48,168 @@ export const App: React.FC = () => {
     }
   });
 
-  const toggleAll = () => {
-    if (isEveryCompleted) {
-      const toggleToActive = [...todos].map(todoItem => {
-        if (todoItem.completed) {
-          handleChangeStatus(todoItem);
+  const getTodosFromServer = async () => {
+    try {
+      const fetchedTodos = await getTodos(USER_ID);
 
-          return {
-            ...todoItem,
-            completed: false,
-          };
-        }
-
-        return todoItem;
-      });
-
-      setTodos(toggleToActive);
-    } else {
-      const toggleToComplited = [...todos].map(todoItem => {
-        if (!todoItem.completed) {
-          handleChangeStatus(todoItem);
-
-          return {
-            ...todoItem,
-            completed: true,
-          };
-        }
-
-        return todoItem;
-      });
-
-      setTodos(toggleToComplited);
+      setTodos(fetchedTodos);
+    } catch (error) {
+      setErrorType(ErrorTypes.UPLOAD);
     }
   };
+
+  const handleAddTodo = useCallback(async () => {
+    const newTodo = {
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
+    const newTodoToShow = {
+      ...newTodo,
+      id: 0,
+    };
+
+    setIsTodoAdding(true);
+    setTempTodo(newTodoToShow);
+
+    try {
+      const addedTodo = await addTodo(newTodo);
+
+      setTodos(prevTodos => [...prevTodos, addedTodo]);
+    } catch (error) {
+      setErrorType(ErrorTypes.ADD);
+    } finally {
+      setIsTodoAdding(false);
+      setTempTodo(null);
+    }
+  }, [title]);
+
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
+    setRemovingTodoIds(prevTodoIds => [...prevTodoIds, todoId]);
+
+    try {
+      await removeTodo(todoId);
+
+      const updatedTodos = todos.filter(todo => todo.id !== todoId);
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorType(ErrorTypes.DELETE);
+    } finally {
+      setRemovingTodoIds(prevTodoIds => prevTodoIds
+        .filter((id) => id !== todoId));
+    }
+  }, [todos]);
+
+  const clearCompletedTodos = useCallback(async () => {
+    setRemovingTodoIds(completedTodosIds);
+
+    Promise.all(completedTodosIds.map((id) => removeTodo(id)))
+      .then(() => {
+        setTodos(activeTodos);
+      })
+      .catch(() => {
+        setErrorType(ErrorTypes.DELETE);
+      })
+      .finally(() => setRemovingTodoIds(prevTodoIds => prevTodoIds
+        .filter((id) => !completedTodosIds.includes(id))));
+  }, [hasCompletedTodo, activeTodos]);
+
+  const handleChangeStatus = useCallback(async (todo: Todo) => {
+    setUpdatingTodoIds(prevTodoIds => [...prevTodoIds, todo.id]);
+
+    try {
+      const updatedTodo = await updateTodo(todo.id, {
+        ...todo,
+        completed: !todo.completed,
+      });
+
+      const updatedTodos = todos.map(todoItem => {
+        if (todoItem.id === updatedTodo.id) {
+          return updatedTodo;
+        }
+
+        return todoItem;
+      });
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorType(ErrorTypes.UPDATE);
+    } finally {
+      setUpdatingTodoIds(prevTodoIds => prevTodoIds
+        .filter((id) => id !== todo.id));
+    }
+  }, [activeTodosIds, completedTodosIds]);
+
+  const handleChangeTitle = useCallback(async (
+    todo: Todo,
+    newTitle: string,
+  ) => {
+    setUpdatingTodoIds(prevTodoIds => [...prevTodoIds, todo.id]);
+
+    try {
+      const updatedTodo = await updateTodo(todo.id, {
+        ...todo,
+        title: newTitle,
+      });
+
+      const updatedTodos = todos.map(todoItem => {
+        if (todoItem.id === updatedTodo.id) {
+          return updatedTodo;
+        }
+
+        return todoItem;
+      });
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorType(ErrorTypes.UPDATE);
+    } finally {
+      setUpdatingTodoIds(prevTodoIds => prevTodoIds
+        .filter((id) => id !== todo.id));
+    }
+  }, [title, updatingTodoIds, todos]);
+
+  useEffect(() => {
+    getTodosFromServer();
+  }, []);
+
+  const toggleAll = useCallback(async () => {
+    const updatingTodos = isEveryCompleted
+      ? completedTodos.map(todo => {
+        setUpdatingTodoIds(completedTodosIds);
+
+        return updateTodo(todo.id, {
+          ...todo,
+          completed: !todo.completed,
+        });
+      })
+      : todos.map(todo => {
+        setUpdatingTodoIds(activeTodosIds);
+
+        if (!todo.completed) {
+          return updateTodo(todo.id, {
+            ...todo,
+            completed: !todo.completed,
+          });
+        }
+
+        return todo;
+      });
+
+    Promise.all(updatingTodos)
+      .then((response) => setTodos(response))
+      .catch(() => {
+        setErrorType(ErrorTypes.UPDATE);
+      })
+      .finally(() => setUpdatingTodoIds(prevTodoIds => prevTodoIds
+        .filter((id) => updatingTodoIds.includes(id))));
+  }, [handleChangeStatus, completedTodos, activeTodos]);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -237,7 +222,6 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           onAdd={handleAddTodo}
           toggleAll={toggleAll}
-          onError={setHasError}
           setErrorType={setErrorType}
           isTodoAdding={isTodoAdding}
           isToggleAllActive={isEveryCompleted}
@@ -258,6 +242,7 @@ export const App: React.FC = () => {
 
             <Footer
               todos={todos}
+              activeTodos={activeTodos}
               selectedFilter={selectedFilter}
               onChange={setSelectedFilter}
               clearCompletedTodos={clearCompletedTodos}
@@ -266,11 +251,10 @@ export const App: React.FC = () => {
         ) }
       </div>
 
-      {hasError && (
+      {errorType && (
         <ErrorNotification
-          hasError={hasError}
           errorType={errorType}
-          setHasError={setHasError}
+          setErrorType={setErrorType}
         />
       )}
     </div>

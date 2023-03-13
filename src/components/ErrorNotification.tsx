@@ -1,33 +1,30 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 type Props = {
   errorType: string;
-  hasError: boolean;
-  setHasError: React.Dispatch<boolean>;
+  setErrorType: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   errorType,
-  hasError,
-  setHasError,
+  setErrorType,
 }) => {
   const [isHidden, setIsHidden] = useState(true);
-  const emptyTitleNotification = 'Title can\'t be empty';
+
   const errorMessage = errorType !== 'empty title'
     ? `Unable to ${errorType} a todo`
-    : emptyTitleNotification;
+    : 'Title can\'t be empty';
 
   useEffect(() => {
     const removeNotification = () => {
       window.setTimeout(() => {
         setIsHidden(true);
-        setHasError(false);
+        setErrorType('');
       }, 3000);
     };
 
-    if (hasError) {
+    if (errorType) {
       setIsHidden(false);
       removeNotification();
     } else {
@@ -47,6 +44,7 @@ export const ErrorNotification: React.FC<Props> = ({
       )}
     >
       <button
+        aria-label="remove button"
         type="button"
         className="delete"
         onClick={() => setIsHidden(true)}
