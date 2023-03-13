@@ -104,7 +104,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadTodosFromServer();
-  }, [todoLoadingId]);
+  }, []);
 
   useEffect(() => {
     const timeoutID = setTimeout(() => {
