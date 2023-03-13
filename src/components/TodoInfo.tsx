@@ -28,12 +28,12 @@ export const TodoInfo: React.FC<Props> = ({
     setIsCompleted(todo?.completed);
   }, [isLoaderVisible]);
 
-  function handleKeyUp(event: KeyboardEvent) {
+  const handleKeyUp = (event: KeyboardEvent) => {
     if (event.code === 'Escape') {
       setIsEditing(false);
       setQuery(todo.title);
     }
-  }
+  };
 
   useEffect(() => {
     window.addEventListener('keyup', handleKeyUp);

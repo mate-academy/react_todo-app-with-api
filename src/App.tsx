@@ -176,16 +176,8 @@ export const App: React.FC = () => {
   }, []);
 
   const toggleAll = useCallback(async () => {
-    const updatingTodos = isEveryCompleted
-      ? completedTodos.map(todo => {
-        setUpdatingTodoIds(completedTodosIds);
-
-        return updateTodo(todo.id, {
-          ...todo,
-          completed: !todo.completed,
-        });
-      })
-      : todos.map(todo => {
+    const updateActive = () => {
+      return todos.map(todo => {
         setUpdatingTodoIds(activeTodosIds);
 
         if (!todo.completed) {
@@ -197,6 +189,22 @@ export const App: React.FC = () => {
 
         return todo;
       });
+    };
+
+    const updateCompleted = () => {
+      return completedTodos.map(todo => {
+        setUpdatingTodoIds(completedTodosIds);
+
+        return updateTodo(todo.id, {
+          ...todo,
+          completed: !todo.completed,
+        });
+      });
+    };
+
+    const updatingTodos = isEveryCompleted
+      ? updateCompleted()
+      : updateActive();
 
     Promise.all(updatingTodos)
       .then((response) => setTodos(response))
