@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC, useEffect, useState } from 'react';
 import {
-  addTodo,
+  postTodo,
   getTodos,
   patchTodo,
   removeTodo,
@@ -37,7 +37,7 @@ export const App: FC = () => {
       });
   }, []);
 
-  const postTodo = () => {
+  const addTodo = () => {
     disableInput(true);
 
     const newTodo = {
@@ -51,7 +51,7 @@ export const App: FC = () => {
       id: 0,
     });
 
-    addTodo(newTodo)
+    postTodo(newTodo)
       .then(result => {
         setTodos(prev => [
           ...prev,
@@ -109,7 +109,7 @@ export const App: FC = () => {
 
     return patchTodo(id, data)
       .then(() => {
-        const updatedTodos = todos.map(todo => {
+        setTodos((prev) => prev.map(todo => {
           if (todo.id === id) {
             return {
               ...todo,
@@ -118,9 +118,7 @@ export const App: FC = () => {
           }
 
           return todo;
-        });
-
-        setTodos(updatedTodos);
+        }));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.UPDATE);
@@ -129,7 +127,8 @@ export const App: FC = () => {
         }, 3000);
       })
       .finally(() => {
-        setLoadingTodosIDs([]);
+        setLoadingTodosIDs(prevState => prevState.filter(num => num !== id));
+        // setLoadingTodosIDs([]);
       });
   };
 
@@ -179,7 +178,7 @@ export const App: FC = () => {
       return;
     }
 
-    postTodo();
+    addTodo();
   };
 
   const visibleTodos = getVisibleTodos(todos, filterStatus);

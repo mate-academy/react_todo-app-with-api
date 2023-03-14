@@ -65,7 +65,7 @@ export const TodoList: FC<Props> = ({
             >
               <TodoTask
                 todo={tempTodo}
-                onDelete={() => {}} // quyestion
+                onDelete={() => {}} // question
                 onUpdate={() => {}}
                 isLoading
               />
