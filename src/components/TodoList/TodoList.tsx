@@ -1,5 +1,7 @@
 import { FC, useState } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
+import './TodoList.scss';
 import { Footer, FilteringMethod } from '../Footer';
 import { TodoTask } from '../TodoTask';
 
@@ -41,30 +43,43 @@ export const TodoList: FC<Props> = ({
   return (
     <>
       <section className="todoapp__main">
-        {visibleTodos.map(todo => {
-          const isLoading = loadingTodosIDs.some(id => id === todo.id);
+        <TransitionGroup>
+          {visibleTodos.map(todo => {
+            const isLoading = loadingTodosIDs.some(id => id === todo.id);
 
-          return (
-            <TodoTask
-              key={todo.id}
-              todo={todo}
-              onDelete={onDelete}
-              isLoading={isLoading}
-              onUpdate={onUpdate}
-            />
-          );
-        })}
+            return (
+              <CSSTransition
+                key={todo.id}
+                timeout={300}
+                classNames="item"
+              >
+                <TodoTask
+                  todo={todo}
+                  onDelete={onDelete}
+                  isLoading={isLoading}
+                  onUpdate={onUpdate}
+                />
+              </CSSTransition>
+            );
+          })}
+
+          {tempTodo && (
+            <CSSTransition
+              key={0}
+              timeout={300}
+              classNames="temp-item"
+            >
+              <TodoTask
+                todo={tempTodo}
+                onDelete={() => {}}
+                onUpdate={() => {}}
+                isLoading
+              />
+            </CSSTransition>
+          )}
+
+        </TransitionGroup>
       </section>
-
-      {tempTodo && (
-        <TodoTask
-          key={tempTodo.id}
-          todo={tempTodo}
-          onDelete={() => {}}
-          onUpdate={() => {}}
-          isLoading
-        />
-      )}
 
       <Footer
         status={filterStatus}
