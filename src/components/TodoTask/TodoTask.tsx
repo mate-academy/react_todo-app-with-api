@@ -10,8 +10,8 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDelete: (id: number) => void;
   isLoading: boolean;
+  onDelete: (id: number) => void;
   onUpdate: (id: number, data: object) => void;
 };
 

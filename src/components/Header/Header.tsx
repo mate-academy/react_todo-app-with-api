@@ -1,25 +1,23 @@
-import {
-  FC,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import classNames from 'classnames';
+import { FC, useEffect, useRef } from 'react';
 
 type Props = {
-  onEmptyQuery: () => void;
-  onSubmit: (title: string) => void;
+  onSubmit: () => void;
   isDisabled: boolean;
   onUpdateAll: () => void;
+  isButtonActive: boolean;
+  textFieldValue: string;
+  handleTextFieldValue: (value: string) => void;
 };
 
 export const Header: FC<Props> = ({
-  onEmptyQuery,
   onSubmit,
   isDisabled,
   onUpdateAll,
+  isButtonActive,
+  textFieldValue,
+  handleTextFieldValue,
 }) => {
-  const [query, setQuery] = useState('');
-
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -28,37 +26,29 @@ export const Header: FC<Props> = ({
     }
   }, [isDisabled]);
 
-  const handleSubmit = (): void => {
-    if (!query) {
-      onEmptyQuery();
-    }
-
-    onSubmit(query);
-    setQuery('');
-  };
-
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: isButtonActive },
+        )}
         onClick={onUpdateAll}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={(event) => {
         event.preventDefault();
-        handleSubmit();
+        onSubmit();
       }}
       >
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          value={textFieldValue}
+          onChange={(event) => handleTextFieldValue(event.target.value)}
           disabled={isDisabled}
           ref={input}
         />

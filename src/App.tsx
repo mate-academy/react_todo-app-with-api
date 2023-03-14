@@ -8,22 +8,21 @@ import {
 } from './api/todos';
 import { Notification } from './components/Notification';
 import { ErrorMessage } from './types/ErrorMessage';
-import { TodoList } from './components/TodoList';
+import { TodoList, getVisibleTodos } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
+import { FilteringMethod, Footer } from './components/Footer';
 
 const USER_ID = 6648;
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isInputDisabled, disableInput] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo>();
-  const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]);
-
-  const [
-    errorMessage,
-    setErrorMessage,
-  ] = useState<ErrorMessage>(ErrorMessage.NONE);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [filterStatus, setFilterStatus] = useState<FilteringMethod>('All');
+  const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]); // problem is here
+  const [textFieldValue, setTextFieldValue] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -38,11 +37,11 @@ export const App: FC = () => {
       });
   }, []);
 
-  const postTodo = (title: string) => {
+  const postTodo = () => {
     disableInput(true);
 
     const newTodo = {
-      title,
+      title: textFieldValue,
       userId: USER_ID,
       completed: false,
     };
@@ -54,12 +53,12 @@ export const App: FC = () => {
 
     addTodo(newTodo)
       .then(result => {
-        setTodos(prev => {
-          return [
-            ...prev,
-            result,
-          ];
-        });
+        setTodos(prev => [
+          ...prev,
+          result,
+        ]);
+
+        setTextFieldValue('');
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.ADD);
@@ -69,7 +68,7 @@ export const App: FC = () => {
       })
       .finally(() => {
         disableInput(false);
-        setTempTodo(undefined);
+        setTempTodo(null);
       });
   };
 
@@ -105,7 +104,7 @@ export const App: FC = () => {
     });
   };
 
-  const updateTodo = (id: number, data: object) => {
+  const updateTodo = (id: number, data: object) => { // problem is here
     setLoadingTodosIDs(prevState => [...prevState, id]);
 
     return patchTodo(id, data)
@@ -166,31 +165,56 @@ export const App: FC = () => {
     }
   };
 
+  const handletextFieldValue = (value: string) => {
+    setTextFieldValue(value);
+  };
+
+  const handleSubmit = () => {
+    if (!textFieldValue) {
+      setErrorMessage(ErrorMessage.EMPTY_TITLE);
+      setTimeout(() => {
+        setErrorMessage(ErrorMessage.NONE);
+      }, 3000);
+
+      return;
+    }
+
+    postTodo();
+  };
+
+  const visibleTodos = getVisibleTodos(todos, filterStatus);
+  const completedCount = getVisibleTodos(todos, 'Completed').length;
+  const remainTodos = todos.length - completedCount;
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <Header
-          onEmptyQuery={() => {
-            setErrorMessage(ErrorMessage.EMPTY_TITLE);
-            setTimeout(() => {
-              setErrorMessage(ErrorMessage.NONE);
-            }, 3000);
-          }}
-          onSubmit={postTodo}
+          onSubmit={handleSubmit}
+          textFieldValue={textFieldValue}
+          handleTextFieldValue={handletextFieldValue}
           isDisabled={isInputDisabled}
           onUpdateAll={updateAll}
+          isButtonActive={completedCount === todos.length}
         />
 
-        {todos && todos?.length > 0 && (
-          <TodoList
-            todos={todos}
-            tempTodo={tempTodo}
-            onDelete={deleteTodo}
+        <TodoList
+          todos={visibleTodos}
+          tempTodo={tempTodo}
+          onDelete={deleteTodo}
+          loadingTodosIDs={loadingTodosIDs}
+          onUpdate={updateTodo}
+        />
+
+        {todos.length > 0 && (
+          <Footer
+            status={filterStatus}
+            onStatusChange={setFilterStatus}
+            remainTodos={remainTodos}
+            completedTodos={completedCount}
             onClearAll={deleteCompleted}
-            loadingTodosIDs={loadingTodosIDs}
-            onUpdate={updateTodo}
           />
         )}
       </div>

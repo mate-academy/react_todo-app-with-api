@@ -1,20 +1,21 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import './TodoList.scss';
-import { Footer, FilteringMethod } from '../Footer';
 import { TodoTask } from '../TodoTask';
 
 type Props = {
   todos: Todo[];
-  tempTodo?: Todo;
+  tempTodo?: Todo | null;
   onDelete: (id: number) => void;
-  onClearAll: () => void;
   loadingTodosIDs: number[];
   onUpdate: (id: number, data: object) => void;
 };
 
-const getVisibleTodos = (todos: Todo[], status: FilteringMethod): Todo[] => {
+export const getVisibleTodos = (
+  todos: Todo[],
+  status: string,
+): Todo[] => {
   if (status === 'Active') {
     return todos.filter(todo => !todo.completed);
   }
@@ -30,22 +31,15 @@ export const TodoList: FC<Props> = ({
   todos,
   tempTodo,
   onDelete,
-  onClearAll,
   loadingTodosIDs,
   onUpdate,
 }) => {
-  const [filterStatus, changeFilterStatus] = useState<FilteringMethod>('All');
-
-  const visibleTodos = getVisibleTodos(todos, filterStatus);
-  const remainTodos = todos.filter(todo => !todo.completed).length;
-  const completedCount = getVisibleTodos(todos, 'Completed').length;
-
   return (
     <>
       <section className="todoapp__main">
         <TransitionGroup>
-          {visibleTodos.map(todo => {
-            const isLoading = loadingTodosIDs.some(id => id === todo.id);
+          {todos.map(todo => {
+            const isLoading = loadingTodosIDs.some(id => id === todo.id); // is problem here?
 
             return (
               <CSSTransition
@@ -71,7 +65,7 @@ export const TodoList: FC<Props> = ({
             >
               <TodoTask
                 todo={tempTodo}
-                onDelete={() => {}}
+                onDelete={() => {}} // quyestion
                 onUpdate={() => {}}
                 isLoading
               />
@@ -80,14 +74,6 @@ export const TodoList: FC<Props> = ({
 
         </TransitionGroup>
       </section>
-
-      <Footer
-        status={filterStatus}
-        onStatusChange={changeFilterStatus}
-        remainTodos={remainTodos}
-        completedTodos={completedCount}
-        onClearAll={onClearAll}
-      />
     </>
   );
 };
