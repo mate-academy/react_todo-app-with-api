@@ -7,6 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 
+import classNames from 'classnames';
 import { AuthContext } from '../Auth/AuthContext';
 import { Todo } from '../../types/Todo';
 import * as Api from '../../api/todos';
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
     completedTodosId,
     setCompletedTodosId,
   ] = useState< Array<number> | undefined>(undefined);
+  // const [isUpdating, setIsUpdating] = useState(false);
 
   const getTodosFromServer = useCallback(
     () => {
@@ -111,22 +113,22 @@ export const App: React.FC = () => {
     [],
   );
 
-  // const updateTodoFromServer = useCallback(
-  //   (todoId: number, data: object) => {
-  //     Api.updateTodo(todoId, data)
-  //       .then(() => {
-  //         getTodosFromServer();
-  //       })
-  //       .catch(() => {
-  //         setError('Unable to update a todo');
-  //         setTimeout(() => setError(''), 3000);
-  //       })
-  //       .finally(() => {
+  const updateTodoFromServer = useCallback(
+    (todoId: number, data: object) => {
+      Api.updateTodo(todoId, data)
+        .then(() => {
+          getTodosFromServer();
+        })
+        .catch(() => {
+          setError('Unable to update a todo');
+          setTimeout(() => setError(''), 3000);
+        })
+        .finally(() => {
 
-  //       });
-  //   },
-  //   [],
-  // );
+        });
+    },
+    [],
+  );
 
   useEffect(() => {
     // focus the element with `ref={newTodoField}`
@@ -146,7 +148,12 @@ export const App: React.FC = () => {
           <button
             data-cy="ToggleAllButton"
             type="button"
-            className="todoapp__toggle-all active"
+            className={classNames(
+              'todoapp__toggle-all',
+              {
+                active: true,
+              },
+            )}
           />
 
           <form>
@@ -182,6 +189,7 @@ export const App: React.FC = () => {
             completedTodosId={completedTodosId}
             shouldDeleteCompleted={shouldDeleteCompleted}
             resetCompleted={() => setCompletedTodosId([])}
+            updateTodoFromServer={updateTodoFromServer}
           />
         )}
 

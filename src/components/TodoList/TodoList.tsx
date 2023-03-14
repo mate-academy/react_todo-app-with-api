@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -12,6 +13,7 @@ type Props = {
   completedTodosId: Array<number> | undefined;
   shouldDeleteCompleted: boolean;
   resetCompleted: () => void;
+  updateTodoFromServer: (id: number, data: object) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -23,6 +25,7 @@ export const TodoList: React.FC<Props> = ({
   completedTodosId = [],
   shouldDeleteCompleted,
   resetCompleted,
+  updateTodoFromServer,
 }) => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [toDeleteId, setToDeleteId] = useState(0);
@@ -81,6 +84,15 @@ export const TodoList: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               checked={todo.completed}
+              onClick={() => {
+                if (todo.completed) {
+                  updateTodoFromServer(todo.id, { completed: false });
+                  console.log(todo);
+                } else {
+                  updateTodoFromServer(todo.id, { completed: true });
+                  console.log(todo);
+                }
+              }}
             />
           </label>
 
