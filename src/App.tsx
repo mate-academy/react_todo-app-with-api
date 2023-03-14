@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC, useEffect, useState } from 'react';
 import {
   postTodo,
@@ -12,6 +11,7 @@ import { TodoList, getVisibleTodos } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
 import { FilteringMethod, Footer } from './components/Footer';
+import './App.scss';
 
 const USER_ID = 6648;
 
@@ -186,10 +186,10 @@ export const App: FC = () => {
   const remainTodos = todos.length - completedCount;
 
   return (
-    <div className="todoapp">
-      <h1 className="todoapp__title">todos</h1>
+    <div className="App">
+      <h1 className="App__title">todos</h1>
 
-      <div className="todoapp__content">
+      <div className="App__content">
         <Header
           onSubmit={handleSubmit}
           textFieldValue={textFieldValue}

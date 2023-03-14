@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-
+import './Notification.scss';
 import classNames from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import { ErrorMessage } from '../../types/ErrorMessage';
@@ -26,13 +26,13 @@ export const Notification: FC<Props> = ({
   return (
     <div
       className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
-        { hidden: !message },
+        'Notification notification is-danger is-light has-text-weight-normal',
+        { 'Notification--hidden': !message },
       )}
     >
       <button
         type="button"
-        className="delete"
+        className="Notification__button delete"
         onClick={onClose}
       />
 

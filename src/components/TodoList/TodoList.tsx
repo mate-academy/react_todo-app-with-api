@@ -3,6 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import './TodoList.scss';
 import { TodoTask } from '../TodoTask';
+import { emptyFunction } from '../../utils/functions';
 
 type Props = {
   todos: Todo[];
@@ -36,7 +37,7 @@ export const TodoList: FC<Props> = ({
 }) => {
   return (
     <>
-      <section className="todoapp__main">
+      <section className="App__main TodoList">
         <TransitionGroup>
           {todos.map(todo => {
             const isLoading = loadingTodosIDs.some(id => id === todo.id); // is problem here?
@@ -45,7 +46,7 @@ export const TodoList: FC<Props> = ({
               <CSSTransition
                 key={todo.id}
                 timeout={300}
-                classNames="item"
+                classNames="TodoList__item"
               >
                 <TodoTask
                   todo={todo}
@@ -61,12 +62,12 @@ export const TodoList: FC<Props> = ({
             <CSSTransition
               key={0}
               timeout={300}
-              classNames="temp-item"
+              classNames="TodoList__temp-item"
             >
               <TodoTask
                 todo={tempTodo}
-                onDelete={() => {}} // question
-                onUpdate={() => {}}
+                onDelete={emptyFunction}
+                onUpdate={emptyFunction}
                 isLoading
               />
             </CSSTransition>

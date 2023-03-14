@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { FC, useEffect, useRef } from 'react';
+import './Header.scss';
 
 type Props = {
   onSubmit: () => void;
@@ -27,12 +28,12 @@ export const Header: FC<Props> = ({
   }, [isDisabled]);
 
   return (
-    <header className="todoapp__header">
+    <header className="App__header Header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className={classNames(
-          'todoapp__toggle-all',
+          'Header__toggle-all',
           { active: isButtonActive },
         )}
         onClick={onUpdateAll}
@@ -45,7 +46,7 @@ export const Header: FC<Props> = ({
       >
         <input
           type="text"
-          className="todoapp__new-todo"
+          className="Header__new-todo"
           placeholder="What needs to be done?"
           value={textFieldValue}
           onChange={(event) => handleTextFieldValue(event.target.value)}

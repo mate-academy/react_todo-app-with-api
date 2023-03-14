@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { FC } from 'react';
+import './Footer.scss';
 
 export type FilteringMethod = 'All' | 'Active' | 'Completed';
 
@@ -21,17 +22,17 @@ export const Footer: FC<Props> = ({
   // Hide the footer if there are no todos
 
   return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
+    <footer className="Footer">
+      <span className="Footer__count">
         {`${remainTodos} ${remainTodos === 1 ? 'item' : 'items'} left`}
       </span>
 
       {/* Active filter should have a 'selected' class */}
-      <nav className="filter">
+      <nav className="Footer__filter">
         <a
           href="#/"
           className={classNames(
-            'filter__link',
+            'Footer__filter-link',
             { selected: status === 'All' },
           )}
           onClick={() => onStatusChange('All')}
@@ -42,7 +43,7 @@ export const Footer: FC<Props> = ({
         <a
           href="#/active"
           className={classNames(
-            'filter__link',
+            'Footer__filter-link',
             { selected: status === 'Active' },
           )}
           onClick={() => onStatusChange('Active')}
@@ -53,7 +54,7 @@ export const Footer: FC<Props> = ({
         <a
           href="#/completed"
           className={classNames(
-            'filter__link',
+            'Footer__filter-link',
             { selected: status === 'Completed' },
           )}
           onClick={() => onStatusChange('Completed')}
@@ -65,7 +66,7 @@ export const Footer: FC<Props> = ({
       {/* don't show this button if there are no completed todos */}
       <button
         type="button"
-        className="todoapp__clear-completed"
+        className="Footer__clear-completed"
         onClick={onClearAll}
         style={{
           opacity: completedTodos > 0 ? 1 : 0,

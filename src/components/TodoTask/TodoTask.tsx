@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
+import './TodoTask.scss';
 
 type Props = {
   todo: Todo;
@@ -80,16 +81,16 @@ export const TodoTask: FC<Props> = ({
 
   return (
     <div className={classNames(
-      'todo',
+      'TodoTask',
       {
-        completed,
+        'TodoTask--completed': completed,
       },
     )}
     >
-      <label className="todo__status-label">
+      <label className="TodoTask__status-label">
         <input
           type="checkbox"
-          className="todo__status"
+          className="TodoTask__status"
           onClick={() => onUpdate(id, { completed: !completed })}
         />
       </label>
@@ -103,7 +104,7 @@ export const TodoTask: FC<Props> = ({
           >
             <input
               type="text"
-              className="todo__title-field"
+              className="TodoTask__title-field"
               placeholder="Empty todo will be deleted"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -114,14 +115,14 @@ export const TodoTask: FC<Props> = ({
         ) : (
           <>
             <span
-              className="todo__title"
+              className="TodoTask__title"
               onDoubleClick={handleDoubleClick}
             >
               {title}
             </span>
             <button
               type="button"
-              className="todo__remove"
+              className="TodoTask__remove"
               onClick={handleDelete}
             >
               ×
@@ -130,7 +131,7 @@ export const TodoTask: FC<Props> = ({
         )}
 
       <div className={classNames(
-        'modal overlay',
+        'modal overlay TodoTask__overlay',
         { 'is-active': isLoading },
       )}
       >
