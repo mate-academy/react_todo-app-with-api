@@ -9,6 +9,7 @@ type Props = {
   onCompletedChange: (value: Todo) => void,
   loadTodos: () => void,
   setErrorMessage:(value: string) => void,
+  isLoadingTodosIds: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: React.FC<Props> = ({
   onCompletedChange,
   loadTodos,
   setErrorMessage,
+  isLoadingTodosIds,
 }) => {
   return (
     <section className="todoapp__main">
@@ -30,6 +32,7 @@ export const TodoList: React.FC<Props> = ({
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodos}
               setErrorMessage={setErrorMessage}
+              isLoadingTodosIds={isLoadingTodosIds}
             />
           </li>
 
@@ -44,6 +47,7 @@ export const TodoList: React.FC<Props> = ({
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodos}
               setErrorMessage={setErrorMessage}
+              isLoadingTodosIds={isLoadingTodosIds}
             />
 
           </li>

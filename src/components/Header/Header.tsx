@@ -8,7 +8,7 @@ type Props = {
   onSubmit: (event: React.FormEvent) => void,
   isDisabled: boolean,
   toggleAll: () => void,
-  noCompletedTodos: boolean,
+  hasCompletedTodos: boolean,
 };
 
 export const Header: React.FC<Props> = React.memo(
@@ -18,8 +18,16 @@ export const Header: React.FC<Props> = React.memo(
     onSubmit,
     isDisabled,
     toggleAll,
-    noCompletedTodos,
+    hasCompletedTodos,
   }) => {
+    const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+
+      if (value !== ' ') {
+        setTitle(value);
+      }
+    };
+
     return (
       <header className="todoapp__header">
         {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -27,7 +35,7 @@ export const Header: React.FC<Props> = React.memo(
           type="button"
           className={classNames(
             'todoapp__toggle-all',
-            { active: noCompletedTodos },
+            { active: hasCompletedTodos },
           )}
           onClick={toggleAll}
         />
@@ -39,11 +47,7 @@ export const Header: React.FC<Props> = React.memo(
             placeholder="What needs to be done?"
             disabled={isDisabled}
             value={title}
-            onChange={(event) => {
-              if (event.target.value.trim() !== '') {
-                setTitle(event.target.value);
-              }
-            }}
+            onChange={onInputChange}
           />
         </form>
       </header>

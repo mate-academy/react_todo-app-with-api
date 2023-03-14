@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 import { onUpdate } from '../../api/todos';
@@ -12,6 +12,7 @@ type Props = {
   onCompletedChange: (value: Todo) => void,
   loadTodos: () => void,
   setErrorMessage:(value: string) => void,
+  isLoadingTodosIds: number[]
 };
 
 export const TodoItem: React.FC<Props> = React.memo(
@@ -22,6 +23,7 @@ export const TodoItem: React.FC<Props> = React.memo(
     onCompletedChange,
     loadTodos,
     setErrorMessage,
+    isLoadingTodosIds,
   }) => {
     const { id, completed, title } = todo;
 
@@ -77,8 +79,19 @@ export const TodoItem: React.FC<Props> = React.memo(
     ) => {
       if (event.key === 'Enter') {
         onSaveChanges(currentTodo);
+      } else if (event.key === 'Escape') {
+        setIsDoubleClick(false);
+        setEditedTitle(currentTodo.title);
       }
     };
+
+    useEffect(() => {
+      if (isLoadingTodosIds.includes(todo.id) || todo.id === 0) {
+        setHasLoader(true);
+      } else {
+        setHasLoader(false);
+      }
+    }, [isLoadingTodosIds]);
 
     return (
       <div
@@ -110,6 +123,7 @@ export const TodoItem: React.FC<Props> = React.memo(
           <input
             type="text"
             className="todo__title"
+            style={{ fontSize: '24px', color: '#4d4d4d', fontWeight: '200' }}
             value={editedTitle}
             onChange={onEditTodo}
             onKeyUp={(event) => onKeyPress(todo, event)}

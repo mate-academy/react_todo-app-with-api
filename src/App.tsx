@@ -25,17 +25,19 @@ export enum SortType {
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState(SortType.ALL);
-  const [inputDisable, setInputDisable] = useState(false);
+  const [isInputDisable, setisInputDisable] = useState(false);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [isLoadingTodosIds, setIsLoadingTodosIds] = useState<number[]>([]);
 
   const visibleTodos = useMemo(() => {
     return (todos.filter((todo) => {
       switch (filterBy) {
         case SortType.ALL:
           return todo;
-          
+
         case SortType.ACTIVE:
           return !todo.completed;
 
@@ -60,7 +62,7 @@ export const App: React.FC = () => {
       const todosFromServer = await getTodos(USER_ID);
 
       setTempTodo(null);
-      setInputDisable(false);
+      setisInputDisable(false);
       setTodos(todosFromServer);
     } catch (error) {
       setErrorMessage("Can't load data...");
@@ -93,10 +95,12 @@ export const App: React.FC = () => {
         completed: !todo.completed,
       });
 
-      setTempTodo(null);
       loadTodosData();
+      setTempTodo(null);
     } catch (error) {
       setErrorMessage('Unable to update a todo');
+    } finally {
+      setIsLoadingTodosIds([]);
     }
   };
 
@@ -120,12 +124,12 @@ export const App: React.FC = () => {
     } catch {
       setTempTodo(null);
       setErrorMessage('Unable to add a todo');
-      setInputDisable(false);
+      setisInputDisable(false);
     }
   };
 
   const handleFormSubmit = (event: React.FormEvent) => {
-    setInputDisable(true);
+    setisInputDisable(true);
 
     event.preventDefault();
 
@@ -134,22 +138,26 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (todoId: number) => {
+    setIsLoadingTodosIds(prevState => [...prevState, todoId]);
+
     try {
       await onDelete(todoId);
       loadTodosData();
     } catch (error) {
       setTempTodo(null);
       setErrorMessage('Unable to delete a todo');
+    } finally {
+      setIsLoadingTodosIds([]);
     }
   };
 
-  const toggleAllComlpleted = async () => {
-    visibleTodos.map((todo) => {
-      return onCompletedChange(todo);
-    });
+  const toggleAllComlpleted = () => {
+    setIsLoadingTodosIds(visibleTodos.map((todo) => todo.id));
+
+    visibleTodos.map((todo) => onCompletedChange(todo));
   };
 
-  const clearCompleted = () => {
+  const clearCompleted = async () => {
     const clearCompletedTodos = todos.filter((todo) => todo.completed);
 
     clearCompletedTodos.forEach((todo) => removeTodo(todo.id));
@@ -168,9 +176,9 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           onSubmit={handleFormSubmit}
-          isDisabled={inputDisable}
+          isDisabled={isInputDisable}
           toggleAll={toggleAllComlpleted}
-          noCompletedTodos={hasCompleteTodos}
+          hasCompletedTodos={hasCompleteTodos}
         />
 
         {!!todos.length && (
@@ -182,6 +190,8 @@ export const App: React.FC = () => {
               onCompletedChange={onCompletedChange}
               loadTodos={loadTodosData}
               setErrorMessage={setErrorMessage}
+              isLoadingTodosIds={isLoadingTodosIds}
+
             />
 
             <Footer
