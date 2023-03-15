@@ -27,7 +27,7 @@ export const Header: React.FC<Props> = ({
     setNewTodoValue('');
   };
 
-  const onFormSubmit = (e:React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     createNewTodo();
   };
@@ -42,7 +42,7 @@ export const Header: React.FC<Props> = ({
         onClick={() => handleToggleClick()}
       />
 
-      <form onSubmit={onFormSubmit}>
+      <form onSubmit={handleFormSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"

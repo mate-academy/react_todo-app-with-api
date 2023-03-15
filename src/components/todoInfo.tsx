@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState } from 'react';
 import { Todo } from '../types/Todo';
-import { ModalOverlay } from './modalOverlay';
+import { ModalOverlay } from './ModalOverlay';
 
 type Props = {
   todoInfo: Todo,
@@ -29,11 +29,13 @@ export const TodoInfo: React.FC<Props> = ({
     completed,
   } = todoInfo;
 
-  const onInputChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    { target }: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setNewTitle(target.value);
   };
 
-  const onInputBlur = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputBlur = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     if (target.value.trim() !== title) {
       setNewTitle(target.value.trim());
     }
@@ -82,8 +84,8 @@ export const TodoInfo: React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTitle}
-            onChange={onInputChange}
-            onBlur={onInputBlur}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
             onKeyUp={onKeyUp}
           />
         </form>

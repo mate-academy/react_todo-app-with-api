@@ -2,10 +2,10 @@ import React, {
   useCallback, useEffect, useState, useMemo,
 } from 'react';
 import { UserWarning } from './UserWarning';
-import { Footer } from './components/footer';
-import { Main } from './components/main';
-import { ErrorNotification } from './components/errorNotification';
-import { Header } from './components/header';
+import { Footer } from './components/Footer';
+import { Main } from './components/Main';
+import { ErrorNotification } from './components/ErrorNotification';
+import { Header } from './components/Header';
 import { Todo } from './types/Todo';
 import { SelectOptions } from './types/SelectOptions';
 import { ErrorType } from './types/ErrorType';
@@ -22,12 +22,12 @@ export const App: React.FC = () => {
   const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isResponce, setIsResponce] = useState(true);
+  const [isResponse, setIsResponse] = useState(true);
   const [todoLoadingId, setTodoLoadingId] = useState<number[]>([]);
   const [selectedOption, setSelectedOption]
     = useState<SelectOptions>(SelectOptions.ALL);
 
-  const filteredCompletedTodosId = useCallback((allTodos: Todo[]) => () => {
+  const getCompletedTodosId = useCallback((allTodos: Todo[]) => () => {
     return allTodos
       .filter((todo: Todo) => todo.completed)
       .map(todoItem => todoItem.id);
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
       const todosData = await getTodos(USER_ID);
 
       setTodos(todosData);
-      setCompletedTodosId(filteredCompletedTodosId(todosData));
+      setCompletedTodosId(getCompletedTodosId(todosData));
     } catch (err) {
       setIsError(true);
     }
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
   ) => {
     try {
       emptyTodo(todoToPost.title);
-      setIsResponce(false);
+      setIsResponse(false);
       const postNewTodo = await postTodos(todoToPost);
 
       if (postNewTodo) {
@@ -78,14 +78,14 @@ export const App: React.FC = () => {
       setErrorType(ErrorType.ADD);
       setIsError(true);
     } finally {
-      setIsResponce(true);
+      setIsResponse(true);
       setTempTodo(null);
     }
   }, []);
 
   const deleteTodoFromServer = useCallback(async (todoId: number) => {
     try {
-      setIsResponce(false);
+      setIsResponse(false);
       const deleteExistTodo = await deleteTodos(todoId);
 
       if (deleteExistTodo) {
@@ -98,7 +98,7 @@ export const App: React.FC = () => {
       setErrorType(ErrorType.DELETE);
       setIsError(true);
     } finally {
-      setIsResponce(true);
+      setIsResponse(true);
     }
   }, []);
 
@@ -134,7 +134,7 @@ export const App: React.FC = () => {
 
   const patchTodoStatusOnServer = async (todoId: number) => {
     try {
-      setIsResponce(false);
+      setIsResponse(false);
       const currentTodo = todos.find(todo => todo.id === todoId);
 
       if (currentTodo) {
@@ -159,7 +159,7 @@ export const App: React.FC = () => {
       setErrorType(ErrorType.UPDATE);
       setIsError(true);
     } finally {
-      setIsResponce(true);
+      setIsResponse(true);
       setTodoLoadingId([]);
     }
   };
@@ -226,7 +226,7 @@ export const App: React.FC = () => {
     todoId: number, newTitle: string,
   ) => {
     try {
-      setIsResponce(false);
+      setIsResponse(false);
       const currentTodo = todos.find(todo => todo.id === todoId);
 
       if (currentTodo) {
@@ -249,7 +249,7 @@ export const App: React.FC = () => {
       setErrorType(ErrorType.UPDATE);
       setIsError(true);
     } finally {
-      setIsResponce(true);
+      setIsResponse(true);
       setTodoLoadingId([]);
     }
   };
@@ -270,7 +270,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           onAddTodo={addTodo}
-          inputDisable={isResponce}
+          inputDisable={isResponse}
           isToggleAllActive={isToggleAllActive}
           handleToggleClick={onActiveToggle}
         />
