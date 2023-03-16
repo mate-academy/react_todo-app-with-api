@@ -23,8 +23,15 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
-  const isActiveTodos = todos.some(todo => todo.completed);
-  const countActiveTodos = todos.filter(todo => !todo.completed).length;
+  const isActiveTodos = useMemo(
+    () => todos.some(todo => todo.completed),
+    [todos],
+  );
+
+  const countActiveTodos = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
 
   const getTodosFromServer = async () => {
     try {
@@ -34,6 +41,7 @@ export const App: React.FC = () => {
       setIsTodoLoaded(true);
       setTodos(todosFromServer);
     } catch (error) {
+      setIsError(true);
       setErrorMessage('Data couldn\'t be loaded from the server');
     }
   };
@@ -54,6 +62,7 @@ export const App: React.FC = () => {
       await createTodo(USER_ID, data);
       getTodosFromServer();
     } catch (error) {
+      setIsError(true);
       setTempTodo(null);
       setErrorMessage('Unable to add a todo');
     }
@@ -64,6 +73,7 @@ export const App: React.FC = () => {
       await deleteTodo(id);
       getTodosFromServer();
     } catch (error) {
+      setIsError(true);
       setTempTodo(null);
       setErrorMessage('Unable to delete a todo');
     }
@@ -83,6 +93,7 @@ export const App: React.FC = () => {
       await updateTodo(todoId, todoCopy);
       getTodosFromServer();
     } catch (error) {
+      setIsError(true);
       setTempTodo(null);
       setErrorMessage('Unable to update a todo');
     }
