@@ -104,8 +104,12 @@ export const App: React.FC = () => {
 
     try {
       setIsTodoLoaded(true);
+
+      const updatedTodos = todos.map((t) => (t.id === todoId ? todoCopy : t));
+
+      setTodos(updatedTodos);
+
       await updateTodo(todoId, todoCopy);
-      await getTodosFromServer();
     } catch (error) {
       setIsError(true);
       setErrorMessage('Unable to update a todo');
@@ -114,6 +118,7 @@ export const App: React.FC = () => {
       setIsTodoLoaded(false);
     }
   };
+
 
   const updateAllTodos = async (todosFromServer: Todo[]) => {
     const areAllCompleted = todosFromServer.every((todo) => todo.completed);
@@ -159,7 +164,7 @@ export const App: React.FC = () => {
         return todos.filter(todo => todo.completed);
 
       case FilteredBy.ALL:
-        return [...todos];
+        return todos;
 
       default:
         throw new Error('Unexpected filter type');
