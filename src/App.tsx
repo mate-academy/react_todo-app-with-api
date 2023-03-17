@@ -119,7 +119,6 @@ export const App: React.FC = () => {
     }
   };
 
-
   const updateAllTodos = async (todosFromServer: Todo[]) => {
     const areAllCompleted = todosFromServer.every((todo) => todo.completed);
 
