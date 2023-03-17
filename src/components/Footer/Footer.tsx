@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { FilteredBy } from '../../types/FilteredBy';
+import { FilteredBy } from '../../types/Todo';
 
 type Props = {
   filterBy: FilteredBy,

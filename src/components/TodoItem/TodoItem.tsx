@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -23,10 +23,14 @@ export const TodoItem: React.FC<Props> = ({
   const [query, setQuery] = useState<string>(title);
   const [hasLoader, setHasLoader] = useState(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setHasLoader(false);
-  }, [todo]);
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [todo, isEditing]);
 
   const editTodo = () => {
     const editedTodo = {
@@ -120,6 +124,7 @@ export const TodoItem: React.FC<Props> = ({
               value={query}
               onChange={handleInputChange}
               onKeyUp={handleKeyUp}
+              ref={inputRef}
             />
           </form>
         )}

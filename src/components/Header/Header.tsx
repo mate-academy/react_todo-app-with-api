@@ -7,7 +7,7 @@ type Props = {
   isActiveTodos: boolean,
   isTodoLoaded: boolean,
   createTodoOnServer: (query: string) => void,
-  updateAllTodos: () => void,
+  updateAllTodos: (todo: Todo[]) => void,
   setErrorMessage: (message: string) => void,
   setIsError: (error: boolean) => void,
 };
@@ -26,7 +26,7 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!query.length) {
+    if (!query.trim().length) {
       setErrorMessage('Title can\'t be empty');
       setIsError(true);
 
@@ -41,6 +41,10 @@ export const Header: React.FC<Props> = ({
     setQuery(event.target.value);
   };
 
+  const handleUpdateAllTodos = () => {
+    updateAllTodos(todos);
+  };
+
   return (
     <header className="todoapp__header">
       {todos?.length !== 0 && (
@@ -51,7 +55,7 @@ export const Header: React.FC<Props> = ({
             'todoapp__toggle-all',
             { active: isActiveTodos },
           )}
-          onClick={updateAllTodos}
+          onClick={handleUpdateAllTodos}
         />
       )}
 

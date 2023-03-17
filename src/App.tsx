@@ -4,14 +4,15 @@ import {
   createTodo,
   deleteTodo,
   updateTodo,
+  patchTodoStatus,
 } from './api/todos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
-import { FilteredBy } from './types/FilteredBy';
-import { Todo } from './types/Todo';
+import { Todo, FilteredBy } from './types/Todo';
 import { TodoNotification } from './components/TodoNotification';
 import { UserWarning } from './UserWarning';
+import { Loader } from './components/Loader';
 
 const USER_ID = 6662;
 
@@ -35,9 +36,9 @@ export const App: React.FC = () => {
 
   const getTodosFromServer = async () => {
     try {
+      setIsTodoLoaded(true);
       const todosFromServer = await getTodos(USER_ID);
 
-      setIsTodoLoaded(true);
       setTodos(todosFromServer);
       setIsTodoLoaded(false);
     } catch (error) {
@@ -62,10 +63,12 @@ export const App: React.FC = () => {
       ...data,
       id: 0,
     });
+
     try {
       setIsTodoLoaded(true);
-      await createTodo(USER_ID, data);
-      await getTodosFromServer();
+      const newTodo = await createTodo(USER_ID, data);
+
+      setTodos([...todos, newTodo]);
     } catch (error) {
       setIsError(true);
       setErrorMessage('Unable to add a todo');
@@ -79,7 +82,7 @@ export const App: React.FC = () => {
     try {
       setIsTodoLoaded(true);
       await deleteTodo(id);
-      await getTodosFromServer();
+      setTodos(todos.filter(todo => todo.id !== id));
     } catch (error) {
       setIsError(true);
       setErrorMessage('Unable to delete a todo');
@@ -102,7 +105,7 @@ export const App: React.FC = () => {
     try {
       setIsTodoLoaded(true);
       await updateTodo(todoId, todoCopy);
-      getTodosFromServer();
+      await getTodosFromServer();
     } catch (error) {
       setIsError(true);
       setErrorMessage('Unable to update a todo');
@@ -112,16 +115,39 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateAllTodos = async () => {
-    todos.forEach(todo => {
-      updateTodoOnServer(todo, true);
-    });
+  const updateAllTodos = async (todosFromServer: Todo[]) => {
+    const areAllCompleted = todosFromServer.every((todo) => todo.completed);
+
+    try {
+      const updatedTodos = await
+      Promise.all(todosFromServer.map(async (todo) => {
+        if (todo.completed === areAllCompleted) {
+          await patchTodoStatus(todo.id, { completed: !areAllCompleted });
+        }
+
+        return { ...todo, completed: !areAllCompleted };
+      }));
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorMessage('Unable to update all todos');
+    }
   };
 
   const clearCompletedTodo = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => removeTodoOnServer(todo.id));
+    try {
+      setIsTodoLoaded(true);
+      await
+      Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      setTodos(todos.filter(todo => !todo.completed));
+    } catch (error) {
+      setIsError(true);
+      setErrorMessage('Unable to clear completed todos');
+    } finally {
+      setIsTodoLoaded(false);
+    }
   };
 
   const visibleTodos: Todo[] = useMemo(() => {
@@ -150,6 +176,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="todoapp">
+      {isTodoLoaded && <Loader />}
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">

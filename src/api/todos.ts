@@ -1,5 +1,4 @@
-import { Todo } from '../types/Todo';
-import { SendTodo } from '../types/SendTodo';
+import { Todo, SendTodo, TodoStatus } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => client.get<Todo[]>(`/todos?userId=${userId}`);
@@ -15,3 +14,5 @@ export const updateTodo = (
   todoId: number,
   data: Todo,
 ) => client.patch(`/todos/${todoId}`, data);
+
+export const patchTodoStatus = (todoId: number, updatedStatus: TodoStatus) => client.patch(`/todos/${todoId}`, updatedStatus);
