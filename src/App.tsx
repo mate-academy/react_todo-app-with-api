@@ -37,14 +37,19 @@ export const App: React.FC = () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
-      setTempTodo(null);
       setIsTodoLoaded(true);
       setTodos(todosFromServer);
+      setIsTodoLoaded(false);
     } catch (error) {
       setIsError(true);
+      setIsTodoLoaded(false);
       setErrorMessage('Data couldn\'t be loaded from the server');
     }
   };
+
+  useEffect(() => {
+    getTodosFromServer();
+  }, []);
 
   const createTodoOnServer = async (query: string) => {
     const data = {
@@ -53,29 +58,34 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setIsTodoLoaded(false);
     setTempTodo({
-      id: 0,
       ...data,
+      id: 0,
     });
     try {
+      setIsTodoLoaded(true);
       await createTodo(USER_ID, data);
-      getTodosFromServer();
+      await getTodosFromServer();
     } catch (error) {
       setIsError(true);
-      setTempTodo(null);
       setErrorMessage('Unable to add a todo');
+    } finally {
+      setTempTodo(null);
+      setIsTodoLoaded(false);
     }
   };
 
   const removeTodoOnServer = async (id: number) => {
     try {
+      setIsTodoLoaded(true);
       await deleteTodo(id);
-      getTodosFromServer();
+      await getTodosFromServer();
     } catch (error) {
       setIsError(true);
-      setTempTodo(null);
       setErrorMessage('Unable to delete a todo');
+    } finally {
+      setTempTodo(null);
+      setIsTodoLoaded(false);
     }
   };
 
@@ -85,17 +95,20 @@ export const App: React.FC = () => {
       ...todo,
     };
 
-    if (isChange === true) {
+    if (isChange) {
       todoCopy.completed = !todo.completed;
     }
 
     try {
+      setIsTodoLoaded(true);
       await updateTodo(todoId, todoCopy);
       getTodosFromServer();
     } catch (error) {
       setIsError(true);
-      setTempTodo(null);
       setErrorMessage('Unable to update a todo');
+    } finally {
+      setTempTodo(null);
+      setIsTodoLoaded(false);
     }
   };
 
@@ -115,10 +128,13 @@ export const App: React.FC = () => {
     switch (filterBy) {
       case FilteredBy.ACTIVE:
         return todos.filter(todo => !todo.completed);
+
       case FilteredBy.COMPLETED:
         return todos.filter(todo => todo.completed);
+
       case FilteredBy.ALL:
         return [...todos];
+
       default:
         throw new Error('Unexpected filter type');
     }

@@ -16,22 +16,26 @@ export const TodoList: React.FC<Props> = ({
   updateTodoOnServer,
 }) => (
   <section className="todoapp__main">
-    {todos.map(todo => (
-      <TodoItem
-        todo={todo}
-        key={todo.id}
-        removeTodoOnServer={removeTodoOnServer}
-        updateTodoOnServer={updateTodoOnServer}
-      />
-    ))}
-
-    {tempTodo && (
-      <TodoItem
-        todo={tempTodo}
-        removeTodoOnServer={removeTodoOnServer}
-        updateTodoOnServer={updateTodoOnServer}
-        isLoader
-      />
-    )}
+    <ul className="todo-list">
+      {todos.map(todo => (
+        <li key={todo.id}>
+          <TodoItem
+            todo={todo}
+            removeTodoOnServer={removeTodoOnServer}
+            updateTodoOnServer={updateTodoOnServer}
+          />
+        </li>
+      ))}
+      {tempTodo && (
+        <li>
+          <TodoItem
+            todo={tempTodo}
+            removeTodoOnServer={removeTodoOnServer}
+            updateTodoOnServer={updateTodoOnServer}
+            isLoader
+          />
+        </li>
+      )}
+    </ul>
   </section>
 );

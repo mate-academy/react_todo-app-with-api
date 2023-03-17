@@ -21,12 +21,12 @@ export const Header: React.FC<Props> = ({
   setErrorMessage,
   setIsError,
 }) => {
-  const [query, setQuery] = useState<string>('');
+  const [query, setQuery] = useState('');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (query.length === 0) {
+    if (!query.length) {
       setErrorMessage('Title can\'t be empty');
       setIsError(true);
 
@@ -36,8 +36,6 @@ export const Header: React.FC<Props> = ({
     createTodoOnServer(query);
     setQuery('');
   };
-
-  const handleUpdatedTodos = () => updateAllTodos();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -53,7 +51,7 @@ export const Header: React.FC<Props> = ({
             'todoapp__toggle-all',
             { active: isActiveTodos },
           )}
-          onClick={handleUpdatedTodos}
+          onClick={updateAllTodos}
         />
       )}
 
@@ -66,7 +64,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={query}
           onChange={handleInputChange}
-          disabled={!isTodoLoaded}
+          disabled={isTodoLoaded}
         />
       </form>
     </header>
