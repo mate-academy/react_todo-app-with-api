@@ -42,7 +42,7 @@ export const Footer: React.FC<Props> = ({
           </a>
         ))}
       </nav>
-      {completedTodos.length && (
+      {completedTodos.length > 0 && (
         <button
           type="button"
           className="todoapp__clear-completed"

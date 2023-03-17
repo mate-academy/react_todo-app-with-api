@@ -17,7 +17,7 @@ import {
   patchTodoStatus,
   patchTodoTitle,
 } from './api/todos';
-import { Footer } from './Footer.tsx';
+import { Footer } from './Footer';
 import { TodoList } from './TodoList';
 import { Header } from './Header';
 import { Notifications } from './Notification';
@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [todoStatus, setTodoStatus] = useState<FilteredBy>(FilteredBy.ALL);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loader, setLoader] = useState(false);
+  const [loaderForHeader, setLoaderForHeader] = useState(false);
 
   const todosToShow = useMemo(() => {
     return todos.filter((todo) => {
@@ -125,15 +125,12 @@ export const App: React.FC = () => {
       });
     };
 
-    setLoader(true);
     await patchTodoStatus(selectedTodo.id, updatedStatusToServer)
       .then(() => {
         setTodos(updateState());
-        setLoader(false);
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        setLoader(false);
       });
   };
 
@@ -143,7 +140,9 @@ export const App: React.FC = () => {
     const updatedTodos = await Promise.all(todosFromServer.map(async (todo) => {
       if (todo.completed === areAllCompleted) {
         await patchTodoStatus(todo.id, { completed: !areAllCompleted })
-          .catch(() => setErrorMessage('Unable to update all todos'));
+          .catch(() => {
+            setErrorMessage('Unable to update all todos');
+          });
       }
 
       return { ...todo, completed: !areAllCompleted };
@@ -161,22 +160,19 @@ export const App: React.FC = () => {
     const updateState = () => {
       return todos.map((todoToChange) => {
         return todoToChange.id === selectedTodo.id
-          ? { ...todoToChange, updatedTitleToServer }
+          ? { ...todoToChange, ...updatedTitleToServer }
           : todoToChange;
       });
     };
-
-    setLoader(true);
+    // console.log(selectedTodo, updatedTodoTitle)
 
     if (selectedTodo.title !== updatedTodoTitle) {
       await patchTodoTitle(selectedTodo.id, updatedTitleToServer)
         .then(() => {
           setTodos(updateState());
-          setLoader(false);
         })
         .catch(() => {
           setErrorMessage('Unable to update a todo');
-          setLoader(false);
         });
     }
   };
@@ -184,7 +180,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           onAdd={handleAddTodo}
@@ -193,7 +188,7 @@ export const App: React.FC = () => {
           query={query}
           setQuery={setQuery}
           todos={todos}
-          setLoader={setLoader}
+          setLoaderForHeader={setLoaderForHeader}
         />
 
         {todos.length > 0 && (
@@ -204,8 +199,8 @@ export const App: React.FC = () => {
               onDelete={handleDeleteTodo}
               onStatusChange={handleSingleTodoUpdate}
               onTitleChange={handleTitleChangesSubmit}
-              loader={loader}
-              // setLoader={setLoader}
+              loaderForHeader={loaderForHeader}
+              setLoaderForHeader={setLoaderForHeader}
             />
             <Footer
               onDeleteCompleted={handleDeleteCompletedTodos}

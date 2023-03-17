@@ -1,5 +1,6 @@
 import classnames from 'classnames';
-import React, { useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { useEffect, useState } from 'react';
 import { Todo } from './types/Todo';
 
 type Props = {
@@ -7,8 +8,8 @@ type Props = {
   onDelete: (id: number) => void,
   onStatusChange: (todo: Todo) => void,
   onTitleChange: (todo: Todo, todoTitle: string) => void,
-  loader: boolean,
-  // setLoader: (loader: boolean) => void,
+  loaderForHeader: boolean,
+  setLoaderForHeader: (a: boolean) => void,
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -16,23 +17,30 @@ export const TodoInfo: React.FC<Props> = ({
   onDelete,
   onStatusChange,
   onTitleChange,
-  loader,
-  // setLoader,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loaderForHeader,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setLoaderForHeader,
 }) => {
   const { id, title, completed } = todo;
 
   const [isBeingDeleted, setIsBeingDeleted] = useState(false);
   const [titleChanger, setTitleChanger] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const [loader, setLoader] = useState(false);
+
+  // useEffect(() => {
+  //   const test = async () => {
+  //     setLoader(true);
+  //     await onStatusChange(todo);
+  //     setLoader(false);
+  //   };
+
+  //   test();
+  // }, [loaderForHeader]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
-  };
-
-  const handleTitleOnBlur = () => {
-    setNewTitle(newTitle);
-    onTitleChange(todo, newTitle);
-    setTitleChanger(false);
   };
 
   const handleTitleChangesCancel = (
@@ -44,20 +52,20 @@ export const TodoInfo: React.FC<Props> = ({
     }
   };
 
-  const handleFormSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleFormSubmitAndBlur = async () => {
+    setLoader(true);
     if (newTitle === '') {
       onDelete(id);
-      setIsBeingDeleted(true);
     } else {
-      setIsBeingDeleted(true);
-      onTitleChange(todo, newTitle);
       setTitleChanger(false);
+      await onTitleChange(todo, newTitle);
     }
+
+    setLoader(false);
   };
 
   return (
-    <div
+    <li
       className={classnames(
         'todo',
         { completed },
@@ -68,13 +76,19 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => onStatusChange(todo)}
+          onChange={() => {
+            // setLoaderForHeader(true);
+            onStatusChange(todo);
+          }}
         />
       </label>
 
       {titleChanger ? (
         <form
-          onSubmit={handleFormSubmit}
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleFormSubmitAndBlur();
+          }}
         >
           <input
             type="text"
@@ -84,7 +98,7 @@ export const TodoInfo: React.FC<Props> = ({
             autoFocus
             value={newTitle}
             onChange={handleTitleChange}
-            onBlur={handleTitleOnBlur}
+            onBlur={handleFormSubmitAndBlur}
             onKeyUp={handleTitleChangesCancel}
           />
         </form>
@@ -118,6 +132,6 @@ export const TodoInfo: React.FC<Props> = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-    </div>
+    </li>
   );
 };

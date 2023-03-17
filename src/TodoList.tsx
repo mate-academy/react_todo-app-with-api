@@ -9,8 +9,8 @@ type Props = {
   onDelete: (id: number) => void,
   onStatusChange: (todo: Todo) => void,
   onTitleChange: (todo: Todo, todoTitle: string) => void,
-  loader: boolean,
-  // setLoader: (loader: boolean) => void,
+  loaderForHeader: boolean,
+  setLoaderForHeader: (a: boolean) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,11 +19,11 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onStatusChange,
   onTitleChange,
-  loader,
-  // setLoader,
+  loaderForHeader,
+  setLoaderForHeader,
 }) => {
   return (
-    <section className="todoapp__main">
+    <ul className="todoapp__main">
       {todosToShow.map(todo => (
         <TodoInfo
           todo={todo}
@@ -31,11 +31,11 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           onStatusChange={onStatusChange}
           onTitleChange={onTitleChange}
-          loader={loader}
-          // setLoader={setLoader}
+          loaderForHeader={loaderForHeader}
+          setLoaderForHeader={setLoaderForHeader}
         />
       ))}
       {tempTodo && <TodoItem tempTodo={tempTodo} />}
-    </section>
+    </ul>
   );
 };
