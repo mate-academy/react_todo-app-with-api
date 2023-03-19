@@ -152,6 +152,13 @@ export const App: React.FC = () => {
     });
   };
 
+  const errorInputHeader = () => {
+    setErrorMessage(ErrorAction.TITLE);
+    setTimeout(() => {
+      setErrorMessage(ErrorAction.NONE);
+    }, 3000);
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -164,12 +171,7 @@ export const App: React.FC = () => {
         <Header
           onSubmit={addTodo}
           isDisabled={disabledInput}
-          errorInput={() => {
-            setErrorMessage(ErrorAction.TITLE);
-            setTimeout(() => {
-              setErrorMessage(ErrorAction.NONE);
-            }, 3000);
-          }}
+          errorInput={errorInputHeader}
           todos={todos}
           toogleAll={toogleAll}
         />

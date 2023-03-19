@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -18,7 +18,9 @@ export const Header: React.FC<Props> = ({
   toogleAll,
 }) => {
   const [query, setQuery] = useState('');
-  const handleSubmit = () => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     if (!query) {
       errorInput();
 
@@ -27,6 +29,10 @@ export const Header: React.FC<Props> = ({
 
     onSubmit(query);
     setQuery('');
+  };
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
   };
 
   const completedTodos = todos.filter(todo => todo.completed);
@@ -44,18 +50,14 @@ export const Header: React.FC<Props> = ({
         )}
       />
 
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        handleSubmit();
-      }}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           disabled={isDisabled}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={handleInput}
         />
       </form>
     </header>
