@@ -207,7 +207,6 @@ export const App: React.FC = () => {
       {errorMessage && (
         <Notification errorMessage={errorMessage} />
       )}
-
     </div>
   );
 };
