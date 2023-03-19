@@ -35,9 +35,6 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(() => {
     return (todos.filter((todo) => {
       switch (filterBy) {
-        case SortType.ALL:
-          return todo;
-
         case SortType.ACTIVE:
           return !todo.completed;
 
@@ -45,7 +42,7 @@ export const App: React.FC = () => {
           return todo.completed;
 
         default:
-          return true;
+          return todo;
       }
     })
     );
@@ -160,7 +157,9 @@ export const App: React.FC = () => {
   const clearCompleted = async () => {
     const clearCompletedTodos = todos.filter((todo) => todo.completed);
 
-    clearCompletedTodos.forEach((todo) => removeTodo(todo.id));
+    clearCompletedTodos.forEach((todo) => {
+      return Promise.all([removeTodo(todo.id)]);
+    });
   };
 
   if (!USER_ID) {
