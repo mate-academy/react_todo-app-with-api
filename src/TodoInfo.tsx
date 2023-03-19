@@ -1,6 +1,5 @@
 import classnames from 'classnames';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from './types/Todo';
 
 type Props = {
@@ -8,8 +7,7 @@ type Props = {
   onDelete: (id: number) => void,
   onStatusChange: (todo: Todo) => void,
   onTitleChange: (todo: Todo, todoTitle: string) => void,
-  loaderForHeader: boolean,
-  setLoaderForHeader: (a: boolean) => void,
+  isLoading: boolean,
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -17,27 +15,14 @@ export const TodoInfo: React.FC<Props> = ({
   onDelete,
   onStatusChange,
   onTitleChange,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loaderForHeader,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setLoaderForHeader,
+  isLoading,
 }) => {
   const { id, title, completed } = todo;
 
-  const [isBeingDeleted, setIsBeingDeleted] = useState(false);
+  // const [isBeingDeleted, setIsBeingDeleted] = useState(false);
   const [titleChanger, setTitleChanger] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const [loader, setLoader] = useState(false);
-
-  // useEffect(() => {
-  //   const test = async () => {
-  //     setLoader(true);
-  //     await onStatusChange(todo);
-  //     setLoader(false);
-  //   };
-
-  //   test();
-  // }, [loaderForHeader]);
+  const [focusDisable, setFocusDisable] = useState(false);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
@@ -52,16 +37,14 @@ export const TodoInfo: React.FC<Props> = ({
     }
   };
 
-  const handleFormSubmitAndBlur = async () => {
-    setLoader(true);
+  const handleFormSubmitAndBlur = () => {
     if (newTitle === '') {
+      setFocusDisable(true);
       onDelete(id);
     } else {
       setTitleChanger(false);
-      await onTitleChange(todo, newTitle);
+      onTitleChange(todo, newTitle);
     }
-
-    setLoader(false);
   };
 
   return (
@@ -77,7 +60,6 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
           checked={completed}
           onChange={() => {
-            // setLoaderForHeader(true);
             onStatusChange(todo);
           }}
         />
@@ -100,6 +82,7 @@ export const TodoInfo: React.FC<Props> = ({
             onChange={handleTitleChange}
             onBlur={handleFormSubmitAndBlur}
             onKeyUp={handleTitleChangesCancel}
+            disabled={focusDisable}
           />
         </form>
       ) : (
@@ -116,7 +99,6 @@ export const TodoInfo: React.FC<Props> = ({
             className="todo__remove"
             onClick={() => {
               onDelete(id);
-              setIsBeingDeleted(true);
             }}
           >
             ×
@@ -126,7 +108,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       <div className={classnames(
         'modal overlay',
-        { 'is-active': isBeingDeleted || loader },
+        { 'is-active': isLoading },
       )}
       >
         <div className="modal-background has-background-white-ter" />

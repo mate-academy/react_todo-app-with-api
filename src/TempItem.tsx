@@ -4,14 +4,13 @@ type Props = {
   tempTodo: Todo,
 };
 
-export const TodoItem: React.FC<Props> = ({ tempTodo }) => {
+export const TempItem: React.FC<Props> = ({ tempTodo }) => {
   return (
     <div className="todo">
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked
         />
       </label>
 

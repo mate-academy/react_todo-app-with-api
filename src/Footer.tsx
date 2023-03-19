@@ -8,6 +8,7 @@ type Props = {
   todoStatus: string,
   setTodoStatus: (todoStatus: FilteredBy) => void,
   onDeleteCompleted: () => void
+  todos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,8 +16,9 @@ export const Footer: React.FC<Props> = ({
   todoStatus,
   setTodoStatus,
   onDeleteCompleted,
+  todos,
 }) => {
-  const activeTodosLeft = todosToShow.filter(todo => !todo.completed);
+  const activeTodosLeft = todos.filter(todo => !todo.completed);
   const completedTodos = todosToShow.filter(todo => todo.completed);
 
   const filtersName = Object.values(FilteredBy);

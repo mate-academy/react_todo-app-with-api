@@ -1,6 +1,5 @@
-// import React, { useState } from 'react';
 import { TodoInfo } from './TodoInfo';
-import { TodoItem } from './TodoItem';
+import { TempItem } from './TempItem';
 import { Todo } from './types/Todo';
 
 type Props = {
@@ -9,8 +8,7 @@ type Props = {
   onDelete: (id: number) => void,
   onStatusChange: (todo: Todo) => void,
   onTitleChange: (todo: Todo, todoTitle: string) => void,
-  loaderForHeader: boolean,
-  setLoaderForHeader: (a: boolean) => void,
+  loadingTodos: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,8 +17,7 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onStatusChange,
   onTitleChange,
-  loaderForHeader,
-  setLoaderForHeader,
+  loadingTodos,
 }) => {
   return (
     <ul className="todoapp__main">
@@ -31,11 +28,10 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           onStatusChange={onStatusChange}
           onTitleChange={onTitleChange}
-          loaderForHeader={loaderForHeader}
-          setLoaderForHeader={setLoaderForHeader}
+          isLoading={loadingTodos.includes(todo.id)}
         />
       ))}
-      {tempTodo && <TodoItem tempTodo={tempTodo} />}
+      {tempTodo && <TempItem tempTodo={tempTodo} />}
     </ul>
   );
 };

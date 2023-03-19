@@ -8,7 +8,6 @@ type Props = {
   onAdd: () => void,
   tempTodo:Todo | null,
   onALLStatusChange: (todo: Todo[]) => void,
-  setLoaderForHeader: (a: boolean) => void
 };
 
 export const Header: React.FC<Props> = ({
@@ -18,8 +17,6 @@ export const Header: React.FC<Props> = ({
   onAdd,
   tempTodo,
   onALLStatusChange,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setLoaderForHeader,
 }) => {
   const enableToggleAllButton = () => {
     return todos.filter(todoToChange => todoToChange.completed).length;
@@ -40,7 +37,6 @@ export const Header: React.FC<Props> = ({
         )}
         aria-label="Add todo"
         onClick={() => {
-          // setLoaderForHeader(true);
           onALLStatusChange(todos);
         }}
       />

@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [todoStatus, setTodoStatus] = useState<FilteredBy>(FilteredBy.ALL);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loaderForHeader, setLoaderForHeader] = useState(false);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const todosToShow = useMemo(() => {
     return todos.filter((todo) => {
@@ -65,7 +65,7 @@ export const App: React.FC = () => {
   }
 
   const handleAddTodo = async () => {
-    if (query.length) {
+    if (query.length && query.trim() !== '') {
       const newTodo: TodoRequest = {
         userId: USER_ID,
         title: query,
@@ -89,26 +89,30 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = async (todoId: number) => {
-    await deleteTodo(todoId)
-      .then(() => {
-        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
-      })
-      .catch(() => {
-        setErrorMessage('Unable to delete a todo');
-      });
+    setLoadingTodos((prevState) => [...prevState, todoId]);
+    try {
+      await deleteTodo(todoId);
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
+    } catch {
+      setErrorMessage('Unable to delete a todo');
+    } finally {
+      setLoadingTodos(prevState => prevState.filter(id => id !== todoId));
+    }
   };
 
   const handleDeleteCompletedTodos = () => {
     const completedTodos = todosToShow.filter((todo) => todo.completed);
 
     completedTodos.forEach(async (completedTodo) => {
-      await deleteTodo(completedTodo.id)
-        .then(() => {
-          setTodos((prevTodos) => prevTodos.filter((prevTodo) => prevTodo.id !== completedTodo.id));
-        })
-        .catch(() => {
-          setErrorMessage('Unable to clear completed todos');
-        });
+      setLoadingTodos((prevState) => [...prevState, completedTodo.id]);
+      try {
+        await deleteTodo(completedTodo.id);
+        setTodos((prevTodos) => prevTodos.filter((prevTodo) => prevTodo.id !== completedTodo.id));
+      } catch {
+        setErrorMessage('Unable to clear completed todos');
+      } finally {
+        setLoadingTodos(prevState => prevState.filter(id => id !== completedTodo.id));
+      }
     });
   };
 
@@ -125,30 +129,36 @@ export const App: React.FC = () => {
       });
     };
 
-    await patchTodoStatus(selectedTodo.id, updatedStatusToServer)
-      .then(() => {
-        setTodos(updateState());
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      });
+    setLoadingTodos((prevState) => [...prevState, selectedTodo.id]);
+    try {
+      await patchTodoStatus(selectedTodo.id, updatedStatusToServer);
+      setTodos(updateState());
+    } catch {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setLoadingTodos(prevState => prevState.filter(id => id !== selectedTodo.id));
+    }
   };
 
   const handleAllTodosUpdate = async (todosFromServer: Todo[]) => {
     const areAllCompleted = todosFromServer.every((todo) => todo.completed);
 
-    const updatedTodos = await Promise.all(todosFromServer.map(async (todo) => {
-      if (todo.completed === areAllCompleted) {
-        await patchTodoStatus(todo.id, { completed: !areAllCompleted })
-          .catch(() => {
-            setErrorMessage('Unable to update all todos');
-          });
-      }
+    try {
+      const updatedTodos = await Promise.all(todosFromServer.map(async (todo) => {
+        if (todo.completed === areAllCompleted) {
+          setLoadingTodos((prevState) => [...prevState, todo.id]);
+          await patchTodoStatus(todo.id, { completed: !areAllCompleted });
+          setLoadingTodos(prevState => prevState.filter(id => id !== todo.id));
+        }
 
-      return { ...todo, completed: !areAllCompleted };
-    }));
+        return { ...todo, completed: !areAllCompleted };
+      }));
 
-    setTodos(updatedTodos);
+      setTodos(updatedTodos);
+    } catch {
+      setErrorMessage('Unable to update all todos');
+      setLoadingTodos([]);
+    }
   };
 
   const handleTitleChangesSubmit = async (
@@ -164,16 +174,17 @@ export const App: React.FC = () => {
           : todoToChange;
       });
     };
-    // console.log(selectedTodo, updatedTodoTitle)
 
     if (selectedTodo.title !== updatedTodoTitle) {
-      await patchTodoTitle(selectedTodo.id, updatedTitleToServer)
-        .then(() => {
-          setTodos(updateState());
-        })
-        .catch(() => {
-          setErrorMessage('Unable to update a todo');
-        });
+      setLoadingTodos((prevState) => [...prevState, selectedTodo.id]);
+      await patchTodoTitle(selectedTodo.id, updatedTitleToServer);
+      try {
+        setTodos(updateState());
+      } catch {
+        setErrorMessage('Unable to update a todo');
+      } finally {
+        setLoadingTodos(prevState => prevState.filter(id => id !== selectedTodo.id));
+      }
     }
   };
 
@@ -188,7 +199,6 @@ export const App: React.FC = () => {
           query={query}
           setQuery={setQuery}
           todos={todos}
-          setLoaderForHeader={setLoaderForHeader}
         />
 
         {todos.length > 0 && (
@@ -199,19 +209,19 @@ export const App: React.FC = () => {
               onDelete={handleDeleteTodo}
               onStatusChange={handleSingleTodoUpdate}
               onTitleChange={handleTitleChangesSubmit}
-              loaderForHeader={loaderForHeader}
-              setLoaderForHeader={setLoaderForHeader}
+              loadingTodos={loadingTodos}
             />
             <Footer
               onDeleteCompleted={handleDeleteCompletedTodos}
               todosToShow={todosToShow}
               todoStatus={todoStatus}
               setTodoStatus={setTodoStatus}
+              todos={todos}
             />
           </>
         )}
-        <Notifications errorMessage={errorMessage} />
       </div>
+      <Notifications errorMessage={errorMessage} />
     </div>
   );
 };
