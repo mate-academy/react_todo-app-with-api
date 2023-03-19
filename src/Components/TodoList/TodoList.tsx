@@ -14,7 +14,7 @@ type Props = {
   tempTodo: Todo | null;
   removeTodo: (id: number) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateTodo: (id: number, data: any) => Promise<void>;
+  updateTodo: (todo: Todo) => Promise<void>;
   loadingTodo: number[];
 };
 
@@ -51,7 +51,6 @@ const TodoList: React.FC<Props> = ({
         >
           <TodoInfo
             todo={tempTodo}
-            removeTodo={removeTodo}
             isNewTodo
           />
         </CSSTransition>

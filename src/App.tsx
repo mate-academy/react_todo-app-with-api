@@ -115,25 +115,24 @@ export const App: React.FC = () => {
       }).finally(() => setLoadingTodo([]));
   }, [completedTodos]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const changeTodo = useCallback(async (id: number, data: any) => {
+  const changeTodo = useCallback(async (todo: Todo) => {
     try {
-      await updateTodo(id, data);
+      await updateTodo(todo.id, todo);
 
       setTodos(currTodos => currTodos
-        .map(todo => {
-          if (todo.id !== id) {
-            return todo;
+        .map(currTodo => {
+          if (currTodo.id !== todo.id) {
+            return currTodo;
           }
 
-          return { ...todo, ...data };
+          return { ...currTodo, ...todo };
         }));
     } catch (error) {
       setErrorMessage(Errors.UPDATE);
     }
   }, []);
 
-  const changeAllTodo = useCallback(async (completed: boolean) => {
+  const changeAllTodo = useCallback((completed: boolean) => {
     const todosForUpdate = completed ? activeTodos : completedTodos;
 
     todosForUpdate.forEach(({ id }) => {
@@ -141,7 +140,7 @@ export const App: React.FC = () => {
     });
 
     const updateTodos = todosForUpdate
-      .map(todo => changeTodo(todo.id, { completed }));
+      .map(todo => changeTodo({ ...todo, completed }));
 
     Promise.all([...updateTodos])
       .then(() => {

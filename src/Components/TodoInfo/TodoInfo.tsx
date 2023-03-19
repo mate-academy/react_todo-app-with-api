@@ -11,9 +11,9 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   isNewTodo: boolean;
-  removeTodo: (id: number) => Promise<void>;
+  removeTodo?: (id: number) => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateTodo?: (id: number, data: any) => Promise<void>;
+  updateTodo?: (todo: Todo) => Promise<void>;
   loadingTodo?: number[];
 };
 
@@ -37,17 +37,19 @@ const TodoInfo: React.FC<Props> = ({
   }, [isEditTodo]);
 
   const onRemove = () => {
-    setDelTodo(true);
+    if (removeTodo) {
+      setDelTodo(true);
 
-    removeTodo(todo.id)
-      .finally(() => setDelTodo(false));
+      removeTodo(todo.id)
+        .finally(() => setDelTodo(false));
+    }
   };
 
   const onUpdateTodoStatus = () => {
     if (updateTodo) {
       setUpdateTodo(true);
 
-      updateTodo(todo.id, { completed: !todo.completed })
+      updateTodo({ ...todo, completed: !todo.completed })
         .finally(() => setUpdateTodo(false));
     }
   };
@@ -72,7 +74,7 @@ const TodoInfo: React.FC<Props> = ({
     if (updateTodo) {
       setUpdateTodo(true);
 
-      updateTodo(todo.id, { title: value })
+      updateTodo({ ...todo, title: value })
         .finally(() => {
           setUpdateTodo(false);
           setEditTodo(false);

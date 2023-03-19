@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, {
+  ChangeEvent,
   FormEvent,
   useEffect,
   useMemo,
@@ -13,7 +14,7 @@ type Props = {
   todosLength: number;
   completedTodosLength: number;
   addNewTodo: (value: string) => Promise<void>;
-  changeAllTodo: (completed: boolean) => Promise<void>;
+  changeAllTodo: (completed: boolean) => void;
 };
 
 const Header: React.FC<Props> = ({
@@ -46,6 +47,14 @@ const Header: React.FC<Props> = ({
       });
   };
 
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  const onBlur = () => {
+    setSubmitState(Submits.none);
+  };
+
   const onCheckAllTodos = useMemo(() => {
     return () => {
       if (isActiveToggleAll) {
@@ -54,7 +63,7 @@ const Header: React.FC<Props> = ({
         changeAllTodo(true);
       }
     };
-  }, [isActiveToggleAll]);
+  }, [isActiveToggleAll, changeAllTodo]);
 
   return (
     <header className="todoapp__header">
@@ -79,8 +88,8 @@ const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={value}
-          onChange={e => setValue(e.target.value)}
-          onBlur={() => setSubmitState(Submits.none)}
+          onChange={onChange}
+          onBlur={onBlur}
           disabled={submitState === Submits.pending}
         />
       </form>
