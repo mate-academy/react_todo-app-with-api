@@ -32,7 +32,6 @@ export const App: React.FC = () => {
   const isActiveFooter = !!totalTodoListLength;
   const completedTodoListLength = totalTodoListLength - activeTodoListLength;
 
-
   switch (sortType) {
     case SortType.ACTIVE:
       visibleTodoList = todosList.filter(todo => !todo.completed);
