@@ -65,6 +65,7 @@ export const TodoItem: React.FC<TodoProps> = ({
   const handleCancelEditing = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       setIsEditing(false);
+      setEditedTitle(title);
     }
   };
 
