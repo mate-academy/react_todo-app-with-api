@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Todo, Property } from '../../types';
+import { Todo, Property, KeyType } from '../../types';
 
 type Props = {
   todo: Todo,
@@ -22,7 +22,7 @@ export const TodoItem: React.FC<Props> = ({
   const [value, setValue] = useState('');
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [isEscape, setIsEscape] = useState(false);
-  const isEmpty = value === '';
+  // const isEmpty = value === '';
   const isChanged = placeHolder !== value;
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (isEmpty) {
+    if (!value) {
       removeTodo(id);
 
       return;
@@ -76,19 +76,19 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && isEmpty) {
+    if (event.key === KeyType.Enter && !value) {
       removeTodo(id);
     }
 
-    if (event.key === 'Enter' && !isChanged && !isEmpty) {
+    if (event.key === KeyType.Enter && !isChanged && value) {
       looseFocus(event);
     }
 
-    if (event.key === 'Enter' && isChanged && !isEmpty) {
+    if (event.key === KeyType.Enter && isChanged && value) {
       changeTitle(event);
     }
 
-    if (event.key === 'Escape') {
+    if (event.key === KeyType.Escape) {
       setIsEscape(true);
       looseFocus(event);
       setIsEscape(false);

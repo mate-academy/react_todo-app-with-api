@@ -1,10 +1,8 @@
 .todo {
   position: relative;
-
   display: grid;
   grid-template-columns: 45px 1fr;
   justify-items: stretch;
-
   font-size: 24px;
   line-height: 1.4em;
   border-bottom: 1px solid #ededed;
@@ -34,7 +32,6 @@
     font-size: inherit;
     border: none;
     outline: none;
-
     word-break: break-all;
     transition: color 0.4s;
 

@@ -24,7 +24,8 @@ export const App: React.FC = () => {
   const [error, setError] = useState(initialError);
   const [removedTodoId, setRemovedTodoId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [completedStatus, setCompletedStatus] = useState(false);
+  const initialStatus = todos.every(todo => todo.completed);
+  const [completedStatus, setCompletedStatus] = useState(initialStatus);
   const filteredTodos = useMemo(() => {
     return filterTodos(todos, filterType);
   }, [todos, filterType]);
