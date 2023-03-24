@@ -7,7 +7,10 @@ import React, {
   useState,
 } from 'react';
 import {
-  addTodo, deleteTodo, getTodos, updateTodo,
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
 } from './api/todos';
 import { Footer } from './components/Footer';
 import { Notification } from './components/Notification';
@@ -121,7 +124,7 @@ export const App: React.FC = () => {
       generateError(ErrorTypes.UpdateTodoError, setError);
     }
 
-    setIsUpdated(current => !current);
+    setIsUpdated(prevState => !prevState);
   };
 
   const handleToggleAll = (isAllActive: boolean) => {
@@ -143,7 +146,7 @@ export const App: React.FC = () => {
       generateError(ErrorTypes.UpdateTodoError, setError);
     }
 
-    setIsUpdated(current => !current);
+    setIsUpdated(prevState => !prevState);
   };
 
   const filteredArray = useMemo(() => {
@@ -152,9 +155,9 @@ export const App: React.FC = () => {
 
   const amountOfItemsLeft = todos.filter(({ completed }) => !completed).length;
 
-  const isAllTodosActive = amountOfItemsLeft === 0;
+  const isAllTodosActive = !amountOfItemsLeft;
 
-  const isTodosEmpty = todos.length === 0;
+  const isTodosEmpty = !todos.length;
 
   return (
     <div className="todoapp">
