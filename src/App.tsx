@@ -120,8 +120,7 @@ export const App: FC = () => {
 
   const handleDeleteCompleted = () => {
     getCompletedTodos().forEach(({ id }) => {
-      handleDeleteTodo(id)
-        .then(() => setTodos(getUnCompletedTodos()));
+      handleDeleteTodo(id).then(() => setTodos(getUnCompletedTodos()));
     });
   };
 
@@ -136,48 +135,57 @@ export const App: FC = () => {
         todoId: loadingTodoId,
       }}
     >
-      <div className="todoapp">
-        <h1 className="todoapp__title">todos</h1>
+      <div className="flex py-10 min-h-screen bg-base-200 justify-center selection:bg-primary selection:text-white">
+        <div className="card xs:max-sm:w2/3 md:w-1/2 lg:w-1/3 bg-base-100 h-3/4 shadow-xl">
+          <div className="card-body">
+            <h1 className="text-3xl font-bold text-center text-primary mb-4">
+              ToDo
+              <span className="text-secondary">{' {App}'}</span>
+            </h1>
 
-        <div className="todoapp__content">
-          <Header
-            onSubmit={handleAddTodo}
-            isInputDisabled={isLoading}
-            isAnyActiveTodos={activeTodosCount > 0}
-          />
+            <Header onSubmit={handleAddTodo} />
 
-          <TodoList todos={visibleTodos} onDelete={handleDeleteTodo} />
+            {todos.length > 0 && (
+              <TodoFilter
+                isAnyActiveTodos={activeTodosCount > 0}
+                onClearCompleted={handleDeleteCompleted}
+                filterType={filterType}
+                changeFilterType={setFilterType}
+                completedTodosCount={completedTodosCount}
+              />
+            )}
 
-          {tempTodo && <TodoItem onDelete={handleDeleteTodo} todo={tempTodo} />}
+            <div className="divider my-2">
+              {activeTodosCount > 0
+                ? `${activeTodosCount} tasks left`
+                : 'No tasks'}
+            </div>
 
-          {todos.length > 0 && (
-            <TodoFilter
-              onClearCompleted={handleDeleteCompleted}
-              filterType={filterType}
-              changeFilterType={setFilterType}
-              todosLeft={activeTodosCount}
-              completedTodosCount={completedTodosCount}
+            <TodoList todos={visibleTodos} onDelete={handleDeleteTodo} />
+
+            {tempTodo && (
+              <TodoItem onDelete={handleDeleteTodo} todo={tempTodo} />
+            )}
+          </div>
+
+          <div
+            className={classNames(
+              'notification',
+              'is-danger',
+              'is-light',
+              'has-text-weight-normal',
+              {
+                hidden: !errorMessage,
+              },
+            )}
+          >
+            <button
+              type="button"
+              className="delete"
+              onClick={() => setErrorMessage('')}
             />
-          )}
-        </div>
-
-        <div
-          className={classNames(
-            'notification',
-            'is-danger',
-            'is-light',
-            'has-text-weight-normal',
-            {
-              hidden: !errorMessage,
-            },
-          )}
-        >
-          <button
-            type="button"
-            className="delete"
-            onClick={() => setErrorMessage('')}
-          />
-          {errorMessage}
+            {errorMessage}
+          </div>
         </div>
       </div>
     </LoadingTodoContext.Provider>

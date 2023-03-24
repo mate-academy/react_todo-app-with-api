@@ -4,64 +4,72 @@ import { FilterType } from '../../enums/FilterType';
 
 type Props = {
   filterType: FilterType;
+  completedTodosCount: number;
+  isAnyActiveTodos: boolean;
   changeFilterType: (filterType: FilterType) => void;
   onClearCompleted: () => void;
-  todosLeft: number;
-  completedTodosCount: number;
 };
 
 export const TodoFilter: FC<Props> = ({
   filterType,
+  completedTodosCount,
+  isAnyActiveTodos,
   changeFilterType,
   onClearCompleted,
-  todosLeft,
-  completedTodosCount,
 }) => {
   return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">{`${todosLeft} items left`}</span>
+    <section className="flex gap-2 mt-2">
+      <button
+        type="button"
+        className="btn btn-secondary w-12 btn-sm shadow-md"
+        disabled={!isAnyActiveTodos}
+        aria-label="toggle-button"
+      >
+        <i className="fa-solid fa-check-double fa-xl" />
+      </button>
 
-      <nav className="filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: filterType === FilterType.All,
+      <nav className="btn-group shadow-md">
+        <button
+          type="button"
+          className={classNames('btn', 'btn-sm', 'btn-secondary', {
+            'btn-active': filterType === FilterType.All,
           })}
           onClick={() => changeFilterType(FilterType.All)}
         >
-          All
-        </a>
+          <a href="#/">All</a>
+        </button>
 
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: filterType === FilterType.Active,
+        <button
+          type="button"
+          className={classNames('btn', 'btn-sm', 'btn-secondary', {
+            'btn-active': filterType === FilterType.Active,
           })}
           onClick={() => changeFilterType(FilterType.Active)}
         >
-          Active
-        </a>
+          <a href="#/active">Active</a>
+        </button>
 
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: filterType === FilterType.Completed,
+        <button
+          type="button"
+          className={classNames('btn', 'btn-sm', 'btn-secondary', {
+            'btn-active': filterType === FilterType.Completed,
           })}
           onClick={() => changeFilterType(FilterType.Completed)}
         >
-          Completed
-        </a>
+          <a href="#/completed">Completed</a>
+        </button>
       </nav>
 
       {completedTodosCount > 0 && (
         <button
           type="button"
-          className="todoapp__clear-completed"
+          className="btn btn-sm btn-primary shadow-md"
+          disabled
           onClick={onClearCompleted}
         >
           Clear completed
         </button>
       )}
-    </footer>
+    </section>
   );
 };

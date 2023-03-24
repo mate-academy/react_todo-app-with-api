@@ -2,20 +2,19 @@ import {
   FC,
   useState,
   FormEvent,
+  useContext,
 } from 'react';
+import { LoadingTodoContext } from '../../LoadingTodoContext';
 
 type Props = {
   onSubmit: (title: string) => void;
-  isInputDisabled: boolean;
-  isAnyActiveTodos: boolean;
 };
 
 export const Header: FC<Props> = ({
   onSubmit,
-  isAnyActiveTodos,
-  isInputDisabled,
 }) => {
   const [title, setTitle] = useState('');
+  const { isLoading } = useContext(LoadingTodoContext);
 
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -24,22 +23,15 @@ export const Header: FC<Props> = ({
   };
 
   return (
-    <header className="todoapp__header">
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        disabled={!isAnyActiveTodos}
-        aria-label="toggle-button"
-      />
-
-      <form onSubmit={handleFormSubmit}>
+    <header className="flex gap-2">
+      <form className="flex-grow" onSubmit={handleFormSubmit}>
         <input
           type="text"
-          className="todoapp__new-todo"
+          className="input input-primary w-full max-w-full shadow-md"
           placeholder="What needs to be done?"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          disabled={isInputDisabled}
+          disabled={isLoading}
         />
       </form>
     </header>

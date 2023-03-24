@@ -9,7 +9,7 @@ type Props = {
 
 export const TodoList: FC<Props> = ({ onDelete, todos }) => {
   return (
-    <section className="">
+    <section className="flex flex-col gap-2">
       {todos.map((todo) => (
         <TodoItem todo={todo} key={todo.id} onDelete={onDelete} />
       ))}
