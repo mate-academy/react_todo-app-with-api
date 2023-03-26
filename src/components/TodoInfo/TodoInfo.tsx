@@ -6,7 +6,10 @@ type Props = {
   todo: Todo;
   removeTodo: (id: number) => void;
   idUpdating: number[];
-  handleUpdate: (id: number, data: boolean | string) => void;
+  handleUpdate: (
+    id: number,
+    data: { completed?: boolean, title?: string },
+  ) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -28,18 +31,16 @@ export const TodoInfo: React.FC<Props> = ({
     }
   }, [isTodoUpdating]);
 
-  const changeTitle = (str: string) => {
-    switch (str) {
-      case title:
-        return;
-      case '':
-        removeTodo(id);
-
-        return;
-
-      default:
-        handleUpdate(id, str);
+  const changeTitle = (str: string | undefined) => {
+    if (str === undefined || str === title) {
+      return;
     }
+
+    if (!str.trim()) {
+      removeTodo(id);
+    }
+
+    handleUpdate(id, { title: str });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -69,7 +70,7 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => handleUpdate(id, !completed)}
+          onClick={() => handleUpdate(id, { completed: !completed })}
         />
       </label>
 

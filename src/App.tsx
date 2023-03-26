@@ -58,37 +58,33 @@ export const App: React.FC = () => {
     }
   }, [todos, filterBy]);
 
-  const addTodo = (title: string) => {
+  const addTodo = async (title: string) => {
     if (!title.trim()) {
       setErrorMessage(Error.TITLE);
 
       return;
     }
 
-    const createNewTodo = async () => {
-      try {
-        setErrorMessage(Error.NONE);
+    try {
+      setErrorMessage(Error.NONE);
 
-        const newTodo = {
-          userId: USER_ID,
-          title,
-          completed: false,
-        };
+      const newTodo = {
+        userId: USER_ID,
+        title,
+        completed: false,
+      };
 
-        setActiveInput(false);
-        setTempTodo({ ...newTodo, id: 0 });
-        const createdTodo = await createTodo(USER_ID, newTodo);
+      setActiveInput(false);
+      setTempTodo({ ...newTodo, id: 0 });
+      const createdTodo = await createTodo(USER_ID, newTodo);
 
-        setTodos(prevTodos => [...prevTodos, createdTodo]);
-      } catch (error) {
-        setErrorMessage(Error.ADD);
-      } finally {
-        setTempTodo(null);
-        setActiveInput(true);
-      }
-    };
-
-    createNewTodo();
+      setTodos(prevTodos => [...prevTodos, createdTodo]);
+    } catch (error) {
+      setErrorMessage(Error.ADD);
+    } finally {
+      setTempTodo(null);
+      setActiveInput(true);
+    }
   };
 
   const removeTodo = async (id: number) => {
@@ -114,25 +110,24 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleUpdate = async (id: number, data: string | boolean) => {
+  const handleUpdate = async (
+    id: number,
+    data: { completed?: boolean, title?: string },
+  ) => {
     try {
       setErrorMessage(Error.NONE);
 
       setIdUpdating(prevId => [...prevId, id]);
-      if (typeof data === 'boolean') {
-        await updateTodo(USER_ID, id, { completed: data });
-      } else {
-        await updateTodo(USER_ID, id, { title: data });
-      }
+      await updateTodo(USER_ID, id, data);
 
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id === id) {
-          const updatedTodo = typeof data === 'boolean' ? {
+          const updatedTodo = 'completed' in data ? {
             ...todo,
-            completed: data,
+            completed: data.completed,
           } : {
             ...todo,
-            title: data,
+            title: data.title,
           };
 
           return updatedTodo;
@@ -155,7 +150,7 @@ export const App: React.FC = () => {
     }
 
     toggleAllTodos.forEach(async (todo) => {
-      await handleUpdate(todo.id, !todo.completed);
+      await handleUpdate(todo.id, { completed: !todo.completed });
     });
   };
 
