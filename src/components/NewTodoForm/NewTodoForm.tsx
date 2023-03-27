@@ -2,18 +2,15 @@ import {
   FC,
   useState,
   FormEvent,
-  // useContext,
 } from 'react';
-// import { LoadingTodosContext } from '../../LoadingTodosContext';
 
 type Props = {
   isInputDisabled: boolean;
   onSubmit: (title: string) => void;
 };
 
-export const Header: FC<Props> = ({ onSubmit, isInputDisabled }) => {
+export const NewTodoForm: FC<Props> = ({ onSubmit, isInputDisabled }) => {
   const [title, setTitle] = useState('');
-  // const { isLoading } = useContext(LoadingTodosContext);
 
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();

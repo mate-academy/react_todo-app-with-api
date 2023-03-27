@@ -2,15 +2,14 @@ import {
   FC,
   useContext,
   useMemo,
-  useState,
 } from 'react';
 import classNames from 'classnames';
-import type { Todo } from '../../types/Todo';
 import { LoadingTodosContext } from '../../LoadingTodosContext';
+import type { Todo } from '../../types/Todo';
 
 type Props = {
   onDelete: (id: number) => void;
-  onUpdate: (todo: Todo) => void;
+  onUpdate: (id: number, data: Partial<Todo>) => void;
   todo: Todo;
 };
 
@@ -23,26 +22,19 @@ export const TodoItem: FC<Props> = ({
     id,
     title,
     completed,
-    userId,
   } = todo;
-  const [isCompleted, setIsCompleted] = useState(completed);
 
-  const { isLoading, loadingTodosIds } = useContext(LoadingTodosContext);
+  const { loadingTodosIds } = useContext(LoadingTodosContext);
 
   const isCurrentLoading = useMemo(
-    () => isLoading && loadingTodosIds.includes(id),
-    [isLoading, loadingTodosIds],
+    () => loadingTodosIds.includes(id),
+    [loadingTodosIds],
   );
 
   const handleTodoChange = () => {
-    onUpdate({
-      id,
-      title,
-      completed: !isCompleted,
-      userId,
+    onUpdate(id, {
+      completed: !completed,
     });
-
-    setIsCompleted((prev) => !prev);
   };
 
   return (
@@ -57,7 +49,7 @@ export const TodoItem: FC<Props> = ({
         'shadow-md',
         'relative',
         {
-          'border-primary completed': isCompleted,
+          'border-primary completed': completed,
           'opacity-50': isCurrentLoading,
         },
       )}
@@ -66,7 +58,7 @@ export const TodoItem: FC<Props> = ({
         <input
           type="checkbox"
           className="checkbox checkbox-primary"
-          checked={isCompleted}
+          checked={completed}
           onChange={handleTodoChange}
         />
       </label>
@@ -95,7 +87,7 @@ export const TodoItem: FC<Props> = ({
 
         <span
           className={classNames('grow', 'truncate', {
-            'line-through': isCompleted,
+            'line-through': completed,
           })}
         >
           {title}

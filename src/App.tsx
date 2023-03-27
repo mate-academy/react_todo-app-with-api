@@ -6,13 +6,11 @@ import {
   useState,
 } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-
 import { LoadingTodosContext } from './LoadingTodosContext';
-
 import { UserWarning } from './UserWarning';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList/TodoList';
-import { Header } from './components/Header';
+import { NewTodoForm } from './components/NewTodoForm';
 import { TodoItem } from './components/TodoItem';
 import {
   getTodos,
@@ -20,10 +18,8 @@ import {
   deleteTodo,
   updateTodo,
 } from './api/todos';
-
 import type { Todo } from './types/Todo';
 import { FilterType } from './enums/FilterType';
-import { getFilteredTodos } from './utils/getFilteredTodos';
 
 enum NotificationType {
   Success = 'success',
@@ -71,22 +67,23 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterType, setFilterType] = useState(FilterType.All);
-  const [isLoading, setIsLoading] = useState(false);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const getCompletedTodos = () => todos.filter(({ completed }) => completed);
   const getUnCompletedTodos = () => todos.filter(({ completed }) => !completed);
-  const stopLoadings = () => {
-    setIsLoading(false);
-    setLoadingTodosIds([]);
-  };
+
+  const [activeTodosCount, completedTodosCount] = useMemo(
+    () => [getUnCompletedTodos().length, getCompletedTodos().length],
+    [todos],
+  );
 
   useEffect(() => {
     notify('Loading todos...', NotificationType.Loading);
 
     getTodos(USER_ID)
       .then((fetchedTodos) => {
+        window.console.log(fetchedTodos);
         setTodos(fetchedTodos);
         notify('Successfully loaded todos!', NotificationType.Success);
       })
@@ -95,14 +92,11 @@ export const App: FC = () => {
       });
   }, []);
 
-  const handleAddTodo = (title: string) => {
-    setIsLoading(true);
+  const handleAddTodo = async (title: string) => {
     setIsInputDisabled(true);
     notify('Adding new todo...', NotificationType.Loading);
 
     if (!title.length) {
-      setIsLoading(false);
-      setIsInputDisabled(false);
       notify("Title can't be empty!", NotificationType.Error);
     } else {
       const newTodo = {
@@ -115,74 +109,96 @@ export const App: FC = () => {
       setTempTodo(newTodo);
       setLoadingTodosIds((prev: number[]) => [...prev, newTodo.id]);
 
-      postTodo(USER_ID, newTodo)
-        .then((todo) => {
-          setTodos((prevTodos) => {
-            notify('Successfully added new todo!', NotificationType.Success);
+      try {
+        const postedTodo = await postTodo(newTodo);
 
-            return [...prevTodos, todo];
-          });
-        })
-        .catch(() => {
-          notify('Unable to add a todo!', NotificationType.Error);
-        })
-        .finally(() => {
-          setTempTodo(null);
-          stopLoadings();
-          setIsInputDisabled(false);
+        setTodos((prevTodos) => {
+          notify('Successfully added new todo!', NotificationType.Success);
+
+          return [...prevTodos, postedTodo];
         });
+      } catch {
+        notify('Unable to add a todo!', NotificationType.Error);
+      } finally {
+        setTempTodo(null);
+        setLoadingTodosIds([]);
+      }
     }
+
+    setIsInputDisabled(false);
+
+    // if (!title.length) {
+    //   setIsInputDisabled(false);
+    //   notify("Title can't be empty!", NotificationType.Error);
+    // } else {
+    //   const newTodo = {
+    //     id: 0,
+    //     userId: USER_ID,
+    //     completed: false,
+    //     title,
+    //   };
+
+    //   setTempTodo(newTodo);
+    //   setLoadingTodosIds((prev: number[]) => [...prev, newTodo.id]);
+
+    //   postTodo(newTodo)
+    //     .then((todo) => {
+    //       setTodos((prevTodos) => {
+    //         notify('Successfully added new todo!', NotificationType.Success);
+
+    //         return [...prevTodos, todo];
+    //       });
+    //     })
+    //     .catch(() => {
+    //       notify('Unable to add a todo!', NotificationType.Error);
+    //     })
+    //     .finally(() => {
+    //       setTempTodo(null);
+    //       setLoadingTodosIds([]);
+    //       setIsInputDisabled(false);
+    //     });
+    // }
   };
 
-  const handleUpdateTodo = useCallback(
-    (todo: Todo) => {
-      setIsLoading(true);
-      setLoadingTodosIds((prev: number[]) => [...prev, todo.id]);
-
-      return updateTodo(USER_ID, todo)
-        .then((updatedTodo) => {
-          setTodos((prev) => prev.map(prevTodo => {
-            if (prevTodo.id === updatedTodo.id) {
-              return {
-                ...prevTodo,
-                ...updatedTodo,
-              };
-            }
-
-            return prevTodo;
-          }));
-        })
-        .catch(() => {
-          notify('Unable to update a todo!', NotificationType.Error);
-        })
-        .finally(() => {
-          stopLoadings();
-        });
-    },
-    [updateTodo],
-  );
-
   const handleDeleteTodo = useCallback(
-    (id: number) => {
-      setIsLoading(true);
+    async (id: number) => {
       setLoadingTodosIds((prev: number[]) => [...prev, id]);
       notify('Deleting todo...', NotificationType.Loading);
 
-      return deleteTodo(id)
-        .then(() => {
-          setTodos((prevTodos) => {
-            notify('Successfully deleted a todo!', NotificationType.Success);
+      try {
+        const deletedTodo = await deleteTodo(id);
 
-            return prevTodos.filter((todo) => todo.id !== id);
-          });
-        })
-        .catch(() => {
-          notify('Unable to delete a todo!', NotificationType.Error);
-        })
-        .finally(() => {
-          setTempTodo(null);
-          stopLoadings();
+        setTodos((prevTodos) => {
+          notify('Successfully deleted a todo!', NotificationType.Success);
+
+          return prevTodos.filter((todo) => todo.id !== id);
         });
+
+        return deletedTodo;
+      } catch (error) {
+        notify('Unable to delete a todo!', NotificationType.Error);
+      } finally {
+        setTempTodo(null);
+        setLoadingTodosIds([]);
+      }
+
+      return null;
+
+      // return deleteTodo(id)
+      //   .then(() => {
+      //     setTodos((prevTodos) => {
+      //       notify('Successfully deleted a todo!', NotificationType.Success);
+
+      //       return prevTodos.filter((todo) => todo.id !== id);
+      //     });
+      //   })
+      //   .catch(() => {
+      //     notify('Unable to delete a todo!', NotificationType.Error);
+      //   })
+      //   .finally(() => {
+      //     setTempTodo(null);
+      //     setLoadingTodosIds([]);
+      //   });
     },
     [deleteTodo],
   );
@@ -193,14 +209,42 @@ export const App: FC = () => {
     });
   };
 
-  const [activeTodosCount, completedTodosCount] = useMemo(
-    () => [getUnCompletedTodos().length, getCompletedTodos().length],
-    [todos],
-  );
+  const handleUpdateTodo = async (id: number, data: Partial<Todo>) => {
+    setLoadingTodosIds((prev) => [...prev, id]);
 
-  const visibleTodos = useMemo(() => {
-    return getFilteredTodos(todos, filterType);
-  }, [todos, filterType]);
+    try {
+      const updatedTodo = await updateTodo(id, data);
+
+      setTodos((prev) => prev.map((prevTodo) => {
+        if (prevTodo.id === updatedTodo.id) {
+          return {
+            ...prevTodo,
+            ...updatedTodo,
+          };
+        }
+
+        return prevTodo;
+      }));
+    } catch {
+      notify('Unable to update a todo!', NotificationType.Error);
+    } finally {
+      setLoadingTodosIds([]);
+    }
+  };
+
+  const handleToggleAll = () => {
+    const areAllCompleted = todos.every(({ completed }) => completed === true);
+
+    if (areAllCompleted) {
+      todos.forEach((todo) => {
+        handleUpdateTodo(todo.id, { completed: false });
+      });
+    } else {
+      getUnCompletedTodos().forEach((todo) => {
+        handleUpdateTodo(todo.id, { completed: true });
+      });
+    }
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -209,18 +253,17 @@ export const App: FC = () => {
   return (
     <LoadingTodosContext.Provider
       value={{
-        isLoading,
         loadingTodosIds,
       }}
     >
       <div
         className="
         flex pt-20 min-h-screen bg-base-200 justify-center
-        selection:bg-primary selection:text-white"
+        selection:bg-primary selection:text-white max-md:px-4"
       >
         <div
-          className="card xs:max-sm:w2/3 md:w-1/2
-          lg:w-1/3 bg-base-100 h-3/4 shadow-xl"
+          className="card xs:max-sm:w2/3 md:w-1/2 h-3/4
+          lg:w-1/2 xl:w-1/3 2xl:w-1/4 bg-base-100 shadow-xl"
         >
           <div className="card-body">
             <h1 className="text-3xl font-bold text-center text-primary mb-4">
@@ -228,18 +271,19 @@ export const App: FC = () => {
               <span className="text-secondary">{' {App}'}</span>
             </h1>
 
-            <Header
+            <NewTodoForm
               isInputDisabled={isInputDisabled}
               onSubmit={handleAddTodo}
             />
 
             {todos.length > 0 && (
               <TodoFilter
+                currentFilterType={filterType}
                 isAnyActiveTodos={activeTodosCount > 0}
-                onClearCompleted={handleDeleteCompleted}
-                filterType={filterType}
-                changeFilterType={setFilterType}
                 isAnyCompletedTodos={completedTodosCount > 0}
+                onClearCompleted={handleDeleteCompleted}
+                changeFilterType={setFilterType}
+                onToggleAllTodos={handleToggleAll}
               />
             )}
 
@@ -250,7 +294,8 @@ export const App: FC = () => {
             </div>
 
             <TodoList
-              todos={visibleTodos}
+              todos={todos}
+              filterType={filterType}
               onDelete={handleDeleteTodo}
               onUpdate={handleUpdateTodo}
             />

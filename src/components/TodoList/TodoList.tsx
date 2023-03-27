@@ -1,21 +1,30 @@
 import { FC } from 'react';
-import type { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { FilterType } from '../../enums/FilterType';
+import { getFilteredTodos } from '../../utils/getFilteredTodos';
+import type { Todo } from '../../types/Todo';
 
 type Props = {
   onDelete: (id: number) => void;
-  onUpdate: (todo: Todo) => void;
+  onUpdate: (id: number, data: Partial<Todo>) => void;
   todos: Todo[];
+  filterType: FilterType;
 };
 
 export const TodoList: FC<Props> = ({
+  todos,
+  filterType,
   onDelete,
   onUpdate,
-  todos,
 }) => {
+  // window.console.log('List rendered!');
+  // window.console.table(todos);
+
+  const visibleTodos = getFilteredTodos(todos, filterType);
+
   return (
     <section className="flex flex-col gap-2">
-      {todos.map((todo) => (
+      {visibleTodos.map((todo) => (
         <TodoItem
           todo={todo}
           key={todo.id}
