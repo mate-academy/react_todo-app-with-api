@@ -4,7 +4,7 @@ import { FilterType } from '../../enums/FilterType';
 
 type Props = {
   filterType: FilterType;
-  completedTodosCount: number;
+  isAnyCompletedTodos: boolean;
   isAnyActiveTodos: boolean;
   changeFilterType: (filterType: FilterType) => void;
   onClearCompleted: () => void;
@@ -12,7 +12,7 @@ type Props = {
 
 export const TodoFilter: FC<Props> = ({
   filterType,
-  completedTodosCount,
+  isAnyCompletedTodos,
   isAnyActiveTodos,
   changeFilterType,
   onClearCompleted,
@@ -83,7 +83,7 @@ export const TodoFilter: FC<Props> = ({
         <button
           type="button"
           className="btn btn-sm btn-primary shadow-md grow"
-          disabled={completedTodosCount < 1}
+          disabled={!isAnyCompletedTodos}
           onClick={onClearCompleted}
         >
           Clear completed

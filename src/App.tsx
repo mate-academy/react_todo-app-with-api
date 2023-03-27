@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   FC,
   useCallback,
@@ -9,16 +7,21 @@ import {
 } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
+import { LoadingTodosContext } from './LoadingTodosContext';
+
 import { UserWarning } from './UserWarning';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList/TodoList';
 import { Header } from './components/Header';
 import { TodoItem } from './components/TodoItem';
+import {
+  getTodos,
+  postTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
+
 import type { Todo } from './types/Todo';
-
-import { LoadingTodosContext } from './LoadingTodosContext';
-
-import { deleteTodo, getTodos, postTodo } from './api/todos';
 import { FilterType } from './enums/FilterType';
 import { getFilteredTodos } from './utils/getFilteredTodos';
 
@@ -69,6 +72,7 @@ export const App: FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterType, setFilterType] = useState(FilterType.All);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const getCompletedTodos = () => todos.filter(({ completed }) => completed);
@@ -91,21 +95,14 @@ export const App: FC = () => {
       });
   }, []);
 
-  const [activeTodosCount, completedTodosCount] = useMemo(
-    () => [getUnCompletedTodos().length, getCompletedTodos().length],
-    [todos],
-  );
-
-  const visibleTodos = useMemo(() => {
-    return getFilteredTodos(todos, filterType);
-  }, [todos, filterType]);
-
   const handleAddTodo = (title: string) => {
     setIsLoading(true);
+    setIsInputDisabled(true);
     notify('Adding new todo...', NotificationType.Loading);
 
     if (!title.length) {
       setIsLoading(false);
+      setIsInputDisabled(false);
       notify("Title can't be empty!", NotificationType.Error);
     } else {
       const newTodo = {
@@ -132,9 +129,38 @@ export const App: FC = () => {
         .finally(() => {
           setTempTodo(null);
           stopLoadings();
+          setIsInputDisabled(false);
         });
     }
   };
+
+  const handleUpdateTodo = useCallback(
+    (todo: Todo) => {
+      setIsLoading(true);
+      setLoadingTodosIds((prev: number[]) => [...prev, todo.id]);
+
+      return updateTodo(USER_ID, todo)
+        .then((updatedTodo) => {
+          setTodos((prev) => prev.map(prevTodo => {
+            if (prevTodo.id === updatedTodo.id) {
+              return {
+                ...prevTodo,
+                ...updatedTodo,
+              };
+            }
+
+            return prevTodo;
+          }));
+        })
+        .catch(() => {
+          notify('Unable to update a todo!', NotificationType.Error);
+        })
+        .finally(() => {
+          stopLoadings();
+        });
+    },
+    [updateTodo],
+  );
 
   const handleDeleteTodo = useCallback(
     (id: number) => {
@@ -167,6 +193,15 @@ export const App: FC = () => {
     });
   };
 
+  const [activeTodosCount, completedTodosCount] = useMemo(
+    () => [getUnCompletedTodos().length, getCompletedTodos().length],
+    [todos],
+  );
+
+  const visibleTodos = useMemo(() => {
+    return getFilteredTodos(todos, filterType);
+  }, [todos, filterType]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -178,15 +213,25 @@ export const App: FC = () => {
         loadingTodosIds,
       }}
     >
-      <div className="flex pt-20 min-h-screen bg-base-200 justify-center selection:bg-primary selection:text-white">
-        <div className="card xs:max-sm:w2/3 md:w-1/2 lg:w-1/3 bg-base-100 h-3/4 shadow-xl">
+      <div
+        className="
+        flex pt-20 min-h-screen bg-base-200 justify-center
+        selection:bg-primary selection:text-white"
+      >
+        <div
+          className="card xs:max-sm:w2/3 md:w-1/2
+          lg:w-1/3 bg-base-100 h-3/4 shadow-xl"
+        >
           <div className="card-body">
             <h1 className="text-3xl font-bold text-center text-primary mb-4">
               ToDo
               <span className="text-secondary">{' {App}'}</span>
             </h1>
 
-            <Header onSubmit={handleAddTodo} />
+            <Header
+              isInputDisabled={isInputDisabled}
+              onSubmit={handleAddTodo}
+            />
 
             {todos.length > 0 && (
               <TodoFilter
@@ -194,7 +239,7 @@ export const App: FC = () => {
                 onClearCompleted={handleDeleteCompleted}
                 filterType={filterType}
                 changeFilterType={setFilterType}
-                completedTodosCount={completedTodosCount}
+                isAnyCompletedTodos={completedTodosCount > 0}
               />
             )}
 
@@ -204,10 +249,18 @@ export const App: FC = () => {
                 : 'No tasks'}
             </div>
 
-            <TodoList todos={visibleTodos} onDelete={handleDeleteTodo} />
+            <TodoList
+              todos={visibleTodos}
+              onDelete={handleDeleteTodo}
+              onUpdate={handleUpdateTodo}
+            />
 
             {tempTodo && (
-              <TodoItem onDelete={handleDeleteTodo} todo={tempTodo} />
+              <TodoItem
+                onDelete={handleDeleteTodo}
+                todo={tempTodo}
+                onUpdate={handleUpdateTodo}
+              />
             )}
           </div>
 

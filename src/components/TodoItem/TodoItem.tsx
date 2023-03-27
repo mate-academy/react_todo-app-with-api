@@ -5,17 +5,28 @@ import {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import type { Todo as TodoType } from '../../types/Todo';
+import type { Todo } from '../../types/Todo';
 import { LoadingTodosContext } from '../../LoadingTodosContext';
 
 type Props = {
   onDelete: (id: number) => void;
-  todo: TodoType;
+  onUpdate: (todo: Todo) => void;
+  todo: Todo;
 };
 
-export const TodoItem: FC<Props> = ({ todo, onDelete }) => {
-  const { id, title, completed } = todo;
+export const TodoItem: FC<Props> = ({
+  todo,
+  onDelete,
+  onUpdate,
+}) => {
+  const {
+    id,
+    title,
+    completed,
+    userId,
+  } = todo;
   const [isCompleted, setIsCompleted] = useState(completed);
+
   const { isLoading, loadingTodosIds } = useContext(LoadingTodosContext);
 
   const isCurrentLoading = useMemo(
@@ -23,7 +34,14 @@ export const TodoItem: FC<Props> = ({ todo, onDelete }) => {
     [isLoading, loadingTodosIds],
   );
 
-  const handleStatusChange = () => {
+  const handleTodoChange = () => {
+    onUpdate({
+      id,
+      title,
+      completed: !isCompleted,
+      userId,
+    });
+
     setIsCompleted((prev) => !prev);
   };
 
@@ -49,7 +67,7 @@ export const TodoItem: FC<Props> = ({ todo, onDelete }) => {
           type="checkbox"
           className="checkbox checkbox-primary"
           checked={isCompleted}
-          onChange={handleStatusChange}
+          onChange={handleTodoChange}
         />
       </label>
 
