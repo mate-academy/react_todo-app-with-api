@@ -83,7 +83,6 @@ export const App: FC = () => {
 
     getTodos(USER_ID)
       .then((fetchedTodos) => {
-        window.console.log(fetchedTodos);
         setTodos(fetchedTodos);
         notify('Successfully loaded todos!', NotificationType.Success);
       })
