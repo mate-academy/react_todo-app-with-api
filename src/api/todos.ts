@@ -12,3 +12,7 @@ export const postTodo = (userId: number, todo: TodoType) => {
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const updateTodo = (userId: number, todo: TodoType) => {
+  return client.patch<TodoType>(`/todos/${todo.id}?userId=${userId}`, todo);
+};
