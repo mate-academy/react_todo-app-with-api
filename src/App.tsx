@@ -271,10 +271,12 @@ export const App: FC = () => {
               <span className="text-secondary">{' {App}'}</span>
             </h1>
 
-            <NewTodoForm
-              isInputDisabled={isInputDisabled}
-              onSubmit={handleAddTodo}
-            />
+            <header className="flex gap-2">
+              <NewTodoForm
+                isInputDisabled={isInputDisabled}
+                onSubmit={handleAddTodo}
+              />
+            </header>
 
             {todos.length > 0 && (
               <TodoFilter

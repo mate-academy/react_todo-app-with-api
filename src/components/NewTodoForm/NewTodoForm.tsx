@@ -19,17 +19,16 @@ export const NewTodoForm: FC<Props> = ({ onSubmit, isInputDisabled }) => {
   };
 
   return (
-    <header className="flex gap-2">
-      <form className="flex-grow" onSubmit={handleFormSubmit}>
-        <input
-          type="text"
-          className="input input-primary w-full max-w-full shadow-md"
-          placeholder="What needs to be done?"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          disabled={isInputDisabled}
-        />
-      </form>
-    </header>
+    <form className="flex-grow" onSubmit={handleFormSubmit}>
+      <input
+        type="text"
+        className="input input-primary w-full
+          max-w-full shadow-md focus:outline-offset-0"
+        placeholder="What needs to be done?"
+        value={title}
+        onChange={(event) => setTitle(event.target.value)}
+        disabled={isInputDisabled}
+      />
+    </form>
   );
 };
