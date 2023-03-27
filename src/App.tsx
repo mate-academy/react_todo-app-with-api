@@ -94,11 +94,11 @@ export const App: FC = () => {
 
   const handleAddTodo = async (title: string) => {
     setIsInputDisabled(true);
-    notify('Adding new todo...', NotificationType.Loading);
 
     if (!title.length) {
       notify("Title can't be empty!", NotificationType.Error);
     } else {
+      notify('Adding new todo...', NotificationType.Loading);
       const newTodo = {
         id: 0,
         userId: USER_ID,
@@ -126,38 +126,6 @@ export const App: FC = () => {
     }
 
     setIsInputDisabled(false);
-
-    // if (!title.length) {
-    //   setIsInputDisabled(false);
-    //   notify("Title can't be empty!", NotificationType.Error);
-    // } else {
-    //   const newTodo = {
-    //     id: 0,
-    //     userId: USER_ID,
-    //     completed: false,
-    //     title,
-    //   };
-
-    //   setTempTodo(newTodo);
-    //   setLoadingTodosIds((prev: number[]) => [...prev, newTodo.id]);
-
-    //   postTodo(newTodo)
-    //     .then((todo) => {
-    //       setTodos((prevTodos) => {
-    //         notify('Successfully added new todo!', NotificationType.Success);
-
-    //         return [...prevTodos, todo];
-    //       });
-    //     })
-    //     .catch(() => {
-    //       notify('Unable to add a todo!', NotificationType.Error);
-    //     })
-    //     .finally(() => {
-    //       setTempTodo(null);
-    //       setLoadingTodosIds([]);
-    //       setIsInputDisabled(false);
-    //     });
-    // }
   };
 
   const handleDeleteTodo = useCallback(

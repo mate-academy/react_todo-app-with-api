@@ -17,9 +17,6 @@ export const TodoList: FC<Props> = ({
   onDelete,
   onUpdate,
 }) => {
-  // window.console.log('List rendered!');
-  // window.console.table(todos);
-
   const visibleTodos = getFilteredTodos(todos, filterType);
 
   return (
