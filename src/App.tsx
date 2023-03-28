@@ -103,7 +103,7 @@ export const App: React.FC = () => {
     setQuery('');
   };
 
-  const handleUpdate = (id: number, data: object) => {
+  const handleUpdate = (id: number, data: Partial<Todo>) => {
     setLoadingIds(state => [...state, id]);
 
     return patchTodo(id, data)

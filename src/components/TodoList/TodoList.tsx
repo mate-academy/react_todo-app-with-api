@@ -15,7 +15,7 @@ type Props = {
   onDelete: (id: number) => void;
   loadingIds: number[];
   onDeleteCompleted: () => void;
-  onUpdateTodo: (id: number, data: object) => void;
+  onUpdateTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 const getTodos = (todos: Todo[], filterMethod: FilterType): Todo[] => {

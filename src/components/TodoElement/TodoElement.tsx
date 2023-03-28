@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
   isLoading: boolean;
-  onUpdateTodo: (id: number, data: object) => void;
+  onUpdateTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoElement: React.FC<Props> = ({
