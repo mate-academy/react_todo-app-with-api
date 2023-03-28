@@ -32,7 +32,7 @@ export const Header: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (todoInput.current) {
+    if (todoInput.current && isInputActive) {
       todoInput.current.focus();
     }
   }, [isInputActive]);
