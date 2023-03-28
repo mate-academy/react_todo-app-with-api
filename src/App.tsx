@@ -90,7 +90,7 @@ export const App: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!query) {
+    if (!query.trim()) {
       setError('Tittle can not be empty');
       setTimeout(() => {
         setError('');
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    addTodo(query);
+    addTodo(query.trim());
     setQuery('');
   };
 
