@@ -150,22 +150,6 @@ export const App: FC = () => {
       }
 
       return null;
-
-      // return deleteTodo(id)
-      //   .then(() => {
-      //     setTodos((prevTodos) => {
-      //       notify('Successfully deleted a todo!', NotificationType.Success);
-
-      //       return prevTodos.filter((todo) => todo.id !== id);
-      //     });
-      //   })
-      //   .catch(() => {
-      //     notify('Unable to delete a todo!', NotificationType.Error);
-      //   })
-      //   .finally(() => {
-      //     setTempTodo(null);
-      //     setLoadingTodosIds([]);
-      //   });
     },
     [deleteTodo],
   );

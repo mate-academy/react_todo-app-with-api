@@ -23,7 +23,7 @@ export const NewTodoForm: FC<Props> = ({ onSubmit, isInputDisabled }) => {
 
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
-    onSubmit(title);
+    onSubmit(title.trim());
     setTitle('');
   };
 

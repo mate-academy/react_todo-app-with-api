@@ -65,13 +65,19 @@ export const TodoItem: FC<Props> = ({
   };
 
   const handleTitleChange = () => {
-    if (!currentTitle) {
+    const normalized = currentTitle
+      .trim()
+      .split(' ')
+      .filter(Boolean)
+      .join(' ');
+
+    if (!normalized) {
       onDelete(id);
     }
 
-    if (currentTitle !== title) {
+    if (normalized !== title) {
       onUpdate(id, {
-        title: currentTitle,
+        title: normalized,
       });
     }
 

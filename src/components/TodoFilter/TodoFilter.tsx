@@ -23,24 +23,17 @@ export const TodoFilter: FC<FilterProps> = ({
   return (
     <section className="flex gap-2 flex-wrap mt-2">
       <nav className="btn-group shadow-md grow basis-5/6 flex">
-        <FilterTypeButton
-          title="All"
-          filterType={FilterType.All}
-          isActive={currentFilterType === FilterType.All}
-          changeFilterType={changeFilterType}
-        />
-        <FilterTypeButton
-          title="Active"
-          filterType={FilterType.Active}
-          isActive={currentFilterType === FilterType.Active}
-          changeFilterType={changeFilterType}
-        />
-        <FilterTypeButton
-          title="Completed"
-          filterType={FilterType.Completed}
-          isActive={currentFilterType === FilterType.Completed}
-          changeFilterType={changeFilterType}
-        />
+        {(Object.keys(FilterType) as Array<keyof typeof FilterType>).map(
+          (key) => (
+            <FilterTypeButton
+              title={key}
+              key={key}
+              filterType={key.toLowerCase() as FilterType}
+              isActive={currentFilterType === key.toLowerCase()}
+              changeFilterType={changeFilterType}
+            />
+          ),
+        )}
       </nav>
 
       <nav className="flex gap-2 grow flex-wrap">
