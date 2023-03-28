@@ -10,7 +10,7 @@ type Props = {
   tempTodo?: Todo | null;
   onDelete: (id: number) => void;
   loadingTodosIDs: number[];
-  onUpdate: (id: number, data: object) => void;
+  onUpdate: (id: number, data: Partial<Todo>) => void;
 };
 
 export const getVisibleTodos = (
@@ -40,7 +40,7 @@ export const TodoList: FC<Props> = ({
       <section className="App__main TodoList">
         <TransitionGroup>
           {todos.map(todo => {
-            const isLoading = loadingTodosIDs.some(id => id === todo.id); // is problem here?
+            const isLoading = loadingTodosIDs.some(id => id === todo.id);
 
             return (
               <CSSTransition
