@@ -95,7 +95,7 @@ export const App: React.FC = () => {
 
   const handleUpdateTodo = useCallback(async (todo: Todo) => {
     setError(null);
-    setProcessedTodos(removeTodos => [...removeTodos, todo.id]);
+    setProcessedTodos(prevTodos => [...prevTodos, todo.id]);
 
     try {
       const updatedTodo = { ...todo, completed: !todo.completed };
@@ -113,25 +113,23 @@ export const App: React.FC = () => {
 
   const handleUpdateTitle = useCallback(
     async (todo: Todo, newTitle: string) => {
-      setProcessedTodos(removeTodos => [...removeTodos, todo.id]);
-
       try {
+        setProcessedTodos(prevTodos => [...prevTodos, todo.id]);
         const updatedTitle = { ...todo, title: newTitle };
+        const updatedTodo = await updateTodo(todo.id, updatedTitle);
 
-        await updateTodo(todo.id, updatedTitle);
+        await loadTodos();
+        setProcessedTodos(prevTodos => prevTodos
+          .filter(todoId => todoId !== updatedTodo.id));
       } catch {
         setError(ErrorTypes.UPDATE);
-      } finally {
-        setError(null);
-        await loadTodos();
-        setProcessedTodos([]);
       }
-    }, [],
+    }, [processedTodos],
   );
 
   const handleDeleteTodo = useCallback(
     async (todoId: number) => {
-      setProcessedTodos(removeTodos => [...removeTodos, todoId]);
+      setProcessedTodos(prevTodos => [...prevTodos, todoId]);
       setError(null);
 
       try {
@@ -141,7 +139,7 @@ export const App: React.FC = () => {
       } catch {
         setError(ErrorTypes.DELETE);
       } finally {
-        setProcessedTodos(removeTodo => removeTodo
+        setProcessedTodos(prevTodos => prevTodos
           .filter(id => id !== todoId));
       }
     }, [processedTodos],
@@ -187,7 +185,7 @@ export const App: React.FC = () => {
           onUpdateTitle={handleUpdateTitle}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={visibleTodos}
             filterType={filterType}

@@ -18,9 +18,7 @@ export const Notifications: React.FC<Props> = ({ setError, error }) => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      deleteError();
-    }, 3000);
+    setTimeout(deleteError, 3000);
   });
 
   return (

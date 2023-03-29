@@ -42,7 +42,6 @@ export const TodoList: React.FC<Props> = ({
 
         {tempTodo && (
           <CSSTransition
-            key={0}
             timeout={300}
             classNames="temp-item"
           >

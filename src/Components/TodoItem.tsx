@@ -31,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const [isClicked, setIsClicked] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const focusTitle = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLInputElement | null>(null);
 
   const showForm = () => {
     setIsClicked(true);
@@ -41,13 +41,12 @@ export const TodoItem: React.FC<Props> = ({
     if (event.key === 'Escape') {
       setNewTitle(title);
       setIsClicked(false);
-      event.preventDefault();
     }
   };
 
   useEffect(() => {
-    if (focusTitle.current && isClicked) {
-      focusTitle.current.focus();
+    if (titleRef.current && isClicked) {
+      titleRef.current.focus();
     }
   }, [isClicked]);
 
@@ -73,10 +72,6 @@ export const TodoItem: React.FC<Props> = ({
     handleUpdateTitle();
   };
 
-  const handleOnBlur = () => {
-    handleUpdateTitle();
-  };
-
   return (
     <div
       className={classNames(
@@ -99,9 +94,9 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            ref={focusTitle}
+            ref={titleRef}
             value={newTitle}
-            onBlur={handleOnBlur}
+            onBlur={handleUpdateTitle}
             onKeyDown={handleKeyDown}
             onChange={(event) => setNewTitle(event.target.value)}
           />
