@@ -94,25 +94,24 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = useCallback(async (todo: Todo) => {
-    setError(null);
-    setProcessedTodos(prevTodos => [...prevTodos, todo.id]);
-
+    setIsLoading(true);
     try {
+      setProcessedTodos(prevTodos => [...prevTodos, todo.id]);
       const updatedTodo = { ...todo, completed: !todo.completed };
 
       await updateTodo(todo.id, updatedTodo);
+      await loadTodos();
     } catch {
       setError(ErrorTypes.UPDATE);
     } finally {
-      setIsLoading(false);
-      setError(null);
-      await loadTodos();
       setProcessedTodos([]);
+      setIsLoading(false);
     }
   }, []);
 
   const handleUpdateTitle = useCallback(
     async (todo: Todo, newTitle: string) => {
+      setIsLoading(true);
       try {
         setProcessedTodos(prevTodos => [...prevTodos, todo.id]);
         const updatedTitle = { ...todo, title: newTitle };
@@ -123,26 +122,29 @@ export const App: React.FC = () => {
           .filter(todoId => todoId !== updatedTodo.id));
       } catch {
         setError(ErrorTypes.UPDATE);
+      } finally {
+        setProcessedTodos([]);
+        setIsLoading(false);
       }
-    }, [processedTodos],
+    }, [],
   );
 
   const handleDeleteTodo = useCallback(
     async (todoId: number) => {
-      setProcessedTodos(prevTodos => [...prevTodos, todoId]);
-      setError(null);
-
+      setIsLoading(true);
       try {
+        setProcessedTodos(prevTodos => [...prevTodos, todoId]);
         await deleteTodo(todoId);
-
-        setTodos(allTodos => allTodos.filter(todo => todo.id !== todoId));
+        await loadTodos();
+        setProcessedTodos(prevTodos => prevTodos
+          .filter(id => id !== todoId));
       } catch {
         setError(ErrorTypes.DELETE);
       } finally {
-        setProcessedTodos(prevTodos => prevTodos
-          .filter(id => id !== todoId));
+        setProcessedTodos([]);
+        setIsLoading(false);
       }
-    }, [processedTodos],
+    }, [],
   );
 
   const toggleAllTodos = () => {
