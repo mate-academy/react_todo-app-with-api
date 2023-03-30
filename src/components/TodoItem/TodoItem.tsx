@@ -1,14 +1,13 @@
 import {
   FC,
   FormEvent,
-  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { LoadingTodosContext } from '../../LoadingTodosContext';
+import { useLoadingTodosContext } from '../../contexts/useLoadingTodosContext';
 import type { Todo } from '../../types/Todo';
 
 type Props = {
@@ -27,11 +26,12 @@ export const TodoItem: FC<Props> = ({
     title,
     completed,
   } = todo;
-  const { loadingTodosIds } = useContext(LoadingTodosContext);
+  const { loadingTodosIds } = useLoadingTodosContext();
   const isCurrentLoading = useMemo(
     () => loadingTodosIds.includes(id),
     [loadingTodosIds],
   );
+
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
