@@ -1,34 +1,15 @@
-import React, { useState } from 'react';
-import classNames from 'classnames';
+import React, { useCallback } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoElement } from '../TodoElement';
-
-enum FilterType {
-  All,
-  Active,
-  Completed,
-}
+import { FilterType } from '../../types/FilterType';
 
 type Props = {
   todos: Todo[];
   tempTodo: Todo | undefined;
   onDelete: (id: number) => void;
   loadingIds: number[];
-  onDeleteCompleted: () => void;
   onUpdateTodo: (id: number, data: Partial<Todo>) => void;
-};
-
-const getTodos = (todos: Todo[], filterMethod: FilterType): Todo[] => {
-  switch (filterMethod) {
-    case FilterType.Active:
-      return todos.filter(todo => !todo.completed);
-
-    case FilterType.Completed:
-      return todos.filter(todo => todo.completed);
-
-    default:
-      return todos;
-  }
+  filterType: FilterType;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -36,16 +17,23 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   onDelete,
   loadingIds,
-  onDeleteCompleted,
   onUpdateTodo,
+  filterType,
 }) => {
-  const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
+  const getTodos = useCallback((): Todo[] => {
+    switch (filterType) {
+      case FilterType.Active:
+        return todos.filter(todo => !todo.completed);
 
-  const visibleTodos = getTodos(todos, filterType);
+      case FilterType.Completed:
+        return todos.filter(todo => todo.completed);
 
-  const remainingTodos = todos.filter(todo => !todo.completed).length;
+      default:
+        return todos;
+    }
+  }, [filterType, todos]);
 
-  const completedTodos = todos.filter(todo => todo.completed).length;
+  const visibleTodos = getTodos();
 
   return (
     <>
@@ -74,76 +62,6 @@ export const TodoList: React.FC<Props> = ({
           onUpdateTodo={() => {}}
         />
       )}
-
-      <footer className="todoapp__footer">
-        <span className="todo-count">
-          {`${remainingTodos} ${remainingTodos === 1 ? 'item' : 'items'} left`}
-        </span>
-
-        {/* Active filter should have a 'selected' class */}
-        <nav className="filter">
-          <a
-            href="#/"
-            className={classNames(
-              'filter__link',
-              {
-                selected: filterType === FilterType.All,
-              },
-            )}
-            onClick={() => {
-              if (filterType !== FilterType.All) {
-                setFilterType(FilterType.All);
-              }
-            }}
-          >
-            All
-          </a>
-
-          <a
-            href="#/active"
-            className={classNames(
-              'filter__link',
-              {
-                selected: filterType === FilterType.Active,
-              },
-            )}
-            onClick={() => {
-              if (filterType !== FilterType.Active) {
-                setFilterType(FilterType.Active);
-              }
-            }}
-          >
-            Active
-          </a>
-
-          <a
-            href="#/completed"
-            className={classNames(
-              'filter__link',
-              {
-                selected: filterType === FilterType.Completed,
-              },
-            )}
-            onClick={() => {
-              if (filterType !== FilterType.Completed) {
-                setFilterType(FilterType.Completed);
-              }
-            }}
-          >
-            Completed
-          </a>
-        </nav>
-
-        {completedTodos > 0 && (
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={onDeleteCompleted}
-          >
-            Clear completed
-          </button>
-        )}
-      </footer>
     </>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { Loader } from '../Loader';
 
 type Props = {
   todo: Todo;
@@ -17,22 +18,22 @@ export const TodoElement: React.FC<Props> = ({
 }) => {
   const { title, completed, id } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const [query, setQuery] = useState(title);
+  const [todoTitle, settodoTitle] = useState(title);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!query) {
+    if (!todoTitle) {
       onDelete(id);
     } else {
-      onUpdateTodo(id, { title: query });
+      onUpdateTodo(id, { title: todoTitle });
       setIsEditing(false);
     }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    setQuery(title);
+    settodoTitle(title);
   };
 
   const inputField = useRef<HTMLInputElement>(null);
@@ -75,8 +76,8 @@ export const TodoElement: React.FC<Props> = ({
             <input
               className="todo__title-field"
               type="text"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              value={todoTitle}
+              onChange={(event) => settodoTitle(event.target.value)}
               onBlur={handleCancel}
               ref={inputField}
             />
@@ -100,17 +101,7 @@ export const TodoElement: React.FC<Props> = ({
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
-      <div className={classNames(
-        'modal overlay',
-        {
-          'is-active': isLoading,
-        },
-      )}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      <Loader isLoading={isLoading} />
     </div>
   );
 };
