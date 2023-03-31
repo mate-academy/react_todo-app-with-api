@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { Todo } from '../TodoItem/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
@@ -9,7 +9,7 @@ interface Props {
   onChange: (id: number, property: Partial<Todo>) => void
 }
 
-export const TodoList: FC<Props> = (props) => {
+export const TodoList: FC<Props> = memo((props) => {
   const {
     todos,
     tempTodo,
@@ -38,4 +38,4 @@ export const TodoList: FC<Props> = (props) => {
       )}
     </section>
   );
-};
+});

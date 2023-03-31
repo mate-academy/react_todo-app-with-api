@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { FilterType } from '../../types/FilterType';
 import { Todo } from '../TodoItem/Todo';
 
@@ -11,7 +11,7 @@ interface Props {
   onRemoveCompleted: () => void,
 }
 
-export const Footer: FC<Props> = (props) => {
+export const Footer: FC<Props> = memo((props) => {
   const {
     filterType,
     activeTodos,
@@ -52,4 +52,4 @@ export const Footer: FC<Props> = (props) => {
       )}
     </footer>
   );
-};
+});

@@ -5,6 +5,7 @@ import {
   FormEvent,
   ChangeEvent,
   KeyboardEvent,
+  memo,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from './Todo';
@@ -16,7 +17,7 @@ interface Props {
   onChangeStatus: (id: number, property: Partial<Todo>) => void
 }
 
-export const TodoItem: FC<Props> = (props) => {
+export const TodoItem: FC<Props> = memo((props) => {
   const {
     todo,
     onDelete,
@@ -114,4 +115,4 @@ export const TodoItem: FC<Props> = (props) => {
       </div>
     </div>
   );
-};
+});

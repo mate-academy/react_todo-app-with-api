@@ -118,26 +118,12 @@ export const useApp = () => {
   const updateTodoStatus = useCallback(
     async (
       id: number,
-      completed: Partial<Todo>,
+      property: Partial<Todo>,
     ) => {
       try {
         setLoadingTodos(prevTodos => [...prevTodos, id]);
 
-        await updateTodo(id, completed);
-
-        setTodos(prevTodos => {
-          return prevTodos.map((todo) => {
-            if (todo.id === id) {
-              return {
-                ...todo,
-                completed: !completed,
-              };
-            }
-
-            return todo;
-          });
-        });
-
+        await updateTodo(id, property);
         fetchTodos();
       } catch {
         showError(ErrorType.UPDATE);

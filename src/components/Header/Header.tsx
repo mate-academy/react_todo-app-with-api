@@ -3,6 +3,7 @@ import {
   ChangeEvent,
   FC,
   FormEvent,
+  memo,
   useState,
 } from 'react';
 
@@ -13,7 +14,7 @@ interface Props {
   onUpdateAllStatus: () => void
 }
 
-export const Header: FC<Props> = (props) => {
+export const Header: FC<Props> = memo((props) => {
   const {
     onAdd,
     disabled,
@@ -57,4 +58,4 @@ export const Header: FC<Props> = (props) => {
       </form>
     </header>
   );
-};
+});

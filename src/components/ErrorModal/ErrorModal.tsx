@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { ErrorType } from '../../types/ErrorType';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 
 }
 
-export const ErrorModal: FC<Props> = (props) => {
+export const ErrorModal: FC<Props> = memo((props) => {
   const { error, onClose } = props;
 
   return (
@@ -30,4 +30,4 @@ export const ErrorModal: FC<Props> = (props) => {
     </div>
 
   );
-};
+});
