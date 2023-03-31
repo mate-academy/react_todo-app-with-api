@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Props = {
-  setFilter: (filter?: TypeFilter) => void
+  getListTodo: (filter?: TypeFilter) => void
 };
 
 export enum TypeFilter {
@@ -11,28 +11,29 @@ export enum TypeFilter {
   COMPLETED = 'completed',
 }
 
-export const Filter: React.FC<Props> = ({ setFilter }) => {
+export const Filter: React.FC<Props> = ({ getListTodo }) => {
   const [typeFilter, setTypeFilter] = useState(TypeFilter.ALL);
   const filters = Object.values(TypeFilter);
 
-  const typeFunc = (type: TypeFilter) => {
-    switch (type) {
-      case TypeFilter.ALL:
-        setTypeFilter(type);
-        setFilter(TypeFilter.ALL);
-        break;
-      case TypeFilter.ACTIVE:
-        setTypeFilter(type);
-        setFilter(TypeFilter.ACTIVE);
-        break;
-      case TypeFilter.COMPLETED:
-        setTypeFilter(type);
-        setFilter(TypeFilter.COMPLETED);
-        break;
-      default:
-        break;
+  useEffect(() => {
+    function typeFunc(type: TypeFilter) {
+      switch (type) {
+        case TypeFilter.ALL:
+          getListTodo(TypeFilter.ALL);
+          break;
+        case TypeFilter.ACTIVE:
+          getListTodo(TypeFilter.ACTIVE);
+          break;
+        case TypeFilter.COMPLETED:
+          getListTodo(TypeFilter.COMPLETED);
+          break;
+        default:
+          break;
+      }
     }
-  };
+
+    typeFunc(typeFilter);
+  }, [typeFilter]);
 
   return (
     <nav className="filter">
@@ -42,7 +43,7 @@ export const Filter: React.FC<Props> = ({ setFilter }) => {
           className={classNames('filter__link', {
             selected: typeFilter === type,
           })}
-          onClick={() => typeFunc(type)}
+          onClick={() => setTypeFilter(type)}
         >
           {`${type.slice(0, 1).toUpperCase()}${type.slice(1)}`}
         </a>

@@ -18,6 +18,7 @@ export const App: React.FC = () => {
   const [isEditing, setEditTodo] = useState(false);
   const [filterTodo, setFilterTodo] = useState(TypeFilter.ALL);
   const [selectedTodo, setSelectedTodo] = useState<Todo>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTodoClick = (todo: Todo) => {
     setSelectedTodo(todo);
@@ -27,10 +28,12 @@ export const App: React.FC = () => {
   const getListTodo = useCallback(async (filter = TypeFilter.ALL) => {
     try {
       if (filter) {
+        setIsLoading(true);
         const result = await getTodos(USER_ID, filter);
 
         setFilterTodo(filter);
         setListTodo(result);
+        setIsLoading(false);
       }
     } catch (e) {
       setError('Something were wrong, please try again later');
@@ -79,21 +82,21 @@ export const App: React.FC = () => {
     return todos.filter(todo => todo.completed);
   };
 
-  // const clearActive = (list: Todo[]) => {
-  //   return list.filter(obj => !obj.completed);
-  // };
-
   const completedTodo = clearCompleated(listTodo);
-  // const activeTodo = clearActive(listTodo);
 
-  function deleteAllTodosHandler(todos: Todo[]) {
-    const promises = todos.map((todo) => deleteTodoHandler(todo.id));
+  function deleteAllTodosHandler() {
+    const promises = completedTodo.map(
+      (todo) => deleteTodoHandler(todo.id),
+    );
 
     return Promise.all(promises);
   }
 
-  function changeAllTodosHandler(todos: Todo[]) {
-    const promises = todos.map((todo) => changeTodoCompleted(todo.id, false));
+  function changeAllTodosHandler() {
+    const promises = listTodo.map(
+      (todo) => changeTodoCompleted(todo.id,
+        completedTodo.length !== listTodo.length),
+    );
 
     return Promise.all(promises);
   }
@@ -116,12 +119,6 @@ export const App: React.FC = () => {
     setEditTodo(false);
   };
 
-  // function changeTodoTitleHandler(id: number, title: string) {
-  //   changeTodoTitle(id, title);
-
-  //   // return Promise.all(promises);
-  // }
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -138,7 +135,7 @@ export const App: React.FC = () => {
               {
                 active: listTodo.length === completedTodo.length,
               })}
-            onClick={() => changeAllTodosHandler(completedTodo)}
+            onClick={changeAllTodosHandler}
             aria-label="Get all todos done"
           />
           <form onSubmit={onSubmitHandler}>
@@ -165,6 +162,8 @@ export const App: React.FC = () => {
               selectedTodo={selectedTodo}
               handleTodoKeyPress={handleTodoKeyPress}
               handleTodoBlur={handleTodoBlur}
+              isLoading={isLoading}
+              setSelectedTodo={setSelectedTodo}
             />
           ))}
         </section>
@@ -175,7 +174,9 @@ export const App: React.FC = () => {
               <span className="todo-count">
                 {`${listTodo.length} items left`}
               </span>
-              <Filter setFilter={getListTodo} />
+              <Filter
+                getListTodo={getListTodo}
+              />
               <button
                 type="button"
                 className={classNames('todoapp__clear-completed',
@@ -183,7 +184,7 @@ export const App: React.FC = () => {
                     'todoapp__clear-completed__hidden':
                       completedTodo.length < 1,
                   })}
-                onClick={() => deleteAllTodosHandler(completedTodo)}
+                onClick={deleteAllTodosHandler}
               >
                 Clear completed
               </button>

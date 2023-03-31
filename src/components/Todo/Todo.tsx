@@ -3,26 +3,30 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todo: Todo
   deleteTodo?: (id: number) => void
   changeTodo: (id: number, completed: boolean) => void
   handleTodoClick: (todo: Todo) => void
-  isEditing: boolean
   changeTodoTitle: (id: number, title: string) => void
-  selectedTodo: Todo | undefined
   handleTodoKeyPress: (key: string, id: number, title: string) => void
   handleTodoBlur: (id: number, title: string) => void,
+  setSelectedTodo: (todo: Todo) => void
+  todo: Todo
+  isEditing: boolean
+  selectedTodo: Todo | undefined
+  isLoading: boolean
 };
 
 export const Item: React.FC<Props> = ({
-  todo,
   deleteTodo,
   changeTodo,
   handleTodoClick,
-  isEditing,
-  selectedTodo,
   handleTodoKeyPress,
   handleTodoBlur,
+  setSelectedTodo,
+  todo,
+  isEditing,
+  selectedTodo,
+  isLoading,
 }) => {
   const [inputValue, setInput] = useState(todo.title);
 
@@ -49,7 +53,9 @@ export const Item: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={handleClick}
+          onClick={() => {
+            handleClick(); setSelectedTodo(todo);
+          }}
         />
       </label>
 
@@ -81,13 +87,18 @@ export const Item: React.FC<Props> = ({
       <button
         type="button"
         className="todo__remove"
-        onClick={activeLoader}
+        onClick={() => {
+          activeLoader(); setSelectedTodo(todo);
+        }}
       >
         ×
       </button>
-
-      {/* overlay will cover the todo while it is being updated */}
-      <div className="modal overlay">
+      <div className={
+        classNames('modal overlay', {
+          'is-active': isLoading && selectedTodo === todo,
+        })
+      }
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
