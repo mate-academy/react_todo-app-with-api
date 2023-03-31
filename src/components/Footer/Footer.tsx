@@ -41,15 +41,15 @@ export const Footer: FC<Props> = memo((props) => {
         ))}
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onRemoveCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={cn('todoapp__clear-completed', {
+          'is-invisible': completedTodos.length === 0,
+        })}
+        onClick={onRemoveCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 });
