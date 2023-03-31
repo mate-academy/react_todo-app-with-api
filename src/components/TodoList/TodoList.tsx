@@ -9,7 +9,7 @@ type Props = {
   completedTodos: Todo[];
   updateTodoStatus: (isCompleted: boolean, todo: Todo) => void;
   updateTodoTitle: (title: string, todo: Todo) => void;
-  isLoading: boolean;
+  loadingTodoIds: number[];
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -19,7 +19,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   completedTodos,
   updateTodoStatus,
   updateTodoTitle,
-  isLoading,
+  loadingTodoIds,
 }) => {
   return (
     <section className="todoapp__main">
@@ -34,7 +34,7 @@ export const TodoList: React.FC<Props> = React.memo(({
             || (tempTodo?.id === todo.id)
             ? todo.id
             : null}
-          isLoading={isLoading}
+          isLoading={loadingTodoIds.includes(todo.id)}
         />
       ))}
       {tempTodo?.id === 0 && (
@@ -44,7 +44,7 @@ export const TodoList: React.FC<Props> = React.memo(({
           tempTodoId={tempTodo.id}
           updateTodoStatus={updateTodoStatus}
           updateTodoTitle={updateTodoTitle}
-          isLoading={isLoading}
+          isLoading
         />
       )}
     </section>

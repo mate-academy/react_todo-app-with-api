@@ -69,54 +69,52 @@ export const TodoItem: React.FC<Props> = React.memo(({
   };
 
   return (
-    <>
-      <div
-        className={classNames('todo', { completed })}
-        onDoubleClick={() => setIsTodoEditing(true)}
-      >
-        <label className="todo__status-label">
+    <div
+      className={classNames('todo', { completed })}
+      onDoubleClick={() => setIsTodoEditing(true)}
+    >
+      <label className="todo__status-label">
+        <input
+          type="checkbox"
+          className="todo__status"
+          checked={completed}
+          onChange={toggleStatus}
+        />
+      </label>
+
+      {isTodoEditing ? (
+        <form onSubmit={handlerSubmit}>
           <input
-            type="checkbox"
-            className="todo__status"
-            checked={completed}
-            onChange={toggleStatus}
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={inputQuery}
+            onChange={(event) => setInputQuery(event.target.value)}
+            onKeyUp={(event) => handleKeyUp(event)}
+            onBlur={handlerOnBlur}
+            // eslint-disable-next-line
+            autoFocus
           />
-        </label>
-
-        {isTodoEditing ? (
-          <form onSubmit={handlerSubmit}>
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={inputQuery}
-              onChange={(event) => setInputQuery(event.target.value)}
-              onKeyUp={(event) => handleKeyUp(event)}
-              onBlur={handlerOnBlur}
-              // eslint-disable-next-line
-              autoFocus
-            />
-          </form>
-        )
-          : (
-            <>
-              <span className="todo__title">
-                {title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                onClick={() => removeTodo(todo)}
-              >
-                x
-              </button>
-            </>
-          )}
-
-        {isLoading && (
-          <ModalOverlay isTodoUpdated={id === tempTodoId} />
+        </form>
+      )
+        : (
+          <>
+            <span className="todo__title">
+              {title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => removeTodo(todo)}
+            >
+              x
+            </button>
+          </>
         )}
-      </div>
-    </>
+
+      {isLoading && (
+        <ModalOverlay isTodoUpdated={id === tempTodoId} />
+      )}
+    </div>
   );
 });

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect,
@@ -26,7 +25,8 @@ export const App: React.FC = () => {
   const [currentError, setCurrentError] = useState('');
   const [status, setStatus] = useState<Status>(Status.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  // const [setIsLoading] = useState(false);
   const visibleTodos = todos.filter(
     todo => {
       switch (status) {
@@ -48,7 +48,7 @@ export const App: React.FC = () => {
   const getTodosFromServer = async (uri: string) => {
     try {
       setCurrentError('');
-      setIsLoading(true);
+      // setIsLoading(true);
       const data = await getTodos(uri);
 
       setTodos(data);
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
         setCurrentError(error.message);
       }
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
 
     try {
       setTempTodo({ ...data, id: 0 });
-      setIsLoading(true);
+      setLoadingTodoIds((prev: number[]) => ([...prev, 0]));
 
       const responseTodo = await addTodos(`?userId=${USER_ID}`, data);
 
@@ -83,7 +83,6 @@ export const App: React.FC = () => {
       }
     } finally {
       setTempTodo(null);
-      setIsLoading(false);
     }
   }, []);
 
@@ -91,7 +90,7 @@ export const App: React.FC = () => {
     try {
       setCurrentError('');
       setTempTodo(todo);
-      setIsLoading(true);
+      setLoadingTodoIds((prev: number[]) => ([...prev, todo.id]));
       await deleteTodos(`/${todo.id}?userId=${USER_ID}`);
       setTodos((prevTodos) => prevTodos.filter((t) => t.id !== todo.id));
     } catch (error) {
@@ -100,7 +99,9 @@ export const App: React.FC = () => {
       }
     } finally {
       setTempTodo(null);
-      setIsLoading(false);
+      setLoadingTodoIds(
+        (prevTodos) => prevTodos.filter((ID) => ID !== todo.id),
+      );
     }
   }, []);
 
@@ -119,7 +120,7 @@ export const App: React.FC = () => {
     try {
       setCurrentError('');
       setTempTodo(todo);
-      setIsLoading(true);
+      setLoadingTodoIds((prev: number[]) => ([...prev, todo.id]));
       await updateTodos(`/${todo.id}?userId=${USER_ID}`, { completed: isCompleted });
       await getTodosFromServer(`?userId=${USER_ID}`);
     } catch (error) {
@@ -128,7 +129,9 @@ export const App: React.FC = () => {
       }
     } finally {
       setTempTodo(null);
-      setIsLoading(false);
+      setLoadingTodoIds(
+        (prevTodos) => prevTodos.filter((ID) => ID !== todo.id),
+      );
     }
   }, []);
 
@@ -144,7 +147,7 @@ export const App: React.FC = () => {
     try {
       setCurrentError('');
       setTempTodo(todo);
-      setIsLoading(true);
+      setLoadingTodoIds((prev: number[]) => ([...prev, todo.id]));
       await updateTodos(`/${todo.id}?userId=${USER_ID}`, { title });
       setTodos((prevTodos) => prevTodos.map((t) => {
         if (t.id === todo.id) {
@@ -159,7 +162,9 @@ export const App: React.FC = () => {
       }
     } finally {
       setTempTodo(null);
-      setIsLoading(false);
+      setLoadingTodoIds(
+        (prevTodos) => prevTodos.filter((ID) => ID !== todo.id),
+      );
     }
   }, []);
 
@@ -198,7 +203,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               removeTodo={removeTodo}
               tempTodo={tempTodo}
-              isLoading={isLoading}
+              loadingTodoIds={loadingTodoIds}
               completedTodos={completedTodos}
               updateTodoStatus={updateTodoStatus}
               updateTodoTitle={updateTodoTitle}
