@@ -7,17 +7,21 @@ type Props = {
   filterType: FilterType,
   setFilterType: (filter: FilterType) => void,
   completedTodos: Todo[];
-  activeTodos: Todo[];
+  activeTodosLength: number;
   removeCompletedTodos: () => void,
 };
 
 export const Footer: React.FC<Props> = ({
-  activeTodos, filterType, setFilterType, completedTodos, removeCompletedTodos,
+  activeTodosLength,
+  filterType,
+  setFilterType,
+  completedTodos,
+  removeCompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodos.length} items left`}
+        {`${activeTodosLength} items left`}
       </span>
 
       <nav className="filter">
@@ -58,7 +62,6 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className={classNames('todoapp__clear-completed',

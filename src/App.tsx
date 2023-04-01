@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useState, useCallback, useEffect, useMemo,
 } from 'react';
@@ -22,10 +21,21 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([0]);
 
-  const closeError = () => setTimeout(() => setErrorText(''), 3000);
+  let timeoutId: NodeJS.Timeout;
+
+  const closeError = () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => setErrorText(''), 3000);
+  };
+
   const handleCloseButton = () => setErrorText('');
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
+
+  const activeTodos = useMemo(() => {
+    return todos.filter(todo => !todo.completed);
+  }, [todos]);
 
   const fetchTodos = useCallback(async () => {
     try {
@@ -133,7 +143,7 @@ export const App: React.FC = () => {
       let toggleTodos;
       let updatedTodos;
 
-      if (activeTodos.length !== 0) {
+      if (activeTodos.length) {
         setLoadingTodoId(activeIds);
 
         toggleTodos = activeTodos.map(active => (
@@ -179,7 +189,13 @@ export const App: React.FC = () => {
 
   const handleSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    addTodo(query);
+    if (query.trim().length) {
+      addTodo(query);
+    } else {
+      setErrorText('Title is empty');
+      closeError();
+    }
+
     setQuery('');
   };
 
@@ -205,7 +221,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
           <button
             type="button"
             className={classNames(
@@ -239,7 +254,7 @@ export const App: React.FC = () => {
         />
         {!!todos.length && (
           <Footer
-            activeTodos={activeTodos}
+            activeTodosLength={activeTodos.length}
             filterType={filterType}
             setFilterType={setFilterType}
             completedTodos={completedTodos}
