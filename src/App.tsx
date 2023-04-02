@@ -26,7 +26,6 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState<Status>(Status.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
-  // const [setIsLoading] = useState(false);
   const visibleTodos = todos.filter(
     todo => {
       switch (status) {
@@ -48,7 +47,6 @@ export const App: React.FC = () => {
   const getTodosFromServer = async (uri: string) => {
     try {
       setCurrentError('');
-      // setIsLoading(true);
       const data = await getTodos(uri);
 
       setTodos(data);
@@ -56,8 +54,6 @@ export const App: React.FC = () => {
       if (error instanceof Error) {
         setCurrentError(error.message);
       }
-    } finally {
-      // setIsLoading(false);
     }
   };
 
