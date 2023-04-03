@@ -59,7 +59,7 @@ export const Header: React.FC<Props> = React.memo(({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
-          onChange={(event) => handleInput(event)}
+          onChange={handleInput}
         />
       </form>
       {isTitleEmpty && (

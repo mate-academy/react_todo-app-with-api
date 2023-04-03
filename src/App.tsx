@@ -193,7 +193,7 @@ export const App: React.FC = () => {
           updateAllTodosStatus={updateAllTodosStatus}
           isAllTodosCompleted={isAllTodosCompleted}
         />
-        {!(todos.length === 0) && (
+        {todos.length !== 0 && (
           <>
             <TodoList
               todos={visibleTodos}

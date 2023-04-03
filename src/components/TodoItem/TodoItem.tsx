@@ -90,7 +90,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             placeholder="Empty todo will be deleted"
             value={inputQuery}
             onChange={(event) => setInputQuery(event.target.value)}
-            onKeyUp={(event) => handleKeyUp(event)}
+            onKeyUp={handleKeyUp}
             onBlur={handlerOnBlur}
             // eslint-disable-next-line
             autoFocus
