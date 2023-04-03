@@ -10,48 +10,47 @@ type Props = {
   onClear: () => void,
 };
 
+const filterLinks = [FilterType.All, FilterType.Active, FilterType.Completed];
+
 const Footer: FC<Props> = ({
   amountCompletedTodos: completedTodos,
   todosLength,
   filterType,
   setFilterType,
   onClear,
-}) => {
-  const filterTypes = [FilterType.All, FilterType.Active, FilterType.Completed];
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {completedTodos}
+      {' items left'}
+    </span>
 
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {completedTodos}
-        {' items left'}
-      </span>
+    <nav className="filter">
+      {filterLinks.map(type => (
+        <a
+          key={type}
+          href={`#/${type}`}
+          data-select={type}
+          className={classNames(
+            'filter__link',
+            { selected: filterType === type },
+          )}
+          onClick={() => setFilterType(type)}
+        >
+          {type}
+        </a>
+      ))}
+    </nav>
 
-      <nav className="filter">
-        {filterTypes.map(type => (
-          <a
-            href={`#/${type}`}
-            data-select={type}
-            className={classNames(
-              'filter__link',
-              { selected: filterType === type },
-            )}
-            onClick={() => setFilterType(type)}
-          >
-            {type}
-          </a>
-        ))}
-      </nav>
-
-      <button
-        type="button"
-        className="todoapp__clear-completed disabled"
-        onClick={onClear}
-        disabled={todosLength === completedTodos}
-      >
-        Clear completed
-      </button>
-    </footer>
-  );
-};
+    <button
+      type="button"
+      className="todoapp__clear-completed disabled"
+      onClick={onClear}
+      disabled={todosLength === completedTodos}
+    >
+      Clear completed
+    </button>
+  </footer>
+);
 
 export default Footer;
