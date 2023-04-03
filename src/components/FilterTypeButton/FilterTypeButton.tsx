@@ -29,7 +29,7 @@ export const FilterTypeButton: FC<Props> = ({
       )}
       onClick={() => changeFilterType(filterType)}
     >
-      <a href="#/">{title}</a>
+      {title}
     </button>
   );
 };
