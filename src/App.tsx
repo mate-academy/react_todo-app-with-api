@@ -13,6 +13,7 @@ import { Notification } from './components/Notification';
 import { Footer } from './components/Footer';
 import { FilterType } from './types/FilterType';
 import { Header } from './components/Header';
+import { Loader } from './components/Loader';
 
 const USER_ID = 6616;
 
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo>();
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
+  const [isLoading, setIsLoading] = useState(true);
 
   const removeError = () => {
     setError(Error.Nothing);
@@ -148,6 +150,8 @@ export const App: React.FC = () => {
         setTodos(todosFromServer);
       } catch {
         generateError(Error.Load);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -162,35 +166,39 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
-        <Header
-          onToggleAll={handleToggleAll}
-          onSubmit={handleSubmit}
-          query={query}
-          onInputChange={handleInputChange}
-          disabledInput={disabledInput}
-        />
+      {isLoading
+        ? <Loader isLoading={isLoading} />
+        : (
+          <div className="todoapp__content">
+            <Header
+              onToggleAll={handleToggleAll}
+              onSubmit={handleSubmit}
+              query={query}
+              onInputChange={handleInputChange}
+              disabledInput={disabledInput}
+            />
 
-        {todos.length > 0 && (
-          <>
-            <TodoList
-              todos={todos}
-              tempTodo={tempTodo}
-              onDelete={removeTodo}
-              loadingIds={loadingIds}
-              onUpdateTodo={handleUpdate}
-              filterType={filterType}
-            />
-            <Footer
-              remainingTodos={remainingTodos}
-              filterType={filterType}
-              setFilterType={setFilterType}
-              completedTodos={completedTodos}
-              onDeleteCompleted={removeCompleted}
-            />
-          </>
+            {todos.length > 0 && (
+              <>
+                <TodoList
+                  todos={todos}
+                  tempTodo={tempTodo}
+                  onDelete={removeTodo}
+                  loadingIds={loadingIds}
+                  onUpdateTodo={handleUpdate}
+                  filterType={filterType}
+                />
+                <Footer
+                  remainingTodos={remainingTodos}
+                  filterType={filterType}
+                  setFilterType={setFilterType}
+                  completedTodos={completedTodos}
+                  onDeleteCompleted={removeCompleted}
+                />
+              </>
+            )}
+          </div>
         )}
-      </div>
 
       <Notification error={error} onDelete={removeError} />
     </div>
