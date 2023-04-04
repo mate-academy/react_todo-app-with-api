@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   addTodo, deleteTodo, getTodos, updateTodo,
 } from './api/todos';
@@ -11,10 +11,10 @@ import { Todo } from './types/Todo';
 import { FilterOptions } from './types/FilterOptions';
 import { UserWarning } from './UserWarning';
 import { Error } from './types/Error';
-
-const USER_ID = 6133;
+import { AuthContext } from './components/Auth/AuthContext';
 
 export const App: React.FC = () => {
+  const user = useContext(AuthContext);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
@@ -29,6 +29,21 @@ export const App: React.FC = () => {
       setHideNotification(true);
     }, 3000);
   };
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    getTodos(user?.id)
+      .then(loadedTodos => {
+        setTodos(loadedTodos);
+      }).catch(() => {
+        handleError(Error.CantGet);
+      });
+  }, []);
+
+  const USER_ID = user?.id || 6133;
 
   const handleDeleteTodo = (id: number) => {
     setUpdatingTodos(current => [...current, id]);
@@ -82,15 +97,6 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(loadedTodos => {
-        setTodos(loadedTodos);
-      }).catch(() => {
-        handleError(Error.CantGet);
-      });
-  }, []);
-
-  useEffect(() => {
     if (newTodoTitle.length) {
       const todoToAdd = {
         id: 0,
@@ -138,7 +144,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="todoapp">
-      <h1 className="todoapp__title">Todos APP</h1>
+      <h1 className="todoapp__title">To-do list App</h1>
 
       <div className="todoapp__content">
         <Header
