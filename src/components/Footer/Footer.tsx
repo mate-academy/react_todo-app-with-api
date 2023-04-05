@@ -1,80 +1,57 @@
-import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import './Footer.scss';
-
-export type FilteringMethod = 'All' | 'Active' | 'Completed';
+import classNames from 'classnames';
+import { FooterFilterLink } from '../FooterFilterLink';
+import { FilteringMethod } from '../../types/FilteringStatus';
+import { CountPerStatus } from '../../utils/functions';
 
 type Props = {
-  status: FilteringMethod;
+  filterStatus: FilteringMethod;
   onStatusChange: (status: FilteringMethod) => void;
-  remainTodos: number;
+  countPerStatus: CountPerStatus;
   onClearAll: () => void;
-  completedTodos: number;
 };
 
-export const Footer: FC<Props> = ({
-  status,
+export const Footer: FC<Props> = memo(({
+  filterStatus,
   onStatusChange,
-  remainTodos,
+  countPerStatus,
   onClearAll,
-  completedTodos,
 }) => {
-  // Hide the footer if there are no todos
+  const {
+    active,
+    completed,
+  } = countPerStatus;
+
+  const itemOrItems = active === 1 ? 'item' : 'items';
 
   return (
     <footer className="Footer">
       <span className="Footer__count">
-        {`${remainTodos} ${remainTodos === 1 ? 'item' : 'items'} left`}
+        {`${active} ${itemOrItems} left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="Footer__filter">
-        <a
-          href="#/"
-          className={classNames(
-            'Footer__filter-link',
-            { selected: status === 'All' },
-          )}
-          onClick={() => onStatusChange('All')}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames(
-            'Footer__filter-link',
-            { selected: status === 'Active' },
-          )}
-          onClick={() => onStatusChange('Active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames(
-            'Footer__filter-link',
-            { selected: status === 'Completed' },
-          )}
-          onClick={() => onStatusChange('Completed')}
-        >
-          Completed
-        </a>
+        {Object.values(FilteringMethod).map(link => (
+          <FooterFilterLink
+            key={link}
+            name={link}
+            filterStatus={filterStatus}
+            onStatusChange={onStatusChange}
+          />
+        ))}
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
-        className="Footer__clear-completed"
+        className={classNames(
+          'Footer__clear-completed',
+          { 'Footer__clear-completed--invisible': completed === 0 },
+        )}
         onClick={onClearAll}
-        style={{
-          opacity: completedTodos > 0 ? 1 : 0,
-          cursor: completedTodos > 0 ? 'pointer' : 'default',
-        }}
       >
         Clear completed
       </button>
     </footer>
   );
-};
+});

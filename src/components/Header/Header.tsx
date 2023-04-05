@@ -1,5 +1,7 @@
 import classNames from 'classnames';
-import { FC, useEffect, useRef } from 'react';
+import {
+  FC, memo, useEffect, useRef,
+} from 'react';
 import './Header.scss';
 
 type Props = {
@@ -11,7 +13,7 @@ type Props = {
   handleTextFieldValue: (value: string) => void;
 };
 
-export const Header: FC<Props> = ({
+export const Header: FC<Props> = memo(({
   onSubmit,
   isDisabled,
   onUpdateAll,
@@ -29,7 +31,6 @@ export const Header: FC<Props> = ({
 
   return (
     <header className="App__header Header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className={classNames(
@@ -37,6 +38,7 @@ export const Header: FC<Props> = ({
           { active: isButtonActive },
         )}
         onClick={onUpdateAll}
+        aria-label="toggle all todos"
       />
 
       <form onSubmit={(event) => {
@@ -56,4 +58,4 @@ export const Header: FC<Props> = ({
       </form>
     </header>
   );
-};
+});

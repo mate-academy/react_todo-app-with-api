@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import './TodoList.scss';
@@ -13,22 +13,7 @@ type Props = {
   onUpdate: (id: number, data: Partial<Todo>) => void;
 };
 
-export const getVisibleTodos = (
-  todos: Todo[],
-  status: string,
-): Todo[] => {
-  if (status === 'Active') {
-    return todos.filter(todo => !todo.completed);
-  }
-
-  if (status === 'Completed') {
-    return todos.filter(todo => todo.completed);
-  }
-
-  return todos;
-};
-
-export const TodoList: FC<Props> = ({
+export const TodoList: FC<Props> = memo(({
   todos,
   tempTodo,
   onDelete,
@@ -36,45 +21,43 @@ export const TodoList: FC<Props> = ({
   onUpdate,
 }) => {
   return (
-    <>
-      <section className="App__main TodoList">
-        <TransitionGroup>
-          {todos.map(todo => {
-            const isLoading = loadingTodosIDs.some(id => id === todo.id);
+    <section className="App__main TodoList">
+      <TransitionGroup>
+        {todos.map(todo => {
+          const isLoading = loadingTodosIDs.some(id => id === todo.id);
 
-            return (
-              <CSSTransition
-                key={todo.id}
-                timeout={300}
-                classNames="TodoList__item"
-              >
-                <TodoTask
-                  todo={todo}
-                  onDelete={onDelete}
-                  isLoading={isLoading}
-                  onUpdate={onUpdate}
-                />
-              </CSSTransition>
-            );
-          })}
-
-          {tempTodo && (
+          return (
             <CSSTransition
-              key={0}
+              key={todo.id}
               timeout={300}
-              classNames="TodoList__temp-item"
+              classNames="TodoList__item"
             >
               <TodoTask
-                todo={tempTodo}
-                onDelete={emptyFunction}
-                onUpdate={emptyFunction}
-                isLoading
+                todo={todo}
+                onDelete={onDelete}
+                isLoading={isLoading}
+                onUpdate={onUpdate}
               />
             </CSSTransition>
-          )}
+          );
+        })}
 
-        </TransitionGroup>
-      </section>
-    </>
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="TodoList__temp-item"
+          >
+            <TodoTask
+              todo={tempTodo}
+              onDelete={emptyFunction}
+              onUpdate={emptyFunction}
+              isLoading
+            />
+          </CSSTransition>
+        )}
+
+      </TransitionGroup>
+    </section>
   );
-};
+});

@@ -13,6 +13,6 @@ export const removeTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const patchTodo = (id: number, data: Partial<Todo>) => {
+export const patchTodo = (id: number, data: Partial<Todo>): Promise<Todo> => {
   return client.patch(`/todos/${id}`, data);
 };

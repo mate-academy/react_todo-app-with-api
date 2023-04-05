@@ -67,5 +67,10 @@
     &:active {
       text-decoration: none;
     }
+
+    &--invisible {
+      opacity: 0;
+      cursor: default;
+    }
   }
 }

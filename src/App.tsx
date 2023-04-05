@@ -1,4 +1,7 @@
-import { FC, useEffect, useState } from 'react';
+import './App.scss';
+import {
+  FC, useCallback, useEffect, useMemo, useState,
+} from 'react';
 import {
   postTodo,
   getTodos,
@@ -7,38 +10,61 @@ import {
 } from './api/todos';
 import { Notification } from './components/Notification';
 import { ErrorMessage } from './types/ErrorMessage';
-import { TodoList, getVisibleTodos } from './components/TodoList';
+import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header';
-import { FilteringMethod, Footer } from './components/Footer';
-import './App.scss';
+import { Footer } from './components/Footer';
+import {
+  CountPerStatus,
+  getCountPerStatus,
+  getVisibleTodos,
+} from './utils/functions';
+import { FilteringMethod } from './types/FilteringStatus';
 
 const USER_ID = 6648;
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isInputDisabled, disableInput] = useState(false);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [filterStatus, setFilterStatus] = useState<FilteringMethod>('All');
+  const [filterMethod, setFilterStatus] = useState(FilteringMethod.ALL);
   const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]); // problem is here
   const [textFieldValue, setTextFieldValue] = useState('');
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(result => {
-        setTodos(result);
-      })
-      .catch(() => {
+    (async () => {
+      try {
+        const todosFromServer = await getTodos(USER_ID);
+
+        setTodos(todosFromServer);
+      } catch {
         setErrorMessage(ErrorMessage.LOAD);
+
         setTimeout(() => {
           setErrorMessage(ErrorMessage.NONE);
         }, 3000);
-      });
+      }
+    })();
   }, []);
 
-  const addTodo = () => {
-    disableInput(true);
+  const showErrorMessage = useCallback((message: ErrorMessage) => {
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage(ErrorMessage.NONE);
+    }, 3000);
+  }, []);
+
+  const setTodoLoading = useCallback((id: number) => {
+    setLoadingTodosIDs(prevState => [...prevState, id]);
+  }, []);
+
+  const unsetTodoLoading = useCallback((id: number) => {
+    setLoadingTodosIDs(prevState => prevState.filter(num => num !== id));
+  }, []);
+
+  const addTodo = useCallback(async () => {
+    setIsInputDisabled(true);
 
     const newTodo = {
       title: textFieldValue,
@@ -51,139 +77,106 @@ export const App: FC = () => {
       id: 0,
     });
 
-    postTodo(newTodo)
-      .then(result => {
-        setTodos(prev => [
-          ...prev,
-          result,
-        ]);
+    try {
+      const resultingTodo = await postTodo(newTodo);
 
-        setTextFieldValue('');
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.ADD);
-        setTimeout(() => {
-          setErrorMessage(ErrorMessage.NONE);
-        }, 3000);
-      })
-      .finally(() => {
-        disableInput(false);
-        setTempTodo(null);
-      });
-  };
+      setTodos(prev => [
+        ...prev,
+        resultingTodo,
+      ]);
+      setTextFieldValue('');
+    } catch {
+      showErrorMessage(ErrorMessage.ADD);
+    } finally {
+      setIsInputDisabled(false);
+      setTempTodo(null);
+    }
+  }, [textFieldValue]);
 
-  const deleteTodo = (id: number) => {
-    setLoadingTodosIDs(prevState => [...prevState, id]);
+  const deleteTodo = useCallback(async (id: number) => {
+    setTodoLoading(id);
 
-    return removeTodo(id)
-      .then(() => {
-        const newTodosList = todos.filter(todo => todo.id !== id);
+    try {
+      await removeTodo(id);
 
-        setTodos(newTodosList);
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.DELETE);
-        setTimeout(() => {
-          setErrorMessage(ErrorMessage.NONE);
-        }, 3000);
-      })
-      .finally(() => {
-        setLoadingTodosIDs([]);
-      });
-  };
+      const newTodosList = todos.filter(todo => todo.id !== id);
 
-  const deleteCompleted = () => {
+      setTodos(() => newTodosList);
+    } catch {
+      showErrorMessage(ErrorMessage.DELETE);
+    } finally {
+      unsetTodoLoading(id);
+    }
+  }, [todos]);
+
+  const deleteAllCompleted = useCallback(async () => {
     const completedTodos = todos.filter(todo => todo.completed);
-    const uncompletedTodos = todos.filter(todo => !todo.completed);
 
     completedTodos.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(uncompletedTodos);
-        });
+      setTodoLoading(todo.id);
     });
-  };
 
-  const updateTodo = (id: number, data: object) => { // problem is here
-    setLoadingTodosIDs(prevState => [...prevState, id]);
+    try {
+      await Promise.all(completedTodos.map(todo => removeTodo(todo.id)));
 
-    return patchTodo(id, data)
-      .then(() => {
-        setTodos((prev) => prev.map(todo => {
-          if (todo.id === id) {
-            return {
-              ...todo,
-              ...data,
-            };
-          }
+      const uncompletedTodos = todos.filter(todo => !todo.completed);
 
-          return todo;
-        }));
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.UPDATE);
-        setTimeout(() => {
-          setErrorMessage(ErrorMessage.NONE);
-        }, 3000);
-      })
-      .finally(() => {
-        setLoadingTodosIDs(prevState => prevState.filter(num => num !== id));
-        // setLoadingTodosIDs([]);
-      });
-  };
+      setTodos(uncompletedTodos);
+    } catch {
+      showErrorMessage(ErrorMessage.DELETE);
+    } finally {
+      setLoadingTodosIDs([]);
+    }
+  }, [todos]);
 
-  const updateAll = () => {
+  const updateTodo = useCallback(async (id: number, data: object) => {
+    setTodoLoading(id);
+
+    try {
+      const updatedTodo = await patchTodo(id, data);
+
+      setTodos(prev => prev.map(todo => {
+        return todo.id === id
+          ? updatedTodo
+          : todo;
+      }));
+    } catch {
+      showErrorMessage(ErrorMessage.UPDATE);
+    } finally {
+      unsetTodoLoading(id);
+    }
+  }, []);
+
+  const updateAll = useCallback(async () => {
     const isAllDone = todos.every(todo => todo.completed);
+    const newStatus = { completed: !isAllDone };
 
-    if (isAllDone) {
-      setLoadingTodosIDs(todos.map(todo => todo.id));
+    const todosToUpdate = todos.filter(todo => (
+      todo.completed !== newStatus.completed));
 
-      const disabledTodos = todos.map(todo => (
-        { ...todo, completed: false }
-      ));
+    await Promise.all(todosToUpdate.map((todo) => (
+      updateTodo(todo.id, newStatus))));
+  }, [todos]);
 
-      todos.forEach(todo => {
-        updateTodo(todo.id, { completed: false })
-          .then(() => {
-            setTodos(disabledTodos);
-          });
-      });
-    } else {
-      const doneTodos = todos.map(todo => (
-        { ...todo, completed: true }
-      ));
-
-      const notDoneTodos = todos.filter(todo => !todo.completed);
-
-      notDoneTodos.forEach(todo => {
-        updateTodo(todo.id, { completed: false })
-          .then(() => {
-            setTodos(doneTodos);
-          });
-      });
-    }
-  };
-
-  const handletextFieldValue = (value: string) => {
+  const handleTextFieldValue = useCallback((value: string) => {
     setTextFieldValue(value);
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!textFieldValue) {
-      setErrorMessage(ErrorMessage.EMPTY_TITLE);
-      setTimeout(() => {
-        setErrorMessage(ErrorMessage.NONE);
-      }, 3000);
-
-      return;
+      showErrorMessage(ErrorMessage.EMPTY_TITLE);
+    } else {
+      addTodo();
     }
+  }, [textFieldValue]);
 
-    addTodo();
-  };
+  const visibleTodos = useMemo(() => {
+    return getVisibleTodos(todos, filterMethod);
+  }, [todos, filterMethod]);
 
-  const visibleTodos = getVisibleTodos(todos, filterStatus);
-  const completedCount = getVisibleTodos(todos, 'Completed').length;
-  const remainTodos = todos.length - completedCount;
+  const countPerStatus: CountPerStatus = useMemo(() => {
+    return getCountPerStatus(todos);
+  }, [todos]);
 
   return (
     <div className="App">
@@ -193,10 +186,10 @@ export const App: FC = () => {
         <Header
           onSubmit={handleSubmit}
           textFieldValue={textFieldValue}
-          handleTextFieldValue={handletextFieldValue}
+          handleTextFieldValue={handleTextFieldValue}
           isDisabled={isInputDisabled}
           onUpdateAll={updateAll}
-          isButtonActive={completedCount === todos.length}
+          isButtonActive={countPerStatus.completed === todos.length}
         />
 
         <TodoList
@@ -209,11 +202,10 @@ export const App: FC = () => {
 
         {todos.length > 0 && (
           <Footer
-            status={filterStatus}
+            filterStatus={filterMethod}
             onStatusChange={setFilterStatus}
-            remainTodos={remainTodos}
-            completedTodos={completedCount}
-            onClearAll={deleteCompleted}
+            countPerStatus={countPerStatus}
+            onClearAll={deleteAllCompleted}
           />
         )}
       </div>
