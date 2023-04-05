@@ -3,7 +3,7 @@ import './Footer.scss';
 import classNames from 'classnames';
 import { FooterFilterLink } from '../FooterFilterLink';
 import { FilteringMethod } from '../../types/FilteringStatus';
-import { CountPerStatus } from '../../utils/functions';
+import { CountPerStatus, getCorrectItemForm } from '../../utils/functions';
 
 type Props = {
   filterStatus: FilteringMethod;
@@ -23,7 +23,7 @@ export const Footer: FC<Props> = memo(({
     completed,
   } = countPerStatus;
 
-  const itemOrItems = active === 1 ? 'item' : 'items';
+  const itemOrItems = getCorrectItemForm('item', active);
 
   return (
     <footer className="Footer">

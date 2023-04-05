@@ -39,3 +39,9 @@ export const getCountPerStatus = (
     completed: 0,
   });
 };
+
+export const getCorrectItemForm = (name: string, length: number) => {
+  return length > 1
+    ? `${name}s`
+    : name;
+};

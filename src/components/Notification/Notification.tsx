@@ -4,8 +4,6 @@ import classNames from 'classnames';
 import { FC, useEffect, useState } from 'react';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
-export type ErrorAction = '' | 'load' | 'add' | 'delete' | 'update';
-
 type Props = {
   message: ErrorMessage;
   onClose: () => void;
@@ -15,7 +13,7 @@ export const Notification: FC<Props> = ({
   message,
   onClose,
 }) => {
-  const [error, setError] = useState('');
+  const [error, setError] = useState(ErrorMessage.EMPTY_TITLE);
 
   useEffect(() => {
     if (message) {

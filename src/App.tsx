@@ -28,9 +28,16 @@ export const App: FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterMethod, setFilterStatus] = useState(FilteringMethod.ALL);
-  const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]); // problem is here
+  const [loadingTodosIDs, setLoadingTodosIDs] = useState<number[]>([]);
   const [textFieldValue, setTextFieldValue] = useState('');
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
+
+  const showErrorMessage = useCallback((message: ErrorMessage) => {
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage(ErrorMessage.NONE);
+    }, 3000);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -39,20 +46,9 @@ export const App: FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        setErrorMessage(ErrorMessage.LOAD);
-
-        setTimeout(() => {
-          setErrorMessage(ErrorMessage.NONE);
-        }, 3000);
+        showErrorMessage(ErrorMessage.LOAD);
       }
     })();
-  }, []);
-
-  const showErrorMessage = useCallback((message: ErrorMessage) => {
-    setErrorMessage(message);
-    setTimeout(() => {
-      setErrorMessage(ErrorMessage.NONE);
-    }, 3000);
   }, []);
 
   const setTodoLoading = useCallback((id: number) => {
@@ -112,9 +108,7 @@ export const App: FC = () => {
   const deleteAllCompleted = useCallback(async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.forEach(todo => {
-      setTodoLoading(todo.id);
-    });
+    setLoadingTodosIDs(completedTodos.map(todo => todo.id));
 
     try {
       await Promise.all(completedTodos.map(todo => removeTodo(todo.id)));
@@ -129,7 +123,7 @@ export const App: FC = () => {
     }
   }, [todos]);
 
-  const updateTodo = useCallback(async (id: number, data: object) => {
+  const updateTodo = useCallback(async (id: number, data: Partial<Todo>) => {
     setTodoLoading(id);
 
     try {
