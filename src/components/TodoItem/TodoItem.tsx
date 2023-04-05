@@ -1,5 +1,6 @@
 import {
   FC,
+  memo,
   FormEvent,
   useEffect,
   useMemo,
@@ -10,13 +11,17 @@ import classNames from 'classnames';
 import { useLoadingTodosContext } from '../../contexts/useLoadingTodosContext';
 import type { Todo } from '../../types/Todo';
 
+const normalizeString = (value: string) => {
+  return value.trim().split(' ').filter(Boolean).join(' ');
+};
+
 type Props = {
   onDelete: (id: number) => void;
   onUpdate: (id: number, data: Partial<Todo>) => void;
   todo: Todo;
 };
 
-export const TodoItem: FC<Props> = ({
+export const TodoItem: FC<Props> = memo(({
   todo,
   onDelete,
   onUpdate,
@@ -65,11 +70,7 @@ export const TodoItem: FC<Props> = ({
   };
 
   const handleTitleChange = () => {
-    const normalized = currentTitle
-      .trim()
-      .split(' ')
-      .filter(Boolean)
-      .join(' ');
+    const normalized = normalizeString(currentTitle);
 
     if (!normalized) {
       onDelete(id);
@@ -179,4 +180,4 @@ export const TodoItem: FC<Props> = ({
       )}
     </div>
   );
-};
+});

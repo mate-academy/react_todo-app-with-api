@@ -5,7 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { UserWarning } from './UserWarning';
 
 import { useLoadingTodosContext } from './contexts/useLoadingTodosContext';
@@ -22,47 +22,10 @@ import {
 } from './api/todos';
 import type { Todo } from './types/Todo';
 import { FilterType } from './enums/FilterType';
-
-enum NotificationType {
-  Success = 'success',
-  Error = 'error',
-  Loading = 'Loading',
-}
+import { NotificationType } from './enums/NotificationType';
+import { notify } from './utils/notify';
 
 const USER_ID = 6712;
-
-const notify = (message: string, type: NotificationType) => {
-  const position = 'top-center';
-  const iconTheme = {
-    primary: '#FFA62B',
-    secondary: '#0F1108',
-  };
-
-  switch (type) {
-    case NotificationType.Error:
-      toast.error(message, {
-        duration: 3000,
-        position,
-        iconTheme,
-      });
-      break;
-    case NotificationType.Success:
-      toast.success(message, {
-        duration: 1000,
-        position,
-        iconTheme,
-      });
-      break;
-    case NotificationType.Loading:
-      toast.loading(message, {
-        duration: 500,
-        position,
-      });
-      break;
-    default:
-      toast(message);
-  }
-};
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -78,11 +41,6 @@ export const App: FC = () => {
   );
   const uncompletedTodos = useMemo(
     () => todos.filter(({ completed }) => !completed),
-    [todos],
-  );
-
-  const [activeTodosCount, completedTodosCount] = useMemo(
-    () => [uncompletedTodos.length, completedTodos.length],
     [todos],
   );
 
@@ -113,7 +71,7 @@ export const App: FC = () => {
     setIsInputDisabled(true);
 
     if (!title.length) {
-      notify("Title can't be empty!", NotificationType.Error);
+      notify('Title can\'t be empty!', NotificationType.Error);
     } else {
       notify('Adding new todo...', NotificationType.Loading);
       const newTodo = {
@@ -147,10 +105,10 @@ export const App: FC = () => {
   };
 
   const handleDeleteTodo = useCallback(
-    async (id: number, doNotNotify?: boolean) => {
+    async (id: number, shouldNotNotify?: boolean) => {
       addToLoadingTodoIds(id);
 
-      if (!doNotNotify) {
+      if (!shouldNotNotify) {
         notify('Deleting todo...', NotificationType.Loading);
       }
 
@@ -158,7 +116,7 @@ export const App: FC = () => {
         await deleteTodo(id);
 
         setTodos((prevTodos) => {
-          if (!doNotNotify) {
+          if (!shouldNotNotify) {
             notify('Successfully deleted a todo!', NotificationType.Success);
           }
 
@@ -262,8 +220,8 @@ export const App: FC = () => {
           {todos.length > 0 && (
             <TodoFilter
               currentFilterType={filterType}
-              isAnyActiveTodos={activeTodosCount > 0}
-              isAnyCompletedTodos={completedTodosCount > 0}
+              isAnyActiveTodos={uncompletedTodos.length > 0}
+              isAnyCompletedTodos={completedTodos.length > 0}
               onClearCompleted={handleDeleteCompleted}
               changeFilterType={setFilterType}
               onToggleAllTodos={handleToggleAll}
@@ -271,8 +229,8 @@ export const App: FC = () => {
           )}
 
           <div className="divider my-2">
-            {activeTodosCount > 0
-              ? `${activeTodosCount} tasks left`
+            {uncompletedTodos.length > 0
+              ? `${uncompletedTodos.length} tasks left`
               : 'No tasks'}
           </div>
 
