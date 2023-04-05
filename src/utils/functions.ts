@@ -26,13 +26,13 @@ export const getCountPerStatus = (
   todos: Todo[],
 ): CountPerStatus => {
   return todos.reduce((countObj, todo) => {
-    const result = todo.completed
+    const updatedCount = todo.completed
       ? { completed: countObj.completed + 1 }
       : { active: countObj.active + 1 };
 
     return {
       ...countObj,
-      ...result,
+      ...updatedCount,
     };
   }, {
     active: 0,
