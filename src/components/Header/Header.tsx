@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
+import { TodoChangeForm } from '../TodoChangeForm';
 
 type Props = {
   onToggleAll: () => void;
@@ -23,15 +24,11 @@ export const Header: React.FC<Props> = ({
       onClick={onToggleAll}
     />
 
-    <form onSubmit={onSubmit}>
-      <input
-        type="text"
-        className="todoapp__new-todo"
-        placeholder="What needs to be done?"
-        value={query}
-        onChange={onInputChange}
-        disabled={disabledInput}
-      />
-    </form>
+    <TodoChangeForm
+      onSubmit={onSubmit}
+      query={query}
+      onInputChange={onInputChange}
+      disabledInput={disabledInput}
+    />
   </header>
 );

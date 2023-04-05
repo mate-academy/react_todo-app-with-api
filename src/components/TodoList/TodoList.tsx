@@ -5,7 +5,7 @@ import { FilterType } from '../../types/FilterType';
 
 type Props = {
   todos: Todo[];
-  tempTodo: Todo | undefined;
+  tempTodo: Todo | null;
   onDelete: (id: number) => void;
   loadingIds: number[];
   onUpdateTodo: (id: number, data: Partial<Todo>) => void;

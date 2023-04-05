@@ -19,22 +19,22 @@ const USER_ID = 6616;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<Error>(Error.Nothing);
+  const [errorMessage, setErrorMessage] = useState<Error>(Error.None);
   const [query, setQuery] = useState('');
   const [disabledInput, setDisabledInput] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo>();
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [isLoading, setIsLoading] = useState(true);
 
   const removeError = () => {
-    setError(Error.Nothing);
+    setErrorMessage(Error.None);
   };
 
-  const generateError = useCallback((errorType: Error) => {
-    setError(errorType);
+  const showError = useCallback((errorType: Error) => {
+    setErrorMessage(errorType);
     setTimeout(() => {
-      setError(Error.Nothing);
+      removeError();
     }, 3000);
   }, []);
 
@@ -54,10 +54,10 @@ export const App: React.FC = () => {
 
       setTodos(state => [...state, addedTodo]);
     } catch {
-      generateError(Error.Add);
+      showError(Error.Add);
     } finally {
       setDisabledInput(false);
-      setTempTodo(undefined);
+      setTempTodo(null);
     }
   }, []);
 
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
 
       setTodos(state => state.filter(todo => todo.id !== id));
     } catch {
-      generateError(Error.Delete);
+      showError(Error.Delete);
     } finally {
       setLoadingIds(state => state.filter(el => el !== id));
     }
@@ -84,7 +84,7 @@ export const App: React.FC = () => {
           setTodos(todos.filter(task => !task.completed));
         })
         .catch(() => {
-          generateError(Error.Delete);
+          showError(Error.Delete);
         });
     });
   };
@@ -97,7 +97,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!query.trim()) {
-      generateError(Error.Title);
+      showError(Error.Title);
 
       return;
     }
@@ -120,7 +120,7 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      generateError(Error.Update);
+      showError(Error.Update);
     } finally {
       setLoadingIds(state => state.filter(el => el !== id));
     }
@@ -149,7 +149,7 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        generateError(Error.Load);
+        showError(Error.Load);
       } finally {
         setIsLoading(false);
       }
@@ -200,7 +200,7 @@ export const App: React.FC = () => {
           </div>
         )}
 
-      <Notification error={error} onDelete={removeError} />
+      <Notification error={errorMessage} onDelete={removeError} />
     </div>
   );
 };
