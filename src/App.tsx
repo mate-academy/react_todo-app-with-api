@@ -6,7 +6,9 @@ import { TodoList } from './components/TodoList/TodoList';
 import { ErrorNotification }
   from './components/ErrorNotification/ErrorNotification';
 
-import { getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  getTodos, addTodo, deleteTodo, updateStatusTodo,
+} from './api/todos';
 
 import { Todo } from './types/Todo';
 import { SortType } from './types/SortType';
@@ -22,6 +24,7 @@ export const App: React.FC = () => {
   const [isDisabledForm, setIsDisabledForm] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [tempTodos, setTempTodos] = useState<Todo[]>([]);
+  // const [todoStatus, setTodoStatus] = useState(false);
 
   let visibleTodoList = todosList;
   const copletedTodos = todosList.filter(todo => todo.completed);
@@ -43,6 +46,8 @@ export const App: React.FC = () => {
       break;
   }
 
+  // Show Error Message
+
   const showError = (value: string) => {
     setIsError(true);
     setErrorType(value);
@@ -50,6 +55,8 @@ export const App: React.FC = () => {
       setIsError(false);
     }, 3000);
   };
+
+  // Get todos from server
 
   const getTodosFromServer = async () => {
     try {
@@ -61,6 +68,12 @@ export const App: React.FC = () => {
       showError('loading error');
     }
   };
+
+  useEffect(() => {
+    getTodosFromServer();
+  }, []);
+
+  // Add new todo to server
 
   const addTodoOnServer = async () => {
     setIsDisabledForm(true);
@@ -89,6 +102,17 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!query) {
+      return showError('Title can\'t be empty');
+    }
+
+    return addTodoOnServer();
+  };
+
+  // Delete todo from server
+
   const deleteTodoFromServer = async (id:number) => {
     try {
       const selectedTodo = todosList.find(todo => todo.id === id);
@@ -106,25 +130,27 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    getTodosFromServer();
-  }, []);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!query) {
-      return showError('Title can\'t be empty');
-    }
-
-    return addTodoOnServer();
-  };
-
   const removeTodo = (id:number) => {
     deleteTodoFromServer(id);
   };
 
+  // Delete comleted todos from server
+
   const removeCompletedTodos = () => {
     copletedTodos.map(todo => deleteTodoFromServer(todo.id));
+  };
+
+  // Update todo on server
+
+  const handleStatusTodo = async (id:number, completed:boolean) => {
+    try {
+      const newStatus = !completed;
+
+      await updateStatusTodo(id, newStatus);
+      await getTodosFromServer();
+    } catch {
+      showError('unable to update status element');
+    }
   };
 
   return (
@@ -145,6 +171,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           tempTodos={tempTodos}
           removeTodo={removeTodo}
+          onHandleStatusTodo={handleStatusTodo}
         />
 
         {isActiveFooter && (

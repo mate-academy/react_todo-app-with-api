@@ -16,3 +16,8 @@ export const addTodo = (userId: number, title: string) => {
 export const deleteTodo = (todoId:number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+// eslint-disable-next-line
+export const updateStatusTodo = (todoId:number, status:boolean) => {
+  return client.patch(`/todos/${todoId}`, { completed: status });
+};

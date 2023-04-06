@@ -5,26 +5,43 @@ type Props = {
   todo: Todo,
   isLoading: boolean,
   removeTodo: (id:number) => void;
+  onHandleStatusTodo: (id:number, completed:boolean) => void;
 };
 
-export const TodoInfo: React.FC<Props> = ({ todo, isLoading, removeTodo }) => {
+export const TodoInfo: React.FC<Props> = ({
+  todo,
+  isLoading,
+  removeTodo,
+  onHandleStatusTodo,
+}) => {
   const {
     title,
     id,
+    completed,
   } = todo;
 
   return (
     <div
-      className={classNames('todo', { completed: todo.completed })}
+      data-cy="Todo"
+      className={classNames('todo', { completed })}
     >
       <label className="todo__status-label">
         <input
+          data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
+          checked={completed}
+          onChange={() => {
+            onHandleStatusTodo(id, completed);
+          }}
         />
       </label>
 
-      <span className="todo__title">{title}</span>
+      <span
+        className="todo__title"
+      >
+        {title}
+      </span>
 
       <button
         type="button"
