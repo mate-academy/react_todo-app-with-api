@@ -24,6 +24,7 @@ export const App: React.FC = () => {
   const [isDisabledForm, setIsDisabledForm] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [tempTodos, setTempTodos] = useState<Todo[]>([]);
+  const [updatingTodo, setUpdatingTodo] = useState<Todo | null>(null);
   // const [todoStatus, setTodoStatus] = useState(false);
 
   let visibleTodoList = todosList;
@@ -91,7 +92,6 @@ export const App: React.FC = () => {
       await addTodo(USER_ID, query);
       await getTodosFromServer();
 
-      setIsDisabledForm(false);
       setQuery('');
       setTempTodo(null);
     } catch {
@@ -146,10 +146,18 @@ export const App: React.FC = () => {
     try {
       const newStatus = !completed;
 
+      const processingTodo = visibleTodoList.find(todo => todo.id === id);
+
+      if (processingTodo) {
+        setUpdatingTodo(processingTodo);
+      }
+
       await updateStatusTodo(id, newStatus);
       await getTodosFromServer();
     } catch {
       showError('unable to update status element');
+    } finally {
+      setUpdatingTodo(null);
     }
   };
 
@@ -172,6 +180,7 @@ export const App: React.FC = () => {
           tempTodos={tempTodos}
           removeTodo={removeTodo}
           onHandleStatusTodo={handleStatusTodo}
+          updatingTodo={updatingTodo}
         />
 
         {isActiveFooter && (

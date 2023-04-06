@@ -14,6 +14,7 @@ type Props = {
   tempTodos: Todo[],
   removeTodo: (id:number) => void;
   onHandleStatusTodo: (id:number, completed:boolean) => void;
+  updatingTodo: Todo | null,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodos,
   removeTodo,
   onHandleStatusTodo,
+  updatingTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -35,6 +37,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoInfo
               todo={todo}
               isLoading={tempTodos.some(item => todo.id === item.id)}
+              updatingTodo={updatingTodo}
               removeTodo={removeTodo}
               onHandleStatusTodo={onHandleStatusTodo}
             />
@@ -50,6 +53,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoInfo
               todo={tempTodo}
               isLoading
+              updatingTodo={updatingTodo}
               removeTodo={removeTodo}
               onHandleStatusTodo={onHandleStatusTodo}
             />
