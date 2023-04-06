@@ -24,12 +24,12 @@ export const TodoFilter: FC<FilterProps> = ({
     <section className="flex gap-2 flex-wrap mt-2">
       <nav className="btn-group shadow-md grow basis-5/6 flex">
         {(Object.values(FilterType)).map(
-          (key) => (
+          (type) => (
             <FilterTypeButton
-              title={key}
-              key={key}
-              filterType={key}
-              isActive={currentFilterType === key.toLowerCase()}
+              title={type}
+              key={type}
+              filterType={type}
+              isActive={currentFilterType === type.toLowerCase()}
               changeFilterType={changeFilterType}
             />
           ),

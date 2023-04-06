@@ -24,8 +24,7 @@ import type { Todo } from './types/Todo';
 import { FilterType } from './enums/FilterType';
 import { NotificationType } from './enums/NotificationType';
 import { notify } from './utils/notify';
-
-const USER_ID = 6712;
+import { USER_ID } from './constants';
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
