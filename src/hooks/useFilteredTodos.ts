@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { FilterType } from '../App.typedefs';
+import { FilterType } from '../typedefs';
 import { getFilteredTodos } from '../helpers/helpers';
 import { Todo } from '../components/TodoItem/Todo';
 

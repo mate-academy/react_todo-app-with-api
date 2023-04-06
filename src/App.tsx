@@ -11,7 +11,7 @@ import { Footer } from './components/Footer/Footer';
 import { ErrorModal } from './components/ErrorModal/ErrorModal';
 import { LoadContext } from './Context/LoadContext';
 import { UserWarning } from './UserWarning';
-import { FilterType, ErrorType } from './App.typedefs';
+import { FilterType, ErrorType } from './typedefs';
 import { Todo } from './components/TodoItem/Todo';
 import {
   addTodo,

@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { ErrorType } from '../../App.typedefs';
+import { ErrorType } from '../../typedefs';
 
 interface Props {
   error: ErrorType,

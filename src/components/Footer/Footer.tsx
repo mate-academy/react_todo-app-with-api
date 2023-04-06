@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import { FC, memo } from 'react';
-import { FilterType } from '../../App.typedefs';
+import { FilterType } from '../../typedefs';
 import { Todo } from '../TodoItem/Todo';
 
 interface Props {
