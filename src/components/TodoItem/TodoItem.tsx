@@ -83,7 +83,7 @@ export const TodoItem: FC<Props> = memo((props) => {
             placeholder="Empty todo will be deleted"
             value={changedTitle}
             onChange={handleChangeTitle}
-            onBlur={updateTodoTitle}
+            onBlur={() => setIsEditing(false)}
             onKeyUp={cancelEditing}
           />
         </form>

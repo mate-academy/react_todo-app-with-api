@@ -1,5 +1,5 @@
 import { Todo } from '../components/TodoItem/Todo';
-import { FilterType } from '../types/FilterType';
+import { FilterType } from '../App.typedefs';
 
 export const getFilteredTodos = (
   todos: Todo[],
