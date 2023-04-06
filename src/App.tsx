@@ -25,7 +25,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [tempTodos, setTempTodos] = useState<Todo[]>([]);
   const [updatingTodo, setUpdatingTodo] = useState<Todo | null>(null);
-  // const [todoStatus, setTodoStatus] = useState(false);
 
   let visibleTodoList = todosList;
   const copletedTodos = todosList.filter(todo => todo.completed);
