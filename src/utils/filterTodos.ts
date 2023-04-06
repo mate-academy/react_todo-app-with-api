@@ -1,7 +1,7 @@
 import { FilterType } from '../types/FilterTypes';
 import { Todo } from '../types/Todo';
 
-export function FilterTodos(
+export function filterTodos(
   todos: Todo[],
   filterBy: FilterType,
 ): Todo[] {

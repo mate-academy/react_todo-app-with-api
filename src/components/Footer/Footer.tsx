@@ -64,7 +64,7 @@ export const Footer: React.FC<Props> = React.memo(({
       <button
         type="button"
         className={classnames('todoapp__clear-completed', {
-          'is-invisible': completedTodos.length === 0,
+          'is-invisible': !completedTodos.length,
         })}
         onClick={handleClearCompletedTodos}
       >

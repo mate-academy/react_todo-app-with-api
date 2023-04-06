@@ -10,7 +10,7 @@ import { TodoList } from './components/TodoList';
 import { FilterType } from './types/FilterTypes';
 import { Todo, TodoData } from './types/Todo';
 import { Notification } from './components/Notification';
-import { FilterTodos } from './utils/filterTodos';
+import { filterTodos } from './utils/filterTodos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 
@@ -25,9 +25,9 @@ export const App: React.FC = () => {
   const [hasLoadingError, sethasLoadingError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const activeTodos = FilterTodos(todos, FilterType.ACTIVE);
-  const visibleTodos = FilterTodos(todos, selectedFilter);
-  const completedTodos = FilterTodos(todos, FilterType.COMPLETED);
+  const activeTodos = filterTodos(todos, FilterType.ACTIVE);
+  const visibleTodos = filterTodos(todos, selectedFilter);
+  const completedTodos = filterTodos(todos, FilterType.COMPLETED);
   const completedTodosId = completedTodos.map(todo => todo.id);
   const isTodos = todos.length !== 0;
 
@@ -47,11 +47,8 @@ export const App: React.FC = () => {
       const fetchTodos = await getTodos(USER_ID);
 
       setTodos(fetchTodos);
-      // setIsTodosLoaded(true);
     } catch {
       notify('Oppps smth went wrong with load todos...');
-    } finally {
-      // setIsLoading(false);
     }
   }, []);
 
@@ -89,7 +86,7 @@ export const App: React.FC = () => {
       await deleteTodo(id);
       await getTodosFromServer();
     } catch {
-      notify('Unable to add a todo');
+      notify('Unable to delete a todo');
     } finally {
       setTodosIdInProcess((prevState) => (
         prevState.filter(todoId => id !== todoId)

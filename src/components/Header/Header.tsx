@@ -23,7 +23,7 @@ export const Header: React.FC<Props> = React.memo(({
     (e: FormEvent) => {
       e.preventDefault();
 
-      if (todoTitle.length === 0) {
+      if (!todoTitle.length) {
         notify('Cant add empty todo....');
 
         return;

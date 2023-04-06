@@ -14,7 +14,6 @@ export const Notification: React.FC<Props> = ({
 }) => {
   return (
     <div
-      // className="notification is-danger is-light has-text-weight-normal"
       className={classnames(
         'notification is-danger is-light has-text-weight-normal', {
           hidden,
