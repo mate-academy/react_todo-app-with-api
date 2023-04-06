@@ -190,14 +190,12 @@ export const App: React.FC = () => {
               {`${countOfActiveTodos} items left`}
             </span>
 
-            {/* Active filter should have a 'selected' class */}
             <Filter
               status={status}
               setStatus={setStatus}
             />
 
-            {/* don't show this button if there are no completed todos */}
-            <button
+              <button
               type="button"
               className="todoapp__clear-completed"
               disabled={!hasCompletedTodos}
@@ -208,8 +206,6 @@ export const App: React.FC = () => {
           </footer>
         )}
       </div>
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <Notification
         error={error}
         closeNotification={closeNotification}
