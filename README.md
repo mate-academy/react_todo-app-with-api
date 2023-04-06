@@ -5,12 +5,11 @@ This is my react app where you can get/add/update/remove your todos.
 ## Main technologies:
 - HTML,CSS
 - JavaScript
+- TypeScript
 - React
-- Redux
 - Router
 - React hooks
-- Registration/Authorization
-- Mobile, tablet and desktop version
+- Fetch
 - Webpack
 
 [DEMO LINK](https://max-rozzhalovets.github.io/react_todo-app-with-api/)
