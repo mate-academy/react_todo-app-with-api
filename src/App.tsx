@@ -14,22 +14,20 @@ import { UserWarning } from './UserWarning';
 import { FilterType, ErrorType } from './typedefs';
 import { Todo } from './components/TodoItem/Todo';
 import {
-  addTodo,
   getTodos,
   removeTodo,
   updateTodo,
 } from './api/todos';
 import { getFilteredTodos } from './helpers/helpers';
 import { useFilteredTodos } from './hooks/useFilteredTodos';
+import { useError } from './hooks/useError';
+import { usePost } from './hooks/usePost';
 
 const USER_ID = 6748;
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
-  const [error, setError] = useState<ErrorType>(ErrorType.NONE);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [unableField, setUnableField] = useState(false);
   const [loadingTodos, setLoadingTodos] = useState([0]);
 
   const {
@@ -37,14 +35,17 @@ export const App: FC = () => {
     completedTodos,
   } = useFilteredTodos({ todos });
 
-  const showError = (errorType: ErrorType) => {
-    setError(errorType);
-    setTimeout(() => setError(ErrorType.NONE), 3000);
-  };
+  const {
+    error,
+    showError,
+    handleCloseError,
+  } = useError();
 
-  const handleCloseError = useCallback(() => {
-    setError(ErrorType.NONE);
-  }, []);
+  const {
+    tempTodo,
+    unableField,
+    addNewTodo,
+  } = usePost({ USER_ID, setTodos });
 
   const fetchTodos = useCallback(async () => {
     try {
@@ -56,39 +57,6 @@ export const App: FC = () => {
       setTodos([]);
     }
   }, []);
-
-  const addNewTodo = useCallback(
-    async (title: string) => {
-      if (!title.trim()) {
-        showError(ErrorType.TITLE);
-
-        return;
-      }
-
-      const newTodo = {
-        title,
-        userId: USER_ID,
-        completed: false,
-      };
-
-      try {
-        setUnableField(true);
-        setTempTodo({
-          id: 0,
-          ...newTodo,
-        });
-
-        const todo = await addTodo(newTodo);
-
-        setTodos(prevTodos => [...prevTodos, todo]);
-      } catch {
-        showError(ErrorType.ADD);
-      } finally {
-        setUnableField(false);
-        setTempTodo(null);
-      }
-    }, [],
-  );
 
   const deleteTodo = useCallback(
     async (id: number) => {
