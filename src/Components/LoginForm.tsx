@@ -40,7 +40,7 @@ export const LoginForm: React.FC = () => {
   const [showPrevUsers, setShowPrevUsers] = useState(false);
   const hasErrorFromServer = !!errorMessage;
 
-  const ref = useRef(null);
+  const ref = useRef<HTMLInputElement>(null);
 
   let tempEmail = '';
 
@@ -110,6 +110,16 @@ export const LoginForm: React.FC = () => {
     }
   };
 
+  const selectPrevUsers = (prevmail: string) => {
+    if (ref.current) {
+      ref.current.focus();
+    }
+
+    setEmail(prevmail);
+    setShowPrevUsers(false);
+    tempEmail = prevmail;
+  };
+
   return (
     <>
       <form
@@ -150,12 +160,7 @@ export const LoginForm: React.FC = () => {
                   key={prevmail}
                   type="button"
                   className="todo__title prevuser__button"
-                  onClick={() => {
-                    ref.current.focus();
-                    setEmail(prevmail);
-                    setShowPrevUsers(false);
-                    tempEmail = prevmail;
-                  }}
+                  onClick={() => selectPrevUsers(prevmail)}
                 >
                   {prevmail}
                 </button>
