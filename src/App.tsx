@@ -197,13 +197,15 @@ export const App: React.FC = () => {
   const clearAllCompleted = async () => {
     setUpdatedId('all');
 
+    const allCompleted = todos.filter(todo => todo.completed === true);
+
     try {
       const changedElements = await Promise.all(
-        todos.map(todo => deleteTodos(todo.id)),
+        allCompleted.map(todo => deleteTodos(todo.id)),
       );
 
       if (changedElements) {
-        setTodos([]);
+        setTodos((state) => state.filter(todo => todo.completed === false));
         fetchTodos();
       }
     } catch {
