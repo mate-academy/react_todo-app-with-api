@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo,
   onDelete: (todoId: number) => void,
-  isProcessing?: boolean,
+  isProcessing: boolean,
   updateTodo: (todoId: number[], data: boolean) => void,
   onChangeTitle: (id: number, title: string) => void,
 }
@@ -18,10 +18,12 @@ export const TodoItem: React.FC<Props> = React.memo(
     updateTodo,
     onChangeTitle,
   }) => {
+    const { title, id, completed } = todo;
+
     const [isEdited, setEdit] = useState(false);
-    const [tempTitle, setTempTitle] = useState(todo.title);
+    const [tempTitle, setTempTitle] = useState(title);
     const inputElement = useRef<HTMLInputElement>(null);
-    const hasChanges = tempTitle !== todo.title;
+    const hasChanges = tempTitle !== title;
 
     useEffect(() => {
       if (inputElement.current) {
@@ -32,13 +34,13 @@ export const TodoItem: React.FC<Props> = React.memo(
     const saveChanges = () => {
       setEdit(false);
       if (hasChanges) {
-        if (!tempTitle) {
-          onDelete(todo.id);
+        if (!tempTitle.trim()) {
+          onDelete(id);
 
           return;
         }
 
-        onChangeTitle(todo.id, tempTitle);
+        onChangeTitle(id, tempTitle);
       }
     };
 
@@ -50,18 +52,18 @@ export const TodoItem: React.FC<Props> = React.memo(
 
     return (
       <div
-        key={todo.id}
+        key={id}
         className={classNames(
           'todo',
-          { completed: todo.completed },
+          { completed },
         )}
       >
         <label className="todo__status-label">
           <input
             type="checkbox"
             className="todo__status"
-            checked={todo.completed}
-            onChange={(event) => updateTodo([todo.id], event.target.checked)}
+            checked={completed}
+            onChange={(event) => updateTodo([id], event.target.checked)}
           />
         </label>
         {isEdited ? (
@@ -89,12 +91,12 @@ export const TodoItem: React.FC<Props> = React.memo(
                 className="todo__title"
                 onDoubleClick={() => setEdit(true)}
               >
-                {todo.title}
+                {title}
               </span>
               <button
                 type="button"
                 className="todo__remove"
-                onClick={() => onDelete(todo.id)}
+                onClick={() => onDelete(id)}
               >
                 ×
               </button>

@@ -55,6 +55,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 todo={creating}
                 onDelete={onDelete}
                 updateTodo={updateTodo}
+                isProcessing
                 onChangeTitle={onChangeTitle}
               />
             </CSSTransition>

@@ -22,16 +22,15 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState(Filter.ALL);
   const [title, setNewTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [inProcessing, setProcessingIDs] = useState<number[]>([0]);
+  const [inProcessing, setProcessingIDs] = useState<number[]>([]);
   const hasError = !!errorMessage;
   const isDisableInput = tempTodo !== null;
 
   const showError = (message: string) => {
     setMessageError(message);
-    setTimeout(() => setMessageError(''), 3000);
   };
 
-  const loadingTodos = async () => {
+  const loadingTodos = useCallback(async () => {
     try {
       const todos = await getTodos(USER_ID);
 
@@ -39,7 +38,15 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorNotice.LOADING);
     }
-  };
+  }, [USER_ID]);
+
+  useEffect(() => {
+    const timeoutForErrorNotice = setTimeout(() => setMessageError(''), 3000);
+
+    return () => {
+      clearTimeout(timeoutForErrorNotice);
+    };
+  }, [errorMessage]);
 
   useEffect(() => {
     loadingTodos();
@@ -86,9 +93,9 @@ export const App: React.FC = () => {
     } catch (error) {
       showError(ErrorNotice.DELETE);
     } finally {
-      setProcessingIDs([0]);
+      setProcessingIDs([]);
     }
-  }, []);
+  }, [loadingTodos]);
 
   const handleDeleteCompleted = useCallback(
     async (todos: Todo[]) => {
@@ -104,7 +111,7 @@ export const App: React.FC = () => {
       } catch (error) {
         showError(ErrorNotice.DELETE);
       } finally {
-        setProcessingIDs([0]);
+        setProcessingIDs([]);
       }
     }, [inProcessing],
   );
@@ -124,7 +131,7 @@ export const App: React.FC = () => {
       } catch (error) {
         showError(ErrorNotice.UPDATE);
       } finally {
-        setProcessingIDs([0]);
+        setProcessingIDs([]);
       }
     }, [],
   );
@@ -138,7 +145,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setMessageError(ErrorNotice.UPDATE);
     } finally {
-      setProcessingIDs([0]);
+      setProcessingIDs([]);
     }
   }, []);
 
