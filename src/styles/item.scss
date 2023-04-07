@@ -1,0 +1,53 @@
+$duration: 0.3s;
+$maxHeight: 58px;
+
+.item {
+  &-enter {
+    max-height: 0;
+
+    &-active {
+      overflow: hidden;
+      max-height: $maxHeight;
+      transition: max-height $duration ease-in-out;
+    }
+  }
+
+  &-exit {
+    max-height: $maxHeight;
+
+    &-active {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height $duration ease-in-out;
+    }
+  }
+}
+
+.temp-item {
+  &-enter {
+    max-height: 0;
+
+    &-active {
+      overflow: hidden;
+      max-height: $maxHeight;
+      transition: max-height $duration ease-in-out;
+    }
+  }
+
+  &-exit {
+    max-height: $maxHeight;
+
+    &-active {
+      transform: translateY(-$maxHeight);
+      max-height: 0;
+      opacity: 0;
+      transition: $duration ease-in-out;
+      transition-property: opacity, max-height, transform;
+    }
+
+    .has-error &-active {
+      transform: translateY(0);
+      overflow: hidden;
+    }
+  }
+}
