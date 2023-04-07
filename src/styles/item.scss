@@ -1,49 +1,53 @@
 $duration: 0.3s;
 $maxHeight: 58px;
 
-.item-enter {
-  max-height: 0;
+.item {
+  &-enter {
+    max-height: 0;
+
+    &-active {
+      overflow: hidden;
+      max-height: $maxHeight;
+      transition: max-height $duration ease-in-out;
+    }
+  }
+
+  &-exit {
+    max-height: $maxHeight;
+
+    &-active {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height $duration ease-in-out;
+    }
+  }
 }
 
-.item-enter-active {
-  overflow: hidden;
-  max-height: $maxHeight;
-  transition: max-height $duration ease-in-out;
-}
+.temp-item {
+  &-enter {
+    max-height: 0;
 
-.item-exit {
-  max-height: $maxHeight;
-}
+    &-active {
+      overflow: hidden;
+      max-height: $maxHeight;
+      transition: max-height $duration ease-in-out;
+    }
+  }
 
-.item-exit-active {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height $duration ease-in-out;
-}
+  &-exit {
+    max-height: $maxHeight;
 
-.temp-item-enter {
-  max-height: 0;
-}
+    &-active {
+      transform: translateY(-$maxHeight);
+      max-height: 0;
+      opacity: 0;
+      transition: $duration ease-in-out;
+      transition-property: opacity, max-height, transform;
+    }
 
-.temp-item-enter-active {
-  overflow: hidden;
-  max-height: $maxHeight;
-  transition: max-height $duration ease-in-out;
-}
-
-.temp-item-exit {
-  max-height: $maxHeight;
-}
-
-.temp-item-exit-active {
-  transform: translateY(-$maxHeight);
-  max-height: 0;
-  opacity: 0;
-  transition: $duration ease-in-out;
-  transition-property: opacity, max-height, transform;
-}
-
-.has-error .temp-item-exit-active {
-  transform: translateY(0);
-  overflow: hidden;
+    .has-error &-active {
+      transform: translateY(0);
+      overflow: hidden;
+    }
+  }
 }

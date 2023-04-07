@@ -28,17 +28,22 @@ export const Footer: React.FC<Props> = React.memo(
 
         <nav className="filter">
           {filterLinks.map(link => (
-            <a
-              key={link.title}
-              href={`#/${link.url}`}
-              className={classNames(
-                'filter__link',
-                { selected: filter === link.title },
-              )}
+            <button
+              className="todoapp__footer__button"
+              type="button"
               onClick={() => onFilterChange(link.title)}
             >
-              {link.title}
-            </a>
+              <a
+                key={link.title}
+                href={`#/${link.url}`}
+                className={classNames(
+                  'filter__link',
+                  { selected: filter === link.title },
+                )}
+              >
+                {link.title}
+              </a>
+            </button>
           ))}
         </nav>
 
