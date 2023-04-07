@@ -31,10 +31,10 @@ export const Footer: React.FC<Props> = React.memo(
             <button
               className="todoapp__footer__button"
               type="button"
+              key={link.title}
               onClick={() => onFilterChange(link.title)}
             >
               <a
-                key={link.title}
                 href={`#/${link.url}`}
                 className={classNames(
                   'filter__link',

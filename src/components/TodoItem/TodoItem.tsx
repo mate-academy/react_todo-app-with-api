@@ -79,8 +79,8 @@ export const TodoItem: React.FC<Props> = React.memo(
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={tempTitle}
-              onKeyUp={(event) => cancelChanges(event)}
-              onBlur={() => saveChanges()}
+              onKeyUp={cancelChanges}
+              onBlur={saveChanges}
               onChange={({ target }) => setTempTitle(target.value)}
             />
           </form>
