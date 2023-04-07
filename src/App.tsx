@@ -168,7 +168,7 @@ export const App: React.FC = () => {
   };
 
   const completeAllToggle = async () => {
-    setUpdatedId('all');
+    setUpdatedId('allsame');
     const allToggle = todos.filter(todo => !todo.completed).length !== 0;
 
     try {

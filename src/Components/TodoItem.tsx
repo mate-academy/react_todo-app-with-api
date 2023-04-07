@@ -116,7 +116,8 @@ export const TodoItem: React.FC<Props> = ({
           {
             'is-active': (deletedId === id || id === 0)
             || (isLoading && updatedId === id)
-            || updatedId === id || (updatedId === 'all' && completed === true),
+            || updatedId === id || (updatedId === 'all' && completed === true)
+            || updatedId === 'allsame',
           },
         )}
       >
