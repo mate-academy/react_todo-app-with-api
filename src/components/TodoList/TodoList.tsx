@@ -6,14 +6,14 @@ import {
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 
-type Props = {
+interface Props {
   todos: Todo[],
   creating: Todo | null,
   onDelete: (todoId: number) => void,
   inProcessing: number[],
   updateTodo: (todoId: number [], data: boolean) => void,
   onChangeTitle: (id: number, title: string) => void,
-};
+}
 
 export const TodoList: React.FC<Props> = React.memo(
   ({
@@ -37,7 +37,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 <TodoItem
                   todo={todo}
                   onDelete={onDelete}
-                  isProcessedIDs={inProcessing.includes(todo.id)}
+                  isProcessing={inProcessing.includes(todo.id)}
                   updateTodo={updateTodo}
                   onChangeTitle={onChangeTitle}
                 />
@@ -54,7 +54,6 @@ export const TodoList: React.FC<Props> = React.memo(
               <TodoItem
                 todo={creating}
                 onDelete={onDelete}
-                isProcessedIDs
                 updateTodo={updateTodo}
                 onChangeTitle={onChangeTitle}
               />

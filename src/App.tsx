@@ -7,7 +7,7 @@ import { Notification } from './components/Notification';
 import { Header } from './components/Header';
 import { UserWarning } from './UserWarning';
 import {
-  addTodos, completeTodo, deleteTodo, getTodos, renameTodo,
+  addTodo, completeTodo, deleteTodo, getTodos, renameTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorNotice } from './types/ErrorNotice';
@@ -23,8 +23,8 @@ export const App: React.FC = () => {
   const [title, setNewTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inProcessing, setProcessingIDs] = useState<number[]>([0]);
-  const hasError = !!errorMessage || errorMessage !== '';
-  const isDisableInput = !tempTodo;
+  const hasError = !!errorMessage;
+  const isDisableInput = tempTodo !== null;
 
   const showError = (message: string) => {
     setMessageError(message);
@@ -38,7 +38,6 @@ export const App: React.FC = () => {
       setTodos(todos);
     } catch (error) {
       showError(ErrorNotice.LOADING);
-      setTodos(state => [...state]);
     }
   };
 
@@ -51,7 +50,7 @@ export const App: React.FC = () => {
       event.preventDefault();
 
       if (!title.trim()) {
-        showError(ErrorNotice.TYTLE);
+        showError(ErrorNotice.TITLE);
 
         return;
       }
@@ -66,7 +65,7 @@ export const App: React.FC = () => {
       setTempTodo(createTodo);
 
       try {
-        await addTodos(createTodo);
+        await addTodo(createTodo);
         setTodos(state => [...state, createTodo]);
 
         setNewTitle('');
@@ -89,7 +88,7 @@ export const App: React.FC = () => {
     } finally {
       setProcessingIDs([0]);
     }
-  }, [todosFromServer]);
+  }, []);
 
   const handleDeleteCompleted = useCallback(
     async (todos: Todo[]) => {
@@ -127,10 +126,10 @@ export const App: React.FC = () => {
       } finally {
         setProcessingIDs([0]);
       }
-    }, [todosFromServer],
+    }, [],
   );
 
-  const changedTitle = useCallback(async (id: number, newTitle: string) => {
+  const changeTitle = useCallback(async (id: number, newTitle: string) => {
     setProcessingIDs([id]);
 
     try {
@@ -141,7 +140,7 @@ export const App: React.FC = () => {
     } finally {
       setProcessingIDs([0]);
     }
-  }, [todosFromServer]);
+  }, []);
 
   const visibleTodos = useMemo(() => (
     getVisibleTodos(todosFromServer, filter)
@@ -182,13 +181,13 @@ export const App: React.FC = () => {
           onDelete={handleDelete}
           inProcessing={inProcessing}
           updateTodo={handleComplete}
-          onChangeTitle={changedTitle}
+          onChangeTitle={changeTitle}
         />
 
-        {!!todosFromServer.length && (
+        {todosFromServer.length > 0 && (
           <Footer
             filter={filter}
-            onFilter={setFilter}
+            onFilterChange={setFilter}
             completedTodos={completedTodos}
             activeTodosCount={activeTodos.length}
             deleteCompleted={handleDeleteCompleted}

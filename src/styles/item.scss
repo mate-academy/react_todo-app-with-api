@@ -1,21 +1,24 @@
+$duration: 0.3s;
+$maxHeight: 58px;
+
 .item-enter {
   max-height: 0;
 }
 
 .item-enter-active {
   overflow: hidden;
-  max-height: 58px;
-  transition: max-height 0.3s ease-in-out;
+  max-height: $maxHeight;
+  transition: max-height $duration ease-in-out;
 }
 
 .item-exit {
-  max-height: 58px;
+  max-height: $maxHeight;
 }
 
 .item-exit-active {
   overflow: hidden;
   max-height: 0;
-  transition: max-height 0.3s ease-in-out;
+  transition: max-height $duration ease-in-out;
 }
 
 .temp-item-enter {
@@ -24,19 +27,19 @@
 
 .temp-item-enter-active {
   overflow: hidden;
-  max-height: 58px;
-  transition: max-height 0.3s ease-in-out;
+  max-height: $maxHeight;
+  transition: max-height $duration ease-in-out;
 }
 
 .temp-item-exit {
-  max-height: 58px;
+  max-height: $maxHeight;
 }
 
 .temp-item-exit-active {
-  transform: translateY(-58px);
+  transform: translateY(-$maxHeight);
   max-height: 0;
   opacity: 0;
-  transition: 0.3s ease-in-out;
+  transition: $duration ease-in-out;
   transition-property: opacity, max-height, transform;
 }
 

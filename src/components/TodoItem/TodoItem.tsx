@@ -2,19 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
-type Props = {
+interface Props {
   todo: Todo,
   onDelete: (todoId: number) => void,
-  isProcessedIDs: boolean,
+  isProcessing?: boolean,
   updateTodo: (todoId: number[], data: boolean) => void,
   onChangeTitle: (id: number, title: string) => void,
-};
+}
 
 export const TodoItem: React.FC<Props> = React.memo(
   ({
     todo,
     onDelete,
-    isProcessedIDs,
+    isProcessing,
     updateTodo,
     onChangeTitle,
   }) => {
@@ -105,7 +105,7 @@ export const TodoItem: React.FC<Props> = React.memo(
         <div
           className={classNames(
             'modal overlay',
-            { 'is-active': isProcessedIDs },
+            { 'is-active': isProcessing },
           )}
         >
           <div className="modal-background has-background-white-ter" />

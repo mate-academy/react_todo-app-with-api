@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
-type Props = {
+interface Props {
   title: string,
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   createNewTitle: (title: string) => void,
@@ -10,7 +10,7 @@ type Props = {
   activeTodos: Todo[],
   updateTodos: (todoId: number[], data: boolean) => void,
   isDisableInput: boolean,
-};
+}
 
 export const Header: React.FC<Props> = React.memo(
   ({
@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = React.memo(
     return (
       <header className="todoapp__header">
         <button
-          aria-label="btn"
+          aria-label="Toggle All Todos"
           type="button"
           className={classNames(
             'todoapp__toggle-all',
@@ -45,7 +45,7 @@ export const Header: React.FC<Props> = React.memo(
             type="text"
             className="todoapp__new-todo"
             placeholder="What needs to be done?"
-            disabled={!isDisableInput}
+            disabled={isDisableInput}
             value={title}
             onChange={({ target }) => createNewTitle(target.value)}
           />

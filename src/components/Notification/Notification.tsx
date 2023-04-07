@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
 
-type Props = {
+interface Props {
   error: boolean,
   errorNotice: string,
   closeErrorNotice: (state: string) => void,
-};
+}
 
 export const Notification: React.FC<Props> = React.memo(
   ({

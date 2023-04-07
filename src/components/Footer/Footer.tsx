@@ -4,18 +4,18 @@ import { filterLinks } from '../../helper/filterLinks';
 import { Filter } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 
-type Props = {
+interface Props {
   filter: Filter,
-  onFilter: (filter: Filter) => void,
+  onFilterChange: (filter: Filter) => void,
   completedTodos: Todo[],
   activeTodosCount: number,
   deleteCompleted: (todos: Todo[]) => void,
-};
+}
 
 export const Footer: React.FC<Props> = React.memo(
   ({
     filter,
-    onFilter,
+    onFilterChange,
     completedTodos,
     activeTodosCount,
     deleteCompleted,
@@ -35,7 +35,7 @@ export const Footer: React.FC<Props> = React.memo(
                 'filter__link',
                 { selected: filter === link.title },
               )}
-              onClick={() => onFilter(link.title)}
+              onClick={() => onFilterChange(link.title)}
             >
               {link.title}
             </a>
