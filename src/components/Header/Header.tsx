@@ -6,7 +6,7 @@ import { ErrorsMessages } from '../../types/ErrorsMessages';
 type Props = {
   todos: Todo[],
   addTodo: (newTodoTitle: string) => Promise<void>,
-  switchBtn: (AllChecked: boolean) => void
+  onSwitch: (isAllChecked: boolean) => void
   errorMessage: (message: ErrorsMessages) => void
   disabled: boolean,
 };
@@ -14,7 +14,7 @@ type Props = {
 export const Header: React.FC<Props> = ({
   todos,
   addTodo,
-  switchBtn,
+  onSwitch,
   errorMessage,
   disabled,
 }) => {
@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = ({
           'todoapp__toggle-all',
           { active: isActive },
         )}
-        onClick={() => switchBtn(isActive)}
+        onClick={() => onSwitch(isActive)}
       />
       <form onSubmit={validateTodo}>
         <label>

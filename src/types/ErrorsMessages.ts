@@ -4,4 +4,5 @@ export enum ErrorsMessages {
   Update = 'Unable to update a todo',
   Delete = 'Unable to delete a todo',
   Title = "Title can't be empty",
+  Hidden = '',
 }

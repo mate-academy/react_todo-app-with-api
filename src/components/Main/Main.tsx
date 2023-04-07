@@ -7,16 +7,16 @@ import { TodoItemLoader } from '../TodoItemLoader';
 
 type Props = {
   todos: Todo[],
-  handleChecker: (id: number, data: Partial<Todo>) => void,
+  onCheck: (id: number, data: Partial<Todo>) => void,
   removeTodo: (id: number) => void,
   processings: number[],
   errorMessage: (message: ErrorsMessages) => void,
-  tempTodo: Todo | undefined,
+  tempTodo: Todo | null,
 };
 
 export const Main: React.FC<Props> = ({
   todos,
-  handleChecker,
+  onCheck,
   removeTodo,
   processings,
   errorMessage,
@@ -34,7 +34,7 @@ export const Main: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               key={todo.id}
-              handleChecker={handleChecker}
+              onCheck={onCheck}
               removeTodo={removeTodo}
               processings={processings}
               errorMessage={errorMessage}

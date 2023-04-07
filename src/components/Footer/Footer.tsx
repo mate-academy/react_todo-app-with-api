@@ -40,10 +40,10 @@ export const Footer: React.FC<Props> = ({
           className={
             classNames(
               'filter__link',
-              { selected: currentFilter === Filter.all },
+              { selected: currentFilter === Filter.All },
             )
           }
-          onClick={() => setFilter(Filter.all)}
+          onClick={() => setFilter(Filter.All)}
         >
           All
         </a>
@@ -53,10 +53,10 @@ export const Footer: React.FC<Props> = ({
           className={
             classNames(
               'filter__link',
-              { selected: currentFilter === Filter.active },
+              { selected: currentFilter === Filter.Active },
             )
           }
-          onClick={() => setFilter(Filter.active)}
+          onClick={() => setFilter(Filter.Active)}
         >
           Active
         </a>
@@ -66,10 +66,10 @@ export const Footer: React.FC<Props> = ({
           className={
             classNames(
               'filter__link',
-              { selected: currentFilter === Filter.completed },
+              { selected: currentFilter === Filter.Completed },
             )
           }
-          onClick={() => setFilter(Filter.completed)}
+          onClick={() => setFilter(Filter.Completed)}
         >
           Completed
         </a>

@@ -6,7 +6,7 @@ import { ErrorsMessages } from '../../types/ErrorsMessages';
 
 type Props = {
   todo: Todo,
-  handleChecker: (id: number, data: Partial<Todo>) => void,
+  onCheck: (id: number, data: Partial<Todo>) => void,
   removeTodo: (id: number) => void,
   processings: number[],
   errorMessage: (message: ErrorsMessages) => void
@@ -14,7 +14,7 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  handleChecker,
+  onCheck,
   removeTodo,
   processings,
   errorMessage,
@@ -43,6 +43,7 @@ export const TodoItem: React.FC<Props> = ({
       return false;
     }
 
+    setInputValue(inputValue.trim());
     setIsFormActive(false);
 
     return true;
@@ -50,7 +51,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const changeTodoTitle = () => {
     return validateTitle() ? (
-      handleChecker(id, { title: inputValue })
+      onCheck(id, { title: inputValue })
     ) : (
       null
     );
@@ -82,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleChecker(id, { completed: !completed })}
+          onChange={() => onCheck(id, { completed: !completed })}
         />
       </label>
 
@@ -108,7 +109,7 @@ export const TodoItem: React.FC<Props> = ({
           {title}
         </span>
       )}
-      {isFormActive || (
+      {!isFormActive && (
         <button
           type="button"
           className="todo__remove"

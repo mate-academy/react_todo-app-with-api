@@ -1,29 +1,26 @@
 import React from 'react';
 import classNames from 'classnames';
+import { ErrorsMessages } from '../../types/ErrorsMessages';
 
 type Props = {
-  errorMessage: string,
-  removeMessage: () => void,
+  errorMessage: ErrorsMessages,
+  removeMessage: React.Dispatch<React.SetStateAction<ErrorsMessages>>,
 };
 
 export const Error: React.FC<Props> = (
   { errorMessage, removeMessage },
-) => {
-  const isError = errorMessage !== '';
-
-  return (
-    <div className={classNames(
-      'notification is-danger is-light has-text-weight-normal',
-      { hidden: !isError },
-    )}
-    >
-      <button
-        aria-label="close error"
-        type="button"
-        className="delete"
-        onClick={removeMessage}
-      />
-      {errorMessage}
-    </div>
-  );
-};
+) => (
+  <div className={classNames(
+    'notification is-danger is-light has-text-weight-normal',
+    { hidden: errorMessage === ErrorsMessages.Hidden },
+  )}
+  >
+    <button
+      aria-label="close error"
+      type="button"
+      className="delete"
+      onClick={() => removeMessage(ErrorsMessages.Hidden)}
+    />
+    {errorMessage}
+  </div>
+);

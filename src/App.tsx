@@ -19,27 +19,21 @@ const USER_ID = 6725;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<ErrorsMessages>(
+    ErrorsMessages.Hidden,
+  );
   const [isHeaderDisabled, setIsHeaderDisabled] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo>();
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processings, setProcessings] = useState<number[]>([]);
-  const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.all);
-
-  const removeMessage = () => {
-    setErrorMessage('');
-  };
-
-  const createErrorMessage = (title: ErrorsMessages) => {
-    setErrorMessage(title);
-  };
+  const [currentFilter, setCurrentFilter] = useState<Filter>(Filter.All);
 
   const showErrorMessage = (message: ErrorsMessages) => {
-    createErrorMessage(message);
-    setTimeout(() => removeMessage(), 3000);
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(ErrorsMessages.Hidden), 3000);
   };
 
   const loadTodos = async () => {
-    setErrorMessage('');
+    setErrorMessage(ErrorsMessages.Hidden);
 
     try {
       const dataFromServer = await getTodos();
@@ -56,13 +50,13 @@ export const App: React.FC = () => {
 
   const filterTodos = (filteringProperty: Filter) => {
     return (
-      filteringProperty === Filter.all
+      filteringProperty === Filter.All
         ? todos
         : todos.filter(todo => {
           switch (filteringProperty) {
-            case Filter.active:
+            case Filter.Active:
               return !todo.completed;
-            case Filter.completed:
+            case Filter.Completed:
               return todo.completed;
             default:
               return null;
@@ -77,16 +71,16 @@ export const App: React.FC = () => {
   );
 
   const addTodo = async (newTodoTitle: string) => {
-    setErrorMessage('');
-    setIsHeaderDisabled(true);
-
     try {
+      setErrorMessage(ErrorsMessages.Hidden);
+      setIsHeaderDisabled(true);
       setTempTodo({
         id: 0,
         userId: USER_ID,
         title: newTodoTitle,
         completed: false,
       });
+
       const newTodoPost = await createTodo({
         title: newTodoTitle,
         userId: USER_ID,
@@ -96,10 +90,10 @@ export const App: React.FC = () => {
       setTodos((items) => [...items, newTodoPost]);
     } catch (error) {
       showErrorMessage(ErrorsMessages.Post);
+    } finally {
+      setTempTodo(null);
+      setIsHeaderDisabled(false);
     }
-
-    setTempTodo(undefined);
-    setIsHeaderDisabled(false);
   };
 
   const filterTodosById = (todoElements: Todo[], id: number) => {
@@ -107,10 +101,10 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (id: number) => {
-    setErrorMessage('');
-    setProcessings((prev) => [...prev, id]);
-
     try {
+      setErrorMessage(ErrorsMessages.Hidden);
+      setProcessings((prev) => [...prev, id]);
+
       const response = await deleteTodo(id);
 
       if (response) {
@@ -118,113 +112,87 @@ export const App: React.FC = () => {
       }
     } catch (error) {
       showErrorMessage(ErrorsMessages.Delete);
+    } finally {
+      setProcessings([]);
     }
-
-    setProcessings([]);
   };
 
   const removeCompletedTodos = async () => {
-    setErrorMessage('');
-
-    const completedTodos = (
-      todos.filter(el => el.completed)
-        .map(item => item.id)
-    );
-
-    setProcessings(completedTodos);
-
     try {
-      const removed = await Promise.all(
+      setErrorMessage(ErrorsMessages.Hidden);
+
+      const completedTodos = (
+        todos.filter(el => el.completed)
+          .map(item => item.id)
+      );
+
+      setProcessings(completedTodos);
+
+      await Promise.all(
         completedTodos.map(todo => deleteTodo(todo)),
       );
 
-      if (removed) {
-        setTodos((prevState) => {
-          return prevState.filter((todo) => !todo.completed);
-        });
-      }
+      setTodos((prevState) => {
+        return prevState.filter((todo) => !todo.completed);
+      });
     } catch (error) {
       showErrorMessage(ErrorsMessages.Delete);
+    } finally {
+      setProcessings([]);
     }
-
-    setProcessings([]);
   };
 
   const handleChecker = async (id: number, data: Partial<Todo>) => {
-    setErrorMessage('');
-    setProcessings((prev) => [...prev, id]);
-
     try {
-      const response = await updateTodo(id, data);
-      const todoEdited = todos.find((todo) => todo.id === id);
-      const isTitleChanged = response.title !== todoEdited?.title;
-      const isCompletedChanged = response.completed !== todoEdited?.completed;
+      setErrorMessage(ErrorsMessages.Hidden);
+      setProcessings((prev) => [...prev, id]);
+      const updatedTodo = await updateTodo(id, data);
 
-      if (isTitleChanged || isCompletedChanged) {
-        setTodos((oldTodos) => {
-          const newTodos = oldTodos.map((el) => ({
-            ...el,
-            completed: el.id === id ? response.completed : el.completed,
-            title: el.id === id ? response.title : el.title,
-          }));
-
-          return (
-            newTodos
-          );
-        });
-      }
+      setTodos((oldTodos) => (
+        oldTodos.map((todo) => (
+          todo.id === id ? updatedTodo : todo
+        ))
+      ));
     } catch (error) {
       showErrorMessage(ErrorsMessages.Update);
+    } finally {
+      setProcessings([]);
     }
-
-    setProcessings([]);
   };
 
-  const handlerSwitch = async (AllChecked: boolean) => {
-    setErrorMessage('');
-
-    const todosIdArray = (
-      AllChecked ? (
-        todos.map(item => item.id)
-      ) : (
-        todos.filter(el => !el.completed)
-          .map(item => item.id)
-      )
-    );
-
-    setProcessings(todosIdArray);
-
+  const handlerSwitch = async (isAllChecked: boolean) => {
     try {
-      const changedElements = (!AllChecked
-        ? await Promise.all(
-          todosIdArray.map(el => updateTodo(el, { completed: true })),
+      setErrorMessage(ErrorsMessages.Hidden);
+
+      const todosIdArray = (
+        isAllChecked ? (
+          todos.map(item => item.id)
         ) : (
-          await Promise.all(
-            todosIdArray.map(el => updateTodo(el, { completed: false })),
+          todos.filter(el => !el.completed)
+            .map(item => item.id)
+        )
+      );
+
+      setProcessings(todosIdArray);
+
+      const chakedTodos = await Promise.all(
+        todosIdArray.map(el => updateTodo(el, { completed: !isAllChecked })),
+      );
+
+      setTodos((oldTodos) => (
+        oldTodos.map((todo) => (
+          todosIdArray.includes(todo.id) ? (
+            chakedTodos[todosIdArray.indexOf(todo.id)]
+          ) : (
+            todo
           )
-        ));
-
-      if (changedElements) {
-        setTodos((oldTodos) => {
-          const newTodos = oldTodos.map((el) => ({
-            ...el,
-            completed: (
-              todosIdArray.includes(el.id)
-                ? !el.completed
-                : el.completed
-            ),
-          }));
-
-          return (
-            newTodos
-          );
-        });
-      }
+        ))
+      ));
     } catch (error) {
       showErrorMessage(ErrorsMessages.Update);
+    } finally {
+      setProcessings([]);
     }
-
-    setProcessings([]);
   };
 
   useEffect(() => {
@@ -251,13 +219,13 @@ export const App: React.FC = () => {
             <Header
               todos={todos}
               addTodo={addTodo}
-              switchBtn={handlerSwitch}
+              onSwitch={handlerSwitch}
               errorMessage={showErrorMessage}
               disabled={isHeaderDisabled}
             />
             <Main
               todos={filteredTodos}
-              handleChecker={handleChecker}
+              onCheck={handleChecker}
               removeTodo={removeTodo}
               processings={processings}
               errorMessage={showErrorMessage}
@@ -274,7 +242,7 @@ export const App: React.FC = () => {
           </div>
           <Error
             errorMessage={errorMessage}
-            removeMessage={removeMessage}
+            removeMessage={setErrorMessage}
           />
         </div>
       </CSSTransition>
