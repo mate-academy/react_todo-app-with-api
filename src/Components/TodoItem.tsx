@@ -48,6 +48,11 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const onDoubleClickTitle = () => {
+    setOnEditing(true);
+    setEditingId(id);
+  };
+
   return (
     <div
       key={id}
@@ -66,58 +71,53 @@ export const TodoItem: React.FC<Props> = ({
           }}
         />
       </label>
-      {onEditing && editingId === id
-        ? (
-          <form
-            onSubmit={(e) => onSubmit(e, id)}
-            onBlur={(e) => onSubmit(e, id)}
+      {onEditing && editingId === id ? (
+        <form
+          onSubmit={(e) => onSubmit(e, id)}
+          onBlur={(e) => onSubmit(e, id)}
+        >
+          <input
+            className="todoapp__new-todo"
+            style={{
+              fontSize: 'inherit',
+              color: 'inherit',
+              border: 'none',
+              width: '100%',
+              padding: '12px 15px',
+              outline: '2px solid black',
+              borderRadius: '2px',
+            }}
+            value={inputTitle}
+            onChange={(e) => setInputTitle(e.target.value)}
+            placeholder="Empty todo will be deleted"
+            ref={input => input && input.focus()}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={onDoubleClickTitle}
           >
-            <input
-              className="todoapp__new-todo"
-              style={{
-                fontSize: 'inherit',
-                color: 'inherit',
-                border: 'none',
-                width: '100%',
-                padding: '12px 15px',
-                outline: '2px solid black',
-                borderRadius: '2px',
-              }}
-              value={inputTitle}
-              onChange={(e) => setInputTitle(e.target.value)}
-              placeholder="Empty todo will be deleted"
-              ref={input => input && input.focus()}
-            />
-          </form>
-        )
-        : (
-          <>
-            <span
-              className="todo__title"
-              onDoubleClick={() => {
-                setOnEditing(true);
-                setEditingId(id);
-              }}
-            >
-              {inputTitle}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => todoDelete(id)}
-            >
-              ×
-            </button>
-          </>
-        )}
+            {inputTitle}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => todoDelete(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
       <div
         className={classNames(
           'modal overlay',
           {
             'is-active': (deletedId === id || id === 0)
             || (isLoading && updatedId === id)
-            || updatedId === id || (updatedId === 'all' && completed === true)
-            || updatedId === 'allsame',
+            || updatedId === id || (updatedId === 1.0 && completed === true)
+            || updatedId === 2.0,
           },
         )}
       >

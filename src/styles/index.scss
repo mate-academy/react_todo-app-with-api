@@ -21,7 +21,7 @@ body {
 }
 
 .on-focus:focus {
-  outline: 2px solid black;
+  outline: 2px solid rgb(47, 47, 94);
   border-radius: 2px;
 }
 
@@ -29,6 +29,12 @@ body {
   font-style: italic;
   font-weight: 300;
   color: #e6e6e6;
+}
+
+.lastlogin {
+  font-size: 12px;
+  background-color: white;
+  padding: 5px 15px;
 }
 
 .prevuser-p {

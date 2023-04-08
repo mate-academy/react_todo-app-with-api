@@ -2,6 +2,7 @@ import {
   CSSTransition,
   TransitionGroup,
 } from 'react-transition-group';
+import { useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
@@ -33,9 +34,9 @@ export const TodoList: React.FC<TodoListPropsType> = ({
   editingId,
   setEditingId,
 }) => {
-  if (added) {
+  useEffect(() => {
     todosToShow.push(tempTodo);
-  }
+  }, [added]);
 
   return (
     <section className="todoapp__main">

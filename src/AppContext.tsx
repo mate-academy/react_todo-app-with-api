@@ -2,12 +2,12 @@ import React, { ReactNode, useState } from 'react';
 import { User } from './types/User';
 
 interface AppContextType {
-  user: User | 0,
-  setUser: (userData: User | 0) => void,
+  user: User | null,
+  setUser: (userData: User | null) => void,
 }
 
 export const AppContext = React.createContext<AppContextType>({
-  user: 0,
+  user: null,
   setUser: () => {},
 });
 
@@ -15,22 +15,12 @@ interface ChildrenType {
   children: ReactNode;
 }
 
-function isJson(str: string) {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
+const getData = localStorage.getItem('user') || null;
 
-  return true;
-}
-
-const getData = localStorage.getItem('user') || '0';
-
-const getUserFromLocalStorage = JSON.parse(isJson(getData) ? getData : '0');
+const getUserFromLocalStorage = getData ? JSON.parse(getData) : null;
 
 export const AppProvider: React.FC<ChildrenType> = ({ children }) => {
-  const [user, setUser] = useState<User | 0>(getUserFromLocalStorage);
+  const [user, setUser] = useState<User | null>(getUserFromLocalStorage);
 
   const context = {
     user,

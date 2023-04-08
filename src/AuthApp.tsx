@@ -6,7 +6,7 @@ import { App } from './App';
 export const AuthApp: React.FC = () => {
   const { user } = useContext(AppContext);
 
-  if (user === 0) {
+  if (!user) {
     return (
       <LoginForm />
     );

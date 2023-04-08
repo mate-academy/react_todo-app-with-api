@@ -19,7 +19,7 @@ import { Filters } from './types/enums';
 import { AppContext } from './AppContext';
 import { LoginForm } from './Components/LoginForm';
 
-const temp = {
+const initialTempTodo = {
   id: 0,
   userId: 0,
   title: '',
@@ -33,22 +33,22 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const hasErrorFromServer = !!errorMessage;
   const [deletedId, setDeletedId] = useState(0);
-  const [tempTodo, setTempTodo] = useState<Todo>(temp);
+  const [tempTodo, setTempTodo] = useState<Todo>(initialTempTodo);
   const [added, setAdded] = useState(false);
-  const [updatedId, setUpdatedId] = useState<number | string>(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [updatedId, setUpdatedId] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState(0);
 
   const { user, setUser } = useContext(AppContext);
 
   const onLogout = () => {
-    setUser(0);
+    setUser(null);
     localStorage.setItem('user', '0');
   };
 
-  const userName = user !== 0 ? user.name : 'No Name';
+  const userName = user ? user.name : 'No Name';
 
-  const USER_ID = user !== 0 ? user.id : 0;
+  const userId = user ? user.id : 0;
 
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
 
   const fetchTodos = async () => {
     try {
-      const todosFromServer = await getTodos(USER_ID);
+      const todosFromServer = await getTodos(userId);
 
       setTodos(todosFromServer);
     } catch {
@@ -86,9 +86,9 @@ export const App: React.FC = () => {
     setAdded(true);
     setSearchQuery('');
     try {
-      const addedResultFromServer = await addTodos(USER_ID, {
+      const addedResultFromServer = await addTodos(userId, {
         title,
-        userId: USER_ID,
+        userId,
         completed: false,
       });
 
@@ -114,6 +114,7 @@ export const App: React.FC = () => {
   ) => {
     setEditingId(0);
     setUpdatedId(todoId);
+    setIsLoading(true);
 
     const updateData = typeof status === 'boolean'
       ? { completed: !status }
@@ -151,6 +152,7 @@ export const App: React.FC = () => {
 
   const todoDelete = async (todoId: number) => {
     setDeletedId(todoId);
+    setIsLoading(true);
     try {
       const deleteResultFromServer = await deleteTodos(todoId);
 
@@ -168,7 +170,7 @@ export const App: React.FC = () => {
   };
 
   const completeAllToggle = async () => {
-    setUpdatedId('allsame');
+    setUpdatedId(2.0);
     const allToggle = todos.filter(todo => !todo.completed).length !== 0;
 
     try {
@@ -195,9 +197,9 @@ export const App: React.FC = () => {
   };
 
   const clearAllCompleted = async () => {
-    setUpdatedId('all');
+    setUpdatedId(1.0);
 
-    const allCompleted = todos.filter(todo => todo.completed === true);
+    const allCompleted = todos.filter(todo => todo.completed);
 
     try {
       const changedElements = await Promise.all(
@@ -205,7 +207,7 @@ export const App: React.FC = () => {
       );
 
       if (changedElements) {
-        setTodos((state) => state.filter(todo => todo.completed === false));
+        setTodos((state) => state.filter(todo => !todo.completed));
         fetchTodos();
       }
     } catch {
@@ -223,7 +225,7 @@ export const App: React.FC = () => {
     fetchTodos();
   }, []);
 
-  if (!USER_ID) {
+  if (!userId) {
     return <LoginForm />;
   }
 

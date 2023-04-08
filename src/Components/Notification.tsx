@@ -25,7 +25,7 @@ export const Notification: React.FC<NotificationPropsType> = ({
     } else {
       setHidden(true);
     }
-  }, [hasErrorFromServer]);
+  }, [hasErrorFromServer, clearNotification]);
 
   return (
     <div className={classNames(
@@ -37,7 +37,7 @@ export const Notification: React.FC<NotificationPropsType> = ({
         type="button"
         className="delete"
         aria-label="Add todo"
-        onClick={() => clearNotification()}
+        onClick={clearNotification}
       />
 
       {errorMessage}

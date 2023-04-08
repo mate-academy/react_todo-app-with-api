@@ -1,4 +1,5 @@
 import React, {
+  ChangeEvent,
   FormEvent,
   useContext,
   useMemo,
@@ -14,7 +15,7 @@ const addPrevUser = (prevEmail: string) => {
   const getPrevUsers: string[] | 0 = JSON
     .parse(localStorage.getItem('prevusers') || '0');
 
-  if (getPrevUsers !== 0) {
+  if (getPrevUsers) {
     if (getPrevUsers.length === 5) {
       getPrevUsers.pop();
     }
@@ -39,20 +40,17 @@ export const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPrevUsers, setShowPrevUsers] = useState(false);
   const hasErrorFromServer = !!errorMessage;
+  const [tempEmail, setTempEmail] = useState('');
 
   const ref = useRef<HTMLInputElement>(null);
-
-  let tempEmail = '';
 
   const prevUsers: string[] | 0 = JSON
     .parse(localStorage.getItem('prevusers') || '0');
 
-  const toshowPrevUsers = useMemo(() => {
-    return prevUsers !== 0 ? prevUsers
-      .filter(preMail => {
-        return email !== '' ? preMail.includes(email) : true;
-      }) : 0;
-  }, [email]);
+  const toshowPrevUsers = useMemo(() => (prevUsers !== 0
+    ? prevUsers.filter(preMail => !email.length || preMail.includes(email))
+    : 0),
+  [email]);
 
   const clearNotification = () => {
     setErrorMessage('');
@@ -117,14 +115,27 @@ export const LoginForm: React.FC = () => {
 
     setEmail(prevmail);
     setShowPrevUsers(false);
-    tempEmail = prevmail;
+    setTempEmail(prevmail);
+  };
+
+  const onChangeLoginInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (tempEmail !== e.target.value) {
+      setShowPrevUsers(true);
+    }
+  };
+
+  const onBack = () => {
+    setNewUser(false);
+    setEmailDisabled(false);
+    setName('');
   };
 
   return (
     <>
       <form
         className="box is-size-3 mt-5"
-        onSubmit={(e) => addUser(e)}
+        onSubmit={addUser}
       >
         <h1 className="title is-3">Log in to open todos</h1>
         <div className="field prevuser-p">
@@ -136,12 +147,7 @@ export const LoginForm: React.FC = () => {
               className="input"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (tempEmail !== e.target.value) {
-                  setShowPrevUsers(true);
-                }
-              }}
+              onChange={onChangeLoginInput}
               required
               disabled={emailDisabled}
               onFocus={() => setShowPrevUsers(true)}
@@ -152,8 +158,7 @@ export const LoginForm: React.FC = () => {
             </span>
           </div>
 
-          {toshowPrevUsers !== 0 && toshowPrevUsers.length !== 0
-          && showPrevUsers && (
+          {toshowPrevUsers && !!toshowPrevUsers.length && showPrevUsers && (
             <div className="prevuser">
               {toshowPrevUsers.map((prevmail) => (
                 <button
@@ -165,13 +170,7 @@ export const LoginForm: React.FC = () => {
                   {prevmail}
                 </button>
               ))}
-              <p
-                style={{
-                  fontSize: '12px',
-                  backgroundColor: 'white',
-                  padding: '5px 15px',
-                }}
-              >
+              <p className="lastlogin">
                 last 5 logins
               </p>
             </div>
@@ -212,11 +211,7 @@ export const LoginForm: React.FC = () => {
             <button
               type="button"
               className="button mx-5 is-primary"
-              onClick={() => {
-                setNewUser(false);
-                setEmailDisabled(false);
-                setName('');
-              }}
+              onClick={onBack}
             >
               Back
             </button>

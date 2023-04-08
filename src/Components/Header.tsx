@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -23,6 +23,16 @@ export const Header: React.FC<HeaderPropsType> = ({
 }) => {
   const isActicve = todos.filter(todo => !todo.completed).length;
 
+  const onSubmitTodo = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!searchQuery.trim()) {
+      onEmpty();
+    } else {
+      addTodo(searchQuery);
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {todos.length !== 0 && (
@@ -36,17 +46,7 @@ export const Header: React.FC<HeaderPropsType> = ({
           onClick={() => completeAllToggle()}
         />
       )}
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-
-          if (!searchQuery) {
-            onEmpty();
-          } else {
-            addTodo(searchQuery);
-          }
-        }}
-      >
+      <form onSubmit={onSubmitTodo}>
         <input
           type="text"
           className="todoapp__new-todo on-focus"
