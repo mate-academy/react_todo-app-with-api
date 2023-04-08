@@ -1,4 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import { useState } from 'react';
+import classNames from 'classnames';
 
 type Props = {
   totalTodoListLength: number,
@@ -7,6 +9,7 @@ type Props = {
   isDisabledForm: boolean,
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) =>
   void | Promise<void>;
+  onHandleAllTodosStatus: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,15 +18,24 @@ export const Header: React.FC<Props> = ({
   onSetQuery,
   isDisabledForm,
   handleSubmit,
+  onHandleAllTodosStatus,
 }) => {
-  const isActiveToggleButton = !!totalTodoListLength;
+  const isVisibleToggleButton = !!totalTodoListLength;
+  const [isActiveToggleButton, setActiveToggleButton] = useState(false);
+
+  const toggleAllTodosStatus = () => {
+    onHandleAllTodosStatus();
+    setActiveToggleButton(!isActiveToggleButton);
+  };
 
   return (
     <header className="todoapp__header">
-      {isActiveToggleButton && (
+      {isVisibleToggleButton && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all',
+            { active: isActiveToggleButton })}
+          onClick={toggleAllTodosStatus}
         />
       )}
 

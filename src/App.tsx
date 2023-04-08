@@ -28,10 +28,9 @@ export const App: React.FC = () => {
 
   let visibleTodoList = todosList;
   const copletedTodos = todosList.filter(todo => todo.completed);
+  const activeTodos = todosList.filter(todo => !todo.completed);
   const totalTodoListLength = todosList.length;
-  const activeTodoListLength = todosList.filter(
-    todo => !todo.completed,
-  ).length;
+  const activeTodoListLength = activeTodos.length;
   const isActiveFooter = !!totalTodoListLength;
   const completedTodoListLength = totalTodoListLength - activeTodoListLength;
 
@@ -160,6 +159,22 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleAllTodosStatus = async () => {
+    try {
+      if (activeTodoListLength) {
+        await Promise.all(activeTodos
+          .map(todo => updateStatusTodo(todo.id, !todo.completed)));
+      } else {
+        await Promise.all(visibleTodoList
+          .map(todo => updateStatusTodo(todo.id, !todo.completed)));
+      }
+
+      await getTodosFromServer();
+    } catch {
+      showError('unable to update all todo status');
+    }
+  };
+
   const handleTitleTodo = async (id:number, title:string) => {
     try {
       const processingTodo = visibleTodoList.find(todo => todo.id === id);
@@ -188,6 +203,7 @@ export const App: React.FC = () => {
           onSetQuery={setQuery}
           isDisabledForm={isDisabledForm}
           handleSubmit={handleSubmit}
+          onHandleAllTodosStatus={handleAllTodosStatus}
         />
 
         <TodoList

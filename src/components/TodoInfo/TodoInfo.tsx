@@ -28,6 +28,10 @@ export const TodoInfo: React.FC<Props> = ({
   const [newTitle, setNewTitle] = useState(title);
   const [isEditTitleMode, setEditTitleMode] = useState(false);
 
+  const toggleStatusTodo = () => {
+    onHandleStatusTodo(id, completed);
+  };
+
   const handleVisibleForm = () => {
     setEditTitleMode(true);
   };
@@ -73,9 +77,7 @@ export const TodoInfo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => {
-            onHandleStatusTodo(id, completed);
-          }}
+          onChange={toggleStatusTodo}
         />
       </label>
 
