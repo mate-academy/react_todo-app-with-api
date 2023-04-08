@@ -11,6 +11,7 @@ type Props = {
   setTodoCondition: (arg: TodoCondition) => void,
   onTrickTempTodo: (newTodo: Todo | null) => void,
   setTodos: (prev: any) => void,
+  toggleAllTodos: () => void,
 };
 
 export const Header: FC<Props> = ({
@@ -19,6 +20,7 @@ export const Header: FC<Props> = ({
   setTodoCondition,
   onTrickTempTodo,
   setTodos,
+  toggleAllTodos,
 }) => {
   const [title, setTitle] = useState<string>('');
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
@@ -64,6 +66,7 @@ export const Header: FC<Props> = ({
           { active: containsActive },
         )}
         aria-label="Complete all todos button"
+        onClick={toggleAllTodos}
       />
 
       <form onSubmit={(e) => handleSubmit(e)}>

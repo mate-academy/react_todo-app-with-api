@@ -8,7 +8,7 @@ type Props = {
   onDeleteTodo: (todoId: number) => void,
   procesingTodosId: number[],
   todoCondition: TodoCondition,
-  onTodoCheck: (todo: Todo) => void, 
+  toggleTodo: (curentTodo: Todo, status?: boolean | undefined) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,7 +16,7 @@ export const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   procesingTodosId,
   todoCondition,
-  onTodoCheck,
+  toggleTodo,
 }) => {
   return (
     <>
@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             onDeleteTodo={onDeleteTodo}
             todoCondition={thisTodoCondition}
-            onTodoCheck={onTodoCheck}
+            toggleTodo={toggleTodo}
           />
         );
       })}

@@ -7,7 +7,12 @@ import { Error } from './types/Error';
 import { TodoCondition } from './types/TodoCondition';
 
 import { filterTodos } from './utils/filterTodos';
-import { USER_ID, deleteTodo, getTodos, changeTodo } from './api/todos';
+import {
+  USER_ID,
+  deleteTodo,
+  getTodos,
+  changeTodo,
+} from './api/todos';
 
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
@@ -33,6 +38,21 @@ export const App: React.FC = () => {
     setErrorType(err);
   };
 
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(result => {
+        setTodos(result);
+      })
+      .catch(() => handleError(Error.Load));
+  }, []);
+
+  const todosStatus = useMemo(() => {
+    return {
+      isActive: todos.some(todo => todo.completed === false),
+      isCompleted: todos.some(todo => todo.completed === true),
+    };
+  }, [todos]);
+
   const todoDelete = (todoId: number) => {
     setTodoCondition(TodoCondition.deleting);
     setProcesingTodosId([todoId]);
@@ -56,42 +76,34 @@ export const App: React.FC = () => {
     });
   };
 
-  const todoCheck = (curentTodo: Todo) => {
+  const toggleTodo = (curentTodo: Todo, status: boolean | undefined) => {
     setTodoCondition(TodoCondition.seving);
-    setProcesingTodosId([curentTodo.id])
+    setProcesingTodosId([curentTodo.id]);
 
     const copyTodos = [...todos];
     const indexCurTodo = copyTodos.findIndex(({ id }) => id === curentTodo.id);
-    const newStatus: boolean = !curentTodo.completed;
+    const newStatus: boolean = status || !curentTodo.completed;
 
     copyTodos[indexCurTodo].completed = newStatus;
 
     changeTodo(curentTodo.id, { completed: newStatus })
-      .then((result) => {
-        console.log(result)
+      .then(() => {
         setTodos(copyTodos);
       })
       .catch(() => handleError(Error.Update))
       .finally(() => {
         setProcesingTodosId([]);
         setTodoCondition(TodoCondition.neutral);
-      })
+      });
   };
 
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then(result => {
-        setTodos(result);
-      })
-      .catch(() => handleError(Error.Load));
-  }, []);
-
-  const todosStatus = useMemo(() => {
-    return {
-      isActive: todos.some(todo => todo.completed === false),
-      isCompleted: todos.some(todo => todo.completed === true),
-    };
-  }, [todos]);
+  const toggleAllTodos = () => {
+    todos.forEach(todo => {
+      if (todosStatus.isActive !== todo.completed) {
+        toggleTodo(todo, todosStatus.isActive);
+      }
+    });
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -111,6 +123,7 @@ export const App: React.FC = () => {
           setTodoCondition={setTodoCondition}
           onTrickTempTodo={setTempTodo}
           setTodos={setTodos}
+          toggleAllTodos={toggleAllTodos}
         />
 
         {filteredTodos && (
@@ -121,14 +134,14 @@ export const App: React.FC = () => {
                 onDeleteTodo={todoDelete}
                 todoCondition={todoCondition}
                 procesingTodosId={procesingTodosId}
-                onTodoCheck={todoCheck}
+                toggleTodo={toggleTodo}
               />
 
               {tempTodo && (
                 <TodoItem
                   todo={tempTodo}
                   todoCondition={todoCondition}
-                  // onDeleteTodo={todoDelete}
+                // onDeleteTodo={todoDelete}
                 />
               )}
             </section>
