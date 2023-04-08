@@ -1,3 +1,4 @@
+import { ChangeEvent, FormEvent, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -6,6 +7,7 @@ type Props = {
   isLoading: boolean,
   removeTodo: (id:number) => void;
   onHandleStatusTodo: (id:number, completed:boolean) => void;
+  onHandleTitleTodo: (id:number, title:string) => void;
   updatingTodo: Todo | null,
 };
 
@@ -14,6 +16,7 @@ export const TodoInfo: React.FC<Props> = ({
   isLoading,
   removeTodo,
   onHandleStatusTodo,
+  onHandleTitleTodo,
   updatingTodo,
 }) => {
   const {
@@ -22,10 +25,47 @@ export const TodoInfo: React.FC<Props> = ({
     completed,
   } = todo;
 
+  const [newTitle, setNewTitle] = useState(title);
+  const [isEditTitleMode, setEditTitleMode] = useState(false);
+
+  const handleVisibleForm = () => {
+    setEditTitleMode(true);
+  };
+
+  const handleNewTitle = (event: ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
+
+  const saveNewTitle = (event: FormEvent) => {
+    event.preventDefault();
+
+    const normalizeTitle = newTitle.trim();
+
+    if (normalizeTitle === title) {
+      setEditTitleMode(false);
+
+      return;
+    }
+
+    if (!normalizeTitle.length) {
+      removeTodo(id);
+    }
+
+    onHandleTitleTodo(id, normalizeTitle);
+    setEditTitleMode(false);
+  };
+
+  const cancelChangeTitle = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setEditTitleMode(false);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed })}
+      onDoubleClick={handleVisibleForm}
     >
       <label className="todo__status-label">
         <input
@@ -39,19 +79,39 @@ export const TodoInfo: React.FC<Props> = ({
         />
       </label>
 
-      <span
-        className="todo__title"
-      >
-        {title}
-      </span>
+      {!isEditTitleMode ? (
+        <>
+          <span className="todo__title">
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => removeTodo(id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => removeTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      )
+        : (
+          <>
+            <form onSubmit={saveNewTitle}>
+              <input
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                value={newTitle}
+                onChange={handleNewTitle}
+                onKeyUp={cancelChangeTitle}
+                onBlur={saveNewTitle}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+              />
+            </form>
+          </>
+        )}
+
       <div
         className={classNames('modal overlay',
           { 'is-active': isLoading || updatingTodo?.id === id })}

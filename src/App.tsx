@@ -7,7 +7,7 @@ import { ErrorNotification }
   from './components/ErrorNotification/ErrorNotification';
 
 import {
-  getTodos, addTodo, deleteTodo, updateStatusTodo,
+  getTodos, addTodo, deleteTodo, updateStatusTodo, updateTitleTodo,
 } from './api/todos';
 
 import { Todo } from './types/Todo';
@@ -154,7 +154,24 @@ export const App: React.FC = () => {
       await updateStatusTodo(id, newStatus);
       await getTodosFromServer();
     } catch {
-      showError('unable to update status element');
+      showError('unable to update a status');
+    } finally {
+      setUpdatingTodo(null);
+    }
+  };
+
+  const handleTitleTodo = async (id:number, title:string) => {
+    try {
+      const processingTodo = visibleTodoList.find(todo => todo.id === id);
+
+      if (processingTodo) {
+        setUpdatingTodo(processingTodo);
+      }
+
+      await updateTitleTodo(id, title);
+      await getTodosFromServer();
+    } catch {
+      showError('unable to update a title');
     } finally {
       setUpdatingTodo(null);
     }
@@ -179,6 +196,7 @@ export const App: React.FC = () => {
           tempTodos={tempTodos}
           removeTodo={removeTodo}
           onHandleStatusTodo={handleStatusTodo}
+          onHandleTitleTodo={handleTitleTodo}
           updatingTodo={updatingTodo}
         />
 

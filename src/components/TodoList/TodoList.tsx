@@ -14,6 +14,7 @@ type Props = {
   tempTodos: Todo[],
   removeTodo: (id:number) => void;
   onHandleStatusTodo: (id:number, completed:boolean) => void;
+  onHandleTitleTodo: (id:number, title:string) => void;
   updatingTodo: Todo | null,
 };
 
@@ -23,6 +24,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodos,
   removeTodo,
   onHandleStatusTodo,
+  onHandleTitleTodo,
   updatingTodo,
 }) => {
   return (
@@ -40,6 +42,7 @@ export const TodoList: React.FC<Props> = ({
               updatingTodo={updatingTodo}
               removeTodo={removeTodo}
               onHandleStatusTodo={onHandleStatusTodo}
+              onHandleTitleTodo={onHandleTitleTodo}
             />
           </CSSTransition>
         ))}
@@ -56,6 +59,7 @@ export const TodoList: React.FC<Props> = ({
               updatingTodo={updatingTodo}
               removeTodo={removeTodo}
               onHandleStatusTodo={onHandleStatusTodo}
+              onHandleTitleTodo={onHandleTitleTodo}
             />
           </CSSTransition>
         )}
