@@ -82,19 +82,19 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     }
   }, [loadingTodosIds, allTodos]);
 
-  const updateTodoTitle = useCallback(async () => {
+  const updateTodoTitle = useCallback(async (updatedTitle: string) => {
     try {
-      if (newTitle !== title) {
+      if (updatedTitle !== title) {
         setShouldShowError(false);
         setLoadingTodosIds(prevIds => [...prevIds, id]);
 
-        await patchTodo(id, { title: newTitle });
+        await patchTodo(id, { title: updatedTitle });
 
         setAllTodos(prevTodos => prevTodos.map(prevTodo => {
           if (prevTodo.id === id) {
             return {
               ...prevTodo,
-              title: newTitle,
+              title: updatedTitle,
             };
           }
 
@@ -104,14 +104,17 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     } catch {
       showError('Unable to update a todo');
     } finally {
+      setNewTitle(updatedTitle);
       setIsEditingMode(false);
       setLoadingTodosIds([0]);
     }
-  }, [loadingTodosIds, allTodos]);
+  }, [loadingTodosIds, allTodos, newTitle]);
 
   const finishUpdating = useCallback(() => {
-    if (newTitle.trim()) {
-      updateTodoTitle();
+    const newTitleTrimmed = newTitle.trim();
+
+    if (newTitleTrimmed) {
+      updateTodoTitle(newTitleTrimmed);
     } else {
       deleteTodoFromServer();
     }

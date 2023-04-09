@@ -61,8 +61,10 @@ export const NewTodoForm: React.FC = React.memo(() => {
   const handleTodoAddition = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle.trim()) {
-      postNewTodo(todoTitle);
+    const trimmedTitle = todoTitle.trim();
+
+    if (trimmedTitle) {
+      postNewTodo(trimmedTitle);
     } else {
       setTitle('');
       showError('Title can\'t be empty');
