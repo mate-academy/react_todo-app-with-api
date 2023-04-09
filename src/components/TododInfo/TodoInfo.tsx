@@ -25,8 +25,9 @@ export const TodoInfo: React.FC<Props> = React.memo(
 
     const handleUpdateTitleOnBlur = useCallback(
       () => {
-        if (newTitle === todo.title) {
+        if (newTitle === todo.title || newTitle.length === 0) {
           setIsActiveForm(false);
+          setNewTitle(todo.title);
 
           return;
         }
