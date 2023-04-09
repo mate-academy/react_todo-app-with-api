@@ -1,5 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 import { User } from './types/User';
+import { StringValues } from './types/enums';
 
 interface AppContextType {
   user: User | null,
@@ -15,7 +16,7 @@ interface ChildrenType {
   children: ReactNode;
 }
 
-const getData = localStorage.getItem('user') || null;
+const getData = localStorage.getItem(StringValues.user) || null;
 
 const getUserFromLocalStorage = getData ? JSON.parse(getData) : null;
 

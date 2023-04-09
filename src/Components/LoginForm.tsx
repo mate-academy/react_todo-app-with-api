@@ -10,23 +10,29 @@ import classNames from 'classnames';
 import { AppContext } from '../AppContext';
 import { findUser, addUsers } from '../api/todos';
 import { Notification } from './Notification';
+import { StringValues } from '../types/enums';
+
+const prevUsersFromLocalStorage: string[] | 0 = JSON
+  .parse(localStorage.getItem(StringValues.prevusers) || '0');
 
 const addPrevUser = (prevEmail: string) => {
-  const getPrevUsers: string[] | 0 = JSON
-    .parse(localStorage.getItem('prevusers') || '0');
-
-  if (getPrevUsers) {
-    if (getPrevUsers.length === 5) {
-      getPrevUsers.pop();
+  if (prevUsersFromLocalStorage) {
+    if (prevUsersFromLocalStorage.length === 5) {
+      prevUsersFromLocalStorage.pop();
     }
 
-    if (getPrevUsers.filter(mail => mail === prevEmail).length === 0) {
-      getPrevUsers.unshift(prevEmail);
+    if (prevUsersFromLocalStorage
+      .filter(mail => mail === prevEmail).length === 0) {
+      prevUsersFromLocalStorage.unshift(prevEmail);
     }
 
-    localStorage.setItem('prevusers', JSON.stringify(getPrevUsers));
+    localStorage
+      .setItem(
+        StringValues.prevusers,
+        JSON.stringify(prevUsersFromLocalStorage),
+      );
   } else {
-    localStorage.setItem('prevusers', JSON.stringify([prevEmail]));
+    localStorage.setItem(StringValues.prevusers, JSON.stringify([prevEmail]));
   }
 };
 
@@ -44,11 +50,9 @@ export const LoginForm: React.FC = () => {
 
   const ref = useRef<HTMLInputElement>(null);
 
-  const prevUsers: string[] | 0 = JSON
-    .parse(localStorage.getItem('prevusers') || '0');
-
-  const toshowPrevUsers = useMemo(() => (prevUsers !== 0
-    ? prevUsers.filter(preMail => !email.length || preMail.includes(email))
+  const toshowPrevUsers = useMemo(() => (prevUsersFromLocalStorage !== 0
+    ? prevUsersFromLocalStorage
+      .filter(preMail => !email.length || preMail.includes(email))
     : 0),
   [email]);
 
@@ -74,7 +78,7 @@ export const LoginForm: React.FC = () => {
 
         if (userExits.length !== 0) {
           localStorage.setItem(
-            'user',
+            StringValues.user,
             JSON.stringify(userExits[0]),
           );
           setUser(userExits[0]);

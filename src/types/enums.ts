@@ -3,3 +3,8 @@ export enum Filters {
   active = 'active',
   completed = 'completed',
 }
+
+export enum StringValues {
+  user = 'user',
+  prevusers = 'prevusers',
+}

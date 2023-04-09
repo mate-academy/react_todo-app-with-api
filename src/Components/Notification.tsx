@@ -15,16 +15,21 @@ export const Notification: React.FC<NotificationPropsType> = ({
   const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
+    let timerId: NodeJS.Timeout;
+
     if (hasErrorFromServer) {
       setHidden(false);
-      const timerId = window.setTimeout(() => {
+      timerId = setTimeout(() => {
         setHidden(true);
         clearNotification();
-        window.clearTimeout(timerId);
       }, 3000);
     } else {
       setHidden(true);
     }
+
+    return () => {
+      clearTimeout(timerId);
+    };
   }, [hasErrorFromServer, clearNotification]);
 
   return (

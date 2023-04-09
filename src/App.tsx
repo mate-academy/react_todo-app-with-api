@@ -15,7 +15,7 @@ import { Header } from './Components/Header';
 import { TodoList } from './Components/Todolist';
 import { Footer } from './Components/Footer';
 import { Notification } from './Components/Notification';
-import { Filters } from './types/enums';
+import { Filters, StringValues } from './types/enums';
 import { AppContext } from './AppContext';
 import { LoginForm } from './Components/LoginForm';
 
@@ -43,7 +43,7 @@ export const App: React.FC = () => {
 
   const onLogout = () => {
     setUser(null);
-    localStorage.setItem('user', '0');
+    localStorage.setItem(StringValues.user, '0');
   };
 
   const userName = user ? user.name : 'No Name';
