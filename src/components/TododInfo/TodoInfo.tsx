@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -20,6 +20,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
   }) => {
     const [isActiveForm, setIsActiveForm] = useState(false);
     const [newTitle, setNewTitle] = useState(todo.title);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const isInDeleteList = loadingTodoIds.some(id => todo.id === id);
 
@@ -57,6 +58,12 @@ export const TodoInfo: React.FC<Props> = React.memo(
       }
     });
 
+    useEffect(() => {
+      if (isActiveForm) {
+        inputRef.current?.focus();
+      }
+    }, [isActiveForm]);
+
     return (
       <div
         className={classNames('todo', { completed: todo.completed })}
@@ -73,6 +80,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
         {isActiveForm ? (
           <form onSubmit={handleUpdateTitle}>
             <input
+              ref={inputRef}
               type="text"
               onBlur={() => handleUpdateTitleOnBlur()}
               disabled={!isActiveForm}
