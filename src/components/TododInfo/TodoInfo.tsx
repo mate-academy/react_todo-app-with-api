@@ -53,12 +53,29 @@ export const TodoInfo: React.FC<Props> = React.memo(
       }, [isActiveForm, newTitle],
     );
 
-    document.addEventListener('keyup', (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setNewTitle(todo.title);
-        setIsActiveForm(false);
-      }
-    });
+    // document.addEventListener('keyup', (event: KeyboardEvent) => {
+    //   if (event.key === 'Escape') {
+    //     setNewTitle(todo.title);
+    //     setIsActiveForm(false);
+    //   }
+    // });
+
+    const handleAddEventLisTener = useCallback(
+      (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          setNewTitle(todo.title);
+          setIsActiveForm(false);
+        }
+      }, [],
+    );
+
+    useEffect(() => {
+      document.addEventListener('keyup', handleAddEventLisTener);
+
+      return () => {
+        document.removeEventListener('keyup', handleAddEventLisTener);
+      };
+    }, []);
 
     useEffect(() => {
       if (isActiveForm) {
