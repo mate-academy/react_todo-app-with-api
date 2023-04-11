@@ -20,6 +20,7 @@ import { AddingForm } from './components/AddingForm';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { NotificationError } from './components/NotificationError';
+import { Errors } from './types/Errors';
 
 const USER_ID = 6922;
 
@@ -43,7 +44,7 @@ export const App: FC = () => {
 
       setTodos(loadedTodos);
     } catch (err) {
-      setError('Can`t load todos');
+      setError(Errors.LOAD);
       clearNotification();
     }
   }, []);
@@ -79,7 +80,7 @@ export const App: FC = () => {
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch (err) {
-      setError('Unable to add todo');
+      setError(Errors.ADD);
       clearNotification();
     } finally {
       setTempTodo(null);
@@ -95,7 +96,7 @@ export const App: FC = () => {
       await deleteTodo(todoId);
       setTodos((currTodos) => currTodos.filter((todo) => todo.id !== todoId));
     } catch (err) {
-      setError('Unable to delete todo');
+      setError(Errors.DELETE);
       clearNotification();
     } finally {
       setLoadingTodosId([]);
@@ -117,7 +118,7 @@ export const App: FC = () => {
         }
         : todo)));
     } catch (err) {
-      setError('Unable to update todo');
+      setError(Errors.UPDATE);
       clearNotification();
     } finally {
       setLoadingTodosId([]);

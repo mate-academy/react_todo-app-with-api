@@ -10,6 +10,7 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { Errors } from '../../types/Errors';
 
 type Props = {
   userId: number,
@@ -35,8 +36,8 @@ export const AddingForm: FC<Props> = ({
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!title) {
-      setError('Title cannot be empty');
+    if (!title.trim()) {
+      setError(Errors.TITLE_ERROR);
       clearNotification();
 
       return;
