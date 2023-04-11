@@ -5,5 +5,5 @@ export enum ErrorType {
   AddTodo = 'Add Todo',
   DeleteTodo = 'Delete Todo',
   DeleteCompletedTodo = 'Delete Completed Todo',
-  ToggleTodo = 'Toggle Todo',
+  UpdateTodo = 'Update Todo',
 }

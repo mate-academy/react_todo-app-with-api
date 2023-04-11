@@ -13,6 +13,8 @@ export const TodoHeader: React.FC<Props> = ({
   onTodoAdd,
   onTodoToggleAll,
 }) => {
+  // console.log('render HEADER');
+
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}

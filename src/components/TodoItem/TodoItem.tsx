@@ -11,9 +11,8 @@ import { TodoRichEditable } from '../../types/TodoRichEditable';
 type Props = {
   todo: TodoRich;
   onTodoDelete?: (todoId: number) => Promise<void>;
-  onTodoToggle?: (todoId: number, isCompleted: boolean) => Promise<void>;
-  onTodoUpdate?: (todoId: number, updatedData: TodoRichEditable) => void;
-  onTodoTitleUpdate?: (todoId: number, newTitle: string) => Promise<void>;
+  onTodoUpdate?: (todoId: number, updatedData: TodoRichEditable)
+  => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -23,43 +22,26 @@ export const TodoItem: React.FC<Props> = ({
     completed,
     mode,
   },
-  onTodoDelete,
-  onTodoToggle,
-  onTodoUpdate,
-  onTodoTitleUpdate,
+  onTodoDelete = () => {},
+  onTodoUpdate = () => {},
 }) => {
-  const hadndleTodoDelete = async () => {
-    if (!onTodoDelete) {
-      return;
-    }
+  const hadndleTodoDelete = async () => onTodoDelete(id);
 
-    await onTodoDelete(id);
-  };
+  const hadndleTodoToggle = async (
+    checkEvent: React.ChangeEvent<HTMLInputElement>,
+  ) => onTodoUpdate(id, { completed: checkEvent.target.checked });
 
-  const hadndleTodoToggle
-    = async (checkEvent: React.ChangeEvent<HTMLInputElement>) => {
-      if (!onTodoToggle || checkEvent.target.type !== 'checkbox') {
-        return;
-      }
+  const handleTodoTitleUpdate = async (newTitle: string) => (
+    onTodoUpdate(id, { title: newTitle.trim() })
+  );
 
-      await onTodoToggle(id, checkEvent.target.checked);
-    };
+  const handleEditingSkip = async () => (
+    onTodoUpdate(id, { mode: TodoMode.None })
+  );
 
-  const handleTodoTitleUpdate = async (newTitle: string) => {
-    if (!onTodoTitleUpdate) {
-      return;
-    }
-
-    await onTodoTitleUpdate(id, newTitle.trim());
-  };
-
-  const handleTodoModeUpdate = (newMode: TodoMode) => {
-    if (!onTodoUpdate) {
-      return;
-    }
-
-    onTodoUpdate(id, { mode: newMode });
-  };
+  const handleEditingStart = async () => (
+    onTodoUpdate(id, { mode: TodoMode.Editing })
+  );
 
   return (
     <div
@@ -84,14 +66,14 @@ export const TodoItem: React.FC<Props> = ({
           <TodoEditForm
             title={title}
             onTodoTitleUpdate={handleTodoTitleUpdate}
-            onEditingSkip={() => handleTodoModeUpdate(TodoMode.None)}
+            onEditingSkip={handleEditingSkip}
             onTodoDelete={hadndleTodoDelete}
           />
         ) : (
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => handleTodoModeUpdate(TodoMode.Editing)}
+              onDoubleClick={handleEditingStart}
             >
               {title}
             </span>

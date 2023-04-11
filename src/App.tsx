@@ -31,7 +31,7 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<TodoRich | null>(null);
 
-  const addTodo = (newTodo: Todo): void => {
+  const addTodoLocal = (newTodo: Todo): void => {
     setTodos((prevTodos) => (
       [
         ...prevTodos,
@@ -43,13 +43,13 @@ export const App: React.FC = () => {
     ));
   };
 
-  const deleteTodo = (todoId: number): void => {
+  const deleteTodoLocal = (todoId: number): void => {
     setTodos(prevTodos => (
       prevTodos.filter(todo => todo.id !== todoId)
     ));
   };
 
-  const updateTodo = (
+  const updateTodoLocal = (
     todoId: number,
     updatedData: TodoRichEditable,
   ) => (
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
     ))
   );
 
-  const handleTodoAdd = async (todoTitle: string): Promise<void> => {
+  const handleTodoAdd = async (todoTitle: string) => {
     if (todoTitle === '') {
       setError(ErrorType.EmptyTitle);
 
@@ -87,7 +87,7 @@ export const App: React.FC = () => {
     try {
       const newTodoFromServer = await addTodoOnServer(USER_ID, newTodo);
 
-      addTodo(newTodoFromServer);
+      addTodoLocal(newTodoFromServer);
     } catch {
       setError(ErrorType.AddTodo);
     } finally {
@@ -95,19 +95,46 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleTodoDelete = async (todoId: number): Promise<void> => {
-    updateTodo(todoId, { mode: TodoMode.Loading });
+  const handleTodoDelete = async (todoId: number) => {
+    updateTodoLocal(todoId, { mode: TodoMode.Loading });
 
     try {
       await deleteTodoOnServer(USER_ID, todoId);
-      deleteTodo(todoId);
+      deleteTodoLocal(todoId);
     } catch {
       setError(ErrorType.DeleteTodo);
-      updateTodo(todoId, { mode: TodoMode.None });
+      updateTodoLocal(todoId, { mode: TodoMode.None });
     }
   };
 
-  const handleCompletedTodosDelete = async (): Promise<void> => {
+  const handleTodoUpdate = async (
+    todoId: number,
+    updatedData: TodoRichEditable,
+  ) => {
+    const keys = Object.keys(updatedData);
+
+    if (keys.length === 1 && keys[0] === 'mode') {
+      updateTodoLocal(todoId, updatedData);
+
+      return;
+    }
+
+    updateTodoLocal(todoId, { mode: TodoMode.Loading });
+
+    try {
+      await updateTodoOnServer(USER_ID, {
+        id: todoId,
+        ...updatedData,
+      });
+      updateTodoLocal(todoId, updatedData);
+    } catch {
+      setError(ErrorType.UpdateTodo);
+    } finally {
+      updateTodoLocal(todoId, { mode: TodoMode.None });
+    }
+  };
+
+  const handleCompletedTodosDelete = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     await Promise.all(
@@ -115,48 +142,10 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleTodoToggle = async (
-    todoId: number,
-    isCompleted: boolean,
-  ): Promise<void> => {
-    updateTodo(todoId, { mode: TodoMode.Loading });
-
-    try {
-      await updateTodoOnServer(USER_ID, {
-        id: todoId,
-        completed: isCompleted,
-      });
-      updateTodo(todoId, { completed: isCompleted });
-    } catch {
-      setError(ErrorType.ToggleTodo);
-    } finally {
-      updateTodo(todoId, { mode: TodoMode.None });
-    }
-  };
-
-  const handleTodoToggleAll = async (isCompleted: boolean): Promise<void> => {
+  const handleTodoToggleAll = async (completed: boolean) => {
     await Promise.all(
-      todos.map(todo => handleTodoToggle(todo.id, isCompleted)),
+      todos.map(todo => handleTodoUpdate(todo.id, { completed })),
     );
-  };
-
-  const handleTodoTitleUpdate = async (
-    todoId: number,
-    title: string,
-  ): Promise<void> => {
-    updateTodo(todoId, { mode: TodoMode.Loading });
-
-    try {
-      await updateTodoOnServer(USER_ID, {
-        id: todoId,
-        title,
-      });
-      updateTodo(todoId, { title });
-    } catch {
-      setError(ErrorType.ToggleTodo);
-    } finally {
-      updateTodo(todoId, { mode: TodoMode.None });
-    }
   };
 
   useEffect(() => {
@@ -182,6 +171,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  // console.log('render APP');
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -199,9 +190,7 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               tempTodo={tempTodo}
               onTodoDelete={handleTodoDelete}
-              onTodoToggle={handleTodoToggle}
-              onTodoUpdate={updateTodo}
-              onTodoTitleUpdate={handleTodoTitleUpdate}
+              onTodoUpdate={handleTodoUpdate}
             />
 
             <TodoFooter
