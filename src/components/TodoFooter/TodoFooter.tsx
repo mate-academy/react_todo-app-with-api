@@ -4,9 +4,9 @@ import { FilterButton } from '../FilterButton/FilterButton';
 
 type Props = {
   selectedFilterOption: TodoCompletionType;
-  onFilterSelect: (newFilterOption: TodoCompletionType) => void
   activeTodosCount: number;
   hasCompletedTodos: boolean;
+  onFilterSelect: (newFilterOption: TodoCompletionType) => void
   onCompletedTodosDelete: () => void;
 };
 

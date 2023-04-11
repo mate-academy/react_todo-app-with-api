@@ -1,9 +1,10 @@
 import React from 'react';
-import { TodoMode } from '../../types/TodoMode';
 
 type Props = {
   title: string,
-  onTodoModeUpdate: (newMode: TodoMode) => void;
+  onEditingSkip: () => void;
+  onTodoTitleUpdate: (newTitle: string) => Promise<void>;
+  onTodoDelete: () => Promise<void>;
 };
 
 type State = {
@@ -28,18 +29,69 @@ export class TodoEditForm extends React.Component<Props, State> {
   }
 
   componentDidMount(): void {
-    if (this.inputRef.current) {
-      this.inputRef.current.focus();
+    const todoTitleInput = this.inputRef.current;
+
+    if (!todoTitleInput) {
+      return;
     }
+
+    todoTitleInput.focus();
+    todoTitleInput.addEventListener('keyup', this.handleTodoEditingSkip);
   }
 
+  componentWillUnmount(): void {
+    const todoTitleInput = this.inputRef.current;
+
+    if (!todoTitleInput) {
+      return;
+    }
+
+    todoTitleInput.removeEventListener('keyup', this.handleTodoEditingSkip);
+  }
+
+  handleTodoUpdate = async () => {
+    const { title } = this.state;
+    const {
+      onEditingSkip,
+      onTodoTitleUpdate,
+      onTodoDelete,
+    } = this.props;
+
+    if (!title) {
+      await onTodoDelete();
+
+      return;
+    }
+
+    if (title === this.props.title) {
+      onEditingSkip();
+
+      return;
+    }
+
+    await onTodoTitleUpdate(title);
+  }
+
+  handleTodoEditingSkip = (escClickEvent: KeyboardEvent) => {
+    if (escClickEvent.key !== 'Escape' || !this.inputRef.current) {
+      return;
+    }
+
+    this.props.onEditingSkip();
+    this.inputRef.current.blur();
+  };
+
   render() {
-    const { onTodoModeUpdate } = this.props;
     const title = this.state.title ?? '';
 
     return (
       <>
-        <form>
+        <form
+          onSubmit={(submitEvent) => {
+            submitEvent.preventDefault();
+            this.handleTodoUpdate();
+          }}
+        >
           <input
             type="text"
             className="todo__title-field"
@@ -48,12 +100,7 @@ export class TodoEditForm extends React.Component<Props, State> {
             onChange={(changeEvent) => this.setState({
               title: changeEvent.target.value,
             })}
-            onKeyDown={(keyDownEvent => {
-              if (keyDownEvent.code === '13') {
-                onTodoModeUpdate(TodoMode.None);
-              }
-            })}
-            onBlur={() => onTodoModeUpdate(TodoMode.None)}
+            onBlur={() => this.handleTodoUpdate()}
             ref={this.inputRef}
           />
         </form>

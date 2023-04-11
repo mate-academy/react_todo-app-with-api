@@ -13,6 +13,7 @@ type Props = {
   onTodoDelete?: (todoId: number) => Promise<void>;
   onTodoToggle?: (todoId: number, isCompleted: boolean) => Promise<void>;
   onTodoUpdate?: (todoId: number, updatedData: TodoRichEditable) => void;
+  onTodoTitleUpdate?: (todoId: number, newTitle: string) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -25,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
   onTodoDelete,
   onTodoToggle,
   onTodoUpdate,
+  onTodoTitleUpdate,
 }) => {
   const hadndleTodoDelete = async () => {
     if (!onTodoDelete) {
@@ -42,6 +44,14 @@ export const TodoItem: React.FC<Props> = ({
 
       await onTodoToggle(id, checkEvent.target.checked);
     };
+
+  const handleTodoTitleUpdate = async (newTitle: string) => {
+    if (!onTodoTitleUpdate) {
+      return;
+    }
+
+    await onTodoTitleUpdate(id, newTitle.trim());
+  };
 
   const handleTodoModeUpdate = (newMode: TodoMode) => {
     if (!onTodoUpdate) {
@@ -73,7 +83,9 @@ export const TodoItem: React.FC<Props> = ({
         ? (
           <TodoEditForm
             title={title}
-            onTodoModeUpdate={handleTodoModeUpdate}
+            onTodoTitleUpdate={handleTodoTitleUpdate}
+            onEditingSkip={() => handleTodoModeUpdate(TodoMode.None)}
+            onTodoDelete={hadndleTodoDelete}
           />
         ) : (
           <>

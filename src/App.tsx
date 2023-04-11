@@ -140,6 +140,25 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleTodoTitleUpdate = async (
+    todoId: number,
+    title: string,
+  ): Promise<void> => {
+    updateTodo(todoId, { mode: TodoMode.Loading });
+
+    try {
+      await updateTodoOnServer(USER_ID, {
+        id: todoId,
+        title,
+      });
+      updateTodo(todoId, { title });
+    } catch {
+      setError(ErrorType.ToggleTodo);
+    } finally {
+      updateTodo(todoId, { mode: TodoMode.None });
+    }
+  };
+
   useEffect(() => {
     getTodosFromServer(USER_ID)
       .then(todosFromServer => setTodos(
@@ -182,13 +201,14 @@ export const App: React.FC = () => {
               onTodoDelete={handleTodoDelete}
               onTodoToggle={handleTodoToggle}
               onTodoUpdate={updateTodo}
+              onTodoTitleUpdate={handleTodoTitleUpdate}
             />
 
             <TodoFooter
               selectedFilterOption={selectedFilterOption}
-              onFilterSelect={setSelectedFilterOption}
               activeTodosCount={activeTodosCount}
               hasCompletedTodos={hasCompletedTodos}
+              onFilterSelect={setSelectedFilterOption}
               onCompletedTodosDelete={handleCompletedTodosDelete}
             />
           </>

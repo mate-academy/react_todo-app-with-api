@@ -10,6 +10,7 @@ type Props = {
   onTodoDelete: (todoId: number) => Promise<void>;
   onTodoToggle: (todoId: number, isCompleted: boolean) => Promise<void>;
   onTodoUpdate: (todoId: number, updatedData: TodoRichEditable) => void;
+  onTodoTitleUpdate: (todoId: number, newTitile: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: React.FC<Props> = ({
   onTodoDelete,
   onTodoToggle,
   onTodoUpdate,
+  onTodoTitleUpdate,
 }) => {
   return (
     <section className="todoapp__main">
@@ -28,6 +30,7 @@ export const TodoList: React.FC<Props> = ({
           onTodoDelete={onTodoDelete}
           onTodoToggle={onTodoToggle}
           onTodoUpdate={onTodoUpdate}
+          onTodoTitleUpdate={onTodoTitleUpdate}
         />
       ))}
 
