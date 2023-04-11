@@ -1,13 +1,13 @@
 import React from 'react';
 import { TodoRich } from '../../types/TodoRich';
 import { TodoItem } from '../TodoItem';
-import { TodoEditForm } from '../TodoEditForm';
 
 type Props = {
   todos: TodoRich[];
   tempTodo: TodoRich | null;
   onTodoDelete: (todoId: number) => Promise<void>;
   onTodoToggle: (todoId: number, isCompleted: boolean) => Promise<void>;
+  onTodoEditingStateChange: (todoId: number, IsEditing: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,6 +15,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   onTodoDelete,
   onTodoToggle,
+  onTodoEditingStateChange,
 }) => {
   return (
     <section className="todoapp__main">
@@ -24,25 +25,9 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onTodoDelete={onTodoDelete}
           onTodoToggle={onTodoToggle}
+          onTodoEditingStateChange={onTodoEditingStateChange}
         />
       ))}
-
-      {/* This todo is being edited */}
-      <div className="todo">
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        <TodoEditForm />
-
-        <div className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
 
       {tempTodo && (
         <TodoItem

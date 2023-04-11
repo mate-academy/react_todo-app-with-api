@@ -2,11 +2,13 @@ import React from 'react';
 import classNames from 'classnames';
 import { TodoRich } from '../../types/TodoRich';
 import { TodoLoadingOverlay } from '../TodoLoadingOverlay';
+import { TodoEditForm } from '../TodoEditForm';
 
 type Props = {
   todo: TodoRich;
   onTodoDelete?: (todoId: number) => Promise<void>;
   onTodoToggle?: (todoId: number, isCompleted: boolean) => Promise<void>;
+  onTodoEditingStateChange?: (todoId: number, IsEditing: boolean) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -15,9 +17,11 @@ export const TodoItem: React.FC<Props> = ({
     title,
     completed,
     isLoading,
+    isEditing,
   },
   onTodoDelete,
   onTodoToggle,
+  onTodoEditingStateChange,
 }) => {
   const hadndleTodoDelete = async () => {
     if (!onTodoDelete) {
@@ -35,6 +39,14 @@ export const TodoItem: React.FC<Props> = ({
 
       await onTodoToggle(id, checkEvent.target.checked);
     };
+
+  const handleTodoEditingStateChange = (newState: boolean) => {
+    if (!onTodoEditingStateChange) {
+      return;
+    }
+
+    onTodoEditingStateChange(id, newState);
+  };
 
   return (
     <div
@@ -54,17 +66,30 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">
-        {title}
-      </span>
+      {isEditing
+        ? (
+          <TodoEditForm
+            title={title}
+            onTodoEditingStateChange={handleTodoEditingStateChange}
+          />
+        ) : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={() => handleTodoEditingStateChange(true)}
+            >
+              {title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={hadndleTodoDelete}
-      >
-        ×
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={hadndleTodoDelete}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       {isLoading && <TodoLoadingOverlay />}
     </div>

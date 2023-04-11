@@ -44,6 +44,24 @@ export const App: React.FC = () => {
     ))
   );
 
+  const handleTodoEditingStateChange = (
+    todoId: number,
+    isEditing: boolean,
+  ): void => {
+    setTodos(prevTodos => (
+      prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return {
+          ...todo,
+          isEditing,
+        };
+      })
+    ));
+  };
+
   const updateTodoCompletion = (todoId: number, isCompleted: boolean): void => (
     setTodos(prevTodos => (
       prevTodos.map(todo => {
@@ -66,6 +84,7 @@ export const App: React.FC = () => {
         {
           ...newTodo,
           isLoading: false,
+          isEditing: false,
         },
       ]
     ));
@@ -90,6 +109,7 @@ export const App: React.FC = () => {
       completed: false,
       userId: USER_ID,
       isLoading: true,
+      isEditing: false,
     };
 
     setTempTodo(newTodo);
@@ -157,6 +177,7 @@ export const App: React.FC = () => {
           {
             ...todo,
             isLoading: false,
+            isEditing: false,
           }
         )),
       ))
@@ -191,6 +212,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onTodoDelete={handleTodoDelete}
               onTodoToggle={handleTodoToggle}
+              onTodoEditingStateChange={handleTodoEditingStateChange}
             />
 
             <TodoFooter
