@@ -1,14 +1,18 @@
 import React from 'react';
 import classNames from 'classnames';
-import { TodoRich } from '../../types/TodoRich';
+
 import { TodoLoadingOverlay } from '../TodoLoadingOverlay';
 import { TodoEditForm } from '../TodoEditForm';
+
+import { TodoRich } from '../../types/TodoRich';
+import { TodoMode } from '../../types/TodoMode';
+import { TodoRichEditable } from '../../types/TodoRichEditable';
 
 type Props = {
   todo: TodoRich;
   onTodoDelete?: (todoId: number) => Promise<void>;
   onTodoToggle?: (todoId: number, isCompleted: boolean) => Promise<void>;
-  onTodoEditingStateChange?: (todoId: number, IsEditing: boolean) => void;
+  onTodoUpdate?: (todoId: number, updatedData: TodoRichEditable) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,12 +20,11 @@ export const TodoItem: React.FC<Props> = ({
     id,
     title,
     completed,
-    isLoading,
-    isEditing,
+    mode,
   },
   onTodoDelete,
   onTodoToggle,
-  onTodoEditingStateChange,
+  onTodoUpdate,
 }) => {
   const hadndleTodoDelete = async () => {
     if (!onTodoDelete) {
@@ -40,12 +43,12 @@ export const TodoItem: React.FC<Props> = ({
       await onTodoToggle(id, checkEvent.target.checked);
     };
 
-  const handleTodoEditingStateChange = (newState: boolean) => {
-    if (!onTodoEditingStateChange) {
+  const handleTodoModeUpdate = (newMode: TodoMode) => {
+    if (!onTodoUpdate) {
       return;
     }
 
-    onTodoEditingStateChange(id, newState);
+    onTodoUpdate(id, { mode: newMode });
   };
 
   return (
@@ -66,17 +69,17 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isEditing
+      {mode === TodoMode.Editing
         ? (
           <TodoEditForm
             title={title}
-            onTodoEditingStateChange={handleTodoEditingStateChange}
+            onTodoModeUpdate={handleTodoModeUpdate}
           />
         ) : (
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => handleTodoEditingStateChange(true)}
+              onDoubleClick={() => handleTodoModeUpdate(TodoMode.Editing)}
             >
               {title}
             </span>
@@ -91,7 +94,9 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )}
 
-      {isLoading && <TodoLoadingOverlay />}
+      {mode === TodoMode.Loading && (
+        <TodoLoadingOverlay />
+      )}
     </div>
   );
 };

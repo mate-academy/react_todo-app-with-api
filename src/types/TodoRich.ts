@@ -1,6 +1,6 @@
 import { Todo } from './Todo';
+import { TodoMode } from './TodoMode';
 
 export interface TodoRich extends Todo {
-  isLoading: boolean;
-  isEditing: boolean;
+  mode: TodoMode;
 }

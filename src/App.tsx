@@ -12,12 +12,14 @@ import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
 
+import { Todo } from './types/Todo';
+import { TodoMode } from './types/TodoMode';
 import { TodoCompletionType } from './types/TodoCompletionType';
 import { ErrorType } from './types/ErrorType';
 import { TodoRich } from './types/TodoRich';
+import { TodoRichEditable } from './types/TodoRichEditable';
 
 import { filterTodos, getActiveTodosCount } from './common/helpers';
-import { Todo } from './types/Todo';
 
 const USER_ID = 6955;
 
@@ -29,62 +31,13 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<TodoRich | null>(null);
 
-  const setLoadingTodo = (todoId: number, isLoading: boolean): void => (
-    setTodos(prevTodos => (
-      prevTodos.map(todo => {
-        if (todo.id !== todoId) {
-          return todo;
-        }
-
-        return {
-          ...todo,
-          isLoading,
-        };
-      })
-    ))
-  );
-
-  const handleTodoEditingStateChange = (
-    todoId: number,
-    isEditing: boolean,
-  ): void => {
-    setTodos(prevTodos => (
-      prevTodos.map(todo => {
-        if (todo.id !== todoId) {
-          return todo;
-        }
-
-        return {
-          ...todo,
-          isEditing,
-        };
-      })
-    ));
-  };
-
-  const updateTodoCompletion = (todoId: number, isCompleted: boolean): void => (
-    setTodos(prevTodos => (
-      prevTodos.map(todo => {
-        if (todo.id !== todoId) {
-          return todo;
-        }
-
-        return {
-          ...todo,
-          completed: isCompleted,
-        };
-      })
-    ))
-  );
-
   const addTodo = (newTodo: Todo): void => {
     setTodos((prevTodos) => (
       [
         ...prevTodos,
         {
           ...newTodo,
-          isLoading: false,
-          isEditing: false,
+          mode: TodoMode.None,
         },
       ]
     ));
@@ -95,6 +48,24 @@ export const App: React.FC = () => {
       prevTodos.filter(todo => todo.id !== todoId)
     ));
   };
+
+  const updateTodo = (
+    todoId: number,
+    updatedData: TodoRichEditable,
+  ) => (
+    setTodos(prevTodos => (
+      prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return {
+          ...todo,
+          ...updatedData,
+        };
+      })
+    ))
+  );
 
   const handleTodoAdd = async (todoTitle: string): Promise<void> => {
     if (todoTitle === '') {
@@ -108,8 +79,7 @@ export const App: React.FC = () => {
       title: todoTitle,
       completed: false,
       userId: USER_ID,
-      isLoading: true,
-      isEditing: false,
+      mode: TodoMode.Loading,
     };
 
     setTempTodo(newTodo);
@@ -126,14 +96,14 @@ export const App: React.FC = () => {
   };
 
   const handleTodoDelete = async (todoId: number): Promise<void> => {
-    setLoadingTodo(todoId, true);
+    updateTodo(todoId, { mode: TodoMode.Loading });
 
     try {
       await deleteTodoOnServer(USER_ID, todoId);
       deleteTodo(todoId);
     } catch {
       setError(ErrorType.DeleteTodo);
-      setLoadingTodo(todoId, false);
+      updateTodo(todoId, { mode: TodoMode.None });
     }
   };
 
@@ -149,18 +119,18 @@ export const App: React.FC = () => {
     todoId: number,
     isCompleted: boolean,
   ): Promise<void> => {
-    setLoadingTodo(todoId, true);
+    updateTodo(todoId, { mode: TodoMode.Loading });
 
     try {
       await updateTodoOnServer(USER_ID, {
         id: todoId,
         completed: isCompleted,
       });
-      updateTodoCompletion(todoId, isCompleted);
+      updateTodo(todoId, { completed: isCompleted });
     } catch {
       setError(ErrorType.ToggleTodo);
     } finally {
-      setLoadingTodo(todoId, false);
+      updateTodo(todoId, { mode: TodoMode.None });
     }
   };
 
@@ -176,8 +146,7 @@ export const App: React.FC = () => {
         todosFromServer.map(todo => (
           {
             ...todo,
-            isLoading: false,
-            isEditing: false,
+            mode: TodoMode.None,
           }
         )),
       ))
@@ -212,7 +181,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onTodoDelete={handleTodoDelete}
               onTodoToggle={handleTodoToggle}
-              onTodoEditingStateChange={handleTodoEditingStateChange}
+              onTodoUpdate={updateTodo}
             />
 
             <TodoFooter

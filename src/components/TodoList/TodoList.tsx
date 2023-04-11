@@ -1,13 +1,15 @@
 import React from 'react';
-import { TodoRich } from '../../types/TodoRich';
 import { TodoItem } from '../TodoItem';
+
+import { TodoRich } from '../../types/TodoRich';
+import { TodoRichEditable } from '../../types/TodoRichEditable';
 
 type Props = {
   todos: TodoRich[];
   tempTodo: TodoRich | null;
   onTodoDelete: (todoId: number) => Promise<void>;
   onTodoToggle: (todoId: number, isCompleted: boolean) => Promise<void>;
-  onTodoEditingStateChange: (todoId: number, IsEditing: boolean) => void;
+  onTodoUpdate: (todoId: number, updatedData: TodoRichEditable) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,7 +17,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   onTodoDelete,
   onTodoToggle,
-  onTodoEditingStateChange,
+  onTodoUpdate,
 }) => {
   return (
     <section className="todoapp__main">
@@ -25,7 +27,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onTodoDelete={onTodoDelete}
           onTodoToggle={onTodoToggle}
-          onTodoEditingStateChange={onTodoEditingStateChange}
+          onTodoUpdate={onTodoUpdate}
         />
       ))}
 

@@ -1,8 +1,9 @@
 import React from 'react';
+import { TodoMode } from '../../types/TodoMode';
 
 type Props = {
   title: string,
-  onTodoEditingStateChange: (newState: boolean) => void;
+  onTodoModeUpdate: (newMode: TodoMode) => void;
 };
 
 type State = {
@@ -33,7 +34,7 @@ export class TodoEditForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { onTodoEditingStateChange } = this.props;
+    const { onTodoModeUpdate } = this.props;
     const title = this.state.title ?? '';
 
     return (
@@ -49,10 +50,10 @@ export class TodoEditForm extends React.Component<Props, State> {
             })}
             onKeyDown={(keyDownEvent => {
               if (keyDownEvent.code === '13') {
-                onTodoEditingStateChange(false);
+                onTodoModeUpdate(TodoMode.None);
               }
             })}
-            onBlur={() => onTodoEditingStateChange(false)}
+            onBlur={() => onTodoModeUpdate(TodoMode.None)}
             ref={this.inputRef}
           />
         </form>
