@@ -126,7 +126,7 @@ export const App: React.FC = () => {
   // Delete comleted todos from server
 
   const removeCompletedTodos = () => {
-    copletedTodos.map(todo => deleteTodoFromServer(todo.id));
+    copletedTodos.forEach(todo => deleteTodoFromServer(todo.id));
   };
 
   // Update todo on server
@@ -152,13 +152,12 @@ export const App: React.FC = () => {
 
   const handleAllTodosStatus = async () => {
     try {
-      if (activeTodoListLength) {
-        await Promise.all(activeTodos
-          .map(todo => updateStatusTodo(todo.id, !todo.completed)));
-      } else {
-        await Promise.all(visibleTodoList
-          .map(todo => updateStatusTodo(todo.id, !todo.completed)));
-      }
+      const updateTodosArray = activeTodoListLength
+        ? activeTodos
+        : visibleTodoList;
+
+      await Promise.all(updateTodosArray
+        .map(todo => updateStatusTodo(todo.id, !todo.completed)));
 
       await getTodosFromServer();
     } catch {
