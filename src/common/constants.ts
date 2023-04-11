@@ -7,4 +7,5 @@ export const errorMessages: { [key in ErrorType]: string } = {
   [ErrorType.AddTodo]: 'Unable to add a todo',
   [ErrorType.DeleteTodo]: 'Unable to delete a todo',
   [ErrorType.DeleteCompletedTodo]: 'Unable to delete one of these todos',
+  [ErrorType.ToggleTodo]: 'Unable to update a todo',
 };

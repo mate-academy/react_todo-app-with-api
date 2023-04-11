@@ -12,3 +12,10 @@ export const addTodoOnServer = async (userId: number, newTodo: Todo) => {
 export const deleteTodoOnServer = async (userId: number, todoId: number) => {
   return client.delete(`/todos/${todoId}?userId=${userId}`);
 };
+
+export const updateTodoOnServer = async (
+  userId: number,
+  updatedTodo: Required<Pick<Todo, 'id'>> & Partial<Todo>,
+) => {
+  return client.patch(`/todos/${updatedTodo.id}?userId=${userId}`, updatedTodo);
+};

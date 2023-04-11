@@ -6,6 +6,7 @@ import { TodoLoadingOverlay } from '../TodoLoadingOverlay';
 type Props = {
   todo: TodoRich;
   onTodoDelete?: (todoId: number) => Promise<void>;
+  onTodoToggle?: (todoId: number, isCompleted: boolean) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoItem: React.FC<Props> = ({
     isLoading,
   },
   onTodoDelete,
+  onTodoToggle,
 }) => {
   const hadndleTodoDelete = async () => {
     if (!onTodoDelete) {
@@ -24,6 +26,15 @@ export const TodoItem: React.FC<Props> = ({
 
     await onTodoDelete(id);
   };
+
+  const hadndleTodoToggle
+    = async (checkEvent: React.ChangeEvent<HTMLInputElement>) => {
+      if (!onTodoToggle || checkEvent.target.type !== 'checkbox') {
+        return;
+      }
+
+      await onTodoToggle(id, checkEvent.target.checked);
+    };
 
   return (
     <div
@@ -38,7 +49,8 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked
+          checked={completed}
+          onChange={hadndleTodoToggle}
         />
       </label>
 

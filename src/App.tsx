@@ -4,6 +4,7 @@ import {
   getTodosFromServer,
   addTodoOnServer,
   deleteTodoOnServer,
+  updateTodoOnServer,
 } from './api/todos';
 
 import { TodoHeader } from './components/TodoHeader';
@@ -38,6 +39,21 @@ export const App: React.FC = () => {
         return {
           ...todo,
           isLoading,
+        };
+      })
+    ))
+  );
+
+  const updateTodoCompletion = (todoId: number, isCompleted: boolean): void => (
+    setTodos(prevTodos => (
+      prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return {
+          ...todo,
+          completed: isCompleted,
         };
       })
     ))
@@ -109,6 +125,31 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleTodoToggle = async (
+    todoId: number,
+    isCompleted: boolean,
+  ): Promise<void> => {
+    setLoadingTodo(todoId, true);
+
+    try {
+      await updateTodoOnServer(USER_ID, {
+        id: todoId,
+        completed: isCompleted,
+      });
+      updateTodoCompletion(todoId, isCompleted);
+    } catch {
+      setError(ErrorType.ToggleTodo);
+    } finally {
+      setLoadingTodo(todoId, false);
+    }
+  };
+
+  const handleTodoToggleAll = async (isCompleted: boolean): Promise<void> => {
+    await Promise.all(
+      todos.map(todo => handleTodoToggle(todo.id, isCompleted)),
+    );
+  };
+
   useEffect(() => {
     getTodosFromServer(USER_ID)
       .then(todosFromServer => setTodos(
@@ -126,6 +167,7 @@ export const App: React.FC = () => {
 
   const activeTodosCount = getActiveTodosCount(todos);
   const hasCompletedTodos = activeTodosCount !== todos.length;
+  const hasActiveTodos = activeTodosCount !== 0;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -136,7 +178,11 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoHeader onTodoAdd={handleTodoAdd} />
+        <TodoHeader
+          isToggleActive={!hasActiveTodos}
+          onTodoAdd={handleTodoAdd}
+          onTodoToggleAll={handleTodoToggleAll}
+        />
 
         {todos.length > 0 && (
           <>
@@ -144,6 +190,7 @@ export const App: React.FC = () => {
               todos={filteredTodos}
               tempTodo={tempTodo}
               onTodoDelete={handleTodoDelete}
+              onTodoToggle={handleTodoToggle}
             />
 
             <TodoFooter
