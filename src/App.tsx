@@ -20,6 +20,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo>();
   const [isDisabledInput, setIsDisabledInput] = useState(false);
   const [completedId, setCompletedId] = useState<number[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const waitErrorEnable = () => {
     setTimeout(() => {
@@ -74,12 +75,16 @@ export const App: React.FC = () => {
   const removeCompleted = () => {
     const completed = todos.filter(todo => todo.completed);
 
+    setIsDeleting(true);
+
     completed.forEach(todo => {
       deleteTodo(todo.id)
         .then(() => {
+          setIsDeleting(false);
           setTodos(todos.filter(task => !task.completed));
         })
         .catch(() => {
+          setIsDeleting(false);
           setHasError('Unable to delete todos');
         });
     });
@@ -183,6 +188,7 @@ export const App: React.FC = () => {
             onDeleteCompleted={removeCompleted}
             onUpdateTodo={handleUpdateTodo}
             completedId={completedId}
+            isDeleting={isDeleting}
           />
         )}
       </div>

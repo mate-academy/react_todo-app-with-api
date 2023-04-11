@@ -11,6 +11,7 @@ interface Props {
   onDeleteCompleted: () => void,
   onUpdateTodo: (id: number, data: Partial<Todo>) => void,
   completedId: number[],
+  isDeleting: boolean,
 }
 
 const filterTodos = (
@@ -37,19 +38,21 @@ export const TodosList: React.FC<Props> = (
     onDeleteCompleted,
     onUpdateTodo,
     completedId,
+    isDeleting,
   },
 ) => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
 
   const visibleTodos = filterTodos(todos, filterType);
   const activeTodos = todos.filter(todo => !todo.completed).length;
-  const completedTodos = todos.filter(todo => todo.completed).length;
+  const completedTodos = todos.filter(todo => todo.completed);
 
   return (
     <>
       <section className="todoapp__main">
         {visibleTodos.map((todo) => {
-          const isLoading = completedId.some(id => id === todo.id);
+          const isLoading = completedId.some(id => id === todo.id)
+          || (isDeleting && completedTodos.some(item => item.id === todo.id));
 
           return (
             <TodoItem
@@ -125,7 +128,7 @@ export const TodosList: React.FC<Props> = (
           </a>
         </nav>
 
-        {completedTodos && (
+        {completedTodos.length && (
           <button
             type="button"
             className="todoapp__clear-completed"
