@@ -17,8 +17,20 @@ export const Footer: React.FC<Props> = ({
   completedTodoListLength,
   removeCompletedTodos,
 }) => {
-  const handleSortType = (value: SortType) => {
-    onSetSortType(value);
+  const handleSortType = (value: string) => {
+    switch (value) {
+      case 'ALL':
+        onSetSortType(SortType.ALL);
+        break;
+      case 'COMPLETE':
+        onSetSortType(SortType.COMPLETE);
+        break;
+      case 'ACTIVE':
+        onSetSortType(SortType.ACTIVE);
+        break;
+      default:
+        break;
+    }
   };
 
   const sortTypeEntries = Object.entries(SortType);
@@ -38,19 +50,7 @@ export const Footer: React.FC<Props> = ({
             )}
             key={item[1]}
             onClick={() => {
-              switch (item[0]) {
-                case 'ALL':
-                  handleSortType(SortType.ALL);
-                  break;
-                case 'COMPLETE':
-                  handleSortType(SortType.COMPLETE);
-                  break;
-                case 'ACTIVE':
-                  handleSortType(SortType.ACTIVE);
-                  break;
-                default:
-                  break;
-              }
+              handleSortType(item[0]);
             }}
           >
             {item[1]}

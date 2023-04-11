@@ -81,36 +81,34 @@ export const TodoInfo: React.FC<Props> = ({
         />
       </label>
 
-      {!isEditTitleMode ? (
-        <>
-          <span className="todo__title">
-            {title}
-          </span>
-
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => removeTodo(id)}
-          >
-            ×
-          </button>
-        </>
+      {isEditTitleMode ? (
+        <form onSubmit={saveNewTitle}>
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={handleNewTitle}
+            onKeyUp={cancelChangeTitle}
+            onBlur={saveNewTitle}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+          />
+        </form>
       )
         : (
           <>
-            <form onSubmit={saveNewTitle}>
-              <input
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={newTitle}
-                onChange={handleNewTitle}
-                onKeyUp={cancelChangeTitle}
-                onBlur={saveNewTitle}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-              />
-            </form>
+            <span className="todo__title">
+              {title}
+            </span>
+
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => removeTodo(id)}
+            >
+              ×
+            </button>
           </>
         )}
 

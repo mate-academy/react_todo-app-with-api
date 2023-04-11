@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
@@ -9,6 +9,7 @@ import { ErrorNotification }
 import {
   getTodos, addTodo, deleteTodo, updateStatusTodo, updateTitleTodo,
 } from './api/todos';
+import { getVisibleTodos } from './utils/getVisibleTodos';
 
 import { Todo } from './types/Todo';
 import { SortType } from './types/SortType';
@@ -19,13 +20,12 @@ export const App: React.FC = () => {
   const [todosList, setTodosList] = useState<Todo[]>([]);
   const [query, setQuery] = useState('');
   const [errorType, setErrorType] = useState('');
-  const [sortType, setSortType] = useState(SortType.ALL);
+  const [sortType, setSortType] = useState<SortType>(SortType.ALL);
   const [isDisabledForm, setIsDisabledForm] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [tempTodos, setTempTodos] = useState<Todo[]>([]);
   const [updatingTodo, setUpdatingTodo] = useState<Todo | null>(null);
 
-  let visibleTodoList = todosList;
   const copletedTodos = todosList.filter(todo => todo.completed);
   const activeTodos = todosList.filter(todo => !todo.completed);
   const totalTodoListLength = todosList.length;
@@ -33,16 +33,10 @@ export const App: React.FC = () => {
   const isActiveFooter = !!totalTodoListLength;
   const completedTodoListLength = totalTodoListLength - activeTodoListLength;
 
-  switch (sortType) {
-    case SortType.ACTIVE:
-      visibleTodoList = todosList.filter(todo => !todo.completed);
-      break;
-    case SortType.COMPLETE:
-      visibleTodoList = todosList.filter(todo => todo.completed);
-      break;
-    default:
-      break;
-  }
+  const visibleTodoList = useMemo(
+    () => getVisibleTodos(todosList, sortType),
+    [todosList, sortType],
+  );
 
   // Show Error Message
 
