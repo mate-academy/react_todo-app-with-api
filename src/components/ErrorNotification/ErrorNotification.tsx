@@ -2,25 +2,25 @@
 import classNames from 'classnames';
 
 type Props = {
-  isError: boolean;
-  setIsError: (value: boolean) => void,
+  setErrorType: (value: string) => void,
   errorType: string,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
-  isError,
-  setIsError,
+  setErrorType,
   errorType,
 }) => {
   const closeErrorNotification = () => {
-    setIsError(false);
+    setErrorType('');
   };
+
+  const isError = errorType === '';
 
   return (
     <div
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: !isError },
+        { hidden: isError },
       )}
     >
       <button
