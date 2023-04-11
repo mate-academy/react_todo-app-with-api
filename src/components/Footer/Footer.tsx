@@ -43,7 +43,7 @@ export const Footer: React.FC<Props> = ({
     if (checkCompletedTodo(todos)) {
       const completedTodos = filterTodos(todos, FilterParam.Completed);
 
-      completedTodos.map(todo => removeTodo(todo.id));
+      completedTodos.forEach(todo => removeTodo(todo.id));
     }
   };
 

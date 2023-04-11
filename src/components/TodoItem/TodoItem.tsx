@@ -1,4 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../../Loader';
@@ -39,7 +43,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setIsCancel(false);
   }, [todo.completed, title, isCancel]);
 
-  const handleChenge = async (TodoId: number, todoCompleted: boolean) => {
+  const handleChange = async (TodoId: number, todoCompleted: boolean) => {
     handleUpdateTodoFormSubmit(TodoId, !completed);
 
     if (isOnRender) {
@@ -97,7 +101,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => handleChenge(id, todo.completed)}
+          onClick={() => handleChange(id, todo.completed)}
         />
       </label>
 

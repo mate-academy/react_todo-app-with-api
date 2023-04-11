@@ -38,7 +38,7 @@ export const Error: React.FC<Props> = ({
     const timer = setTimeout(() => onNotificationClose(), 3000);
 
     return () => clearTimeout(timer);
-  });
+  }, []);
 
   return (
     <div

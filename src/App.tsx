@@ -138,7 +138,7 @@ export const App: React.FC = () => {
   };
 
   const toggleCompletedAllTodo = () => {
-    todos.map(todo => {
+    todos.forEach(todo => {
       if (counterOfActiveTodos(todos) > 0) {
         return todo.completed ? todo : updateTodo(todo.id, !todo.completed);
       }

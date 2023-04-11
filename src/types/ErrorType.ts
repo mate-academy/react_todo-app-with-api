@@ -4,5 +4,5 @@ export enum ErrorType {
   Add = 'add',
   Delete = 'delete',
   Update = 'update',
-  EmptyTitle = 'empty title',
+  EmptyTitle = 'emptyTitle',
 }
