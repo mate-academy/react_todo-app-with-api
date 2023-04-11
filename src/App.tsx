@@ -3,7 +3,13 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './components/UserWarning/UserWarning';
 
-import { getTodos, postTodo, deleteTodo } from './api/todos';
+import {
+  getTodos,
+  postTodo,
+  deleteTodo,
+  patchTodo,
+} from './api/todos';
+
 import { Todo } from './types/Todo';
 import { FilterType } from './utils/filterTypes';
 
@@ -21,7 +27,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [query, setQuery] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState(false);
-  const [deletingCompleted, setDeletingCompleted] = useState(false);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const clearError = () => {
     setTimeout(() => {
@@ -72,6 +78,8 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (id: number) => {
+    setLoadingIds(state => [...state, id]);
+
     try {
       await deleteTodo(id);
 
@@ -79,20 +87,56 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to delete a todo');
       clearError();
+    } finally {
+      setLoadingIds(state => state.filter(el => el !== id));
     }
   };
 
   const removeCompleted = () => {
     const completed = todos.filter(todo => todo.completed);
 
-    setDeletingCompleted(true);
-
     completed.forEach(todo => {
       removeTodo(todo.id)
         .then(() => setTodos(todos.filter(item => !item.completed)))
-        .catch(() => setError('Unable to delete todos'))
-        .finally(() => setDeletingCompleted(false));
+        .catch(() => setError('Unable to delete todos'));
     });
+  };
+
+  const handleUpdate = async (id: number, data: Partial<Todo>) => {
+    setLoadingIds(state => [...state, id]);
+
+    try {
+      await patchTodo(id, data);
+
+      setTodos(state => state.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, ...data };
+        }
+
+        return todo;
+      }));
+    } catch {
+      setError('Unable to update a todo');
+      clearError();
+    } finally {
+      setLoadingIds(state => state.filter(el => el !== id));
+    }
+  };
+
+  const toggleAll = () => {
+    const areAllChecked = todos.every(todo => todo.completed);
+
+    if (areAllChecked) {
+      todos.forEach(item => {
+        handleUpdate(item.id, { completed: false });
+      });
+    } else {
+      const notChecked = todos.filter(item => !item.completed);
+
+      notChecked.forEach(item => {
+        handleUpdate(item.id, { completed: true });
+      });
+    }
   };
 
   const filterTodos = (allTodos: Todo[], filterMode: FilterType): Todo[] => {
@@ -145,11 +189,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            aria-label="Toggle all"
-          />
+          {visibleTodos.length > 0 && (
+            <button
+              type="button"
+              className="todoapp__toggle-all active"
+              aria-label="Toggle all"
+              onClick={toggleAll}
+            />
+          )}
 
           <form onSubmit={handleFormSubmit}>
             <input
@@ -169,8 +216,9 @@ export const App: React.FC = () => {
           <TodoList
             todos={visibleTodos}
             tempTodo={tempTodo}
+            loadingIds={loadingIds}
             onDelete={removeTodo}
-            deletingCompleted={deletingCompleted}
+            onUpdateTodo={handleUpdate}
           />
         )}
 

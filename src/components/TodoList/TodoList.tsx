@@ -4,33 +4,42 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
+  loadingIds: number[];
   onDelete: (id: number) => void;
-  deletingCompleted: boolean;
+  onUpdateTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
+  loadingIds,
   onDelete,
-  deletingCompleted,
+  onUpdateTodo,
 }) => (
   <>
     <section className="todoapp__main">
-      {todos.map(todo => (
-        <TodoInfo
-          key={todo.id}
-          todo={todo}
-          deleting={deletingCompleted && todo.completed}
-          onDelete={() => onDelete(todo.id)}
-        />
-      ))}
+      {todos.map(todo => {
+        const isLoading = loadingIds.some(id => id === todo.id);
+
+        return (
+          <TodoInfo
+            key={todo.id}
+            todo={todo}
+            isLoading={isLoading}
+            onDelete={onDelete}
+            onUpdateTodo={onUpdateTodo}
+          />
+        );
+      })}
     </section>
 
     {tempTodo && (
       <TodoInfo
         todo={tempTodo}
         key={tempTodo.id}
+        isLoading
         onDelete={() => {}}
+        onUpdateTodo={() => {}}
       />
     )}
   </>
