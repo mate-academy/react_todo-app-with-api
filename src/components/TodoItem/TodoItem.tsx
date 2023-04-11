@@ -3,7 +3,9 @@ import {
   KeyboardEvent,
   FC,
   FormEvent,
-  useState, useRef, useEffect,
+  useState,
+  useRef,
+  useEffect,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
