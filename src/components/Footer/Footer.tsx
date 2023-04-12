@@ -1,11 +1,12 @@
-import { FC } from 'react';
+import { FC, SetStateAction } from 'react';
 import { TodoFilter } from '../TodoFilter';
 import { Todo } from '../../types/Todo';
+import { FilterTodosBy } from '../../types/FilterTodosBy';
 
 type Props = {
   todos: Todo[],
   filterBy: string,
-  setFilterBy: (string: string) => void,
+  setFilterBy: (string: SetStateAction<FilterTodosBy>) => void,
 };
 
 export const Footer:FC<Props> = ({

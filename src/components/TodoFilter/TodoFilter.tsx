@@ -1,9 +1,9 @@
-import { FC } from 'react';
+import { FC, SetStateAction } from 'react';
 import classNames from 'classnames';
 import { FilterTodosBy } from '../../types/FilterTodosBy';
 
 type Props = {
-  setFilterBy: (string: string) => void,
+  setFilterBy: (string: SetStateAction<FilterTodosBy>) => void,
   filterBy: string,
 };
 export const TodoFilter: FC<Props> = ({
