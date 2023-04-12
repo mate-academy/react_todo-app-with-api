@@ -8,28 +8,24 @@ type Props = {
   onTodoToggleAll: (isCompleted: boolean) => Promise<void>;
 };
 
-export const TodoHeader: React.FC<Props> = ({
+export const TodoHeader: React.FC<Props> = React.memo(({
   isToggleActive,
   onTodoAdd,
   onTodoToggleAll,
-}) => {
-  // console.log('render HEADER');
+}) => (
+  <header className="todoapp__header">
+    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+    <button
+      type="button"
+      className={classNames(
+        'todoapp__toggle-all',
+        {
+          active: isToggleActive,
+        },
+      )}
+      onClick={() => onTodoToggleAll(!isToggleActive)}
+    />
 
-  return (
-    <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          {
-            active: isToggleActive,
-          },
-        )}
-        onClick={() => onTodoToggleAll(!isToggleActive)}
-      />
-
-      <NewTodo onTodoAdd={onTodoAdd} />
-    </header>
-  );
-};
+    <NewTodo onTodoAdd={onTodoAdd} />
+  </header>
+));

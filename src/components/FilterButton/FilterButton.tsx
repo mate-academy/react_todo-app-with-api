@@ -8,7 +8,7 @@ type Props = {
   onFilterSelect: (newFilterOption: TodoCompletionType) => void
 };
 
-export const FilterButton: React.FC<Props> = ({
+export const FilterButton: React.FC<Props> = React.memo(({
   isSelected,
   filterOption,
   onFilterSelect,
@@ -31,4 +31,4 @@ export const FilterButton: React.FC<Props> = ({
       {filterOption}
     </a>
   );
-};
+});

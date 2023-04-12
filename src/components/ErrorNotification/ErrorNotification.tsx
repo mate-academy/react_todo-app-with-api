@@ -9,7 +9,7 @@ type Props = {
   onClose: () => void;
 };
 
-export const ErrorNotification: React.FC<Props> = ({
+export const ErrorNotification: React.FC<Props> = React.memo(({
   error,
   onClose,
 }) => {
@@ -44,4 +44,4 @@ export const ErrorNotification: React.FC<Props> = ({
       </div>
     </>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './components/UserWarning';
 import {
   getTodosFromServer,
@@ -148,6 +148,11 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleErrorNotificationClose = useCallback(
+    () => setError(ErrorType.None),
+    [error],
+  );
+
   useEffect(() => {
     getTodosFromServer(USER_ID)
       .then(todosFromServer => setTodos(
@@ -170,8 +175,6 @@ export const App: React.FC = () => {
   if (!USER_ID) {
     return <UserWarning />;
   }
-
-  // console.log('render APP');
 
   return (
     <div className="todoapp">
@@ -206,7 +209,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         error={error}
-        onClose={() => setError(ErrorType.None)}
+        onClose={handleErrorNotificationClose}
       />
     </div>
   );
