@@ -30,13 +30,7 @@ export const App: FC = () => {
   const [todoStatus, setTodoStatus] = useState<TodoStatus>(TodoStatus.ALL);
   const [loadingTodosId, setLoadingTodosId] = useState<number[]>([]);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
-  const [error, setError] = useState('');
-
-  const clearNotification = () => {
-    setTimeout(() => {
-      setError('');
-    }, 3000);
-  };
+  const [error, setError] = useState<Errors>(Errors.NONE);
 
   const loadTodos = useCallback(async () => {
     try {
@@ -45,7 +39,6 @@ export const App: FC = () => {
       setTodos(loadedTodos);
     } catch (err) {
       setError(Errors.LOAD);
-      clearNotification();
     }
   }, []);
 
@@ -81,7 +74,6 @@ export const App: FC = () => {
       setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch (err) {
       setError(Errors.ADD);
-      clearNotification();
     } finally {
       setTempTodo(null);
     }
@@ -97,7 +89,6 @@ export const App: FC = () => {
       setTodos((currTodos) => currTodos.filter((todo) => todo.id !== todoId));
     } catch (err) {
       setError(Errors.DELETE);
-      clearNotification();
     } finally {
       setLoadingTodosId([]);
     }
@@ -119,7 +110,6 @@ export const App: FC = () => {
         : todo)));
     } catch (err) {
       setError(Errors.UPDATE);
-      clearNotification();
     } finally {
       setLoadingTodosId([]);
     }
@@ -153,13 +143,13 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <AddingForm
+          areAnyTodos={!!visibleTodos.length}
           userId={USER_ID}
           isInputDisabled={isInputDisabled}
           allCompleted={allCompleted}
           onSubmit={addTodo}
           onToggleAll={handleToggleAll}
           setError={setError}
-          clearNotification={clearNotification}
         />
 
         <TodoList

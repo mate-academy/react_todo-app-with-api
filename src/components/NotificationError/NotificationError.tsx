@@ -1,15 +1,27 @@
 import classNames from 'classnames';
-import { Dispatch, FC, SetStateAction } from 'react';
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+} from 'react';
+import { Errors } from '../../types/Errors';
 
 type Props = {
   error: string,
-  setError: Dispatch<SetStateAction<string>>,
+  setError: Dispatch<SetStateAction<Errors>>,
 };
 
 export const NotificationError: FC<Props> = ({
   error,
   setError,
 }) => {
+  useEffect(() => {
+    setTimeout(() => {
+      setError(Errors.NONE);
+    }, 3000);
+  }, [error]);
+
   return (
     <div className={classNames(
       'notification',
@@ -24,7 +36,7 @@ export const NotificationError: FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={() => setError('')}
+        onClick={() => setError(Errors.NONE)}
         aria-label="close"
       />
       {error}

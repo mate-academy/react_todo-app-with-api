@@ -13,23 +13,23 @@ import { Todo } from '../../types/Todo';
 import { Errors } from '../../types/Errors';
 
 type Props = {
+  areAnyTodos: boolean,
   userId: number,
   isInputDisabled: boolean,
   allCompleted: boolean,
   onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>,
   onToggleAll: () => void,
-  setError: Dispatch<SetStateAction<string>>,
-  clearNotification: () => void,
+  setError: Dispatch<SetStateAction<Errors>>,
 };
 
 export const AddingForm: FC<Props> = ({
+  areAnyTodos,
   userId,
   isInputDisabled,
   allCompleted,
   onSubmit,
   onToggleAll,
   setError,
-  clearNotification,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -38,7 +38,6 @@ export const AddingForm: FC<Props> = ({
 
     if (!title.trim()) {
       setError(Errors.TITLE_ERROR);
-      clearNotification();
 
       return;
     }
@@ -66,15 +65,17 @@ export const AddingForm: FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: allCompleted },
-        )}
-        aria-label="make all todos active"
-        onClick={onToggleAll}
-      />
+      {areAnyTodos && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: allCompleted },
+          )}
+          aria-label="make all todos active"
+          onClick={onToggleAll}
+        />
+      )}
 
       <form onSubmit={handleSubmit}>
         <input
