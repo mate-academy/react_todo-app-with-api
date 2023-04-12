@@ -1,7 +1,7 @@
 import { Todo } from '../types/Todo';
 
 export enum FilterType {
-  None = 'none',
+  All = 'all',
   Active = 'active',
   Completed = 'completed',
 }

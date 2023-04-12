@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppError } from '../../types/ApiError';
+import { AppError } from '../../types/AppError';
 
 interface Props {
   removeErrorMessage: () => void;
@@ -20,10 +20,10 @@ export const ErrorMessage: React.FC<Props> = ({
       message = 'Unable to add todo';
       break;
     case AppError.Patch:
-      message = 'Unable to update a todo';
+      message = 'Unable to update todo';
       break;
     case AppError.Delete:
-      message = 'Unable to delete a todo';
+      message = 'Unable to delete todo';
       break;
     default:
       message = 'Something goes wrong';
@@ -41,7 +41,7 @@ export const ErrorMessage: React.FC<Props> = ({
         type="button"
         className="delete"
         aria-label={' '}
-        onClick={() => removeErrorMessage()}
+        onClick={removeErrorMessage}
       />
       {message}
     </div>

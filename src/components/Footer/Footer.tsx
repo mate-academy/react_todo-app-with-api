@@ -4,16 +4,18 @@ import { FilterType } from '../../helpers/filterTodos';
 interface Props {
   activeTodosCount: number;
   hasCompletedTodo: boolean;
+
+  removeAllCompleted: () => void;
   filterType: FilterType;
-  deleteAllCompleted: () => void;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }
 
 export const Footer: React.FC<Props> = ({
   activeTodosCount,
   hasCompletedTodo,
+
+  removeAllCompleted: deleteAllCompleted,
   filterType,
-  deleteAllCompleted,
   setFilter,
 }) => {
   return (
@@ -22,54 +24,28 @@ export const Footer: React.FC<Props> = ({
         {`${activeTodosCount} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
-        <a
-          href="#/"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.None },
-          )}
-          onClick={() => setFilter(FilterType.None)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.Active },
-          )}
-          onClick={() => setFilter(FilterType.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames(
-            'filter__link',
-            { selected: filterType === FilterType.Completed },
-          )}
-          onClick={() => setFilter(FilterType.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(FilterType).map(type => (
+          <a
+            key={type}
+            href={`#/${type === FilterType.All ? '' : type}`}
+            className={classNames(
+              'filter__link',
+              { selected: filterType === type },
+            )}
+            onClick={() => setFilter(type)}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </a>
+        ))}
       </nav>
 
       <button
         type="button"
-        className="todoapp__clear-completed"
-        style={{
-          opacity: hasCompletedTodo
-            ? 1
-            : 0,
-        }}
-        disabled={!hasCompletedTodo}
-        onClick={() => {
-          deleteAllCompleted();
-        }}
+        className={classNames('todoapp__clear-completed', {
+          'is-invisible': !hasCompletedTodo,
+        })}
+        onClick={deleteAllCompleted}
       >
         Clear completed
       </button>

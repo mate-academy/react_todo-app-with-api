@@ -4,7 +4,7 @@ import {
   deleteTodo,
   getTodos,
   postTodo,
-  updateTodo,
+  patchTodo,
 } from './api/todos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -12,22 +12,23 @@ import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
 import { ErrorMessage } from './components/ErrorMessage';
-import { AppError } from './types/ApiError';
+import { AppError } from './types/AppError';
 import { filterTodos, FilterType } from './helpers/filterTodos';
 import { TodoItem } from './components/TodoItem';
+import { getActiveTodosCount, getHasCompletedTodos } from './helpers/getters';
 
 const USER_ID = 6950;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(false);
-  const [errorType, setErrorType] = useState(AppError.None);
-  const [filterType, setFilterType] = useState(FilterType.None);
+  const [filterType, setFilterType] = useState(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [
-    deletingAllCompletedTodos,
-    setDeletingAllCompletedTodos,
-  ] = useState(false);
+  const [errorType, setErrorType] = useState(AppError.None);
+  const [hasError, setHasError] = useState(false);
+  const [loadingTodosIds, setLoadingTodosIds] = useState([0]);
+
+  const activeTodosCount = getActiveTodosCount(todos);
+  const hasCompletedTodos = getHasCompletedTodos(todos);
 
   const fetchTodos = async () => {
     try {
@@ -57,71 +58,101 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    const newTodo = await postTodo(title, USER_ID);
+    try {
+      const newTodo = await postTodo(title, USER_ID);
 
-    setTempTodo(null);
-    setTodos(prev => [...prev, newTodo]);
+      setTodos(prev => [...prev, newTodo]);
+    } catch {
+      setErrorType(AppError.Post);
+      setHasError(true);
+    } finally {
+      setTempTodo(null);
+    }
   };
 
-  const deleteTodoFromServer = async (todoId: number) => {
+  const removeTodo = async (todoId: number) => {
     try {
+      setLoadingTodosIds(prev => [...prev, todoId]);
       await deleteTodo(todoId);
-      await fetchTodos();
+      setTodos(prev => prev.filter(({ id }) => id !== todoId));
     } catch {
       setHasError(true);
       setErrorType(AppError.Delete);
+    } finally {
+      setLoadingTodosIds(prev => prev.filter((id => id !== todoId)));
     }
   };
 
-  const deleteAllCompleted = async () => {
-    const completedTodos = todos.filter(({ completed }) => completed);
-
-    setDeletingAllCompletedTodos(true);
+  const removeAllCompleted = async () => {
+    const completedTodosIds = todos
+      .filter(({ completed }) => completed)
+      .map(({ id }) => id);
 
     try {
-      await Promise.all(completedTodos.map(({ id }) => deleteTodo(id)));
-      await fetchTodos();
+      setLoadingTodosIds(prev => [...prev, ...completedTodosIds]);
+      await Promise.all(completedTodosIds.map(id => deleteTodo(id)));
+      setTodos(prev => prev.filter(({ id }) => (
+        !completedTodosIds.includes(id)
+      )));
     } catch {
       setHasError(true);
       setErrorType(AppError.Delete);
+    } finally {
+      setLoadingTodosIds(prev => (
+        prev.filter(id => !completedTodosIds.includes(id))
+      ));
     }
-
-    setDeletingAllCompletedTodos(false);
   };
 
-  const updateTodoOnServer = async (
-    id: number,
+  const updateTodo = async (
+    todoId: number,
     data: Partial<Omit<Todo, 'id'>>,
   ) => {
     try {
-      await updateTodo(id, data);
-      await fetchTodos();
+      setLoadingTodosIds(prev => [...prev, todoId]);
+      await patchTodo(todoId, data);
+      setTodos(prev => prev.map((todo) => {
+        if (todo.id === todoId) {
+          return { ...todo, ...data };
+        }
+
+        return todo;
+      }));
     } catch {
       setHasError(true);
       setErrorType(AppError.Patch);
+    } finally {
+      setLoadingTodosIds(prev => prev.filter(id => id !== todoId));
     }
   };
 
-  const getHasCompletedTodos = () => {
-    return todos.some(({ completed }) => completed);
-  };
-
-  const getActiveTodosCount = () => {
-    return todos.filter(({ completed }) => !completed).length;
-  };
-
   const toggleAllTodos = async () => {
-    if (getActiveTodosCount()) {
-      const completedTodos = todos.filter(({ completed }) => !completed);
+    let updatingTodosIds: number[];
 
-      await Promise.all(completedTodos.map(({ id }) => (
-        updateTodoOnServer(id, { completed: true })
-      )));
-    } else {
-      const completedTodos = todos.filter(({ completed }) => completed);
-
-      await Promise.all(completedTodos.map(({ id }) => (
-        updateTodoOnServer(id, { completed: false })
+    try {
+      if (activeTodosCount) {
+        updatingTodosIds = todos
+          .filter(({ completed }) => !completed)
+          .map(({ id }) => id);
+        setLoadingTodosIds(prev => [...prev, ...updatingTodosIds]);
+        await Promise.all(updatingTodosIds.map((
+          id => (updateTodo(id, { completed: true }))
+        )));
+      } else {
+        updatingTodosIds = todos
+          .filter(({ completed }) => completed)
+          .map(({ id }) => id);
+        setLoadingTodosIds(prev => [...prev, ...updatingTodosIds]);
+        await Promise.all(updatingTodosIds.map((
+          id => (updateTodo(id, { completed: false }))
+        )));
+      }
+    } catch {
+      setHasError(true);
+      setErrorType(AppError.Patch);
+    } finally {
+      setLoadingTodosIds(prev => prev.filter((
+        id => !updatingTodosIds.includes(id)
       )));
     }
   };
@@ -136,17 +167,17 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          hasTodos={!!todos.length}
           toggleAllTodos={toggleAllTodos}
-          isLoading={!!tempTodo}
-          hasActiveTodos={!getActiveTodosCount()}
-          onAdd={addTodo}
+          hasActiveTodos={!!activeTodosCount}
+          addTodo={addTodo}
         />
 
         <TodoList
-          deletingAllCompleted={deletingAllCompletedTodos}
-          onUpdate={updateTodoOnServer}
-          onDelete={deleteTodoFromServer}
+          onUpdate={updateTodo}
+          onDelete={removeTodo}
           todos={visibleTodos}
+          loadingTodosIds={loadingTodosIds}
         />
 
         {tempTodo && <TodoItem todo={tempTodo} />}
@@ -154,11 +185,11 @@ export const App: React.FC = () => {
         {!todos.length
           || (
             <Footer
-              activeTodosCount={getActiveTodosCount()}
-              hasCompletedTodo={getHasCompletedTodos()}
-              setFilter={setFilterType}
-              deleteAllCompleted={deleteAllCompleted}
+              activeTodosCount={activeTodosCount}
+              hasCompletedTodo={hasCompletedTodos}
               filterType={filterType}
+              setFilter={setFilterType}
+              removeAllCompleted={removeAllCompleted}
             />
           )}
       </div>

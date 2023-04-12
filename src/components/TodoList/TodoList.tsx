@@ -5,15 +5,15 @@ import { TodoItem } from '../TodoItem';
 interface Props {
   onDelete: (todoId: number) => Promise<void>;
   onUpdate: (id: number, body: Partial<Omit<Todo, 'id'>>) => Promise<void>;
-  deletingAllCompleted: boolean;
   todos: Todo[];
+  loadingTodosIds: number[];
 }
 
 export const TodoList: React.FC<Props> = ({
   onDelete,
   onUpdate,
-  deletingAllCompleted,
   todos,
+  loadingTodosIds,
 }) => {
   return (
     <section className="todoapp__main">
@@ -21,9 +21,9 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          deleting={deletingAllCompleted && todo.completed}
           onDelete={onDelete}
           onUpdate={onUpdate}
+          isLoading={loadingTodosIds.includes(todo.id)}
         />
       ))}
     </section>

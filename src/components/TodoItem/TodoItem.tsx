@@ -1,82 +1,84 @@
 import classNames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
+  todo: Todo;
   onDelete?: (todoId: number) => Promise<void>;
   onUpdate?: (id: number, body: Partial<Omit<Todo, 'id'>>) => Promise<void>;
-  deleting?: boolean;
-  todo: Todo;
+  isLoading?: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
+  todo,
   onDelete = () => {},
   onUpdate = () => {},
-  deleting = false,
-  todo,
+  isLoading = true,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    id,
+    title,
+    completed,
+  } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(todo.title);
+  const [inputValue, setInputValue] = useState(title);
 
-  useEffect(() => {
-    setIsLoading(deleting);
-  }, [deleting]);
-
-  const handleSubmitEditing = async (
+  const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    setIsLoading(true);
 
-    if (inputValue && inputValue !== todo.title) {
-      await onUpdate(todo.id, { title: inputValue });
+    setInputValue(prev => prev.trim());
+
+    if (inputValue && inputValue !== title) {
+      await onUpdate(id, { title: inputValue });
     }
 
     if (!inputValue) {
-      await onDelete(todo.id);
+      await onDelete(id);
     }
 
-    setIsLoading(false);
     setIsEditing(false);
   };
 
-  const handleCheckboxClick = async () => {
-    setIsLoading(true);
-    await onUpdate(todo.id, { completed: !todo.completed });
-    setIsLoading(false);
+  const handleChangingStatus = async () => {
+    await onUpdate(id, { completed: !completed });
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    setInputValue(title);
+  };
+
+  const handleTyping = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
   };
 
   return (
     <div className={classNames('todo', {
-      completed: todo.completed,
+      completed,
     })}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
-          onClick={handleCheckboxClick}
+          checked={completed}
+          onChange={handleChangingStatus}
         />
       </label>
 
       {isEditing
         ? (
-          <form onSubmit={handleSubmitEditing}>
+          <form onSubmit={handleSubmit}>
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={inputValue}
-              onChange={(event) => {
-                setInputValue(event.target.value);
-              }}
-              onBlur={() => {
-                setIsEditing(false);
-                setInputValue(todo.title);
-              }}
-
+              onChange={handleTyping}
+              onBlur={handleBlur}
             />
           </form>
         ) : (
@@ -85,16 +87,13 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={() => setIsEditing(true)}
             >
-              {todo.title}
+              {title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
-              onClick={() => {
-                setIsLoading(true);
-                onDelete(todo.id);
-              }}
+              onClick={() => onDelete(id)}
             >
               ×
             </button>
@@ -104,7 +103,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={classNames(
           'modal overlay',
-          { 'is-active': todo.id === 0 || isLoading },
+          { 'is-active': isLoading },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -2,23 +2,27 @@ import classNames from 'classnames';
 import { useState } from 'react';
 
 interface Props {
-  toggleAllTodos: () => Promise<void>;
-  onAdd: (title: string) => Promise<void>;
-  isLoading: boolean;
+  hasTodos: boolean;
   hasActiveTodos: boolean;
+  addTodo: (title: string) => Promise<void>;
+  toggleAllTodos: () => Promise<void>;
 }
 
 export const Header: React.FC<Props> = ({
-  toggleAllTodos,
-  onAdd,
-  isLoading,
+  hasTodos,
   hasActiveTodos,
+  addTodo,
+  toggleAllTodos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
+  const [addingDisabled, setAddingDisabled] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await onAdd(todoTitle);
+
+    setAddingDisabled(true);
+    await addTodo(todoTitle);
+    setAddingDisabled(false);
     setTodoTitle('');
   };
 
@@ -28,6 +32,7 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames('todoapp__toggle-all', {
           active: hasActiveTodos,
+          'is-invisible': !hasTodos,
         })}
         onClick={toggleAllTodos}
         aria-label={' '}
@@ -40,7 +45,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={todoTitle}
           onChange={(event) => setTodoTitle(event.target.value)}
-          disabled={isLoading}
+          disabled={addingDisabled}
         />
       </form>
     </header>
