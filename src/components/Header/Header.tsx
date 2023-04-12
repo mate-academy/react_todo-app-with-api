@@ -6,11 +6,18 @@ type Props = {
   setQuery: (title: string) => void,
 };
 
-export const Header:FC<Props> = ({ handleSubmit, query, setQuery }) => (
+export const Header:FC<Props> = ({
+  handleSubmit,
+  query,
+  setQuery,
+}) => (
   <header className="todoapp__header">
     {/* this buttons is active only if there are some active todos */}
     {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-    <button type="button" className="todoapp__toggle-all active" />
+    <button
+      type="button"
+      className="todoapp__toggle-all active"
+    />
 
     <form onSubmit={handleSubmit}>
       <input

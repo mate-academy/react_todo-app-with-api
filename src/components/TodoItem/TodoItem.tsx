@@ -52,9 +52,7 @@ export const TodoItem: FC<Props> = ({ todo, onDelete, changeStatus }) => {
               type="text"
               value={todoTitle}
               onChange={(event) => setTitle(event.target.value)}
-              onBlur={() => {
-                submitEditing();
-              }}
+              onBlur={submitEditing}
             />
           </form>
         )

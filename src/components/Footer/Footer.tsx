@@ -1,4 +1,4 @@
-import { FC, SetStateAction } from 'react';
+import { FC } from 'react';
 import { TodoFilter } from '../TodoFilter';
 import { Todo } from '../../types/Todo';
 import { FilterTodosBy } from '../../types/FilterTodosBy';
@@ -6,7 +6,7 @@ import { FilterTodosBy } from '../../types/FilterTodosBy';
 type Props = {
   todos: Todo[],
   filterBy: string,
-  setFilterBy: (string: SetStateAction<FilterTodosBy>) => void,
+  setFilterBy: (filterTodosBy: FilterTodosBy) => void,
 };
 
 export const Footer:FC<Props> = ({
@@ -14,7 +14,7 @@ export const Footer:FC<Props> = ({
   filterBy,
   setFilterBy,
 }) => {
-  const completedTodos = () => {
+  const hasCompletedTodos = () => {
     return todos.some(todo => todo.completed === true);
   };
 
@@ -33,8 +33,8 @@ export const Footer:FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         style={{
-          opacity: completedTodos() ? 1 : 0,
-          cursor: completedTodos() ? 'pointer' : 'default',
+          opacity: Number(hasCompletedTodos()),
+          cursor: hasCompletedTodos() ? 'pointer' : 'default',
         }}
       >
         Clear completed

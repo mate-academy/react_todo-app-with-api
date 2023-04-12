@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 type Props = {
   hasError: string,
-  setHasError: (string: string) => void,
+  setHasError: (error: string) => void,
 };
 
 export const Error: FC<Props> = ({ hasError, setHasError }) => {

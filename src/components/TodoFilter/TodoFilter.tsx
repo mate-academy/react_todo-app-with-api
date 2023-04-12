@@ -1,9 +1,9 @@
-import { FC, SetStateAction } from 'react';
+import { FC } from 'react';
 import classNames from 'classnames';
 import { FilterTodosBy } from '../../types/FilterTodosBy';
 
 type Props = {
-  setFilterBy: (string: SetStateAction<FilterTodosBy>) => void,
+  setFilterBy: (FilterTodosBy: FilterTodosBy) => void,
   filterBy: string,
 };
 export const TodoFilter: FC<Props> = ({
@@ -18,8 +18,10 @@ export const TodoFilter: FC<Props> = ({
       {filteredByOptions.map(([label, value]) => (
         <a
           href={`#/${value}`}
-          className={classNames('filter__link',
-            { selected: filterBy === value })}
+          className={classNames(
+            'filter__link',
+            { selected: filterBy === value },
+          )}
           key={value}
           onClick={() => setFilterBy(value)}
         >

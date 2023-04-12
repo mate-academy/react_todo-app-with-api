@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
   deleteTodo,
-  getTodos,
-  postTodo,
+  getTodosByUserId,
+  createTodo,
   updateTodo,
 } from './Api/todos';
-import { TodosList } from './components/TodoList';
-import { FilterTodosBy } from './types/FilterTodosBy/FilterTodoBy';
+import { TodoList } from './components/TodoList';
+import { FilterTodosBy } from './types/FilterTodosBy/FilterTodosBy';
 import { Error } from './components/Error';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
@@ -22,15 +22,15 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState(FilterTodosBy.All);
   const [query, setQuery] = useState('');
 
-  const todosFromServer = async (userId: number) => {
+  const todosFromServer = useCallback(async (userId: number) => {
     try {
-      const result = await getTodos(userId);
+      const result = await getTodosByUserId(userId);
 
       setTodos(result);
     } catch {
       setHasError('Error to get user from server');
     }
-  };
+  }, []);
 
   const changeStatus = async (
     id: number,
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     }));
   };
 
-  const visibleTodos = todos.filter((todo) => {
+  const filteredTodos = todos.filter((todo) => {
     let isStatusCorrect = true;
 
     switch (filterBy) {
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
     };
 
-    return postTodo(newTodo)
+    return createTodo(newTodo)
       .then(result => setTodos(state => [...state, result]))
       .catch(() => setHasError('Unable to add a todo'));
   };
@@ -120,13 +120,13 @@ export const App: React.FC = () => {
           setQuery={setQuery}
         />
 
-        <TodosList
-          todos={visibleTodos}
+        <TodoList
+          todos={filteredTodos}
           removeTodo={removeTodo}
           changeStatus={changeStatus}
         />
 
-        {todos.length && (
+        {todos.length > 0 && (
           <Footer
             todos={todos}
             setFilterBy={setFilterBy}

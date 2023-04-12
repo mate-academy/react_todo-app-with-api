@@ -7,7 +7,7 @@ interface Props {
   removeTodo: (id: number) => void,
   changeStatus: (id: number, property: Partial<Todo>) => void,
 }
-export const TodosList: FC<Props> = ({ todos, removeTodo, changeStatus }) => {
+export const TodoList: FC<Props> = ({ todos, removeTodo, changeStatus }) => {
   return (
     <section className="todoapp__main">
       {todos.map(todo => (
