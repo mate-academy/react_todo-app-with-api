@@ -20,10 +20,14 @@ export const Header: React.FC<Props> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setAddingDisabled(true);
-    await addTodo(todoTitle);
-    setAddingDisabled(false);
-    setTodoTitle('');
+    const trimmedTodoTitle = todoTitle.trim();
+
+    if (trimmedTodoTitle) {
+      setAddingDisabled(true);
+      await addTodo(trimmedTodoTitle);
+      setAddingDisabled(false);
+      setTodoTitle('');
+    }
   };
 
   return (

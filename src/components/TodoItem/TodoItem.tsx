@@ -37,9 +37,9 @@ export const TodoItem: React.FC<Props> = ({
   ) => {
     event.preventDefault();
 
-    setInputValue(prev => prev.trim());
+    const trimmedInputValue = inputValue.trim();
 
-    if (inputValue && inputValue !== title) {
+    if (trimmedInputValue && trimmedInputValue !== title) {
       await onUpdate(id, { title: inputValue });
     }
 
