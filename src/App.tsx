@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useMemo,
+  useCallback,
 } from 'react';
 import { Hearts } from 'react-loader-spinner';
 import {
@@ -19,7 +20,7 @@ import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer';
 
-import { getActiveTodos, getFilteredTodos } from './helpers/helpers';
+import { getFilteredTodos } from './helpers/helpers';
 import { FilterType } from './types/FilterType';
 import { ErrorType } from './types/ErrorType';
 import { ErrorMessage } from './components/ErrorMessage';
@@ -54,8 +55,12 @@ export const App: FC = () => {
   }, [todos, filterType]);
 
   const activeTodos = useMemo(() => {
-    return getActiveTodos(visibleTodos);
-  }, [visibleTodos]);
+    return getFilteredTodos(todos, FilterType.ACTIVE);
+  }, [todos]);
+
+  const completedTodos = useMemo(() => {
+    return getFilteredTodos(todos, FilterType.COMPLETED);
+  }, [todos]);
 
   const addToLoadingTodos = (todoId: number) => {
     setLoadingTodosId((prevIds) => [...prevIds, todoId]);
@@ -154,6 +159,18 @@ export const App: FC = () => {
     removeFromLoadingTodos(id);
   };
 
+  const handleUpdatingAll = useCallback(() => {
+    activeTodos.forEach(({ id }) => {
+      handleUpdateTodo(id, { completed: true });
+    });
+
+    if (!activeTodos.length) {
+      completedTodos.forEach(({ id }) => {
+        handleUpdateTodo(id, { completed: false });
+      });
+    }
+  }, [activeTodos, completedTodos]);
+
   const handleDeleteCompleted = () => {
     todos.forEach(({ completed, id }) => {
       if (completed) {
@@ -174,7 +191,8 @@ export const App: FC = () => {
         <Header
           onAdd={addNewTodo}
           disabled={disableField}
-          activeTodos={activeTodos}
+          activeTodos={activeTodos.length}
+          handleUpdatingAll={handleUpdatingAll}
         />
 
         {isLoading && (
@@ -201,7 +219,7 @@ export const App: FC = () => {
           <Footer
             filterType={filterType}
             onFilterChange={setFilterType}
-            activeTodos={activeTodos}
+            activeTodos={activeTodos.length}
             onDeleteCompleted={handleDeleteCompleted}
           />
         )}

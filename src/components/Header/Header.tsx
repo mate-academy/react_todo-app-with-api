@@ -10,6 +10,7 @@ type Props = {
   onAdd: (title: string) => void,
   disabled: boolean,
   activeTodos: number,
+  handleUpdatingAll: () => void,
 };
 
 export const Header: FC<Props> = (props) => {
@@ -17,6 +18,7 @@ export const Header: FC<Props> = (props) => {
     onAdd,
     disabled,
     activeTodos,
+    handleUpdatingAll,
   } = props;
 
   const [title, setTitle] = useState('');
@@ -39,8 +41,9 @@ export const Header: FC<Props> = (props) => {
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: activeTodos > 0 },
+          { active: !activeTodos },
         )}
+        onClick={handleUpdatingAll}
       />
 
       <form onSubmit={handleSubmit}>
