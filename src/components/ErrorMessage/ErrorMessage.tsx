@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React from 'react';
+import { ErrorMessageType } from '../../types/ErrorMessageType';
 
 type Props = {
   errorMessage: string;
-  setErrorMessage: (message: string) => void;
+  setErrorMessage: (message: ErrorMessageType) => void;
 };
 
 export const ErrorMessage: React.FC<Props> = React.memo(
@@ -25,7 +26,7 @@ export const ErrorMessage: React.FC<Props> = React.memo(
           aria-label="close"
           type="button"
           className="delete"
-          onClick={() => setErrorMessage('')}
+          onClick={() => setErrorMessage(ErrorMessageType.NONE)}
         />
         <span>{errorMessage}</span>
       </div>

@@ -6,10 +6,7 @@ import {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import {
-  filterTodosByCompleted,
-  setSingleOrPluralWordByCount,
-} from './HelpersFunctions';
+import { filterTodosByCompleted } from './HelpersFunctions';
 import { Todo } from './types/Todo';
 import {
   addTodo,
@@ -21,14 +18,15 @@ import {
 import { TodoList } from './components/TodoList';
 import { Loader } from './components/Loader';
 import { FilterBy } from './types/FilteredBy';
-import { TodoFilter } from './components/TodoFilter';
 import { Form } from './components/Form';
 import { ErrorMessage } from './components/ErrorMessage';
 import { USER_ID } from './consts';
+import { Footer } from './components/Footer/Footer';
+import { ErrorMessageType } from './types/ErrorMessageType';
 
 export const App: FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorMessageType.NONE);
   const [todoTitle, setTodoTitle] = useState('');
   const [filterType, setFilterType] = useState<FilterBy>(FilterBy.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -36,10 +34,10 @@ export const App: FC = () => {
   const [isRequest, setIsRequest] = useState(false);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
-  const showError = (message: string) => {
+  const showError = (message: ErrorMessageType) => {
     setErrorMessage(message);
     setTimeout(() => {
-      setErrorMessage('');
+      setErrorMessage(ErrorMessageType.NONE);
     }, 3000);
   };
 
@@ -50,7 +48,7 @@ export const App: FC = () => {
       setAllTodos(todos);
       setIsRequest(true);
     } catch {
-      showError('Unable to update a todo');
+      showError(ErrorMessageType.LOAD);
     } finally {
       setTempTodo(null);
       setActiveInput(true);
@@ -70,7 +68,7 @@ export const App: FC = () => {
             setAllTodos(todosWithoutDeleted);
           });
       } catch {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(ErrorMessageType.DELETE);
       } finally {
         setLoadingTodoIds([]);
       }
@@ -96,7 +94,7 @@ export const App: FC = () => {
             setAllTodos(todosWithoutDeleted);
           });
       } catch {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(ErrorMessageType.DELETE);
       } finally {
         setLoadingTodoIds([]);
       }
@@ -119,7 +117,7 @@ export const App: FC = () => {
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (!todoTitle.trim()) {
-        showError('Title can not be empty');
+        showError(ErrorMessageType.EMPTY_TITLE);
 
         return;
       }
@@ -137,7 +135,7 @@ export const App: FC = () => {
         .then(todo => {
           setAllTodos(todos => [...todos, todo]);
         })
-        .catch(() => showError('Unable to add a todo'))
+        .catch(() => showError(ErrorMessageType.ADD))
         .finally(() => {
           setActiveInput(true);
           setTodoTitle('');
@@ -166,14 +164,14 @@ export const App: FC = () => {
 
         setAllTodos(newTodos);
       } catch {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorMessageType.UPDATE);
       } finally {
         setLoadingTodoIds([]);
       }
     }, [allTodos],
   );
 
-  const handleChangeCompletedStatusAllTodos = useCallback( // big question
+  const handleChangeStatusAllTodos = useCallback(
     async () => {
       const allTodosPromises = allTodos.map(async (todo) => {
         if (hasActiveTodo) {
@@ -192,7 +190,7 @@ export const App: FC = () => {
 
         setAllTodos(updatedTodos);
       } catch {
-        showError('Unable to update todos');
+        showError(ErrorMessageType.UPDATE);
       } finally {
         setLoadingTodoIds([]);
       }
@@ -201,15 +199,16 @@ export const App: FC = () => {
 
   const changeTitleByDoubleClick = useCallback(
     async (todoId: number, newTitle: string) => {
+      if (!newTitle.length) {
+        await handleRemoveTodo(todoId);
+
+        return;
+      }
+
       try {
         await setLoadingTodoIds(prev => [...prev, todoId]);
-        if (!newTitle.length) {
-          await handleRemoveTodo(todoId);
 
-          return;
-        }
-
-        await updateTodoTitle(todoId, newTitle); // question
+        await updateTodoTitle(todoId, newTitle);
         const newTodos = allTodos.map((todo) => {
           if (todoId === todo.id) {
             const updatedTodo = { ...todo };
@@ -224,7 +223,7 @@ export const App: FC = () => {
 
         setAllTodos(newTodos);
       } catch {
-        showError('Unable to update a todo');
+        showError(ErrorMessageType.UPDATE);
       } finally {
         setLoadingTodoIds([]);
       }
@@ -240,7 +239,7 @@ export const App: FC = () => {
           <button
             aria-label="clear"
             type="button"
-            onClick={handleChangeCompletedStatusAllTodos}
+            onClick={handleChangeStatusAllTodos}
             className={classNames(
               'todoapp__toggle-all',
               {
@@ -257,7 +256,7 @@ export const App: FC = () => {
           />
         </header>
 
-        {(!allTodos.length && isRequest)
+        {(!allTodos.length && isRequest && !errorMessage)
         && (
           <span style={{
             display: 'flex',
@@ -269,9 +268,7 @@ export const App: FC = () => {
           </span>
         )}
 
-        {allTodos.length === 0
-        && errorMessage.length === 0
-        && !isRequest
+        {!allTodos.length && !errorMessage && !isRequest
           ? (
             <Loader />
           ) : (
@@ -288,30 +285,13 @@ export const App: FC = () => {
           )}
 
         {!allTodos.length || (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${countActiveTodos} ${setSingleOrPluralWordByCount('item', countActiveTodos)} left`}
-            </span>
-
-            <nav className="filter">
-              <TodoFilter
-                filteredTodos={filterType}
-                setFilteredTodos={setFilterType}
-              />
-            </nav>
-
-            {isCompletedTodo
-            && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleRemoveAllCompletedTodo}
-              >
-                Clear completed
-              </button>
-            )}
-
-          </footer>
+          <Footer
+            countActiveTodos={countActiveTodos}
+            isCompletedTodo={isCompletedTodo}
+            handleRemoveAllCompletedTodo={handleRemoveAllCompletedTodo}
+            filterType={filterType}
+            setFilterType={setFilterType}
+          />
         )}
       </div>
 
