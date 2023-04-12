@@ -64,7 +64,7 @@ export const TodoItem: FC<TodoProps> = ({
   const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!changeTitle) {
+    if (!changeTitle.trim()) {
       onRemove(id);
     } else if (title !== changeTitle) {
       updateTodo(id, { title: changeTitle });

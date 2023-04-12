@@ -23,12 +23,6 @@ export const App: FC = () => {
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [loadTodoById, setLoadTodoById] = useState([DEFAULT_TASK_ID]);
 
-  const clearErrorMessage = () => {
-    setTimeout(() => (
-      setError(ErrorType.NONE)
-    ), 3000);
-  };
-
   const fetchTodos = useCallback(async () => {
     try {
       const getData = await getTodos(USER_ID);
@@ -36,7 +30,7 @@ export const App: FC = () => {
       setTodos(getData);
     } catch {
       setError(ErrorType.LOAD);
-      clearErrorMessage();
+      // clearErrorMessage();
     }
   }, []);
 
@@ -55,7 +49,6 @@ export const App: FC = () => {
   const addTodo = useCallback(async (title: string) => {
     if (!title.trim()) {
       setError(ErrorType.EMPTY_TITLE);
-      clearErrorMessage();
 
       return;
     }
@@ -75,7 +68,6 @@ export const App: FC = () => {
       setTodos(state => [...state, todo]);
     } catch {
       setError(ErrorType.ADD);
-      clearErrorMessage();
     } finally {
       setTempTodo(null);
       setIsDisabled(false);
@@ -98,7 +90,6 @@ export const App: FC = () => {
       }));
     } catch {
       setError(ErrorType.UPDATE);
-      clearErrorMessage();
     } finally {
       setLoadTodoById([DEFAULT_TASK_ID]);
     }
@@ -113,7 +104,6 @@ export const App: FC = () => {
       setTodos(state => state.filter(({ id }) => id !== taskId));
     } catch {
       setError(ErrorType.DELETE);
-      clearErrorMessage();
     } finally {
       setLoadTodoById([DEFAULT_TASK_ID]);
     }
@@ -177,6 +167,7 @@ export const App: FC = () => {
       {error
         && (
           <ErrorNotification
+            setError={setError}
             error={error}
             onRemoveError={handleRemoveError}
           />

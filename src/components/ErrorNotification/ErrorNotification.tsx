@@ -1,16 +1,25 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import classNames from 'classnames';
 import { ErrorType } from '../../types/Error';
 
 interface NotificationProps {
   error: ErrorType;
   onRemoveError: () => void;
+  setError: (error: ErrorType) => void;
 }
 
 export const ErrorNotification: FC<NotificationProps> = ({
   error,
   onRemoveError,
+  setError,
 }) => {
+  useEffect(
+    () => {
+      setTimeout(() => setError(ErrorType.NONE),
+        3000);
+    }, [error],
+  );
+
   return (
     <div className={classNames(
       'notification',
