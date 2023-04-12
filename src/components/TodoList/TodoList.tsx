@@ -9,7 +9,7 @@ import { TodoInfo } from '../TodoInfo';
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  loadingTodosId: number[],
+  loadingTodosIds: number[],
   onTodoDelete: (todoIds: number[]) => void;
   onTodoUpdate: (todoId: number, updatedTodo: Partial<Todo>) => void;
 };
@@ -17,7 +17,7 @@ type Props = {
 export const TodoList: FC<Props> = ({
   todos,
   tempTodo,
-  loadingTodosId,
+  loadingTodosIds,
   onTodoDelete,
   onTodoUpdate,
 }) => {
@@ -32,7 +32,7 @@ export const TodoList: FC<Props> = ({
           >
             <TodoInfo
               todo={todo}
-              loadingTodosId={loadingTodosId}
+              loadingTodosIds={loadingTodosIds}
               onDelete={onTodoDelete}
               onUpdate={onTodoUpdate}
             />
@@ -46,7 +46,7 @@ export const TodoList: FC<Props> = ({
           >
             <TodoInfo
               todo={tempTodo}
-              loadingTodosId={loadingTodosId}
+              loadingTodosIds={loadingTodosIds}
               onDelete={onTodoDelete}
               onUpdate={onTodoUpdate}
             />

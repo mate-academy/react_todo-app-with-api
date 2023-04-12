@@ -23,13 +23,13 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todoStatus, setTodoStatus] = useState<TodoStatus>(TodoStatus.ALL);
-  const [loadingTodosId, setLoadingTodosId] = useState<number[]>([]);
+  const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [error, setError] = useState<Errors>(Errors.NONE);
 
   const loadTodos = useCallback(async () => {
     try {
-      const loadedTodos = await TodoService.get(USER_ID);
+      const loadedTodos = await TodoService.getByUserId(USER_ID);
 
       setTodos(loadedTodos);
     } catch (err) {
@@ -45,7 +45,9 @@ export const App: FC = () => {
     return filterTodos(todos, todoStatus);
   }, [todos, todoStatus]);
 
-  const numberOfRemainingTodos = filterTodos(todos, TodoStatus.ACTIVE).length;
+  const numberOfRemainingTodos = useMemo(() => {
+    return filterTodos(todos, TodoStatus.ACTIVE).length;
+  }, [todos]);
 
   const addTodo = useCallback(async (todoData: Omit<Todo, 'id'>) => {
     setIsInputDisabled(true);
@@ -56,7 +58,7 @@ export const App: FC = () => {
 
     try {
       setTempTodo(temporaryTodo);
-      setLoadingTodosId(currId => [...currId, temporaryTodo.id]);
+      setLoadingTodosIds(currIds => [...currIds, temporaryTodo.id]);
       const addedTodo = await TodoService.create(temporaryTodo);
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
@@ -70,7 +72,7 @@ export const App: FC = () => {
   }, []);
 
   const removeTodo = useCallback(async (todoIds: number[]) => {
-    setLoadingTodosId(currId => [...currId, ...todoIds]);
+    setLoadingTodosIds(currIds => [...currIds, ...todoIds]);
 
     try {
       await Promise.all(todoIds.map((todoId) => TodoService.delete(todoId)));
@@ -81,7 +83,7 @@ export const App: FC = () => {
     } catch (err) {
       setError(Errors.DELETE);
     } finally {
-      setLoadingTodosId([]);
+      setLoadingTodosIds([]);
     }
   }, []);
 
@@ -89,11 +91,11 @@ export const App: FC = () => {
     todoId: number,
     updatedTodo: Partial<Todo>,
   ) => {
-    setLoadingTodosId((currId) => [...currId, todoId]);
+    setLoadingTodosIds((currIds) => [...currIds, todoId]);
 
     try {
       await TodoService.update(todoId, updatedTodo);
-      setTodos((currTodos) => currTodos.map(todo => (todo.id === todoId
+      setTodos(currTodos => currTodos.map(todo => (todo.id === todoId
         ? {
           ...todo,
           ...updatedTodo,
@@ -102,23 +104,17 @@ export const App: FC = () => {
     } catch (err) {
       setError(Errors.UPDATE);
     } finally {
-      setLoadingTodosId(currId => currId.filter(id => id !== todoId));
+      setLoadingTodosIds(currIds => currIds.filter(id => id !== todoId));
     }
   }, []);
 
   const allCompleted = numberOfRemainingTodos === 0;
 
   const handleToggleAll = useCallback(async () => {
-    const notCompleted = todos.filter(({ completed }) => !completed);
-
-    if (notCompleted.length === 0) {
+    if (allCompleted) {
       await Promise.all(
-        todos.map(todo => {
-          const updatedTodo = TodoService
-            .update(todo.id, { completed: false });
-
-          return updatedTodo;
-        }),
+        todos.map(todo => TodoService
+          .update(todo.id, { completed: false })),
       );
 
       setTodos(prevTodos => prevTodos
@@ -127,10 +123,8 @@ export const App: FC = () => {
       await Promise.all(
         todos.map(todo => {
           if (!todo.completed) {
-            const updatedTodo = TodoService
+            return TodoService
               .update(todo.id, { completed: true });
-
-            return updatedTodo;
           }
 
           return todo;
@@ -140,7 +134,7 @@ export const App: FC = () => {
       setTodos(prevTodos => prevTodos
         .map(todo => ({ ...todo, completed: true })));
     }
-  }, [todos, setTodos, TodoService.update]);
+  }, [todos, setTodos]);
 
   return (
     <div className="todoapp">
@@ -154,20 +148,20 @@ export const App: FC = () => {
           allCompleted={allCompleted}
           onSubmit={addTodo}
           onToggleAll={handleToggleAll}
-          setError={setError}
+          onError={setError}
         />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
-          loadingTodosId={loadingTodosId}
+          loadingTodosIds={loadingTodosIds}
           onTodoDelete={removeTodo}
           onTodoUpdate={updateTodoData}
         />
 
         {todos.length > 0 && (
           <TodoFilter
-            todos={visibleTodos}
+            todos={todos}
             todoStatus={todoStatus}
             setTodoStatus={setTodoStatus}
             numberOfRemainingTodos={numberOfRemainingTodos}
@@ -178,7 +172,7 @@ export const App: FC = () => {
 
       <NotificationError
         error={error}
-        setError={setError}
+        onClose={setError}
       />
     </div>
   );

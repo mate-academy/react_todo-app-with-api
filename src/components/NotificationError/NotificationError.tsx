@@ -9,16 +9,16 @@ import { Errors } from '../../types/Errors';
 
 type Props = {
   error: string,
-  setError: Dispatch<SetStateAction<Errors>>,
+  onClose: Dispatch<SetStateAction<Errors>>,
 };
 
 export const NotificationError: FC<Props> = ({
   error,
-  setError,
+  onClose,
 }) => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setError(Errors.NONE);
+      onClose(Errors.NONE);
     }, 3000);
 
     return () => {
@@ -40,7 +40,7 @@ export const NotificationError: FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={() => setError(Errors.NONE)}
+        onClick={() => onClose(Errors.NONE)}
         aria-label="close"
       />
       {error}

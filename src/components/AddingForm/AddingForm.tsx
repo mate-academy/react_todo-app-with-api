@@ -18,7 +18,7 @@ type Props = {
   allCompleted: boolean,
   onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>,
   onToggleAll: () => void,
-  setError: (errors: Errors) => void,
+  onError: (errors: Errors) => void,
 };
 
 export const AddingForm: FC<Props> = ({
@@ -28,7 +28,7 @@ export const AddingForm: FC<Props> = ({
   allCompleted,
   onSubmit,
   onToggleAll,
-  setError,
+  onError,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -36,7 +36,7 @@ export const AddingForm: FC<Props> = ({
     event.preventDefault();
 
     if (!title.trim()) {
-      setError(Errors.TITLE_ERROR);
+      onError(Errors.TITLE_ERROR);
 
       return;
     }

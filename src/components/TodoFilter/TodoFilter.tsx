@@ -3,6 +3,7 @@ import {
   FC,
   Dispatch,
   SetStateAction,
+  useCallback,
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoStatus } from '../../types/TodoStatus';
@@ -22,7 +23,7 @@ export const TodoFilter: FC<Props> = ({
   numberOfRemainingTodos,
   onTodoDelete,
 }) => {
-  const handleClearCompleted = () => {
+  const handleClearCompleted = useCallback(() => {
     const todoIds = todos.reduce((acc: number[], { id, completed }) => {
       if (completed) {
         acc.push(id);
@@ -34,9 +35,11 @@ export const TodoFilter: FC<Props> = ({
     if (todoIds.length > 0) {
       onTodoDelete(todoIds);
     }
-  };
+  }, [todos]);
 
-  const countTitle = numberOfRemainingTodos === 1 ? 'item' : 'items';
+  const countTitle = numberOfRemainingTodos === 1
+    ? 'item'
+    : 'items';
 
   return (
     <footer className="todoapp__footer">

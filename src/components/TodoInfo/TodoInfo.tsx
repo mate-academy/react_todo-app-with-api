@@ -10,20 +10,22 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  loadingTodosId: number[],
+  loadingTodosIds: number[],
   onDelete: (todoIds: number[]) => void,
   onUpdate: (todoId: number, updatedTodo: Partial<Todo>) => void,
 };
 
 export const TodoInfo: FC<Props> = ({
   todo,
-  loadingTodosId,
+  loadingTodosIds,
   onDelete,
   onUpdate,
 }) => {
   const { title, completed, id } = todo;
   const [todoTitle, setTodoTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
+
+  const normalizedTitle = todoTitle.trim();
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -53,10 +55,10 @@ export const TodoInfo: FC<Props> = ({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!todoTitle.trim()) {
+    if (!normalizedTitle) {
       onDelete([id]);
     } else if (title !== todoTitle) {
-      onUpdate(id, { title: todoTitle.trim() });
+      onUpdate(id, { title: normalizedTitle });
       setIsEditing(false);
     }
 
@@ -111,7 +113,7 @@ export const TodoInfo: FC<Props> = ({
       <div className={classNames(
         'modal overlay',
         {
-          'is-active': loadingTodosId.includes(id),
+          'is-active': loadingTodosIds.includes(id),
         },
       )}
       >
