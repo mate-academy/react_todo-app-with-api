@@ -1,6 +1,5 @@
 import React from 'react';
 import { TodoListItem } from '../TodoListItem';
-
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -16,7 +15,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   loadingTodosIds,
   onUpdateTodo,
 }) => (
-  <section className="todoapp__main">
+  <>
     {todos?.map(todo => (
       <TodoListItem
         key={todo.id}
@@ -26,5 +25,5 @@ export const TodoList: React.FC<Props> = React.memo(({
         onUpdateTodo={onUpdateTodo}
       />
     ))}
-  </section>
+  </>
 ));
