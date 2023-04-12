@@ -32,11 +32,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-
+  const changeTitle = async () => {
     const trimmedInputValue = inputValue.trim();
 
     if (trimmedInputValue && trimmedInputValue !== title) {
@@ -50,13 +46,19 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    changeTitle();
+  };
+
   const handleChangingStatus = async () => {
     await onUpdate(id, { completed: !completed });
   };
 
-  const handleBlur = () => {
-    setIsEditing(false);
-    setInputValue(title);
+  const handleBlur = async () => {
+    await changeTitle();
   };
 
   const handleTyping = (event: React.ChangeEvent<HTMLInputElement>) => {
