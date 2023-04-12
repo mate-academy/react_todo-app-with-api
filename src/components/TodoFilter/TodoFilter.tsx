@@ -12,7 +12,7 @@ type Props = {
   todoStatus: TodoStatus,
   setTodoStatus: Dispatch<SetStateAction<TodoStatus>>,
   numberOfRemainingTodos: number,
-  onTodoDelete: (todoId: number) => void;
+  onTodoDelete: (todoIds: number[]) => void;
 };
 
 export const TodoFilter: FC<Props> = ({
@@ -23,19 +23,25 @@ export const TodoFilter: FC<Props> = ({
   onTodoDelete,
 }) => {
   const handleClearCompleted = () => {
-    const idArray = todos
-      .filter(({ completed }) => completed)
-      .map(({ id }) => id);
+    const todoIds = todos.reduce((acc: number[], { id, completed }) => {
+      if (completed) {
+        acc.push(id);
+      }
 
-    idArray.forEach(id => onTodoDelete(id));
+      return acc;
+    }, []);
+
+    if (todoIds.length > 0) {
+      onTodoDelete(todoIds);
+    }
   };
+
+  const countTitle = numberOfRemainingTodos === 1 ? 'item' : 'items';
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${numberOfRemainingTodos} ${
-          numberOfRemainingTodos === 1 ? 'item' : 'items'
-        } left`}
+        {`${numberOfRemainingTodos} ${countTitle} left`}
       </span>
 
       <nav className="filter">
@@ -64,7 +70,7 @@ export const TodoFilter: FC<Props> = ({
             'is-invisible': todos.every(todo => !todo.completed),
           },
         )}
-        onClick={() => handleClearCompleted()}
+        onClick={handleClearCompleted}
       >
         Clear completed
       </button>

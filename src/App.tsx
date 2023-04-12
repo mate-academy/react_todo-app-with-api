@@ -5,12 +5,7 @@ import {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  getTodos,
-  postTodo,
-  deleteTodo,
-  patchTodo,
-} from './api/todos';
+import { TodoService } from './api/todos';
 
 import { Todo } from './types/Todo';
 import { TodoStatus } from './types/TodoStatus';
@@ -34,7 +29,7 @@ export const App: FC = () => {
 
   const loadTodos = useCallback(async () => {
     try {
-      const loadedTodos = await getTodos(USER_ID);
+      const loadedTodos = await TodoService.get(USER_ID);
 
       setTodos(loadedTodos);
     } catch (err) {
@@ -50,17 +45,10 @@ export const App: FC = () => {
     return filterTodos(todos, todoStatus);
   }, [todos, todoStatus]);
 
-  const numberOfRemainingTodos = useMemo(() => {
-    return todos
-      .filter(({ completed }) => !completed)
-      .length;
-  }, [todos]);
+  const numberOfRemainingTodos = filterTodos(todos, TodoStatus.ACTIVE).length;
 
   const addTodo = useCallback(async (todoData: Omit<Todo, 'id'>) => {
     setIsInputDisabled(true);
-    const newTodo = {
-      ...todoData,
-    };
     const temporaryTodo = {
       id: 0,
       ...todoData,
@@ -69,7 +57,7 @@ export const App: FC = () => {
     try {
       setTempTodo(temporaryTodo);
       setLoadingTodosId(currId => [...currId, temporaryTodo.id]);
-      const addedTodo = await postTodo(newTodo);
+      const addedTodo = await TodoService.create(temporaryTodo);
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch (err) {
@@ -81,12 +69,15 @@ export const App: FC = () => {
     setIsInputDisabled(false);
   }, []);
 
-  const removeTodo = useCallback(async (todoId: number) => {
-    setLoadingTodosId((currId) => [...currId, todoId]);
+  const removeTodo = useCallback(async (todoIds: number[]) => {
+    setLoadingTodosId(currId => [...currId, ...todoIds]);
 
     try {
-      await deleteTodo(todoId);
-      setTodos((currTodos) => currTodos.filter((todo) => todo.id !== todoId));
+      await Promise.all(todoIds.map((todoId) => TodoService.delete(todoId)));
+
+      setTodos(currTodos => currTodos.filter(
+        (todo) => !todoIds.includes(todo.id),
+      ));
     } catch (err) {
       setError(Errors.DELETE);
     } finally {
@@ -94,14 +85,14 @@ export const App: FC = () => {
     }
   }, []);
 
-  const updateTodo = useCallback(async (
+  const updateTodoData = useCallback(async (
     todoId: number,
     updatedTodo: Partial<Todo>,
   ) => {
     setLoadingTodosId((currId) => [...currId, todoId]);
 
     try {
-      await patchTodo(todoId, updatedTodo);
+      await TodoService.update(todoId, updatedTodo);
       setTodos((currTodos) => currTodos.map(todo => (todo.id === todoId
         ? {
           ...todo,
@@ -111,31 +102,45 @@ export const App: FC = () => {
     } catch (err) {
       setError(Errors.UPDATE);
     } finally {
-      setLoadingTodosId([]);
+      setLoadingTodosId(currId => currId.filter(id => id !== todoId));
     }
   }, []);
 
-  const allCompleted = useMemo(() => {
-    if (todos.length) {
-      return todos.every(({ completed }) => completed);
-    }
+  const allCompleted = numberOfRemainingTodos === 0;
 
-    return false;
-  }, [todos]);
+  const handleToggleAll = useCallback(async () => {
+    const notCompleted = todos.filter(({ completed }) => !completed);
 
-  const handleToggleAll = useCallback(() => {
-    if (allCompleted) {
-      todos.forEach(todo => {
-        updateTodo(todo.id, { completed: false });
-      });
+    if (notCompleted.length === 0) {
+      await Promise.all(
+        todos.map(todo => {
+          const updatedTodo = TodoService
+            .update(todo.id, { completed: false });
+
+          return updatedTodo;
+        }),
+      );
+
+      setTodos(prevTodos => prevTodos
+        .map(todo => ({ ...todo, completed: false })));
     } else {
-      const notCompleted = todos.filter(({ completed }) => !completed);
+      await Promise.all(
+        todos.map(todo => {
+          if (!todo.completed) {
+            const updatedTodo = TodoService
+              .update(todo.id, { completed: true });
 
-      notCompleted.forEach(todo => {
-        updateTodo(todo.id, { completed: true });
-      });
+            return updatedTodo;
+          }
+
+          return todo;
+        }),
+      );
+
+      setTodos(prevTodos => prevTodos
+        .map(todo => ({ ...todo, completed: true })));
     }
-  }, [todos]);
+  }, [todos, setTodos, TodoService.update]);
 
   return (
     <div className="todoapp">
@@ -143,7 +148,7 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <AddingForm
-          areAnyTodos={!!visibleTodos.length}
+          isTodoListEmpty={!visibleTodos.length}
           userId={USER_ID}
           isInputDisabled={isInputDisabled}
           allCompleted={allCompleted}
@@ -157,7 +162,7 @@ export const App: FC = () => {
           tempTodo={tempTodo}
           loadingTodosId={loadingTodosId}
           onTodoDelete={removeTodo}
-          onTodoUpdate={updateTodo}
+          onTodoUpdate={updateTodoData}
         />
 
         {todos.length > 0 && (

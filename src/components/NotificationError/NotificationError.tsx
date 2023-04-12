@@ -17,9 +17,13 @@ export const NotificationError: FC<Props> = ({
   setError,
 }) => {
   useEffect(() => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setError(Errors.NONE);
     }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [error]);
 
   return (

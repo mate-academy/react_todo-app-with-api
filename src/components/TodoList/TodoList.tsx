@@ -10,7 +10,7 @@ type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
   loadingTodosId: number[],
-  onTodoDelete: (todoId: number) => void;
+  onTodoDelete: (todoIds: number[]) => void;
   onTodoUpdate: (todoId: number, updatedTodo: Partial<Todo>) => void;
 };
 
@@ -31,7 +31,6 @@ export const TodoList: FC<Props> = ({
             classNames="item"
           >
             <TodoInfo
-              key={todo.id}
               todo={todo}
               loadingTodosId={loadingTodosId}
               onDelete={onTodoDelete}

@@ -3,7 +3,7 @@ import { TodoStatus } from '../types/TodoStatus';
 
 export const filterTodos = (
   todos: Todo[],
-  status: string,
+  status: TodoStatus,
 ): Todo[] => {
   let visibleTodos = [...todos];
 

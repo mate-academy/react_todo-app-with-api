@@ -2,8 +2,7 @@ import {
   FC,
   useState,
   useEffect,
-  Dispatch,
-  SetStateAction,
+  useCallback,
   ChangeEvent,
   FormEvent,
   useRef,
@@ -13,17 +12,17 @@ import { Todo } from '../../types/Todo';
 import { Errors } from '../../types/Errors';
 
 type Props = {
-  areAnyTodos: boolean,
+  isTodoListEmpty: boolean,
   userId: number,
   isInputDisabled: boolean,
   allCompleted: boolean,
   onSubmit: (todoData: Omit<Todo, 'id'>) => Promise<void>,
   onToggleAll: () => void,
-  setError: Dispatch<SetStateAction<Errors>>,
+  setError: (errors: Errors) => void,
 };
 
 export const AddingForm: FC<Props> = ({
-  areAnyTodos,
+  isTodoListEmpty,
   userId,
   isInputDisabled,
   allCompleted,
@@ -51,28 +50,28 @@ export const AddingForm: FC<Props> = ({
     setTitle('');
   };
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
-  };
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && !isInputDisabled) {
       inputRef.current.focus();
     }
   }, [isInputDisabled]);
 
   return (
     <header className="todoapp__header">
-      {areAnyTodos && (
+      {!isTodoListEmpty && (
         <button
           type="button"
           className={classNames(
             'todoapp__toggle-all',
             { active: allCompleted },
           )}
-          aria-label="make all todos active"
+          aria-label="mark all todos as active"
           onClick={onToggleAll}
         />
       )}

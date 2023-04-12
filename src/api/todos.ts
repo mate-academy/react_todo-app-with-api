@@ -1,18 +1,20 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-export const getTodos = (userId: number) => {
-  return client.get<Todo[]>(`/todos?userId=${userId}`);
-};
+export class TodoService {
+  static get(userId: number): Promise<Todo[]> {
+    return client.get<Todo[]>(`/todos?userId=${userId}`);
+  }
 
-export const postTodo = (todoData: Omit<Todo, 'id'>) => {
-  return client.post<Todo>('/todos', todoData);
-};
+  static async create(todoData: Omit<Todo, 'id'>): Promise<Todo> {
+    return client.post<Todo>('/todos', todoData);
+  }
 
-export const deleteTodo = (todoId: number) => {
-  return client.delete(`/todos/${todoId}`);
-};
+  static async delete(todoId: number): Promise<void> {
+    await client.delete(`/todos/${todoId}`);
+  }
 
-export const patchTodo = (id: number, updatedTodo: Partial<Todo>) => {
-  return client.patch<Todo>(`/todos/${id}`, updatedTodo);
-};
+  static update(id: number, updatedTodo: Partial<Todo>): Promise<Todo> {
+    return client.patch<Todo>(`/todos/${id}`, updatedTodo);
+  }
+}

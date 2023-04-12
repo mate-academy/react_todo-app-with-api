@@ -11,7 +11,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   loadingTodosId: number[],
-  onDelete: (todoId: number) => void,
+  onDelete: (todoIds: number[]) => void,
   onUpdate: (todoId: number, updatedTodo: Partial<Todo>) => void,
 };
 
@@ -24,14 +24,6 @@ export const TodoInfo: FC<Props> = ({
   const { title, completed, id } = todo;
   const [todoTitle, setTodoTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
-
-  const handleDelete = async (todoId: number) => {
-    await onDelete(todoId);
-  };
-
-  const handleToggle = async (todoId: number) => {
-    await onUpdate(todoId, { completed: !completed });
-  };
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -61,10 +53,10 @@ export const TodoInfo: FC<Props> = ({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!todoTitle) {
-      onDelete(id);
+    if (!todoTitle.trim()) {
+      onDelete([id]);
     } else if (title !== todoTitle) {
-      onUpdate(id, { title: todoTitle });
+      onUpdate(id, { title: todoTitle.trim() });
       setIsEditing(false);
     }
 
@@ -82,7 +74,7 @@ export const TodoInfo: FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={() => handleToggle(id)}
+          onClick={() => onUpdate(id, { completed: !completed })}
         />
       </label>
 
@@ -109,7 +101,7 @@ export const TodoInfo: FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => handleDelete(id)}
+            onClick={() => onDelete([id])}
           >
             ×
           </button>
