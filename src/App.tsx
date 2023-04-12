@@ -198,6 +198,7 @@ export const App: React.FC = () => {
       {hasError && (
         <ErrorMessage
           removeErrorMessage={() => setHasError(false)}
+          reloadData={fetchTodos}
           errorType={errorType}
         />
       )}

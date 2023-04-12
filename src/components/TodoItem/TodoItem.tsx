@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
@@ -23,6 +23,14 @@ export const TodoItem: React.FC<Props> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(title);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current !== null) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -79,6 +87,7 @@ export const TodoItem: React.FC<Props> = ({
               value={inputValue}
               onChange={handleTyping}
               onBlur={handleBlur}
+              ref={inputRef}
             />
           </form>
         ) : (
