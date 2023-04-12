@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { updateTodo } from '../../Api/todos';
@@ -18,19 +18,19 @@ export const TodoItem: FC<Props> = ({ todo, onDelete, changeStatus }) => {
   const [todoTitle, setTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const submitEditing = () => {
     if (!todoTitle) {
       onDelete(id);
     } else {
       updateTodo(id, { title: todoTitle });
     }
-
-    setIsEditing(false);
   };
 
-  const inputField = useRef<HTMLInputElement>(null);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    submitEditing();
+    setIsEditing(false);
+  };
 
   return (
     <div className={classNames('todo', { completed })}>
@@ -52,7 +52,9 @@ export const TodoItem: FC<Props> = ({ todo, onDelete, changeStatus }) => {
               type="text"
               value={todoTitle}
               onChange={(event) => setTitle(event.target.value)}
-              onBlur={inputField}
+              onBlur={() => {
+                submitEditing();
+              }}
             />
           </form>
         )
