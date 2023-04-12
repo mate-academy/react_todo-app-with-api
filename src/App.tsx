@@ -1,12 +1,19 @@
 import {
-  FC, useCallback, useEffect, useMemo, useState,
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/Error';
 import { TaskStatus } from './types/Sort';
 import {
-  deleteTodo, getTodos, patchTodo, postTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo,
+  postTodo,
 } from './api/todos';
 import { AddTodo } from './components/AddTodo';
 import { TodoList } from './components/TodoList';
@@ -30,7 +37,6 @@ export const App: FC = () => {
       setTodos(getData);
     } catch {
       setError(ErrorType.LOAD);
-      // clearErrorMessage();
     }
   }, []);
 
