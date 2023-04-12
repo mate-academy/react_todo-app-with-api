@@ -6,6 +6,8 @@ import {
   ChangeEvent,
   KeyboardEvent,
   memo,
+  useRef,
+  useEffect,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from './Todo';
@@ -33,6 +35,7 @@ export const TodoItem: FC<Props> = memo((props) => {
   const loadingTodos = useContext(LoadContext);
   const [isEditing, setIsEditing] = useState(false);
   const [changedTitle, setChangedTitle] = useState(title);
+  const input = useRef<HTMLInputElement | null>(null);
 
   const updateTodoTitle = () => {
     if (changedTitle === title) {
@@ -63,6 +66,12 @@ export const TodoItem: FC<Props> = memo((props) => {
     }
   };
 
+  useEffect(() => {
+    if (isEditing && input.current) {
+      input.current.focus();
+    }
+  }, [isEditing]);
+
   return (
     <div className={cn('todo', { completed })}>
       <label className="todo__status-label">
@@ -78,12 +87,13 @@ export const TodoItem: FC<Props> = memo((props) => {
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
+            ref={input}
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={changedTitle}
             onChange={handleChangeTitle}
-            onBlur={() => setIsEditing(false)}
+            onBlur={updateTodoTitle}
             onKeyUp={cancelEditing}
           />
         </form>
