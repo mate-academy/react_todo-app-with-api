@@ -171,13 +171,13 @@ export const App: FC = () => {
     }
   }, [activeTodos, completedTodos]);
 
-  const handleDeleteCompleted = () => {
+  const handleDeleteCompleted = useCallback(() => {
     todos.forEach(({ completed, id }) => {
       if (completed) {
-        deleteTodo(id);
+        removeTodo(id);
       }
     });
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -221,6 +221,7 @@ export const App: FC = () => {
             onFilterChange={setFilterType}
             activeTodos={activeTodos.length}
             onDeleteCompleted={handleDeleteCompleted}
+            completedTodos={completedTodos}
           />
         )}
       </div>

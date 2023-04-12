@@ -1,20 +1,23 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 import classNames from 'classnames';
 import { FilterType } from '../../types/FilterType';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   filterType: FilterType,
   onFilterChange: (filter: FilterType) => void,
   activeTodos: number,
   onDeleteCompleted: () => void,
+  completedTodos: Todo[],
 };
 
-export const Footer: FC<Props> = (props) => {
+export const Footer: FC<Props> = memo((props) => {
   const {
     filterType,
     onFilterChange,
     activeTodos,
     onDeleteCompleted,
+    completedTodos,
   } = props;
 
   return (
@@ -44,16 +47,18 @@ export const Footer: FC<Props> = (props) => {
         })}
       </nav>
 
-      {activeTodos > 0
-      && filterType !== FilterType.ACTIVE && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onDeleteCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames(
+          'todoapp__clear-completed',
+          {
+            'is-invisible': completedTodos.length === 0,
+          },
+        )}
+        onClick={onDeleteCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
-};
+});
