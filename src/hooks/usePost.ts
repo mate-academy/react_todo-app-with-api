@@ -1,20 +1,19 @@
 import { Dispatch, useCallback, useState } from 'react';
 import { addTodo } from '../api/todos';
 import { Todo } from '../components/TodoItem/Todo';
-import { useError } from './useError';
 import { ErrorType } from '../typedefs';
 
 interface Options {
   setTodos: Dispatch<React.SetStateAction<Todo[]>>,
   USER_ID: number,
+  showError: (error: ErrorType) => void
 }
 
 export const usePost = (options: Options) => {
-  const { setTodos, USER_ID } = options;
+  const { setTodos, USER_ID, showError } = options;
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [unableField, setUnableField] = useState(false);
-  const { showError } = useError();
 
   const addNewTodo = useCallback(
     async (title: string) => {

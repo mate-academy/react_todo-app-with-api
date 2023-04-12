@@ -45,7 +45,7 @@ export const App: FC = () => {
     tempTodo,
     unableField,
     addNewTodo,
-  } = usePost({ USER_ID, setTodos });
+  } = usePost({ USER_ID, setTodos, showError });
 
   const fetchTodos = useCallback(async () => {
     try {

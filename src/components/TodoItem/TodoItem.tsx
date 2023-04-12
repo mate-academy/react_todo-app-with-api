@@ -40,6 +40,8 @@ export const TodoItem: FC<Props> = memo((props) => {
   const updateTodoTitle = () => {
     if (changedTitle === title) {
       setIsEditing(false);
+
+      return;
     }
 
     if (!changedTitle.trim()) {
