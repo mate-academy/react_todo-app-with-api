@@ -28,6 +28,7 @@ export const App: React.FC = () => {
   );
 
   const fetchTodos = (pass: string, callback?: () => void): void => {
+    setIsLoading(true);
     client
       .get(pass)
       .then((todos) => {

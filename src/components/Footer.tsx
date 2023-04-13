@@ -86,9 +86,12 @@ export const Footer: React.FC<{
 
       <button
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames(
+          'todoapp__clear-completed',
+          { todoapp__clear: !countComplited },
+        )}
         onClick={deleteCompleted}
-        hidden={!countComplited}
+        disabled={!countComplited}
       >
         Clear completed
       </button>
