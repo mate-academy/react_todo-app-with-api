@@ -4,7 +4,7 @@ import React, {
 import {
   deleteTodo,
   getTodos,
-  updateTodoID,
+  updateTodoStatus,
   updateTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
@@ -20,13 +20,29 @@ export const App: React.FC = () => {
   const [filteredBy, setFilteredBy] = useState('All');
   const [errorMessage, setErrorMessage] = useState('');
   const [titleTodo, setTitleTodo] = useState('');
-  const [deletedTodos, setDeletedTodos] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [activeInput, setActiveInput] = useState(true);
+
+  const hasActiveTodo = todoList.some((todo) => !todo.completed);
 
   const visibleTodos = useMemo(() => {
     return filterTodos(todoList, filteredBy);
   }, [todoList, filteredBy]);
+
+  const fetchTodos = async () => {
+    try {
+      const todos = await getTodos(USER_ID);
+
+      setTodoList(todos);
+    } catch {
+      setErrorMessage('Unable to add a todo');
+    }
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
   const handleChangeFilterBy = (value: string) => {
     setFilteredBy(value);
@@ -37,8 +53,8 @@ export const App: React.FC = () => {
       try {
         const foundTodo = todoList.find((todo) => todo.id === todoID);
 
-        setDeletedTodos((prevIDs) => [...prevIDs, todoID]);
-        await updateTodoID(todoID, !foundTodo?.completed);
+        setLoadingTodos((prevIDs) => [...prevIDs, todoID]);
+        await updateTodoStatus(todoID, !foundTodo?.completed);
 
         const newTodos = todoList.map((todo) => {
           if (foundTodo?.id === todo.id) {
@@ -54,7 +70,7 @@ export const App: React.FC = () => {
       } catch {
         setErrorMessage('Unable to update a todo');
       } finally {
-        setDeletedTodos([]);
+        setLoadingTodos([]);
       }
     },
     [todoList],
@@ -64,7 +80,7 @@ export const App: React.FC = () => {
     async (todoID: number, todoNewTitle: string) => {
       if (!todoNewTitle) {
         try {
-          setDeletedTodos([todoID]);
+          setLoadingTodos([todoID]);
           const newTodos = todoList.filter((todo) => todo.id !== todoID);
 
           await deleteTodo(`/todos/${todoID}`);
@@ -73,7 +89,7 @@ export const App: React.FC = () => {
         } catch {
           setErrorMessage('Unable to delete a todo');
         } finally {
-          setDeletedTodos([]);
+          setLoadingTodos([]);
         }
       } else {
         try {
@@ -100,6 +116,30 @@ export const App: React.FC = () => {
     [todoList],
   );
 
+  const handleChangeStatusAllTodos = useCallback(async () => {
+    const allTodosPromises = todoList.map((todo) => {
+      if (hasActiveTodo) {
+        if (!todo.completed) {
+          setLoadingTodos((prev) => [...prev, todo.id]);
+        }
+      } else if (todo.completed) {
+        setLoadingTodos((prev) => [...prev, todo.id]);
+      }
+
+      return updateTodoStatus(todo.id, hasActiveTodo);
+    });
+
+    try {
+      const updatedTodos = await Promise.all(allTodosPromises);
+
+      setTodoList(updatedTodos);
+    } catch {
+      setErrorMessage('Unable to update a todos');
+    } finally {
+      setLoadingTodos([]);
+    }
+  }, [todoList]);
+
   const handleChangeTitleTodo = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -109,20 +149,6 @@ export const App: React.FC = () => {
 
     setTitleTodo(value);
   };
-
-  const fetchTodos = async () => {
-    try {
-      const todos = await getTodos(USER_ID);
-
-      setTodoList(todos);
-    } catch {
-      setErrorMessage('Unable to add a todo');
-    }
-  };
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
 
   return (
     <div className="todoapp">
@@ -139,14 +165,15 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
           activeInput={activeInput}
           setActiveInput={setActiveInput}
+          handleChangeStatusAllTodos={handleChangeStatusAllTodos}
         />
 
         <TodoList
           todos={visibleTodos}
           setTodoList={setTodoList}
           setErrorMessage={setErrorMessage}
-          deletedTodos={deletedTodos}
-          setDeletedTodos={setDeletedTodos}
+          loadingTodos={loadingTodos}
+          setLoadingTodos={setLoadingTodos}
           tempTodo={tempTodo}
           onChangeStatusTodo={handleChangeStatus}
           onChangeNewTitle={handleUpdateTitleTodo}
@@ -160,7 +187,7 @@ export const App: React.FC = () => {
             handleChangeFilterType={handleChangeFilterBy}
             todos={visibleTodos}
             setErrorMessage={setErrorMessage}
-            setDeletedTodos={setDeletedTodos}
+            setLoadingTodos={setLoadingTodos}
           />
         )}
       </div>

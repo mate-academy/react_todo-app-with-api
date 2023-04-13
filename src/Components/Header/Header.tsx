@@ -12,6 +12,7 @@ type Props = {
   setTempTodo: (value: Todo | null) => void;
   activeInput: boolean;
   setActiveInput: (value: boolean) => void;
+  handleChangeStatusAllTodos: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -24,6 +25,7 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
   activeInput,
   setActiveInput,
+  handleChangeStatusAllTodos,
 }) => {
   const handleAddNewTodo = async (
     event: React.ChangeEvent<HTMLFormElement>,
@@ -60,11 +62,14 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        aria-label="button"
-        type="button"
-        className="todoapp__toggle-all active"
-      />
+      {todos.length > 0 && (
+        <button
+          aria-label="button"
+          type="button"
+          className="todoapp__toggle-all active"
+          onClick={handleChangeStatusAllTodos}
+        />
+      )}
 
       <form onSubmit={handleAddNewTodo}>
         <input

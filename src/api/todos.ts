@@ -1,5 +1,4 @@
 import { Todo } from '../types/Todo';
-// import { USER_ID } from '../utils/UserID';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = async (userId: number) => {
@@ -20,15 +19,16 @@ export const deleteTodo = async (todoID: string) => {
   return deletedTodo;
 };
 
-export const updateTodoID = async (todoID: number, completed: boolean) => {
-  const updatedTodo = await client.patch(`/todos/${todoID}`, { completed });
+export const updateTodoStatus = async (todoID: number, completed: boolean) => {
+  const updatedTodo = await client.patch<Todo>(`/todos/${todoID}`, {
+    completed,
+  });
 
   return updatedTodo;
 };
 
 export const updateTodoTitle = async (todoID: number, title: string) => {
-  const updatedTodo = await client.patch(`/todos/${todoID}`, { title });
+  const updatedTodo = await client.patch<Todo>(`/todos/${todoID}`, { title });
 
   return updatedTodo;
 };
-// Add more methods here

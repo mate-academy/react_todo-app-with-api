@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
   isIncludes: boolean;
   onChangeStatusTodo?: (todoID: number) => void;
   onChangeNewTitle?: (todoID: number, todoNewTitle: string) => void;
+  setErrorMessage: (errorMessage: string) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -16,11 +17,15 @@ export const TodoInfo: React.FC<Props> = ({
   isIncludes,
   onChangeStatusTodo,
   onChangeNewTitle,
+  setErrorMessage,
 }) => {
   const { title, id } = todo;
 
   const [isClicked, setIsClicked] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
+  const [isChangedTitle, setIsChangedTitle] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChangeTitleTodo = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -32,11 +37,28 @@ export const TodoInfo: React.FC<Props> = ({
     setTodoTitle(value);
   };
 
-  const handleUpdateTittleTodo = (
+  const handleUpdateTittleTodo = async (
     event: React.ChangeEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
+    setIsClicked(false);
+
+    if (todoTitle !== todo.title) {
+      try {
+        setIsChangedTitle(true);
+        await onChangeNewTitle?.(id, todoTitle);
+      } catch {
+        setErrorMessage('Unable to edit a todo');
+      } finally {
+        setIsChangedTitle(false);
+      }
+    }
+
+    return '';
+  };
+
+  const onBlurUpdateTittleTodo = () => {
     setIsClicked(false);
 
     if (todoTitle !== todo.title) {
@@ -45,6 +67,17 @@ export const TodoInfo: React.FC<Props> = ({
 
     return '';
   };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsClicked(false);
+      setTodoTitle(todo.title);
+    }
+  };
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [isClicked]);
 
   return (
     <>
@@ -71,6 +104,9 @@ export const TodoInfo: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={todoTitle}
               onChange={handleChangeTitleTodo}
+              onBlur={onBlurUpdateTittleTodo}
+              onKeyDown={handleKeyDown}
+              ref={inputRef}
             />
           </form>
 
@@ -107,6 +143,13 @@ export const TodoInfo: React.FC<Props> = ({
           </button>
 
           {isIncludes && (
+            <div className="modal overlay is-active">
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
+          )}
+
+          {isChangedTitle && (
             <div className="modal overlay is-active">
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

@@ -10,7 +10,7 @@ type Props = {
   todos: Todo[];
   setTodoList: (todos: Todo[]) => void;
   setErrorMessage: (errorMessage: string) => void;
-  setDeletedTodos: (deletedTodos: number[]) => void;
+  setLoadingTodos: (deletedTodos: number[]) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -20,7 +20,7 @@ export const Footer: React.FC<Props> = ({
   todos,
   setTodoList,
   setErrorMessage,
-  setDeletedTodos,
+  setLoadingTodos,
 }) => {
   const handleDeleteAllCompletedTodo = async () => {
     const completedTodos = todos.filter((todo) => todo.completed);
@@ -35,14 +35,14 @@ export const Footer: React.FC<Props> = ({
 
     completedTodos.forEach(async (todo) => {
       try {
-        setDeletedTodos([...completedTodosID]);
+        setLoadingTodos([...completedTodosID]);
         await deleteTodo(`/todos/${todo.id}`).then(() => {
           setTodoList(incompletedTodos);
         });
       } catch {
         setErrorMessage('Unable to delete a todo');
       } finally {
-        setDeletedTodos([]);
+        setLoadingTodos([]);
       }
     });
   };
