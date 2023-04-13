@@ -33,6 +33,10 @@ export const TodoList: React.FC<Props> = ({
     return (newTitle: string) => onUpdate(idToUpdate, newTitle);
   };
 
+  // const onDelete = (idToDelete) => {
+  //   return deleteTodo(idToDelete);
+  // }
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>

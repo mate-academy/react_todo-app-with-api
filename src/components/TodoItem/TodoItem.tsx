@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
-import { updateTodo } from '../../api/todos';
+import { updateTodo, deleteTodo } from '../../api/todos';
 
 interface Props {
   todo?: Partial<Todo> | null;
@@ -40,14 +40,26 @@ export const TodoItem: React.FC<Props> = ({
     const { target } = event;
     const { innerText } = target as HTMLSpanElement;
 
-    setNewTitle(innerText);
+    const filteredText = innerText.replace(/(\r||\r)/g, '');
+
+    setNewTitle(filteredText);
 
     if (keyCode === 13) {
-      onUpdate(innerText);
-      if (innerText !== '') {
+      if (filteredText !== '') {
+        onUpdate(filteredText);
         setEditing(false);
+      } else if (todo?.id !== null && todo?.id !== undefined) {
+        setEditing(false);
+        deleteTodo(todo.id);
       }
     }
+  };
+
+  const handleDoublebClick = (
+    event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+  ) => {
+    event.preventDefault();
+    setEditing(true);
   };
 
   return (
@@ -68,25 +80,39 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <span
-        className="todo__title"
-        onKeyDown={handleUpdateTitle}
-        contentEditable={editing}
-        onDoubleClick={() => setEditing(true)}
-        // onChange={handleEditTitle}
-      >
-        {newTitle}
-      </span>
+      {!editing
+        ? (
+          <>
+            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+            <span
+              className="todo__title"
+              // onKeyDown={handleUpdateTitle}
+              contentEditable={editing}
+              onDoubleClick={handleDoublebClick}
+            >
+              {newTitle}
+            </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={onDelete}
-      >
-        ×
-      </button>
-
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={onDelete}
+            >
+              ×
+            </button>
+          </>
+        )
+        : (
+          <form>
+            <input
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              onKeyDown={handleUpdateTitle}
+              value={newTitle}
+            />
+          </form>
+        ) }
       {/* overlay will cover the todo while it is being updated */}
       {isProcessed && (
         <div className="modal overlay">
