@@ -199,6 +199,10 @@ export const App: React.FC = () => {
   const handleUpdateTodo = (idToUpdate: number, newTitle: string) => {
     setProcessing((prevState) => [...prevState, idToUpdate]);
 
+    if (newTitle === '') {
+      return setErrorToShow('emptyTitle');
+    }
+
     return updateTodo(idToUpdate, { title: newTitle }).then().catch(() => {
       return setErrorToShow('update');
     });

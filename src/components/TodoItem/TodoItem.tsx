@@ -8,7 +8,7 @@ interface Props {
   todo?: Partial<Todo> | null;
   isProcessed: boolean;
   onDelete?: () => void;
-  onUpdate: (title: any) => Promise<void | Partial<Todo>>;
+  onUpdate: (newTitle: string) => void | Promise<void | Partial<Todo>>;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -44,8 +44,9 @@ export const TodoItem: React.FC<Props> = ({
 
     if (keyCode === 13) {
       onUpdate(innerText);
-
-      setEditing(false);
+      if (innerText !== '') {
+        setEditing(false);
+      }
     }
   };
 

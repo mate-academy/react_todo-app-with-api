@@ -15,8 +15,10 @@ interface Props {
   creating: boolean;
   processings: number[];
   tempTodo: Todo | null;
-  onUpdate:
-  (idToUpdate: number, newTitle: string) => Promise<void | Partial<Todo>>,
+  onUpdate: (
+    idToUpdate: number,
+    newTitle: string
+  ) => void | Promise<void | Partial<Todo>>,
 }
 
 export const TodoList: React.FC<Props> = ({
