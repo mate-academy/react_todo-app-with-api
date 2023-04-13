@@ -27,6 +27,15 @@ export const TodoInfo: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
+  const handleTitleSubmit = () => {
+    if (todoTitle.trim() === '') {
+      onDelete(id);
+    } else {
+      setIsEditing(false);
+      onUpdate(id, { title: todoTitle });
+    }
+  };
+
   const handleTitleCancel = () => {
     setIsEditing(false);
     setTodoTitle(title);
@@ -39,11 +48,6 @@ export const TodoInfo: React.FC<Props> = ({
     } else if (event.key === 'Escape') {
       handleTitleCancel();
     }
-  };
-
-  const handleTitleBlur = () => {
-    setIsEditing(false);
-    onUpdate(id, { title: todoTitle });
   };
 
   return (
@@ -69,7 +73,7 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__title-field"
           value={todoTitle}
           onChange={handleTitleChange}
-          onBlur={handleTitleBlur}
+          onBlur={handleTitleSubmit}
           onKeyDown={handleKeyDown}
         />
       ) : (

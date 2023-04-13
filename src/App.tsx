@@ -163,17 +163,16 @@ export const App: React.FC = () => {
   const removeCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.map(todo => {
-      return deleteTodo(todo.id)
-        .then(() => {
-          setTodos(todos.filter(task => !task.completed));
-        })
-        .catch(() => {
-          setErrorMessage('Unable to remove todo');
-          setTimeout(() => {
-            setErrorMessage('');
-          }, 3000);
-        });
+    completedTodos.map(async todo => {
+      try {
+        await deleteTodo(todo.id);
+        setTodos(todos.filter(task => !task.completed));
+      } catch {
+        setErrorMessage('Unable to remove todo');
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
+      }
     });
   }, [todos]);
 
