@@ -46,7 +46,7 @@ export const TodoItem: React.FC<{
   };
 
   const handleEdit = (text: string) => {
-    if (text !== '') {
+    if (text) {
       setTemporaryText(text);
       setIsEdit(false);
       setIsLoading(true);
