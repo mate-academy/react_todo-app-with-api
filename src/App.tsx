@@ -187,7 +187,11 @@ export const App: React.FC = () => {
               onClick={handleToggleAll}
             />
           )}
-          <form onSubmit={() => addTodo(query)}>
+          <form onSubmit={(event) => {
+            event.preventDefault(); // Прибираємо дефолтну поведінку браузера
+            addTodo(query); // Викликаємо функцію додавання todo
+          }}
+          >
             <input
               type="text"
               className="todoapp__new-todo"
