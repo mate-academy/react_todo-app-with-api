@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -15,12 +16,42 @@ export const TodoInfo: React.FC<Props> = ({
   onUpdate,
 }) => {
   const { title, completed, id } = todo;
+  const [todoTitle, setTodoTitle] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
+  };
+
+  const handleTitleCancel = () => {
+    setIsEditing(false);
+    setTodoTitle(title);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.currentTarget.blur();
+    } else if (event.key === 'Escape') {
+      handleTitleCancel();
+    }
+  };
+
+  const handleTitleBlur = () => {
+    setIsEditing(false);
+    onUpdate(id, { title: todoTitle });
+  };
 
   return (
     <div className={
       classNames(
         'todo',
         { completed },
+        { editing: isEditing },
       )
     }
     >
@@ -32,9 +63,23 @@ export const TodoInfo: React.FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">
-        {title}
-      </span>
+      {isEditing ? (
+        <input
+          type="text"
+          className="todo__title-field"
+          value={todoTitle}
+          onChange={handleTitleChange}
+          onBlur={handleTitleBlur}
+          onKeyDown={handleKeyDown}
+        />
+      ) : (
+        <span
+          className="todo__title"
+          onDoubleClick={handleDoubleClick}
+        >
+          {title}
+        </span>
+      )}
 
       <button
         type="button"
