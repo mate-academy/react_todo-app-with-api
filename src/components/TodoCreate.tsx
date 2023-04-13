@@ -1,53 +1,78 @@
+import React, { useState } from 'react';
 import classNames from 'classnames';
-import { useState, useEffect } from 'react';
-import { client } from '../utils/fetchClient';
 import { Todo } from '../types/Todo';
+import { client } from '../utils/fetchClient';
+import { Response } from '../types/Response';
 
 export const TodoCreate: React.FC<{
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  clearCompleted: (status: string) => void
-  askTodos: (url: string) => void
-  statusComplited: {
-    countComplited: boolean;
-    countNotComplited: boolean;
-    todosFromServer: Todo[] | undefined;
-  }
+  setTodosFromServer: React.Dispatch<React.SetStateAction<Todo[] | undefined>>;
+  setTemporaryTodos: React.Dispatch<React.SetStateAction<Todo[] | undefined>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  countNotComplited: boolean | undefined;
+  clearCompleted: () => void;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
+  setTodosFromServer,
+  setTemporaryTodos,
   setErrorMessage,
+  countNotComplited,
   clearCompleted,
-  askTodos,
-  statusComplited,
+  isLoading,
+  setIsLoading,
 }) => {
   const [inputPlace, setInputPlace] = useState('');
-  const [isLoading, setIsLoading] = useState(!statusComplited.todosFromServer);
+
   const handleNewTodo = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      setIsLoading(true);
-      if (inputPlace !== '') {
-        client.post('/todos',
-          {
-            title: inputPlace,
-            userId: 6757,
-            completed: false,
-          })
-          .then(() => {
-            askTodos('/todos?userId=6757');
+
+      const temporaryTodo = {
+        title: inputPlace,
+        userId: 6757,
+        completed: false,
+      };
+
+      const util = () => {
+        setIsLoading(true);
+        setTemporaryTodos([{ ...temporaryTodo, id: Date.now() },
+        ]);
+        client.post('/todos', temporaryTodo)
+          .then((response) => {
+            const {
+              id, title, completed, userId,
+            } = response as Response;
+
+            setTodosFromServer((prevState = []) => [...prevState, {
+              id,
+              title,
+              completed,
+              userId,
+            }]);
+
+            setTemporaryTodos([]);
             setInputPlace('');
+            setIsLoading(false);
           })
-          .catch(() => setErrorMessage('Unable to add a todo'));
+          .catch(() => {
+            setInputPlace('');
+            setErrorMessage('Unable to add a todo');
+            setIsLoading(false);
+          });
+      };
+
+      if (inputPlace.trim().length) {
+        util();
+      } else {
+        setErrorMessage("Title can't be empty");
       }
     }
   };
 
-  useEffect(() => {
-    setIsLoading(!statusComplited.todosFromServer);
-  }, [statusComplited.todosFromServer]);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputPlace(event.currentTarget.value.trimStart());
+    setInputPlace(event.currentTarget.value);
   };
 
   return (
@@ -56,9 +81,9 @@ export const TodoCreate: React.FC<{
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: !statusComplited.countNotComplited },
+          { active: !countNotComplited },
         )}
-        onClick={() => clearCompleted('invert')}
+        onClick={clearCompleted}
       >
         {}
 
@@ -71,8 +96,8 @@ export const TodoCreate: React.FC<{
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           disabled={isLoading}
-          onKeyDown={handleNewTodo}
           onChange={handleChange}
+          onKeyDown={handleNewTodo}
         />
       </form>
     </>

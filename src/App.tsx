@@ -1,109 +1,97 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState } from 'react';
-import classNames from 'classnames';
+import React, { useState, useMemo, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { TodoCreate } from './components/TodoCreate';
 import { TodoInfo } from './components/TodoInfo';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { client } from './utils/fetchClient';
+import { Footer } from './components/Footer';
+import { ErrorNotification } from './components/ErrorNotification';
+import { url } from './components/url';
 
-const USER_ID = '6757';
-
-enum SortType {
-  completed,
-  active,
-  all,
-}
+export const USER_ID = '6757';
 
 export const App: React.FC = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>();
-  const [selectedForm, setSelectedForm] = useState(SortType.all);
+  const [temporaryTodos, setTemporaryTodos] = useState<Todo[]>();
   const [errorMessage, setErrorMessage] = useState('');
-  const [countComplited, setCountComplited] = useState(false);
-  const [countNotComplited, setCountNotComplited] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const countNotComplited = useMemo(
+    () => todosFromServer?.some((todo: Todo) => !todo.completed),
+    [todosFromServer],
+  );
+
+  const countComplited = useMemo(
+    () => todosFromServer?.some((todo: Todo) => todo.completed),
+    [todosFromServer],
+  );
+
+  const fetchTodos = (pass: string, callback?: () => void): void => {
+    client
+      .get(pass)
+      .then((todos) => {
+        setTodosFromServer(todos as Todo[]);
+      })
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => {
+        setTemporaryTodos([]);
+        if (callback) {
+          callback();
+        }
+      });
+  };
+
+  const askTodos = debounce(
+    (pass, callback?: () => void): void => fetchTodos(pass, callback),
+    1000,
+  );
+
+  useEffect(() => {
+    askTodos(url, () => setIsLoading(false));
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  const setBlock = {
-    setCountComplited,
-    setCountNotComplited,
-  };
-
-  const statusComplited = {
-    countComplited,
-    countNotComplited,
-    todosFromServer,
-  };
-
-  const fetchTodos = (url: string) => {
-    client
-      .get(url)
-      .then((todos) => {
-        setTodosFromServer(todos as Todo[]);
+  const reloadTodos = (promise: Promise<unknown>): void => {
+    promise
+      .finally(() => {
+        askTodos(url);
       })
       .catch(() => setErrorMessage('Unable to update a todo'));
   };
 
-  const askTodos = debounce((url) => fetchTodos(url), 1000);
-
-  const clearCompleted = async (status: string) => {
+  const deleteCompleted = (): void => {
     if (todosFromServer) {
-      todosFromServer.forEach((todo => {
-        switch (status) {
-          case 'completed':
-            if (todo.completed) {
-              client
-                .delete(`/todos/${todo.id}`)
-                .finally(() => {
-                  askTodos('/todos?userId=6757');
-                });
-            }
+      todosFromServer.forEach((todo) => {
+        if (todo.completed) {
+          const promise = client.delete(`/todos/${todo.id}`);
 
-            break;
-
-          case 'invert':
-          default:
-            if (countComplited && !countNotComplited) {
-              client
-                .patch(`/todos/${todo.id}`, { completed: false })
-                .then(() => {
-                  askTodos('/todos?userId=6757');
-                });
-            } else if (countNotComplited) {
-              client
-                .patch(`/todos/${todo.id}`, { completed: true })
-                .then(() => {
-                  askTodos('/todos?userId=6757');
-                });
-            }
-
-            break;
+          reloadTodos(promise);
         }
-      }));
+      });
     }
   };
 
-  const sortTodos = (format: SortType) => {
-    const url = '/todos?userId=6757';
+  const clearCompleted = (): void => {
+    if (todosFromServer) {
+      todosFromServer.forEach((todo) => {
+        if (countComplited && !countNotComplited) {
+          const promise = client.patch(`/todos/${todo.id}`, {
+            completed: false,
+          });
 
-    switch (format) {
-      case SortType.active:
-        askTodos(`${url}&completed=false`);
-        setSelectedForm(SortType.active);
-        break;
-      case SortType.completed:
-        askTodos(`${url}&completed=true`);
-        setSelectedForm(SortType.completed);
-        break;
+          reloadTodos(promise);
+        } else if (countNotComplited) {
+          const promise = client.patch(`/todos/${todo.id}`, {
+            completed: true,
+          });
 
-      case SortType.all:
-      default:
-        askTodos(url);
-        setSelectedForm(SortType.all);
-        break;
+          reloadTodos(promise);
+        }
+      });
     }
   };
 
@@ -114,84 +102,42 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <TodoCreate
-            setErrorMessage={setErrorMessage}
+            setTemporaryTodos={setTemporaryTodos}
+            setTodosFromServer={setTodosFromServer}
             clearCompleted={clearCompleted}
-            askTodos={askTodos}
-            statusComplited={statusComplited}
+            setErrorMessage={setErrorMessage}
+            countNotComplited={countNotComplited}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
           />
         </header>
 
         <section className="todoapp__main">
           <TodoInfo
-            setErrorMessage={setErrorMessage}
+            temporaryTodos={temporaryTodos}
             todosFromServer={todosFromServer}
             askTodos={askTodos}
-            setBlock={setBlock}
+            setErrorMessage={setErrorMessage}
           />
         </section>
 
         <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${todosFromServer?.length || 0} items left`}
-          </span>
-
-          <nav className="filter">
-            <a
-              href="#/"
-              className={classNames(
-                'filter__link', {
-                  selected: selectedForm === SortType.all,
-                },
-              )}
-              onClick={() => sortTodos(SortType.all)}
-            >
-              All
-            </a>
-
-            <a
-              href="#/active"
-              className={classNames(
-                'filter__link', {
-                  selected: selectedForm === SortType.active,
-                },
-              )}
-              onClick={() => sortTodos(SortType.active)}
-            >
-              Active
-            </a>
-
-            <a
-              href="#/completed"
-              className={classNames(
-                'filter__link', {
-                  selected: selectedForm === SortType.completed,
-                },
-              )}
-              onClick={() => sortTodos(SortType.completed)}
-            >
-              Completed
-            </a>
-          </nav>
-
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={() => clearCompleted('completed')}
-            hidden={!countComplited}
-          >
-            Clear completed
-          </button>
+          <Footer
+            askTodos={askTodos}
+            deleteCompleted={deleteCompleted}
+            todosFromServer={todosFromServer}
+            countComplited={countComplited}
+          />
         </footer>
       </div>
 
-      {errorMessage && (
-        <div className="notification is-danger is-light has-text-weight-normal">
-          <button type="button" className="delete" />
-
-          {errorMessage}
-        </div>
+      {errorMessage
+      && (
+        <ErrorNotification
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
       )}
-
     </div>
   );
 };
