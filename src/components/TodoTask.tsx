@@ -1,5 +1,7 @@
 import classNames from 'classnames';
-import { FC } from 'react';
+import {
+  FC, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../types/Todo';
 
 interface Props {
@@ -21,11 +23,44 @@ export const TodoTask: FC<Props> = ({
     title,
   } = todo;
 
-  // const [query, setQuery] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
+  const [query, setQuery] = useState(title);
 
-  /* const handleUpdateTitle = () => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
-  } */
+    if (!query) {
+      deleteTodo(id);
+    } else {
+      onUpdateTodo(id, { title: query });
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setQuery(title);
+  };
+
+  const inputField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputField.current !== null) {
+      inputField.current.focus();
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isEditing]);
 
   return (
     <div
@@ -40,16 +75,35 @@ export const TodoTask: FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => deleteTodo(id)}
-      >
-        ×
-      </button>
+      {isEditing
+        ? (
+          <form onSubmit={handleSubmit}>
+            <input
+              className="todo__title-field"
+              type="text"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onBlur={handleCancel}
+              ref={inputField}
+            />
+          </form>
+        ) : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => deleteTodo(id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div className="modal overlay">
         <div className="modal-background has-background-white-ter" />
