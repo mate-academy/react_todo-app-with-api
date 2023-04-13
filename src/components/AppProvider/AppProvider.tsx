@@ -1,8 +1,10 @@
 import {
+  PropsWithChildren,
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { Filters } from '../../types/enums';
@@ -13,24 +15,25 @@ import {
   patchTodo,
   removeTodo,
 } from '../../api/todos';
-import { USER_ID } from '../../utils/constants';
+import { TEMP_TODO_ID, USER_ID } from '../../utils/constants';
 
 interface AppContextType {
   selectedFilter: Filters;
   setSelectedFilter: (filter: Filters) => void;
   todos: Todo[];
-  updateTodos: (todos: Todo[]) => void;
+  setTodos: (todos: Todo[]) => void;
   tempTodo: Todo | null;
   addTempTodo: (todo: string) => Promise<void>;
   errorMessage: string;
-  hideNotification: boolean;
-  setHideNotification: (hide: boolean) => void;
+  isNotificationVisible: boolean;
+  setIsNotificationVisible: (hide: boolean) => void;
   isTodosLoading: boolean;
-  arrayOfTodosToRemove: Todo[];
-  setArrayOfTodosToRemove: React.Dispatch<React.SetStateAction<Todo[]>>;
-  arrayOfTodosToToggle: Todo[];
-  setArrayOfTodosToToggle: React.Dispatch<React.SetStateAction<Todo[]>>;
+  todosToRemove: Todo[];
+  setTodosToRemove: React.Dispatch<React.SetStateAction<Todo[]>>;
+  todosToToggle: Todo[];
+  setTodosToToggle: React.Dispatch<React.SetStateAction<Todo[]>>;
   changeTodo: (id: number, changes: Partial<Todo>) => Promise<void>;
+  activeTodos: Todo[];
 }
 
 export const AppContext = createContext<AppContextType>(
@@ -38,45 +41,37 @@ export const AppContext = createContext<AppContextType>(
     selectedFilter: Filters.All,
     setSelectedFilter: () => {},
     todos: [],
-    updateTodos: () => {},
+    setTodos: () => {},
     tempTodo: null,
     addTempTodo: async () => {},
     errorMessage: '',
-    hideNotification: true,
-    setHideNotification: () => {},
+    isNotificationVisible: true,
+    setIsNotificationVisible: () => {},
     isTodosLoading: false,
-    arrayOfTodosToRemove: [],
-    setArrayOfTodosToRemove: () => {},
-    arrayOfTodosToToggle: [],
-    setArrayOfTodosToToggle: () => {},
+    todosToRemove: [],
+    setTodosToRemove: () => {},
+    todosToToggle: [],
+    setTodosToToggle: () => {},
     changeTodo: async () => {},
+    activeTodos: [],
   },
 );
 
 export const useAppContext = () => useContext(AppContext);
 
-type AppProviderProps = {
-  children: React.ReactNode;
-};
-
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+export const AppProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(Filters.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [hideNotification, setHideNotification] = useState(true);
+  const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   const [isTodosLoading, setIsTodosLoading] = useState(false);
-  const [arrayOfTodosToRemove, setArrayOfTodosToRemove] = useState<Todo[]>([]);
-  const [arrayOfTodosToToggle, setArrayOfTodosToToggle]
-    = useState<Todo[]>([]);
-
-  const updateTodos = useCallback((newTodos: Todo[]) => {
-    setTodos(newTodos);
-  }, []);
+  const [todosToRemove, setTodosToRemove] = useState<Todo[]>([]);
+  const [todosToToggle, setTodosToToggle] = useState<Todo[]>([]);
 
   const showNotification = useCallback((message: string) => {
     setErrorMessage(message);
-    setHideNotification(false);
+    setIsNotificationVisible(true);
   }, []);
 
   const changeTodo = useCallback(async (id: number, changes: Partial<Todo>) => {
@@ -95,7 +90,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const addTempTodo = useCallback(async (title: string) => {
     const todo = {
-      id: 0,
+      id: TEMP_TODO_ID,
       title,
       userId: USER_ID,
       completed: false,
@@ -103,7 +98,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     try {
       setErrorMessage('');
-      setHideNotification(true);
+      setIsNotificationVisible(false);
       setTempTodo(todo);
       const newTodo = await addTodo(todo);
 
@@ -131,10 +126,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     try {
       setIsTodosLoading(true);
       setErrorMessage('');
-      setHideNotification(true);
+      setIsNotificationVisible(false);
       const result = await getTodos(USER_ID);
 
-      updateTodos(result);
+      setTodos(result);
     } catch (err) {
       if (err instanceof Error) {
         showNotification(err.message);
@@ -142,24 +137,29 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } finally {
       setIsTodosLoading(false);
     }
-  }, [updateTodos]);
+  }, [setTodos]);
 
   useEffect(() => {
-    if (arrayOfTodosToRemove.length) {
-      Promise.all(arrayOfTodosToRemove.map(
+    if (todosToRemove.length) {
+      Promise.all(todosToRemove.map(
         todo => removeTodoById(todo.id),
       ))
-        .then(() => setArrayOfTodosToRemove([]));
+        .then(() => setTodosToRemove([]));
     }
-  }, [arrayOfTodosToRemove]);
+  }, [todosToRemove]);
 
   useEffect(() => {
-    if (arrayOfTodosToToggle.length) {
-      Promise.all(arrayOfTodosToToggle
+    if (todosToToggle.length) {
+      Promise.all(todosToToggle
         .map(({ id, completed }) => changeTodo(id, { completed: !completed })))
-        .then(() => setArrayOfTodosToToggle([]));
+        .then(() => setTodosToToggle([]));
     }
-  }, [arrayOfTodosToToggle]);
+  }, [todosToToggle]);
+
+  const activeTodos = useMemo(
+    () => todos.filter(({ completed }) => !completed),
+    [todos],
+  );
 
   useEffect(() => {
     loadTodosFromServer();
@@ -171,21 +171,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         todos,
         selectedFilter,
         setSelectedFilter,
-        updateTodos,
+        setTodos,
         tempTodo,
         addTempTodo,
         errorMessage,
-        hideNotification,
-        setHideNotification,
+        isNotificationVisible,
+        setIsNotificationVisible,
         isTodosLoading,
-        arrayOfTodosToRemove,
-        setArrayOfTodosToRemove,
-        arrayOfTodosToToggle,
-        setArrayOfTodosToToggle,
+        todosToRemove,
+        setTodosToRemove,
+        todosToToggle,
+        setTodosToToggle,
         changeTodo,
+        activeTodos,
       }}
     >
-      { children }
+      {children}
     </AppContext.Provider>
   );
 };

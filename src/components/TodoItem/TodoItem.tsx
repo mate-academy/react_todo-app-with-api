@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { useAppContext } from '../AppProvider';
 import { TodoForm } from '../TodoForm';
+import { TEMP_TODO_ID } from '../../utils/constants';
 
 interface Props {
   todo: Todo;
@@ -16,13 +17,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   } = todo;
 
   const {
-    arrayOfTodosToRemove,
-    setArrayOfTodosToRemove,
-    arrayOfTodosToToggle,
+    todosToRemove: arrayOfTodosToRemove,
+    setTodosToRemove: setArrayOfTodosToRemove,
+    todosToToggle: arrayOfTodosToToggle,
     changeTodo,
   } = useAppContext();
 
-  const [isLoading, setIsLoading] = useState(id === 0);
+  const [isLoading, setIsLoading] = useState(id === TEMP_TODO_ID);
   const [isEditMode, setIsEditMode] = useState(false);
 
   const handleRemove = () => {
@@ -35,24 +36,25 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleOnCompletionChange = () => {
     setIsLoading(true);
     changeTodo(id, { completed: !completed })
-      .then(() => setIsLoading(false));
+      .finally(() => setIsLoading(false));
   };
 
   const handleChangeTitle = useCallback((newTitle: string) => {
     setIsEditMode(false);
+    const trimedNewTitle = newTitle.trim();
 
-    if (newTitle === title) {
+    if (trimedNewTitle === title) {
       return;
     }
 
-    if (!newTitle) {
+    if (!trimedNewTitle) {
       handleRemove();
 
       return;
     }
 
     setIsLoading(true);
-    changeTodo(id, { title: newTitle })
+    changeTodo(id, { title: trimedNewTitle })
       .then(() => setIsLoading(false));
   }, []);
 
@@ -65,11 +67,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [arrayOfTodosToRemove]);
 
   useEffect(() => {
-    const isTodoBeeingRemoved = arrayOfTodosToToggle.some(
+    const isTodoBeeingToggled = arrayOfTodosToToggle.some(
       todoToComplete => todoToComplete.id === id,
     );
 
-    setIsLoading(isTodoBeeingRemoved);
+    setIsLoading(isTodoBeeingToggled);
   }, [arrayOfTodosToToggle]);
 
   return (
@@ -89,7 +91,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         ? (
           <TodoForm
             title={title}
-            handleChangeTitle={handleChangeTitle}
+            changeTitle={handleChangeTitle}
             exitEditMode={() => setIsEditMode(false)}
           />
         )

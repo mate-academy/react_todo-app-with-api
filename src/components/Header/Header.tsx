@@ -1,36 +1,40 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useAppContext } from '../AppProvider';
 
 export const Header = () => {
+  const {
+    addTempTodo,
+    setTodosToToggle,
+    todos,
+    activeTodos,
+  } = useAppContext();
+
   const [title, setTitle] = useState('');
-  const { addTempTodo, setArrayOfTodosToToggle, todos } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  };
+  const handleTitleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(event.target.value);
+    },
+    [setTitle],
+  );
 
   const handleAddTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim()) {
       setIsLoading(true);
-      addTempTodo(title).finally(() => {
+      addTempTodo(title.trim()).finally(() => {
         setIsLoading(false);
       });
       setTitle('');
     }
   };
 
-  const activeTodos = useMemo(
-    () => todos.filter(({ completed }) => !completed),
-    [todos],
-  );
-
   const handleCompleteAll = () => {
-    setArrayOfTodosToToggle(
+    setTodosToToggle(
       activeTodos.length
         ? activeTodos
         : [...todos],

@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { useMemo } from 'react';
 import { Filters } from '../../types/enums';
 import { useAppContext } from '../AppProvider';
 
@@ -8,23 +7,22 @@ export const Footer: React.FC = () => {
     selectedFilter,
     setSelectedFilter,
     todos,
-    setArrayOfTodosToRemove,
+    setTodosToRemove,
+    activeTodos,
   } = useAppContext();
 
-  const activeTodos = useMemo(() => {
-    return todos.filter(({ completed }) => !completed).length;
-  }, [todos]);
+  const activeTodosCount = activeTodos.length;
 
   const handleRemoveCompleted = () => {
-    setArrayOfTodosToRemove(todos.filter(({ completed }) => completed));
+    setTodosToRemove(todos.filter(({ completed }) => completed));
   };
 
-  const hasCompletedTodos = todos.length - activeTodos > 0;
+  const hasCompletedTodos = todos.length - activeTodosCount > 0;
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodos} items left`}
+        {`${activeTodosCount} item${activeTodosCount !== 1 ? 's' : ''} left`}
       </span>
 
       <nav className="filter">

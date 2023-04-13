@@ -5,16 +5,16 @@ import { useAppContext } from '../AppProvider';
 
 export const Notification: React.FC = () => {
   const {
-    errorMessage: error,
-    setHideNotification,
-    hideNotification,
+    errorMessage,
+    setIsNotificationVisible,
+    isNotificationVisible,
   } = useAppContext();
 
   useEffect(() => {
-    if (!hideNotification) {
-      setTimeout(setHideNotification, 3000, true);
+    if (isNotificationVisible) {
+      setTimeout(setIsNotificationVisible, 3000, false);
     }
-  }, [hideNotification]);
+  }, [isNotificationVisible]);
 
   return (
     <div
@@ -23,15 +23,15 @@ export const Notification: React.FC = () => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: hideNotification },
+        { hidden: !isNotificationVisible },
       )}
     >
       <button
         type="button"
         className="delete"
-        onClick={() => setHideNotification(true)}
+        onClick={() => setIsNotificationVisible(false)}
       />
-      {error}
+      {errorMessage}
     </div>
   );
 };

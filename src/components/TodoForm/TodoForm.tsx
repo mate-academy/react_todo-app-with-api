@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
   title: string;
-  handleChangeTitle: (newTitle: string) => void;
+  changeTitle: (newTitle: string) => void;
   exitEditMode: () => void;
 }
 
 export const TodoForm: React.FC<Props> = ({
   title,
-  handleChangeTitle,
+  changeTitle,
   exitEditMode,
 }) => {
   const [newTitle, setNewTitle] = useState(title);
@@ -19,7 +19,7 @@ export const TodoForm: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleChangeTitle(newTitle);
+    changeTitle(newTitle);
   };
 
   const handleCancelChange = (event: React.KeyboardEvent) => {
@@ -40,7 +40,7 @@ export const TodoForm: React.FC<Props> = ({
         className="todo__title-field"
         value={newTitle}
         onChange={handleTitleChange}
-        onBlur={() => handleChangeTitle(newTitle)}
+        onBlur={() => changeTitle(newTitle)}
         onKeyUp={handleCancelChange}
         ref={inputReference}
       />
