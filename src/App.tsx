@@ -19,9 +19,9 @@ import { Loader } from './components/Loader';
 import { FilterBy } from './types/FilteredBy';
 import { ErrorMessage } from './components/ErrorMessage';
 import { USER_ID } from './consts';
-import { Footer } from './components/Footer/Footer';
+import { Footer } from './components/Footer';
 import { ErrorMessageType } from './types/ErrorMessageType';
-import { Header } from './components/Header/Header';
+import { Header } from './components/Header';
 
 export const App: FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
