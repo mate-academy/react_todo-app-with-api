@@ -7,7 +7,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   handleRemoveTodo?: (id: number) => void;
-  loadingTodoIds: number[];
+  isInDeleteList: boolean;
   handleUpdateTodoCompleted: (id: number) => void;
   changeTitleByDoubleClick: (id: number, title: string) => void;
 };
@@ -16,15 +16,13 @@ export const TodoInfo: React.FC<Props> = React.memo(
   ({
     todo,
     handleRemoveTodo,
-    loadingTodoIds,
+    isInDeleteList,
     handleUpdateTodoCompleted,
     changeTitleByDoubleClick,
   }) => {
     const [isActiveForm, setIsActiveForm] = useState(false);
     const [newTitle, setNewTitle] = useState(todo.title);
     const inputRef = useRef<HTMLInputElement>(null);
-
-    const isInDeleteList = loadingTodoIds.some(id => todo.id === id);
 
     const handleUpdateTitleOnBlur = useCallback(
       () => {
@@ -52,7 +50,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
       }, [isActiveForm, newTitle],
     );
 
-    const handleAddEventListener = useCallback(
+    const handleAddKeyUpEventListener = useCallback(
       (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
           setNewTitle(todo.title);
@@ -62,10 +60,10 @@ export const TodoInfo: React.FC<Props> = React.memo(
     );
 
     useEffect(() => {
-      document.addEventListener('keyup', handleAddEventListener);
+      document.addEventListener('keyup', handleAddKeyUpEventListener);
 
       return () => {
-        document.removeEventListener('keyup', handleAddEventListener);
+        document.removeEventListener('keyup', handleAddKeyUpEventListener);
       };
     }, []);
 

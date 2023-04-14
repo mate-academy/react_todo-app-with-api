@@ -5,7 +5,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import { filterTodosByCompleted } from './HelpersFunctions';
 import { Todo } from './types/Todo';
 import {
@@ -18,11 +17,11 @@ import {
 import { TodoList } from './components/TodoList';
 import { Loader } from './components/Loader';
 import { FilterBy } from './types/FilteredBy';
-import { Form } from './components/Form';
 import { ErrorMessage } from './components/ErrorMessage';
 import { USER_ID } from './consts';
 import { Footer } from './components/Footer/Footer';
 import { ErrorMessageType } from './types/ErrorMessageType';
+import { Header } from './components/Header/Header';
 
 export const App: FC = () => {
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
@@ -30,9 +29,30 @@ export const App: FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [filterType, setFilterType] = useState<FilterBy>(FilterBy.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [activeInput, setActiveInput] = useState(true);
-  const [isRequest, setIsRequest] = useState(false);
-  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [isLoadingTodos, setIsLoadingTodos] = useState(false);
+  const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
+  const addLoadingTodo = useCallback((id: number) => {
+    setLoadingIds(state => {
+      state.add(id);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const removeLoadingTodo = useCallback((id: number) => {
+    setLoadingIds(state => {
+      state.delete(id);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const isTodoLoading = useCallback(
+    (id: number) => loadingIds.has(id),
+    [loadingIds],
+  );
+
+  const activeInput = tempTodo === null;
 
   const showError = (message: ErrorMessageType) => {
     setErrorMessage(message);
@@ -42,35 +62,32 @@ export const App: FC = () => {
   };
 
   const loadAllTodos = async () => {
+    setIsLoadingTodos(true);
     try {
       const todos = await getTodos(USER_ID);
 
       setAllTodos(todos);
-      setIsRequest(true);
     } catch {
       showError(ErrorMessageType.LOAD);
     } finally {
       setTempTodo(null);
-      setActiveInput(true);
+      setIsLoadingTodos(false);
     }
   };
 
   const handleRemoveTodo = useCallback(
     async (id: number) => {
       try {
-        setLoadingTodoIds(prev => [...prev, id]);
-        await removeTodo(id)
-          .then(() => {
-            const todosWithoutDeleted = allTodos.filter((todo) => (
-              todo.id !== id
-            ));
+        addLoadingTodo(id);
+        await removeTodo(id);
 
-            setAllTodos(todosWithoutDeleted);
-          });
+        setAllTodos(prevTodos => prevTodos.filter(todo => (
+          todo.id !== id
+        )));
       } catch {
         setErrorMessage(ErrorMessageType.DELETE);
       } finally {
-        setLoadingTodoIds([]);
+        removeLoadingTodo(id);
       }
     }, [allTodos],
   );
@@ -84,19 +101,16 @@ export const App: FC = () => {
 
     completedTodos.forEach(async todo => {
       try {
-        setLoadingTodoIds(prev => [...prev, todo.id]);
-        await removeTodo(todo.id)
-          .then(() => {
-            const todosWithoutDeleted = allTodos.filter(({ completed }) => (
-              !completed
-            ));
+        addLoadingTodo(todo.id);
+        await removeTodo(todo.id);
 
-            setAllTodos(todosWithoutDeleted);
-          });
+        setAllTodos(prevTodos => prevTodos.filter(({ completed }) => (
+          !completed
+        )));
       } catch {
         setErrorMessage(ErrorMessageType.DELETE);
       } finally {
-        setLoadingTodoIds([]);
+        setLoadingIds(new Set());
       }
     });
   }, [allTodos]);
@@ -105,17 +119,18 @@ export const App: FC = () => {
     return filterTodosByCompleted(allTodos, filterType);
   }, [allTodos, filterType]);
 
-  const countActiveTodos = filterTodosByCompleted(
-    allTodos,
-    FilterBy.ACTIVE,
-  ).length;
+  const countActiveTodos = useMemo(() => (
+    filterTodosByCompleted(
+      allTodos,
+      FilterBy.ACTIVE,
+    )
+  ), [allTodos, filterType]).length;
 
   const isCompletedTodo = allTodos.length - countActiveTodos > 0;
   const hasActiveTodo = countActiveTodos > 0;
 
   const handleAddNewTodo = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
+    async () => {
       if (!todoTitle.trim()) {
         showError(ErrorMessageType.EMPTY_TITLE);
 
@@ -129,18 +144,16 @@ export const App: FC = () => {
       };
 
       setTempTodo({ ...newTodo, id: 0 });
-      setActiveInput(false);
+      try {
+        const addedTodo = await addTodo(newTodo);
 
-      addTodo(newTodo)
-        .then(todo => {
-          setAllTodos(todos => [...todos, todo]);
-        })
-        .catch(() => showError(ErrorMessageType.ADD))
-        .finally(() => {
-          setActiveInput(true);
-          setTodoTitle('');
-          setTempTodo(null);
-        });
+        setAllTodos(todos => [...todos, addedTodo]);
+      } catch {
+        showError(ErrorMessageType.ADD);
+      } finally {
+        setTodoTitle('');
+        setTempTodo(null);
+      }
     }, [todoTitle],
   );
 
@@ -149,50 +162,49 @@ export const App: FC = () => {
       try {
         const findTodo = allTodos.find(todo => todo.id === todoId);
 
-        await setLoadingTodoIds(prev => [...prev, todoId]);
+        addLoadingTodo(todoId);
         await updateTodoCompleted(todoId, !findTodo?.completed);
 
-        const newTodos = allTodos.map(todo => {
-          if (findTodo?.id === todo.id) {
-            findTodo.completed = !findTodo.completed;
+        setAllTodos(prevTodos => (
+          prevTodos.map(todo => {
+            if (findTodo?.id === todo.id) {
+              findTodo.completed = !findTodo.completed;
 
-            return findTodo;
-          }
+              return findTodo;
+            }
 
-          return todo;
-        });
-
-        setAllTodos(newTodos);
+            return todo;
+          })
+        ));
       } catch {
         setErrorMessage(ErrorMessageType.UPDATE);
       } finally {
-        setLoadingTodoIds([]);
+        removeLoadingTodo(todoId);
       }
     }, [allTodos],
   );
 
   const handleChangeStatusAllTodos = useCallback(
     async () => {
-      const allTodosPromises = allTodos.map(async (todo) => {
-        if (hasActiveTodo) {
-          if (!todo.completed) {
-            await setLoadingTodoIds(prev => [...prev, todo.id]);
-          }
-        } else if (todo.completed) {
-          await setLoadingTodoIds(prev => [...prev, todo.id]);
-        }
-
-        return updateTodoCompleted(todo.id, hasActiveTodo);
-      });
-
       try {
+        const allTodosPromises = allTodos.map(async (todo) => {
+          if (hasActiveTodo) {
+            if (!todo.completed) {
+              addLoadingTodo(todo.id);
+            }
+          } else if (todo.completed) {
+            addLoadingTodo(todo.id);
+          }
+
+          return updateTodoCompleted(todo.id, hasActiveTodo);
+        });
         const updatedTodos = await Promise.all(allTodosPromises);
 
         setAllTodos(updatedTodos);
       } catch {
         showError(ErrorMessageType.UPDATE);
       } finally {
-        setLoadingTodoIds([]);
+        setLoadingIds(new Set());
       }
     }, [allTodos],
   );
@@ -206,26 +218,27 @@ export const App: FC = () => {
       }
 
       try {
-        await setLoadingTodoIds(prev => [...prev, todoId]);
+        addLoadingTodo(todoId);
 
         await updateTodoTitle(todoId, newTitle);
-        const newTodos = allTodos.map((todo) => {
-          if (todoId === todo.id) {
-            const updatedTodo = { ...todo };
 
-            updatedTodo.title = newTitle;
+        setAllTodos(prevTodos => (
+          prevTodos.map((todo) => {
+            if (todoId === todo.id) {
+              const updatedTodo = { ...todo };
 
-            return updatedTodo;
-          }
+              updatedTodo.title = newTitle;
 
-          return todo;
-        });
+              return updatedTodo;
+            }
 
-        setAllTodos(newTodos);
+            return todo;
+          })
+        ));
       } catch {
         showError(ErrorMessageType.UPDATE);
       } finally {
-        setLoadingTodoIds([]);
+        removeLoadingTodo(todoId);
       }
     }, [allTodos],
   );
@@ -235,56 +248,32 @@ export const App: FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            aria-label="clear"
-            type="button"
-            onClick={handleChangeStatusAllTodos}
-            className={classNames(
-              'todoapp__toggle-all',
-              {
-                active: hasActiveTodo,
-              },
-            )}
-          />
+        <Header
+          activeInput={activeInput}
+          handleAddNewTodo={handleAddNewTodo}
+          handleChangeStatusAllTodos={handleChangeStatusAllTodos}
+          hasActiveTodo={hasActiveTodo}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+        />
 
-          <Form
-            handleAddTodo={handleAddNewTodo}
-            todoTitle={todoTitle}
-            setTodoTitle={setTodoTitle}
-            activeInput={activeInput}
-          />
-        </header>
-
-        {(!allTodos.length && isRequest && !errorMessage)
-        && (
-          <span style={{
-            display: 'flex',
-            justifyContent: 'center',
-            color: 'grey',
-          }}
-          >
-            You have not any todos
-          </span>
-        )}
-
-        {!allTodos.length && !errorMessage && !isRequest
+        {isLoadingTodos
           ? (
             <Loader />
           ) : (
             <section className="todoapp__main">
               <TodoList
                 todos={visibleTodos}
-                tempTodos={tempTodo}
+                tempTodo={tempTodo}
                 handleRemoveTodo={handleRemoveTodo}
-                loadingTodoIds={loadingTodoIds}
+                isTodoLoading={isTodoLoading}
                 handleUpdateTodoCompleted={handleUpdateTodoCompleted}
                 changeTitleByDoubleClick={changeTitleByDoubleClick}
               />
             </section>
           )}
 
-        {!allTodos.length || (
+        {allTodos.length !== 0 && (
           <Footer
             countActiveTodos={countActiveTodos}
             isCompletedTodo={isCompletedTodo}

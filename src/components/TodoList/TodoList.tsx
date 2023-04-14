@@ -9,9 +9,9 @@ import './todoList.scss';
 
 type Props = {
   todos: Todo[];
-  tempTodos: Todo | null
+  tempTodo: Todo | null
   handleRemoveTodo: (id: number) => void;
-  loadingTodoIds: number[];
+  isTodoLoading: (id: number) => boolean;
   handleUpdateTodoCompleted: (id: number) => void;
   changeTitleByDoubleClick: (id: number, title: string) => void;
 };
@@ -19,41 +19,45 @@ type Props = {
 export const TodoList: React.FC<Props> = React.memo(
   ({
     todos,
-    tempTodos,
+    tempTodo,
     handleRemoveTodo,
-    loadingTodoIds,
+    isTodoLoading,
     handleUpdateTodoCompleted,
     changeTitleByDoubleClick,
   }) => {
     return (
       <TransitionGroup>
-        {todos.map(todo => (
-          <CSSTransition
-            key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoInfo
-              todo={todo}
-              key={todo.id}
-              handleRemoveTodo={handleRemoveTodo}
-              loadingTodoIds={loadingTodoIds}
-              handleUpdateTodoCompleted={handleUpdateTodoCompleted}
-              changeTitleByDoubleClick={changeTitleByDoubleClick}
-            />
-          </CSSTransition>
-        ))}
+        {todos.map(todo => {
+          const isInDeleteList = isTodoLoading(todo.id);
 
-        {tempTodos && (
+          return (
+            <CSSTransition
+              key={todo.id}
+              timeout={300}
+              classNames="item"
+            >
+              <TodoInfo
+                todo={todo}
+                key={todo.id}
+                handleRemoveTodo={handleRemoveTodo}
+                isInDeleteList={isInDeleteList}
+                handleUpdateTodoCompleted={handleUpdateTodoCompleted}
+                changeTitleByDoubleClick={changeTitleByDoubleClick}
+              />
+            </CSSTransition>
+          );
+        })}
+
+        {tempTodo && (
           <CSSTransition
             key={0}
             timeout={300}
             classNames="temp-item"
           >
             <TodoInfo
-              key={tempTodos.id}
-              todo={tempTodos}
-              loadingTodoIds={[0]}
+              key={tempTodo.id}
+              todo={tempTodo}
+              isInDeleteList
               handleUpdateTodoCompleted={handleUpdateTodoCompleted}
               changeTitleByDoubleClick={changeTitleByDoubleClick}
             />
