@@ -30,24 +30,21 @@ const USER_ID = 6928;
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<ErrorType>(ErrorType.NONE);
   const [filterType, setFilterType] = useState(FilterType.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [disableField, setDisableField] = useState(false);
-  const [loadingTodosId, setLoadingTodosId] = useState([0]);
+  const [loadingTodosId, setLoadingTodosId] = useState<Set<number>>(new Set());
 
   const showError = (errorName: ErrorType) => {
     setErrorMessage(errorName);
-    setHasError(true);
 
     setTimeout(() => {
-      setHasError(false);
+      setErrorMessage(ErrorType.NONE);
     }, 3000);
   };
 
   const handleClosingError = () => {
-    setHasError(false);
+    setErrorMessage(ErrorType.NONE);
   };
 
   const visibleTodos = useMemo(() => {
@@ -62,13 +59,21 @@ export const App: FC = () => {
     return getFilteredTodos(todos, FilterType.COMPLETED);
   }, [todos]);
 
-  const addToLoadingTodos = (todoId: number) => {
-    setLoadingTodosId((prevIds) => [...prevIds, todoId]);
-  };
+  const addToLoadingTodos = useCallback((id: number) => {
+    setLoadingTodosId(state => {
+      state.add(id);
 
-  const removeFromLoadingTodos = (todoId: number) => {
-    setLoadingTodosId((prevIds) => prevIds.filter((id) => id !== todoId));
-  };
+      return new Set(state);
+    });
+  }, []);
+
+  const removeFromLoadingTodos = useCallback((id: number) => {
+    setLoadingTodosId(state => {
+      state.delete(id);
+
+      return new Set(state);
+    });
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -106,7 +111,6 @@ export const App: FC = () => {
         ...newTodo,
         id: 0,
       });
-      setDisableField(true);
 
       const currNewTodo = await addTodo(USER_ID, newTodo);
 
@@ -116,7 +120,6 @@ export const App: FC = () => {
     }
 
     setTempTodo(null);
-    setDisableField(false);
   };
 
   const removeTodo = async (todoId: number) => {
@@ -132,8 +135,7 @@ export const App: FC = () => {
       showError(ErrorType.DELETE);
     }
 
-    setLoadingTodosId([0]);
-    setHasError(false);
+    setErrorMessage(ErrorType.NONE);
   };
 
   const handleUpdateTodo = async (id: number, data: Partial<Todo>) => {
@@ -190,7 +192,7 @@ export const App: FC = () => {
       <div className="todoapp__content">
         <Header
           onAdd={addNewTodo}
-          disabled={disableField}
+          tempTodo={tempTodo}
           activeTodos={activeTodos.length}
           handleUpdatingAll={handleUpdatingAll}
         />
@@ -201,8 +203,6 @@ export const App: FC = () => {
             width="80"
             color="#f3e0e0"
             ariaLabel="hearts-loading"
-            wrapperStyle={{}}
-            wrapperClass=""
             visible
           />
         )}
@@ -228,7 +228,6 @@ export const App: FC = () => {
 
       <ErrorMessage
         errorMessage={errorMessage}
-        hasError={hasError}
         onClose={handleClosingError}
       />
     </div>

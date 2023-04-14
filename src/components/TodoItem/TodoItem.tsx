@@ -12,7 +12,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   onDelete: (id: number) => void,
-  loadingTodosId: number[],
+  loadingTodosId: Set<number>,
   onUpdate: (id: number, data: Partial<Todo>) => void;
 };
 
@@ -34,7 +34,7 @@ export const TodoItem: FC<Props> = (props) => {
   const [editedTitle, setEditedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const isTodoIdLoading = loadingTodosId.includes(id);
+  const isTodoIdLoading = loadingTodosId.has(id);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {

@@ -5,10 +5,11 @@ import {
   FormEvent,
 } from 'react';
 import classNames from 'classnames';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   onAdd: (title: string) => void,
-  disabled: boolean,
+  tempTodo: Todo | null,
   activeTodos: number,
   handleUpdatingAll: () => void,
 };
@@ -16,23 +17,26 @@ type Props = {
 export const Header: FC<Props> = (props) => {
   const {
     onAdd,
-    disabled,
+    tempTodo,
     activeTodos,
     handleUpdatingAll,
   } = props;
 
   const [title, setTitle] = useState('');
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    onAdd(title);
+    // added await, but ts says that it has no effect on the type of this expression
+    await onAdd(title);
     setTitle('');
   };
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
+
+  const isTodoLoading = tempTodo !== null;
 
   return (
     <header className="todoapp__header">
@@ -51,7 +55,7 @@ export const Header: FC<Props> = (props) => {
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={disabled}
+          disabled={isTodoLoading}
           value={title}
           onChange={handleChange}
         />

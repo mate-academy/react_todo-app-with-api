@@ -6,7 +6,7 @@ type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
   onDelete: (id: number) => void,
-  loadingTodosId: number[],
+  loadingTodosId: Set<number>,
   onUpdate: (id: number, data: Partial<Todo>) => void;
 };
 
