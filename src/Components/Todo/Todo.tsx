@@ -1,11 +1,11 @@
 import classNames from "classnames";
-import { Todos } from "../../types/todo";
 import { useState } from "react";
+import { TodoInterface } from "../../types/todo";
 
 type Props = {
-  todo: Todos;
+  todo: TodoInterface;
   onDelete: (id: number) => void;
-  onUpdate: (id: number, data: Partial<Todos>) => void;
+  onUpdate: (id: number, data: Partial<TodoInterface>) => void;
 };
 
 export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
@@ -69,7 +69,6 @@ export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
         </span>
       )}
 
-      {/* Remove button appears only on hover */}
       <button
         type="button"
         className="todo__remove"
@@ -78,7 +77,6 @@ export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
         ×
       </button>
 
-      {/* overlay will cover the todo while it is being updated */}
       <div className="modal overlay">
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

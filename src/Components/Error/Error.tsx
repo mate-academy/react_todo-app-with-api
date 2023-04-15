@@ -22,8 +22,8 @@ export const Error: React.FC<Props> = ({ error, onClear }) => {
         { hidden: error.length === 0 }
       )}
     >
-      <button type="button" className="delete" onClick={onClear} hidden={false}>
-        {"delete "}
+      <button type="button" className="delete" onClick={onClear}>
+        {""}
       </button>
 
       {error}

@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import { FilterStatus } from "../../types/FilterStatus";
+import classNames from 'classnames';
+import { FilterStatus } from '../../types/FilterStatus';
 
 type Props = {
   filter: FilterStatus;
@@ -11,7 +11,7 @@ export const FilterTodo: React.FC<Props> = ({ filter, onFilterChange }) => {
     <nav className="filter">
       <a
         href="#/"
-        className={classNames("filter__link", {
+        className={classNames('filter__link', {
           selected: filter === FilterStatus.all,
         })}
         onClick={() => {
@@ -23,7 +23,7 @@ export const FilterTodo: React.FC<Props> = ({ filter, onFilterChange }) => {
 
       <a
         href="#/active"
-        className={classNames("filter__link", {
+        className={classNames('filter__link', {
           selected: filter === FilterStatus.active,
         })}
         onClick={() => {
@@ -35,7 +35,7 @@ export const FilterTodo: React.FC<Props> = ({ filter, onFilterChange }) => {
 
       <a
         href="#/completed"
-        className={classNames("filter__link", {
+        className={classNames('filter__link', {
           selected: filter === FilterStatus.completed,
         })}
         onClick={() => {

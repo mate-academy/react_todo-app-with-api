@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { UserWarning } from "./UserWarning";
 import { getTodos, postTodo, deleteTodo, patchTodo } from "./api/todos";
-import { Todos } from "./types/todo";
+import { TodoInterface } from "./types/todo";
 import { TodoList } from "./Components/TodoList/TodoList";
 import { Error } from "./Components/Error/Error";
 import { FilterTodo } from "./Components/FilterTodo/FilterTodo";
@@ -11,10 +11,10 @@ import { Header } from "./Components/Header/Header";
 const USER_ID = 6429;
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todos[]>([]);
+  const [todos, setTodos] = useState<TodoInterface[]>([]);
   const [error, setError] = useState("");
   const [title, setTitle] = useState("");
-  const [temporaryTodo, setTemporaryTodo] = useState<Todos>();
+  const [temporaryTodo, setTemporaryTodo] = useState<TodoInterface>();
   const [filter, setFilter] = useState<FilterStatus>(FilterStatus.all);
   const activeTodosСount = useMemo(() => {
     return todos.filter(({ completed }) => !completed).length;
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   useEffect(() => {}, [error]);
   useEffect(() => {
     getTodos(USER_ID)
-      .then((result: React.SetStateAction<Todos[]>) => setTodos(result))
+      .then((result: React.SetStateAction<TodoInterface[]>) => setTodos(result))
       .catch(() => setError("Unable to load the todos"));
   }, []);
 
@@ -59,7 +59,7 @@ export const App: React.FC = () => {
     setTemporaryTodo({ ...newTodo, id: 0 });
 
     postTodo(USER_ID, newTodo)
-      .then((result: Todos) => {
+      .then((result: TodoInterface) => {
         setTodos((state) => [...state, result]);
       })
       .catch(() => {
@@ -85,7 +85,8 @@ export const App: React.FC = () => {
         }, 3000);
       });
   };
-  const handleUpdate = async (id: number, data: Partial<Todos>) => {
+
+  const handleUpdate = async (id: number, data: Partial<TodoInterface>) => {
     try {
       await patchTodo(id, data);
 
@@ -105,7 +106,24 @@ export const App: React.FC = () => {
       }, 3000);
     }
   };
-  const toggleAllCompleted = useCallback(() => {
+
+  const onDeleteComplete = () => {
+    const FilterCompletedTodos = todos.filter((todo) => todo.completed);
+
+    FilterCompletedTodos.map(async (todo) => {
+      try {
+        await deleteTodo(todo.id);
+        setTodos(todos.filter((task) => !task.completed));
+      } catch {
+        setError("Unable to remove todo");
+        setTimeout(() => {
+          setError("");
+        }, 3000);
+      }
+    });
+  };
+
+  const toggleAllCompleted = () => {
     const allCompleted = todos.every((todo) => todo.completed);
 
     if (allCompleted) {
@@ -119,23 +137,7 @@ export const App: React.FC = () => {
         return handleUpdate(todoElement.id, { completed: true });
       });
     }
-  }, [todos]);
-
-  const onDeleteComplete = useCallback(() => {
-    const completedTodos = todos.filter((todo) => todo.completed);
-
-    completedTodos.map(async (todo) => {
-      try {
-        await deleteTodo(todo.id);
-        setTodos(todos.filter((task) => !task.completed));
-      } catch {
-        setError("Unable to remove todo");
-        setTimeout(() => {
-          setError("");
-        }, 3000);
-      }
-    });
-  }, [todos]);
+  };
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
