@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { ToDo } from '../ToDo';
 
 type Props = {
   visibleTodos: Todo[];
@@ -19,91 +20,24 @@ export const ToDoList: React.FC<Props> = ({
   handleChangingTitle,
 }) => {
   const [isRenaming, setIsRenaming] = useState(0);
-  // const startRenamingTitle = useMemo(
-  //   () => visibleTodos.find(todo => todo.id === isRenaming),
-  //   [isRenaming],
-  // );
-  const renamingTodo = useMemo(
-    () => visibleTodos.find(todo => todo.id === isRenaming),
-    [isRenaming],
-  );
-  const startTitle = useMemo(
-    () => (
-      renamingTodo
-        ? renamingTodo.title
-        : ''
-    ),
-    [isRenaming],
-  );
-  const [newTitle, setNewTitle] = useState(startTitle);
 
-  const handleRenamingTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(event.target.value);
+  const handleSettingIsRenaming = (id: number) => {
+    setIsRenaming(id);
   };
 
   return (
     <section className="todoapp__main">
       {visibleTodos.map(todo => (
-        <div
-          className={todo.completed ? 'todo completed' : 'todo'}
+        <ToDo
           key={todo.id}
-        >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              checked={todo.completed}
-              onChange={() => handleToggle(todo)}
-            />
-          </label>
-
-          {isRenaming === todo.id
-            ? (
-              <form onSubmit={(event) => {
-                event.preventDefault();
-                handleChangingTitle(todo, newTitle);
-              }}
-              >
-                <input
-                  type="text"
-                  className="todo__title-field"
-                  placeholder="Empty todo will be deleted"
-                  value={newTitle}
-                  onChange={handleRenamingTitle}
-                />
-              </form>
-            )
-            : (
-              <>
-                <button
-                  type="button"
-                  className="todo__title"
-                  onClick={(event) => {
-                    if (event.detail === 2) {
-                      setIsRenaming(todo.id);
-                    }
-                  }}
-                >
-                  {todo.title}
-                </button>
-
-                <button
-                  type="button"
-                  className="todo__remove"
-                  onClick={() => handleDelete(todo.id)}
-                >
-                  ×
-                </button>
-              </>
-            )}
-
-          <div
-            className={`modal overlay ${updating === todo.id && 'is-active'}`}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+          todo={todo}
+          handleDelete={handleDelete}
+          handleToggle={handleToggle}
+          updating={updating}
+          handleChangingTitle={handleChangingTitle}
+          isRenaming={isRenaming}
+          setIsRenaming={handleSettingIsRenaming}
+        />
       ))}
 
       {tempTodo && (
