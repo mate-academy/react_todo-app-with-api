@@ -30,7 +30,7 @@ export const App: FC = () => {
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [loadTodoById, setLoadTodoById] = useState([DEFAULT_TASK_ID]);
 
-  const fetchTodos = useCallback(async () => {
+  const fetchTodos = async () => {
     try {
       const getData = await getTodos(USER_ID);
 
@@ -38,7 +38,7 @@ export const App: FC = () => {
     } catch {
       setError(ErrorType.LOAD);
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchTodos();
@@ -84,7 +84,7 @@ export const App: FC = () => {
     taskId: number,
     updatedData: Partial<Todo>,
   ) => {
-    setLoadTodoById(state => [...state, taskId]);
+    setLoadTodoById(prevTodos => [...prevTodos, taskId]);
 
     try {
       const updatedTodo = await patchTodo(taskId, updatedData);
@@ -107,7 +107,7 @@ export const App: FC = () => {
     try {
       await deleteTodo(taskId);
 
-      setTodos(state => state.filter(({ id }) => id !== taskId));
+      setTodos(prevTodos => prevTodos.filter(({ id }) => id !== taskId));
     } catch {
       setError(ErrorType.DELETE);
     } finally {

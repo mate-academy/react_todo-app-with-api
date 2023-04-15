@@ -15,19 +15,16 @@ export const ErrorNotification: FC<NotificationProps> = ({
 }) => {
   useEffect(
     () => {
-      setTimeout(() => setError(ErrorType.NONE),
-        3000);
+      setTimeout(() => (
+        setError(ErrorType.NONE)
+      ), 3000);
     }, [error],
   );
 
   return (
     <div className={classNames(
-      'notification',
-      'is-danger',
-      'is-light',
-      'has-text-weight-normal', {
-        hidden: !error,
-      },
+      'notification is-danger is-light has-text-weight-normal',
+      { hidden: !error },
     )}
     >
       <button

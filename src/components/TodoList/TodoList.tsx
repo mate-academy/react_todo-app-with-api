@@ -43,7 +43,7 @@ export const TodoList: FC<TodoListProps> = ({
           </CSSTransition>
         ))}
 
-        {tempTodo !== null && (
+        {tempTodo && (
           <CSSTransition
             key={0}
             timeout={300}
