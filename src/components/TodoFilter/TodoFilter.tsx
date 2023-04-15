@@ -29,7 +29,7 @@ export const TodoFilter: FC<Props> = ({
         acc.push(id);
       }
 
-      return acc;
+      return completed ? [...acc, id] : acc;
     }, []);
 
     if (todoIds.length > 0) {

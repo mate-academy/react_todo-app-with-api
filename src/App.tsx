@@ -27,7 +27,7 @@ export const App: FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [error, setError] = useState<Errors>(Errors.NONE);
 
-  const loadTodos = useCallback(async () => {
+  const loadTodos = async () => {
     try {
       const loadedTodos = await TodoService.getByUserId(USER_ID);
 
@@ -35,7 +35,7 @@ export const App: FC = () => {
     } catch (err) {
       setError(Errors.LOAD);
     }
-  }, []);
+  };
 
   useEffect(() => {
     loadTodos();
@@ -95,12 +95,10 @@ export const App: FC = () => {
 
     try {
       await TodoService.update(todoId, updatedTodo);
-      setTodos(currTodos => currTodos.map(todo => (todo.id === todoId
-        ? {
-          ...todo,
-          ...updatedTodo,
-        }
-        : todo)));
+      setTodos(currTodos => currTodos.map(todo => (
+        todo.id === todoId
+          ? { ...todo, ...updatedTodo }
+          : todo)));
     } catch (err) {
       setError(Errors.UPDATE);
     } finally {
