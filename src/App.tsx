@@ -83,7 +83,7 @@ export const App: React.FC = () => {
       setDisabledInput(false);
       setLoading(false);
     }
-  }, []);
+  }, [query]);
 
   const removeTodo = useCallback(async (id: number) => {
     try {
