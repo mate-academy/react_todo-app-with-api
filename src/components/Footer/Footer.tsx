@@ -7,6 +7,7 @@ type Props = {
   filterType: Filter,
   containsCompleted: boolean,
   onClearCompleted: () => void,
+  itemsLeft: number,
 };
 
 export const Footer: FC<Props> = ({
@@ -14,10 +15,11 @@ export const Footer: FC<Props> = ({
   filterType,
   containsCompleted,
   onClearCompleted,
+  itemsLeft,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
-      3 items left
+      {`${itemsLeft} items left`}
     </span>
 
     <nav className="filter">
@@ -55,7 +57,6 @@ export const Footer: FC<Props> = ({
       </a>
     </nav>
 
-    {/* don't show this button if there are no completed todos */}
     <button
       type="button"
       className="todoapp__clear-completed"

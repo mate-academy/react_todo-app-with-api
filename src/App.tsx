@@ -105,6 +105,28 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleSubmitEditing = (todoId: number, newTitle: string) => {
+    setProcesingTodosId([todoId]);
+    setTodoCondition(TodoCondition.seving);
+
+    changeTodo(todoId, { title: newTitle })
+      .then(() => setTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            title: newTitle,
+          };
+        }
+
+        return todo;
+      })))
+      .catch(() => Error.Update)
+      .finally(() => {
+        setProcesingTodosId([]);
+        setTodoCondition(TodoCondition.neutral);
+      });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -135,13 +157,13 @@ export const App: React.FC = () => {
                 todoCondition={todoCondition}
                 procesingTodosId={procesingTodosId}
                 toggleTodo={toggleTodo}
+                handleSubmitEditing={handleSubmitEditing}
               />
 
               {tempTodo && (
                 <TodoItem
                   todo={tempTodo}
                   todoCondition={todoCondition}
-                // onDeleteTodo={todoDelete}
                 />
               )}
             </section>
@@ -154,6 +176,8 @@ export const App: React.FC = () => {
             filterType={filterType}
             containsCompleted={todosStatus.isCompleted}
             onClearCompleted={clearCompleted}
+            itemsLeft={filteredTodos
+              .filter(({ completed }) => !completed).length}
           />
         )}
       </div>
