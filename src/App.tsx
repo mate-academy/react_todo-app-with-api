@@ -53,7 +53,7 @@ export const App: React.FC = () => {
     };
   }, [todos]);
 
-  const todoDelete = (todoId: number) => {
+  const handleDeleteTodo = (todoId: number) => {
     setTodoCondition(TodoCondition.deleting);
     setProcesingTodosId([todoId]);
     deleteTodo(todoId)
@@ -77,7 +77,7 @@ export const App: React.FC = () => {
   };
 
   const toggleTodo = (curentTodo: Todo, status: boolean | undefined) => {
-    setTodoCondition(TodoCondition.seving);
+    setTodoCondition(TodoCondition.saving);
     setProcesingTodosId([curentTodo.id]);
 
     const copyTodos = [...todos];
@@ -107,7 +107,7 @@ export const App: React.FC = () => {
 
   const handleSubmitEditing = (todoId: number, newTitle: string) => {
     setProcesingTodosId([todoId]);
-    setTodoCondition(TodoCondition.seving);
+    setTodoCondition(TodoCondition.saving);
 
     changeTodo(todoId, { title: newTitle })
       .then(() => setTodos(prevTodos => prevTodos.map(todo => {
@@ -153,7 +153,7 @@ export const App: React.FC = () => {
             <section className="todoapp__main">
               <TodoList
                 todos={filteredTodos}
-                onDeleteTodo={todoDelete}
+                onDeleteTodo={handleDeleteTodo}
                 todoCondition={todoCondition}
                 procesingTodosId={procesingTodosId}
                 toggleTodo={toggleTodo}
@@ -176,7 +176,7 @@ export const App: React.FC = () => {
             filterType={filterType}
             containsCompleted={todosStatus.isCompleted}
             onClearCompleted={clearCompleted}
-            itemsLeft={filteredTodos
+            itemsLeft={todos
               .filter(({ completed }) => !completed).length}
           />
         )}

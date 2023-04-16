@@ -1,4 +1,10 @@
-import { FC, useState, FormEvent } from 'react';
+import {
+  FC,
+  useState,
+  FormEvent,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import classNames from 'classnames';
 import { Error } from '../../types/Error';
 import { Todo } from '../../types/Todo';
@@ -10,7 +16,7 @@ type Props = {
   handleError: (err: Error) => void,
   setTodoCondition: (arg: TodoCondition) => void,
   onTrickTempTodo: (newTodo: Todo | null) => void,
-  setTodos: (prev: any) => void,
+  setTodos: Dispatch<SetStateAction<Todo[]>>,
   toggleAllTodos: () => void,
 };
 
@@ -33,7 +39,7 @@ export const Header: FC<Props> = ({
     }
 
     setIsInputDisabled(true);
-    setTodoCondition(TodoCondition.seving);
+    setTodoCondition(TodoCondition.saving);
 
     const newTodo = {
       id: 0,

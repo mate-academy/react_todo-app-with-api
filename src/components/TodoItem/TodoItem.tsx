@@ -2,35 +2,34 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoCondition } from '../../types/TodoCondition';
+import { noop } from '../../utils/noop';
 
 type Props = {
   todo: Todo,
   todoCondition: TodoCondition,
   onDeleteTodo?: (todoId: number) => void,
   toggleTodo?: (curentTodo: Todo, status?: boolean | undefined) => void,
-  handleSubmitEditing?: (id: number, thisTitle: string) => void,
+  handleSubmitEditing?: (id: number, editTitle: string) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   todoCondition,
-  onDeleteTodo = () => { },
-  toggleTodo = () => { },
-  handleSubmitEditing = () => { },
+  onDeleteTodo = noop,
+  toggleTodo = noop,
+  handleSubmitEditing = noop,
 }) => {
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const [thisTitle, setThisTitle] = useState(title);
+  const [editTitle, setEditTitle] = useState(title);
 
-  const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
-    e?.preventDefault();
-
-    if (thisTitle === '') {
+  const handleSubmit = () => {
+    if (editTitle === '') {
       onDeleteTodo(id);
     }
 
-    if (thisTitle !== title) {
-      handleSubmitEditing(id, thisTitle);
+    if (editTitle !== title) {
+      handleSubmitEditing(id, editTitle);
     }
 
     setIsEditing(false);
@@ -39,8 +38,22 @@ export const TodoItem: React.FC<Props> = ({
   const cancelEditing = (key: string) => {
     if (key === 'Escape') {
       setIsEditing(false);
-      setThisTitle(title);
+      setEditTitle(title);
     }
+  };
+
+  const onBlurOrSubmit = (e: React.FocusEvent<HTMLInputElement, Element>
+  | React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSubmit();
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(e.target.value);
+  };
+
+  const onKeyUp = (e: React.KeyboardEvent) => {
+    cancelEditing(e.key);
   };
 
   return (
@@ -62,15 +75,15 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEditing
         ? (
-          <form onSubmit={(e) => handleSubmit(e)}>
+          <form onSubmit={onBlurOrSubmit}>
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={thisTitle}
-              onChange={(e) => setThisTitle(e.target.value)}
-              onBlur={() => handleSubmit()}
-              onKeyUp={({ key }) => cancelEditing(key)}
+              value={editTitle}
+              onChange={onChange}
+              onBlur={onBlurOrSubmit}
+              onKeyUp={onKeyUp}
             />
           </form>
         )

@@ -1,6 +1,6 @@
 export enum TodoCondition {
   neutral,
-  seving,
+  saving,
   editing,
   deleting,
 }
