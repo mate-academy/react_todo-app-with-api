@@ -7,9 +7,9 @@ import { Todo } from './types/Todo';
 import {
   getTodos, postTodo, deleteTodo, patchTodo, USER_ID,
 } from './api/todos';
-import { TodoList } from './components/TodoList/TodoList';
+import { TodoList } from './components/TodoList';
 import { FilterType } from './types/FilterType';
-import { Footer } from './components/Footer/Footer';
+import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -221,6 +221,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
+          {/* eslint-disable jsx-a11y/control-has-associated-label */}
           <button
             type="button"
             className={classNames(
