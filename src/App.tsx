@@ -26,8 +26,7 @@ const USER_ID = 6955;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<TodoRich[]>([]);
   const [error, setError] = useState<ErrorType>(ErrorType.None);
-  const [selectedFilterOption, setSelectedFilterOption]
-    = useState(TodoCompletionType.All);
+  const [filterType, setFilterType] = useState(TodoCompletionType.All);
 
   const [tempTodo, setTempTodo] = useState<TodoRich | null>(null);
 
@@ -166,7 +165,7 @@ export const App: React.FC = () => {
       .catch(() => setError(ErrorType.LoadTodos));
   }, []);
 
-  const filteredTodos = filterTodos(todos, selectedFilterOption);
+  const filteredTodos = filterTodos(todos, filterType);
 
   const activeTodosCount = getActiveTodosCount(todos);
   const hasCompletedTodos = activeTodosCount !== todos.length;
@@ -182,6 +181,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          isToggleVisible={todos.length > 0}
           isToggleActive={!hasActiveTodos}
           onTodoAdd={handleTodoAdd}
           onTodoToggleAll={handleTodoToggleAll}
@@ -197,10 +197,10 @@ export const App: React.FC = () => {
             />
 
             <TodoFooter
-              selectedFilterOption={selectedFilterOption}
+              filterType={filterType}
               activeTodosCount={activeTodosCount}
               hasCompletedTodos={hasCompletedTodos}
-              onFilterSelect={setSelectedFilterOption}
+              onFilterSelect={setFilterType}
               onCompletedTodosDelete={handleCompletedTodosDelete}
             />
           </>

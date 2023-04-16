@@ -33,7 +33,6 @@ export const TodoList: React.FC<Props> = ({
           classNames="item"
         >
           <TodoItem
-            key={todo.id}
             todo={todo}
             onTodoDelete={onTodoDelete}
             onTodoUpdate={onTodoUpdate}
@@ -47,10 +46,7 @@ export const TodoList: React.FC<Props> = ({
           timeout={300}
           classNames="temp-item"
         >
-          <TodoItem
-            key={tempTodo.id}
-            todo={tempTodo}
-          />
+          <TodoItem todo={tempTodo} />
         </CSSTransition>
       )}
     </TransitionGroup>

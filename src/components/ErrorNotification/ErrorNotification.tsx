@@ -34,11 +34,11 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
           },
         )}
       >
-        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
         <button
           type="button"
           className="delete"
           onClick={onClose}
+          aria-label="Close"
         />
         {errorMessage}
       </div>

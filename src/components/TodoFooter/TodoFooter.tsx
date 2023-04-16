@@ -3,7 +3,7 @@ import { TodoCompletionType } from '../../types/TodoCompletionType';
 import { FilterButton } from '../FilterButton';
 
 type Props = {
-  selectedFilterOption: TodoCompletionType;
+  filterType: TodoCompletionType;
   activeTodosCount: number;
   hasCompletedTodos: boolean;
   onFilterSelect: (newFilterOption: TodoCompletionType) => void
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const TodoFooter: React.FC<Props> = ({
-  selectedFilterOption,
+  filterType,
   onFilterSelect,
   activeTodosCount,
   hasCompletedTodos,
@@ -26,19 +26,19 @@ export const TodoFooter: React.FC<Props> = ({
       <nav className="filter">
         <FilterButton
           filterOption={TodoCompletionType.All}
-          isSelected={TodoCompletionType.All === selectedFilterOption}
+          isSelected={TodoCompletionType.All === filterType}
           onFilterSelect={onFilterSelect}
         />
 
         <FilterButton
           filterOption={TodoCompletionType.Active}
-          isSelected={TodoCompletionType.Active === selectedFilterOption}
+          isSelected={TodoCompletionType.Active === filterType}
           onFilterSelect={onFilterSelect}
         />
 
         <FilterButton
           filterOption={TodoCompletionType.Completed}
-          isSelected={TodoCompletionType.Completed === selectedFilterOption}
+          isSelected={TodoCompletionType.Completed === filterType}
           onFilterSelect={onFilterSelect}
         />
       </nav>

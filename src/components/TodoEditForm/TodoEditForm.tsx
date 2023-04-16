@@ -49,6 +49,15 @@ export class TodoEditForm extends React.Component<Props, State> {
     todoTitleInput.removeEventListener('keyup', this.handleTodoEditingSkip);
   }
 
+  handleTodoEditingSkip = (escClickEvent: KeyboardEvent) => {
+    if (escClickEvent.key !== 'Escape' || !this.inputRef.current) {
+      return;
+    }
+
+    this.props.onEditingSkip();
+    this.inputRef.current.blur();
+  };
+
   handleTodoUpdate = async () => {
     const { title } = this.state;
     const {
@@ -72,36 +81,38 @@ export class TodoEditForm extends React.Component<Props, State> {
     await onTodoTitleUpdate(title);
   }
 
-  handleTodoEditingSkip = (escClickEvent: KeyboardEvent) => {
-    if (escClickEvent.key !== 'Escape' || !this.inputRef.current) {
-      return;
-    }
+  handleFormSubmit = (submitEvent: React.SyntheticEvent) => {
+    submitEvent.preventDefault();
+    this.handleTodoUpdate();
+  }
 
-    this.props.onEditingSkip();
-    this.inputRef.current.blur();
-  };
+  handleTitleChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => (
+    this.setState({
+      title: changeEvent.target.value,
+    })
+  );
 
   render() {
     const title = this.state.title ?? '';
 
+    const {
+      handleFormSubmit,
+      handleTitleChange,
+      handleTodoUpdate,
+      inputRef,
+    } = this;
+
     return (
       <>
-        <form
-          onSubmit={(submitEvent) => {
-            submitEvent.preventDefault();
-            this.handleTodoUpdate();
-          }}
-        >
+        <form onSubmit={handleFormSubmit}>
           <input
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={title}
-            onChange={(changeEvent) => this.setState({
-              title: changeEvent.target.value,
-            })}
-            onBlur={() => this.handleTodoUpdate()}
-            ref={this.inputRef}
+            onChange={handleTitleChange}
+            onBlur={handleTodoUpdate}
+            ref={inputRef}
           />
         </form>
       </>
