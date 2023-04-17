@@ -17,23 +17,23 @@ export const TodoInfo: React.FC<Props> = ({
   const [editMode, setEditMode] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
 
-  const handleOnToggleChange = () => {
+  const handleToggleChange = () => {
     onToggle(todo.id);
   };
 
-  const handleOnDeleteChange = () => {
+  const handleDeleteChange = () => {
     onDelete(todo.id);
   };
 
-  const handlerOnDoubleClick = () => {
+  const handleDoubleClick = () => {
     setEditMode(true);
   };
 
-  const handlerOnTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(event.target.value);
   };
 
-  const handlerOnTitleSubmit = () => {
+  const handleTitleSubmit = () => {
     if (todoTitle.trim() === '') {
       onDelete(id);
     } else {
@@ -42,17 +42,17 @@ export const TodoInfo: React.FC<Props> = ({
     }
   };
 
-  const handlerOnTitleCancel = () => {
+  const handleTitleCancel = () => {
     setEditMode(false);
     setTodoTitle(title);
   };
 
-  const handlerOnKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       event.currentTarget.blur();
     } else if (event.key === 'Escape') {
-      handlerOnTitleCancel();
+      handleTitleCancel();
     }
   };
 
@@ -65,7 +65,7 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={handleOnToggleChange}
+          onChange={handleToggleChange}
           checked={completed}
         />
       </label>
@@ -75,14 +75,14 @@ export const TodoInfo: React.FC<Props> = ({
           type="text"
           className="todo__title-field"
           value={todoTitle}
-          onChange={handlerOnTitleChange}
-          onBlur={handlerOnTitleSubmit}
-          onKeyDown={handlerOnKeyDown}
+          onChange={handleTitleChange}
+          onBlur={handleTitleSubmit}
+          onKeyDown={handleKeyDown}
         />
       ) : (
         <span
           className="todo__title"
-          onDoubleClick={handlerOnDoubleClick}
+          onDoubleClick={handleDoubleClick}
         >
           {title}
         </span>
@@ -92,7 +92,7 @@ export const TodoInfo: React.FC<Props> = ({
         <button
           type="button"
           className="todo__remove"
-          onClick={handleOnDeleteChange}
+          onClick={handleDeleteChange}
         >
           ×
         </button>
