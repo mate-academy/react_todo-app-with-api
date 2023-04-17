@@ -4,7 +4,7 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   activeTodos: number,
-  onError: (error: string) => void,
+  onErrorMessage: (error: string) => void,
   userId: number,
   onAdd: (todo: Omit<Todo, 'id'>) => void,
   isDisabledInput: boolean,
@@ -17,6 +17,7 @@ export const Header: React.FC<Props> = ({
   onAdd,
   isDisabledInput,
   onToggle,
+  onErrorMessage,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -35,12 +36,18 @@ export const Header: React.FC<Props> = ({
 
     setTitle('');
 
-    onAdd(newTodo);
+    if (title) {
+      onAdd(newTodo);
+    } else {
+      onErrorMessage('Title can`t be empty');
+      setTimeout(() => {
+        onErrorMessage('');
+      }, 3000);
+    }
   };
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className={classNames(

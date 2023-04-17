@@ -1,31 +1,26 @@
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 import { FilterType } from '../../types/FilterType';
-import { getFilteredTodos } from '../../utils/helpers';
 
 type Props = {
+  togglingTodos:{}
+  visibleTodos: Todo[]
   todos: Todo[]
   activeTodos: number
   filterType: FilterType
-  tempTodo: Todo | undefined,
-  isWaiting: number,
+  tempTodo: Todo | null,
   removeTodo: (id: number) => void
-  isDeletingCompleted: boolean
   onUpdateTodo:
   (id: number, todo: Pick<Todo, 'title'> | Pick<Todo, 'completed'>) => void
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos,
-  filterType,
+  visibleTodos,
   tempTodo,
   removeTodo,
-  isWaiting,
-  isDeletingCompleted,
   onUpdateTodo,
+  togglingTodos,
 }) => {
-  const visibleTodos = getFilteredTodos(todos, filterType);
-
   return (
     <>
       <section className="todoapp__main">
@@ -34,17 +29,15 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             key={todo.id}
             removeTodo={removeTodo}
-            isWaiting={isWaiting}
-            isDeletingCompleted={isDeletingCompleted}
             onUpdateTodo={onUpdateTodo}
+            togglingTodos={togglingTodos}
           />
         ))}
         {tempTodo && (
           <TodoItem
             removeTodo={removeTodo}
+            togglingTodos={togglingTodos}
             todo={tempTodo}
-            isWaiting={isWaiting}
-            isDeletingCompleted={isDeletingCompleted}
             onUpdateTodo={() => {}}
           />
         )}

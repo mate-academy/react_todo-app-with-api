@@ -3,24 +3,25 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
+  togglingTodos: {},
   todo: Todo
   removeTodo: (id: number) => void
-  isWaiting: number
-  isDeletingCompleted: boolean
   onUpdateTodo:
-  (id: number, todo: Pick<Todo, 'title'> | Pick<Todo, 'completed'>) => void
+  (id: number,
+    todo: Pick<Todo, 'title'> | Pick<Todo, 'completed'>) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   removeTodo,
-  isWaiting,
-  isDeletingCompleted,
   onUpdateTodo,
+  togglingTodos,
 }) => {
   const { title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
+
+  const isToggling = Object.hasOwn(togglingTodos, todo.id);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -35,6 +36,10 @@ export const TodoItem: React.FC<Props> = ({
 
   const handlerOnDelete = (id: number) => {
     removeTodo(id);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
   };
 
   const handleCancel = () => {
@@ -88,8 +93,8 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               type="text"
               value={todoTitle}
-              onChange={(event) => setTodoTitle(event.target.value)}
-              onBlur={handleCancel}
+              onChange={handleChange}
+              onBlur={handleSubmit}
               ref={inputField}
             />
           </form>
@@ -118,8 +123,7 @@ export const TodoItem: React.FC<Props> = ({
         'modal overlay',
         {
           'is-active': (todo.id === 0
-            || isWaiting === todo.id
-            || (isDeletingCompleted && todo.completed)),
+            || isToggling),
         },
       )}
       >

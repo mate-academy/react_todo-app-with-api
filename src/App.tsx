@@ -10,19 +10,20 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { FilterType } from './types/FilterType';
 import { Notification } from './components/Notification';
-
-const USER_ID = 7001;
+import { getFilteredTodos } from './utils/helpers';
+import { USER_ID } from './utils/user';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [filterType, setFilterType] = useState(FilterType.All);
   const [isDisabledInput, setIsDisabledInput] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo>();
-  const [isWaiting, setIsWaiting] = useState(0);
-  const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [togglingTodos, setTogglingTodos] = useState({});
+
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed);
+  const visibleTodos = getFilteredTodos(todos, filterType);
 
   useEffect(() => {
     const getTodosFromServer = async () => {
@@ -31,7 +32,7 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        setError('load');
+        setErrorMessage('Cannot load todos');
       }
     };
 
@@ -41,45 +42,49 @@ export const App: React.FC = () => {
   const addNewTodo = useCallback(async (todo: Omit<Todo, 'id'>) => {
     setIsDisabledInput(true);
     setTempTodo({ ...todo, id: 0 });
-    if (todo.title) {
-      try {
-        const newTodo = await postTodos(todo);
+    try {
+      const newTodo = await postTodos(todo);
 
-        setTodos(state => [...state, newTodo]);
-      } catch {
-        setError('Unable to add a todo');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
-      } finally {
-        setIsDisabledInput(false);
-        setTempTodo(undefined);
-      }
-    } else {
-      setError('Title can`t be empty');
+      setTodos(state => [...state, newTodo]);
+    } catch {
+      setErrorMessage('Unable to add a todo');
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+    } finally {
+      setIsDisabledInput(false);
+      setTempTodo(null);
     }
   }, []);
 
   const removeTodo = useCallback(async (id: number) => {
-    setIsWaiting(id);
+    setTogglingTodos(state => ({
+      ...state,
+      [id]: true,
+    }));
 
     try {
       await deleteTodos(id);
+      setTodos(state => state.filter(todo => todo.id !== id));
     } catch {
-      setError('Unable to delete a todo');
+      setErrorMessage('Unable to delete a todo');
       setTimeout(() => {
-        setError('');
+        setErrorMessage('');
       }, 3000);
     } finally {
-      setIsWaiting(0);
+      setTogglingTodos({});
     }
   }, []);
 
-  const changeTodo = useCallback(async (id: number, data: Partial<Todo>) => {
-    setIsWaiting(id);
+  const changeTodo = useCallback(async (
+    id: number, data: Pick<Todo, 'title'> | Pick<Todo, 'completed' >,
+  ) => {
+    setTogglingTodos(state => ({
+      ...state,
+      [id]: true,
+    }));
     try {
       await patchTodo(id, data);
-
       setTodos(state => state.map(todo => {
         if (todo.id === id) {
           return { ...todo, ...data };
@@ -88,9 +93,9 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      setError('Unable to update a todo');
+      setErrorMessage('Unable to update a todo');
     } finally {
-      setIsWaiting(0);
+      setTogglingTodos({});
     }
   }, []);
 
@@ -99,37 +104,45 @@ export const App: React.FC = () => {
 
     if (areAllDone) {
       todos.forEach(el => {
+        setTogglingTodos(state => ({
+          ...state,
+          [el.id]: true,
+        }));
         changeTodo(el.id, { completed: false });
       });
     } else {
       const notDoneTodos = todos.filter(el => !el.completed);
 
       notDoneTodos.forEach(element => {
+        setTogglingTodos(state => ({
+          ...state,
+          [element.id]: true,
+        }));
         changeTodo(element.id, { completed: true });
       });
     }
   }, [todos]);
 
-  const removeComletedTodos = () => {
-    setIsDeletingCompleted(true);
-
+  const removeComletedTodos = useCallback(() => {
     completedTodos.forEach(todo => {
+      setTogglingTodos(state => ({
+        ...state,
+        [todo.id]: true,
+      }));
+
       deleteTodos(todo.id)
         .then(() => {
           setTodos(todos.filter(item => !item.completed));
         })
         .catch(() => {
-          setError('Unable to delete todos');
-        })
-        .finally(() => {
-          setIsDeletingCompleted(false);
+          setErrorMessage('Unable to delete todos');
         });
     });
-  };
+  }, [todos]);
 
-  const removeError = () => {
-    setError('');
-  };
+  const removeErrorMessage = useCallback(() => {
+    setErrorMessage('');
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -143,25 +156,25 @@ export const App: React.FC = () => {
         <Header
           onToggle={toggleAllTodos}
           activeTodos={activeTodos}
-          onError={setError}
+          onErrorMessage={setErrorMessage}
           userId={USER_ID}
           onAdd={addNewTodo}
           isDisabledInput={isDisabledInput}
         />
         <TodoList
+          togglingTodos={togglingTodos}
           onUpdateTodo={changeTodo}
           todos={todos}
           activeTodos={activeTodos}
           filterType={filterType}
           tempTodo={tempTodo}
-          isWaiting={isWaiting}
           removeTodo={removeTodo}
-          isDeletingCompleted={isDeletingCompleted}
+          visibleTodos={visibleTodos}
         />
         {todos.length > 0 && (
           <Footer
             completedTodos={completedTodos}
-            activeTodos={activeTodos}
+            visibleTodos={visibleTodos}
             filterType={filterType}
             onSetFilterType={setFilterType}
             onDeleteCompletedTodos={removeComletedTodos}
@@ -170,8 +183,8 @@ export const App: React.FC = () => {
       </div>
 
       <Notification
-        error={error}
-        removeError={removeError}
+        errorMessage={errorMessage}
+        removeErrorMessage={removeErrorMessage}
       />
     </div>
   );
