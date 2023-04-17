@@ -38,16 +38,12 @@ export const App: React.FC = () => {
     [todosList, sortType],
   );
 
-  // Show Error Message
-
   const showError = (value: string) => {
     setErrorType(value);
     window.setTimeout(() => {
       setErrorType('');
     }, 3000);
   };
-
-  // Get todos from server
 
   const getTodosFromServer = async () => {
     try {
@@ -62,8 +58,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodosFromServer();
   }, []);
-
-  // Add new todo to server
 
   const addTodoOnServer = async () => {
     setIsDisabledForm(true);
@@ -100,8 +94,6 @@ export const App: React.FC = () => {
     return addTodoOnServer();
   };
 
-  // Delete todo from server
-
   const deleteTodoFromServer = async (id:number) => {
     try {
       const selectedTodo = todosList.find(todo => todo.id === id);
@@ -119,17 +111,14 @@ export const App: React.FC = () => {
     }
   };
 
-  const removeTodo = (id:number) => {
-    deleteTodoFromServer(id);
+  const removeCompletedTodos = async () => {
+    try {
+      await Promise.all(copletedTodos
+        .map(todo => deleteTodoFromServer(todo.id)));
+    } catch {
+      showError('unable to delete completed elements');
+    }
   };
-
-  // Delete comleted todos from server
-
-  const removeCompletedTodos = () => {
-    copletedTodos.forEach(todo => deleteTodoFromServer(todo.id));
-  };
-
-  // Update todo on server
 
   const handleStatusTodo = async (id:number, completed:boolean) => {
     try {
@@ -200,7 +189,7 @@ export const App: React.FC = () => {
           todos={visibleTodoList}
           tempTodo={tempTodo}
           tempTodos={tempTodos}
-          removeTodo={removeTodo}
+          removeTodo={deleteTodoFromServer}
           onHandleStatusTodo={handleStatusTodo}
           onHandleTitleTodo={handleTitleTodo}
           updatingTodo={updatingTodo}
