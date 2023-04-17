@@ -8,7 +8,7 @@ type Props = {
   removeTodo: (id: number) => Promise<void>;
   loadingTodoId: number[];
   loading?: boolean;
-  updateTodo: (id: number, titleOrCompleted: string | boolean) => Promise<void>;
+  updateTodo: (id: number, data: string | boolean) => Promise<void>;
   setErrorText: (text: string) => void;
 };
 
@@ -25,10 +25,9 @@ export const TodoItem: React.FC<Props> = ({
     setPrevTitle(title);
   }, [title]);
 
-  const handleComplete = useCallback(
-    () => updateTodo(id, !completed),
-    [id, completed, updateTodo],
-  );
+  const handleComplete = useCallback(() => (
+    updateTodo(id, !completed)
+  ), [id, completed, updateTodo]);
 
   const handleRemoval = useCallback(
     () => removeTodo(id), [removeTodo, id],
@@ -41,7 +40,7 @@ export const TodoItem: React.FC<Props> = ({
   );
 
   const handleBlur = useCallback(() => {
-    if (todoTitle.length === 0) {
+    if (!todoTitle.length) {
       removeTodo(id).then(() => setIsUpdating(false))
         .catch(() => setErrorText('Unable to remove a todo'));
     } else {

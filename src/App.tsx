@@ -1,5 +1,5 @@
 import React, {
-  useState, useCallback, useEffect, useMemo,
+  useState, useCallback, useEffect, useMemo, useRef,
 } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -7,9 +7,10 @@ import { Todo } from './types/Todo';
 import {
   getTodos, postTodo, deleteTodo, patchTodo, USER_ID,
 } from './api/todos';
-import { TodoList } from './components/TodoList';
+import TodoList from './components/TodoList';
 import { FilterType } from './types/FilterType';
-import { Footer } from './components/Footer';
+import Footer from './components/Footer';
+import HeaderForm from './components/HeaderForm';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -21,11 +22,15 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([0]);
 
-  let timeoutId: NodeJS.Timeout;
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  const closeError = () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => setErrorText(''), 3000);
+  const closeError = useCallback(() => {
+    clearTimeout(timeoutId.current!);
+    timeoutId.current = setTimeout(() => setErrorText(''), 3000);
+  }, []);
+
+  const handleQueryChange = (newQuery: string) => {
+    setQuery(newQuery);
   };
 
   const handleCloseButton = () => setErrorText('');
@@ -64,6 +69,7 @@ export const App: React.FC = () => {
       }
 
       const newTodo = {
+        id: 0,
         userId: USER_ID,
         title,
         completed: false,
@@ -230,18 +236,11 @@ export const App: React.FC = () => {
             )}
             onClick={toggleAllCompleted}
           />
-          <form
-            onSubmit={handleSubmitForm}
-          >
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              disabled={disabledInput}
-              onChange={(event) => setQuery(event.target.value)}
-              value={query}
-            />
-          </form>
+          <HeaderForm
+            disabledInput={disabledInput}
+            handleSubmitForm={handleSubmitForm}
+            handleQueryChange={handleQueryChange}
+          />
         </header>
 
         <TodoList
@@ -253,6 +252,7 @@ export const App: React.FC = () => {
           updateTodo={updateTodo}
           setErrorText={setErrorText}
         />
+
         {!!todos.length && (
           <Footer
             activeTodosLength={activeTodos.length}

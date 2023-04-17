@@ -7,7 +7,7 @@ type Props = {
   closeError: () => void,
 };
 
-export const Error: React.FC<Props> = ({
+export const ErrorNotifications: React.FC<Props> = ({
   errorMessage,
   closeError,
 }) => {
@@ -19,7 +19,7 @@ export const Error: React.FC<Props> = ({
     return () => {
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [closeError]);
 
   return (
     <div

@@ -5,8 +5,7 @@ export interface Todo {
   completed: boolean;
 }
 
-export interface NewTodo {
-  title: string,
-  userId: number,
-  completed: boolean,
+export interface PathchingTodo {
+  title?: string;
+  completed?: boolean;
 }
