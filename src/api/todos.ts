@@ -1,11 +1,11 @@
-import { TodoInterface } from '../types/todo';
-import { client } from '../utils/fetchClients';
+import { TodoInterface } from "../types/Todo";
+import { client } from "../utils/fetchClients";
 
 export const getTodos = (userId: number) => {
   return client.get<TodoInterface[]>(`/todos?userId=${userId}`);
 };
 
-export const postTodo = (userId: number, todo: Omit<TodoInterface, 'id'>) => {
+export const postTodo = (userId: number, todo: Omit<TodoInterface, "id">) => {
   return client.post<TodoInterface>(`/todos?userId=${userId}`, todo);
 };
 

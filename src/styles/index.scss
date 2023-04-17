@@ -19,6 +19,12 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+.todoapp__clear-completed {
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
 
 @import "./todoapp";
 @import "./todo";

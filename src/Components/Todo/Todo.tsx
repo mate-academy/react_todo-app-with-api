@@ -1,14 +1,20 @@
-import classNames from 'classnames';
-import { useState } from 'react';
-import { TodoInterface } from '../../types/todo';
+import classNames from "classnames";
+import { useState } from "react";
+import { TodoInterface } from "../../types/Todo";
 
 type Props = {
   todo: TodoInterface;
   onDelete: (id: number) => void;
   onUpdate: (id: number, data: Partial<TodoInterface>) => void;
+  isLoading: boolean;
 };
 
-export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
+export const Todo: React.FC<Props> = ({
+  todo,
+  onDelete,
+  onUpdate,
+  isLoading,
+}) => {
   const { completed, title, id } = todo;
 
   const [todoTitle, setTodoTitle] = useState(title);
@@ -23,7 +29,7 @@ export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
   };
 
   const handleTitleSubmit = () => {
-    if (todoTitle.trim() === '') {
+    if (todoTitle.trim() === "") {
       onDelete(id);
     } else {
       setIsEditing(false);
@@ -37,16 +43,16 @@ export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       event.currentTarget.blur();
-    } else if (event.key === 'Escape') {
+    } else if (event.key === "Escape") {
       handleTitleCancel();
     }
   };
 
   return (
-    <div className={classNames('todo', { completed })}>
+    <div className={classNames("todo", { completed })}>
       <label className="todo__status-label">
         <input
           type="checkbox"
@@ -77,7 +83,11 @@ export const Todo: React.FC<Props> = ({ todo, onDelete, onUpdate }) => {
         ×
       </button>
 
-      <div className="modal overlay">
+      <div
+        className={classNames("modal overlay", {
+          "is-active": isLoading,
+        })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

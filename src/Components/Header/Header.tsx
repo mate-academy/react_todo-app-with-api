@@ -1,10 +1,13 @@
-import React from 'react';
+import classNames from "classnames";
+import React from "react";
 
 type Props = {
   title: string;
   onChangeTitle: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmitForm: (event: React.FormEvent) => void;
   onToggleAllCompleted: () => void;
+  count: number;
+  toggle: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -12,14 +15,20 @@ export const Header: React.FC<Props> = ({
   onChangeTitle,
   onSubmitForm,
   onToggleAllCompleted,
+  count,
+  toggle,
 }) => (
   <header className="todoapp__header">
-    <button
-      type="button"
-      aria-label="toggle-allbutton"
-      className="todoapp__toggle-all active"
-      onClick={onToggleAllCompleted}
-    />
+    {count !== 0 && (
+      <button
+        type="button"
+        aria-label="toggle-allbutton"
+        className={classNames("todoapp__toggle-all ", {
+          active: toggle,
+        })}
+        onClick={onToggleAllCompleted}
+      />
+    )}
 
     <form onSubmit={onSubmitForm}>
       <input
