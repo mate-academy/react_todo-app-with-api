@@ -29,6 +29,9 @@ export const TodoInfo: React.FC<Props> = ({
   const handleTitleChange = () => {
     if (!newTitle.trim()) {
       onDeleteTodo(id);
+      setInEditMode(false);
+
+      return;
     }
 
     if (newTitle.trim() === title) {

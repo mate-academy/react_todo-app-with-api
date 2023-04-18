@@ -12,27 +12,9 @@ import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
+import { getVisibleTodos } from './helpers/getVisibleTodos';
 
 const USER_ID = 7033;
-
-function getVisibleTodos(todos: Todo[], currentFilter: string) {
-  let visibleTodos = todos;
-
-  if (currentFilter !== Filter.All) {
-    visibleTodos = todos.filter(({ completed }) => {
-      switch (currentFilter) {
-        case Filter.Active:
-          return !completed;
-        case Filter.Completed:
-          return completed;
-        default:
-          return true;
-      }
-    });
-  }
-
-  return visibleTodos;
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -43,11 +25,11 @@ export const App: React.FC = () => {
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const isAllCompleted = todos.every(todo => todo.completed);
 
-  function clearError() {
+  const clearError = () => {
     setTimeout(() => {
       setErrorMessage('');
     }, 3000);
-  }
+  };
 
   const loadTodos = async () => {
     try {
@@ -126,6 +108,7 @@ export const App: React.FC = () => {
       await Promise.all(
         completedTodoIds.map(id => deleteTodo(id)),
       );
+
       setTodos((prevTodos) => {
         return prevTodos.filter(todo => !todo.completed);
       });
