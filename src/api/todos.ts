@@ -31,7 +31,9 @@ export const toggleTodoStatus = (todo: Todo): Promise<Todo> => {
   });
 };
 
-export const editTodoTitle = (todoId: number, newTitle: string): Promise<Todo> => {
+export const editTodoTitle = (
+  todoId: number, newTitle: string,
+): Promise<Todo> => {
   return client.patch<Todo>(`/todos/${todoId}`, {
     title: newTitle,
   });
