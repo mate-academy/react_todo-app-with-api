@@ -6,8 +6,8 @@ type Props = {
   numCompletedTodos: number;
   statusFilter: FilterType;
   todos: Todo[];
-  handleClickFilter: (filter: FilterType) => void;
-  handleClearCompleted: () => void;
+  onClickFilter: (filter: FilterType) => void;
+  onClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,8 +15,8 @@ export const Footer: React.FC<Props> = ({
   numCompletedTodos,
   statusFilter,
   todos,
-  handleClickFilter,
-  handleClearCompleted,
+  onClickFilter,
+  onClearCompleted,
 }) => {
   return (
     <footer
@@ -31,7 +31,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           className={`filter__link ${statusFilter === FilterType.All && 'selected'}`}
-          onClick={() => handleClickFilter(FilterType.All)}
+          onClick={() => onClickFilter(FilterType.All)}
         >
           All
         </a>
@@ -39,7 +39,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           className={`filter__link ${statusFilter === FilterType.Active && 'selected'}`}
-          onClick={() => handleClickFilter(FilterType.Active)}
+          onClick={() => onClickFilter(FilterType.Active)}
         >
           Active
         </a>
@@ -47,7 +47,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           className={`filter__link ${statusFilter === FilterType.Completed && 'selected'}`}
-          onClick={() => handleClickFilter(FilterType.Completed)}
+          onClick={() => onClickFilter(FilterType.Completed)}
         >
           Completed
         </a>
@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         className="todoapp__clear-completed"
-        onClick={handleClearCompleted}
+        onClick={onClearCompleted}
         disabled={!numCompletedTodos}
       >
         Clear completed

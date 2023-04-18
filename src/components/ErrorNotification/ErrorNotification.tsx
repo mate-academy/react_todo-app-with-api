@@ -10,6 +10,15 @@ export const ErrorNotification: React.FC<Props> = ({
   error,
   handleDeleteNotification,
 }) => {
+  const Errors = {
+    [ErrorType.None]: '',
+    [ErrorType.Loading]: 'Unable to load a todo',
+    [ErrorType.Post]: 'Unable to add a todo',
+    [ErrorType.EmptyTitle]: 'Title can\'t be empty',
+    [ErrorType.Delete]: 'Unable to delete a todo',
+    [ErrorType.Update]: 'Unable to update a todo',
+  };
+
   return (
     <div
       className={`notification is-danger is-light has-text-weight-normal ${!error && 'hidden'}`}
@@ -20,11 +29,7 @@ export const ErrorNotification: React.FC<Props> = ({
         onClick={handleDeleteNotification}
       />
 
-      {error === ErrorType.Loading && 'Unable to load a todo'}
-      {error === ErrorType.Post && 'Unable to add a todo'}
-      {error === ErrorType.EmptyTitle && 'Title can\'t be empty'}
-      {error === ErrorType.Delete && 'Unable to delete a todo'}
-      {error === ErrorType.Update && 'Unable to update a todo'}
+      {Errors[error]}
     </div>
   );
 };

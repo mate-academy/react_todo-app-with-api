@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<FilterType>(FilterType.All);
   const [error, setError] = useState<ErrorType>(ErrorType.None);
   const [input, setInput] = useState('');
-  const [updating, setUpdeting] = useState(0);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -90,8 +90,8 @@ export const App: React.FC = () => {
     setError(ErrorType.None);
   };
 
-  const numActiveTodos = filterTodos(FilterType.Active).length;
-  const numCompletedTodos = filterTodos(FilterType.Completed).length;
+  const activeTodosCount = filterTodos(FilterType.Active).length;
+  const completedTodosCount = filterTodos(FilterType.Completed).length;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -104,7 +104,7 @@ export const App: React.FC = () => {
   };
 
   const handleDelete = (todoId: number) => {
-    setUpdeting(todoId);
+    setUpdatingId(todoId);
     deleteTodo(todoId)
       .then(() => {
         setTodos(oldTodos => (
@@ -115,7 +115,7 @@ export const App: React.FC = () => {
         setError(ErrorType.Delete);
       })
       .finally(() => {
-        setUpdeting(0);
+        setUpdatingId(null);
       });
   };
 
@@ -130,21 +130,22 @@ export const App: React.FC = () => {
   const changeTodo = (todo: Todo) => {
     updateTodo(todo)
       .then(res => {
-        setTodos(oldTodos => ([
-          ...oldTodos.filter(oldTodo => oldTodo.id !== todo.id),
-          res,
-        ].sort((a, b) => a.id - b.id)));
+        setTodos(oldTodos => (
+          oldTodos.map(oldTodo => (
+            oldTodo.id === todo.id ? res : oldTodo
+          ))
+        ));
       })
       .catch(() => {
         setError(ErrorType.Update);
       })
       .finally(() => {
-        setUpdeting(0);
+        setUpdatingId(null);
       });
   };
 
   const handleToggle = (todo: Todo) => {
-    setUpdeting(todo.id);
+    setUpdatingId(todo.id);
     const newTodo = {
       ...todo,
       completed: !todo.completed,
@@ -154,21 +155,12 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    if (numActiveTodos) {
-      todos.forEach(todo => {
-        changeTodo({
-          ...todo,
-          completed: true,
-        });
+    todos.forEach(todo => {
+      changeTodo({
+        ...todo,
+        completed: Boolean(activeTodosCount),
       });
-    } else {
-      todos.forEach(todo => {
-        changeTodo({
-          ...todo,
-          completed: false,
-        });
-      });
-    }
+    });
   };
 
   const handleChangingTitle = (todo: Todo, title: string) => {
@@ -199,7 +191,7 @@ export const App: React.FC = () => {
           input={input}
           handleSubmit={handleSubmit}
           handleChange={handleChange}
-          numActiveTodos={numActiveTodos}
+          numActiveTodos={activeTodosCount}
           handleToggleAll={handleToggleAll}
         />
 
@@ -208,17 +200,17 @@ export const App: React.FC = () => {
           handleDelete={handleDelete}
           tempTodo={tempTodo}
           handleToggle={handleToggle}
-          updating={updating}
+          updating={updatingId || 0}
           handleChangingTitle={handleChangingTitle}
         />
 
         <Footer
-          numActiveTodos={numActiveTodos}
-          numCompletedTodos={numCompletedTodos}
+          numActiveTodos={activeTodosCount}
+          numCompletedTodos={completedTodosCount}
           statusFilter={statusFilter}
           todos={todos}
-          handleClickFilter={handleClickFilter}
-          handleClearCompleted={handleClearCompleted}
+          onClickFilter={handleClickFilter}
+          onClearCompleted={handleClearCompleted}
         />
       </div>
 

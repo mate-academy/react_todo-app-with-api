@@ -22,9 +22,7 @@ export const Header: React.FC<Props> = ({
         onClick={handleToggleAll}
       />
 
-      <form
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"
