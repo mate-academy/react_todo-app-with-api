@@ -113,13 +113,12 @@ export const LoginForm: React.FC = () => {
   };
 
   const selectPrevUsers = (prevmail: string) => {
-    if (ref.current) {
-      ref.current.focus();
-    }
-
-    setEmail(prevmail);
-    setShowPrevUsers(false);
-    setTempEmail(prevmail);
+    setTimeout(() => {
+      setEmail(prevmail);
+      setTempEmail(prevmail);
+      ref.current?.focus();
+      setShowPrevUsers(false);
+    }, 0);
   };
 
   const onChangeLoginInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +154,7 @@ export const LoginForm: React.FC = () => {
               required
               disabled={emailDisabled}
               onFocus={() => setShowPrevUsers(true)}
+              onBlur={() => setShowPrevUsers(false)}
               ref={ref}
             />
             <span className="icon is-small is-left">
@@ -169,7 +169,7 @@ export const LoginForm: React.FC = () => {
                   key={prevmail}
                   type="button"
                   className="todo__title prevuser__button"
-                  onClick={() => selectPrevUsers(prevmail)}
+                  onMouseDown={() => selectPrevUsers(prevmail)}
                 >
                   {prevmail}
                 </button>
