@@ -73,8 +73,9 @@
 
     &::placeholder {
       font-style: italic;
-      font-weight: 300;
       color: #e6e6e6;
+      font-family: inherit;
+      font-weight: inherit;
     }
   }
 

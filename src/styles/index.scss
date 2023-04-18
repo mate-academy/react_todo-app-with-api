@@ -20,6 +20,55 @@ body {
   pointer-events: none;
 }
 
+.on-focus:focus {
+  outline: 2px solid rgb(47, 47, 94);
+  border-radius: 2px;
+}
+
+.editing-input::placeholder {
+  font-style: italic;
+  font-weight: 300;
+  color: #e6e6e6;
+}
+
+.lastlogin {
+  font-size: 12px;
+  background-color: white;
+  padding: 5px 15px;
+}
+
+.prevuser-p {
+  position: relative;
+}
+
+.prevuser {
+  width: 100%;
+  background-color: white;
+  border: 1px solid rgb(173, 172, 170);
+  position: absolute;
+  top: 72px;
+  z-index: 1;
+
+  &__button {
+    width: 100%;
+    height: 40px;
+    background-color: white;
+    border: none;
+    text-align: left;
+    border-bottom: 1px solid rgb(224, 223, 221);
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgb(237, 231, 231);
+    }
+  }
+}
+
+.display-none {
+  display: none;
+}
+
+@import "./animation.scss";
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
