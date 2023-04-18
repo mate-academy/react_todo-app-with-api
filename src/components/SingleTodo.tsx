@@ -96,7 +96,7 @@ export const SingleTodo: React.FC<Props> = React.memo(
               {isEditing ? (
                 <input
                   type="text"
-                  className="todo__title-edit"
+                  className="todo__title-field"
                   value={newTitle}
                   onBlur={() => submitChanges()}
                   onKeyDown={handleKeyDown}
