@@ -1,4 +1,5 @@
 import {
+  ChangeEvent,
   FC,
   FormEvent,
   useEffect,
@@ -74,6 +75,14 @@ export const TodoItem: FC<Props> = (props) => {
     });
   };
 
+  const handleTitleOnChange = (event: ChangeEvent<HTMLInputElement>) => (
+    setEditedTitle(event.target.value)
+  );
+
+  const handleOnKeyUp = (event: { key: string; }) => (
+    event.key === 'Escape' && handleEditingCancel()
+  );
+
   return (
     <div
       key={id}
@@ -99,8 +108,8 @@ export const TodoItem: FC<Props> = (props) => {
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             ref={inputRef}
-            onChange={(event) => setEditedTitle(event.target.value)}
-            onKeyUp={(event) => event.key === 'Escape' && handleEditingCancel()}
+            onChange={handleTitleOnChange}
+            onKeyUp={handleOnKeyUp}
             onBlur={handleTitleEditinig}
           />
         </form>

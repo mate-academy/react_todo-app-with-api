@@ -27,21 +27,20 @@ export const Footer: FC<Props> = memo((props) => {
       </span>
 
       <nav className="filter">
-        {Object.values(FilterType).map((filterName) => {
-          const filterNameLowerCase = filterName.toLowerCase();
-          const isCurFilterName = filterName === filterType;
+        {Object.entries(FilterType).map(([key, value]) => {
+          const isCurrentFilterName = value === filterType;
 
           return (
             <a
-              key={filterName}
-              href={`#/${filterNameLowerCase}`}
+              key={value}
+              href={`#/${value}`}
               className={classNames(
                 'filter__link',
-                { selected: isCurFilterName },
+                { selected: isCurrentFilterName },
               )}
-              onClick={() => onFilterChange(filterName)}
+              onClick={() => onFilterChange(value)}
             >
-              {filterName}
+              {key}
             </a>
           );
         })}

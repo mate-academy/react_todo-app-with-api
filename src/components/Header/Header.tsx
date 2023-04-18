@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  onAdd: (title: string) => void,
+  onAdd: (title: string) => Promise<void>,
   tempTodo: Todo | null,
   activeTodos: number,
   handleUpdatingAll: () => void,
@@ -27,7 +27,6 @@ export const Header: FC<Props> = (props) => {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    // added await, but ts says that it has no effect on the type of this expression
     await onAdd(title);
     setTitle('');
   };

@@ -6,7 +6,6 @@ import {
   useMemo,
   useCallback,
 } from 'react';
-import { Hearts } from 'react-loader-spinner';
 import {
   getTodos,
   addTodo,
@@ -24,6 +23,7 @@ import { getFilteredTodos } from './helpers/helpers';
 import { FilterType } from './types/FilterType';
 import { ErrorType } from './types/ErrorType';
 import { ErrorMessage } from './components/ErrorMessage';
+import { Loader } from './components/Loader';
 
 const USER_ID = 6928;
 
@@ -31,7 +31,7 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<ErrorType>(ErrorType.NONE);
-  const [filterType, setFilterType] = useState(FilterType.ALL);
+  const [filterType, setFilterType] = useState(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodosId, setLoadingTodosId] = useState<Set<number>>(new Set());
 
@@ -52,11 +52,11 @@ export const App: FC = () => {
   }, [todos, filterType]);
 
   const activeTodos = useMemo(() => {
-    return getFilteredTodos(todos, FilterType.ACTIVE);
+    return getFilteredTodos(todos, FilterType.Active);
   }, [todos]);
 
   const completedTodos = useMemo(() => {
-    return getFilteredTodos(todos, FilterType.COMPLETED);
+    return getFilteredTodos(todos, FilterType.Completed);
   }, [todos]);
 
   const addToLoadingTodos = useCallback((id: number) => {
@@ -111,6 +111,8 @@ export const App: FC = () => {
         ...newTodo,
         id: 0,
       });
+
+      addToLoadingTodos(0);
 
       const currNewTodo = await addTodo(USER_ID, newTodo);
 
@@ -198,13 +200,7 @@ export const App: FC = () => {
         />
 
         {isLoading && (
-          <Hearts
-            height="80"
-            width="80"
-            color="#f3e0e0"
-            ariaLabel="hearts-loading"
-            visible
-          />
+          <Loader />
         )}
 
         <TodoList
