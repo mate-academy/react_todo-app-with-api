@@ -21,13 +21,24 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState(FilterType.All);
   const [loading, setLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([0]);
+  const [isErrorVisible, setIsErrorVisible] = useState<boolean>(Boolean);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const closeError = useCallback(() => {
-    clearTimeout(timeoutId.current!);
-    timeoutId.current = setTimeout(() => setErrorText(''), 3000);
+    setIsErrorVisible(false);
   }, []);
+  
+  const onClose = useCallback(() => {
+    setIsErrorVisible(true);
+    setErrorText('');
+  }, []);
+  
+  useEffect(() => {
+    if (isErrorVisible) {
+      timeoutId.current = setTimeout(onClose, 3000);
+    }
+  }, [isErrorVisible, onClose]);
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery);
@@ -146,13 +157,13 @@ export const App: React.FC = () => {
         completedTodo => completedTodo.id,
       );
 
-      let toggleTodos;
+      let toggledTodos;
       let updatedTodos;
 
       if (activeTodos.length) {
         setLoadingTodoId(activeIds);
 
-        toggleTodos = activeTodos.map(active => (
+        toggledTodos = activeTodos.map(active => (
           patchTodo(active.id, { ...active, completed: true })
         ));
 
@@ -162,7 +173,7 @@ export const App: React.FC = () => {
       } else {
         setLoadingTodoId(completedIds);
 
-        toggleTodos = completedTodos.map(completedTodo => (
+        toggledTodos = completedTodos.map(completedTodo => (
           patchTodo(completedTodo.id, { ...completedTodo, completed: false })
         ));
 
@@ -172,7 +183,7 @@ export const App: React.FC = () => {
         ));
       }
 
-      await Promise.all(toggleTodos);
+      await Promise.all(toggledTodos);
       setTodos(updatedTodos);
     } catch {
       setErrorText('Unable to toggle all todos');
@@ -240,6 +251,8 @@ export const App: React.FC = () => {
             disabledInput={disabledInput}
             handleSubmitForm={handleSubmitForm}
             handleQueryChange={handleQueryChange}
+            query={query}
+            setQuery={setQuery}
           />
         </header>
 

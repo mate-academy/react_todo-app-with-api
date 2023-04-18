@@ -41,10 +41,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleBlur = useCallback(() => {
     if (!todoTitle.length) {
-      removeTodo(id).then(() => setIsUpdating(false))
+      removeTodo(id)
+        .then(() => setIsUpdating(false))
         .catch(() => setErrorText('Unable to remove a todo'));
     } else {
-      updateTodo(id, todoTitle).then(() => setIsUpdating(false))
+      updateTodo(id, todoTitle)
+        .then(() => setIsUpdating(false))
         .catch(() => setErrorText('Unable to update a todo'));
     }
   }, [id, todoTitle, removeTodo, updateTodo]);

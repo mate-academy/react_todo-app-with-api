@@ -1,3 +1,3 @@
-import { ErrorNotifications } from "./ErrorNotifications";
+import { ErrorNotifications } from './ErrorNotifications';
 
 export default ErrorNotifications;

@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface Props {
   disabledInput: boolean;
   handleSubmitForm: (event: React.FormEvent<HTMLFormElement>) => void;
   handleQueryChange: (query: string) => void;
+  query: string;
+  setQuery: (query: string) => void;
 }
 
 export const HeaderForm: React.FC<Props> = ({
-  disabledInput, handleSubmitForm, handleQueryChange,
+  disabledInput,
+  handleSubmitForm,
+  handleQueryChange,
+  query,
+  setQuery,
 }) => {
-  const [query, setQuery] = useState('');
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = event.target.value;
 
@@ -21,7 +25,7 @@ export const HeaderForm: React.FC<Props> = ({
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     handleSubmitForm(event);
-    setQuery(''); // This clears the input field
+    setQuery('');
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
@@ -11,16 +11,6 @@ export const ErrorNotifications: React.FC<Props> = ({
   errorMessage,
   closeError,
 }) => {
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      closeError();
-    }, 3000);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [closeError]);
-
   return (
     <div
       className={classNames(
