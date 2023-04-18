@@ -6,7 +6,7 @@ interface Props {
   onDelete: (todoId: number) => Promise<void>;
   onUpdate: (id: number, body: Partial<Omit<Todo, 'id'>>) => Promise<void>;
   todos: Todo[];
-  loadingTodosIds: number[];
+  loadingTodosIds: Set<number>;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -23,7 +23,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onDelete={onDelete}
           onUpdate={onUpdate}
-          isLoading={loadingTodosIds.includes(todo.id)}
+          isLoading={loadingTodosIds.has(todo.id)}
         />
       ))}
     </section>

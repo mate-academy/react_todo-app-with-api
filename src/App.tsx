@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   deleteTodo,
   getTodos,
@@ -24,22 +29,20 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorType, setErrorType] = useState(AppError.None);
-  const [hasError, setHasError] = useState(false);
-  const [loadingTodosIds, setLoadingTodosIds] = useState([0]);
+  const [loadingTodosIds, setLoadingTodosIds] = useState(new Set([0]));
 
   const activeTodosCount = getActiveTodosCount(todos);
   const hasCompletedTodos = getHasCompletedTodos(todos);
 
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     try {
       const apiTodos = await getTodos(USER_ID);
 
       setTodos(apiTodos);
     } catch {
-      setHasError(true);
       setErrorType(AppError.Get);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTodos();
@@ -50,7 +53,7 @@ export const App: React.FC = () => {
     [filterType, todos],
   );
 
-  const addTodo = async (title: string) => {
+  const addTodo = useCallback(async (title: string) => {
     setTempTodo({
       id: 0,
       userId: USER_ID,
@@ -64,52 +67,69 @@ export const App: React.FC = () => {
       setTodos(prev => [...prev, newTodo]);
     } catch {
       setErrorType(AppError.Post);
-      setHasError(true);
     } finally {
       setTempTodo(null);
     }
-  };
+  }, []);
 
-  const removeTodo = async (todoId: number) => {
+  const removeTodo = useCallback(async (todoId: number) => {
     try {
-      setLoadingTodosIds(prev => [...prev, todoId]);
+      setLoadingTodosIds(prev => {
+        prev.add(todoId);
+
+        return new Set(prev);
+      });
       await deleteTodo(todoId);
       setTodos(prev => prev.filter(({ id }) => id !== todoId));
     } catch {
-      setHasError(true);
       setErrorType(AppError.Delete);
     } finally {
-      setLoadingTodosIds(prev => prev.filter((id => id !== todoId)));
-    }
-  };
+      setLoadingTodosIds(prev => {
+        prev.delete(todoId);
 
-  const removeAllCompleted = async () => {
-    const completedTodosIds = todos
-      .filter(({ completed }) => completed)
-      .map(({ id }) => id);
+        return new Set(prev);
+      });
+    }
+  }, []);
+
+  const removeAllCompleted = useCallback(async () => {
+    const completedTodosIds = todos.reduce((acc: number[], el) => {
+      return el.completed
+        ? [...acc, el.id]
+        : acc;
+    }, []);
 
     try {
-      setLoadingTodosIds(prev => [...prev, ...completedTodosIds]);
+      setLoadingTodosIds(prev => {
+        completedTodosIds.forEach(id => prev.add(id));
+
+        return new Set(prev);
+      });
       await Promise.all(completedTodosIds.map(id => deleteTodo(id)));
       setTodos(prev => prev.filter(({ id }) => (
         !completedTodosIds.includes(id)
       )));
     } catch {
-      setHasError(true);
       setErrorType(AppError.Delete);
     } finally {
-      setLoadingTodosIds(prev => (
-        prev.filter(id => !completedTodosIds.includes(id))
-      ));
-    }
-  };
+      setLoadingTodosIds(prev => {
+        completedTodosIds.forEach(id => prev.delete(id));
 
-  const updateTodo = async (
+        return new Set(prev);
+      });
+    }
+  }, [todos]);
+
+  const updateTodo = useCallback(async (
     todoId: number,
     data: Partial<Omit<Todo, 'id'>>,
   ) => {
     try {
-      setLoadingTodosIds(prev => [...prev, todoId]);
+      setLoadingTodosIds(prev => {
+        prev.add(todoId);
+
+        return new Set(prev);
+      });
       await patchTodo(todoId, data);
       setTodos(prev => prev.map((todo) => {
         if (todo.id === todoId) {
@@ -119,22 +139,30 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      setHasError(true);
       setErrorType(AppError.Patch);
     } finally {
-      setLoadingTodosIds(prev => prev.filter(id => id !== todoId));
-    }
-  };
+      setLoadingTodosIds(prev => {
+        prev.delete(todoId);
 
-  const toggleAllTodos = async () => {
-    let updatingTodosIds: number[];
+        return new Set(prev);
+      });
+    }
+  }, []);
+
+  const toggleAllTodos = useCallback(async () => {
+    let updatingTodosIds: number[] = [];
 
     try {
       if (activeTodosCount) {
         updatingTodosIds = todos
           .filter(({ completed }) => !completed)
           .map(({ id }) => id);
-        setLoadingTodosIds(prev => [...prev, ...updatingTodosIds]);
+
+        setLoadingTodosIds(prev => {
+          updatingTodosIds.forEach(id => prev.add(id));
+
+          return new Set(prev);
+        });
         await Promise.all(updatingTodosIds.map((
           id => (updateTodo(id, { completed: true }))
         )));
@@ -142,20 +170,26 @@ export const App: React.FC = () => {
         updatingTodosIds = todos
           .filter(({ completed }) => completed)
           .map(({ id }) => id);
-        setLoadingTodosIds(prev => [...prev, ...updatingTodosIds]);
+
+        setLoadingTodosIds(prev => {
+          updatingTodosIds.forEach(id => prev.add(id));
+
+          return new Set(prev);
+        });
         await Promise.all(updatingTodosIds.map((
           id => (updateTodo(id, { completed: false }))
         )));
       }
     } catch {
-      setHasError(true);
       setErrorType(AppError.Patch);
     } finally {
-      setLoadingTodosIds(prev => prev.filter((
-        id => !updatingTodosIds.includes(id)
-      )));
+      setLoadingTodosIds(prev => {
+        updatingTodosIds.forEach(id => prev.delete(id));
+
+        return new Set(prev);
+      });
     }
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -195,9 +229,9 @@ export const App: React.FC = () => {
       </div>
 
       {/* Add the 'hidden' class to hide the message smoothly */}
-      {hasError && (
+      {errorType !== AppError.None && (
         <ErrorMessage
-          removeErrorMessage={() => setHasError(false)}
+          removeErrorMessage={() => setErrorType(AppError.None)}
           reloadData={fetchTodos}
           errorType={errorType}
         />

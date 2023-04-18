@@ -27,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputRef.current !== null) {
+    if (inputRef.current !== null && isEditing) {
       inputRef.current.focus();
     }
   }, [isEditing]);
@@ -57,10 +57,6 @@ export const TodoItem: React.FC<Props> = ({
     await onUpdate(id, { completed: !completed });
   };
 
-  const handleBlur = async () => {
-    await changeTitle();
-  };
-
   const handleTyping = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
@@ -88,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={inputValue}
               onChange={handleTyping}
-              onBlur={handleBlur}
+              onBlur={changeTitle}
               ref={inputRef}
             />
           </form>
