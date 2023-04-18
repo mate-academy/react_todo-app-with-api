@@ -3,7 +3,7 @@ import {
 } from 'react';
 import classNames from 'classnames/bind';
 import { deleteTodo, getTodos } from '../../api/todos';
-import { AppTodoContext } from '../AppTodoContext/AppTodoContext';
+import { AppTodoContext } from '../../contexts/AppTodoContext';
 import { ErrorType } from '../Error/Error.types';
 import { USER_ID } from '../../react-app-env';
 
@@ -19,20 +19,19 @@ export const TodoFilter: FC = () => {
     setTodos,
     setVisibleTodos,
     setErrorMessage,
-    setProcessingTodoIDs,
+    setProcessingTodoIds,
     completedTodos,
     uncompletedTodos,
+    addProcessingTodo,
   } = useContext(AppTodoContext);
   const [currentFilter, setCurrentFilter] = useState<FilterType>(
     FilterType.All,
   );
 
   const handleClearCompleted = async () => {
-    setProcessingTodoIDs(
-      completedTodos.map(todo => todo.id),
-    );
-
     completedTodos.forEach(async (todo) => {
+      addProcessingTodo(todo.id);
+
       try {
         await deleteTodo(todo.id);
       } catch {
@@ -40,7 +39,7 @@ export const TodoFilter: FC = () => {
       }
     });
 
-    setProcessingTodoIDs([]);
+    setProcessingTodoIds({});
 
     setVisibleTodos(prevVisTodos => {
       return prevVisTodos.filter(prevTodo => !prevTodo.completed);

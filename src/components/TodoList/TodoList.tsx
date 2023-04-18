@@ -1,5 +1,5 @@
 import { FC, useContext } from 'react';
-import { AppTodoContext } from '../AppTodoContext/AppTodoContext';
+import { AppTodoContext } from '../../contexts/AppTodoContext';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 export const TodoList: FC = () => {
@@ -20,7 +20,7 @@ export const TodoList: FC = () => {
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          isItTempTodo
+          isTempTodo
         />
       )}
     </section>

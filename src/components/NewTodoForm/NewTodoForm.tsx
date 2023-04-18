@@ -1,7 +1,7 @@
 import React, { FC, useContext, useState } from 'react';
 import classNames from 'classnames/bind';
 import { getTodos, sendNewTodo, toggleTodoStatus } from '../../api/todos';
-import { AppTodoContext } from '../AppTodoContext/AppTodoContext';
+import { AppTodoContext } from '../../contexts/AppTodoContext';
 import { ErrorType } from '../Error/Error.types';
 import { USER_ID } from '../../react-app-env';
 
@@ -13,7 +13,8 @@ export const NewTodoForm: FC = () => {
     setErrorMessage,
     setVisibleTodos,
     completedTodos,
-    setProcessingTodoIDs,
+    removeProcessingTodo,
+    addProcessingTodo,
   } = useContext(AppTodoContext);
 
   const [inputValue, setInputValue] = useState<string>('');
@@ -27,12 +28,12 @@ export const NewTodoForm: FC = () => {
   const handleAddingTodoOnAPI = async (title: string) => {
     setTempTodo({
       id: 0,
-      userId: USER_ID,
       title,
       completed: false,
     });
 
     setIsInputDisabled(true);
+
     try {
       const newTodo = await sendNewTodo(inputValue, USER_ID);
 
@@ -65,15 +66,17 @@ export const NewTodoForm: FC = () => {
   };
 
   const handleToggleAll = async () => {
-    setProcessingTodoIDs(completedTodos.map(completedTodo => completedTodo.id));
+    // completedTodos.forEach(({ id }) => );
 
     completedTodos.forEach(async (completedTodo) => {
+      addProcessingTodo(completedTodo.id);
+
       try {
         await toggleTodoStatus(completedTodo);
       } catch {
         setErrorMessage(ErrorType.UpdateTodoError);
       } finally {
-        setProcessingTodoIDs([]);
+        removeProcessingTodo(completedTodo.id);
       }
 
       const newTodos = await getTodos(USER_ID);

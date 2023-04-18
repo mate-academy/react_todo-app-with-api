@@ -3,7 +3,7 @@ import {
   FC, useContext, useEffect, useRef, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
-import { AppTodoContext } from '../AppTodoContext/AppTodoContext';
+import { AppTodoContext } from '../../contexts/AppTodoContext';
 import {
   deleteTodo,
   editTodoTitle,
@@ -15,17 +15,20 @@ import { USER_ID } from '../../react-app-env';
 
 interface Props {
   todo: Todo,
-  isItTempTodo?: boolean,
+  isTempTodo?: boolean,
 }
 
 export const TodoItem: FC<Props> = (
-  { todo, isItTempTodo },
+  { todo, isTempTodo },
 ) => {
   const {
     todos,
-    processingTodoIDs,
     setErrorMessage,
-    setProcessingTodoIDs,
+    addProcessingTodo,
+    removeProcessingTodo,
+    setProcessingTodoIds,
+    isTodoProcessing,
+
     setTodos,
     setVisibleTodos,
   } = useContext(AppTodoContext);
@@ -37,7 +40,7 @@ export const TodoItem: FC<Props> = (
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveButton = async () => {
-    setProcessingTodoIDs(prevDelTodoIDs => [...prevDelTodoIDs, todo.id]);
+    addProcessingTodo(id);
 
     try {
       await deleteTodo(todo.id);
@@ -45,17 +48,16 @@ export const TodoItem: FC<Props> = (
     } catch {
       setErrorMessage(ErrorType.DeleteTodoError);
     } finally {
-      setProcessingTodoIDs(
-        prevDelTodoIDs => prevDelTodoIDs.filter(delID => delID !== todo.id),
-      );
-      setVisibleTodos(prevVisTodos => (
-        prevVisTodos.filter(prevTodo => prevTodo.id !== todo.id)
-      ));
+      removeProcessingTodo(id);
     }
+
+    setVisibleTodos(prevVisTodos => (
+      prevVisTodos.filter(prevTodo => prevTodo.id !== todo.id)
+    ));
   };
 
   const handleToggleStatus = async () => {
-    setProcessingTodoIDs(prev => [...prev, todo.id]);
+    addProcessingTodo(id);
 
     try {
       const updatedTodo = await toggleTodoStatus(todo);
@@ -75,15 +77,15 @@ export const TodoItem: FC<Props> = (
     } catch {
       setErrorMessage(ErrorType.UpdateTodoError);
     } finally {
-      setProcessingTodoIDs(prev => prev.filter(prevID => prevID !== todo.id));
+      removeProcessingTodo(id);
     }
   };
 
   const handleEditSubmit = async () => {
-    setProcessingTodoIDs([id]);
+    addProcessingTodo(id);
 
     if (editValue === title) {
-      setProcessingTodoIDs([]);
+      setProcessingTodoIds({});
       setIsEditAvailable(false);
 
       return;
@@ -105,6 +107,7 @@ export const TodoItem: FC<Props> = (
 
         return prevTodos;
       });
+
       setVisibleTodos(prevTodos => {
         prevTodos.splice(oldTodoIndex, 1, updatedTodo);
 
@@ -114,7 +117,7 @@ export const TodoItem: FC<Props> = (
       setErrorMessage(ErrorType.UpdateTodoError);
     } finally {
       setIsEditAvailable(false);
-      setProcessingTodoIDs([]);
+      removeProcessingTodo(id);
     }
   };
 
@@ -192,8 +195,8 @@ export const TodoItem: FC<Props> = (
 
       <div className={classNames(
         'modal overlay',
-        { 'is-active': processingTodoIDs.includes(id) },
-        { 'is-active': isItTempTodo },
+        { 'is-active': isTodoProcessing(id) },
+        { 'is-active': isTempTodo },
       )}
       >
         <div className="modal-background has-background-white-ter" />

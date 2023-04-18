@@ -15,21 +15,23 @@ export const sendNewTodo = async (title: string, userId: number) => {
   return newTodo;
 };
 
-export const getTodosByStatus = (userId: number, status: boolean) => {
+export const getTodosByStatus = (
+  userId: number, status: boolean,
+): Promise<Todo[]> => {
   return client.get<Todo[]>(`/todos?userId=${userId}&completed=${status}`);
 };
 
-export const deleteTodo = (todoId: number) => {
+export const deleteTodo = (todoId: number): Promise<unknown> => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const toggleTodoStatus = (todo: Todo) => {
+export const toggleTodoStatus = (todo: Todo): Promise<Todo> => {
   return client.patch<Todo>(`/todos/${todo.id}`, {
     completed: !todo.completed,
   });
 };
 
-export const editTodoTitle = (todoId: number, newTitle: string) => {
+export const editTodoTitle = (todoId: number, newTitle: string): Promise<Todo> => {
   return client.patch<Todo>(`/todos/${todoId}`, {
     title: newTitle,
   });

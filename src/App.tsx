@@ -1,10 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { UserWarning } from './components/UserWarning';
 import { getTodos } from './api/todos';
-import { AppTodoContext } from './components/AppTodoContext/AppTodoContext';
+import { AppTodoContext } from './contexts/AppTodoContext';
 import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
-import { Error } from './components/Error/Error';
+import { TodoAppError } from './components/Error/TodoAppError';
 import { ErrorType } from './components/Error/Error.types';
 import { USER_ID } from './react-app-env';
 import { TodoList } from './components/TodoList/TodoList';
@@ -20,7 +19,7 @@ export const App: React.FC = () => {
     setVisibleTodos,
   } = useContext(AppTodoContext);
 
-  const getAllTodos = async () => {
+  const getAllTodos = useCallback(async () => {
     try {
       const allTodos = await getTodos(USER_ID);
 
@@ -29,7 +28,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage(ErrorType.GetAllTodosError);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getAllTodos();
@@ -76,7 +75,7 @@ export const App: React.FC = () => {
         <TodoFilter />
       </footer>
 
-      {errorMessage !== ErrorType.NoError && <Error />}
+      {errorMessage !== ErrorType.NoError && <TodoAppError />}
     </div>
   );
 };
