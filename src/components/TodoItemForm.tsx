@@ -2,7 +2,6 @@ import React from 'react';
 import { Todo } from '../types/Todo';
 
 type TodoItemFormProps = {
-  // define props here
   handleNewTitleSubmit: (
     event: React.FormEvent<HTMLFormElement>
   ) => Promise<void>,

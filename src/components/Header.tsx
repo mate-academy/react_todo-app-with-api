@@ -3,7 +3,6 @@ import { AddNewTodo } from './AddNewTodo';
 import { ToggleAll } from './ToggleAll';
 
 type HeaderProps = {
-  // define props here
   allTodosCompleted: boolean,
   handleTaggleAll: () => Promise<void>,
   fetchTodos: () => Promise<void>,

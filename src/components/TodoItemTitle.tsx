@@ -2,7 +2,6 @@ import React from 'react';
 import { Todo } from '../types/Todo';
 
 type TodoItemTitleProps = {
-  // define props here
   todo: Todo,
   setActiveTodoId: React.Dispatch<React.SetStateAction<number>>,
   handleTodoDelete: (todoId: number) => Promise<void>,
