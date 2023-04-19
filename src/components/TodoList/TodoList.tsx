@@ -14,11 +14,10 @@ interface Props {
   deleteTodo: (idToDelete: number) => Promise<unknown>;
   creating: boolean;
   processings: number[];
-  tempTodo: Todo | null;
-  onUpdate: (
-    idToUpdate: number,
-    newTitle: string
-  ) => void | Promise<void | Partial<Todo>>,
+  tempTodo: Todo;
+  onUpdate
+  : (idToUpdate: number,
+    dataToUpdate: string | boolean) => void | Promise<void | Partial<Todo>>,
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -29,13 +28,11 @@ export const TodoList: React.FC<Props> = ({
   processings,
   onUpdate,
 }) => {
-  const handleUpdate = (idToUpdate: number | 0) => {
-    return (newTitle: string) => onUpdate(idToUpdate, newTitle);
+  const handleUpdate = (idToUpdate: number) => {
+    return (
+      dataToUpdate: string | boolean,
+    ) => onUpdate(idToUpdate, dataToUpdate);
   };
-
-  // const onDelete = (idToDelete) => {
-  //   return deleteTodo(idToDelete);
-  // }
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -48,8 +45,8 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={todo}
-              isProcessed={processings.includes(todo.id)}
               onDelete={() => deleteTodo(todo.id)}
+              isProcessed={processings.includes(todo.id)}
               onUpdate={handleUpdate(todo.id)}
             />
           </CSSTransition>
@@ -64,7 +61,8 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               isProcessed
-              onUpdate={handleUpdate(tempTodo?.id || 0)}
+              onDelete={() => deleteTodo(tempTodo.id)}
+              onUpdate={handleUpdate(tempTodo.id)}
             />
           </CSSTransition>
         )}

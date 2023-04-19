@@ -5,10 +5,11 @@ import { Todo } from '../../types/Todo';
 import { updateTodo, deleteTodo } from '../../api/todos';
 
 interface Props {
-  todo?: Partial<Todo> | null;
+  todo: Todo;
   isProcessed: boolean;
-  onDelete?: () => void;
-  onUpdate: (newTitle: string) => void | Promise<void | Partial<Todo>>;
+  onDelete: () => void;
+  onUpdate
+  : (dataToUpdate: string | boolean) => void | Promise<void | Partial<Todo>>,
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -29,33 +30,54 @@ export const TodoItem: React.FC<Props> = ({
 
     if (idToUpdate) {
       updateTodo(idToUpdate, { completed: checked });
+      onUpdate(checked);
+    }
+  };
+
+  const handleUpdateOnBlur = (
+    event: React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    const { target } = event;
+    const { innerText } = target as HTMLInputElement;
+
+    const filteredText = innerText.replace(/(\r||\r)/g, '');
+
+    setNewTitle(filteredText);
+
+    if (filteredText !== '') {
+      onUpdate(filteredText);
+      setEditing(false);
+    } else if (todo?.id !== null && todo?.id !== undefined) {
+      setEditing(false);
+      onDelete();
+      deleteTodo(todo.id);
     }
   };
 
   const handleUpdateTitle = (
     event: React.KeyboardEvent<HTMLSpanElement>,
   ) => {
-    const { keyCode } = event;
-
+    const { key } = event;
     const { target } = event;
-    const { innerText } = target as HTMLSpanElement;
+    const { innerText } = target as HTMLInputElement;
 
     const filteredText = innerText.replace(/(\r||\r)/g, '');
 
     setNewTitle(filteredText);
 
-    if (keyCode === 13) {
+    if (key === 'Enter') {
       if (filteredText !== '') {
         onUpdate(filteredText);
         setEditing(false);
       } else if (todo?.id !== null && todo?.id !== undefined) {
         setEditing(false);
+        onDelete();
         deleteTodo(todo.id);
       }
     }
   };
 
-  const handleDoublebClick = (
+  const handleDoubleClick = (
     event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
   ) => {
     event.preventDefault();
@@ -88,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               // onKeyDown={handleUpdateTitle}
               contentEditable={editing}
-              onDoubleClick={handleDoublebClick}
+              onDoubleClick={handleDoubleClick}
             >
               {newTitle}
             </span>
@@ -109,6 +131,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               onKeyDown={handleUpdateTitle}
+              onBlur={handleUpdateOnBlur}
               value={newTitle}
             />
           </form>

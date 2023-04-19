@@ -1,14 +1,14 @@
 import React from 'react';
 import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
-import './ErrorHide.scss';
+import './ErrorMessage.scss';
 
 interface Props {
   errorToShow: ErrorType;
   hideError: () => void;
 }
 
-enum ErrorMessage {
+enum Error {
   add = 'Unable to add a todo',
   delete = 'Unable to delete a todo',
   update = 'Unable to update a todo',
@@ -16,7 +16,7 @@ enum ErrorMessage {
   emptyTitle = 'Title can\'t be empty',
 }
 
-export const ErrorShow: React.FC<Props> = ({
+export const ErrorMessage: React.FC<Props> = ({
   errorToShow,
   hideError,
 }) => {
@@ -40,7 +40,7 @@ export const ErrorShow: React.FC<Props> = ({
         className="delete"
         onClick={handleHideError}
       />
-      { ErrorMessage[errorToShow] }
+      { Error[errorToShow] }
     </div>
   );
 };
