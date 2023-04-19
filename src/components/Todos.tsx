@@ -15,17 +15,15 @@ type InputProps = {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
 };
 
-const Input = React.memo<InputProps>(({ value, onChange }) => {
-  return (
-    <input
-      type="text"
-      className="todoapp__new-todo"
-      placeholder="What needs to be done?"
-      value={value}
-      onChange={onChange}
-    />
-  );
-});
+const Input = React.memo<InputProps>(({ value, onChange }) => (
+  <input
+    type="text"
+    className="todoapp__new-todo"
+    placeholder="What needs to be done?"
+    value={value}
+    onChange={onChange}
+  />
+));
 
 export const Todos: React.FC<Props> = ({
   onSubmit,

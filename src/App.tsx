@@ -159,7 +159,8 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {error && (
+      {error
+      && (
         <Errors
           errorMsg={errorMsg}
           error={error}
