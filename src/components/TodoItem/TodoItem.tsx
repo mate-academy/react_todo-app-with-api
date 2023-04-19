@@ -15,6 +15,7 @@ type Props = {
     todoId: number,
     updatedData: TodoDataToUpdate
   ) => Promise<void>;
+  onTodoUpdateMode?: (todoId: number, mode: TodoMode) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -26,6 +27,7 @@ export const TodoItem: React.FC<Props> = ({
   },
   onTodoDelete = () => {},
   onTodoUpdate = () => {},
+  onTodoUpdateMode = () => {},
 }) => {
   const handleTodoDelete = async () => onTodoDelete(id);
 
@@ -38,11 +40,11 @@ export const TodoItem: React.FC<Props> = ({
   );
 
   const handleEditingSkip = async () => (
-    onTodoUpdate(id, { mode: TodoMode.None })
+    onTodoUpdateMode(id, TodoMode.None)
   );
 
   const handleEditingStart = async () => (
-    onTodoUpdate(id, { mode: TodoMode.Editing })
+    onTodoUpdateMode(id, TodoMode.Editing)
   );
 
   return (

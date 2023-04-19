@@ -109,14 +109,6 @@ export const App: React.FC = () => {
     todoId: number,
     updatedData: TodoDataToUpdate,
   ) => {
-    const keys = Object.keys(updatedData);
-
-    if (keys.length === 1 && keys[0] === 'mode') {
-      updateTodoLocal(todoId, updatedData);
-
-      return;
-    }
-
     updateTodoLocal(todoId, { mode: TodoMode.Loading });
 
     try {
@@ -131,6 +123,10 @@ export const App: React.FC = () => {
       updateTodoLocal(todoId, { mode: TodoMode.None });
     }
   };
+
+  const handleTodoUpdateMode = (todoId: number, mode: TodoMode) => (
+    updateTodoLocal(todoId, { mode })
+  );
 
   const handleCompletedTodosDelete = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -193,6 +189,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onTodoDelete={handleTodoDelete}
               onTodoUpdate={handleTodoUpdate}
+              onTodoUpdateMode={handleTodoUpdateMode}
             />
 
             <TodoFooter

@@ -9,13 +9,17 @@ import { TodoItem } from '../TodoItem';
 
 import { TodoWithMode } from '../../types/TodoWithMode';
 import { TodoDataToUpdate } from '../../types/TodoDataToUpdate';
+import { TodoMode } from '../../types/TodoMode';
 
 type Props = {
   todos: TodoWithMode[];
   tempTodo: TodoWithMode | null;
   onTodoDelete: (todoId: number) => Promise<void>;
-  onTodoUpdate: (todoId: number, updatedData: TodoDataToUpdate)
-  => Promise<void>;
+  onTodoUpdate: (
+    todoId: number,
+    updatedData: TodoDataToUpdate
+  ) => Promise<void>;
+  onTodoUpdateMode: (todoId: number, mode: TodoMode) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -23,6 +27,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   onTodoDelete,
   onTodoUpdate,
+  onTodoUpdateMode,
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
@@ -36,6 +41,7 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             onTodoDelete={onTodoDelete}
             onTodoUpdate={onTodoUpdate}
+            onTodoUpdateMode={onTodoUpdateMode}
           />
         </CSSTransition>
       ))}
