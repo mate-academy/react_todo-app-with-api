@@ -1,7 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 
 import { Todo } from './types/Todo';
 import { FilterType } from './enums/FilterType';
+import { ErrorMessage } from './enums/ErrorMessage';
 
 import { getVisibleTodos } from './utils/getVisibleTodos';
 
@@ -17,16 +20,18 @@ import { ErrorModal } from './components/ErrorModal';
 
 import { USER_ID } from './constants';
 
+import { getCompletedTodos } from './utils/getCompletedTodos';
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterType, setFilterType] = useState(FilterType.ALL);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorMessage.NONE);
   const [isTodoAdding, setIsTodoAdding] = useState(false);
   const [loadingTodosIds, setloadingTodosIds] = useState<number[]>([]);
 
   const clearErrorMessage = useCallback(
-    () => setTimeout(() => setErrorMessage(''), 3000),
+    () => setTimeout(() => setErrorMessage(ErrorMessage.NONE), 3000),
     [],
   );
 
@@ -37,7 +42,7 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        setErrorMessage('Error occured when data loaded.');
+        setErrorMessage(ErrorMessage.UNABLE_LOAD_DATA);
         clearErrorMessage();
       }
     };
@@ -49,7 +54,7 @@ export const App: React.FC = () => {
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
-      setErrorMessage('Title can\'t be empty');
+      setErrorMessage(ErrorMessage.EMPTY_TITLE);
       clearErrorMessage();
 
       return;
@@ -79,7 +84,7 @@ export const App: React.FC = () => {
         newTodo,
       ]);
     } catch {
-      setErrorMessage('Unable to add todo');
+      setErrorMessage(ErrorMessage.UNABLE_ADD_TODO);
       clearErrorMessage();
     } finally {
       setIsTodoAdding(false);
@@ -93,29 +98,26 @@ export const App: React.FC = () => {
 
       setTodos(() => todos.filter(todo => todo.id !== todoId));
     } catch {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(ErrorMessage.UNABLE_DELETE_TODO);
       clearErrorMessage();
     }
   };
 
-  const getCompletedTodos = useCallback(() => {
-    return todos.filter(todo => todo.completed);
-  }, [todos]);
-
   const handleDeleteCompleted = useCallback(() => {
-    getCompletedTodos().forEach(({ id }) => {
+    getCompletedTodos(todos).forEach(async ({ id }) => {
       setloadingTodosIds((prevCompleted) => [
         ...prevCompleted,
         id,
       ]);
 
-      handleTodoDelete(id)
-        .then(() => {
-          setTodos(
-            (prevTodos) => prevTodos.filter(todo => !todo.completed),
-          );
-        })
-        .finally(() => setloadingTodosIds([]));
+      try {
+        await handleTodoDelete(id);
+        setTodos(
+          (prevTodos) => prevTodos.filter(todo => !todo.completed),
+        );
+      } finally {
+        setloadingTodosIds([]);
+      }
     });
   }, [todos]);
 
@@ -139,10 +141,12 @@ export const App: React.FC = () => {
         return prevTodo;
       }));
     } catch {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(ErrorMessage.UNABLE_UPDATE_TODO);
       clearErrorMessage();
     } finally {
-      setloadingTodosIds([]);
+      setloadingTodosIds((prevTodosIds) => prevTodosIds.filter(
+        prevId => prevId !== todoId,
+      ));
     }
   };
 
@@ -160,9 +164,12 @@ export const App: React.FC = () => {
     }
   };
 
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodos = useMemo(
+    () => todos.filter(todo => !todo.completed),
+    [todos],
+  );
   const hasActiveTodos = activeTodos.length !== 0;
-  const hasCompletedTodos = getCompletedTodos().length !== 0;
+  const hasCompletedTodos = getCompletedTodos(todos).length !== 0;
 
   const visibleTodos = getVisibleTodos(todos, filterType);
 

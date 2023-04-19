@@ -3,6 +3,8 @@ import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
 
+import { InputForm } from '../InputForm';
+
 type Props = {
   todo: Todo;
   onTodoDelete?: (todoId: number) => void,
@@ -94,16 +96,13 @@ export const TodoListItem: React.FC<Props> = React.memo(({
 
       {isFormOpen
         ? (
-          <form onSubmit={handleTitleChange}>
-            <input
-              type="text"
-              className="todo__title-field"
-              ref={inputRef}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onBlur={handleBlur}
-            />
-          </form>
+          <InputForm
+            query={query}
+            inputRef={inputRef}
+            onHandleTitleChange={handleTitleChange}
+            onSetQuery={setQuery}
+            onHandleBlur={handleBlur}
+          />
         )
         : (
           <>

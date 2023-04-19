@@ -30,8 +30,8 @@ export const ListFilter: React.FC<Props> = React.memo(({
           return (
             <a
               key={type}
-              href={type !== 'all'
-                ? `#/${type}`
+              href={type !== 'All'
+                ? `#/${type.toLowerCase()}`
                 : '#/'}
               className={classNames(
                 'filter__link',
@@ -39,7 +39,7 @@ export const ListFilter: React.FC<Props> = React.memo(({
               )}
               onClick={() => onFilterTypeChange(type)}
             >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
+              {type}
             </a>
           );
         },

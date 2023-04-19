@@ -1,9 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
+import { ErrorMessage } from '../../enums/ErrorMessage';
 
 type Props = {
-  errorMessage: string;
-  onClearErrorMessage: (value: string) => void;
+  errorMessage: ErrorMessage;
+  onClearErrorMessage: (value: ErrorMessage) => void;
 };
 
 export const ErrorModal: React.FC<Props> = ({
@@ -25,7 +26,7 @@ export const ErrorModal: React.FC<Props> = ({
       aria-label="error-close-button"
       type="button"
       className="delete"
-      onClick={() => onClearErrorMessage('')}
+      onClick={() => onClearErrorMessage(ErrorMessage.NONE)}
     />
     {errorMessage}
   </div>
