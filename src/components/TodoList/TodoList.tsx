@@ -2,41 +2,37 @@ import React, { useContext, useMemo } from 'react';
 
 import { TodoInfo } from '../TodoInfo';
 import { AppContext } from '../AppContext';
-import { FilterMode } from '../../types/FilterMode';
+import { FilterType } from '../../types/FilterType';
 
 export const TodoList: React.FC = React.memo(() => {
   const {
     allTodos,
     tempTodo,
-    currentFilterMode,
+    currentFilterType,
   } = useContext(AppContext);
 
   const visibleTodos = useMemo(() => (
     allTodos.filter(({ completed }) => {
-      switch (currentFilterMode) {
-        case FilterMode.Active:
+      switch (currentFilterType) {
+        case FilterType.Active:
           return !completed;
 
-        case FilterMode.Completed:
+        case FilterType.Completed:
           return completed;
 
         default:
           return true;
       }
     })
-  ), [allTodos, currentFilterMode]);
+  ), [allTodos, currentFilterType]);
 
   window.console.log('Rendering todo list');
 
   return (
     <section className="todoapp__main">
-      {visibleTodos.map(todo => {
-        const { id } = todo;
-
-        return (
-          <TodoInfo key={id} todo={todo} />
-        );
-      })}
+      {visibleTodos.map(todo => (
+        <TodoInfo key={todo.id} todo={todo} />
+      ))}
 
       {tempTodo && (
         <TodoInfo todo={tempTodo} />

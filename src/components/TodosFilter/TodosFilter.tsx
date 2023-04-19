@@ -1,34 +1,34 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 
-import { FilterMode } from '../../types/FilterMode';
+import { FilterType } from '../../types/FilterType';
 import { AppContext } from '../AppContext';
 
-const filterModes = Object.values(FilterMode);
+const filterTypes = Object.values(FilterType);
 
 export const TodosFilter: React.FC = React.memo(() => {
   const {
-    currentFilterMode,
-    setCurrentFilterMode,
+    currentFilterType,
+    setCurrentFilterType,
   } = useContext(AppContext);
 
   return (
     <nav className="filter">
-      {filterModes.map(filterMode => {
-        const filterModeLowercased = filterMode.toLowerCase();
-        const isCurrentFilterMode = filterMode === currentFilterMode;
+      {filterTypes.map(filterType => {
+        const filterTypeLowercased = filterType.toLowerCase();
+        const isCurrentFilterType = filterType === currentFilterType;
 
         return (
           <a
-            key={filterMode}
-            href={`#/${filterModeLowercased}`}
+            key={filterType}
+            href={`#/${filterTypeLowercased}`}
             className={classNames(
               'filter__link',
-              { selected: isCurrentFilterMode },
+              { selected: isCurrentFilterType },
             )}
-            onClick={() => setCurrentFilterMode(filterMode)}
+            onClick={() => setCurrentFilterType(filterType)}
           >
-            {filterMode}
+            {filterType}
           </a>
         );
       })}

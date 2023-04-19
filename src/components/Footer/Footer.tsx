@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
     }
   }, [loadingTodosIds, allTodos]);
 
-  const handleClearCompletedTodosButtonClick = () => {
+  const handleClearCompletedTodos = () => {
     clearCompletedTodos();
   };
 
@@ -50,7 +50,7 @@ export const Footer: React.FC = () => {
           'todoapp__clear-completed',
           { 'is-invisible': !completedTodosIds.length },
         )}
-        onClick={handleClearCompletedTodosButtonClick}
+        onClick={handleClearCompletedTodos}
       >
         Clear completed
       </button>

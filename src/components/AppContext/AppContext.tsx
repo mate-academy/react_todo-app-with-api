@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { Todo } from '../../types/Todo';
-import { FilterMode } from '../../types/FilterMode';
+import { FilterType } from '../../types/FilterType';
 
 interface IContextValue {
   userId: number,
@@ -18,8 +18,8 @@ interface IContextValue {
   showError: (errorText: string) => void,
   loadingTodosIds: number[],
   setLoadingTodosIds: React.Dispatch<React.SetStateAction<number[]>>,
-  currentFilterMode: FilterMode,
-  setCurrentFilterMode: React.Dispatch<React.SetStateAction<FilterMode>>,
+  currentFilterType: FilterType,
+  setCurrentFilterType: React.Dispatch<React.SetStateAction<FilterType>>,
 }
 
 export const AppContext = React.createContext<IContextValue>({
@@ -37,8 +37,8 @@ export const AppContext = React.createContext<IContextValue>({
   showError: () => {},
   loadingTodosIds: [0],
   setLoadingTodosIds: () => {},
-  currentFilterMode: FilterMode.All,
-  setCurrentFilterMode: () => {},
+  currentFilterType: FilterType.All,
+  setCurrentFilterType: () => {},
 });
 
 type Props = {
@@ -54,9 +54,9 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([0]);
   const [
-    currentFilterMode,
-    setCurrentFilterMode,
-  ] = useState<FilterMode>(FilterMode.All);
+    currentFilterType,
+    setCurrentFilterType,
+  ] = useState<FilterType>(FilterType.All);
 
   const activeTodos = useMemo(() => (
     allTodos.filter(({ completed }) => !completed)
@@ -92,8 +92,8 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
       showError,
       loadingTodosIds,
       setLoadingTodosIds,
-      currentFilterMode,
-      setCurrentFilterMode,
+      currentFilterType,
+      setCurrentFilterType,
     };
   }, [
     userId,
@@ -101,7 +101,7 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     tempTodo,
     shouldShowError,
     errorMessage,
-    currentFilterMode,
+    currentFilterType,
     loadingTodosIds,
   ]);
 

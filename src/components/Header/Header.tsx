@@ -61,15 +61,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      <button
-        aria-label="Toggle"
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all',
-          { active: hasOnlyCompletedTodos },
-        )}
-        onClick={handleToggleTodosButtonClick}
-      />
+      {allTodos.length > 0 && (
+        <button
+          aria-label="Toggle"
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: hasOnlyCompletedTodos },
+          )}
+          onClick={handleToggleTodosButtonClick}
+        />
+      )}
 
       <NewTodoForm />
     </header>

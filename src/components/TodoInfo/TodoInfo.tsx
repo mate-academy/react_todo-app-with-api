@@ -66,14 +66,12 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       await patchTodo(id, { completed: !completed });
 
       setAllTodos(prevTodos => prevTodos.map(prevTodo => {
-        if (prevTodo.id === id) {
-          return {
+        return (prevTodo.id === id)
+          ? {
             ...prevTodo,
             completed: !completed,
-          };
-        }
-
-        return prevTodo;
+          }
+          : prevTodo;
       }));
     } catch {
       showError('Unable to update a todo');
@@ -91,14 +89,12 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
         await patchTodo(id, { title: updatedTitle });
 
         setAllTodos(prevTodos => prevTodos.map(prevTodo => {
-          if (prevTodo.id === id) {
-            return {
+          return (prevTodo.id === id)
+            ? {
               ...prevTodo,
               title: updatedTitle,
-            };
-          }
-
-          return prevTodo;
+            }
+            : prevTodo;
         }));
       }
     } catch {
@@ -134,6 +130,12 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
 
   const handleRemoveButtonClick = () => {
     deleteTodoFromServer();
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    finishUpdating();
   };
 
   useEffect(() => {
@@ -177,11 +179,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
       {isEditingMode
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-
-              finishUpdating();
-            }}
+            onSubmit={handleSubmit}
           >
             <input
               type="text"
