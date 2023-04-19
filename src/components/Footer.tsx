@@ -4,21 +4,23 @@ import { Todo } from '../types/Todo';
 import { Status } from '../types/Status';
 
 type Props = {
+  todos: Todo[],
   todosToShow: Todo[],
   selectedStatus: Status,
   setSelectedStatus: (value:Status) => void,
   onRemoveTodoCompleted:() => void;
-  completedTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
+  todos,
   todosToShow,
   selectedStatus,
   setSelectedStatus,
   onRemoveTodoCompleted,
-  completedTodos,
+
 }) => {
   const todosLeft = todosToShow.filter(todo => !todo.completed).length;
+  const isCompleted = todos.some(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer">
@@ -59,15 +61,16 @@ export const Footer: React.FC<Props> = ({
           Completed
         </a>
       </nav>
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onRemoveTodoCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames(
+          'todoapp__clear-completed',
+          { 'todoapp__clear-completed-hidden': !isCompleted },
+        )}
+        onClick={onRemoveTodoCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

@@ -39,6 +39,7 @@ export const TodoItem: React.FC<Props> = ({
   const closeInputByEscape = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEdited(false);
+      setNewTodoTitle(todo.title);
     }
   };
 
@@ -62,9 +63,7 @@ export const TodoItem: React.FC<Props> = ({
       {isEdited
         ? (
           <form
-            onSubmit={() => {
-              handleChangeTitle();
-            }}
+            onSubmit={handleChangeTitle}
           >
             <input
               type="text"
@@ -72,9 +71,7 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be delete"
               value={newTodoTitle}
               onChange={(event) => setNewTodoTitle(event.target.value)}
-              onBlur={() => {
-                handleChangeTitle();
-              }}
+              onBlur={handleChangeTitle}
               onKeyDown={closeInputByEscape}
             />
           </form>
