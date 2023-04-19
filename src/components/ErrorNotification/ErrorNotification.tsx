@@ -16,9 +16,9 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
   const errorMessage = errorMessages[error];
 
   useEffect(() => {
-    const timerId = setInterval(onClose, 3000);
+    const timerId = setTimeout(onClose, 3000);
 
-    return () => clearInterval(timerId);
+    return () => clearTimeout(timerId);
   }, [onClose]);
 
   return (

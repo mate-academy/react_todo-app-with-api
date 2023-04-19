@@ -66,6 +66,8 @@ export const App: React.FC = () => {
   );
 
   const handleTodoAdd = async (todoTitle: string) => {
+    setError(ErrorType.None);
+
     if (todoTitle === '') {
       setError(ErrorType.EmptyTitle);
 
@@ -94,6 +96,7 @@ export const App: React.FC = () => {
   };
 
   const handleTodoDelete = async (todoId: number) => {
+    setError(ErrorType.None);
     updateTodoLocal(todoId, { mode: TodoMode.Loading });
 
     try {
@@ -109,6 +112,7 @@ export const App: React.FC = () => {
     todoId: number,
     updatedData: TodoDataToUpdate,
   ) => {
+    setError(ErrorType.None);
     updateTodoLocal(todoId, { mode: TodoMode.Loading });
 
     try {
