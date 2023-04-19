@@ -132,7 +132,6 @@ export const App: React.FC = () => {
 
     const response = addTodo(USER_ID, newTodo)
       .then(() => {
-        setAddingTodoTitle('');
         setTempTodo(defaultTodo);
         setCreating(false);
       })

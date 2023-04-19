@@ -38,17 +38,16 @@ export const TodoItem: React.FC<Props> = ({
     event: React.FocusEvent<HTMLInputElement, Element>,
   ) => {
     const { target } = event;
-    const { innerText } = target as HTMLInputElement;
+    const { value } = target as HTMLInputElement;
 
-    const filteredText = innerText.replace(/(\r||\r)/g, '');
+    const filteredText = value.replace(/(\r||\r)/g, '');
 
     setNewTitle(filteredText);
 
     if (filteredText !== '') {
       onUpdate(filteredText);
-      setNewTitle('');
       setEditing(false);
-    } else if (todo?.id !== null && todo?.id !== undefined) {
+    } else {
       setEditing(false);
       onDelete();
       deleteTodo(todo.id);
@@ -62,16 +61,15 @@ export const TodoItem: React.FC<Props> = ({
     const { target } = event;
     const { value } = target as HTMLInputElement;
 
-    const filteredText = value.replace(/(\r||\r)/g, '');
+    const filteredText = value.replace(/(\r||\r||\s)/g, '');
 
     setNewTitle(filteredText);
 
     if (key === 'Enter') {
       if (filteredText !== '') {
         onUpdate(filteredText);
-        setNewTitle('');
         setEditing(false);
-      } else if (todo?.id !== null && todo?.id !== undefined) {
+      } else {
         setEditing(false);
         onDelete();
         deleteTodo(todo.id);
