@@ -1,4 +1,9 @@
-import React from 'react';
+import React, {
+  useState,
+  useEffect,
+  ChangeEvent,
+  useRef,
+} from 'react';
 
 type Props = {
   title: string,
@@ -7,113 +12,75 @@ type Props = {
   onTodoDelete: () => Promise<void>;
 };
 
-type State = {
-  title: string | null;
-};
+export const TodoEditForm: React.FC<Props> = ({
+  title: prevTitle,
+  onEditingSkip,
+  onTodoTitleUpdate,
+  onTodoDelete,
+}) => {
+  const [title, setTitle] = useState(prevTitle);
 
-export class TodoEditForm extends React.Component<Props, State> {
-  state = {
-    title: null,
-  }
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  private inputRef: React.RefObject<HTMLInputElement> = React.createRef();
-
-  static getDerivedStateFromProps(props: Props, state: State) {
-    if (state.title === null) {
-      return {
-        title: props.title,
-      };
+  const handleTodoEditingSkip = (escClickEvent: KeyboardEvent) => {
+    if (escClickEvent.key !== 'Escape' || !inputRef.current) {
+      return;
     }
 
-    return null;
-  }
+    onEditingSkip();
+  };
 
-  componentDidMount(): void {
-    const todoTitleInput = this.inputRef.current;
+  useEffect(() => {
+    const todoTitleInput = inputRef.current;
 
     if (!todoTitleInput) {
-      return;
+      return () => {};
     }
 
     todoTitleInput.focus();
-    todoTitleInput.addEventListener('keyup', this.handleTodoEditingSkip);
-  }
+    todoTitleInput.addEventListener('keyup', handleTodoEditingSkip);
 
-  componentWillUnmount(): void {
-    const todoTitleInput = this.inputRef.current;
+    return () => (
+      todoTitleInput.removeEventListener('keyup', handleTodoEditingSkip)
+    );
+  }, []);
 
-    if (!todoTitleInput) {
-      return;
-    }
-
-    todoTitleInput.removeEventListener('keyup', this.handleTodoEditingSkip);
-  }
-
-  handleTodoEditingSkip = (escClickEvent: KeyboardEvent) => {
-    if (escClickEvent.key !== 'Escape' || !this.inputRef.current) {
-      return;
-    }
-
-    this.props.onEditingSkip();
-    this.inputRef.current.blur();
-  };
-
-  handleTodoUpdate = async () => {
-    const { title } = this.state;
-    const {
-      onEditingSkip,
-      onTodoTitleUpdate,
-      onTodoDelete,
-    } = this.props;
-
+  const handleTodoUpdate = async () => {
     if (!title) {
       await onTodoDelete();
 
       return;
     }
 
-    if (title === this.props.title) {
+    if (title === prevTitle) {
       onEditingSkip();
 
       return;
     }
 
     await onTodoTitleUpdate(title);
-  }
+  };
 
-  handleFormSubmit = (submitEvent: React.SyntheticEvent) => {
+  const handleFormSubmit = (submitEvent: React.SyntheticEvent) => {
     submitEvent.preventDefault();
-    this.handleTodoUpdate();
-  }
+    handleTodoUpdate();
+  };
 
-  handleTitleChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => (
-    this.setState({
-      title: changeEvent.target.value,
-    })
+  const handleTitleChange = (changeEvent: ChangeEvent<HTMLInputElement>) => (
+    setTitle(changeEvent.target.value)
   );
 
-  render() {
-    const title = this.state.title ?? '';
-
-    const {
-      handleFormSubmit,
-      handleTitleChange,
-      handleTodoUpdate,
-      inputRef,
-    } = this;
-
-    return (
-      <form onSubmit={handleFormSubmit}>
-        <input
-          type="text"
-          className="todo__title-field"
-          placeholder="Empty todo will be deleted"
-          value={title}
-          onChange={handleTitleChange}
-          onBlur={handleTodoUpdate}
-          ref={inputRef}
-        />
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleFormSubmit}>
+      <input
+        type="text"
+        className="todo__title-field"
+        placeholder="Empty todo will be deleted"
+        value={title}
+        onChange={handleTitleChange}
+        onBlur={handleTodoUpdate}
+        ref={inputRef}
+      />
+    </form>
+  );
+};
