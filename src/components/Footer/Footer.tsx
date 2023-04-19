@@ -5,7 +5,7 @@ import { FilterBy } from '../../types/FilteredBy';
 
 type Props = {
   countActiveTodos: number;
-  isCompletedTodo: boolean;
+  hasCompletedTodo: boolean;
   handleRemoveAllCompletedTodo: () => void;
   setFilterType: (type: FilterBy) => void;
   filterType: FilterBy;
@@ -13,7 +13,7 @@ type Props = {
 
 export const Footer: React.FC<Props> = ({
   countActiveTodos,
-  isCompletedTodo,
+  hasCompletedTodo,
   handleRemoveAllCompletedTodo,
   setFilterType,
   filterType,
@@ -30,7 +30,7 @@ export const Footer: React.FC<Props> = ({
       />
     </nav>
 
-    {isCompletedTodo
+    {hasCompletedTodo
     && (
       <button
         type="button"

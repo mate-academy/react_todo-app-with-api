@@ -7,18 +7,18 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   handleRemoveTodo?: (id: number) => void;
-  isInDeleteList: boolean;
-  handleUpdateTodoCompleted: (id: number) => void;
-  changeTitleByDoubleClick: (id: number, title: string) => void;
+  isLoading: boolean;
+  handleChangeTodoStatus: (id: number) => void;
+  changeTitle: (id: number, title: string) => void;
 };
 
 export const TodoInfo: React.FC<Props> = React.memo(
   ({
     todo,
     handleRemoveTodo,
-    isInDeleteList,
-    handleUpdateTodoCompleted,
-    changeTitleByDoubleClick,
+    isLoading,
+    handleChangeTodoStatus,
+    changeTitle,
   }) => {
     const [isActiveForm, setIsActiveForm] = useState(false);
     const [newTitle, setNewTitle] = useState(todo.title);
@@ -32,7 +32,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
           return;
         }
 
-        changeTitleByDoubleClick(todo.id, newTitle);
+        changeTitle(todo.id, newTitle);
         setIsActiveForm(false);
       }, [isActiveForm, newTitle],
     );
@@ -81,7 +81,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
           <input
             type="checkbox"
             className="todo__status"
-            onClick={() => handleUpdateTodoCompleted(todo.id)}
+            onClick={() => handleChangeTodoStatus(todo.id)}
             checked={todo.completed}
           />
         </label>
@@ -126,7 +126,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
 
         <div className={classNames(
           'modal overlay',
-          { 'is-active': isInDeleteList },
+          { 'is-active': isLoading },
         )}
         >
           <div className="modal-background has-background-white-ter" />

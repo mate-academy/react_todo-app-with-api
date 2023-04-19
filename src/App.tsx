@@ -31,7 +31,7 @@ export const App: FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoadingTodos, setIsLoadingTodos] = useState(false);
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
-  const addLoadingTodo = useCallback((id: number) => {
+  const setTodoLoading = useCallback((id: number) => {
     setLoadingIds(state => {
       state.add(id);
 
@@ -47,7 +47,7 @@ export const App: FC = () => {
     });
   }, []);
 
-  const isTodoLoading = useCallback(
+  const getIsTodoLoading = useCallback(
     (id: number) => loadingIds.has(id),
     [loadingIds],
   );
@@ -70,7 +70,6 @@ export const App: FC = () => {
     } catch {
       showError(ErrorMessageType.LOAD);
     } finally {
-      setTempTodo(null);
       setIsLoadingTodos(false);
     }
   };
@@ -78,7 +77,7 @@ export const App: FC = () => {
   const handleRemoveTodo = useCallback(
     async (id: number) => {
       try {
-        addLoadingTodo(id);
+        setTodoLoading(id);
         await removeTodo(id);
 
         setAllTodos(prevTodos => prevTodos.filter(todo => (
@@ -96,22 +95,11 @@ export const App: FC = () => {
     loadAllTodos();
   }, []);
 
-  const handleRemoveAllCompletedTodo = useCallback(async () => {
+  const handleRemoveAllCompletedTodo = useCallback(() => {
     const completedTodos = allTodos.filter(({ completed }) => completed);
 
-    completedTodos.forEach(async todo => {
-      try {
-        addLoadingTodo(todo.id);
-        await removeTodo(todo.id);
-
-        setAllTodos(prevTodos => prevTodos.filter(({ completed }) => (
-          !completed
-        )));
-      } catch {
-        setErrorMessage(ErrorMessageType.DELETE);
-      } finally {
-        setLoadingIds(new Set());
-      }
+    completedTodos.forEach(todo => {
+      handleRemoveTodo(todo.id);
     });
   }, [allTodos]);
 
@@ -119,14 +107,15 @@ export const App: FC = () => {
     return filterTodosByCompleted(allTodos, filterType);
   }, [allTodos, filterType]);
 
-  const countActiveTodos = useMemo(() => (
+  const activeTodos = useMemo(() => (
     filterTodosByCompleted(
       allTodos,
       FilterBy.ACTIVE,
     )
-  ), [allTodos, filterType]).length;
+  ), [allTodos, filterType]);
 
-  const isCompletedTodo = allTodos.length - countActiveTodos > 0;
+  const countActiveTodos = activeTodos.length;
+  const hasCompletedTodo = allTodos.length - countActiveTodos > 0;
   const hasActiveTodo = countActiveTodos > 0;
 
   const handleAddNewTodo = useCallback(
@@ -157,25 +146,28 @@ export const App: FC = () => {
     }, [todoTitle],
   );
 
-  const handleUpdateTodoCompleted = useCallback(
+  const handleChangeTodoStatus = useCallback(
     async (todoId: number) => {
       try {
-        const findTodo = allTodos.find(todo => todo.id === todoId);
+        setTodoLoading(todoId);
 
-        addLoadingTodo(todoId);
-        await updateTodoCompleted(todoId, !findTodo?.completed);
+        setAllTodos(prevTodos => {
+          const foundTodo = prevTodos.find(todo => todo.id === todoId);
 
-        setAllTodos(prevTodos => (
-          prevTodos.map(todo => {
-            if (findTodo?.id === todo.id) {
-              findTodo.completed = !findTodo.completed;
+          updateTodoCompleted(todoId, !foundTodo?.completed);
 
-              return findTodo;
-            }
+          return (
+            prevTodos.map(todo => {
+              if (foundTodo?.id === todo.id) {
+                foundTodo.completed = !foundTodo.completed;
 
-            return todo;
-          })
-        ));
+                return foundTodo;
+              }
+
+              return todo;
+            })
+          );
+        });
       } catch {
         setErrorMessage(ErrorMessageType.UPDATE);
       } finally {
@@ -188,12 +180,12 @@ export const App: FC = () => {
     async () => {
       try {
         const allTodosPromises = allTodos.map(async (todo) => {
-          if (hasActiveTodo) {
-            if (!todo.completed) {
-              addLoadingTodo(todo.id);
-            }
-          } else if (todo.completed) {
-            addLoadingTodo(todo.id);
+          if (hasActiveTodo && !todo.completed) {
+            setTodoLoading(todo.id);
+          }
+
+          if (!hasActiveTodo && todo.completed) {
+            setTodoLoading(todo.id);
           }
 
           return updateTodoCompleted(todo.id, hasActiveTodo);
@@ -209,7 +201,7 @@ export const App: FC = () => {
     }, [allTodos],
   );
 
-  const changeTitleByDoubleClick = useCallback(
+  const changeTitle = useCallback(
     async (todoId: number, newTitle: string) => {
       if (!newTitle.length) {
         await handleRemoveTodo(todoId);
@@ -218,7 +210,7 @@ export const App: FC = () => {
       }
 
       try {
-        addLoadingTodo(todoId);
+        setTodoLoading(todoId);
 
         await updateTodoTitle(todoId, newTitle);
 
@@ -266,9 +258,9 @@ export const App: FC = () => {
                 todos={visibleTodos}
                 tempTodo={tempTodo}
                 handleRemoveTodo={handleRemoveTodo}
-                isTodoLoading={isTodoLoading}
-                handleUpdateTodoCompleted={handleUpdateTodoCompleted}
-                changeTitleByDoubleClick={changeTitleByDoubleClick}
+                getIsTodoLoading={getIsTodoLoading}
+                handleChangeTodoStatus={handleChangeTodoStatus}
+                changeTitle={changeTitle}
               />
             </section>
           )}
@@ -276,7 +268,7 @@ export const App: FC = () => {
         {allTodos.length !== 0 && (
           <Footer
             countActiveTodos={countActiveTodos}
-            isCompletedTodo={isCompletedTodo}
+            hasCompletedTodo={hasCompletedTodo}
             handleRemoveAllCompletedTodo={handleRemoveAllCompletedTodo}
             filterType={filterType}
             setFilterType={setFilterType}
