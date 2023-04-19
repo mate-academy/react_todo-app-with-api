@@ -26,7 +26,6 @@ export const Header: React.FC<HeaderProps> = ({
         handleTaggleAll={handleTaggleAll}
       />
 
-      {/* Add a todo on form submit */}
       <AddNewTodo
         showErrorNotification={showErrorNotification}
         setIsAddingNewTodo={setIsAddingNewTodo}
