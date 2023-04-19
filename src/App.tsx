@@ -1,9 +1,9 @@
 import React, {
-  useState, useCallback, useEffect, useMemo, useRef,
+  useState, useCallback, useEffect, useMemo,
 } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { Todo } from './types/Todo';
+import { Todo, PathchingTodo } from './types/Todo';
 import {
   getTodos, postTodo, deleteTodo, patchTodo, USER_ID,
 } from './api/todos';
@@ -21,24 +21,6 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState(FilterType.All);
   const [loading, setLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([0]);
-  const [isErrorVisible, setIsErrorVisible] = useState<boolean>(Boolean);
-
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
-
-  const closeError = useCallback(() => {
-    setIsErrorVisible(false);
-  }, []);
-  
-  const onClose = useCallback(() => {
-    setIsErrorVisible(true);
-    setErrorText('');
-  }, []);
-  
-  useEffect(() => {
-    if (isErrorVisible) {
-      timeoutId.current = setTimeout(onClose, 3000);
-    }
-  }, [isErrorVisible, onClose]);
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery);
@@ -60,7 +42,6 @@ export const App: React.FC = () => {
       setTodos(todosFromServer);
     } catch (error) {
       setErrorText('Unable to load todos');
-      closeError();
     }
   }, []);
 
@@ -74,7 +55,6 @@ export const App: React.FC = () => {
 
       if (!title.length) {
         setErrorText("Title can't be empty");
-        closeError();
 
         return;
       }
@@ -94,7 +74,6 @@ export const App: React.FC = () => {
       setTodos(prevTodos => [...prevTodos, createdTodo]);
     } catch (error) {
       setErrorText('Unable to add todo');
-      closeError();
     } finally {
       setTempTodo(null);
       setDisabledInput(false);
@@ -109,41 +88,30 @@ export const App: React.FC = () => {
       setTodos(todos.filter(todo => todo.id !== id));
     } catch {
       setErrorText('Unable to delete a todo');
-      closeError();
     } finally {
       setLoadingTodoId([]);
     }
   }, [todos]);
 
   const updateTodo = useCallback(
-    async (id: number, data: string | boolean) => {
+    async (id: number, data: PathchingTodo) => {
       setLoadingTodoId(state => [...state, id]);
       try {
-        if (typeof data === 'boolean') {
-          await patchTodo(id, { completed: data });
-        } else {
-          await patchTodo(id, { title: data });
-        }
+        await patchTodo(id, data);
 
         setTodos(todos.map(todo => {
           if (todo.id === id) {
-            if (typeof data === 'boolean') {
-              return { ...todo, completed: data };
-            }
-
-            return { ...todo, title: data };
+            return { ...todo, ...data };
           }
 
           return todo;
         }));
       } catch (error) {
-        if (typeof data === 'string' && data.length === 0) {
+        if (data.title.length === 0) {
           setErrorText('');
         } else {
           setErrorText('Unable to update todo');
         }
-
-        closeError();
       } finally {
         setLoadingTodoId([]);
       }
@@ -200,7 +168,6 @@ export const App: React.FC = () => {
       setTodos(activeTodos);
     } catch {
       setErrorText('Unable to delete completed todos');
-      closeError();
     }
   };
 
@@ -210,7 +177,6 @@ export const App: React.FC = () => {
       addTodo(query);
     } else {
       setErrorText('Title is empty');
-      closeError();
     }
 
     setQuery('');

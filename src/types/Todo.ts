@@ -6,6 +6,6 @@ export interface Todo {
 }
 
 export interface PathchingTodo {
-  title?: string;
-  completed?: boolean;
+  title: string;
+  completed: boolean;
 }

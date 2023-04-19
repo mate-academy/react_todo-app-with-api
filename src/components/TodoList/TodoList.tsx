@@ -1,7 +1,7 @@
 import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import '../../styles/transitions.scss';
-import { Todo } from '../../types/Todo';
+import { Todo, PathchingTodo } from '../../types/Todo';
 import TodoItem from '../TodoItem';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   loading: boolean,
   loadingTodoId: number[],
   removeTodo: (id: number) => Promise<void>,
-  updateTodo: (id: number, data: string | boolean) => Promise<void>,
+  updateTodo: (id: number, data: PathchingTodo) => Promise<void>,
   setErrorText: (errorText : string) => void,
 };
 
