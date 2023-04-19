@@ -7,14 +7,14 @@ import './TodoList.scss';
 
 import { TodoItem } from '../TodoItem';
 
-import { TodoRich } from '../../types/TodoRich';
-import { TodoRichEditable } from '../../types/TodoRichEditable';
+import { TodoWithMode } from '../../types/TodoWithMode';
+import { TodoDataToUpdate } from '../../types/TodoDataToUpdate';
 
 type Props = {
-  todos: TodoRich[];
-  tempTodo: TodoRich | null;
+  todos: TodoWithMode[];
+  tempTodo: TodoWithMode | null;
   onTodoDelete: (todoId: number) => Promise<void>;
-  onTodoUpdate: (todoId: number, updatedData: TodoRichEditable)
+  onTodoUpdate: (todoId: number, updatedData: TodoDataToUpdate)
   => Promise<void>;
 };
 

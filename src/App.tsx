@@ -16,19 +16,18 @@ import { Todo } from './types/Todo';
 import { TodoMode } from './types/TodoMode';
 import { TodoCompletionType } from './types/TodoCompletionType';
 import { ErrorType } from './types/ErrorType';
-import { TodoRich } from './types/TodoRich';
-import { TodoRichEditable } from './types/TodoRichEditable';
+import { TodoWithMode } from './types/TodoWithMode';
+import { TodoDataToUpdate } from './types/TodoDataToUpdate';
 
 import { filterTodos, getActiveTodosCount } from './common/helpers';
-
-const USER_ID = 6955;
+import { USER_ID } from './common/constants';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<TodoRich[]>([]);
+  const [todos, setTodos] = useState<TodoWithMode[]>([]);
   const [error, setError] = useState<ErrorType>(ErrorType.None);
   const [filterType, setFilterType] = useState(TodoCompletionType.All);
 
-  const [tempTodo, setTempTodo] = useState<TodoRich | null>(null);
+  const [tempTodo, setTempTodo] = useState<TodoWithMode | null>(null);
 
   const addTodoLocal = (newTodo: Todo): void => {
     setTodos((prevTodos) => (
@@ -50,7 +49,7 @@ export const App: React.FC = () => {
 
   const updateTodoLocal = (
     todoId: number,
-    updatedData: TodoRichEditable,
+    updatedData: TodoDataToUpdate,
   ) => (
     setTodos(prevTodos => (
       prevTodos.map(todo => {
@@ -73,7 +72,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    const newTodo: TodoRich = {
+    const newTodo: TodoWithMode = {
       id: 0,
       title: todoTitle,
       completed: false,
@@ -108,7 +107,7 @@ export const App: React.FC = () => {
 
   const handleTodoUpdate = async (
     todoId: number,
-    updatedData: TodoRichEditable,
+    updatedData: TodoDataToUpdate,
   ) => {
     const keys = Object.keys(updatedData);
 
@@ -137,7 +136,7 @@ export const App: React.FC = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     await Promise.all(
-      completedTodos.map(todo => handleTodoDelete(todo.id)),
+      completedTodos.map(async todo => handleTodoDelete(todo.id)),
     );
   };
 

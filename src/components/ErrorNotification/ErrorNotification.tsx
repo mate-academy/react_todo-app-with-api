@@ -22,26 +22,24 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
   }, [onClose]);
 
   return (
-    <>
-      <div
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            hidden: error === ErrorType.None,
-          },
-        )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={onClose}
-          aria-label="Close"
-        />
-        {errorMessage}
-      </div>
-    </>
+    <div
+      className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        {
+          hidden: error === ErrorType.None,
+        },
+      )}
+    >
+      <button
+        type="button"
+        className="delete"
+        onClick={onClose}
+        aria-label="Close"
+      />
+      {errorMessage}
+    </div>
   );
 });

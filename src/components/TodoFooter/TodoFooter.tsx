@@ -17,40 +17,38 @@ export const TodoFooter: React.FC<Props> = ({
   hasCompletedTodos,
   onCompletedTodosDelete,
 }) => (
-  <>
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodosCount} items left`}
-      </span>
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${activeTodosCount} items left`}
+    </span>
 
-      <nav className="filter">
-        <FilterButton
-          filterOption={TodoCompletionType.All}
-          isSelected={TodoCompletionType.All === filterType}
-          onFilterSelect={onFilterSelect}
-        />
+    <nav className="filter">
+      <FilterButton
+        filterOption={TodoCompletionType.All}
+        isSelected={TodoCompletionType.All === filterType}
+        onFilterSelect={onFilterSelect}
+      />
 
-        <FilterButton
-          filterOption={TodoCompletionType.Active}
-          isSelected={TodoCompletionType.Active === filterType}
-          onFilterSelect={onFilterSelect}
-        />
+      <FilterButton
+        filterOption={TodoCompletionType.Active}
+        isSelected={TodoCompletionType.Active === filterType}
+        onFilterSelect={onFilterSelect}
+      />
 
-        <FilterButton
-          filterOption={TodoCompletionType.Completed}
-          isSelected={TodoCompletionType.Completed === filterType}
-          onFilterSelect={onFilterSelect}
-        />
-      </nav>
+      <FilterButton
+        filterOption={TodoCompletionType.Completed}
+        isSelected={TodoCompletionType.Completed === filterType}
+        onFilterSelect={onFilterSelect}
+      />
+    </nav>
 
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        disabled={!hasCompletedTodos}
-        onClick={onCompletedTodosDelete}
-      >
-        Clear completed
-      </button>
-    </footer>
-  </>
+    <button
+      type="button"
+      className="todoapp__clear-completed"
+      disabled={!hasCompletedTodos}
+      onClick={onCompletedTodosDelete}
+    >
+      Clear completed
+    </button>
+  </footer>
 );

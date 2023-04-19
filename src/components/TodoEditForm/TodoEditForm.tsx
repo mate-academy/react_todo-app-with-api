@@ -103,19 +103,17 @@ export class TodoEditForm extends React.Component<Props, State> {
     } = this;
 
     return (
-      <>
-        <form onSubmit={handleFormSubmit}>
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={title}
-            onChange={handleTitleChange}
-            onBlur={handleTodoUpdate}
-            ref={inputRef}
-          />
-        </form>
-      </>
+      <form onSubmit={handleFormSubmit}>
+        <input
+          type="text"
+          className="todo__title-field"
+          placeholder="Empty todo will be deleted"
+          value={title}
+          onChange={handleTitleChange}
+          onBlur={handleTodoUpdate}
+          ref={inputRef}
+        />
+      </form>
     );
   }
 }

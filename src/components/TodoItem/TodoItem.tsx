@@ -4,15 +4,17 @@ import classNames from 'classnames';
 import { TodoLoadingOverlay } from '../TodoLoadingOverlay';
 import { TodoEditForm } from '../TodoEditForm';
 
-import { TodoRich } from '../../types/TodoRich';
+import { TodoWithMode } from '../../types/TodoWithMode';
 import { TodoMode } from '../../types/TodoMode';
-import { TodoRichEditable } from '../../types/TodoRichEditable';
+import { TodoDataToUpdate } from '../../types/TodoDataToUpdate';
 
 type Props = {
-  todo: TodoRich;
+  todo: TodoWithMode;
   onTodoDelete?: (todoId: number) => Promise<void>;
-  onTodoUpdate?: (todoId: number, updatedData: TodoRichEditable)
-  => Promise<void>;
+  onTodoUpdate?: (
+    todoId: number,
+    updatedData: TodoDataToUpdate
+  ) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -25,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({
   onTodoDelete = () => {},
   onTodoUpdate = () => {},
 }) => {
-  const hadndleTodoDelete = async () => onTodoDelete(id);
+  const handleTodoDelete = async () => onTodoDelete(id);
 
   const hadndleTodoToggle = async (
     checkEvent: React.ChangeEvent<HTMLInputElement>,
@@ -67,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({
             title={title}
             onTodoTitleUpdate={handleTodoTitleUpdate}
             onEditingSkip={handleEditingSkip}
-            onTodoDelete={hadndleTodoDelete}
+            onTodoDelete={handleTodoDelete}
           />
         ) : (
           <>
@@ -81,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={hadndleTodoDelete}
+              onClick={handleTodoDelete}
             >
               ×
             </button>
