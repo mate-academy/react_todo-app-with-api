@@ -138,6 +138,8 @@ export const App: React.FC = () => {
       })
       .catch(() => setErrorToShow('add'));
 
+    setAddingTodoTitle('');
+
     return response;
   };
 

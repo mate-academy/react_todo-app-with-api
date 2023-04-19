@@ -46,6 +46,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (filteredText !== '') {
       onUpdate(filteredText);
+      setNewTitle('');
       setEditing(false);
     } else if (todo?.id !== null && todo?.id !== undefined) {
       setEditing(false);
@@ -55,19 +56,20 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleUpdateTitle = (
-    event: React.KeyboardEvent<HTMLSpanElement>,
+    event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     const { key } = event;
     const { target } = event;
-    const { innerText } = target as HTMLInputElement;
+    const { value } = target as HTMLInputElement;
 
-    const filteredText = innerText.replace(/(\r||\r)/g, '');
+    const filteredText = value.replace(/(\r||\r)/g, '');
 
     setNewTitle(filteredText);
 
     if (key === 'Enter') {
       if (filteredText !== '') {
         onUpdate(filteredText);
+        setNewTitle('');
         setEditing(false);
       } else if (todo?.id !== null && todo?.id !== undefined) {
         setEditing(false);
@@ -81,6 +83,10 @@ export const TodoItem: React.FC<Props> = ({
     event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
   ) => {
     event.preventDefault();
+    const { target } = event;
+    const { innerText } = target as HTMLSpanElement;
+
+    setNewTitle(innerText);
     setEditing(true);
   };
 
@@ -109,7 +115,7 @@ export const TodoItem: React.FC<Props> = ({
             <span
               className="todo__title"
               // onKeyDown={handleUpdateTitle}
-              contentEditable={editing}
+              // contentEditable={editing}
               onDoubleClick={handleDoubleClick}
             >
               {newTitle}
@@ -133,6 +139,7 @@ export const TodoItem: React.FC<Props> = ({
               onKeyDown={handleUpdateTitle}
               onBlur={handleUpdateOnBlur}
               value={newTitle}
+              onChange={(event) => setNewTitle(event?.target.value)}
             />
           </form>
         ) }
