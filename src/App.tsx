@@ -123,22 +123,6 @@ export const App: React.FC = () => {
       .finally(() => {
         setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
       });
-
-    // try {
-    //   await toggleTodo(id, data);
-
-    //   setTodos(prev => prev.map(todo => {
-    //     if (todo.id === id) {
-    //       return { ...todo, ...data };
-    //     }
-
-    //     return todo;
-    //   }));
-    // } catch {
-    //   setError('Unable to update a todo');
-    // } finally {
-    //   setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
-    // }
   };
 
   const handleAllTodoCompletion = () => {
