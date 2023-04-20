@@ -4,8 +4,8 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  onTodoDeletion: (id:number) => void,
-  onTodoUpdating: (id: number, data: Partial<Todo>) => void,
+  onTodoDeletion?: (id:number) => void,
+  onTodoUpdating?: (id: number, data: Partial<Todo>) => void,
   isLoading: boolean,
 };
 
@@ -23,14 +23,14 @@ export const TodoElement: React.FC<Props> = ({
     setChangedTitle(e.target.value);
   };
 
-  const handleTitleSubmiting = () => {
+  const handleTitleSubmitting = () => {
     if (changedTitle === title) {
       setIsEditing(false);
     } else if (!changedTitle.trim()) {
-      onTodoDeletion(id);
+      onTodoDeletion?.(id);
     } else {
       setIsEditing(false);
-      onTodoUpdating(id, { title: changedTitle });
+      onTodoUpdating?.(id, { title: changedTitle });
     }
   };
 
@@ -41,7 +41,7 @@ export const TodoElement: React.FC<Props> = ({
 
   const hadleKeyboardEvent = (e: React.KeyboardEvent) => {
     if (e.code === 'Enter') {
-      handleTitleSubmiting();
+      handleTitleSubmitting();
     } else if (e.code === 'Escape') {
       handleTitleCancelation();
     }
@@ -59,7 +59,7 @@ export const TodoElement: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={() => onTodoUpdating(id, { completed: !completed })}
+          onClick={() => onTodoUpdating?.(id, { completed: !completed })}
         />
       </label>
 
@@ -69,7 +69,7 @@ export const TodoElement: React.FC<Props> = ({
           className="todo__title-field"
           value={changedTitle}
           onChange={handleTitleChanging}
-          onBlur={handleTitleSubmiting}
+          onBlur={handleTitleSubmitting}
           onKeyUp={hadleKeyboardEvent}
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus={isEditing}
@@ -86,7 +86,7 @@ export const TodoElement: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onTodoDeletion(id)}
+            onClick={() => onTodoDeletion?.(id)}
           >
             ×
           </button>

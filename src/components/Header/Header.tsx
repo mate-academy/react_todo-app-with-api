@@ -5,18 +5,24 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   unfinishedTodos: Todo[];
-  disabledInput: boolean;
+  isDisabledInput: boolean;
   onTodoCreation: (title:string) => void;
   onAllTodoCompletion: () => void,
 };
 
 export const Header: React.FC<Props> = ({
   unfinishedTodos,
-  disabledInput,
+  isDisabledInput,
   onTodoCreation,
   onAllTodoCompletion,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onTodoCreation(todoTitle);
+    setTodoTitle('');
+  };
 
   return (
     <header className="todoapp__header">
@@ -25,23 +31,18 @@ export const Header: React.FC<Props> = ({
         className={
           classNames(
             'todoapp__toggle-all',
-            { active: unfinishedTodos.length > 0 },
+            { active: unfinishedTodos.length },
           )
         }
         onClick={onAllTodoCompletion}
       />
 
-      <form onSubmit={(event) => {
-        event.preventDefault();
-        onTodoCreation(todoTitle);
-        setTodoTitle('');
-      }}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={disabledInput}
+          disabled={isDisabledInput}
           value={todoTitle}
           onChange={(event) => {
             setTodoTitle(event.target.value);

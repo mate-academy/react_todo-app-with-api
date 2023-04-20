@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterStatus>(FilterStatus.All);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [disabledInput, setDisabledInput] = useState(false);
+  const [isDisabledInput, setIsDisabledInput] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setDisabledInput(true);
+      setIsDisabledInput(true);
       setTempTodo({ ...newTodo, id: 0 });
       setError('');
 
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
           setError('Unable to add a todo');
         })
         .finally(() => {
-          setDisabledInput(false);
+          setIsDisabledInput(false);
           setTempTodo(null);
         });
     }
@@ -95,32 +95,50 @@ export const App: React.FC = () => {
     return deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(todo => todo.id !== id));
-        setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
       })
       .catch(() => {
         setError('Unable to delete a todo');
+      })
+      .finally(() => {
         setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
       });
   };
 
-  const handleTodoUpdating = async (id: number, data: Partial<Todo>) => {
+  const handleTodoUpdating = (id: number, data: Partial<Todo>) => {
     setLoadingTodoId(prev => [...prev, id]);
 
-    try {
-      await toggleTodo(id, data);
+    toggleTodo(id, data)
+      .then(() => {
+        setTodos(prev => prev.map(todo => {
+          if (todo.id === id) {
+            return { ...todo, ...data };
+          }
 
-      setTodos(prev => prev.map(todo => {
-        if (todo.id === id) {
-          return { ...todo, ...data };
-        }
+          return todo;
+        }));
+      })
+      .catch(() => {
+        setError('Unable to update a todo');
+      })
+      .finally(() => {
+        setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
+      });
 
-        return todo;
-      }));
-    } catch {
-      setError('Unable to update a todo');
-    } finally {
-      setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
-    }
+    // try {
+    //   await toggleTodo(id, data);
+
+    //   setTodos(prev => prev.map(todo => {
+    //     if (todo.id === id) {
+    //       return { ...todo, ...data };
+    //     }
+
+    //     return todo;
+    //   }));
+    // } catch {
+    //   setError('Unable to update a todo');
+    // } finally {
+    //   setLoadingTodoId(prev => prev.filter(todoId => todoId !== id));
+    // }
   };
 
   const handleAllTodoCompletion = () => {
@@ -162,7 +180,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           unfinishedTodos={unfinishedTodos}
-          disabledInput={disabledInput}
+          isDisabledInput={isDisabledInput}
           onTodoCreation={handleTodoCreation}
           onAllTodoCompletion={handleAllTodoCompletion}
         />

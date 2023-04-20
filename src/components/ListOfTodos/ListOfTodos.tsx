@@ -6,7 +6,7 @@ type Props = {
   tempTodo: Todo | null,
   onTodoDeletion: (id:number) => void,
   loadingTodoId: number[],
-  onTodoUpdating: (id: number, data: Partial<Todo>) => Promise<void>
+  onTodoUpdating: (id: number, data: Partial<Todo>) => void
 };
 
 export const ListOfTodos: React.FC<Props> = ({
@@ -33,8 +33,6 @@ export const ListOfTodos: React.FC<Props> = ({
     {tempTodo && (
       <TodoElement
         todo={tempTodo}
-        onTodoDeletion={() => {}}
-        onTodoUpdating={() => {}}
         isLoading
       />
     )}

@@ -21,7 +21,7 @@ export const ErrorNotification: React.FC<Props> = ({
     <div
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: error.length === 0 },
+        { hidden: !error.length },
       )}
     >
       <button
