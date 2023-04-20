@@ -20,20 +20,20 @@ export const App: React.FC = () => {
   // eslint-disable-next-line no-unused-vars
   const {
     userId,
-    allTodos,
-    setAllTodos,
-    setShouldShowError,
+    todos,
+    setTodos,
+    setErrorMessage,
     showError,
   } = useContext(AppContext);
 
   const loadTodosFromServer = useCallback(async () => {
     setIsLoadingTodos(true);
-    setShouldShowError(false);
+    setErrorMessage('');
 
     try {
       const todosFromServer = await getTodos(userId);
 
-      setAllTodos(todosFromServer);
+      setTodos(todosFromServer);
     } catch {
       showError('Unable to load todos');
     } finally {
@@ -64,7 +64,7 @@ export const App: React.FC = () => {
 
         <TodoList />
 
-        {allTodos.length > 0 && (
+        {todos.length > 0 && (
           <Footer />
         )}
       </div>

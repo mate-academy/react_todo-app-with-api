@@ -5,14 +5,12 @@ import { FilterType } from '../../types/FilterType';
 
 interface IContextValue {
   userId: number,
-  allTodos: Todo[],
-  setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  todos: Todo[],
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   activeTodos: Todo[],
   completedTodosIds: number[],
   tempTodo: Todo | null,
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
-  shouldShowError: boolean,
-  setShouldShowError: React.Dispatch<React.SetStateAction<boolean>>,
   errorMessage: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
   showError: (errorText: string) => void,
@@ -24,14 +22,12 @@ interface IContextValue {
 
 export const AppContext = React.createContext<IContextValue>({
   userId: 0,
-  allTodos: [],
-  setAllTodos: () => {},
+  todos: [],
+  setTodos: () => {},
   activeTodos: [],
   completedTodosIds: [],
   tempTodo: null,
   setTempTodo: () => {},
-  shouldShowError: false,
-  setShouldShowError: () => {},
   errorMessage: '',
   setErrorMessage: () => {},
   showError: () => {},
@@ -48,9 +44,8 @@ type Props = {
 export const AppProvider: React.FC<Props> = ({ children }) => {
   const userId = useMemo(() => 6826, []);
 
-  const [allTodos, setAllTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [shouldShowError, setShouldShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([0]);
   const [
@@ -59,34 +54,31 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
   ] = useState<FilterType>(FilterType.All);
 
   const activeTodos = useMemo(() => (
-    allTodos.filter(({ completed }) => !completed)
-  ), [allTodos]);
+    todos.filter(({ completed }) => !completed)
+  ), [todos]);
 
   const completedTodosIds = useMemo(() => (
-    allTodos
+    todos
       .filter(({ completed }) => completed)
       .map(({ id }) => id)
-  ), [allTodos]);
+  ), [todos]);
 
   const showError = useCallback((errorText: string) => {
     setErrorMessage(errorText);
-    setShouldShowError(true);
     setTimeout(() => {
-      setShouldShowError(false);
+      setErrorMessage('');
     }, 3000);
   }, []);
 
   const contextValue = useMemo(() => {
     return {
       userId,
-      allTodos,
-      setAllTodos,
+      todos,
+      setTodos,
       activeTodos,
       completedTodosIds,
       tempTodo,
       setTempTodo,
-      shouldShowError,
-      setShouldShowError,
       errorMessage,
       setErrorMessage,
       showError,
@@ -97,9 +89,8 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
     };
   }, [
     userId,
-    allTodos,
+    todos,
     tempTodo,
-    shouldShowError,
     errorMessage,
     currentFilterType,
     loadingTodosIds,

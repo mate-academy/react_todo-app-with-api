@@ -5,13 +5,12 @@ import { AppContext } from '../AppContext';
 
 export const ErrorMessage: React.FC = React.memo(() => {
   const {
-    shouldShowError,
     errorMessage,
-    setShouldShowError,
+    setErrorMessage,
   } = useContext(AppContext);
 
   const handleCloseButtonClick = () => {
-    setShouldShowError(false);
+    setErrorMessage('');
   };
 
   return (
@@ -21,7 +20,7 @@ export const ErrorMessage: React.FC = React.memo(() => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !shouldShowError },
+        { hidden: !errorMessage },
       )}
     >
       <button

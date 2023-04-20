@@ -6,13 +6,13 @@ import { FilterType } from '../../types/FilterType';
 
 export const TodoList: React.FC = React.memo(() => {
   const {
-    allTodos,
+    todos,
     tempTodo,
     currentFilterType,
   } = useContext(AppContext);
 
   const visibleTodos = useMemo(() => (
-    allTodos.filter(({ completed }) => {
+    todos.filter(({ completed }) => {
       switch (currentFilterType) {
         case FilterType.Active:
           return !completed;
@@ -24,9 +24,7 @@ export const TodoList: React.FC = React.memo(() => {
           return true;
       }
     })
-  ), [allTodos, currentFilterType]);
-
-  window.console.log('Rendering todo list');
+  ), [todos, currentFilterType]);
 
   return (
     <section className="todoapp__main">

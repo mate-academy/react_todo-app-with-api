@@ -7,26 +7,26 @@ import { AppContext } from '../AppContext';
 
 export const Header: React.FC = () => {
   const {
-    allTodos,
-    setAllTodos,
+    todos,
+    setTodos,
     activeTodos,
     completedTodosIds,
     showError,
-    setShouldShowError,
+    setErrorMessage,
     loadingTodosIds,
     setLoadingTodosIds,
   } = useContext(AppContext);
 
   const hasOnlyCompletedTodos = useMemo(() => (
-    allTodos.length === completedTodosIds.length
-  ), [allTodos]);
+    todos.length === completedTodosIds.length
+  ), [todos]);
 
   const toggleTodos = useCallback(async (shouldToggleAll: boolean) => {
     try {
-      setShouldShowError(false);
+      setErrorMessage('');
 
       const todosToToggle = shouldToggleAll
-        ? allTodos
+        ? todos
         : activeTodos;
 
       setLoadingTodosIds(prevIds => [
@@ -38,7 +38,7 @@ export const Header: React.FC = () => {
         patchTodo(id, { completed: !completed })
       )));
 
-      setAllTodos(prevTodos => prevTodos.map(prevTodo => {
+      setTodos(prevTodos => prevTodos.map(prevTodo => {
         if (todosToToggle.includes(prevTodo)) {
           return {
             ...prevTodo,
@@ -53,7 +53,7 @@ export const Header: React.FC = () => {
     } finally {
       setLoadingTodosIds([0]);
     }
-  }, [loadingTodosIds, allTodos]);
+  }, [loadingTodosIds, todos]);
 
   const handleToggleTodosButtonClick = () => {
     toggleTodos(hasOnlyCompletedTodos);
@@ -61,7 +61,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {allTodos.length > 0 && (
+      {todos.length > 0 && (
         <button
           aria-label="Toggle"
           type="button"

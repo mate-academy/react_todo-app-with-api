@@ -7,30 +7,30 @@ import { TodosFilter } from '../TodosFilter';
 
 export const Footer: React.FC = () => {
   const {
-    allTodos,
-    setAllTodos,
+    todos,
+    setTodos,
     activeTodos,
     completedTodosIds,
     loadingTodosIds,
     setLoadingTodosIds,
     showError,
-    setShouldShowError,
+    setErrorMessage,
   } = useContext(AppContext);
 
   const clearCompletedTodos = useCallback(async () => {
-    setShouldShowError(false);
+    setErrorMessage('');
     setLoadingTodosIds(prevIds => [...prevIds, ...completedTodosIds]);
 
     try {
       await Promise.all(completedTodosIds.map(id => deleteTodo(id)));
 
-      setAllTodos(activeTodos);
+      setTodos(activeTodos);
     } catch {
       showError('Unable to delete all completed todos');
     } finally {
       setLoadingTodosIds([0]);
     }
-  }, [loadingTodosIds, allTodos]);
+  }, [loadingTodosIds, todos]);
 
   const handleClearCompletedTodos = () => {
     clearCompletedTodos();

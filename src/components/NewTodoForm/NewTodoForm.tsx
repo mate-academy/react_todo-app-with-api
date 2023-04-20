@@ -20,16 +20,16 @@ export const NewTodoForm: React.FC = React.memo(() => {
 
   const {
     userId,
-    allTodos,
+    todos,
     setTempTodo,
-    setAllTodos,
+    setTodos,
     showError,
-    setShouldShowError,
+    setErrorMessage,
   } = useContext(AppContext);
 
   const postNewTodo = useCallback(async (title: string) => {
     try {
-      setShouldShowError(false);
+      setErrorMessage('');
       setShouldBeDisabled(true);
 
       const newTodo = createTodo(title, userId);
@@ -41,7 +41,7 @@ export const NewTodoForm: React.FC = React.memo(() => {
 
       const addedTodo = await postTodo(newTodo);
 
-      setAllTodos(prevState => [...prevState, addedTodo]);
+      setTodos(prevState => [...prevState, addedTodo]);
       setTitle('');
     } catch (error) {
       showError('Unable to add a todo');
@@ -49,7 +49,7 @@ export const NewTodoForm: React.FC = React.memo(() => {
       setTempTodo(null);
       setShouldBeDisabled(false);
     }
-  }, [allTodos]);
+  }, [todos]);
 
   const handleTItleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
