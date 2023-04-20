@@ -24,13 +24,15 @@ export const Filter: FC<FilterProps> = ({
     });
   };
 
+  const correctTitle = `${activeTodosCount} ${
+    activeTodosCount === 1
+      ? 'item'
+      : 'items'} left`;
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodosCount} ${
-          activeTodosCount === 1
-            ? 'item'
-            : 'items'} left`}
+        {correctTitle}
       </span>
 
       <nav className="filter">

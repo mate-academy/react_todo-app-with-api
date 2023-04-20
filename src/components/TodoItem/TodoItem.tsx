@@ -9,6 +9,7 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { CustomForm } from '../CustomForm/CustomForm';
 
 interface TodoProps {
   todo: Todo;
@@ -51,7 +52,7 @@ export const TodoItem: FC<TodoProps> = ({
   };
 
   const handleEditChange = () => {
-    setIsEdit(!isEdit);
+    setIsEdit(prevIsEdit => !prevIsEdit);
   };
 
   const closeEditMode = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -89,18 +90,17 @@ export const TodoItem: FC<TodoProps> = ({
 
       {isEdit
         ? (
-          <form onSubmit={handleFormSubmit}>
-            <input
-              className="todo__title-field"
-              type="text"
-              placeholder="Empty todo will be deleted"
-              value={changeTitle}
-              onBlur={handleFormSubmit}
-              onChange={handleTitleChange}
-              onKeyUp={closeEditMode}
-              ref={inputRef}
-            />
-          </form>
+          <CustomForm
+            onSubmit={handleFormSubmit}
+            className="todo__title-field"
+            type="text"
+            placeholder="Empty todo will be deleted"
+            value={changeTitle}
+            onBlur={handleFormSubmit}
+            onChange={handleTitleChange}
+            onKeyUp={closeEditMode}
+            ref={inputRef}
+          />
         )
         : (
           <>

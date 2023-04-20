@@ -27,7 +27,7 @@ export const App: FC = () => {
   const [error, setError] = useState<ErrorType>(ErrorType.NONE);
   const [sortType, setSortType] = useState<TaskStatus>(TaskStatus.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const [loadTodoById, setLoadTodoById] = useState([DEFAULT_TASK_ID]);
 
   const fetchTodos = async () => {
@@ -84,22 +84,27 @@ export const App: FC = () => {
     taskId: number,
     updatedData: Partial<Todo>,
   ) => {
+    if (loadTodoById.includes(taskId)) {
+      return;
+    }
+
     setLoadTodoById(prevTodos => [...prevTodos, taskId]);
+    setIsDisabled(true);
 
     try {
       const updatedTodo = await patchTodo(taskId, updatedData);
 
-      setTodos(prevState => prevState.map(todo => {
-        return todo.id === taskId
+      setTodos(prevState => prevState.map(todo => (
+        todo.id === taskId
           ? updatedTodo
-          : todo;
-      }));
+          : todo)));
     } catch {
       setError(ErrorType.UPDATE);
     } finally {
       setLoadTodoById([DEFAULT_TASK_ID]);
+      setIsDisabled(false);
     }
-  }, []);
+  }, [loadTodoById]);
 
   const removeTodo = useCallback(async (taskId: number) => {
     setLoadTodoById(prevState => [...prevState, taskId]);
@@ -107,7 +112,9 @@ export const App: FC = () => {
     try {
       await deleteTodo(taskId);
 
-      setTodos(prevTodos => prevTodos.filter(({ id }) => id !== taskId));
+      setTodos(prevTodos => (
+        prevTodos.filter(({ id }) => id !== taskId)
+      ));
     } catch {
       setError(ErrorType.DELETE);
     } finally {
@@ -122,15 +129,19 @@ export const App: FC = () => {
   const activeTodos = getFilteredTodos(todos, TaskStatus.ACTIVE);
   const completedTodos = getFilteredTodos(todos, TaskStatus.COMPLETED);
 
-  const changeStatusForAll = useCallback(() => {
-    activeTodos.forEach(({ id }) => {
-      updateTodo(id, { completed: true });
-    });
+  const changeStatusForAll = useCallback(async () => {
+    if (loadTodoById.length === DEFAULT_TASK_ID) {
+      return;
+    }
+
+    await Promise.all(activeTodos.map(({ id }) => (
+      updateTodo(id, { completed: true }))));
 
     if (!activeTodos.length) {
-      completedTodos.forEach(({ id }) => {
-        updateTodo(id, { completed: false });
-      });
+      await Promise.all(
+        completedTodos.map(({ id }) => (
+          updateTodo(id, { completed: false }))),
+      );
     }
   }, [completedTodos, activeTodos]);
 
