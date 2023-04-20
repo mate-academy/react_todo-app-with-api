@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -15,9 +17,10 @@ export const HeaderTodo: React.FC<Props> = (props) => {
     onAddTodo,
     onToogleAll,
   } = props;
-  const isHasTodos = todos.length < 1;
-  const isAllCompleted
-    = todos.length === todos.filter(todo => todo.completed).length;
+  const hasTodos = todos.length < 1;
+  const isAllCompleted = useMemo(() => {
+    return todos.length === todos.filter(todo => todo.completed).length;
+  }, [todos]);
 
   return (
     <>
@@ -27,7 +30,7 @@ export const HeaderTodo: React.FC<Props> = (props) => {
           'todoapp__toggle-all',
           {
             active: isAllCompleted,
-            'is-invisible': isHasTodos,
+            'is-invisible': hasTodos,
           },
         )}
         aria-label="active"

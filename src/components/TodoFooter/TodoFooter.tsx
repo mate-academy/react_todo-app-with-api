@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import classNames from 'classnames';
 
@@ -22,13 +22,13 @@ export const TodoFooter: React.FC<Props> = (props) => {
     hasCompletedTodos,
   } = props;
 
-  const handlerSortSelect = (type: SortType) => {
+  const handlerSortSelect = useCallback((type: SortType) => {
     if (type === sortType) {
       return;
     }
 
     onSelect(type);
-  };
+  }, []);
 
   return (
     <footer className="todoapp__footer">

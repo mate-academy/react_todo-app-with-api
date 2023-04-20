@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import classNames from 'classnames';
 
@@ -28,9 +28,9 @@ export const TodoItem: React.FC<Props> = ({
 
   const [isEdditing, setIsEdditing] = useState(false);
 
-  const handlerFocus = (focus: boolean) => {
+  const handlerFocus = useCallback((focus: boolean) => {
     setIsEdditing(focus);
-  };
+  }, []);
 
   return (
     <div

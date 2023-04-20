@@ -6,21 +6,15 @@ export const filterTodos = (
   sortBy: SortType,
 ): Todo[] => {
   return todos.filter(todo => {
-    let isSort = true;
-
     switch (sortBy) {
       case SortType.ACTIVE:
-        isSort = !todo.completed;
-        break;
+        return !todo.completed;
 
       case SortType.COMPLETED:
-        isSort = todo.completed;
-        break;
+        return todo.completed;
 
       default:
-        break;
+        return true;
     }
-
-    return isSort;
   });
 };

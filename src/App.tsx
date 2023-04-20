@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import classNames from 'classnames';
 import {
@@ -20,17 +25,6 @@ import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 
 const USER_ID = 7036;
-// const USER_ID = 6749;
-
-// const toggleTodoCompleted = (todos: Todo[], id: number): Todo[] => {
-//   return todos.map(todo => {
-//     if (todo.id === id) {
-//       return { ...todo, completed: !todo.completed };
-//     }
-
-//     return todo;
-//   });
-// };
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -40,14 +34,14 @@ export const App: React.FC = () => {
   const [isHiddenError, setIsHiddenError] = useState(true);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
-  const handlerError = (whatError: ErrorsType) => {
+  const handleError = useCallback((whatError: ErrorsType) => {
     setError(whatError);
     setIsHiddenError(false);
 
     setTimeout(() => {
       setIsHiddenError(true);
     }, 3000);
-  };
+  }, []);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -56,23 +50,24 @@ export const App: React.FC = () => {
 
         setTodos(fetchedTodos);
       } catch {
-        handlerError(ErrorsType.UPDATE);
+        handleError(ErrorsType.UPDATE);
       }
     };
 
     fetchTodos();
   }, []);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const visibleTodos = useMemo(() => (
+    filterTodos(todos, sortType)
+  ), [todos, sortType]);
 
-  const visibleTodos = filterTodos(todos, sortType);
-  const hasCompletedTodos = todos.some(todo => todo.completed);
+  const hasCompletedTodos = useMemo(() => (
+    todos.some(todo => todo.completed)
+  ), [todos]);
 
-  const addNewTodo = async (title: string, id: number) => {
+  const addNewTodo = useCallback(async (title: string, id: number) => {
     if (!title.trim()) {
-      handlerError(ErrorsType.EMPTY);
+      handleError(ErrorsType.EMPTY);
 
       return;
     }
@@ -98,11 +93,11 @@ export const App: React.FC = () => {
         addingTodo,
       ]));
     } catch {
-      handlerError(ErrorsType.ADD);
+      handleError(ErrorsType.ADD);
     } finally {
       setTempTodo(null);
     }
-  };
+  }, []);
 
   const handlerSortType = (type: SortType) => {
     setSortType(type);
@@ -112,7 +107,7 @@ export const App: React.FC = () => {
     setIsHiddenError(true);
   };
 
-  const handlerDeleteTodo = async (todoId: number) => {
+  const handlerDeleteTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodosIds(prevLoaderIds => ([
         ...prevLoaderIds,
@@ -123,15 +118,15 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.filter(todo => todoId !== todo.id));
     } catch {
-      handlerError(ErrorsType.DELETE);
+      handleError(ErrorsType.DELETE);
     } finally {
       setLoadingTodosIds(prevLoaderIds => (
         prevLoaderIds.filter(id => id !== todoId)
       ));
     }
-  };
+  }, []);
 
-  const handlerRemoveAllCompletedTodo = async () => {
+  const handlerRemoveAllCompletedTodo = useCallback(async () => {
     const completedTodosIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
@@ -142,9 +137,12 @@ export const App: React.FC = () => {
     ]));
 
     await Promise.all(completedTodosIds.map(id => handlerDeleteTodo(id)));
-  };
+  }, []);
 
-  const handlerTodoToggle = async (id: number, completed: boolean) => {
+  const handlerTodoToggle = useCallback(async (
+    id: number,
+    completed: boolean,
+  ) => {
     try {
       setLoadingTodosIds(prevLoaderIds => ([
         ...prevLoaderIds,
@@ -161,15 +159,15 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      handlerError(ErrorsType.UPDATE);
+      handleError(ErrorsType.UPDATE);
     } finally {
       setLoadingTodosIds(prevLoaderIds => (
         prevLoaderIds.filter(prevLoaderId => id !== prevLoaderId)
       ));
     }
-  };
+  }, []);
 
-  const handlerToggleAll = async () => {
+  const handlerToggleAll = useCallback(async () => {
     const areAllCompleted = todos.every(todo => todo.completed);
     const todosIds = areAllCompleted
       ? todos.map(todo => todo.id)
@@ -178,9 +176,12 @@ export const App: React.FC = () => {
     await Promise.all(
       todosIds.map(id => handlerTodoToggle(id, areAllCompleted)),
     );
-  };
+  }, []);
 
-  const handlerChangeTitle = async (newTitle: string, todoId: number) => {
+  const handlerChangeTitle = useCallback(async (
+    newTitle: string,
+    todoId: number,
+  ) => {
     const title = newTitle.trim();
 
     if (!title) {
@@ -205,13 +206,17 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      handlerError(ErrorsType.UPDATE);
+      handleError(ErrorsType.UPDATE);
     } finally {
       setLoadingTodosIds(prevLoaderIds => (
         prevLoaderIds.filter(prevLoaderId => todoId !== prevLoaderId)
       ));
     }
-  };
+  }, []);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">

@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 interface Props {
   todoId?: number,
@@ -18,9 +23,9 @@ export const TodoForm: React.FC<Props> = ({
   const [inputDisabled, setInputDisabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handlerCancelEdditing = () => {
+  const handlerCancelEdditing = useCallback(() => {
     onUnfocus?.(false);
-  };
+  }, []);
 
   useEffect(() => {
     if (currentTitle) {
@@ -32,11 +37,13 @@ export const TodoForm: React.FC<Props> = ({
     };
   }, [inputDisabled]);
 
-  const handlerTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlerTitle = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const title = event.target.value;
 
     setNewTitleTodo(title);
-  };
+  }, []);
 
   const handlerSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -56,11 +63,13 @@ export const TodoForm: React.FC<Props> = ({
     handlerCancelEdditing();
   };
 
-  const handlerKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handlerKeyup = useCallback((
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.key === 'Escape') {
       handlerCancelEdditing();
     }
-  };
+  }, []);
 
   return (
     <form
