@@ -15,12 +15,14 @@ import {
   patchTodo,
   postTodo,
 } from './api/todos';
-import { AddTodo } from './components/AddTodo';
-import { TodoList } from './components/TodoList';
-import { ErrorNotification } from './components/ErrorNotification';
-import { Filter } from './components/Filter';
 import { getFilteredTodos } from './utils/helpers';
 import { DEFAULT_TASK_ID, USER_ID } from './utils/constants';
+import {
+  AddTodo,
+  ErrorNotification,
+  Filter,
+  TodoList,
+} from './components';
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);

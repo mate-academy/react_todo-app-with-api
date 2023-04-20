@@ -9,7 +9,7 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { CustomForm } from '../CustomForm/CustomForm';
+import { CustomForm } from '../CustomForm';
 
 interface TodoProps {
   todo: Todo;
