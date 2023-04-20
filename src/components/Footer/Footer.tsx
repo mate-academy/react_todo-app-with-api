@@ -9,6 +9,7 @@ type Props = {
   setFilterType: (value: Status) => void,
   filterType: Status,
   onClearCompleted: () => void,
+  activeTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
@@ -16,13 +17,10 @@ export const Footer: React.FC<Props> = ({
   setFilterType,
   filterType,
   onClearCompleted,
+  activeTodos,
 }) => {
   const hasCompleted = useMemo(() => {
     return todos.some(todo => todo.completed);
-  }, [todos]);
-
-  const activeTodos = useMemo(() => {
-    return todos.filter(todo => !todo.completed);
   }, [todos]);
 
   return (

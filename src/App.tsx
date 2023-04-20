@@ -5,7 +5,9 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodo, updateTodo,
+} from './api/todos';
 import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { Notification } from './components/Notification/Notification';
@@ -104,25 +106,35 @@ export const App: React.FC = () => {
     }
   }, [processedIds]);
 
-  const completedTodos = useMemo(() => todos.filter(todo => todo.completed),
-    [todos]);
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed), [todos],
+  );
+
+  const activeTodos = useMemo(() => {
+    return todos.filter(todo => !todo.completed);
+  }, [todos]);
+
+  const allCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
 
   const handleClearCompleted = useCallback(() => {
     setProcessedIds(completedTodos.map(todo => todo.id));
     completedTodos.forEach(todo => handleDeleteTodo(todo.id));
   }, [completedTodos]);
 
-  const handleCheckbox = useCallback(async(todoId: number, value: boolean) => {
+  const handleCheckbox = useCallback(async (todoId: number, value: boolean) => {
     setError(null);
     setProcessedIds(clickedIds => [...clickedIds, todoId]);
 
     try {
-      await updateTodo(todoId, {'completed': !value});
-      
+      await updateTodo(todoId, { completed: !value });
+
       setTodos(curTodos => curTodos.map(curTodo => {
-        if(curTodo.id !== todoId) {
+        if (curTodo.id !== todoId) {
           return curTodo;
         }
+
         return {
           ...curTodo,
           completed: !value,
@@ -134,6 +146,16 @@ export const App: React.FC = () => {
       setProcessedIds(clickedIds => clickedIds.filter(id => id !== todoId));
     }
   }, [processedIds]);
+
+  const handleToggleAll = () => {
+    if (activeTodos.length === 0) {
+      setProcessedIds(completedTodos.map(todo => todo.id));
+      completedTodos.forEach(todo => handleCheckbox(todo.id, todo.completed));
+    } else {
+      setProcessedIds(activeTodos.map(todo => todo.id));
+      activeTodos.forEach(todo => handleCheckbox(todo.id, todo.completed));
+    }
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -147,6 +169,8 @@ export const App: React.FC = () => {
         <Header
           createTodo={handleAddTodo}
           isDisableInput={isDisableInput}
+          handleToggleAll={handleToggleAll}
+          allCompleted={allCompleted}
         />
 
         <section className="todoapp__main">
@@ -166,6 +190,7 @@ export const App: React.FC = () => {
                 setFilterType={setFilterType}
                 filterType={filterType}
                 onClearCompleted={handleClearCompleted}
+                activeTodos={activeTodos}
               />
             )}
       </div>

@@ -18,23 +18,23 @@ export const TodoList: React.FC<Props> = ({
 }) => (
   <>
     {todos.map((todo: Todo) => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          processedIds={processedIds}
-          handleCheckbox={handleCheckbox}
-        />
+      <TodoItem
+        todo={todo}
+        key={todo.id}
+        deleteTodo={deleteTodo}
+        processedIds={processedIds}
+        handleCheckbox={handleCheckbox}
+      />
     ))}
 
     {tempTodo
       && (
-          <TodoItem
-            todo={tempTodo}
-            deleteTodo={deleteTodo}
-            processedIds={processedIds}
-            handleCheckbox={handleCheckbox}
-          />
+        <TodoItem
+          todo={tempTodo}
+          deleteTodo={deleteTodo}
+          processedIds={processedIds}
+          handleCheckbox={handleCheckbox}
+        />
       )}
   </>
 );

@@ -16,7 +16,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   return (
     <div
-      className={classNames('todo', { 'completed': todo.completed })}
+      className={classNames('todo', { completed: todo.completed })}
     >
       <label className="todo__status-label">
         <input

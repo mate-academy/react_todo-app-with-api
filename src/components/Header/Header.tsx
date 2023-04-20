@@ -1,13 +1,18 @@
+import classNames from 'classnames';
 import { FormEvent, useState } from 'react';
 
 type Props = {
   createTodo: (title: string) => void,
   isDisableInput: boolean,
+  handleToggleAll: () => void,
+  allCompleted: boolean,
 };
 
 export const Header: React.FC<Props> = ({
   createTodo,
   isDisableInput,
+  handleToggleAll,
+  allCompleted,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -22,8 +27,11 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: allCompleted,
+        })}
         aria-label="Mute volume"
+        onClick={handleToggleAll}
       />
 
       <form onSubmit={handleSubmit}>
