@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
-
+import { ErrorMessage } from '../../types/ErrorMessage'
 import { Todo, PathchingTodo } from '../../types/Todo';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   loadingTodoId: number[];
   loading?: boolean;
   updateTodo: (id: number, data: PathchingTodo) => Promise<void>;
-  setErrorText: (text: string) => void;
+  setErrorText: (text: ErrorMessage) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -43,11 +43,11 @@ export const TodoItem: React.FC<Props> = ({
     if (!todoTitle.length) {
       removeTodo(id)
         .then(() => setIsUpdating(false))
-        .catch(() => setErrorText('Unable to remove a todo'));
+        .catch(() => setErrorText(ErrorMessage.DELETE));
     } else {
       updateTodo(id, { title: todoTitle, completed: true })
         .then(() => setIsUpdating(false))
-        .catch(() => setErrorText('Unable to update a todo'));
+        .catch(() => setErrorText(ErrorMessage.UPDATE));
     }
   }, [id, todoTitle, removeTodo, updateTodo]);
 
@@ -61,11 +61,11 @@ export const TodoItem: React.FC<Props> = ({
       if (event.key === 'Enter') {
         if (todoTitle.length === 0) {
           removeTodo(id).then(() => setIsUpdating(false))
-            .catch(() => setErrorText('Unable to remove a todo'));
+            .catch(() => setErrorText(ErrorMessage.DELETE));
         } else {
           updateTodo(id, { title: todoTitle, completed: false })
             .then(() => setIsUpdating(false))
-            .catch(() => setErrorText('Unable to update a todo'));
+            .catch(() => setErrorText(ErrorMessage.UPDATE));
         }
 
         setIsUpdating(false);

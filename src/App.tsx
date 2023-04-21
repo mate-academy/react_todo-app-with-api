@@ -11,22 +11,28 @@ import TodoList from './components/TodoList';
 import { FilterType } from './types/FilterType';
 import Footer from './components/Footer';
 import HeaderForm from './components/HeaderForm';
+import ErrorNotifications from './components/ErrorNotifications';
+import { ErrorMessage } from './types/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [disabledInput, setDisabledInput] = useState(false);
   const [query, setQuery] = useState('');
-  const [errorText, setErrorText] = useState('');
   const [filterType, setFilterType] = useState(FilterType.All);
   const [loading, setLoading] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([0]);
+  const [errorText, setErrorText]
+    = useState<ErrorMessage>(ErrorMessage.NONE);
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery);
   };
 
-  const handleCloseButton = () => setErrorText('');
+  const handleCloseErrorMessage = () => {
+    setErrorText(ErrorMessage.NONE);
+  };
+
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
@@ -41,7 +47,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch (error) {
-      setErrorText('Unable to load todos');
+      setErrorText(ErrorMessage.LOAD);
     }
   }, []);
 
@@ -54,7 +60,7 @@ export const App: React.FC = () => {
       setLoading(true);
 
       if (!title.length) {
-        setErrorText("Title can't be empty");
+        setErrorText(ErrorMessage.TITLE);
 
         return;
       }
@@ -73,7 +79,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, createdTodo]);
     } catch (error) {
-      setErrorText('Unable to add todo');
+      setErrorText(ErrorMessage.ADD);
     } finally {
       setTempTodo(null);
       setDisabledInput(false);
@@ -87,7 +93,7 @@ export const App: React.FC = () => {
       await deleteTodo(id);
       setTodos(todos.filter(todo => todo.id !== id));
     } catch {
-      setErrorText('Unable to delete a todo');
+      setErrorText(ErrorMessage.DELETE);
     } finally {
       setLoadingTodoId([]);
     }
@@ -108,9 +114,9 @@ export const App: React.FC = () => {
         }));
       } catch (error) {
         if (data.title.length === 0) {
-          setErrorText('');
+          setErrorText(ErrorMessage.NONE);
         } else {
-          setErrorText('Unable to update todo');
+          setErrorText(ErrorMessage.UPDATE);
         }
       } finally {
         setLoadingTodoId([]);
@@ -154,7 +160,7 @@ export const App: React.FC = () => {
       await Promise.all(toggledTodos);
       setTodos(updatedTodos);
     } catch {
-      setErrorText('Unable to toggle all todos');
+      setErrorText(ErrorMessage.ALL);
     } finally {
       setLoadingTodoId([]);
     }
@@ -167,7 +173,7 @@ export const App: React.FC = () => {
       await Promise.all(completeIds);
       setTodos(activeTodos);
     } catch {
-      setErrorText('Unable to delete completed todos');
+      setErrorText(ErrorMessage.DELETE_UPDATED);
     }
   };
 
@@ -176,7 +182,7 @@ export const App: React.FC = () => {
     if (query.trim().length) {
       addTodo(query);
     } else {
-      setErrorText('Title is empty');
+      setErrorText(ErrorMessage.TITLE);
     }
 
     setQuery('');
@@ -242,19 +248,10 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-      <div
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !errorText },
-        )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={handleCloseButton}
-        />
-        <span>{errorText}</span>
-      </div>
+      <ErrorNotifications
+        errorMessage={errorText}
+        closeError={handleCloseErrorMessage}
+      />
     </div>
   );
 };

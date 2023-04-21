@@ -3,6 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import '../../styles/transitions.scss';
 import { Todo, PathchingTodo } from '../../types/Todo';
 import TodoItem from '../TodoItem';
+import { ErrorMessage } from '../../types/ErrorMessage'
 
 type Props = {
   todos: Todo[];
@@ -11,7 +12,7 @@ type Props = {
   loadingTodoId: number[],
   removeTodo: (id: number) => Promise<void>,
   updateTodo: (id: number, data: PathchingTodo) => Promise<void>,
-  setErrorText: (errorText : string) => void,
+  setErrorText: (errorText : ErrorMessage) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
