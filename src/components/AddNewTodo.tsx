@@ -40,15 +40,19 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
     try {
       setIsAddingNewTodo(true);
       const tempTodo: Todo = {
-        id: findMaxId(todos) + 1,
+        id: 0,
         userId: USER_ID,
         title: newTodoTitle,
         completed: false,
       };
 
       setLoadingActiveTodoId(prev => [...prev, tempTodo.id]);
-
-      setTodos(prev => [...prev, tempTodo]);
+      setTodos(prev => [...prev, {
+        id: findMaxId(todos) + 1,
+        userId: USER_ID,
+        title: newTodoTitle,
+        completed: false,
+      }]);
 
       await postTodos(USER_ID, tempTodo);
 
