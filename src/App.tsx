@@ -4,19 +4,17 @@ import { getTodos } from './api/todos';
 import { AppTodoContext } from './contexts/AppTodoContext';
 import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
 import { TodoAppError } from './components/Error/TodoAppError';
-import { ErrorType } from './components/Error/Error.types';
 import { USER_ID } from './react-app-env';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
+import {ErrorType} from "./types/enums";
 
 export const App: React.FC = () => {
   const {
     todos,
     setTodos,
-    errorMessage,
     setErrorMessage,
-    uncompletedTodos,
-    setVisibleTodos,
+    activeTodos,
   } = useContext(AppTodoContext);
 
   const getAllTodos = useCallback(async () => {
@@ -24,7 +22,6 @@ export const App: React.FC = () => {
       const allTodos = await getTodos(USER_ID);
 
       setTodos(allTodos);
-      setVisibleTodos(allTodos);
     } catch {
       setErrorMessage(ErrorType.GetAllTodosError);
     }
@@ -33,20 +30,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     getAllTodos();
   }, []);
-
-  useEffect(() => {
-    let timerID: NodeJS.Timeout;
-
-    if (errorMessage !== ErrorType.NoError) {
-      timerID = setTimeout(() => {
-        setErrorMessage(ErrorType.NoError);
-      }, 3000);
-    }
-
-    return () => {
-      clearTimeout(timerID);
-    };
-  }, [errorMessage]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -69,13 +52,13 @@ export const App: React.FC = () => {
 
       <footer className="todoapp__footer">
         <span className="todo-count">
-          {`${uncompletedTodos.length} items left`}
+          {`${activeTodos.length} items left`}
         </span>
 
         <TodoFilter />
       </footer>
 
-      {errorMessage !== ErrorType.NoError && <TodoAppError />}
+      <TodoAppError />
     </div>
   );
 };

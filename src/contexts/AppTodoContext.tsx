@@ -1,25 +1,24 @@
-import React, {
-  FC, useCallback, useMemo, useState,
-} from 'react';
-import { Todo } from '../types/Todo';
-import { Props, Value } from './AppTodoContext.types';
-import { ErrorType } from '../components/Error/Error.types';
+import React, {FC, useCallback, useMemo, useState,} from 'react';
+import {Todo} from '../types/Todo';
+import {ContextValue, Props} from './AppTodoContext.types';
+import {ErrorType, FilterType} from "../types/enums";
 
-export const AppTodoContext = React.createContext<Value>({
+export const AppTodoContext = React.createContext<ContextValue>({
   todos: [],
   setTodos: () => {},
   visibleTodos: [],
-  setVisibleTodos: () => {},
   tempTodo: null,
   setTempTodo: () => {},
   setProcessingTodoIds: () => {},
   completedTodos: [],
-  uncompletedTodos: [],
+  activeTodos: [],
   errorMessage: ErrorType.NoError,
   setErrorMessage: () => {},
   addProcessingTodo: () => {},
   removeProcessingTodo: () => {},
   isTodoProcessing: () => true,
+  filterType: FilterType.All,
+  setFilterType: () => {},
 });
 
 export const AppTodoProvider: FC<Props> = ({ children }) => {
@@ -27,29 +26,43 @@ export const AppTodoProvider: FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodoIds, setProcessingTodoIds]
     = useState<Record<number, boolean>>({});
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState(ErrorType.NoError);
+  const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
 
   const {
     completedTodos,
-    uncompletedTodos,
-  } = useMemo(() => {
-    return todos.reduce<{
-      completedTodos: Todo[],
-      uncompletedTodos: Todo[],
-    }>((acc, todo) => {
-      if (todo.completed) {
-        acc.completedTodos.push(todo);
-      } else {
-        acc.uncompletedTodos.push(todo);
-      }
+    activeTodos,
+  } = useMemo(() => todos.reduce<{
+    completedTodos: Todo[],
+    activeTodos: Todo[],
+  }>((acc, todo) => {
+    if (todo.completed) {
+      acc.completedTodos.push(todo);
+    } else {
+      acc.activeTodos.push(todo);
+    }
 
-      return acc;
-    }, {
-      completedTodos: [],
-      uncompletedTodos: [],
-    });
-  }, [todos]);
+    return acc;
+  }, {
+    completedTodos: [],
+    activeTodos: [],
+  }), [todos]);
+
+  const visibleTodos = useMemo(() => {
+    switch (filterType) {
+      case FilterType.Completed:
+        return completedTodos;
+
+      case FilterType.Active:
+        return activeTodos;
+
+      case FilterType.All:
+        return todos;
+
+      default:
+        return todos;
+    }
+  }, [todos, filterType]);
 
   const addProcessingTodo = useCallback((id: number) => {
     setProcessingTodoIds(currentTodosIds => ({
@@ -76,17 +89,18 @@ export const AppTodoProvider: FC<Props> = ({ children }) => {
     todos,
     setTodos,
     visibleTodos,
-    setVisibleTodos,
     tempTodo,
     setTempTodo,
     completedTodos,
-    uncompletedTodos,
+    activeTodos,
     setProcessingTodoIds,
     errorMessage,
     setErrorMessage,
     addProcessingTodo,
     removeProcessingTodo,
     isTodoProcessing,
+    filterType,
+    setFilterType,
   };
 
   return (

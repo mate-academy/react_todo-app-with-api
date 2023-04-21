@@ -6,3 +6,9 @@ export enum ErrorType {
   DeleteTodoError = 'Unable to delete a todo',
   UpdateTodoError = 'Unable to update a todo',
 }
+
+export enum FilterType {
+  All = 'All',
+  Active = 'Active',
+  Completed = 'Completed',
+}

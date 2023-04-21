@@ -1,17 +1,17 @@
 import classNames from 'classnames/bind';
 import {
-  FC, useContext, useEffect, useRef, useState,
+  FC, useContext, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
 import { AppTodoContext } from '../../contexts/AppTodoContext';
 import {
   deleteTodo,
-  editTodoTitle,
   getTodos,
   toggleTodoStatus,
 } from '../../api/todos';
-import { ErrorType } from '../Error/Error.types';
 import { USER_ID } from '../../react-app-env';
+import { EditForm } from '../EditForm/EditForm';
+import {ErrorType} from "../../types/enums";
 
 interface Props {
   todo: Todo,
@@ -26,18 +26,12 @@ export const TodoItem: FC<Props> = (
     setErrorMessage,
     addProcessingTodo,
     removeProcessingTodo,
-    setProcessingTodoIds,
     isTodoProcessing,
-
     setTodos,
-    setVisibleTodos,
   } = useContext(AppTodoContext);
 
   const { title, completed, id } = todo;
-
-  const [editValue, setEditValue] = useState(title);
   const [isEditAvailable, setIsEditAvailable] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleRemoveButton = async () => {
     addProcessingTodo(id);
@@ -50,10 +44,6 @@ export const TodoItem: FC<Props> = (
     } finally {
       removeProcessingTodo(id);
     }
-
-    setVisibleTodos(prevVisTodos => (
-      prevVisTodos.filter(prevTodo => prevTodo.id !== todo.id)
-    ));
   };
 
   const handleToggleStatus = async () => {
@@ -65,7 +55,7 @@ export const TodoItem: FC<Props> = (
         prevTodo => prevTodo.id === todo.id,
       );
 
-      setVisibleTodos(prevTodos => {
+      setTodos(prevTodos => {
         const updatedTodos = [...prevTodos];
 
         updatedTodos[prevTodoIndex] = updatedTodo;
@@ -80,58 +70,6 @@ export const TodoItem: FC<Props> = (
       removeProcessingTodo(id);
     }
   };
-
-  const handleEditSubmit = async () => {
-    addProcessingTodo(id);
-
-    if (editValue === title) {
-      setProcessingTodoIds({});
-      setIsEditAvailable(false);
-
-      return;
-    }
-
-    if (editValue.trim() === '') {
-      handleRemoveButton();
-      setIsEditAvailable(false);
-
-      return;
-    }
-
-    try {
-      const updatedTodo = await editTodoTitle(id, editValue);
-      const oldTodoIndex = todos.findIndex(prevTodo => prevTodo.id === id);
-
-      setTodos(prevTodos => {
-        prevTodos.splice(oldTodoIndex, 1, updatedTodo);
-
-        return prevTodos;
-      });
-
-      setVisibleTodos(prevTodos => {
-        prevTodos.splice(oldTodoIndex, 1, updatedTodo);
-
-        return prevTodos;
-      });
-    } catch {
-      setErrorMessage(ErrorType.UpdateTodoError);
-    } finally {
-      setIsEditAvailable(false);
-      removeProcessingTodo(id);
-    }
-  };
-
-  const handleKeyUpAction = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setIsEditAvailable(false);
-    }
-  };
-
-  useEffect(() => {
-    if (inputRef.current !== null) {
-      inputRef.current.focus();
-    }
-  }, [isEditAvailable]);
 
   return (
     <div
@@ -151,24 +89,12 @@ export const TodoItem: FC<Props> = (
 
       {isEditAvailable
         ? (
-          <form
-            className="todo__title"
-            onSubmit={
-              (event) => {
-                event.preventDefault();
-                handleEditSubmit();
-              }
-            }
-          >
-            <input
-              className="todo__title"
-              ref={inputRef}
-              value={editValue}
-              onChange={(event) => setEditValue(event.target.value)}
-              onBlur={handleEditSubmit}
-              onKeyUp={handleKeyUpAction}
-            />
-          </form>
+          <EditForm
+            todo={todo}
+            setIsEditAvailable={setIsEditAvailable}
+            onRemove={handleRemoveButton}
+            isEditAvailable={isEditAvailable}
+          />
         )
         : (
           <span

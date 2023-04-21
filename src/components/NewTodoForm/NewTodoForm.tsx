@@ -2,8 +2,8 @@ import React, { FC, useContext, useState } from 'react';
 import classNames from 'classnames/bind';
 import { getTodos, sendNewTodo, toggleTodoStatus } from '../../api/todos';
 import { AppTodoContext } from '../../contexts/AppTodoContext';
-import { ErrorType } from '../Error/Error.types';
 import { USER_ID } from '../../react-app-env';
+import {ErrorType} from "../../types/enums";
 
 export const NewTodoForm: FC = () => {
   const {
@@ -11,14 +11,13 @@ export const NewTodoForm: FC = () => {
     setTodos,
     setTempTodo,
     setErrorMessage,
-    setVisibleTodos,
     completedTodos,
     removeProcessingTodo,
     addProcessingTodo,
   } = useContext(AppTodoContext);
 
-  const [inputValue, setInputValue] = useState<string>('');
-  const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState('');
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const handleInputChange = (value: string) => {
     setErrorMessage(ErrorType.NoError);
@@ -35,12 +34,9 @@ export const NewTodoForm: FC = () => {
     setIsInputDisabled(true);
 
     try {
-      const newTodo = await sendNewTodo(inputValue, USER_ID);
+      await sendNewTodo(inputValue, USER_ID);
 
       setTodos(await getTodos(USER_ID));
-      setVisibleTodos(
-        prevTodos => [...prevTodos, newTodo],
-      );
     } catch {
       setErrorMessage(ErrorType.NewTodoError);
     } finally {
@@ -66,24 +62,21 @@ export const NewTodoForm: FC = () => {
   };
 
   const handleToggleAll = async () => {
-    // completedTodos.forEach(({ id }) => );
-
-    completedTodos.forEach(async (completedTodo) => {
-      addProcessingTodo(completedTodo.id);
-
-      try {
+    try {
+      await Promise.all(completedTodos.map(async (completedTodo) => {
+        addProcessingTodo(completedTodo.id);
         await toggleTodoStatus(completedTodo);
-      } catch {
-        setErrorMessage(ErrorType.UpdateTodoError);
-      } finally {
         removeProcessingTodo(completedTodo.id);
-      }
+      }));
 
-      const newTodos = await getTodos(USER_ID);
-
-      setTodos(newTodos);
-      setVisibleTodos(newTodos);
-    });
+      setTodos(prevTodos => {
+        return prevTodos.map(prevTodo => {
+          return { ...prevTodo, completed: !prevTodo.completed };
+        });
+      });
+    } catch {
+      setErrorMessage(ErrorType.UpdateTodoError);
+    }
   };
 
   return (

@@ -6,11 +6,16 @@ function wait(delay: number) {
   });
 }
 
-type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+enum RequestMethodType {
+  Get = 'GET',
+  Post = 'POST',
+  Patch = 'PATCH',
+  Delete = 'DELETE',
+}
 
 function request<T>(
   url: string,
-  method: RequestMethod = 'GET',
+  method: RequestMethodType = RequestMethodType.Get,
   data: {} | null = null,
 ): Promise<T> {
   const options: RequestInit = { method };
@@ -35,7 +40,13 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: {}) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: {}) => request<T>(url, 'PATCH', data),
-  delete: (url: string) => request(url, 'DELETE'),
+  post: <T>(
+    url: string, data: {},
+  ) => request<T>(url, RequestMethodType.Post, data),
+  patch: <T>(
+    url: string, data: {},
+  ) => request<T>(url, RequestMethodType.Patch, data),
+  delete: (
+    url: string,
+  ) => request(url, RequestMethodType.Delete),
 };

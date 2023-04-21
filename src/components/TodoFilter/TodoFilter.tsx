@@ -1,32 +1,21 @@
 import {
-  FC, useContext, useState,
+  FC, useContext,
 } from 'react';
 import classNames from 'classnames/bind';
-import { deleteTodo, getTodos } from '../../api/todos';
+import { deleteTodo } from '../../api/todos';
 import { AppTodoContext } from '../../contexts/AppTodoContext';
-import { ErrorType } from '../Error/Error.types';
-import { USER_ID } from '../../react-app-env';
-
-enum FilterType {
-  All = 'All',
-  Active = 'Active',
-  Completed = 'Completed',
-}
+import {ErrorType, FilterType} from "../../types/enums";
 
 export const TodoFilter: FC = () => {
   const {
-    todos,
     setTodos,
-    setVisibleTodos,
     setErrorMessage,
     setProcessingTodoIds,
     completedTodos,
-    uncompletedTodos,
+    filterType,
+    setFilterType,
     addProcessingTodo,
   } = useContext(AppTodoContext);
-  const [currentFilter, setCurrentFilter] = useState<FilterType>(
-    FilterType.All,
-  );
 
   const handleClearCompleted = async () => {
     completedTodos.forEach(async (todo) => {
@@ -41,37 +30,19 @@ export const TodoFilter: FC = () => {
 
     setProcessingTodoIds({});
 
-    setVisibleTodos(prevVisTodos => {
-      return prevVisTodos.filter(prevTodo => !prevTodo.completed);
+    setTodos(prevTodos => {
+      return prevTodos.filter(prevTodo => !prevTodo.completed);
     });
-    setTodos(await getTodos(USER_ID));
   };
 
   const handleFiltration = async (criteria: FilterType) => {
     setErrorMessage(ErrorType.NoError);
 
-    if (currentFilter === criteria) {
+    if (filterType === criteria) {
       return;
     }
 
-    switch (criteria) {
-      case FilterType.All:
-        setVisibleTodos(todos);
-        break;
-
-      case FilterType.Completed:
-        setVisibleTodos([...completedTodos]);
-        break;
-
-      case FilterType.Active:
-        setVisibleTodos([...uncompletedTodos]);
-        break;
-
-      default:
-        break;
-    }
-
-    setCurrentFilter(criteria);
+    setFilterType(criteria);
   };
 
   return (
@@ -84,7 +55,7 @@ export const TodoFilter: FC = () => {
             key={filter as string}
             className={classNames(
               'filter__link',
-              { selected: currentFilter === filter },
+              { selected: filterType === filter },
             )}
             onClick={() => handleFiltration(filter)}
           >
