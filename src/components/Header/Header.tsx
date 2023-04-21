@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { FormEvent, useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 
 type Props = {
   createTodo: (title: string) => void,
@@ -23,6 +23,10 @@ export const Header: React.FC<Props> = ({
     setQuery('');
   };
 
+  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+
   return (
     <header className="todoapp__header">
       <button
@@ -40,9 +44,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-          }}
+          onChange={onInputChange}
           disabled={isDisableInput}
         />
       </form>

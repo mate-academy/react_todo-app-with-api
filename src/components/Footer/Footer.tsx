@@ -1,6 +1,5 @@
 // import classNames from "classnames"
 import classNames from 'classnames';
-import { useMemo } from 'react';
 import { Status } from '../../types/Status';
 import { Todo } from '../../types/Todo';
 
@@ -19,9 +18,11 @@ export const Footer: React.FC<Props> = ({
   onClearCompleted,
   activeTodos,
 }) => {
-  const hasCompleted = useMemo(() => {
-    return todos.some(todo => todo.completed);
-  }, [todos]);
+  const hasCompleted = todos.some(todo => todo.completed);
+
+  const onFilterChange = (status: Status) => () => {
+    setFilterType(status);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -35,7 +36,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === Status.All,
           })}
-          onClick={() => setFilterType(Status.All)}
+          onClick={onFilterChange(Status.All)}
         >
           All
         </a>
@@ -45,7 +46,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === Status.Active,
           })}
-          onClick={() => setFilterType(Status.Active)}
+          onClick={onFilterChange(Status.Active)}
         >
           Active
         </a>
@@ -55,7 +56,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === Status.Completed,
           })}
-          onClick={() => setFilterType(Status.Completed)}
+          onClick={onFilterChange(Status.Completed)}
         >
           Completed
         </a>

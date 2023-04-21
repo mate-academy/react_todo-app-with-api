@@ -42,13 +42,29 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const onDeleteTodo = () => {
+    deleteTodo(id);
+  };
+
+  const onChangeCheckbox = () => {
+    handleCheckbox(id, completed);
+  };
+
+  const onChangeTitleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitleInput(event.target.value);
+  };
+
+  const onEditTitle = () => {
+    setIsEditing(true);
+  };
+
   return (
     <div className={classNames('todo', { completed })}>
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          onChange={() => handleCheckbox(id, completed)}
+          onChange={onChangeCheckbox}
         />
       </label>
 
@@ -60,7 +76,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title-field"
               placeholder="Edit title"
               value={titleInput}
-              onChange={(event) => setTitleInput(event.target.value)}
+              onChange={onChangeTitleInput}
               onBlur={handleSubmitOrBlur}
               onKeyUp={handleKeyUp}
             />
@@ -70,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setIsEditing(true)}
+              onDoubleClick={onEditTitle}
             >
               {title}
             </span>
@@ -78,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => deleteTodo(id)}
+              onClick={onDeleteTodo}
             >
               ×
             </button>

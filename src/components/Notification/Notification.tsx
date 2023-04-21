@@ -9,6 +9,10 @@ type Props = {
 export const Notification: React.FC<Props> = ({ error }) => {
   const [onButtonDelete, setOnButtonDelete] = useState(true);
 
+  const onHiddenError = () => {
+    setOnButtonDelete(false);
+  };
+
   return (
     <div className={classNames(
       'notification is-danger is-light has-text-weight-normal',
@@ -19,7 +23,7 @@ export const Notification: React.FC<Props> = ({ error }) => {
         type="button"
         className="delete"
         aria-label="Mute volume"
-        onClick={() => setOnButtonDelete(false)}
+        onClick={onHiddenError}
       />
 
       {error}

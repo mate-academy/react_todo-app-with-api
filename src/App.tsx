@@ -2,7 +2,6 @@
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import {
@@ -27,6 +26,10 @@ export const App: React.FC = () => {
   const [isDisableInput, setIsDisableInput] = useState(false);
   const [processedIds, setProcessedIds] = useState<number[]>([]);
 
+  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const isAllCompleted = todos.every(todo => todo.completed);
+
   const handleGetTodos = async () => {
     try {
       if (USER_ID) {
@@ -45,7 +48,7 @@ export const App: React.FC = () => {
     handleGetTodos();
   }, []);
 
-  const filteredTodos = () => {
+  const getFilteredTodos = () => {
     switch (filterType) {
       case Status.Active:
         return todos.filter(todo => !todo.completed);
@@ -105,18 +108,6 @@ export const App: React.FC = () => {
       setProcessedIds(deleteIds => deleteIds.filter(id => id !== todoId));
     }
   }, [processedIds]);
-
-  const completedTodos = useMemo(
-    () => todos.filter(todo => todo.completed), [todos],
-  );
-
-  const activeTodos = useMemo(() => {
-    return todos.filter(todo => !todo.completed);
-  }, [todos]);
-
-  const isAllCompleted = useMemo(() => {
-    return todos.every(todo => todo.completed);
-  }, [todos]);
 
   const handleClearCompleted = useCallback(() => {
     setProcessedIds(completedTodos.map(todo => todo.id));
@@ -201,7 +192,7 @@ export const App: React.FC = () => {
 
         <section className="todoapp__main">
           <TodoList
-            todos={filteredTodos()}
+            todos={getFilteredTodos()}
             tempTodo={tempTodo}
             deleteTodo={handleDeleteTodo}
             processedIds={processedIds}
