@@ -114,7 +114,7 @@ export const App: React.FC = () => {
     return todos.filter(todo => !todo.completed);
   }, [todos]);
 
-  const allCompleted = useMemo(() => {
+  const isAllCompleted = useMemo(() => {
     return todos.every(todo => todo.completed);
   }, [todos]);
 
@@ -147,6 +147,32 @@ export const App: React.FC = () => {
     }
   }, [processedIds]);
 
+  const handleChangeTitle = useCallback(async (
+    todoId: number, newTitle: string,
+  ) => {
+    setError(null);
+    setProcessedIds(clickedIds => [...clickedIds, todoId]);
+
+    try {
+      await updateTodo(todoId, { title: newTitle });
+
+      setTodos(curTodos => curTodos.map(curTodo => {
+        if (curTodo.id !== todoId) {
+          return curTodo;
+        }
+
+        return {
+          ...curTodo,
+          title: newTitle,
+        };
+      }));
+    } catch {
+      setError(ErrorTypes.PATCH);
+    } finally {
+      setProcessedIds(clickedIds => clickedIds.filter(id => id !== todoId));
+    }
+  }, [processedIds]);
+
   const handleToggleAll = () => {
     if (activeTodos.length === 0) {
       setProcessedIds(completedTodos.map(todo => todo.id));
@@ -170,7 +196,7 @@ export const App: React.FC = () => {
           createTodo={handleAddTodo}
           isDisableInput={isDisableInput}
           handleToggleAll={handleToggleAll}
-          allCompleted={allCompleted}
+          isAllCompleted={isAllCompleted}
         />
 
         <section className="todoapp__main">
@@ -180,6 +206,7 @@ export const App: React.FC = () => {
             deleteTodo={handleDeleteTodo}
             processedIds={processedIds}
             handleCheckbox={handleCheckbox}
+            handleChangeTitle={handleChangeTitle}
           />
         </section>
 

@@ -7,6 +7,7 @@ type Props = {
   deleteTodo: (id: number) => void,
   processedIds: number[],
   handleCheckbox: (id: number, value: boolean) => void,
+  handleChangeTitle: (id: number, value: string) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const TodoList: React.FC<Props> = ({
   deleteTodo,
   processedIds,
   handleCheckbox,
+  handleChangeTitle,
 }) => (
   <>
     {todos.map((todo: Todo) => (
@@ -24,6 +26,7 @@ export const TodoList: React.FC<Props> = ({
         deleteTodo={deleteTodo}
         processedIds={processedIds}
         handleCheckbox={handleCheckbox}
+        handleChangeTitle={handleChangeTitle}
       />
     ))}
 
@@ -34,6 +37,7 @@ export const TodoList: React.FC<Props> = ({
           deleteTodo={deleteTodo}
           processedIds={processedIds}
           handleCheckbox={handleCheckbox}
+          handleChangeTitle={handleChangeTitle}
         />
       )}
   </>

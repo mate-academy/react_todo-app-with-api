@@ -5,14 +5,14 @@ type Props = {
   createTodo: (title: string) => void,
   isDisableInput: boolean,
   handleToggleAll: () => void,
-  allCompleted: boolean,
+  isAllCompleted: boolean,
 };
 
 export const Header: React.FC<Props> = ({
   createTodo,
   isDisableInput,
   handleToggleAll,
-  allCompleted,
+  isAllCompleted,
 }) => {
   const [query, setQuery] = useState('');
 
@@ -28,7 +28,7 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: allCompleted,
+          active: isAllCompleted,
         })}
         aria-label="Mute volume"
         onClick={handleToggleAll}
