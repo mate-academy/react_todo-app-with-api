@@ -1,29 +1,31 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
-import { UserWarning } from './UserWarning';
 import {
   addTodo,
   deleteTodo,
   getTodos,
+  updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorMessage } from './components/ErrorMesage/ErrorMesage';
-import { FormTodo } from './components/FormTodo/FormTodo';
+import { TodoForm } from './components/TodoForm/TodoForm';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { FilterType } from './types/FilterType';
-
-const USER_ID = 6926;
+import { USER_ID } from './utils/fetchClient';
+import { TodoInfo } from './components/TodoInfo/TodoInfo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [hasError, setHasError] = useState(false);
-  const [errorMesage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [todoTitle, setTodoTitle] = useState('');
   const [
     currentFilter,
     setCurrentFilter,
   ] = useState<FilterType>(FilterType.All);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoadingTodo, setIsLoadingTodo] = useState(false);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -41,37 +43,70 @@ export const App: React.FC = () => {
   }, []);
 
   const addNewTodo = (title: string) => {
-    if (!title.length) {
+    if (!title) {
       setErrorMessage("Title can't be empty");
     }
 
-    const newTodo = {
+    const newTempTodo = {
       id: 0,
       userId: USER_ID,
       completed: false,
       title,
     };
 
-    return addTodo(USER_ID, newTodo)
+    setTempTodo(newTempTodo);
+    setIsLoadingTodo(true);
+
+    addTodo(USER_ID, newTempTodo)
       .then((todo: Todo[]) => {
         setTodos((prevTodos) => {
-          return prevTodos?.concat(todo) || null;
+          return prevTodos.concat(todo);
         });
+        setTempTodo(null);
+        setIsLoadingTodo(false);
       })
       .catch(() => {
         setErrorMessage('Unable to add a todo!');
+        setTempTodo(null);
+        setIsLoadingTodo(false);
       });
   };
 
   const removeTodo = (id: number) => {
+    setIsLoadingTodo(true);
     deleteTodo(id)
       .then(() => {
         const newTodosList = todos.filter(todo => todo.id !== id);
 
         setTodos(newTodosList);
+        setIsLoadingTodo(false);
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+        setIsLoadingTodo(false);
+      });
+  };
+
+  const handleUpdateTodo = (todo: Todo) => {
+    updateTodo(todo.id, { completed: !todo.completed })
+      .then((updatedTodo: Todo) => {
+        setTodos(currentTodos => {
+          const todoIndex = todos
+            .findIndex(currTodo => currTodo.id === updatedTodo.id);
+
+          if (todoIndex > -1) {
+            return [
+              ...todos.slice(0, todoIndex),
+              updatedTodo,
+              ...todos.slice(todoIndex + 1),
+            ];
+          }
+
+          return currentTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
       });
   };
 
@@ -88,9 +123,8 @@ export const App: React.FC = () => {
     });
   }, [todos, currentFilter]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
   return (
     <div className="todoapp">
@@ -98,14 +132,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          {todos
+          {activeTodos.length > 0
             && (
               <button type="button" className="todoapp__toggle-all active" />
             )}
 
-          {/* Add a todo on form submit */}
-          <FormTodo
+          <TodoForm
             setTodoTitle={setTodoTitle}
             todoTitle={todoTitle}
             onAdd={addNewTodo}
@@ -113,10 +145,21 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main">
-          <TodoList todos={filteredTodos} onDelete={removeTodo} />
+          <TodoList
+            todos={filteredTodos}
+            onDelete={removeTodo}
+            onUpdateTodo={handleUpdateTodo}
+          />
+          {isLoadingTodo && <p className="loader" />}
+          {tempTodo && (
+            <TodoInfo
+              todo={tempTodo}
+              onDelete={removeTodo}
+              onUpdateTodo={handleUpdateTodo}
+            />
+          )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0
           && (
             <footer className="todoapp__footer">
@@ -124,14 +167,18 @@ export const App: React.FC = () => {
                 {`${todos.length} items left`}
               </span>
 
-              {/* Active filter should have a 'selected' class */}
               <TodoFilter
                 onChangeFilter={setCurrentFilter}
                 currentFilter={currentFilter}
               />
 
-              {/* don't show this button if there are no completed todos */}
-              <button type="button" className="todoapp__clear-completed">
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                style={{
+                  opacity: completedTodos.length > 0 ? 1 : 0,
+                }}
+              >
                 Clear completed
               </button>
             </footer>
@@ -139,7 +186,7 @@ export const App: React.FC = () => {
       </div>
 
       <ErrorMessage
-        errorMessage={errorMesage}
+        errorMessage={errorMessage}
         hasError={hasError}
         setHasError={setHasError}
       />

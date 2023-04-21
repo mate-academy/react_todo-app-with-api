@@ -1,13 +1,13 @@
-import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
+  onUpdateTodo: (updatedTodo: Todo) => void;
 };
 
-export const TodoInfo: React.FC<Props> = ({ todo, onDelete }) => {
+export const TodoInfo: React.FC<Props> = ({ todo, onDelete, onUpdateTodo }) => {
   return (
     <div
       className={classNames('todo',
@@ -19,7 +19,8 @@ export const TodoInfo: React.FC<Props> = ({ todo, onDelete }) => {
         <input
           type="checkbox"
           className="todo__status"
-          checked
+          checked={todo.completed}
+          onChange={() => onUpdateTodo(todo)}
         />
       </label>
 
