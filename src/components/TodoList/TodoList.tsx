@@ -5,8 +5,8 @@ type TodoListProps = {
   todos: Todo[];
   tempTodo: Todo | null;
   onDelete: (id: number) => void;
-  loadingIds: number[];
-  onStatusChanged: (id: number, status: boolean) => void;
+  loadingIds: Set<number>;
+  onStatusChange: (id: number, status: boolean) => void;
   updateTodo: (id: number, newTitle: string) => void;
 };
 
@@ -15,7 +15,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   onDelete,
   loadingIds,
-  onStatusChanged,
+  onStatusChange,
   updateTodo,
 }) => {
   return (
@@ -23,9 +23,9 @@ export const TodoList: React.FC<TodoListProps> = ({
       {todos.map(todo => (
         <TodoItem
           todo={todo}
-          isLoading={loadingIds.includes(todo.id)}
+          isLoading={loadingIds.has(todo.id)}
           onDelete={onDelete}
-          onStatusChanged={() => onStatusChanged(todo.id, !todo.completed)}
+          onStatusChange={() => onStatusChange(todo.id, !todo.completed)}
           updateTodo={updateTodo}
           key={todo.id}
         />
@@ -36,7 +36,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           todo={tempTodo}
           isLoading
           onDelete={onDelete}
-          onStatusChanged={() => null}
+          onStatusChange={() => { }}
           updateTodo={updateTodo}
         />
       )}

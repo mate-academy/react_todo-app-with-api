@@ -22,7 +22,7 @@ export const TodoFilter: React.FC<TodoFilterProps> = (
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodosCount} items left`}
+        {`${activeTodosCount} ${activeTodosCount === 1 ? 'item' : 'items'} left`}
       </span>
 
       <nav className="filter">

@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
@@ -23,17 +28,34 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsloading] = useState(false);
   const [filterType, setFilterType] = useState(FilterType.All);
-  const [isDisabledInput, setIsDisableInput] = useState(false);
+  const [isInputDisabled, setIsDisableInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const [loadingTodosIds, setLoadingTodosIds]
+    = useState<Set<number>>(new Set());
 
-  const setError = (message: string) => {
+  const addLoadingTodo = useCallback((id: number) => {
+    setLoadingTodosIds(state => {
+      state.add(id);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const removeLoadingTodo = useCallback((id: number) => {
+    setLoadingTodosIds(state => {
+      state.delete(id);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const setError = useCallback((message: string) => {
     setErrorMesage(message);
     setHasError(true);
     setTimeout(() => setHasError(false), 3000);
-  };
+  }, []);
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     setIsloading(true);
     try {
       const todosFromServer = await getTodos(USER_ID);
@@ -44,35 +66,35 @@ export const App: React.FC = () => {
     } finally {
       setIsloading(false);
     }
-  };
+  }, []);
 
-  const sendTodo = async (todo: Omit<Todo, 'id'>) => {
+  const sendTodo = useCallback(async (todo: Omit<Todo, 'id'>) => {
     setIsDisableInput(true);
     try {
-      const todoToServer: Todo = await postTodo(USER_ID, todo);
+      const todoFromServer: Todo = await postTodo(USER_ID, todo);
 
-      setTodos([...todos, todoToServer]);
+      setTodos(state => [...state, todoFromServer]);
     } catch (error) {
       setError('Unable to add a todo');
     } finally {
       setIsDisableInput(false);
       setTempTodo(null);
     }
-  };
+  }, []);
 
   const removeTodo = async (todoId: number) => {
-    setLoadingIds(loadingIdList => [...loadingIdList, todoId]);
+    addLoadingTodo(todoId);
     try {
       await deleteTodo(USER_ID, todoId);
       setTodos(todoList => todoList.filter(({ id }) => id !== todoId));
     } catch (error) {
       setError('Unable to delete a todo');
     } finally {
-      setLoadingIds(loadingIdList => loadingIdList.filter(id => id !== todoId));
+      removeLoadingTodo(todoId);
     }
   };
 
-  const todosUpdate = (todoList: Todo[], todo: Todo) => (
+  const updatedTodos = (todoList: Todo[], todo: Todo) => (
     todoList.map(todoTask => {
       if (todo.id === todoTask.id) {
         return todo;
@@ -82,17 +104,15 @@ export const App: React.FC = () => {
     }));
 
   const updateTodo = async (todo: Todo) => {
-    setLoadingIds(loadingIdList => [...loadingIdList, todo.id]);
+    addLoadingTodo(todo.id);
     try {
       const updatedTodo = await patchTodo(USER_ID, todo);
 
-      setTodos(currentTodos => todosUpdate(currentTodos, updatedTodo));
+      setTodos(currentTodos => updatedTodos(currentTodos, updatedTodo));
     } catch (error) {
       setError('Unable to update a todo');
     } finally {
-      setLoadingIds(loadingIdList => (
-        loadingIdList.filter(id => id !== todo.id)
-      ));
+      removeLoadingTodo(todo.id);
     }
   };
 
@@ -113,7 +133,7 @@ export const App: React.FC = () => {
   }, [filterType, todos]);
 
   const activeTodosCount = todos.reduce((count, todo) => (
-    todo.completed ? count : (count + 1)
+    count + Number(!todo.completed)
   ), 0);
 
   const handleTodoAdding = (title: string) => {
@@ -197,13 +217,13 @@ export const App: React.FC = () => {
             type="button"
             onClick={handleCompleteAllTasks}
             className={classNames('todoapp__toggle-all', {
-              active: activeTodosCount === 0,
+              active: !activeTodosCount,
             })}
           />
 
           <TodoForm
             onSubmit={handleTodoAdding}
-            disabled={isDisabledInput}
+            disabled={isInputDisabled}
           />
         </header>
 
@@ -212,8 +232,8 @@ export const App: React.FC = () => {
             todos={visibleTodos}
             tempTodo={tempTodo}
             onDelete={handleDeleteTodo}
-            loadingIds={loadingIds}
-            onStatusChanged={handleStatusChange}
+            loadingIds={loadingTodosIds}
+            onStatusChange={handleStatusChange}
             updateTodo={handleTodoUpdate}
           />
         )}

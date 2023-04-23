@@ -11,7 +11,7 @@ type TodoItemProps = {
   todo: Todo;
   isLoading: boolean;
   onDelete: (id: number) => void;
-  onStatusChanged: () => void;
+  onStatusChange: () => void;
   updateTodo: (id: number, newTitle: string) => void;
 };
 
@@ -19,7 +19,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   todo: { id, title, completed },
   isLoading,
   onDelete,
-  onStatusChanged,
+  onStatusChange,
   updateTodo,
 }) => {
   const [editMode, setEditMode] = useState(false);
@@ -76,7 +76,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={onStatusChanged}
+          onChange={onStatusChange}
           checked={completed}
         />
       </label>
