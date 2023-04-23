@@ -9,13 +9,15 @@ interface Props {
   deleteTodo: (id: number) => void;
   onUpdateTodo: (
     todoId: number,
-    todo: { title?: string, completed?: boolean }) => void;
+    todo: Partial<Todo>) => void;
+  isAdding?: boolean;
 }
 
 export const TodoTask: FC<Props> = ({
   todo,
   deleteTodo,
   onUpdateTodo,
+  isAdding,
 }) => {
   const {
     id,
@@ -42,11 +44,11 @@ export const TodoTask: FC<Props> = ({
     setQuery(title);
   };
 
-  const inputField = useRef<HTMLInputElement>(null);
+  const editField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (inputField.current !== null) {
-      inputField.current.focus();
+    if (editField.current) {
+      editField.current.focus();
     }
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -84,7 +86,7 @@ export const TodoTask: FC<Props> = ({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onBlur={handleCancel}
-              ref={inputField}
+              ref={editField}
             />
           </form>
         ) : (
@@ -105,7 +107,12 @@ export const TodoTask: FC<Props> = ({
           </>
         )}
 
-      <div className="modal overlay">
+      <div
+        className={classNames(
+          'modal overlay',
+          { 'is-active': isAdding },
+        )}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

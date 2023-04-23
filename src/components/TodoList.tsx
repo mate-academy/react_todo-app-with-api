@@ -9,7 +9,7 @@ interface Props {
   deleteTodo: (todoId: number) => void;
   onUpdateTodo: (
     todoId: number,
-    todo: { title?: string, complete?: boolean }) => void;
+    todo: Partial<Todo>) => void;
 }
 
 export const TodoList: FC<Props> = ({
@@ -18,24 +18,24 @@ export const TodoList: FC<Props> = ({
   tempTodo,
   deleteTodo,
   onUpdateTodo,
-}) => {
-  return (
-    <>
-      {todos.map((todo) => (
-        <TodoTask
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          onUpdateTodo={onUpdateTodo}
-        />
-      ))}
-      {isAdding && (
-        <TodoTask
-          todo={tempTodo}
-          deleteTodo={deleteTodo}
-          onUpdateTodo={onUpdateTodo}
-        />
-      )}
-    </>
-  );
-};
+}) => (
+  <>
+    {todos.map((todo) => (
+      <TodoTask
+        todo={todo}
+        key={todo.id}
+        deleteTodo={deleteTodo}
+        onUpdateTodo={onUpdateTodo}
+      />
+    ))}
+
+    {isAdding && (
+      <TodoTask
+        todo={tempTodo}
+        deleteTodo={deleteTodo}
+        onUpdateTodo={onUpdateTodo}
+        isAdding={isAdding}
+      />
+    )}
+  </>
+);

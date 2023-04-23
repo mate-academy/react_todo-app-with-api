@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useCallback, useEffect, useState } from 'react';
 import { Loader } from './components/Loader';
 import { TodoFilter } from './components/TodoFilter';
@@ -27,9 +26,8 @@ export const App: React.FC = () => {
   });
   const [filterBy, setFilterBy] = useState(StatusToFilterBy.All);
   const [isAdding, setIsAdding] = useState(false);
-  // const [coveredTodo, setCoveredTodo] = useState(false);
 
-  const itemsLeft = todos.filter(todo => todo.completed === false);
+  const inCompleteTodos = todos.filter(todo => todo.completed === false);
 
   const getTodosFromServer = async () => {
     setIsLoading(true);
@@ -174,9 +172,10 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <TodoInput
-          itemsCompleted={itemsLeft}
+          itemsCompleted={inCompleteTodos}
           addTodo={handleAddTodo}
           onToggleAll={handleToggleAll}
+          todos={todos}
         />
 
         <section className="todoapp__main">
@@ -197,7 +196,7 @@ export const App: React.FC = () => {
           <TodoFilter
             filterBy={filterBy}
             setFilterBy={setFilterBy}
-            itemsLeft={itemsLeft.length}
+            itemsLeft={inCompleteTodos.length}
             todos={todos}
             deleteComplete={deleteCompleteTodos}
           />
@@ -210,12 +209,12 @@ export const App: React.FC = () => {
           <button
             type="button"
             className="delete"
+            aria-label="Close Error button"
             onClick={() => setError('')}
           />
           {error}
         </div>
       )}
-
     </div>
   );
 };

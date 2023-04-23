@@ -4,14 +4,16 @@ import { Todo } from '../types/Todo';
 
 interface Props {
   itemsCompleted: Todo[];
-  addTodo: (title: string) => void,
-  onToggleAll: () => void,
+  addTodo: (title: string) => void;
+  onToggleAll: () => void;
+  todos: Todo[];
 }
 
 export const TodoInput: FC<Props> = ({
   itemsCompleted,
   addTodo,
   onToggleAll,
+  todos,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -23,17 +25,16 @@ export const TodoInput: FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
           active: itemsCompleted.length === 0,
+          disable: todos.length === 0,
         })}
         aria-label="toggle-button"
         onClick={onToggleAll}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleFormSubmit}>
         <input
           type="text"

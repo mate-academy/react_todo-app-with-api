@@ -47,6 +47,9 @@
     &.active {
       color: #737373;
     }
+    &.disable {
+      display: none;
+    }
 
     &:before {
       content: "❯";

@@ -25,14 +25,13 @@ export const TodoFilter: FC<Props> = ({
         {`${itemsLeft} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         {filterByLink.map(([label, value]) => {
           return (
             <a
               href="#/"
               className={classNames('filter__link', {
-                selected: filterBy === label,
+                selected: filterBy === value,
               })}
               key={value}
               onClick={() => setFilterBy(value)}
