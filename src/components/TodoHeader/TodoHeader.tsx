@@ -6,12 +6,12 @@ type Props = {
   handleToggleAll: () => void,
   addTodo: (title: string) => void,
   todos: Todo[];
-  notCompletedTodo: number,
+  notCompletedTodosCount: number,
   isDisabled: boolean,
 };
 
 export const TodoHeader: React.FC<Props> = ({
-  handleToggleAll, todos, addTodo, isDisabled, notCompletedTodo,
+  handleToggleAll, todos, addTodo, isDisabled, notCompletedTodosCount,
 }) => {
   const [newTodo, setNewTodo] = useState('');
 
@@ -28,7 +28,7 @@ export const TodoHeader: React.FC<Props> = ({
         <button // eslint-disable-line
           type="button"
           className={classNames('todoapp__toggle-all',
-            { active: notCompletedTodo === 0 })}
+            { active: notCompletedTodosCount === 0 })}
           onClick={handleToggleAll}
         />
       )}

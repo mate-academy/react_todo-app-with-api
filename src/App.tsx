@@ -5,8 +5,7 @@ import {
   createTodos,
   getTodos,
   removeTodo,
-  updateTodosCompleted,
-  updateTodosTitle,
+  updateTodo,
 } from './api/todos';
 import { TodosList } from './components/TodoList/TodoList';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
@@ -44,8 +43,8 @@ export const App: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<TodoStatus>(TodoStatus.All);
   const [error, setError] = useState('');
   const [deleteTodoId, setDeleteTodoId] = useState(0);
-  const notCompletedTodo = todos.filter(todo => !todo.completed).length;
-  const completedTodo = todos.filter(todo => todo.completed).length;
+  const notCompletedTodosCount = todos.filter(todo => !todo.completed).length;
+  const completedTodosCount = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -135,14 +134,21 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleChangeCompleted = (id: number) => {
+  const handleChangeCompleted = (id: number, title: string) => {
     const currentItem = todos.find(item => item.id === id);
+    const todo = {
+      id,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
 
     setIsLoading(id);
-    updateTodosCompleted(id, !currentItem?.completed)
+    updateTodo(id, todo)
       .then((data) => {
         const completed = todos.map(item => (
-          item.id === id ? data : item
+          item.id === id
+            ? { ...data, completed: !currentItem?.completed } : item
         ));
 
         setTodos(completed);
@@ -192,7 +198,7 @@ export const App: React.FC = () => {
   const handleCompletedAll = () => {
     todos.forEach((item) => {
       setIsLoadingComoleted(true);
-      updateTodosCompleted(item.id, !item.completed)
+      updateTodo(item.id, item)
         .then(() => {
           const completed = todos.map(todo => (
             { ...todo, completed: true }
@@ -220,7 +226,7 @@ export const App: React.FC = () => {
   const handleUnCompletedAll = () => {
     todos.forEach((item) => {
       setIsLoadingComoleted(true);
-      updateTodosCompleted(item.id, !item.completed)
+      updateTodo(item.id, item)
         .then(() => {
           const completed = todos.map(todo => (
             { ...todo, completed: false }
@@ -246,8 +252,6 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    setIsLoadingComoleted(true);
-
     if (todos.some(todo => !todo.completed)) {
       handleCompletedAll();
     } else {
@@ -260,9 +264,16 @@ export const App: React.FC = () => {
       deleteTodo(id);
     }
 
+    const newTitle = {
+      id,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
     setIsLoading(id);
     setIsEditing(0);
-    updateTodosTitle(id, title)
+    updateTodo(id, newTitle)
       .then(res => {
         const result = todos.map(item => {
           if (item.id === res.id) {
@@ -311,7 +322,7 @@ export const App: React.FC = () => {
           todos={todos}
           addTodo={addTodo}
           isDisabled={isDisabled}
-          notCompletedTodo={notCompletedTodo}
+          notCompletedTodosCount={notCompletedTodosCount}
         />
 
         <section className="todoapp__main">
@@ -334,8 +345,8 @@ export const App: React.FC = () => {
             <TodoFooter
               handleFilter={setActiveFilter}
               activeFilter={activeFilter}
-              notCompletedTodo={notCompletedTodo}
-              completedTodo={completedTodo}
+              notCompletedTodosCount={notCompletedTodosCount}
+              completedTodosCount={completedTodosCount}
               handleClearCompleted={handleClearCompleted}
             />
           </footer>

@@ -4,7 +4,7 @@ import { UpdateTodosTitle } from '../UpdateTodosTitle/UpdateTodosTitle';
 
 type Props = {
   todo: Todo,
-  handleChangeCompleted: (id: number) => void,
+  handleChangeCompleted: (id: number, title: string) => void,
   handleDoubleClick: (id: number) => void,
   updateTitle: (id: number, value: string) => void,
   deleteTodo: (id: number) => void,
@@ -38,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleChangeCompleted(id)}
+          onChange={() => handleChangeCompleted(id, title)}
         />
       </label>
       {isEditing === id

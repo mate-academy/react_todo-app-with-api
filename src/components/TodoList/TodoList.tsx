@@ -4,7 +4,7 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[],
-  handleChangeCompleted: (id: number) => void,
+  handleChangeCompleted: (id: number, title: string) => void,
   handleDoubleClick: (id: number) => void,
   updateTitle: (id: number, value: string) => void,
   setIsEditing: (value: number) => void,

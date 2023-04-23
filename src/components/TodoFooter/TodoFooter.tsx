@@ -6,21 +6,21 @@ type Props = {
   handleFilter: (value: TodoStatus) => void,
   handleClearCompleted: () => void,
   activeFilter: TodoStatus,
-  completedTodo: number,
-  notCompletedTodo: number,
+  completedTodosCount: number,
+  notCompletedTodosCount: number,
 };
 
 export const TodoFooter: React.FC<Props> = ({
   handleFilter,
   handleClearCompleted,
   activeFilter,
-  completedTodo,
-  notCompletedTodo,
+  completedTodosCount,
+  notCompletedTodosCount,
 }) => {
   return (
     <>
       <span className="todo-count">
-        {`${notCompletedTodo} items left`}
+        {`${notCompletedTodosCount} items left`}
       </span>
       <nav className="filter">
         <a
@@ -59,7 +59,7 @@ export const TodoFooter: React.FC<Props> = ({
         className="todoapp__clear-completed"
         onClick={handleClearCompleted}
       >
-        {completedTodo > 0 && ('Clear completed')}
+        {completedTodosCount > 0 && ('Clear completed')}
       </button>
     </>
   );
