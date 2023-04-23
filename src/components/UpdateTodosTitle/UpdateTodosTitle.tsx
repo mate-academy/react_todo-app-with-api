@@ -35,7 +35,13 @@ export const UpdateTodosTitle: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateTitle(todo.id, newTitle);
+
+    if (todo.title !== newTitle) {
+      updateTitle(todo.id, newTitle);
+    } else {
+      setNewTitle(todo.title);
+      setIsEditing(0);
+    }
   };
 
   return (
