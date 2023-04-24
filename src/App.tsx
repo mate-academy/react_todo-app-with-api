@@ -167,10 +167,10 @@ export const App: React.FC = () => {
         setError('');
         setIsDisabledInput(false);
       }, 2500);
+    } else {
+      addTodo(query);
+      setQuery('');
     }
-
-    addTodo(query);
-    setQuery('');
   };
 
   const visibleTodos = filterTodos(todos, filterType);
