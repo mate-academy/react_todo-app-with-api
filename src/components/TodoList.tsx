@@ -30,6 +30,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   loadingActiveTodoId,
 }) => {
   const [activeTodoId, setActiveTodoId] = useState<number>(0);
+  const [newTitle, setNewTitle] = useState<string>('');
 
   const filteredTodos = todos.filter((todo) => {
     switch (filter) {
@@ -57,19 +58,18 @@ export const TodoList: React.FC<TodoListProps> = ({
   };
 
   const handleTodoCheck = async (idTodo: number) => {
+    const updatedTodo = todos.find((todo) => todo.id === idTodo) || null;
+
+    if (!updatedTodo) {
+      throw new Error('Todo not found');
+    }
+
     try {
       setLoadingActiveTodoId([idTodo]);
       setLoading(true);
-      const updatedTodo = todos.find((todo) => todo.id === idTodo) || null;
-
-      if (!updatedTodo) {
-        throw new Error('Todo not found');
-      }
-
-      updatedTodo.completed = !updatedTodo.completed;
       await updateTodos(USER_ID, idTodo, updatedTodo);
-
-      setTodos((prevTodos) => prevTodos
+      updatedTodo.completed = !updatedTodo.completed;
+      setTodos((prev) => prev
         .map((todo) => (todo.id === idTodo ? updatedTodo : todo)));
     } catch (error) {
       showErrorNotification('Unable to update the todo');
@@ -83,17 +83,29 @@ export const TodoList: React.FC<TodoListProps> = ({
     setLoading(true);
     setActiveTodoId(0);
     setLoadingActiveTodoId(prev => [...prev, todoId]);
-    const updatedTodo = todos
-      .find((todoItem) => todoItem.id === activeTodoId) || null;
 
-    if (!updatedTodo?.title) {
-      await handleTodoDelete(activeTodoId);
-    } else {
-      await updateTodos(USER_ID, activeTodoId, updatedTodo);
+    const updatedTodo = todos
+      .find((todoItem) => todoItem.id === todoId) || null;
+
+    if (!updatedTodo) {
+      throw new Error('Todo not found');
     }
 
-    setLoading(false);
-    setLoadingActiveTodoId([]);
+    updatedTodo.title = newTitle;
+
+    try {
+      if (!updatedTodo.title) {
+        await handleTodoDelete(todoId);
+      } else {
+        await updateTodos(USER_ID, todoId, updatedTodo);
+      }
+    } catch (error) {
+      showErrorNotification('Unable to update the todo');
+    } finally {
+      setLoading(false);
+      setLoadingActiveTodoId([]);
+      setNewTitle('');
+    }
   };
 
   const handleNewTitleSubmit = async (
@@ -105,31 +117,33 @@ export const TodoList: React.FC<TodoListProps> = ({
     setLoading(true);
     setLoadingActiveTodoId(prev => [...prev, todoId]);
     const updatedTodo = todos
-      .find((todoItem) => todoItem.id === activeTodoId) || null;
+      .find((todoItem) => todoItem.id === todoId) || null;
 
-    if (!updatedTodo?.title) {
-      await handleTodoDelete(activeTodoId);
-    } else {
-      await updateTodos(USER_ID, activeTodoId, updatedTodo);
+    if (!updatedTodo) {
+      throw new Error('Todo not found');
     }
 
-    setLoadingActiveTodoId([]);
-    setLoading(false);
+    try {
+      if (!newTitle) {
+        await handleTodoDelete(todoId);
+      } else {
+        await updateTodos(USER_ID, todoId, updatedTodo);
+        updatedTodo.title = newTitle;
+      }
+    } catch (error) {
+      showErrorNotification('Unable to update the todo');
+    } finally {
+      setLoading(false);
+      setLoadingActiveTodoId([]);
+      setNewTitle('');
+    }
   };
 
   const handleTodoTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     event.preventDefault();
-    const newTodos = todos.map((todo) => {
-      if (todo.id === activeTodoId) {
-        return { ...todo, title: event.target.value };
-      }
-
-      return todo;
-    });
-
-    setTodos(newTodos);
+    setNewTitle(event.target.value);
   };
 
   return (

@@ -73,10 +73,10 @@ export const App: React.FC = () => {
         return updatedTodo || todo;
       });
 
-      setTodos(mergedTodos);
       const todoUpdatesPromise = todoUpdates.map(todo => updateTodos(USER_ID, todo.id, todo));
 
       await Promise.all(todoUpdatesPromise);
+      setTodos(mergedTodos);
     } catch (error) {
       showErrorNotification('Unable to taggle todos');
     } finally {

@@ -30,14 +30,16 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
 
   const handleNewTodoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     if (!newTodoTitle) {
       showErrorNotification("Title can't be empty");
 
       return;
     }
 
+    const prevTodos = [...todos];
+
     try {
+      setLoading(true);
       setIsAddingNewTodo(true);
       const tempTodo: Todo = {
         id: 0,
@@ -46,7 +48,7 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
         completed: false,
       };
 
-      setLoadingActiveTodoId(prev => [...prev, tempTodo.id]);
+      setLoadingActiveTodoId(prev => [...prev, findMaxId(todos) + 1]);
       setTodos(prev => [...prev, {
         id: findMaxId(todos) + 1,
         userId: USER_ID,
@@ -55,14 +57,14 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
       }]);
 
       await postTodos(USER_ID, tempTodo);
-
-      setNewTodoTitle('');
     } catch (error) {
       showErrorNotification('Unable to add a todo');
+      setTodos(prevTodos);
     } finally {
       setIsAddingNewTodo(false);
       setLoading(false);
       setLoadingActiveTodoId([]);
+      setNewTodoTitle('');
     }
   };
 
