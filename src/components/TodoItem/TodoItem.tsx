@@ -5,20 +5,20 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   onRemoveTodo: (todoId: number) => void,
-  loadingTodo: number[],
+  loadingTodos: number[],
   onUpdateTodo: (id: number, data: Partial<Todo>) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onRemoveTodo,
-  loadingTodo,
+  loadingTodos,
   onUpdateTodo,
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const isLoading = todo.id !== undefined && loadingTodo.includes(todo.id);
+  const isLoading = todo.id && loadingTodos.includes(todo.id);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

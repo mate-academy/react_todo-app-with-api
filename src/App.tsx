@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [isError, setIsError] = useState<ErrorType>(ErrorType.None);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingTodo, setLoadingTodo] = useState<number[]>([0]);
+  const [loadingTodos, setloadingTodos] = useState<number[]>([0]);
 
   const showError = (errorType : ErrorType) => {
     setIsError(errorType);
@@ -40,7 +40,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(data => setTodos(data))
+      .then(setTodos)
       .catch(() => {
         showError(ErrorType.Load);
       });
@@ -105,7 +105,7 @@ export const App: React.FC = () => {
 
   const handleRemoveTodo = (todoId: number) => {
     setIsLoading(true);
-    setLoadingTodo((prevTodo) => [...prevTodo, todoId]);
+    setloadingTodos((prevTodo) => [...prevTodo, todoId]);
 
     removeTodo(todoId)
       .then(() => {
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setLoadingTodo([0]);
+        setloadingTodos([0]);
       });
   };
 
@@ -143,7 +143,7 @@ export const App: React.FC = () => {
 
   const handleUpdateTodo = useCallback((id: number, data: Partial<Todo>) => {
     setIsLoading(true);
-    setLoadingTodo((prevTodo) => [...prevTodo, id]);
+    setloadingTodos((prevTodo) => [...prevTodo, id]);
 
     updateTodo(id, data)
       .then((updatedTodo) => {
@@ -163,7 +163,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-        setLoadingTodo([0]);
+        setloadingTodos([0]);
       });
   }, []);
 
@@ -204,7 +204,7 @@ export const App: React.FC = () => {
             todos={filteredTodos}
             tempTodo={tempTodo}
             onRemove={handleRemoveTodo}
-            loadingTodo={loadingTodo}
+            loadingTodos={loadingTodos}
             onUpdateTodo={handleUpdateTodo}
           />
         </section>
