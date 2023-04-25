@@ -37,6 +37,7 @@ export const App: React.FC = () => {
   const completedTodosCount = useMemo(() => (
     todos.filter(todo => todo.completed).length
   ), [todos]);
+
   const activeTodosCount = useMemo(() => (
     todos.filter(todo => !todo.completed).length
   ), [todos]);
@@ -131,7 +132,7 @@ export const App: React.FC = () => {
   const completedTodos = getVisibleTodos(todos, TodoStatus.COMPLETED);
 
   const changeStatusForAll = useCallback(async () => {
-    if (loadTodoId.length === 0) {
+    if (!loadTodoId.length) {
       return;
     }
 
@@ -150,14 +151,18 @@ export const App: React.FC = () => {
 
   const visibleTodos = getVisibleTodos(todos, todoStatus);
 
+  const fetchTodos = async () => {
+    try {
+      const getData = await getTodos(USER_ID);
+
+      setTodos(getData);
+    } catch {
+      setHasError(ErrorMessage.LOAD);
+    }
+  };
+
   useEffect(() => {
-    getTodos(USER_ID)
-      .then((res) => {
-        setTodos(res);
-      })
-      .catch(() => {
-        setHasError(ErrorMessage.LOAD);
-      });
+    fetchTodos();
   }, []);
 
   if (!USER_ID) {
