@@ -1,20 +1,24 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { UserWarning } from "./UserWarning";
-import { getTodos, postTodo, deleteTodo, patchTodo } from "./api/todos";
-import { TodoInterface } from "./types/Todo";
-import { TodoList } from "./Components/TodoList/TodoList";
-import { Error } from "./Components/Error/Error";
-import { FilterTodo } from "./Components/FilterTodo/FilterTodo";
-import { FilterStatus } from "./types/FilterStatus";
-import { Header } from "./Components/Header/Header";
-import classNames from "classnames";
+import React, {
+  ChangeEvent, useEffect, useMemo, useState,
+} from 'react';
+import classNames from 'classnames';
+import { UserWarning } from './UserWarning';
+import {
+  getTodos, postTodo, deleteTodo, patchTodo,
+} from './api/todos';
+import { TodoInterface } from './types/Todo';
+import { TodoList } from './Components/TodoList/TodoList';
+import { Error } from './Components/Error/Error';
+import { FilterTodo } from './Components/FilterTodo/FilterTodo';
+import { FilterStatus } from './types/FilterStatus';
+import { Header } from './Components/Header/Header';
 
 const USER_ID = 6429;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<TodoInterface[]>([]);
-  const [error, setError] = useState("");
-  const [title, setTitle] = useState("");
+  const [error, setError] = useState('');
+  const [title, setTitle] = useState('');
   const [temporaryTodo, setTemporaryTodo] = useState<TodoInterface>();
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [toggle, setToggle] = useState(false);
@@ -44,9 +48,15 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    if (error.length > 0) {
+      resetError();
+    }
+  }, [error]);
+
+  useEffect(() => {
     getTodos(USER_ID)
       .then((result: React.SetStateAction<TodoInterface[]>) => setTodos(result))
-      .catch(() => setError("Unable to load the todos"));
+      .catch(() => setError('Unable to load the todos'));
   }, []);
 
   const currentTodos = useMemo(() => {
@@ -82,7 +92,7 @@ export const App: React.FC = () => {
         setTodos((state) => [...state, result]);
       })
       .catch(() => {
-        setError("Unable to add a todo");
+        setError('Unable to add a todo');
         resetError();
       })
       .finally(() => {
@@ -96,7 +106,7 @@ export const App: React.FC = () => {
       await deleteTodo(id);
       setTodos(todos.filter((todo) => todo.id !== id));
     } catch {
-      setError("Unable to delete a todo");
+      setError('Unable to delete a todo');
       resetError();
     } finally {
       setLoadingIds([]);
@@ -109,17 +119,15 @@ export const App: React.FC = () => {
     try {
       await patchTodo(id, data);
 
-      setTodos((state) =>
-        state.map((todo) => {
-          if (todo.id === id) {
-            return { ...todo, ...data };
-          }
+      setTodos((state) => state.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, ...data };
+        }
 
-          return todo;
-        })
-      );
+        return todo;
+      }));
     } catch {
-      setError("Unable to update a todo");
+      setError('Unable to update a todo');
       resetError();
     } finally {
       setLoadingIds((state) => state.filter((el) => el !== id));
@@ -134,7 +142,7 @@ export const App: React.FC = () => {
         await deleteTodo(todo.id);
         setTodos(todos.filter((task) => !task.completed));
       } catch {
-        setError("Unable to remove todo");
+        setError('Unable to remove todo');
         resetError();
       }
     });
@@ -142,6 +150,7 @@ export const App: React.FC = () => {
 
   const toggleAllCompleted = () => {
     const allCompleted = todos.every((todo) => todo.completed);
+
     setToggle((state) => !state);
 
     if (allCompleted) {
@@ -159,15 +168,15 @@ export const App: React.FC = () => {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    if (!title || title.trim() === "") {
-      setError("Tittle can not be empty");
+    if (!title.trim()) {
+      setError('Tittle can not be empty');
       resetError();
 
       return;
     }
 
     addTodo(title);
-    setTitle("");
+    setTitle('');
   };
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -188,7 +197,7 @@ export const App: React.FC = () => {
           toggle={toggle}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <section className="todoapp__main">
               <TodoList
@@ -207,7 +216,7 @@ export const App: React.FC = () => {
 
               <button
                 type="button"
-                className={classNames("todoapp__clear-completed", {
+                className={classNames('todoapp__clear-completed', {
                   visible: completedTodos.length,
                 })}
                 onClick={onDeleteComplete}
@@ -219,7 +228,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {error && <Error error={error} onClear={() => setError("")} />}
+      {error && <Error error={error} onClear={() => setError('')} />}
     </div>
   );
 };

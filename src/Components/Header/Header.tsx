@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import React from "react";
+import classNames from 'classnames';
+import React from 'react';
 
 type Props = {
   title: string;
@@ -23,7 +23,7 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         aria-label="toggle-allbutton"
-        className={classNames("todoapp__toggle-all ", {
+        className={classNames('todoapp__toggle-all ', {
           active: toggle,
         })}
         onClick={onToggleAllCompleted}

@@ -1,6 +1,6 @@
-import classNames from "classnames";
-import { useState } from "react";
-import { TodoInterface } from "../../types/Todo";
+import classNames from 'classnames';
+import { useState } from 'react';
+import { TodoInterface } from '../../types/Todo';
 
 type Props = {
   todo: TodoInterface;
@@ -29,7 +29,7 @@ export const Todo: React.FC<Props> = ({
   };
 
   const handleTitleSubmit = () => {
-    if (todoTitle.trim() === "") {
+    if (todoTitle.trim() === '') {
       onDelete(id);
     } else {
       setIsEditing(false);
@@ -43,16 +43,16 @@ export const Todo: React.FC<Props> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       event.preventDefault();
       event.currentTarget.blur();
-    } else if (event.key === "Escape") {
+    } else if (event.key === 'Escape') {
       handleTitleCancel();
     }
   };
 
   return (
-    <div className={classNames("todo", { completed })}>
+    <div className={classNames('todo', { completed })}>
       <label className="todo__status-label">
         <input
           type="checkbox"
@@ -84,8 +84,8 @@ export const Todo: React.FC<Props> = ({
       </button>
 
       <div
-        className={classNames("modal overlay", {
-          "is-active": isLoading,
+        className={classNames('modal overlay', {
+          'is-active': isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
