@@ -13,15 +13,15 @@ const TodosContext = React.createContext<TodosContextType>({
   isInputDisabled: false,
   handleRemoveCompletedTodos: loop,
   setSort: loop,
-  sort: Sort.all,
+  sort: Sort.All,
   errorType: '',
   setErrorType: loop,
-  isError: false,
   handleToggleAll: loop,
   loadingTodo: [],
   tempTodo: null,
   activeTodos: [],
   completedTodos: [],
+  isCompletedTodos: false || true,
 });
 
 export const useTodosContext = () => {

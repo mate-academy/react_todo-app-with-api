@@ -18,14 +18,12 @@ export const App: React.FC = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorType, setErrorType] = useState<string>('');
-  const [sortBy, setSortBy] = useState<Sort>(Sort.all);
+  const [sortBy, setSortBy] = useState<Sort>(Sort.All);
   const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodo, setLoadingTodo] = useState<number[]>([0]);
-  const isError = !!errorType || errorType !== '';
 
   const fetchTodos = useCallback(() => {
-    setErrorType('');
     setLoading(true);
     getTodos(USER_ID).then(res => {
       setTodos(res);
@@ -40,6 +38,7 @@ export const App: React.FC = () => {
   const sortedTodos = useSort(todos, sortBy);
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
+  const isCompletedTodos = todos.every(todo => todo.completed);
 
   const addTodo = async (title: string) => {
     if (!title.trim()) {
@@ -69,7 +68,6 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = useCallback((selectedTodoId: number) => {
-    setErrorType('');
     setLoadingTodo((prevTodo) => [...prevTodo, selectedTodoId]);
     deleteTodo(selectedTodoId)
       .then(() => {
@@ -89,7 +87,10 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const editTodo = async (id: number,
-    data: { completed?: boolean, title?: string }) => {
+    data: {
+      completed?: boolean,
+      title?: string,
+    }) => {
     setLoadingTodo((prevTodo) => [...prevTodo, id]);
     try {
       await updateTodo(id, data);
@@ -111,16 +112,12 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    const allTodosCompleted = todos.every(todo => todo.completed);
-
-    if (allTodosCompleted) {
+    if (isCompletedTodos) {
       todos.map(item => {
         return updateTodo(item.id, { completed: false });
       });
     } else {
-      const todosNotCompleted = todos.filter(elem => !elem.completed);
-
-      todosNotCompleted.map(todoElem => {
+      activeTodos.map(todoElem => {
         return updateTodo(todoElem.id, { completed: true });
       });
     }
@@ -143,12 +140,12 @@ export const App: React.FC = () => {
       sort: sortBy,
       errorType,
       setErrorType,
-      isError,
       handleToggleAll,
       loadingTodo,
       tempTodo,
       activeTodos,
       completedTodos,
+      isCompletedTodos,
     }}
     >
       <div className="todoapp">
@@ -159,7 +156,7 @@ export const App: React.FC = () => {
           {sortedTodos.length > 0 && <Footer />}
         </div>
 
-        {isError && (
+        {errorType && (
           <Error />
         )}
       </div>

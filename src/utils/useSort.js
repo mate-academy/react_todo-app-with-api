@@ -6,13 +6,13 @@ export const useSort = (todos, sort) => {
     return (todos
       .filter(todo => {
         switch (sort) {
-          case Sort.active:
+          case Sort.Active:
             return !todo.completed;
-          case Sort.completed:
+          case Sort.Completed:
             return todo.completed;
-          case Sort.all:
+          case Sort.All:
           default:
-            return todo;
+            return true;
         }
       })
     );

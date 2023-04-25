@@ -11,9 +11,9 @@ export const Filter = () => {
         href="#/"
         className={classNames(
           'filter__link',
-          { selected: sort === Sort.all },
+          { selected: sort === Sort.All },
         )}
-        onClick={() => setSort(Sort.all)}
+        onClick={() => setSort(Sort.All)}
       >
         All
       </a>
@@ -22,9 +22,9 @@ export const Filter = () => {
         href="#/active"
         className={classNames(
           'filter__link',
-          { selected: sort === Sort.active },
+          { selected: sort === Sort.Active },
         )}
-        onClick={() => setSort(Sort.active)}
+        onClick={() => setSort(Sort.Active)}
       >
         Active
       </a>
@@ -33,9 +33,9 @@ export const Filter = () => {
         href="#/completed"
         className={classNames(
           'filter__link',
-          { selected: sort === Sort.completed },
+          { selected: sort === Sort.Completed },
         )}
-        onClick={() => setSort(Sort.completed)}
+        onClick={() => setSort(Sort.Completed)}
       >
         Completed
       </a>

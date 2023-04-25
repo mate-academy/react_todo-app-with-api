@@ -9,6 +9,7 @@ export const Header = () => {
     todos,
     isInputDisabled,
     handleToggleAll,
+    isCompletedTodos,
   } = useTodosContext();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,8 +22,6 @@ export const Header = () => {
     setTitle('');
   };
 
-  const IsCompletedTodos = todos.every(todo => todo.completed);
-
   return (
     <header className="todoapp__header">
 
@@ -31,7 +30,7 @@ export const Header = () => {
           type="button"
           className={classNames(
             'todoapp__toggle-all',
-            { active: IsCompletedTodos },
+            { active: isCompletedTodos },
           )}
           onClick={handleToggleAll}
           aria-label="active"

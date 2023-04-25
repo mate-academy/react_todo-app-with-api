@@ -15,9 +15,9 @@ export type TodosContextType = {
   sort: Sort,
   errorType: string,
   setErrorType: (arg: string) => void,
-  isError: boolean,
   handleToggleAll: () => void,
   tempTodo: Todo | null,
   activeTodos: Todo[],
   completedTodos: Todo[],
+  isCompletedTodos: boolean,
 };

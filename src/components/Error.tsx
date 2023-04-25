@@ -3,24 +3,28 @@ import { useEffect } from 'react';
 import { useTodosContext } from '../context';
 
 export const Error = () => {
-  const { errorType, setErrorType, isError } = useTodosContext();
+  const { errorType, setErrorType } = useTodosContext();
 
   const handleCloseError = () => {
     setErrorType('');
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setErrorType('');
     },
     3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
     <div
       className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: !isError },
+        { hidden: !errorType },
       )}
     >
       <button
