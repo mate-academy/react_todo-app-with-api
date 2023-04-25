@@ -9,21 +9,21 @@ type Props = {
   todo: Todo;
   onDelete: (todoId: number) => void,
   onUpdate: (id: number, data: Partial<Todo>) => void;
-  LoadTodoId: number[],
+  loadTodoId: number[],
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   onDelete,
   onUpdate,
-  LoadTodoId,
+  loadTodoId,
 }) => {
   const { id, title, completed } = todo;
 
   const [changedTitle, setChangedTitle] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
-  const isActiveTodo = LoadTodoId.includes(id);
+  const isActiveTodo = loadTodoId.includes(id);
 
   const inputRef = useRef<HTMLInputElement>(null);
 

@@ -15,21 +15,15 @@ import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 
 const getVisibleTodos = (todos: Todo[], filterBy: TodoStatus) => {
-  let filteredTodos = todos;
-
   switch (filterBy) {
     case TodoStatus.ACTIVE:
-      filteredTodos = todos.filter(item => !item.completed);
-      break;
+      return todos.filter(item => !item.completed);
     case TodoStatus.COMPLETED:
-      filteredTodos = todos.filter(item => item.completed);
-      break;
+      return todos.filter(item => item.completed);
     case TodoStatus.ALL:
     default:
-      break;
+      return todos;
   }
-
-  return filteredTodos;
 };
 
 export const App: React.FC = () => {
@@ -38,7 +32,7 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState<ErrorMessage>(ErrorMessage.NONE);
   const [isDisabled, setIsDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [LoadTodoId, setLoadTodoId] = useState([0]);
+  const [loadTodoId, setLoadTodoId] = useState([0]);
 
   const completedTodosCount = useMemo(() => (
     todos.filter(todo => todo.completed).length
@@ -47,51 +41,39 @@ export const App: React.FC = () => {
     todos.filter(todo => !todo.completed).length
   ), [todos]);
 
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then((res) => {
-        setTodos(res);
-      })
-      .catch(() => {
-        setHasError(ErrorMessage.LOAD);
-      });
-  }, []);
-
-  const addTodo = (title: string) => {
+  const addTodo = useCallback(async (title: string) => {
     if (!title.trim()) {
-      setHasError(ErrorMessage.ADD);
-    } else {
-      const newTodo = {
-        id: 0,
-        userId: USER_ID,
-        title,
-        completed: false,
-      };
+      setHasError(ErrorMessage.EMPTY_TITLE);
 
-      setTempTodo(newTodo);
-      setIsDisabled(true);
-
-      createTodo(USER_ID, newTodo)
-        .then((res) => {
-          setTodos((prevTodo) => {
-            return [...prevTodo, res];
-          });
-        })
-        .catch(() => {
-          setHasError(ErrorMessage.ADD);
-        })
-        .finally(() => {
-          setIsDisabled(false);
-          setTempTodo(null);
-        });
+      return;
     }
-  };
+
+    const newTodo = {
+      title,
+      completed: false,
+      userId: USER_ID,
+    };
+
+    try {
+      setIsDisabled(true);
+      setTempTodo({ id: 0, ...newTodo });
+
+      const todo = await createTodo(newTodo as Todo);
+
+      setTodos(prevState => [...prevState, todo]);
+    } catch {
+      setHasError(ErrorMessage.ADD);
+    } finally {
+      setTempTodo(null);
+      setIsDisabled(false);
+    }
+  }, [todos]);
 
   const updateTodo = useCallback(async (
     todoId: number,
     updatedDate: Partial<Todo>,
   ) => {
-    if (LoadTodoId.includes(todoId)) {
+    if (loadTodoId.includes(todoId)) {
       return;
     }
 
@@ -111,24 +93,23 @@ export const App: React.FC = () => {
       setIsDisabled(false);
       setLoadTodoId([0]);
     }
-  }, [LoadTodoId]);
+  }, [loadTodoId]);
 
-  const deleteTodo = (id: number) => {
-    setLoadTodoId(prevState => [...prevState, id]);
+  const deleteTodo = useCallback(async (taskId: number) => {
+    setLoadTodoId(prevState => [...prevState, taskId]);
 
-    removeTodo(id)
-      .then(() => {
-        const result = todos.filter(todo => todo.id !== id);
+    try {
+      await removeTodo(taskId);
 
-        setTodos(result);
-      })
-      .catch(() => {
-        setHasError(ErrorMessage.DELETE);
-      })
-      .finally(() => {
-        setLoadTodoId([]);
-      });
-  };
+      setTodos(prevTodos => (
+        prevTodos.filter(({ id }) => id !== taskId)
+      ));
+    } catch {
+      setHasError(ErrorMessage.DELETE);
+    } finally {
+      setLoadTodoId([0]);
+    }
+  }, []);
 
   const handleClearCompleted = () => {
     const filteredTodos = todos.filter(todo => !todo.completed);
@@ -150,7 +131,7 @@ export const App: React.FC = () => {
   const completedTodos = getVisibleTodos(todos, TodoStatus.COMPLETED);
 
   const changeStatusForAll = useCallback(async () => {
-    if (LoadTodoId.length === 0) {
+    if (loadTodoId.length === 0) {
       return;
     }
 
@@ -167,11 +148,21 @@ export const App: React.FC = () => {
 
   const onCloseError = () => setHasError(ErrorMessage.NONE);
 
+  const visibleTodos = getVisibleTodos(todos, todoStatus);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((res) => {
+        setTodos(res);
+      })
+      .catch(() => {
+        setHasError(ErrorMessage.LOAD);
+      });
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
-
-  const visibleTodos = getVisibleTodos(todos, todoStatus);
 
   return (
     <div className="todoapp">
@@ -191,7 +182,7 @@ export const App: React.FC = () => {
           onDelete={deleteTodo}
           onUpdate={updateTodo}
           tempTodo={tempTodo}
-          LoadTodoId={LoadTodoId}
+          loadTodoId={loadTodoId}
         />
 
         {todos.length > 0 && (

@@ -11,7 +11,7 @@ type Props = {
   onDelete: (todoId: number) => void,
   onUpdate: (id: number, data: Partial<Todo>) => void;
   tempTodo: Todo | null,
-  LoadTodoId: number[],
+  loadTodoId: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const TodoList: React.FC<Props> = ({
   onDelete,
   onUpdate,
   tempTodo,
-  LoadTodoId,
+  loadTodoId,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     <TransitionGroup>
@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
             key={todo.id}
             todo={todo}
             onDelete={onDelete}
-            LoadTodoId={LoadTodoId}
+            loadTodoId={loadTodoId}
             onUpdate={onUpdate}
           />
         </CSSTransition>
@@ -49,7 +49,7 @@ export const TodoList: React.FC<Props> = ({
             todo={tempTodo}
             onUpdate={onUpdate}
             onDelete={onDelete}
-            LoadTodoId={LoadTodoId}
+            loadTodoId={loadTodoId}
           />
         </CSSTransition>
       )}

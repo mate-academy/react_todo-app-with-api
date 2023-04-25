@@ -7,8 +7,10 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const createTodo = (userId: number, todo: Todo) => {
-  return client.post<Todo>(`/todos?userId=${userId}`, todo);
+export const createTodo = (data: Todo) => {
+  const { userId } = data;
+
+  return client.post<Todo>(`/todos?userId=${userId}`, data);
 };
 
 export const patchTodo = (id: number, data: Partial<Todo>): Promise<Todo> => {

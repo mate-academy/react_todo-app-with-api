@@ -16,57 +16,55 @@ export const Footer: React.FC<Props> = ({
   onClearCompleted,
   activeTodosCount,
   completedTodosCount,
-}) => {
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodosCount} items left`}
-      </span>
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${activeTodosCount} items left`}
+    </span>
 
-      <nav className="filter">
-        <a
-          href={`#/${TodoStatus.ALL}`}
-          className={classNames(
-            'filter__link',
-            { selected: todoStatus === TodoStatus.ALL },
-          )}
-          onClick={() => setTodoStatus(TodoStatus.ALL)}
-        >
-          {TodoStatus.ALL}
-        </a>
+    <nav className="filter">
+      <a
+        href={`#/${TodoStatus.ALL}`}
+        className={classNames(
+          'filter__link',
+          { selected: todoStatus === TodoStatus.ALL },
+        )}
+        onClick={() => setTodoStatus(TodoStatus.ALL)}
+      >
+        {TodoStatus.ALL}
+      </a>
 
-        <a
-          href={`#/${TodoStatus.ACTIVE}`}
-          className={classNames(
-            'filter__link',
-            { selected: todoStatus === TodoStatus.ACTIVE },
-          )}
-          onClick={() => setTodoStatus(TodoStatus.ACTIVE)}
-        >
-          {TodoStatus.ACTIVE}
-        </a>
+      <a
+        href={`#/${TodoStatus.ACTIVE}`}
+        className={classNames(
+          'filter__link',
+          { selected: todoStatus === TodoStatus.ACTIVE },
+        )}
+        onClick={() => setTodoStatus(TodoStatus.ACTIVE)}
+      >
+        {TodoStatus.ACTIVE}
+      </a>
 
-        <a
-          href={`#/${TodoStatus.COMPLETED}`}
-          className={classNames(
-            'filter__link',
-            { selected: todoStatus === TodoStatus.COMPLETED },
-          )}
-          onClick={() => setTodoStatus(TodoStatus.COMPLETED)}
-        >
-          {TodoStatus.COMPLETED}
-        </a>
-      </nav>
+      <a
+        href={`#/${TodoStatus.COMPLETED}`}
+        className={classNames(
+          'filter__link',
+          { selected: todoStatus === TodoStatus.COMPLETED },
+        )}
+        onClick={() => setTodoStatus(TodoStatus.COMPLETED)}
+      >
+        {TodoStatus.COMPLETED}
+      </a>
+    </nav>
 
-      {completedTodosCount > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onClearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
-    </footer>
-  );
-};
+    {completedTodosCount > 0 && (
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={onClearCompleted}
+      >
+        Clear completed
+      </button>
+    )}
+  </footer>
+);
