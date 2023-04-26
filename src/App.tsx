@@ -33,13 +33,22 @@ const getFilteredTodo = (
   return filteredTodo;
 };
 
+const getUpdatedTodo = (todoList: Todo[], todoItem: Todo) => (
+  todoList.map(todo => {
+    if (todoItem.id === todo.id) {
+      return todoItem;
+    }
+
+    return todo;
+  }));
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLodingPage, setIsLoadingPage] = useState(false);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
   const [selectedType, setSelectedType] = useState(FilterType.ALL);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [disabledInput, setdisabledInput] = useState(false);
+  const [disabledInput, setDisabledInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [hasLoadedTodos, setHasLoadedTodos] = useState<number[]>([]);
 
@@ -68,8 +77,8 @@ export const App: React.FC = () => {
     getLoadedTodos();
   }, []);
 
-  const getCreateTodos = async (todo: Omit<Todo, 'id'>) => {
-    setdisabledInput(true);
+  const createTodo = async (todo: Omit<Todo, 'id'>) => {
+    setDisabledInput(true);
     try {
       const todoToServer = await postTodo(USER_ID, todo);
 
@@ -77,7 +86,7 @@ export const App: React.FC = () => {
     } catch (error) {
       getError('Unable to add a todo');
     } finally {
-      setdisabledInput(false);
+      setDisabledInput(false);
       setTempTodo(null);
     }
   };
@@ -91,7 +100,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
     };
 
-    getCreateTodos(newTodo);
+    createTodo(newTodo);
     setTempTodo({ ...newTodo, id: 0 });
   };
 
@@ -121,21 +130,12 @@ export const App: React.FC = () => {
     });
   };
 
-  const updatedTodo = (todoList: Todo[], todoItem: Todo) => (
-    todoList.map(todo => {
-      if (todoItem.id === todo.id) {
-        return todoItem;
-      }
-
-      return todo;
-    }));
-
   const getUpdateTodo = async (todo: Todo) => {
     setHasLoadedTodos(prevTodo => [...prevTodo, todo.id]);
     try {
-      const updateTodo = await patchTodo(USER_ID, todo);
+      const updatedodo = await patchTodo(USER_ID, todo);
 
-      setTodos(currTodos => updatedTodo(currTodos, updateTodo));
+      setTodos(currTodos => getUpdatedTodo(currTodos, updatedodo));
     } catch {
       getError('Unable to update a todo');
     } finally {
@@ -187,13 +187,13 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoInput
-          getActiveTodo={getActiveTodo}
+          onCreateTodos={getActiveTodo}
           disabledInput={disabledInput}
           onGetCreatTodos={handleAddTodos}
           onCompleteAll={handleCompleteAll}
         />
 
-        {isLodingPage
+        {isLoadingPage
           ? (
             <Loader />
           )
@@ -202,7 +202,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               tempTodo={tempTodo}
               handleRemoveTodo={handleRemoveTodo}
-              hasLoadedTodos={hasLoadedTodos}
+              loadedTodoIds={hasLoadedTodos}
               onUpdateTodo={handleUpdateTodo}
               onChangeComplete={handleChangeComplete}
             />

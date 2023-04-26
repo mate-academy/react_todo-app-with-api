@@ -9,15 +9,15 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  loadedId: boolean,
+  isLoading: boolean,
   onDeleteTodo: (id: number) => void;
   onUpdateTodo: (id: number, title: string) => void;
-  onChangeComplete: () => void
+  onChangeComplete: (id: number) => void
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  loadedId,
+  isLoading,
   onDeleteTodo,
   onUpdateTodo,
   onChangeComplete,
@@ -78,7 +78,7 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={onChangeComplete}
+          onChange={() => onChangeComplete(id)}
           checked={completed}
         />
       </label>
@@ -114,7 +114,7 @@ export const TodoInfo: React.FC<Props> = ({
       </button>
 
       <div className={classNames('modal overlay', {
-        'is-active': loadedId,
+        'is-active': isLoading,
       })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 
 type Props = {
-  getActiveTodo: boolean;
+  onCreateTodos: boolean;
   disabledInput: boolean;
   onGetCreatTodos: (value: string) => void;
   onCompleteAll: () => void;
 };
 
 export const TodoInput: React.FC<Props> = ({
-  getActiveTodo,
+  onCreateTodos,
   disabledInput,
   onGetCreatTodos,
   onCompleteAll,
@@ -24,15 +24,15 @@ export const TodoInput: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {getActiveTodo && (
+      {onCreateTodos && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all',
             {
-              active: !getActiveTodo,
+              active: !onCreateTodos,
             })}
-          aria-label="Mute volume"
-          disabled={!getActiveTodo}
+          aria-label="Toggle all todos"
+          disabled={!onCreateTodos}
           onClick={onCompleteAll}
         />
       )}
