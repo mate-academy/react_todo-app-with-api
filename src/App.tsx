@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useCallback, useEffect, useState,
+  useCallback, useEffect, useMemo, useState,
 } from 'react';
 import {
   getTodos, deleteTodo, postTodo, updateTodo,
@@ -25,7 +25,8 @@ export const App: React.FC = () => {
   const [processedIds, setProcessedIds] = useState<number[]>([]);
 
   const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodos = useMemo(() => todos.filter(todo => !todo.completed),
+    [todos]);
   const isAllCompleted = todos.every(todo => todo.completed);
 
   const handleGetTodos = async () => {
@@ -163,7 +164,7 @@ export const App: React.FC = () => {
   }, [processedIds]);
 
   const handleToggleAll = () => {
-    if (activeTodos.length === 0) {
+    if (!activeTodos.length) {
       setProcessedIds(completedTodos.map(todo => todo.id));
       completedTodos.forEach(todo => handleCheckbox(todo.id, todo.completed));
     } else {
@@ -184,7 +185,7 @@ export const App: React.FC = () => {
         <Header
           createTodo={handleAddTodo}
           isDisableInput={isDisableInput}
-          handleToggleAll={handleToggleAll}
+          toggleAllTodos={handleToggleAll}
           isAllCompleted={isAllCompleted}
         />
 
@@ -199,7 +200,7 @@ export const App: React.FC = () => {
           />
         </section>
 
-        {todos.length > 0 && (
+        {!todos.length && (
           <Footer
             setFilterType={setFilterType}
             filterType={filterType}

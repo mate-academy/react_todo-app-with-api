@@ -65,6 +65,7 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
+          checked={completed}
           onChange={onChangeCheckbox}
         />
       </label>
