@@ -20,6 +20,13 @@ body {
   pointer-events: none;
 }
 
+.todoapp__clear-completed {
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
+
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
