@@ -22,7 +22,7 @@ export const Notification: React.FC<Props> = ({ error }) => {
       <button
         type="button"
         className="delete"
-        aria-label="Mute volume"
+        aria-label="Close notification"
         onClick={hideNotification}
       />
 

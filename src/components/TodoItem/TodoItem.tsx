@@ -25,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleSubmitOrBlur = (event: FormEvent) => {
     event.preventDefault();
 
-    if (titleInput === '') {
+    if (!titleInput) {
       deleteTodo(id);
     }
 
@@ -92,19 +92,6 @@ export const TodoItem: React.FC<Props> = ({
           >
             {title}
           </span>
-          {/* <span
-            className="todo__title"
-            onClick={onEditTitle}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                onEditTitle();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-          >
-            {title}
-          </span> */}
 
           <button
             type="button"

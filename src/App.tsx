@@ -107,7 +107,7 @@ export const App: React.FC = () => {
     } finally {
       setProcessedIds(deleteIds => deleteIds.filter(id => id !== todoId));
     }
-  }, [processedIds]);
+  }, []);
 
   const handleClearCompleted = useCallback(() => {
     setProcessedIds(completedTodos.map(todo => todo.id));
@@ -136,10 +136,11 @@ export const App: React.FC = () => {
     } finally {
       setProcessedIds(clickedIds => clickedIds.filter(id => id !== todoId));
     }
-  }, [processedIds]);
+  }, []);
 
   const handleChangeTitle = useCallback(async (
-    todoId: number, newTitle: string,
+    todoId: number,
+    newTitle: string,
   ) => {
     setError(null);
     setProcessedIds(clickedIds => [...clickedIds, todoId]);
@@ -162,7 +163,7 @@ export const App: React.FC = () => {
     } finally {
       setProcessedIds(clickedIds => clickedIds.filter(id => id !== todoId));
     }
-  }, [processedIds]);
+  }, []);
 
   const handleToggleAll = () => {
     if (!activeTodos.length) {
@@ -201,7 +202,7 @@ export const App: React.FC = () => {
           />
         </section>
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             setFilterType={setFilterType}
             filterType={filterType}
