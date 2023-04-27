@@ -1,16 +1,16 @@
-import { SortType } from '../../types/SortType';
+import { FilterType } from '../../types/FilterType';
 import { Todo } from '../../types/Todo';
 
 export const filterTodos = (
   todos: Todo[],
-  sortBy: SortType,
+  sortBy: FilterType,
 ): Todo[] => {
   return todos.filter(todo => {
     switch (sortBy) {
-      case SortType.ACTIVE:
+      case FilterType.ACTIVE:
         return !todo.completed;
 
-      case SortType.COMPLETED:
+      case FilterType.COMPLETED:
         return todo.completed;
 
       default:

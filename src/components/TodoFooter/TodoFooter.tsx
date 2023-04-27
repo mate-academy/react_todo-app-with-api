@@ -1,14 +1,14 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
-import { SortType } from '../../types/SortType';
+import { FilterType } from '../../types/FilterType';
 
 interface Props {
   todos: Todo[],
-  sortType: SortType,
-  onSelect: (typeOfSort: SortType) => void,
+  filterType: FilterType,
+  onSelect: (typeOfSort: FilterType) => void,
   onClearCompleted: () => void,
   hasCompletedTodos: boolean,
 }
@@ -16,19 +16,19 @@ interface Props {
 export const TodoFooter: React.FC<Props> = (props) => {
   const {
     todos,
-    sortType,
+    filterType,
     onSelect,
     onClearCompleted,
     hasCompletedTodos,
   } = props;
 
-  const handlerSortSelect = useCallback((type: SortType) => {
-    if (type === sortType) {
+  const handlerSortSelect = (type: FilterType) => {
+    if (type === filterType) {
       return;
     }
 
     onSelect(type);
-  }, []);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -37,17 +37,17 @@ export const TodoFooter: React.FC<Props> = (props) => {
       </span>
 
       <nav className="filter">
-        {Object.values(SortType).map(type => (
+        {Object.values(FilterType).map(type => (
           <a
             href={`#/${
-              type === SortType.ALL
+              type === FilterType.ALL
                 ? ''
                 : type
             }`}
             className={classNames(
               'filter__link',
               {
-                selected: sortType === type,
+                selected: filterType === type,
               },
             )}
             data-sort={type}

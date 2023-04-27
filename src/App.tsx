@@ -14,7 +14,7 @@ import {
 } from './api/todos';
 
 import { Todo } from './types/Todo';
-import { SortType } from './types/SortType';
+import { FilterType } from './types/FilterType';
 import { ErrorsType } from './types/ErrorsType';
 
 import { filterTodos } from './utils/helpers/filterBySort';
@@ -29,17 +29,18 @@ const USER_ID = 7036;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [sortType, setSortType] = useState<SortType>(SortType.ALL);
-  const [error, setError] = useState<ErrorsType>(ErrorsType.EMPTY);
+  const [filterType, setSortType] = useState<FilterType>(FilterType.ALL);
+  const [errorType, setErrorType] = useState<ErrorsType>(ErrorsType.EMPTY);
   const [isHiddenError, setIsHiddenError] = useState(true);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
-  const handleError = useCallback((whatError: ErrorsType) => {
-    setError(whatError);
+  const handleError = useCallback((typeOfError: ErrorsType) => {
+    setErrorType(typeOfError);
     setIsHiddenError(false);
 
     setTimeout(() => {
       setIsHiddenError(true);
+      // setErrorType(ErrorsType.NONE);
     }, 3000);
   }, []);
 
@@ -58,8 +59,12 @@ export const App: React.FC = () => {
   }, []);
 
   const visibleTodos = useMemo(() => (
-    filterTodos(todos, sortType)
-  ), [todos, sortType]);
+    filterTodos(todos, filterType)
+  ), [todos, filterType]);
+
+  const onlyUncompletedTodos = useMemo(() => (
+    todos.filter(todo => !todo.completed)
+  ), [todos]);
 
   const hasCompletedTodos = useMemo(() => (
     todos.some(todo => todo.completed)
@@ -99,15 +104,15 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handlerSortType = (type: SortType) => {
+  const handlerSortType = useCallback((type: FilterType) => {
     setSortType(type);
-  };
+  }, []);
 
   const handleCloseError = () => {
     setIsHiddenError(true);
   };
 
-  const handlerDeleteTodo = useCallback(async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodosIds(prevLoaderIds => ([
         ...prevLoaderIds,
@@ -126,18 +131,13 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handlerRemoveAllCompletedTodo = useCallback(async () => {
+  const handleRemoveAllCompletedTodo = useCallback(async () => {
     const completedTodosIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    setLoadingTodosIds(prevLoadIds => ([
-      ...prevLoadIds,
-      ...completedTodosIds,
-    ]));
-
-    await Promise.all(completedTodosIds.map(id => handlerDeleteTodo(id)));
-  }, []);
+    await Promise.all(completedTodosIds.map(handleDeleteTodo));
+  }, [todos]);
 
   const handlerTodoToggle = useCallback(async (
     id: number,
@@ -176,7 +176,7 @@ export const App: React.FC = () => {
     await Promise.all(
       todosIds.map(id => handlerTodoToggle(id, areAllCompleted)),
     );
-  }, []);
+  }, [todos]);
 
   const handlerChangeTitle = useCallback(async (
     newTitle: string,
@@ -185,7 +185,7 @@ export const App: React.FC = () => {
     const title = newTitle.trim();
 
     if (!title) {
-      await handlerDeleteTodo(todoId);
+      await handleDeleteTodo(todoId);
 
       return;
     }
@@ -234,7 +234,7 @@ export const App: React.FC = () => {
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
-          onDelete={handlerDeleteTodo}
+          onDelete={handleDeleteTodo}
           idsForLoader={loadingTodosIds}
           onCompleted={handlerTodoToggle}
           onChangeTitle={handlerChangeTitle}
@@ -242,10 +242,10 @@ export const App: React.FC = () => {
 
         {todos[0] && (
           <TodoFooter
-            todos={todos}
-            sortType={sortType}
+            todos={onlyUncompletedTodos}
+            filterType={filterType}
             onSelect={handlerSortType}
-            onClearCompleted={handlerRemoveAllCompletedTodo}
+            onClearCompleted={handleRemoveAllCompletedTodo}
             hasCompletedTodos={hasCompletedTodos}
           />
         )}
@@ -269,7 +269,7 @@ export const App: React.FC = () => {
           aria-label="delete error message"
         />
 
-        {error}
+        {errorType}
       </div>
     </div>
   );

@@ -26,10 +26,10 @@ export const TodoItem: React.FC<Props> = ({
     title,
   } = todo;
 
-  const [isEdditing, setIsEdditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handlerFocus = useCallback((focus: boolean) => {
-    setIsEdditing(focus);
+    setIsEditing(focus);
   }, []);
 
   return (
@@ -40,7 +40,6 @@ export const TodoItem: React.FC<Props> = ({
           completed,
         },
       )}
-      key={id}
     >
       <label className="todo__status-label">
         <input
@@ -51,7 +50,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isEdditing
+      {isEditing
         ? (
           <TodoForm
             todoId={id}
@@ -64,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setIsEdditing(true)}
+              onDoubleClick={() => setIsEditing(true)}
             >
               {title}
             </span>

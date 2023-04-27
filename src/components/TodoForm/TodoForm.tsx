@@ -45,7 +45,9 @@ export const TodoForm: React.FC<Props> = ({
     setNewTitleTodo(title);
   }, []);
 
-  const handlerSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handlerSubmit = useCallback(async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (newTitleTodo === currentTitle) {
@@ -61,7 +63,7 @@ export const TodoForm: React.FC<Props> = ({
     setNewTitleTodo('');
 
     handlerCancelEdditing();
-  };
+  }, [newTitleTodo]);
 
   const handlerKeyup = useCallback((
     event: React.KeyboardEvent<HTMLInputElement>,
@@ -74,7 +76,7 @@ export const TodoForm: React.FC<Props> = ({
   return (
     <form
       onSubmit={handlerSubmit}
-      onBlur={() => handlerCancelEdditing()}
+      onBlur={handlerCancelEdditing}
     >
       <input
         type="text"
