@@ -3,14 +3,14 @@ import classNames from 'classnames';
 
 type Props = {
   createTodo: (title: string) => void,
-  isDisableInput: boolean,
+  isInputDisabled: boolean,
   toggleAllTodos: () => void,
   isAllCompleted: boolean,
 };
 
 export const Header: React.FC<Props> = ({
   createTodo,
-  isDisableInput,
+  isInputDisabled,
   toggleAllTodos,
   isAllCompleted,
 }) => {
@@ -45,7 +45,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={query}
           onChange={onInputChange}
-          disabled={isDisableInput}
+          disabled={isInputDisabled}
         />
       </form>
     </header>

@@ -18,7 +18,7 @@ export const TodoList: React.FC<Props> = ({
   handleCheckbox,
   handleChangeTitle,
 }) => (
-  <ul style={{ listStyleType: 'none' }}>
+  <ul className="todoapp__todolist">
     {todos.map((todo: Todo) => (
       <TodoItem
         key={todo.id}

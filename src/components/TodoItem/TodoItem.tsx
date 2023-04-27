@@ -60,7 +60,9 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   return (
-    <li className={classNames('todo', { completed })}>
+    <li
+      className={classNames('todo', { completed })}
+    >
       <label className="todo__status-label">
         <input
           type="checkbox"
@@ -90,6 +92,19 @@ export const TodoItem: React.FC<Props> = ({
           >
             {title}
           </span>
+          {/* <span
+            className="todo__title"
+            onClick={onEditTitle}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                onEditTitle();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            {title}
+          </span> */}
 
           <button
             type="button"

@@ -21,10 +21,11 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterStatus>(FilterStatus.All);
   const [error, setError] = useState<ErrorTypes | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isDisableInput, setIsDisableInput] = useState(false);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [processedIds, setProcessedIds] = useState<number[]>([]);
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(() => todos.filter(todo => todo.completed),
+    [todos]);
   const activeTodos = useMemo(() => todos.filter(todo => !todo.completed),
     [todos]);
   const isAllCompleted = todos.every(todo => todo.completed);
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
     handleGetTodos();
   }, []);
 
-  const filterTodos = () => {
+  const filterTodos = useMemo(() => {
     switch (filterType) {
       case FilterStatus.Active:
         return todos.filter(todo => !todo.completed);
@@ -58,11 +59,11 @@ export const App: React.FC = () => {
       default:
         return todos;
     }
-  };
+  }, [todos, filterType]);
 
   const handleAddTodo = useCallback(async (title: string) => {
     setError(null);
-    setIsDisableInput(true);
+    setIsInputDisabled(true);
 
     try {
       if (!title.trim()) {
@@ -88,7 +89,7 @@ export const App: React.FC = () => {
       setError(ErrorTypes.ADD);
     } finally {
       setTempTodo(null);
-      setIsDisableInput(false);
+      setIsInputDisabled(false);
     }
   }, []);
 
@@ -184,14 +185,14 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           createTodo={handleAddTodo}
-          isDisableInput={isDisableInput}
+          isInputDisabled={isInputDisabled}
           toggleAllTodos={handleToggleAll}
           isAllCompleted={isAllCompleted}
         />
 
         <section className="todoapp__main">
           <TodoList
-            todos={filterTodos()}
+            todos={filterTodos}
             tempTodo={tempTodo}
             deleteTodo={handleDeleteTodo}
             processedIds={processedIds}
@@ -200,7 +201,7 @@ export const App: React.FC = () => {
           />
         </section>
 
-        {!todos.length && (
+        {todos.length > 0 && (
           <Footer
             setFilterType={setFilterType}
             filterType={filterType}
