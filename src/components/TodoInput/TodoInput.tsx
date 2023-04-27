@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ErrorAction } from '../../types/ErrorAction';
 
 type Props = {
@@ -21,6 +21,16 @@ export const TodoInput: React.FC<Props> = React.memo(({
   onToggleAll,
 }) => {
   const [input, setInput] = useState('');
+  const [wasTodoAdded, setWasTodoAdded] = useState(false);
+  const inputElement = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (wasTodoAdded) {
+      inputElement.current?.focus();
+
+      setWasTodoAdded(false);
+    }
+  }, [wasTodoAdded]);
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -30,11 +40,12 @@ export const TodoInput: React.FC<Props> = React.memo(({
       if (title) {
         await addTodo(title);
         setInput('');
+        setWasTodoAdded(true);
       } else {
-        throw new Error();
+        setError(ErrorAction.EMPTY);
       }
     } catch {
-      setError(ErrorAction.EMPTY);
+      setError(ErrorAction.LOAD);
     }
   };
 
@@ -61,6 +72,7 @@ export const TodoInput: React.FC<Props> = React.memo(({
           disabled={isInputDisabled}
           value={input}
           onChange={event => setInput(event.target.value)}
+          ref={inputElement}
         />
       </form>
     </header>

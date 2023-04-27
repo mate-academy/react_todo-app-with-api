@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -21,6 +20,12 @@ export const TodoItem: React.FC<Props> = React.memo(
     const isLoaderCovered = procesedTodoIds.includes(id);
     const [input, setInput] = useState('');
     const [isBeingEdited, setIsBeingEdited] = useState(false);
+
+    const inputElement = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      inputElement.current?.focus();
+    }, [isBeingEdited]);
 
     const handleTodoRemove = () => {
       if (removeTodo) {
@@ -93,7 +98,7 @@ export const TodoItem: React.FC<Props> = React.memo(
               }}
               onBlur={handleTitleUpdate}
               onKeyUp={handleCancelUpdate}
-              ref={element => element && element.focus()}
+              ref={inputElement}
             />
           </form>
         ) : (

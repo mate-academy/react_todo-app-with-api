@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect, useMemo, useState,
@@ -27,7 +26,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<ErrorAction | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInProgress, setIsInProgress] = useState<boolean>(false);
-  const [procesedTodoIds, setProcesedTodoIds] = useState<number[]>([]);
+  const [processedTodoIds, setProcessedTodoIds] = useState<number[]>([]);
   const activeTodos = filterTodos(todos, Filter.ACTIVE);
   const completedTodos = filterTodos(todos, Filter.COMPLETED);
   const isToggleOnActive = todos.length === completedTodos.length;
@@ -46,7 +45,7 @@ export const App: React.FC = () => {
     try {
       setIsInProgress(true);
       setTempTodo(createTempTodo(title));
-      setProcesedTodoIds([0]);
+      setProcessedTodoIds([0]);
       const data = { userId: USER_ID, title, completed: false };
       const newTodo = await addTodo(data);
 
@@ -56,13 +55,13 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
       setIsInProgress(false);
-      setProcesedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
   const handleRemoveTodo = async (todoId: number) => {
     try {
-      setProcesedTodoIds([todoId]);
+      setProcessedTodoIds([todoId]);
       await deleteTodo(todoId);
 
       const todosWithoutRemoved = todos.filter(todo => todo.id !== todoId);
@@ -71,13 +70,13 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorAction.DELETE);
     } finally {
-      setProcesedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
   const handleClearCompleted = async () => {
     try {
-      setProcesedTodoIds(completedTodos.map(todo => todo.id));
+      setProcessedTodoIds(completedTodos.map(todo => todo.id));
       const todosToRemove = completedTodos.map(todo => deleteTodo(todo.id));
 
       await Promise.all(todosToRemove);
@@ -86,13 +85,13 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorAction.DELETE);
     } finally {
-      setProcesedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
   const handleTodoUpdate = async (todoId: number, data: Partial<Todo>) => {
     try {
-      setProcesedTodoIds([todoId]);
+      setProcessedTodoIds([todoId]);
 
       const updatedTodo = await updateTodo(todoId, data);
 
@@ -104,7 +103,7 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorAction.UPDATE);
     } finally {
-      setProcesedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
@@ -114,7 +113,7 @@ export const App: React.FC = () => {
         .filter(todo => (todo.completed === isToggleOnActive))
         .map(todo => todo.id);
 
-      setProcesedTodoIds(idsToToggle);
+      setProcessedTodoIds(idsToToggle);
 
       const toggledTodos = await Promise.all(
         idsToToggle.map(id => updateTodo(id, { completed: !isToggleOnActive })),
@@ -124,7 +123,7 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorAction.UPDATE);
     } finally {
-      setProcesedTodoIds([]);
+      setProcessedTodoIds([]);
     }
   };
 
@@ -165,13 +164,13 @@ export const App: React.FC = () => {
           <TodosList
             todos={visibleTodos}
             removeTodo={handleRemoveTodo}
-            procesedTodoIds={procesedTodoIds}
+            processedTodoIds={processedTodoIds}
             updateTodo={handleTodoUpdate}
           />
           {tempTodo && (
             <TodoItem
               todo={tempTodo}
-              procesedTodoIds={procesedTodoIds}
+              procesedTodoIds={processedTodoIds}
             />
           )}
         </section>

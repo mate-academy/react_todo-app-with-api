@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
@@ -17,5 +16,3 @@ export const deleteTodo = (todoId: number) => {
 export const updateTodo = (todoId: number, data: Partial<Todo>) => {
   return client.patch<Todo>(`/todos/${todoId}`, data);
 };
-
-// Add more methods here

@@ -7,14 +7,14 @@ import { TodoItem } from '../TodoItem';
 type Props = {
   todos: Todo[];
   removeTodo: (id: number) => void;
-  procesedTodoIds: number[];
+  processedTodoIds: number[];
   updateTodo: (id: number, data: Partial<Todo>) => Promise<void>;
 };
 
 export const TodosList: React.FC<Props> = ({
   todos,
   removeTodo,
-  procesedTodoIds,
+  processedTodoIds,
   updateTodo,
 }) => {
   return (
@@ -29,7 +29,7 @@ export const TodosList: React.FC<Props> = ({
             todo={todo}
             key={todo.id}
             removeTodo={removeTodo}
-            procesedTodoIds={procesedTodoIds}
+            procesedTodoIds={processedTodoIds}
             updateTodo={updateTodo}
           />
         </CSSTransition>
