@@ -1,11 +1,12 @@
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { Errors } from '../../utils/enum';
 
 type Props = {
   todo: Todo;
   onDelete: (value: number) => void;
-  isIncludes: boolean;
+  isLoadingTodo: boolean;
   onChangeStatusTodo?: (todoID: number) => void;
   onChangeNewTitle?: (todoID: number, todoNewTitle: string) => void;
   setErrorMessage: (errorMessage: string) => void;
@@ -14,7 +15,7 @@ type Props = {
 export const TodoInfo: React.FC<Props> = ({
   todo,
   onDelete,
-  isIncludes,
+  isLoadingTodo,
   onChangeStatusTodo,
   onChangeNewTitle,
   setErrorMessage,
@@ -37,7 +38,7 @@ export const TodoInfo: React.FC<Props> = ({
     setTodoTitle(value);
   };
 
-  const handleUpdateTittleTodo = async (
+  const handleUpdateTitleTodo = async (
     event: React.ChangeEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -49,13 +50,11 @@ export const TodoInfo: React.FC<Props> = ({
         setIsChangedTitle(true);
         await onChangeNewTitle?.(id, todoTitle);
       } catch {
-        setErrorMessage('Unable to edit a todo');
+        setErrorMessage(Errors.Edit);
       } finally {
         setIsChangedTitle(false);
       }
     }
-
-    return '';
   };
 
   const onBlurUpdateTittleTodo = () => {
@@ -87,7 +86,6 @@ export const TodoInfo: React.FC<Props> = ({
             completed: todo.completed,
           })}
           key={todo.id}
-          onDoubleClick={() => setIsClicked((prev) => !prev)}
         >
           <label className="todo__status-label">
             <input
@@ -97,7 +95,7 @@ export const TodoInfo: React.FC<Props> = ({
             />
           </label>
 
-          <form onSubmit={handleUpdateTittleTodo}>
+          <form onSubmit={handleUpdateTitleTodo}>
             <input
               type="text"
               className="todo__title-field"
@@ -110,7 +108,7 @@ export const TodoInfo: React.FC<Props> = ({
             />
           </form>
 
-          {isIncludes && (
+          {isLoadingTodo && (
             <div className="modal overlay is-active">
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
@@ -142,7 +140,7 @@ export const TodoInfo: React.FC<Props> = ({
             ×
           </button>
 
-          {isIncludes && (
+          {isLoadingTodo && (
             <div className="modal overlay is-active">
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />

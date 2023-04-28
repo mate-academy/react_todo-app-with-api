@@ -1,11 +1,11 @@
 import classNames from 'classnames';
-import { Links } from '../../utils/enum';
+import { Errors, FilterBy } from '../../utils/enum';
 import { Todo } from '../../types/Todo';
 import { deleteTodo } from '../../api/todos';
 
 type Props = {
   filteredBy: string;
-  todosLengh: number;
+  todosLength: number;
   handleChangeFilterType: (filterBy: string) => void;
   todos: Todo[];
   setTodoList: (todos: Todo[]) => void;
@@ -15,7 +15,7 @@ type Props = {
 
 export const Footer: React.FC<Props> = ({
   filteredBy,
-  todosLengh,
+  todosLength,
   handleChangeFilterType,
   todos,
   setTodoList,
@@ -36,11 +36,12 @@ export const Footer: React.FC<Props> = ({
     completedTodos.forEach(async (todo) => {
       try {
         setLoadingTodos([...completedTodosID]);
-        await deleteTodo(`/todos/${todo.id}`).then(() => {
-          setTodoList(incompletedTodos);
-        });
+
+        await deleteTodo(todo.id);
+
+        setTodoList(incompletedTodos);
       } catch {
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(Errors.Delete);
       } finally {
         setLoadingTodos([]);
       }
@@ -49,10 +50,10 @@ export const Footer: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${todosLengh} items left`}</span>
+      <span className="todo-count">{`${todosLength} items left`}</span>
 
       <nav className="filter">
-        {Object.keys(Links).map((key) => (
+        {Object.keys(FilterBy).map((key) => (
           <a
             href="#/completed"
             className={classNames('filter__link', {

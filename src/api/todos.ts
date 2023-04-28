@@ -2,9 +2,7 @@ import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = async (userId: number) => {
-  const todos = await client.get<Todo[]>(`/todos?userId=${userId}`);
-
-  return todos;
+  return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
 export const addTodo = async (todo: Omit<Todo, 'id'>) => {
@@ -13,8 +11,8 @@ export const addTodo = async (todo: Omit<Todo, 'id'>) => {
   return add;
 };
 
-export const deleteTodo = async (todoID: string) => {
-  const deletedTodo = await client.delete(todoID);
+export const deleteTodo = async (todoID: number) => {
+  const deletedTodo = await client.delete(`/todos/${todoID}`);
 
   return deletedTodo;
 };

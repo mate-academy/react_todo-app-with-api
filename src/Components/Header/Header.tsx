@@ -1,6 +1,8 @@
+import classNames from 'classnames';
 import { addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../utils/UserID';
+import { Errors } from '../../utils/enum';
 
 type Props = {
   todos: Todo[];
@@ -33,7 +35,7 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title) {
-      setErrorMessage('Todo must have a title');
+      setErrorMessage('Title cannot be empty');
     }
 
     if (title) {
@@ -47,12 +49,13 @@ export const Header: React.FC<Props> = ({
         setActiveInput(false);
         setTempTodo({ ...newTodo, id: 0 });
 
-        await addTodo(newTodo)
-          .then((response) => setTodoList([...todos, response]));
+        const response = await addTodo(newTodo);
+
+        setTodoList([...todos, response]);
 
         setTitleTodo('');
       } catch {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(Errors.Add);
       } finally {
         setActiveInput(true);
         setTempTodo(null);
@@ -60,13 +63,17 @@ export const Header: React.FC<Props> = ({
     }
   };
 
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
+
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
         <button
           aria-label="button"
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosCompleted,
+          })}
           onClick={handleChangeStatusAllTodos}
         />
       )}

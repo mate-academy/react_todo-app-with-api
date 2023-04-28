@@ -1,6 +1,7 @@
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo/TodoInfo';
 import { deleteTodo } from '../../api/todos';
+import { Errors } from '../../utils/enum';
 
 type Props = {
   setTodoList: (todos: Todo[]) => void;
@@ -28,26 +29,26 @@ export const TodoList: React.FC<Props> = ({
       setLoadingTodos([todoID]);
       const newTodos = todos.filter((todo) => todo.id !== todoID);
 
-      await deleteTodo(`/todos/${todoID}`);
+      await deleteTodo(todoID);
 
       setTodoList(newTodos);
     } catch {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(Errors.Delete);
     } finally {
       setLoadingTodos([]);
     }
   };
 
-  const isIncludesTempTodo = loadingTodos.includes(0);
+  const isLoadingTempTodo = loadingTodos.includes(0);
 
   return (
     <section className="todoapp__main">
       {todos.map((todo) => {
-        const isIncludes = loadingTodos.includes(todo.id);
+        const isLoadingTodo = loadingTodos.includes(todo.id);
 
         return (
           <TodoInfo
-            isIncludes={isIncludes}
+            isLoadingTodo={isLoadingTodo}
             todo={todo}
             onDelete={handleDeleteTodo}
             onChangeStatusTodo={onChangeStatusTodo}
@@ -59,7 +60,7 @@ export const TodoList: React.FC<Props> = ({
       })}
       {tempTodo && (
         <TodoInfo
-          isIncludes={isIncludesTempTodo}
+          isLoadingTodo={isLoadingTempTodo}
           todo={tempTodo}
           onDelete={handleDeleteTodo}
           setErrorMessage={setErrorMessage}
