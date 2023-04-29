@@ -6,19 +6,19 @@ import { ErrorType } from '../../types/Error';
 type Props = {
   filteredTodos: Todo[];
   tempTodo: Todo | null;
-  processing: number[];
+  processingTodoIds: number[];
   error: ErrorType;
   removeTodo: (todoId: number) => void;
-  changeTodo: (todoId: number, updatedData: Partial<Todo>) => void;
+  updateTodo: (todoId: number, updatedData: Partial<Todo>) => void;
 
 };
 
 export const TodoList: FC<Props> = ({
   filteredTodos,
   tempTodo,
-  processing,
+  processingTodoIds,
   removeTodo,
-  changeTodo,
+  updateTodo,
   error,
 }) => {
   return (
@@ -28,9 +28,9 @@ export const TodoList: FC<Props> = ({
           key={todo.id}
           todo={todo}
           error={error}
-          isLoading={processing.includes(todo.id)}
+          isLoading={processingTodoIds.includes(todo.id)}
           removeTodo={removeTodo}
-          changeTodo={changeTodo}
+          updateTodo={updateTodo}
         />
       ))}
 
@@ -38,9 +38,9 @@ export const TodoList: FC<Props> = ({
         <TodoTask
           todo={tempTodo}
           error={error}
-          isLoading={processing.includes(tempTodo.id)}
+          isLoading={processingTodoIds.includes(tempTodo.id)}
           removeTodo={removeTodo}
-          changeTodo={changeTodo}
+          updateTodo={updateTodo}
         />
       )}
     </section>

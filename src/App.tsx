@@ -2,7 +2,7 @@ import React, {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
-import { deleteTodo, getTodos, updateTodo } from './api/todos';
+import { deleteTodo, getTodos, patchTodo } from './api/todos';
 import { Todo } from './types/Todo';
 import { USER_ID } from './constants';
 import { Footer } from './components/Footer';
@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<ErrorType>(ErrorType.NONE);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
-  const [processing, setProcessing] = useState<number[]>([]);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   const filterTodos = useCallback(() => {
     switch (filter) {
@@ -34,26 +34,26 @@ export const App: React.FC = () => {
   const filteredTodos = useMemo(() => filterTodos(),
     [filter, todos, filterTodos]);
 
-  const removeTodo = async (todoId: number) => {
+  const removeTodo = useCallback(async (todoId: number) => {
     try {
-      setProcessing(prevState => [...prevState, todoId]);
+      setProcessingTodoIds(prevState => [...prevState, todoId]);
       await deleteTodo(todoId);
       setTodos(prevState => prevState.filter(item => item.id !== todoId));
     } catch {
       setError(ErrorType.DELETE);
     } finally {
-      setProcessing(
+      setProcessingTodoIds(
         prevState => prevState.filter(item => item !== todoId),
       );
     }
-  };
+  }, [deleteTodo]);
 
-  const changeTodo = async (
+  const updateTodo = useCallback(async (
     todoId: number, updatedData: Partial<Todo>,
   ) => {
     try {
-      setProcessing(prevState => [...prevState, todoId]);
-      await updateTodo(todoId, updatedData);
+      setProcessingTodoIds(prevState => [...prevState, todoId]);
+      await patchTodo(todoId, updatedData);
       setTodos(prevState => prevState.map(
         prevTodo => {
           if (prevTodo.id !== todoId) {
@@ -66,24 +66,24 @@ export const App: React.FC = () => {
     } catch {
       setError(ErrorType.UPDATE);
     } finally {
-      setProcessing(
+      setProcessingTodoIds(
         prevState => prevState.filter(item => item !== todoId),
       );
     }
-  };
+  }, [patchTodo]);
 
   useEffect(() => {
-    const uploadTodos = async () => {
+    const loadTodos = async () => {
       try {
-        const uploadedTodos = await getTodos(USER_ID);
+        const loadedTodos = await getTodos(USER_ID);
 
-        setTodos(uploadedTodos);
+        setTodos(loadedTodos);
       } catch {
         setError(ErrorType.LOAD);
       }
     };
 
-    uploadTodos();
+    loadTodos();
   }, []);
 
   if (!USER_ID) {
@@ -95,24 +95,25 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__con
-      tent">
+      tent"
+      >
 
         <Header
           todos={todos}
-          changeTodo={changeTodo}
+          updateTodo={updateTodo}
           setError={setError}
           setTempTodo={setTempTodo}
           setTodos={setTodos}
-          setProcessing={setProcessing}
+          setProcessingTodoIds={setProcessingTodoIds}
         />
 
         <TodoList
           filteredTodos={filteredTodos}
           tempTodo={tempTodo}
           error={error}
-          processing={processing}
+          processingTodoIds={processingTodoIds}
           removeTodo={removeTodo}
-          changeTodo={changeTodo}
+          updateTodo={updateTodo}
         />
 
         {!!todos.length && (

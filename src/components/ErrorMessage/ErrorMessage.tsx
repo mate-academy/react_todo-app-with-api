@@ -7,7 +7,7 @@ type Props = {
   setError: React.Dispatch<React.SetStateAction<ErrorType>>
 };
 
-export const ErrorMessage: FC<Props> = ({ error, setError }) => {
+export const ErrorMessage: FC<Props> = React.memo(({ error, setError }) => {
   const handleErrorMessageHidden = () => {
     setError(ErrorType.NONE);
   };
@@ -31,7 +31,7 @@ export const ErrorMessage: FC<Props> = ({ error, setError }) => {
       className={
         classNames(
           'notification is-danger is-light has-text-weight-normal', {
-            hidden: !error,
+            hidden: error === ErrorType.NONE,
           },
         )
       }
@@ -45,4 +45,4 @@ export const ErrorMessage: FC<Props> = ({ error, setError }) => {
       {error}
     </div>
   );
-};
+});

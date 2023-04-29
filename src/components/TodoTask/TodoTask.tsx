@@ -1,4 +1,6 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {
+  FC, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
@@ -8,27 +10,27 @@ type Props = {
   isLoading: boolean;
   error: ErrorType;
   removeTodo: (todoId: number) => void;
-  changeTodo: (todoId: number, updatedData: Partial<Todo>) => void;
+  updateTodo: (todoId: number, updatedData: Partial<Todo>) => void;
 };
 
-export const TodoTask: FC<Props> = ({
+export const TodoTask: FC<Props> = React.memo(({
   todo,
   isLoading,
   removeTodo,
-  changeTodo,
+  updateTodo,
   error,
 }) => {
-  const [isEditing, setEdited] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [query, setQuery] = useState(todo.title);
   const editInputRef = useRef<HTMLInputElement>(null);
 
   const handleOnClickRemoveTodo = () => removeTodo(todo.id);
 
   const handleOnClickToggleTodoStatus = () => {
-    changeTodo(todo.id, { completed: !todo.completed });
+    updateTodo(todo.id, { completed: !todo.completed });
   };
 
-  const handleDoubleClickTask = () => setEdited(true);
+  const handleDoubleClickTask = () => setIsEditing(true);
 
   const handleOnChangeTitleTask = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -42,13 +44,13 @@ export const TodoTask: FC<Props> = ({
     }
 
     if (query === todo.title) {
-      setEdited(false);
+      setIsEditing(false);
 
       return;
     }
 
-    changeTodo(todo.id, { title: query });
-    setEdited(false);
+    updateTodo(todo.id, { title: query });
+    setIsEditing(false);
   };
 
   const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -66,7 +68,7 @@ export const TodoTask: FC<Props> = ({
       return;
     }
 
-    setEdited(false);
+    setIsEditing(false);
     setQuery(todo.title);
   };
 
@@ -140,4 +142,4 @@ export const TodoTask: FC<Props> = ({
       </div>
     </div>
   );
-};
+});

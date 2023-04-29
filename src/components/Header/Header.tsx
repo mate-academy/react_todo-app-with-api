@@ -7,35 +7,35 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[];
-  changeTodo: (todoId: number, updatedData: Partial<Todo>) => void;
+  updateTodo: (todoId: number, updatedData: Partial<Todo>) => void;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setError: React.Dispatch<React.SetStateAction<ErrorType>>;
-  setProcessing: React.Dispatch<React.SetStateAction<number[]>>;
+  setProcessingTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Header: FC<Props> = ({
   setError,
   setTempTodo,
   setTodos,
-  setProcessing,
+  setProcessingTodoIds,
   todos,
-  changeTodo,
+  updateTodo,
 }) => {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [newTodoQuery, setNewTodoQuery] = useState('');
   const allTodosCompleted = todos.every(todo => todo.completed);
 
   const addTodo = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setTempTodo({
         id: 0,
         userId: USER_ID,
         title: newTodoQuery,
         completed: false,
       });
-      setProcessing(prevState => [...prevState, 0]);
+      setProcessingTodoIds(prevState => [...prevState, 0]);
 
       const newTodo = await createNewTodo(USER_ID, newTodoQuery);
 
@@ -43,8 +43,11 @@ export const Header: FC<Props> = ({
     } catch (err) {
       setError(ErrorType.ADD);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
       setTempTodo(null);
+      setProcessingTodoIds(
+        prevState => prevState.filter(item => item !== 0),
+      );
     }
   };
 
@@ -70,7 +73,7 @@ export const Header: FC<Props> = ({
   const handleOnClickToggleAll = () => {
     if (allTodosCompleted) {
       todos.forEach(
-        todo => changeTodo(todo.id, { completed: !todo.completed }),
+        todo => updateTodo(todo.id, { completed: !todo.completed }),
       );
 
       return;
@@ -78,14 +81,13 @@ export const Header: FC<Props> = ({
 
     todos.forEach(todo => {
       if (!todo.completed) {
-        changeTodo(todo.id, { completed: !todo.completed });
+        updateTodo(todo.id, { completed: !todo.completed });
       }
     });
   };
 
   return (
     <header className="todoapp__header">
-      {/* this button is active only if there are some active todos */}
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"

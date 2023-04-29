@@ -57,15 +57,15 @@ export const Footer: FC<Props> = ({
         ))}
       </nav>
 
-      {todos.some(todo => todo.completed) && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleClearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames('todoapp__clear-completed', {
+          hidden: todos.every(todo => !todo.completed),
+        })}
+        onClick={handleClearCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
