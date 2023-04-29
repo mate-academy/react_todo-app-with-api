@@ -28,18 +28,16 @@ export const Footer: FC<Props> = ({
 
   const handleClearCompleted = () => {
     todos.forEach(todo => {
-      if (!todo.completed) {
-        return;
+      if (todo.completed) {
+        removeTodo(todo.id);
       }
-
-      removeTodo(todo.id);
     });
   };
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {activeTodos.length === 1 ? '1 item left' : `${activeTodos.length} items left`}
+        {`${activeTodos.length} item${activeTodos.length > 1 ? 's' : ''} left`}
       </span>
 
       <nav className="filter">

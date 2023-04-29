@@ -15,7 +15,7 @@ export const ErrorMessage: FC<Props> = React.memo(({ error, setError }) => {
   useEffect(
     () => {
       if (error === ErrorType.NONE) {
-        return () => {};
+        return undefined;
       }
 
       const timerId = setTimeout(() => setError(ErrorType.NONE), 3000);

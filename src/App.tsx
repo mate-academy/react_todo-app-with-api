@@ -97,7 +97,6 @@ export const App: React.FC = () => {
       <div className="todoapp__con
       tent"
       >
-
         <Header
           todos={todos}
           updateTodo={updateTodo}
