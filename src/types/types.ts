@@ -21,4 +21,5 @@ export enum ErrorTypes {
   add = 'unable to add todo',
   delete = 'unable to delete a todo',
   emptyTitle = "the title can't be empty",
+  edit = "can't update todo",
 }

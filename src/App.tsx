@@ -5,7 +5,12 @@ import React, {
   useState,
 } from 'react';
 
-import { getTodos, addTodo, removeTodo } from './api/todos';
+import {
+  getTodos,
+  addTodo,
+  removeTodo,
+  editTodo,
+} from './api/todos';
 import { UserWarning } from './UserWarning';
 import { Todo, ErrorTypes } from './types/types';
 import { Filter } from './components/Filter/Filter';
@@ -100,9 +105,27 @@ export const App: React.FC = () => {
 
   const resetError = () => setError(ErrorTypes.none);
 
+  const handleCheckboxClick = async (todo: Todo) => {
+    // console.log(todo);
+    // instead of completed take todo
+    // and when sending replace completed with the opposite to previous completed
+
+    try {
+      await editTodo({
+        ...todo,
+        completed: !todo.completed,
+      });
+      loadTodos();
+    } catch {
+      setError(ErrorTypes.edit);
+      resetTempTodo();
+    }
+  };
+
   useEffect(() => {
     loadTodos();
   }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -126,6 +149,7 @@ export const App: React.FC = () => {
             activeIds={activeIds}
             handleRemoveTodo={handleRemoveTodo}
             handleClearCompleted={handleClearCompleted}
+            handleCheckboxClick={handleCheckboxClick}
           />
         )}
       </div>

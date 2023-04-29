@@ -25,6 +25,7 @@ type Props = {
   activeIds: number[];
   handleRemoveTodo: (id: number) => void;
   handleClearCompleted: () => void;
+  handleCheckboxClick: (todo: Todo) => void;
 };
 
 export const Filter: FC<Props> = ({
@@ -33,6 +34,7 @@ export const Filter: FC<Props> = ({
   activeIds,
   handleRemoveTodo,
   handleClearCompleted,
+  handleCheckboxClick,
 }) => {
   const [filter, setFilter] = useState<FILTERS>(FILTERS.all);
 
@@ -65,6 +67,7 @@ export const Filter: FC<Props> = ({
         tempTodo={tempTodo}
         activeIds={activeIds}
         handleRemoveTodo={handleRemoveTodo}
+        handleCheckboxClick={handleCheckboxClick}
       />
 
       <footer className="todoapp__footer">
