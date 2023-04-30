@@ -47,6 +47,12 @@ export const TodosList: React.FC<Props> = (
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed);
 
+  const handleType = (type: FilterType) => {
+    if (filterType !== type) {
+      setFilterType(type);
+    }
+  };
+
   return (
     <>
       <section className="todoapp__main">
@@ -88,11 +94,7 @@ export const TodosList: React.FC<Props> = (
               'filter__link',
               { selected: filterType === FilterType.All },
             )}
-            onClick={() => {
-              if (filterType !== FilterType.All) {
-                setFilterType(FilterType.All);
-              }
-            }}
+            onClick={() => handleType(FilterType.All)}
           >
             All
           </a>
@@ -103,11 +105,7 @@ export const TodosList: React.FC<Props> = (
               'filter__link',
               { selected: filterType === FilterType.Active },
             )}
-            onClick={() => {
-              if (filterType !== FilterType.Active) {
-                setFilterType(FilterType.Active);
-              }
-            }}
+            onClick={() => handleType(FilterType.Active)}
           >
             Active
           </a>
@@ -118,17 +116,13 @@ export const TodosList: React.FC<Props> = (
               'filter__link',
               { selected: filterType === FilterType.Completed },
             )}
-            onClick={() => {
-              if (filterType !== FilterType.Completed) {
-                setFilterType(FilterType.Completed);
-              }
-            }}
+            onClick={() => handleType(FilterType.Completed)}
           >
             Completed
           </a>
         </nav>
 
-        {completedTodos.length && (
+        {completedTodos.length > 0 && (
           <button
             type="button"
             className="todoapp__clear-completed"

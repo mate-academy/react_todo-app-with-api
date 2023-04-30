@@ -80,12 +80,14 @@ export const App: React.FC = () => {
     completed.forEach(todo => {
       deleteTodo(todo.id)
         .then(() => {
-          setIsDeleting(false);
           setTodos(todos.filter(task => !task.completed));
         })
         .catch(() => {
           setIsDeleting(false);
           setHasError('Unable to delete todos');
+        })
+        .finally(() => {
+          setIsDeleting(false);
         });
     });
   };
@@ -162,11 +164,13 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={handleToggleAll}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className="todoapp__toggle-all active"
+              onClick={handleToggleAll}
+            />
+          )}
 
           <form onSubmit={handleSubmit}>
             <input
