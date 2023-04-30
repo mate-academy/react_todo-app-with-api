@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
-  createTodos,
+  createTodo,
   getTodos,
   removeTodo,
   updateTodo,
@@ -35,11 +35,11 @@ const USER_ID = 6709;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLoadingCompleted, setIsLoadingComoleted] = useState(false);
+  const [isLoadingCompleted, setIsLoadingCompleted] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isEditing, setIsEditing] = useState(0);
-  const [isLoading, setIsLoading] = useState(0);
+  const [editingTodo, setEditingTodo] = useState(0);
+  const [loadingTodo, setLoadingTodo] = useState(0);
   const [activeFilter, setActiveFilter] = useState<TodoStatus>(TodoStatus.All);
   const [error, setError] = useState('');
   const [deleteTodoId, setDeleteTodoId] = useState(0);
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
         setError('');
       }, 3000);
     } else {
-      setIsEditing(0);
+      setEditingTodo(0);
 
       const newTodo = {
         id: 0,
@@ -84,7 +84,7 @@ export const App: React.FC = () => {
       setIsDisabled(true);
       setError('');
 
-      createTodos(USER_ID, newTodo)
+      createTodo(USER_ID, newTodo)
         .then((res) => {
           setTodos((prevTodo) => {
             return [...prevTodo, res];
@@ -143,7 +143,8 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setIsLoading(id);
+    setLoadingTodo(id);
+
     updateTodo(id, todo)
       .then((data) => {
         const completed = todos.map(item => (
@@ -165,14 +166,14 @@ export const App: React.FC = () => {
         };
       })
       .finally(() => {
-        setIsLoading(0);
+        setLoadingTodo(0);
       });
   };
 
   const handleClearCompleted = () => {
     todos.forEach(item => {
       if (item.completed) {
-        setIsLoadingComoleted(true);
+        setIsLoadingCompleted(true);
         removeTodo(item.id)
           .then(() => {
             const filteredTodos = todos.filter(items => !items.completed);
@@ -190,14 +191,14 @@ export const App: React.FC = () => {
               clearTimeout(timer);
             };
           })
-          .finally(() => setIsLoadingComoleted(false));
+          .finally(() => setIsLoadingCompleted(false));
       }
     });
   };
 
   const handleCompletedAll = () => {
     todos.forEach((item) => {
-      setIsLoadingComoleted(true);
+      setIsLoadingCompleted(true);
       updateTodo(item.id, item)
         .then(() => {
           const completed = todos.map(todo => (
@@ -218,14 +219,14 @@ export const App: React.FC = () => {
           };
         })
         .finally(() => {
-          setIsLoadingComoleted(false);
+          setIsLoadingCompleted(false);
         });
     });
   };
 
   const handleUnCompletedAll = () => {
     todos.forEach((item) => {
-      setIsLoadingComoleted(true);
+      setIsLoadingCompleted(true);
       updateTodo(item.id, item)
         .then(() => {
           const completed = todos.map(todo => (
@@ -246,7 +247,7 @@ export const App: React.FC = () => {
           };
         })
         .finally(() => {
-          setIsLoadingComoleted(false);
+          setIsLoadingCompleted(false);
         });
     });
   };
@@ -271,8 +272,8 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setIsLoading(id);
-    setIsEditing(0);
+    setLoadingTodo(id);
+    setEditingTodo(0);
     updateTodo(id, newTitle)
       .then(res => {
         const result = todos.map(item => {
@@ -297,13 +298,13 @@ export const App: React.FC = () => {
         };
       })
       .finally(() => {
-        setIsLoading(0);
+        setLoadingTodo(0);
         setError('');
       });
   };
 
   const handleDoubleClick = (id: number) => {
-    setIsEditing(id);
+    setEditingTodo(id);
   };
 
   const filteredTodos = statusTodos(todos, activeFilter);
@@ -332,11 +333,11 @@ export const App: React.FC = () => {
             deleteTodo={deleteTodo}
             updateTitle={updateTitle}
             handleDoubleClick={handleDoubleClick}
-            setIsEditing={setIsEditing}
+            setEditingTodo={setEditingTodo}
             tempTodo={tempTodo}
             deleteTodoId={deleteTodoId}
-            isEditing={isEditing}
-            isLoading={isLoading}
+            editingTodo={editingTodo}
+            loadingTodo={loadingTodo}
             isLoadingCompleted={isLoadingCompleted}
           />
         </section>

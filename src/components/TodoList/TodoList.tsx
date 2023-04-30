@@ -7,12 +7,12 @@ type Props = {
   handleChangeCompleted: (id: number, title: string) => void,
   handleDoubleClick: (id: number) => void,
   updateTitle: (id: number, value: string) => void,
-  setIsEditing: (value: number) => void,
+  setEditingTodo: (value: number) => void,
   tempTodo: Todo | null,
   deleteTodo: (id: number) => void,
   deleteTodoId: number,
-  isEditing: number,
-  isLoading: number,
+  editingTodo: number,
+  loadingTodo: number,
   isLoadingCompleted: boolean,
 };
 
@@ -22,11 +22,11 @@ export const TodosList: React.FC<Props> = ({
   handleDoubleClick,
   updateTitle,
   deleteTodo,
-  setIsEditing,
+  setEditingTodo,
   tempTodo,
   deleteTodoId,
-  isEditing,
-  isLoading,
+  editingTodo,
+  loadingTodo,
   isLoadingCompleted,
 }) => (
   <>
@@ -37,12 +37,12 @@ export const TodosList: React.FC<Props> = ({
           handleDoubleClick={handleDoubleClick}
           updateTitle={updateTitle}
           deleteTodo={deleteTodo}
-          setIsEditing={setIsEditing}
-          isEditing={isEditing}
+          setEditingTodo={setEditingTodo}
+          editingTodo={editingTodo}
           todo={todo}
           key={todo.id}
           deleteTodoId={deleteTodoId}
-          isLoading={isLoading}
+          loadingTodo={loadingTodo}
           isLoadingCompleted={isLoadingCompleted}
         />
       );
@@ -55,10 +55,10 @@ export const TodosList: React.FC<Props> = ({
         handleDoubleClick={handleDoubleClick}
         updateTitle={updateTitle}
         deleteTodo={deleteTodo}
-        setIsEditing={setIsEditing}
+        setEditingTodo={setEditingTodo}
         deleteTodoId={deleteTodoId}
-        isLoading={isLoading}
-        isEditing={+tempTodo}
+        loadingTodo={loadingTodo}
+        editingTodo={+tempTodo}
         isLoadingCompleted={isLoadingCompleted}
       />
     )}

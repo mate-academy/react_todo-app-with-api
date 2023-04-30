@@ -11,7 +11,11 @@ type Props = {
 };
 
 export const TodoHeader: React.FC<Props> = ({
-  handleToggleAll, todos, addTodo, isDisabled, notCompletedTodosCount,
+  handleToggleAll,
+  todos,
+  addTodo,
+  isDisabled,
+  notCompletedTodosCount,
 }) => {
   const [newTodo, setNewTodo] = useState('');
 

@@ -8,10 +8,10 @@ type Props = {
   handleDoubleClick: (id: number) => void,
   updateTitle: (id: number, value: string) => void,
   deleteTodo: (id: number) => void,
-  setIsEditing: (value: number) => void,
+  setEditingTodo: (value: number) => void,
   deleteTodoId: number,
-  isEditing: number,
-  isLoading: number,
+  editingTodo: number,
+  loadingTodo: number,
   isLoadingCompleted: boolean,
 };
 
@@ -20,11 +20,11 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
   deleteTodoId,
-  isEditing,
-  isLoading,
+  editingTodo,
+  loadingTodo,
   handleDoubleClick,
   updateTitle,
-  setIsEditing,
+  setEditingTodo,
   isLoadingCompleted,
 }) => {
   const { id, title, completed } = todo;
@@ -41,11 +41,11 @@ export const TodoItem: React.FC<Props> = ({
           onChange={() => handleChangeCompleted(id, title)}
         />
       </label>
-      {isEditing === id
+      {editingTodo === id
         ? (
           <UpdateTodosTitle
             updateTitle={updateTitle}
-            setIsEditing={setIsEditing}
+            setEditingTodo={setEditingTodo}
             todo={todo}
           />
         )
@@ -69,7 +69,11 @@ export const TodoItem: React.FC<Props> = ({
         )}
 
       <div className={`modal overlay
-      ${(!id || deleteTodoId === id || isLoading === id || isLoadingCompleted) && ('is-active')}`}
+      ${(!id
+        || deleteTodoId === id
+        || loadingTodo === id
+        || isLoadingCompleted
+    ) && ('is-active')}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
