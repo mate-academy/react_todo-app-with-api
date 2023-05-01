@@ -7,7 +7,7 @@ import React, {
 import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { ToodoList } from './components/TodoList/TodoList';
+import { TodoList } from './components/TodoList/TodoList';
 import {
   getTodos,
   postTodo,
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
     try {
       const result = await postTodo(newTodo);
 
-      setTodos(state => [...state, result]);
+      setTodos((state) => [...state, result]);
     } catch (error) {
       setErrorMessage('Unable to add a todo');
       clearErrorMessage();
@@ -201,7 +201,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         {todos.length > 0 && (
           <>
-            <ToodoList
+            <TodoList
               temporaryTodo={temporaryTodo}
               onDeleteTodo={removeTodo}
               onUpdateTodo={handleUpdate}

@@ -72,6 +72,7 @@ export const TodoInfo: React.FC<Props> = ({
             type="checkbox"
             className="todo__status"
             onChange={() => onUpdate(id, { completed: !completed })}
+            checked={completed}
           />
         </label>
         {isEditing ? (

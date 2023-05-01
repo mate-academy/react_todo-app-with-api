@@ -24,6 +24,7 @@ export const Footer: React.FC<Props> = ({
     <nav className="filter">
       {Object.values(FilterType).map(filterType => (
         <a
+          key={filterType}
           href="#/"
           className={classNames(
             'filter__link',

@@ -13,7 +13,7 @@ type Props = {
   temporaryTodo: Todo | undefined;
 };
 
-export const ToodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   filter,
   loadingIds,
@@ -44,10 +44,10 @@ export const ToodoList: React.FC<Props> = ({
       {temporaryTodo && (
         <TodoInfo
           isLoading
-          onUpdate={() => {}}
+          onUpdate={onUpdateTodo}
           todo={temporaryTodo}
           key={temporaryTodo.id}
-          onDelete={() => {}}
+          onDelete={onDeleteTodo}
         />
       )}
     </>
