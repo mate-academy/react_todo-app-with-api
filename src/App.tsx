@@ -106,15 +106,8 @@ export const App: React.FC = () => {
   const resetError = () => setError(ErrorTypes.none);
 
   const handleCheckboxClick = async (todo: Todo) => {
-    // console.log(todo);
-    // instead of completed take todo
-    // and when sending replace completed with the opposite to previous completed
-
     try {
-      await editTodo({
-        ...todo,
-        completed: !todo.completed,
-      });
+      await editTodo(todo);
       loadTodos();
     } catch {
       setError(ErrorTypes.edit);

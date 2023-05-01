@@ -17,9 +17,9 @@ export enum FILTERS {
 
 export enum ErrorTypes {
   none = '',
-  get = 'unable to get todos',
-  add = 'unable to add todo',
-  delete = 'unable to delete a todo',
-  emptyTitle = "the title can't be empty",
-  edit = "can't update todo",
+  get = 'Unable to get todos',
+  add = 'Unable to add todo',
+  delete = 'Unable to delete a todo',
+  emptyTitle = "The title can't be empty",
+  edit = "Csan't update todo",
 }

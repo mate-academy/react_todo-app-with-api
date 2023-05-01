@@ -1,4 +1,7 @@
-import { FC } from 'react';
+import {
+  ChangeEvent,
+  FC,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/types';
 
@@ -17,15 +20,11 @@ export const TodoItem: FC<Props> = ({
 }) => {
   const { title, completed, id } = todo;
 
-  // const [isChecked, setIsChecked] = useState(completed);
-
-  const test = () => {
-    handleCheckboxClick(todo);
-    // setIsChecked(!isChecked);
-    // console.log('clicked');
-    // get element from here
-    // eslint-disable-next-line no-console
-    console.log('clicked');
+  const handleStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
+    handleCheckboxClick({
+      ...todo,
+      completed: event.target.checked,
+    });
   };
 
   return (
@@ -41,8 +40,8 @@ export const TodoItem: FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          // checked={isChecked}
-          onChange={test}
+          checked={completed}
+          onChange={handleStatusChange}
         />
       </div>
 
