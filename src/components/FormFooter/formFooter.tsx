@@ -9,7 +9,7 @@ type Props = {
   onRemoveCompleted: () => void;
 };
 
-export const Footer: React.FC<Props> = ({
+export const FormFooter: React.FC<Props> = ({
   todos,
   filterType,
   onFilterTypeChange,

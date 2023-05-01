@@ -1,28 +1,30 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './components/UserWarning/UserWarning';
 
 import {
-  getTodos,
-  postTodo,
   deleteTodo,
+  getTodos,
   patchTodo,
+  postTodo,
 } from './api/todos';
 
 import { Todo } from './types/Todo';
+import { ErrorType } from './types/ErrorTypes';
+
+import { filterTodos } from './helpers/FilterTodos';
 import { FilterType } from './utils/filterTypes';
 
 import { Loader } from './components/Loader/Loader';
 import { TodoList } from './components/TodoList/TodoList';
-import { Footer } from './components/Footer/Footer';
+import { FormFooter } from './components/FormFooter/formFooter';
 
 const USER_ID = 6979;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(ErrorType.NONE);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [query, setQuery] = useState('');
@@ -31,7 +33,7 @@ export const App: React.FC = () => {
 
   const clearError = () => {
     setTimeout(() => {
-      setError('');
+      setError(ErrorType.NONE);
     }, 3000);
   };
 
@@ -43,7 +45,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch {
-      setError('Unable to load a todo');
+      setError(ErrorType.LOAD);
 
       clearError();
 
@@ -69,7 +71,7 @@ export const App: React.FC = () => {
 
       setTodos(state => [...state, data]);
     } catch {
-      setError('Unable to add a todo');
+      setError(ErrorType.ADD);
       clearError();
     } finally {
       setIsDisabledInput(false);
@@ -85,7 +87,7 @@ export const App: React.FC = () => {
 
       setTodos(() => todos.filter(todo => todo.id !== id));
     } catch {
-      setError('Unable to delete a todo');
+      setError(ErrorType.DELETE);
       clearError();
     } finally {
       setLoadingIds(state => state.filter(el => el !== id));
@@ -98,7 +100,7 @@ export const App: React.FC = () => {
     completed.forEach(todo => {
       removeTodo(todo.id)
         .then(() => setTodos(todos.filter(item => !item.completed)))
-        .catch(() => setError('Unable to delete todos'));
+        .catch(() => setError(ErrorType.DELETE));
     });
   };
 
@@ -116,14 +118,14 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      setError('Unable to update a todo');
+      setError(ErrorType.UPDATE);
       clearError();
     } finally {
       setLoadingIds(state => state.filter(el => el !== id));
     }
   };
 
-  const toggleAll = () => {
+  const toggleAllTodos = () => {
     const areAllChecked = todos.every(todo => todo.completed);
 
     if (areAllChecked) {
@@ -139,19 +141,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const filterTodos = (allTodos: Todo[], filterMode: FilterType): Todo[] => {
-    switch (filterMode) {
-      case FilterType.Active:
-        return allTodos.filter(todo => !todo.completed);
-
-      case FilterType.Completed:
-        return allTodos.filter(todo => todo.completed);
-
-      default:
-        return allTodos;
-    }
-  };
-
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
@@ -160,11 +149,11 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (!query.trim()) {
-      setError("Title can't be empty");
+      setError(ErrorType.TITLE);
       setIsDisabledInput(true);
       setQuery('');
       setTimeout(() => {
-        setError('');
+        setError(ErrorType.NONE);
         setIsDisabledInput(false);
       }, 2500);
     } else {
@@ -194,7 +183,7 @@ export const App: React.FC = () => {
               type="button"
               className="todoapp__toggle-all active"
               aria-label="Toggle all"
-              onClick={toggleAll}
+              onClick={toggleAllTodos}
             />
           )}
 
@@ -223,7 +212,7 @@ export const App: React.FC = () => {
         )}
 
         {todos.length > 0 && (
-          <Footer
+          <FormFooter
             todos={visibleTodos}
             filterType={filterType}
             onFilterTypeChange={setFilterType}
@@ -237,7 +226,11 @@ export const App: React.FC = () => {
         { hidden: !error },
       )}
       >
-        <button type="button" className="delete" />
+        <button
+          type="button"
+          className="delete"
+          aria-label="Close"
+        />
         {error}
       </div>
     </div>

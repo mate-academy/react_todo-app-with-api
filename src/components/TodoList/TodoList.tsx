@@ -38,8 +38,8 @@ export const TodoList: React.FC<Props> = ({
         todo={tempTodo}
         key={tempTodo.id}
         isLoading
-        onDelete={() => {}}
-        onUpdateTodo={() => {}}
+        onDelete={onDelete}
+        onUpdateTodo={onUpdateTodo}
       />
     )}
   </>

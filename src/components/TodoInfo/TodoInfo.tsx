@@ -5,9 +5,9 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
   deleting?: boolean;
-  onUpdateTodo: (id: number, data: Partial<Todo>) => void;
+  onUpdateTodo?: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -24,9 +24,9 @@ export const TodoInfo: React.FC<Props> = ({
   const handleInputSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!title) {
+    if (!title && onDelete) {
       onDelete(todo.id);
-    } else {
+    } else if (onUpdateTodo) {
       onUpdateTodo(todo.id, { title });
       setIsEditing(false);
     }
@@ -56,7 +56,8 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={() => onUpdateTodo(todo.id, { completed: !todo.completed })}
+          onClick={() => onUpdateTodo
+            && onUpdateTodo(todo.id, { completed: !todo.completed })}
         />
       </label>
 
@@ -87,7 +88,7 @@ export const TodoInfo: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => onDelete(todo.id)}
+              onClick={() => onDelete && onDelete(todo.id)}
             >
               ×
             </button>
