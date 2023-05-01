@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -18,10 +18,17 @@ export const TodoInfo: React.FC<Props> = ({
   const { title, completed, id } = todo;
   const [todoTitle, setTodoTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
   };
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(event.target.value);
@@ -51,58 +58,60 @@ export const TodoInfo: React.FC<Props> = ({
   };
 
   return (
-    <div className={
-      classNames(
-        'todo',
-        { completed },
-        { editing: isEditing },
-      )
-    }
-    >
-      <label className="todo__status-label">
-        <input
-          type="checkbox"
-          className="todo__status"
-          onClick={() => onUpdate(id, { completed: !completed })}
-        />
-      </label>
+    <form>
+      <div className={
+        classNames(
+          'todo',
+          { completed },
+          { editing: isEditing },
+        )
+      }
+      >
+        <label className="todo__status-label">
+          <input
+            type="checkbox"
+            className="todo__status"
+            onChange={() => onUpdate(id, { completed: !completed })}
+          />
+        </label>
+        {isEditing ? (
+          <input
+            type="text"
+            className="todo__title-field"
+            value={todoTitle}
+            onChange={handleTitleChange}
+            onBlur={handleTitleSubmit}
+            onKeyDown={handleKeyDown}
+            ref={inputRef}
+          />
+        ) : (
+          <span
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {title}
+          </span>
+        )}
 
-      {isEditing ? (
-        <input
-          type="text"
-          className="todo__title-field"
-          value={todoTitle}
-          onChange={handleTitleChange}
-          onBlur={handleTitleSubmit}
-          onKeyDown={handleKeyDown}
-        />
-      ) : (
-        <span
-          className="todo__title"
-          onDoubleClick={handleDoubleClick}
+        <button
+          type="button"
+          className="todo__remove"
+          onClick={() => onDelete(id)}
         >
-          {title}
-        </span>
-      )}
+          ×
+        </button>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => onDelete(id)}
-      >
-        ×
-      </button>
-
-      <div className={classNames(
-        'modal overlay',
-        {
-          'is-active': isLoading,
-        },
-      )}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
+        <div className={classNames(
+          'modal overlay',
+          {
+            'is-active': isLoading,
+          },
+        )}
+        >
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
       </div>
-    </div>
+    </form>
   );
 };

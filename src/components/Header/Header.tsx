@@ -1,16 +1,18 @@
 import React from 'react';
 
 type Props = {
-  title: string
+  title: string;
   onChangeTitle: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmitForm: (event: React.FormEvent) => void
-  isInputDisabled: boolean
-  onToggleAllCompleted: () => void
+  onSubmitForm: (event: React.FormEvent) => void;
+  isInputDisabled: boolean;
+  isAllCompleted: boolean;
+  onToggleAllCompleted: () => void;
 };
 
 export const Header: React.FC<Props> = ({
   title,
   isInputDisabled,
+  isAllCompleted,
   onChangeTitle,
   onSubmitForm,
   onToggleAllCompleted,
@@ -19,7 +21,7 @@ export const Header: React.FC<Props> = ({
     <button
       type="button"
       aria-label="toggle-allbutton"
-      className="todoapp__toggle-all active"
+      className={`todoapp__toggle-all ${isAllCompleted ? 'active' : ''}`}
       onClick={onToggleAllCompleted}
     />
 

@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
 import { FilterType } from '../../types/FilterEnum';
+import { filteredTodoList } from '../../utils/helpers';
 
 type Props = {
   todos: Todo[];
@@ -12,7 +13,7 @@ type Props = {
   temporaryTodo: Todo | undefined;
 };
 
-export const ToodList: React.FC<Props> = ({
+export const ToodoList: React.FC<Props> = ({
   todos,
   filter,
   loadingIds,
@@ -20,28 +21,12 @@ export const ToodList: React.FC<Props> = ({
   onUpdateTodo,
   temporaryTodo,
 }) => {
-  const filteredTodoList: Todo[] = useMemo(() => {
-    return todos.filter(({ completed }) => {
-      switch (filter) {
-        case FilterType.All:
-          return true;
-
-        case FilterType.Active:
-          return !completed;
-
-        case FilterType.Completed:
-          return completed;
-
-        default:
-          return true;
-      }
-    });
-  }, [todos, filter]);
+  const filteredTodos = filteredTodoList(todos, filter);
 
   return (
     <>
       <section>
-        {filteredTodoList.map((todo: Todo) => {
+        {filteredTodos.map((todo: Todo) => {
           const isLoading = loadingIds.some(id => id === todo.id);
 
           return (

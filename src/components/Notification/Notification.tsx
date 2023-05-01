@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 
 type Props = {
-  errorMessage: string
-  onDelete: () => void
+  errorMessage: string,
+  onDelete: () => void,
 };
 
 export const Notification: React.FC<Props> = ({

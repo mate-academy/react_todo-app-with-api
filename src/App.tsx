@@ -7,11 +7,12 @@ import React, {
 import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { ToodList } from './components/TodoList/TodoList';
+import { ToodoList } from './components/TodoList/TodoList';
 import {
   getTodos,
   postTodo,
-  deleteTodo, patchTodo,
+  deleteTodo,
+  patchTodo,
 } from './api/todos';
 import { Loader } from './components/Loader';
 import { FilterType } from './types/FilterEnum';
@@ -29,6 +30,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [selectedFilter, setSelectedFilter] = useState(FilterType.All);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
 
   useEffect(() => {
     const getTodosFromServer = async () => {
@@ -49,7 +51,13 @@ export const App: React.FC = () => {
     getTodosFromServer();
   }, []);
 
-  const addTodo = (todoTitle: string) => {
+  const clearErrorMessage = () => {
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+  };
+
+  const addTodo = async (todoTitle: string) => {
     const newTodo = {
       title: todoTitle,
       userId: USER_ID,
@@ -60,20 +68,17 @@ export const App: React.FC = () => {
 
     setTemporaryTodo({ ...newTodo, id: 0 });
 
-    postTodo(newTodo)
-      .then(result => {
-        setTodos(state => [...state, result]);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to add a todo');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
-      })
-      .finally(() => {
-        setIsInputDisabled(false);
-        setTemporaryTodo(undefined);
-      });
+    try {
+      const result = await postTodo(newTodo);
+
+      setTodos(state => [...state, result]);
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      clearErrorMessage();
+    } finally {
+      setIsInputDisabled(false);
+      setTemporaryTodo(undefined);
+    }
   };
 
   const handleFormSubmit = useCallback((event: React.FormEvent) => {
@@ -81,9 +86,7 @@ export const App: React.FC = () => {
 
     if (!title) {
       setErrorMessage('Tittle cannot be empty');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+      clearErrorMessage();
 
       return;
     }
@@ -99,11 +102,9 @@ export const App: React.FC = () => {
       setTodos(todos.filter(todo => todo.id !== id));
     } catch {
       setErrorMessage('Unable to delete a todo');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+      clearErrorMessage();
     } finally {
-      setLoadingIds(state_1 => state_1.filter(el => el !== id));
+      setLoadingIds(state => state.filter(el => el !== id));
     }
   }, [todos]);
 
@@ -125,34 +126,34 @@ export const App: React.FC = () => {
     setLoadingIds(state => [...state, id]);
 
     try {
-      await patchTodo(id, data);
+      const updatedTodo = await patchTodo(id, data);
 
       setTodos(state => state.map(todo => {
         if (todo.id === id) {
-          return { ...todo, ...data };
+          return updatedTodo;
         }
 
         return todo;
       }));
     } catch {
-      setErrorMessage('Unable to add a todo');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+      setErrorMessage('Unable to update the todo');
+      clearErrorMessage();
     } finally {
-      setLoadingIds(state => state.filter(el => el !== id));
+      setLoadingIds(state => state.filter(loadId => loadId !== id));
     }
   };
 
   const toggleAllCompleted = useCallback(() => {
     const allCompleted = todos.every(todo => todo.completed);
 
+    setIsAllCompleted((prevState) => !prevState);
+
     if (allCompleted) {
-      todos.map(todoEl => {
+      todos.forEach(todoEl => {
         return handleUpdate(todoEl.id, { completed: false });
       });
     } else {
-      const notCompleted = todos.filter(el => !el.completed);
+      const notCompleted = todos.filter(todo => !todo.completed);
 
       notCompleted.map(todoElement => {
         return handleUpdate(todoElement.id, { completed: true });
@@ -163,16 +164,16 @@ export const App: React.FC = () => {
   const removeCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    completedTodos.map(async todo => {
+    Promise.all(completedTodos.map(async todo => {
+      setLoadingIds(completedTodos.map(activeTodo => activeTodo.id));
       try {
         await deleteTodo(todo.id);
-        setTodos(todos.filter(task => !task.completed));
       } catch {
         setErrorMessage('Unable to remove todo');
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
+        clearErrorMessage();
       }
+    })).then(() => {
+      setTodos(todos.filter(task => !task.completed));
     });
   }, [todos]);
 
@@ -193,13 +194,14 @@ export const App: React.FC = () => {
         onSubmitForm={handleFormSubmit}
         isInputDisabled={isInputDisabled}
         onToggleAllCompleted={toggleAllCompleted}
+        isAllCompleted={isAllCompleted}
         title={title}
       />
 
       <div className="todoapp__content">
         {todos.length > 0 && (
           <>
-            <ToodList
+            <ToodoList
               temporaryTodo={temporaryTodo}
               onDeleteTodo={removeTodo}
               onUpdateTodo={handleUpdate}
