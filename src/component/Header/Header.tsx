@@ -30,8 +30,8 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="all-active"
         type="button"
         className="todoapp__toggle-all active"
         onClick={handleEditAll}

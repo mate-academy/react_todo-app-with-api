@@ -1,12 +1,17 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
 import classNames from 'classnames';
+import { Error } from './types/Errors';
 
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
 import { Loader } from './component/Loader/Loader';
 import { TodoList } from './component/TodoList/TodoList';
 import { Footer } from './component/Footer/Footer';
@@ -19,7 +24,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [typeOfLoad, setTypeOfLoad] = useState<LoadType>(LoadType.All);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [disableInput, setDisableInput] = useState(false);
   const [loadId, setLoadId] = useState<number[]>([]);
@@ -31,10 +36,7 @@ export const App: React.FC = () => {
 
       setTodos(getTodo);
     } catch {
-      setErrorMessage('Unable to load todos');
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
+      setErrorMessage(Error.Load);
     } finally {
       setIsLoading(false);
     }
@@ -42,21 +44,22 @@ export const App: React.FC = () => {
 
   const addNewTodo = useCallback(async (title: string) => {
     if (!title.trim()) {
-      return 'Unable to add a todo';
+      setErrorMessage('Title can not be empty');
+
+      return;
     }
 
     setDisableInput(true);
 
     const newTodo = {
-      id: 0,
       title,
       userId: USER_ID,
       completed: false,
     };
 
+    setTempTodo({ ...newTodo, id: 0 });
+
     try {
-      setErrorMessage('');
-      setTempTodo(newTodo);
       const newTempTodo = await addTodo(newTodo);
 
       setTodos(prev => ([
@@ -64,23 +67,23 @@ export const App: React.FC = () => {
         newTempTodo,
       ]));
     } catch {
-      setErrorMessage('Unable to add a todo');
+      setErrorMessage(Error.Add);
     } finally {
       setDisableInput(false);
       setTempTodo(null);
     }
-
-    return setDisableInput(false);
   }, []);
 
   const deleteTodoById = useCallback(async (id: number) => {
+    setLoadId(state => [...state, id]);
     try {
       await deleteTodo(id);
+      setTodos(prev => prev.filter(todo => todo.id !== id));
     } catch {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(Error.Delete);
     }
 
-    setTodos(prev => prev.filter(todo => todo.id !== id));
+    setLoadId(state => state.filter(el => el !== id));
   }, []);
 
   useEffect(() => {
@@ -91,50 +94,53 @@ export const App: React.FC = () => {
     return todos.filter(({ completed }) => !completed).length;
   }, [todos]);
 
-  const close = () => {
-    setErrorMessage('');
+  const removeError = () => {
+    setErrorMessage(Error.None);
   };
 
-  const onlyCompleted = todos.filter(todo => todo.completed);
+  const onlyCompleted = useMemo(
+    () => todos.filter((todo) => todo.completed), [todos],
+  );
 
   const deleteCompleted = useCallback(async () => {
-    onlyCompleted.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(todos.filter(task => !task.completed));
-        });
-    });
-  }, [todos]);
+    try {
+      await Promise.all(onlyCompleted.map(({ id }) => deleteTodo(id)));
+      setTodos(todos.filter(({ completed }) => !completed));
+    } catch {
+      setErrorMessage(Error.Delete);
+    }
+  }, [onlyCompleted, todos]);
 
-  const handleEdit = useCallback(async (id: number, value: Partial<Todo>) => {
-    setLoadId(prev => [
-      ...prev,
-      id,
-    ]);
+  const handleUpdate = useCallback(async (id: number, data: Partial<Todo>) => {
+    setLoadId(state => [...state, id]);
 
     try {
-      setTodos(prev => prev.map(todo => {
-        if (id !== todo.id) {
-          return todo;
+      await updateTodo(id, data);
+
+      setTodos(state => state.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, ...data };
         }
 
-        return { ...todo, ...value };
+        return todo;
       }));
     } catch {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(Error.Update);
     } finally {
-      setLoadId(prev => prev.filter(num => num !== id));
+      setLoadId(state => state.filter(el => el !== id));
     }
   }, []);
 
-  const handleEditAll = useCallback(() => {
-    if (onlyCompleted.length) {
-      todos.forEach(todo => {
-        handleEdit(todo.id, { completed: false });
+  const handleToggleAll = useCallback(() => {
+    const areAllDone = todos.every(todo => todo.completed);
+
+    if (areAllDone) {
+      todos.forEach(el => {
+        handleUpdate(el.id, { completed: false });
       });
     } else {
-      todos.filter(el => !el.completed).forEach(todo => {
-        handleEdit(todo.id, { completed: true });
+      todos.filter(todo => !todo.completed).forEach(({ id }) => {
+        handleUpdate(id, { completed: true });
       });
     }
   }, [todos]);
@@ -152,12 +158,12 @@ export const App: React.FC = () => {
         <Header
           addNewTodo={addNewTodo}
           disableInput={disableInput}
-          handleEditAll={handleEditAll}
+          handleEditAll={handleToggleAll}
         />
 
         {isLoading && (
 
-          <Loader isLoad={false} />
+          <Loader isLoading={isLoading} />
         )}
 
         {todos.length > 0 && (
@@ -168,7 +174,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               onDelete={deleteTodoById}
               loadId={loadId}
-              handleEdit={handleEdit}
+              handleEdit={handleUpdate}
             />
 
             <Footer
@@ -189,12 +195,13 @@ export const App: React.FC = () => {
       )}
       >
         <button
+          aria-label="all-active"
           type="button"
           className="delete"
-          onClick={close}
+          onClick={removeError}
         />
 
-        {`Unable to ${errorMessage} a todo`}
+        {errorMessage}
       </div>
     </div>
   );

@@ -3,14 +3,14 @@ import React from 'react';
 import './Loader.scss';
 
 type Props = {
-  isLoad: boolean;
+  isLoading: boolean;
 };
 
-export const Loader: React.FC<Props> = ({ isLoad }) => (
+export const Loader: React.FC<Props> = ({ isLoading }) => (
   <div className={classNames(
     'modal overlay',
     {
-      'is-active': isLoad,
+      'is-active': isLoading,
     },
   )}
   >

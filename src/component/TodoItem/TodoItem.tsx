@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader/Loader';
 
@@ -21,15 +21,15 @@ export const TodoItem: React.FC<Props> = ({
     title,
     completed,
   } = todo;
-
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     if (todoTitle) {
       handleEdit(id, { title: todoTitle });
+      setIsEditing(false);
     } else {
       onDelete(id);
     }
@@ -40,17 +40,23 @@ export const TodoItem: React.FC<Props> = ({
     setTodoTitle(title);
   };
 
+  const inputField = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
+    if (inputField.current !== null) {
+      inputField.current.focus();
+    }
+
     const cancelEditing = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         handleCancel();
       }
     };
 
-    document.addEventListener('keydown', cancelEditing);
+    document.addEventListener('keyup', cancelEditing);
 
     return () => {
-      document.removeEventListener('keydown', cancelEditing);
+      document.removeEventListener('keyup', cancelEditing);
     };
   }, [isEditing]);
 
@@ -59,13 +65,13 @@ export const TodoItem: React.FC<Props> = ({
       className={classNames('todo', {
         completed,
       })}
+      onDoubleClick={() => setIsEditing(true)}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={completed}
-          onClick={() => handleEdit(id, { completed: !completed })}
+          onChange={() => handleEdit(id, { completed: !completed })}
         />
       </label>
 
@@ -78,14 +84,12 @@ export const TodoItem: React.FC<Props> = ({
               value={todoTitle}
               onChange={(event) => setTodoTitle(event.target.value)}
               onBlur={handleCancel}
+              ref={inputField}
             />
           </form>
         ) : (
           <>
-            <span
-              className="todo__title"
-              onDoubleClick={() => setIsEditing(true)}
-            >
+            <span className="todo__title">
               {title}
             </span>
 
@@ -94,14 +98,20 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__remove"
               onClick={() => onDelete(id)}
             >
-              x
+              ×
             </button>
           </>
         )}
 
-      <div className="modal overlay">
+      <div className={classNames(
+        'modal overlay',
+        {
+          'is-active': isLoad,
+        },
+      )}
+      >
         <div className="modal-background has-background-white-ter" />
-        <Loader isLoad={isLoad} />
+        <Loader isLoading={isLoad} />
       </div>
     </div>
   );

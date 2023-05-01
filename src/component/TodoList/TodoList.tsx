@@ -6,7 +6,7 @@ import { LoadType } from '../../types/LoadType';
 type Props = {
   todos: Todo[];
   typeOfLoad: LoadType;
-  tempTodo: Todo | null,
+  tempTodo?: Todo | null,
   onDelete: (id: number) => void,
   loadId: number[],
   handleEdit: (id: number, data: Partial<Todo>) => void;
@@ -31,7 +31,7 @@ export const TodoList: React.FC<Props> = ({
       default:
         return true;
     }
-  }), [todos, typeOfLoad]);
+  }), [typeOfLoad, todos]);
 
   return (
     <section className="todoapp__main">
@@ -40,7 +40,6 @@ export const TodoList: React.FC<Props> = ({
 
         return (
           <TodoItem
-            key={todo.id}
             todo={todo}
             onDelete={onDelete}
             isLoad={isLoad}
@@ -52,10 +51,9 @@ export const TodoList: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          key={0}
           isLoad
-          onDelete={onDelete}
-          handleEdit={handleEdit}
+          onDelete={() => {}}
+          handleEdit={() => {}}
         />
       )}
     </section>
