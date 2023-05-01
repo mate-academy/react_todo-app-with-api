@@ -1,6 +1,6 @@
 import {
   ChangeEvent,
-  FC,
+  FC, useEffect, useState,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/types';
@@ -19,20 +19,25 @@ export const TodoItem: FC<Props> = ({
   handleCheckboxClick,
 }) => {
   const { title, completed, id } = todo;
+  const [isCompleted, setIsCompleted] = useState(completed);
 
   const handleStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setIsCompleted(event.target.checked);
+  };
+
+  useEffect(() => {
     handleCheckboxClick({
       ...todo,
-      completed: event.target.checked,
+      completed: isCompleted,
     });
-  };
+  }, [isCompleted]);
 
   return (
     <div
       className={cn(
         'todo',
         'item-enter-done',
-        { completed },
+        { completed: isCompleted },
       )}
       data-cy="todo"
     >
@@ -40,7 +45,7 @@ export const TodoItem: FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={completed}
+          checked={isCompleted}
           onChange={handleStatusChange}
         />
       </div>
