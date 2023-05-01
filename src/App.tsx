@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { Error } from './types/Error';
 
-import { UserWarning } from './UserWarning';
 import {
   deleteTodo,
   getTodos,
@@ -12,33 +12,38 @@ import {
 import { TodoList } from './components/TodoList/TodoList';
 
 import { Todo } from './types/Todo';
+import { Header } from './components/Header/Header';
 
 const USER_ID = 6969;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState('');
+  const [errorMessage, setErrorMessage] = useState<Error>(Error.None);
   const [query, setQuery] = useState('');
   const [disabledInput, setDisabledInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadedIds, setLoadedIds] = useState<number[]>([]);
 
+  const removeError = () => {
+    setErrorMessage(Error.None);
+  };
+
+  const throwError = useCallback((errorType: Error) => {
+    setErrorMessage(errorType);
+    setTimeout(() => {
+      removeError();
+    }, 3000);
+  }, []);
+
   useEffect(() => {
     getTodos(USER_ID)
       .then(result => setTodos(result))
       .catch(() => {
-        setError('load');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
+        throwError(Error.Load);
       });
   }, []);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const addTodo = (title: string) => {
+  const addTodo = useCallback((title: string) => {
     setDisabledInput(true);
 
     const newTodo = {
@@ -54,18 +59,15 @@ export const App: React.FC = () => {
         setTodos(prevState => [...prevState, result]);
       })
       .catch(() => {
-        setError('add');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
+        throwError(Error.Add);
       })
       .finally(() => {
         setDisabledInput(false);
         setTempTodo(null);
       });
-  };
+  }, []);
 
-  const removeTodo = (id: number) => {
+  const removeTodo = useCallback((id: number) => {
     setLoadedIds(prevState => [...prevState, id]);
 
     deleteTodo(id)
@@ -73,18 +75,16 @@ export const App: React.FC = () => {
         setTodos(todos.filter(todo => todo.id !== id));
       })
       .catch(() => {
-        setError('delete');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
+        throwError(Error.Delete);
       })
       .finally(() => {
         setLoadedIds(state => state.filter(el => el !== id));
       });
-  };
+  }, []);
 
-  const updateTodo = (
-    id: number, data: Partial<Omit<Todo, 'id' | 'userId'>>,
+  const updateTodo = useCallback((
+    id: number,
+    data: Partial<Omit<Todo, 'id' | 'userId'>>,
   ) => {
     setLoadedIds(prevState => [...prevState, id]);
 
@@ -99,15 +99,12 @@ export const App: React.FC = () => {
         }));
       })
       .catch(() => {
-        setError('update');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
+        throwError(Error.Update);
       })
       .finally(() => {
         setLoadedIds(state => state.filter(el => el !== id));
       });
-  };
+  }, []);
 
   const removeCompleted = () => {
     const completeTodoList = todos.filter(todo => todo.completed);
@@ -118,15 +115,12 @@ export const App: React.FC = () => {
           setTodos(todos.filter(order => !order.completed));
         })
         .catch(() => {
-          setError('delete');
-          setTimeout(() => {
-            setError('');
-          }, 3000);
+          throwError(Error.Delete);
         });
     });
   };
 
-  const toggleAll = () => {
+  const toggleAll = useCallback(() => {
     if (todos.every(todo => todo.completed)) {
       todos.forEach(todo => {
         updateTodo(todo.id, { completed: false });
@@ -142,16 +136,13 @@ export const App: React.FC = () => {
         }
       });
     }
-  };
+  }, []);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!query) {
-      setError('add');
-      setTimeout(() => {
-        setError('');
-      }, 3000);
+    if (!query.trim()) {
+      throwError(Error.Title);
     } else {
       addTodo(query);
       setQuery('');
@@ -163,27 +154,14 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames(
-              'todoapp__toggle-all',
-              { active: todos.every(todo => todo.completed) },
-            )}
-            onClick={toggleAll}
-          />
-
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              disabled={disabledInput}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          toggleAll={toggleAll}
+          handleSubmit={handleSubmit}
+          query={query}
+          setQuery={setQuery}
+          disabledInput={disabledInput}
+        />
 
         {!!todos.length && (
           <TodoList
@@ -199,16 +177,16 @@ export const App: React.FC = () => {
 
       <div className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: !error },
+        { hidden: !errorMessage },
       )}
       >
         <button
           type="button"
           className="delete"
-          onClick={() => setError('')}
+          onClick={() => throwError(Error.None)}
         />
 
-        { `Unable to ${error} a todo` }
+        {errorMessage}
       </div>
     </div>
   );

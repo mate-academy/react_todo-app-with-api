@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -17,6 +17,8 @@ export const TodoElement: React.FC<Props> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [titleQuery, setTitleQuery] = useState(todo.title);
+  const inputField = useRef<HTMLInputElement>(null);
+
   const { id, title, completed } = todo;
 
   const cancelEditing = () => {
@@ -26,9 +28,7 @@ export const TodoElement: React.FC<Props> = ({
   const submitEditing = () => {
     if (titleQuery === '') {
       removeTodo(todo.id);
-    }
-
-    if (todo.title !== titleQuery) {
+    } else if (todo.title !== titleQuery) {
       updateTodo(id, { title: titleQuery });
     }
 
@@ -82,6 +82,7 @@ export const TodoElement: React.FC<Props> = ({
               onBlur={() => {
                 submitEditing();
               }}
+              ref={inputField}
             />
           </form>
         ) : (
