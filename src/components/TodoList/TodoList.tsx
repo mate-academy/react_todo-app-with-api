@@ -2,7 +2,7 @@ import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo';
 import { FilterType } from '../../types/FilterEnum';
-import { filteredTodoList } from '../../utils/helpers';
+import { filterTodoList } from '../../utils/helpers';
 
 type Props = {
   todos: Todo[];
@@ -21,7 +21,7 @@ export const ToodoList: React.FC<Props> = ({
   onUpdateTodo,
   temporaryTodo,
 }) => {
-  const filteredTodos = filteredTodoList(todos, filter);
+  const filteredTodos = filterTodoList(todos, filter);
 
   return (
     <>
