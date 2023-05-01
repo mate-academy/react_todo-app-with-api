@@ -36,7 +36,7 @@ export const TodoTask: FC<Props> = React.memo(({
     event: React.ChangeEvent<HTMLInputElement>,
   ) => setQuery(event.target.value);
 
-  const editTitle = () => {
+  const updateTitle = () => {
     if (!query.trim()) {
       removeTodo(todo.id);
 
@@ -56,11 +56,11 @@ export const TodoTask: FC<Props> = React.memo(({
   const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    editTitle();
+    updateTitle();
   };
 
   const handleOnBlur = () => {
-    editTitle();
+    updateTitle();
   };
 
   const handleOnEsc = (event: React.KeyboardEvent<HTMLInputElement>) => {

@@ -46,7 +46,7 @@ export const App: React.FC = () => {
         prevState => prevState.filter(item => item !== todoId),
       );
     }
-  }, [deleteTodo]);
+  }, []);
 
   const updateTodo = useCallback(async (
     todoId: number, updatedData: Partial<Todo>,
@@ -70,7 +70,7 @@ export const App: React.FC = () => {
         prevState => prevState.filter(item => item !== todoId),
       );
     }
-  }, [patchTodo]);
+  }, []);
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -94,9 +94,7 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__con
-      tent"
-      >
+      <div className="todoapp__content">
         <Header
           todos={todos}
           updateTodo={updateTodo}
