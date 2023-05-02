@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import React from 'react';
 
 type ToggleAllProps = {
-  // define props here
   allTodosCompleted: boolean,
   handleTaggleAll: () => Promise<void>,
 };

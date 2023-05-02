@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
@@ -73,7 +71,8 @@ export const App: React.FC = () => {
         return updatedTodo || todo;
       });
 
-      const todoUpdatesPromise = todoUpdates.map(todo => updateTodos(USER_ID, todo.id, todo));
+      const todoUpdatesPromise = todoUpdates
+        .map(todo => updateTodos(USER_ID, todo.id, todo));
 
       await Promise.all(todoUpdatesPromise);
       setTodos(mergedTodos);

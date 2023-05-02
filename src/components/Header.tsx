@@ -4,7 +4,6 @@ import { ToggleAll } from './ToggleAll';
 import { Todo } from '../types/Todo';
 
 type HeaderProps = {
-  // define props here
   allTodosCompleted: boolean,
   handleTaggleAll: () => Promise<void>,
   showErrorNotification: (error: string) => void,
@@ -34,7 +33,6 @@ export const Header: React.FC<HeaderProps> = ({
         handleTaggleAll={handleTaggleAll}
       />
 
-      {/* Add a todo on form submit */}
       <AddNewTodo
         showErrorNotification={showErrorNotification}
         setIsAddingNewTodo={setIsAddingNewTodo}

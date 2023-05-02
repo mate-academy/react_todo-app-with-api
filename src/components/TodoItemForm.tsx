@@ -38,9 +38,9 @@ export const TodoItemForm: React.FC<TodoItemFormProps> = ({
         className="todo__title-field"
         placeholder="Empty todo will be deleted"
         defaultValue={todo.title}
-        onChange={(event) => handleTodoTitleChange(event)}
+        onChange={handleTodoTitleChange}
         onBlur={() => handleTitleBlur(todo.id)}
-        onKeyUp={(event) => handleKeyUp(event)}
+        onKeyUp={handleKeyUp}
       />
     </form>
   );
