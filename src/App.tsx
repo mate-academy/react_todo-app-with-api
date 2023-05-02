@@ -10,6 +10,7 @@ import { USER_ID } from './api/userId';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { Error } from './components/Error';
+import { ErrorType } from './types/ErrorType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -36,7 +37,7 @@ export const App: React.FC = () => {
 
       setTodos(todosData);
     } catch (error) {
-      showErrorNotification('Unable to get todos');
+      showErrorNotification(ErrorType.AddTodosError);
     }
   };
 
@@ -77,7 +78,7 @@ export const App: React.FC = () => {
       await Promise.all(todoUpdatesPromise);
       setTodos(mergedTodos);
     } catch (error) {
-      showErrorNotification('Unable to taggle todos');
+      showErrorNotification(ErrorType.ToggleTodosError);
     } finally {
       setLoading(false);
       setLoadingActiveTodoId([]);

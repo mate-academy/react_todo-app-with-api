@@ -2,6 +2,7 @@ import React from 'react';
 import { deleteTodos } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../api/userId';
+import { ErrorType } from '../types/ErrorType';
 
 type ClearCompletedButtonProps = {
   allTodosIncompleted: boolean,
@@ -37,7 +38,7 @@ export const ClearCompletedButton: React.FC<ClearCompletedButtonProps> = ({
 
       setTodos(newTodos);
     } catch {
-      showErrorNotification('Unable to delete complete todos');
+      showErrorNotification(ErrorType.DeleteTodosError);
     } finally {
       setLoading(false);
       setLoadingActiveTodoId([]);

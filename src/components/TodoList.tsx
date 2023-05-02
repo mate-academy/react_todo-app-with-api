@@ -7,6 +7,7 @@ import { TodoItemTitle } from './TodoItemTitle';
 import { TodoItemForm } from './TodoItemForm';
 import { TodoLoader } from './TodoLoader';
 import { USER_ID } from '../api/userId';
+import { ErrorType } from '../types/ErrorType';
 
 type TodoListProps = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
@@ -50,7 +51,7 @@ export const TodoList: React.FC<TodoListProps> = ({
       await deleteTodos(USER_ID, todoId);
       setTodos(todos.filter((todo) => todo.id !== todoId));
     } catch (error) {
-      showErrorNotification('Unable to delete the todo');
+      showErrorNotification(ErrorType.DeleteTodosError);
     } finally {
       setLoadingActiveTodoId([]);
       setLoading(false);
@@ -67,12 +68,12 @@ export const TodoList: React.FC<TodoListProps> = ({
     try {
       setLoadingActiveTodoId([idTodo]);
       setLoading(true);
-      await updateTodos(USER_ID, idTodo, updatedTodo);
       updatedTodo.completed = !updatedTodo.completed;
+      await updateTodos(USER_ID, idTodo, updatedTodo);
       setTodos((prev) => prev
         .map((todo) => (todo.id === idTodo ? updatedTodo : todo)));
     } catch (error) {
-      showErrorNotification('Unable to update the todo');
+      showErrorNotification(ErrorType.UpdateTodosError);
     } finally {
       setLoading(false);
       setLoadingActiveTodoId([]);
@@ -100,7 +101,7 @@ export const TodoList: React.FC<TodoListProps> = ({
         await updateTodos(USER_ID, todoId, updatedTodo);
       }
     } catch (error) {
-      showErrorNotification('Unable to update the todo');
+      showErrorNotification(ErrorType.UpdateTodosError);
     } finally {
       setLoading(false);
       setLoadingActiveTodoId([]);
@@ -131,7 +132,7 @@ export const TodoList: React.FC<TodoListProps> = ({
         updatedTodo.title = newTitle;
       }
     } catch (error) {
-      showErrorNotification('Unable to update the todo');
+      showErrorNotification(ErrorType.UpdateTodosError);
     } finally {
       setLoading(false);
       setLoadingActiveTodoId([]);

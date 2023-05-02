@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { postTodos } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../api/userId';
+import { ErrorType } from '../types/ErrorType';
 
 type AddNewTodoProps = {
   showErrorNotification: (error: string) => void,
@@ -31,7 +32,7 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
   const handleNewTodoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newTodoTitle) {
-      showErrorNotification("Title can't be empty");
+      showErrorNotification(ErrorType.TitleTodoError);
 
       return;
     }
@@ -58,7 +59,7 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
 
       await postTodos(USER_ID, tempTodo);
     } catch (error) {
-      showErrorNotification('Unable to add a todo');
+      showErrorNotification(ErrorType.AddTodosError);
       setTodos(prevTodos);
     } finally {
       setIsAddingNewTodo(false);
