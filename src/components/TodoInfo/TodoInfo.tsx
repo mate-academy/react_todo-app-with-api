@@ -10,7 +10,10 @@ type Props = {
 };
 
 export const TodoInfo: React.FC<Props> = ({
-  todo, onDelete, isLoading, statusChange,
+  todo,
+  onDelete,
+  isLoading,
+  statusChange,
 }) => {
   const [isChanging, setIsChanging] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);

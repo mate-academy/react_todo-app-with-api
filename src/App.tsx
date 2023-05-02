@@ -4,9 +4,7 @@ import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { MainFilter } from './types/MainFilter';
-import {
-  getTodos, addTodo, deleteTodo, updateTodo,
-} from './api/todos';
+import { getTodos, addTodo, deleteTodo, updateTodo } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { Loader } from './components/Loader/Loader';

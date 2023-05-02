@@ -11,7 +11,11 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos, tempTodo, onDelete, loadingIds, statusChange,
+  todos,
+  tempTodo,
+  onDelete,
+  loadingIds,
+  statusChange,
 }) => (
   <div>
     {todos.map(todo => {
