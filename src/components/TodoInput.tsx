@@ -7,6 +7,7 @@ interface Props {
   addTodo: (title: string) => void;
   onToggleAll: () => void;
   todos: Todo[];
+  isInputDisabled: boolean;
 }
 
 export const TodoInput: FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoInput: FC<Props> = ({
   addTodo,
   onToggleAll,
   todos,
+  isInputDisabled,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -33,6 +35,7 @@ export const TodoInput: FC<Props> = ({
         })}
         aria-label="toggle-button"
         onClick={onToggleAll}
+        disabled={isInputDisabled}
       />
 
       <form onSubmit={handleFormSubmit}>

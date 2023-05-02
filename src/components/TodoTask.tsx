@@ -10,6 +10,7 @@ interface Props {
   onUpdateTodo: (
     todoId: number,
     todo: Partial<Todo>) => void;
+  isLoading?: boolean;
   isAdding?: boolean;
 }
 
@@ -17,6 +18,7 @@ export const TodoTask: FC<Props> = ({
   todo,
   deleteTodo,
   onUpdateTodo,
+  isLoading,
   isAdding,
 }) => {
   const {
@@ -40,8 +42,8 @@ export const TodoTask: FC<Props> = ({
   };
 
   const handleCancel = () => {
+    onUpdateTodo(id, { title: query });
     setIsEditing(false);
-    setQuery(title);
   };
 
   const editField = useRef<HTMLInputElement>(null);
@@ -110,7 +112,7 @@ export const TodoTask: FC<Props> = ({
       <div
         className={classNames(
           'modal overlay',
-          { 'is-active': isAdding },
+          { 'is-active': isAdding || isLoading },
         )}
       >
         <div className="modal-background has-background-white-ter" />

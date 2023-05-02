@@ -26,8 +26,25 @@ export const App: React.FC = () => {
   });
   const [filterBy, setFilterBy] = useState(StatusToFilterBy.All);
   const [isAdding, setIsAdding] = useState(false);
-
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [loadingTodosId, setLoadingTodosId] = useState<Set<number>>(new Set());
   const inCompleteTodos = todos.filter(todo => todo.completed === false);
+
+  const handleTodosId = (todoId: number) => {
+    setLoadingTodosId((state) => {
+      state.add(todoId);
+
+      return new Set(state);
+    });
+  };
+
+  const removeTodosId = (todoId: number) => {
+    setLoadingTodosId((state) => {
+      state.delete(todoId);
+
+      return new Set(state);
+    });
+  };
 
   const getTodosFromServer = async () => {
     setIsLoading(true);
@@ -61,12 +78,13 @@ export const App: React.FC = () => {
 
       setTempTodo(newTodo);
       setError('');
-
       postTodo(USER_ID, newTodo)
         .then((todo: Todo) => {
+          handleTodosId(todo.id);
           setTodos((prevTodos) => {
             return [...prevTodos, todo];
           });
+          removeTodosId(todo.id);
         })
         .catch(() => {
           setError('Unable to add a todo!');
@@ -81,6 +99,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (id: number) => {
+    handleTodosId(id);
     deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(todo => todo.id !== id));
@@ -90,6 +109,9 @@ export const App: React.FC = () => {
         setTimeout(() => {
           setError('');
         }, 3000);
+      })
+      .finally(() => {
+        removeTodosId(id);
       });
   };
 
@@ -103,6 +125,8 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const handleUpdateTodo = async (todoId: number, todoData: Partial<Todo>) => {
+    setIsInputDisabled(true);
+    handleTodosId(todoId);
     try {
       const updatedTodo = await updateTodo(todoId, todoData);
 
@@ -121,6 +145,9 @@ export const App: React.FC = () => {
       setTimeout(() => {
         setError('');
       }, 3000);
+    } finally {
+      removeTodosId(todoId);
+      setIsInputDisabled(false);
     }
   };
 
@@ -176,6 +203,7 @@ export const App: React.FC = () => {
           addTodo={handleAddTodo}
           onToggleAll={handleToggleAll}
           todos={todos}
+          isInputDisabled={isInputDisabled}
         />
 
         <section className="todoapp__main">
@@ -188,6 +216,7 @@ export const App: React.FC = () => {
               tempTodo={tempTodo}
               deleteTodo={handleDeleteTodo}
               onUpdateTodo={handleUpdateTodo}
+              loadingTodosId={loadingTodosId}
             />
           )}
         </section>

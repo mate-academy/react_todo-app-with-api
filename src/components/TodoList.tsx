@@ -10,6 +10,7 @@ interface Props {
   onUpdateTodo: (
     todoId: number,
     todo: Partial<Todo>) => void;
+  loadingTodosId: Set<number>;
 }
 
 export const TodoList: FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: FC<Props> = ({
   tempTodo,
   deleteTodo,
   onUpdateTodo,
+  loadingTodosId,
 }) => (
   <>
     {todos.map((todo) => (
@@ -26,6 +28,7 @@ export const TodoList: FC<Props> = ({
         key={todo.id}
         deleteTodo={deleteTodo}
         onUpdateTodo={onUpdateTodo}
+        isLoading={loadingTodosId.has(todo.id)}
       />
     ))}
 
@@ -34,6 +37,7 @@ export const TodoList: FC<Props> = ({
         todo={tempTodo}
         deleteTodo={deleteTodo}
         onUpdateTodo={onUpdateTodo}
+        isLoading={false}
         isAdding={isAdding}
       />
     )}
