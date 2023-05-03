@@ -19,6 +19,14 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null> (null);
   const [todosTransform, setTodosTransform] = useState<number[]>([]);
 
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
+
+  const activeTodos = useMemo(() => {
+    return todos.filter(todo => !todo.completed)
+  }, [todos]);
+
   const focusInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -141,24 +149,16 @@ export const App: React.FC = () => {
     };
   }, [filter, todos]);
 
-  const completedTodos = useMemo(() => {
-    return todos.filter(todo => todo.completed);
-  }, [todos]);
-
-  const activeTodos = useMemo(() => {
-    return todos.filter(todo => !todo.completed)
-  }, [todos]);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     setTitle(event.currentTarget.value);
   };
 
   const handleError = () => setError('');
   const showFooter = todos.length || tempTodo;
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
