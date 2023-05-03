@@ -19,6 +19,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null> (null);
   const [todosTransform, setTodosTransform] = useState<number[]>([]);
 
+  const focusInput = useRef<HTMLInputElement | null>(null);
+
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
@@ -26,8 +28,6 @@ export const App: React.FC = () => {
   const activeTodos = useMemo(() => {
     return todos.filter(todo => !todo.completed)
   }, [todos]);
-
-  const focusInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (focusInput.current) {

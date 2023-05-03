@@ -35,7 +35,10 @@ export const TodoItem: React.FC<Props> = ({
     };
 
     document.addEventListener('keyup', handleEscape);
-  
+
+    return () => {
+      document.removeEventListener('keyup', handleEscape);
+    };
   }, [isFormOpen]);
 
   const handleTitleChange = () => {
@@ -56,12 +59,9 @@ export const TodoItem: React.FC<Props> = ({
     setIsFormOpen(false);
   };
 
-  const handleBlur = () => {
-    handleTitleChange();
-  };
-
   const handlerRemove = () => onRemove(id);
   const handleUpdateStatus = () => updateTodo(id, { completed: !completed })
+  const handleIsFormOpen = () => setIsFormOpen(true);
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     setQuery(event.currentTarget.value);
   };
@@ -71,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
       className={classNames('todo', {
         completed,
       })}
-      onDoubleClick={() => setIsFormOpen(true)}
+      onDoubleClick={handleIsFormOpen}
     >
       <label className="todo__status-label">
         <input
@@ -91,7 +91,7 @@ export const TodoItem: React.FC<Props> = ({
                 ref={inputRef}
                 value={query}
                 onChange={handleChange}
-                onBlur={handleBlur}
+                onBlur={handleTitleChange}
               />
             </label>
           </form>
