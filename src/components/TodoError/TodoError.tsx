@@ -3,10 +3,10 @@ import classNames from 'classnames';
 
 type Props = {
   error: string,
-  setError: (value: string) => void,
+  handleError: (value: string) => void,
 };
 
-export const TodoError: React.FC<Props> = ({ error, setError }) => (
+export const TodoError: React.FC<Props> = ({ error, handleError }) => (
   <div
     className={classNames(
       'notification',
@@ -21,7 +21,7 @@ export const TodoError: React.FC<Props> = ({ error, setError }) => (
     <button
       type="button"
       className="delete"
-      onClick={() => setError('')}
+      onClick={() => handleError('')}
       aria-label={error}
     />
     {error}

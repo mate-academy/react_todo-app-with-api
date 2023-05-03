@@ -4,7 +4,9 @@ import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { MainFilter } from './types/MainFilter';
-import { getTodos, addTodo, deleteTodo, updateTodo } from './api/todos';
+import {
+  getTodos, addTodo, deleteTodo, updateTodo,
+} from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { Loader } from './components/Loader/Loader';
@@ -102,33 +104,33 @@ export const App: React.FC = () => {
     } finally {
       setLoadingIds([]);
     }
-  };
+  }; 
 
-  const clearCompletedTodos = () => {
+  const clearCompletedTodos = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     setLoadingIds(completedTodos.map(todo => todo.id));
 
-    completedTodos.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(todos.filter(todoItem => !todoItem.completed));
-        })
-        .catch(() => {
-          setErrorOfUpdate('Unable to delete todos');
-        });
-    });
+    try {
+      await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+      setTodos(todos.filter(todoItem => !todoItem.completed));
+    } catch (error) {
+      setErrorOfUpdate('Unable to delete todos');
+    }
   };
 
-  const statusChange = async (todoId: number, changingPart: Partial<Todo>) => {
+  const statusChange = async (
+    todoId: number,
+    updatedFields: { title?:string; completed?: boolean },
+  ) => {
     setLoadingIds(state => [...state, todoId]);
 
     try {
-      await updateTodo(todoId, changingPart);
+      await updateTodo(todoId, updatedFields);
 
       setTodos(state => state.map(todo => {
         if (todo.id === todoId) {
-          return { ...todo, ...changingPart };
+          return { ...todo, ...updatedFields };
         }
 
         return todo;
@@ -224,7 +226,7 @@ export const App: React.FC = () => {
         )}
       </div>
       {errorOfUpdate && (
-        <TodoError error={errorOfUpdate} setError={setErrorOfUpdate} />)}
+        <TodoError error={errorOfUpdate} handleError={setErrorOfUpdate} />)}
     </div>
   );
 };

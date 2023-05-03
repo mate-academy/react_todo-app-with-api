@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   onDelete: (todoId: number) => void,
   isLoading: boolean,
-  statusChange: (todoId: number, changingPart: Partial<Todo>) => void;
+  statusChange: (todoId: number, updatedFields: Partial<Todo>) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -17,6 +17,11 @@ export const TodoInfo: React.FC<Props> = ({
 }) => {
   const [isChanging, setIsChanging] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+
+  const handleCancel = () => {
+    setNewTitle(todo.title);
+    setIsChanging(false);
+  };
 
   const handleSubmitForm = (event:
   | React.FormEvent<HTMLFormElement>
@@ -33,6 +38,26 @@ export const TodoInfo: React.FC<Props> = ({
   const handleInputChange = (event: React.KeyboardEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
   };
+
+  const inputField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputField.current !== null) {
+      inputField.current.focus();
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isChanging]);
 
   return (
     <div className={classNames('todo', {
@@ -55,6 +80,7 @@ export const TodoInfo: React.FC<Props> = ({
             value={newTitle}
             onChange={handleInputChange}
             onBlur={handleSubmitForm}
+            ref={inputField}
           />
         </form>
       ) : (
