@@ -28,10 +28,12 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="todoapp__header">
-      <ToggleAll
-        allTodosCompleted={allTodosCompleted}
-        handleTaggleAll={handleTaggleAll}
-      />
+      {todos.length > 0 && (
+        <ToggleAll
+          allTodosCompleted={allTodosCompleted}
+          handleTaggleAll={handleTaggleAll}
+        />
+      )}
 
       <AddNewTodo
         showErrorNotification={showErrorNotification}

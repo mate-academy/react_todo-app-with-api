@@ -114,16 +114,18 @@ export const App: React.FC = () => {
             setLoadingActiveTodoId={setLoadingActiveTodoId}
           />
 
-          <Footer
-            todos={todos}
-            filter={filter}
-            setFilter={setFilter}
-            allTodosIncompleted={allTodosIncompleted}
-            setTodos={setTodos}
-            showErrorNotification={showErrorNotification}
-            setLoading={setLoading}
-            setLoadingActiveTodoId={setLoadingActiveTodoId}
-          />
+          {todos.length > 0 && (
+            <Footer
+              todos={todos}
+              filter={filter}
+              setFilter={setFilter}
+              allTodosIncompleted={allTodosIncompleted}
+              setTodos={setTodos}
+              showErrorNotification={showErrorNotification}
+              setLoading={setLoading}
+              setLoadingActiveTodoId={setLoadingActiveTodoId}
+            />
+          )}
         </div>
 
         <Error
