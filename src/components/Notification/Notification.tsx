@@ -1,30 +1,19 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
+import { Errors } from '../../types/Errors';
 
 type Props = {
-  isLoadingError: boolean;
-  isAddTodoError: boolean;
-  isTodoDeleteError: boolean;
-  isTodoUpdatingError: boolean;
-  isTitleEmpty: boolean;
+  isError: boolean;
+  typeOfError: Errors | null;
   removeNotification: () => void;
 };
 
 export const Notification: React.FC<Props> = ({
-  isLoadingError,
-  isAddTodoError,
-  isTodoDeleteError,
-  isTodoUpdatingError,
-  isTitleEmpty,
+  isError,
+  typeOfError,
   removeNotification,
 }) => {
-  const isErrorPresent = isTitleEmpty
-  || isLoadingError
-  || isAddTodoError
-  || isTodoDeleteError
-  || isTodoUpdatingError;
-
   return (
     <div
       className={classNames(
@@ -32,7 +21,7 @@ export const Notification: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !isErrorPresent },
+        { hidden: !isError },
       )}
     >
       <button
@@ -41,11 +30,9 @@ export const Notification: React.FC<Props> = ({
         onClick={removeNotification}
       />
 
-      {isTitleEmpty && (<>Title can&apos;t be empty</>)}
-      {isLoadingError && (<>Unable to load todos</>)}
-      {isAddTodoError && (<>Unable to add a todo</>)}
-      {isTodoDeleteError && (<>Unable to delete a todo</>)}
-      {isTodoUpdatingError && (<>Unable to update a todo</>)}
+      { typeOfError
+        ? typeOfError[0].toUpperCase() + typeOfError.slice(1).toLowerCase()
+        : ''}
     </div>
   );
 };

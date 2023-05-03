@@ -29,7 +29,31 @@ export const Todos: React.FC<Props> = ({
   setUdatingTitle,
   submitTitleUpdating,
 }) => {
-  const [editedTodoId, setEditedTodoId] = useState(0);
+  const [editedTodoId, setEditedTodoId] = useState<number | null>(null);
+
+  const handleKeyDown = (
+    todo: Todo,
+  ) => (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      submitTitleUpdating(todo.id, todo.title);
+      setEditedTodoId(null);
+    }
+
+    if (event.key === 'Escape') {
+      setUdatingTitle(todo.title);
+      setEditedTodoId(null);
+    }
+  };
+
+  const handleBlur = (todo: Todo) => () => {
+    submitTitleUpdating(todo.id, todo.title);
+    setEditedTodoId(null);
+  };
+
+  const handledblClick = (todo: Todo) => () => {
+    callEditeMode(todo.title);
+    setEditedTodoId(todo.id);
+  };
 
   return (
     <TransitionGroup>
@@ -60,21 +84,8 @@ export const Todos: React.FC<Props> = ({
                   placeholder="Empty todo will be deleted"
                   value={updatingTitle}
                   onChange={(event) => setUdatingTitle(event.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      submitTitleUpdating(todo.id, todo.title);
-                      setEditedTodoId(0);
-                    }
-
-                    if (e.key === 'Escape') {
-                      setUdatingTitle(todo.title);
-                      setEditedTodoId(0);
-                    }
-                  }}
-                  onBlur={() => {
-                    submitTitleUpdating(todo.id, todo.title);
-                    setEditedTodoId(0);
-                  }}
+                  onKeyDown={handleKeyDown(todo)}
+                  onBlur={handleBlur(todo)}
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                 />
@@ -84,10 +95,7 @@ export const Todos: React.FC<Props> = ({
                 <>
                   <span
                     className="todo__title"
-                    onDoubleClick={() => {
-                      callEditeMode(todo.title);
-                      setEditedTodoId(todo.id);
-                    }}
+                    onDoubleClick={handledblClick(todo)}
                   >
                     {todo.title}
                   </span>

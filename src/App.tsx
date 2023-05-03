@@ -11,17 +11,15 @@ import {
 
 import { Todo } from './types/Todo';
 import { FilteredBy } from './types/FilteredBy';
+import { Errors } from './types/Errors';
 
 const USER_ID = 9964;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | null>(null);
   const [filteredBy, setFilteredBy] = useState<FilteredBy>(FilteredBy.All);
-  const [isLoadingError, setLoadingError] = useState(false);
-  const [isAddTodoError, setAddTodoError] = useState(false);
-  const [isTodoDeleteError, setTodoDeleteError] = useState(false);
-  const [isTodoUpdatingError, setTodoUpdatingError] = useState(false);
-  const [isTitleEmpty, setTitleEmpty] = useState(false);
+  const [isError, setError] = useState(false);
+  const [typeOfError, setTypeOfError] = useState<Errors | null>(null);
   const [isTodoAdded, setTodoAdded] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [updatingTitle, setUpdatingTitle] = useState('');
@@ -40,13 +38,13 @@ export const App: React.FC = () => {
 
       setTodos(todoList);
     } catch (error) {
-      setLoadingError(true);
+      setError(true);
+      setTypeOfError(Errors.Loading);
     }
   }
 
   const postNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setAddTodoError(false);
 
     if (newTodoTitle !== '') {
       setTodoAdded(true);
@@ -63,19 +61,19 @@ export const App: React.FC = () => {
 
         setNewTodoTitle('');
       } catch (error) {
-        setAddTodoError(true);
+        setError(true);
+        setTypeOfError(Errors.Adding);
       } finally {
         setTodoAdded(false);
       }
     } else {
-      setTitleEmpty(true);
+      setError(true);
+      setTypeOfError(Errors.Title);
     }
   };
 
   const removeTodo = async (targetId: number) => {
     const deletedTodo = todos?.find(todo => todo.id === targetId);
-
-    setTodoDeleteError(false);
 
     try {
       setTargetTodosIds(currIds => {
@@ -84,7 +82,8 @@ export const App: React.FC = () => {
       await deleteTodo(deletedTodo?.id || 0);
       setTodos(todos?.filter(todo => todo.id !== +targetId) || null);
     } catch (error) {
-      setTodoDeleteError(true);
+      setError(true);
+      setTypeOfError(Errors.Deleting);
     } finally {
       setTargetTodosIds((currIds: number[]) => {
         return currIds.filter((id: number) => id !== targetId);
@@ -103,15 +102,14 @@ export const App: React.FC = () => {
       }
     });
 
-    setTodoDeleteError(false);
-
     try {
       setTargetTodosIds(currIds => currIds.concat(completedTodoIds));
       await Promise.all(todosForDeleting);
 
       setTodos(todos?.filter(todo => !todo.completed) || null);
     } catch (error) {
-      setTodoDeleteError(true);
+      setError(true);
+      setTypeOfError(Errors.Deleting);
     } finally {
       setTargetTodosIds([]);
     }
@@ -149,7 +147,7 @@ export const App: React.FC = () => {
     setTargetTodosIds(currIds => {
       return [...currIds, todoId || 0];
     });
-    setTodoUpdatingError(false);
+
     try {
       await patchTodos(todoId, { completed });
 
@@ -167,7 +165,8 @@ export const App: React.FC = () => {
         return null;
       });
     } catch (error) {
-      setTodoUpdatingError(true);
+      setError(true);
+      setTypeOfError(Errors.Updating);
     } finally {
       setTargetTodosIds([]);
     }
@@ -191,8 +190,6 @@ export const App: React.FC = () => {
       });
     }
 
-    setTodoUpdatingError(false);
-
     try {
       setTargetTodosIds(currIds => currIds.concat(targetTodoIds));
       await Promise.all(todosForUpdaiting);
@@ -209,7 +206,8 @@ export const App: React.FC = () => {
         setTodos(todos?.map(todo => ({ ...todo, completed: false })) || null);
       }
     } catch (error) {
-      setTodoUpdatingError(true);
+      setError(true);
+      setTypeOfError(Errors.Updating);
     } finally {
       setTargetTodosIds([]);
     }
@@ -220,8 +218,6 @@ export const App: React.FC = () => {
   };
 
   const submitTitleUpdating = async (todoId: number, oldTitle: string) => {
-    setTodoUpdatingError(false);
-
     if (oldTitle === updatingTitle) {
       return;
     }
@@ -231,6 +227,7 @@ export const App: React.FC = () => {
     });
     if (updatingTitle !== '') {
       try {
+        await patchTodos(todoId, { title: updatingTitle });
         setTodos((currTodo) => {
           if (currTodo) {
             return currTodo.map(todo => {
@@ -244,9 +241,9 @@ export const App: React.FC = () => {
 
           return null;
         });
-        await patchTodos(todoId, { title: updatingTitle });
       } catch (error) {
-        setTodoUpdatingError(true);
+        setError(true);
+        setTypeOfError(Errors.Updating);
       } finally {
         setTargetTodosIds([]);
       }
@@ -256,10 +253,7 @@ export const App: React.FC = () => {
   };
 
   const removeNotification = () => {
-    setLoadingError(false);
-    setAddTodoError(false);
-    setTodoDeleteError(false);
-    setTitleEmpty(false);
+    setError(false);
   };
 
   useEffect(() => {
@@ -268,17 +262,14 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setLoadingError(false);
-      setTitleEmpty(false);
-      setAddTodoError(false);
-      setTodoDeleteError(false);
-      setTodoUpdatingError(false);
+      setError(false);
+      setTypeOfError(null);
     }, 3000);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [isLoadingError, isTitleEmpty, isAddTodoError, isTodoDeleteError]);
+  }, [isError]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -327,11 +318,8 @@ export const App: React.FC = () => {
       </div>
 
       <Notification
-        isLoadingError={isLoadingError}
-        isAddTodoError={isAddTodoError}
-        isTodoDeleteError={isTodoDeleteError}
-        isTodoUpdatingError={isTodoUpdatingError}
-        isTitleEmpty={isTitleEmpty}
+        isError={isError}
+        typeOfError={typeOfError}
         removeNotification={removeNotification}
       />
     </div>

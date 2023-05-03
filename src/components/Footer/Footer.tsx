@@ -37,9 +37,7 @@ export const Footer: React.FC<Props> = ({
             className={classNames(
               'filter__link', { selected: item === filteredBy },
             )}
-            onClick={() => {
-              setFilter(item);
-            }}
+            onClick={() => setFilter(item)}
           >
             {item[0].toUpperCase() + item.slice(1).toLowerCase()}
           </a>
