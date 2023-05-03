@@ -7,7 +7,7 @@ import {
   removeTodo,
   updateTodo,
 } from './api/todos';
-import { TodosList } from './components/TodoList/TodoList';
+import { TodoList } from './components/TodoList/TodoList';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { TodoError } from './components/TodoError/TodoError';
@@ -134,12 +134,13 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleChangeCompleted = (id: number, title: string) => {
+  const handleChangeCompleted = (id: number) => {
     const currentItem = todos.find(item => item.id === id);
+    const todoTitle = todos.reduce((prev, { title }) => ({ ...prev, title }));
     const todo = {
       id,
       userId: USER_ID,
-      title,
+      title: todoTitle.title,
       completed: false,
     };
 
@@ -196,7 +197,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleCompletedAll = () => {
+  const handleToggleAll = () => {
     todos.forEach((item) => {
       setIsLoadingCompleted(true);
       updateTodo(item.id, item)
@@ -205,35 +206,15 @@ export const App: React.FC = () => {
             { ...todo, completed: true }
           ));
 
-          setTodos(completed);
-        })
-        .catch(() => {
-          setError('Unable to update a todo');
-
-          const timer = setTimeout(() => {
-            setError('');
-          }, 3000);
-
-          return () => {
-            clearTimeout(timer);
-          };
-        })
-        .finally(() => {
-          setIsLoadingCompleted(false);
-        });
-    });
-  };
-
-  const handleUnCompletedAll = () => {
-    todos.forEach((item) => {
-      setIsLoadingCompleted(true);
-      updateTodo(item.id, item)
-        .then(() => {
-          const completed = todos.map(todo => (
+          const unCompleted = todos.map(todo => (
             { ...todo, completed: false }
           ));
 
-          setTodos(completed);
+          if (todos.some(todo => !todo.completed)) {
+            setTodos(completed);
+          } else {
+            setTodos(unCompleted);
+          }
         })
         .catch(() => {
           setError('Unable to update a todo');
@@ -250,14 +231,6 @@ export const App: React.FC = () => {
           setIsLoadingCompleted(false);
         });
     });
-  };
-
-  const handleToggleAll = () => {
-    if (todos.some(todo => !todo.completed)) {
-      handleCompletedAll();
-    } else {
-      handleUnCompletedAll();
-    }
   };
 
   const updateTitle = (id: number, title: string) => {
@@ -327,7 +300,7 @@ export const App: React.FC = () => {
         />
 
         <section className="todoapp__main">
-          <TodosList
+          <TodoList
             todos={filteredTodos}
             handleChangeCompleted={handleChangeCompleted}
             deleteTodo={deleteTodo}

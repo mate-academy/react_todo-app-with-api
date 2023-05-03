@@ -19,11 +19,13 @@ export const TodoHeader: React.FC<Props> = ({
 }) => {
   const [newTodo, setNewTodo] = useState('');
 
-  const handleSumbmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    addTodo(newTodo);
-    setNewTodo('');
+    if (newTodo !== '') {
+      addTodo(newTodo);
+      setNewTodo('');
+    }
   };
 
   return (
@@ -37,7 +39,7 @@ export const TodoHeader: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={handleSumbmit}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"

@@ -4,7 +4,7 @@ import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
   todos: Todo[],
-  handleChangeCompleted: (id: number, title: string) => void,
+  handleChangeCompleted: (id: number) => void,
   handleDoubleClick: (id: number) => void,
   updateTitle: (id: number, value: string) => void,
   setEditingTodo: (value: number) => void,
@@ -16,7 +16,7 @@ type Props = {
   isLoadingCompleted: boolean,
 };
 
-export const TodosList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   handleChangeCompleted,
   handleDoubleClick,
