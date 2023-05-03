@@ -35,31 +35,31 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title) {
-      setErrorMessage('Title cannot be empty');
+      setErrorMessage(Errors.Empty);
+
+      return;
     }
 
-    if (title) {
-      try {
-        const newTodo = {
-          userId: USER_ID,
-          title,
-          completed: false,
-        };
+    try {
+      const newTodo = {
+        userId: USER_ID,
+        title,
+        completed: false,
+      };
 
-        setActiveInput(false);
-        setTempTodo({ ...newTodo, id: 0 });
+      setActiveInput(false);
+      setTempTodo({ ...newTodo, id: 0 });
 
-        const response = await addTodo(newTodo);
+      const response = await addTodo(newTodo);
 
-        setTodoList([...todos, response]);
+      setTodoList([...todos, response]);
 
-        setTitleTodo('');
-      } catch {
-        setErrorMessage(Errors.Add);
-      } finally {
-        setActiveInput(true);
-        setTempTodo(null);
-      }
+      setTitleTodo('');
+    } catch {
+      setErrorMessage(Errors.Add);
+    } finally {
+      setActiveInput(true);
+      setTempTodo(null);
     }
   };
 

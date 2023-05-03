@@ -128,7 +128,7 @@ export const App: React.FC = () => {
 
       setTodoList(updatedTodos);
     } catch {
-      setErrorMessage('Unable to update a todos');
+      setErrorMessage(Errors.UpdateStatus);
     } finally {
       setLoadingTodos([]);
     }

@@ -24,14 +24,8 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const handleDeleteAllCompletedTodo = async () => {
     const completedTodos = todos.filter((todo) => todo.completed);
+    const completedTodosID = completedTodos.map((todo) => todo.id);
     const incompletedTodos = todos.filter((todo) => !todo.completed);
-    const completedTodosID = todos.map((todo) => {
-      if (todo.completed) {
-        return todo.id;
-      }
-
-      return 0;
-    });
 
     completedTodos.forEach(async (todo) => {
       try {

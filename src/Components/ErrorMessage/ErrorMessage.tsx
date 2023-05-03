@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
+import { Errors } from '../../utils/enum';
 
 type Props = {
   errorMessage: string,
@@ -25,7 +26,7 @@ export const ErrorMessage: React.FC<Props> = React.memo(
           type="button"
           className="delete"
           aria-label="delete error"
-          onClick={() => setErrorMessage('')}
+          onClick={() => setErrorMessage(Errors.Null)}
         />
 
         <span>{errorMessage}</span>
