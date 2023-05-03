@@ -11,9 +11,9 @@ type Props = {
   removeTodo: (targetId: number) => void;
   targetTodosIds: number[];
   changeTodoStatus: (todoId: number, status: boolean) => void;
-  callEditeMode: (title: string) => void;
+  enterEditMode: (title: string) => void;
   updatingTitle: string;
-  setUdatingTitle: (value: string) => void;
+  setUpdatingTitle: (value: string) => void;
   submitTitleUpdating: (id: number, oldTitle: string) => void;
 };
 
@@ -24,9 +24,9 @@ export const Todos: React.FC<Props> = ({
   removeTodo,
   targetTodosIds,
   changeTodoStatus,
-  callEditeMode,
+  enterEditMode,
   updatingTitle,
-  setUdatingTitle,
+  setUpdatingTitle,
   submitTitleUpdating,
 }) => {
   const [editedTodoId, setEditedTodoId] = useState<number | null>(null);
@@ -40,7 +40,7 @@ export const Todos: React.FC<Props> = ({
     }
 
     if (event.key === 'Escape') {
-      setUdatingTitle(todo.title);
+      setUpdatingTitle(todo.title);
       setEditedTodoId(null);
     }
   };
@@ -51,7 +51,7 @@ export const Todos: React.FC<Props> = ({
   };
 
   const handledblClick = (todo: Todo) => () => {
-    callEditeMode(todo.title);
+    enterEditMode(todo.title);
     setEditedTodoId(todo.id);
   };
 
@@ -83,7 +83,7 @@ export const Todos: React.FC<Props> = ({
                   className="todo__title-field"
                   placeholder="Empty todo will be deleted"
                   value={updatingTitle}
-                  onChange={(event) => setUdatingTitle(event.target.value)}
+                  onChange={(event) => setUpdatingTitle(event.target.value)}
                   onKeyDown={handleKeyDown(todo)}
                   onBlur={handleBlur(todo)}
                   // eslint-disable-next-line jsx-a11y/no-autofocus

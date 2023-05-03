@@ -206,7 +206,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const callEditeMode = (title: string) => {
+  const enterEditMode = (title: string) => {
     setUpdatingTitle(title);
   };
 
@@ -290,9 +290,9 @@ export const App: React.FC = () => {
                 removeTodo={removeTodo}
                 targetTodosIds={targetTodosIds}
                 changeTodoStatus={changeTodoStatus}
-                callEditeMode={callEditeMode}
+                enterEditMode={enterEditMode}
                 updatingTitle={updatingTitle}
-                setUdatingTitle={setUpdatingTitle}
+                setUpdatingTitle={setUpdatingTitle}
                 submitTitleUpdating={submitTitleUpdating}
               />
             </section>
