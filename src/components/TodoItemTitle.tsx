@@ -3,7 +3,7 @@ import { Todo } from '../types/Todo';
 
 type TodoItemTitleProps = {
   todo: Todo,
-  setActiveTodoId: React.Dispatch<React.SetStateAction<number>>,
+  setActiveTodoId: React.Dispatch<React.SetStateAction<number | null>>,
   handleTodoDelete: (todoId: number) => Promise<void>,
 };
 

@@ -14,10 +14,6 @@ type AddNewTodoProps = {
   setLoadingActiveTodoId: React.Dispatch<React.SetStateAction<number[]>>,
 };
 
-const findMaxId = (todos: Todo[]): number => {
-  return Math.max(...todos.map(todo => todo.id));
-};
-
 export const AddNewTodo: React.FC<AddNewTodoProps> = ({
   showErrorNotification,
   setIsAddingNewTodo,
@@ -49,15 +45,12 @@ export const AddNewTodo: React.FC<AddNewTodoProps> = ({
         completed: false,
       };
 
-      setLoadingActiveTodoId(prev => [...prev, findMaxId(todos) + 1]);
-      setTodos(prev => [...prev, {
-        id: findMaxId(todos) + 1,
-        userId: USER_ID,
-        title: newTodoTitle,
-        completed: false,
-      }]);
+      setLoadingActiveTodoId([tempTodo.id]);
+      setTodos(prev => [...prev, tempTodo]);
 
-      await postTodos(USER_ID, tempTodo);
+      const createdTodo = await postTodos(USER_ID, tempTodo);
+
+      setTodos(prev => prev.map(todo => (todo.id === 0 ? createdTodo : todo)));
     } catch (error) {
       showErrorNotification(ErrorType.AddTodosError);
       setTodos(prevTodos);

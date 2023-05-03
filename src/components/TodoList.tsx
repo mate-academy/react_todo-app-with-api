@@ -30,7 +30,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   setLoadingActiveTodoId,
   loadingActiveTodoId,
 }) => {
-  const [activeTodoId, setActiveTodoId] = useState<number>(0);
+  const [activeTodoId, setActiveTodoId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
   const filteredTodos = todos.filter((todo) => {
@@ -82,7 +82,7 @@ export const TodoList: React.FC<TodoListProps> = ({
 
   const handleTitleBlur = async (todoId: number) => {
     setLoading(true);
-    setActiveTodoId(0);
+    setActiveTodoId(null);
     setLoadingActiveTodoId(prev => [...prev, todoId]);
 
     const updatedTodo = todos
@@ -114,7 +114,7 @@ export const TodoList: React.FC<TodoListProps> = ({
     todoId: number,
   ) => {
     event.preventDefault();
-    setActiveTodoId(0);
+    setActiveTodoId(null);
     setLoading(true);
     setLoadingActiveTodoId(prev => [...prev, todoId]);
     const updatedTodo = todos
