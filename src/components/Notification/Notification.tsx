@@ -4,13 +4,11 @@ import classNames from 'classnames';
 import { Errors } from '../../types/Errors';
 
 type Props = {
-  isError: boolean;
-  typeOfError: Errors | null;
+  typeOfError: Errors;
   removeNotification: () => void;
 };
 
 export const Notification: React.FC<Props> = ({
-  isError,
   typeOfError,
   removeNotification,
 }) => {
@@ -21,7 +19,7 @@ export const Notification: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !isError },
+        { hidden: typeOfError === Errors.None },
       )}
     >
       <button
@@ -30,7 +28,7 @@ export const Notification: React.FC<Props> = ({
         onClick={removeNotification}
       />
 
-      { typeOfError
+      { typeOfError !== Errors.None
         ? typeOfError[0].toUpperCase() + typeOfError.slice(1).toLowerCase()
         : ''}
     </div>

@@ -18,13 +18,13 @@ const USER_ID = 9964;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | null>(null);
   const [filteredBy, setFilteredBy] = useState<FilteredBy>(FilteredBy.All);
-  const [isError, setError] = useState(false);
-  const [typeOfError, setTypeOfError] = useState<Errors | null>(null);
+  const [typeOfError, setTypeOfError] = useState<Errors>(Errors.None);
   const [isTodoAdded, setTodoAdded] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [updatingTitle, setUpdatingTitle] = useState('');
   const [targetTodosIds, setTargetTodosIds] = useState<number[]>([]);
   const isActive = todos?.some(todo => !todo.completed);
+
   const newTodo = {
     id: 0,
     title: newTodoTitle,
@@ -38,7 +38,6 @@ export const App: React.FC = () => {
 
       setTodos(todoList);
     } catch (error) {
-      setError(true);
       setTypeOfError(Errors.Loading);
     }
   }
@@ -61,13 +60,11 @@ export const App: React.FC = () => {
 
         setNewTodoTitle('');
       } catch (error) {
-        setError(true);
         setTypeOfError(Errors.Adding);
       } finally {
         setTodoAdded(false);
       }
     } else {
-      setError(true);
       setTypeOfError(Errors.Title);
     }
   };
@@ -82,7 +79,6 @@ export const App: React.FC = () => {
       await deleteTodo(deletedTodo?.id || 0);
       setTodos(todos?.filter(todo => todo.id !== +targetId) || null);
     } catch (error) {
-      setError(true);
       setTypeOfError(Errors.Deleting);
     } finally {
       setTargetTodosIds((currIds: number[]) => {
@@ -108,7 +104,6 @@ export const App: React.FC = () => {
 
       setTodos(todos?.filter(todo => !todo.completed) || null);
     } catch (error) {
-      setError(true);
       setTypeOfError(Errors.Deleting);
     } finally {
       setTargetTodosIds([]);
@@ -165,7 +160,6 @@ export const App: React.FC = () => {
         return null;
       });
     } catch (error) {
-      setError(true);
       setTypeOfError(Errors.Updating);
     } finally {
       setTargetTodosIds([]);
@@ -206,7 +200,6 @@ export const App: React.FC = () => {
         setTodos(todos?.map(todo => ({ ...todo, completed: false })) || null);
       }
     } catch (error) {
-      setError(true);
       setTypeOfError(Errors.Updating);
     } finally {
       setTargetTodosIds([]);
@@ -242,7 +235,6 @@ export const App: React.FC = () => {
           return null;
         });
       } catch (error) {
-        setError(true);
         setTypeOfError(Errors.Updating);
       } finally {
         setTargetTodosIds([]);
@@ -253,7 +245,7 @@ export const App: React.FC = () => {
   };
 
   const removeNotification = () => {
-    setError(false);
+    setTypeOfError(Errors.None);
   };
 
   useEffect(() => {
@@ -262,14 +254,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setError(false);
-      setTypeOfError(null);
+      setTypeOfError(Errors.None);
     }, 3000);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [isError]);
+  }, [typeOfError]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -318,7 +309,6 @@ export const App: React.FC = () => {
       </div>
 
       <Notification
-        isError={isError}
         typeOfError={typeOfError}
         removeNotification={removeNotification}
       />
