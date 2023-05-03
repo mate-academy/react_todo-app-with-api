@@ -17,18 +17,19 @@ export const TodoList: React.FC<Props> = ({
   loadingIds,
   statusChange,
 }) => (
-  <div>
+  <ul>
     {todos.map(todo => {
       const isLoading = loadingIds.some(id => id === todo.id);
 
       return (
-        <TodoInfo
-          todo={todo}
-          key={todo.id}
-          onDelete={() => onDelete(todo.id)}
-          isLoading={isLoading}
-          statusChange={statusChange}
-        />
+        <li key={todo.id}>
+          <TodoInfo
+            todo={todo}
+            onDelete={() => onDelete(todo.id)}
+            isLoading={isLoading}
+            statusChange={statusChange}
+          />
+        </li>
       );
     })}
 
@@ -41,5 +42,5 @@ export const TodoList: React.FC<Props> = ({
         statusChange={statusChange}
       />
     )}
-  </div>
+  </ul>
 );

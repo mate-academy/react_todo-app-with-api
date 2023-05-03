@@ -44,9 +44,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    setErrorOfUpdate('');
     getTodosFromServer();
-    setTimeout(() => setErrorOfUpdate(''), 3000);
   }, []);
 
   const getFilteredTodos = (filter: MainFilter, someTodos: Todo[]) => {
@@ -70,9 +68,6 @@ export const App: React.FC = () => {
     if (title.trim() === '') {
       setErrorOfUpdate('Title can\'t be empty');
       setTextOfInput('');
-      setTimeout(() => {
-        setErrorOfUpdate('');
-      }, 3000);
 
       return;
     }
@@ -98,13 +93,10 @@ export const App: React.FC = () => {
       setTodos(todos.filter(todo => todo.id !== todoId));
     } catch {
       setErrorOfUpdate('Unable to delete a todo');
-      setTimeout(() => {
-        setErrorOfUpdate('');
-      }, 3000);
     } finally {
       setLoadingIds([]);
     }
-  }; 
+  };
 
   const clearCompletedTodos = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
