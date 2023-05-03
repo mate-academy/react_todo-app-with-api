@@ -18,8 +18,8 @@ export const Footer: React.FC<Props> = ({
   activeTodos,
 }) => {
   const removeAllcompleted = () => {completedTodos.forEach(todo => onRemoveAll(todo.id))};
-  const onFilterChange = (filter: Filter) => () => {
-    onSetFilter(filter);
+  const onFilterChange = (filterStatus: Filter) => () => {
+    onSetFilter(filterStatus);
   };
 
     return (
