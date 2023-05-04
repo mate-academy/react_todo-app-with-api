@@ -1,13 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+  KeyboardEvent,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  onDelete?: (id: number) => void;
+  onDelete: (id: number) => void;
   deleting?: boolean;
-  onUpdateTodo?: (id: number, data: Partial<Todo>) => void;
+  onUpdateTodo: (id: number, data: Partial<Todo>) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -16,35 +22,46 @@ export const TodoInfo: React.FC<Props> = ({
   onDelete,
   onUpdateTodo,
 }) => {
-  const [title, setTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
-
+  const [editedTitle, setEditedTitle] = useState(todo.title);
   const inputElement = useRef<HTMLInputElement>(null);
+
+  const updateTodoTitle = () => {
+    if (editedTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!editedTitle.trim()) {
+      onDelete(todo.id);
+    }
+
+    onUpdateTodo(todo.id, { title: editedTitle });
+    setIsEditing(false);
+  };
+
+  const handleChangeTitle = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(event.target.value);
+  };
 
   const handleInputSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!title && onDelete) {
-      onDelete(todo.id);
-    } else if (onUpdateTodo) {
-      onUpdateTodo(todo.id, { title });
+    updateTodoTitle();
+  };
+
+  const handleCancelEditing = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
       setIsEditing(false);
+      setEditedTitle(todo.title);
     }
   };
 
   useEffect(() => {
-    if (inputElement.current !== null) {
+    if (isEditing && inputElement.current) {
       inputElement.current.focus();
     }
-
-    const handleCancel = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsEditing(false);
-        setTitle(todo.title);
-      }
-    };
-
-    document.addEventListener('keydown', handleCancel);
   }, [isEditing]);
 
   return (
@@ -65,15 +82,13 @@ export const TodoInfo: React.FC<Props> = ({
         ? (
           <form onSubmit={handleInputSubmit}>
             <input
+              ref={inputElement}
               className="todo__title-field"
               type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              onBlur={() => {
-                setIsEditing(false);
-                setTitle(todo.title);
-              }}
-              ref={inputElement}
+              value={editedTitle}
+              onChange={handleChangeTitle}
+              onBlur={updateTodoTitle}
+              onKeyUp={handleCancelEditing}
             />
           </form>
         ) : (

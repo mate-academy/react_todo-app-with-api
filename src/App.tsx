@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './components/UserWarning/UserWarning';
 
@@ -55,6 +55,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const activeTodos = useMemo(() => {
+    return filterTodos(todos, FilterType.Active);
+  }, [todos]);
+
   const addTodo = async (title: string) => {
     setIsDisabledInput(true);
 
@@ -86,9 +90,10 @@ export const App: React.FC = () => {
       await deleteTodo(id);
 
       setTodos(() => todos.filter(todo => todo.id !== id));
-    } catch {
+    } catch (removeError) {
       setError(ErrorType.DELETE);
       clearError();
+      throw removeError;
     } finally {
       setLoadingIds(state => state.filter(el => el !== id));
     }
@@ -181,7 +186,10 @@ export const App: React.FC = () => {
           {visibleTodos.length > 0 && (
             <button
               type="button"
-              className="todoapp__toggle-all active"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: !activeTodos.length },
+              )}
               aria-label="Toggle all"
               onClick={toggleAllTodos}
             />
