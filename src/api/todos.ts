@@ -7,7 +7,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const postTodos = (userId: number, data: Todo) => {
-  return client.post<Todo[]>(`/todos?userId=${userId}`, data);
+  return client.post<Todo>(`/todos?userId=${userId}`, data);
 };
 
 export const patchTodos = (id: number, data: PatchingData) => {

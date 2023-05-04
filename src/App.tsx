@@ -52,10 +52,10 @@ export const App: React.FC = () => {
 
         setTodos((currTodo) => {
           if (currTodo) {
-            return [...currTodo, ...todo];
+            return [...currTodo, todo];
           }
 
-          return todo;
+          return [todo];
         });
 
         setNewTodoTitle('');
