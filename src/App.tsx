@@ -23,7 +23,8 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [updatingTitle, setUpdatingTitle] = useState('');
   const [targetTodosIds, setTargetTodosIds] = useState<number[]>([]);
-  const isActive = todos?.some(todo => !todo.completed);
+  const activeTodo = todos?.filter(todo => !todo.completed) || [];
+  const isActive = activeTodo?.length > 0;
 
   async function getTodoList() {
     try {
@@ -300,7 +301,7 @@ export const App: React.FC = () => {
             <Footer
               setFilter={setFilter}
               filteredBy={filteredBy}
-              todoAmount={todos?.length}
+              activeTodoAmount={activeTodo?.length}
               isCompletedPresent={todos.some(todo => todo.completed)}
               clearCompleted={clearCompleted}
             />

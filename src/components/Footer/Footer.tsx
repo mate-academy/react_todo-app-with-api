@@ -7,7 +7,7 @@ import { FilteredBy } from '../../types/FilteredBy';
 type Props = {
   setFilter: (value: FilteredBy) => void;
   filteredBy: FilteredBy;
-  todoAmount: number;
+  activeTodoAmount: number;
   isCompletedPresent: boolean;
   clearCompleted: () => void;
 };
@@ -15,7 +15,7 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   setFilter,
   filteredBy,
-  todoAmount,
+  activeTodoAmount,
   isCompletedPresent,
   clearCompleted,
 }) => {
@@ -26,7 +26,7 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {todoAmount} item{todoAmount !== 1 ? 's' : ''} left
+        {activeTodoAmount} item{activeTodoAmount !== 1 ? 's' : ''} left
       </span>
 
       <nav className="filter">
