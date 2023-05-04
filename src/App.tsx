@@ -25,13 +25,6 @@ export const App: React.FC = () => {
   const [targetTodosIds, setTargetTodosIds] = useState<number[]>([]);
   const isActive = todos?.some(todo => !todo.completed);
 
-  const newTodo = {
-    id: 0,
-    title: newTodoTitle,
-    userId: USER_ID,
-    completed: false,
-  };
-
   async function getTodoList() {
     try {
       const todoList = await getTodos(USER_ID);
@@ -45,6 +38,13 @@ export const App: React.FC = () => {
   const postNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const newTodo = {
+      id: 0,
+      title: newTodoTitle,
+      userId: USER_ID,
+      completed: false,
+    };
+
     if (newTodoTitle !== '') {
       setTodoAdded(true);
       try {
@@ -52,7 +52,7 @@ export const App: React.FC = () => {
 
         setTodos((currTodo) => {
           if (currTodo) {
-            return currTodo.concat(todo);
+            return [...currTodo, ...todo];
           }
 
           return todo;
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
     });
 
     try {
-      setTargetTodosIds(currIds => currIds.concat(completedTodoIds));
+      setTargetTodosIds(currIds => [...currIds, ...completedTodoIds]);
       await Promise.all(todosForDeleting);
 
       setTodos(todos?.filter(todo => !todo.completed) || null);
@@ -185,7 +185,7 @@ export const App: React.FC = () => {
     }
 
     try {
-      setTargetTodosIds(currIds => currIds.concat(targetTodoIds));
+      setTargetTodosIds(currIds => [...currIds, ...targetTodoIds]);
       await Promise.all(todosForUpdaiting);
 
       if (isActive) {
