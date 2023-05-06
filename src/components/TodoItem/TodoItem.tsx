@@ -39,21 +39,25 @@ export const TodoItem: FC<Props> = ({
     setEditedtitle(event.target.value);
   };
 
-  useEffect(() => {
-    inputTextElement.current?.focus();
-    if (!isInputEdited && title !== editedTitle) {
+  const handleTitleUpdate = () => {
+    if (title !== editedTitle) {
       handleTitleChange({
         ...todo,
         title: editedTitle,
       });
     }
+
+    setIsInputEdited(false);
+  };
+
+  useEffect(() => {
+    inputTextElement.current?.focus();
   }, [isInputEdited]);
 
   useEffect(() => {
     const handlePressKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsInputEdited(false);
-        setEditedtitle(title);
       }
     };
 
@@ -83,12 +87,12 @@ export const TodoItem: FC<Props> = ({
       </span>
 
       {isInputEdited ? (
-        <form className="todo__form" onSubmit={() => setIsInputEdited(false)}>
+        <form className="todo__form" onSubmit={handleTitleUpdate}>
           <input
             type="text"
             className="todo__input"
             placeholder="Empty todo will be deleted"
-            onBlur={() => setIsInputEdited(false)}
+            onBlur={handleTitleUpdate}
             ref={inputTextElement}
             value={editedTitle}
             onChange={handleEditedTitleChange}
