@@ -1,6 +1,10 @@
 import {
   ChangeEvent,
-  FC, useEffect, useState,
+  FC,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/types';
@@ -9,56 +13,105 @@ type Props = {
   todo: Todo;
   activeIds: number[];
   handleRemoveTodo: (buttonId: number) => void;
-  handleCheckboxClick: (todo: Todo) => void;
+  handleCheckboxChange: (todo: Todo) => void;
+  handleTitleChange: (todo: Todo) => void;
 };
 
 export const TodoItem: FC<Props> = ({
   todo,
   activeIds,
   handleRemoveTodo,
-  handleCheckboxClick,
+  handleCheckboxChange,
+  handleTitleChange,
 }) => {
   const { title, completed, id } = todo;
-  const [isCompleted, setIsCompleted] = useState(completed);
+  const [isInputEdited, setIsInputEdited] = useState(false);
+  const inputTextElement = useRef<HTMLInputElement>(null);
+  const [editedTodo, setEditedTodo] = useState(title);
 
-  const handleStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsCompleted(event.target.checked);
+  const handleTitleClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.detail === 2 && inputTextElement) {
+      setIsInputEdited(true);
+    }
+  };
+
+  const handleEditedtodoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedTodo(event.target.value);
   };
 
   useEffect(() => {
-    handleCheckboxClick({
-      ...todo,
-      completed: isCompleted,
-    });
-  }, [isCompleted]);
+    inputTextElement.current?.focus();
+    if (!isInputEdited && title !== editedTodo) {
+      handleTitleChange({
+        ...todo,
+        title: editedTodo,
+      });
+    }
+  }, [isInputEdited]);
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsInputEdited(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <div
       className={cn(
         'todo',
         'item-enter-done',
-        { completed: isCompleted },
+        { completed },
       )}
       data-cy="todo"
     >
-      <div className="todo__status-label">
+      <span className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={isCompleted}
-          onChange={handleStatusChange}
+          checked={completed}
+          onChange={() => handleCheckboxChange(todo)}
         />
-      </div>
+      </span>
 
-      <span className="todo__title">{title}</span>
+      {isInputEdited ? (
+        <form className="todo__form">
+          <input
+            type="text"
+            className="todo__input"
+            placeholder="Empty todo will be deleted"
+            onBlur={() => setIsInputEdited(false)}
+            ref={inputTextElement}
+            value={editedTodo}
+            onChange={handleEditedtodoChange}
+          />
+        </form>
+      ) : (
+        <>
+          <div
+            className="todo__title"
+            onClick={handleTitleClick}
+            aria-hidden="true"
+          >
+            {title}
+          </div>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => handleRemoveTodo(id)}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => handleRemoveTodo(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         className={cn(

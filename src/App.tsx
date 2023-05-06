@@ -2,6 +2,7 @@ import React, {
   ChangeEvent,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -36,6 +37,10 @@ export const App: React.FC = () => {
     setTemptodo(null);
     setActiveIds([0]);
   }, []);
+
+  const isAllTodosCompleted = useMemo(() => (
+    todos.some(({ completed }) => completed === true)
+  ), [todos]);
 
   const loadTodos = async () => {
     setIsdataUpdated(true);
@@ -83,8 +88,12 @@ export const App: React.FC = () => {
     }
   };
 
+  const setCurrentTodoActive = (id: number) => (
+    setActiveIds((activeId) => [...activeId, id])
+  );
+
   const handleRemoveTodo = async (id: number) => {
-    setActiveIds((activeId) => [...activeId, id]);
+    setCurrentTodoActive(id);
 
     try {
       await removeTodo(id);
@@ -105,7 +114,40 @@ export const App: React.FC = () => {
 
   const resetError = () => setError(ErrorTypes.none);
 
-  const handleCheckboxClick = async (todo: Todo) => {
+  const handleCheckboxChange = async (todo: Todo) => {
+    setCurrentTodoActive(todo.id);
+
+    try {
+      await editTodo({ ...todo, completed: !todo.completed });
+      loadTodos();
+    } catch {
+      setError(ErrorTypes.edit);
+      resetTempTodo();
+    }
+  };
+
+  const handleChangeCompletedAll = () => {
+    let allCompletedTodo = true;
+
+    todos.forEach(todo => {
+      if (!todo.completed) {
+        allCompletedTodo = false;
+
+        handleCheckboxChange(todo);
+      }
+    });
+
+    if (allCompletedTodo) {
+      todos.forEach(todo => handleCheckboxChange(todo));
+    }
+  };
+
+  const handleTitleChange = async (todo: Todo) => {
+    setCurrentTodoActive(todo.id);
+    if (!todo.title.length) {
+      handleRemoveTodo(todo.id);
+    }
+
     try {
       await editTodo(todo);
       loadTodos();
@@ -133,6 +175,9 @@ export const App: React.FC = () => {
           isDataUpdated={isDataUpdated}
           handleTodoChange={handleTodoChange}
           handleTodoSubmit={handleTodoSubmit}
+          handleChangeCompletedAll={handleChangeCompletedAll}
+          isAllTodosCompleted={isAllTodosCompleted}
+          todos={todos}
         />
 
         {(todos.length > 0 || tempTodo) && (
@@ -142,7 +187,8 @@ export const App: React.FC = () => {
             activeIds={activeIds}
             handleRemoveTodo={handleRemoveTodo}
             handleClearCompleted={handleClearCompleted}
-            handleCheckboxClick={handleCheckboxClick}
+            handleCheckboxChange={handleCheckboxChange}
+            handleTitleChange={handleTitleChange}
           />
         )}
       </div>

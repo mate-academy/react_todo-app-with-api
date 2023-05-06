@@ -25,7 +25,8 @@ type Props = {
   activeIds: number[];
   handleRemoveTodo: (id: number) => void;
   handleClearCompleted: () => void;
-  handleCheckboxClick: (todo: Todo) => void;
+  handleCheckboxChange: (todo: Todo) => void;
+  handleTitleChange: (todo: Todo) => void;
 };
 
 export const Filter: FC<Props> = ({
@@ -34,23 +35,22 @@ export const Filter: FC<Props> = ({
   activeIds,
   handleRemoveTodo,
   handleClearCompleted,
-  handleCheckboxClick,
+  handleCheckboxChange,
+  handleTitleChange,
 }) => {
   const [filter, setFilter] = useState<FILTERS>(FILTERS.all);
 
-  const visibleTodos = todos.filter(todo => {
-    if (filter === FILTERS.all) {
-      return true;
-    }
+  const visibleTodos = useMemo(() => (
+    todos.filter(todo => {
+      if (filter === FILTERS.all) {
+        return true;
+      }
 
-    return filter === FILTERS.completed
-      ? todo.completed
-      : !todo.completed;
-  });
-
-  const handleFilterChange = (selectedFilter: FILTERS) => {
-    setFilter(selectedFilter);
-  };
+      return filter === FILTERS.completed
+        ? todo.completed
+        : !todo.completed;
+    })
+  ), [todos]);
 
   const completedTodosCount = useMemo(() => (
     todos.filter(todo => todo.completed).length
@@ -60,6 +60,10 @@ export const Filter: FC<Props> = ({
     todos.filter(todo => !todo.completed).length
   ), [todos]);
 
+  const handleFilterChange = (selectedFilter: FILTERS) => {
+    setFilter(selectedFilter);
+  };
+
   return (
     <>
       <TodoList
@@ -67,7 +71,8 @@ export const Filter: FC<Props> = ({
         tempTodo={tempTodo}
         activeIds={activeIds}
         handleRemoveTodo={handleRemoveTodo}
-        handleCheckboxClick={handleCheckboxClick}
+        handleCheckboxChange={handleCheckboxChange}
+        handleTitleChange={handleTitleChange}
       />
 
       <footer className="todoapp__footer">

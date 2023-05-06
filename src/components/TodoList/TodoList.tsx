@@ -7,7 +7,8 @@ type Props = {
   tempTodo: Todo | null;
   activeIds: number[];
   handleRemoveTodo: (id: number) => void;
-  handleCheckboxClick: (todo: Todo) => void;
+  handleCheckboxChange: (todo: Todo) => void;
+  handleTitleChange: (todo: Todo) => void;
 };
 
 export const TodoList: FC<Props> = ({
@@ -15,7 +16,8 @@ export const TodoList: FC<Props> = ({
   tempTodo,
   activeIds,
   handleRemoveTodo,
-  handleCheckboxClick,
+  handleCheckboxChange,
+  handleTitleChange,
 }) => (
   <section className="todoapp__main">
     {visibleTodos.map((todo) => (
@@ -24,7 +26,8 @@ export const TodoList: FC<Props> = ({
         key={todo.id}
         activeIds={activeIds}
         handleRemoveTodo={handleRemoveTodo}
-        handleCheckboxClick={handleCheckboxClick}
+        handleCheckboxChange={handleCheckboxChange}
+        handleTitleChange={handleTitleChange}
       />
     ))}
     {tempTodo && (
@@ -33,7 +36,8 @@ export const TodoList: FC<Props> = ({
         key={activeIds[0]}
         activeIds={activeIds}
         handleRemoveTodo={handleRemoveTodo}
-        handleCheckboxClick={handleCheckboxClick}
+        handleCheckboxChange={handleCheckboxChange}
+        handleTitleChange={handleTitleChange}
       />
     )}
   </section>
