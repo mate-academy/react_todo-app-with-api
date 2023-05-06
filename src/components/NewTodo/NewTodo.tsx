@@ -20,31 +20,29 @@ export const NewTodo: FC<Props> = ({
   handleChangeCompletedAll,
   isAllTodosCompleted,
   todos,
-}) => {
-  return (
-    <header className="todoapp__header">
-      {todos && (
-        <button
-          type="button"
-          className={cn(
-            'todoapp__toggle-all',
-            { active: isAllTodosCompleted },
-          )}
-          onClick={handleChangeCompletedAll}
-          aria-label="Mute volume"
-        />
-      )}
+}) => (
+  <header className="todoapp__header">
+    {todos && (
+      <button
+        type="button"
+        className={cn(
+          'todoapp__toggle-all',
+          { active: isAllTodosCompleted },
+        )}
+        onClick={handleChangeCompletedAll}
+        aria-label="Mute volume"
+      />
+    )}
 
-      <form onSubmit={handleTodoSubmit}>
-        <input
-          type="text"
-          className="todoapp__new-todo"
-          placeholder="What needs to be done?"
-          onChange={handleTodoChange}
-          value={task}
-          disabled={isDataUpdated && !!task}
-        />
-      </form>
-    </header>
-  );
-};
+    <form onSubmit={handleTodoSubmit}>
+      <input
+        type="text"
+        className="todoapp__new-todo"
+        placeholder="What needs to be done?"
+        onChange={handleTodoChange}
+        value={task}
+        disabled={isDataUpdated && !!task}
+      />
+    </form>
+  </header>
+);

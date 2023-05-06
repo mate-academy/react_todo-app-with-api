@@ -39,10 +39,6 @@ export const TodoItem: FC<Props> = ({
     setEditedtitle(event.target.value);
   };
 
-  const handleEditedtitleSubmit = () => {
-    setIsInputEdited(false);
-  };
-
   useEffect(() => {
     inputTextElement.current?.focus();
     if (!isInputEdited && title !== editedTitle) {
@@ -87,7 +83,7 @@ export const TodoItem: FC<Props> = ({
       </span>
 
       {isInputEdited ? (
-        <form className="todo__form" onSubmit={handleEditedtitleSubmit}>
+        <form className="todo__form" onSubmit={() => setIsInputEdited(false)}>
           <input
             type="text"
             className="todo__input"
