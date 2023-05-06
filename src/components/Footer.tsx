@@ -23,7 +23,7 @@ export const Footer: FC<Props> = memo((props) => {
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodos.length} items left`}
+        {`${activeTodos.length} item left`}
       </span>
 
       <nav className="filter">
@@ -31,9 +31,12 @@ export const Footer: FC<Props> = memo((props) => {
           <a
             href={`#/${value}`}
             key={value}
-            className={cn('filter__link', {
-              selected: value === filterType,
-            })}
+            className={cn(
+              'filter__link',
+              {
+                selected: value === filterType,
+              },
+            )}
             onClick={() => onChangeFilterType(value)}
           >
             {value}
@@ -43,9 +46,12 @@ export const Footer: FC<Props> = memo((props) => {
 
       <button
         type="button"
-        className={cn('todoapp__clear-completed', {
-          'is-invisible': completedTodos.length === 0,
-        })}
+        className={cn(
+          'todoapp__clear-completed',
+          {
+            'is-invisible': completedTodos.length === 0,
+          },
+        )}
         onClick={onRemoveCompleted}
       >
         Clear completed

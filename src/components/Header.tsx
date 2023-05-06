@@ -4,6 +4,7 @@ import {
   FC,
   FormEvent,
   memo,
+  useCallback,
   useState,
 } from 'react';
 
@@ -24,9 +25,9 @@ export const Header: FC<Props> = memo((props) => {
 
   const [title, setTitle] = useState('');
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
-  };
+  }, []);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();

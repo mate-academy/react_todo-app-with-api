@@ -13,7 +13,7 @@ export const usePost = (options: Options) => {
   const { setTodos, USER_ID, showError } = options;
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [unableField, setUnableField] = useState(false);
+  const [isInputDisabled, setisInputDisabled] = useState(false);
 
   const addNewTodo = useCallback(
     async (title: string) => {
@@ -30,7 +30,7 @@ export const usePost = (options: Options) => {
       };
 
       try {
-        setUnableField(true);
+        setisInputDisabled(true);
         setTempTodo({
           id: 0,
           ...newTodo,
@@ -42,7 +42,7 @@ export const usePost = (options: Options) => {
       } catch {
         showError(ErrorType.ADD);
       } finally {
-        setUnableField(false);
+        setisInputDisabled(false);
         setTempTodo(null);
       }
     }, [],
@@ -50,7 +50,7 @@ export const usePost = (options: Options) => {
 
   return {
     tempTodo,
-    unableField,
+    isInputDisabled,
     addNewTodo,
   };
 };

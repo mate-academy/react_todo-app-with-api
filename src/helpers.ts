@@ -14,7 +14,7 @@ export const getFilteredTodos = (
         return todo.completed;
 
       default:
-        return todos;
+        return true;
     }
   });
 };

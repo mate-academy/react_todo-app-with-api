@@ -28,7 +28,7 @@ const USER_ID = 6993;
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
-  const [loadingTodos, setLoadingTodos] = useState([0]);
+  const [loadingIds, setloadingIds] = useState([0]);
 
   const {
     activeTodos,
@@ -43,7 +43,7 @@ export const App: FC = () => {
 
   const {
     tempTodo,
-    unableField,
+    isInputDisabled,
     addNewTodo,
   } = usePost({ USER_ID, setTodos, showError });
 
@@ -54,21 +54,20 @@ export const App: FC = () => {
       setTodos(response);
     } catch {
       showError(ErrorType.LOAD);
-      setTodos([]);
     }
   }, []);
 
   const deleteTodo = useCallback(
     async (id: number) => {
       try {
-        setLoadingTodos(prevTodos => [...prevTodos, id]);
+        setloadingIds(prevTodos => [...prevTodos, id]);
 
         await removeTodo(id);
         fetchTodos();
       } catch {
         showError(ErrorType.DELETE);
       } finally {
-        setLoadingTodos([0]);
+        setloadingIds([0]);
       }
     }, [],
   );
@@ -91,14 +90,14 @@ export const App: FC = () => {
       property: Partial<Todo>,
     ) => {
       try {
-        setLoadingTodos(prevTodos => [...prevTodos, id]);
+        setloadingIds(prevTodos => [...prevTodos, id]);
 
         await updateTodo(id, property);
         fetchTodos();
       } catch {
         showError(ErrorType.UPDATE);
       } finally {
-        setLoadingTodos([0]);
+        setloadingIds([0]);
       }
     }, [],
   );
@@ -124,7 +123,7 @@ export const App: FC = () => {
   }
 
   return (
-    <LoadContext.Provider value={loadingTodos}>
+    <LoadContext.Provider value={loadingIds}>
       <div className="todoapp">
         <h1 className="todoapp__title">
           todos
@@ -133,7 +132,7 @@ export const App: FC = () => {
         <div className="todoapp__content">
           <Header
             onAdd={addNewTodo}
-            disabled={unableField}
+            disabled={isInputDisabled}
             activeTodos={activeTodos.length}
             onUpdateAllStatus={updateAllStatus}
           />

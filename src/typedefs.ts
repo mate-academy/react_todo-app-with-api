@@ -4,7 +4,7 @@ export enum ErrorType {
   ADD = 'Unable to add a todo',
   UPDATE = 'Unable to update a todo',
   DELETE = 'Unable to delete a todo',
-  TITLE = 'Title can\'t be empty',
+  TITLE = 'Title can not be empty',
 }
 
 export enum FilterType {

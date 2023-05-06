@@ -4,7 +4,6 @@ import { ErrorType } from '../typedefs';
 interface Props {
   error: ErrorType,
   onClose: () => void,
-
 }
 
 export const ErrorModal: FC<Props> = memo((props) => {
