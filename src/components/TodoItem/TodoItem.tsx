@@ -50,16 +50,21 @@ export const TodoItem: FC<Props> = ({
   }, [isInputEdited]);
 
   useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
+    const handlePressKey = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        setIsInputEdited(false);
+      }
+
       if (event.key === 'Escape') {
         setIsInputEdited(false);
+        setEditedTodo(title);
       }
     };
 
-    window.addEventListener('keydown', handleEsc);
+    window.addEventListener('keydown', handlePressKey);
 
     return () => {
-      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('keydown', handlePressKey);
     };
   }, []);
 
