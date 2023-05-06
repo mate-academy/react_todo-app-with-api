@@ -3,21 +3,19 @@ import React from 'react';
 
 type Props = {
   errorMessage: string;
-  hasError: boolean;
-  setHasError: (boolean: boolean) => void;
+  setErrorMessage: (value: string) => void;
 };
 
 export const ErrorMessage: React.FC<Props> = ({
   errorMessage,
-  hasError,
-  setHasError,
+  setErrorMessage,
 }) => {
   return (
     <div className={
       classNames(
         'notification is-danger is-light has-text-weight-normal',
         {
-          hidden: !hasError,
+          hidden: errorMessage === '',
         },
       )
     }
@@ -26,7 +24,7 @@ export const ErrorMessage: React.FC<Props> = ({
         aria-label="close"
         type="button"
         className="delete"
-        onClick={() => setHasError(false)}
+        onClick={() => setErrorMessage('')}
       />
       <span>{errorMessage}</span>
     </div>

@@ -30,7 +30,7 @@ export const TodoForm: React.FC<Props> = ({
         placeholder="What needs to be done?"
         value={todoTitle}
         required
-        pattern="^(?!\s*$).+"
+        pattern="^(?!\s*$).+" // check for no spaces
         onChange={handleTodoTitle}
         title="Field cannot be empty"
       />

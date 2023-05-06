@@ -11,7 +11,7 @@ export const addTodo = (userId: number, data: any) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateTodo = (id: number, data: any) => {
+export const updateTodo = (id: number, data: any): Promise<Todo> => {
   return client.patch(`/todos/${id}`, data);
 };
 

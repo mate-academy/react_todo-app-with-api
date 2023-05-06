@@ -8,16 +8,14 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { ErrorMessage } from './components/ErrorMesage/ErrorMesage';
-import { TodoForm } from './components/TodoForm/TodoForm';
-import { TodoList } from './components/TodoList/TodoList';
-import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { FilterType } from './types/FilterType';
 import { USER_ID } from './utils/fetchClient';
-import { TodoInfo } from './components/TodoInfo/TodoInfo';
+import { TodoFooter } from './components/TodoFooter';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoMain } from './components/TodoMain';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [todoTitle, setTodoTitle] = useState('');
   const [
@@ -34,7 +32,6 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch {
-        setHasError(true);
         setErrorMessage('Unable to update a todo');
       }
     };
@@ -45,6 +42,8 @@ export const App: React.FC = () => {
   const addNewTodo = (title: string) => {
     if (!title) {
       setErrorMessage("Title can't be empty");
+
+      return;
     }
 
     const newTempTodo = {
@@ -110,6 +109,24 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleUpdateAllTodos = (completed: boolean) => {
+    const updatedTodos = todos.map((todo) => ({
+      ...todo,
+      completed: !completed,
+    }));
+
+    Promise.all(updatedTodos.map((todo) => updateTodo(todo.id,
+      {
+        completed: !completed,
+      })))
+      .then((updatedCurrTodos: Todo[]) => {
+        setTodos(updatedCurrTodos);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update todos');
+      });
+  };
+
   const filteredTodos: Todo[] = useMemo(() => {
     return todos.filter((todo) => {
       switch (currentFilter) {
@@ -131,64 +148,38 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {activeTodos.length > 0
-            && (
-              <button type="button" className="todoapp__toggle-all active" />
-            )}
+        <TodoHeader
+          activeTodos={activeTodos}
+          setTodoTitle={setTodoTitle}
+          todoTitle={todoTitle}
+          addNewTodo={addNewTodo}
+          onUpdateAllTodos={handleUpdateAllTodos}
+        />
 
-          <TodoForm
-            setTodoTitle={setTodoTitle}
-            todoTitle={todoTitle}
-            onAdd={addNewTodo}
-          />
-        </header>
-
-        <section className="todoapp__main">
-          <TodoList
-            todos={filteredTodos}
-            onDelete={removeTodo}
-            onUpdateTodo={handleUpdateTodo}
-          />
-          {isLoadingTodo && <p className="loader" />}
-          {tempTodo && (
-            <TodoInfo
-              todo={tempTodo}
-              onDelete={removeTodo}
-              onUpdateTodo={handleUpdateTodo}
-            />
-          )}
-        </section>
+        <TodoMain
+          filteredTodos={filteredTodos}
+          removeTodo={removeTodo}
+          handleUpdateTodo={handleUpdateTodo}
+          isLoadingTodo={isLoadingTodo}
+          tempTodo={tempTodo}
+          todos={todos}
+          setTodos={setTodos}
+        />
 
         {todos.length > 0
           && (
-            <footer className="todoapp__footer">
-              <span className="todo-count">
-                {`${todos.length} items left`}
-              </span>
-
-              <TodoFilter
-                onChangeFilter={setCurrentFilter}
-                currentFilter={currentFilter}
-              />
-
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                style={{
-                  opacity: completedTodos.length > 0 ? 1 : 0,
-                }}
-              >
-                Clear completed
-              </button>
-            </footer>
+            <TodoFooter
+              todos={todos}
+              currentFilter={currentFilter}
+              setCurrentFilter={setCurrentFilter}
+              completedTodos={completedTodos}
+            />
           )}
       </div>
 
       <ErrorMessage
         errorMessage={errorMessage}
-        hasError={hasError}
-        setHasError={setHasError}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );
