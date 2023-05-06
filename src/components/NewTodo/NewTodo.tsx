@@ -22,7 +22,7 @@ export const NewTodo: FC<Props> = ({
   todos,
 }) => (
   <header className="todoapp__header">
-    {todos && (
+    {!!todos.length && (
       <button
         type="button"
         className={cn(
