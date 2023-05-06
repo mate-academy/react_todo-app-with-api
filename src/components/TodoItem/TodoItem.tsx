@@ -27,7 +27,7 @@ export const TodoItem: FC<Props> = ({
   const { title, completed, id } = todo;
   const [isInputEdited, setIsInputEdited] = useState(false);
   const inputTextElement = useRef<HTMLInputElement>(null);
-  const [editedTodo, setEditedTodo] = useState(title);
+  const [editedTitle, setEditedtitle] = useState(title);
 
   const handleTitleClick = (event: MouseEvent<HTMLDivElement>) => {
     if (event.detail === 2 && inputTextElement) {
@@ -35,29 +35,29 @@ export const TodoItem: FC<Props> = ({
     }
   };
 
-  const handleEditedtodoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setEditedTodo(event.target.value);
+  const handleEditedTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedtitle(event.target.value);
+  };
+
+  const handleEditedtitleSubmit = () => {
+    setIsInputEdited(false);
   };
 
   useEffect(() => {
     inputTextElement.current?.focus();
-    if (!isInputEdited && title !== editedTodo) {
+    if (!isInputEdited && title !== editedTitle) {
       handleTitleChange({
         ...todo,
-        title: editedTodo,
+        title: editedTitle,
       });
     }
   }, [isInputEdited]);
 
   useEffect(() => {
     const handlePressKey = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        setIsInputEdited(false);
-      }
-
       if (event.key === 'Escape') {
         setIsInputEdited(false);
-        setEditedTodo(title);
+        setEditedtitle(title);
       }
     };
 
@@ -87,15 +87,15 @@ export const TodoItem: FC<Props> = ({
       </span>
 
       {isInputEdited ? (
-        <form className="todo__form">
+        <form className="todo__form" onSubmit={handleEditedtitleSubmit}>
           <input
             type="text"
             className="todo__input"
             placeholder="Empty todo will be deleted"
             onBlur={() => setIsInputEdited(false)}
             ref={inputTextElement}
-            value={editedTodo}
-            onChange={handleEditedtodoChange}
+            value={editedTitle}
+            onChange={handleEditedTitleChange}
           />
         </form>
       ) : (
