@@ -50,7 +50,7 @@ export const Filter: FC<Props> = ({
         ? todo.completed
         : !todo.completed;
     })
-  ), [todos]);
+  ), [todos, filter]);
 
   const completedTodosCount = useMemo(() => (
     todos.filter(todo => todo.completed).length
