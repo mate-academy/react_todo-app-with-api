@@ -3,6 +3,12 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { Status } from '../enums/Status';
 
+const statusOptions = [
+  { status: Status.All, label: 'All' },
+  { status: Status.Active, label: 'Active' },
+  { status: Status.Completed, label: 'Completed' },
+];
+
 interface Props {
   todos: Todo[],
   onChangeStatus: React.Dispatch<React.SetStateAction<Status>>,
@@ -30,38 +36,19 @@ export const Footer: React.FC<Props> = React.memo(
         </span>
 
         <nav className="filter">
-          <a
-            href="#/"
-            className={classNames(
-              'filter__link bg-blue-500 text-white font-bold py-2 px-4 rounded',
-              { selected: selectedStatus === Status.All },
-            )}
-            onClick={() => changeStatus(Status.All)}
-          >
-            All
-          </a>
-
-          <a
-            href="#/active"
-            className={classNames(
-              'filter__link',
-              { selected: selectedStatus === Status.Active },
-            )}
-            onClick={() => changeStatus(Status.Active)}
-          >
-            Active
-          </a>
-
-          <a
-            href="#/completed"
-            className={classNames(
-              'filter__link',
-              { selected: selectedStatus === Status.Completed },
-            )}
-            onClick={() => changeStatus(Status.Completed)}
-          >
-            Completed
-          </a>
+          {statusOptions.map(({ status, label }) => (
+            <a
+              key={status}
+              href="#/"
+              className={classNames(
+                'filter__link',
+                { selected: selectedStatus === status },
+              )}
+              onClick={() => changeStatus(status)}
+            >
+              {label}
+            </a>
+          ))}
         </nav>
 
         {todos.length > 0 && (

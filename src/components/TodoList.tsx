@@ -22,6 +22,15 @@ export const TodoList: React.FC<Props> = React.memo(
   }) => {
     return (
       <section className="todoapp__main">
+        {todos.map(todo => (
+          <SingleTodo
+            todo={todo}
+            onDelete={onDeleteTodo}
+            isLoading={isTodoLoading(todo.id)}
+            onUpdateTodo={onUpdateTodo}
+            error={showError}
+          />
+        ))}
         {tempTodo && (
           <SingleTodo
             todo={tempTodo}
@@ -31,16 +40,6 @@ export const TodoList: React.FC<Props> = React.memo(
             error={showError}
           />
         )}
-        {todos.map(todo => (
-          <SingleTodo
-            todo={todo}
-            key={todo.id}
-            onDelete={onDeleteTodo}
-            isLoading={isTodoLoading(todo.id)}
-            onUpdateTodo={onUpdateTodo}
-            error={showError}
-          />
-        ))}
       </section>
     );
   },

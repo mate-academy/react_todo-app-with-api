@@ -21,13 +21,10 @@ import { Status } from './enums/Status';
 
 const USER_ID = 7010;
 
-function filteredTodos(todos: Todo[], status: Status) {
+function getFilteredTodos(todos: Todo[], status: Status) {
   if (status !== Status.All) {
-    return [...todos].filter(todo => {
-      return status === Status.Completed
-        ? todo.completed
-        : !todo.completed;
-    });
+    return [...todos].filter(todo => (
+      status === Status.Completed ? todo.completed : !todo.completed));
   }
 
   return todos;
@@ -80,8 +77,8 @@ export const App: React.FC = () => {
     loadTodos();
   }, []);
 
-  const vidibleTodos = useMemo(() => {
-    return filteredTodos(todos, status);
+  const visibleTodos = useMemo(() => {
+    return getFilteredTodos(todos, status);
   }, [todos, status]);
 
   const addTodo = useCallback(
@@ -191,7 +188,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={vidibleTodos}
+          todos={visibleTodos}
           onSubmit={addTodo}
           loaded={isLoading}
           onUpdateTodoAll={updateTodoAll}
@@ -200,7 +197,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <>
             <TodoList
-              todos={vidibleTodos}
+              todos={visibleTodos}
               tempTodo={tempTodo}
               onDeleteTodo={deleteTodo}
               isTodoLoading={isTodoLoading}
@@ -209,7 +206,7 @@ export const App: React.FC = () => {
             />
 
             <Footer
-              todos={vidibleTodos}
+              todos={visibleTodos}
               selectedStatus={status}
               onChangeStatus={setStatus}
               onDeleteCompletedTodos={deleteComplitedTodos}

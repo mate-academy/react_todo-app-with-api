@@ -33,17 +33,19 @@ export const Header: React.FC<Props> = React.memo(
 
     return (
       <header className="todoapp__header">
-        <button
-          type="button"
-          className={classNames(
-            'todoapp__toggle-all',
-            {
-              active: todos.some(todo => todo.completed),
-            },
-          )}
-          aria-label="toggle-button"
-          onClick={onUpdateTodoAll}
-        />
+        {todos.length > 0 && (
+          <button
+            type="button"
+            className={classNames(
+              'todoapp__toggle-all',
+              {
+                active: todos.some(todo => todo.completed),
+              },
+            )}
+            aria-label="toggle-button"
+            onClick={onUpdateTodoAll}
+          />
+        )}
 
         <form onSubmit={handleSubmit}>
           <input

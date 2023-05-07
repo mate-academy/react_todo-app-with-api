@@ -112,7 +112,7 @@ export const SingleTodo: React.FC<Props> = React.memo(
                 </span>
               )}
 
-              {isEditing ? null : (
+              {isEditing && (
                 <button
                   type="button"
                   className="todo__remove"
@@ -130,8 +130,8 @@ export const SingleTodo: React.FC<Props> = React.memo(
           )
           : (
             <Rings
-              height="80"
-              width="80"
+              height="58"
+              width="58"
               color="pink"
               radius="6"
               wrapperStyle={{}}
