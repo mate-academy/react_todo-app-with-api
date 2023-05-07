@@ -54,13 +54,6 @@ export const App: React.FC = () => {
     });
   }, [todos, filterParam]);
 
-  const disableErrorHandling = () => {
-    setGetError(false);
-    setPostError(false);
-    setDeleteError(false);
-    setEmptyInputState(false);
-  };
-
   const todosGetter = useCallback(() => {
     getTodos(USER_ID)
       .then(result => {
@@ -71,31 +64,15 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  useEffect(() => {
-    todosGetter();
-  }, []);
-
-  useMemo(() => {
-    getActiveTodos(USER_ID)
-      .then(result => setActiveTodos(result))
-      .catch(() => setGetError(true));
-
-    getCompletedTodos(USER_ID)
-      .then(result => setCompletedTodos(result))
-      .catch(() => setGetError(true));
-  }, [todos, filterParam]);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const formInputHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const formInputHandler
+  = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
 
     setInputValue(value);
-  };
+  }, []);
 
-  const postTodoToServer = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const postTodoToServer
+  = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
     const { key } = event.nativeEvent;
 
     if (key === 'Enter') {
@@ -117,9 +94,30 @@ export const App: React.FC = () => {
           });
       }
     }
-  };
+  }, [inputValue]);
 
-  const deleteAllCompleted = async () => {
+  const disableErrorHandling = useCallback(() => {
+    setGetError(false);
+    setPostError(false);
+    setDeleteError(false);
+    setEmptyInputState(false);
+  }, []);
+
+  useEffect(() => {
+    todosGetter();
+  }, []);
+
+  useMemo(() => {
+    getActiveTodos(USER_ID)
+      .then(result => setActiveTodos(result))
+      .catch(() => setGetError(true));
+
+    getCompletedTodos(USER_ID)
+      .then(result => setCompletedTodos(result))
+      .catch(() => setGetError(true));
+  }, [todos, filterParam]);
+
+  const deleteAllCompleted = useCallback(async () => {
     try {
       setClearAllCompleted(true);
 
@@ -134,7 +132,7 @@ export const App: React.FC = () => {
       setClearAllCompleted(false);
       todosGetter();
     }
-  };
+  }, []);
 
   const toggleAll = async () => {
     try {
@@ -164,6 +162,10 @@ export const App: React.FC = () => {
       todosGetter();
     }
   };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -202,6 +204,7 @@ export const App: React.FC = () => {
                   todoItem={todo}
                   todosUpdate={todosGetter}
                   setDeleteError={setDeleteError}
+                  setPostError={setPostError}
                   isClearAllCompleted={isClearAllCompleted}
                   toggleActive={isToggleAllActive}
                   toggleCompleted={isToggleAllCompleted}
