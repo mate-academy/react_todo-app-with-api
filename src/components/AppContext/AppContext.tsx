@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { Todo } from '../../types/Todo';
-import { FilterMode } from '../../types/Filter';
+import { Filter } from '../../types/Filter';
 
-interface IContextValue {
+interface ContextValue {
   userId: number,
   allTodos: Todo[],
   setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
@@ -18,11 +18,11 @@ interface IContextValue {
   showError: (errorText: string) => void,
   loadingTodosIds: number[],
   setLoadingTodosIds: React.Dispatch<React.SetStateAction<number[]>>,
-  currentFilterMode: FilterMode,
-  setCurrentFilterMode: React.Dispatch<React.SetStateAction<FilterMode>>,
+  currentFilterMode: Filter,
+  setCurrentFilterMode: React.Dispatch<React.SetStateAction<Filter>>,
 }
 
-export const AppContext = React.createContext<IContextValue>({
+export const AppContext = React.createContext<ContextValue>({
   userId: 0,
   allTodos: [],
   setAllTodos: () => {},
@@ -37,7 +37,7 @@ export const AppContext = React.createContext<IContextValue>({
   showError: () => {},
   loadingTodosIds: [0],
   setLoadingTodosIds: () => {},
-  currentFilterMode: FilterMode.All,
+  currentFilterMode: Filter.All,
   setCurrentFilterMode: () => {},
 });
 
@@ -46,17 +46,17 @@ type Props = {
 };
 
 export const AppProvider: React.FC<Props> = ({ children }) => {
-  const userId = useMemo(() => 6826, []);
+  const userId = 7028;
 
   const [allTodos, setAllTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [shouldShowError, setShouldShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([0]);
+  const [loadingTodosIds, setLoadingTodosIds] = useState([0]);
   const [
     currentFilterMode,
     setCurrentFilterMode,
-  ] = useState<FilterMode>(FilterMode.All);
+  ] = useState<Filter>(Filter.All);
 
   const activeTodos = useMemo(() => (
     allTodos.filter(({ completed }) => !completed)
@@ -70,9 +70,8 @@ export const AppProvider: React.FC<Props> = ({ children }) => {
 
   const showError = useCallback((errorText: string) => {
     setErrorMessage(errorText);
-    setShouldShowError(true);
     setTimeout(() => {
-      setShouldShowError(false);
+      setErrorMessage('');
     }, 3000);
   }, []);
 

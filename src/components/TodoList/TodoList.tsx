@@ -1,8 +1,9 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useCallback } from 'react';
 
 import { TodoInfo } from '../TodoInfo/TodoInfo';
 import { AppContext } from '../AppContext/AppContext';
-import { FilterMode } from '../../types/Filter';
+import { Filter } from '../../types/Filter';
+import { Todo } from '../../types/Todo';
 
 export const TodoList: React.FC = React.memo(() => {
   const {
@@ -11,32 +12,29 @@ export const TodoList: React.FC = React.memo(() => {
     currentFilterMode,
   } = useContext(AppContext);
 
-  const visibleTodos = useMemo(() => (
-    allTodos.filter(({ completed }) => {
+  const filterTodos = useCallback((todos: Todo[]) => {
+    return todos.filter(({ completed }) => {
       switch (currentFilterMode) {
-        case FilterMode.Active:
+        case Filter.Active:
           return !completed;
 
-        case FilterMode.Completed:
+        case Filter.Completed:
           return completed;
 
         default:
           return true;
       }
-    })
-  ), [allTodos, currentFilterMode]);
+    });
+  }, [currentFilterMode]);
 
-  window.console.log('Rendering todo list');
+  const visibleTodos = useMemo(() => filterTodos(allTodos),
+    [allTodos, filterTodos]);
 
   return (
     <section className="todoapp__main">
-      {visibleTodos.map(todo => {
-        const { id } = todo;
-
-        return (
-          <TodoInfo key={id} todo={todo} />
-        );
-      })}
+      {visibleTodos.map(todo => (
+        <TodoInfo key={todo.id} todo={todo} />
+      ))}
 
       {tempTodo && (
         <TodoInfo todo={tempTodo} />

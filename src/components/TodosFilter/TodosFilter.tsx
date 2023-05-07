@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 
-import { FilterMode } from '../../types/Filter';
+import { Filter } from '../../types/Filter';
 import { AppContext } from '../AppContext/AppContext';
 
-const filterModes = Object.values(FilterMode);
+const Filters = Object.values(Filter);
 
 export const TodosFilter: React.FC = React.memo(() => {
   const {
@@ -14,21 +14,21 @@ export const TodosFilter: React.FC = React.memo(() => {
 
   return (
     <nav className="filter">
-      {filterModes.map(filterMode => {
-        const filterModeLowercased = filterMode.toLowerCase();
-        const isCurrentFilterMode = filterMode === currentFilterMode;
+      {Filters.map(FilterType => {
+        const FilterLowercased = FilterType.toLowerCase();
+        const isCurrentFilter = FilterType === currentFilterMode;
 
         return (
           <a
-            key={filterMode}
-            href={`#/${filterModeLowercased}`}
+            key={FilterType}
+            href={`#/${FilterLowercased}`}
             className={classNames(
               'filter__link',
-              { selected: isCurrentFilterMode },
+              { selected: isCurrentFilter },
             )}
-            onClick={() => setCurrentFilterMode(filterMode)}
+            onClick={() => setCurrentFilterMode(FilterType)}
           >
-            {filterMode}
+            {FilterType}
           </a>
         );
       })}

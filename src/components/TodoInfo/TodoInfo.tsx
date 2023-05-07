@@ -32,7 +32,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     allTodos,
     setAllTodos,
     showError,
-    setShouldShowError,
+    setErrorMessage,
     loadingTodosIds,
     setLoadingTodosIds,
   } = useContext(AppContext);
@@ -43,7 +43,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
 
   const deleteTodoFromServer = useCallback(async () => {
     try {
-      setShouldShowError(false);
+      setErrorMessage('');
       setLoadingTodosIds(prevIds => [...prevIds, id]);
 
       await deleteTodo(id);
@@ -54,75 +54,43 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     } catch {
       showError('Unable to delete a todo');
     } finally {
-      setLoadingTodosIds([0]);
+      setLoadingTodosIds(prevIds => prevIds.filter(prevId => prevId !== id));
     }
   }, [loadingTodosIds, allTodos]);
 
-  const toggleTodoStatus = useCallback(async () => {
+  const updateTodo = useCallback(async (updatedPart: Partial<Todo>) => {
     try {
-      setShouldShowError(false);
+      setErrorMessage('');
       setLoadingTodosIds(prevIds => [...prevIds, id]);
 
-      await patchTodo(id, { completed: !completed });
+      await patchTodo(id, updatedPart);
 
       setAllTodos(prevTodos => prevTodos.map(prevTodo => {
-        if (prevTodo.id === id) {
-          return {
+        return (prevTodo.id === id)
+          ? {
             ...prevTodo,
-            completed: !completed,
-          };
-        }
-
-        return prevTodo;
+            ...updatedPart,
+          }
+          : prevTodo;
       }));
     } catch {
       showError('Unable to update a todo');
     } finally {
-      setLoadingTodosIds([0]);
-    }
-  }, [loadingTodosIds, allTodos]);
-
-  const updateTodoTitle = useCallback(async (updatedTitle: string) => {
-    try {
-      if (updatedTitle !== title) {
-        setShouldShowError(false);
-        setLoadingTodosIds(prevIds => [...prevIds, id]);
-
-        await patchTodo(id, { title: updatedTitle });
-
-        setAllTodos(prevTodos => prevTodos.map(prevTodo => {
-          if (prevTodo.id === id) {
-            return {
-              ...prevTodo,
-              title: updatedTitle,
-            };
-          }
-
-          return prevTodo;
-        }));
-      }
-    } catch {
-      showError('Unable to update a todo');
-    } finally {
-      setNewTitle(updatedTitle);
-      setIsEditingMode(false);
-      setLoadingTodosIds([0]);
+      setLoadingTodosIds(prevIds => prevIds.filter(prevId => prevId !== id));
     }
   }, [loadingTodosIds, allTodos, newTitle]);
 
-  const finishUpdating = useCallback(() => {
+  const updateTitle = useCallback(() => {
     const newTitleTrimmed = newTitle.trim();
 
     if (newTitleTrimmed) {
-      updateTodoTitle(newTitleTrimmed);
+      updateTodo({ title: newTitleTrimmed });
+      setNewTitle(newTitleTrimmed);
+      setIsEditingMode(false);
     } else {
       deleteTodoFromServer();
     }
   }, [newTitle]);
-
-  const handleStatusChange = () => {
-    toggleTodoStatus();
-  };
 
   const handleNewTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.currentTarget.value);
@@ -132,8 +100,10 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     setIsEditingMode(true);
   };
 
-  const handleRemoveButtonClick = () => {
-    deleteTodoFromServer();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    updateTitle();
   };
 
   useEffect(() => {
@@ -170,18 +140,14 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={handleStatusChange}
+          onChange={() => updateTodo({ completed: !completed })}
         />
       </label>
 
       {isEditingMode
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-
-              finishUpdating();
-            }}
+            onSubmit={handleSubmit}
           >
             <input
               type="text"
@@ -189,7 +155,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onChange={handleNewTitleChange}
-              onBlur={() => finishUpdating()}
+              onBlur={() => updateTitle()}
               ref={input}
             />
           </form>
@@ -207,7 +173,7 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
               aria-label="Remove"
               type="button"
               className="todo__remove"
-              onClick={handleRemoveButtonClick}
+              onClick={deleteTodoFromServer}
             >
               ×
             </button>

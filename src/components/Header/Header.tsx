@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import classNames from 'classnames';
 
 import { patchTodo } from '../../api/todos';
-import { NewTodoForm } from '../TodoForm/Todoform';
+import { TodoForm } from '../TodoForm/Todoform';
 import { AppContext } from '../AppContext/AppContext';
 
 export const Header: React.FC = () => {
@@ -13,7 +13,6 @@ export const Header: React.FC = () => {
     completedTodosIds,
     showError,
     setShouldShowError,
-    loadingTodosIds,
     setLoadingTodosIds,
   } = useContext(AppContext);
 
@@ -34,12 +33,12 @@ export const Header: React.FC = () => {
         ...todosToToggle.map(({ id }) => id),
       ]);
 
-      await Promise.all(todosToToggle.map(({ id, completed }) => (
-        patchTodo(id, { completed: !completed })
+      await Promise.all(todosToToggle.map(({ id: toggleId, completed }) => (
+        patchTodo(toggleId, { completed: !completed })
       )));
 
       setAllTodos(prevTodos => prevTodos.map(prevTodo => {
-        if (todosToToggle.includes(prevTodo)) {
+        if (todosToToggle.some(({ id }) => id === prevTodo.id)) {
           return {
             ...prevTodo,
             completed: !prevTodo.completed,
@@ -51,9 +50,9 @@ export const Header: React.FC = () => {
     } catch {
       showError('Unable to toggle all todos');
     } finally {
-      setLoadingTodosIds([0]);
+      setLoadingTodosIds([]);
     }
-  }, [loadingTodosIds, allTodos]);
+  }, [allTodos, activeTodos]);
 
   const handleToggleTodosButtonClick = () => {
     toggleTodos(hasOnlyCompletedTodos);
@@ -71,7 +70,7 @@ export const Header: React.FC = () => {
         onClick={handleToggleTodosButtonClick}
       />
 
-      <NewTodoForm />
+      <TodoForm />
     </header>
   );
 };

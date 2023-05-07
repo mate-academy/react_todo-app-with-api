@@ -1,4 +1,4 @@
-export enum FilterMode {
+export enum Filter {
   All = 'All',
   Active = 'Active',
   Completed = 'Completed',

@@ -4,7 +4,7 @@ import { postTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { AppContext } from '../AppContext/AppContext';
 
-const createTodo = (title: string, userId: number) => {
+const prepareTodoForCreating = (title: string, userId: number) => {
   const newTodo: Omit<Todo, 'id'> = {
     userId,
     title,
@@ -14,7 +14,7 @@ const createTodo = (title: string, userId: number) => {
   return newTodo;
 };
 
-export const NewTodoForm: React.FC = React.memo(() => {
+export const TodoForm: React.FC = React.memo(() => {
   const [todoTitle, setTitle] = useState('');
   const [shouldBeDisabled, setShouldBeDisabled] = useState(false);
 
@@ -32,7 +32,7 @@ export const NewTodoForm: React.FC = React.memo(() => {
       setShouldShowError(false);
       setShouldBeDisabled(true);
 
-      const newTodo = createTodo(title, userId);
+      const newTodo = prepareTodoForCreating(title, userId);
 
       setTempTodo({
         ...newTodo,
@@ -49,7 +49,8 @@ export const NewTodoForm: React.FC = React.memo(() => {
       setTempTodo(null);
       setShouldBeDisabled(false);
     }
-  }, [allTodos]);
+  }, [allTodos, userId, setTempTodo,
+    setAllTodos, showError, setShouldShowError]);
 
   const handleTItleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -15,7 +15,7 @@ import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 
 export const App: React.FC = () => {
-  const [isLoadingTodos, setIsLoadingTodos] = useState(false);
+  const [isLoadingallTodos, setIsLoadingallTodos] = useState(false);
 
   // eslint-disable-next-line no-unused-vars
   const {
@@ -26,23 +26,23 @@ export const App: React.FC = () => {
     showError,
   } = useContext(AppContext);
 
-  const loadTodosFromServer = useCallback(async () => {
-    setIsLoadingTodos(true);
+  const loadallTodosFromServer = useCallback(async () => {
+    setIsLoadingallTodos(true);
     setShouldShowError(false);
 
     try {
-      const todosFromServer = await getTodos(userId);
+      const allTodosFromServer = await getTodos(userId);
 
-      setAllTodos(todosFromServer);
+      setAllTodos(allTodosFromServer);
     } catch {
-      showError('Unable to load todos');
+      showError('Unable to load allTodos');
     } finally {
-      setIsLoadingTodos(false);
+      setIsLoadingallTodos(false);
     }
   }, []);
 
   useEffect(() => {
-    loadTodosFromServer();
+    loadallTodosFromServer();
   }, []);
 
   if (!userId) {
@@ -52,13 +52,13 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">
-        todos
+        allTodos
       </h1>
 
       <div className="todoapp__content">
         <Header />
 
-        {isLoadingTodos && (
+        {isLoadingallTodos && (
           <Loader />
         )}
 
