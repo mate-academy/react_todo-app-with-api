@@ -1,44 +1,41 @@
-# React Todo App with API (complete)
+<h1>react todo app with api</h1>
 
-It is the third part of the React Todo App with API.
+<h2>Demo link:</h2>
+<p>https://frontend112.github.io/react_todo-app-with-api/</p>
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+<h3>Functionality:</h3>
+<ul>
+  <li>
+    create todo
+  </li>
+  <li>
+    modify todo
+  </li>
+  <li>
+    delete todo
+  </li>
+  <li>
+    mark as completed
+  </li>
+  <li>
+    remove only completed with clear completed button
+  </li>
+  <li>
+    toggle all (small button inside input on left side) 
+  </li>
+  <li>
+    filter for all / active / completed
+  </li>
+</ul>
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+<h3>Description:</h3>
+<ul>
+  <li>props destructured</li>
+  <li>functions are descriptive and make only what is necessary</li>
+  <li>if variables makes expensive calculations are overlapped with useMemo (functions => useCallback)</li>
+  <li>when at some point trouble with requesting data (no internet) => show appropriate error</li>
+  <li>active links selected with isActive class</li>
+  <li>if user try to modify / delete todo - mark this todo and show loading spinner from bulma</li>
+  <li>every time when user try to add new todo - save this in temptodo, send post request, if it was successful - remove temptodo and show data without spinner</li>
+</ul>
 
-## Toggling a todo status
-
-Toggle the `completed` status on `TodoStatus` change:
-
-- covered the todo with a loader overlay while wating for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
-
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
-
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the oppsite one, and set it to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
-
-## Renaming a todo
-
-Implement the ability to edit a todo title on double click:
-
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
-
-## Instructions
-
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
