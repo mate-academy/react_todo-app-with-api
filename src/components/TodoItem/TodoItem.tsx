@@ -7,7 +7,7 @@ interface Props {
   selectedId: number | null
   editedTodoId: number | null
   newTitle: string
-  onChangeTodoTitle: () => void
+  onChangeTodoTitle: (event?: React.FormEvent<HTMLFormElement>) => void
   onAddNewTitle: (value: string) => void
   onEditedTodoId: (value: number | null) => void
   onDelete: (todoId: number) => void
@@ -48,7 +48,7 @@ export const TodoItem: React.FC<Props> = ({
       {editedTodoId === id
         ? (
           <form
-            onSubmit={onChangeTodoTitle}
+            onSubmit={(event) => onChangeTodoTitle(event)}
           >
             <input
               type="text"
@@ -61,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
                 }
               }}
               onChange={(event) => onAddNewTitle(event.target.value)}
-              onBlur={onChangeTodoTitle}
+              onBlur={() => onChangeTodoTitle}
             />
           </form>
         ) : (

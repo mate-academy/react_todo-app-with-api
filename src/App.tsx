@@ -110,8 +110,12 @@ export const App: React.FC = () => {
         .catch(() => setError(TodoErrors.Delete)));
   };
 
-  const changeTodoTitleHandler = (
+  const changeTodoTitleHandler = ( event?: React.FormEvent<HTMLFormElement>
   ) => {
+    if(event) {
+      event.preventDefault()
+    }
+
     if (!editedTodoId) {
       return;
     }
