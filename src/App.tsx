@@ -21,7 +21,6 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [error, setError] = useState<Error>(Error.None);
   const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [actionsTodosId, setActionsTodosId] = useState<number[] | []>([]);
 
@@ -141,7 +140,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (value) {
-      setIsLoading(true);
+      setActionsTodosId([0]);
 
       setTempTodo({
         id: 0,
@@ -150,8 +149,12 @@ export const App: React.FC = () => {
         completed: false,
       });
 
+      const newId = todos.length
+        ? Math.max(...todos.map(todo => todo.id)) + 1
+        : USER_ID + 1;
+
       const newTodo = {
-        id: Math.max(...todos.map(todo => todo.id)) + 1,
+        id: newId,
         userId: USER_ID,
         title: value,
         completed: false,
@@ -164,8 +167,8 @@ export const App: React.FC = () => {
         .catch(() => setError(Error.Add))
         .finally(() => {
           setValue('');
-          setIsLoading(false);
           setTempTodo(null);
+          setActionsTodosId([]);
         });
     } else {
       setError(Error.Empty);
@@ -199,31 +202,30 @@ export const App: React.FC = () => {
           value={value}
           setValue={setValue}
           handleAddTodo={handleAddTodo}
-          isLoading={isLoading}
+          actionsTodosId={actionsTodosId}
           handleToggleStatusTodos={handleToggleStatusTodos}
+          todos={todos}
         />
 
-        {!!todos.length && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              actionsTodosId={actionsTodosId}
-              handleDeleteTodo={handleDeleteTodo}
-              handleToggleTodo={handleToggleTodo}
-              setActionsTodosId={setActionsTodosId}
-              setTodos={setTodos}
-              setError={setError}
-            />
+        <TodoList
+          todos={visibleTodos}
+          tempTodo={tempTodo}
+          actionsTodosId={actionsTodosId}
+          handleDeleteTodo={handleDeleteTodo}
+          handleToggleTodo={handleToggleTodo}
+          setActionsTodosId={setActionsTodosId}
+          setTodos={setTodos}
+          setError={setError}
+        />
 
-            <TodoFilter
-              filter={filter}
-              setFilter={setFilter}
-              hasCompletedTodos={hasCompletedTodos}
-              amountActiveTodos={amountActiveTodos}
-              handleClearTodo={handleClearTodo}
-            />
-          </>
+        {(!!todos.length || !!actionsTodosId.length) && (
+          <TodoFilter
+            filter={filter}
+            setFilter={setFilter}
+            hasCompletedTodos={hasCompletedTodos}
+            amountActiveTodos={amountActiveTodos}
+            handleClearTodo={handleClearTodo}
+          />
         )}
       </div>
 

@@ -10,9 +10,9 @@ type Props = {
   actionsTodosId: number[] | [];
   handleDeleteTodo: (id: number) => void;
   handleToggleTodo: (id: number) => void;
-  setActionsTodosId: (value: number[] | []) => void;
-  setTodos: (value: Todo[]) => void;
-  setError: (value: Error) => void;
+  setActionsTodosId: React.Dispatch<React.SetStateAction<number[] | []>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setError: React.Dispatch<React.SetStateAction<Error>>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -28,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({
   const { title, completed, id } = todo;
   const [isEditTodo, setIsEditTodo] = useState(false);
   const [newValue, setNewValue] = useState(title);
-  const isDeleted = actionsTodosId.some(todoId => todoId === id);
+  const isAction = actionsTodosId.some(todoId => todoId === id);
 
   const handleEditTodo = () => {
     setIsEditTodo(false);
@@ -129,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
         className={classNames(
           'modal overlay',
           {
-            'is-active': isDeleted,
+            'is-active': isAction,
           },
         )}
       >

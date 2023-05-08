@@ -4,7 +4,7 @@ import { Error } from '../../types/Error';
 
 type Props = {
   error: Error;
-  setError: (value: Error) => void;
+  setError: React.Dispatch<React.SetStateAction<Error>>
 };
 
 export const TodoNotification: React.FC<Props> = ({ error, setError }) => (
