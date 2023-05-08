@@ -1,34 +1,29 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import React, {
+  useContext, useState, useEffect, useRef,
+} from 'react';
 import { Todo } from '../types/Todo';
 import { patchTodo } from '../api/todos';
+import { TodoContext } from '../utils/TodoContext';
 
 type Props = {
   todo: Todo,
-  onDelete: (todoId: number) => void,
-  updateTodo: (updatedTodo: Todo) => void,
-  removeLoadingTodo: (todoId: number) => void,
-  addLoadingTodo: (todoId: number) => void,
-  loadingTodos: number[],
-  deletingTodoId: number | null,
-  isLoading: boolean,
-  updateTodoOnServer: (todoId: number, data: Partial<Todo>) => Promise<void>,
 };
 
-export const TodoItem: React.FC<Props> = ({
-  todo,
-  onDelete,
-  updateTodo,
-  removeLoadingTodo,
-  addLoadingTodo,
-  loadingTodos,
-  deletingTodoId,
-  isLoading,
-  updateTodoOnServer,
-}) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
+  const {
+    onDelete,
+    updateTodo,
+    removeLoadingTodo,
+    addLoadingTodo,
+    loadingTodos,
+    deletingTodoId,
+    isLoading,
+    updateTodoOnServer,
+  } = useContext(TodoContext);
+
   const { id, title, completed } = todo;
 
-  const [checked, setChecked] = useState(completed);
   const [newTitle, setNewTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -62,13 +57,20 @@ export const TodoItem: React.FC<Props> = ({
       addLoadingTodo(todo.id);
       const updatedTodo = { ...todo, completed: !todo.completed };
 
-      setChecked(updatedTodo.completed);
       await patchTodo(todo.id, updatedTodo);
       updateTodo(updatedTodo);
     } finally {
       removeLoadingTodo(todo.id);
     }
   };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   return (
     <section className="todoapp__main">
@@ -81,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({
             type="checkbox"
             className="todo__status"
             onChange={handleTodoCheck}
-            checked={checked}
+            checked={completed}
           />
         </label>
 
@@ -95,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
               onBlur={() => handleTitleChange()}
               onKeyUp={handleKeyUp}
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
+              ref={inputRef}
             />
           </form>
         ) : (

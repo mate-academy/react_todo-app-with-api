@@ -8,6 +8,7 @@ type Props = {
   setSelectedFilter: (option: Filter) => void,
   onClearCompleted:
   (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  todos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,8 +16,9 @@ export const Footer: React.FC<Props> = ({
   visibleTodos,
   setSelectedFilter,
   onClearCompleted,
+  todos,
 }) => {
-  const activeTodos = visibleTodos.filter((todo) => !todo.completed);
+  const activeTodos = todos.filter((todo) => !todo.completed);
 
   return (
     <>

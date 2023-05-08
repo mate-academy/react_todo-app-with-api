@@ -9,6 +9,7 @@ import { Todo } from './types/Todo';
 import { getTodos, deleteTodo, patchTodo } from './api/todos';
 import { Errors } from './utils/Errors';
 import { Loader } from './components/Loader';
+import { TodoContext } from './utils/TodoContext';
 
 const USER_ID = 9934;
 
@@ -34,10 +35,18 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => setError(Errors.Updating))
-      .finally(() => setIsLoading(false));
+
+    async function fetchTodos() {
+      try {
+        setTodos(await getTodos(USER_ID));
+      } catch {
+        setError(Errors.Updating);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchTodos();
   }, []);
 
   const updateTodoOnServer = async (todoId: number, data: Partial<Todo>) => {
@@ -62,26 +71,33 @@ export const App: React.FC = () => {
     }
   };
 
-  const onDelete = (todoId: number) => {
+  const onDelete = async (todoId: number) => {
     setDeletingTodoId(todoId);
-    deleteTodo(USER_ID, todoId)
-      .then(() => setTodos(todos.filter(todo => todo.id !== todoId)))
-      .catch(() => setError(Errors.Deleting))
-      .finally(() => {
-        setDeletingTodoId(null);
-      });
+
+    try {
+      await deleteTodo(USER_ID, todoId);
+      setTodos(todos.filter(todo => todo.id !== todoId));
+    } catch {
+      setError(Errors.Deleting);
+    } finally {
+      setDeletingTodoId(null);
+    }
   };
 
-  const onClearCompleted = () => {
+  const onClearCompleted = async () => {
     setIsLoading(true);
     const completedTodoIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    Promise.all(completedTodoIds.map(id => deleteTodo(USER_ID, id)))
-      .then(() => setTodos(todos.filter(todo => !todo.completed)))
-      .catch(() => setError(Errors.Deleting))
-      .finally(() => setIsLoading(false));
+    try {
+      await Promise.all(completedTodoIds.map(id => deleteTodo(USER_ID, id)));
+      setTodos(todos.filter(todo => !todo.completed));
+    } catch {
+      setError(Errors.Deleting);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateTodo = (updatedTodo: Todo) => {
@@ -143,17 +159,20 @@ export const App: React.FC = () => {
 
         {isLoading ? <Loader />
           : (
-            <TodoList
-              todos={visibleTodoItems}
-              onDelete={onDelete}
-              updateTodo={updateTodo}
-              removeLoadingTodo={removeLoadingTodo}
-              updateTodoOnServer={updateTodoOnServer}
-              addLoadingTodo={addLoadingTodo}
-              loadingTodos={loadingTodos}
-              deletingTodoId={deletingTodoId}
-              isLoading={isLoading}
-            />
+            <TodoContext.Provider
+              value={{
+                onDelete,
+                updateTodo,
+                removeLoadingTodo,
+                addLoadingTodo,
+                loadingTodos,
+                deletingTodoId,
+                isLoading,
+                updateTodoOnServer,
+              }}
+            >
+              <TodoList todos={visibleTodoItems} />
+            </TodoContext.Provider>
           )}
 
         {(!!todos.length) && (
@@ -162,6 +181,7 @@ export const App: React.FC = () => {
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
             onClearCompleted={onClearCompleted}
+            todos={todos}
           />
         )}
       </div>

@@ -37,14 +37,14 @@ export const Header: React.FC<Props> = ({
     }
 
     const newTodoItem: Todo = {
-      id: Math.max(...todos.map(todo => todo.id)) + 1,
+      id: 0,
       userId: 9934,
       title: newTodo.trim(),
       completed: false,
     };
 
     try {
-      const createdTodo = await createTodo(newTodoItem);
+      const createdTodo = await createTodo(9934, newTodoItem);
 
       setTodos((prevTodos) => [...prevTodos, createdTodo]);
     } catch {
