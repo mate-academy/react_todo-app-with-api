@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { Category } from './utils/Category';
@@ -12,55 +12,46 @@ import { addTodo, getTodos, removeTodo } from './api/todos';
 const USER_ID = 10156;
 
 export const App: React.FC = () => {
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [todoTitle, setTodoTitle] = useState('');
   const [todoError, setTodoError] = useState<Error | null>(null);
   const [filterCategory, setFilterCategory] = useState(Category.All);
   const [isLoading, setIsLoading] = useState(false);
-  const todosAmount = visibleTodos.length;
-  const hasCompleted = useMemo(() => {
-    return visibleTodos.some(todo => todo.completed);
-  }, [visibleTodos]);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const todosAmount = todos.length;
+  const hasCompleted = todos.some(todo => todo.completed);
 
   const handleError = useCallback((error: Error) => {
     setTodoError(error);
-    window.setTimeout(() => {
-      setTodoError(null);
-    }, 3000);
   }, []);
+
+  useEffect(() => {
+    let timerId: number | null = null;
+
+    if (todoError) {
+      timerId = window.setTimeout(() => {
+        setTodoError(null);
+      }, 3000);
+    }
+
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [todoError]);
 
   const loadTodos = async () => {
     try {
-      const todos = await getTodos(USER_ID);
+      const todosFromServer = await getTodos(USER_ID);
 
-      setVisibleTodos(todos);
+      setTodos(todosFromServer);
     } catch {
       handleError(Error.LOAD);
+    } finally {
+      setIsInitialized(true);
     }
   };
-
-  // eslint-disable-next-line no-console
-  console.log(todoError);
-  const filterTodos = async (category: Category) => {
-    const allTodos = await getTodos(USER_ID);
-
-    const filteredTodos = allTodos.filter(todo => {
-      switch (category) {
-        case Category.Active:
-          return !todo.completed;
-        case Category.Completed:
-          return todo.completed;
-        default:
-          return true;
-      }
-    });
-
-    setVisibleTodos(filteredTodos);
-  };
-
-  useEffect(() => {
-    filterTodos(filterCategory);
-  }, [filterCategory]);
 
   useEffect(() => {
     loadTodos();
@@ -85,8 +76,8 @@ export const App: React.FC = () => {
 
       const tempTodo = await addTodo(todo);
 
-      setVisibleTodos([
-        ...visibleTodos,
+      setTodos([
+        ...todos,
         tempTodo,
       ]);
 
@@ -101,9 +92,9 @@ export const App: React.FC = () => {
   const handleDelete = async (todoId: number) => {
     try {
       await removeTodo(todoId);
-      const filteredTodos = visibleTodos.filter(todo => todo.id !== todoId);
+      const filteredTodos = todos.filter(todo => todo.id !== todoId);
 
-      setVisibleTodos(filteredTodos);
+      setTodos(filteredTodos);
     } catch {
       handleError(Error.DELETE);
     }
@@ -115,26 +106,23 @@ export const App: React.FC = () => {
 
   const clearCompletedTodo = async () => {
     try {
-      const allTodoId = visibleTodos
+      const allTodoId = todos
         .filter(todo => todo.completed)
         .map(todo => todo.id);
 
-      visibleTodos.forEach(todo => {
+      todos.forEach(todo => {
         if (allTodoId.includes(todo.id)) {
           removeTodo(todo.id);
         }
       });
+
+      const filteredTodos = todos.filter(todo => !todo.completed);
+
+      setTodos(filteredTodos);
     } catch {
       handleError(Error.DELETE);
     }
   };
-  // const handleTodoUpdate = async (todoId: number, title: string) => {
-  //   try {
-  //     await updateTodo(todoId, title);
-  //   } catch {
-  //     handleError(Error.UPDATE);
-  //   }
-  // };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -158,50 +146,51 @@ export const App: React.FC = () => {
         </header>
 
         <TodoList
-          todos={visibleTodos}
+          todos={todos}
           onDelete={handleDelete}
+          isLoading={isInitialized}
+          category={filterCategory}
         />
+        {todosAmount > 0 && (
+          <footer className="todoapp__footer">
+            <span className="todo-count">
+              {`${todosAmount} items left`}
+            </span>
 
-        <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${todosAmount} items left`}
-          </span>
+            <TodoFilter
+              filterCategory={filterCategory}
+              changeCategory={setFilterCategory}
+            />
 
-          <TodoFilter
-            filterCategory={filterCategory}
-            changeCategory={setFilterCategory}
-          />
-
-          {hasCompleted && (
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={clearCompletedTodo}
-            >
-              Clear completed
-            </button>
-          )}
-        </footer>
+            {hasCompleted && (
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={clearCompletedTodo}
+              >
+                Clear completed
+              </button>
+            )}
+          </footer>
+        )}
       </div>
 
-      {todoError && (
-        <div className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !todoError },
-        )}
-        >
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button
-            type="button"
-            className="delete"
-            onClick={() => setTodoError(null)}
-          />
-          {todoError}
-        </div>
+      <div className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        { hidden: !todoError },
       )}
+      >
+        {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+        <button
+          type="button"
+          className="delete"
+          onClick={() => setTodoError(null)}
+        />
+        {todoError}
+      </div>
     </div>
   );
 };

@@ -9,8 +9,8 @@ export const removeTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, title: string) => {
-  return client.patch(`/todos/${todoId}`, { title });
+export const updateTodo = (todo: Todo) => {
+  return client.patch(`/todos/${todo.id}`, todo);
 };
 
 export const addTodo = (todo: Todo): Promise<Todo> => {
