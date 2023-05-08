@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent, FocusEvent } from 'react';
 
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
@@ -10,7 +10,9 @@ interface Props {
   selectedId: number | null
   editedTodoId: number | null
   newTitle: string
-  onChangeTodoTitle: (event?: React.FormEvent<HTMLFormElement>) => void
+  onChangeTodoTitle: (
+    event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>
+  ) => void
   onAddNewTitle: (value: string) => void
   onEditedTodoId: (value: number | null) => void
   onDelete: (todoId: number) => void

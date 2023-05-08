@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FormEvent, FocusEvent } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -7,7 +7,9 @@ interface Props {
   selectedId: number | null
   editedTodoId: number | null
   newTitle: string
-  onChangeTodoTitle: (event?: React.FormEvent<HTMLFormElement>) => void
+  onChangeTodoTitle: (
+    event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>
+  ) => void
   onAddNewTitle: (value: string) => void
   onEditedTodoId: (value: number | null) => void
   onDelete: (todoId: number) => void
@@ -40,8 +42,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onClick={() => onToggle(id, completed)}
-          readOnly
+          onChange={() => onToggle(id, completed)}
         />
       </label>
 
@@ -61,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({
                 }
               }}
               onChange={(event) => onAddNewTitle(event.target.value)}
-              onBlur={() => onChangeTodoTitle}
+              onBlur={(event) => onChangeTodoTitle(event)}
             />
           </form>
         ) : (

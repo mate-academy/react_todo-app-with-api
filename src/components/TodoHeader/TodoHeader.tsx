@@ -5,7 +5,7 @@ interface Props {
   activeTodos: number
   title: string
   isProcessed: boolean
-  isAnyTodo: number
+  isAnyTodo: boolean
   onAddTitle: (value: string) => void
   onAddTodo: (event: React.FormEvent<HTMLFormElement>) => void
   onToggleAll: () => void
@@ -17,7 +17,7 @@ export const TodoHeader: React.FC<Props> = ({
 }) => {
   return (
     <header className="todoapp__header">
-      {isAnyTodo !== 0
+      {isAnyTodo
         && (
           <button
             type="button"

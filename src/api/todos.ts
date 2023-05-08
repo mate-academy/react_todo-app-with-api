@@ -19,9 +19,9 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const toggleTodo = (todoId: number, data: boolean) => {
+export const toggleTodo = (todoId: number, completed: boolean) => {
   return client.patch(`/todos/${todoId}`, {
-    completed: !data,
+    completed,
   });
 };
 

@@ -1,7 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useState, useEffect, useMemo, useCallback,
+  useState, useEffect, useMemo, useCallback, FormEvent, FocusEvent,
 } from 'react';
+
 import { UserWarning } from './UserWarning';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoList } from './components/TodoList/TodoList';
@@ -73,7 +74,7 @@ export const App: React.FC = () => {
   const toggleTodoHandler = (todoId: number, check: boolean) => {
     setSeletedId(todoId);
 
-    toggleTodo(todoId, check)
+    toggleTodo(todoId, !check)
       .then(() => {
         setTodos(todos.map(todo => (todo.id === todoId
           ? { ...todo, completed: !todo.completed }
@@ -110,10 +111,11 @@ export const App: React.FC = () => {
         .catch(() => setError(TodoErrors.Delete)));
   };
 
-  const changeTodoTitleHandler = ( event?: React.FormEvent<HTMLFormElement>
+  const changeTodoTitleHandler = (
+    event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>,
   ) => {
-    if(event) {
-      event.preventDefault()
+    if (event) {
+      event.preventDefault();
     }
 
     if (!editedTodoId) {
@@ -158,20 +160,10 @@ export const App: React.FC = () => {
   const itemsCompleted = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then((fetchedTodos: Todo[]) => {
-        setTodos(fetchedTodos);
-      })
-      .catch(() => {
-        setError(TodoErrors.Get);
-      });
-  }, []);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
+    let timeout: number;
 
     if (error) {
-      timeout = setTimeout(() => {
+      timeout = window.setTimeout(() => {
         setError(null);
       }, 3000);
     }
@@ -194,6 +186,16 @@ export const App: React.FC = () => {
     }
   }, [todos, status]);
 
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((fetchedTodos: Todo[]) => {
+        setTodos(fetchedTodos);
+      })
+      .catch(() => {
+        setError(TodoErrors.Get);
+      });
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -204,7 +206,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
-          isAnyTodo={todos.length}
+          isAnyTodo={todos.length > 0}
           activeTodos={itemsLeft}
           title={title}
           isProcessed={isProcessed}
