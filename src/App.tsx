@@ -1,24 +1,75 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
-const USER_ID = 0;
+import { getTodos } from './api/todos';
+import { UserWarning } from './UserWarning';
+import { TodoList } from './components/TodoList/TodoList';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
+import { Loader } from './components/Loader/Loader';
+import { AppContext } from './components/AppContext/AppContext';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
+  const [isLoadingallTodos, setIsLoadingallTodos] = useState(false);
+
+  // eslint-disable-next-line no-unused-vars
+  const {
+    userId,
+    allTodos,
+    setAllTodos,
+    setShouldShowError,
+    showError,
+  } = useContext(AppContext);
+
+  const loadallTodosFromServer = useCallback(async () => {
+    setIsLoadingallTodos(true);
+    setShouldShowError(false);
+
+    try {
+      const allTodosFromServer = await getTodos(userId);
+
+      setAllTodos(allTodosFromServer);
+    } catch {
+      showError('Unable to load allTodos');
+    } finally {
+      setIsLoadingallTodos(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadallTodosFromServer();
+  }, []);
+
+  if (!userId) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">
+        allTodos
+      </h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+
+        {isLoadingallTodos && (
+          <Loader />
+        )}
+
+        <TodoList />
+
+        {allTodos.length > 0 && (
+          <Footer />
+        )}
+      </div>
+
+      <ErrorMessage />
+    </div>
   );
 };
