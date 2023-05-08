@@ -27,19 +27,31 @@ export const App: React.FC = () => {
   const [editedTodoId, setEditedTodoId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
-  const deleteTodoHandler = useCallback((todoId: number) => {
+  const resetTodoData = (): void => {
+    setIsProcessed(false);
+    setNewTitle('');
+    setEditedTodoId(null);
+    setSeletedId(null);
+    setTitle('');
+  };
+
+  const deleteTodoHandler = useCallback(async (
+    todoId: number,
+  ) => {
     setSeletedId(todoId);
 
-    deleteTodo(todoId)
-      .then(() => {
-        setTodos(filtredTodos => filtredTodos
-          .filter(todo => todo.id !== todoId));
-      })
-      .catch(() => setError(TodoErrors.Delete))
-      .finally(() => setSeletedId(null));
+    try {
+      await deleteTodo(todoId);
+      setTodos(filtredTodos => filtredTodos
+        .filter(todo => todo.id !== todoId));
+    } catch (innerError) {
+      setError(TodoErrors.Delete);
+    } finally {
+      setSeletedId(null);
+    }
   }, []);
 
-  const createTodoHandler = useCallback((
+  const createTodoHandler = useCallback(async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -53,106 +65,100 @@ export const App: React.FC = () => {
         completed: false,
         userId: USER_ID,
       });
-      createTodo(USER_ID, title)
-        .then((todo) => {
-          if (todo) {
-            setTempTodo(null);
-            setTodos([...todos, todo]);
-          }
-        })
-        .catch(() => {
-          setError(TodoErrors.Add);
-        })
-        .finally(() => {
-          setIsProcessed(false);
-          setTitle('');
-        });
-      setIsProcessed(true);
+
+      try {
+        const todo = await createTodo(USER_ID, title);
+
+        setIsProcessed(true);
+
+        if (todo) {
+          setTempTodo(null);
+          setTodos([...todos, todo]);
+        }
+      } catch (innerError) {
+        setError(TodoErrors.Add);
+      } finally {
+        resetTodoData();
+      }
     }
   }, [title]);
 
-  const toggleTodoHandler = (todoId: number, check: boolean) => {
+  const toggleTodoHandler = async (todoId: number, check: boolean) => {
     setSeletedId(todoId);
 
-    toggleTodo(todoId, !check)
-      .then(() => {
-        setTodos(todos.map(todo => (todo.id === todoId
-          ? { ...todo, completed: !todo.completed }
-          : todo)));
-      })
-      .catch(() => setError(TodoErrors.Update))
-      .finally(() => setSeletedId(null));
+    try {
+      await toggleTodo(todoId, !check);
+      setTodos(todos.map(todo => (todo.id === todoId
+        ? { ...todo, completed: !todo.completed }
+        : todo
+      )));
+    } catch (innerError) {
+      setError(TodoErrors.Update);
+    } finally {
+      setSeletedId(null);
+    }
   };
 
-  const toggleAllTodoHandler = () => {
+  const toggleAllTodoHandler = async () => {
     const allCompleted = todos.every(todo => todo.completed);
     const completed = !allCompleted;
 
     setIsProcessed(true);
 
-    Promise.all(
-      todos.filter(todo => todo.completed !== completed)
-        .map(todo => toggleTodo(todo.id, completed)),
-    )
-      .then(() => {
-        setTodos(todos.map(todo => ({ ...todo, completed })));
-        setIsProcessed(false);
-      })
-      .catch(() => setError(TodoErrors.Update));
+    try {
+      await Promise.all(
+        todos.filter(todo => todo.completed !== completed)
+          .map(async todo => toggleTodo(todo.id, completed)),
+      );
+      setTodos(todos.map(todo => ({ ...todo, completed })));
+    } catch (innerError) {
+      setError(TodoErrors.Update);
+    } finally {
+      setIsProcessed(false);
+    }
   };
 
-  const clearCompletedTodos = () => {
+  const clearCompletedTodos = async () => {
     const completeTodos = todos.filter(todo => todo.completed);
 
-    return completeTodos
-      .map(todo => deleteTodo(todo.id)
-        .then(() => setTodos(filtredTodos => filtredTodos
-          .filter(filtrTodo => !filtrTodo.completed)))
-        .catch(() => setError(TodoErrors.Delete)));
+    try {
+      await Promise.all(completeTodos.map(async todo => {
+        await deleteTodo(todo.id);
+      }));
+      setTodos(filtredTodos => filtredTodos
+        .filter(filtrTodo => !filtrTodo.completed));
+    } catch (innerError) {
+      setError(TodoErrors.Delete);
+    }
   };
 
-  const changeTodoTitleHandler = (
+  const changeTodoTitleHandler = async (
     event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement>,
   ) => {
-    if (event) {
-      event.preventDefault();
-    }
-
     if (!editedTodoId) {
       return;
     }
 
+    event.preventDefault();
     setSeletedId(editedTodoId);
 
-    if (!newTitle.trim()) {
-      deleteTodo(editedTodoId)
-        .then(() => {
-          setTodos(filtredTodos => filtredTodos
-            .filter(todo => todo.id !== editedTodoId));
-        })
-        .catch(() => setError(TodoErrors.Delete))
-        .finally(() => {
-          setSeletedId(null);
-          setEditedTodoId(null);
-        });
-    } else {
-      changeTitle(editedTodoId, newTitle)
-        .then(() => {
-          setTodos(
-            todos.map((todo) => (
-              todo.id === editedTodoId
-                ? { ...todo, title: newTitle }
-                : todo
-            )),
-          );
-        })
-        .finally(() => {
-          setIsProcessed(false);
-          setNewTitle('');
-          setEditedTodoId(null);
-          setSeletedId(null);
-        })
-        .catch(() => setError(TodoErrors.Update));
+    try {
+      if (!newTitle.trim()) {
+        await deleteTodo(editedTodoId);
+        setTodos(filtredTodos => filtredTodos
+          .filter(todo => todo.id !== editedTodoId));
+      } else {
+        await changeTitle(editedTodoId, newTitle);
+        setTodos(innerTodos => innerTodos.map(todo => (todo.id === editedTodoId
+          ? { ...todo, title: newTitle }
+          : todo)));
+      }
+
+      resetTodoData();
+    } catch (innerError) {
+      setError(TodoErrors.Update);
+    } finally {
+      setSeletedId(null);
     }
   };
 
@@ -187,13 +193,17 @@ export const App: React.FC = () => {
   }, [todos, status]);
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then((fetchedTodos: Todo[]) => {
+    const fetchTodos = async () => {
+      try {
+        const fetchedTodos = await getTodos(USER_ID);
+
         setTodos(fetchedTodos);
-      })
-      .catch(() => {
+      } catch (innerError) {
         setError(TodoErrors.Get);
-      });
+      }
+    };
+
+    fetchTodos();
   }, []);
 
   if (!USER_ID) {
@@ -213,7 +223,6 @@ export const App: React.FC = () => {
           onAddTodo={createTodoHandler}
           onToggleAll={toggleAllTodoHandler}
           onAddTitle={setTitle}
-
         />
 
         <TodoList
@@ -245,7 +254,6 @@ export const App: React.FC = () => {
         onClose={setError}
         error={error}
       />
-
     </div>
   );
 };
