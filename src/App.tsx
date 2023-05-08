@@ -29,15 +29,15 @@ export const App: React.FC = () => {
   const [completedTodos, setCompletedTodos] = useState<null | TodoType[]>(null);
 
   const [inputValue, setInputValue] = useState('');
-  const [isGetError, setGetError] = useState(false);
-  const [isPostError, setPostError] = useState(false);
-  const [isDeleteError, setDeleteError] = useState(false);
-  const [isInputEmpty, setEmptyInputState] = useState(false);
-  const [isInputLocked, setLockInput] = useState(false);
+  const [isGetError, setIsGetError] = useState(false);
+  const [isPostError, setIsPostError] = useState(false);
+  const [isDeleteError, setIsDeleteError] = useState(false);
+  const [isInputEmpty, setIsEmptyInputState] = useState(false);
+  const [isInputLocked, setIsLockInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<string | null>(null);
-  const [isClearAllCompleted, setClearAllCompleted] = useState(false);
-  const [isToggleAllCompleted, setToggleAllCompleted] = useState(false);
-  const [isToggleAllActive, setToggleAllActive] = useState(false);
+  const [isClearAllCompleted, setIsClearAllCompleted] = useState(false);
+  const [isToggleAllCompleted, setIsToggleAllCompleted] = useState(false);
+  const [isToggleAllActive, setIsToggleAllActive] = useState(false);
 
   const visibleTodos = useMemo(() => {
     return todos.filter((todo) => {
@@ -56,12 +56,8 @@ export const App: React.FC = () => {
 
   const todosGetter = useCallback(() => {
     getTodos(USER_ID)
-      .then(result => {
-        setTodos(result);
-      })
-      .catch(() => {
-        setGetError(true);
-      });
+      .then(setTodos)
+      .catch(setIsGetError);
   }, []);
 
   const formInputHandler
@@ -77,17 +73,15 @@ export const App: React.FC = () => {
 
     if (key === 'Enter') {
       if (!inputValue.trim()) {
-        setEmptyInputState(true);
+        setIsEmptyInputState(true);
       } else {
-        setLockInput(true);
+        setIsLockInput(true);
         setTempTodo(inputValue);
 
         postTodos(USER_ID, inputValue)
-          .catch(() => {
-            setPostError(true);
-          })
+          .catch(setIsPostError)
           .finally(() => {
-            setLockInput(false);
+            setIsLockInput(false);
             setTempTodo(null);
             setInputValue('');
             todosGetter();
@@ -97,10 +91,10 @@ export const App: React.FC = () => {
   }, [inputValue]);
 
   const disableErrorHandling = useCallback(() => {
-    setGetError(false);
-    setPostError(false);
-    setDeleteError(false);
-    setEmptyInputState(false);
+    setIsGetError(false);
+    setIsPostError(false);
+    setIsDeleteError(false);
+    setIsEmptyInputState(false);
   }, []);
 
   useEffect(() => {
@@ -109,17 +103,17 @@ export const App: React.FC = () => {
 
   useMemo(() => {
     getActiveTodos(USER_ID)
-      .then(result => setActiveTodos(result))
-      .catch(() => setGetError(true));
+      .then(setActiveTodos)
+      .catch(setIsGetError);
 
     getCompletedTodos(USER_ID)
-      .then(result => setCompletedTodos(result))
-      .catch(() => setGetError(true));
+      .then(setCompletedTodos)
+      .catch(setIsGetError);
   }, [todos, filterParam]);
 
   const deleteAllCompleted = useCallback(async () => {
     try {
-      setClearAllCompleted(true);
+      setIsClearAllCompleted(true);
 
       const arrayOfCompletedTodos
       = await getCompletedTodos(USER_ID);
@@ -129,7 +123,7 @@ export const App: React.FC = () => {
 
       await Promise.all(deletePromises);
     } finally {
-      setClearAllCompleted(false);
+      setIsClearAllCompleted(false);
       todosGetter();
     }
   }, []);
@@ -138,27 +132,27 @@ export const App: React.FC = () => {
     try {
       if (completedTodos !== null
         && completedTodos.length === todos.length) {
-        setToggleAllCompleted(true);
+        setIsToggleAllCompleted(true);
 
         await Promise.all(completedTodos.map(
           todo => patchTodos(todo.id, { completed: false }),
         ));
       }
     } finally {
-      setToggleAllCompleted(false);
+      setIsToggleAllCompleted(false);
       todosGetter();
     }
 
     try {
       if (activeTodos !== null) {
-        setToggleAllActive(true);
+        setIsToggleAllActive(true);
 
         await Promise.all(activeTodos.map(
           todo => patchTodos(todo.id, { completed: true }),
         ));
       }
     } finally {
-      setToggleAllActive(false);
+      setIsToggleAllActive(false);
       todosGetter();
     }
   };
@@ -179,7 +173,7 @@ export const App: React.FC = () => {
               'todoapp__toggle-all',
               { active: completedTodos?.length === todos.length },
             )}
-            onClick={() => toggleAll()}
+            onClick={toggleAll}
           />
 
           <form onSubmit={(event) => event.preventDefault()}>
@@ -195,27 +189,23 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {(!!visibleTodos.length || tempTodo) && (
-          <>
-            <section className="todoapp__main">
-              {visibleTodos.map(todo => (
-                <Todo
-                  key={todo.id}
-                  todoItem={todo}
-                  todosUpdate={todosGetter}
-                  setDeleteError={setDeleteError}
-                  setPostError={setPostError}
-                  isClearAllCompleted={isClearAllCompleted}
-                  toggleActive={isToggleAllActive}
-                  toggleCompleted={isToggleAllCompleted}
-                />
-              ))}
-              {tempTodo && (
-                <TempTodo title={inputValue} />
-              )}
-            </section>
-          </>
-        )}
+        <section className="todoapp__main">
+          {visibleTodos.map(todo => (
+            <Todo
+              key={todo.id}
+              todoItem={todo}
+              todosUpdate={todosGetter}
+              setDeleteError={setIsDeleteError}
+              setPostError={setIsPostError}
+              isClearAllCompleted={isClearAllCompleted}
+              toggleActive={isToggleAllActive}
+              toggleCompleted={isToggleAllCompleted}
+            />
+          ))}
+          {tempTodo && (
+            <TempTodo title={inputValue} />
+          )}
+        </section>
 
         {(!!todos.length || tempTodo) && (
           <footer className="todoapp__footer">

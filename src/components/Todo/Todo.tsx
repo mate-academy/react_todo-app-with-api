@@ -26,9 +26,9 @@ export const Todo: React.FC<Props>
   }) => {
     const { completed, title, id } = todoItem;
 
-    const [isLoading, setLoading] = useState(false);
-    const [isEditing, setEdit] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isEditing, setIsEdit] = useState(false);
+    const [inputValue, setIsInputValue] = useState(title);
 
     const setFocusOnForm = () => {
       const inputElement
@@ -45,15 +45,13 @@ export const Todo: React.FC<Props>
     }, [isEditing]);
 
     const handleDeleteTodos = () => {
-      setLoading(true);
+      setIsLoading(true);
 
       deleteTodos(id)
-        .then(() => setLoading(false))
-        .catch(() => {
-          setDeleteError(true);
-        })
+        .then(() => setIsLoading(false))
+        .catch(setDeleteError)
         .finally(() => {
-          setLoading(false);
+          setIsLoading(false);
           todosUpdate();
         });
     };
@@ -63,11 +61,11 @@ export const Todo: React.FC<Props>
       todoId: typeof id,
       currCompletedStatus: typeof completed,
     ) => {
-      setLoading(true);
+      setIsLoading(true);
       patchTodos(todoId, { completed: !currCompletedStatus })
-        .catch(() => setPostError(true))
+        .catch(setPostError)
         .finally(() => {
-          setLoading(false);
+          setIsLoading(false);
           todosUpdate();
         });
     };
@@ -76,15 +74,15 @@ export const Todo: React.FC<Props>
       if (!inputValue.trim().length) {
         handleDeleteTodos();
       } else if (inputValue === title) {
-        setEdit(false);
+        setIsEdit(false);
         event.currentTarget.blur();
       } else {
-        setEdit(false);
-        setLoading(true);
+        setIsEdit(false);
+        setIsLoading(true);
         patchTodos(id, { title: inputValue })
-          .catch(() => setPostError(true))
+          .catch(setPostError)
           .finally(() => {
-            setLoading(false);
+            setIsLoading(false);
             todosUpdate();
           });
       }
@@ -94,15 +92,14 @@ export const Todo: React.FC<Props>
       if (event.key === 'Enter') {
         event.currentTarget.blur();
       } else if (event.key === 'Escape') {
-        setInputValue(title);
-        setEdit(false);
+        setIsEdit(false);
       }
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.currentTarget;
 
-      setInputValue(value);
+      setIsInputValue(value);
     };
 
     return (
@@ -127,7 +124,7 @@ export const Todo: React.FC<Props>
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              defaultValue={inputValue.length ? inputValue : title}
+              defaultValue={inputValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onBlur={handleBlur}
@@ -137,7 +134,7 @@ export const Todo: React.FC<Props>
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setEdit(true)}
+              onDoubleClick={() => setIsEdit(true)}
             >
               {title}
             </span>
