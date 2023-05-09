@@ -45,10 +45,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isPermanentlyLoading }) => {
   };
 
   const handleTodoEdit = (data: TodoUpdate) => {
-    if (inputTitleValue === todo.title) {
-      return;
-    }
-
     setIsLoading(true);
 
     updateTodo(todo.id, data)
@@ -75,6 +71,10 @@ export const TodoItem: React.FC<Props> = ({ todo, isPermanentlyLoading }) => {
 
   const handleTitleEdit = () => {
     setIsTitleEditing(false);
+
+    if (inputTitleValue === todo.title) {
+      return;
+    }
 
     if (inputTitleValue) {
       handleTodoEdit({ title: inputTitleValue });
