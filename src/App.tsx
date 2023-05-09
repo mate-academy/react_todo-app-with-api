@@ -1,14 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import classNames from 'classnames';
-import { Todo } from './types/Todo';
-import { Category } from './utils/Category';
-import { Error } from './utils/Error';
-import { UserWarning } from './UserWarning';
-import { TodoForm } from './Components/TodoForm';
-import { TodoList } from './Components/TodoList';
-import { TodoFilter } from './Components/TodoFilter';
+import {Todo} from './types/Todo';
+import {Category} from './utils/Category';
+import {Error} from './utils/Error';
+import {UserWarning} from './UserWarning';
+import {TodoForm} from './Components/TodoForm';
+import {TodoList} from './Components/TodoList';
+import {TodoFilter} from './Components/TodoFilter';
 import {
-  addTodo, getTodos, removeTodo, updateTodoCompleted,
+  addTodo,
+  getTodos,
+  removeTodo,
+  updateTodoCompleted,
+  updateTodoTitle,
 } from './api/todos';
 
 const USER_ID = 10156;
@@ -186,6 +190,39 @@ export const App: React.FC = () => {
     setTodoTitle(title);
   }, [todoTitle]);
 
+  const handleTodoUpdateTitle = async (todoId: number, title: string) => {
+    if (!title.length) {
+      await handleDelete(todoId);
+
+      return;
+    }
+
+    try {
+      addUpdatedTodos(todoId);
+
+      await updateTodoTitle(todoId, title);
+
+      setTodos(prevTodos => {
+        return (
+          prevTodos.map(todo => {
+            if (todoId === todo.id) {
+              return {
+                ...todo,
+                title,
+              };
+            }
+
+            return todo;
+          })
+        );
+      });
+    } catch {
+      handleError(Error.UPDATE);
+    } finally {
+      removeUpdatedTodo(todoId);
+    }
+  };
+
   const clearCompletedTodo = useCallback(async () => {
     try {
       const allTodoId = todos
@@ -241,6 +278,7 @@ export const App: React.FC = () => {
           onUpdate={handleTodoUpdateCompleted}
           isUpdating={isUpdatingTodo}
           tempTodo={tempTodo}
+          onChangeTitle={handleTodoUpdateTitle}
         />
         {hasTodos && (
           <footer className="todoapp__footer">

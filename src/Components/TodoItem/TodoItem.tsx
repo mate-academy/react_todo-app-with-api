@@ -1,5 +1,5 @@
 import React, {
-  memo, useEffect, useRef, useState,
+  memo, useCallback, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -9,23 +9,56 @@ interface Props {
   onDelete: (todoId: number) => void
   onUpdate: (todoId: number) => void
   isUpdating: boolean;
+  onChangeTitle: (todoId: number, title: string) => void;
 }
 export const TodoItem: React.FC<Props> = memo(({
   todo,
   onDelete,
   onUpdate,
   isUpdating,
+  onChangeTitle,
 }) => {
-  const [isActive, setIsActive] = useState(false);
   const { id, title, completed } = todo;
-  const ref = useRef<HTMLInputElement>(null);
-  const [input, setInput] = useState(ref);
+  const [isActive, setIsActive] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpdatedTitle = (todoTitle: string) => {
+    setUpdatedTitle(todoTitle);
+  };
 
   useEffect(() => {
-    setInput(input);
-  }, [ref]);
-  // eslint-disable-next-line no-console
-  console.log(input);
+    inputRef.current?.focus();
+  }, [isActive]);
+
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (title === updatedTitle) {
+        setIsActive(false);
+
+        return;
+      }
+
+      onChangeTitle(id, updatedTitle);
+      setIsActive(false);
+    }, [updatedTitle],
+  );
+
+  const handleStopChanges = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setUpdatedTitle(title);
+      setIsActive(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keyup', handleStopChanges);
+
+    return () => {
+      document.removeEventListener('keyup', handleStopChanges);
+    };
+  }, []);
 
   return (
     <div
@@ -61,13 +94,15 @@ export const TodoItem: React.FC<Props> = memo(({
           </button>
         </>
       ) : (
-        <form>
+        <form onSubmit={(event) => handleSubmit(event)}>
           <input
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            // value="Todo is being edited now"
-            ref={ref}
+            value={updatedTitle}
+            onChange={(event) => handleUpdatedTitle(event.target.value)}
+            ref={inputRef}
+            onBlur={() => setIsActive(false)}
           />
         </form>
       )}

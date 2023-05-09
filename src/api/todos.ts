@@ -19,3 +19,10 @@ export const updateTodoCompleted = (
 export const addTodo = (todo: Todo): Promise<Todo> => {
   return client.post('/todos', todo);
 };
+
+export const updateTodoTitle = (
+  todoId: number,
+  title: string,
+): Promise<Todo> => {
+  return client.patch(`/todos/${todoId}`, { title });
+};

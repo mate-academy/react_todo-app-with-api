@@ -18,6 +18,7 @@ interface Props {
   onUpdate: (todoId: number) => void
   isUpdating: (todoId: number) => boolean;
   tempTodo: Todo | null;
+  onChangeTitle: (todoId: number, title: string) => void;
 }
 export const TodoList: React.FC<Props> = memo(({
   todos,
@@ -26,6 +27,7 @@ export const TodoList: React.FC<Props> = memo(({
   onUpdate,
   isUpdating,
   tempTodo,
+  onChangeTitle,
 }) => {
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -58,6 +60,7 @@ export const TodoList: React.FC<Props> = memo(({
                 onDelete={onDelete}
                 onUpdate={onUpdate}
                 isUpdating={isTodoUpdated}
+                onChangeTitle={onChangeTitle}
               />
             </CSSTransition>
           );
@@ -74,6 +77,7 @@ export const TodoList: React.FC<Props> = memo(({
               onDelete={onDelete}
               onUpdate={onUpdate}
               isUpdating
+              onChangeTitle={onChangeTitle}
             />
           </CSSTransition>
         )}
