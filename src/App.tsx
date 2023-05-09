@@ -15,40 +15,38 @@ import { FilterBy } from './types/FilterBy';
 
 const USER_ID = 10221;
 
+const getFilteredTodos = (
+  todos: Todo[],
+  filterBy: FilterBy,
+) => {
+  switch (filterBy) {
+    case FilterBy.ACTIVE:
+      return todos.filter(todo => !todo.completed);
+
+    case FilterBy.COMPLETED:
+      return todos.filter(todo => todo.completed);
+
+    default:
+      return todos;
+  }
+};
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
-  const [title, setTitle] = useState<string | undefined>('');
-  const [todoWasDeleted, setTodoWasDeleted] = useState(false);
-  const [todoWasUpdated, setTodoWasUpdated] = useState(false);
-  const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [title, setTitle] = useState<string | undefined>('');
   const [disableForm, setDisableForm] = useState(false);
   const [idProcessed, setIdProcessed] = useState<number[]>([0]);
   const [disableList, setDisableList] = useState(false);
 
-  function getVisibleTodos(filterType: FilterBy) {
-    switch (filterType) {
-      case FilterBy.ACTIVE:
-        setVisibleTodos(todos.filter((todo: Todo) => !todo.completed));
-        break;
+  const visibleTodos = getFilteredTodos(todos, filterBy);
 
-      case FilterBy.COMPLETED:
-        setVisibleTodos(todos.filter((todo: Todo) => todo.completed));
-        break;
-
-      default:
-        setVisibleTodos(todos);
-    }
-  }
-
-  useEffect(() => {
+  const getTodosFromServer = () => {
     getTodos(USER_ID)
       .then((fetchedTodos: Todo[]) => {
         setTodos(fetchedTodos);
-        setTodoWasDeleted(false);
-        setTodoWasUpdated(false);
         setIdProcessed([0]);
       })
       .catch((fetchedError) => {
@@ -57,11 +55,10 @@ export const App: React.FC = () => {
             ? fetchedError.message
             : 'Something went wrong',
         );
-
-        setTodoWasDeleted(false);
-        setTodoWasUpdated(false);
       });
-  }, [todoWasDeleted, todoWasUpdated]);
+  };
+
+  useEffect(getTodosFromServer, []);
 
   const onAddTodo = () => {
     if (title) {
@@ -99,7 +96,7 @@ export const App: React.FC = () => {
 
       removeTodo(`${todoId}`)
         .then(() => {
-          setTodoWasDeleted(true);
+          getTodosFromServer();
           setDisableList(false);
         })
         .catch(() => {
@@ -119,7 +116,7 @@ export const App: React.FC = () => {
 
       updateTodo(`${todoId}`, { completed: todoCompleted, title: todoTitle })
         .then(() => {
-          setTodoWasUpdated(true);
+          getTodosFromServer();
           setDisableList(false);
         })
         .catch(() => {
@@ -157,7 +154,7 @@ export const App: React.FC = () => {
       setIdProcessed(ids);
 
       notCompletedTodos.forEach(todo => onUpdate(
-        todo.id, todo.title, todo.completed,
+        todo.id, todo.title, !todo.completed,
       ));
 
       return;
@@ -168,11 +165,9 @@ export const App: React.FC = () => {
     setIdProcessed(ids);
 
     todos.forEach(todo => onUpdate(
-      todo.id, todo.title, todo.completed,
+      todo.id, todo.title, !todo.completed,
     ));
   }, [notCompletedTodos]);
-
-  useEffect(() => getVisibleTodos(filterBy), [filterBy]);
 
   if (!USER_ID) {
     return <UserWarning />;
