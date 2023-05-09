@@ -1,15 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import classNames from 'classnames';
-import { Todo } from './types/Todo';
-import { Category } from './utils/Category';
-import { Error } from './utils/Error';
-import { UserWarning } from './UserWarning';
-import { TodoForm } from './Components/TodoForm';
-import { TodoList } from './Components/TodoList';
-import { TodoFilter } from './Components/TodoFilter';
-import {
-  addTodo, getTodos, removeTodo, updateTodoCompleted,
-} from './api/todos';
+import {Todo} from './types/Todo';
+import {Category} from './utils/Category';
+import {Error} from './utils/Error';
+import {UserWarning} from './UserWarning';
+import {TodoForm} from './Components/TodoForm';
+import {TodoList} from './Components/TodoList';
+import {TodoFilter} from './Components/TodoFilter';
+import {addTodo, getTodos, removeTodo, updateTodoCompleted,} from './api/todos';
 
 const USER_ID = 10156;
 
@@ -126,11 +124,10 @@ export const App: React.FC = () => {
   const handleTodoUpdateCompleted = useCallback(async (todoId: number) => {
     try {
       addUpdatedTodos(todoId);
+      const foundTodo = todos.find(todo => todo.id === todoId);
+
+      await updateTodoCompleted(todoId, !foundTodo?.completed);
       setTodos(prevTodos => {
-        const foundTodo = prevTodos.find(todo => todo.id === todoId);
-
-        updateTodoCompleted(todoId, !foundTodo?.completed);
-
         return (
           prevTodos.map(todo => {
             if (foundTodo?.id === todo.id) {
@@ -149,6 +146,32 @@ export const App: React.FC = () => {
       removeUpdatedTodo(todoId);
     }
   }, [todos, updatingTodos]);
+
+  const handleAllTodoCompleted = async () => {
+    try {
+      const hasActive = todos.some(todo => !todo.completed);
+
+      const updatedTodos = await Promise.all(
+        todos.map(async todo => {
+          if (hasActive && !todo.completed) {
+            addUpdatedTodos(todo.id);
+          }
+
+          if (!hasActive && todo.completed) {
+            addUpdatedTodos(todo.id);
+          }
+
+          return updateTodoCompleted(todo.id, hasActive);
+        }),
+      );
+
+      setTodos(updatedTodos);
+    } catch {
+      handleError(Error.UPDATE);
+    } finally {
+      setUpdatingTodos(new Set());
+    }
+  };
 
   const handleTodoTitle = (title: string) => {
     setTodoTitle(title);
@@ -184,7 +207,15 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button type="button" className="todoapp__toggle-all active" />
+          <button
+            type="button"
+            className={classNames(
+              'todoapp__toggle-all',
+              { active: hasCompleted },
+            )}
+            // className="todoapp__toggle-all active"
+            onClick={handleAllTodoCompleted}
+          />
 
           <TodoForm
             title={todoTitle}
