@@ -9,8 +9,7 @@ interface Props {
   isLoading: boolean;
   category: Category;
   onUpdate: (todoId: number) => void
-  isUpdating: boolean;
-  setIsUpdating: (status: boolean) => void
+  isUpdating: (todoId: number) => boolean;
 }
 export const TodoList: React.FC<Props> = ({
   todos,
@@ -19,7 +18,6 @@ export const TodoList: React.FC<Props> = ({
   category,
   onUpdate,
   isUpdating,
-  setIsUpdating,
 }) => {
   const visibleTodos = todos.filter(todo => {
     switch (category) {
@@ -34,17 +32,20 @@ export const TodoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main">
-      {visibleTodos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          onDelete={onDelete}
-          isLoading={isLoading}
-          onUpdate={onUpdate}
-          isUpdating={isUpdating}
-          setIsUpdating={setIsUpdating}
-        />
-      ))}
+      {visibleTodos.map((todo) => {
+        const isTodoUpdated = isUpdating(todo.id);
+
+        return (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onDelete={onDelete}
+            isLoading={isLoading}
+            onUpdate={onUpdate}
+            isUpdating={isTodoUpdated}
+          />
+        );
+      })}
     </section>
   );
 };

@@ -8,7 +8,6 @@ interface Props {
   isLoading: boolean;
   onUpdate: (todoId: number) => void
   isUpdating: boolean;
-  setIsUpdating: (status: boolean) => void
 }
 export const TodoItem: React.FC<Props> = ({
   todo,
@@ -16,18 +15,12 @@ export const TodoItem: React.FC<Props> = ({
   isLoading,
   onUpdate,
   isUpdating,
-  setIsUpdating,
 }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const { id, title, completed } = todo;
   const handleDelete = (todoId: number) => {
     onDelete(todoId);
     setIsDeleted(true);
-  };
-
-  const handleUpdate = () => {
-    setIsUpdating(true);
-    onUpdate(id);
   };
 
   return (
@@ -42,7 +35,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={handleUpdate}
+          onChange={() => onUpdate(id)}
         />
       </label>
 

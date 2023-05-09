@@ -20,9 +20,29 @@ export const App: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState(Category.All);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [updatingTodos, setUpdatingTodos] = useState<Set<number>>(new Set());
   const hasTodos = todos.length > 0;
   const todosAmount = todos.filter(todo => !todo.completed).length;
+
+  const addUpdatedTodos = useCallback((todoId: number) => {
+    setUpdatingTodos(state => {
+      state.add(todoId);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const removeUpdatedTodo = useCallback((todoId: number) => {
+    setUpdatingTodos(state => {
+      state.delete(todoId);
+
+      return new Set(state);
+    });
+  }, []);
+
+  const isUpdatingTodo = (todoId: number) => {
+    return updatingTodos.has(todoId);
+  };
 
   const handleError = useCallback((error: Error) => {
     setTodoError(error);
@@ -103,8 +123,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleTodoUpdateCompleted = async (todoId: number) => {
+  const handleTodoUpdateCompleted = useCallback(async (todoId: number) => {
     try {
+      addUpdatedTodos(todoId);
       setTodos(prevTodos => {
         const foundTodo = prevTodos.find(todo => todo.id === todoId);
 
@@ -123,12 +144,11 @@ export const App: React.FC = () => {
         );
       });
     } catch {
-      // eslint-disable-next-line no-console
       handleError(Error.UPDATE);
     } finally {
-      setIsUpdating(false);
+      removeUpdatedTodo(todoId);
     }
-  };
+  }, [todos, updatingTodos]);
 
   const handleTodoTitle = (title: string) => {
     setTodoTitle(title);
@@ -180,8 +200,7 @@ export const App: React.FC = () => {
           isLoading={isInitialized}
           category={filterCategory}
           onUpdate={handleTodoUpdateCompleted}
-          isUpdating={isUpdating}
-          setIsUpdating={setIsUpdating}
+          isUpdating={isUpdatingTodo}
         />
         {hasTodos && (
           <footer className="todoapp__footer">
