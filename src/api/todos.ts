@@ -9,7 +9,10 @@ export const removeTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodoCompleted = (todoId: number, completed: boolean): Promise<Todo> => {
+export const updateTodoCompleted = (
+  todoId: number,
+  completed: boolean,
+): Promise<Todo> => {
   return client.patch(`/todos/${todoId}`, { completed });
 };
 

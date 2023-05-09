@@ -1,13 +1,15 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import {Todo} from './types/Todo';
-import {Category} from './utils/Category';
-import {Error} from './utils/Error';
-import {UserWarning} from './UserWarning';
-import {TodoForm} from './Components/TodoForm';
-import {TodoList} from './Components/TodoList';
-import {TodoFilter} from './Components/TodoFilter';
-import {addTodo, getTodos, removeTodo, updateTodoCompleted,} from './api/todos';
+import { Todo } from './types/Todo';
+import { Category } from './utils/Category';
+import { Error } from './utils/Error';
+import { UserWarning } from './UserWarning';
+import { TodoForm } from './Components/TodoForm';
+import { TodoList } from './Components/TodoList';
+import { TodoFilter } from './Components/TodoFilter';
+import {
+  addTodo, getTodos, removeTodo, updateTodoCompleted,
+} from './api/todos';
 
 const USER_ID = 10156;
 
@@ -17,11 +19,11 @@ export const App: React.FC = () => {
   const [todoError, setTodoError] = useState<Error | null>(null);
   const [filterCategory, setFilterCategory] = useState(Category.All);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [updatingTodos, setUpdatingTodos] = useState<Set<number>>(new Set());
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const hasTodos = todos.length > 0;
   const todosAmount = todos.filter(todo => !todo.completed).length;
-
+  const hasCompleted = todos.some(todo => todo.completed);
   const addUpdatedTodos = useCallback((todoId: number) => {
     setUpdatingTodos(state => {
       state.add(todoId);
@@ -62,23 +64,21 @@ export const App: React.FC = () => {
     };
   }, [todoError]);
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
     } catch {
       handleError(Error.LOAD);
-    } finally {
-      setIsInitialized(true);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadTodos();
   }, []);
 
-  const handleAdd = async () => {
+  const handleAdd = useCallback(async () => {
     if (!todoTitle) {
       handleError(Error.TITLE);
       setIsLoading(false);
@@ -88,18 +88,23 @@ export const App: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const todo: Todo = {
+      const newTodo: Todo = {
         title: todoTitle,
         id: 0,
         userId: USER_ID,
         completed: false,
       };
 
-      const tempTodo = await addTodo(todo);
+      setTempTodo({
+        ...newTodo,
+        id: 0,
+      });
+
+      const todo = await addTodo(newTodo);
 
       setTodos([
         ...todos,
-        tempTodo,
+        todo,
       ]);
 
       setTodoTitle('');
@@ -107,19 +112,23 @@ export const App: React.FC = () => {
       handleError(Error.ADD);
     } finally {
       setIsLoading(false);
+      setTempTodo(null);
     }
-  };
+  }, [todoTitle]);
 
-  const handleDelete = async (todoId: number) => {
+  const handleDelete = useCallback(async (todoId: number) => {
     try {
+      addUpdatedTodos(todoId);
       await removeTodo(todoId);
       const filteredTodos = todos.filter(todo => todo.id !== todoId);
 
       setTodos(filteredTodos);
     } catch {
       handleError(Error.DELETE);
+    } finally {
+      removeUpdatedTodo(todoId);
     }
-  };
+  }, [todos]);
 
   const handleTodoUpdateCompleted = useCallback(async (todoId: number) => {
     try {
@@ -145,9 +154,9 @@ export const App: React.FC = () => {
     } finally {
       removeUpdatedTodo(todoId);
     }
-  }, [todos, updatingTodos]);
+  }, [todos]);
 
-  const handleAllTodoCompleted = async () => {
+  const handleAllTodoCompleted = useCallback(async () => {
     try {
       const hasActive = todos.some(todo => !todo.completed);
 
@@ -171,13 +180,12 @@ export const App: React.FC = () => {
     } finally {
       setUpdatingTodos(new Set());
     }
-  };
+  }, [todos]);
 
-  const handleTodoTitle = (title: string) => {
+  const handleTodoTitle = useCallback((title: string) => {
     setTodoTitle(title);
-  };
+  }, [todoTitle]);
 
-  const hasCompleted = todos.some(todo => todo.completed);
   const clearCompletedTodo = useCallback(async () => {
     try {
       const allTodoId = todos
@@ -206,16 +214,17 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button
-            type="button"
-            className={classNames(
-              'todoapp__toggle-all',
-              { active: hasCompleted },
-            )}
-            // className="todoapp__toggle-all active"
-            onClick={handleAllTodoCompleted}
-          />
+          {hasTodos && (
+            // eslint-disable-next-line jsx-a11y/control-has-associated-label
+            <button
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: hasCompleted },
+              )}
+              onClick={handleAllTodoCompleted}
+            />
+          )}
 
           <TodoForm
             title={todoTitle}
@@ -228,10 +237,10 @@ export const App: React.FC = () => {
         <TodoList
           todos={todos}
           onDelete={handleDelete}
-          isLoading={isInitialized}
           category={filterCategory}
           onUpdate={handleTodoUpdateCompleted}
           isUpdating={isUpdatingTodo}
+          tempTodo={tempTodo}
         />
         {hasTodos && (
           <footer className="todoapp__footer">

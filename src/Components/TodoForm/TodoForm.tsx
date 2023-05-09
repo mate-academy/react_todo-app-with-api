@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 
 interface Props {
   title: string,
@@ -7,7 +7,7 @@ interface Props {
   isLoading: boolean;
 }
 
-export const TodoForm: React.FC<Props> = React.memo(({
+export const TodoForm: React.FC<Props> = memo(({
   title,
   onChange,
   onAdd,

@@ -1,27 +1,31 @@
-import React, { useState } from 'react';
+import React, {
+  memo, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
   onDelete: (todoId: number) => void
-  isLoading: boolean;
   onUpdate: (todoId: number) => void
   isUpdating: boolean;
 }
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   todo,
   onDelete,
-  isLoading,
   onUpdate,
   isUpdating,
 }) => {
-  const [isDeleted, setIsDeleted] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const { id, title, completed } = todo;
-  const handleDelete = (todoId: number) => {
-    onDelete(todoId);
-    setIsDeleted(true);
-  };
+  const ref = useRef<HTMLInputElement>(null);
+  const [input, setInput] = useState(ref);
+
+  useEffect(() => {
+    setInput(input);
+  }, [ref]);
+  // eslint-disable-next-line no-console
+  console.log(input);
 
   return (
     <div
@@ -39,14 +43,19 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {todo ? (
+      {!isActive ? (
         <>
-          <span className="todo__title">{title}</span>
+          <span
+            className="todo__title"
+            onDoubleClick={() => setIsActive(true)}
+          >
+            {title}
+          </span>
 
           <button
             type="button"
             className="todo__remove"
-            onClick={() => handleDelete(id)}
+            onClick={() => onDelete(id)}
           >
             ×
           </button>
@@ -57,7 +66,8 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
+            // value="Todo is being edited now"
+            ref={ref}
           />
         </form>
       )}
@@ -65,7 +75,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={classNames(
           'modal overlay',
-          { 'is-active': isDeleted || !isLoading || isUpdating },
+          { 'is-active': isUpdating },
         )}
       >
         <div className="modal-background has-background-white-ter" />
@@ -73,4 +83,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
