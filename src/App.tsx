@@ -53,7 +53,7 @@ export const App: React.FC = () => {
   ), [filteredTodos]);
 
   const counter = useMemo(() => (
-    todos.filter(todo => !todo.completed).length || 0
+    todos.filter(todo => !todo.completed).length
   ), [filteredTodos]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

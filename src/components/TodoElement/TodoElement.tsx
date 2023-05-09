@@ -90,7 +90,7 @@ export const TodoElement: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': id === 0
+        'is-active': !id
           || processedIds.includes(id)
           || (isEditingFinished && id === currTodoId),
       })}

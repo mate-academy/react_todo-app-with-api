@@ -29,10 +29,10 @@ export const Footer: React.FC<Props> = ({
         <nav className="filter">
           <a
             href="#/"
-            className={classNames({
-              filter__link: filterBy !== FilterBy.ALL,
-              'filter__link selected': filterBy === FilterBy.ALL,
-            })}
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === FilterBy.ALL },
+            )}
             onClick={() => handleFilterButtonClick(FilterBy.ALL)}
           >
             All
@@ -40,10 +40,10 @@ export const Footer: React.FC<Props> = ({
 
           <a
             href="#/active"
-            className={classNames({
-              filter__link: filterBy !== FilterBy.ACTIVE,
-              'filter__link selected': filterBy === FilterBy.ACTIVE,
-            })}
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === FilterBy.ACTIVE },
+            )}
             onClick={() => handleFilterButtonClick(FilterBy.ACTIVE)}
           >
             Active
@@ -51,10 +51,10 @@ export const Footer: React.FC<Props> = ({
 
           <a
             href="#/completed"
-            className={classNames({
-              filter__link: filterBy !== FilterBy.COMPLETED,
-              'filter__link selected': filterBy === FilterBy.COMPLETED,
-            })}
+            className={classNames(
+              'filter__link',
+              { selected: filterBy === FilterBy.COMPLETED },
+            )}
             onClick={() => handleFilterButtonClick(FilterBy.COMPLETED)}
           >
             Completed
