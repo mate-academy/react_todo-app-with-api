@@ -10,6 +10,7 @@ type Props = {
   handleToggleStatusTodos: () => void,
   actionsTodosId: number[] | [],
   todos: Todo[] | [],
+  formInputRef: React.RefObject<HTMLInputElement>,
 };
 
 export const TodoForm: React.FC<Props> = ({
@@ -20,6 +21,7 @@ export const TodoForm: React.FC<Props> = ({
   handleToggleStatusTodos,
   actionsTodosId,
   todos,
+  formInputRef,
 }) => (
   <header className="todoapp__header">
     {!!todos.length && (
@@ -43,6 +45,7 @@ export const TodoForm: React.FC<Props> = ({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         disabled={!!actionsTodosId.length}
+        ref={formInputRef}
       />
     </form>
   </header>

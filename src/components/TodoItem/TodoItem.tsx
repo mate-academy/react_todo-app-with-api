@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Error } from '../../types/Error';
@@ -29,6 +29,13 @@ export const TodoItem: React.FC<Props> = ({
   const [isEditTodo, setIsEditTodo] = useState(false);
   const [newValue, setNewValue] = useState(title);
   const isAction = actionsTodosId.some(todoId => todoId === id);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditTodo]);
 
   const handleEditTodo = () => {
     setIsEditTodo(false);
@@ -102,8 +109,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(e) => setNewValue(e.target.value)}
             onBlur={handleEditTodo}
             onKeyUp={handleInputKeyUp}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+            ref={inputRef}
           />
         </form>
       ) : (

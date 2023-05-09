@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
@@ -17,25 +17,31 @@ import {
 const USER_ID = 10137;
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[] | []>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [error, setError] = useState<Error>(Error.None);
   const [value, setValue] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [actionsTodosId, setActionsTodosId] = useState<number[] | []>([]);
-
-  const getTodosList = async () => {
-    try {
-      const todosFromData = await getTodos(USER_ID);
-
-      setTodos(todosFromData);
-    } catch {
-      setError(Error.Get);
-    }
-  };
+  const [actionsTodosId, setActionsTodosId] = useState<number[]>([]);
+  const [acitveFormInput, setAcitveFormInput] = useState(false);
+  const formInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getTodosList();
+    if (formInputRef.current && acitveFormInput) {
+      formInputRef.current.focus();
+    }
+
+    setAcitveFormInput(false);
+  }, [todos]);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((todosFromData) => {
+        setTodos(todosFromData);
+      })
+      .catch(() => {
+        setError(Error.Get);
+      });
   }, []);
 
   useEffect(() => {
@@ -173,6 +179,8 @@ export const App: React.FC = () => {
     } else {
       setError(Error.Empty);
     }
+
+    setAcitveFormInput(true);
   };
 
   const getFilteredTodos = () => {
@@ -205,6 +213,7 @@ export const App: React.FC = () => {
           actionsTodosId={actionsTodosId}
           handleToggleStatusTodos={handleToggleStatusTodos}
           todos={todos}
+          formInputRef={formInputRef}
         />
 
         <TodoList
