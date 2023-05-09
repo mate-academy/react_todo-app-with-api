@@ -1,24 +1,219 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
+import {
+  addTodoToServer, getTodos, removeTodo, updateTodo,
+} from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoList } from './components/todoList';
+import { TodoForm } from './components/todoForm';
+import { TodoFooter } from './components/todoFooter';
+import { Notification } from './components/notification';
+import { FilterBy } from './types/FilterBy';
 
-const USER_ID = 0;
+const USER_ID = 10221;
+
+const getFilteredTodos = (
+  todos: Todo[],
+  filterBy: FilterBy,
+) => {
+  switch (filterBy) {
+    case FilterBy.ACTIVE:
+      return todos.filter(todo => !todo.completed);
+
+    case FilterBy.COMPLETED:
+      return todos.filter(todo => todo.completed);
+
+    default:
+      return todos;
+  }
+};
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [title, setTitle] = useState<string | undefined>('');
+  const [disableForm, setDisableForm] = useState(false);
+  const [idProcessed, setIdProcessed] = useState<number[]>([0]);
+  const [disableList, setDisableList] = useState(false);
+
+  const visibleTodos = getFilteredTodos(todos, filterBy);
+
+  const getTodosFromServer = () => {
+    getTodos(USER_ID)
+      .then((fetchedTodos: Todo[]) => {
+        setTodos(fetchedTodos);
+        setIdProcessed([0]);
+      })
+      .catch((fetchedError) => {
+        setError(
+          fetchedError?.message
+            ? fetchedError.message
+            : 'Something went wrong',
+        );
+      });
+  };
+
+  useEffect(getTodosFromServer, []);
+
+  const onAddTodo = () => {
+    if (title) {
+      setTempTodo({
+        id: 0,
+        userId: USER_ID,
+        title,
+        completed: false,
+      });
+
+      setDisableForm(true);
+
+      addTodoToServer(USER_ID, {
+        userId: USER_ID,
+        title,
+        completed: false,
+      })
+        .then((fetchedTodo: Todo) => {
+          setTodos([...todos, fetchedTodo]);
+          setTempTodo(null);
+          setDisableForm(false);
+          setTitle('');
+        })
+        .catch(() => {
+          setTempTodo(null);
+          setDisableForm(false);
+          setError('Unable to add a todo');
+        });
+    }
+  };
+
+  const onDelete = (todoId: number) => {
+    if (todoId) {
+      setDisableList(true);
+
+      removeTodo(`${todoId}`)
+        .then(() => {
+          getTodosFromServer();
+          setDisableList(false);
+        })
+        .catch(() => {
+          setError('Unable to delete a todo');
+          setDisableList(false);
+        });
+    }
+  };
+
+  const onUpdate = (
+    todoId: number,
+    todoTitle: string,
+    todoCompleted: boolean,
+  ) => {
+    if (todoId) {
+      setDisableList(true);
+
+      updateTodo(`${todoId}`, { completed: todoCompleted, title: todoTitle })
+        .then(() => {
+          getTodosFromServer();
+          setDisableList(false);
+        })
+        .catch(() => {
+          setError('Unable to update a todo');
+          setDisableList(false);
+          setIdProcessed([0]);
+        });
+    }
+  };
+
+  const completedTodos = useMemo(() => todos.filter(todo => todo.completed),
+    [todos]);
+
+  const handleClearCompleted = useCallback(async () => {
+    const ids = completedTodos.map(todo => todo.id);
+
+    setIdProcessed(ids);
+
+    completedTodos.forEach(todo => {
+      if (todo.id) {
+        onDelete(todo.id);
+      }
+    });
+  }, [completedTodos]);
+
+  const notCompletedTodos = useMemo(() => todos.filter(todo => !todo.completed),
+    [todos]);
+
+  const handleAllToggle = useCallback(async () => {
+    let ids;
+
+    if (notCompletedTodos.length) {
+      ids = notCompletedTodos.map(todo => todo.id);
+
+      setIdProcessed(ids);
+
+      notCompletedTodos.forEach(todo => onUpdate(
+        todo.id, todo.title, !todo.completed,
+      ));
+
+      return;
+    }
+
+    ids = todos.map(todo => todo.id);
+
+    setIdProcessed(ids);
+
+    todos.forEach(todo => onUpdate(
+      todo.id, todo.title, !todo.completed,
+    ));
+  }, [notCompletedTodos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoForm
+          setTitle={setTitle}
+          title={title}
+          onAdd={onAddTodo}
+          disableForm={disableForm}
+          handleToggleAll={handleAllToggle}
+        />
+
+        {todos.length ? (
+          <>
+            <TodoList
+              todos={filterBy !== FilterBy.ALL ? visibleTodos : todos}
+              tempTodo={tempTodo}
+              idProcessed={idProcessed}
+              disableList={disableList}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+              setIdProcessed={setIdProcessed}
+            />
+            <TodoFooter
+              setFilterBy={setFilterBy}
+              itemsQuantity={filterBy !== FilterBy.ALL
+                ? visibleTodos.length
+                : todos.length}
+              filterBy={filterBy}
+              onClear={handleClearCompleted}
+              completedLength={completedTodos.length}
+            />
+          </>
+        ) : null}
+      </div>
+
+      <Notification
+        onClose={(value: string | null) => setError(value)}
+        error={error}
+      />
+    </div>
   );
 };
