@@ -1,35 +1,33 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { updateTodo } from '../../api/todos';
-import { Error } from '../../utils/Error';
 
 interface Props {
   todo: Todo;
   onDelete: (todoId: number) => void
   isLoading: boolean;
+  onUpdate: (todoId: number) => void
+  isUpdating: boolean;
+  setIsUpdating: (status: boolean) => void
 }
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   isLoading,
+  onUpdate,
+  isUpdating,
+  setIsUpdating,
 }) => {
   const [isDeleted, setIsDeleted] = useState(false);
-  const [currentTodo, setCurrentTodo] = useState(todo);
-  const { id, title, completed } = currentTodo;
+  const { id, title, completed } = todo;
   const handleDelete = (todoId: number) => {
     onDelete(todoId);
     setIsDeleted(true);
   };
 
-  const handleTodoUpdate = async (updatedTodo: Todo) => {
-    try {
-      setCurrentTodo(updatedTodo);
-      await updateTodo(updatedTodo);
-    } catch {
-      // eslint-disable-next-line no-console
-      console.log(Error.UPDATE);
-    }
+  const handleUpdate = () => {
+    setIsUpdating(true);
+    onUpdate(id);
   };
 
   return (
@@ -44,7 +42,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleTodoUpdate({ ...todo, completed: !completed })}
+          onChange={handleUpdate}
         />
       </label>
 
@@ -74,7 +72,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={classNames(
           'modal overlay',
-          { 'is-active': isDeleted || !isLoading },
+          { 'is-active': isDeleted || !isLoading || isUpdating },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -8,12 +8,18 @@ interface Props {
   onDelete: (id: number) => void;
   isLoading: boolean;
   category: Category;
+  onUpdate: (todoId: number) => void
+  isUpdating: boolean;
+  setIsUpdating: (status: boolean) => void
 }
 export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
   isLoading,
   category,
+  onUpdate,
+  isUpdating,
+  setIsUpdating,
 }) => {
   const visibleTodos = todos.filter(todo => {
     switch (category) {
@@ -34,6 +40,9 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onDelete={onDelete}
           isLoading={isLoading}
+          onUpdate={onUpdate}
+          isUpdating={isUpdating}
+          setIsUpdating={setIsUpdating}
         />
       ))}
     </section>

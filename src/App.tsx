@@ -7,7 +7,9 @@ import { UserWarning } from './UserWarning';
 import { TodoForm } from './Components/TodoForm';
 import { TodoList } from './Components/TodoList';
 import { TodoFilter } from './Components/TodoFilter';
-import { addTodo, getTodos, removeTodo } from './api/todos';
+import {
+  addTodo, getTodos, removeTodo, updateTodoCompleted,
+} from './api/todos';
 
 const USER_ID = 10156;
 
@@ -18,8 +20,9 @@ export const App: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState(Category.All);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const todosAmount = todos.length;
-  const hasCompleted = todos.some(todo => todo.completed);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const hasTodos = todos.length > 0;
+  const todosAmount = todos.filter(todo => !todo.completed).length;
 
   const handleError = useCallback((error: Error) => {
     setTodoError(error);
@@ -100,21 +103,47 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleTodoUpdateCompleted = async (todoId: number) => {
+    try {
+      setTodos(prevTodos => {
+        const foundTodo = prevTodos.find(todo => todo.id === todoId);
+
+        updateTodoCompleted(todoId, !foundTodo?.completed);
+
+        return (
+          prevTodos.map(todo => {
+            if (foundTodo?.id === todo.id) {
+              foundTodo.completed = !foundTodo.completed;
+
+              return foundTodo;
+            }
+
+            return todo;
+          })
+        );
+      });
+    } catch {
+      // eslint-disable-next-line no-console
+      handleError(Error.UPDATE);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleTodoTitle = (title: string) => {
     setTodoTitle(title);
   };
 
-  const clearCompletedTodo = async () => {
+  const hasCompleted = todos.some(todo => todo.completed);
+  const clearCompletedTodo = useCallback(async () => {
     try {
       const allTodoId = todos
         .filter(todo => todo.completed)
         .map(todo => todo.id);
 
-      todos.forEach(todo => {
-        if (allTodoId.includes(todo.id)) {
-          removeTodo(todo.id);
-        }
-      });
+      const removedTodos = allTodoId.map(id => removeTodo(id));
+
+      await Promise.all(removedTodos);
 
       const filteredTodos = todos.filter(todo => !todo.completed);
 
@@ -122,7 +151,7 @@ export const App: React.FC = () => {
     } catch {
       handleError(Error.DELETE);
     }
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -150,8 +179,11 @@ export const App: React.FC = () => {
           onDelete={handleDelete}
           isLoading={isInitialized}
           category={filterCategory}
+          onUpdate={handleTodoUpdateCompleted}
+          isUpdating={isUpdating}
+          setIsUpdating={setIsUpdating}
         />
-        {todosAmount > 0 && (
+        {hasTodos && (
           <footer className="todoapp__footer">
             <span className="todo-count">
               {`${todosAmount} items left`}
