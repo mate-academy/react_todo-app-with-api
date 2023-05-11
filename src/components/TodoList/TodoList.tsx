@@ -1,24 +1,17 @@
 import { Todo } from '../../types/Todo';
+// eslint-disable-next-line import/no-cycle
 import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  isPerentLoading: boolean;
-  onSetDeleteTodoID: React.Dispatch<React.SetStateAction<number | null>>;
-  deleteTodoID: number | null;
   isDeletingCompleted: boolean;
-  onUpdateTodoComplete: (id: number, data: Partial<Todo>) => Promise<void>;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  isPerentLoading,
-  onSetDeleteTodoID,
-  deleteTodoID,
   isDeletingCompleted,
-  onUpdateTodoComplete,
 }) => {
   return (
     <>
@@ -26,19 +19,16 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          onSetDeleteTodoID={onSetDeleteTodoID}
           isPerentLoading={
-            todo.id === deleteTodoID
-            || (isDeletingCompleted && todo.completed)
+            (isDeletingCompleted && todo.completed)
           }
-          onUpdateTodoComplete={onUpdateTodoComplete}
         />
       ))}
 
       {tempTodo !== null && (
         <TodoItem
           todo={tempTodo}
-          isPerentLoading={isPerentLoading}
+          isPerentLoading={tempTodo !== null}
         />
       )}
     </>

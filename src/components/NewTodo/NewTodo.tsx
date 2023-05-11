@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { USER_ID } from '../../constants/userid';
-import { AddedTodo, Todo } from '../../types/Todo';
+import { Todo } from '../../types/Todo';
 
 // const USER_ID = 10282;
 
 interface Props {
   onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  onSetPreperedTodo: React.Dispatch<React.SetStateAction<AddedTodo | null>>;
+  onSetAddedTodo: React.Dispatch<React.SetStateAction<Omit<Todo, 'id'> | null>>;
   onSetTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   isLoading: boolean;
 }
 
 export const NewTodo: React.FC<Props> = ({
   onSetErrorMessage,
-  onSetPreperedTodo,
+  onSetAddedTodo,
   onSetTempTodo,
   isLoading,
 }) => {
@@ -33,13 +33,13 @@ export const NewTodo: React.FC<Props> = ({
       return;
     }
 
-    const preparedTodo = {
+    const addedTodo = {
       userId: USER_ID,
       title: title.trim(),
       completed: false,
     };
 
-    onSetPreperedTodo(preparedTodo);
+    onSetAddedTodo(addedTodo);
     onSetTempTodo({
       id: 0,
       userId: USER_ID,

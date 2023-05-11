@@ -1,51 +1,62 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { AddedTodo, Todo } from './types/Todo';
+import { Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
 import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
+// eslint-disable-next-line import/no-cycle
 import { TodoList } from './components/TodoList';
-import { Filter } from './components/Filter';
 import { NewTodo } from './components/NewTodo';
 import { USER_ID } from './constants/userid';
 import { FILTERS } from './constants/filters';
 import { ErrorMessage } from './components/ErrorMessage';
-import { TodoCount } from './components/TodoCount';
+import { Footer } from './components/Footer';
+
+interface FetchContextType {
+  deleteTodos: (id: number) => Promise<void>;
+  updateTodoComplete: (id: number, data: Partial<Todo>) => Promise<void>;
+}
+
+export const FetchContext = React.createContext<FetchContextType>({
+  deleteTodos: () => Promise.resolve(),
+  updateTodoComplete: () => Promise.resolve(),
+});
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
-
+  const [toggleStatus, setToggleStatus] = useState<boolean>(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
 
-  const [preperedTodo, setPreperedTodo] = useState<AddedTodo | null>(null);
+  const [addedTodo, setAddedTodo] = useState<Omit<Todo, 'id'> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deleteTodoID, setDeleteTodoID] = useState<number | null>(null);
-  const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
-  const [toggleAll, setToggleAll] = useState<boolean>(false);
 
   useEffect(() => {
-    setToggleAll(todos.every(todo => todo.completed));
+    setToggleStatus(todos.every(todo => todo.completed));
   }, [todos]);
 
-  const notCompletedTodoCount = todos.filter(todo => !todo.completed).length;
-  const isCompletedExist = todos.length !== notCompletedTodoCount;
+  const calculateNotCompletedTodo = () => {
+    return todos.filter(todo => !todo.completed).length;
+  };
 
-  const clearCompletedButtonStyles = !isCompletedExist
-    ? {
-      opacity: 0,
-      cursor: 'default',
-    }
-    : {};
+  const notCompletedTodoCount = useMemo(
+    calculateNotCompletedTodo,
+    [todos],
+  );
+
+  const isCompletedExist = todos.length !== notCompletedTodoCount;
 
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (activeFilter) {
         case FILTERS.ACTIVE:
           return !todo.completed;
+
         case FILTERS.COMPLETED:
           return todo.completed;
+
         case FILTERS.ALL:
         default:
           return true;
@@ -73,11 +84,11 @@ export const App: React.FC = () => {
   const uploadTodo = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      if (preperedTodo) {
-        const newTodo = await addTodo(preperedTodo);
+      if (addedTodo) {
+        const newTodo = await addTodo(addedTodo);
 
         setTodos(prevTodos => [...prevTodos, newTodo]);
-        setPreperedTodo(null);
+        setAddedTodo(null);
         setTempTodo(null);
       }
     } catch (error) {
@@ -89,29 +100,23 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     uploadTodo();
-  }, [preperedTodo]);
+  }, [addedTodo]);
 
-  const deleteTodos = async (): Promise<void> => {
+  // #region Delete functions
+  const deleteTodos = async (id: number): Promise<void> => {
     setIsLoading(true);
     try {
-      if (deleteTodoID) {
-        await deleteTodo(deleteTodoID);
+      await deleteTodo(id);
 
-        setTodos(prevTodos => prevTodos.filter(
-          ({ id }) => id !== deleteTodoID,
-        ));
-        setDeleteTodoID(null);
-      }
+      setTodos(prevTodos => prevTodos.filter(
+        (todo) => todo.id !== id,
+      ));
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    deleteTodos();
-  }, [deleteTodoID]);
 
   const deleteCompletedTodos = async (): Promise<void> => {
     setIsLoading(true);
@@ -129,10 +134,7 @@ export const App: React.FC = () => {
       setIsDeletingCompleted(false);
     }
   };
-
-  const handleCompletedDelete = () => {
-    deleteCompletedTodos();
-  };
+  // #endregion
 
   const updateTodoComplete = async (
     id: number,
@@ -160,7 +162,7 @@ export const App: React.FC = () => {
       await Promise.all(todos.map(todo => {
         const updatedTodo = {
           ...todo,
-          completed: !toggleAll,
+          completed: !toggleStatus,
         };
 
         return updateTodoComplete(todo.id, updatedTodo);
@@ -168,10 +170,10 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.map(todo => ({
         ...todo,
-        completed: !toggleAll,
+        completed: !toggleStatus,
       })));
 
-      setToggleAll(!toggleAll);
+      setToggleStatus(!toggleStatus);
     } catch (error) {
       setErrorMessage('Unable to update a todo');
     } finally {
@@ -189,7 +191,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: toggleAll,
+                active: toggleStatus,
               })}
               onClick={updateAllTodosComplete}
             />
@@ -197,7 +199,7 @@ export const App: React.FC = () => {
 
           <NewTodo
             onSetErrorMessage={setErrorMessage}
-            onSetPreperedTodo={setPreperedTodo}
+            onSetAddedTodo={setAddedTodo}
             onSetTempTodo={setTempTodo}
             isLoading={isLoading}
           />
@@ -205,32 +207,23 @@ export const App: React.FC = () => {
 
         {todos && (
           <section className="todoapp__main">
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              isPerentLoading={isLoading}
-              onSetDeleteTodoID={setDeleteTodoID}
-              deleteTodoID={deleteTodoID}
-              isDeletingCompleted={isDeletingCompleted}
-              onUpdateTodoComplete={updateTodoComplete}
-            />
+            <FetchContext.Provider value={{ deleteTodos, updateTodoComplete }}>
+              <TodoList
+                todos={visibleTodos}
+                tempTodo={tempTodo}
+                isDeletingCompleted={isDeletingCompleted}
+              />
+            </FetchContext.Provider>
           </section>
         )}
 
         {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <TodoCount count={notCompletedTodoCount} />
-            <Filter onSetActiveFilter={setActiveFilter} />
-
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              style={clearCompletedButtonStyles}
-              onClick={handleCompletedDelete}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            count={notCompletedTodoCount}
+            onSetActiveFilter={setActiveFilter}
+            isCompletedExist={isCompletedExist}
+            onDelete={deleteCompletedTodos}
+          />
         )}
       </div>
 

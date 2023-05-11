@@ -1,29 +1,28 @@
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
+// eslint-disable-next-line import/no-cycle
+import { FetchContext } from '../../App';
 
 interface Props {
   todo: Todo;
   isPerentLoading: boolean;
-  onSetDeleteTodoID?: React.Dispatch<React.SetStateAction<number | null>>;
-  onUpdateTodoComplete?: (id: number, data: Partial<Todo>) => Promise<void>;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isPerentLoading,
-  onSetDeleteTodoID,
-  onUpdateTodoComplete,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [checked, setChecked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { deleteTodos, updateTodoComplete } = useContext(FetchContext);
   const { title, completed, id } = todo;
 
   const handleCompleteChange = () => {
     setIsLoading(true);
-    onUpdateTodoComplete?.(id, { completed: !checked }).finally(() => {
+    updateTodoComplete(id, { completed: !checked }).finally(() => {
       setIsLoading(false);
     });
     setChecked(!checked);
@@ -37,10 +36,9 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(true);
   };
 
-  const handleTodoDelete = (deleteID: number) => {
-    if (onSetDeleteTodoID) {
-      onSetDeleteTodoID(deleteID);
-    }
+  const handleTodoDelete = () => {
+    setIsLoading(true);
+    deleteTodos(id).finally(() => setIsLoading(false));
   };
 
   const handleUpdateTitle = (event?: React.FormEvent) => {
@@ -55,11 +53,11 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (editedTitle.trim() === '') {
-      handleTodoDelete(id);
+      handleTodoDelete();
     }
 
     setIsLoading(true);
-    onUpdateTodoComplete?.(id, { title: editedTitle }).finally(() => {
+    updateTodoComplete(id, { title: editedTitle }).finally(() => {
       setIsLoading(false);
     });
     setIsEditing(false);
@@ -118,7 +116,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => handleTodoDelete(todo.id)}
+            onClick={handleTodoDelete}
           >
             ×
           </button>
