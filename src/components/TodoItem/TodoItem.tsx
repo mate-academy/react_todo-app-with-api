@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 import { Loader } from '../Loader';
 import { deleteTodo, updateTodo } from '../../api/todos';
@@ -31,13 +31,15 @@ export const TodoItem: React.FC<Props> = ({
   toggleAll = () => {},
 }) => {
   const { completed, title, id } = todo;
-  const [isBeingEdited] = useState(false);
+  const [isBeingEdited, setIsBeingEdited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const refInput = useRef<HTMLInputElement>(null);
+  const [editTitle, setEditTitle] = useState(title);
 
-  const onDelete = () => {
+  const onDelete = (todoId: number) => {
     setIsLoading(true);
 
-    deleteTodo(id)
+    deleteTodo(todoId)
       .then(() => {
         if (todosToRender) {
           setTodos(todosToRender.filter(item => item.id !== id));
@@ -52,7 +54,7 @@ export const TodoItem: React.FC<Props> = ({
   useEffect(() => {
     toBeCleared?.forEach(item => {
       if (item.id === id) {
-        onDelete();
+        onDelete(id);
       }
     });
   }, [toBeCleared]);
@@ -91,8 +93,54 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isToggleAll]);
 
+  useEffect(() => {
+    if (isBeingEdited) {
+      refInput.current?.focus();
+    }
+  }, [isBeingEdited]);
+
+  const edit = () => {
+    setIsBeingEdited(false);
+    if (title === editTitle) {
+      return;
+    }
+
+    if (editTitle === '') {
+      onDelete(id);
+
+      return;
+    }
+
+    setIsLoading(true);
+
+    updateTodo(id, { title: editTitle })
+      .then(() => {
+        setTodos([...todos.map(item => {
+          return item.id === id
+            ? { ...item, title: editTitle }
+            : item;
+        })]);
+      })
+      .catch(() => {
+        showError('Unable to update a todo');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const onEscape = (key: string) => {
+    if (key === 'Escape') {
+      setIsBeingEdited(false);
+      setEditTitle(title);
+    }
+  };
+
   return (
-    <div className={`todo${completed ? ' completed' : ''}`}>
+    <div
+      className={`todo${completed ? ' completed' : ''}`}
+      onDoubleClick={() => setIsBeingEdited(true)}
+    >
       <label className="todo__status-label">
         <input
           type="checkbox"
@@ -104,12 +152,22 @@ export const TodoItem: React.FC<Props> = ({
 
       {isBeingEdited
         ? (
-          <form>
+          <form
+            className="todo__title-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              edit();
+            }}
+          >
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value="Todo is being edited now"
+              value={editTitle}
+              ref={refInput}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onBlur={() => edit()}
+              onKeyUp={(e) => onEscape(e.key)}
             />
           </form>
         )
@@ -119,7 +177,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={onDelete}
+              onClick={() => onDelete(id)}
             >
               ×
             </button>
