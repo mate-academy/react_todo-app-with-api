@@ -1,24 +1,161 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import {
+  getTodos,
+  addTodo,
+  removeTodo,
+  changeTodo,
+} from './api/todos';
+import { Todo } from './types/Todo';
+import { TodoHeader } from './components/TodoHeader/TodoHeader';
+import { TodoSection } from './components/TodoSection/TodoSection';
+import { TodoFooter } from './components/TodoFooter/TodoFooter';
+import { FilterContextProvider } from './context/FilterContext';
+import { Notification } from './components/Notification/Notification';
+import { ErrorType } from './types/ErrorType';
+import { NewTodo } from './types/NewTodo';
 
-const USER_ID = 0;
+const USER_ID = 9955;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [loadingId, setLoadingId] = useState<number[]>([]);
+  const [hasError, setHasError] = useState(ErrorType.None);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [isNewTodoAdded, setIsNewTodoAdded] = useState(false);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => setHasError(ErrorType.Loading));
+  }, []);
+
+  const handleAddTodo = useCallback((userId: number, title: string) => {
+    const temp: Todo = {
+      id: 0,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
+    const newTodo: NewTodo = {
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
+    setLoadingId(state => [
+      ...state,
+      temp.id,
+    ]);
+    setTempTodo(temp);
+    setIsInputDisabled(true);
+    setHasError(ErrorType.None);
+
+    addTodo(userId, newTodo)
+      .then((response) => {
+        setTodos(state => [
+          ...state,
+          response,
+        ]);
+        setIsNewTodoAdded(true);
+      })
+      .catch(() => setHasError(ErrorType.Add))
+      .finally(() => {
+        setTempTodo(null);
+        setLoadingId([]);
+        setIsInputDisabled(false);
+      });
+  }, []);
+
+  const handleRemoveTodo = useCallback((todoId: number) => {
+    setLoadingId(state => ([
+      ...state,
+      todoId,
+    ]));
+    setHasError(ErrorType.None);
+
+    removeTodo(todoId)
+      .then(() => setTodos(state => state.filter(todo => todo.id !== todoId)))
+      .catch(() => setHasError(ErrorType.Remove))
+      .finally(() => {
+        setLoadingId(state => (
+          state.filter(item => item !== todoId)
+        ));
+      });
+  }, []);
+
+  const handleChangeTodo = useCallback((
+    todoId: number,
+    data: {
+      completed?: boolean,
+      title?: string,
+    },
+  ) => {
+    setLoadingId(state => ([
+      ...state,
+      todoId,
+    ]));
+
+    changeTodo(todoId, data)
+      .then(() => {
+        setTodos(state => {
+          return state.map(item => {
+            if (item.id === todoId) {
+              return { ...item, ...data };
+            }
+
+            return item;
+          });
+        });
+      })
+      .catch(() => setHasError(ErrorType.Update))
+      .finally(() => setLoadingId(state => (
+        state.filter(item => item !== todoId)
+      )));
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoHeader
+          todos={todos}
+          isInputDisabled={isInputDisabled}
+          isNewTodoAdded={isNewTodoAdded}
+          setIsNewTodoAdded={setIsNewTodoAdded}
+          setHasError={setHasError}
+          onTodoAdd={handleAddTodo}
+          onChange={handleChangeTodo}
+        />
+        <FilterContextProvider>
+          <TodoSection
+            todos={todos}
+            loadingId={loadingId}
+            tempTodo={tempTodo}
+            onRemove={handleRemoveTodo}
+            onChange={handleChangeTodo}
+          />
+
+          {todos.length > 0 && (
+            <TodoFooter
+              todos={todos}
+              onRemove={handleRemoveTodo}
+            />
+          )}
+        </FilterContextProvider>
+      </div>
+
+      <Notification
+        hasError={hasError}
+        setHasError={setHasError}
+      />
+    </div>
   );
 };
