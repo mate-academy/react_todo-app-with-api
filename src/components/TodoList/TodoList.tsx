@@ -14,25 +14,23 @@ export const TodoList: FC<TodosProps> = memo(({
   renameTodo,
   updateTitle,
   setTempId,
-}) => {
-  return (
-    <>
-      {todos.map((todo: Todo) => (
-        <TodoItem
-          tempId={tempId}
-          todo={todo}
-          key={todo.id}
-          loading={
-            deletingTodoIDs.includes(todo.id) || tempIds.includes(todo.id)
-          }
-          setTempId={setTempId}
-          completeTodo={completeTodo}
-          removeTodo={removeTodo}
-          renameTodo={renameTodo}
-          updateTitle={updateTitle}
-        />
-      ))}
-      {tempTodo && <TodoItem loading todo={tempTodo} />}
-    </>
-  );
-});
+}) => (
+  <>
+    {todos.map((todo: Todo) => (
+      <TodoItem
+        tempId={tempId}
+        todo={todo}
+        key={todo.id}
+        loading={
+          deletingTodoIDs.includes(todo.id) || tempIds.includes(todo.id)
+        }
+        setTempId={setTempId}
+        completeTodo={completeTodo}
+        removeTodo={removeTodo}
+        renameTodo={renameTodo}
+        updateTitle={updateTitle}
+      />
+    ))}
+    {tempTodo && <TodoItem loading todo={tempTodo} />}
+  </>
+));
