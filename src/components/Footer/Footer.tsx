@@ -20,56 +20,54 @@ export const Footer: React.FC<Props> = ({
   counter,
 }) => {
   return (
-    <div>
-      <footer className="todoapp__footer">
-        <span className="todo-count">
-          {`${counter} items left`}
-        </span>
+    <footer className="todoapp__footer">
+      <span className="todo-count">
+        {`${counter} items left`}
+      </span>
 
-        <nav className="filter">
-          <a
-            href="#/"
-            className={classNames(
-              'filter__link',
-              { selected: filterBy === FilterBy.ALL },
-            )}
-            onClick={() => handleFilterButtonClick(FilterBy.ALL)}
-          >
-            All
-          </a>
-
-          <a
-            href="#/active"
-            className={classNames(
-              'filter__link',
-              { selected: filterBy === FilterBy.ACTIVE },
-            )}
-            onClick={() => handleFilterButtonClick(FilterBy.ACTIVE)}
-          >
-            Active
-          </a>
-
-          <a
-            href="#/completed"
-            className={classNames(
-              'filter__link',
-              { selected: filterBy === FilterBy.COMPLETED },
-            )}
-            onClick={() => handleFilterButtonClick(FilterBy.COMPLETED)}
-          >
-            Completed
-          </a>
-        </nav>
-
-        <button
-          type="button"
-          className={classNames('todoapp__clear-completed',
-            { hidden: !isSomeTodoCompleted })}
-          onClick={handleClear}
+      <nav className="filter">
+        <a
+          href="#/"
+          className={classNames(
+            'filter__link',
+            { selected: filterBy === FilterBy.ALL },
+          )}
+          onClick={() => handleFilterButtonClick(FilterBy.ALL)}
         >
-          Clear completed
-        </button>
-      </footer>
-    </div>
+          All
+        </a>
+
+        <a
+          href="#/active"
+          className={classNames(
+            'filter__link',
+            { selected: filterBy === FilterBy.ACTIVE },
+          )}
+          onClick={() => handleFilterButtonClick(FilterBy.ACTIVE)}
+        >
+          Active
+        </a>
+
+        <a
+          href="#/completed"
+          className={classNames(
+            'filter__link',
+            { selected: filterBy === FilterBy.COMPLETED },
+          )}
+          onClick={() => handleFilterButtonClick(FilterBy.COMPLETED)}
+        >
+          Completed
+        </a>
+      </nav>
+
+      <button
+        type="button"
+        className={classNames('todoapp__clear-completed',
+          { hidden: !isSomeTodoCompleted })}
+        onClick={handleClear}
+      >
+        Clear completed
+      </button>
+    </footer>
   );
 };

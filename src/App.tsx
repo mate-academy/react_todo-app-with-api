@@ -20,14 +20,14 @@ const USER_ID = 10217;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [query, setQuery] = useState<string>('');
-  const [isQueryDisabled, setIsQueryDisabled] = useState<boolean>(false);
+  const [query, setQuery] = useState('');
+  const [isQueryDisabled, setIsQueryDisabled] = useState(false);
   const [filterBy, setFilterBy] = useState<FilterByType>(FilterBy.ALL);
   const [error, setError] = useState<ErrorType>(ErrorType.INITIAL);
   const [processedIds, setProcessedIds] = useState<number[]>([]);
-  const [inputTitle, setInputTitle] = useState<string>('');
+  const [inputTitle, setInputTitle] = useState('');
   const [currTodoId, setCurrTodoId] = useState<number | null>(null);
-  const [isEditingFinished, setIsEditingFinished] = useState<boolean>(false);
+  const [isEditingFinished, setIsEditingFinished] = useState(false);
 
   const filteredTodos = useMemo(() => (
     todos.filter(todo => {
@@ -236,7 +236,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(todosFromServer => setTodos(todosFromServer))
+      .then(setTodos)
       .catch(() => {
         setError(ErrorType.GET);
       });
