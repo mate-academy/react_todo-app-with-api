@@ -1,5 +1,4 @@
 import { Todo } from '../../types/Todo';
-// eslint-disable-next-line import/no-cycle
 import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {

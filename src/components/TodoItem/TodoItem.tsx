@@ -1,8 +1,7 @@
 import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
-// eslint-disable-next-line import/no-cycle
-import { FetchContext } from '../../App';
+import { FetchContext } from '../../context/FetchContext';
 
 interface Props {
   todo: Todo;

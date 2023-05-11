@@ -4,23 +4,13 @@ import classNames from 'classnames';
 import { Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
 import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
-// eslint-disable-next-line import/no-cycle
 import { TodoList } from './components/TodoList';
 import { NewTodo } from './components/NewTodo';
 import { USER_ID } from './constants/userid';
 import { FILTERS } from './constants/filters';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
-
-interface FetchContextType {
-  deleteTodos: (id: number) => Promise<void>;
-  updateTodoComplete: (id: number, data: Partial<Todo>) => Promise<void>;
-}
-
-export const FetchContext = React.createContext<FetchContextType>({
-  deleteTodos: () => Promise.resolve(),
-  updateTodoComplete: () => Promise.resolve(),
-});
+import { FetchContext } from './context/FetchContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
