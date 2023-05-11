@@ -18,6 +18,10 @@ export const TodoFilter: React.FC<Props> = ({
 }) => {
   const itemsLeft = todos.filter((todo) => !todo.completed).length;
 
+  const handleFilterType = (filter: FilterType) => () => {
+    setFilterType(filter);
+  };
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
@@ -33,7 +37,7 @@ export const TodoFilter: React.FC<Props> = ({
               selected: filterType === FilterType.ALL,
             },
           )}
-          onClick={() => setFilterType(FilterType.ALL)}
+          onClick={handleFilterType(FilterType.ALL)}
         >
           {FilterType.ALL}
         </a>
@@ -46,7 +50,7 @@ export const TodoFilter: React.FC<Props> = ({
               selected: filterType === FilterType.ACTIVE,
             },
           )}
-          onClick={() => setFilterType(FilterType.ACTIVE)}
+          onClick={handleFilterType(FilterType.ACTIVE)}
         >
           {FilterType.ACTIVE}
         </a>
@@ -59,7 +63,7 @@ export const TodoFilter: React.FC<Props> = ({
               selected: filterType === FilterType.COMPLETED,
             },
           )}
-          onClick={() => setFilterType(FilterType.COMPLETED)}
+          onClick={handleFilterType(FilterType.COMPLETED)}
         >
           {FilterType.COMPLETED}
         </a>

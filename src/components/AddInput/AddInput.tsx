@@ -19,13 +19,13 @@ export const AddInput: React.FC<Props> = React.memo(({
   const [input, setInput] = useState('');
   const inputElem = useRef<HTMLInputElement>(null);
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
       const title = input.trim();
 
       if (title) {
-        await handleAddTodo(title);
+        handleAddTodo(title);
         setInput('');
       }
     } catch {

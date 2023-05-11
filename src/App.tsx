@@ -25,12 +25,16 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const completedTodos = todos.every((todo) => todo.completed);
 
+  function generateUniqId() {
+    return Math.floor(Math.random() * 1000000000);
+  }
+
   const fetchData = async () => {
+    setIsLoading(true);
     const todosFromServer = await getTodo(USER_ID);
 
     try {
       setTodo(todosFromServer);
-      setIsLoading(true);
     } catch {
       setError('Unable to load a todo');
       setIsLoading(false);
@@ -42,9 +46,6 @@ export const App: React.FC = () => {
   const filterTodo = useMemo(() => {
     return todos.filter((todo) => {
       switch (filterType) {
-        case FilterType.ALL:
-          return todo;
-
         case FilterType.ACTIVE:
           return !todo.completed;
 
@@ -62,7 +63,7 @@ export const App: React.FC = () => {
       setIsDisableInput(true);
 
       const data = {
-        id: Math.floor(Math.random() * 100),
+        id: generateUniqId(),
         userId: USER_ID,
         title,
         completed: false,
@@ -140,9 +141,11 @@ export const App: React.FC = () => {
     if (error) {
       const timeout = setTimeout(() => {
         setError('');
-      }, 3000);
 
-      clearTimeout(timeout);
+        return () => {
+          clearTimeout(timeout);
+        };
+      }, 3000);
     }
   }, [error]);
 
@@ -196,7 +199,7 @@ export const App: React.FC = () => {
           </div>
         )}
 
-      {error && (
+      {error || (
         <AddError
           error={error}
         />
