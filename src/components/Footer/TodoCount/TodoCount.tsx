@@ -1,11 +1,16 @@
-interface Props {
-  count: number;
-}
+import { useContext } from 'react';
+import { FooterContext } from '../../../context/FooterContext';
 
-export const TodoCount: React.FC<Props> = ({ count }) => {
+// interface Props {
+//   count: number;
+// }
+
+export const TodoCount: React.FC = () => {
+  const { notCompletedTodoCount } = useContext(FooterContext);
+
   return (
     <span className="todo-count">
-      {`${count} items left`}
+      {`${notCompletedTodoCount} items left`}
     </span>
   );
 };

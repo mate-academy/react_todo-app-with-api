@@ -11,6 +11,7 @@ import { FILTERS } from './constants/filters';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
 import { FetchContext } from './context/FetchContext';
+import { FooterContext } from './context/FooterContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -208,12 +209,15 @@ export const App: React.FC = () => {
         )}
 
         {todos.length > 0 && (
-          <Footer
-            count={notCompletedTodoCount}
-            onSetActiveFilter={setActiveFilter}
-            isCompletedExist={isCompletedExist}
-            onDelete={deleteCompletedTodos}
-          />
+          <FooterContext.Provider value={{
+            notCompletedTodoCount,
+            setActiveFilter,
+            isCompletedExist,
+            deleteCompletedTodos,
+          }}
+          >
+            <Footer />
+          </FooterContext.Provider>
         )}
       </div>
 

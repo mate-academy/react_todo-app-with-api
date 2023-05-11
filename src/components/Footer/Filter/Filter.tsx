@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import classNames from 'classnames';
 import { FILTERS } from '../../../constants/filters';
+import { FooterContext } from '../../../context/FooterContext';
 
-interface Props {
-  onSetActiveFilter: React.Dispatch<React.SetStateAction<FILTERS>>;
-}
+// interface Props {
+//   onSetActiveFilter: React.Dispatch<React.SetStateAction<FILTERS>>;
+// }
 
-export const Filter: React.FC<Props> = ({ onSetActiveFilter }) => {
+export const Filter: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState(FILTERS.ALL);
+  const { setActiveFilter } = useContext(FooterContext);
 
   const handleFilter = (filterType: FILTERS) => {
-    onSetActiveFilter(filterType);
+    setActiveFilter(filterType);
     setSelectedFilter(filterType);
   };
 
