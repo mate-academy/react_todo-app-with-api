@@ -1,11 +1,11 @@
-import { Todo } from '../types/Todo';
+import { AddedTodo, Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number): Promise<Todo[]> => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const addTodo = (data: Todo): Promise<Todo> => {
+export const addTodo = (data: AddedTodo): Promise<Todo> => {
   return client.post<Todo>('/todos', data);
 };
 

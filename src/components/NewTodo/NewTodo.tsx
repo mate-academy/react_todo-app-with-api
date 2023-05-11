@@ -1,26 +1,23 @@
 import { useState } from 'react';
 import { USER_ID } from '../../constants/userid';
-import { Todo } from '../../types/Todo';
+import { AddedTodo, Todo } from '../../types/Todo';
 
 // const USER_ID = 10282;
 
 interface Props {
-  maxId: number;
   onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  onSetPreperedTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  onSetPreperedTodo: React.Dispatch<React.SetStateAction<AddedTodo | null>>;
   onSetTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   isLoading: boolean;
 }
 
 export const NewTodo: React.FC<Props> = ({
-  maxId,
   onSetErrorMessage,
   onSetPreperedTodo,
   onSetTempTodo,
   isLoading,
 }) => {
   const [title, setTitle] = useState<string>('');
-  const [idCounter, setIdCounter] = useState<number>(maxId);
 
   const handleInputTodo = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -36,10 +33,7 @@ export const NewTodo: React.FC<Props> = ({
       return;
     }
 
-    setIdCounter(currentId => currentId + 1);
-
     const preparedTodo = {
-      id: idCounter,
       userId: USER_ID,
       title: title.trim(),
       completed: false,

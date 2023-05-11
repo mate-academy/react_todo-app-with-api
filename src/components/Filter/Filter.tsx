@@ -15,7 +15,6 @@ export const Filter: React.FC<Props> = ({ onSetActiveFilter }) => {
   };
 
   return (
-    // {/* Active filter should have a 'selected' class */}
     <nav className="filter">
       <a
         href="#/"

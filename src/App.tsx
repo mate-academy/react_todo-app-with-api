@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from './types/Todo';
+import { AddedTodo, Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
 import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
 import { TodoList } from './components/TodoList';
@@ -10,13 +10,15 @@ import { NewTodo } from './components/NewTodo';
 import { USER_ID } from './constants/userid';
 import { FILTERS } from './constants/filters';
 import { ErrorMessage } from './components/ErrorMessage';
+import { TodoCount } from './components/TodoCount';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
-  const [preperedTodo, setPreperedTodo] = useState<Todo | null>(null);
+
+  const [preperedTodo, setPreperedTodo] = useState<AddedTodo | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deleteTodoID, setDeleteTodoID] = useState<number | null>(null);
@@ -29,7 +31,6 @@ export const App: React.FC = () => {
 
   const notCompletedTodoCount = todos.filter(todo => !todo.completed).length;
   const isCompletedExist = todos.length !== notCompletedTodoCount;
-  const maxId = Math.max(...todos.map(todo => todo.id));
 
   const clearCompletedButtonStyles = !isCompletedExist
     ? {
@@ -195,7 +196,6 @@ export const App: React.FC = () => {
           )}
 
           <NewTodo
-            maxId={maxId}
             onSetErrorMessage={setErrorMessage}
             onSetPreperedTodo={setPreperedTodo}
             onSetTempTodo={setTempTodo}
@@ -219,10 +219,7 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${notCompletedTodoCount} items left`}
-            </span>
-
+            <TodoCount count={notCompletedTodoCount} />
             <Filter onSetActiveFilter={setActiveFilter} />
 
             <button
