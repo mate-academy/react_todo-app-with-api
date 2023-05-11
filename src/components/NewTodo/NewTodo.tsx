@@ -6,7 +6,7 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   maxId: number;
-  onSetErrorStates: (message: string, status: boolean) => void;
+  onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>
   onSetPreperedTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   onSetTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   isLoading: boolean;
@@ -14,7 +14,7 @@ interface Props {
 
 export const NewTodo: React.FC<Props> = ({
   maxId,
-  onSetErrorStates,
+  onSetErrorMessage,
   onSetPreperedTodo,
   onSetTempTodo,
   isLoading,
@@ -31,7 +31,7 @@ export const NewTodo: React.FC<Props> = ({
 
     if (title.trim() === '') {
       setTitle('');
-      onSetErrorStates('Title can\'t be empty', true);
+      onSetErrorMessage('Title can\'t be empty');
 
       return;
     }
