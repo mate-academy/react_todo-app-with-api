@@ -4,7 +4,8 @@
   },
 
   "Footer": {
-    "count": "items left",
+    "count_one": "{{count}} item left",
+    "count_other": "{{count}} items left",
     "all": "All",
     "completed": "Completed",
     "active": "Active",
@@ -18,6 +19,9 @@
     "update": "Unable to update a todo",
     "empty": "Title can't be empty",
     "symbols": "Title can't contain only symbols"
+  },
 
+  "EditForm": {
+    "empty": "Empty todo will be deleted"
   }
 }
