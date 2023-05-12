@@ -5,7 +5,7 @@ export const validateTitle = (inputTitle: string, t: TFunction) => {
     return t('Error.empty');
   }
 
-  if (!/^[a-zA-Z0-9]+$/.test(inputTitle.trim())) {
+  if (!/[a-zA-Zа-яА-ЯіІїЇ0-9]/i.test(inputTitle.trim())) {
     return t('Error.symbols');
   }
 

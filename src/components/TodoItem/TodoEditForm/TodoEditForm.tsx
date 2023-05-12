@@ -1,3 +1,6 @@
+import { useTranslation } from 'react-i18next';
+import React from 'react';
+
 interface Props {
   editedTitle: string;
   onInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -6,13 +9,15 @@ interface Props {
   onCancel: (event: React.KeyboardEvent) => void;
 }
 
-export const TodoEditForm: React.FC<Props> = ({
+export const TodoEditForm: React.FC<Props> = React.memo(({
   editedTitle,
   onInput,
   onUpdate,
   onFinishEdit,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <form
       onSubmit={onUpdate}
@@ -20,7 +25,7 @@ export const TodoEditForm: React.FC<Props> = ({
       <input
         type="text"
         className="todo__title-field"
-        placeholder="Empty todo will be deleted"
+        placeholder={t('EditForm.empty') as string}
         value={editedTitle}
         onChange={onInput}
         onBlur={onFinishEdit}
@@ -30,4 +35,4 @@ export const TodoEditForm: React.FC<Props> = ({
       />
     </form>
   );
-};
+});

@@ -1,9 +1,14 @@
+import React from 'react';
+
 interface Props {
   checked: boolean;
   onChangeStatus: () => void;
 }
 
-export const TodoStatus: React.FC<Props> = ({ checked, onChangeStatus }) => {
+export const TodoStatus: React.FC<Props> = React.memo(({
+  checked,
+  onChangeStatus,
+}) => {
   return (
     <label className="todo__status-label">
       <input
@@ -14,4 +19,4 @@ export const TodoStatus: React.FC<Props> = ({ checked, onChangeStatus }) => {
       />
     </label>
   );
-};
+});

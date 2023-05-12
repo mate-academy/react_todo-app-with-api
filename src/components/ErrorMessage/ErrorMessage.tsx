@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 interface Props {
   errorMessage: string | null;
@@ -8,7 +8,7 @@ interface Props {
 
 }
 
-export const ErrorMessage: React.FC<Props> = ({
+export const ErrorMessage: React.FC<Props> = React.memo(({
   errorMessage,
   onSetErrorMessage,
 }) => {
@@ -42,4 +42,4 @@ export const ErrorMessage: React.FC<Props> = ({
 
     </div>
   );
-};
+});

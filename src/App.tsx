@@ -1,5 +1,10 @@
-// eslint-disable-next-line object-curly-newline
-import React, { useEffect, useMemo, useState, Suspense } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  Suspense,
+  useCallback,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import 'bulma/css/bulma.css';
 import { Todo } from './types/Todo';
@@ -14,6 +19,7 @@ import { FetchContext } from './context/FetchContext';
 import { FooterContext } from './context/FooterContext';
 import { Header } from './components/Header';
 import { HeaderContext } from './context/HeaderContext';
+import { LanguageSelection } from './components/LanguageSelection';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -23,7 +29,7 @@ export const App: React.FC = () => {
   const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
   const [isUpdatingAllTodo, setIsUpdatingAllTodo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setToggleStatus(todos.every(todo => todo.completed));
@@ -73,7 +79,7 @@ export const App: React.FC = () => {
   // #endregion
 
   // #region Upload function
-  const uploadTodo = async (
+  const uploadTodo = useCallback(async (
     addedTodo: Omit<Todo, 'id'>,
     temporaryTodo: Todo | null,
   ): Promise<void> => {
@@ -88,11 +94,11 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage(t('Error.add'));
     }
-  };
+  }, []);
   // #endregion
 
   // #region Delete functions
-  const deleteTodos = async (id: number): Promise<void> => {
+  const deleteTodos = useCallback(async (id: number): Promise<void> => {
     try {
       await deleteTodo(id);
 
@@ -102,9 +108,9 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage(t('Error.delete'));
     }
-  };
+  }, []);
 
-  const deleteCompletedTodos = async (): Promise<void> => {
+  const deleteCompletedTodos = useCallback(async (): Promise<void> => {
     setIsDeletingCompleted(true);
     try {
       const completedTodos = todos.filter(todo => todo.completed);
@@ -117,11 +123,11 @@ export const App: React.FC = () => {
     } finally {
       setIsDeletingCompleted(false);
     }
-  };
+  }, [todos]);
   // #endregion
 
   // #region Update functions
-  const updateTodo = async (
+  const updateTodo = useCallback(async (
     id: number,
     data: Partial<Todo>,
   ): Promise<void> => {
@@ -136,9 +142,9 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage(t('Error.update'));
     }
-  };
+  }, []);
 
-  const updateAllTodosComplete = async (): Promise<void> => {
+  const updateAllTodosComplete = useCallback(async (): Promise<void> => {
     setIsUpdatingAllTodo(true);
     try {
       await Promise.all(todos.map(todo => {
@@ -161,35 +167,39 @@ export const App: React.FC = () => {
     } finally {
       setIsUpdatingAllTodo(false);
     }
-  };
+  }, [todos, toggleStatus]);
   // #endregion
 
-  const locales: { [key: string]: { title: string } } = {
-    en: { title: 'en' },
-    ua: { title: 'ua' },
-  };
+  const headerContextValue = useMemo(() => ({
+    setErrorMessage,
+    uploadTodo,
+  }), [setErrorMessage, uploadTodo]);
+
+  const fetchContextValue = useMemo(() => ({
+    deleteTodos,
+    updateTodo,
+  }), [deleteTodos, updateTodo]);
+
+  const footerContextValue = useMemo(() => ({
+    notCompletedTodoCount,
+    setActiveFilter,
+    isCompletedExist,
+    deleteCompletedTodos,
+  }), [
+    notCompletedTodoCount,
+    setActiveFilter,
+    isCompletedExist,
+    deleteCompletedTodos,
+  ]);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="language">
-        {Object.keys(locales).map((locale) => {
-          return (
-            <button
-              key={locale}
-              type="button"
-              className="language__button button is-primary is-outlined"
-              onClick={() => i18n.changeLanguage(locale)}
-            >
-              {locales[locale].title}
-            </button>
-          );
-        })}
-      </div>
+      <LanguageSelection />
 
       <div className="todoapp__content">
-        <HeaderContext.Provider value={{ setErrorMessage, uploadTodo }}>
+        <HeaderContext.Provider value={headerContextValue}>
           <Header
             todos={todos}
             toggleStatus={toggleStatus}
@@ -199,7 +209,7 @@ export const App: React.FC = () => {
 
         {todos && (
           <section className="todoapp__main">
-            <FetchContext.Provider value={{ deleteTodos, updateTodo }}>
+            <FetchContext.Provider value={fetchContextValue}>
               <TodoList
                 todos={visibleTodos}
                 tempTodo={tempTodo}
@@ -212,13 +222,7 @@ export const App: React.FC = () => {
         )}
 
         {todos.length > 0 && (
-          <FooterContext.Provider value={{
-            notCompletedTodoCount,
-            setActiveFilter,
-            isCompletedExist,
-            deleteCompletedTodos,
-          }}
-          >
+          <FooterContext.Provider value={footerContextValue}>
             <Footer />
           </FooterContext.Provider>
         )}

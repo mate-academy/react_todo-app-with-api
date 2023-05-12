@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { NewTodo } from '../NewTodo';
@@ -9,7 +10,7 @@ interface Props {
   onUpdateAllTodosComplete: () => Promise<void>
 }
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   todos,
   toggleStatus,
   onUpdateAllTodosComplete,
@@ -29,4 +30,4 @@ export const Header: React.FC<Props> = ({
       <NewTodo />
     </header>
   );
-};
+});

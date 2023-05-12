@@ -1,5 +1,10 @@
 import classNames from 'classnames';
-import { useContext, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import { FetchContext } from '../../context/FetchContext';
 import { TodoEditForm } from './TodoEditForm';
@@ -11,7 +16,7 @@ interface Props {
   isPerentLoading: boolean;
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   isPerentLoading,
 }) => {
@@ -22,32 +27,34 @@ export const TodoItem: React.FC<Props> = ({
   const { deleteTodos, updateTodo } = useContext(FetchContext);
   const { title, completed, id } = todo;
 
-  const handleInputTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputTitle = useCallback((
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setEditedTitle(event.target.value);
-  };
+  }, []);
 
-  const handleCompleteStatus = () => {
+  const handleCompleteStatus = useCallback(() => {
     setIsLoading(true);
     updateTodo(id, { completed: !checked }).finally(() => {
       setIsLoading(false);
     });
     setChecked(!checked);
-  };
+  }, [checked, updateTodo]);
 
   useEffect(() => {
     setChecked(completed);
   }, [completed]);
 
-  const handleTodoDelete = () => {
+  const handleTodoDelete = useCallback(() => {
     setIsLoading(true);
     deleteTodos(id).finally(() => setIsLoading(false));
-  };
+  }, [deleteTodos]);
 
-  const handleDoubleClick = () => {
+  const handleDoubleClick = useCallback(() => {
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleUpdateTitle = (event?: React.FormEvent) => {
+  const handleUpdateTitle = useCallback((event?: React.FormEvent) => {
     if (event) {
       event.preventDefault();
     }
@@ -59,7 +66,11 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (editedTitle.trim() === '') {
-      handleTodoDelete();
+      setIsLoading(true);
+      setIsEditing(false);
+      deleteTodos(id).finally(() => setIsLoading(false));
+
+      return;
     }
 
     setIsLoading(true);
@@ -67,18 +78,18 @@ export const TodoItem: React.FC<Props> = ({
       setIsLoading(false);
     });
     setIsEditing(false);
-  };
+  }, [title, editedTitle, updateTodo, deleteTodos]);
 
-  const handleFinishEdit = () => {
+  const handleFinishEdit = useCallback(() => {
     handleUpdateTitle();
-  };
+  }, []);
 
-  const handleCancelEdit = (event: React.KeyboardEvent) => {
+  const handleCancelEdit = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
       setEditedTitle(todo.title);
     }
-  };
+  }, []);
 
   return (
     <div className={classNames('todo', { completed })}>
@@ -113,4 +124,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

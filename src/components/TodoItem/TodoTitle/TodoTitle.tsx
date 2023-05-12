@@ -1,10 +1,12 @@
+import React from 'react';
+
 interface Props {
   title: string;
   onDoubleClick: () => void;
   onDelete: () => void;
 }
 
-export const TodoTitle: React.FC<Props> = ({
+export const TodoTitle: React.FC<Props> = React.memo(({
   title,
   onDoubleClick,
   onDelete,
@@ -26,4 +28,4 @@ export const TodoTitle: React.FC<Props> = ({
       </button>
     </>
   );
-};
+});

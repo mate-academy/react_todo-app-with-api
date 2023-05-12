@@ -1,11 +1,11 @@
 // eslint-disable-next-line object-curly-newline
-import { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { USER_ID } from '../../constants/userid';
 import { validateTitle } from '../../utils/validateTitle';
 import { HeaderContext } from '../../context/HeaderContext';
 
-export const NewTodo: React.FC = () => {
+export const NewTodo: React.FC = React.memo(() => {
   const [title, setTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
@@ -73,4 +73,4 @@ export const NewTodo: React.FC = () => {
       />
     </form>
   );
-};
+});

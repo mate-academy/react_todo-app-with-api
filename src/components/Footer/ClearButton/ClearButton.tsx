@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { FooterContext } from '../../../context/FooterContext';
 
-export const ClearButton: React.FC = () => {
+export const ClearButton: React.FC = React.memo(() => {
   const { isCompletedExist, deleteCompletedTodos } = useContext(FooterContext);
   const { t } = useTranslation();
 
@@ -18,4 +18,4 @@ export const ClearButton: React.FC = () => {
       {t('Footer.clear')}
     </button>
   );
-};
+});

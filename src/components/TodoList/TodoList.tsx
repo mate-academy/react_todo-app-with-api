@@ -1,3 +1,4 @@
+import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -10,7 +11,7 @@ interface Props {
   toggleStatus: boolean;
 }
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
   tempTodo,
   isDeletingCompleted,
@@ -49,4 +50,4 @@ export const TodoList: React.FC<Props> = ({
       )}
     </TransitionGroup>
   );
-};
+});
