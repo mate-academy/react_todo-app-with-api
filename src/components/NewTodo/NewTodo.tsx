@@ -1,23 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+// eslint-disable-next-line object-curly-newline
+import { useContext, useEffect, useRef, useState } from 'react';
 import { USER_ID } from '../../constants/userid';
-import { Todo } from '../../types/Todo';
 import { validateTitle } from '../../utils/validateTitle';
+import { HeaderContext } from '../../context/HeaderContext';
 
-interface Props {
-  onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  uploadTodo: (
-    addedTodo: Omit<Todo, 'id'>, temporaryTodo: Todo | null
-  ) => Promise<void>
-}
-
-export const NewTodo: React.FC<Props> = ({
-  onSetErrorMessage,
-  uploadTodo,
-}) => {
+export const NewTodo: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { setErrorMessage, uploadTodo } = useContext(HeaderContext);
 
   useEffect(() => {
     if (!isInitialRender && inputRef.current) {
@@ -37,7 +29,7 @@ export const NewTodo: React.FC<Props> = ({
 
     if (errorMessage) {
       setTitle('');
-      onSetErrorMessage(errorMessage);
+      setErrorMessage(errorMessage);
       setIsLoading(false);
 
       return;

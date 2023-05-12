@@ -1,17 +1,16 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
 import { Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
 import { addTodo, deleteTodo, getTodos, patchTodo } from './api/todos';
 import { TodoList } from './components/TodoList';
-import { NewTodo } from './components/NewTodo';
 import { USER_ID } from './constants/userid';
 import { FILTERS } from './constants/filters';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
 import { FetchContext } from './context/FetchContext';
 import { FooterContext } from './context/FooterContext';
+import { Header } from './components/Header';
+import { HeaderContext } from './context/HeaderContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -166,22 +165,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length > 0 && (
-            <button
-              type="button"
-              className={classNames('todoapp__toggle-all', {
-                active: toggleStatus,
-              })}
-              onClick={updateAllTodosComplete}
-            />
-          )}
-
-          <NewTodo
-            onSetErrorMessage={setErrorMessage}
-            uploadTodo={uploadTodo}
+        <HeaderContext.Provider value={{ setErrorMessage, uploadTodo }}>
+          <Header
+            todos={todos}
+            toggleStatus={toggleStatus}
+            onUpdateAllTodosComplete={updateAllTodosComplete}
           />
-        </header>
+        </HeaderContext.Provider>
 
         {todos && (
           <section className="todoapp__main">
