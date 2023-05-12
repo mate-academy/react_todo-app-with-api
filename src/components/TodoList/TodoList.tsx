@@ -5,12 +5,16 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   isDeletingCompleted: boolean;
+  isUpdatingAllTodo: boolean;
+  toggleStatus: boolean;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
   isDeletingCompleted,
+  isUpdatingAllTodo,
+  toggleStatus,
 }) => {
   return (
     <>
@@ -20,6 +24,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           isPerentLoading={
             (isDeletingCompleted && todo.completed)
+            || (isUpdatingAllTodo && todo.completed === toggleStatus)
           }
         />
       ))}

@@ -2,6 +2,9 @@ import classNames from 'classnames';
 import { useContext, useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { FetchContext } from '../../context/FetchContext';
+import { TodoEditForm } from './TodoEditForm';
+import { TodoTitle } from './TodoTitle';
+import { TodoStatus } from './TodoStatus';
 
 interface Props {
   todo: Todo;
@@ -16,28 +19,32 @@ export const TodoItem: React.FC<Props> = ({
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [checked, setChecked] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { deleteTodos, updateTodoComplete } = useContext(FetchContext);
+  const { deleteTodos, updateTodo } = useContext(FetchContext);
   const { title, completed, id } = todo;
 
-  const handleCompleteChange = () => {
+  const handleInputTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditedTitle(event.target.value);
+  };
+
+  const handleCompleteStatus = () => {
     setIsLoading(true);
-    updateTodoComplete(id, { completed: !checked }).finally(() => {
+    updateTodo(id, { completed: !checked }).finally(() => {
       setIsLoading(false);
     });
     setChecked(!checked);
   };
 
   useEffect(() => {
-    setChecked(todo.completed);
-  }, [todo.completed]);
-
-  const handleDoubleClick = () => {
-    setIsEditing(true);
-  };
+    setChecked(completed);
+  }, [completed]);
 
   const handleTodoDelete = () => {
     setIsLoading(true);
     deleteTodos(id).finally(() => setIsLoading(false));
+  };
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
   };
 
   const handleUpdateTitle = (event?: React.FormEvent) => {
@@ -56,21 +63,17 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     setIsLoading(true);
-    updateTodoComplete(id, { title: editedTitle }).finally(() => {
+    updateTodo(id, { title: editedTitle }).finally(() => {
       setIsLoading(false);
     });
     setIsEditing(false);
   };
 
-  const handleCancelEdit = () => {
+  const handleFinishEdit = () => {
     handleUpdateTitle();
   };
 
-  const handleInputTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTitle(event.target.value);
-  };
-
-  const handleKeyUp = (event: React.KeyboardEvent) => {
+  const handleCancelEdit = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
       setEditedTitle(todo.title);
@@ -79,47 +82,26 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div className={classNames('todo', { completed })}>
-      <label className="todo__status-label">
-        <input
-          type="checkbox"
-          className="todo__status"
-          checked={checked}
-          onChange={handleCompleteChange}
-        />
-      </label>
+      <TodoStatus
+        checked={checked}
+        onChangeStatus={handleCompleteStatus}
+      />
 
       {isEditing ? (
-        <form
-          onSubmit={handleUpdateTitle}
-        >
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={editedTitle}
-            onChange={handleInputTitle}
-            onBlur={handleCancelEdit}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            onKeyUp={handleKeyUp}
-          />
-        </form>
+        <TodoEditForm
+          onUpdate={handleUpdateTitle}
+          editedTitle={editedTitle}
+          onInput={handleInputTitle}
+          onFinishEdit={handleFinishEdit}
+          onCancel={handleCancelEdit}
+        />
       ) : (
-        <>
-          <span
-            className="todo__title"
-            onDoubleClick={handleDoubleClick}
-          >
-            {title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={handleTodoDelete}
-          >
-            ×
-          </button>
-        </>
+        <TodoTitle
+          title={title}
+          onDoubleClick={handleDoubleClick}
+          onDelete={handleTodoDelete}
+
+        />
       )}
 
       <div className={classNames('modal overlay', {

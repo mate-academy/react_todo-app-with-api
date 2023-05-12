@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
-import { addTodo, deleteTodo, getTodos, updateTodo } from './api/todos';
+import { addTodo, deleteTodo, getTodos, patchTodo } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { NewTodo } from './components/NewTodo';
 import { USER_ID } from './constants/userid';
@@ -19,10 +19,8 @@ export const App: React.FC = () => {
   const [toggleStatus, setToggleStatus] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
+  const [isUpdatingAllTodo, setIsUpdatingAllTodo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
-
-  // const [addedTodo, setAddedTodo] = useState<Omit<Todo, 'id'> | null>(null);
-  // const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setToggleStatus(todos.every(todo => todo.completed));
@@ -57,15 +55,12 @@ export const App: React.FC = () => {
 
   // #region Load function
   const loadTodos = async (): Promise<void> => {
-    // setIsLoading(true);
     try {
       const todosFromserver = await getTodos(USER_ID);
 
       setTodos(todosFromserver);
     } catch (error) {
       setErrorMessage('Unable to download todos');
-    } finally {
-      // setIsLoading(false);
     }
   };
 
@@ -123,13 +118,12 @@ export const App: React.FC = () => {
   // #endregion
 
   // #region Update functions
-  const updateTodoComplete = async (
+  const updateTodo = async (
     id: number,
     data: Partial<Todo>,
   ): Promise<void> => {
-    // setIsLoading(true);
     try {
-      const updetedTodo = await updateTodo(id, data);
+      const updetedTodo = await patchTodo(id, data);
 
       setTodos(prevTodos => prevTodos.map(todo => (
         todo.id !== updetedTodo.id
@@ -138,13 +132,11 @@ export const App: React.FC = () => {
       )));
     } catch (error) {
       setErrorMessage('Unable to update a todo');
-    } finally {
-      // setIsLoading(false);
     }
   };
 
   const updateAllTodosComplete = async (): Promise<void> => {
-    // setIsLoading(true);
+    setIsUpdatingAllTodo(true);
     try {
       await Promise.all(todos.map(todo => {
         const updatedTodo = {
@@ -152,7 +144,7 @@ export const App: React.FC = () => {
           completed: !toggleStatus,
         };
 
-        return updateTodoComplete(todo.id, updatedTodo);
+        return updateTodo(todo.id, updatedTodo);
       }));
 
       setTodos(prevTodos => prevTodos.map(todo => ({
@@ -164,7 +156,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to update a todo');
     } finally {
-      // setIsLoading(false);
+      setIsUpdatingAllTodo(false);
     }
   };
   // #endregion
@@ -193,11 +185,13 @@ export const App: React.FC = () => {
 
         {todos && (
           <section className="todoapp__main">
-            <FetchContext.Provider value={{ deleteTodos, updateTodoComplete }}>
+            <FetchContext.Provider value={{ deleteTodos, updateTodo }}>
               <TodoList
                 todos={visibleTodos}
                 tempTodo={tempTodo}
                 isDeletingCompleted={isDeletingCompleted}
+                isUpdatingAllTodo={isUpdatingAllTodo}
+                toggleStatus={toggleStatus}
               />
             </FetchContext.Provider>
           </section>
