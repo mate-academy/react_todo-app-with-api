@@ -1,24 +1,158 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+import { Header } from './components/header';
+import { Main } from './components/main';
+import { Footer } from './components/footer';
+import { Notification } from './components/notification';
+import { Todo } from './types/Todo';
+import { getTodos, deleteTodo, updateTodoComplited } from './api/todos';
 
-const USER_ID = 0;
+const USER_ID = 10283;
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
+  const [todos, setTodos] = useState<Todo[] | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [error, setError] = useState<boolean | string>(false);
+  const [filter, setFilter] = useState<string>('all');
+  const [loading, isLoading] = useState(false);
+  const [loadingID, setLoadingID] = useState(0);
+  const [comletedTodos, setCompletedTodos] = useState<Todo[] | null>(null);
+  let visibleTodos: Todo[] | null = todos;
+
+  if (filter === 'active') {
+    visibleTodos = todos ? todos.filter(todo => !todo.completed) : null;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+  if (filter === 'completed') {
+    visibleTodos = todos ? todos.filter(todo => todo.completed) : null;
+  }
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+  const handleDeleteTodo = async (todoId: number) => {
+    try {
+      setLoadingID(todoId);
+      isLoading(true);
+      await deleteTodo(todoId);
+      setTodos(prevTodos => (
+        prevTodos?.filter(todo => todo.id !== todoId) || null
+      ));
+    } catch {
+      setError('delete');
+    }
+
+    isLoading(false);
+  };
+
+  const handleUpdateTodoIsCompleted = async (
+    id: number,
+    complitedCurrVal: boolean,
+  ) => {
+    try {
+      setLoadingID(id);
+      isLoading(true);
+      await updateTodoComplited(id, {
+        completed: !complitedCurrVal,
+      });
+      setTodos(prevTodos => {
+        const newTodos = prevTodos;
+        const foundTodo = newTodos?.find(todo => todo.id === id);
+
+        if (foundTodo) {
+          foundTodo.completed = !complitedCurrVal;
+        }
+
+        return [...newTodos as Todo[]];
+      });
+    } catch {
+      setError('update');
+    }
+
+    isLoading(false);
+  };
+
+  const handleSetTempTodo = (todo: Todo | null) => {
+    setTempTodo(todo);
+  };
+
+  const handleSetError = (errVal: string | boolean) => {
+    setError(errVal);
+  };
+
+  const HandleSelectFilter = (filterValue: string) => {
+    setFilter(filterValue);
+  };
+
+  const handleClearComplitedTodos = () => {
+    comletedTodos?.map(todo => handleDeleteTodo(todo.id));
+  };
+
+  const loadTodos = async () => {
+    try {
+      await getTodos(USER_ID)
+        .then(res => setTodos(res));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
+  };
+
+  const updateTodos = (todo: Todo) => {
+    setTodos(prevTodos => [...prevTodos as Todo[], todo]);
+  };
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
+  useEffect(() => {
+    if (todos) {
+      setCompletedTodos(todos?.filter(todoa => todoa.completed));
+    }
+  }, [todos]);
+
+  // eslint-disable-next-line no-console
+  console.log('app renders');
+
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <Header
+          setError={handleSetError}
+          handleSetTempTodo={handleSetTempTodo}
+          userId={USER_ID}
+          updateTodos={updateTodos}
+        />
+        {todos && (
+          <>
+            <Main
+              todos={visibleTodos}
+              tempTodo={tempTodo}
+              handleDeleteTodo={handleDeleteTodo}
+              loading={loading}
+              loadingID={loadingID}
+              handleUpdateTodoIsCompleted={handleUpdateTodoIsCompleted}
+            />
+
+            <Footer
+              setFilter={HandleSelectFilter}
+              selectedFilter={filter}
+              comletedTodos={comletedTodos}
+              clearComplitedTodos={handleClearComplitedTodos}
+            />
+          </>
+        )}
+      </div>
+      {error
+      && (
+        <Notification
+          setError={handleSetError}
+          errorText={error}
+        />
+      )}
+    </div>
   );
 };
