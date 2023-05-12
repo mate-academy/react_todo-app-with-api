@@ -1,4 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+// eslint-disable-next-line object-curly-newline
+import React, { useEffect, useMemo, useState, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import 'bulma/css/bulma.css';
 import { Todo } from './types/Todo';
 // eslint-disable-next-line object-curly-newline
 import { addTodo, deleteTodo, getTodos, patchTodo } from './api/todos';
@@ -14,12 +17,13 @@ import { HeaderContext } from './context/HeaderContext';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>('');
   const [toggleStatus, setToggleStatus] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
   const [isUpdatingAllTodo, setIsUpdatingAllTodo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     setToggleStatus(todos.every(todo => todo.completed));
@@ -59,7 +63,7 @@ export const App: React.FC = () => {
 
       setTodos(todosFromserver);
     } catch (error) {
-      setErrorMessage('Unable to download todos');
+      setErrorMessage(t('Error.download'));
     }
   };
 
@@ -82,7 +86,7 @@ export const App: React.FC = () => {
         setTempTodo(null);
       }
     } catch (error) {
-      setErrorMessage('Unable to add a todo');
+      setErrorMessage(t('Error.add'));
     }
   };
   // #endregion
@@ -96,7 +100,7 @@ export const App: React.FC = () => {
         (todo) => todo.id !== id,
       ));
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(t('Error.delete'));
     }
   };
 
@@ -109,7 +113,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
     } catch (error) {
-      setErrorMessage('Unable to delete a todo');
+      setErrorMessage(t('Error.delete'));
     } finally {
       setIsDeletingCompleted(false);
     }
@@ -130,7 +134,7 @@ export const App: React.FC = () => {
           : updetedTodo
       )));
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(t('Error.update'));
     }
   };
 
@@ -153,16 +157,36 @@ export const App: React.FC = () => {
 
       setToggleStatus(!toggleStatus);
     } catch (error) {
-      setErrorMessage('Unable to update a todo');
+      setErrorMessage(t('Error.update'));
     } finally {
       setIsUpdatingAllTodo(false);
     }
   };
   // #endregion
 
+  const locales: { [key: string]: { title: string } } = {
+    en: { title: 'en' },
+    ua: { title: 'ua' },
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
+
+      <div className="language">
+        {Object.keys(locales).map((locale) => {
+          return (
+            <button
+              key={locale}
+              type="button"
+              className="language__button button is-primary is-outlined"
+              onClick={() => i18n.changeLanguage(locale)}
+            >
+              {locales[locale].title}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="todoapp__content">
         <HeaderContext.Provider value={{ setErrorMessage, uploadTodo }}>
@@ -208,3 +232,11 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
+export default function WrappedApp() {
+  return (
+    <Suspense fallback="...loading">
+      <App />
+    </Suspense>
+  );
+}

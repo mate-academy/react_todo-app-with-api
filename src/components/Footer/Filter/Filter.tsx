@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { FILTERS } from '../../../constants/filters';
 import { FooterContext } from '../../../context/FooterContext';
@@ -6,6 +7,7 @@ import { FooterContext } from '../../../context/FooterContext';
 export const Filter: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState(FILTERS.ALL);
   const { setActiveFilter } = useContext(FooterContext);
+  const { t } = useTranslation();
 
   const handleFilter = (filterType: FILTERS) => {
     setActiveFilter(filterType);
@@ -23,7 +25,7 @@ export const Filter: React.FC = () => {
           })}
           onClick={() => handleFilter(filterType)}
         >
-          {filterType}
+          {t(`Footer.${filterType.toLowerCase()}`)}
         </a>
       ))}
     </nav>

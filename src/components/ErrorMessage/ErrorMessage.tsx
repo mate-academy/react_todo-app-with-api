@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import { useEffect } from 'react';
 
 interface Props {
-  errorMessage: string;
-  onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  errorMessage: string | null;
+  onSetErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 
 }
 

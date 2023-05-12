@@ -1,10 +1,12 @@
-export const validateTitle = (inputTitle: string) => {
+import { TFunction } from 'i18next';
+
+export const validateTitle = (inputTitle: string, t: TFunction) => {
   if (inputTitle.trim() === '') {
-    return "Title can't be empty";
+    return t('Error.empty');
   }
 
   if (!/^[a-zA-Z0-9]+$/.test(inputTitle.trim())) {
-    return "Title can't contain only symbols";
+    return t('Error.symbols');
   }
 
   return null;

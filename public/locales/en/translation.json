@@ -1,0 +1,23 @@
+{
+  "NewTodo": {
+    "placeholder": "What needs to be done?"
+  },
+
+  "Footer": {
+    "count": "items left",
+    "all": "All",
+    "completed": "Completed",
+    "active": "Active",
+    "clear": "Clear completed"
+  },
+
+  "Error": {
+    "download": "Unable to download todos",
+    "add": "Unable to add a todo",
+    "delete": "Unable to delete a todo",
+    "update": "Unable to update a todo",
+    "empty": "Title can't be empty",
+    "symbols": "Title can't contain only symbols"
+
+  }
+}

@@ -6,5 +6,7 @@ import './styles/index.scss';
 
 import { App } from './App';
 
+import './utils/i18n';
+
 createRoot(document.getElementById('root') as HTMLDivElement)
   .render(<App />);

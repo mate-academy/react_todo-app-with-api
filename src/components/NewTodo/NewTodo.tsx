@@ -1,5 +1,6 @@
 // eslint-disable-next-line object-curly-newline
 import { useContext, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { USER_ID } from '../../constants/userid';
 import { validateTitle } from '../../utils/validateTitle';
 import { HeaderContext } from '../../context/HeaderContext';
@@ -10,6 +11,7 @@ export const NewTodo: React.FC = () => {
   const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const { setErrorMessage, uploadTodo } = useContext(HeaderContext);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isInitialRender && inputRef.current) {
@@ -25,7 +27,7 @@ export const NewTodo: React.FC = () => {
     event.preventDefault();
     setIsLoading(true);
 
-    const errorMessage = validateTitle(title);
+    const errorMessage = validateTitle(title, t);
 
     if (errorMessage) {
       setTitle('');
@@ -63,7 +65,7 @@ export const NewTodo: React.FC = () => {
       <input
         type="text"
         className="todoapp__new-todo"
-        placeholder="What needs to be done?"
+        placeholder={t('NewTodo.placeholder') as string}
         value={title}
         onChange={handleInputTodo}
         disabled={isLoading}
