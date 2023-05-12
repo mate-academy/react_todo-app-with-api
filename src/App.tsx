@@ -21,8 +21,8 @@ export const App: React.FC = () => {
   const [isDeletingCompleted, setIsDeletingCompleted] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FILTERS>(FILTERS.ALL);
 
-  const [addedTodo, setAddedTodo] = useState<Omit<Todo, 'id'> | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const [addedTodo, setAddedTodo] = useState<Omit<Todo, 'id'> | null>(null);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setToggleStatus(todos.every(todo => todo.completed));
@@ -55,8 +55,9 @@ export const App: React.FC = () => {
     });
   }, [todos, activeFilter]);
 
+  // #region Load function
   const loadTodos = async (): Promise<void> => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       const todosFromserver = await getTodos(USER_ID);
 
@@ -64,38 +65,36 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to download todos');
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadTodos();
   }, []);
+  // #endregion
 
-  const uploadTodo = async (): Promise<void> => {
-    setIsLoading(true);
+  // #region Upload function
+  const uploadTodo = async (
+    addedTodo: Omit<Todo, 'id'>,
+    temporaryTodo: Todo | null,
+  ): Promise<void> => {
     try {
+      setTempTodo(temporaryTodo);
       if (addedTodo) {
         const newTodo = await addTodo(addedTodo);
 
         setTodos(prevTodos => [...prevTodos, newTodo]);
-        setAddedTodo(null);
         setTempTodo(null);
       }
     } catch (error) {
       setErrorMessage('Unable to add a todo');
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    uploadTodo();
-  }, [addedTodo]);
+  // #endregion
 
   // #region Delete functions
   const deleteTodos = async (id: number): Promise<void> => {
-    setIsLoading(true);
     try {
       await deleteTodo(id);
 
@@ -104,13 +103,10 @@ export const App: React.FC = () => {
       ));
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const deleteCompletedTodos = async (): Promise<void> => {
-    setIsLoading(true);
     setIsDeletingCompleted(true);
     try {
       const completedTodos = todos.filter(todo => todo.completed);
@@ -121,17 +117,17 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {
-      setIsLoading(false);
       setIsDeletingCompleted(false);
     }
   };
   // #endregion
 
+  // #region Update functions
   const updateTodoComplete = async (
     id: number,
     data: Partial<Todo>,
   ): Promise<void> => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       const updetedTodo = await updateTodo(id, data);
 
@@ -143,12 +139,12 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to update a todo');
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
   const updateAllTodosComplete = async (): Promise<void> => {
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       await Promise.all(todos.map(todo => {
         const updatedTodo = {
@@ -168,9 +164,10 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to update a todo');
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
+  // #endregion
 
   return (
     <div className="todoapp">
@@ -190,9 +187,7 @@ export const App: React.FC = () => {
 
           <NewTodo
             onSetErrorMessage={setErrorMessage}
-            onSetAddedTodo={setAddedTodo}
-            onSetTempTodo={setTempTodo}
-            isLoading={isLoading}
+            uploadTodo={uploadTodo}
           />
         </header>
 

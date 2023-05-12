@@ -1,34 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { USER_ID } from '../../constants/userid';
 import { Todo } from '../../types/Todo';
-
-// const USER_ID = 10282;
+import { validateTitle } from '../../utils/validateTitle';
 
 interface Props {
   onSetErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  onSetAddedTodo: React.Dispatch<React.SetStateAction<Omit<Todo, 'id'> | null>>;
-  onSetTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  isLoading: boolean;
+  uploadTodo: (
+    addedTodo: Omit<Todo, 'id'>, temporaryTodo: Todo | null
+  ) => Promise<void>
 }
 
 export const NewTodo: React.FC<Props> = ({
   onSetErrorMessage,
-  onSetAddedTodo,
-  onSetTempTodo,
-  isLoading,
+  uploadTodo,
 }) => {
   const [title, setTitle] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialRender, setIsInitialRender] = useState<boolean>(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isInitialRender && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isLoading, isInitialRender]);
 
   const handleInputTodo = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
 
-  const handleTodoAddition = (event: React.FormEvent) => {
+  const handleTodoAddition = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
 
-    if (title.trim() === '') {
+    const errorMessage = validateTitle(title);
+
+    if (errorMessage) {
       setTitle('');
-      onSetErrorMessage('Title can\'t be empty');
+      onSetErrorMessage(errorMessage);
+      setIsLoading(false);
 
       return;
     }
@@ -39,18 +49,20 @@ export const NewTodo: React.FC<Props> = ({
       completed: false,
     };
 
-    onSetAddedTodo(addedTodo);
-    onSetTempTodo({
+    const temporaryTodo = {
       id: 0,
       userId: USER_ID,
       title: title.trim(),
       completed: false,
-    });
+    };
+
     setTitle('');
+    await uploadTodo(addedTodo, temporaryTodo);
+    setIsInitialRender(false);
+    setIsLoading(false);
   };
 
   return (
-    // {/* Add a todo on form submit */}
     <form
       action="#"
       method="POST"
@@ -63,6 +75,7 @@ export const NewTodo: React.FC<Props> = ({
         value={title}
         onChange={handleInputTodo}
         disabled={isLoading}
+        ref={inputRef}
       />
     </form>
   );
