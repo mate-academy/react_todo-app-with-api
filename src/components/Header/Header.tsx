@@ -3,6 +3,7 @@ import { Todo } from '../../types/Todo';
 import { TodoResponse } from '../../types/TodoResponse';
 import { postTodo } from '../../api/todos';
 import { formatTodo } from '../../utils/formatResponse';
+import { USER_ID } from '../../utils/constants';
 
 type Props = {
   todos: Todo[];
@@ -21,25 +22,21 @@ export const Header: React.FC<Props> = ({
   setTodos,
   setIsToggleAll,
 }) => {
-  const [value, setValue] = useState('');
+  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const [focus, setFocus] = useState(false);
   const refInput = useRef<HTMLInputElement>(null);
 
-  const onInputChange = (str: string) => {
-    setValue(() => str);
-  };
-
   const onFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!value) {
+    if (!newTodoTitle) {
       showError('Title can\'t be empty');
 
       return;
     }
 
     const rawTodo = {
-      title: value,
+      title: newTodoTitle,
       completed: false,
     };
 
@@ -47,12 +44,12 @@ export const Header: React.FC<Props> = ({
     setTempTodo({ id: 0, ...rawTodo });
     setIsTempLoading(true);
 
-    postTodo({ ...rawTodo, userId: 10222 })
+    postTodo({ ...rawTodo, userId: USER_ID })
       .then(res => {
         setTodos([...todos, {
           ...formatTodo(res as TodoResponse),
         }]);
-        setValue('');
+        setNewTodoTitle('');
       })
       .catch(() => {
         showError('Unable to add a todo');
@@ -84,8 +81,8 @@ export const Header: React.FC<Props> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={value}
-          onChange={(e) => onInputChange(e.target.value)}
+          value={newTodoTitle}
+          onChange={(e) => setNewTodoTitle(e.target.value)}
           disabled={isDisabled}
           ref={refInput}
         />

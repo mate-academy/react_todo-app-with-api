@@ -5,8 +5,8 @@ import { FILTER_OPTIONS } from '../../utils/constants';
 type Props = {
   todos: Todo[],
   todosToRender: Todo[]
-  setTodosToRender: (arr: Todo[]) => void;
-  setToBeCleared: (arr: Todo[]) => void
+  setTodosToRender: (todos: Todo[]) => void;
+  setToBeCleared: (todos: Todo[]) => void
 };
 
 export const Footer: React.FC<Props> = ({

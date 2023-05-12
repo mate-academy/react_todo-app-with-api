@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { wait } from '../../utils/fetchClient';
 import { TodoError } from '../../types/TodoError';
 
@@ -11,13 +11,13 @@ export const Notification: React.FC<Props> = ({ errors, setErrors }) => {
   const [isHidden, setIsHidden] = useState(false);
   const { title, isImportant } = errors[0];
 
-  const closeError = () => {
+  const closeError = useCallback(() => {
     setIsHidden(true);
     wait(900).then(() => {
       setErrors(prev => prev.slice(1));
       setIsHidden(false);
     });
-  };
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(closeError, 3000);

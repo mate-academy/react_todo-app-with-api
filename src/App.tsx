@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './components/UserWarning';
 import { USER_ID } from './utils/constants';
 import { Header } from './components/Header';
@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [isToggleAll, setIsToggleAll] = useState(false);
   const [isSameStatus, setIsSameStatus] = useState(false);
 
-  const showError = (title = 'Unable to load') => {
+  const showError = useCallback((title = 'Unable to load') => {
     setErrors(prev => {
       const newError = {
         title,
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
 
       return prev ? [...prev, newError] : [newError];
     });
-  };
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
