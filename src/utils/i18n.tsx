@@ -10,6 +10,9 @@ i18n
   .init({
     debug: true,
     fallbackLng: 'ua',
+    backend: {
+      loadPass: '/react_todo-app-with-api/locales/{{lng}}/{{ns}}.json',
+    },
   });
 
 export default i18n;
