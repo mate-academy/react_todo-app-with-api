@@ -11,7 +11,7 @@ i18n
     debug: true,
     fallbackLng: 'ua',
     backend: {
-      loadPass: '/react_todo-app-with-api/locales/{{lng}}/{{ns}}.json',
+      loadPath: '/react_todo-app-with-api/locales/{{lng}}/{{ns}}.json',
     },
   });
 
