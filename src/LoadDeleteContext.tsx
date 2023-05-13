@@ -2,7 +2,7 @@ import React, { ReactNode, useState } from 'react';
 
 type LangContextType = {
   loadDelete: number[];
-  setLoadDelete: (loadDelete: number[]) => void;
+  setLoadDelete: (id: number[]) => void;
 };
 
 export const LoadDeleteContext = React.createContext<LangContextType>({

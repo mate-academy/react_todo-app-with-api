@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, modifyTodo } from '../../api/todos';
@@ -55,16 +56,49 @@ export const TodoList: React.FC<Props> = ({
       );
   };
 
+  const editingTitle = (todo: Todo, title: string) => {
+    setLoadDelete([todo.id]);
+
+    modifyTodo(todo.id, { ...todo, title })
+      .then(() => {
+        setTodos((prevState: Todo[]) => {
+          return prevState.map(prevTodo => {
+            if (prevTodo.id === todo.id) {
+              return {
+                ...prevTodo,
+                title,
+              };
+            }
+
+            return prevTodo;
+          });
+        });
+      })
+      .catch(() => 'Unable to edit todo')
+      .finally(
+        () => setLoadDelete([]),
+      );
+  };
+
   return (
     <ul className="todo-list">
-      {todos.map(todo => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          updateTodo={updateTodo}
-          clearTodo={clearTodo}
-        />
-      ))}
+      <TransitionGroup>
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoItem
+              todo={todo}
+              key={todo.id}
+              updateTodo={updateTodo}
+              clearTodo={clearTodo}
+              editingTitle={editingTitle}
+            />
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
     </ul>
   );
 };

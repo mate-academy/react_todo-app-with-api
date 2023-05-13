@@ -8,7 +8,7 @@ import {
 import { TodoList } from './components/TodoList';
 import { Todo } from './types/Todo';
 import { TodoFilter, StatusOfFilter } from './components/TodoFilter';
-import { LoadDeleteContext, LoadDeleteProvider } from './LoadDeleteContext';
+import { LoadDeleteContext } from './LoadDeleteContext';
 
 const USER_ID = 9948;
 
@@ -142,120 +142,118 @@ export const App: React.FC = () => {
   }
 
   return (
-    <LoadDeleteProvider>
-      <div className="todoapp">
-        <h1 className="todoapp__title">todos</h1>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-        <div className="todoapp__content">
-          <header className="todoapp__header">
-            {/* this buttons is active only if there are some active todos */}
-            {todos.length > 0 && (
-              <button
-                type="button"
-                className={classNames(
-                  'todoapp__toggle-all',
-                  {
-                    active: notCompletedTodos.length === 0,
-                  },
-                )}
-                onClick={handleToggleAll}
-              />
-            )}
-
-            {/* Add a todo on form submit */}
-            <form>
-              <input
-                type="text"
-                className="todoapp__new-todo"
-                placeholder="What needs to be done?"
-                value={value}
-                onChange={(event) => setValue(event.target.value)}
-                onKeyDown={(event) => {
-                  handleKeyDown(event);
-                }}
-                disabled={!!tempTodo}
-              />
-            </form>
-          </header>
-
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {/* this buttons is active only if there are some active todos */}
           {todos.length > 0 && (
-            <>
-              <section className="todoapp__main">
-                <TodoList
-                  todos={filteredTodos}
-                  setTodos={setTodos}
-                  removeTodo={removeTodo}
-                />
-                {tempTodo && (
-                  <div className="todo">
-                    <label className="todo__status-label">
-                      <input type="checkbox" className="todo__status" />
-                    </label>
-
-                    <span className="todo__title">{tempTodo.title}</span>
-                    <button type="button" className="todo__remove">×</button>
-
-                    {/* 'is-active' class puts this modal on top of the todo */}
-                    <div className="modal overlay is-active">
-                      <div
-                        className="modal-background has-background-white-ter"
-                      />
-                      <div className="loader" />
-                    </div>
-                  </div>
-                )}
-              </section>
-
-              {/* Hide the footer if there are no todos */}
-              <footer className="todoapp__footer">
-                <span className="todo-count">
-                  {notCompletedTodos.length === 1 ? `${notCompletedTodos.length} item left` : `${notCompletedTodos.length} items left`}
-                </span>
-
-                {/* Active filter should have a 'selected' class */}
-                <TodoFilter filter={filter} setFilter={setFilter} />
-
-                {/* don't show this button if there are no completed todos */}
-                {completedTodos.length > 0 ? (
-                  <button
-                    type="button"
-                    className="todoapp__clear-completed"
-                    onClick={clearCompletedTodos}
-                  >
-                    Clear completed
-                  </button>
-                ) : (
-                  <button
-                    style={{ visibility: 'hidden' }}
-                    type="button"
-                    className="todoapp__clear-completed"
-                  >
-                    Clear completed
-                  </button>
-                )}
-              </footer>
-            </>
+            <button
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                {
+                  active: notCompletedTodos.length === 0,
+                },
+              )}
+              onClick={handleToggleAll}
+            />
           )}
-        </div>
 
-        {/* Notification is shown in case of any error */}
-        {/* Add the 'hidden' class to hide the message smoothly */}
-        <div className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: errorMessage === '' },
+          {/* Add a todo on form submit */}
+          <form>
+            <input
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onKeyDown={(event) => {
+                handleKeyDown(event);
+              }}
+              disabled={!!tempTodo}
+            />
+          </form>
+        </header>
+
+        {todos.length > 0 && (
+          <>
+            <section className="todoapp__main">
+              <TodoList
+                todos={filteredTodos}
+                setTodos={setTodos}
+                removeTodo={removeTodo}
+              />
+              {tempTodo && (
+                <div className="todo">
+                  <label className="todo__status-label">
+                    <input type="checkbox" className="todo__status" />
+                  </label>
+
+                  <span className="todo__title">{tempTodo.title}</span>
+                  <button type="button" className="todo__remove">×</button>
+
+                  {/* 'is-active' class puts this modal on top of the todo */}
+                  <div className="modal overlay is-active">
+                    <div
+                      className="modal-background has-background-white-ter"
+                    />
+                    <div className="loader" />
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Hide the footer if there are no todos */}
+            <footer className="todoapp__footer">
+              <span className="todo-count">
+                {notCompletedTodos.length === 1 ? `${notCompletedTodos.length} item left` : `${notCompletedTodos.length} items left`}
+              </span>
+
+              {/* Active filter should have a 'selected' class */}
+              <TodoFilter filter={filter} setFilter={setFilter} />
+
+              {/* don't show this button if there are no completed todos */}
+              {completedTodos.length > 0 ? (
+                <button
+                  type="button"
+                  className="todoapp__clear-completed"
+                  onClick={clearCompletedTodos}
+                >
+                  Clear completed
+                </button>
+              ) : (
+                <button
+                  style={{ visibility: 'hidden' }}
+                  type="button"
+                  className="todoapp__clear-completed"
+                >
+                  Clear completed
+                </button>
+              )}
+            </footer>
+          </>
         )}
-        >
-          <button
-            type="button"
-            className="delete"
-            onClick={() => setErrorMessage('')}
-          />
-          {errorMessage}
-        </div>
       </div>
-    </LoadDeleteProvider>
+
+      {/* Notification is shown in case of any error */}
+      {/* Add the 'hidden' class to hide the message smoothly */}
+      <div className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        { hidden: errorMessage === '' },
+      )}
+      >
+        <button
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage('')}
+        />
+        {errorMessage}
+      </div>
+    </div>
   );
 };
