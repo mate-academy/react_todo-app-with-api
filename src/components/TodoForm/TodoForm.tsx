@@ -1,6 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import {
+  FC,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classnames from 'classnames';
-import { FC, useContext, useState } from 'react';
 import { TodosContext } from '../TodosContext/TodosContext';
 import { ErrorMessage, Todo } from '../../types';
 import { addTodos, toggleTodos } from '../../api/todos';
@@ -23,6 +29,8 @@ export const TodoForm: FC<Props> = ({
     USER_ID,
   } = useContext(TodosContext);
   const [queryTodo, setQueryTodo] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [firstRender, setFirstRender] = useState(true);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,6 +63,8 @@ export const TodoForm: FC<Props> = ({
         setTodoLoading(false);
         setNewTodo(null);
         setQueryTodo('');
+
+        setFirstRender(false);
       });
   };
 
@@ -82,13 +92,20 @@ export const TodoForm: FC<Props> = ({
       });
   };
 
+  useEffect(() => {
+    if (!firstRender) {
+      inputRef.current?.focus();
+    }
+  }, [firstRender, todoLoading]);
+
   return (
     <header className="todoapp__header">
       <button
         type="button"
         className={classnames('todoapp__toggle-all', {
-          active: activeTodosCount,
+          active: !activeTodosCount,
         })}
+        style={{ visibility: todos.length ? 'visible' : 'hidden' }}
         onClick={handleAllCompleted}
       />
 
@@ -100,6 +117,7 @@ export const TodoForm: FC<Props> = ({
           value={queryTodo}
           onChange={(event) => setQueryTodo(event.target.value)}
           disabled={todoLoading}
+          ref={inputRef}
         />
       </form>
     </header>
