@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { Select } from '../types/Select';
+import { TodoFilter } from '../types/TodoFilter';
 
 type Props = {
   countItemLeft: number | undefined;
-  selectedFilter: Select
-  setSelectedFilter: (selectedFilter: Select) => void;
+  selectedFilter: TodoFilter
+  setSelectedFilter: (selectedFilter: TodoFilter) => void;
   todoList: Todo [] | null;
   deleteClickHandlerFooter: (todoListHandler: Todo[] | null) => void
 };
@@ -17,7 +17,19 @@ export const Footer: React.FC<Props> = ({
   todoList,
   deleteClickHandlerFooter,
 }) => {
-  const { ALL, ACTIVE, COMPLETED } = Select;
+  const { ALL, ACTIVE, COMPLETED } = TodoFilter;
+
+  const handlerSelectAll = () => {
+    setSelectedFilter(ALL);
+  };
+
+  const handlerSelectActive = () => {
+    setSelectedFilter(ACTIVE);
+  };
+
+  const handlerSelectCompleted = () => {
+    setSelectedFilter(COMPLETED);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -31,9 +43,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === ALL },
           )}
-          onClick={() => {
-            setSelectedFilter(ALL);
-          }}
+          onClick={handlerSelectAll}
         >
           All
         </a>
@@ -44,9 +54,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === ACTIVE },
           )}
-          onClick={() => {
-            setSelectedFilter(ACTIVE);
-          }}
+          onClick={handlerSelectActive}
         >
           Active
         </a>
@@ -57,9 +65,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedFilter === COMPLETED },
           )}
-          onClick={() => {
-            setSelectedFilter(COMPLETED);
-          }}
+          onClick={handlerSelectCompleted}
         >
           Completed
         </a>

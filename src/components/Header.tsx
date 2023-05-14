@@ -10,7 +10,7 @@ type Props = {
   setTypeError: (typeError: Errors) => void;
   todoList: Todo[] | null;
   setTempTodo: (tempTodo: Todo | null) => void;
-  setTodoList: (todoList: Todo[] | null) => void;
+  setTodoList: (todoList: Todo[]) => void;
   toggleAllHandler: () => void;
 };
 
@@ -58,6 +58,10 @@ export const Header: React.FC<Props> = ({
     }
   };
 
+  const handlerInputText = (e:React.FormEvent<HTMLInputElement>) => {
+    setNewTodoTitle(e.currentTarget.value);
+  };
+
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
@@ -68,9 +72,7 @@ export const Header: React.FC<Props> = ({
           { 'is-invisible': todoList?.length === 0 || !todoList },
           { active: (!counterItemLeft) },
         )}
-        onClick={() => {
-          toggleAllHandler();
-        }}
+        onClick={toggleAllHandler}
       />
 
       <form
@@ -82,9 +84,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           disabled={todoList === null}
           value={newTodoTitle}
-          onChange={(e) => {
-            setNewTodoTitle(e.target.value);
-          }}
+          onChange={handlerInputText}
         />
       </form>
     </header>

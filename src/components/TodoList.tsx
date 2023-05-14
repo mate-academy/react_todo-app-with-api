@@ -12,13 +12,14 @@ type Props = {
   ) => void;
   patchHandlerTodoCompleted: (
     id: number,
-    completed: boolean
+    completed: boolean,
+    bringInList: boolean,
   ) => void;
   patchHandlerTodoTitle:(
     id: number,
     title: string
   ) => void;
-  setLoaderTodo: (loaderTodo: number) => void
+  setLoaderTodo: (loaderTodo: number) => void;
   loaderTodo: number;
 };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { Select } from './types/Select';
+import { TodoFilter } from './types/TodoFilter';
 import {
   getTodos,
   deleteTodo,
@@ -18,8 +18,8 @@ import { Header } from './components/Header';
 export const USER_ID = 9960;
 
 export const App: React.FC = () => {
-  const [todoList, setTodoList] = useState<Todo[] | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState(Select.ALL);
+  const [todoList, setTodoList] = useState<Todo[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState(TodoFilter.ALL);
   const [typeError, setTypeError] = useState<Errors | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
@@ -27,35 +27,33 @@ export const App: React.FC = () => {
   const [loaderTodo, setLoaderTodo] = useState(0);
 
   const filteredList = useMemo(() => {
-    return todoList && todoList.filter((todo) => {
+    if (TodoFilter.ALL !== selectedFilter) {
       switch (selectedFilter) {
-        case Select.ACTIVE:
-          return !todo.completed;
-        case Select.COMPLETED:
-          return todo.completed;
+        case TodoFilter.ACTIVE:
+          return todoList.filter((todo) => !todo.completed);
+        case TodoFilter.COMPLETED:
+          return todoList.filter((todo) => todo.completed);
         default:
-          return true;
+          break;
       }
-    });
+    }
+
+    return todoList;
   }, [selectedFilter, todoList]);
 
   const countItemLeft = todoList?.filter(todo => !todo.completed).length;
 
   const deleteClickHandlerItem = (id: number) => {
-    if (id) {
-      deleteTodo(id)
-        .then(() => {
-          const newArray = todoList ? [...todoList] : [];
-          const objFindIndex = newArray.findIndex(obj => obj.id === id);
+    deleteTodo(id)
+      .then(() => {
+        const newArray = todoList ? [...todoList] : [];
 
-          newArray.splice(objFindIndex, 1);
-          setTodoList(newArray);
-          setLoaderTodo(0);
-        })
-        .catch(() => {
-          setTypeError(Errors.REMOVE);
-        });
-    }
+        setTodoList(newArray.filter(todo => todo.id !== id));
+        setLoaderTodo(0);
+      })
+      .catch(() => {
+        setTypeError(Errors.REMOVE);
+      });
   };
 
   const deleteClickHandlerFooter = () => {
@@ -86,22 +84,28 @@ export const App: React.FC = () => {
   const patchHandlerTodoCompleted = (
     id: number,
     completed: boolean,
+    bringInList: boolean,
   ) => {
     patchTodoCompleted(id, completed)
       .then(() => {
         setLoaderTodo(0);
 
-        const newArray = todoList?.map(todo => {
-          if (todo.id === id) {
-            // eslint-disable-next-line no-param-reassign
-            todo.completed = completed;
+        if (bringInList) {
+          const newArray = todoList?.map(todo => {
+            const newTodo = { ...todo };
+
+            if (todo.id === id) {
+              newTodo.completed = completed;
+
+              return newTodo;
+            }
+
+            return newTodo;
+          });
+
+          if (newArray) {
+            setTodoList(newArray);
           }
-
-          return todo;
-        });
-
-        if (newArray) {
-          setTodoList(newArray);
         }
       })
       .catch(() => {
@@ -118,12 +122,13 @@ export const App: React.FC = () => {
         setLoaderTodo(0);
 
         const newArray = todoList?.map(todo => {
+          const newTodo = { ...todo };
+
           if (todo.id === id) {
-            // eslint-disable-next-line no-param-reassign
-            todo.title = title;
+            newTodo.title = title;
           }
 
-          return todo;
+          return newTodo;
         });
 
         if (newArray) {
@@ -136,14 +141,15 @@ export const App: React.FC = () => {
   };
 
   const toggleAllHandler = () => {
-    const newArray = todoList?.map(todo => {
-      if (todo.completed === completedAll) {
-        patchHandlerTodoCompleted(todo.id, !completedAll);
-        // eslint-disable-next-line no-param-reassign
-        todo.completed = !completedAll;
+    const newArray = todoList.map(todo => {
+      const newTodo = { ...todo };
+
+      if (newTodo.completed === completedAll) {
+        patchHandlerTodoCompleted(newTodo.id, !completedAll, false);
+        newTodo.completed = !completedAll;
       }
 
-      return todo;
+      return newTodo;
     });
 
     setCompletedAll(!completedAll);

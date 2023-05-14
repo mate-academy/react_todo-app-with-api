@@ -1,6 +1,6 @@
 export enum Errors {
   ADD = 'add',
-  REMOVE = 'delete',
+  REMOVE = 'remove',
   UPDATE = 'update',
   EMPTY = 'empty',
 }

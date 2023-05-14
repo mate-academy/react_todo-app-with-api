@@ -10,7 +10,8 @@ type Props = {
   ) => void;
   patchHandlerTodoCompleted: (
     id: number,
-    completed: boolean
+    completed: boolean,
+    bringInList: boolean,
   ) => void;
   patchHandlerTodoTitle:(
     id: number,
@@ -31,7 +32,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const { id, title, completed } = todo || { id: 0 };
   const [clickedForm, setClickedForm] = useState(false);
-  const [titleText, setTitleText] = useState(title);
+  const [titleText, setTitleText] = useState(title || '');
 
   const changeValueHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setTitleText(event.currentTarget.value);
@@ -60,6 +61,30 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const checkActiveId = loaderTodo === id
+  || id === 0
+  || loadingTodoIds?.includes(id);
+
+  const handlerTodoStatus = () => {
+    setLoaderTodo(id);
+    patchHandlerTodoCompleted(id, !completed, true);
+  };
+
+  const handlerEscapeButton = (e:React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setClickedForm(false);
+    }
+  };
+
+  const handlerTodoTemove = () => {
+    setLoaderTodo(id);
+    deleteClickHandler(id);
+  };
+
+  const handlerFormOn = () => {
+    setClickedForm(true);
+  };
+
   return (
     <div
       className={classNames(
@@ -72,10 +97,7 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={() => {
-            setLoaderTodo(id);
-            patchHandlerTodoCompleted(id, !completed);
-          }}
+          onChange={handlerTodoStatus}
         />
       </label>
 
@@ -83,19 +105,14 @@ export const TodoItem: React.FC<Props> = ({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => {
-              setClickedForm(true);
-            }}
+            onDoubleClick={handlerFormOn}
           >
             {title}
           </span>
           <button
             type="button"
             className="todo__remove"
-            onClick={() => {
-              setLoaderTodo(id);
-              deleteClickHandler(id);
-            }}
+            onClick={handlerTodoTemove}
           >
             ×
           </button>
@@ -113,11 +130,7 @@ export const TodoItem: React.FC<Props> = ({
             autoFocus
             value={titleText}
             onChange={changeValueHandler}
-            onKeyUp={(e) => {
-              if (e.key === 'Escape') {
-                setClickedForm(false);
-              }
-            }}
+            onKeyUp={handlerEscapeButton}
           />
         </form>
       )}
@@ -126,10 +139,7 @@ export const TodoItem: React.FC<Props> = ({
         'modal',
         'overlay',
         {
-          'is-active':
-          loaderTodo === id
-          || id === 0
-          || loadingTodoIds?.includes(id),
+          'is-active': checkActiveId,
         },
       )}
       >

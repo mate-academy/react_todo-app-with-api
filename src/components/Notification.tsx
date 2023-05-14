@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useEffect } from 'react';
 import { Errors } from '../types/Errors';
 
 type Props = {
@@ -12,11 +13,11 @@ export const Notification: React.FC<Props> = ({
 }) => {
   const { ADD, REMOVE, EMPTY } = Errors;
 
-  if (typeError) {
+  useEffect(() => {
     setTimeout(() => {
       setTypeError(null);
     }, 3000);
-  }
+  }, []);
 
   const returnTextError = (value: string | null) => {
     switch (value) {
@@ -31,6 +32,10 @@ export const Notification: React.FC<Props> = ({
     }
   };
 
+  const handlerCloseError = () => {
+    setTypeError(null);
+  };
+
   return (
     <div className={classNames(
       'notification',
@@ -40,14 +45,13 @@ export const Notification: React.FC<Props> = ({
       { hidden: !typeError },
     )}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className="delete"
-        onClick={() => {
-          setTypeError(null);
-        }}
-      />
+        onClick={handlerCloseError}
+      >
+        ×
+      </button>
       {returnTextError(typeError)}
     </div>
   );
