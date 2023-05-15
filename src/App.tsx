@@ -183,13 +183,13 @@ export const App: React.FC = () => {
   const footerContextValue = useMemo(() => ({
     notCompletedTodoCount,
     setActiveFilter,
+    activeFilter,
     isCompletedExist,
     deleteCompletedTodos,
   }), [
     notCompletedTodoCount,
-    setActiveFilter,
+    activeFilter,
     isCompletedExist,
-    deleteCompletedTodos,
   ]);
 
   return (
@@ -207,7 +207,7 @@ export const App: React.FC = () => {
           />
         </HeaderContext.Provider>
 
-        {todos && (
+        {visibleTodos && (
           <section className="todoapp__main">
             <FetchContext.Provider value={fetchContextValue}>
               <TodoList

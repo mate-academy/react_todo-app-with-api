@@ -1,17 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import { FILTERS } from '../../../constants/filters';
 import { FooterContext } from '../../../context/FooterContext';
 
 export const Filter: React.FC = React.memo(() => {
-  const [selectedFilter, setSelectedFilter] = useState(FILTERS.ALL);
-  const { setActiveFilter } = useContext(FooterContext);
+  const { activeFilter, setActiveFilter } = useContext(FooterContext);
   const { t } = useTranslation();
 
   const handleFilter = (filterType: FILTERS) => {
     setActiveFilter(filterType);
-    setSelectedFilter(filterType);
   };
 
   return (
@@ -21,7 +19,7 @@ export const Filter: React.FC = React.memo(() => {
           key={filterType}
           href={`#/${filterType.toLowerCase()}`}
           className={classNames('filter__link', {
-            selected: selectedFilter === filterType,
+            selected: activeFilter === filterType,
           })}
           onClick={() => handleFilter(filterType)}
         >
