@@ -7,9 +7,9 @@ type Props = {
 };
 
 export const Notification: React.FC<Props> = ({ errorType }) => {
-  const [isButtonHidden, setIsButtonHidden] = useState(false);
-  const handleNotification = () => {
-    setIsButtonHidden(true);
+  const [isNotificationHidden, setisNotificationHidden] = useState(false);
+  const hideNotification = () => {
+    setisNotificationHidden(true);
   };
 
   return (
@@ -19,13 +19,13 @@ export const Notification: React.FC<Props> = ({ errorType }) => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: isButtonHidden },
+        { hidden: isNotificationHidden },
       )}
     >
       <button
         type="button"
         className="delete"
-        onClick={handleNotification}
+        onClick={hideNotification}
       >
         x
       </button>

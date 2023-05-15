@@ -69,7 +69,6 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div
-      key={todo.id}
       className={classNames('todo', {
         completed: todo.completed,
       })}

@@ -20,11 +20,11 @@ export const Footer: React.FC<Props> = ({
 
   const completedTodoCount = todos.filter(todo => todo.completed).length;
 
-  const handlerStatusAll = () => {
+  const handleStatusAll = () => {
     setStatus(TodoStatus.All);
   };
 
-  const handlerStatusActive = () => {
+  const handleStatusActive = () => {
     setStatus(TodoStatus.Active);
   };
 
@@ -47,7 +47,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: status === TodoStatus.All,
           })}
-          onClick={handlerStatusAll}
+          onClick={handleStatusAll}
         >
           All
         </a>
@@ -57,7 +57,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: status === TodoStatus.Active,
           })}
-          onClick={handlerStatusActive}
+          onClick={handleStatusActive}
         >
           Active
         </a>

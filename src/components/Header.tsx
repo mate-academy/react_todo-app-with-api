@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { ChangeEvent, FormEvent } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
@@ -8,7 +7,7 @@ type Props = {
   setNewTodoTitle: (title: string) => void,
   addTodo: (event: FormEvent<HTMLFormElement>) => void,
   isLoading: boolean,
-  toggleAllcompletedTodos: () => void,
+  toggleAllCompletedTodos: () => void,
   todos: Todo[],
 };
 
@@ -17,7 +16,7 @@ export const Header: React.FC<Props> = ({
   setNewTodoTitle,
   addTodo,
   isLoading,
-  toggleAllcompletedTodos,
+  toggleAllCompletedTodos,
   todos,
 }) => {
   const handleAddTitle = (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,11 +29,12 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
 
       <button
+        aria-label="Close"
         type="button"
         className={classNames('todoapp__toggle-all', {
           active: allCompletedTodos,
         })}
-        onClick={toggleAllcompletedTodos}
+        onClick={toggleAllCompletedTodos}
       />
 
       <form

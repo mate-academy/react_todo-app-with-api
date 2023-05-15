@@ -182,14 +182,14 @@ export const App: React.FC = () => {
           setNewTodoTitle={setNewTodoTitle}
           addTodo={addTodo}
           isLoading={isLoading}
-          toggleAllcompletedTodos={toggleAllcompletedTodos}
+          toggleAllCompletedTodos={toggleAllcompletedTodos}
           todos={todos}
         />
 
         <TodoList
           todos={filteredTodos}
           removeTodo={removeTodo}
-          loadedTodoId={loadedTodoId}
+          loadedTodoIds={loadedTodoId}
           tempTodo={tempTodo}
           toggleCompletedTodo={toggleCompletedTodo}
           renameTitle={renameTitle}

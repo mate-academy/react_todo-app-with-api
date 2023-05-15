@@ -5,7 +5,7 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[],
   removeTodo: (todoId: number) => void,
-  loadedTodoId: number[],
+  loadedTodoIds: number[],
   tempTodo: Todo | null,
   toggleCompletedTodo: (todoId:number, completed: boolean) => void;
   renameTitle: (todoId:number, todoTitle: string) => void;
@@ -14,7 +14,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   removeTodo,
-  loadedTodoId,
+  loadedTodoIds,
   tempTodo,
   toggleCompletedTodo,
   renameTitle,
@@ -22,7 +22,7 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main">
       {todos.map(todo => {
-        const isLoading = loadedTodoId.some(todoId => todoId === todo.id);
+        const isLoading = loadedTodoIds.some(todoId => todoId === todo.id);
 
         return (
           <TodoItem
