@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { TodosContext } from './TodoContext';
@@ -10,6 +10,7 @@ type Props = {
 
 export const TodoCard: React.FC<Props> = ({ currentTodo }) => {
   const [updatedTitle, setUpdatedTitle] = useState(currentTodo.title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const {
     todos,
@@ -128,6 +129,7 @@ export const TodoCard: React.FC<Props> = ({ currentTodo }) => {
           >
             <input
               className="todo__title_input"
+              ref={inputRef}
               id="todo__title_input"
               type="text"
               placeholder="Empty todo will be deleted"
@@ -150,7 +152,12 @@ export const TodoCard: React.FC<Props> = ({ currentTodo }) => {
           className="todo__title"
           role="button"
           tabIndex={0}
-          onDoubleClick={() => setSelectedTodo(currentTodo)}
+          onDoubleClick={() => {
+            setSelectedTodo(currentTodo);
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+          }}
         >
           {currentTodo.title}
         </div>
