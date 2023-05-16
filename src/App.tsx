@@ -19,11 +19,10 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.NoError);
+  const [errorType, setErrorType] = useState<ErrorType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadedTodoId, setLoadedTodoId] = useState<number[]>([]);
-  const isError = errorType !== ErrorType.NoError;
 
   const getTodoList = async () => {
     try {
@@ -36,12 +35,12 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isError) {
+    if (errorType !== null) {
       setTimeout(() => {
         setErrorType(ErrorType.NoError);
       }, 3000);
     }
-  }, [isError, errorType]);
+  }, [errorType]);
 
   useEffect(() => {
     getTodoList();
@@ -106,17 +105,17 @@ export const App: React.FC = () => {
   const clearCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    setLoadedTodoId(completedTodos.map(todo => todo.id));
+    const completedTodoIds = completedTodos.map(todo => todo.id);
 
-    completedTodos.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(todos.filter(todoItem => !todoItem.completed));
-        })
-        .catch(() => {
-          setErrorType(ErrorType.DeleteError);
-        });
-    });
+    setLoadedTodoId(completedTodoIds);
+
+    Promise.all(completedTodoIds.map(todoId => deleteTodo(todoId)))
+      .then(() => {
+        setTodos(todos.filter(todoItem => !todoItem.completed));
+      })
+      .catch(() => {
+        setErrorType(ErrorType.DeleteError);
+      });
   };
 
   const toggleCompletedTodo = async (todoId: number, completed: boolean) => {
@@ -205,7 +204,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {isError && (
+      {errorType !== null && (
         <Notification
           errorType={errorType}
         />
