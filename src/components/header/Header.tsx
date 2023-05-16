@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import cn from 'classnames';
 import { addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
@@ -6,7 +7,9 @@ interface Props {
   setError: (errText: string) => void;
   handleSetTempTodo: (todo: Todo | null) => void;
   updateTodos: (todo: Todo) => void;
+  onToggle: () => void;
   userId: number;
+  todos: Todo[] | null;
 }
 
 export const Header: React.FC<Props> = ({
@@ -14,9 +17,13 @@ export const Header: React.FC<Props> = ({
   setError,
   handleSetTempTodo,
   updateTodos,
+  onToggle,
+  todos,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const isToggleActive = todos?.every(todo => todo.completed === true);
 
   const handleAddTodo = async (event: FormEvent) => {
     event.preventDefault();
@@ -54,7 +61,13 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button type="button" className="todoapp__toggle-all active" />
+      <button
+        type="button"
+        className={cn('todoapp__toggle-all', {
+          active: isToggleActive,
+        })}
+        onClick={onToggle}
+      />
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleAddTodo}>

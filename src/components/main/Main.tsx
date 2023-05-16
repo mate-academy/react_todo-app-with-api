@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../todoItem/TodoItem';
@@ -13,6 +14,7 @@ interface Props {
     id: number,
     complitedCurrVal: boolean,
   ) => void;
+  editTodo: (newTitle: string, id: number) => void;
 }
 export const Main: React.FC<Props> = ({
   todos,
@@ -21,9 +23,13 @@ export const Main: React.FC<Props> = ({
   loading,
   loadingID,
   handleUpdateTodoIsCompleted,
+  editTodo,
 }) => {
-  // eslint-disable-next-line no-console
-  console.log('main');
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+
+  const handleSetEditingTodoId = (id: number | null) => {
+    setEditingTodoId(id);
+  };
 
   return (
     <section className="todoapp__main">
@@ -48,6 +54,9 @@ export const Main: React.FC<Props> = ({
               completed={completed}
               onDelete={handleDeleteTodo}
               onIsComplitedUpdate={handleUpdateTodoIsCompleted}
+              setEditingTodoId={handleSetEditingTodoId}
+              editingTodoId={editingTodoId}
+              editTodo={editTodo}
             />
           </CSSTransition>
         ))}
