@@ -1,4 +1,8 @@
 import { FC, useContext } from 'react';
+import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoTask } from '../TodoTask';
 import { TodoContext } from '../TodoProvider';
@@ -16,21 +20,34 @@ export const TodoList: FC<Props> = ({
 
   return (
     <section className="todoapp__main">
-      {preparedTodos.map(todo => (
-        <TodoTask
-          key={todo.id}
-          todo={todo}
-          isLoading={processing.includes(todo.id)}
+      <TransitionGroup>
+        {preparedTodos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoTask
+              key={todo.id}
+              todo={todo}
+              isLoading={processing.includes(todo.id)}
+            />
+          </CSSTransition>
+        ))}
 
-        />
-      ))}
-
-      {tempTodo && (
-        <TodoTask
-          todo={tempTodo}
-          isLoading={processing.includes(tempTodo.id)}
-        />
-      )}
+        {tempTodo && (
+          <CSSTransition
+            key={tempTodo.id}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoTask
+              todo={tempTodo}
+              isLoading={processing.includes(tempTodo.id)}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
