@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import clasnames from 'classnames';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
+import classNames from 'classnames';
 import { Todo } from './types/Todo';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
   onSubmitEdited: (id: number, newTitle: string) => void;
 };
 
-export const TodoComponent:React.FC<Props> = ({
+export const TodoComponent: React.FC<Props> = ({
   todo,
   loadingTodoId,
   onDelete,
@@ -26,17 +26,19 @@ export const TodoComponent:React.FC<Props> = ({
   const [todoEditText, setTodoEditText] = useState('');
   const [editTodoId, setEditTodoId] = useState<number | null>(null);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const onEditTodo = useCallback(
-    (event:React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       setTodoEditText(event.target.value.trim());
     }, [],
   );
 
   const onChooseTodoToEdit = useCallback(
-    (todoId:number) => {
+    (todoId: number) => {
       setEditTodoId(todoId);
-      setTodoEditText(todo.title);
-    }, [],
+      setTodoEditText(title);
+    }, [title],
   );
 
   const handleSubmitEdited = useCallback(() => {
@@ -47,21 +49,25 @@ export const TodoComponent:React.FC<Props> = ({
     }
 
     setEditTodoId(null);
-  }, [todoEditText]);
+  }, [id, todoEditText, onSubmitEdited, onDelete]);
 
   const handleEscape = useCallback(
-    (event:React.KeyboardEvent<HTMLInputElement>) => {
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Escape') {
         setEditTodoId(null);
       }
     }, [],
   );
 
+  useEffect(() => {
+    if (editTodoId === id && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editTodoId, id]);
+
   return (
-    <div
-      className={clasnames('todo', {
-        completed: todo.completed,
-      })}
+    <div className={classNames('todo',
+      { completed })}
     >
       <label className="todo__status-label">
         <input
@@ -72,41 +78,41 @@ export const TodoComponent:React.FC<Props> = ({
         />
       </label>
 
-      {editTodoId === id
-        ? (
-          <form
-            onSubmit={() => handleSubmitEdited()}
-            onBlur={() => handleSubmitEdited()}
+      {editTodoId === id ? (
+        <form
+          onSubmit={handleSubmitEdited}
+          onBlur={handleSubmitEdited}
+        >
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={todoEditText}
+            onChange={onEditTodo}
+            onKeyUp={handleEscape}
+            ref={inputRef}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={() => onChooseTodoToEdit(id)}
           >
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={todoEditText}
-              onChange={(event) => onEditTodo(event)}
-              onKeyUp={(event) => handleEscape(event)}
-            />
-          </form>
-        ) : (
-          <>
-            <span
-              className="todo__title"
-              onDoubleClick={() => onChooseTodoToEdit(id)}
-            >
-              {title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => onDelete(id)}
-            >
-              ×
-            </button>
-          </>
-        )}
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => onDelete(id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
-        className={clasnames('modal overlay', {
+        className={classNames('modal overlay', {
           'is-active': loadingTodoId === id,
         })}
       >
