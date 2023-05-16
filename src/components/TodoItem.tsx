@@ -34,11 +34,11 @@ export const TodoItem: React.FC<Props> = ({
   const [clickedForm, setClickedForm] = useState(false);
   const [titleText, setTitleText] = useState(title || '');
 
-  const changeValueHandler = (event: React.FormEvent<HTMLInputElement>) => {
+  const handleChangeValue = (event: React.FormEvent<HTMLInputElement>) => {
     setTitleText(event.currentTarget.value);
   };
 
-  const onSubmitFormHandler = (e:React.SyntheticEvent) => {
+  const handlerSubmitForm = (e:React.SyntheticEvent) => {
     e.preventDefault();
     setLoaderTodo(id);
     setClickedForm(false);
@@ -48,7 +48,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const onBlurHandler = (e:React.SyntheticEvent) => {
+  const handlerBlur = (e:React.SyntheticEvent) => {
     setClickedForm(false);
 
     if (!titleText) {
@@ -60,10 +60,6 @@ export const TodoItem: React.FC<Props> = ({
       e.preventDefault();
     }
   };
-
-  const checkActiveId = loaderTodo === id
-  || id === 0
-  || loadingTodoIds?.includes(id);
 
   const handlerTodoStatus = () => {
     setLoaderTodo(id);
@@ -85,12 +81,16 @@ export const TodoItem: React.FC<Props> = ({
     setClickedForm(true);
   };
 
+  const checkActiveId = loaderTodo === id
+  || id === 0
+  || loadingTodoIds?.includes(id);
+
   return (
     <div
       className={classNames(
         'todo',
         { completed },
-        { 'todo-temp': id === 0 },
+        { 'todo-temp': !id },
       )}
     >
       <label className="todo__status-label">
@@ -119,8 +119,8 @@ export const TodoItem: React.FC<Props> = ({
         </>
       ) : (
         <form
-          onSubmit={onSubmitFormHandler}
-          onBlur={onBlurHandler}
+          onSubmit={handlerSubmitForm}
+          onBlur={handlerBlur}
         >
           <input
             type="text"
@@ -129,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             value={titleText}
-            onChange={changeValueHandler}
+            onChange={handleChangeValue}
             onKeyUp={handlerEscapeButton}
           />
         </form>

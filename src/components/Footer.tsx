@@ -7,7 +7,7 @@ type Props = {
   selectedFilter: TodoFilter
   setSelectedFilter: (selectedFilter: TodoFilter) => void;
   todoList: Todo [] | null;
-  deleteClickHandlerFooter: (todoListHandler: Todo[] | null) => void
+  handlerDeleteClickFooter: (todoListHandler: Todo[] | null) => void
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,7 +15,7 @@ export const Footer: React.FC<Props> = ({
   selectedFilter,
   setSelectedFilter,
   todoList,
-  deleteClickHandlerFooter,
+  handlerDeleteClickFooter,
 }) => {
   const { ALL, ACTIVE, COMPLETED } = TodoFilter;
 
@@ -74,7 +74,7 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         onClick={() => {
-          deleteClickHandlerFooter(todoList);
+          handlerDeleteClickFooter(todoList);
         }}
         className={classNames(
           'todoapp__clear-completed',

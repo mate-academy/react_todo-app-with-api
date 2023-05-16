@@ -56,7 +56,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const deleteClickHandlerFooter = () => {
+  const handlerDeleteClickFooter = () => {
     const completedTodo
     = todoList?.filter(todo => todo.completed).map(todo => todo.id);
 
@@ -205,7 +205,7 @@ export const App: React.FC = () => {
             selectedFilter={selectedFilter}
             setSelectedFilter={setSelectedFilter}
             todoList={todoList}
-            deleteClickHandlerFooter={deleteClickHandlerFooter}
+            handlerDeleteClickFooter={handlerDeleteClickFooter}
           />
         )}
 

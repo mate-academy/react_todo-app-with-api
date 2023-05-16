@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = ({
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
 
-  const submitHandler = (e:React.SyntheticEvent) => {
+  const handlerFormSubmit = (e:React.SyntheticEvent) => {
     e.preventDefault();
 
     setTempTodo({
@@ -76,7 +76,7 @@ export const Header: React.FC<Props> = ({
       />
 
       <form
-        onSubmit={submitHandler}
+        onSubmit={handlerFormSubmit}
       >
         <input
           type="text"
