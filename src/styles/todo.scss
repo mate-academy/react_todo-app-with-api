@@ -29,10 +29,23 @@
   }
 
   &__title {
+    width: 100%;
     padding: 12px 15px;
   
+    font-size: inherit;
+    line-height: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    color: inherit;
+
     word-break: break-all;
     transition: color 0.4s;
+
+    &::placeholder {
+      font-style: italic;
+      font-weight: 300;
+      color: #e6e6e6;
+    }
   }
 
   &.completed &__title {
