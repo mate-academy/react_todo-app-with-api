@@ -21,6 +21,8 @@ interface TodoContextType {
   setFilter: Dispatch<SetStateAction<Filter>>;
   error: string | null;
   setError: Dispatch<SetStateAction<string | null>>;
+  isCompletedTodosLoading: boolean;
+  setIsCompletedTodosLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 const TodoContext = createContext<TodoContextType>({
@@ -34,6 +36,8 @@ const TodoContext = createContext<TodoContextType>({
   setFilter: () => {},
   error: null,
   setError: () => {},
+  isCompletedTodosLoading: false,
+  setIsCompletedTodosLoading: () => {},
 });
 
 export const useTodoContext = () => useContext(TodoContext);
@@ -46,6 +50,7 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
   const [todoIdsInUpdating, setTodoIdsInUpdating] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
+  const [isCompletedTodosLoading, setIsCompletedTodosLoading] = useState(false);
 
   return (
     <TodoContext.Provider
@@ -60,6 +65,8 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
         setError,
         filter,
         setFilter,
+        isCompletedTodosLoading,
+        setIsCompletedTodosLoading,
       }}
     >
       {children}
