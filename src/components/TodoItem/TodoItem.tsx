@@ -33,10 +33,22 @@ export const TodoItem: React.FC<Props> = memo(({
     };
   }, [todo.completed, todo.title]);
 
+  const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle('');
+    }
+  };
+
   const handleCompletedChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     await onCompletedChange(todo.id, event.target.checked);
+  };
+
+  const handleEdit = async (oldTitle: string) => {
+    setIsEditing(true);
+    setNewTitle(oldTitle);
   };
 
   const handleRemove = async () => {
@@ -45,11 +57,6 @@ export const TodoItem: React.FC<Props> = memo(({
     await onDelete(todo.id);
 
     setIsLoading(false);
-  };
-
-  const handleEdit = async (oldTitle: string) => {
-    setIsEditing(true);
-    setNewTitle(oldTitle);
   };
 
   const handleFormSubmit = (
@@ -85,6 +92,7 @@ export const TodoItem: React.FC<Props> = memo(({
               placeholder="Empty todo will be deleted"
               value={newTitle}
               onBlur={handleFormSubmit}
+              onKeyUp={handleCancel}
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               onChange={(event) => setNewTitle(event.target.value)}
