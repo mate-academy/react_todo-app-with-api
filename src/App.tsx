@@ -8,6 +8,7 @@ import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { FooterFilter } from './components/FooterFilter';
 import { ErrorMessage } from './components/ErrorMessage';
+import { Todo } from './types/Todo';
 
 const USER_ID = 10407;
 
@@ -21,9 +22,11 @@ export const App: React.FC = () => {
   } = useTodoContext();
 
   const [toggleStatus, setToggleStatus] = useState<boolean>(false);
+  const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
     setToggleStatus(todos.every(todo => todo.completed));
+    setCompletedTodos(todos?.filter(todo => !todo.completed));
   }, [todos]);
 
   const loadTodos = async () => {
@@ -96,7 +99,7 @@ export const App: React.FC = () => {
 
             <footer className="todoapp__footer">
               <span className="todo-count">
-                {`${todos.length} items left`}
+                {`${completedTodos.length} items left`}
               </span>
 
               <FooterFilter />
