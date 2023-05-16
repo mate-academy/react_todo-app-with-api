@@ -136,9 +136,6 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  // eslint-disable-next-line no-console
-  console.log('app renders');
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
