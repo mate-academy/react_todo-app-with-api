@@ -12,9 +12,11 @@ interface Props {
 }
 
 export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
-  const { setTodos, setError } = useTodoContext();
+  const { setTodos, setError, todoIdsInUpdating } = useTodoContext();
   const [isTodoDeleting, setIsTodoDeleting] = useState(false);
   const [isTodoUpdating, setIsTodoUpdating] = useState(false);
+
+  const isCurrUpdating = todoIdsInUpdating.includes(todo.id);
 
   const handleTodoDelete = async () => {
     setIsTodoDeleting(true);
@@ -30,7 +32,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
     }
   };
 
-  const handleTodoStatusChange = () => {
+  const handleTodoStatusChange = async () => {
     setIsTodoUpdating(true);
 
     const updatedTodo = {
@@ -39,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
     };
 
     try {
-      updateTodo(todo.id, updatedTodo);
+      await updateTodo(todo.id, updatedTodo);
       setTodos((prevTodos) => {
         return prevTodos.map((t) => (t.id === todo.id ? updatedTodo : t));
       });
@@ -77,7 +79,8 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
 
       <div
         className={cn('modal overlay', {
-          'is-active': isTodoDeleting || isTodoLoading || isTodoUpdating,
+          'is-active':
+            isTodoDeleting || isTodoLoading || isTodoUpdating || isCurrUpdating,
         })}
       >
         <div className="modal-background has-background-white-ter" />

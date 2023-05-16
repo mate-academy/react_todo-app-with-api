@@ -15,6 +15,8 @@ interface TodoContextType {
   setTodos: Dispatch<SetStateAction<Todo[]>>;
   tempTodo: Todo | null,
   setTempTodo: Dispatch<SetStateAction<Todo | null>>;
+  todoIdsInUpdating: number[];
+  setTodoIdsInUpdating: Dispatch<SetStateAction<number[]>>;
   filter: Filter;
   setFilter: Dispatch<SetStateAction<Filter>>;
   error: string | null;
@@ -26,6 +28,8 @@ const TodoContext = createContext<TodoContextType>({
   setTodos: () => {},
   tempTodo: null,
   setTempTodo: () => {},
+  todoIdsInUpdating: [],
+  setTodoIdsInUpdating: () => {},
   filter: Filter.ALL,
   setFilter: () => {},
   error: null,
@@ -39,6 +43,7 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
 }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [todoIdsInUpdating, setTodoIdsInUpdating] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
 
@@ -49,6 +54,8 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
         setTodos,
         tempTodo,
         setTempTodo,
+        todoIdsInUpdating,
+        setTodoIdsInUpdating,
         error,
         setError,
         filter,
