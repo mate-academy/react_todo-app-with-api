@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { useState } from 'react';
 import { useTodoContext } from '../context/TodoContext';
-import { deleteTodo } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { Error } from '../types/Error';
 
@@ -14,6 +14,7 @@ interface Props {
 export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
   const { setTodos, setError } = useTodoContext();
   const [isTodoDeleting, setIsTodoDeleting] = useState(false);
+  const [isTodoUpdating, setIsTodoUpdating] = useState(false);
 
   const handleTodoDelete = async () => {
     setIsTodoDeleting(true);
@@ -29,6 +30,27 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
     }
   };
 
+  const handleTodoStatusChange = () => {
+    setIsTodoUpdating(true);
+
+    const updatedTodo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    try {
+      updateTodo(todo.id, updatedTodo);
+      setTodos((prevTodos) => {
+        return prevTodos.map((t) => (t.id === todo.id ? updatedTodo : t));
+      });
+
+      setIsTodoUpdating(false);
+    } catch {
+      setError(Error.UPDATE);
+      setIsTodoUpdating(false);
+    }
+  };
+
   return (
     <div
       className={cn('todo', {
@@ -40,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {}}
+          onChange={handleTodoStatusChange}
         />
       </label>
 
@@ -55,7 +77,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
 
       <div
         className={cn('modal overlay', {
-          'is-active': isTodoDeleting || isTodoLoading,
+          'is-active': isTodoDeleting || isTodoLoading || isTodoUpdating,
         })}
       >
         <div className="modal-background has-background-white-ter" />

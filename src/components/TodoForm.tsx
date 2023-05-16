@@ -16,7 +16,7 @@ export const TodoForm: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       setError(Error.INVALID_INPUT);
 
       return;
