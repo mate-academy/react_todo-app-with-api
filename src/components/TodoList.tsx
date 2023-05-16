@@ -3,7 +3,7 @@ import { TodoItem } from './TodoItem';
 import { Filter } from '../types/Filter';
 
 export const TodoList: React.FC = () => {
-  const { todos, filter } = useTodoContext();
+  const { todos, filter, tempTodo } = useTodoContext();
 
   const filteredTodos = todos.filter((todo) => {
     switch (filter) {
@@ -22,6 +22,7 @@ export const TodoList: React.FC = () => {
       {filteredTodos.map((todo) => (
         <TodoItem key={todo.id} todo={todo} />
       ))}
+      {tempTodo && <TodoItem todo={tempTodo} isTodoLoading />}
     </section>
   );
 };

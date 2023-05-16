@@ -13,6 +13,8 @@ import { Todo } from '../types/Todo';
 interface TodoContextType {
   todos: Todo[];
   setTodos: Dispatch<SetStateAction<Todo[]>>;
+  tempTodo: Todo | null,
+  setTempTodo: Dispatch<SetStateAction<Todo | null>>;
   filter: Filter;
   setFilter: Dispatch<SetStateAction<Filter>>;
   error: string | null;
@@ -22,6 +24,8 @@ interface TodoContextType {
 const TodoContext = createContext<TodoContextType>({
   todos: [],
   setTodos: () => {},
+  tempTodo: null,
+  setTempTodo: () => {},
   filter: Filter.ALL,
   setFilter: () => {},
   error: null,
@@ -34,6 +38,7 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
 
@@ -42,6 +47,8 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
       value={{
         todos,
         setTodos,
+        tempTodo,
+        setTempTodo,
         error,
         setError,
         filter,

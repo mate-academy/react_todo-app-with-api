@@ -6,11 +6,12 @@ import { Todo } from '../types/Todo';
 import { Error } from '../types/Error';
 
 interface Props {
-  key: number;
   todo: Todo;
+
+  isTodoLoading?: boolean;
 }
 
-export const TodoItem: React.FC<Props> = ({ key, todo }) => {
+export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
   const { setTodos, setError } = useTodoContext();
   const [isTodoDeleting, setIsTodoDeleting] = useState(false);
 
@@ -33,7 +34,6 @@ export const TodoItem: React.FC<Props> = ({ key, todo }) => {
       className={cn('todo', {
         completed: todo.completed,
       })}
-      key={key}
     >
       <label className="todo__status-label">
         <input
@@ -55,7 +55,7 @@ export const TodoItem: React.FC<Props> = ({ key, todo }) => {
 
       <div
         className={cn('modal overlay', {
-          'is-active': isTodoDeleting,
+          'is-active': isTodoDeleting || isTodoLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />

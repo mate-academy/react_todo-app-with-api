@@ -7,6 +7,7 @@ export const TodoForm: React.FC = () => {
   const {
     setTodos,
     setError,
+    setTempTodo,
   } = useTodoContext();
 
   const [todoTitle, setTodoTitle] = useState('');
@@ -30,6 +31,11 @@ export const TodoForm: React.FC = () => {
       completed: false,
     };
 
+    setTempTodo({
+      ...newTodo,
+      id: 0,
+    });
+
     try {
       const todo = await addTodo(newTodo);
 
@@ -38,6 +44,7 @@ export const TodoForm: React.FC = () => {
       setError(Error.ADD);
     } finally {
       setIsCreating(false);
+      setTempTodo(null);
     }
 
     setTodoTitle('');
