@@ -1,24 +1,206 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { Todo } from './types/Todo';
+import { TodoStatus } from './types/TodoStatus';
+import { ErrorMessage } from './types/ErrorMessage';
+import { deleteTodos, getTodos, updateTodoOnServer } from './api/todos';
+import { Header } from './components/Header/Header';
+import { TodoList } from './components/TodoList';
+import { Filter } from './components/Filter';
+import { Error } from './components/Error';
+import { USER_ID } from './types/ConstantTypes';
+import { ChangeFunction } from './types/ChangeFunction';
 
-const USER_ID = 0;
+function filterTodos(todos: Todo[], selectedFilter: TodoStatus): Todo[] {
+  return todos.filter((todo) => {
+    switch (selectedFilter) {
+      case TodoStatus.All:
+        return true;
+
+      case TodoStatus.Active:
+        return !todo.completed;
+
+      case TodoStatus.Completed:
+        return todo.completed;
+
+      default:
+        return true;
+    }
+  });
+}
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState(TodoStatus.All);
+  const [errorType, setErrorType] = useState(ErrorMessage.None);
+  const [query, setQuery] = useState('');
+  const [isClearCompleted, setIsClearCompleted] = useState(false);
+  const [isAllToggled, setIsAllToggled] = useState(false);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((userTodos) => setTodos(userTodos))
+      .catch(() => {
+        setErrorType(ErrorMessage.Download);
+      });
+  }, []);
+
+  const counterActiveTodos = useMemo(
+    () => todos.reduce((num, todo) => {
+      return todo.completed ? num : num + 1;
+    }, 0),
+    [todos],
+  );
+
+  const counterCompletedTodos = todos.length - counterActiveTodos;
+
+  const filteredTodos = useMemo(
+    () => filterTodos(todos, selectedFilter),
+    [selectedFilter, todos],
+  );
+
+  const showError = useCallback((error: ErrorMessage) => {
+    setErrorType(error);
+  }, []);
+
+  const hideError = useCallback(() => {
+    setErrorType(ErrorMessage.None);
+  }, []);
+
+  const AddTodo = useCallback(
+    (newTodo: Todo): void => setTodos((oldTodos) => [...oldTodos, newTodo]),
+    [],
+  );
+
+  const DeleteTodo = useCallback(
+    (todoId: number): void => (
+      setTodos((oldTodos) => oldTodos.filter(todo => todo.id !== todoId))
+    ),
+    [],
+  );
+
+  const onClearCompleted = useCallback(async () => {
+    const completedTodos = filterTodos(todos, TodoStatus.Completed);
+
+    setIsClearCompleted(true);
+    hideError();
+
+    try {
+      const todosIds = await Promise.all(
+        completedTodos.map(({ id }) => deleteTodos(id).then(() => id)),
+      );
+
+      setTodos((oldTodos) => {
+        return oldTodos.filter(({ id }) => !todosIds.includes(id));
+      });
+    } catch {
+      showError(ErrorMessage.Delete);
+    } finally {
+      setIsClearCompleted(false);
+    }
+  }, [todos]);
+
+  const handleChangeTodo: ChangeFunction = useCallback(
+    (todoId, propName, newPropValue) => {
+      setTodos((oldTodos) => {
+        return oldTodos.map((todo) => {
+          if (todo.id !== todoId) {
+            return todo;
+          }
+
+          return {
+            ...todo,
+            [propName]: newPropValue,
+          };
+        });
+      });
+    },
+    [],
+  );
+
+  const handleToggleTodosStatus = useCallback(async () => {
+    const filterType = counterActiveTodos === 0
+      ? TodoStatus.All
+      : TodoStatus.Active;
+    const todosToToggle = filterTodos(todos, filterType);
+
+    setIsAllToggled(true);
+    hideError();
+
+    try {
+      const todosIds = await Promise.all(
+        todosToToggle.map(({ id, completed }) => {
+          return updateTodoOnServer(id, { completed: !completed }).then(
+            () => id,
+          );
+        }),
+      );
+
+      setTodos((oldTodos) => {
+        return oldTodos.map((todo) => {
+          if (!todosIds.includes(todo.id)) {
+            return todo;
+          }
+
+          return {
+            ...todo,
+            completed: !todo.completed,
+          };
+        });
+      });
+    } catch {
+      showError(ErrorMessage.Update);
+    } finally {
+      setIsAllToggled(false);
+    }
+  }, [todos]);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          counterActiveTodos={counterActiveTodos}
+          showError={showError}
+          hideError={hideError}
+          onAddQuery={setQuery}
+          addNewTodo={AddTodo}
+          onToggleTodosStatus={handleToggleTodosStatus}
+        />
+
+        <TodoList
+          todos={filteredTodos}
+          query={query}
+          counterActiveTodos={counterActiveTodos}
+          showError={showError}
+          hideError={hideError}
+          DeleteTodo={DeleteTodo}
+          ChangeTodo={handleChangeTodo}
+          isClearCompleted={isClearCompleted}
+          isAllToggled={isAllToggled}
+        />
+
+        {todos.length > 0 && (
+          <Filter
+            counterActiveTodos={counterActiveTodos}
+            counterCompletedTodos={counterCompletedTodos}
+            selectedFilter={selectedFilter}
+            onFilterSelect={setSelectedFilter}
+            onClearCompleted={onClearCompleted}
+          />
+        )}
+
+        <Error
+          errorMessage={errorType}
+          onErrorClose={hideError}
+        />
+      </div>
+    </div>
   );
 };
