@@ -1,33 +1,33 @@
 import {
-  FC, useEffect, useRef, useState,
+  FC, useContext, useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
+import { TodoContext } from '../TodoProvider';
 
 interface Props {
   todo: Todo;
-  error: ErrorType;
   isLoading: boolean;
-  onRemoveTodo: (todoId: number) => void;
-  onUpdateTodo: (todoId: number, dataToUpdate: Partial<Todo>) => void;
 }
 
-export const TodoInfo: FC<Props> = ({
+export const TodoTask: FC<Props> = ({
   todo,
-  error,
   isLoading,
-  onRemoveTodo,
-  onUpdateTodo,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [query, setQuery] = useState(todo.title);
   const editInpurRef = useRef<HTMLInputElement>(null);
+  const {
+    error,
+    updateTodo,
+    removeTodo,
+  } = useContext(TodoContext);
 
-  const handleClickRemoveTodo = () => onRemoveTodo?.(todo.id);
+  const handleClickRemoveTodo = () => removeTodo?.(todo.id);
 
   const handleClickToggleTodo = () => {
-    onUpdateTodo?.(todo.id, { completed: !todo.completed });
+    updateTodo?.(todo.id, { completed: !todo.completed });
   };
 
   const handleDoubleClickTodo = () => setIsEditing(true);
@@ -38,14 +38,14 @@ export const TodoInfo: FC<Props> = ({
 
   const updateTitle = () => {
     if (!query.trim()) {
-      onRemoveTodo?.(todo.id);
+      removeTodo?.(todo.id);
     }
 
     if (query === todo.title) {
       setIsEditing(false);
     }
 
-    onUpdateTodo(todo.id, { title: query });
+    updateTodo(todo.id, { title: query });
     setIsEditing(false);
   };
 

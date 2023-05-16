@@ -1,21 +1,19 @@
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import classNames from 'classnames';
 import { Filter } from '../../types/FilterConditions';
-import { Todo } from '../../types/Todo';
+import { TodoContext } from '../TodoProvider';
 
 interface Props {
-  todos: Todo[];
   filter: Filter;
-  onRemoveTodo: (todoId: number) => void;
   onChangeFilter: React.Dispatch<React.SetStateAction<Filter>>;
 }
 
 export const Footer: FC<Props> = ({
-  todos,
   filter,
-  onRemoveTodo,
   onChangeFilter,
 }) => {
+  const { todos, removeTodo } = useContext(TodoContext);
+
   const handleFilterClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     onChangeFilter(event.currentTarget.textContent as Filter);
   };
@@ -26,7 +24,7 @@ export const Footer: FC<Props> = ({
   const handleClearCompletedClick = () => {
     todos.forEach(todo => {
       if (todo.completed) {
-        onRemoveTodo?.(todo.id);
+        removeTodo?.(todo.id);
       }
     });
   };

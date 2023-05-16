@@ -1,31 +1,30 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { FC, useState } from 'react';
+import { FC, useContext, useState } from 'react';
 import classNames from 'classnames';
 import { addNewTodo } from '../../api/todos';
 import { ErrorType } from '../../types/Error';
 import { USER_ID } from '../../constants';
 import { Todo } from '../../types/Todo';
+import { TodoContext } from '../TodoProvider';
 
 interface Props {
   preparedTodos: Todo[];
-  onUpdateTodo: (todoId: number, dataToUpdate: Partial<Todo>) => void;
   onChangeTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
-  onChangeTodos: React.Dispatch<React.SetStateAction<Todo[]>>
-  onChangeError: React.Dispatch<React.SetStateAction<ErrorType>>;
-  onChangeProcessing: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const Header: FC<Props> = ({
   preparedTodos,
-  onUpdateTodo,
   onChangeTempTodo,
-  onChangeTodos,
-  onChangeError,
-  onChangeProcessing,
 }) => {
   const [newTodoQuery, setNewTodoQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const isAllTodosCompleted = preparedTodos.every(todo => todo.completed);
+  const {
+    setProcessing,
+    setTodos,
+    setError,
+    updateTodo,
+  } = useContext(TodoContext);
 
   const addTodo = async () => {
     try {
@@ -36,34 +35,34 @@ export const Header: FC<Props> = ({
         title: newTodoQuery,
         completed: false,
       });
-      onChangeProcessing(prev => [...prev, 0]);
+      setProcessing(prev => [...prev, 0]);
 
       const newTodo = await addNewTodo(USER_ID, newTodoQuery);
 
-      onChangeTodos(prev => [...prev, newTodo]);
+      setTodos(prev => [...prev, newTodo]);
     } catch (error) {
-      onChangeError(ErrorType.Add);
+      setError(ErrorType.Add);
     } finally {
       setIsLoading(false);
       onChangeTempTodo(null);
-      onChangeProcessing(prev => prev.filter(id => id !== 0));
+      setProcessing(prev => prev.filter(id => id !== 0));
     }
   };
 
   const handleNewTodoInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeError(ErrorType.None);
+    setError(ErrorType.None);
     setNewTodoQuery(event.target.value);
   };
 
   const handleClickToggleAll = async () => {
     if (isAllTodosCompleted) {
       preparedTodos
-        .forEach(todo => onUpdateTodo(todo.id, { completed: !todo.completed }));
+        .forEach(todo => updateTodo(todo.id, { completed: !todo.completed }));
     }
 
     preparedTodos.forEach(todo => {
       if (!todo.completed) {
-        onUpdateTodo(todo.id, { completed: !todo.completed });
+        updateTodo(todo.id, { completed: !todo.completed });
       }
     });
   };
@@ -72,7 +71,7 @@ export const Header: FC<Props> = ({
     event.preventDefault();
 
     if (!newTodoQuery.trim()) {
-      onChangeError(ErrorType.EmptyTitle);
+      setError(ErrorType.EmptyTitle);
 
       return;
     }
