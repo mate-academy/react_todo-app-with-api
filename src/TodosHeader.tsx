@@ -30,7 +30,7 @@ export const TodosHeader:React.FC<Props> = ({
             active: isAllTodosCompleted,
           })}
           aria-label="toggle all active todos"
-          onClick={() => onToggle()}
+          onClick={onToggle}
         />
       )}
 

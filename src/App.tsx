@@ -17,23 +17,11 @@ export const App: React.FC = () => {
   const [todoAddQuery, setTodoAddQuery] = useState('');
   const [disableInput, setDisableInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingTodoId, setLoadingTodoId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
-  const loadTodos = useCallback(
-    async () => {
-      try {
-        const response = await client.get<Todo[]>(`/todos?userId=${USER_ID}`);
-
-        setTodos(response);
-      } catch {
-        setError('Unable to load todos');
-      }
-    }, [],
-  );
-
-  useEffect(() => {
-    loadTodos();
-  }, [todos]);
+  const removeIdFromLoadArray = (array:number[], value:number) => {
+    return array.filter((item:number) => item !== value);
+  };
 
   const addTodo = useCallback(
     async (event:React.FormEvent) => {
@@ -45,7 +33,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      setLoadingTodoId(0);
+      setLoadingTodoIds([0]);
       setDisableInput(true);
       setTodoAddQuery('');
       setTempTodo({
@@ -64,7 +52,7 @@ export const App: React.FC = () => {
 
         setTodos([...todos, response]);
         setTempTodo(null);
-        setLoadingTodoId(null);
+        setLoadingTodoIds([]);
       } catch {
         setError('Unable to add todo');
       }
@@ -75,7 +63,7 @@ export const App: React.FC = () => {
 
   const deleteTodo = useCallback(
     async (id:number) => {
-      setLoadingTodoId(id);
+      setLoadingTodoIds((prevIds) => [...prevIds, id]);
 
       try {
         await client.delete(`/todos/${id}`);
@@ -85,7 +73,7 @@ export const App: React.FC = () => {
         setError('Unable to delete todo');
       }
 
-      setLoadingTodoId(null);
+      setLoadingTodoIds((prevIds) => removeIdFromLoadArray(prevIds, id));
     }, [todos],
   );
 
@@ -105,14 +93,14 @@ export const App: React.FC = () => {
 
   const changeTodoStatus = useCallback(
     async (id:number, completed:boolean) => {
-      setLoadingTodoId(id);
+      setLoadingTodoIds((prevIds) => [...prevIds, id]);
 
       try {
         await client.patch(`/todos/${id}`, {
           completed,
         });
 
-        setLoadingTodoId(null);
+        setLoadingTodoIds((prevIds) => removeIdFromLoadArray(prevIds, id));
         setTodos(todos.map(todo => {
           if (todo.id === id) {
             return {
@@ -131,14 +119,14 @@ export const App: React.FC = () => {
 
   const submitEditedTodo = useCallback(
     async (id: number, newTitle: string) => {
-      setLoadingTodoId(id);
+      setLoadingTodoIds((prevIds) => [...prevIds, id]);
 
       try {
         await client.patch(`/todos/${id}`, {
           title: newTitle,
         });
 
-        setLoadingTodoId(null);
+        setLoadingTodoIds((prevIds) => removeIdFromLoadArray(prevIds, id));
         setTodos(todos.map(todo => {
           if (todo.id === id) {
             return {
@@ -160,10 +148,15 @@ export const App: React.FC = () => {
       const isAllTodosCompleted = todos.every(todo => todo.completed);
 
       try {
-        await Promise.all(todos.map(todo => client.patch(`/todos/${todo.id}`, {
-          completed: !isAllTodosCompleted,
-        })));
+        await Promise.all(todos.map(todo => {
+          setLoadingTodoIds((prevIds) => [...prevIds, todo.id]);
 
+          return client.patch(`/todos/${todo.id}`, {
+            completed: !isAllTodosCompleted,
+          });
+        }));
+
+        setLoadingTodoIds([]);
         setTodos(todos.map(todo => ({
           ...todo,
           completed: !isAllTodosCompleted,
@@ -204,6 +197,22 @@ export const App: React.FC = () => {
   const completedTodosLength = preparedTodos
     .filter(todo => todo.completed).length;
 
+  const loadTodos = useCallback(
+    async () => {
+      try {
+        const response = await client.get<Todo[]>(`/todos?userId=${USER_ID}`);
+
+        setTodos(response);
+      } catch {
+        setError('Unable to load todos');
+      }
+    }, [],
+  );
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -225,7 +234,7 @@ export const App: React.FC = () => {
         <TodosList
           todos={preparedTodos}
           tempTodo={tempTodo}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
           onDelete={deleteTodo}
           onChangeStatus={changeTodoStatus}
           onSubmitEdited={submitEditedTodo}

@@ -4,12 +4,12 @@ import { Todo } from './types/Todo';
 
 type Props = {
   tempTodo: Todo;
-  loadingTodoId: number | null;
+  loadingTodoIds: number[];
 };
 
 export const TempTodo: React.FC<Props> = ({
   tempTodo,
-  loadingTodoId,
+  loadingTodoIds,
 }) => {
   const {
     title,
@@ -36,7 +36,7 @@ export const TempTodo: React.FC<Props> = ({
 
       <div
         className={clasnames('modal overlay', {
-          'is-active': loadingTodoId === id,
+          'is-active': loadingTodoIds.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

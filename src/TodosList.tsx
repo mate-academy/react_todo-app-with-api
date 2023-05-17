@@ -6,7 +6,7 @@ import { TempTodo } from './TempTodo';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  loadingTodoId: number | null;
+  loadingTodoIds: number[];
   onDelete: (id: number) => void;
   onChangeStatus: (id: number, completed: boolean) => void;
   onSubmitEdited: (id: number, newTitle: string) => void;
@@ -15,7 +15,7 @@ type Props = {
 export const TodosList:React.FC<Props> = ({
   todos,
   tempTodo,
-  loadingTodoId,
+  loadingTodoIds,
   onDelete,
   onChangeStatus,
   onSubmitEdited,
@@ -26,7 +26,7 @@ export const TodosList:React.FC<Props> = ({
         <TodoComponent
           key={todo.id}
           todo={todo}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
           onDelete={onDelete}
           onChangeStatus={onChangeStatus}
           onSubmitEdited={onSubmitEdited}
@@ -35,7 +35,7 @@ export const TodosList:React.FC<Props> = ({
       {tempTodo && (
         <TempTodo
           tempTodo={tempTodo}
-          loadingTodoId={loadingTodoId}
+          loadingTodoIds={loadingTodoIds}
         />
       )}
     </section>
