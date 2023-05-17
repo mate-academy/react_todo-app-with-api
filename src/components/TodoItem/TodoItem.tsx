@@ -3,6 +3,7 @@ import {
   FC,
   FormEventHandler,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -11,8 +12,8 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo;
   deletedTodosID: number | null;
-  completedTodosID: number[] | null;
-  updatingTodosID: number[] | null;
+  completedTodoIds: number[] | null;
+  updatingTodoIds: number[] | null;
   deleteTodo: (id: number) => void;
   updateTodo: (id: number, data: string | boolean) => void,
 }
@@ -21,8 +22,8 @@ export const TodoItem: FC<Props> = (
   {
     todo,
     deletedTodosID,
-    completedTodosID,
-    updatingTodosID,
+    completedTodoIds,
+    updatingTodoIds,
     deleteTodo,
     updateTodo,
   },
@@ -79,9 +80,11 @@ export const TodoItem: FC<Props> = (
 
   const hasShowLoading = !id
     || deletedTodosID === id
-    || completedTodosID?.includes(id)
-    || updatingTodosID?.includes(id)
+    || completedTodoIds?.includes(id)
+    || updatingTodoIds?.includes(id)
     || isUpdating;
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.addEventListener('keyup', handleEscape);
@@ -92,6 +95,12 @@ export const TodoItem: FC<Props> = (
       document.removeEventListener('keyup', handleEscape);
     });
   }, [completed, title]);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   return (
     <div
@@ -118,6 +127,7 @@ export const TodoItem: FC<Props> = (
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleBlur}
+              ref={inputRef}
             />
           </form>
         )

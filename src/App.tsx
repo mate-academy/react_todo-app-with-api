@@ -26,12 +26,12 @@ export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterOfTodo, setFilterOfTodo] = useState(Filter.ALL);
   const [hasError, setHasError] = useState(false);
-  const [deletedTodosID, setDeletedTodosID] = useState<number | null>(null);
+  const [deletedTodoID, setDeletedTodoID] = useState<number | null>(null);
   const [
-    completedTodosID,
-    setCompletedTodosID,
+    completedTodoIds,
+    setCompletedTodoIds,
   ] = useState<number[] | null>(null);
-  const [updatingTodosID, setUpdatingTodosID] = useState<number[] | null>(null);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[] | null>(null);
   const [typeOfError, setTypeOfError] = useState<Error>(Error.NONE);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
@@ -64,7 +64,7 @@ export const App: FC = () => {
       const deletedTodo = await deleteTodos(id);
 
       if (deletedTodo) {
-        setDeletedTodosID(null);
+        setDeletedTodoID(null);
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
       }
     } catch {
@@ -81,7 +81,7 @@ export const App: FC = () => {
       const updatedTodo = await updateTodos(id, property);
 
       if (updatedTodo) {
-        setUpdatingTodosID(null);
+        setUpdatingTodoIds(null);
         setTodos(prevTodos => prevTodos.map(todo => {
           if (todo.id === id) {
             return typeof property === 'string'
@@ -124,7 +124,7 @@ export const App: FC = () => {
   }, []);
 
   const deleteTodo = useCallback((id: number) => {
-    setDeletedTodosID(id);
+    setDeletedTodoID(id);
     deleteTodoFromServer(id);
   }, []);
 
@@ -133,13 +133,13 @@ export const App: FC = () => {
   }, []);
 
   const deleteAllCompleted = useCallback(() => {
-    const completedTodoIds = todos
+    const completedIds = todos
       .filter(({ completed }) => completed)
       .map(({ id }) => id);
 
-    setCompletedTodosID(completedTodoIds);
+    setCompletedTodoIds(completedIds);
 
-    completedTodoIds.forEach(id => deleteTodoFromServer(id));
+    completedIds.forEach(id => deleteTodoFromServer(id));
   }, [todos]);
 
   const updateStatusOfAllTodo = useCallback(() => {
@@ -153,13 +153,13 @@ export const App: FC = () => {
 
     const todosIdsOnUpdating = todosForUpdating.map(({ id }) => id);
 
-    setUpdatingTodosID(todosIdsOnUpdating);
+    setUpdatingTodoIds(todosIdsOnUpdating);
 
     todosForUpdating.forEach(({ id, completed }) => (
       updateTodoOnServer(id, !completed)));
   }, [todos]);
 
-  const isCompletedTodos = useCallback(() => {
+  const isCompletedTodos = useMemo(() => {
     return todos.some(({ completed }) => completed);
   }, [todos]);
 
@@ -220,39 +220,36 @@ export const App: FC = () => {
           updateStatusOfAllTodo={updateStatusOfAllTodo}
         />
 
-        {!!visibleTodos.length
-          && (
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              deletedTodosID={deletedTodosID}
-              completedTodosID={completedTodosID}
-              updatingTodosID={updatingTodosID}
-              deleteTodo={deleteTodo}
-              updateTodo={updateTodo}
-            />
-          ) }
+        {!!visibleTodos.length && (
+          <TodoList
+            todos={visibleTodos}
+            tempTodo={tempTodo}
+            deletedTodosID={deletedTodoID}
+            completedTodoIds={completedTodoIds}
+            updatingTodoIds={updatingTodoIds}
+            deleteTodo={deleteTodo}
+            updateTodo={updateTodo}
+          />
+        ) }
 
-        {!!todos.length
-          && (
-            <BottomPanel
-              itemsCount={countOfActiveTodos}
-              selectedFilter={filterOfTodo}
-              onChange={handleSelect}
-              deleteAllCompleted={deleteAllCompleted}
-              showClearAllButton={isCompletedTodos()}
-            />
-          ) }
+        {!!todos.length && (
+          <BottomPanel
+            itemsCount={countOfActiveTodos}
+            selectedFilter={filterOfTodo}
+            onChange={handleSelect}
+            deleteAllCompleted={deleteAllCompleted}
+            showClearAllButton={isCompletedTodos}
+          />
+        ) }
       </div>
 
-      {hasError
-        && (
-          <ErrorMessage
-            hasError={hasError}
-            error={typeOfError}
-            onClose={closeErrorMessage}
-          />
-        )}
+      {hasError && (
+        <ErrorMessage
+          hasError={hasError}
+          error={typeOfError}
+          onClose={closeErrorMessage}
+        />
+      )}
     </div>
   );
 };
