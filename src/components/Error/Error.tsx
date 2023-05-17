@@ -37,10 +37,8 @@ export const Error: React.FC<Props> = ({ errorMessage, onClose }) => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        {
-          hidden: errorMessage === ErrorMessage.None,
-        },
       )}
+      hidden={errorMessage === ErrorMessage.None}
     >
       <button
         type="button"
