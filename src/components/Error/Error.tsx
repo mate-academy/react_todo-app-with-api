@@ -8,21 +8,17 @@ type Props = {
 };
 
 export const Error: React.FC<Props> = ({ errorMessage, onClose }) => {
-  let errorString = '';
-
-  useMemo(() => {
+  const errorString = useMemo(() => {
     switch (errorMessage) {
       case ErrorMessage.Add:
       case ErrorMessage.Download:
       case ErrorMessage.Delete:
       case ErrorMessage.Update:
-        errorString = `Unable to ${errorMessage} a todo`;
-        break;
+        return `Unable to ${errorMessage} a todo`;
       case ErrorMessage.EmptyTitle:
-        errorString = 'Title can\'t be empty';
-        break;
+        return 'Title can\'t be empty';
       default:
-        errorString = '';
+        return '';
     }
   }, [errorMessage]);
 
