@@ -4,12 +4,18 @@ import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../consts/consts';
 
 interface Props {
+  title: string;
+  setTitle: (title: string) => void;
   onAddTodo: (todo: Todo) => void;
   onError: (message: TodoError) => void;
 }
 
-export const Header: FC<Props> = ({ onAddTodo, onError }) => {
-  const [title, setTitle] = useState('');
+export const Header: FC<Props> = ({
+  title,
+  onAddTodo,
+  onError,
+  setTitle,
+}) => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {

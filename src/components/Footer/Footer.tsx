@@ -20,22 +20,18 @@ export const Footer: FC<Props> = ({
 
   return (
     <>
-      {
-        todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodos} items left`}
-            </span>
+      <footer className="todoapp__footer">
+        <span className="todo-count">
+          {`${activeTodos} items left`}
+        </span>
 
-            {/* Active filter should have a 'selected' class */}
-            <Nav
-              onChangeFilter={onChangeFilter}
-              activeFilter={activeFilter}
-              onClearCompletedTodos={onClearCompletedTodos}
-            />
-          </footer>
-        )
-      }
+        {/* Active filter should have a 'selected' class */}
+        <Nav
+          onChangeFilter={onChangeFilter}
+          activeFilter={activeFilter}
+          onClearCompletedTodos={onClearCompletedTodos}
+        />
+      </footer>
     </>
   );
 };

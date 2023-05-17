@@ -2,6 +2,7 @@ import {
   FC,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
@@ -10,6 +11,7 @@ import {
   getTodos,
   removeTodo,
   updateTodoStatus,
+  updateTodoTitle,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Header } from './components/Header/Header';
@@ -23,13 +25,14 @@ import { Loader } from './components/Loader';
 
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [title, setTitle] = useState('');
   const [activeFilter, setActiveFilter] = useState<SortTypes>(SortTypes.All);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsloading] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isEditedTodo] = useState(false);
+  const [isDisabledInput, setIsDisabledInput] = useState(false);
   const [todoId, setTodoId] = useState<number | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
 
   const handleError = (message: TodoError) => {
     setErrorMessage(message);
@@ -53,6 +56,7 @@ export const App: FC = () => {
   const addTodo = useCallback(async (todoData: Todo) => {
     setTodoId(0);
     setTempTodo(todoData);
+    setIsDisabledInput(true);
 
     try {
       const newTodo = await createTodo({
@@ -68,6 +72,7 @@ export const App: FC = () => {
 
     setTempTodo(null);
     setTodoId(null);
+    setIsDisabledInput(false);
   }, []);
 
   const updateStatusTodo = useCallback(async (
@@ -94,6 +99,25 @@ export const App: FC = () => {
     setTodoId(null);
   }, []);
 
+  const updateTitleTodo = useCallback(async (id: number, newTitle: string) => {
+    try {
+      await updateTodoTitle(id, newTitle);
+
+      setTodos((prevTodos) => prevTodos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            title: newTitle,
+          };
+        }
+
+        return todo;
+      }));
+    } catch {
+      handleError(TodoError.UPDATE);
+    }
+  }, []);
+
   const deleteTodo = useCallback(async (id: number) => {
     try {
       await removeTodo(id);
@@ -105,20 +129,24 @@ export const App: FC = () => {
   }, []);
 
   const clearCompletedTodos = useCallback(async () => {
-    const completedTodos = todos.filter((todo) => todo.completed);
-
     try {
-      await Promise.all(completedTodos.map((todo) => removeTodo(
-        todo.id,
+      const completedTodos = todos.filter(({ completed }) => completed);
+
+      setCompletedTodosId(completedTodos.map(({ id }) => id));
+
+      await Promise.all(completedTodos.map(({ id }) => removeTodo(
+        id,
       )));
 
-      setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
+      setTodos((prevTodos) => prevTodos.filter(({ completed }) => !completed));
     } catch {
       handleError(TodoError.DELETE);
     }
-  }, []);
 
-  const vissibleTodos = todos.filter((todo) => {
+    setTodoId(null);
+  }, [todos]);
+
+  const vissibleTodos = useMemo(() => todos.filter((todo) => {
     switch (activeFilter) {
       case SortTypes.Active:
       case SortTypes.AllCompleted:
@@ -127,9 +155,10 @@ export const App: FC = () => {
       case SortTypes.Completed:
         return todo.completed;
 
-      default: return true;
+      default:
+        return true;
     }
-  });
+  }), [todos, activeFilter]);
 
   useEffect(() => {
     loadTodos();
@@ -146,27 +175,37 @@ export const App: FC = () => {
       <div className="todoapp__content">
 
         <Header
+          title={title}
+          setTitle={setTitle}
           onAddTodo={addTodo}
           onError={handleError}
         />
 
-        {isLoading && <Loader />}
-        <TodoList
-          todos={vissibleTodos}
-          isEdited={isEditedTodo}
-          onDelete={deleteTodo}
-          todoId={todoId}
-          setTodoId={setTodoId}
-          onChangeStatus={updateStatusTodo}
-          tempTodo={tempTodo}
-        />
-
-        <Footer
-          todos={vissibleTodos}
-          onChangeFilter={setActiveFilter}
-          activeFilter={activeFilter}
-          onClearCompletedTodos={clearCompletedTodos}
-        />
+        {
+          isLoading
+            ? <Loader />
+            : (
+              <TodoList
+                todos={vissibleTodos}
+                todoId={todoId}
+                tempTodo={tempTodo}
+                isDisabledInput={isDisabledInput}
+                completedTodosId={completedTodosId}
+                setTodoId={setTodoId}
+                onDelete={deleteTodo}
+                onChangeStatus={updateStatusTodo}
+                onChangeTitle={updateTitleTodo}
+              />
+            )
+        }
+        {todos.length > 0 && (
+          <Footer
+            todos={vissibleTodos}
+            onChangeFilter={setActiveFilter}
+            activeFilter={activeFilter}
+            onClearCompletedTodos={clearCompletedTodos}
+          />
+        )}
       </div>
 
       {errorMessage && (

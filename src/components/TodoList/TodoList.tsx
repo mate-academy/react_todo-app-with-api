@@ -5,22 +5,26 @@ import { TempTodo } from '../TempTodo';
 
 interface Props {
   todos: Todo[];
-  isEdited: boolean;
-  onDelete: (id: number) => void;
   todoId: number | null;
+  tempTodo: Todo | null;
+  isDisabledInput: boolean;
+  completedTodosId: number[];
+  onDelete: (id: number) => void;
   setTodoId: (id: number | null) => void;
   onChangeStatus: (id: number, completed: boolean) => void;
-  tempTodo: Todo | null;
+  onChangeTitle: (id: number, title: string) => void;
 }
 
 export const TodoList: FC<Props> = ({
   todos,
-  isEdited,
-  onDelete,
   todoId,
+  tempTodo,
+  isDisabledInput,
+  completedTodosId,
+  onDelete,
   setTodoId,
   onChangeStatus,
-  tempTodo,
+  onChangeTitle,
 }) => {
   return (
     <section className="todoapp__main">
@@ -31,44 +35,20 @@ export const TodoList: FC<Props> = ({
             <TodoItem
               key={todo.id}
               todo={todo}
-              onDelete={onDelete}
               todoId={todoId}
+              isDisabledInput={isDisabledInput}
+              completedTodosId={completedTodosId}
+              onDelete={onDelete}
               setTodoId={setTodoId}
               onChangeStatus={onChangeStatus}
+              onChangeTitle={onChangeTitle}
             />
           ))
         )}
 
         {tempTodo && <TempTodo todoId={todoId} tempTodo={tempTodo} />}
-
       </>
 
-      {/* This todo is being edited */}
-      {isEdited && (
-        <div className="todo">
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          {/* This form is shown instead of the title and remove button */}
-          <form>
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-            // value="Todo is being edited now"
-            />
-          </form>
-
-          <div className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
     </section>
   );
 };

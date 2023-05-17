@@ -11,11 +11,7 @@ export const TempTodo: FC<Props> = ({
   tempTodo,
   todoId,
 }) => {
-  const {
-    title,
-    completed,
-    id,
-  } = tempTodo;
+  const { title, completed, id } = tempTodo;
 
   return (
     <div

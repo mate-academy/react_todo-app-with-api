@@ -9,8 +9,8 @@ interface Props {
 }
 
 export const Nav: FC<Props> = ({
-  onChangeFilter,
   activeFilter,
+  onChangeFilter,
   onClearCompletedTodos,
 }) => {
   const handleFilter = (filter: SortTypes) => {
