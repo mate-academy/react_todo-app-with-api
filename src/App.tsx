@@ -16,8 +16,7 @@ import { client, todoUrlEnd } from './utils/fetchClient';
 import {
   createTodo,
   deleteTodo,
-  changeTodoStatus,
-  changeTodoTitle,
+  changeTodo,
 } from './api/todos';
 
 const USER_ID = 10364;
@@ -27,6 +26,9 @@ export const App: React.FC = () => {
   const [select, setSelect] = useState(Select.All);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const activeTodos = todos.filter(({ completed }) => completed === false);
+  const completedTodos = todos.filter(({ completed }) => completed === true);
 
   const getTodos = useCallback(async () => {
     const data: Todo[] = await client.get(todoUrlEnd);
@@ -50,30 +52,14 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const updateTodoStatus = useCallback(async (
-    id: number,
-    completed: boolean,
+  const updateTodo = useCallback(async (
+    todoId: number,
+    data: string | boolean,
   ) => {
     try {
-      setIsLoading(true);
-      await changeTodoStatus(id, { completed });
+      await changeTodo(todoId, data);
     } catch {
-      setErrorMessage('Unable to change a todo');
-    } finally {
-      getTodos();
-      setIsLoading(false);
-    }
-  }, []);
-
-  const updateTodoTitle = useCallback(async (
-    id: number,
-    title: string,
-  ) => {
-    try {
-      setIsLoading(true);
-      await changeTodoTitle(id, { title });
-    } catch {
-      setErrorMessage('Unable to change a todo');
+      setErrorMessage('Unable to update a todo');
     } finally {
       getTodos();
       setIsLoading(false);
@@ -118,19 +104,22 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           handleError={setErrorMessage}
           isLoading={isLoading}
+          // autoComplite={autoComplite}
         />
         <TodoList
           todos={handleSelectedTodos}
           onRemove={removeTodo}
-          onChange={updateTodoStatus}
-          onRename={updateTodoTitle}
+          onChange={updateTodo}
+          // onRename={updateTodoTitle}
         />
 
         {todos.length !== 0 && (
           <Footer
             onSelect={setSelect}
-            todos={handleSelectedTodos}
+            activeTodos={activeTodos}
             select={select}
+            completedTodos={completedTodos}
+            onRemove={removeTodo}
           />
         )}
       </div>

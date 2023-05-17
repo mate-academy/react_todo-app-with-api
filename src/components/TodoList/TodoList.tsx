@@ -1,32 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[];
   onRemove: (id: number) => void;
-  onChange: (id:number, completed: boolean) => void;
-  onRename: (id: number, title: string) => void;
+  onChange: (id:number, data: boolean | string) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   onRemove,
   onChange,
-  onRename,
 }) => {
   const [onChanging, setOnChanging] = useState(false);
   const [titleValue, setTitleValue] = useState('');
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setOnChanging(false);
+    }
+  };
+
   const handleRename = (id: number, event?: React.FormEvent) => {
     if (event) {
       event.preventDefault();
-      onRename(id, titleValue);
+      onChange(id, titleValue);
     }
 
-    onRename(id, titleValue);
+    onChange(id, titleValue);
     setOnChanging(false);
   };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
     <section className="todoapp__main">

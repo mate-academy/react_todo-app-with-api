@@ -5,12 +5,14 @@ interface Props {
   addTodo: (data: TodoData) => void;
   handleError: (value: string) => void;
   isLoading: boolean;
+  // autoComplite: () => void;
 }
 
 export const Header: React.FC<Props> = ({
   addTodo,
   handleError,
   isLoading,
+  // autoComplite,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
@@ -35,7 +37,11 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label  */}
-      <button type="button" className="todoapp__toggle-all active" />
+      <button
+        type="button"
+        className="todoapp__toggle-all active"
+        // onClick={autoComplite}
+      />
 
       <form onSubmit={handleSubmit}>
         <input
