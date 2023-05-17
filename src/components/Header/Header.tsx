@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import cn from 'classnames';
 import React, { useState } from 'react';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { Todo } from '../../types/Todo';
@@ -7,20 +7,20 @@ import { USER_ID } from '../../types/ConstantTypes';
 import { TodoPost } from '../../types/TodoPost';
 
 type Props = {
-  counterActiveTodos: number;
-  showError: (errorType: ErrorMessage) => void;
-  hideError: () => void;
-  onAddQuery: (newTitle: string) => void;
-  addNewTodo: (newTodo: Todo) => void;
+  countActiveTodos: number;
+  onShowError: (errorType: ErrorMessage) => void;
+  onHideError: () => void;
+  onChange: (newTitle: string) => void;
+  onAddTodo: (newTodo: Todo) => void;
   onToggleTodosStatus: () => void;
 };
 
 export const Header: React.FC<Props> = React.memo(({
-  counterActiveTodos,
-  showError,
-  hideError,
-  onAddQuery,
-  addNewTodo,
+  countActiveTodos,
+  onShowError,
+  onHideError,
+  onChange,
+  onAddTodo,
   onToggleTodosStatus,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -34,13 +34,13 @@ export const Header: React.FC<Props> = React.memo(({
     const title = newTodoTitle.trim();
 
     if (!title) {
-      showError(ErrorMessage.EmptyTitle);
+      onShowError(ErrorMessage.EmptyTitle);
 
       return;
     }
 
-    hideError();
-    onAddQuery(title);
+    onHideError();
+    onChange(title);
 
     setHasInputDisabled(true);
 
@@ -53,11 +53,11 @@ export const Header: React.FC<Props> = React.memo(({
     try {
       const createdTodo = await addTodos(newTodo);
 
-      addNewTodo(createdTodo);
+      onAddTodo(createdTodo);
     } catch {
-      showError(ErrorMessage.Add);
+      onShowError(ErrorMessage.Add);
     } finally {
-      onAddQuery('');
+      onChange('');
       setNewTodoTitle('');
       setHasInputDisabled(false);
     }
@@ -67,8 +67,8 @@ export const Header: React.FC<Props> = React.memo(({
     <header className="todoapp__header">
       <button
         type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: !counterActiveTodos,
+        className={cn('todoapp__toggle-all', {
+          active: !countActiveTodos,
         })}
         aria-label="Toggle all todos"
         onClick={onToggleTodosStatus}

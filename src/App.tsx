@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect,
@@ -42,13 +41,15 @@ export const App: React.FC = () => {
   const [isClearCompleted, setIsClearCompleted] = useState(false);
   const [isAllToggled, setIsAllToggled] = useState(false);
 
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then((userTodos) => setTodos(userTodos))
-      .catch(() => {
-        setErrorType(ErrorMessage.Download);
-      });
-  }, []);
+  const loadTodos = async () => {
+    const todosFromServer = await getTodos(USER_ID);
+
+    try {
+      setTodos(todosFromServer);
+    } catch {
+      setErrorType(ErrorMessage.Download);
+    }
+  };
 
   const counterActiveTodos = useMemo(
     () => todos.reduce((num, todo) => {
@@ -59,10 +60,9 @@ export const App: React.FC = () => {
 
   const counterCompletedTodos = todos.length - counterActiveTodos;
 
-  const filteredTodos = useMemo(
-    () => filterTodos(todos, selectedFilter),
-    [selectedFilter, todos],
-  );
+  const filteredTodos = useMemo(() => (
+    filterTodos(todos, selectedFilter)
+  ), [selectedFilter, todos]);
 
   const showError = useCallback((error: ErrorMessage) => {
     setErrorType(error);
@@ -72,19 +72,19 @@ export const App: React.FC = () => {
     setErrorType(ErrorMessage.None);
   }, []);
 
-  const AddTodo = useCallback(
+  const handleAdd = useCallback(
     (newTodo: Todo): void => setTodos((oldTodos) => [...oldTodos, newTodo]),
     [],
   );
 
-  const DeleteTodo = useCallback(
+  const handleDelete = useCallback(
     (todoId: number): void => (
       setTodos((oldTodos) => oldTodos.filter(todo => todo.id !== todoId))
     ),
     [],
   );
 
-  const onClearCompleted = useCallback(async () => {
+  const handleClearCompleted = useCallback(async () => {
     const completedTodos = filterTodos(todos, TodoStatus.Completed);
 
     setIsClearCompleted(true);
@@ -160,17 +160,21 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <Header
-          counterActiveTodos={counterActiveTodos}
-          showError={showError}
-          hideError={hideError}
-          onAddQuery={setQuery}
-          addNewTodo={AddTodo}
+          countActiveTodos={counterActiveTodos}
+          onShowError={showError}
+          onHideError={hideError}
+          onChange={setQuery}
+          onAddTodo={handleAdd}
           onToggleTodosStatus={handleToggleTodosStatus}
         />
 
@@ -178,27 +182,27 @@ export const App: React.FC = () => {
           todos={filteredTodos}
           query={query}
           counterActiveTodos={counterActiveTodos}
-          showError={showError}
-          hideError={hideError}
-          DeleteTodo={DeleteTodo}
-          ChangeTodo={handleChangeTodo}
+          onShowError={showError}
+          onHideError={hideError}
+          handleDelete={handleDelete}
+          onChangeTodo={handleChangeTodo}
           isClearCompleted={isClearCompleted}
           isAllToggled={isAllToggled}
         />
 
         {todos.length > 0 && (
           <Filter
-            counterActiveTodos={counterActiveTodos}
-            counterCompletedTodos={counterCompletedTodos}
+            countActiveTodos={counterActiveTodos}
+            countCompletedTodos={counterCompletedTodos}
             selectedFilter={selectedFilter}
             onFilterSelect={setSelectedFilter}
-            onClearCompleted={onClearCompleted}
+            handleClearCompleted={handleClearCompleted}
           />
         )}
 
         <Error
           errorMessage={errorType}
-          onErrorClose={hideError}
+          onClose={hideError}
         />
       </div>
     </div>

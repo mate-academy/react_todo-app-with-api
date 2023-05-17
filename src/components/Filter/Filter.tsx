@@ -1,35 +1,35 @@
 import React from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 import { TodoStatus } from '../../types/TodoStatus';
 
 type Props = {
-  counterActiveTodos: number;
-  counterCompletedTodos: number;
+  countActiveTodos: number;
+  countCompletedTodos: number;
   selectedFilter: TodoStatus;
   onFilterSelect: (newFilter: TodoStatus) => void;
-  onClearCompleted: () => void;
+  handleClearCompleted: () => void;
 };
 
 const filterOptions = Object.values(TodoStatus);
 
 export const Filter: React.FC<Props> = React.memo(
   ({
-    counterActiveTodos,
-    counterCompletedTodos,
+    countActiveTodos,
+    countCompletedTodos,
     selectedFilter,
     onFilterSelect,
-    onClearCompleted,
+    handleClearCompleted,
   }) => {
     return (
       <footer className="todoapp__footer">
-        <span className="todo-count">{`${counterActiveTodos} items left`}</span>
+        <span className="todo-count">{`${countActiveTodos} items left`}</span>
 
         <nav className="filter">
           {filterOptions.map((option) => (
             <a
               key={option}
               href={`#/${option}`}
-              className={classNames('filter__link', {
+              className={cn('filter__link', {
                 selected: option === selectedFilter,
               })}
               onClick={() => onFilterSelect(option)}
@@ -41,10 +41,10 @@ export const Filter: React.FC<Props> = React.memo(
 
         <button
           type="button"
-          className={classNames('todoapp__clear-completed', {
-            hidden: counterCompletedTodos === 0,
+          className={cn('todoapp__clear-completed', {
+            hidden: countCompletedTodos === 0,
           })}
-          onClick={onClearCompleted}
+          onClick={handleClearCompleted}
         >
           Clear completed
         </button>

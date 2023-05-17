@@ -14,7 +14,7 @@ type Props = {
   ChangeTodo?: ChangeFunction;
 };
 
-export const TodoItem: React.FC<Props> = React.memo(({
+export const TempTodo: React.FC<Props> = React.memo(({
   todo,
   isLoading,
   handleDelete = () => {},

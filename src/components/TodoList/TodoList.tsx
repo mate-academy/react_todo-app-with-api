@@ -1,10 +1,10 @@
 import React from 'react';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { USER_ID } from '../../types/ConstantTypes';
 import { ChangeFunction } from '../../types/ChangeFunction';
+import { TempTodo } from '../TempTodo';
 
 type Props = {
   todos: Todo[];
@@ -12,10 +12,10 @@ type Props = {
   query: string;
   isClearCompleted: boolean;
   isAllToggled: boolean;
-  showError: (errorType: ErrorMessage) => void;
-  hideError: () => void;
-  DeleteTodo: (todoId: number) => void;
-  ChangeTodo: ChangeFunction;
+  onShowError: (errorType: ErrorMessage) => void;
+  onHideError: () => void;
+  handleDelete: (todoId: number) => void;
+  onChangeTodo: ChangeFunction;
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -24,10 +24,10 @@ export const TodoList: React.FC<Props> = React.memo(({
   query,
   isClearCompleted,
   isAllToggled,
-  DeleteTodo,
-  showError,
-  hideError,
-  ChangeTodo,
+  handleDelete,
+  onShowError,
+  onHideError,
+  onChangeTodo,
 }) => {
   const creatingTodo: Todo | null = !query
     ? null
@@ -49,37 +49,24 @@ export const TodoList: React.FC<Props> = React.memo(({
 
   return (
     <section className="todoapp__main">
-      <TransitionGroup>
-        {todos.map((todo) => (
-          <CSSTransition
-            timeout={300}
-            classNames="item"
-          >
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              showError={showError}
-              hideError={hideError}
-              DeleteTodo={DeleteTodo}
-              ChangeTodo={ChangeTodo}
-              isLoading={isLoading(todo.completed)}
-            />
-          </CSSTransition>
-        ))}
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          showError={onShowError}
+          hideError={onHideError}
+          handleDelete={handleDelete}
+          ChangeTodo={onChangeTodo}
+          isLoading={isLoading(todo.completed)}
+        />
+      ))}
 
-        {creatingTodo && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <TodoItem
-              todo={creatingTodo}
-              isLoading
-            />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
+      {creatingTodo && (
+        <TempTodo
+          todo={creatingTodo}
+          isLoading
+        />
+      )}
     </section>
   );
 });

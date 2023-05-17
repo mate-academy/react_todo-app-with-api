@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useMemo } from 'react';
+import cn from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   errorMessage: ErrorMessage;
-  onErrorClose: () => void;
+  onClose: () => void;
 };
 
-export const Error: React.FC<Props> = ({ errorMessage, onErrorClose }) => {
+export const Error: React.FC<Props> = ({ errorMessage, onClose }) => {
   let errorString = '';
 
-  useEffect(() => {
+  useMemo(() => {
     switch (errorMessage) {
       case ErrorMessage.Add:
       case ErrorMessage.Download:
@@ -27,12 +27,16 @@ export const Error: React.FC<Props> = ({ errorMessage, onErrorClose }) => {
   }, [errorMessage]);
 
   useEffect(() => {
-    setTimeout(() => onErrorClose(), 3000);
+    const errorTimeOut = setTimeout(() => onClose(), 3000);
+
+    return () => {
+      clearTimeout(errorTimeOut);
+    };
   }, []);
 
   return (
     <div
-      className={classNames(
+      className={cn(
         'notification',
         'is-danger',
         'is-light',
@@ -45,7 +49,7 @@ export const Error: React.FC<Props> = ({ errorMessage, onErrorClose }) => {
       <button
         type="button"
         className="delete"
-        onClick={onErrorClose}
+        onClick={onClose}
         aria-label="Close error message"
       />
 
