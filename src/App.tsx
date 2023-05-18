@@ -3,7 +3,6 @@ import React, {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
 
-import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -18,14 +17,15 @@ import {
   deleteTodo,
   changeTodo,
 } from './api/todos';
-
-const USER_ID = 10364;
+import { TodoUpdate } from './types/todoUpdate';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [select, setSelect] = useState(Select.All);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [allCompleted, setAllCompleted] = useState(false);
+  const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
   const activeTodos = todos.filter(({ completed }) => completed === false);
   const completedTodos = todos.filter(({ completed }) => completed === true);
@@ -34,10 +34,6 @@ export const App: React.FC = () => {
     const data: Todo[] = await client.get(todoUrlEnd);
 
     setTodos(data);
-  }, []);
-
-  useEffect(() => {
-    getTodos();
   }, []);
 
   const addTodo = useCallback(async (data: TodoData) => {
@@ -52,23 +48,36 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const updateTodo = useCallback(async (
-    todoId: number,
-    data: string | boolean,
-  ) => {
+  const updateTodo = useCallback(async (todoId: number, data: TodoUpdate) => {
     try {
+      setIsLoading(true);
+      setLoadingTodoId(prevId => [...prevId, todoId]);
       await changeTodo(todoId, data);
     } catch {
       setErrorMessage('Unable to update a todo');
     } finally {
       getTodos();
       setIsLoading(false);
+      setLoadingTodoId([]);
     }
   }, []);
 
+  const toggleAll = async () => {
+    if (allCompleted) {
+      todos.map(todo => updateTodo(todo.id, { completed: false }));
+
+      setAllCompleted(false);
+    } else {
+      todos.map(todo => updateTodo(todo.id, { completed: true }));
+      setAllCompleted(true);
+    }
+  };
+
   const removeTodo = useCallback(async (id: number) => {
+    setLoadingTodoId(prevId => [...prevId, id]);
     await deleteTodo(id);
     getTodos();
+    setLoadingTodoId([]);
   }, []);
 
   const handleSelectedTodos = useMemo(() => {
@@ -91,9 +100,15 @@ export const App: React.FC = () => {
     return visibleTodos;
   }, [todos, select]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  useEffect(() => {
+    const allCompletedTodos = todos.every((todo) => todo.completed);
+
+    setAllCompleted(allCompletedTodos);
+  }, [todos]);
+
+  useEffect(() => {
+    getTodos();
+  }, []);
 
   return (
     <div className="todoapp">
@@ -104,13 +119,14 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           handleError={setErrorMessage}
           isLoading={isLoading}
-          // autoComplite={autoComplite}
+          toggleAll={toggleAll}
         />
         <TodoList
           todos={handleSelectedTodos}
           onRemove={removeTodo}
           onChange={updateTodo}
-          // onRename={updateTodoTitle}
+          loadingTodoId={loadingTodoId}
+
         />
 
         {todos.length !== 0 && (

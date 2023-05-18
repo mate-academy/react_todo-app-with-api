@@ -60,15 +60,14 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => completedTodos.map(({ id }) => onRemove(id))}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => completedTodos.map(({ id }) => onRemove(id))}
+        style={{ color: completedTodos.length ? 'inherit' : 'white' }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

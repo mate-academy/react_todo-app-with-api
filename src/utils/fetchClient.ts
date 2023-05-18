@@ -45,4 +45,6 @@ export const client = {
   delete: (url: string) => request(url, 'DELETE'),
 };
 
-export const todoUrlEnd = '/todos?userId=10364';
+const USER_ID = 10364;
+
+export const todoUrlEnd = `/todos?userId=${USER_ID}`;

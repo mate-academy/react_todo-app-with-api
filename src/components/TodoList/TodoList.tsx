@@ -1,35 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { TodoUpdate } from '../../types/todoUpdate';
 
 interface Props {
   todos: Todo[];
   onRemove: (id: number) => void;
-  onChange: (id:number, data: boolean | string) => void;
+  onChange: (id:number, data: TodoUpdate) => void;
+  loadingTodoId: number[];
+
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   onRemove,
   onChange,
+  loadingTodoId,
+
 }) => {
-  const [onChanging, setOnChanging] = useState(false);
+  const [chanchingTodoId, setChanchingTodoId] = useState(0);
   const [titleValue, setTitleValue] = useState('');
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setOnChanging(false);
+      setChanchingTodoId(0);
     }
   };
 
   const handleRename = (id: number, event?: React.FormEvent) => {
     if (event) {
       event.preventDefault();
-      onChange(id, titleValue);
     }
 
-    onChange(id, titleValue);
-    setOnChanging(false);
+    if (!titleValue) {
+      onRemove(id);
+
+      return;
+    }
+
+    onChange(id, { title: titleValue });
+    setChanchingTodoId(0);
   };
 
   useEffect(() => {
@@ -52,11 +62,14 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 checked={!!completed}
-                onChange={(event) => onChange(id, event.target.checked)}
+                onChange={(event) => onChange(
+                  id,
+                  { completed: event.target.checked },
+                )}
               />
             </label>
 
-            {onChanging
+            {chanchingTodoId === id
               ? (
                 <form
                   onSubmit={(event) => handleRename(id, event)}
@@ -78,7 +91,7 @@ export const TodoList: React.FC<Props> = ({
                 <>
                   <span
                     className="todo__title"
-                    onDoubleClick={() => setOnChanging(true)}
+                    onDoubleClick={() => setChanchingTodoId(id)}
                   >
                     {title}
                   </span>
@@ -93,7 +106,12 @@ export const TodoList: React.FC<Props> = ({
                 </>
               )}
 
-            <div className="modal overlay">
+            <div className={classNames(
+              'modal',
+              'overlay',
+              { 'is-active': loadingTodoId?.includes(id) },
+            )}
+            >
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>

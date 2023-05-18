@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface Props {
   message: string;
@@ -6,6 +6,16 @@ interface Props {
 }
 
 export const Notification: React.FC<Props> = ({ message, handleError }) => {
+  const autoDelete = () => {
+    setTimeout(() => {
+      handleError('');
+    }, 3000);
+  };
+
+  useEffect(() => {
+    autoDelete();
+  }, []);
+
   return (
     <div className="notification is-danger is-light has-text-weight-normal">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label  */}

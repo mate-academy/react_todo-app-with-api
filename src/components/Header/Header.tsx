@@ -5,20 +5,20 @@ interface Props {
   addTodo: (data: TodoData) => void;
   handleError: (value: string) => void;
   isLoading: boolean;
-  // autoComplite: () => void;
+  toggleAll: () => void;
 }
 
 export const Header: React.FC<Props> = ({
   addTodo,
   handleError,
   isLoading,
-  // autoComplite,
+  toggleAll,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       handleError("Title can't be empty");
 
       return;
@@ -40,7 +40,7 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         className="todoapp__toggle-all active"
-        // onClick={autoComplite}
+        onClick={toggleAll}
       />
 
       <form onSubmit={handleSubmit}>
