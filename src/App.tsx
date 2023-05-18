@@ -1,6 +1,7 @@
-import React, {
+import {
   FormEvent,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -15,6 +16,7 @@ import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
 import { ErrorType } from './types/ErrorType';
 import { TodoPostData } from './types/TodoPostData';
+import { TodoListContext } from './context/TodoListContext';
 
 const USER_ID = 10308;
 
@@ -42,18 +44,21 @@ const getActiveTodosCount = (todoList: Todo[]) => (
   todoList.filter(todo => !todo.completed).length
 );
 
-export const App: React.FC = () => {
+export const App = () => {
   const [todoInputValue, setTodoInputValue] = useState('');
   const [filterType, setFilterType] = useState(FilterType.ALL);
   const [todoList, setTodoList] = useState<Todo[] | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isAddDisabled, setIsAddDisabled] = useState(false);
-  const [areAlledited, setAreAlledited] = useState(false);
-  const [areCompletedDel, setCompletedDel] = useState(false);
-  const [editedId, setEditedId] = useState<number | null>(null);
-  const [deletedId, setDeletedId] = useState<number | null>(null);
   const [errorType, setErrorType] = useState(ErrorType.NONE);
   const [isErrorShown, setIsErrorShown] = useState(false);
+
+  const {
+    setDeletedId,
+    setEditedId,
+    setareAllEdited,
+    setCompletedDel,
+  } = useContext(TodoListContext);
 
   const getTodoList = useCallback(async () => {
     const todos = await getTodos();
@@ -228,7 +233,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    setAreAlledited(true);
+    setareAllEdited(true);
 
     const patchedTodos = todoList.filter(todo => (
       todo.completed === isToggleAllActive
@@ -262,7 +267,7 @@ export const App: React.FC = () => {
       setIsErrorShown(true);
     }
 
-    setAreAlledited(false);
+    setareAllEdited(false);
   };
 
   const handleTitleChange = async (todoId: number, newTitle: string) => {
@@ -320,10 +325,6 @@ export const App: React.FC = () => {
             <TodoAppContent
               todoList={preparedTodos}
               tempTodo={tempTodo}
-              areAlledited={areAlledited}
-              areCompletedDel={areCompletedDel}
-              editedId={editedId}
-              deletedId={deletedId}
               onDelete={handleDeleteTodo}
               onCompletedToggle={handleTodoStatusToggle}
               onTitleChange={handleTitleChange}

@@ -3,17 +3,15 @@ import {
   FormEvent,
   KeyboardEvent,
   useState,
+  useContext,
 } from 'react';
 import classNames from 'classnames';
+import { TodoListContext } from '../../context/TodoListContext';
 import { Todo } from '../../types/Todo';
 
 /* eslint-disable jsx-a11y/no-autofocus */
 type Props = {
   todo: Todo;
-  areAlledited: boolean;
-  areCompletedDel: boolean;
-  editedId: number | null;
-  deletedId: number | null;
   onDelete: (id: number) => void;
   onCompletedToggle: (id: number, isCompleted: boolean) => void
   onTitleChange: (id: number, title: string) => void;
@@ -21,14 +19,17 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  areAlledited,
-  areCompletedDel,
-  deletedId,
-  editedId,
   onDelete,
   onCompletedToggle,
   onTitleChange,
 }) => {
+  const {
+    deletedId,
+    editedId,
+    areAllEdited,
+    areCompletedDel,
+  } = useContext(TodoListContext);
+
   const { id, title, completed: isCompleted } = todo;
 
   const [isEdited, setIsEdited] = useState(false);
@@ -37,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({
   const isLoading = id === 0
     || id === deletedId
     || id === editedId
-    || areAlledited
+    || areAllEdited
     || (areCompletedDel && isCompleted);
 
   const handleDelete = () => {

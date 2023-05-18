@@ -4,10 +4,6 @@ import { TodoItem } from '../TodoItem/TodoItem';
 type Props = {
   todoList: Todo[];
   tempTodo: Todo | null;
-  areAlledited: boolean;
-  areCompletedDel: boolean;
-  editedId: number | null;
-  deletedId: number | null;
   onDelete: (id: number) => void;
   onCompletedToggle: (id: number, isCompleted: boolean) => void;
   onTitleChange: (id: number, title: string) => void;
@@ -16,10 +12,6 @@ type Props = {
 export const TodoAppContent: React.FC<Props> = ({
   todoList,
   tempTodo,
-  areAlledited,
-  areCompletedDel,
-  editedId,
-  deletedId,
   onDelete,
   onCompletedToggle,
   onTitleChange,
@@ -29,10 +21,6 @@ export const TodoAppContent: React.FC<Props> = ({
       {todoList.map(todo => (
         <TodoItem
           todo={todo}
-          areAlledited={areAlledited}
-          areCompletedDel={areCompletedDel}
-          editedId={editedId}
-          deletedId={deletedId}
           onDelete={onDelete}
           onCompletedToggle={onCompletedToggle}
           onTitleChange={onTitleChange}
@@ -42,10 +30,6 @@ export const TodoAppContent: React.FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          areAlledited={areAlledited}
-          areCompletedDel={areCompletedDel}
-          editedId={editedId}
-          deletedId={deletedId}
           onDelete={onDelete}
           onCompletedToggle={onCompletedToggle}
           onTitleChange={onTitleChange}
