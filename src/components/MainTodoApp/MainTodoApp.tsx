@@ -15,27 +15,23 @@ export const MainTodoApp: FC<Props> = React.memo(({
   removeTodo,
   tempTodo,
   onChangeTodo,
-}) => {
-  return (
-    <section className="todoapp__main">
-      {todos.map((todo) => {
-        const { id } = todo;
+}) => (
+  <section className="todoapp__main">
+    {todos.map((todo) => (
+      tempTodo?.id !== todo.id
+        ? (
+          <TodoComponent
+            key={todo.id}
+            todo={todo}
+            removeTodo={removeTodo}
+            onChangeTodo={onChangeTodo}
+          />
+        )
+        : <LoadingTodo key={todo.id} todo={tempTodo} />
+    ))}
 
-        return tempTodo?.id !== id
-          ? (
-            <TodoComponent
-              key={id}
-              todo={todo}
-              removeTodo={removeTodo}
-              onChangeTodo={onChangeTodo}
-            />
-          )
-          : <LoadingTodo key={id} todo={tempTodo} />;
-      })}
-
-      {todos.every(({ id }) => id !== tempTodo?.id) && tempTodo && (
-        <LoadingTodo todo={tempTodo} />
-      )}
-    </section>
-  );
-});
+    {todos.every(({ id }) => id !== tempTodo?.id) && tempTodo && (
+      <LoadingTodo todo={tempTodo} />
+    )}
+  </section>
+));

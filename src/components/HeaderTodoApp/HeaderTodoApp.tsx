@@ -22,12 +22,12 @@ export const HeaderTodoApp: FC<Props> = React.memo(({
   onChangeTodo,
   setError,
 }) => {
-  const [query, setQuery] = useState('');
+  const [name, setName] = useState('');
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!query) {
+    if (!name.trim()) {
       setError("Title can't be empty");
 
       return;
@@ -36,11 +36,11 @@ export const HeaderTodoApp: FC<Props> = React.memo(({
     await createTodo({
       id: 0,
       userId: USER_ID,
-      title: query,
+      title: name,
       completed: false,
     });
 
-    setQuery('');
+    setName('');
   };
 
   const handleClick = () => {
@@ -72,8 +72,8 @@ export const HeaderTodoApp: FC<Props> = React.memo(({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
           disabled={!!tempTodo}
         />
       </form>

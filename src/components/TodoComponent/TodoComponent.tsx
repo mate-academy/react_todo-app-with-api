@@ -15,7 +15,7 @@ export const TodoComponent: FC<Props> = React.memo(({
 }) => {
   const { title, completed } = todo;
 
-  const [query, setQuery] = useState(title);
+  const [name, setName] = useState(title);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleDeleteTodo = () => {
@@ -25,22 +25,22 @@ export const TodoComponent: FC<Props> = React.memo(({
   const updateTitle = () => {
     setIsUpdating(false);
 
-    if (title === query) {
-      setQuery(title);
+    if (title === name) {
+      setName(title);
 
       return;
     }
 
-    if (query.trim() === '') {
+    if (name.trim() === '') {
       handleDeleteTodo();
-      setQuery(title);
+      setName(title);
 
       return;
     }
 
-    onChangeTodo(todo, query);
+    onChangeTodo(todo, name);
 
-    setQuery(title);
+    setName(title);
   };
 
   const handleSubmitUpdate = (event: FormEvent) => {
@@ -86,15 +86,15 @@ export const TodoComponent: FC<Props> = React.memo(({
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
               onBlur={() => {
                 updateTitle();
               }}
               onKeyDown={(event) => {
                 if (event.key === 'Escape') {
                   setIsUpdating(false);
-                  setQuery(title);
+                  setName(title);
                 }
               }}
               // eslint-disable-next-line

@@ -9,14 +9,14 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FooterTodoApp } from './components/FooterTodoApp';
-import { FILTERS } from './types/FILTERS';
+import { Filters } from './types/Filters';
 import { ErrorComponent } from './components/ErrorComponent';
 
 const USER_ID = 10299;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [category, setCategory] = useState<FILTERS>(FILTERS.all);
+  const [category, setCategory] = useState<Filters>(Filters.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState('');
 
@@ -33,9 +33,9 @@ export const App: React.FC = () => {
 
   const visibleTodos = useMemo(() => todos.filter(({ completed }) => {
     switch (category) {
-      case FILTERS.completed:
+      case Filters.completed:
         return completed === true;
-      case FILTERS.active:
+      case Filters.Active:
         return completed === false;
       default:
         return true;
@@ -117,7 +117,7 @@ export const App: React.FC = () => {
       </div>
 
       {error && (
-        <ErrorComponent error={error} setError={setError} />
+        <ErrorComponent error={error} onChangeError={setError} />
       )}
     </div>
   );
