@@ -1,18 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
+import { useContext } from 'react';
 import { ErrorType } from '../../types/ErrorType';
+import { TodoListContext } from '../../context/TodoListContext';
 
-type Props = {
-  errorType: ErrorType;
-  isErrorShown: boolean;
-  onCloseClick: () => void;
-};
+export const Notifications: React.FC = () => {
+  const {
+    isErrorShown,
+    setIsErrorShown,
+    errorType,
+  } = useContext(TodoListContext);
 
-export const Notifications: React.FC<Props> = ({
-  errorType,
-  isErrorShown,
-  onCloseClick,
-}) => {
   const errorMessage = errorType === ErrorType.TITLE
     ? 'Title can\'t be empty'
     : `Unable to ${errorType} a todo`;
@@ -27,7 +25,7 @@ export const Notifications: React.FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={onCloseClick}
+        onClick={() => setIsErrorShown(false)}
       />
       {errorMessage}
     </div>

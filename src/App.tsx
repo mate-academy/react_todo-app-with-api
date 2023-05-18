@@ -45,19 +45,20 @@ const getActiveTodosCount = (todoList: Todo[]) => (
 );
 
 export const App = () => {
-  const [todoInputValue, setTodoInputValue] = useState('');
-  const [filterType, setFilterType] = useState(FilterType.ALL);
   const [todoList, setTodoList] = useState<Todo[] | null>(null);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isAddDisabled, setIsAddDisabled] = useState(false);
-  const [errorType, setErrorType] = useState(ErrorType.NONE);
-  const [isErrorShown, setIsErrorShown] = useState(false);
 
   const {
+    todoInputValue,
+    setTodoInputValue,
+    setTempTodo,
+    filterType,
     setDeletedId,
     setEditedId,
     setareAllEdited,
     setCompletedDel,
+    setIsInputDisabled,
+    setIsErrorShown,
+    setErrorType,
   } = useContext(TodoListContext);
 
   const getTodoList = useCallback(async () => {
@@ -82,18 +83,14 @@ export const App = () => {
     ? activeTodosCount < todoList.length
     : false;
 
-  const handleFilterChange = (newFilterType: FilterType) => {
-    setFilterType(newFilterType);
-  };
-
   const handleTodoInputChange = (value: string) => {
     setIsErrorShown(false);
 
     setTodoInputValue(value);
   };
 
-  const executePostTodo = () => {
-    const addedTodo = {
+  const executePostTodo = async () => {
+    const postedTodo = {
       title: todoInputValue,
       userId: USER_ID,
       completed: false,
@@ -101,38 +98,35 @@ export const App = () => {
 
     setTempTodo({
       id: 0,
-      ...addedTodo,
+      ...postedTodo,
     });
 
-    postTodo(addedTodo)
-      .then(response => {
-        const {
-          id,
-          title,
-          userId,
-          completed,
-        } = response;
-        const newTodo = {
-          id,
-          title,
-          userId,
-          completed,
-        };
+    try {
+      const {
+        id,
+        title,
+        userId,
+        completed,
+      } = await postTodo(postedTodo);
 
-        setTodoList(currentList => (
-          currentList
-            ? [...currentList, newTodo]
-            : [newTodo]
-        ));
-      })
-      .catch(() => {
-        setErrorType(ErrorType.ADD);
-        setIsErrorShown(true);
-        throw new Error('Add todo error');
-      })
-      .finally(() => {
-        setTempTodo(null);
-      });
+      const newTodo = {
+        id,
+        title,
+        userId,
+        completed,
+      };
+
+      setTodoList(currentList => (
+        currentList
+          ? [...currentList, newTodo]
+          : [newTodo]
+      ));
+    } catch {
+      setErrorType(ErrorType.ADD);
+      setIsErrorShown(true);
+    } finally {
+      setTempTodo(null);
+    }
   };
 
   const handleAddTodo = async (event: FormEvent<HTMLFormElement>) => {
@@ -145,9 +139,9 @@ export const App = () => {
       return;
     }
 
-    setIsAddDisabled(true);
-    executePostTodo();
-    setIsAddDisabled(false);
+    setIsInputDisabled(true);
+    await executePostTodo();
+    setIsInputDisabled(false);
     setTodoInputValue('');
   };
 
@@ -295,10 +289,6 @@ export const App = () => {
     setEditedId(null);
   };
 
-  const handleCloseError = () => {
-    setIsErrorShown(false);
-  };
-
   useEffect(() => {
     getTodoList();
   }, []);
@@ -312,8 +302,6 @@ export const App = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <TodoAppHeader
-          todoInputValue={todoInputValue}
-          isAddDisabled={isAddDisabled}
           isToggleAllActive={isToggleAllActive}
           onInputChange={handleTodoInputChange}
           onSubmit={handleAddTodo}
@@ -324,7 +312,6 @@ export const App = () => {
           <>
             <TodoAppContent
               todoList={preparedTodos}
-              tempTodo={tempTodo}
               onDelete={handleDeleteTodo}
               onCompletedToggle={handleTodoStatusToggle}
               onTitleChange={handleTitleChange}
@@ -334,18 +321,13 @@ export const App = () => {
               filterType={filterType}
               activeTodosCount={activeTodosCount}
               areCompletedTodos={areCompletedTodos}
-              onFilterChange={handleFilterChange}
               onDeleteCompleted={handleDeleteCompleted}
             />
           </>
         )}
       </div>
 
-      <Notifications
-        errorType={errorType}
-        isErrorShown={isErrorShown}
-        onCloseClick={handleCloseError}
-      />
+      <Notifications />
     </div>
   );
 };

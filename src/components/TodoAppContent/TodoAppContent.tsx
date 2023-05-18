@@ -1,9 +1,10 @@
+import { useContext } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { TodoListContext } from '../../context/TodoListContext';
 
 type Props = {
   todoList: Todo[];
-  tempTodo: Todo | null;
   onDelete: (id: number) => void;
   onCompletedToggle: (id: number, isCompleted: boolean) => void;
   onTitleChange: (id: number, title: string) => void;
@@ -11,11 +12,12 @@ type Props = {
 
 export const TodoAppContent: React.FC<Props> = ({
   todoList,
-  tempTodo,
   onDelete,
   onCompletedToggle,
   onTitleChange,
 }) => {
+  const { tempTodo } = useContext(TodoListContext);
+
   return (
     <section className="todoapp__main">
       {todoList.map(todo => (

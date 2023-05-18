@@ -1,11 +1,12 @@
 import classNames from 'classnames';
+import { useContext } from 'react';
 import { FilterType } from '../../types/FilterType';
+import { TodoListContext } from '../../context/TodoListContext';
 
 type Props = {
   filterType: FilterType;
   activeTodosCount: number;
   areCompletedTodos: boolean;
-  onFilterChange: (newFilterType: FilterType) => void;
   onDeleteCompleted: () => void;
 };
 
@@ -13,9 +14,10 @@ export const TodoAppFooter: React.FC<Props> = ({
   filterType,
   activeTodosCount,
   areCompletedTodos,
-  onFilterChange,
   onDeleteCompleted,
 }) => {
+  const { setFilterType } = useContext(TodoListContext);
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
@@ -28,7 +30,7 @@ export const TodoAppFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.ALL,
           })}
-          onClick={() => onFilterChange(FilterType.ALL)}
+          onClick={() => setFilterType(FilterType.ALL)}
         >
           All
         </a>
@@ -38,7 +40,7 @@ export const TodoAppFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.ACTIVE,
           })}
-          onClick={() => onFilterChange(FilterType.ACTIVE)}
+          onClick={() => setFilterType(FilterType.ACTIVE)}
         >
           Active
         </a>
@@ -48,7 +50,7 @@ export const TodoAppFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.COMPLETED,
           })}
-          onClick={() => onFilterChange(FilterType.COMPLETED)}
+          onClick={() => setFilterType(FilterType.COMPLETED)}
         >
           Completed
         </a>
