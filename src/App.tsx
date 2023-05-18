@@ -3,7 +3,6 @@
 import React, {
   useState, useEffect, useCallback, useMemo,
 } from 'react';
-import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
   getTodos, createTodo, removeTodo, updateTodoCompleted,
@@ -13,10 +12,10 @@ import { Footer } from './components/Footer';
 import { Filter } from './utils/Filter';
 import { Error } from './components/Error';
 import { Todo } from './types/Todo';
-import { AddTodoForm } from './components/AddTodoForm';
 import { ErrorType } from './utils/ErrorType';
 import { USER_ID } from './utils/constants';
 import { TodoData } from './types/TodoData';
+import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -37,6 +36,10 @@ export const App: React.FC = () => {
       setHasError(ErrorType.LOAD);
     }
   };
+
+  const handleSettingError = useCallback((error: string) => {
+    setHasError(error);
+  }, []);
 
   const handleFilterChange = useCallback((filter: Filter) => {
     setSelectedFilter(filter);
@@ -148,7 +151,6 @@ export const App: React.FC = () => {
 
   const isCompleted = todos.some((todo) => todo.completed);
   const isAllCompleted = todos.every((todo) => todo.completed);
-
   const showTodos = todos.length > 0 || tempTodo;
 
   if (!USER_ID) {
@@ -160,20 +162,27 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button
+        {/* <header className="todoapp__header"> */}
+        {/* this buttons is active only if there are some active todos */}
+        {/* <button
             type="button"
             className={cn('todoapp__toggle-all', { active: isAllCompleted })}
             onClick={handleToggleAll}
-          />
+          /> */}
 
-          <AddTodoForm
+        {/* <AddTodoForm
             onError={setHasError}
             onAddTodo={handleAddTodo}
             isLoadingForm={isLoading}
-          />
-        </header>
+          /> */}
+        {/* </header> */}
+        <Header
+          onError={handleSettingError}
+          isLoadingForm={isLoading}
+          onToggleAll={handleToggleAll}
+          onAddTodo={handleAddTodo}
+          isAllCompleted={isAllCompleted}
+        />
 
         {showTodos && (
           <>
