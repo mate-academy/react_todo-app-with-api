@@ -10,15 +10,10 @@ export const createTodo = (todoData: TodoData): Promise<Todo> => {
   return client.post<Todo>('/todos', todoData);
 };
 
-// Add more methods here
 export const removeTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const updateTodo = (todoId: number, valueToUpdate: boolean | string) => {
-  if (typeof valueToUpdate === 'boolean') {
-    return client.patch<Todo>(`/todos/${todoId}`, { completed: valueToUpdate });
-  }
-
-  return client.patch<Todo>(`/todos/${todoId}`, { title: valueToUpdate });
+export const updateTodoCompleted = (todoId: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${todoId}`, { completed });
 };

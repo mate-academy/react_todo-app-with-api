@@ -8,6 +8,7 @@ interface Props {
   isCompleted: boolean;
   onUpdate: (todoId: number, completedStatus: boolean) => void;
   isUpdatingTodoId: number | null;
+  isCurrentlyUpdating: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoItem: React.FC<Props> = ({
   isCompleted,
   onUpdate,
   isUpdatingTodoId,
+  isCurrentlyUpdating,
 }) => {
   const [detedTodoId, setDeletedTodoId] = useState(0);
 
@@ -30,7 +32,8 @@ export const TodoItem: React.FC<Props> = ({
 
   const isActive = detedTodoId === todo.id
   || isCompleted
-  || isUpdatingTodoId === todo.id;
+  || isUpdatingTodoId === todo.id
+  || isCurrentlyUpdating;
 
   return (
     <div className={cn('todo', { completed: todo.completed })}>
@@ -39,7 +42,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => handleCompletedCanhge(todo.id, todo.completed)}
+          onChange={() => handleCompletedCanhge(todo.id, !todo.completed)}
         />
       </label>
 

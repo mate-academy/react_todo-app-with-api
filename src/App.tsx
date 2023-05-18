@@ -6,7 +6,7 @@ import React, {
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
-  getTodos, createTodo, removeTodo, updateTodo,
+  getTodos, createTodo, removeTodo, updateTodoCompleted,
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -26,6 +26,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
   const [isUpdatingTodoId, setIsUpdatingTodoId] = useState<number | null>(null);
+  const [isCurrentlyUpdating, setIsCurrentlyUpdating] = useState(false);
 
   const loadTodos = async () => {
     try {
@@ -79,30 +80,46 @@ export const App: React.FC = () => {
     todosId.forEach(todoId => handleDeleteTodo(todoId));
   }, [todos]);
 
-  const handleUpdateTodo = useCallback(async (todoId: number) => {
+  const handleUpdateTodo = useCallback(async (todoId: number, completed: boolean) => {
     setHasError('');
     setIsUpdatingTodoId(todoId);
     try {
-      const todoToUpdate = todos.find(todo => todo.id === todoId);
+      await updateTodoCompleted(todoId, completed);
 
-      await updateTodo(todoId, !todoToUpdate?.completed);
-      setTodos(prevTodos => {
-        return (
-          prevTodos.map(todo => {
-            if (todoToUpdate?.id === todo.id) {
-              todoToUpdate.completed = !todoToUpdate.completed;
+      setTodos((currentTodos) => currentTodos.map((todo) => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            completed,
+          };
+        }
 
-              return todoToUpdate;
-            }
-
-            return todo;
-          })
-        );
-      });
+        return todo;
+      }));
     } catch {
       setHasError(ErrorType.UPDATE);
     } finally {
       setIsUpdatingTodoId(null);
+    }
+  }, [todos]);
+
+  const handleToggleAll = useCallback(async () => {
+    setHasError('');
+    setIsCurrentlyUpdating(true);
+
+    const isAllCompleted = todos.every((todo) => todo.completed);
+
+    try {
+      await Promise.all(todos.map((todo) => updateTodoCompleted(todo.id, !isAllCompleted)));
+
+      setTodos((currentTodos) => currentTodos.map((todo) => ({
+        ...todo,
+        completed: !isAllCompleted,
+      })));
+    } catch {
+      setHasError(ErrorType.UPDATE);
+    } finally {
+      setIsCurrentlyUpdating(false);
     }
   }, [todos]);
 
@@ -148,6 +165,7 @@ export const App: React.FC = () => {
           <button
             type="button"
             className={cn('todoapp__toggle-all', { active: isAllCompleted })}
+            onClick={handleToggleAll}
           />
 
           <AddTodoForm
@@ -166,6 +184,7 @@ export const App: React.FC = () => {
               completedTodosId={completedTodosId}
               onUpdate={handleUpdateTodo}
               isUpdatingTodoId={isUpdatingTodoId}
+              isCurrentlyUpdating={isCurrentlyUpdating}
             />
             <Footer
               onFilterChange={handleFilterChange}
