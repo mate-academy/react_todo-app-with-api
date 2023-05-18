@@ -11,6 +11,7 @@ interface Props {
   onUpdate: (todoId: number, completedStatus: boolean) => void;
   isUpdatingTodoId: number | null;
   isCurrentlyUpdating: boolean;
+  onUpdateTodoTitle: (todoId: number, title: string) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const TodoList: React.FC<Props> = ({
   onUpdate,
   isUpdatingTodoId,
   isCurrentlyUpdating,
+  onUpdateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main">
@@ -33,6 +35,7 @@ export const TodoList: React.FC<Props> = ({
           onUpdate={onUpdate}
           isUpdatingTodoId={isUpdatingTodoId}
           isCurrentlyUpdating={isCurrentlyUpdating}
+          onUpdateTodoTitle={onUpdateTodoTitle}
         />
       ))}
 

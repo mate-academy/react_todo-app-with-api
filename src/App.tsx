@@ -5,7 +5,7 @@ import React, {
 } from 'react';
 import { UserWarning } from './UserWarning';
 import {
-  getTodos, createTodo, removeTodo, updateTodoCompleted,
+  getTodos, createTodo, removeTodo, updateTodoCompleted, updateTodoTitle,
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -106,6 +106,29 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  const handleUpdateTodoTitle = useCallback(async (todoId: number, title: string) => {
+    setHasError('');
+    setIsUpdatingTodoId(todoId);
+    try {
+      await updateTodoTitle(todoId, title);
+
+      setTodos((currentTodos) => currentTodos.map((todo) => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            title,
+          };
+        }
+
+        return todo;
+      }));
+    } catch {
+      setHasError(ErrorType.UPDATE);
+    } finally {
+      setIsUpdatingTodoId(null);
+    }
+  }, []);
+
   const handleToggleAll = useCallback(async () => {
     setHasError('');
     setIsCurrentlyUpdating(true);
@@ -162,20 +185,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        {/* <header className="todoapp__header"> */}
-        {/* this buttons is active only if there are some active todos */}
-        {/* <button
-            type="button"
-            className={cn('todoapp__toggle-all', { active: isAllCompleted })}
-            onClick={handleToggleAll}
-          /> */}
-
-        {/* <AddTodoForm
-            onError={setHasError}
-            onAddTodo={handleAddTodo}
-            isLoadingForm={isLoading}
-          /> */}
-        {/* </header> */}
         <Header
           onError={handleSettingError}
           isLoadingForm={isLoading}
@@ -194,6 +203,7 @@ export const App: React.FC = () => {
               onUpdate={handleUpdateTodo}
               isUpdatingTodoId={isUpdatingTodoId}
               isCurrentlyUpdating={isCurrentlyUpdating}
+              onUpdateTodoTitle={handleUpdateTodoTitle}
             />
             <Footer
               onFilterChange={handleFilterChange}

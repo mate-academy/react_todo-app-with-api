@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   onUpdate: (todoId: number, completedStatus: boolean) => void;
   isUpdatingTodoId: number | null;
   isCurrentlyUpdating: boolean;
+  onUpdateTodoTitle: (todoId: number, title: string) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -18,8 +19,11 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
   isUpdatingTodoId,
   isCurrentlyUpdating,
+  onUpdateTodoTitle,
 }) => {
   const [detedTodoId, setDeletedTodoId] = useState(0);
+  const [isEditingTodoId, setIsEditingTodoId] = useState<number | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
 
   const handleDeleteTodo = (id: number) => {
     setDeletedTodoId(id);
@@ -30,10 +34,50 @@ export const TodoItem: React.FC<Props> = ({
     onUpdate(todoId, completedStatus);
   };
 
+  const handleDoubleClick = (todoId: number) => {
+    setIsEditingTodoId(todoId);
+  };
+
+  const upgradeTodo = () => {
+    if (!newTodoTitle && isEditingTodoId) {
+      handleDeleteTodo(isEditingTodoId);
+    }
+
+    if (isEditingTodoId) {
+      setIsEditingTodoId(null);
+      onUpdateTodoTitle(isEditingTodoId, newTodoTitle);
+    }
+  };
+
+  const handleTitleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    upgradeTodo();
+  };
+
+  const handleTitleBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
+    upgradeTodo();
+  };
+
+  const handleEscapeKey = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsEditingTodoId(null);
+      setNewTodoTitle(todo.title);
+    }
+  };
+
   const isActive = detedTodoId === todo.id
   || isCompleted
   || isUpdatingTodoId === todo.id
   || isCurrentlyUpdating;
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isEditingTodoId]);
 
   return (
     <div className={cn('todo', { completed: todo.completed })}>
@@ -46,17 +90,40 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">{todo.title}</span>
+      {isEditingTodoId === todo.id
+        ? (
+          <form onSubmit={handleTitleFormSubmit}>
+            <input
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={newTodoTitle}
+              onChange={(event) => setNewTodoTitle(event.target.value)}
+              onBlur={handleTitleBlur}
+            />
+          </form>
+        )
+        : (
+          (
+            <>
+              <span
+                className="todo__title"
+                onDoubleClick={() => handleDoubleClick(todo.id)}
+              >
+                {todo.title}
+              </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => handleDeleteTodo(todo.id)}
-      >
-        ×
+              <button
+                type="button"
+                className="todo__remove"
+                onClick={() => handleDeleteTodo(todo.id)}
+              >
+                ×
 
-      </button>
+              </button>
+            </>
+          )
+        )}
 
       <div className={cn('modal', 'overlay', {
         'is-active': isActive,
