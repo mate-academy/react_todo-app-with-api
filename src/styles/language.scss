@@ -1,0 +1,14 @@
+.language {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+
+  &__button {
+    margin-right: 10px;
+    margin-top: -10px;
+    padding-bottom: 10px;
+    max-height: 25px;
+    max-width: 40px;
+
+  }
+}
