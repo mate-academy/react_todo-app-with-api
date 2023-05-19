@@ -1,6 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import { TodoStatus } from '../../types/TodoStatus';
+import { FilterItem } from '../FilterItem';
 
 type Props = {
   countActiveTodos: number;
@@ -26,16 +27,12 @@ export const Filter: React.FC<Props> = React.memo(
 
         <nav className="filter">
           {filterOptions.map((option) => (
-            <a
+            <FilterItem
               key={option}
-              href={`#/${option}`}
-              className={cn('filter__link', {
-                selected: option === selectedFilter,
-              })}
-              onClick={() => onFilterSelect(option)}
-            >
-              {option[0].toUpperCase() + option.slice(1)}
-            </a>
+              option={option}
+              onFilterSelect={onFilterSelect}
+              selectedFilter={selectedFilter}
+            />
           ))}
         </nav>
 

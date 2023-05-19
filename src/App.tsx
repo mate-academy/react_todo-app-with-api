@@ -41,7 +41,7 @@ export const App: React.FC = () => {
   const [isClearCompleted, setIsClearCompleted] = useState(false);
   const [isAllToggled, setIsAllToggled] = useState(false);
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     const todosFromServer = await getTodos(USER_ID);
 
     try {
@@ -49,7 +49,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorType(ErrorMessage.Download);
     }
-  };
+  }, []);
 
   const counterActiveTodos = useMemo(
     () => todos.reduce((num, todo) => {
