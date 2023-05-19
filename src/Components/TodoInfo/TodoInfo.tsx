@@ -25,6 +25,12 @@ export const TodoInfo: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
+  const handleDeleteButton = async () => {
+    setIsLoading(true);
+    await onDelete(todo);
+    setIsLoading(false);
+  };
+
   const updateTodoHandler = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       updateTodo(todo.id, event.target.checked);
@@ -41,6 +47,11 @@ export const TodoInfo: React.FC<Props> = ({
     event.preventDefault();
 
     updateTitle(todo.id, newTitle);
+    setIsEditing(false);
+
+    if (!newTitle.trim()) {
+      handleDeleteButton();
+    }
   };
 
   const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,7 +76,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       {isEditing
         ? (
-          <form action="">
+          <form onSubmit={handleFormSubmit}>
             <input
               type="text"
               className="todo__title-field"
@@ -89,13 +100,7 @@ export const TodoInfo: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={async () => {
-                setIsLoading(true);
-
-                await onDelete(todo);
-
-                setIsLoading(false);
-              }}
+              onClick={handleDeleteButton}
               disabled={isLoading}
             >
               ×

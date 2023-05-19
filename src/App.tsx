@@ -190,7 +190,7 @@ export const App: React.FC = () => {
             type="button"
             className={classNames(
               'todoapp__toggle-all', {
-                active: filteredTodo.length === completedTodo.length,
+                active: todos.length === completedTodo.length,
               },
             )}
             onClick={handleUpdateAllTodo}
