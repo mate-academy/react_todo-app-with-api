@@ -1,37 +1,26 @@
-import { memo, useState, useEffect } from 'react';
-import classNames from 'classnames';
+import { memo, useState } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  tempTodoId?: number;
-  onDelete?: (todoId: number) => void;
-  onCompletedChange?: (todoId: number, completed: boolean) => Promise<void>;
-  onTitleChange?: (todoId: number, title: string) => Promise<void>;
+  onDelete: (todoToDeleteId: number) => void;
+  loadingTodoIds: number[];
+  onCompletedChange: (todoId: number, completed: boolean) => Promise<void>;
+  onTitleChange: (todoId: number, title: string) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = memo(({
   todo,
-  tempTodoId = 0,
   onDelete = () => {},
-  onCompletedChange = () => {},
-  onTitleChange = () => {},
+  loadingTodoIds,
+  onCompletedChange,
+  onTitleChange,
 }) => {
-  const defaultLoadingValue = tempTodoId === todo.id;
-  const [isLoading, setIsLoading] = useState(defaultLoadingValue);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const { title, completed } = todo;
-
-  useEffect(() => {
-    return () => {
-      setIsLoading(true);
-
-      setTimeout(() => {
-        setIsLoading(defaultLoadingValue);
-      }, 300);
-    };
-  }, [todo.completed, todo.title]);
+  const isLoading = loadingTodoIds.includes(todo.id);
 
   const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
@@ -40,23 +29,9 @@ export const TodoItem: React.FC<Props> = memo(({
     }
   };
 
-  const handleCompletedChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    await onCompletedChange(todo.id, event.target.checked);
-  };
-
   const handleEdit = async (oldTitle: string) => {
     setIsEditing(true);
     setNewTitle(oldTitle);
-  };
-
-  const handleRemove = async () => {
-    setIsLoading(true);
-
-    await onDelete(todo.id);
-
-    setIsLoading(false);
   };
 
   const handleFormSubmit = (
@@ -69,8 +44,14 @@ export const TodoItem: React.FC<Props> = memo(({
     setIsEditing(false);
   };
 
+  const handleCompletedChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    onCompletedChange(todo.id, event.target.checked);
+  };
+
   return (
-    <div className={classNames('todo', {
+    <div className={cn('todo', {
       completed,
     })}
     >
@@ -111,15 +92,15 @@ export const TodoItem: React.FC<Props> = memo(({
             <button
               type="button"
               className="todo__remove"
-              onClick={handleRemove}
-              disabled={todo.id === tempTodoId}
+              onClick={() => onDelete(todo.id)}
+              disabled={isLoading}
             >
               ×
             </button>
           </>
         )}
 
-      <div className={classNames('modal overlay', {
+      <div className={cn('modal overlay', {
         'is-active': isLoading,
       })}
       >
