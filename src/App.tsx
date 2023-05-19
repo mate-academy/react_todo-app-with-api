@@ -190,6 +190,7 @@ export const App: React.FC = () => {
     notCompletedTodoCount,
     activeFilter,
     isCompletedExist,
+    deleteCompletedTodos,
   ]);
 
   return (
@@ -207,19 +208,17 @@ export const App: React.FC = () => {
           />
         </HeaderContext.Provider>
 
-        {visibleTodos && (
-          <section className="todoapp__main">
-            <FetchContext.Provider value={fetchContextValue}>
-              <TodoList
-                todos={visibleTodos}
-                tempTodo={tempTodo}
-                isDeletingCompleted={isDeletingCompleted}
-                isUpdatingAllTodo={isUpdatingAllTodo}
-                toggleStatus={toggleStatus}
-              />
-            </FetchContext.Provider>
-          </section>
-        )}
+        <section className="todoapp__main">
+          <FetchContext.Provider value={fetchContextValue}>
+            <TodoList
+              todos={visibleTodos}
+              tempTodo={tempTodo}
+              isDeletingCompleted={isDeletingCompleted}
+              isUpdatingAllTodo={isUpdatingAllTodo}
+              toggleStatus={toggleStatus}
+            />
+          </FetchContext.Provider>
+        </section>
 
         {todos.length > 0 && (
           <FooterContext.Provider value={footerContextValue}>

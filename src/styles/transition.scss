@@ -1,15 +1,17 @@
+@import './variables';
+
 .item-enter {
   max-height: 0;
 }
 
 .item-enter-active {
   overflow: hidden;
-  max-height: 58px;
+  max-height: $max-height;
   transition: max-height 0.3s ease-in-out;
 }
 
 .item-exit {
-  max-height: 58px;
+  max-height: $max-height;
 }
 
 .item-exit-active {
@@ -24,16 +26,16 @@
 
 .temp-item-enter-active {
   overflow: hidden;
-  max-height: 58px;
+  max-height: $max-height;
   transition: max-height 0.3s ease-in-out;
 }
 
 .temp-item-exit {
-  max-height: 58px;
+  max-height: $max-height;
 }
 
 .temp-item-exit-active {
-  transform: translateY(-58px);
+  transform: translateY(-$max-height);
   max-height: 0;
   opacity: 0;
   transition: 0.3s ease-in-out;

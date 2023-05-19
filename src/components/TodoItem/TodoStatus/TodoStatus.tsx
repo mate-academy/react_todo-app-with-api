@@ -2,12 +2,12 @@ import React from 'react';
 
 interface Props {
   checked: boolean;
-  onChangeStatus: () => void;
+  handleCompleteStatusChange: (checked: boolean) => void;
 }
 
 export const TodoStatus: React.FC<Props> = React.memo(({
   checked,
-  onChangeStatus,
+  handleCompleteStatusChange,
 }) => {
   return (
     <label className="todo__status-label">
@@ -15,7 +15,7 @@ export const TodoStatus: React.FC<Props> = React.memo(({
         type="checkbox"
         className="todo__status"
         checked={checked}
-        onChange={onChangeStatus}
+        onChange={(event) => handleCompleteStatusChange(event.target.checked)}
       />
     </label>
   );

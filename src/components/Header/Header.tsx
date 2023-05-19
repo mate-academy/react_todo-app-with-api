@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -24,6 +23,7 @@ export const Header: React.FC<Props> = React.memo(({
             active: toggleStatus,
           })}
           onClick={onUpdateAllTodosComplete}
+          aria-label="Toggle all todos"
         />
       )}
 

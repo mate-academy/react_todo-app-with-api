@@ -13,12 +13,12 @@ import { TodoStatus } from './TodoStatus';
 
 interface Props {
   todo: Todo;
-  isPerentLoading: boolean;
+  isParentLoading: boolean;
 }
 
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  isPerentLoading,
+  isParentLoading,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -33,17 +33,17 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setEditedTitle(event.target.value);
   }, []);
 
-  const handleCompleteStatus = useCallback(() => {
+  const handleCompleteStatusChange = useCallback((checkStatus: boolean) => {
     setIsLoading(true);
-    updateTodo(id, { completed: !checked }).finally(() => {
+    updateTodo(id, { completed: checkStatus }).finally(() => {
       setIsLoading(false);
     });
     setChecked(!checked);
-  }, [checked, updateTodo]);
+  }, [id, checked, updateTodo]);
 
   useEffect(() => {
     setChecked(completed);
-  }, [completed]);
+  }, [id, completed]);
 
   const handleTodoDelete = useCallback(() => {
     setIsLoading(true);
@@ -80,10 +80,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setIsEditing(false);
   }, [title, editedTitle, updateTodo, deleteTodos]);
 
-  const handleFinishEdit = useCallback(() => {
-    handleUpdateTitle();
-  }, []);
-
   const handleCancelEdit = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
@@ -95,7 +91,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
     <div className={classNames('todo', { completed })}>
       <TodoStatus
         checked={checked}
-        onChangeStatus={handleCompleteStatus}
+        handleCompleteStatusChange={handleCompleteStatusChange}
       />
 
       {isEditing ? (
@@ -103,7 +99,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
           onUpdate={handleUpdateTitle}
           editedTitle={editedTitle}
           onInput={handleInputTitle}
-          onFinishEdit={handleFinishEdit}
           onCancel={handleCancelEdit}
         />
       ) : (
@@ -116,7 +111,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': isPerentLoading || isLoading,
+        'is-active': isParentLoading || isLoading,
       })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -28,7 +28,7 @@ export const TodoList: React.FC<Props> = React.memo(({
         >
           <TodoItem
             todo={todo}
-            isPerentLoading={
+            isParentLoading={
               (isDeletingCompleted && todo.completed)
               || (isUpdatingAllTodo && todo.completed === toggleStatus)
             }
@@ -44,7 +44,7 @@ export const TodoList: React.FC<Props> = React.memo(({
         >
           <TodoItem
             todo={tempTodo}
-            isPerentLoading={tempTodo !== null}
+            isParentLoading
           />
         </CSSTransition>
       )}

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 
@@ -36,6 +35,7 @@ export const ErrorMessage: React.FC<Props> = React.memo(({
         type="button"
         className="delete"
         onClick={handleErrorMessage}
+        aria-label="Delete error message"
       />
 
       {errorMessage}

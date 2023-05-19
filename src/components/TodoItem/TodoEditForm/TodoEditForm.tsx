@@ -5,7 +5,6 @@ interface Props {
   editedTitle: string;
   onInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onUpdate: (event?: React.FormEvent) => void;
-  onFinishEdit: () => void;
   onCancel: (event: React.KeyboardEvent) => void;
 }
 
@@ -13,7 +12,6 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
   editedTitle,
   onInput,
   onUpdate,
-  onFinishEdit,
   onCancel,
 }) => {
   const { t } = useTranslation();
@@ -28,7 +26,7 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
         placeholder={t('EditForm.empty') as string}
         value={editedTitle}
         onChange={onInput}
-        onBlur={onFinishEdit}
+        onBlur={onUpdate}
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         onKeyUp={onCancel}
