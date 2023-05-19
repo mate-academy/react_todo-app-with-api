@@ -1,44 +1,145 @@
-# React Todo App with API (complete)
+# React Todo App Add and Delete
 
-It is the third part of the React Todo App with API.
+It is the second part of the React Todo App with API.
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+Take your code implemented for [Loading todos](https://github.com/mate-academy/react_todo-app-loading-todos)
+and implement the ability to add and remove todos.
 
 > Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+# ❗️❗️❗️</br>Please implement only adding and deleting todos in addition to what was already implemented.<br><br>All the other features from the working version will be implemented in the next task.</br>❗️❗️❗️
 
-## Toggling a todo status
+> Check the [API Documentation](https://mate-academy.github.io/fe-students-api/)
 
-Toggle the `completed` status on `TodoStatus` change:
+## Adding a todo
 
-- covered the todo with a loader overlay while wating for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+Add a todo with the entered title on the form submit:
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+- if the title is empty show the `Title can't be empty` notification at the bottom;
+- use your `userId` for the new todo;
+- send a POST request to the API (check the [API Documentation](https://mate-academy.github.io/fe-students-api/))
+- disable the input until receiving a response from the API;
+- immediately after sending a request create a todo with `id: 0` and save it to the `tempTodo` variable in the state (NOT to the `todos` array);
+- show an independent `TodoItem` **after** the list if `tempTodo` is not `null`;
+- temp TodoItem should have the loader (check the original markup);
+- in case of success add the todo created by the API to the array (take it from the POST response);
+- in case of an API error show `Unable to add a todo` notification at the bottom;
+- set `tempTodo` to `null` to hide the extra `TodoItem`;
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the oppsite one, and set it to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+> Don't try to implement animations for adding or removing Todos (at least until you finish everything else).
+> If you really fill confident to try, there is a hint at the end of the description.
 
-## Renaming a todo
+## Deleting todos
 
-Implement the ability to edit a todo title on double click:
+Remove a todo on `TodoDeleteButton` click:
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- covered the todo with the loader while wating for the API response;
+- remove the todo from the list on success;
+- in case of API error show `Unable to delete a todo` notification at the bottom (the todo must stay in the list);
+
+Remove all the completed todos after the `Clear completed` button click:
+
+- the button should be visible only if there is at least 1 completed todo;
+- the deletion should work as a several individual deletions running at the same time;
 
 ## Instructions
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://DimaDvm.github.io/react_todo-app-add-and-delete/) and add it to the PR description.
+
+## IF you want to implement smooth animations
+
+<details>
+  <summary>Click here to see the hint</summary>
+
+  Use [React Transition Group](https://reactcommunity.org/react-transition-group/transition-group)
+
+  ```tsx
+  <section className="todoapp__main" data-cy="TodoList">
+    <TransitionGroup>
+      {visibleTodos.map(todo => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoItem
+            todo={todo}
+            isProcessed={processings.includes(todo.id)}
+            onDelete={() => deleteTodo(todo.id)}
+            onUpdate={updateTodo}
+          />
+        </CSSTransition>
+      ))}
+
+      {creating && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoItem
+            todo={{
+              id: Math.random(),
+              title,
+              completed: false,
+              userId: user.id,
+            }}
+            isProcessed
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  </section>
+  ```
+
+  Here are the styles used in this example
+  ```css
+  .item-enter {
+    max-height: 0;
+  }
+
+  .item-enter-active {
+    overflow: hidden;
+    max-height: 58px;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+  .item-exit {
+    max-height: 58px;
+  }
+
+  .item-exit-active {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+  .temp-item-enter {
+    max-height: 0;
+  }
+
+  .temp-item-enter-active {
+    overflow: hidden;
+    max-height: 58px;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+  .temp-item-exit {
+    max-height: 58px;
+  }
+
+  .temp-item-exit-active {
+    transform: translateY(-58px);
+    max-height: 0;
+    opacity: 0;
+    transition: 0.3s ease-in-out;
+    transition-property: opacity, max-height, transform;
+  }
+
+  .has-error .temp-item-exit-active {
+    transform: translateY(0);
+    overflow: hidden;
+  }
+  ```
+</details>
