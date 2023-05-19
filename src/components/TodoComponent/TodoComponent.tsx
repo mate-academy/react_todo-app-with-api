@@ -4,13 +4,13 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  removeTodo: (todoData: Todo) => void;
+  onRemove: (todoData: Todo) => void;
   onChangeTodo: (todo: Todo, value: boolean | string) => void;
 }
 
 export const TodoComponent: FC<Props> = React.memo(({
   todo,
-  removeTodo,
+  onRemove,
   onChangeTodo,
 }) => {
   const { title, completed } = todo;
@@ -19,7 +19,7 @@ export const TodoComponent: FC<Props> = React.memo(({
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleDeleteTodo = () => {
-    removeTodo(todo);
+    onRemove(todo);
   };
 
   const updateTitle = () => {

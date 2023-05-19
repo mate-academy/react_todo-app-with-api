@@ -9,14 +9,13 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FooterTodoApp } from './components/FooterTodoApp';
-import { Filters } from './types/Filters';
+import { Filter } from './types/Filter';
 import { ErrorComponent } from './components/ErrorComponent';
-
-const USER_ID = 10299;
+import { USER_ID } from './userId';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [category, setCategory] = useState<Filters>(Filters.All);
+  const [category, setCategory] = useState<Filter>(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState('');
 
@@ -27,16 +26,12 @@ export const App: React.FC = () => {
     setTempTodo(null);
   }, []);
 
-  useEffect(() => {
-    loadTodos();
-  }, []);
-
   const visibleTodos = useMemo(() => todos.filter(({ completed }) => {
     switch (category) {
-      case Filters.completed:
-        return completed === true;
-      case Filters.Active:
-        return completed === false;
+      case Filter.Completed:
+        return completed;
+      case Filter.Active:
+        return !completed;
       default:
         return true;
     }
@@ -81,6 +76,16 @@ export const App: React.FC = () => {
     loadTodos();
   }, []);
 
+  const deleteCompletedTodo = useCallback(() => {
+    todos
+      .filter(({ completed }) => completed === true)
+      .map(todo => removeTodo(todo));
+  }, []);
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -92,16 +97,15 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <HeaderTodoApp
           todos={todos}
-          USER_ID={USER_ID}
-          createTodo={createTodo}
+          onCreate={createTodo}
           tempTodo={tempTodo}
-          setError={setError}
+          onError={setError}
           onChangeTodo={changeTodo}
         />
 
         <MainTodoApp
           todos={visibleTodos}
-          removeTodo={removeTodo}
+          onRemove={removeTodo}
           tempTodo={tempTodo}
           onChangeTodo={changeTodo}
         />
@@ -111,13 +115,13 @@ export const App: React.FC = () => {
             todos={todos}
             category={category}
             onChange={setCategory}
-            removeTodo={removeTodo}
+            onDelete={deleteCompletedTodo}
           />
         )}
       </div>
 
       {error && (
-        <ErrorComponent error={error} onChangeError={setError} />
+        <ErrorComponent error={error} onError={setError} />
       )}
     </div>
   );

@@ -5,14 +5,14 @@ import { TodoComponent } from '../TodoComponent/TodoComponent';
 
 interface Props {
   todos: Todo[];
-  removeTodo: (todoData: Todo) => void;
+  onRemove: (todoData: Todo) => void;
   tempTodo: Todo | null;
   onChangeTodo: (todo: Todo, value: boolean | string) => void;
 }
 
 export const MainTodoApp: FC<Props> = React.memo(({
   todos,
-  removeTodo,
+  onRemove,
   tempTodo,
   onChangeTodo,
 }) => (
@@ -23,7 +23,7 @@ export const MainTodoApp: FC<Props> = React.memo(({
           <TodoComponent
             key={todo.id}
             todo={todo}
-            removeTodo={removeTodo}
+            onRemove={onRemove}
             onChangeTodo={onChangeTodo}
           />
         )
