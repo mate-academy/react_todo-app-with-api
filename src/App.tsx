@@ -5,6 +5,7 @@ import { UserWarning } from './UserWarning';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList/TodoList';
+import { LoadingSpinner } from './components/Loader';
 import { PatchedTodo, Todo } from './types/Todo';
 import {
   deleteTodo,
@@ -40,11 +41,19 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => setError(Errors.UPLOAD));
+      .then((response) => {
+        setTodos(response);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setError(Errors.UPLOAD);
+        setIsLoading(false);
+      });
   }, []);
 
   if (!USER_ID) {
@@ -159,13 +168,17 @@ export const App: React.FC = () => {
           onToggleAll={handleToggleAll}
         />
 
-        <TodoList
-          tempTodo={tempTodo}
-          todos={visibleTodos}
-          onChangeIsError={handleError}
-          onDelete={handleDeleteTodo}
-          onChangeTodo={handleToggle}
-        />
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <TodoList
+            tempTodo={tempTodo}
+            todos={visibleTodos}
+            onChangeIsError={handleError}
+            onDelete={handleDeleteTodo}
+            onChangeTodo={handleToggle}
+          />
+        )}
 
         {!!todos.length && (
           <Footer
