@@ -36,11 +36,19 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = (todoId: number) => {
     setIsEditingTodoId(todoId);
+    setNewTodoTitle(todo.title);
   };
 
   const upgradeTodo = () => {
     if (!newTodoTitle && isEditingTodoId) {
       handleDeleteTodo(isEditingTodoId);
+    }
+
+    if (newTodoTitle === todo.title) {
+      setIsEditingTodoId(null);
+      setNewTodoTitle(todo.title);
+
+      return;
     }
 
     if (isEditingTodoId) {
@@ -100,6 +108,8 @@ export const TodoItem: React.FC<Props> = ({
               value={newTodoTitle}
               onChange={(event) => setNewTodoTitle(event.target.value)}
               onBlur={handleTitleBlur}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         )

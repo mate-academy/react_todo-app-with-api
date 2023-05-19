@@ -5,7 +5,7 @@ import React, {
 } from 'react';
 import { UserWarning } from './UserWarning';
 import {
-  getTodos, createTodo, removeTodo, updateTodoCompleted, updateTodoTitle,
+  getTodos, createTodo, removeTodo, updateTodo,
 } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
@@ -87,7 +87,7 @@ export const App: React.FC = () => {
     setHasError('');
     setIsUpdatingTodoId(todoId);
     try {
-      await updateTodoCompleted(todoId, completed);
+      await updateTodo(todoId, completed);
 
       setTodos((currentTodos) => currentTodos.map((todo) => {
         if (todo.id === todoId) {
@@ -110,7 +110,7 @@ export const App: React.FC = () => {
     setHasError('');
     setIsUpdatingTodoId(todoId);
     try {
-      await updateTodoTitle(todoId, title);
+      await updateTodo(todoId, title);
 
       setTodos((currentTodos) => currentTodos.map((todo) => {
         if (todo.id === todoId) {
@@ -136,7 +136,7 @@ export const App: React.FC = () => {
     const isAllCompleted = todos.every((todo) => todo.completed);
 
     try {
-      await Promise.all(todos.map((todo) => updateTodoCompleted(todo.id, !isAllCompleted)));
+      await Promise.all(todos.map((todo) => updateTodo(todo.id, !isAllCompleted)));
 
       setTodos((currentTodos) => currentTodos.map((todo) => ({
         ...todo,

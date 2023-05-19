@@ -14,10 +14,10 @@ export const removeTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const updateTodoCompleted = (todoId: number, completed: boolean) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { completed });
-};
+export const updateTodo = (todoId: number, todoData: boolean | string) => {
+  if (typeof todoData === 'boolean') {
+    return client.patch<Todo>(`/todos/${todoId}`, { completed: todoData });
+  }
 
-export const updateTodoTitle = (todoId: number, title: string) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { title });
+  return client.patch<Todo>(`/todos/${todoId}`, { title: todoData });
 };
