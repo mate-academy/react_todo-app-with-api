@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-
 import React, {
   useCallback,
   useEffect,
@@ -13,7 +12,6 @@ import { client } from './utils/fetchClient';
 import { TodoList } from './Components/TodoList/TodoList';
 import { Status } from './types/TodoFilter';
 import { TodoFilter } from './Components/TodoFilter/TodoFilter';
-import { TodoItem } from './Components/Todo/TodoItem';
 import {
   createTodo,
   deleteTodo,
@@ -199,6 +197,12 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  if (visibleError) {
+    setTimeout(() => {
+      setVisibleError(null);
+    }, 3000);
+  }
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -210,8 +214,8 @@ export const App: React.FC = () => {
               type="button"
               className={classNames(
                 'todoapp__toggle-all', {
-                active: isEveryTotoCompleted,
-              },
+                  active: isEveryTotoCompleted,
+                },
               )}
               onClick={handleUpdateAllTodos}
             />
@@ -230,6 +234,7 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={visibleTodos}
+          tempTodo={tempTodo}
           updatingTodoId={updatingTodoId}
           isRemovingCompleted={isRemovingCompleted}
           isUpdatingEveryStatus={isUpdatingEveryStatus}
@@ -238,16 +243,6 @@ export const App: React.FC = () => {
           onTodoUpdate={handleUpdateTodo}
           onTodoTitleUpdate={handleUpdateTodoTitle}
         />
-
-        {tempTodo && (
-          <TodoItem
-            todo={tempTodo}
-            isLoadingNewTodo
-            onTodoRemove={() => { }}
-            onTodoUpdate={() => { }}
-            onTodoTitleUpdate={() => { }}
-          />
-        )}
 
         {isTodosNoEmpty && (
           <footer className="todoapp__footer">
