@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { Errors, FilterType } from './utils/enums';

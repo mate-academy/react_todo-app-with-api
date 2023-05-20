@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction } from 'react';
+import { Dispatch, FC, SetStateAction } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoInfo } from '../TodoInfo/TodoInfo';
 import { Todo } from '../../types/Todo';
