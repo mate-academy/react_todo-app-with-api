@@ -81,7 +81,22 @@ export const TodoInfo:FC<Props> = ({
     event: FormEvent,
   ) => {
     event.preventDefault();
-    onUpdate({ ...todo, title: editingQuery });
+
+    const todoData = {
+      ...todo,
+      title: editingQuery,
+    };
+
+    try {
+      setIsEditing(true);
+
+      const updatedTodo = await patchTodo(id, todoData);
+
+      onUpdate(updatedTodo);
+    } catch {
+      setError(Errors.Update);
+    }
+
     setIsEditing(false);
   }, [editingQuery]);
 
