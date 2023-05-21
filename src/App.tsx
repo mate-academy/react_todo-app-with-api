@@ -41,18 +41,19 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
+  const [isOnLoad, setIsOnLoad] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsOnLoad(true);
     getTodos(USER_ID)
       .then((response) => {
         setTodos(response);
-        setIsLoading(false);
+        setIsOnLoad(false);
       })
       .catch(() => {
         setError(Errors.UPLOAD);
-        setIsLoading(false);
+        setIsOnLoad(false);
       });
   }, []);
 
@@ -99,20 +100,35 @@ export const App: React.FC = () => {
     setTitle('');
   };
 
-  const handleDeleteTodo = (todoId: number) => {
-    deleteTodo(USER_ID, todoId)
-      .then(() => setTodos(todos.filter(todo => todo.id !== todoId)))
-      .catch(() => setError(Errors.DELETE));
+  const handleDeleteTodo = async (todoId: number) => {
+    setIsLoading(true);
+    await deleteTodo(USER_ID, todoId);
+    try {
+      setTodos(todos.filter(todo => todo.id !== todoId));
+    } catch {
+      setError(Errors.DELETE);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = async () => {
+    setIsOnLoad(true);
     const completedTodoIds = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
-    Promise.all(completedTodoIds.map(id => deleteTodo(USER_ID, id)))
-      .then(() => setTodos(todos.filter(todo => !todo.completed)))
-      .catch(() => setError(Errors.DELETE));
+    // Promise.all(completedTodoIds.map(id => deleteTodo(USER_ID, id)));
+    try {
+      await Promise.all(completedTodoIds.map(id => deleteTodo(USER_ID, id)));
+      setTodos(todos.filter(todo => !todo.completed));
+    } catch {
+      setError(Errors.DELETE);
+      setIsOnLoad(false);
+    } finally {
+      setIsOnLoad(false);
+    }
   };
 
   const handleToggle = async (id: number, data: PatchedTodo) => {
@@ -139,6 +155,7 @@ export const App: React.FC = () => {
 
   const handleToggleAll = async () => {
     try {
+      setIsOnLoad(true);
       const idsToToggle = todos
         .filter(todo => (todo.completed === isToggleOnActive))
         .map(todo => todo.id);
@@ -150,6 +167,9 @@ export const App: React.FC = () => {
       setTodos(changeTodos(todos, toggledTodos));
     } catch {
       setError(Errors.UPDATE);
+      setIsOnLoad(false);
+    } finally {
+      setIsOnLoad(false);
     }
   };
 
@@ -167,9 +187,7 @@ export const App: React.FC = () => {
           onChangeTitle={setTitle}
           onToggleAll={handleToggleAll}
         />
-
-        {isLoading ? (
-          <LoadingSpinner />
+        {isOnLoad ? (<LoadingSpinner />
         ) : (
           <TodoList
             tempTodo={tempTodo}

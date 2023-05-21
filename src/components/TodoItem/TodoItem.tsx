@@ -19,15 +19,21 @@ export const TodoItem: React.FC<Props> = ({
   onChangeTodo,
 }) => {
   let { title } = todo;
+  const { id } = todo;
 
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const [isLoading, setIsLoading] = useState(id === 0);
 
-  const handleDeleteTodo = () => {
+  const handleDeleteTodo = async () => {
     try {
-      onDeleteTodo(todo.id);
+      setIsLoading(true);
+      await onDeleteTodo(todo.id);
     } catch {
       onChangeIsError(Errors.DELETE);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,27 +46,31 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(title);
   };
 
-  const updateTitle = () => {
+  const updateTitle = async () => {
     if (newTitle === title) {
-      cancelEditing();
+      await cancelEditing();
+
+      return;
     }
 
     if (!newTitle.trim()) {
-      onDeleteTodo(todo.id);
+      await onDeleteTodo(todo.id);
 
       return;
     }
 
     try {
-      updateTodoTitle(todo.id, newTitle);
+      setIsLoading(true);
+      await updateTodoTitle(todo.id, newTitle);
       title = newTitle;
       setIsEditing(false);
     } catch {
       setIsEditing(true);
       onChangeIsError(Errors.UPDATE);
+      setIsLoading(false);
     } finally {
-      setIsEditing(false);
       title = newTitle;
+      setIsLoading(false);
     }
   };
 
@@ -84,6 +94,18 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleToggle = async () => {
+    try {
+      setIsLoading(true);
+      await onChangeTodo(todo.id, { completed: !todo.completed });
+    } catch {
+      onChangeIsError(Errors.UPDATE);
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <section className="todoapp__main">
@@ -95,7 +117,7 @@ export const TodoItem: React.FC<Props> = ({
               type="checkbox"
               className="todo__status"
               // eslint-disable-next-line max-len
-              onChange={() => onChangeTodo(todo.id, { completed: !todo.completed })}
+              onChange={handleToggle}
             />
           </label>
 
@@ -128,7 +150,10 @@ export const TodoItem: React.FC<Props> = ({
             ×
           </button>
 
-          <div className="modal overlay">
+          <div className={classNames('modal overlay', {
+            'is-active': isLoading,
+          })}
+          >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
