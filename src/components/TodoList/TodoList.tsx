@@ -6,12 +6,16 @@ type Props = {
   todos: Todo[];
   onDelete: (todoToDelete: Todo) => void;
   tempTodo: Todo | null;
+  updateTodo: (todoId: number, completed: boolean) => Promise<void>;
+  handleTitleEdit: (todoId: number, titles: string) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
   tempTodo,
+  updateTodo,
+  handleTitleEdit,
 }) => {
   const createTodo = tempTodo?.id === 0;
 
@@ -22,6 +26,8 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           todo={todo}
           onDelete={onDelete}
+          updateTodo={updateTodo}
+          updateTitle={handleTitleEdit}
         />
       ))}
 

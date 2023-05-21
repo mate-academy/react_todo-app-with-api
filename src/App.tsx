@@ -7,7 +7,12 @@ import React, {
   useMemo,
 } from 'react';
 import classNames from 'classnames';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  patchTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
@@ -52,6 +57,64 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to add todo');
     }
   }, []);
+
+  const updateTodoCompleted = useCallback(
+    async (todoId: number, completed: boolean) => {
+      const todoTemp = [...todos];
+
+      setTodos(prevTodos => prevTodos.map((todo) => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return { ...todo, completed };
+      }));
+
+      try {
+        await patchTodo(todoId, { completed });
+      } catch {
+        setErrorMessage('Unable to update todo');
+        setTodos(todoTemp);
+      }
+    }, [todos],
+  );
+
+  const updateTitle = useCallback(
+    async (todoId: number, titles: string) => {
+      const todoTemp = [...todos];
+
+      setTodos(prevTodos => prevTodos.map((todo) => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return { ...todo, title: titles };
+      }));
+
+      try {
+        await patchTodo(todoId, { title: titles });
+      } catch {
+        setErrorMessage('Unable to update todo');
+        setTodos(todoTemp);
+      }
+    }, [todos],
+  );
+
+  const handleUpdateAllTodo = useCallback(() => {
+    if (!activeTodo) {
+      todos.forEach(todo => {
+        updateTodoCompleted(todo.id, !todo.completed);
+      });
+
+      return;
+    }
+
+    todos.forEach(todo => {
+      if (!todo.completed) {
+        updateTodoCompleted(todo.id, !todo.completed);
+      }
+    });
+  }, [todos]);
 
   const onDeleteError = useCallback(
     async () => setErrorMessage(''), [errorMessage],
@@ -129,6 +192,7 @@ export const App: React.FC = () => {
                 active: filteredTodo.length === completedTodo.length,
               },
             )}
+            onClick={handleUpdateAllTodo}
           />
 
           <form onSubmit={handleFormSubmit}>
@@ -146,6 +210,8 @@ export const App: React.FC = () => {
           todos={filteredTodo}
           onDelete={handleDelete}
           tempTodo={tempTodo}
+          updateTodo={updateTodoCompleted}
+          handleTitleEdit={updateTitle}
         />
 
         {todos.length > 0
