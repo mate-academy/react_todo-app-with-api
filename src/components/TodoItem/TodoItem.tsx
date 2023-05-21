@@ -10,9 +10,9 @@ import { LoadDeleteContext } from '../../LoadDeleteContext';
 
 type Props = {
   todo: Todo;
-  updateTodo: (event: React.ChangeEvent<HTMLInputElement>, todo: Todo) => void;
-  clearTodo: (todo: Todo) => void;
-  editingTitle: (todo: Todo, title: string) => void;
+  updateTodo?: (event: React.ChangeEvent<HTMLInputElement>, todo: Todo) => void;
+  clearTodo?: (todo: Todo) => void;
+  editingTitle?: (todo: Todo, title: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -33,12 +33,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      if (editingValue.trim() === '') {
+      if (editingValue.trim() === '' && clearTodo) {
         clearTodo(todo);
         setIsEditing(false);
       } else if (editingValue === todo.title) {
         setIsEditing(false);
-      } else {
+      } else if (editingTitle) {
         editingTitle(todo, editingValue);
         setIsEditing(false);
       }
@@ -49,11 +49,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const onBlur = () => {
-    if (editingValue.trim() === '') {
+    if (editingValue.trim() === '' && clearTodo) {
       clearTodo(todo);
+      setIsEditing(false);
     } else if (editingValue === todo.title) {
       setIsEditing(false);
-    } else {
+    } else if (editingTitle) {
       editingTitle(todo, editingValue);
       setIsEditing(false);
     }
@@ -78,7 +79,11 @@ export const TodoItem: React.FC<Props> = ({
             ref={inputRef}
             type="checkbox"
             className="todo__status"
-            onChange={(event) => updateTodo(event, todo)}
+            onChange={(event) => {
+              if (updateTodo) {
+                updateTodo(event, todo);
+              }
+            }}
             checked={todo.completed}
           />
         </label>
@@ -106,14 +111,17 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => clearTodo(todo)}
+              onClick={() => {
+                if (clearTodo) {
+                  clearTodo(todo);
+                }
+              }}
             >
               ×
             </button>
           </>
         )}
 
-        {/* overlay will cover the todo while it is being updated */}
         <div className={classNames(
           'modal overlay', {
             'is-active': loadDelete.includes(

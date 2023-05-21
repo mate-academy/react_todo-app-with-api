@@ -151,7 +151,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           {todos.length > 0 && (
             <button
               type="button"
@@ -165,7 +164,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form>
             <input
               type="text"
@@ -181,27 +179,24 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {todos.length > 0 && (
-          <>
-            <section className="todoapp__main">
-              <TodoList
-                todos={filteredTodos}
-                setTodos={setTodos}
-                removeTodo={removeTodo}
-                tempTodo={tempTodo}
-              />
-            </section>
+        <>
+          <section className="todoapp__main">
+            <TodoList
+              todos={filteredTodos}
+              setTodos={setTodos}
+              removeTodo={removeTodo}
+              tempTodo={tempTodo}
+            />
+          </section>
 
-            {/* Hide the footer if there are no todos */}
+          {todos.length > 0 && (
             <footer className="todoapp__footer">
               <span className="todo-count">
                 {notCompletedTodos.length === 1 ? `${notCompletedTodos.length} item left` : `${notCompletedTodos.length} items left`}
               </span>
 
-              {/* Active filter should have a 'selected' class */}
               <TodoFilter filter={filter} setFilter={setFilter} />
 
-              {/* don't show this button if there are no completed todos */}
               {completedTodos.length > 0 ? (
                 <button
                   type="button"
@@ -220,12 +215,10 @@ export const App: React.FC = () => {
                 </button>
               )}
             </footer>
-          </>
-        )}
+          )}
+        </>
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div className={classNames(
         'notification',
         'is-danger',
