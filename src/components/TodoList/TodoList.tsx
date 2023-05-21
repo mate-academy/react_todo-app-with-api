@@ -9,12 +9,14 @@ type Props = {
   todos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   removeTodo: (id: number) => void;
+  tempTodo: Todo | null;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   setTodos,
   removeTodo,
+  tempTodo,
 }) => {
   const { setLoadDelete } = useContext(LoadDeleteContext);
 
@@ -87,7 +89,7 @@ export const TodoList: React.FC<Props> = ({
           <CSSTransition
             key={todo.id}
             timeout={300}
-            classNames="temp-item"
+            classNames="item"
           >
             <TodoItem
               todo={todo}
@@ -98,6 +100,22 @@ export const TodoList: React.FC<Props> = ({
             />
           </CSSTransition>
         ))}
+
+        {tempTodo && (
+          <CSSTransition
+            key={tempTodo.id}
+            timeout={500}
+            classNames="temp-item"
+          >
+            <TodoItem
+              todo={tempTodo}
+              key={tempTodo.id}
+              updateTodo={updateTodo}
+              clearTodo={clearTodo}
+              editingTitle={editingTitle}
+            />
+          </CSSTransition>
+        )}
       </TransitionGroup>
     </ul>
   );

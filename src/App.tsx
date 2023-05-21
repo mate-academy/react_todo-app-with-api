@@ -89,13 +89,17 @@ export const App: React.FC = () => {
           completed: false,
         };
 
+        setLoadDelete([newTempTodo.id]);
         setTempTodo(newTempTodo);
 
         postTodos(newTodo).then(
           (data) => updatedTodos(data),
         ).catch(
           () => setErrorMessage('Unable to add todo'),
-        ).finally(() => setTempTodo(null));
+        ).finally(() => {
+          setTempTodo(null);
+          setLoadDelete([]);
+        });
       } else {
         setErrorMessage("Title can't be empty");
       }
@@ -184,25 +188,8 @@ export const App: React.FC = () => {
                 todos={filteredTodos}
                 setTodos={setTodos}
                 removeTodo={removeTodo}
+                tempTodo={tempTodo}
               />
-              {tempTodo && (
-                <div className="todo">
-                  <label className="todo__status-label">
-                    <input type="checkbox" className="todo__status" />
-                  </label>
-
-                  <span className="todo__title">{tempTodo.title}</span>
-                  <button type="button" className="todo__remove">×</button>
-
-                  {/* 'is-active' class puts this modal on top of the todo */}
-                  <div className="modal overlay is-active">
-                    <div
-                      className="modal-background has-background-white-ter"
-                    />
-                    <div className="loader" />
-                  </div>
-                </div>
-              )}
             </section>
 
             {/* Hide the footer if there are no todos */}
