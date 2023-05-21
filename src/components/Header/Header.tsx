@@ -6,7 +6,7 @@ import { TodosContext } from '../../contexts/TodosContext';
 export const Header:React.FC = () => {
   const [input, setInput] = useState('');
   const [isWaitingResponse, setIsWaitingResponse] = useState(false);
-  const { addTodo, updateTodos, todos } = useContext(TodosContext);
+  const { createTodo, updateTodos, todos } = useContext(TodosContext);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -19,7 +19,7 @@ export const Header:React.FC = () => {
 
     setIsWaitingResponse(true);
 
-    await addTodo(input);
+    await createTodo(input);
 
     setIsWaitingResponse(false);
     setInput('');

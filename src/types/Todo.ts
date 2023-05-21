@@ -4,5 +4,3 @@ export interface Todo {
   title: string;
   completed: boolean;
 }
-
-export type TodoPreview = Pick<Todo, 'completed'> | Pick<Todo, 'title'>;

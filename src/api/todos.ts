@@ -1,34 +1,22 @@
-import { Todo, TodoPreview } from '../types/Todo';
+import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
   return client
-    .get<Todo[]>(`/todos?userId=${userId}`)
-    .catch(() => {
-      throw new Error();
-    });
+    .get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const addTodo = (userId: number, todo: Omit<Todo, 'id'>) => {
+export const addTodo = (userId: number, todo: Omit<Todo, keyof Todo>) => {
   return client
-    .post<Todo>(`/todos?userId=${userId}`, todo)
-    .catch(() => {
-      throw new Error();
-    });
+    .post<Todo>(`/todos?userId=${userId}`, todo);
 };
 
 export const deleteTodo = (todoId: number) => {
   return client
-    .delete(`/todos/${todoId}`)
-    .catch(() => {
-      throw new Error();
-    });
+    .delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, data: TodoPreview) => {
+export const updateTodo = (todoId: number, data: Partial<Todo>) => {
   return client
-    .patch(`/todos/${todoId}`, data)
-    .catch(() => {
-      throw new Error();
-    });
+    .patch(`/todos/${todoId}`, data);
 };

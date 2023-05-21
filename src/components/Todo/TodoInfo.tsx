@@ -51,10 +51,7 @@ export const TodoInfo:React.FC<Props> = ({
   };
 
   const updateStatus = () => {
-    updateTodos([todo.id], {
-      title: todo.title,
-      completed: !todo.completed,
-    });
+    updateTodos([todo.id], { completed: !todo.completed});
   };
 
   const updateTitle = () => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const BASE_URL = 'https://mate.academy/students-api';
 
 // returns a promise resolved after a given delay
@@ -40,7 +39,11 @@ function request<T>(
 
 export const client = {
   get: <T>(url: string) => request<T>(url),
-  post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
+  post: <T>(url: string, data: Omit<T, keyof T>) => (
+    request<T>(url, 'POST', data)
+  ),
+  patch: <T>(url: string, data: Partial<T>) => (
+    request<T>(url, 'PATCH', data)
+  ),
   delete: (url: string) => request(url, 'DELETE'),
 };

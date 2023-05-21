@@ -6,7 +6,7 @@ export const Footer: React.FC = () => {
   const { todos } = useContext(TodosContext);
   const { removeTodos } = useContext(TodosContext);
 
-  const handleClick = () => {
+  const handleClose = () => {
     const todosForDeletingId = todos
       .filter(todo => todo.completed)
       .map(todo => todo.id);
@@ -15,26 +15,24 @@ export const Footer: React.FC = () => {
   };
 
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const haveCompletedTodos = activeTodosCount !== todos.length;
 
   return (
     <footer className="todoapp__footer">
-      {!!activeTodosCount && (
-        <span className="todo-count">
-          {`${activeTodosCount} items left`}
-        </span>
-      )}
+      <span className="todo-count">
+        {`${activeTodosCount} items left`}
+      </span>
 
       <Filter />
 
-      {activeTodosCount !== todos.length && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleClick}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={handleClose}
+        hidden={!haveCompletedTodos}
+      >
+        Clear completed
+      </button>
 
     </footer>
   );
