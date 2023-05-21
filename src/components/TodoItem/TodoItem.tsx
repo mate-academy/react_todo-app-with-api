@@ -1,4 +1,9 @@
-import React, { ChangeEvent, useCallback, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { changeTodo } from '../../api/todos';
@@ -6,26 +11,29 @@ import { changeTodo } from '../../api/todos';
 interface Props {
   todo: Todo;
   tempTodoId?: number;
-  updateTodo: (updatingTodo: Todo) => void;
+  handleChangeTodo: (updatingTodo: Todo) => void;
   setErrorMessage: (errorMessage: string) => void;
-  deleteTodo?: (deletingTodo: Todo) => void;
+  deleteTodo?: (id: Todo) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   tempTodoId,
-  updateTodo = () => {},
+  handleChangeTodo = () => {},
   setErrorMessage,
   deleteTodo = () => {},
 }) => {
   const { title, completed } = todo;
+
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(tempTodoId === todo.id);
+  const [isEdit, setIsEdit] = useState(false);
+  const [titleForEdit, setTitleForEdit] = useState(title);
 
-  const handleUpdate = useCallback(async (
+  const handleStatusChange = useCallback(async (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
-    event?.preventDefault();
+    event.preventDefault();
 
     const todoData = {
       ...todo,
@@ -38,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({
 
       const updatingTodo = await changeTodo(todo.id, todoData);
 
-      updateTodo(updatingTodo);
+      handleChangeTodo(updatingTodo);
     } catch {
       setErrorMessage('Unable to update todo');
     }
@@ -47,35 +55,92 @@ export const TodoItem: React.FC<Props> = ({
     setIsLoading(false);
   }, [completed]);
 
+  const handleTitleEdit = useCallback(async (
+    event: FormEvent,
+  ) => {
+    event.preventDefault();
+
+    if (!titleForEdit.trim()) {
+      deleteTodo(todo);
+
+      return;
+    }
+
+    if (title === titleForEdit) {
+      setIsEdit(false);
+
+      return;
+    }
+
+    const todoData = {
+      ...todo,
+      title: titleForEdit,
+    };
+
+    try {
+      setIsEdit(true);
+      setIsLoading(true);
+
+      const updatingTodo = await changeTodo(todo.id, todoData);
+
+      handleChangeTodo(updatingTodo);
+    } catch {
+      setErrorMessage('Unable to change todo');
+    }
+
+    setIsLoading(false);
+    setIsEdit(false);
+  }, [titleForEdit]);
+
   return (
     <div
       className={classNames('todo', {
         completed,
       })}
+      key={todo.id}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={handleUpdate}
+          onChange={handleStatusChange}
           disabled={isDisabled}
         />
       </label>
 
-      <span className="todo__title">{title}</span>
+      {isEdit ? (
+        <form onSubmit={handleTitleEdit}>
+          <input
+            type="text"
+            placeholder="Empty todo will be deleted"
+            className="todo__title-field"
+            value={titleForEdit}
+            onChange={(event) => setTitleForEdit(event.target.value)}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={() => setIsEdit(true)}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={async () => {
-          setIsLoading(true);
-          deleteTodo?.(todo);
-        }}
-        disabled={isLoading}
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={async () => {
+              setIsLoading(true);
+              deleteTodo?.(todo);
+            }}
+            disabled={isLoading}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div className={classNames('modal overlay', {
         'is-active': isLoading,

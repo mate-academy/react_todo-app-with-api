@@ -6,7 +6,7 @@ import { TodoItem } from '../TodoItem';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  updateTodo: (updatingTodo: Todo) => void;
+  handleChangeTodo: (updatingTodo: Todo) => void;
   deleteTodo: (deletingTodo: Todo) => void;
   setErrorMessage: (errorMessage: string) => void;
 }
@@ -14,42 +14,44 @@ interface Props {
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
-  updateTodo,
+  handleChangeTodo,
   deleteTodo,
   setErrorMessage,
-}) => (
-  <section className="todoapp__main">
-    <TransitionGroup>
-      {todos.map((todo) => (
-        <CSSTransition
-          key={todo.id}
-          timeout={300}
-          classNames="item"
-        >
-          <TodoItem
+}) => {
+  return (
+    <section className="todoapp__main">
+      <TransitionGroup>
+        {todos.map((todo) => (
+          <CSSTransition
             key={todo.id}
-            todo={todo}
-            updateTodo={updateTodo}
-            deleteTodo={deleteTodo}
-            setErrorMessage={setErrorMessage}
-          />
-        </CSSTransition>
-      ))}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              handleChangeTodo={handleChangeTodo}
+              deleteTodo={deleteTodo}
+              setErrorMessage={setErrorMessage}
+            />
+          </CSSTransition>
+        ))}
 
-      {tempTodo && (
-        <CSSTransition
-          key={0}
-          timeout={300}
-          classNames="temp-item"
-        >
-          <TodoItem
-            todo={tempTodo}
-            tempTodoId={tempTodo.id}
-            updateTodo={updateTodo}
-            setErrorMessage={setErrorMessage}
-          />
-        </CSSTransition>
-      )}
-    </TransitionGroup>
-  </section>
-);
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoItem
+              todo={tempTodo}
+              tempTodoId={tempTodo.id}
+              handleChangeTodo={handleChangeTodo}
+              setErrorMessage={setErrorMessage}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
+    </section>
+  );
+};

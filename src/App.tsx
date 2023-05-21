@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useState,
   useCallback,
@@ -10,16 +9,24 @@ import { USER_ID } from './App.constants';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { ErrorMessage } from './components/ErrorMessage';
-import { getTodos, removeTodo } from './api/todos';
+import { changeTodo, getTodos, removeTodo } from './api/todos';
 import { Todo } from './types/Todo';
 import { Filter } from './types/FilterEnum';
-import { TodoForm } from './components/TodoForm.tsx';
+import { TodoHeader } from './components/TodoHeader';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.ALL);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const activeTodosCounter = useMemo(() => {
+    return todos.filter((todo) => !todo.completed).length;
+  }, [todos]);
+
+  const completedTodosCounter = useMemo(() => (
+    todos.length - activeTodosCounter
+  ), [todos, activeTodosCounter]);
 
   const loadTodos = useCallback(async () => {
     try {
@@ -35,7 +42,7 @@ export const App: React.FC = () => {
     setTodos(prevTodos => [...prevTodos, newTodo]);
   }, []);
 
-  const updateTodo = useCallback(async (updatingTodo: Todo) => {
+  const handleChangeTodo = useCallback(async (updatingTodo: Todo) => {
     setTodos(prevTodos => prevTodos.map((todo) => {
       if (todo.id === updatingTodo.id) {
         return updatingTodo;
@@ -44,6 +51,30 @@ export const App: React.FC = () => {
       return todo;
     }));
   }, []);
+
+  const handleAllTodosStatusChange = async () => {
+    try {
+      const allCompleted = todos.every(todo => todo.completed);
+
+      await Promise.all(
+        todos.map(async todo => {
+          const allTodosForStatusChange = changeTodo(todo.id, {
+            ...todo,
+            completed: !allCompleted,
+          });
+
+          return handleChangeTodo(await allTodosForStatusChange);
+        }),
+      );
+
+      setTodos(prevTodos => prevTodos.map(todo => ({
+        ...todo,
+        completed: !allCompleted,
+      })));
+    } catch {
+      setErrorMessage('Unable to update todos');
+    }
+  };
 
   const deleteTodo = useCallback(async (deletingTodo: Todo) => {
     try {
@@ -79,12 +110,6 @@ export const App: React.FC = () => {
     }
   }, [filter, todos]);
 
-  const activeTodosCounter = useMemo(() => {
-    return todos.filter((todo) => !todo.completed).length;
-  }, [todos]);
-
-  const completedTodosCounter = todos.length - activeTodosCounter;
-
   useEffect(() => {
     loadTodos();
   }, []);
@@ -95,21 +120,19 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
 
-        <header className="todoapp__header">
-          <button type="button" className="todoapp__toggle-all active" />
-
-          <TodoForm
-            addTodo={addTodo}
-            setErrorMessage={setErrorMessage}
-            setTempTodo={setTempTodo}
-          />
-        </header>
+        <TodoHeader
+          addTodo={addTodo}
+          setErrorMessage={setErrorMessage}
+          setTempTodo={setTempTodo}
+          activeTodosCounter={activeTodosCounter}
+          handleAllTodosStatusChange={handleAllTodosStatusChange}
+        />
 
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
           deleteTodo={deleteTodo}
-          updateTodo={updateTodo}
+          handleChangeTodo={handleChangeTodo}
           setErrorMessage={setErrorMessage}
         />
 
