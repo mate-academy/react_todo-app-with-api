@@ -34,14 +34,14 @@ export const TodoItem: FC<Props> = ({
   const [editedTitle, setEditedTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleDelete = (selectedTodoId: number) => {
-    setTodoId(selectedTodoId);
-    onDelete(selectedTodoId);
+  const handleDelete = () => {
+    setTodoId(id);
+    onDelete(id);
   };
 
-  const handleChangeStatus = (selectedTodoId: number) => {
-    setTodoId(selectedTodoId);
-    onChangeStatus(selectedTodoId, !completed);
+  const handleChangeStatus = () => {
+    setTodoId(id);
+    onChangeStatus(id, !completed);
   };
 
   const handleDoubleClick = (editedId: number) => {
@@ -52,7 +52,7 @@ export const TodoItem: FC<Props> = ({
     event.preventDefault();
 
     if (!editedTitle) {
-      handleDelete(id);
+      handleDelete();
 
       return;
     }
@@ -64,7 +64,11 @@ export const TodoItem: FC<Props> = ({
   };
 
   const handleBlur = (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setIsEditing(true);
     setEditedTitle(event.target.value);
+    onChangeTitle(id, editedTitle);
+    setIsEditing(false);
     setEditedTodoId(null);
   };
 
@@ -76,8 +80,8 @@ export const TodoItem: FC<Props> = ({
   };
 
   const shoulLoaderHide = id === todoId
-  || completedTodosId.includes(id)
-  || isEditing;
+    || completedTodosId.includes(id)
+    || isEditing;
 
   useEffect(() => {
     document.addEventListener('keydown', handlePressEsc);
@@ -97,7 +101,7 @@ export const TodoItem: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleChangeStatus(id)}
+          onChange={handleChangeStatus}
           disabled={isDisabledInput}
         />
       </label>
@@ -114,7 +118,7 @@ export const TodoItem: FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => handleDelete(id)}
+            onClick={() => handleDelete()}
           >
             ×
           </button>

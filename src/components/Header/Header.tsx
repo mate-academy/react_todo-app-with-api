@@ -1,4 +1,10 @@
-import { FC, FormEvent, useState } from 'react';
+import {
+  FC,
+  FormEvent,
+  useEffect,
+  useState,
+} from 'react';
+import cn from 'classnames';
 import { TodoError } from '../../types/TodoError';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../consts/consts';
@@ -8,6 +14,7 @@ interface Props {
   setTitle: (title: string) => void;
   onAddTodo: (todo: Todo) => void;
   onError: (message: TodoError) => void;
+  onToogleAllTodos: (completed: boolean) => void;
 }
 
 export const Header: FC<Props> = ({
@@ -15,8 +22,10 @@ export const Header: FC<Props> = ({
   onAddTodo,
   onError,
   setTitle,
+  onToogleAllTodos,
 }) => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [isToggleAll, setIsToggleAll] = useState(false);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,16 +49,28 @@ export const Header: FC<Props> = ({
     setTitle('');
   };
 
+  const handleToggler = () => {
+    setIsToggleAll(!isToggleAll);
+    onToogleAllTodos(isToggleAll);
+  };
+
+  useEffect(() => {
+    if (isInputDisabled) {
+      setTitle('');
+      setIsInputDisabled(false);
+    }
+  }, [isInputDisabled]);
+
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        // className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: isToggleAll })}
+        onClick={handleToggler}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

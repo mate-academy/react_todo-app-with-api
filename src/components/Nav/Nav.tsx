@@ -1,21 +1,32 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { SortTypes } from '../../types/SortTypes';
+import { Todo } from '../../types/Todo';
 
 interface Props {
-  onChangeFilter: (filter: SortTypes) => void;
+  todos: Todo[];
   activeFilter: SortTypes;
+  onChangeFilter: (filter: SortTypes) => void;
   onClearCompletedTodos: () => void;
 }
 
 export const Nav: FC<Props> = ({
+  todos,
   activeFilter,
   onChangeFilter,
   onClearCompletedTodos,
 }) => {
+  const [hasCompletedTodo, setHasCompletedTodo] = useState(false);
+
   const handleFilter = (filter: SortTypes) => {
     onChangeFilter(filter);
   };
+
+  useEffect(() => {
+    const hasCompleted = todos.some(todo => todo.completed);
+
+    setHasCompletedTodo(hasCompleted);
+  }, [todos]);
 
   return (
     <>
@@ -52,6 +63,8 @@ export const Nav: FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         onClick={onClearCompletedTodos}
+        disabled={!hasCompletedTodo}
+        style={{ visibility: hasCompletedTodo ? 'visible' : 'hidden' }}
       >
         Clear completed
       </button>

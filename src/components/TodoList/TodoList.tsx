@@ -29,25 +29,23 @@ export const TodoList: FC<Props> = ({
   return (
     <section className="todoapp__main">
 
-      <>
-        {todos.length > 0 && (
-          todos.map(todo => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              todoId={todoId}
-              isDisabledInput={isDisabledInput}
-              completedTodosId={completedTodosId}
-              onDelete={onDelete}
-              setTodoId={setTodoId}
-              onChangeStatus={onChangeStatus}
-              onChangeTitle={onChangeTitle}
-            />
-          ))
-        )}
+      {todos.length > 0 && (
+        todos.map(todo => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            todoId={todoId}
+            isDisabledInput={isDisabledInput}
+            completedTodosId={completedTodosId}
+            onDelete={onDelete}
+            setTodoId={setTodoId}
+            onChangeStatus={onChangeStatus}
+            onChangeTitle={onChangeTitle}
+          />
+        ))
+      )}
 
-        {tempTodo && <TempTodo todoId={todoId} tempTodo={tempTodo} />}
-      </>
+      {tempTodo && <TempTodo todoId={todoId} tempTodo={tempTodo} />}
 
     </section>
   );

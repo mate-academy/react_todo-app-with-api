@@ -67,7 +67,7 @@ export const App: FC = () => {
 
       setTodos((prevTodos) => [...prevTodos, newTodo]);
     } catch {
-      handleError(TodoError.LOAD);
+      handleError(TodoError.ADD);
     }
 
     setTempTodo(null);
@@ -80,7 +80,10 @@ export const App: FC = () => {
     completed: boolean,
   ) => {
     try {
-      await updateTodoStatus(id, completed);
+      setTodoId(id);
+      if (todoId) {
+        await updateTodoStatus(todoId, completed);
+      }
 
       setTodos((prevTodos) => prevTodos.map((todo) => {
         if (todo.id === id) {
@@ -97,6 +100,19 @@ export const App: FC = () => {
     }
 
     setTodoId(null);
+  }, []);
+
+  const toggleAllTodos = useCallback(async (completed: boolean) => {
+    try {
+      await Promise.all(todos.map(({ id }) => updateTodoStatus(id, completed)));
+
+      setTodos((prevTodos) => prevTodos.map((todo) => ({
+        ...todo,
+        completed,
+      })));
+    } catch {
+      handleError(TodoError.UPDATE);
+    }
   }, []);
 
   const updateTitleTodo = useCallback(async (id: number, newTitle: string) => {
@@ -149,11 +165,13 @@ export const App: FC = () => {
   const vissibleTodos = useMemo(() => todos.filter((todo) => {
     switch (activeFilter) {
       case SortTypes.Active:
-      case SortTypes.AllCompleted:
         return !todo.completed;
 
       case SortTypes.Completed:
         return todo.completed;
+
+      case SortTypes.All:
+        return true;
 
       default:
         return true;
@@ -162,7 +180,7 @@ export const App: FC = () => {
 
   useEffect(() => {
     loadTodos();
-  }, []);
+  }, [loadTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -179,6 +197,7 @@ export const App: FC = () => {
           setTitle={setTitle}
           onAddTodo={addTodo}
           onError={handleError}
+          onToogleAllTodos={toggleAllTodos}
         />
 
         {
