@@ -2,6 +2,7 @@ import {
   ChangeEvent,
   Dispatch,
   FC,
+  FormEvent,
   SetStateAction,
   useCallback,
   useState,
@@ -33,6 +34,8 @@ export const TodoInfo:FC<Props> = ({
   } = todo;
 
   const [isLoading, setIsLoading] = useState(tempTodoId === todo.id);
+  const [editingQuery, setEditingQuery] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleTodoDelete = () => {
     setIsLoading(true);
@@ -74,6 +77,14 @@ export const TodoInfo:FC<Props> = ({
     setIsLoading(false);
   }, [completed]);
 
+  const handleSubmit = useCallback(async (
+    event: FormEvent,
+  ) => {
+    event.preventDefault();
+    onUpdate({ ...todo, title: editingQuery });
+    setIsEditing(false);
+  }, [editingQuery]);
+
   return (
     <div
       className={classNames('todo',
@@ -89,15 +100,35 @@ export const TodoInfo:FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">{title}</span>
+      {isEditing ? (
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editingQuery}
+            onChange={(event) => setEditingQuery(event.target.value)}
+          />
+        </form>
+      )
+        : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {title}
+            </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={handleTodoDelete}
-      >
-        ×
-      </button>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={handleTodoDelete}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         className={classNames('modal', 'overlay', {

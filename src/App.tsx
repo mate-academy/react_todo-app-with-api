@@ -85,6 +85,7 @@ export const App: React.FC = () => {
           setError={setError}
           setTempTodo={setTempTodo}
           loadTodos={loadTodos}
+          setTodos={setTodos}
         />
 
         <TodoList
