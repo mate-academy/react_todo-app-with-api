@@ -13,36 +13,52 @@ import { NewTodo } from './components/NewTodo/NewTodo';
 import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoInfo } from './components/TodoInfo/TodoInfo';
+import { ErrorType } from './types/ErrorTypes';
+import { UpdateDataTodo } from './types/UpdateDataTodo';
 
 type IsCompleted = 'all' | 'active' | 'completed';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [completedFilter, setCompletedFilter] = useState<IsCompleted>('all');
-  const [isEmptyTitleError, setIsEmptyTitleError] = useState(false);
-  const [isLoadingError, setIsLoadingError] = useState(false);
-  const [isCreatingError, setIsCreatingError] = useState(false);
-  const [isDeletedError, setIsDeletedError] = useState(false);
-  const [isUpdateCompletedError, setIsUpdateCompletedError] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isLoadingTodoIds, setIsLoadingTodoIds] = useState<number[]>([]);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
+  const [errors, setErrors] = useState<ErrorType[]>([]);
 
-  // changeCompletedTo - on what should update todo(completed field of todo)
-  const updateTodoCompletedStatus
-  = async (todoId: number, changeCompletedTo: boolean) => {
+  const addError = (error: ErrorType) => {
+    setErrors(currentErrors => [error, ...currentErrors]);
+    setTimeout(() => {
+      setErrors(currentErrors => currentErrors
+        .filter(filterError => filterError !== error));
+    }, 3000);
+  };
+
+  const loadTodos = async () => {
+    try {
+      const todosFromServer = await getTodos();
+
+      setTodos(todosFromServer);
+    } catch {
+      addError(ErrorType.LOADED);
+    }
+  };
+
+  const updateTodoRequest
+  = async (todoId: number, data: UpdateDataTodo) => {
     setIsLoadingTodoIds(currentIds => [...currentIds, todoId]);
     try {
-      await updateTodo({ completed: changeCompletedTo }, todoId);
+      await updateTodo(data, todoId);
       setTodos(curTodos => curTodos.map(todo => {
         if (todo.id === todoId) {
-          return { ...todo, completed: changeCompletedTo };
+          return { ...todo, ...data };
         }
 
         return todo;
       }));
     } catch {
-      setIsUpdateCompletedError(true);
+      addError(ErrorType.UPDATED);
     }
 
     setIsLoadingTodoIds([]);
@@ -58,25 +74,13 @@ export const App: React.FC = () => {
       }
 
       if (toggleToCompletedStatus && (todo.completed === false)) {
-        updateTodoCompletedStatus(todo.id, true);
+        updateTodoRequest(todo.id, { completed: true });
       }
 
       if (todo.completed) {
-        updateTodoCompletedStatus(todo.id, false);
+        updateTodoRequest(todo.id, { completed: false });
       }
     });
-  };
-
-  const loadTodos = async () => {
-    console.log('loadtodos()');
-    setIsLoadingError(false);
-    try {
-      const todosFromServer = await getTodos();
-
-      setTodos(todosFromServer);
-    } catch {
-      setIsLoadingError(true);
-    }
   };
 
   const uploadNewTodo = async (title: string) => {
@@ -92,7 +96,7 @@ export const App: React.FC = () => {
 
       setTodos(curTodos => [newTodo, ...curTodos]);
     } catch (error) {
-      setIsCreatingError(true);
+      addError(ErrorType.CREATED);
     }
 
     setIsUploadingTitle(false);
@@ -106,27 +110,38 @@ export const App: React.FC = () => {
       await destroyTodo(id);
       setTodos(curTodo => curTodo.filter(todo => todo.id !== id));
     } catch {
-      setIsDeletedError(true);
+      addError(ErrorType.DELETED);
     }
 
     setIsLoadingTodoIds([]);
   };
 
-  useEffect(() => {
-    loadTodos();
-  }, []);
+  const clearAllCompletedTodos = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+      }
+    });
+  };
 
-  const closeAllWarnings = () => {
-    setIsLoadingError(false);
-    setIsEmptyTitleError(false);
-    setIsCreatingError(false);
-    setIsDeletedError(false);
-    setIsUpdateCompletedError(false);
+  const updateTitle = (title: string, todoId: number) => {
+    if (title === '') {
+      deleteTodo(todoId);
+
+      return;
+    }
+
+    updateTodoRequest(todoId, { title });
   };
 
   useEffect(() => {
-    setTimeout(() => closeAllWarnings(), 3000);
-  }, [todos, isEmptyTitleError]);
+    loadTodos();
+  }, []);
+  useEffect(() => {
+    const isAllTodosCompleted = !todos.some(todo => !todo.completed);
+
+    setIsAllCompleted(isAllTodosCompleted);
+  }, [todos]);
 
   const visibleTodos = todos.filter(todo => {
     switch (completedFilter) {
@@ -141,10 +156,6 @@ export const App: React.FC = () => {
     }
   });
 
-  const isAnyError = isLoadingError || isCreatingError || isEmptyTitleError
-    || isDeletedError || isUpdateCompletedError;
-  // console.log(isLoadingError, 'isloadinerro');
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -152,29 +163,33 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <NewTodo
           uploadNewTodo={uploadNewTodo}
-          setIsEmptyTitleError={setIsEmptyTitleError}
+          addError={addError}
           isUploadingTitle={isUploadingTitle}
           toggleAllTodosStatus={toggleAllTodosStatus}
+          isAllCompleted={isAllCompleted}
         />
         {tempTodo && (
           <TodoInfo
             todo={tempTodo}
             isLoading
             deleteTodo={deleteTodo}
-            updateTodoCompleted={updateTodoCompletedStatus}
+            updateTodoCompleted={updateTodoRequest}
+            updateTitle={updateTitle}
           />
         )}
         <TodoList
           todos={visibleTodos}
           deleteTodo={deleteTodo}
           isLoadingTodoIds={isLoadingTodoIds}
-          updateTodoCompleted={updateTodoCompletedStatus}
+          updateTodoCompleted={updateTodoRequest}
+          updateTitle={updateTitle}
         />
         {todos.length !== 0 && (
           <Footer
             completedFilter={completedFilter}
             setCompletedFilter={setCompletedFilter}
             todos={todos}
+            clearAllCompletedTodos={clearAllCompletedTodos}
           />
         )}
       </div>
@@ -182,17 +197,18 @@ export const App: React.FC = () => {
       {/* Notification is shown in case of any error */}
       {/* Add the 'hidden' class to hide the message smoothly */}
       <div className={classNames('notification', 'is-danger', 'is-light',
-        'has-text-weight-normal', { hidden: !(isAnyError) })}
+        'has-text-weight-normal', { hidden: !(errors.length) })}
       >
-        {isLoadingError && <p>Unable to load a todo</p>}
-        {isEmptyTitleError && <p>Title can&apos;t be empty </p>}
-        {isCreatingError && <p>Unable to add a todo</p>}
-        {isDeletedError && <p>Unable to delete a todo</p>}
-        {isUpdateCompletedError && <p>Unable to update a todo</p>}
+        {errors.includes(ErrorType.LOADED) && <p>Unable to load a todo</p>}
+        {errors.includes(ErrorType.EMPTYTITLE)
+         && <p>Title can&apos;t be empty </p>}
+        {errors.includes(ErrorType.CREATED) && <p>Unable to add a todo</p>}
+        {errors.includes(ErrorType.DELETED) && <p>Unable to delete a todo</p>}
+        {errors.includes(ErrorType.UPDATED) && <p>Unable to update a todo</p>}
         <button
           type="button"
           className="delete"
-          onClick={closeAllWarnings}
+          onClick={() => setErrors([])}
         />
         {/* show only one message at a time */}
         {/* Unable to add a todo

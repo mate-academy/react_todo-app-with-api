@@ -1,26 +1,30 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import classNames from 'classnames';
 import { useState } from 'react';
+import { ErrorType } from '../../types/ErrorTypes';
 
 interface P {
   uploadNewTodo: (title: string) => void;
-  setIsEmptyTitleError: (isEmpty: boolean) => void;
+  addError: (error: ErrorType) => void;
   isUploadingTitle: boolean;
   toggleAllTodosStatus: () => void;
+  isAllCompleted: boolean;
 }
 
 export const NewTodo: React.FC<P> = ({
   uploadNewTodo,
-  setIsEmptyTitleError,
+  addError,
   isUploadingTitle,
   toggleAllTodosStatus,
+  isAllCompleted,
 }) => {
   const [title, setTitle] = useState('');
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     if (title.trim() === '') {
-      setIsEmptyTitleError(true);
+      addError(ErrorType.EMPTYTITLE);
 
       return;
     }
@@ -34,7 +38,9 @@ export const NewTodo: React.FC<P> = ({
       {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        // className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all',
+          { active: isAllCompleted })}
         onClick={toggleAllTodosStatus}
       />
 

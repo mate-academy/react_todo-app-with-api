@@ -1,12 +1,14 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
+import { UpdateDataTodo } from '../../types/UpdateDataTodo';
 
 interface P {
   todo: Todo;
   isLoading?: boolean;
   deleteTodo: (id: number) => void;
-  updateTodoCompleted: (todoId: number, changeToCompleted: boolean) => void;
+  updateTodoCompleted: (todoId: number, data: UpdateDataTodo) => void;
+  updateTitle: (title: string, todoId: number) => void;
 }
 
 export const TodoInfo: React.FC<P> = ({
@@ -14,18 +16,37 @@ export const TodoInfo: React.FC<P> = ({
   isLoading = false,
   deleteTodo,
   updateTodoCompleted,
+  updateTitle,
 }) => {
   const { completed, title, id } = todo;
   const [isCurrentlyEditing, setIsCurrentlyEditing] = useState(false);
   const [editingTitle, setEditingTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleDeleteTodo = () => {
     deleteTodo(id);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     if (title === editingTitle) {
       setIsCurrentlyEditing(false);
+
       return;
+    }
+
+    setIsCurrentlyEditing(false);
+
+    updateTitle(editingTitle, id);
+  };
+
+  useEffect(() => {
+    if (isCurrentlyEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isCurrentlyEditing]);
+  const handleInputKeyUpEscape = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsCurrentlyEditing(false);
     }
   };
 
@@ -36,19 +57,22 @@ export const TodoInfo: React.FC<P> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => updateTodoCompleted(id, !completed)}
+          onClick={() => updateTodoCompleted(id, { completed: !completed })}
         />
       </label>
 
       {isCurrentlyEditing
         ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} onBlur={handleSubmit}>
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={editingTitle}
               onChange={(event) => setEditingTitle(event.target.value)}
+              // autoFocus={isCurrentlyEditing}
+              ref={inputRef}
+              onKeyUp={handleInputKeyUpEscape}
             />
           </form>
         )
@@ -77,38 +101,6 @@ export const TodoInfo: React.FC<P> = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-      {
-        // #region todoEdited && loading
-      }
-      {/* This todo is being edited */}
-      {/*
-      <div className="todo">
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-          />
-        </label>
-
-        // This form is shown instead of the title and remove button
-        <form>
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
-          />
-        </form>
-
-        <div className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-      */}
-      {
-        // #endregion
-      }
     </div>
   );
 };

@@ -7,11 +7,13 @@ interface P {
   todos: Todo[];
   setCompletedFilter: (filter: IsCompleted) => void;
   completedFilter: IsCompleted;
+  clearAllCompletedTodos: () => void;
 }
 
 export const Footer: React.FC<P> = ({
   todos,
   setCompletedFilter,
+  clearAllCompletedTodos,
   completedFilter,
 }) => {
   const countActiveTodos = useCallback(() => {
@@ -61,7 +63,11 @@ export const Footer: React.FC<P> = ({
       </nav>
 
       {/* don't show this button if there are no completed todos */}
-      <button type="button" className="todoapp__clear-completed">
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={clearAllCompletedTodos}
+      >
         Clear completed
       </button>
     </footer>
