@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   removeTodo: (id: number) => void,
-  loadingTodo: number[];
+  loadingTodoIds: number[];
   updateTitleOfTodo: (todo: Todo, title?: string) => Promise<void>,
   updateStatusOfTodo : (todo: Todo) => void,
 };
@@ -13,7 +13,7 @@ type Props = {
 export const TodoInfo: React.FC<Props> = ({
   todo,
   removeTodo,
-  loadingTodo,
+  loadingTodoIds,
   updateTitleOfTodo,
   updateStatusOfTodo,
 }) => {
@@ -117,7 +117,7 @@ export const TodoInfo: React.FC<Props> = ({
       <div
         className={classNames(
           'modal overlay',
-          { 'is-active': loadingTodo.includes(id) },
+          { 'is-active': loadingTodoIds.includes(id) },
         )}
       >
         <div className="modal-background has-background-white-ter" />

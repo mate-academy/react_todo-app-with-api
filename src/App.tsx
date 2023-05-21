@@ -14,7 +14,7 @@ import { ErrorNotification }
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [loadingTodo, setLoadingTodo] = useState([0]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState([0]);
   const [tempoTodo, setTempoTodo] = useState<Todo | null>(null);
   const [todoStatus, setTodoStatus] = useState<TodoStatus>(TodoStatus.ALL);
   const [errorMessage, setErrorMessage]
@@ -85,7 +85,8 @@ export const App: React.FC = () => {
 
   const removeTodo = async (id: number) => {
     try {
-      setLoadingTodo(prev => [...prev, id]);
+      setLoadingTodoIds(prev => [...prev, id]);
+
       await deleteTodos(id);
 
       setTodos(prevTodos => prevTodos
@@ -94,24 +95,32 @@ export const App: React.FC = () => {
       setErrorMessage(ErrorMessage.DELETE);
     } finally {
       setTempoTodo(null);
-      setLoadingTodo([0]);
+      setLoadingTodoIds([0]);
     }
   };
 
   const updateTitleOfTodo = async (updatingTodo: Todo, title?: string) => {
-    setLoadingTodo(prev => [...prev, updatingTodo.id]);
-
-    const updatedTodo = title
-      ? ({ ...updatingTodo, title })
-      : ({ ...updatingTodo, completed: !updatingTodo.completed });
-
     try {
+      setLoadingTodoIds(prev => [...prev, updatingTodo.id]);
+
+      const updatedTodo = {
+        ...updatingTodo,
+        ...(title ? { title } : { completed: !updatingTodo.completed }),
+      };
+
       await updateTodoTitle(updatedTodo);
-      await fetchData();
+
+      setTodos(prevTodos => (
+        prevTodos.map(todo => (
+          todo.id === updatingTodo.id
+            ? updatedTodo
+            : todo
+        ))
+      ));
     } catch {
       setErrorMessage(ErrorMessage.UPDATE);
     } finally {
-      setLoadingTodo(
+      setLoadingTodoIds(
         current => current.filter(todoId => todoId !== updatingTodo.id),
       );
     }
@@ -121,7 +130,7 @@ export const App: React.FC = () => {
     const newStatus = !updatingTodo.completed;
 
     try {
-      setLoadingTodo(current => [...current, updatingTodo.id]);
+      setLoadingTodoIds(current => [...current, updatingTodo.id]);
 
       const updatedTodo: Todo = await updateTodoStatus(
         updatingTodo.id,
@@ -138,7 +147,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage(ErrorMessage.UPDATE);
     } finally {
-      setLoadingTodo(
+      setLoadingTodoIds(
         current => current.filter(todoId => todoId !== updatingTodo.id),
       );
     }
@@ -157,11 +166,11 @@ export const App: React.FC = () => {
   };
 
   const clearCompletedTodos = () => {
-    todos.forEach(async (todo) => {
-      if (todo.completed) {
-        await removeTodo(todo.id);
-      }
-    });
+    const promises = todos
+      .filter(todo => todo.completed)
+      .map(todo => removeTodo(todo.id));
+
+    return Promise.all(promises);
   };
 
   if (!USER_ID) {
@@ -186,7 +195,7 @@ export const App: React.FC = () => {
           removeTodo={removeTodo}
           updateTitleOfTodo={updateTitleOfTodo}
           tempoTodo={tempoTodo}
-          loadingTodo={loadingTodo}
+          loadingTodoIds={loadingTodoIds}
           updateStatusOfTodo={updateStatusOfTodo}
         />
 

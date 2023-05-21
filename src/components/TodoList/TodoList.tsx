@@ -10,7 +10,7 @@ import '../../styles/animation.scss';
 type Props = {
   todos: Todo[],
   tempoTodo: Todo | null,
-  loadingTodo: number[];
+  loadingTodoIds: number[];
   removeTodo: (id: number) => void,
   updateTitleOfTodo: (todo: Todo, title?: string) => Promise<void>,
   updateStatusOfTodo : (todo: Todo) => void,
@@ -19,7 +19,7 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   todos,
   tempoTodo,
-  loadingTodo,
+  loadingTodoIds,
   removeTodo,
   updateTitleOfTodo,
   updateStatusOfTodo,
@@ -35,7 +35,7 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoInfo
               todo={todo}
-              loadingTodo={loadingTodo}
+              loadingTodoIds={loadingTodoIds}
               removeTodo={removeTodo}
               updateTitleOfTodo={updateTitleOfTodo}
               updateStatusOfTodo={updateStatusOfTodo}
@@ -51,7 +51,7 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoInfo
               todo={tempoTodo}
-              loadingTodo={loadingTodo}
+              loadingTodoIds={loadingTodoIds}
               removeTodo={removeTodo}
               updateTitleOfTodo={updateTitleOfTodo}
               updateStatusOfTodo={updateStatusOfTodo}
