@@ -1,5 +1,6 @@
+/* eslint-disable max-len */
 import cn from 'classnames';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
@@ -25,21 +26,24 @@ export const TodoItem: React.FC<Props> = ({
   const [isEditingTodoId, setIsEditingTodoId] = useState<number | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
 
-  const handleDeleteTodo = (id: number) => {
+  const handleDeleteTodo = useCallback((id: number) => {
     setDeletedTodoId(id);
     onDeleteTodo(id);
-  };
+  }, [onDeleteTodo]);
 
-  const handleCompletedCanhge = (todoId: number, completedStatus: boolean) => {
+  const handleCompletedCanhge = useCallback((
+    todoId: number,
+    completedStatus: boolean,
+  ) => {
     onUpdate(todoId, completedStatus);
-  };
+  }, [onUpdate]);
 
-  const handleDoubleClick = (todoId: number) => {
+  const handleDoubleClick = useCallback((todoId: number) => {
     setIsEditingTodoId(todoId);
     setNewTodoTitle(todo.title);
-  };
+  }, [todo]);
 
-  const upgradeTodo = () => {
+  const upgradeTodo = useCallback(() => {
     if (!newTodoTitle && isEditingTodoId) {
       handleDeleteTodo(isEditingTodoId);
     }
@@ -55,17 +59,21 @@ export const TodoItem: React.FC<Props> = ({
       setIsEditingTodoId(null);
       onUpdateTodoTitle(isEditingTodoId, newTodoTitle);
     }
-  };
+  }, [newTodoTitle,
+    isEditingTodoId,
+    handleDeleteTodo,
+    todo,
+    onUpdateTodoTitle]);
 
-  const handleTitleFormSubmit = (event: React.FormEvent) => {
+  const handleTitleFormSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
     upgradeTodo();
-  };
+  }, [upgradeTodo]);
 
-  const handleTitleBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTitleBlur = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
     upgradeTodo();
-  };
+  }, [upgradeTodo]);
 
   const handleEscapeKey = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
