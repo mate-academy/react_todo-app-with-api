@@ -7,7 +7,6 @@ interface Props {
   todos: Todo[];
   todoId: number | null;
   tempTodo: Todo | null;
-  isDisabledInput: boolean;
   completedTodosId: number[];
   onDelete: (id: number) => void;
   setTodoId: (id: number | null) => void;
@@ -19,7 +18,6 @@ export const TodoList: FC<Props> = ({
   todos,
   todoId,
   tempTodo,
-  isDisabledInput,
   completedTodosId,
   onDelete,
   setTodoId,
@@ -35,7 +33,6 @@ export const TodoList: FC<Props> = ({
             key={todo.id}
             todo={todo}
             todoId={todoId}
-            isDisabledInput={isDisabledInput}
             completedTodosId={completedTodosId}
             onDelete={onDelete}
             setTodoId={setTodoId}
@@ -45,8 +42,7 @@ export const TodoList: FC<Props> = ({
         ))
       )}
 
-      {tempTodo && <TempTodo todoId={todoId} tempTodo={tempTodo} />}
-
+      {tempTodo && <TempTodo tempTodo={tempTodo} />}
     </section>
   );
 };

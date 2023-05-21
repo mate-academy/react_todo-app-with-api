@@ -5,15 +5,15 @@ import { Nav } from '../Nav';
 
 interface Props {
   todos: Todo[];
-  onChangeFilter: (filter: SortTypes) => void;
   activeFilter: SortTypes;
+  onChangeFilter: (filter: SortTypes) => void;
   onClearCompletedTodos: () => void;
 }
 
 export const Footer: FC<Props> = ({
   todos,
-  onChangeFilter,
   activeFilter,
+  onChangeFilter,
   onClearCompletedTodos,
 }) => {
   const activeTodos = useMemo(() => (
@@ -27,7 +27,6 @@ export const Footer: FC<Props> = ({
           {`${activeTodos} items left`}
         </span>
 
-        {/* Active filter should have a 'selected' class */}
         <Nav
           todos={todos}
           onChangeFilter={onChangeFilter}

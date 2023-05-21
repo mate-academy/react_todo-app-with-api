@@ -1,7 +1,8 @@
 import {
-  ChangeEvent,
   FC,
+  FocusEvent,
   FormEvent,
+  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -11,7 +12,6 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo;
   todoId: number | null;
-  isDisabledInput: boolean;
   completedTodosId: number[];
   onDelete: (id: number) => void;
   setTodoId: (id: number | null) => void;
@@ -22,7 +22,6 @@ interface Props {
 export const TodoItem: FC<Props> = ({
   todo,
   todoId,
-  isDisabledInput,
   completedTodosId,
   onDelete,
   setTodoId,
@@ -30,58 +29,57 @@ export const TodoItem: FC<Props> = ({
   onChangeTitle,
 }) => {
   const { id, title, completed } = todo;
-  const [editedTodoId, setEditedTodoId] = useState<number | null>(null);
-  const [editedTitle, setEditedTitle] = useState(title);
-  const [isEditing, setIsEditing] = useState(false);
+  const shouldShowIsActive = todoId === id || completedTodosId.includes(id);
+  const [newTitle, setNewTitle] = useState<string>(title);
+  const [isEdited, setIsEdited] = useState<boolean>(false);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     setTodoId(id);
     onDelete(id);
-  };
+  }, []);
 
-  const handleChangeStatus = () => {
+  const handleChangeStatus = useCallback(() => {
     setTodoId(id);
     onChangeStatus(id, !completed);
-  };
+  }, [completed]);
 
-  const handleDoubleClick = (editedId: number) => {
-    setEditedTodoId(editedId);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleChangeTitle = useCallback((
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
-    if (!editedTitle) {
+    if (!newTitle) {
       handleDelete();
 
       return;
     }
 
-    setIsEditing(true);
-    onChangeTitle(id, editedTitle);
-    setEditedTodoId(null);
-    setIsEditing(false);
-  };
+    setTodoId(id);
+    onChangeTitle(id, newTitle);
+    setIsEdited(false);
+  }, [newTitle, id]);
 
-  const handleBlur = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleBlurInput = (event: FocusEvent<HTMLInputElement, Element>) => {
     event.preventDefault();
-    setIsEditing(true);
-    setEditedTitle(event.target.value);
-    onChangeTitle(id, editedTitle);
-    setIsEditing(false);
-    setEditedTodoId(null);
+    setNewTitle(event.target.value);
+
+    if (!newTitle) {
+      handleDelete();
+
+      return;
+    }
+
+    setTodoId(id);
+    onChangeTitle(id, newTitle);
+    setIsEdited(false);
   };
 
   const handlePressEsc = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setEditedTitle(title);
-      setEditedTodoId(null);
+      setNewTitle(newTitle);
+      setIsEdited(false);
     }
   };
-
-  const shoulLoaderHide = id === todoId
-    || completedTodosId.includes(id)
-    || isEditing;
 
   useEffect(() => {
     document.addEventListener('keydown', handlePressEsc);
@@ -89,7 +87,7 @@ export const TodoItem: FC<Props> = ({
     return () => {
       document.removeEventListener('keydown', handlePressEsc);
     };
-  }, [editedTodoId]);
+  }, [newTitle]);
 
   return (
     <div
@@ -102,44 +100,39 @@ export const TodoItem: FC<Props> = ({
           className="todo__status"
           checked={completed}
           onChange={handleChangeStatus}
-          disabled={isDisabledInput}
         />
       </label>
 
-      {editedTodoId !== id ? (
-        <>
-          <span
-            className="todo__title"
-            onDoubleClick={() => handleDoubleClick(id)}
-          >
-            {title}
-          </span>
-
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => handleDelete()}
-          >
-            ×
-          </button>
-        </>
-      ) : (
-        <form onSubmit={handleSubmit}>
+      {isEdited ? (
+        <form onSubmit={handleChangeTitle}>
           <input
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={editedTitle}
-            onChange={event => setEditedTitle(event.target.value)}
-            onBlur={handleBlur}
+            value={newTitle}
+            onChange={event => setNewTitle(event.target.value)}
+            onBlur={handleBlurInput}
           />
         </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={() => setIsEdited(true)}
+          >
+            {title}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={handleDelete}
+          >
+            ×
+          </button>
+        </>
       )}
 
-      <div className={cn('modal overlay', {
-        'is-active': shoulLoaderHide,
-      })}
-      >
+      <div className={cn('modal overlay', { 'is-active': shouldShowIsActive })}>
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

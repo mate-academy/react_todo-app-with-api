@@ -5,35 +5,33 @@ import {
   useState,
 } from 'react';
 import cn from 'classnames';
-import { TodoError } from '../../types/TodoError';
-import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../consts/consts';
+import { Todo } from '../../types/Todo';
+import { TodoError } from '../../types/TodoError';
 
 interface Props {
-  title: string;
-  setTitle: (title: string) => void;
-  onAddTodo: (todo: Todo) => void;
-  onError: (message: TodoError) => void;
-  onToogleAllTodos: (completed: boolean) => void;
+  todos: Todo[];
+  handleError: (message: TodoError) => void;
+  setTodoId: (id: number | null) => void;
+  onAddTodo: (todoData: Todo) => void;
+  onToggleAllTodos: () => void;
 }
 
 export const Header: FC<Props> = ({
-  title,
+  todos,
+  handleError,
   onAddTodo,
-  onError,
-  setTitle,
-  onToogleAllTodos,
+  onToggleAllTodos,
+  setTodoId,
 }) => {
+  const isAllSelected = todos.every((todo) => todo.completed);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [isToggleAll, setIsToggleAll] = useState(false);
+  const [title, setTitle] = useState('');
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!title) {
-      onError(TodoError.EMPTY_TITLE);
-
-      return;
+      handleError(TodoError.EMPTY_TITLE);
     }
 
     const tempTodo: Todo = {
@@ -45,19 +43,17 @@ export const Header: FC<Props> = ({
 
     setIsInputDisabled(true);
     onAddTodo(tempTodo);
-    setIsInputDisabled(false);
-    setTitle('');
   };
 
-  const handleToggler = () => {
-    setIsToggleAll(!isToggleAll);
-    onToogleAllTodos(isToggleAll);
+  const handleToglleButton = () => {
+    onToggleAllTodos();
+    setTodoId(null);
   };
 
   useEffect(() => {
     if (isInputDisabled) {
-      setTitle('');
       setIsInputDisabled(false);
+      setTitle('');
     }
   }, [isInputDisabled]);
 
@@ -66,9 +62,8 @@ export const Header: FC<Props> = ({
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        // className="todoapp__toggle-all active"
-        className={cn('todoapp__toggle-all', { active: isToggleAll })}
-        onClick={handleToggler}
+        className={cn('todoapp__toggle-all', { active: isAllSelected })}
+        onClick={handleToglleButton}
       />
 
       <form onSubmit={handleSubmit}>
@@ -77,7 +72,7 @@ export const Header: FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={(event) => setTitle(event.target.value)}
+          onChange={event => setTitle(event.target.value)}
           disabled={isInputDisabled}
         />
       </form>
