@@ -7,7 +7,7 @@ type Props = {
   setTodoStatus: (status: TodoStatus) => void,
   isTodoCompleted: boolean,
   activeTodosCount: number,
-  hanldeClearCompleted: () => void;
+  handleClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -15,7 +15,7 @@ export const Footer: React.FC<Props> = ({
   setTodoStatus,
   isTodoCompleted,
   activeTodosCount,
-  hanldeClearCompleted,
+  handleClearCompleted,
 }) => {
   const links = Object.values(TodoStatus);
 
@@ -49,7 +49,7 @@ export const Footer: React.FC<Props> = ({
             ? 'visible'
             : 'hidden',
         }}
-        onClick={hanldeClearCompleted}
+        onClick={handleClearCompleted}
       >
         Clear completed
       </button>

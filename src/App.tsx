@@ -165,7 +165,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const hanldeClearCompleted = () => {
+  const handleClearCompleted = () => {
     const promises = todos
       .filter(todo => todo.completed)
       .map(todo => handleTodoRemove(todo.id));
@@ -204,7 +204,7 @@ export const App: React.FC = () => {
             <Footer
               todoStatus={todoStatus}
               setTodoStatus={setTodoStatus}
-              hanldeClearCompleted={hanldeClearCompleted}
+              handleClearCompleted={handleClearCompleted}
               isTodoCompleted={isTodoCompleted}
               activeTodosCount={activeTodosCount}
             />
