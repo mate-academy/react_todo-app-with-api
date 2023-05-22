@@ -81,6 +81,14 @@ export const TodoInfo:FC<Props> = ({
     setIsLoading(false);
   }, [completed]);
 
+  const handleTodoEscape = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+      }
+    }, [],
+  );
+
   const handleSubmit = useCallback(async (
     event: FormEvent,
   ) => {
@@ -88,8 +96,12 @@ export const TodoInfo:FC<Props> = ({
 
     const todoData = {
       ...todo,
-      title: editingQuery,
+      title: editingQuery.trim(),
     };
+
+    if (!editingQuery) {
+      return handleTodoDelete();
+    }
 
     setIsChanging(true);
     try {
@@ -122,13 +134,14 @@ export const TodoInfo:FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
           <input
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingQuery}
             onChange={(event) => setEditingQuery(event.target.value)}
+            onKeyUp={handleTodoEscape}
           />
         </form>
       )
