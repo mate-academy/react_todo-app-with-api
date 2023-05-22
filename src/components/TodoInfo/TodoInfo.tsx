@@ -18,6 +18,8 @@ interface Props {
   setError:(error:Errors) => void;
   onUpdate:(Todo: Todo) => void;
   tempTodoId?: number;
+  isChanging: boolean;
+  setIsChanging: (boolean: boolean) => void;
 }
 
 export const TodoInfo:FC<Props> = ({
@@ -26,6 +28,8 @@ export const TodoInfo:FC<Props> = ({
   setError,
   onUpdate,
   tempTodoId,
+  isChanging,
+  setIsChanging,
 }) => {
   const {
     completed,
@@ -87,9 +91,9 @@ export const TodoInfo:FC<Props> = ({
       title: editingQuery,
     };
 
+    setIsChanging(true);
     try {
       setIsEditing(true);
-
       const updatedTodo = await patchTodo(id, todoData);
 
       onUpdate(updatedTodo);
@@ -97,7 +101,9 @@ export const TodoInfo:FC<Props> = ({
       setError(Errors.Update);
     }
 
+    setIsLoading(false);
     setIsEditing(false);
+    setIsChanging(false);
   }, [editingQuery]);
 
   return (
@@ -147,7 +153,7 @@ export const TodoInfo:FC<Props> = ({
 
       <div
         className={classNames('modal', 'overlay', {
-          'is-active': isLoading,
+          'is-active': isLoading || isChanging,
         })}
       >
         <div

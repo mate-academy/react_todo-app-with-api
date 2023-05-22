@@ -13,7 +13,7 @@ interface Props {
   setError: (error: null | Errors) => void;
   setTempTodo: (newTodo: Todo | null) => void;
   loadTodos: () => void;
-  setTodos: (newTodos: Todo[]) => void;
+  handleAllTodosStatus: () => void;
 }
 
 export const Header:FC<Props> = ({
@@ -22,7 +22,7 @@ export const Header:FC<Props> = ({
   setError,
   setTempTodo,
   loadTodos,
-  setTodos,
+  handleAllTodosStatus,
 }) => {
   const [query, setQuery] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
@@ -64,18 +64,6 @@ export const Header:FC<Props> = ({
     onAdd,
   ]);
 
-  const handleAllTodosUpdate = () => {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.completed) {
-        return { ...todo, completed: false };
-      }
-
-      return { ...todo, completed: true };
-    });
-
-    setTodos(updatedTodos);
-  };
-
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
@@ -83,7 +71,7 @@ export const Header:FC<Props> = ({
           aria-label="button"
           type="button"
           className="todoapp__toggle-all active"
-          onClick={handleAllTodosUpdate}
+          onClick={handleAllTodosStatus}
         />
       )}
 

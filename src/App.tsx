@@ -7,7 +7,7 @@ import { Footer } from './components/Footer/Footer';
 // eslint-disable-next-line max-len
 import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
 import { Header } from './components/Header';
-import { getTodos, removeTodo } from './api/todos';
+import { getTodos, removeTodo, patchTodo } from './api/todos';
 import { USER_ID } from './utils/UserId';
 
 export const App: React.FC = () => {
@@ -17,6 +17,8 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState(FilterType.All);
 
   const [error, setError] = useState<Errors | null>(null);
+
+  const [isChanging, setIsChanging] = useState(false);
 
   const loadTodos = useCallback(async () => {
     try {
@@ -47,6 +49,34 @@ export const App: React.FC = () => {
       return todo;
     }));
   }, []);
+
+  const changeAllTodosStatus = async () => {
+    try {
+      const completedTodos = todos.every(todo => todo.completed);
+
+      setIsChanging(true);
+
+      await Promise.all(
+        todos.map(async todo => {
+          const allActiveTodos = patchTodo(todo.id, {
+            ...todo,
+            completed: !completedTodos,
+          });
+
+          return updateTodo(await allActiveTodos);
+        }),
+      );
+
+      setTodos(prevTodos => prevTodos.map(todo => ({
+        ...todo,
+        completed: !completedTodos,
+      })));
+    } catch {
+      setError(Errors.Update);
+    }
+
+    setIsChanging(false);
+  };
 
   const deleteTodo = useCallback(async (todoId:number) => {
     setError(null);
@@ -85,7 +115,7 @@ export const App: React.FC = () => {
           setError={setError}
           setTempTodo={setTempTodo}
           loadTodos={loadTodos}
-          setTodos={setTodos}
+          handleAllTodosStatus={changeAllTodosStatus}
         />
 
         <TodoList
@@ -94,6 +124,8 @@ export const App: React.FC = () => {
           setTodos={setTodos}
           setError={setError}
           onUpdate={updateTodo}
+          setIsChanging={setIsChanging}
+          isChanging={isChanging}
         />
 
         {todos.length > 0 && (
