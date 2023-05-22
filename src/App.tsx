@@ -61,7 +61,7 @@ export const App: React.FC = () => {
     fetchData();
   }, []);
 
-  const addNewTodo = async (todoTitle: string) => {
+  const handleTodoAdd = async (todoTitle: string) => {
     try {
       const newTodo: TodoToSend = {
         userId: USER_ID,
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const removeTodo = async (id: number) => {
+  const handleTodoRemove = async (id: number) => {
     try {
       setLoadingTodoIds(prev => [...prev, id]);
 
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateTitleOfTodo = async (updatingTodo: Todo, title?: string) => {
+  const handleTodoTitleUpdate = async (updatingTodo: Todo, title?: string) => {
     try {
       setLoadingTodoIds(prev => [...prev, updatingTodo.id]);
 
@@ -126,7 +126,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateStatusOfTodo = async (updatingTodo: Todo) => {
+  const handleTodoStatusUpdate = async (updatingTodo: Todo) => {
     const newStatus = !updatingTodo.completed;
 
     try {
@@ -153,7 +153,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const toggleAll = () => {
+  const handleToggleAll = () => {
     let toggledTodos = todos;
 
     if (activeTodosCount) {
@@ -161,14 +161,14 @@ export const App: React.FC = () => {
     }
 
     toggledTodos.forEach(todo => {
-      updateStatusOfTodo(todo);
+      handleTodoStatusUpdate(todo);
     });
   };
 
-  const clearCompletedTodos = () => {
+  const hanldeClearCompleted = () => {
     const promises = todos
       .filter(todo => todo.completed)
-      .map(todo => removeTodo(todo.id));
+      .map(todo => handleTodoRemove(todo.id));
 
     return Promise.all(promises);
   };
@@ -184,19 +184,19 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           setErrorMessage={setErrorMessage}
-          addNewTodo={addNewTodo}
+          handleTodoAdd={handleTodoAdd}
           todos={todos}
-          toggleAll={toggleAll}
+          handleToggleAll={handleToggleAll}
           areAllTodosCompleted={areAllTodosCompleted}
         />
 
         <TodoList
           todos={visibleTodos}
-          removeTodo={removeTodo}
-          updateTitleOfTodo={updateTitleOfTodo}
+          handleTodoRemove={handleTodoRemove}
+          handleTodoTitleUpdate={handleTodoTitleUpdate}
           tempoTodo={tempoTodo}
           loadingTodoIds={loadingTodoIds}
-          updateStatusOfTodo={updateStatusOfTodo}
+          handleTodoStatusUpdate={handleTodoStatusUpdate}
         />
 
         {!!todos.length && (
@@ -204,7 +204,7 @@ export const App: React.FC = () => {
             <Footer
               todoStatus={todoStatus}
               setTodoStatus={setTodoStatus}
-              clearCompletedTodos={clearCompletedTodos}
+              hanldeClearCompleted={hanldeClearCompleted}
               isTodoCompleted={isTodoCompleted}
               activeTodosCount={activeTodosCount}
             />

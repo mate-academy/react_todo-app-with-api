@@ -11,18 +11,18 @@ type Props = {
   todos: Todo[],
   tempoTodo: Todo | null,
   loadingTodoIds: number[];
-  removeTodo: (id: number) => void,
-  updateTitleOfTodo: (todo: Todo, title?: string) => Promise<void>,
-  updateStatusOfTodo : (todo: Todo) => void,
+  handleTodoRemove: (id: number) => void,
+  handleTodoTitleUpdate: (todo: Todo, title?: string) => Promise<void>,
+  handleTodoStatusUpdate : (todo: Todo) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempoTodo,
   loadingTodoIds,
-  removeTodo,
-  updateTitleOfTodo,
-  updateStatusOfTodo,
+  handleTodoRemove,
+  handleTodoTitleUpdate,
+  handleTodoStatusUpdate,
 }) => {
   return (
     <ul className="todoapp__main" data-cy="TodoList">
@@ -36,9 +36,9 @@ export const TodoList: React.FC<Props> = ({
             <TodoInfo
               todo={todo}
               loadingTodoIds={loadingTodoIds}
-              removeTodo={removeTodo}
-              updateTitleOfTodo={updateTitleOfTodo}
-              updateStatusOfTodo={updateStatusOfTodo}
+              handleTodoRemove={handleTodoRemove}
+              handleTodoTitleUpdate={handleTodoTitleUpdate}
+              handleTodoStatusUpdate={handleTodoStatusUpdate}
             />
           </CSSTransition>
         ))}
@@ -52,9 +52,9 @@ export const TodoList: React.FC<Props> = ({
             <TodoInfo
               todo={tempoTodo}
               loadingTodoIds={loadingTodoIds}
-              removeTodo={removeTodo}
-              updateTitleOfTodo={updateTitleOfTodo}
-              updateStatusOfTodo={updateStatusOfTodo}
+              handleTodoRemove={handleTodoRemove}
+              handleTodoTitleUpdate={handleTodoTitleUpdate}
+              handleTodoStatusUpdate={handleTodoStatusUpdate}
             />
           </CSSTransition>
         )}

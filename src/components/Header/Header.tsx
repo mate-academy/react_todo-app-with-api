@@ -6,17 +6,17 @@ import { ErrorMessage } from '../../types/ErrorMessage';
 type Props = {
   todos: Todo[],
   areAllTodosCompleted: boolean,
-  addNewTodo: (todoTitle: string) => Promise<void>,
+  handleTodoAdd: (todoTitle: string) => Promise<void>,
   setErrorMessage: (errorMessage: ErrorMessage) => void,
-  toggleAll: () => void,
+  handleToggleAll: () => void,
 };
 
 export const Header: React.FC<Props> = ({
   todos,
   areAllTodosCompleted,
-  addNewTodo,
+  handleTodoAdd,
   setErrorMessage,
-  toggleAll,
+  handleToggleAll,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
@@ -41,7 +41,7 @@ export const Header: React.FC<Props> = ({
 
     try {
       setIsInputDisabled(true);
-      await addNewTodo(todoTitle);
+      await handleTodoAdd(todoTitle);
     } catch {
       setErrorMessage(ErrorMessage.ADD);
     } finally {
@@ -64,7 +64,7 @@ export const Header: React.FC<Props> = ({
             'todoapp__toggle-all',
             { active: areAllTodosCompleted },
           )}
-          onClick={toggleAll}
+          onClick={handleToggleAll}
 
         />
       )}

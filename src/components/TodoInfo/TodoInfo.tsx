@@ -4,18 +4,18 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  removeTodo: (id: number) => void,
+  handleTodoRemove: (id: number) => void,
   loadingTodoIds: number[];
-  updateTitleOfTodo: (todo: Todo, title?: string) => Promise<void>,
-  updateStatusOfTodo : (todo: Todo) => void,
+  handleTodoTitleUpdate: (todo: Todo, title?: string) => Promise<void>,
+  handleTodoStatusUpdate : (todo: Todo) => void,
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  removeTodo,
+  handleTodoRemove,
   loadingTodoIds,
-  updateTitleOfTodo,
-  updateStatusOfTodo,
+  handleTodoTitleUpdate,
+  handleTodoStatusUpdate,
 }) => {
   const { id, title, completed } = todo;
   const [newTitle, setNewTitle] = useState(title);
@@ -45,11 +45,11 @@ export const TodoInfo: React.FC<Props> = ({
     }
 
     if (!newTitle.trim()) {
-      removeTodo(id);
+      handleTodoRemove(id);
     }
 
     setIsDoubleClicked(false);
-    updateTitleOfTodo(todo, newTitle);
+    handleTodoTitleUpdate(todo, newTitle);
   };
 
   const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -59,12 +59,12 @@ export const TodoInfo: React.FC<Props> = ({
     }
   };
 
-  const handleRemoveTodo = () => {
-    removeTodo(id);
+  const handlehandleTodoRemove = () => {
+    handleTodoRemove(id);
   };
 
   const handleOnBlur = () => {
-    updateTitleOfTodo(todo, newTitle);
+    handleTodoTitleUpdate(todo, newTitle);
     setIsDoubleClicked(false);
   };
 
@@ -76,7 +76,7 @@ export const TodoInfo: React.FC<Props> = ({
           className="todo__status"
           defaultChecked={completed}
           onChange={handleInput}
-          onClick={() => updateStatusOfTodo(todo)}
+          onClick={() => handleTodoStatusUpdate(todo)}
         />
       </label>
 
@@ -107,7 +107,7 @@ export const TodoInfo: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={handleRemoveTodo}
+            onClick={handlehandleTodoRemove}
           >
             ×
           </button>
