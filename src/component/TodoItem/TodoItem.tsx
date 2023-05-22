@@ -2,6 +2,7 @@ import {
   FC,
   FormEvent,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -65,13 +66,22 @@ export const TodoItem: FC<Props> = ({
     }
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     document.addEventListener('keyup', handleEscape);
+    setIsEdit(false);
 
     return (() => {
       document.removeEventListener('keyup', handleEscape);
     });
   }, [title]);
+
+  useEffect(() => {
+    if (isEdit) {
+      inputRef.current?.focus();
+    }
+  }, [isEdit]);
 
   return (
     <div
@@ -98,6 +108,7 @@ export const TodoItem: FC<Props> = ({
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleSubmit}
+              ref={inputRef}
             />
           </form>
         )
