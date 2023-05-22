@@ -15,7 +15,7 @@ export const TodoFilter: React.FC<Props> = ({
   onStatusChange,
   onChangeTodo,
 }) => {
-  const activeTodos = visibleTodos.filter(todo => !todo.completed).length;
+  const activeTodosLength = visibleTodos.filter(todo => !todo.completed).length;
   const completedTodos = visibleTodos.filter(todo => todo.completed);
 
   const handleClearCompleted = () => {
@@ -25,7 +25,7 @@ export const TodoFilter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${activeTodos} item${activeTodos === 1 ? '' : 's'} left`}
+        {`${activeTodosLength} item${activeTodosLength === 1 ? '' : 's'} left`}
       </span>
 
       <nav className="filter">

@@ -6,7 +6,7 @@ type Props = {
   onDeleteTodo: (value: number) => void;
   todos: Todo[];
   tempTodo: Todo | null;
-  isTodoId: number[] | null;
+  isTodoId: number;
   onChangeTodoTitle: (todoId: number, value: string) => void;
   onChangeTodoCompleted: (todoId: number, value: boolean) => void;
 };

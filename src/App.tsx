@@ -18,27 +18,24 @@ const USER_ID = 9946;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState(StatusTodos.ALL);
-  const [isError, setIsError] = useState(false);
   const [query, setQuery] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isTodoId, setIsTodoId] = useState<number[] | null>([]);
+  const [activeTodoId, setActiveTodoId] = useState<number>(0);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const isTodoCompleted = todos.every(todo => todo.completed);
 
-  const filteredTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (status) {
-        case StatusTodos.ACTIVE:
-          return !todo.completed;
+  const filteredTodos = useMemo(() => todos.filter(todo => {
+    switch (status) {
+      case StatusTodos.ACTIVE:
+        return !todo.completed;
 
-        case StatusTodos.COMPLETED:
-          return todo.completed;
+      case StatusTodos.COMPLETED:
+        return todo.completed;
 
-        default:
-          return StatusTodos.ALL;
-      }
-    });
-  }, [status, todos]);
+      default:
+        return StatusTodos.ALL;
+    }
+  }), [status, todos]);
 
   const loadTodos = async () => {
     try {
@@ -50,7 +47,6 @@ export const App: React.FC = () => {
         setTodos(todosData);
       }
     } catch (error) {
-      setIsError(true);
       setErrorMessage("Can't create a todo");
       throw new Error('Error in loadData');
     }
@@ -62,20 +58,18 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsError(false);
       setErrorMessage('');
     }, 3000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [isError, errorMessage]);
+  }, [errorMessage]);
 
   const addNewTodo = async (
     title: string,
   ) => {
     if (!title) {
-      setIsError(true);
       setErrorMessage("Title can't be empty");
 
       return;
@@ -99,7 +93,6 @@ export const App: React.FC = () => {
 
       setQuery('');
     } catch {
-      setIsError(true);
       setErrorMessage('Unable to add a todo');
       throw new Error('Error in Header');
     } finally {
@@ -108,18 +101,17 @@ export const App: React.FC = () => {
   };
 
   const removeTodo = async (todoId: number) => {
-    setIsTodoId([todoId]);
+    setActiveTodoId(todoId);
 
     try {
       await deleteTodo(todoId);
 
       setTodos(todos.filter(todo => todo.id !== todoId));
     } catch {
-      setIsError(true);
       setErrorMessage('Unable to delete a todo');
       throw new Error('Error in Delete Method');
     } finally {
-      setIsTodoId([]);
+      setActiveTodoId(0);
     }
   };
 
@@ -128,7 +120,7 @@ export const App: React.FC = () => {
     title: string,
   ) => {
     try {
-      setIsTodoId([todoId]);
+      setActiveTodoId(todoId);
       const newTodo = await patchTodo(todoId, { title });
 
       setTodos((prev: Todo[]) => {
@@ -141,10 +133,9 @@ export const App: React.FC = () => {
         });
       });
     } catch {
-      setIsError(true);
       setErrorMessage('Unable to update a todo');
     } finally {
-      setIsTodoId([]);
+      setActiveTodoId(0);
     }
   };
 
@@ -152,7 +143,7 @@ export const App: React.FC = () => {
     todoId: number,
     completed: boolean,
   ) => {
-    setIsTodoId([todoId]);
+    setActiveTodoId(todoId);
     try {
       const newTodo = await patchTodo(todoId, { completed });
 
@@ -166,10 +157,9 @@ export const App: React.FC = () => {
         });
       });
     } catch {
-      setIsError(true);
       setErrorMessage('Unable to update a todo');
     } finally {
-      setIsTodoId([]);
+      setActiveTodoId(0);
     }
   };
 
@@ -185,7 +175,6 @@ export const App: React.FC = () => {
 
       setTodos(completedTodo);
     } catch {
-      setIsError(true);
       setErrorMessage('Unable to update a todo');
     }
   };
@@ -214,7 +203,7 @@ export const App: React.FC = () => {
             onChangeTodoCompleted={changeTodoCompleted}
             onDeleteTodo={removeTodo}
             tempTodo={tempTodo}
-            isTodoId={isTodoId}
+            isTodoId={activeTodoId}
           />
         </section>
 
@@ -229,11 +218,10 @@ export const App: React.FC = () => {
 
       </div>
 
-      {isError && (
+      {errorMessage && (
         <Notification
           errorMessage={errorMessage}
-          error={isError}
-          deleteError={setIsError}
+          deleteError={setErrorMessage}
         />
       )}
 

@@ -1,28 +1,30 @@
 import classNames from 'classnames';
 
 type Props = {
-  error: boolean;
-  deleteError: (value: boolean) => void;
+  deleteError: (value: string) => void;
   errorMessage: string;
 };
 
 export const Notification: React.FC<Props> = ({
-  error,
   deleteError,
   errorMessage,
 }) => {
   return (
     <div
       className={classNames(
-        'notification is-danger is-light has-text-weight-normal', {
-          hidden: !error,
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        {
+          hidden: !errorMessage,
         },
       )}
     >
       <button
         type="button"
         className="delete"
-        onClick={() => deleteError(false)}
+        onClick={() => deleteError('')}
         aria-label="delete"
       />
       {errorMessage}
