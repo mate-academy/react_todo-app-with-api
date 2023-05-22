@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { FormEvent, useContext, useState } from 'react';
 import { TodoContext } from '../contexts/TodoContext';
 import { addTodo } from '../api/todos';
 import { USER_ID } from '../constants/USER_ID';
@@ -13,7 +13,9 @@ export const FormToAddTodo: React.FC = () => {
     setTempTodo,
   } = useContext(TodoContext);
 
-  const handleCreateTodo = () => {
+  const handleCreateTodo = (event: FormEvent) => {
+    event.preventDefault();
+
     if (!title.trim()) {
       setError('Title cannot be empty');
 
