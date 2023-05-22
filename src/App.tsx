@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<string>('all');
   const [errorName, setErrorName] = useState('');
   const [disabledInput, setDisabledInput] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo>({} as Todo);
   const [title, setTitle] = useState('');
 
   const [todoID, setTodoID] = useState<number[]>([]);
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
     } catch (e) {
       setHasError(true);
     } finally {
-      setTempTodo(null);
+      setTempTodo({ ...newTodo });
       setDisabledInput(false);
       setPreparing(false);
     }

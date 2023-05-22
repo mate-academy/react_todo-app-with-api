@@ -1,11 +1,11 @@
 import classNames from 'classnames';
+// import { useState } from 'react';
 import { Todo } from '../types/Todo';
-import { useState } from 'react';
 
 interface Props {
   todo: Todo,
-  onDelete: (id: number) => void,
-  onUpdate: (todo: Todo) => void,
+  onDelete?: (id: number) => void,
+  onUpdate?: (todo: Todo) => void,
   userId: boolean,
 }
 
@@ -15,33 +15,33 @@ export const TodoItem: React.FC<Props> = ({
   userId,
   onUpdate,
 }) => {
-  const [editing, setIsEditing] = useState<boolean>(false);
+  // const [editing, setIsEditing] = useState<boolean>(false);
 
   return (
     <div
-      key={todo.id}
+      key={todo?.id}
       className={classNames('todo', {
-        completed: todo.completed,
+        completed: todo?.completed,
       })}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={todo?.completed}
           onChange={() => {
-            onUpdate({ ...todo, completed: !todo.completed });
+            onUpdate?.({ ...todo, completed: !todo.completed });
           }}
         />
       </label>
 
-      <span className="todo__title">{todo.title}</span>
+      <span className="todo__title">{todo?.title}</span>
 
       {/* Remove button appears only on hover */}
       <button
         type="button"
         className="todo__remove"
-        onClick={() => onDelete(todo.id)}
+        onClick={() => onDelete?.(todo.id)}
       >
         ×
 
