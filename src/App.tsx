@@ -101,9 +101,9 @@ export const App: FC = () => {
         .filter((todo) => todo.id !== todoToDelete.id));
     } catch {
       handleError(Error.DELETE);
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   }, []);
 
   const handleDeleteCompletedTodos = useCallback(async () => {
