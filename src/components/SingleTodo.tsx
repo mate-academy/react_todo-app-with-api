@@ -104,12 +104,21 @@ export const SingleTodo: React.FC<Props> = React.memo(
                   ref={titleRef}
                 />
               ) : (
-                <span
-                  className="todo__title"
-                  onDoubleClick={handleDoubleClick}
-                >
-                  {title}
-                </span>
+                <>
+                  <span
+                    className="todo__title"
+                    onDoubleClick={handleDoubleClick}
+                  >
+                    {title}
+                  </span>
+                  <button
+                    type="button"
+                    className="todo__remove"
+                    onClick={() => onDelete(id)}
+                  >
+                    x
+                  </button>
+                </>
               )}
 
               {isEditing && (

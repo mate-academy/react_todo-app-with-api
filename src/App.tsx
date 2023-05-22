@@ -38,8 +38,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
 
-  // aaaaaaa
-
   const addLoadingTodo = useCallback((id: number) => {
     setLoadingIds(state => {
       state.add(id);
