@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useState } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -19,11 +19,22 @@ export const TodoItem: React.FC<Props> = ({
   onToggle,
   onChange,
 }) => {
-  const [willUpdate, setWillUpdate] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [inputValue, setInputValue] = useState(todo.title);
 
   const handleFormDisplay = (value: boolean) => {
-    setWillUpdate(value);
+    setIsEditMode(value);
+  };
+
+  const handleFormSubmit = (value: boolean) => {
+    onChange(inputValue, todo.id);
+    handleFormDisplay(value);
+  };
+
+  const handleCancelEditing = (event: KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === 'Escape') {
+      handleFormDisplay(false);
+    }
   };
 
   return (
@@ -46,22 +57,12 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {willUpdate
+      {isEditMode
         ? (
           <form
-            onSubmit={() => {
-              onChange(inputValue, todo.id);
-              handleFormDisplay(false);
-            }}
-            onBlur={() => {
-              onChange(inputValue, todo.id);
-              handleFormDisplay(false);
-            }}
-            onKeyUp={(e) => {
-              if (e.key === 'Escape') {
-                handleFormDisplay(false);
-              }
-            }}
+            onSubmit={() => handleFormSubmit(false)}
+            onBlur={() => handleFormSubmit(false)}
+            onKeyUp={(e) => handleCancelEditing(e)}
           >
             <input
               type="text"
@@ -77,9 +78,7 @@ export const TodoItem: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => {
-                handleFormDisplay(true);
-              }}
+              onDoubleClick={() => handleFormDisplay(true)}
             >
               {todo.title}
             </span>
@@ -92,8 +91,7 @@ export const TodoItem: React.FC<Props> = ({
               ×
             </button>
           </>
-        )
-      }
+        )}
 
       <div className={classNames('modal', 'overlay', {
         'is-active': todo.id === 0 || processedTodos.includes(todo.id),

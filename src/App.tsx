@@ -53,34 +53,37 @@ export const App: React.FC = () => {
     .filter(todo => todo.completed)
     .map(todo => todo.id);
 
-  const getDataFromServer = useCallback(() => {
+  const getTodosFromServer = useCallback(() => {
     getTodos(USER_ID)
       .then(data => setTodos(data))
-      // eslint-disable-next-line no-console
       .catch(() => setError(ErrorType.Get));
   }, []);
 
-  const addDataToServer = (title: string) => {
+  const addTodosToServer = (title: string) => {
     setIsLoading(true);
     addTodo(USER_ID, title)
       .then(data => {
-        setIsLoading(false);
         setTodos([...todos, data]);
-        setTempTodo(null);
       })
-      .catch(() => setError(ErrorType.Post));
+      .catch(() => setError(ErrorType.Post))
+      .finally(() => {
+        setIsLoading(false);
+        setTempTodo(null);
+      });
   };
 
-  const removeDataFromServer = (todoId: number) => {
+  const removeTodosFromServer = (todoId: number) => {
     removeTodo(todoId)
       .then(() => {
         setTodos(currTodos => currTodos.filter(todo => todo.id !== todoId));
-        setProcessedTodos(currState => currState.filter(id => id !== todoId));
       })
-      .catch(() => setError(ErrorType.Delete));
+      .catch(() => setError(ErrorType.Delete))
+      .finally(() => setProcessedTodos(
+        currState => currState.filter(id => id !== todoId),
+      ));
   };
 
-  const toggleDataOnServer = (todoId: number, completed: boolean) => {
+  const toggleTodoStatus = (todoId: number, completed: boolean) => {
     toggleTodo(todoId, completed)
       .then(() => {
         setTodos(currTodos => currTodos.map(todo => {
@@ -93,12 +96,14 @@ export const App: React.FC = () => {
             completed,
           };
         }));
-        setProcessedTodos(currState => currState.filter(id => id !== todoId));
       })
-      .catch(() => setError(ErrorType.Patch));
+      .catch(() => setError(ErrorType.Patch))
+      .finally(() => setProcessedTodos(
+        currState => currState.filter(id => id !== todoId),
+      ));
   };
 
-  const changeDataonServer = (todoId: number, title: string) => {
+  const updateTodoTitle = (todoId: number, title: string) => {
     changeTodoTitle(todoId, title)
       .then(() => {
         setTodos(currTodos => currTodos.map(todo => {
@@ -111,21 +116,11 @@ export const App: React.FC = () => {
             title,
           };
         }));
-        setProcessedTodos(currState => currState.filter(id => id !== todoId));
       })
-      .catch(() => setError(ErrorType.Patch));
-  }
-
-  const handleFilter = (status: Filter) => {
-    setFilterStatus(status);
-  };
-
-  const handleError = (type: ErrorType | null) => {
-    setError(type);
-  };
-
-  const handleInput = (value: string) => {
-    setQuery(value);
+      .catch(() => setError(ErrorType.Patch))
+      .finally(() => setProcessedTodos(
+        currState => currState.filter(id => id !== todoId),
+      ));
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -138,7 +133,7 @@ export const App: React.FC = () => {
     }
 
     setError(null);
-    addDataToServer(query);
+    addTodosToServer(query);
     setQuery('');
     setTempTodo({
       id: 0,
@@ -151,14 +146,14 @@ export const App: React.FC = () => {
   const handleRemove = (todoId: number[]) => {
     setProcessedTodos(currState => [...currState, ...todoId]);
     todoId.forEach(id => {
-      removeDataFromServer(id);
+      removeTodosFromServer(id);
     });
   };
 
   const handleToggle = (todoId: number[], completed: boolean) => {
     setProcessedTodos(currState => [...currState, ...todoId]);
     todoId.forEach(id => {
-      toggleDataOnServer(id, completed);
+      toggleTodoStatus(id, completed);
     });
   };
 
@@ -171,16 +166,16 @@ export const App: React.FC = () => {
 
     setProcessedTodos(currState => [...currState, todoId]);
     if (!value) {
-      removeDataFromServer(todoId);
+      removeTodosFromServer(todoId);
 
       return;
     }
 
-    changeDataonServer(todoId, value);
+    updateTodoTitle(todoId, value);
   };
 
   useEffect(() => {
-    getDataFromServer();
+    getTodosFromServer();
   }, []);
 
   if (!USER_ID) {
@@ -194,7 +189,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           query={query}
-          onChange={handleInput}
+          onChange={setQuery}
           onSubmit={handleSubmit}
           isLoading={isLoading}
           activeTodos={activeTodos}
@@ -227,7 +222,7 @@ export const App: React.FC = () => {
 
             <Footer
               filterStatus={filterStatus}
-              onFilterChange={handleFilter}
+              onFilterChange={setFilterStatus}
               numberOfTodos={activeTodos?.length}
               isCompletedTodos={isCompletedTodos}
               onRemove={handleRemove}
@@ -237,7 +232,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification error={error} onError={handleError} />
+      <ErrorNotification error={error} onError={setError} />
     </div>
   );
 };

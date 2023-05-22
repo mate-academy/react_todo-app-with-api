@@ -24,6 +24,15 @@ export const Header: React.FC<Props> = ({
 }) => {
   const [isActive, setIsActive] = useState(true);
 
+  const handleToggleAll = () => {
+    const changedTodosId = todos
+      .filter(todo => todo.completed === !isActive)
+      .map(todo => todo.id);
+
+    onToggle(changedTodosId, isActive);
+    setIsActive(currState => !currState);
+  };
+
   return (
     <header className="todoapp__header">
       <button
@@ -31,14 +40,7 @@ export const Header: React.FC<Props> = ({
         className={classNames('todoapp__toggle-all', {
           active: activeTodos.length === 0,
         })}
-        onClick={() => {
-          const changedTodosId = todos
-            .filter(todo => todo.completed === !isActive)
-            .map(todo => todo.id);
-
-          onToggle(changedTodosId, isActive);
-          setIsActive(currState => !currState);
-        }}
+        onClick={handleToggleAll}
       />
 
       <form

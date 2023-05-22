@@ -13,6 +13,28 @@ export const ErrorNotification: React.FC<Props> = ({ error, onError }) => {
     setTimeout(() => onError(null), 3000);
   }, [onError]);
 
+  function getErrorMessage(er: ErrorType | null) {
+    switch (er) {
+      case ErrorType.Get:
+        return 'Unable to load a todo';
+
+      case ErrorType.Post:
+        return 'Unable to add a todo';
+
+      case ErrorType.Delete:
+        return 'Unable to delete a todo';
+
+      case ErrorType.Patch:
+        return 'Unable to update a todo';
+
+      case ErrorType.isEmpty:
+        return 'Title can\'t be empty';
+
+      default:
+        return '';
+    }
+  }
+
   return (
     <div className={classNames(
       'notification',
@@ -29,11 +51,12 @@ export const ErrorNotification: React.FC<Props> = ({ error, onError }) => {
         className="delete"
         onClick={() => onError(null)}
       />
-      {error === ErrorType.Get && 'Unable to load a todo'}
+      {getErrorMessage(error)}
+      {/* {error === ErrorType.Get && 'Unable to load a todo'}
       {error === ErrorType.Post && 'Unable to add a todo'}
       {error === ErrorType.Delete && 'Unable to delete a todo'}
       {error === ErrorType.Patch && 'Unable to update a todo'}
-      {error === ErrorType.isEmpty && 'Title can\'t be empty'}
+      {error === ErrorType.isEmpty && 'Title can\'t be empty'} */}
     </div>
   );
 };
