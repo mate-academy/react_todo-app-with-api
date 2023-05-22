@@ -19,7 +19,7 @@ export const TodoItem: React.FC<Props> = ({
   const [editing, setIsEditing] = useState<boolean>(false);
   const [title, setTitle] = useState(todo.title);
 
-  function save(event: React.FormEvent) {
+  function saveChanges(event: React.FormEvent) {
     event.preventDefault();
     setIsEditing(false);
 
@@ -54,7 +54,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {editing
         ? (
-          <form onSubmit={save}>
+          <form onSubmit={saveChanges}>
             <input
               data-cy="TodoTitleField"
               type="text"
@@ -62,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              onBlur={save}
+              onBlur={saveChanges}
               onKeyUp={event => {
                 if (event.key === 'Escape') {
                   setIsEditing(false);
