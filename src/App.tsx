@@ -18,18 +18,46 @@ import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { SortType } from './types/SortType';
 import { Error } from './components/Error/Error';
+import { ErrorType } from './types/ErrorType';
 
 const USER_ID = 11050;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [sort, setSort] = useState(SortType.All);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(ErrorType.None);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const completedTodo = todos.filter(todo => todo.completed === true);
-  const activeTodo = todos.length - completedTodo.length;
+  const activeTodosAmount = todos.length - completedTodo.length;
+
+  const setError = (typeOfError: ErrorType) => {
+    setErrorMessage(typeOfError);
+    setTimeout(() => setErrorMessage(ErrorType.None), 3000);
+  };
+
+  const errorMSG = useCallback(() => {
+    switch (errorMessage) {
+      case ErrorType.Fetch:
+        return 'Unable to fetch a todo';
+
+      case ErrorType.Add:
+        return 'Unable to add a todo';
+
+      case ErrorType.EmptyString:
+        return 'Unable to add an empty todo';
+
+      case ErrorType.Delete:
+        return 'Unable to delete a todo';
+
+      case ErrorType.Update:
+        return 'Unable to update a todo';
+
+      default:
+        return 'Unexpected error';
+    }
+  }, [errorMessage]);
 
   const getFiltered = (filter: SortType) => {
     switch (filter) {
@@ -54,7 +82,8 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch (error) {
-      setErrorMessage('Unable to add todo');
+      setError(ErrorType.EmptyString);
+      throw error;
     }
   }, []);
 
@@ -73,7 +102,7 @@ export const App: React.FC = () => {
       try {
         await patchTodo(todoId, { completed });
       } catch {
-        setErrorMessage('Unable to update todo');
+        setError(ErrorType.Update);
         setTodos(todoTemp);
       }
     }, [todos],
@@ -94,14 +123,14 @@ export const App: React.FC = () => {
       try {
         await patchTodo(todoId, { title: titles });
       } catch {
-        setErrorMessage('Unable to update todo');
+        setError(ErrorType.Update);
         setTodos(todoTemp);
       }
     }, [todos],
   );
 
   const handleUpdateAllTodo = useCallback(() => {
-    if (!activeTodo) {
+    if (!activeTodosAmount) {
       todos.forEach(todo => {
         updateTodoCompleted(todo.id, !todo.completed);
       });
@@ -117,7 +146,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const onDeleteError = useCallback(
-    async () => setErrorMessage(''), [errorMessage],
+    async () => setError(ErrorType.Update), [errorMessage],
   );
 
   useEffect(() => {
@@ -131,12 +160,12 @@ export const App: React.FC = () => {
       event.preventDefault();
 
       if (!title.trim()) {
-        setErrorMessage('WARNING!');
+        setError(ErrorType.Fetch);
 
         return;
       }
 
-      setErrorMessage('');
+      setError(ErrorType.None);
 
       const todoToAdd: Todo = {
         id: 0,
@@ -153,7 +182,7 @@ export const App: React.FC = () => {
         createTodo(newTodo);
         setTitle('');
       } catch {
-        setErrorMessage('Unable to add todo');
+        setError(ErrorType.Add);
       }
 
       setTempTodo(null);
@@ -167,7 +196,7 @@ export const App: React.FC = () => {
       await deleteTodo(todoToDelete.id);
       loadTodos();
     } catch {
-      setErrorMessage('Unable to delete todo');
+      setError(ErrorType.Delete);
     }
 
     setTempTodo(null);
@@ -218,7 +247,7 @@ export const App: React.FC = () => {
         && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${activeTodo} items left`}
+              {`${activeTodosAmount} items left`}
             </span>
 
             <TodoFilter sort={sort} setSort={setSort} />
@@ -238,7 +267,7 @@ export const App: React.FC = () => {
           </footer>
         )}
       </div>
-      <Error message={errorMessage} onDelete={onDeleteError} />
+      <Error message={errorMSG()} onDelete={onDeleteError} />
     </div>
   );
 };

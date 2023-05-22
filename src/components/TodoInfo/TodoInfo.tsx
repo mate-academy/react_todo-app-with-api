@@ -85,8 +85,7 @@ export const TodoInfo: React.FC<Props> = ({
               onChange={event => setNewTitle(event.target.value)}
             />
           </form>
-        )
-        : (
+        ) : (
           <>
             <span
               className="todo__title"
