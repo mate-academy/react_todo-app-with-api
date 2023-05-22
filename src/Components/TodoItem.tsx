@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 // import { useState } from 'react';
+import { useState } from 'react';
 import { Todo } from '../types/Todo';
 
 interface Props {
@@ -15,7 +16,23 @@ export const TodoItem: React.FC<Props> = ({
   userId,
   onUpdate,
 }) => {
-  // const [editing, setIsEditing] = useState<boolean>(false);
+  const [editing, setIsEditing] = useState<boolean>(false);
+  const [title, setTitle] = useState(todo.title);
+
+  function save(event: React.FormEvent) {
+    event.preventDefault();
+    setIsEditing(false);
+
+    if (title === todo.title) {
+      return;
+    }
+
+    if (title) {
+      onUpdate?.({ ...todo, title });
+    } else {
+      onDelete?.(todo.id);
+    }
+  }
 
   return (
     <div
@@ -35,17 +52,44 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span className="todo__title">{todo?.title}</span>
+      {editing
+        ? (
+          <form onSubmit={save}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              onBlur={save}
+              onKeyUp={event => {
+                if (event.key === 'Escape') {
+                  setIsEditing(false);
+                }
+              }}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {todo?.title}
+            </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => onDelete?.(todo.id)}
-      >
-        ×
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={() => onDelete?.(todo.id)}
+            >
+              ×
 
-      </button>
+            </button>
+          </>
+        )}
 
       {/* overlay will cover the todo while it is being updated */}
       <div className={classNames('modal overlay', {

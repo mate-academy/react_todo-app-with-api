@@ -92,6 +92,8 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = async (updatedTodo: Todo) => {
+    setTodoID(current => [...current, updatedTodo.id]);
+
     try {
       await updateTodo(updatedTodo);
       setTodos(current => current.map(
@@ -101,6 +103,8 @@ export const App: React.FC = () => {
     } catch (error) {
       setHasError(true);
       setErrorName('Unable to update a todo');
+    } finally {
+      setTodoID(current => current.filter(id => id !== updatedTodo.id));
     }
   };
 
@@ -159,6 +163,8 @@ export const App: React.FC = () => {
                   onDelete={() => handleDeleteTodo(todo.id)}
                   userId={todoID.includes(todo.id)}
                   onUpdate={handleUpdateTodo}
+                  onChangeTitle={handleTitleChange}
+                  onSubmit={handleFormSubmit}
                 />
               );
             })}
