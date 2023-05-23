@@ -47,8 +47,7 @@ export const App: React.FC = () => {
         setTodos(todosData);
       }
     } catch (error) {
-      setErrorMessage("Can't create a todo");
-      throw new Error('Error in loadData');
+      setErrorMessage("Can't load todos");
     }
   };
 
@@ -94,7 +93,6 @@ export const App: React.FC = () => {
       setQuery('');
     } catch {
       setErrorMessage('Unable to add a todo');
-      throw new Error('Error in Header');
     } finally {
       setTempTodo(null);
     }
@@ -109,7 +107,6 @@ export const App: React.FC = () => {
       setTodos(todos.filter(todo => todo.id !== todoId));
     } catch {
       setErrorMessage('Unable to delete a todo');
-      throw new Error('Error in Delete Method');
     } finally {
       setActiveTodoId(0);
     }
@@ -143,8 +140,8 @@ export const App: React.FC = () => {
     todoId: number,
     completed: boolean,
   ) => {
-    setActiveTodoId(todoId);
     try {
+      setActiveTodoId(todoId);
       const newTodo = await patchTodo(todoId, { completed });
 
       setTodos((prev: Todo[]) => {

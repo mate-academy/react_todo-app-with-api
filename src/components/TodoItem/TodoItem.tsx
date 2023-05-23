@@ -39,6 +39,7 @@ export const TodoItem: React.FC<Props> = ({
     onChangeTodoTitle(id, query);
 
     if (query === title) {
+      setIsEdit(false);
       setQuery(title);
     }
 
