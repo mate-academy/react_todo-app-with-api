@@ -8,7 +8,7 @@ type Props = {
   countCompletedTodos: number;
   selectedFilter: TodoStatus;
   onFilterSelect: (newFilter: TodoStatus) => void;
-  handleClearCompleted: () => void;
+  onClear: () => void;
 };
 
 const filterOptions = Object.values(TodoStatus);
@@ -19,7 +19,7 @@ export const Filter: React.FC<Props> = React.memo(
     countCompletedTodos,
     selectedFilter,
     onFilterSelect,
-    handleClearCompleted,
+    onClear,
   }) => {
     return (
       <footer className="todoapp__footer">
@@ -42,7 +42,7 @@ export const Filter: React.FC<Props> = React.memo(
             className={cn('todoapp__clear-completed', {
               hidden: countCompletedTodos === 0,
             })}
-            onClick={handleClearCompleted}
+            onClick={onClear}
           >
             Clear completed
           </button>

@@ -64,7 +64,6 @@ export const TodoList: React.FC<Props> = React.memo(({
       {creatingTodo && (
         <TempTodo
           todo={creatingTodo}
-          isLoading
         />
       )}
     </section>

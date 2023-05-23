@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import cn from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
+import { errorString } from '../ErrorString/ErrorString';
 
 type Props = {
   errorMessage: ErrorMessage;
@@ -8,19 +9,7 @@ type Props = {
 };
 
 export const Error: React.FC<Props> = ({ errorMessage, onClose }) => {
-  const errorString = useMemo(() => {
-    switch (errorMessage) {
-      case ErrorMessage.Add:
-      case ErrorMessage.Download:
-      case ErrorMessage.Delete:
-      case ErrorMessage.Update:
-        return `Unable to ${errorMessage} a todo`;
-      case ErrorMessage.EmptyTitle:
-        return 'Title can\'t be empty';
-      default:
-        return '';
-    }
-  }, [errorMessage]);
+  const error = useMemo(() => errorString(errorMessage), [errorMessage]);
 
   useEffect(() => {
     const errorTimeOut = setTimeout(() => onClose(), 3000);
@@ -47,7 +36,7 @@ export const Error: React.FC<Props> = ({ errorMessage, onClose }) => {
         aria-label="Close error message"
       />
 
-      {errorString}
+      {error}
     </div>
   );
 };

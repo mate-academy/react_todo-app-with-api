@@ -193,7 +193,7 @@ export const App: React.FC = () => {
             countCompletedTodos={counterCompletedTodos}
             selectedFilter={selectedFilter}
             onFilterSelect={setSelectedFilter}
-            handleClearCompleted={handleClearCompleted}
+            onClear={handleClearCompleted}
           />
         )}
 

@@ -4,14 +4,16 @@ import { Todo } from '../../types/Todo';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { deleteTodos, updateTodoOnServer } from '../../api/todos';
 import { ChangeFunction } from '../../types/ChangeFunction';
+import { EditedTodo } from '../EditedTodo';
+import { NoEditedTodo } from '../NoEditedTodo';
 
 type Props = {
   todo: Todo;
   isLoading: boolean;
-  handleDelete?: (todoId: number) => void;
-  showError?: (errorType: ErrorMessage) => void;
-  hideError?: () => void;
-  ChangeTodo?: ChangeFunction;
+  handleDelete: (todoId: number) => void;
+  showError: (errorType: ErrorMessage) => void;
+  hideError: () => void;
+  ChangeTodo: ChangeFunction;
 };
 
 export const TodoItem: React.FC<Props> = React.memo(({
@@ -29,12 +31,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const [editedTitle, setEditedTitle] = useState(title);
 
   const editFormRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (editFormRef.current && isEdited) {
-      editFormRef.current.focus();
-    }
-  }, [isEdited]);
 
   const handleDeleteTodo = async (onError?: () => void) => {
     hideError();
@@ -111,6 +107,12 @@ export const TodoItem: React.FC<Props> = React.memo(({
     setEditedTitle(title);
   };
 
+  useEffect(() => {
+    if (editFormRef.current && isEdited) {
+      editFormRef.current.focus();
+    }
+  }, [isEdited]);
+
   return (
     <div
       className={cn('todo', {
@@ -128,49 +130,20 @@ export const TodoItem: React.FC<Props> = React.memo(({
 
       {isEdited
         ? (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleTitleChange();
-            }}
-          >
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={editedTitle}
-              onChange={(event) => setEditedTitle(event.target.value)}
-              onBlur={handleTitleChange}
-              onKeyUp={cancelTitleChange}
-              ref={editFormRef}
-            />
-          </form>
+          <EditedTodo
+            handleTitleChange={handleTitleChange}
+            editedTitle={editedTitle}
+            setEditedTitle={setEditedTitle}
+            cancelTitleChange={cancelTitleChange}
+            editFormRef={editFormRef}
+          />
         )
         : (
-          <>
-            <span
-              role="button"
-              className="todo__title"
-              tabIndex={0}
-              aria-label="Press Enter to edit the title"
-              onKeyUp={(event) => {
-                if (event.key === 'Enter') {
-                  setIsEdit(true);
-                }
-              }}
-              onDoubleClick={() => setIsEdit(true)}
-            >
-              {title}
-            </span>
-
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => handleDeleteTodo()}
-            >
-              {'\u00d7'}
-            </button>
-          </>
+          <NoEditedTodo
+            setIsEdit={setIsEdit}
+            title={title}
+            handleDeleteTodo={handleDeleteTodo}
+          />
         )}
 
       <div
