@@ -8,8 +8,8 @@ interface Props {
   todo: Todo;
   isProcessed: boolean;
   onDelete: () => void;
-  onUpdate
-  : (dataToUpdate: string | boolean) => void | Promise<void | Partial<Todo>>,
+  onUpdate: (dataToUpdate: string | boolean) =>
+  void | Promise<void | Partial<Todo>>,
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const TodoItem: React.FC<Props> = ({
   onUpdate,
 }) => {
   const [editing, setEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo?.title);
+  const [newTitle, setNewTitle] = useState('');
 
   const handleToggleChecked = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -100,20 +100,16 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo?.completed}
-          onChange={(event) => handleToggleChecked(event, todo?.id)}
+          checked={todo.completed}
+          onChange={(event) => handleToggleChecked(event, todo.id)}
         />
       </label>
 
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       {!editing
         ? (
           <>
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
             <span
               className="todo__title"
-              // onKeyDown={handleUpdateTitle}
-              // contentEditable={editing}
               onDoubleClick={handleDoubleClick}
             >
               {newTitle}
@@ -129,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({
           </>
         )
         : (
-          <form>
+          <form key="todo-form">
             <input
               type="text"
               className="todo__title-field"
@@ -141,7 +137,6 @@ export const TodoItem: React.FC<Props> = ({
             />
           </form>
         ) }
-      {/* overlay will cover the todo while it is being updated */}
       {isProcessed && (
         <div className="modal overlay">
           <div className="modal-background has-background-white-ter" />

@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { ErrorType } from '../../types/ErrorType';
 import './ErrorMessage.scss';
 
 interface Props {
   errorToShow: ErrorType;
-  hideError: () => void;
+  setErrorToShow: React.Dispatch<React.SetStateAction<ErrorType>>,
 }
 
 enum Error {
@@ -18,8 +18,28 @@ enum Error {
 
 export const ErrorMessage: React.FC<Props> = ({
   errorToShow,
-  hideError,
+  setErrorToShow,
 }) => {
+  const notification = useRef<HTMLDivElement>(null);
+
+  const hideError = useCallback(() => {
+    if (notification.current) {
+      notification.current.classList.add('hidden');
+      setErrorToShow('none');
+    }
+  }, [errorToShow]);
+
+  useEffect(() => {
+    let timerId: NodeJS.Timeout;
+
+    if (errorToShow !== 'none' && notification.current) {
+      notification.current.classList.remove('hidden');
+      timerId = setTimeout(() => hideError(), 3000);
+    }
+
+    return () => clearTimeout(timerId);
+  }, [errorToShow]);
+
   const handleHideError = () => {
     hideError();
   };
@@ -33,6 +53,7 @@ export const ErrorMessage: React.FC<Props> = ({
         'has-text-weight-normal',
         'hidden',
       )}
+      ref={notification}
     >
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button

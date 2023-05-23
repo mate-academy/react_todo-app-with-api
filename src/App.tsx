@@ -2,6 +2,8 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useMemo,
+  // useRef,
 } from 'react';
 import classNames from 'classnames';
 import './App.scss';
@@ -22,21 +24,18 @@ import { ErrorMessage } from './components/ErrorMessage';
 
 import { TodoList, USER_ID } from './components/TodoList/TodoList';
 
-import { getNewTodoId } from './utils/helpers';
-
-const defaultTodo = {
-  id: 0,
-  userId: USER_ID,
-  title: 'title',
-  completed: false,
-};
+import { defaultTodo } from './utils/constants';
+import { FilterType } from './types/FilterType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [addingTodoTitle, setAddingTodoTitle] = useState('');
+  const [addingTodoTitle, setAddingTodoTitle] = useState(defaultTodo.title);
   const [errorToShow, setErrorToShow] = useState<ErrorType>('none');
   const [todosToShow, setTodosToShow] = useState(todos);
-  const [chosenFilter, setChosenFilter] = useState<string>('all');
+  const [
+    chosenFilter,
+    setChosenFilter,
+  ] = useState<FilterType | string>(FilterType.All);
   const [creating, setCreating] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo>(defaultTodo);
   const [processings, setProcessing] = useState<number[]>([]);
@@ -49,13 +48,13 @@ export const App: React.FC = () => {
   useEffect(() => {
     const filteredTodos = todos.filter(todo => {
       switch (chosenFilter) {
-        case 'active':
+        case FilterType.Active:
           return !todo.completed;
-        case 'completed':
+        case FilterType.Completed:
           return todo.completed;
-        case 'all':
+        case FilterType.All:
         default:
-          return true;
+          return todo;
       }
     });
 
@@ -74,33 +73,35 @@ export const App: React.FC = () => {
     return todos.find(({ id }) => id === idFindBy) || defaultTodo;
   };
 
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodos = useMemo(() => todos
+    .filter(todo => !todo.completed), [todos]);
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(() => todos
+    .filter(todo => todo.completed), [todos]);
 
   const activeTodosNumber = activeTodos.length;
   const areActiveTodos = activeTodosNumber > 0;
   const areCompletedTodos = completedTodos.length > 0;
 
-  const errorBlock = document.querySelector('.notification');
+  // const errorBlock = useRef<HTMLDivElement>(null);
 
-  const hideError = () => {
-    errorBlock?.classList.add('hidden');
-    setTimeout(() => {
-      setErrorToShow('none');
-    }, 500);
-  };
+  // const hideError = useCallback(() => {
+  //   if (errorBlock.current) {
+  //     errorBlock.current.classList.add('hidden');
+  //     setErrorToShow('none');
+  //   }
+  // }, [errorToShow]);
 
-  useEffect(() => {
-    let timerId: NodeJS.Timeout;
+  // useEffect(() => {
+  //   let timerId: NodeJS.Timeout;
 
-    if (errorToShow !== 'none') {
-      errorBlock?.classList.remove('hidden');
-      timerId = setTimeout(() => hideError(), 3000);
-    }
+  //   if (errorToShow !== 'none' && errorBlock.current) {
+  //     errorBlock.current.classList.remove('hidden');
+  //     timerId = setTimeout(() => hideError(), 3000);
+  //   }
 
-    return () => clearTimeout(timerId);
-  }, [errorToShow]);
+  //   return () => clearTimeout(timerId);
+  // }, [errorToShow]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -115,10 +116,8 @@ export const App: React.FC = () => {
       return null;
     }
 
-    const newTodoId = getNewTodoId(todos);
-
     const newTodo = {
-      id: newTodoId,
+      id: 0,
       userId: USER_ID,
       title: addingTodoTitle,
       completed: false,
@@ -128,12 +127,16 @@ export const App: React.FC = () => {
     setCreating(true);
     setTempTodo(newTodo);
 
-    processings.push(newTodoId);
+    processings.push(0);
 
     const response = addTodo(USER_ID, newTodo)
-      .then(() => {
+      .then((todo) => {
         setTempTodo(defaultTodo);
         setCreating(false);
+
+        const processedTodo = getTodoById(0);
+
+        processedTodo.id = todo.id;
       })
       .catch(() => setErrorToShow('add'));
 
@@ -235,11 +238,11 @@ export const App: React.FC = () => {
 
     const todoToUpdate = getTodoById(idToUpdate);
 
-    if (typeof dataToUpdate === 'string') {
-      if (dataToUpdate === '') {
-        return setErrorToShow('emptyTitle');
-      }
+    if (dataToUpdate === '') {
+      return setErrorToShow('emptyTitle');
+    }
 
+    if (typeof dataToUpdate === 'string') {
       todoToUpdate.title = dataToUpdate;
 
       const todosToSet = todos
@@ -248,7 +251,6 @@ export const App: React.FC = () => {
       setTodos(todosToSet);
 
       return updateTodo(idToUpdate, { title: dataToUpdate })
-        .then()
         .catch(() => setErrorToShow('update'));
     }
 
@@ -277,7 +279,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
           <button
             type="button"
@@ -386,7 +387,8 @@ export const App: React.FC = () => {
       {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorMessage
         errorToShow={errorToShow}
-        hideError={hideError}
+        // hideError={hideError}
+        setErrorToShow={setErrorToShow}
       />
     </div>
   );
