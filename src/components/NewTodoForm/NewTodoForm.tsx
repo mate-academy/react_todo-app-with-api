@@ -82,6 +82,7 @@ export const NewTodoForm: FC = () => {
   return (
     <>
       <button
+        disabled={completedTodos.length !== todos.length}
         aria-label="toggle all active"
         type="button"
         className={classNames(
