@@ -8,6 +8,7 @@ import {
   memo,
   useRef,
   useEffect,
+  useCallback,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
@@ -74,12 +75,21 @@ export const TodoItem: FC<Props> = memo((props) => {
     }
   }, [isEditing]);
 
+  const handleDoubleClick = useCallback(() => {
+    setIsEditing(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    updateTodoTitle();
+  }, []);
+
   return (
     <div className={cn('todo', { completed })}>
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
+          checked={completed}
           onChange={() => {
             onChangeStatus(id, { completed: !completed });
           }}
@@ -95,7 +105,7 @@ export const TodoItem: FC<Props> = memo((props) => {
             placeholder="Empty todo will be deleted"
             value={changedTitle}
             onChange={handleChangeTitle}
-            onBlur={updateTodoTitle}
+            onBlur={handleBlur}
             onKeyUp={cancelEditing}
           />
         </form>
@@ -103,7 +113,7 @@ export const TodoItem: FC<Props> = memo((props) => {
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={handleDoubleClick}
           >
             {title}
           </span>

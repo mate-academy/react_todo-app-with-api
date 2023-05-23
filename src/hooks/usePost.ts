@@ -17,14 +17,16 @@ export const usePost = (options: Options) => {
 
   const addNewTodo = useCallback(
     async (title: string) => {
-      if (!title.trim()) {
+      const trimmedTitle = title.trim();
+
+      if (!trimmedTitle) {
         showError(ErrorType.TITLE);
 
         return;
       }
 
       const newTodo = {
-        title,
+        title: trimmedTitle,
         userId: USER_ID,
         completed: false,
       };

@@ -9,14 +9,12 @@ interface Props {
   onChange: (id: number, property: Partial<Todo>) => void
 }
 
-export const TodoList: FC<Props> = memo((props) => {
-  const {
-    todos,
-    tempTodo,
-    onDelete,
-    onChange,
-  } = props;
-
+export const TodoList: FC<Props> = memo(({
+  todos,
+  tempTodo,
+  onDelete,
+  onChange,
+}) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
