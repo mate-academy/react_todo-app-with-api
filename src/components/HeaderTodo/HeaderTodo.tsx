@@ -17,7 +17,7 @@ export const HeaderTodo: React.FC<Props> = (props) => {
     onAddTodo,
     onToogleAll,
   } = props;
-  const emptyTodos = todos.length < 1;
+  const areTodosEmpty = todos.length < 1;
   const areAllCompleted = useMemo(() => {
     return todos.length === todos.filter(todo => todo.completed).length;
   }, [todos, onToogleAll]);
@@ -30,7 +30,7 @@ export const HeaderTodo: React.FC<Props> = (props) => {
           'todoapp__toggle-all',
           {
             active: areAllCompleted,
-            'is-invisible': emptyTodos,
+            'is-invisible': areTodosEmpty,
           },
         )}
         aria-label="active"
