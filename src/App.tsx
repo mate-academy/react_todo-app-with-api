@@ -3,7 +3,6 @@ import React, {
   useState,
   useCallback,
   useMemo,
-  // useRef,
 } from 'react';
 import classNames from 'classnames';
 import './App.scss';
@@ -82,26 +81,6 @@ export const App: React.FC = () => {
   const activeTodosNumber = activeTodos.length;
   const areActiveTodos = activeTodosNumber > 0;
   const areCompletedTodos = completedTodos.length > 0;
-
-  // const errorBlock = useRef<HTMLDivElement>(null);
-
-  // const hideError = useCallback(() => {
-  //   if (errorBlock.current) {
-  //     errorBlock.current.classList.add('hidden');
-  //     setErrorToShow('none');
-  //   }
-  // }, [errorToShow]);
-
-  // useEffect(() => {
-  //   let timerId: NodeJS.Timeout;
-
-  //   if (errorToShow !== 'none' && errorBlock.current) {
-  //     errorBlock.current.classList.remove('hidden');
-  //     timerId = setTimeout(() => hideError(), 3000);
-  //   }
-
-  //   return () => clearTimeout(timerId);
-  // }, [errorToShow]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -279,20 +258,24 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-          <button
-            type="button"
-            className={
-              classNames(
-                'todoapp__toggle-all',
-                { active: activeTodosNumber > 0 },
-              )
-            }
-            onClick={handleAllChecked}
-          />
 
-          {/* Add a todo on form submit */}
+          <label htmlFor="todo-form">
+            <button
+              type="button"
+              aria-label="Toggle All"
+              className={
+                classNames(
+                  'todoapp__toggle-all',
+                  { active: activeTodosNumber > 0 },
+                )
+              }
+              onClick={handleAllChecked}
+            />
+          </label>
+
           <form
+            id="todo-form"
+            key="todo-form"
             action={BASE_URL}
             method="POST"
             onSubmit={handleSubmitNewTodo}
@@ -323,7 +306,6 @@ export const App: React.FC = () => {
               {' items left'}
             </span>
 
-            {/* Active filter should have a 'selected' class */}
             <nav className="filter">
               <a
                 href="#/"
@@ -383,11 +365,8 @@ export const App: React.FC = () => {
 
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorMessage
         errorToShow={errorToShow}
-        // hideError={hideError}
         setErrorToShow={setErrorToShow}
       />
     </div>
