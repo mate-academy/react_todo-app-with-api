@@ -31,15 +31,15 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterType, setSortType] = useState<FilterType>(FilterType.ALL);
   const [errorType, setErrorType] = useState<ErrorsType>(ErrorsType.NONE);
-  // const [isHiddenError, setIsHiddenError] = useState(true);
+  const [isHiddenError, setIsHiddenError] = useState(true);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const handleError = useCallback((typeOfError: ErrorsType) => {
     setErrorType(typeOfError);
-    // setIsHiddenError(false);
+    setIsHiddenError(false);
 
     setTimeout(() => {
-      // setIsHiddenError(true);
+      setIsHiddenError(true);
       setErrorType(ErrorsType.NONE);
     }, 3000);
   }, []);
@@ -109,8 +109,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleCloseError = () => {
-    setErrorType(ErrorsType.NONE);
-    // setIsHiddenError(true);
+    setIsHiddenError(true);
   };
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
@@ -259,8 +258,7 @@ export const App: React.FC = () => {
           'is-light',
           'has-text-weight-normal',
           {
-            hidden: errorType === ErrorsType.NONE,
-            // hidden: isHiddenError,
+            hidden: isHiddenError,
           },
         )}
       >
@@ -273,29 +271,6 @@ export const App: React.FC = () => {
 
         {errorType}
       </div>
-
-      {errorType !== ErrorsType.NONE && (
-        <div className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            // hidden: errorType === ErrorsType.NONE,
-            // hidden: isHiddenError,
-          },
-        )}
-        >
-          <button
-            type="button"
-            className="delete"
-            onClick={handleCloseError}
-            aria-label="delete error message"
-          />
-
-          {errorType}
-        </div>
-      )}
     </div>
   );
 };
