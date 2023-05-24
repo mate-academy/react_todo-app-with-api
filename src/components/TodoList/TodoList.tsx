@@ -6,6 +6,7 @@ import {
 import { Todo } from '../../types/Todo';
 import { TodoTask } from '../TodoTask';
 import { TodoContext } from '../TodoProvider';
+import { TempTodo } from '../TempTodo';
 
 interface Props {
   preparedTodos: Todo[];
@@ -41,9 +42,8 @@ export const TodoList: FC<Props> = ({
             timeout={300}
             classNames="temp-item"
           >
-            <TodoTask
-              todo={tempTodo}
-              isLoading={processing.includes(tempTodo.id)}
+            <TempTodo
+              title={tempTodo.title}
             />
           </CSSTransition>
         )}

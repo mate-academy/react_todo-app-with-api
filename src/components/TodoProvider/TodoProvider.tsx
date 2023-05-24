@@ -1,5 +1,5 @@
 import {
-  FC, ReactNode, createContext, useCallback, useEffect, useMemo, useState,
+  FC, ReactNode, createContext, useCallback, useEffect, useState,
 } from 'react';
 import { getTodos, patchTodo, deleteTodo } from '../../api/todos';
 import { USER_ID } from '../../constants';
@@ -45,10 +45,6 @@ export const TodoProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    uploadTodos();
-  }, []);
-
   const updateTodo = useCallback(async (
     todoId: number, updatedData: Partial<Todo>,
   ) => {
@@ -87,19 +83,11 @@ export const TodoProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, []);
 
-  const contextValue: ContextType = useMemo(() => {
-    return {
-      error,
-      todos,
-      processing,
-      setError,
-      setTodos,
-      setProcessing,
-      uploadTodos,
-      updateTodo,
-      removeTodo,
-    };
-  }, [
+  useEffect(() => {
+    uploadTodos();
+  }, []);
+
+  const contextValue: ContextType = {
     error,
     todos,
     processing,
@@ -109,7 +97,7 @@ export const TodoProvider: FC<{ children: ReactNode }> = ({ children }) => {
     uploadTodos,
     updateTodo,
     removeTodo,
-  ]);
+  };
 
   return (
     <TodoContext.Provider value={contextValue}>

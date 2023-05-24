@@ -1,25 +1,23 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
-  FC, useContext, useEffect, useMemo, useState,
+  FC, useContext, useMemo, useState,
 } from 'react';
-import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { ErrorType } from './types/Error';
 import { TodoList } from './components/TodoList/TodoList';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer';
 import { Filter } from './types/FilterConditions';
 import { USER_ID } from './constants';
 import { TodoContext } from './components/TodoProvider';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const {
     todos,
-    error,
-    setError,
+    removeTodo,
   } = useContext(TodoContext);
 
   const filteredTodos = useMemo(() => {
@@ -34,16 +32,12 @@ export const App: FC = () => {
     }
   }, [todos, filter]);
 
-  useEffect(() => {
-    const timerId = setTimeout(() => setError(ErrorType.None), 3000);
-
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [error]);
-
-  const handleErrorNotification = () => {
-    setError(ErrorType.None);
+  const handleClearCompletedClick = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        removeTodo?.(todo.id);
+      }
+    });
   };
 
   if (!USER_ID) {
@@ -67,26 +61,14 @@ export const App: FC = () => {
 
         {!!todos.length && (
           <Footer
-            filter={filter}
+            filterCondition={filter}
             onChangeFilter={setFilter}
+            onClearCompleted={handleClearCompletedClick}
           />
         )}
       </div>
 
-      <div className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
-        {
-          hidden: error === ErrorType.None,
-        },
-      )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={handleErrorNotification}
-        />
-        {error}
-      </div>
+      <ErrorNotification />
     </div>
   );
 };
