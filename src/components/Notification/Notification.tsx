@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import classNames from 'classnames';
 
 type Props = {
   errorMessage: string,
-  removeErrorMessage: () => void
+  removeErrorMessage: () => MouseEventHandler<HTMLButtonElement> | undefined
 };
 
 export const Notification: React.FC<Props>
@@ -17,10 +17,9 @@ export const Notification: React.FC<Props>
       <button
         type="button"
         className="delete"
-        onClick={() => (removeErrorMessage())}
-      >
-        {}
-      </button>
+        onClick={removeErrorMessage}
+        aria-label="Delete"
+      />
 
       {errorMessage}
     </div>

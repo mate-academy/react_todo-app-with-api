@@ -28,8 +28,10 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!todoTitle) {
       removeTodo(todo.id);
-    } else {
+    } else if (todoTitle !== title) {
       onUpdateTodo(todo.id, { title: todoTitle });
+      setIsEditing(false);
+    } else {
       setIsEditing(false);
     }
   };
@@ -69,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isEditing]);
+  }, []);
 
   return (
     <div className={classNames(

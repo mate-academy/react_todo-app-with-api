@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  activeTodos: number,
+  activeTodoId: number,
   onErrorMessage: (error: string) => void,
   userId: number,
   onAdd: (todo: Omit<Todo, 'id'>) => void,
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  activeTodos,
+  activeTodoId,
   userId,
   onAdd,
   isDisabledInput,
@@ -52,14 +52,13 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: !activeTodos },
+          { active: !activeTodoId },
         )}
         onClick={onToggle}
       >
         {}
       </button>
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleOnSubmit}
       >

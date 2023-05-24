@@ -6,7 +6,7 @@ type Props = {
   togglingTodos:{}
   visibleTodos: Todo[]
   todos: Todo[]
-  activeTodos: number
+  activeTodoId: number
   filterType: FilterType
   tempTodo: Todo | null,
   removeTodo: (id: number) => void
@@ -22,26 +22,24 @@ export const TodoList: React.FC<Props> = ({
   togglingTodos,
 }) => {
   return (
-    <>
-      <section className="todoapp__main">
-        {visibleTodos.map(todo => (
-          <TodoItem
-            todo={todo}
-            key={todo.id}
-            removeTodo={removeTodo}
-            onUpdateTodo={onUpdateTodo}
-            togglingTodos={togglingTodos}
-          />
-        ))}
-        {tempTodo && (
-          <TodoItem
-            removeTodo={removeTodo}
-            togglingTodos={togglingTodos}
-            todo={tempTodo}
-            onUpdateTodo={() => {}}
-          />
-        )}
-      </section>
-    </>
+    <section className="todoapp__main">
+      {visibleTodos.map(todo => (
+        <TodoItem
+          todo={todo}
+          key={todo.id}
+          removeTodo={removeTodo}
+          onUpdateTodo={onUpdateTodo}
+          togglingTodos={togglingTodos}
+        />
+      ))}
+      {tempTodo && (
+        <TodoItem
+          removeTodo={removeTodo}
+          togglingTodos={togglingTodos}
+          todo={tempTodo}
+          onUpdateTodo={() => {}}
+        />
+      )}
+    </section>
   );
 };
