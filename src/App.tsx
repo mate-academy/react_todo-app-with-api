@@ -5,7 +5,6 @@ import React, {
   useState,
 } from 'react';
 
-import classNames from 'classnames';
 import {
   addTodo,
   changeTodo,
@@ -23,41 +22,9 @@ import { UserWarning } from './UserWarning';
 import { HeaderTodo } from './components/HeaderTodo';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
+import { ErrorNotification } from './components/ErrorNotification';
 
 const USER_ID = 7036;
-
-interface Props {
-  errorType: ErrorsType,
-  isHidden: boolean,
-  onClose: () => void,
-}
-
-export const ErrorNotification: React.FC<Props> = ({
-  errorType,
-  isHidden,
-  onClose,
-}) => (
-  <div
-    className={classNames(
-      'notification',
-      'is-danger',
-      'is-light',
-      'has-text-weight-normal',
-      {
-        hidden: isHidden,
-      },
-    )}
-  >
-    <button
-      type="button"
-      className="delete"
-      onClick={onClose}
-      aria-label="delete error message"
-    />
-
-    {errorType}
-  </div>
-);
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -287,26 +254,11 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            hidden: isHiddenError,
-          },
-        )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={handleCloseError}
-          aria-label="delete error message"
-        />
-
-        {errorType}
-      </div>
+      <ErrorNotification
+        errorType={errorType}
+        isHidden={isHiddenError}
+        onClose={handleCloseError}
+      />
     </div>
   );
 };
