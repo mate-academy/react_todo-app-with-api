@@ -10,12 +10,12 @@ type Props = {
 export const Nav: React.FC<Props> = ({ filterType, onSetFilterType }) => {
   return (
     <nav className="filter">
-      <a
-        href="#/"
+      <button
+        type="button"
         className={classNames(
-          'filter__link',
+          'button is-primary is-outlined is-small',
           {
-            selected: filterType === FilterType.All,
+            'is-primary': filterType === FilterType.All,
           },
         )}
         onClick={() => {
@@ -25,14 +25,14 @@ export const Nav: React.FC<Props> = ({ filterType, onSetFilterType }) => {
         }}
       >
         All
-      </a>
+      </button>
 
-      <a
-        href="#/active"
+      <button
+        type="button"
         className={classNames(
-          'filter__link',
+          'button is-primary is-outlined is-small',
           {
-            selected: filterType === FilterType.Active,
+            'is-primary': filterType === FilterType.Active,
           },
         )}
         onClick={() => {
@@ -42,14 +42,14 @@ export const Nav: React.FC<Props> = ({ filterType, onSetFilterType }) => {
         }}
       >
         Active
-      </a>
+      </button>
 
-      <a
-        href="#/completed"
+      <button
+        type="button"
         className={classNames(
-          'filter__link',
+          'button is-primary is-outlined is-small',
           {
-            selected: filterType === FilterType.Completed,
+            'is-primary': filterType === FilterType.Completed,
           },
         )}
         onClick={() => {
@@ -59,7 +59,7 @@ export const Nav: React.FC<Props> = ({ filterType, onSetFilterType }) => {
         }}
       >
         Completed
-      </a>
+      </button>
     </nav>
   );
 };

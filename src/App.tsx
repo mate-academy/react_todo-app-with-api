@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import 'bulma/css/bulma.min.css';
 import React, { useEffect, useState, useCallback } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
