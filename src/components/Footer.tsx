@@ -5,7 +5,6 @@ import { Sorting } from '../types/Sorting';
 import { deleteTodo } from '../api/todos';
 
 export const Footer: React.FC = () => {
-  
   const {
     todos,
     setTodos,
