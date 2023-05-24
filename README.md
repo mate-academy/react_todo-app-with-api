@@ -6,8 +6,7 @@ and here is a [DEMO LINK](https://novak-k.github.io/react_todo-app-with-api/)
 
 ## Stack
 
-JS, React
-HTML, CSS 
+JS, TS, React, HTML, CSS 
 
 ## Features
 
