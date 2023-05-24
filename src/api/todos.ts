@@ -13,6 +13,9 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const updateTodo = (todoId: number, todo: Partial<Omit<Todo, 'id'>>) => {
+export const updateTodo = (
+  todoId: number,
+  todo: Partial<Todo>,
+): Promise<Todo> => {
   return client.patch<Todo>(`/todos/${todoId}`, todo);
 };

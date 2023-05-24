@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   getTodos,
   deleteTodo,
@@ -22,39 +27,37 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const [sortTodosBy, setSortTodosBy] = useState(SortTodoBy.Default);
+  const [filterTodosBy, setFilterTodosBy] = useState(SortTodoBy.Default);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingError, setLoadingError] = useState(false);
-  const [errorText, setErrorText] = useState('');
+  const [errorText, setErrorText] = useState(TodosError.None);
 
   const [disableField, setDisableField] = useState(false);
 
-  const visiableTodos = filterTodos(todos, sortTodosBy);
-  const completedTodos = useCallback(() => {
+  const visiableTodos = filterTodos(todos, filterTodosBy);
+  const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
   }, [todos]);
   const activeTodos = todos.filter(todo => !todo.completed);
   const hasActiveTodos = activeTodos.length !== 0;
-  const hasCompletedTodos = completedTodos().length !== 0;
+  const hasCompletedTodos = completedTodos.length !== 0;
 
-  const handleShowError = (text: string) => {
-    setLoadingError(true);
+  const handleShowError = (text: TodosError) => {
     setErrorText(text);
 
     setTimeout(() => {
-      setLoadingError(false);
+      setErrorText(TodosError.None);
     }, 3000);
   };
 
   const handleCloseError = () => {
-    setLoadingError(false);
+    setErrorText(TodosError.None);
   };
 
   const loadTodos = (userId: number) => {
     setIsLoading(true);
-    setLoadingError(false);
+    setErrorText(TodosError.None);
 
     getTodos(userId)
       .then(loadedTodos => setTodos(loadedTodos))
@@ -111,40 +114,36 @@ export const App: React.FC = () => {
   };
 
   const handleRemoveCompletedTodo = useCallback(() => {
-    completedTodos().forEach(({ id }) => {
-      setLoadingTodosIds((prevCompleted) => [
-        ...prevCompleted,
-        id,
-      ]);
-
-      handleDeleteTodo(id)
-        .then(() => {
-          setTodos(
-            (prevTodos) => prevTodos.filter(todo => !todo.completed),
-          );
-        })
-        .finally(() => setLoadingTodosIds([]));
+    todos.forEach(todo => {
+      if (todo.completed) {
+        handleDeleteTodo(todo.id);
+      }
     });
+    setTodos(todos.filter((todo) => !todo.completed));
   }, [todos]);
 
-  const handleUpdateTodo = async (todoId: number, property: Partial<Todo>) => {
-    try {
-      setLoadingTodosIds(prevTodos => [...prevTodos, todoId]);
+  const handleUpdateTodo = async (
+    todoId: number,
+    updatedTodo: Partial<Todo>,
+  ) => {
+    setLoadingTodosIds((prevTodos) => [...prevTodos, todoId]);
 
-      const updatedTodo = await updateTodo(todoId, property);
+    try {
+      await updateTodo(todoId, updatedTodo);
 
       setTodos((prevTodos) => prevTodos
-        .map((prevTodo) => {
-          return prevTodo.id === todoId
+        .map((todo) => {
+          return todo.id === todoId
             ? {
-              ...prevTodo,
+              ...todo,
               ...updatedTodo,
-            } : prevTodo;
+            }
+            : todo;
         }));
     } catch {
       handleShowError(TodosError.UpdateTodo);
     } finally {
-      setLoadingTodosIds([]);
+      setLoadingTodosIds(currIds => currIds.filter(id => id !== todoId));
     }
   };
 
@@ -154,7 +153,7 @@ export const App: React.FC = () => {
     });
 
     if (!activeTodos.length) {
-      completedTodos().forEach(todo => {
+      completedTodos.forEach(todo => {
         handleUpdateTodo(todo.id, { completed: false });
       });
     }
@@ -163,6 +162,8 @@ export const App: React.FC = () => {
   if (!USER_ID) {
     return <UserWarning />;
   }
+
+  const isError = (errorText !== TodosError.None);
 
   return (
     <div className="todoapp">
@@ -192,18 +193,18 @@ export const App: React.FC = () => {
           <TodoFilter
             hasCompletedTodos={hasCompletedTodos}
             activeTodosCount={activeTodos.length}
-            sortBy={sortTodosBy}
-            changeSortBy={setSortTodosBy}
+            sortBy={filterTodosBy}
+            changeSortBy={setFilterTodosBy}
             onCompletedDelete={handleRemoveCompletedTodo}
           />
         )}
       </div>
 
-      {loadingError && (
+      {isError && (
         <ErrorMessage
           text={errorText}
           onClose={handleCloseError}
-          showError={loadingError}
+          showError={isError}
         />
       )}
     </div>

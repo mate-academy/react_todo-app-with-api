@@ -1,16 +1,19 @@
 import classNames from 'classnames';
 import {
-  KeyboardEvent,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
 
+interface KeyboardEvent {
+  key: string;
+}
+
 type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
-  loadingTodosIds?: number[];
+  isLoading?: boolean;
   onUpdateTodo: (todoId: number, property: Partial<Todo>) => Promise<void>;
 };
 
@@ -18,64 +21,56 @@ export const TodoItem: React.FC<Props> = (props) => {
   const {
     todo,
     onDelete = () => true,
-    loadingTodosIds,
+    isLoading,
     onUpdateTodo = () => true,
   } = props;
 
   const { id, title, completed } = todo;
 
-  const [newTitle, setNewTitle] = useState(title);
-  const [isEdited, setIsEdited] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [query, setQuery] = useState(title);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
-  const handleCancelEditing = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setIsEdited(false);
-      setNewTitle(title);
+    if (!query) {
+      onDelete(id);
+    } else {
+      onUpdateTodo(id, { title: query });
+      setIsEditing(false);
     }
   };
+
+  const handleCancel = () => {
+    onUpdateTodo(id, { title: query });
+    setIsEditing(false);
+  };
+
+  const editField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEdited && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isEdited]);
-
-  const handleTodoDelete = async (todoId: number) => {
-    await onDelete(todoId);
-  };
-
-  const handleTitleChange = () => {
-    if (!title.trim()) {
-      onDelete(id);
+    if (editField.current) {
+      editField.current.focus();
     }
 
-    if (title.trim() === title) {
-      setIsEdited(false);
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleCancel();
+      }
+    };
 
-      return;
-    }
+    document.addEventListener('keydown', handleEscape);
 
-    setIsEdited(false);
-    onUpdateTodo(id, { title: newTitle });
-  };
-
-  const handleBlur = () => {
-    handleTitleChange();
-  };
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isEditing]);
 
   return (
     <div
-      className={classNames(
-        'todo',
-        { completed },
-      )}
-      onDoubleClick={() => setIsEdited(true)}
+      className={classNames('todo', { completed })}
     >
-      <label
-        className="todo__status-label"
-      >
+      <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
@@ -84,46 +79,43 @@ export const TodoItem: React.FC<Props> = (props) => {
         />
       </label>
 
-      {isEdited
+      {isEditing
         ? (
-          <form onSubmit={handleTitleChange}>
+          <form onSubmit={handleSubmit}>
             <input
-              type="text"
               className="todo__title-field"
-              ref={inputRef}
-              value={newTitle}
-              onChange={(event) => setNewTitle(event.target.value)}
-              onBlur={handleBlur}
-              onKeyUp={handleCancelEditing}
+              type="text"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onBlur={handleCancel}
+              ref={editField}
             />
           </form>
-        )
-        : (
+        ) : (
           <>
-            <span className="todo__title">{title}</span>
-
+            <span
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              {title}
+            </span>
             <button
               type="button"
               className="todo__remove"
-              onClick={() => handleTodoDelete(todo.id)}
+              onClick={() => onDelete(id)}
             >
               ×
             </button>
           </>
         )}
 
-      <div className={classNames(
-        'modal',
-        'overlay',
-        {
-          'is-active': id === 0
-            || loadingTodosIds?.includes(id),
-        },
-      )}
+      <div
+        className={classNames(
+          'modal overlay',
+          { 'is-active': isLoading },
+        )}
       >
-        <div
-          className="modal-background has-background-white-ter"
-        />
+        <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
     </div>
