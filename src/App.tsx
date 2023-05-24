@@ -24,22 +24,22 @@ const USER_ID = 10363;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterTodos, setFilterTodos] = useState(FilterBy.ALL);
-  const [titleError, setTitleError] = useState('');
+  const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isloadingId, setIsloadingId] = useState(0);
+  const [isloadingId, setIsloadingId] = useState<number[]>([]);
 
   const handleFilterTodos = useCallback((userFilter: FilterBy) => {
     setFilterTodos(userFilter);
   }, []);
 
   const handleCloseError = useCallback(() => {
-    setTitleError('');
+    setError('');
   }, []);
 
   const handleError = useCallback((titleToError: string) => {
-    setTitleError(titleToError);
+    setError(titleToError);
 
-    setTimeout(() => setTitleError(''), 3000);
+    // setTimeout(() => setError(''), 3000);
   }, []);
 
   const getTodosFromServer = async () => {
@@ -76,14 +76,30 @@ export const App: React.FC = () => {
     todoId: number,
     data: TodoTitle | TodoStatus,
   ) => {
-    setIsloadingId(todoId);
+    setIsloadingId((currentId) => [...currentId, todoId]);
 
     try {
       await patchTodo(todoId, data);
     } catch {
       handleError('Unable to update a todo');
     } finally {
-      setIsloadingId(0);
+      setIsloadingId((currentId) => (
+        currentId.filter(loadId => loadId !== todoId)
+      ));
+    }
+  };
+
+  const deleteTodoFromServer = async (todoId: number) => {
+    setIsloadingId((currentId) => [...currentId, todoId]);
+
+    try {
+      await deleteTodo(todoId);
+    } catch {
+      handleError('Unable to delete todo');
+    } finally {
+      setIsloadingId((currentId) => (
+        currentId.filter(loadId => loadId !== todoId)
+      ));
     }
   };
 
@@ -96,28 +112,17 @@ export const App: React.FC = () => {
   }, []);
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
-    setIsloadingId(todoId);
+    await deleteTodoFromServer(todoId);
 
-    try {
-      await deleteTodo(todoId);
-    } catch {
-      handleError('Unable to delete todo');
-    } finally {
-      setIsloadingId(0);
-      await getTodosFromServer();
-    }
+    await getTodosFromServer();
   }, []);
 
   const handleDeleteCompletedTodo = useCallback(async () => {
-    try {
-      await Promise.all(
-        todos
-          .filter(({ completed }) => completed)
-          .map(({ id }) => deleteTodo(id)),
-      );
-    } catch {
-      handleError('Unable to delete todos');
-    }
+    await Promise.all(
+      todos
+        .filter(({ completed }) => completed)
+        .map(({ id }) => (deleteTodoFromServer(id))),
+    );
 
     await getTodosFromServer();
   }, [todos]);
@@ -136,9 +141,9 @@ export const App: React.FC = () => {
         );
       } catch {
         handleError('Unable to update a todo');
+      } finally {
+        getTodosFromServer();
       }
-
-      getTodosFromServer();
 
       return;
     }
@@ -189,15 +194,16 @@ export const App: React.FC = () => {
             filterTodos={filterTodos}
             todos={todos}
             onSelect={handleFilterTodos}
-            onDeleteCompleted={handleDeleteCompletedTodo}
+            onDelete={handleDeleteCompletedTodo}
           />
         )}
       </div>
-
-      <Error
-        error={titleError}
-        onClose={handleCloseError}
-      />
+      {error && (
+        <Error
+          error={error}
+          onClose={handleCloseError}
+        />
+      )}
     </div>
   );
 };

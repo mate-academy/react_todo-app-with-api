@@ -6,7 +6,7 @@ import { TempTodo } from '../TempTodo';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null,
-  isloadingId: number;
+  isloadingId: number[];
   onDelete: (todoId: number) => void;
   onEdit: (todoId: number, data: TodoTitle | TodoStatus) => void;
 }

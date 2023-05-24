@@ -10,7 +10,7 @@ import { Todo, TodoStatus, TodoTitle } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  isloadingId: number;
+  isloadingId: number[];
   onDelete: (todoId: number) => void;
   onEdit: (todoId: number, data: TodoTitle | TodoStatus) => void;
 }
@@ -132,7 +132,7 @@ export const TodoItem: FC<Props> = ({
         )}
 
       <div className={classNames('modal overlay', {
-        'is-active': isloadingId === id,
+        'is-active': isloadingId.includes(id),
       })}
       >
         <div className="modal-background has-background-white-ter" />

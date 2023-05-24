@@ -7,14 +7,14 @@ interface Props {
   filterTodos: FilterBy,
   todos: Todo[],
   onSelect: (filterTodos: FilterBy) => void;
-  onDeleteCompleted: () => void;
+  onDelete: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
   filterTodos,
   todos,
   onSelect: handleFilterTodos,
-  onDeleteCompleted: handleDeleteCompletedTodo,
+  onDelete: handleDeleteCompletedTodo,
 }) => {
   const completedTodos = todos.filter(todo => !todo.completed);
 

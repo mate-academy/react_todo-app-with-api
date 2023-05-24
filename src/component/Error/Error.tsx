@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface Props {
   error: string,
@@ -11,6 +11,10 @@ export const Error: React.FC<Props> = ({
   error,
   onClose: handleCloseError,
 }) => {
+  useEffect(() => {
+    setTimeout(() => handleCloseError(), 3000);
+  }, []);
+
   return (
     <div className={classNames(
       'notification is-danger is-light has-text-weight-normal', {
