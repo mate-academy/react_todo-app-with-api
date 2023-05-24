@@ -1,24 +1,64 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, { useCallback, useContext, useEffect } from 'react';
+import { UserWarning } from './components/UserWarning';
+import { getTodos } from './api/todos';
+import { AppTodoContext } from './contexts/AppTodoContext';
+import { NewTodoForm } from './components/NewTodoForm/NewTodoForm';
+import { TodoAppError } from './components/Error/TodoAppError';
+import { USER_ID } from './react-app-env';
+import { TodoList } from './components/TodoList/TodoList';
+import { TodoFilter } from './components/TodoFilter/TodoFilter';
+import { ErrorType } from './types/enums';
 
 export const App: React.FC = () => {
+  const {
+    todos,
+    setTodos,
+    setErrorMessage,
+    activeTodos,
+  } = useContext(AppTodoContext);
+
+  const getAllTodos = useCallback(async () => {
+    try {
+      const allTodos = await getTodos(USER_ID);
+
+      setTodos(allTodos);
+    } catch {
+      setErrorMessage(ErrorType.GetAllTodosError);
+    }
+  }, []);
+
+  useEffect(() => {
+    getAllTodos();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+
+          <NewTodoForm />
+
+        </header>
+
+        {todos.length !== 0 && <TodoList />}
+
+      </div>
+
+      <footer className="todoapp__footer">
+        <span className="todo-count">
+          {`${activeTodos.length} items left`}
+        </span>
+
+        <TodoFilter />
+      </footer>
+
+      <TodoAppError />
+    </div>
   );
 };
