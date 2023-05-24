@@ -26,6 +26,39 @@ import { TodoFooter } from './components/TodoFooter';
 
 const USER_ID = 7036;
 
+interface Props {
+  errorType: ErrorsType,
+  isHidden: boolean,
+  onClose: () => void,
+}
+
+export const ErrorNotification: React.FC<Props> = ({
+  errorType,
+  isHidden,
+  onClose,
+}) => (
+  <div
+    className={classNames(
+      'notification',
+      'is-danger',
+      'is-light',
+      'has-text-weight-normal',
+      {
+        hidden: isHidden,
+      },
+    )}
+  >
+    <button
+      type="button"
+      className="delete"
+      onClick={onClose}
+      aria-label="delete error message"
+    />
+
+    {errorType}
+  </div>
+);
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -34,14 +67,17 @@ export const App: React.FC = () => {
   const [isHiddenError, setIsHiddenError] = useState(true);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
-  const handleError = useCallback((typeOfError: ErrorsType) => {
+  const handleError = useCallback(async (typeOfError: ErrorsType) => {
     setErrorType(typeOfError);
     setIsHiddenError(false);
 
-    setTimeout(() => {
-      setIsHiddenError(true);
-      setErrorType(ErrorsType.NONE);
-    }, 3000);
+    await new Promise(() => {
+      setTimeout(() => {
+        setIsHiddenError(true);
+      }, 3000);
+    });
+
+    setErrorType(ErrorsType.NONE);
   }, []);
 
   useEffect(() => {
