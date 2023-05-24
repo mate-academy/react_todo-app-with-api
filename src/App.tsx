@@ -7,7 +7,7 @@ import { TodoAppError } from './components/Error/TodoAppError';
 import { USER_ID } from './react-app-env';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
-import {ErrorType} from "./types/enums";
+import { ErrorType } from './types/enums';
 
 export const App: React.FC = () => {
   const {

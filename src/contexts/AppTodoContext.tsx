@@ -1,7 +1,9 @@
-import React, {FC, useCallback, useMemo, useState,} from 'react';
-import {Todo} from '../types/Todo';
-import {ContextValue, Props} from './AppTodoContext.types';
-import {ErrorType, FilterType} from "../types/enums";
+import React, {
+  FC, useCallback, useMemo, useState,
+} from 'react';
+import { Todo } from '../types/Todo';
+import { ContextValue, Props } from './AppTodoContext.types';
+import { ErrorType, FilterType } from '../types/enums';
 
 export const AppTodoContext = React.createContext<ContextValue>({
   todos: [],

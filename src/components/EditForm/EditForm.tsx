@@ -1,8 +1,10 @@
-import {FC, useContext, useEffect, useRef, useState} from "react";
-import {AppTodoContext} from "../../contexts/AppTodoContext";
-import {Todo} from "../../types/Todo";
-import {editTodoTitle} from "../../api/todos";
-import {ErrorType} from "../../types/enums";
+import {
+  FC, useContext, useEffect, useRef, useState,
+} from 'react';
+import { AppTodoContext } from '../../contexts/AppTodoContext';
+import { Todo } from '../../types/Todo';
+import { editTodoTitle } from '../../api/todos';
+import { ErrorType } from '../../types/enums';
 
 interface Props {
   todo: Todo,

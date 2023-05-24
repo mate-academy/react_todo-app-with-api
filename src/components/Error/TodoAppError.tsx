@@ -1,7 +1,7 @@
-import {FC, useContext, useEffect} from 'react';
+import { FC, useContext, useEffect } from 'react';
 import classNames from 'classnames/bind';
-import {AppTodoContext} from '../../contexts/AppTodoContext';
-import {ErrorType} from "../../types/enums";
+import { AppTodoContext } from '../../contexts/AppTodoContext';
+import { ErrorType } from '../../types/enums';
 
 export const TodoAppError: FC = () => {
   const { errorMessage, setErrorMessage } = useContext(AppTodoContext);
