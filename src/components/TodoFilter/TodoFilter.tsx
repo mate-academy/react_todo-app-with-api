@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import { Dispatch, SetStateAction } from 'react';
-import { SortTodoBy } from '../../types/SortTodoBy';
+import { FilterTodoBy } from '../../types/FilterTodoBy';
 
 type Props = {
   hasCompletedTodos: boolean;
   activeTodosCount: number;
-  sortBy: SortTodoBy;
-  changeSortBy: Dispatch<SetStateAction<SortTodoBy>>;
+  filterBy: FilterTodoBy;
+  changeFilterBy: Dispatch<SetStateAction<FilterTodoBy>>;
   onCompletedDelete: () => void
 };
 
@@ -14,8 +14,8 @@ export const TodoFilter: React.FC<Props> = (props) => {
   const {
     hasCompletedTodos,
     activeTodosCount,
-    sortBy,
-    changeSortBy,
+    filterBy,
+    changeFilterBy,
     onCompletedDelete,
   } = props;
 
@@ -26,38 +26,18 @@ export const TodoFilter: React.FC<Props> = (props) => {
       </span>
 
       <nav className="filter">
-        <a
-          href="#/"
-          className={classNames(
-            'filter__link',
-            { selected: sortBy === SortTodoBy.Default },
-          )}
-          onClick={() => changeSortBy(SortTodoBy.Default)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames(
-            'filter__link',
-            { selected: sortBy === SortTodoBy.Active },
-          )}
-          onClick={() => changeSortBy(SortTodoBy.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames(
-            'filter__link',
-            { selected: sortBy === SortTodoBy.Completed },
-          )}
-          onClick={() => changeSortBy(SortTodoBy.Completed)}
-        >
-          Completed
-        </a>
+        {Object.values(FilterTodoBy).map(value => (
+          <a
+            href={`#/${value}`}
+            key={value}
+            className={classNames('filter__link', {
+              selected: value === filterBy,
+            })}
+            onClick={() => changeFilterBy(value)}
+          >
+            {value}
+          </a>
+        ))}
       </nav>
 
       <button

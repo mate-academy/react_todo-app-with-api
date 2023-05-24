@@ -21,13 +21,13 @@ import { TodosError } from './types/Errors';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
 import { filterTodos } from './helpers';
-import { SortTodoBy } from './types/SortTodoBy';
+import { FilterTodoBy } from './types/FilterTodoBy';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const [filterTodosBy, setFilterTodosBy] = useState(SortTodoBy.Default);
+  const [filterTodosBy, setFilterTodosBy] = useState(FilterTodoBy.Default);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -193,8 +193,8 @@ export const App: React.FC = () => {
           <TodoFilter
             hasCompletedTodos={hasCompletedTodos}
             activeTodosCount={activeTodos.length}
-            sortBy={filterTodosBy}
-            changeSortBy={setFilterTodosBy}
+            filterBy={filterTodosBy}
+            changeFilterBy={setFilterTodosBy}
             onCompletedDelete={handleRemoveCompletedTodo}
           />
         )}

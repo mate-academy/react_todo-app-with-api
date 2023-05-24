@@ -1,11 +1,11 @@
 import { Todo } from '../types/Todo';
-import { SortTodoBy } from '../types/SortTodoBy';
+import { FilterTodoBy } from '../types/FilterTodoBy';
 
-export const filterTodos = (todos: Todo[], sortBy: SortTodoBy): Todo[] => {
-  switch (sortBy) {
-    case SortTodoBy.Completed:
+export const filterTodos = (todos: Todo[], filterBy: FilterTodoBy): Todo[] => {
+  switch (filterBy) {
+    case FilterTodoBy.Completed:
       return todos.filter(todo => todo.completed);
-    case SortTodoBy.Active:
+    case FilterTodoBy.Active:
       return todos.filter(todo => !todo.completed);
     default:
       return todos;
