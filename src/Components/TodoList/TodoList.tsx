@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../Todo/TodoItem';
@@ -9,23 +9,23 @@ type Props = {
   tempTodo: Todo | null;
   updatingTodoId: number | null;
   isRemovingCompleted: boolean;
-  isUpdatingEveryStatus: boolean;
-  isEveryTotoCompleted: boolean;
-  onTodoRemove: (todoId: number) => void;
-  onTodoUpdate: (todo: Todo) => void;
-  onTodoTitleUpdate: (todo: Todo, title: string) => void;
+  isUpdatingStatus: boolean;
+  isAllTotoCompleted: boolean;
+  onRemove: (todoId: number) => void;
+  onUpdate: (todo: Todo) => void;
+  onTitleUpdate: (todo: Todo, title: string) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = memo(({
   todos,
   tempTodo,
   updatingTodoId,
   isRemovingCompleted,
-  isUpdatingEveryStatus,
-  isEveryTotoCompleted,
-  onTodoRemove,
-  onTodoUpdate,
-  onTodoTitleUpdate,
+  isUpdatingStatus,
+  isAllTotoCompleted,
+  onRemove: onTodoRemove,
+  onUpdate: onTodoUpdate,
+  onTitleUpdate: onTodoTitleUpdate,
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
@@ -40,8 +40,8 @@ export const TodoList: React.FC<Props> = ({
             todo={todo}
             updatingTodoId={updatingTodoId}
             isRemovingCompleted={isRemovingCompleted}
-            isUpdatingEveryStatus={isUpdatingEveryStatus}
-            isEveryTotoCompleted={isEveryTotoCompleted}
+            isUpdatingEveryStatus={isUpdatingStatus}
+            isEveryTotoCompleted={isAllTotoCompleted}
             onTodoRemove={onTodoRemove}
             onTodoUpdate={onTodoUpdate}
             onTodoTitleUpdate={onTodoTitleUpdate}
@@ -67,4 +67,4 @@ export const TodoList: React.FC<Props> = ({
     </TransitionGroup>
 
   </section>
-);
+));

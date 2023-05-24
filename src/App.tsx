@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
+import {
+  FC,
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react';
 
-import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { client } from './utils/fetchClient';
 import { TodoList } from './Components/TodoList/TodoList';
 import { Status } from './types/TodoFilter';
-import { TodoFilter } from './Components/TodoFilter/TodoFilter';
 import {
   createTodo,
   deleteTodo,
@@ -20,8 +20,12 @@ import {
 } from './api/todos';
 import { NewError } from './types/ErrorsList';
 import { USER_ID } from './consfig';
+import { Title } from './Components/Title/Title';
+import { Header } from './Components/Header/Header';
+import { Footer } from './Components/Footer/Footer';
+import { Error } from './Components/Error/Error';
 
-export const App: React.FC = () => {
+export const App: FC = memo(() => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterBy, setFilterBy] = useState<Status>(Status.All);
@@ -54,19 +58,10 @@ export const App: React.FC = () => {
 
   const itemsLeft = todos.filter((todo) => !todo.completed).length;
   const isTodosNoEmpty = todos.length > 0;
-  const isVisibleError = visibleError !== null;
   const isEveryTotoCompleted = todos.every((todo) => todo.completed);
-
-  useEffect(() => {
-    loadTodo();
-  }, []);
 
   const handleFilterChange = useCallback((newFilter: Status) => {
     setFilterBy(newFilter);
-  }, []);
-
-  const handleQueryChange = useCallback((newQuery: string) => {
-    setQuery(newQuery);
   }, []);
 
   const handleSubmit = useCallback(async (
@@ -197,90 +192,60 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  if (visibleError) {
-    setTimeout(() => {
+  useEffect(() => {
+    loadTodo();
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
       setVisibleError(null);
     }, 3000);
-  }
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [visibleError]);
 
   return (
     <div className="todoapp">
-      <h1 className="todoapp__title">todos</h1>
+      <Title />
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {isTodosNoEmpty && (
-            <button
-              type="button"
-              className={classNames(
-                'todoapp__toggle-all', {
-                  active: isEveryTotoCompleted,
-                },
-              )}
-              onClick={handleUpdateAllTodos}
-            />
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={query}
-              onChange={(event) => handleQueryChange(event.target.value)}
-            />
-          </form>
-        </header>
+        <Header
+          isTodosNoEmpty={isTodosNoEmpty}
+          isEveryTotoCompleted={isEveryTotoCompleted}
+          onUpdateAllTodos={handleUpdateAllTodos}
+          onSubmit={handleSubmit}
+          query={query}
+          setQuery={setQuery}
+        />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
           updatingTodoId={updatingTodoId}
           isRemovingCompleted={isRemovingCompleted}
-          isUpdatingEveryStatus={isUpdatingEveryStatus}
-          isEveryTotoCompleted={isEveryTotoCompleted}
-          onTodoRemove={handleRemoveTodo}
-          onTodoUpdate={handleUpdateTodo}
-          onTodoTitleUpdate={handleUpdateTodoTitle}
+          isUpdatingStatus={isUpdatingEveryStatus}
+          isAllTotoCompleted={isEveryTotoCompleted}
+          onRemove={handleRemoveTodo}
+          onUpdate={handleUpdateTodo}
+          onTitleUpdate={handleUpdateTodoTitle}
         />
 
         {isTodosNoEmpty && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${itemsLeft} items left`}
-            </span>
-
-            <TodoFilter
-              filterBy={filterBy}
-              onFilterChange={handleFilterChange}
-            />
-
-            <button
-              data-cy="ClearCompletedButton"
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={handleRemoveCompletedTodos}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            itemsLeft={itemsLeft}
+            filterBy={filterBy}
+            onRemoveCompletedTodos={handleRemoveCompletedTodos}
+            onFilterChange={handleFilterChange}
+          />
         )}
 
-        <div
-          className="notification is-danger is-light has-text-weight-normal"
-          hidden={!isVisibleError}
-        >
-          <button
-            type="button"
-            className="delete"
-            onClick={handleCloseError}
-          />
-
-          <strong>
-            {visibleError}
-          </strong>
-        </div>
+        <Error
+          visibleError={visibleError}
+          onCloseError={handleCloseError}
+        />
       </div>
     </div>
   );
-};
+});

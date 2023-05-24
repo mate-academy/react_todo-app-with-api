@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
   onTodoTitleUpdate: (todo: Todo, title: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   todo,
   updatingTodoId,
   isLoadingNewTodo,
@@ -141,4 +141,4 @@ export const TodoItem: React.FC<Props> = ({
       )}
     </div>
   );
-};
+});

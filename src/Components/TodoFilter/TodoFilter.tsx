@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { FC, memo } from 'react';
 import { Status } from '../../types/TodoFilter';
 
 type Props = {
@@ -6,7 +7,7 @@ type Props = {
   onFilterChange: (filter: Status) => void;
 };
 
-export const TodoFilter: React.FC<Props> = ({
+export const TodoFilter: FC<Props> = memo(({
   filterBy,
   onFilterChange,
 }) => (
@@ -41,4 +42,4 @@ export const TodoFilter: React.FC<Props> = ({
       {Status.Completed}
     </a>
   </nav>
-);
+));
