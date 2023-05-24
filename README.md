@@ -2,8 +2,6 @@
 
 > Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
 
-https://github.com/mate-academy/react_todo-app/blob/master/description/todoapp.gif
-
 and here is a [DEMO LINK](https://novak-k.github.io/react_todo-app-with-api/)
 
 ## Stack
