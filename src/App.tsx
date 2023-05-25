@@ -1,24 +1,37 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import {
+  FC,
+  memo,
+  useContext,
+} from 'react';
 
-const USER_ID = 0;
+import { Title } from './Components/Title/Title';
+import { Header } from './Components/Header/Header';
+import { Footer } from './Components/Footer/Footer';
+import { Error } from './Components/Error/Error';
+import { TodoContext } from './TodoContext/TodoContext';
+import { TodoList } from './Components/TodoList';
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+export const App: FC = memo(() => {
+  const {
+    isTodosNoEmpty,
+  } = useContext(TodoContext);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <Title />
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header />
+
+        <TodoList />
+
+        {isTodosNoEmpty && (
+          <Footer />
+        )}
+
+        <Error />
+      </div>
+    </div>
   );
-};
+});
