@@ -99,9 +99,9 @@ export const App: React.FC = () => {
       setTempTodo(newTodo);
 
       try {
-        await addTodoOnServer(newTodo);
-        setTempTodo(newTodo);
-        setTodos(currentTodos => [...currentTodos, newTodo]);
+        const response = await addTodoOnServer(newTodo);
+
+        setTodos(currentTodos => [...currentTodos, response]);
         addLoadingTodo(newTodo.id);
       } catch {
         setError('Unable to add todo!');
