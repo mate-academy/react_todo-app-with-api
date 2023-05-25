@@ -27,8 +27,8 @@ export const App: React.FC = () => {
   const [allCompleted, setAllCompleted] = useState(false);
   const [loadingTodoId, setLoadingTodoId] = useState<number[]>([]);
 
-  const activeTodos = todos.filter(({ completed }) => completed === false);
-  const completedTodos = todos.filter(({ completed }) => completed === true);
+  const activeTodos = todos.filter(({ completed }) => !completed);
+  const completedTodos = todos.filter(({ completed }) => completed);
 
   const getTodos = useCallback(async () => {
     const data: Todo[] = await client.get(todoUrlEnd);
@@ -62,16 +62,18 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const toggleAll = async () => {
+  const toggleAll = useCallback(async () => {
     if (allCompleted) {
       todos.map(todo => updateTodo(todo.id, { completed: false }));
 
       setAllCompleted(false);
-    } else {
-      todos.map(todo => updateTodo(todo.id, { completed: true }));
-      setAllCompleted(true);
+
+      return;
     }
-  };
+
+    todos.map(todo => updateTodo(todo.id, { completed: true }));
+    setAllCompleted(true);
+  }, [allCompleted]);
 
   const removeTodo = useCallback(async (id: number) => {
     setLoadingTodoId(prevId => [...prevId, id]);
@@ -121,6 +123,7 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           toggleAll={toggleAll}
         />
+
         <TodoList
           todos={handleSelectedTodos}
           onRemove={removeTodo}

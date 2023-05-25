@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 
 import { Select } from '../../types/Select';
 import { Todo } from '../../types/Todo';
@@ -28,7 +28,7 @@ export const Footer: React.FC<Props> = ({
       <nav className="filter">
         <a
           href="#/"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: select === Select.All },
           )}
@@ -39,7 +39,7 @@ export const Footer: React.FC<Props> = ({
 
         <a
           href="#/active"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: select === Select.Active },
           )}
@@ -50,7 +50,7 @@ export const Footer: React.FC<Props> = ({
 
         <a
           href="#/completed"
-          className={classNames(
+          className={cn(
             'filter__link',
             { selected: select === Select.Completed },
           )}
