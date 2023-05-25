@@ -1,12 +1,21 @@
-import React, { FC, useState } from 'react';
+import React, {
+  ChangeEvent,
+  FC,
+  useCallback,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { patchTodo } from '../../api/todos'
+import { ErrorsType } from '../../types/ErrorsType'
 
 interface Props {
   todo: Todo,
   todoId?: number,
   isDeleted?: boolean,
   deleteTodo?: (todo: Todo) => void,
+  handleEditTodo: (todo: Todo) => void,
+  displayError: (error: ErrorsType) => void,
 }
 
 export const TodoItem: FC<Props> = React.memo(({
@@ -14,10 +23,13 @@ export const TodoItem: FC<Props> = React.memo(({
   isDeleted,
   deleteTodo = () => {},
   todoId,
+  handleEditTodo = () => {},
+  displayError = () => {},
 }) => {
   const { completed, title } = todo;
   const isLoad = todo.id === todoId;
   const [isLoading, setIsLoading] = useState(isLoad);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const handeleDelete = async () => {
     setIsLoading(true);
@@ -26,6 +38,31 @@ export const TodoItem: FC<Props> = React.memo(({
 
     setIsLoading(false);
   };
+
+  const handeleStatus = useCallback(async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    event.preventDefault();
+
+    const data = {
+      ...todo,
+      completed: event.target.checked,
+    };
+
+    try {
+      setIsDisabled(true);
+      setIsLoading(true);
+
+      const editingTodo = await patchTodo(todo.id, data);
+
+      handleEditTodo(editingTodo);
+    } catch {
+      displayError(ErrorsType.UPDATE);
+    }
+
+    setIsDisabled(false);
+    setIsLoading(false);
+  }, [completed]);
 
   return (
     <div className={cn('todo', {
@@ -36,7 +73,9 @@ export const TodoItem: FC<Props> = React.memo(({
         <input
           type="checkbox"
           className="todo__status"
-          checked
+          checked={completed}
+          onChange={handeleStatus}
+          disabled={isDisabled}
         />
       </label>
 

@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
-import { getTodos, deleteTodo } from './api/todos';
+import { getTodos, deleteTodo, patchTodo } from './api/todos';
 import { Filter } from './types/Filter';
 import { TodoList } from './components/TodoList';
 import { Error } from './components/Error';
@@ -103,6 +103,40 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  const handleEditTodo = useCallback(async (editingTodo: Todo) => {
+    setTodos(prevTodos => prevTodos.map((todo) => {
+      if (todo.id === editingTodo.id) {
+        return editingTodo;
+      }
+
+      return todo;
+    }));
+  }, []);
+
+  const handleStatusChange = async () => {
+    try {
+      const completedTodo = todos.every(todo => todo.completed);
+
+      await Promise.all(
+        todos.map(async todo => {
+          const todosToComplete = patchTodo(todo.id, {
+            ...todo,
+            completed: !completedTodo,
+          });
+
+          return handleEditTodo(await todosToComplete);
+        }),
+      );
+
+      setTodos(prevTodos => prevTodos.map(todo => ({
+        ...todo,
+        completed: !completedTodo,
+      })));
+    } catch {
+      displayError(ErrorsType.UPDATE);
+    }
+  };
+
   useEffect(() => {
     loadTodos();
   }, []);
@@ -133,6 +167,7 @@ export const App: React.FC = () => {
             displayError={displayError}
             hideError={hideError}
             userId={USER_ID}
+            handleStatusChange={handleStatusChange}
           />
         </header>
 
@@ -142,6 +177,8 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             deleteTodo={DeleteTodo}
             isDeletedCompleted={isDeletedCompleted}
+            handleEditTodo={handleEditTodo}
+            displayError={displayError}
           />
         )}
 

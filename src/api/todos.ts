@@ -13,3 +13,7 @@ export const addTodo = (data: TodoData) => {
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const patchTodo = (todoId: number, todoData: TodoData) => {
+  return client.patch<Todo>(`/todos/${todoId}`, todoData);
+};
