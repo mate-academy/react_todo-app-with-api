@@ -158,6 +158,7 @@ export const App: React.FC = () => {
               className={cn('todoapp__toggle-all', {
                 active: !activeTodos,
               })}
+              onClick={handleStatusChange}
             />
 
           )}
@@ -167,7 +168,6 @@ export const App: React.FC = () => {
             displayError={displayError}
             hideError={hideError}
             userId={USER_ID}
-            handleStatusChange={handleStatusChange}
           />
         </header>
 
