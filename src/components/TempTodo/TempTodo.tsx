@@ -17,14 +17,6 @@ export const TempTodo: FC<Props> = ({ title }) => {
 
       <span className="todo__title">{title}</span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        disabled
-      >
-        ×
-      </button>
-
       <div className="modal overlay is-active">
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

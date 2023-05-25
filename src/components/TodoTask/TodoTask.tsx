@@ -33,7 +33,7 @@ export const TodoTask: FC<Props> = ({
   const handleDoubleClickTodo = () => setIsEditing(true);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value);
+    setQuery(event.target.value.trimStart());
   };
 
   const updateTitle = () => {

@@ -50,8 +50,8 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
-          preparedTodos={filteredTodos}
-          onChangeTempTodo={setTempTodo}
+          todos={filteredTodos}
+          onChange={setTempTodo}
         />
 
         <TodoList

@@ -42,9 +42,7 @@ export const TodoList: FC<Props> = ({
             timeout={300}
             classNames="temp-item"
           >
-            <TempTodo
-              title={tempTodo.title}
-            />
+            <TempTodo title={tempTodo.title} />
           </CSSTransition>
         )}
       </TransitionGroup>

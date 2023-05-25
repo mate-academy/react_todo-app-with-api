@@ -8,17 +8,17 @@ import { Todo } from '../../types/Todo';
 import { TodoContext } from '../TodoProvider';
 
 interface Props {
-  preparedTodos: Todo[];
-  onChangeTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  todos: Todo[];
+  onChange: React.Dispatch<React.SetStateAction<Todo | null>>;
 }
 
 export const Header: FC<Props> = ({
-  preparedTodos,
-  onChangeTempTodo,
+  todos,
+  onChange,
 }) => {
   const [newTodoQuery, setNewTodoQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const isAllTodosCompleted = preparedTodos.every(todo => todo.completed);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
   const {
     setProcessing,
     setTodos,
@@ -29,7 +29,7 @@ export const Header: FC<Props> = ({
   const addTodo = async () => {
     try {
       setIsLoading(true);
-      onChangeTempTodo({
+      onChange({
         id: 0,
         userId: USER_ID,
         title: newTodoQuery,
@@ -44,7 +44,7 @@ export const Header: FC<Props> = ({
       setError(ErrorType.Add);
     } finally {
       setIsLoading(false);
-      onChangeTempTodo(null);
+      onChange(null);
       setProcessing(prev => prev.filter(id => id !== 0));
     }
   };
@@ -56,11 +56,11 @@ export const Header: FC<Props> = ({
 
   const handleClickToggleAll = async () => {
     if (isAllTodosCompleted) {
-      preparedTodos
+      todos
         .forEach(todo => updateTodo(todo.id, { completed: !todo.completed }));
     }
 
-    preparedTodos.forEach(todo => {
+    todos.forEach(todo => {
       if (!todo.completed) {
         updateTodo(todo.id, { completed: !todo.completed });
       }
