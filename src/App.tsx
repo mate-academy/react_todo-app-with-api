@@ -38,8 +38,6 @@ export const App: React.FC = () => {
 
   const handleError = useCallback((titleToError: string) => {
     setError(titleToError);
-
-    // setTimeout(() => setError(''), 3000);
   }, []);
 
   const getTodosFromServer = async () => {
@@ -198,6 +196,7 @@ export const App: React.FC = () => {
           />
         )}
       </div>
+
       {error && (
         <Error
           error={error}

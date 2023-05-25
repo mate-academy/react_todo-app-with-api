@@ -12,7 +12,11 @@ export const Error: React.FC<Props> = ({
   onClose: handleCloseError,
 }) => {
   useEffect(() => {
-    setTimeout(() => handleCloseError(), 3000);
+    const timer = setTimeout(() => handleCloseError(), 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
