@@ -43,7 +43,7 @@ export const TodoItem: FC<Props> = ({
       title: editedTitle.trim(),
     };
 
-    if (!editedTitle.trim()) {
+    if (!editedTitle) {
       handleDeleteTodo(id);
 
       return;
