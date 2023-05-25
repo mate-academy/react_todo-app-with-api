@@ -9,7 +9,7 @@ type Props = {
 
 export const Nav: React.FC<Props> = ({ filterType, onSetFilterType }) => {
   return (
-    <nav className="filter">
+    <nav className="filter ">
       <button
         type="button"
         className={classNames(

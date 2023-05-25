@@ -10,7 +10,7 @@ export const Notification: React.FC<Props>
 = ({ errorMessage, removeErrorMessage }) => {
   return (
     <div className={classNames(
-      'notification is-danger is-light has-text-weight-normal',
+      'notification is-primary',
       { hidden: !errorMessage },
     )}
     >

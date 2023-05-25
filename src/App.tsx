@@ -164,8 +164,8 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="todoapp">
-      <h1 className="todoapp__title">todos</h1>
+    <div className="main mr-4 ml-4">
+      <h1 className="title is-1 has-text-centered">Todos</h1>
 
       <div className="todoapp__content">
         <Header

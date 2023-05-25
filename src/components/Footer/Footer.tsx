@@ -38,7 +38,7 @@ export const Footer: React.FC<Props> = ({
       {completedTodos.length > 0 && (
         <button
           type="button"
-          className="button is-primary is-small"
+          className="button is-primary is-small "
           onClick={onDeleteCompletedTodos}
         >
           Clear completed
