@@ -6,8 +6,8 @@ import React, {
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { patchTodo } from '../../api/todos'
-import { ErrorsType } from '../../types/ErrorsType'
+import { patchTodo } from '../../api/todos';
+import { ErrorsType } from '../../types/ErrorsType';
 
 interface Props {
   todo: Todo,

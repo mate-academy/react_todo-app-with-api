@@ -1,8 +1,9 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import cn from 'classnames';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem';
-import { ErrorsType } from '../../types/ErrorsType'
+import { ErrorsType } from '../../types/ErrorsType';
 
 interface Props {
   todos: Todo[],
@@ -25,26 +26,40 @@ export const TodoList: FC<Props> = ({
 
   return (
     <section className={cn('todoapp__main', { hidden: todos.length === 0 })}>
-      {todos.map((todo) => (
-        <TodoItem
-          todo={todo}
-          key={todo.id}
-          deleteTodo={deleteTodo}
-          isDeleted={todo.completed && isDeletedCompleted}
-          handleEditTodo={handleEditTodo}
-          displayError={displayError}
-        />
-      ))}
+      <TransitionGroup>
+        {todos.map((todo) => (
+          <CSSTransition
+            key={todo.id}
+            timeout={500}
+            className="item"
+          >
+            <TodoItem
+              todo={todo}
+              key={todo.id}
+              deleteTodo={deleteTodo}
+              isDeleted={todo.completed && isDeletedCompleted}
+              handleEditTodo={handleEditTodo}
+              displayError={displayError}
+            />
+          </CSSTransition>
+        ))}
 
-      {isDelete && (
-        <TodoItem
-          todo={tempTodo}
-          todoId={tempTodo.id}
-          handleEditTodo={handleEditTodo}
-          displayError={displayError}
-          isDeleted
-        />
-      )}
+        {isDelete && (
+          <CSSTransition
+            key={0}
+            timeout={500}
+            className="temp-item"
+          >
+            <TodoItem
+              todo={tempTodo}
+              todoId={tempTodo.id}
+              handleEditTodo={handleEditTodo}
+              displayError={displayError}
+              isDeleted
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
