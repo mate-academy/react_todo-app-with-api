@@ -25,18 +25,6 @@ export const App: FC = () => {
     USER_ID,
   } = useContext(TodosContext);
 
-  useEffect(() => {
-    setError(null);
-
-    getTodos(USER_ID)
-      .then(response => {
-        setTodos(response);
-      })
-      .catch(() => {
-        setError(ErrorMessage.Load);
-      });
-  }, []);
-
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
       if (filterStatus === Status.Active) {
@@ -61,6 +49,22 @@ export const App: FC = () => {
       .filter(todo => todo.completed);
   }, [visibleTodos]);
 
+  const fetchData = async () => {
+    try {
+      const response = await getTodos(USER_ID);
+
+      setTodos(response);
+    } catch (fetchingError) {
+      setError(ErrorMessage.Load);
+    } finally {
+      setError(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -70,9 +74,7 @@ export const App: FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoForm
-          activeTodosCount={activeTodosCount}
-        />
+        <TodoForm activeTodosCount={activeTodosCount} />
 
         {todos.length > 0 && (
           <>
