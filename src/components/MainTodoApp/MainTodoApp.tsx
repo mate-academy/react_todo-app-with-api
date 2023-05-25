@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
-import { LoadingTodo } from '../LoadingTodo';
 import { TodoComponent } from '../TodoComponent/TodoComponent';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   onRemove: (todoData: Todo) => void;
   tempTodo: Todo | null;
   onChangeTodo: (todo: Todo, value: boolean | string) => void;
+  loadingTodosId: number[];
 }
 
 export const MainTodoApp: FC<Props> = React.memo(({
@@ -15,23 +16,39 @@ export const MainTodoApp: FC<Props> = React.memo(({
   onRemove,
   tempTodo,
   onChangeTodo,
-}) => (
-  <section className="todoapp__main">
-    {todos.map((todo) => (
-      tempTodo?.id !== todo.id
-        ? (
-          <TodoComponent
-            key={todo.id}
-            todo={todo}
-            onRemove={onRemove}
-            onChangeTodo={onChangeTodo}
-          />
-        )
-        : <LoadingTodo key={todo.id} todo={tempTodo} />
-    ))}
+  loadingTodosId,
+}) => {
+  const isNewTodo = todos.every(({ id }) => id !== tempTodo?.id);
 
-    {todos.every(({ id }) => id !== tempTodo?.id) && tempTodo && (
-      <LoadingTodo todo={tempTodo} />
-    )}
-  </section>
-));
+  return (
+    <section className="todoapp__main">
+      <TransitionGroup>
+        {todos.map((todo) => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoComponent
+              todo={todo}
+              onRemove={onRemove}
+              onChangeTodo={onChangeTodo}
+              isTempTodo={loadingTodosId.includes(todo.id)}
+            />
+          </CSSTransition>
+        ))}
+
+        {isNewTodo && tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoComponent todo={tempTodo} isTempTodo={!!tempTodo} />
+          </CSSTransition>
+        )}
+
+      </TransitionGroup>
+    </section>
+  );
+});

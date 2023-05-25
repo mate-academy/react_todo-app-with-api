@@ -15,15 +15,17 @@ import { USER_ID } from './userId';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [category, setCategory] = useState<Filter>(Filter.All);
+  const [category, setCategory] = useState(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState('');
+  const [loadingTodosId, setLoadingTdodoId] = useState<number[]>([]);
 
   const loadTodos = useCallback(async () => {
     const todosFromServer = await getTodos(USER_ID);
 
     setTodos(todosFromServer);
     setTempTodo(null);
+    setLoadingTdodoId([]);
   }, []);
 
   const visibleTodos = useMemo(() => todos.filter(({ completed }) => {
@@ -51,11 +53,11 @@ export const App: React.FC = () => {
 
   const removeTodo = useCallback(async (todoData: Todo) => {
     try {
-      setTempTodo(todoData);
+      setLoadingTdodoId((prevTodosId) => [...prevTodosId, todoData.id]);
       await deleteTodo(todoData.id);
     } catch {
       setError('Unable to delete a todo');
-      setTempTodo(null);
+      setLoadingTdodoId([]);
     }
 
     loadTodos();
@@ -66,21 +68,24 @@ export const App: React.FC = () => {
     changeValue: boolean | string,
   ) => {
     try {
-      setTempTodo(todo);
+      setLoadingTdodoId((prevTodosId) => [...prevTodosId, todo.id]);
       await updateTodo(todo.id, changeValue);
     } catch {
       setError('Unable to update a todo');
-      setTempTodo(null);
+      setLoadingTdodoId([]);
     }
 
     loadTodos();
   }, []);
 
-  const deleteCompletedTodo = useCallback(() => {
+  const deleteCompletedTodo = () => {
     todos
-      .filter(({ completed }) => completed === true)
-      .map(todo => removeTodo(todo));
-  }, []);
+      .forEach(todo => {
+        if (todo.completed === true) {
+          removeTodo(todo);
+        }
+      });
+  };
 
   useEffect(() => {
     loadTodos();
@@ -108,6 +113,7 @@ export const App: React.FC = () => {
           onRemove={removeTodo}
           tempTodo={tempTodo}
           onChangeTodo={changeTodo}
+          loadingTodosId={loadingTodosId}
         />
 
         {todos.length > 0 && (

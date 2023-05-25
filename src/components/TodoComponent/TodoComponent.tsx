@@ -4,14 +4,16 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  onRemove: (todoData: Todo) => void;
-  onChangeTodo: (todo: Todo, value: boolean | string) => void;
+  onRemove?: (todoData: Todo) => void;
+  onChangeTodo?: (todo: Todo, value: boolean | string) => void;
+  isTempTodo: boolean;
 }
 
 export const TodoComponent: FC<Props> = React.memo(({
   todo,
-  onRemove,
-  onChangeTodo,
+  onRemove = () => {},
+  onChangeTodo = () => {},
+  isTempTodo,
 }) => {
   const { title, completed } = todo;
 
@@ -103,7 +105,7 @@ export const TodoComponent: FC<Props> = React.memo(({
           </form>
         )}
 
-      <div className="modal overlay">
+      <div className={classNames('modal overlay', { 'is-active': isTempTodo })}>
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
