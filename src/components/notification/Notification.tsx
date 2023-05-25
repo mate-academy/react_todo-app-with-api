@@ -1,32 +1,34 @@
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
+import cn from 'classnames';
 
 interface Props {
-  setError: (errVal: string | boolean) => void;
+  setError: (errVal: string) => void;
   errorText: string | true;
 }
 
-export const Notification: React.FC<Props> = ({ errorText, setError }) => {
+export const Notification: React.FC<Props> = memo(({ errorText, setError }) => {
   useEffect(() => {
     setTimeout(() => {
-      setError(false);
+      setError('');
     }, 3000);
   }, []);
 
   return (
-    <div className="notification is-danger is-light has-text-weight-normal">
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
+    <div className={
+      cn('notification is-danger is-light has-text-weight-normal', {
+        hidden: errorText === '',
+      })
+    }
+    >
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className="delete"
         onClick={() => {
-          setError(false);
+          setError('');
         }}
       />
-      {errorText === 'empty'
-        ? ('Title can\'t be empty')
-        : `Unable to ${errorText} a todo`}
+      {errorText}
     </div>
   );
-};
+});

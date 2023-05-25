@@ -1,4 +1,8 @@
-import { FormEvent, useState } from 'react';
+import {
+  FormEvent,
+  useState,
+  memo,
+} from 'react';
 import cn from 'classnames';
 import { addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
@@ -12,7 +16,7 @@ interface Props {
   todos: Todo[] | null;
 }
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = memo(({
   userId,
   setError,
   handleSetTempTodo,
@@ -85,4 +89,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

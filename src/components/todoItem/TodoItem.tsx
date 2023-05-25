@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import cn from 'classnames';
 
 interface Props {
@@ -12,12 +12,12 @@ interface Props {
   ) => void;
   loading: boolean;
   loadingID: number;
-  setEditingTodoId: (id:number | null) => void;
+  setEditingTodoId: (id: number | null) => void;
   editingTodoId: number | null;
   editTodo: (newTitle: string, id: number) => void;
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = memo(({
   title,
   id,
   completed,
@@ -124,4 +124,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
