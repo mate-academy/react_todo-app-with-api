@@ -1,30 +1,36 @@
 import classNames from 'classnames';
-import React, { memo, useCallback, useState } from 'react';
+import {
+  FC,
+  memo,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { updateTodo } from '../../api/todos';
+import { TodoContext } from '../../TodoContext/TodoContext';
+import { NewError } from '../../types/ErrorsList';
 import { Todo } from '../../types/Todo';
+import { client } from '../../utils/fetchClient';
 
 type Props = {
   todo: Todo;
-  updatingTodoId?: number | null;
   isLoadingNewTodo?: boolean;
-  isRemovingCompleted?: boolean;
-  isUpdatingEveryStatus?: boolean;
-  isEveryTotoCompleted?: boolean;
-  onTodoRemove: (todoId: number) => void;
-  onTodoUpdate: (todo: Todo) => void;
-  onTodoTitleUpdate: (todo: Todo, title: string) => void;
 };
 
-export const TodoItem: React.FC<Props> = memo(({
+export const TodoItem: FC<Props> = memo(({
   todo,
-  updatingTodoId,
   isLoadingNewTodo,
-  isRemovingCompleted,
-  isUpdatingEveryStatus,
-  isEveryTotoCompleted,
-  onTodoRemove,
-  onTodoUpdate,
-  onTodoTitleUpdate,
 }) => {
+  const {
+    updatingTodoId,
+    isRemovingCompleted,
+    isUpdatingEveryStatus,
+    isEveryTotoCompleted,
+    setUpdatingTodoId,
+    setTodos,
+    setVisibleError,
+  } = useContext(TodoContext);
+
   const [isRemoving, setIsRemoving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -39,15 +45,39 @@ export const TodoItem: React.FC<Props> = memo(({
     || isUpdating
     || isUpdatingEveryStatusTodo;
 
-  const handleRemoveTodo = useCallback(() => {
-    onTodoRemove(todo.id);
+  const handleRemoveTodo = useCallback(async () => {
     setIsRemoving(true);
-  }, [todo, onTodoRemove]);
+    try {
+      await client.delete(`/todos/${todo.id}`);
 
-  const handleTodoUpdate = useCallback(() => {
-    onTodoUpdate(todo);
-    setIsEditing(false);
-  }, [todo, onTodoUpdate]);
+      setTodos((prevTodos) => prevTodos.filter(
+        (fileredTodo) => fileredTodo.id !== todo.id,
+      ));
+    } catch (error) {
+      setVisibleError(NewError.Remove);
+    }
+  }, [todo]);
+
+  const handleUpdateTodo = useCallback(async () => {
+    setUpdatingTodoId(todo.id);
+    const updatedTodo = {
+      ...todo,
+      completed: !todo.completed,
+    };
+
+    try {
+      await updateTodo(updatedTodo);
+
+      setTodos((prevTodos) => prevTodos.map((prevTodo) => (
+        prevTodo.id === todo.id ? updatedTodo : prevTodo
+      )));
+    } catch (error) {
+      setVisibleError(NewError.Update);
+    } finally {
+      setUpdatingTodoId(null);
+      setIsEditing(false);
+    }
+  }, [todo]);
 
   const handleTodoDoubleClick = useCallback(() => {
     setIsEditing(true);
@@ -57,7 +87,29 @@ export const TodoItem: React.FC<Props> = memo(({
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setEditedTitle(event.target.value);
-  }, [todo, onTodoTitleUpdate]);
+  }, []);
+
+  const onTodoTitleUpdate = useCallback(async (
+    todoToUpdate: Todo,
+    newTitle: string,
+  ) => {
+    setUpdatingTodoId(todoToUpdate.id);
+
+    try {
+      const updatedTodo = await updateTodo({
+        ...todoToUpdate,
+        title: newTitle,
+      });
+
+      setTodos((prevTodos) => prevTodos.map((prevTodo) => (
+        prevTodo.id === todoToUpdate.id ? updatedTodo : prevTodo
+      )));
+    } catch (error) {
+      setVisibleError(NewError.Update);
+    } finally {
+      setUpdatingTodoId(null);
+    }
+  }, []);
 
   const handleTodoBlur = useCallback(() => {
     setIsEditing(false);
@@ -93,7 +145,7 @@ export const TodoItem: React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={handleTodoUpdate}
+          onChange={handleUpdateTodo}
         />
       </label>
 

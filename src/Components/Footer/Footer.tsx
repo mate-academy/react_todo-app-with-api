@@ -1,26 +1,42 @@
 import { FC, memo, useCallback } from 'react';
+import { deleteTodo } from '../../api/todos';
+import { useTodoContext } from '../../TodoContext/TodoContext';
+import { NewError } from '../../types/ErrorsList';
 import { Status } from '../../types/TodoFilter';
 import { TodoFilter } from '../TodoFilter/TodoFilter';
 
-interface Props {
-  itemsLeft: number;
-  filterBy: Status;
-  onFilterChange: (newFilter: Status) => void;
-  onRemoveCompletedTodos: () => Promise<void>;
-}
+export const Footer: FC = memo(() => {
+  const {
+    todos,
+    setTodos,
+    filterBy,
+    setFilterBy,
+    setIsRemovingCompleted,
+    setVisibleError,
+  } = useTodoContext();
 
-export const Footer: FC<Props> = memo(({
-  itemsLeft,
-  filterBy,
-  onFilterChange,
-  onRemoveCompletedTodos,
-}) => {
+  const itemsLeft = todos.filter((todo) => !todo.completed).length;
+
+  const handleRemoveCompletedTodos = useCallback(async () => {
+    setIsRemovingCompleted(true);
+
+    try {
+      await Promise.all(
+        todos
+          .filter((todo) => todo.completed)
+          .map((todo) => deleteTodo(todo.id)),
+      );
+
+      setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
+    } catch (error) {
+      setVisibleError(NewError.Remove);
+    } finally {
+      setIsRemovingCompleted(false);
+    }
+  }, [todos]);
+
   const handleFilterChange = useCallback((newFilter: Status) => {
-    onFilterChange(newFilter);
-  }, []);
-
-  const handleRemoveCompletedTodos = useCallback(() => {
-    onRemoveCompletedTodos();
+    setFilterBy(newFilter);
   }, []);
 
   return (

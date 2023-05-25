@@ -1,19 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC, memo, useCallback } from 'react';
-import { NewError } from '../../types/ErrorsList';
+import { useTodoContext } from '../../TodoContext/TodoContext';
 
-interface Props {
-  visibleError: NewError | null;
-  onCloseError: () => void;
-}
-
-export const Error: FC<Props> = memo(({
-  visibleError, onCloseError,
-}) => {
+export const Error: FC = memo(() => {
+  const {
+    visibleError,
+    setVisibleError,
+  } = useTodoContext();
   const isVisibleError = visibleError !== null;
 
   const handleCloseError = useCallback(() => {
-    onCloseError();
+    setVisibleError(null);
   }, []);
 
   return (
