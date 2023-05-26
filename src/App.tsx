@@ -39,40 +39,18 @@ export const App: React.FC = () => {
     setHasError(!hasError);
   }, [hasError]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setHasError(false);
-    }, 3000);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [showErrorMessage]);
-
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then(todoList => setTodos(todoList))
-      .catch(() => showErrorMessage('Unable to load todos'));
-  }, [USER_ID]);
-
   const visibleTodos = useMemo(() => {
-    let visibleTodoArray = todos;
+    return todos.filter(todo => {
+      if (filterBy === TodoStatus.Active) {
+        return !todo.completed;
+      }
 
-    switch (filterBy) {
-      case TodoStatus.Active:
-        visibleTodoArray = todos.filter(todo => !todo.completed);
-        break;
+      if (filterBy === TodoStatus.Completed) {
+        return todo.completed;
+      }
 
-      case TodoStatus.Completed:
-        visibleTodoArray = todos.filter(todo => todo.completed);
-        break;
-
-      case TodoStatus.All:
-      default:
-        break;
-    }
-
-    return visibleTodoArray;
+      return true;
+    });
   }, [todos, filterBy]);
 
   const activeTodosCount = useMemo(() => (
@@ -199,6 +177,22 @@ export const App: React.FC = () => {
       setCompletedTodoIdList([]);
     }
   }, [todos]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setHasError(false);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [showErrorMessage]);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(todoList => setTodos(todoList))
+      .catch(() => showErrorMessage('Unable to load todos'));
+  }, [USER_ID]);
 
   if (!USER_ID) {
     return <UserWarning />;
