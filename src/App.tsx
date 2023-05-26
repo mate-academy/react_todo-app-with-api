@@ -260,13 +260,13 @@ export const App: FC = () => {
               {`${filteredTodos} items left`}
             </span>
 
-            {todos.some((todo) => todo.completed) && (
-              <>
-                <TodoStatus
-                  status={status}
-                  onStatusChanged={handleStatusChanged}
-                />
+            <>
+              <TodoStatus
+                status={status}
+                onStatusChanged={handleStatusChanged}
+              />
 
+              {todos.some((todo) => todo.completed) && (
                 <button
                   data-cy="ClearCompletedButton"
                   type="button"
@@ -275,8 +275,9 @@ export const App: FC = () => {
                 >
                   Clear completed
                 </button>
-              </>
-            )}
+              )}
+            </>
+
           </footer>
         )}
 
