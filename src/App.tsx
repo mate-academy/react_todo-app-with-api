@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { UserWarning } from './UserWarning';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoList } from './components/TodoList/TodoList';
@@ -76,7 +77,7 @@ export const App: React.FC = () => {
 
   const activeTodosCount = useMemo(() => (
     todos.filter(todo => !todo.completed).length
-  ), [visibleTodos]);
+  ), [todos]);
 
   const areAllTodosCompleted = useMemo(() => (
     todos.every(todo => todo.completed)
@@ -107,7 +108,7 @@ export const App: React.FC = () => {
 
   const handleEnterKeyPress = useCallback((title: string) => {
     setTempTodo({
-      id: Math.random(),
+      id: parseInt(uuidv4(), 16),
       userId: USER_ID,
       title,
       completed: false,
@@ -121,7 +122,7 @@ export const App: React.FC = () => {
       .then(fetchedTodo => setTodos(currTodos => [...currTodos, fetchedTodo]))
       .catch(() => showErrorMessage('Unable to add a todo'))
       .finally(() => setTempTodo(null));
-  }, [todos]);
+  }, []);
 
   const handleToggleButtonClick = useCallback(async (
     todoId: number,
@@ -212,7 +213,7 @@ export const App: React.FC = () => {
           isToggleAllButtonVisible={!!todos.length}
           isTempTodoTrue={!!tempTodo}
           showErrorMessage={showErrorMessage}
-          handleEnterKeyPress={handleEnterKeyPress}
+          onEnterKeyPress={handleEnterKeyPress}
           onToggleAllButtonClick={toggleAllTodos}
           areAllTodosCompleted={areAllTodosCompleted}
         />
@@ -231,11 +232,11 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <TodoFooter
-            filterBy={filterBy}
+            filter={filterBy}
             itemsLeft={activeTodosCount}
-            handleFilterBy={handleFilterBy}
-            clearCompletedTodos={clearCompletedTodos}
-            completedTodos={todos.length - activeTodosCount}
+            onFilter={handleFilterBy}
+            onClearCompleted={clearCompletedTodos}
+            completedCount={todos.length - activeTodosCount}
           />
         )}
       </div>
@@ -243,7 +244,7 @@ export const App: React.FC = () => {
       <TodoNotification
         hasError={hasError}
         errorMessage={errorMessage}
-        handleCloseButton={handleCloseButton}
+        onCloseButton={handleCloseButton}
       />
     </div>
   );

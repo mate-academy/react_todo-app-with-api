@@ -3,25 +3,27 @@ import classNames from 'classnames';
 import { TodoStatus } from '../../types/TodoStatus';
 
 type Props = {
-  handleFilterBy: (str: TodoStatus) => void,
-  filterBy: TodoStatus,
+  onFilter: (str: TodoStatus) => void,
+  filter: TodoStatus,
   itemsLeft: number,
-  completedTodos: number,
-  clearCompletedTodos: () => void,
+  completedCount: number,
+  onClearCompleted: () => void,
 };
 
 export const TodoFooter: React.FC<Props> = React.memo(({
-  handleFilterBy,
-  filterBy,
+  filter,
   itemsLeft,
-  completedTodos,
-  clearCompletedTodos,
+  onFilter,
+  onClearCompleted,
+  completedCount,
 }) => {
-  const onClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
-    const target = event.target as HTMLAnchorElement;
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      const { textContent } = event.currentTarget;
 
-    handleFilterBy(target.innerText as TodoStatus);
-  }, [handleFilterBy]);
+      onFilter(textContent as TodoStatus);
+    }, [onFilter],
+  );
 
   return (
     <footer className="todoapp__footer">
@@ -33,9 +35,9 @@ export const TodoFooter: React.FC<Props> = React.memo(({
         <a
           href="#/"
           className={classNames('filter__link', {
-            selected: TodoStatus.All === filterBy,
+            selected: TodoStatus.All === filter,
           })}
-          onClick={onClick}
+          onClick={handleClick}
         >
           All
         </a>
@@ -43,9 +45,9 @@ export const TodoFooter: React.FC<Props> = React.memo(({
         <a
           href="#/active"
           className={classNames('filter__link', {
-            selected: TodoStatus.Active === filterBy,
+            selected: TodoStatus.Active === filter,
           })}
-          onClick={onClick}
+          onClick={handleClick}
         >
           Active
         </a>
@@ -53,9 +55,9 @@ export const TodoFooter: React.FC<Props> = React.memo(({
         <a
           href="#/completed"
           className={classNames('filter__link', {
-            selected: TodoStatus.Completed === filterBy,
+            selected: TodoStatus.Completed === filter,
           })}
-          onClick={onClick}
+          onClick={handleClick}
         >
           Completed
         </a>
@@ -64,8 +66,8 @@ export const TodoFooter: React.FC<Props> = React.memo(({
       <button
         type="button"
         className="todoapp__clear-completed"
-        disabled={!completedTodos}
-        onClick={() => clearCompletedTodos()}
+        disabled={!completedCount}
+        onClick={onClearCompleted}
       >
         Clear completed
       </button>

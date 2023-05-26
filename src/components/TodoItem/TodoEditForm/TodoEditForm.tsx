@@ -32,7 +32,7 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
     }
   }, []);
 
-  const onInputChange = useCallback(
+  const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = event.target.value;
 
@@ -57,10 +57,12 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
     exitEditionMode();
   };
 
-  const onSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    sumbitEdition();
-  }, [sumbitEdition]);
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      sumbitEdition();
+    }, [sumbitEdition],
+  );
 
   const handleKeyUp = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -69,7 +71,7 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
   }, [exitEditionMode]);
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <input
         type="text"
         value={title}
@@ -78,7 +80,7 @@ export const TodoEditForm: React.FC<Props> = React.memo(({
         ref={inputRef}
         onKeyUp={handleKeyUp}
         onBlur={sumbitEdition}
-        onChange={onInputChange}
+        onChange={handleInputChange}
       />
     </form>
   );

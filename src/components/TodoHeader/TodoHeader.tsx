@@ -6,7 +6,7 @@ type Props = {
   areAllTodosCompleted: boolean,
   isToggleAllButtonVisible: boolean,
   showErrorMessage: (message: string) => void,
-  handleEnterKeyPress: (todoTitle: string) => void,
+  onEnterKeyPress: (todoTitle: string) => void,
   onToggleAllButtonClick: () => void,
 };
 
@@ -15,7 +15,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
   areAllTodosCompleted,
   isToggleAllButtonVisible,
   showErrorMessage,
-  handleEnterKeyPress,
+  onEnterKeyPress,
   onToggleAllButtonClick,
 }) => {
   const [title, setTitle] = useState('');
@@ -29,13 +29,13 @@ export const TodoHeader: React.FC<Props> = React.memo(({
     };
   }, [isTempTodoTrue]);
 
-  const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputElement = event.target as HTMLInputElement;
 
     setTitle(inputElement.value);
   };
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const normalizedTitle = title.trim();
@@ -46,7 +46,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
       return;
     }
 
-    handleEnterKeyPress(normalizedTitle);
+    onEnterKeyPress(normalizedTitle);
     setTitle('');
   };
 
@@ -58,11 +58,14 @@ export const TodoHeader: React.FC<Props> = React.memo(({
           className={classNames('todoapp__toggle-all', {
             active: areAllTodosCompleted,
           })}
-          onClick={() => onToggleAllButtonClick()}
+          onClick={onToggleAllButtonClick}
+          aria-label={areAllTodosCompleted
+            ? 'Uncheck all todos'
+            : 'Check all todos'}
         />
       )}
 
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={title}
@@ -70,7 +73,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           disabled={isTempTodoTrue}
-          onChange={onInputChange}
+          onChange={handleInputChange}
         />
       </form>
     </header>

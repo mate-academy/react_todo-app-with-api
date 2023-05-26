@@ -2,19 +2,19 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 
 type Props = {
-  handleCloseButton: () => void,
+  onCloseButton: () => void,
   errorMessage: string,
   hasError: boolean,
 };
 
 export const TodoNotification: React.FC<Props> = React.memo(({
-  handleCloseButton,
+  onCloseButton,
   errorMessage,
   hasError,
 }) => {
   const handleClose = useCallback(() => {
-    handleCloseButton();
-  }, [handleCloseButton]);
+    onCloseButton();
+  }, [onCloseButton]);
 
   return (
     <div className={classNames(
@@ -29,6 +29,7 @@ export const TodoNotification: React.FC<Props> = React.memo(({
         type="button"
         className="delete"
         onClick={handleClose}
+        aria-label="Close notification"
       />
 
       <span>{errorMessage}</span>

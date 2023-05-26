@@ -13,24 +13,19 @@ export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   isProcessing = false,
 }) => {
+  const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const [todoTitle, setTodoTitle] = useState('');
+  const [todoTitle, setTodoTitle] = useState(title);
 
   const {
     handleToggleButtonClick,
     handleRemoveButtonClick,
   } = useContext(TodoListContext);
-  const { id, title, completed } = todo;
 
-  const handleDoubleClick = useCallback((event: React.SyntheticEvent) => {
-    const taskTitle = event.currentTarget.textContent;
-
-    if (taskTitle) {
-      setTodoTitle(taskTitle);
-    }
-
+  const handleDoubleClick = useCallback(() => {
+    setTodoTitle(title);
     setIsEditing(true);
-  }, []);
+  }, [todo]);
 
   const exitEditionMode = useCallback(() => {
     setIsEditing(false);
@@ -41,8 +36,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
   }, [id, completed]);
 
   const handleRemove = useCallback(() => {
-    handleRemoveButtonClick(todo.id);
-  }, [handleRemoveButtonClick, todo.id]);
+    handleRemoveButtonClick(id);
+  }, [handleRemoveButtonClick, id]);
 
   return (
     <div className={classNames('todo', { completed })}>
