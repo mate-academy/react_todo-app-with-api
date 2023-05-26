@@ -24,8 +24,7 @@ export const App = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<string>('');
   const [filter, setFilter] = useState<string>(Filter.ALL);
-  const [loading, setIsLoading] = useState(false);
-  const [loadingID, setLoadingID] = useState(0);
+  const [loadingID, setLoadingID] = useState<number[]>([]);
   const [comletedTodos, setCompletedTodos] = useState<Todo[]>([]);
   const [uncomletedTodoCount, setUncomletedTodoCount] = useState<number>(0);
 
@@ -54,46 +53,45 @@ export const App = () => {
 
   const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
-      setLoadingID(todoId);
-      setIsLoading(true);
+      setLoadingID((prevIds => [...prevIds, todoId]));
       await deleteTodo(todoId);
       await loadTodos();
     } catch {
       setError('can not delete todo');
     }
 
-    setIsLoading(false);
+    setLoadingID(prevIds => prevIds.filter(id => id !== todoId));
   }, [loadTodos]);
 
-  const handleEditTodo = useCallback(async (newTitle: string, id: number) => {
-    if (!newTitle) {
-      handleDeleteTodo(id);
+  const handleEditTodo = useCallback(
+    async (newTitle: string, todoId: number) => {
+      if (!newTitle || newTitle.trim().length < 1) {
+        handleDeleteTodo(todoId);
 
-      return;
-    }
+        return;
+      }
 
-    setLoadingID(id);
-    setIsLoading(true);
-    try {
-      await updateTodoTitle(id, {
-        title: newTitle,
-      });
-    } catch {
-      setError('can not edit todo');
-    }
+      try {
+        setLoadingID((prevIds => [...prevIds, todoId]));
+        await updateTodoTitle(todoId, {
+          title: newTitle,
+        });
+      } catch {
+        setError('can not edit todo');
+      }
 
-    setIsLoading(false);
-    loadTodos();
-  }, [handleDeleteTodo, loadTodos]);
+      await loadTodos();
+      setLoadingID(prevIds => prevIds.filter(id => id !== todoId));
+    }, [handleDeleteTodo, loadTodos],
+  );
 
   const handleUpdateTodoIsCompleted = useCallback(async (
-    id: number,
+    todoId: number,
     complitedCurrVal: boolean,
   ) => {
     try {
-      setLoadingID(id);
-      setIsLoading(true);
-      await updateTodoCompleted(id, {
+      setLoadingID((prevIds => [...prevIds, todoId]));
+      await updateTodoCompleted(todoId, {
         completed: !complitedCurrVal,
       });
       await loadTodos();
@@ -101,7 +99,7 @@ export const App = () => {
       setError('can not update todo');
     }
 
-    setIsLoading(false);
+    setLoadingID(prevIds => prevIds.filter(id => id !== todoId));
   }, [loadTodos]);
 
   const handleToggleAllComplited = useCallback(() => {
@@ -128,9 +126,10 @@ export const App = () => {
     comletedTodos.map(todo => handleDeleteTodo(todo.id));
   }, [comletedTodos, handleDeleteTodo]);
 
-  const updateTodos = useCallback((todo: Todo) => {
+  const updateTodos = (todo: Todo) => {
+    setTempTodo(null);
     setTodos(prevTodos => [...prevTodos as Todo[], todo]);
-  }, []);
+  };
 
   useEffect(() => {
     loadTodos();
@@ -160,7 +159,6 @@ export const App = () => {
               todos={visibleTodos}
               tempTodo={tempTodo}
               handleDeleteTodo={handleDeleteTodo}
-              loading={loading}
               loadingID={loadingID}
               handleUpdateTodoIsCompleted={handleUpdateTodoIsCompleted}
               editTodo={handleEditTodo}

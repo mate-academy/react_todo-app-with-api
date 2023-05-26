@@ -32,8 +32,9 @@ export const Header: React.FC<Props> = memo(({
   const handleAddTodo = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!inputValue) {
-      setError('empty');
+    if (!inputValue || inputValue.trim().length < 1) {
+      setError('title cant be empty');
+      setInputValue('');
 
       return;
     }
@@ -48,16 +49,15 @@ export const Header: React.FC<Props> = memo(({
 
     try {
       await addTodo({
-        title: inputValue,
+        title: inputValue.trim(),
         userId,
         completed: false,
       }).then(response => updateTodos(response as Todo));
     } catch {
-      setError('add');
+      setError('can not add todo');
     }
 
     setIsLoading(false);
-    handleSetTempTodo(null);
     setInputValue('');
   };
 

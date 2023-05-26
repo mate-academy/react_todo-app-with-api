@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState, memo, useRef } from 'react';
 import cn from 'classnames';
 
 interface Props {
@@ -10,8 +10,7 @@ interface Props {
     id: number,
     complitedCurrVal: boolean,
   ) => void;
-  loading: boolean;
-  loadingID: number;
+  loadingID: number[];
   setEditingTodoId: (id: number | null) => void;
   editingTodoId: number | null;
   editTodo: (newTitle: string, id: number) => void;
@@ -23,7 +22,6 @@ export const TodoItem: React.FC<Props> = memo(({
   completed,
   onDelete,
   onIsComplitedUpdate,
-  loading,
   loadingID,
   setEditingTodoId,
   editingTodoId,
@@ -31,10 +29,16 @@ export const TodoItem: React.FC<Props> = memo(({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editInput, setEditInput] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDoubleClick = () => {
     setEditingTodoId(id);
     setIsEditing(true);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 0);
   };
 
   const handleFormSubmit = (newTitle: string) => {
@@ -72,6 +76,7 @@ export const TodoItem: React.FC<Props> = memo(({
           ? (
             <label htmlFor="title_change">
               <input
+                ref={inputRef}
                 className="todo__title-field"
                 type="text"
                 value={editInput}
@@ -116,7 +121,7 @@ export const TodoItem: React.FC<Props> = memo(({
 
       <div
         className={cn('modal overlay', {
-          'is-active': loading && loadingID === id,
+          'is-active': loadingID.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
