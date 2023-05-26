@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
 import React, { ChangeEvent, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
@@ -8,14 +7,23 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoFilter } from './filterTodos/filterTodos';
+import { TodoList } from './TodoList/TodoList';
+import { Errors } from './Errors/Errors';
+import { TodoError } from './types/TodoError';
 
 const USER_ID = 10327;
 
 export const App: React.FC = () => {
   const [todoItem, setTodoItem] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [errors, setErrors] = useState(TodoError.NONE);
+  const [isLoadWait, setIsLoadWait] = useState(false);
 
   const fetchTodos = () => getTodos(USER_ID).then(setTodos);
+
+  const todoCount = todos.filter(({ completed }) => !completed).length;
+  const todoCompleted = todos.filter(todo => todo.completed === true);
+  const hasCompletedTodo = todoCompleted.length > 0;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -24,30 +32,49 @@ export const App: React.FC = () => {
   const clearTodoField = () => setTodoItem('');
 
   const createTodo = async (event: ChangeEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
+      setIsLoadWait(true);
 
-    const newTodo = {
-      userId: USER_ID,
-      title: todoItem,
-      completed: false,
-    };
+      const newTodo = {
+        userId: USER_ID,
+        title: todoItem,
+        completed: false,
+      };
 
-    await postTodos(USER_ID, newTodo);
-    fetchTodos();
-    clearTodoField();
+      await postTodos(USER_ID, newTodo);
+      fetchTodos();
+      clearTodoField();
+    } catch {
+      setErrors(TodoError.ADD_ERROR);
+    } finally {
+      setIsLoadWait(false);
+    }
   };
 
   const handleDeleteTodo = async (id: number) => {
-    await deleteTodo(id);
-    fetchTodos();
+    try {
+      await deleteTodo(id);
+      fetchTodos();
+      setIsLoadWait(true);
+    } catch {
+      setErrors(TodoError.REMOVE_ERROR);
+    } finally {
+      setIsLoadWait(false);
+    }
   };
 
   const handleChangeTodo = async (id: number, isCompleted: boolean) => {
-    await patchTodo(id, { completed: !isCompleted });
-    fetchTodos();
+    try {
+      await patchTodo(id, { completed: !isCompleted });
+      fetchTodos();
+      setIsLoadWait(true);
+    } catch {
+      setErrors(TodoError.UPDATE_ERROR);
+    } finally {
+      setIsLoadWait(false);
+    }
   };
-
-  console.log(todos);
 
   const activeFilter = () => {
     setTodos(todos.filter((todo) => todo.completed === false));
@@ -61,11 +88,9 @@ export const App: React.FC = () => {
     fetchTodos();
   };
 
-  const todoCount = todos.filter(({ completed }) => !completed).length;
-
-  // const clearCompleted = () => {
-  //   setTodos(todos.filter((todo) => todo.completed === false));
-  // };
+  const deleteAllCompleted = () => {
+    todoCompleted.map((todo) => handleDeleteTodo(todo.id));
+  };
 
   return (
     <div className="todoapp">
@@ -73,7 +98,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           <button type="button" className="todoapp__toggle-all active" />
 
           <form
@@ -89,70 +113,41 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <section className="todoapp__main">
-          {todos.map((todo) => (
-            <div
-              key={todo.id}
-              className={classNames('todo', {
-                completed: todo.completed,
-              })}
-            >
-              <label className="todo__status-label">
-                <input
-                  type="checkbox"
-                  className="todo__status"
-                  checked={todo.completed}
-                  onClick={() => handleChangeTodo(todo.id, todo.completed)}
-                />
-              </label>
+        <TodoList
+          todos={todos}
+          deleteTodo={handleDeleteTodo}
+          changeTodo={handleChangeTodo}
+          isLoad={isLoadWait}
+        />
 
-              <span className="todo__title">{todo.title}</span>
+        {todos.length > 0 && (
+          <>
+            <footer className="todoapp__footer">
+              <span className="todo-count">
+                {`${todoCount} items left`}
+              </span>
 
-              <button
-                type="button"
-                className="todo__remove"
-                onClick={() => handleDeleteTodo(todo.id)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </section>
+              <TodoFilter
+                onAll={deleteFilter}
+                onActive={activeFilter}
+                onCompleted={completedFilter}
+              />
 
-        {/* Hide the footer if there are no todos */}
-        <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${todoCount} items left`}
-          </span>
-
-          <TodoFilter
-            onAll={deleteFilter}
-            onActive={activeFilter}
-            onCompleted={completedFilter}
-          />
-
-          {/* don't show this button if there are no completed todos */}
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            // onClick={clearCompleted}
-          >
-            Clear completed
-          </button>
-        </footer>
+              {hasCompletedTodo && (
+                <button
+                  type="button"
+                  className="todoapp__clear-completed"
+                  onClick={deleteAllCompleted}
+                >
+                  Clear completed
+                </button>
+              )}
+            </footer>
+          </>
+        )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      {/* <div className="notification is-danger is-light has-text-weight-normal">
-        <button type="button" className="delete" />
-
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo
-      </div> */}
+      <Errors error={errors} />
     </div>
   );
 };
