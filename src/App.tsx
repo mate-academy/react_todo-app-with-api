@@ -74,7 +74,6 @@ export const App: React.FC = () => {
 
   function editTodo(id: number, itemToEdit: object, changeTodo: string) {
     addTodoToProcesing(id);
-
     updateTodo(id, itemToEdit)
       .then(() => setTodoList(todoList.map(currentTodo => {
         if (changeTodo === 'All') {

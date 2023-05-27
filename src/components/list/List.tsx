@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import cn from 'classnames';
 import { KeyboardEvent, useState } from 'react';
@@ -31,8 +32,12 @@ export const List: React.FC<Props> = ({
   function onEditTitleByKeyDown(
     todo: Todo, e: null | KeyboardEvent<HTMLInputElement>,
   ) {
+    const previousTitle = todo.title;
+
     if (e?.key === 'Enter') {
-      if (e.target.value.trim()) {
+      if (previousTitle === e?.target.value) {
+        setRenameCurrentTitle([]);
+      } else if (e.target.value.trim()) {
         editTodo(todo.id, { title: e.target.value.trim() });
       } else {
         removeTodo(todo.id, 'id');
@@ -40,10 +45,18 @@ export const List: React.FC<Props> = ({
     }
   }
 
-  function onEditTitleByBlur(id: number, title: string) {
+  function onEditTitleByBlur(todo: Todo, title: string) {
+    const previousTitle = todo.title;
+
+    if (previousTitle === title) {
+      setRenameCurrentTitle([]);
+
+      return;
+    }
+
     title
-      ? editTodo(id, { title: title.trim() })
-      : removeTodo(id, 'id');
+      ? editTodo(todo.id, { title: title.trim() })
+      : removeTodo(todo.id, 'id');
   }
 
   return (
@@ -85,11 +98,10 @@ export const List: React.FC<Props> = ({
                   className="todo__title-field"
                   placeholder="Empty todo will be deleted"
                   defaultValue={todo.title}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   onDoubleClick={() => setRenameCurrentTitle(todo)}
                   onKeyDown={(e) => onEditTitleByKeyDown(todo, e)}
-                  onBlur={(e) => onEditTitleByBlur(todo.id, e.target.value)}
+                  onBlur={(e) => onEditTitleByBlur(todo, e.target.value)}
                 />
               </form>
             )}
