@@ -96,7 +96,7 @@ export const List: React.FC<Props> = ({
                 </button>
               </>
             ) : (
-              <form>
+              <form onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="text"
                   className="todo__title-field"
