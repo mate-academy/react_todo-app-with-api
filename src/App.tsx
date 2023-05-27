@@ -229,14 +229,12 @@ export const App = () => {
 
     const patchedIds = patchedTodos.map(todo => todo.id);
 
-    const patchedIdsNoLast = [...patchedIds];
-    const lastPatchedId = patchedIdsNoLast.splice(patchedIds.length - 1, 1)[0];
+    const promisesToPatch = patchedTodos.map(
+      todo => toggleTodoStatus(todo.id, isToggleAllActive),
+    );
 
-    patchedIdsNoLast.forEach(toggledTodoId => {
-      toggleTodoStatus(toggledTodoId, isToggleAllActive);
-    });
     try {
-      await toggleTodoStatus(lastPatchedId, isToggleAllActive);
+      await Promise.all(promisesToPatch);
 
       setTodoList(currentList => (
         currentList.map(todo => {
