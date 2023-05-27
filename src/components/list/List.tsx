@@ -37,7 +37,11 @@ export const List: React.FC<Props> = ({
     if (e?.key === 'Enter') {
       if (previousTitle === e?.target.value) {
         setRenameCurrentTitle([]);
-      } else if (e.target.value.trim()) {
+
+        return;
+      }
+
+      if (e.target.value.trim()) {
         editTodo(todo.id, { title: e.target.value.trim() });
       } else {
         removeTodo(todo.id, 'id');
