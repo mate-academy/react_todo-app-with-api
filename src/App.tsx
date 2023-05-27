@@ -11,19 +11,17 @@ import { TodoAppHeader } from './components/TodoAppHeader/TodoAppHeader';
 import { TodoAppContent } from './components/TodoAppContent/TodoAppContent';
 import { TodoAppFooter } from './components/TodoAppFooter/TodoAppFooter';
 import { Notifications } from './components/Notifications/Notifications';
-import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
 import { ErrorType } from './types/ErrorType';
-import { TodoPostData } from './types/TodoPostData';
 import { TodoListContext } from './context/TodoListContext';
-
-const USER_ID = 10308;
-
-const getTodos = () => client.get<Todo[]>(`/todos?userId=${USER_ID}`);
-const postTodo = (data: TodoPostData) => client.post<Todo>(`/todos?userId=${USER_ID}`, data);
-const deleteTodo = (todoId: number) => client.delete(`/todos/${todoId}`);
-const changeTodo = (todoId: number, data: TodoPostData) => client.patch<Todo>(`/todos/${todoId}`, data);
+import {
+  USER_ID,
+  getTodos,
+  postTodo,
+  deleteTodo,
+  changeTodo,
+} from './api/todos';
 
 const prepareTodos = (todoList: Todo[], filterType: FilterType) => (
   todoList.filter(todo => {
@@ -45,7 +43,7 @@ const getActiveTodosCount = (todoList: Todo[]) => (
 );
 
 export const App = () => {
-  const [todoList, setTodoList] = useState<Todo[] | null>(null);
+  const [todoList, setTodoList] = useState<Todo[]>([]);
 
   const {
     todoInputValue,
@@ -54,7 +52,7 @@ export const App = () => {
     filterType,
     setDeletedId,
     setEditedId,
-    setareAllEdited,
+    setAreAllEdited,
     setCompletedDel,
     setIsInputDisabled,
     setIsErrorShown,
@@ -68,28 +66,28 @@ export const App = () => {
   }, []);
 
   const preparedTodos = useMemo(() => (
-    prepareTodos(todoList || [], filterType)
+    prepareTodos(todoList, filterType)
   ), [todoList, filterType]);
 
   const activeTodosCount = useMemo(() => (
-    getActiveTodosCount(todoList || [])
+    getActiveTodosCount(todoList)
   ), [todoList]);
 
   const isToggleAllActive = useMemo(() => (
-    !!todoList && todoList.every(todo => todo.completed === true)
+    !todoList.some(todo => todo.completed !== true)
   ), [todoList]);
 
   const areCompletedTodos = todoList
     ? activeTodosCount < todoList.length
     : false;
 
-  const handleTodoInputChange = (value: string) => {
+  const handleTodoInputChange = useCallback((value: string) => {
     setIsErrorShown(false);
 
     setTodoInputValue(value);
-  };
+  }, []);
 
-  const executePostTodo = async () => {
+  const executePostTodo = useCallback(async () => {
     const postedTodo = {
       title: todoInputValue,
       userId: USER_ID,
@@ -117,9 +115,7 @@ export const App = () => {
       };
 
       setTodoList(currentList => (
-        currentList
-          ? [...currentList, newTodo]
-          : [newTodo]
+        [...currentList, newTodo]
       ));
     } catch {
       setErrorType(ErrorType.ADD);
@@ -127,9 +123,11 @@ export const App = () => {
     } finally {
       setTempTodo(null);
     }
-  };
+  }, [todoInputValue]);
 
-  const handleAddTodo = async (event: FormEvent<HTMLFormElement>) => {
+  const handleAddTodo = useCallback(async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (todoInputValue.trim().length === 0) {
@@ -140,18 +138,20 @@ export const App = () => {
     }
 
     setIsInputDisabled(true);
+
     await executePostTodo();
+
     setIsInputDisabled(false);
     setTodoInputValue('');
-  };
+  }, [todoInputValue]);
 
-  const handleDeleteTodo = async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     setDeletedId(todoId);
 
     try {
       await deleteTodo(todoId);
 
-      const newList = todoList && todoList.filter(({ id }) => todoId !== id);
+      const newList = todoList.filter(({ id }) => todoId !== id);
 
       setTodoList(newList);
     } catch {
@@ -160,13 +160,9 @@ export const App = () => {
     } finally {
       setDeletedId(null);
     }
-  };
+  }, [todoList]);
 
-  const handleDeleteCompleted = async () => {
-    if (!todoList) {
-      return;
-    }
-
+  const handleDeleteCompleted = useCallback(async () => {
     setCompletedDel(true);
 
     const completedTodos = prepareTodos(todoList, FilterType.COMPLETED);
@@ -188,13 +184,15 @@ export const App = () => {
     } finally {
       setCompletedDel(false);
     }
-  };
+  }, [todoList]);
 
-  const toggleTodoStatus = async (todoId: number, isCompleted: boolean) => {
+  const toggleTodoStatus = useCallback(async (
+    todoId: number, isCompleted: boolean,
+  ) => {
     await changeTodo(todoId, { completed: !isCompleted });
-  };
+  }, []);
 
-  const handleTodoStatusToggle = async (
+  const handleTodoStatusToggle = useCallback(async (
     todoId: number,
     isCompleted: boolean,
   ) => {
@@ -203,7 +201,7 @@ export const App = () => {
     try {
       await toggleTodoStatus(todoId, isCompleted);
       setTodoList(currentList => (
-        currentList && currentList.map(todo => {
+        currentList.map(todo => {
           if (todo.id === todoId) {
             return {
               ...todo,
@@ -220,14 +218,10 @@ export const App = () => {
     }
 
     setEditedId(null);
-  };
+  }, []);
 
-  const handleToggleAll = async () => {
-    if (!todoList) {
-      return;
-    }
-
-    setareAllEdited(true);
+  const handleToggleAll = useCallback(async () => {
+    setAreAllEdited(true);
 
     const patchedTodos = todoList.filter(todo => (
       todo.completed === isToggleAllActive
@@ -245,7 +239,7 @@ export const App = () => {
       await toggleTodoStatus(lastPatchedId, isToggleAllActive);
 
       setTodoList(currentList => (
-        currentList && currentList.map(todo => {
+        currentList.map(todo => {
           if (patchedIds.includes(todo.id)) {
             return {
               ...todo,
@@ -261,8 +255,8 @@ export const App = () => {
       setIsErrorShown(true);
     }
 
-    setareAllEdited(false);
-  };
+    setAreAllEdited(false);
+  }, [todoList]);
 
   const handleTitleChange = async (todoId: number, newTitle: string) => {
     setEditedId(todoId);
@@ -270,7 +264,7 @@ export const App = () => {
     try {
       await changeTodo(todoId, { title: newTitle });
       setTodoList(currentList => (
-        currentList && currentList.map(todo => {
+        currentList.map(todo => {
           if (todo.id === todoId) {
             return {
               ...todo,

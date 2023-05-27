@@ -15,7 +15,7 @@ export const TodoListContext = createContext<TodoContextData>({
   editedId: null,
   setEditedId: () => {},
   areAllEdited: false,
-  setareAllEdited: () => {},
+  setAreAllEdited: () => {},
   areCompletedDel: false,
   setCompletedDel: () => {},
   isInputDisabled: false,
