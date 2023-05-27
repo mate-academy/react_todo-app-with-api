@@ -100,12 +100,13 @@ export const TodoInfo:FC<Props> = ({
     };
 
     if (!editingQuery) {
-      return handleTodoDelete();
+      handleTodoDelete();
     }
 
     setIsChanging(true);
     try {
       setIsEditing(true);
+      setEditingQuery(title);
       const updatedTodo = await patchTodo(id, todoData);
 
       onUpdate(updatedTodo);
@@ -134,7 +135,7 @@ export const TodoInfo:FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
             className="todo__title-field"
