@@ -4,21 +4,21 @@ import classNames from 'classnames';
 type Props = {
   onCreateTodos: boolean;
   disabledInput: boolean;
-  onGetCreatTodos: (value: string) => void;
+  onCreatTodos: (value: string) => void;
   onCompleteAll: () => void;
 };
 
 export const TodoInput: React.FC<Props> = ({
   onCreateTodos,
   disabledInput,
-  onGetCreatTodos,
+  onCreatTodos,
   onCompleteAll,
 }) => {
   const [query, setQuery] = useState('');
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    onGetCreatTodos(query);
+    onCreatTodos(query);
     setQuery('');
   };
 

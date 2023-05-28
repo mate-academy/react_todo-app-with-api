@@ -28,8 +28,7 @@ export const TodoList: React.FC<Props> = ({
           isLoading={loadedTodoIds.includes(todo.id)}
           onDeleteTodo={handleRemoveTodo}
           onUpdateTodo={onUpdateTodo}
-          onChangeComplete={() => (
-            onChangeComplete(todo.id, !todo.completed))}
+          onChangeComplete={onChangeComplete}
         />
       ))}
 
@@ -39,7 +38,7 @@ export const TodoList: React.FC<Props> = ({
           isLoading
           onDeleteTodo={handleRemoveTodo}
           onUpdateTodo={onUpdateTodo}
-          onChangeComplete={() => null}
+          onChangeComplete={() => undefined}
         />
       )}
     </section>

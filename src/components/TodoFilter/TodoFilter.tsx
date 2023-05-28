@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 
 import { FilterType } from '../../types/FilterTypes';
@@ -17,8 +17,12 @@ export const TodoFilter: React.FC<Props> = ({
   onSelectedType,
   onClearCompleted,
 }) => {
-  const itemsLeft = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
+  const itemsLeft = useMemo(
+    () => todos.filter(todo => !todo.completed), [todos],
+  );
+  const completedTodos = useMemo(
+    () => todos.filter(todo => todo.completed), [todos],
+  );
 
   return (
     <>

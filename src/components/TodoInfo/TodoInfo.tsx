@@ -12,7 +12,7 @@ type Props = {
   isLoading: boolean,
   onDeleteTodo: (id: number) => void;
   onUpdateTodo: (id: number, title: string) => void;
-  onChangeComplete: (id: number) => void
+  onChangeComplete: (id: number, completed: boolean) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -78,7 +78,7 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={() => onChangeComplete(id)}
+          onChange={() => onChangeComplete(todo.id, !todo.completed)}
           checked={completed}
         />
       </label>

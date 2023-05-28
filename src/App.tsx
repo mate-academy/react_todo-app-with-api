@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoFilter } from './components/TodoFilter';
 import {
@@ -52,6 +52,9 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [hasLoadedTodos, setHasLoadedTodos] = useState<number[]>([]);
 
+  const visibleTodos = useMemo(
+    () => getFilteredTodo(todos, selectedType), [todos, selectedType],
+  );
   const getError = (value: string) => {
     setShowError(true);
     setErrorMessage(value);
@@ -130,29 +133,24 @@ export const App: React.FC = () => {
     });
   };
 
-  const getUpdateTodo = async (todo: Todo) => {
-    setHasLoadedTodos(prevTodo => [...prevTodo, todo.id]);
+  const updateTodo = async (id: number, property: Partial<Todo>) => {
+    setHasLoadedTodos(prevTodo => [...prevTodo, id]);
     try {
-      const updatedodo = await patchTodo(USER_ID, todo);
+      const getTodo = todos.find(todo => todo.id === id);
 
-      setTodos(currTodos => getUpdatedTodo(currTodos, updatedodo));
+      if (getTodo) {
+        const updatedTodo = {
+          ...getTodo,
+          ...property,
+        };
+
+        await patchTodo(USER_ID, updatedTodo);
+        setTodos(currTodos => getUpdatedTodo(currTodos, updatedTodo));
+      }
     } catch {
       getError('Unable to update a todo');
     } finally {
-      setHasLoadedTodos(prevTodo => prevTodo.filter(id => id !== todo.id));
-    }
-  };
-
-  const updateTodo = (id: number, property: Partial<Todo>) => {
-    const getTodo = todos.find(todo => todo.id === id);
-
-    if (getTodo) {
-      const getNewTodo = {
-        ...getTodo,
-        ...property,
-      };
-
-      getUpdateTodo(getNewTodo);
+      setHasLoadedTodos(prevTodo => prevTodo.filter(todoId => todoId !== id));
     }
   };
 
@@ -179,8 +177,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const visibleTodos = getFilteredTodo(todos, selectedType);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -189,7 +185,7 @@ export const App: React.FC = () => {
         <TodoInput
           onCreateTodos={getActiveTodo}
           disabledInput={disabledInput}
-          onGetCreatTodos={handleAddTodos}
+          onCreatTodos={handleAddTodos}
           onCompleteAll={handleCompleteAll}
         />
 
