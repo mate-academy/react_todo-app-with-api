@@ -1,24 +1,74 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import {
+  FC, useContext, useMemo, useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList/TodoList';
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer';
+import { Filter } from './types/FilterConditions';
+import { USER_ID } from './constants';
+import { TodoContext } from './components/TodoProvider';
+import { ErrorNotification } from './components/ErrorNotification';
 
-const USER_ID = 0;
+export const App: FC = () => {
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [filter, setFilter] = useState<Filter>(Filter.All);
+  const {
+    todos,
+    removeTodo,
+  } = useContext(TodoContext);
 
-export const App: React.FC = () => {
+  const filteredTodos = useMemo(() => {
+    switch (filter) {
+      case Filter.Active:
+        return todos.filter(todo => !todo.completed);
+      case Filter.Completed:
+        return todos.filter(todo => todo.completed);
+      case Filter.All:
+      default:
+        return [...todos];
+    }
+  }, [todos, filter]);
+
+  const handleClearCompletedClick = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        removeTodo?.(todo.id);
+      }
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          todos={filteredTodos}
+          onChange={setTempTodo}
+        />
+
+        <TodoList
+          preparedTodos={filteredTodos}
+          tempTodo={tempTodo}
+        />
+
+        {!!todos.length && (
+          <Footer
+            filterCondition={filter}
+            onChangeFilter={setFilter}
+            onClearCompleted={handleClearCompletedClick}
+          />
+        )}
+      </div>
+
+      <ErrorNotification />
+    </div>
   );
 };
