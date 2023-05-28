@@ -33,19 +33,20 @@ export const TodoTask: FC<Props> = ({
   const handleDoubleClickTodo = () => setIsEditing(true);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event.target.value.trimStart());
+    setQuery(event.target.value);
   };
 
   const updateTitle = () => {
-    if (!query.trim()) {
-      removeTodo?.(todo.id);
-    }
-
     if (query === todo.title) {
       setIsEditing(false);
     }
 
-    updateTodo(todo.id, { title: query });
+    if (!query.trim()) {
+      removeTodo?.(todo.id);
+    } else {
+      updateTodo(todo.id, { title: query });
+    }
+
     setIsEditing(false);
   };
 
