@@ -12,9 +12,12 @@ type Props = {
   ) => void,
   hasEditTodo: boolean,
   setHasEditTodo: React.Dispatch<React.SetStateAction<boolean>>,
-  onUpdateTodo: (params: React.FormEvent<HTMLFormElement>) => Promise<void>
+  onUpdateTodo: (todo: Todo) => Promise<void>,
   setIdUpdatedTodo: React.Dispatch<React.SetStateAction<number>>;
-  idUpdatedTodo: number;
+  indexUpdatedTodo: number;
+  onChangeStatusTodo: (todoId: number) => void,
+  todoForUpdate: Todo | null,
+  setTodoForUpdate: React.Dispatch<React.SetStateAction<Todo | null>>,
 };
 
 export const Main: React.FC<Props> = ({
@@ -25,14 +28,17 @@ export const Main: React.FC<Props> = ({
   hasEditTodo,
   setHasEditTodo,
   onUpdateTodo,
-  setIdUpdatedTodo,
-  idUpdatedTodo,
+  setIdUpdatedTodo: setIndexUpdatedTodo,
+  indexUpdatedTodo,
+  onChangeStatusTodo,
+  todoForUpdate,
+  setTodoForUpdate,
 }) => {
   return (
     <section className="todoapp__main">
       {/* This is a completed todo */}
       {visibleTodos.map((todo, index) => {
-        if (tempTodo && index === idUpdatedTodo) {
+        if (tempTodo && index === indexUpdatedTodo) {
           return (
             <div className="todo" key={+`0${todo.id}`}>
               <label className="todo__status-label">
@@ -71,31 +77,19 @@ export const Main: React.FC<Props> = ({
               <input
                 type="checkbox"
                 className="todo__status"
-                onClick={() => (console.log('checked clicked'))}
+                // eslint-disable-next-line no-console
+                onClick={() => (onChangeStatusTodo(todo.id))}
               />
             </label>
 
-            {!hasEditTodo
+            {hasEditTodo && todoForUpdate?.id === todo.id
               ? (
-                <span
-                  className="todo__title"
-                  onDoubleClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setHasEditTodo(true);
-                    setIdUpdatedTodo(index);
-                  }}
-                >
-                  {todo.title}
-                </span>
-              )
-              : (
                 <>
                   <form onSubmit={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    return onUpdateTodo(event);
+                    return onUpdateTodo(todo);
                   }}
                   >
                     <input
@@ -110,6 +104,19 @@ export const Main: React.FC<Props> = ({
                     />
                   </form>
                 </>
+              ) : (
+                <span
+                  className="todo__title"
+                  onDoubleClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setTodoForUpdate(todo);
+                    setIndexUpdatedTodo(index);
+                    setHasEditTodo(true);
+                  }}
+                >
+                  {todo.title}
+                </span>
               )}
             <button
               type="button"

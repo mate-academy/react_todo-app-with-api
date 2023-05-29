@@ -23,7 +23,7 @@ export const App: React.FC = () => {
   const [typeError, setTypeError] = useState('');
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
-  const [idUpdatedTodo, setIdUpdatedTodo] = useState(0);
+  const [indexUpdatedTodo, setIndexUpdatedTodo] = useState(0);
 
   async function loadedTodos(f: (USER_ID: number) => Promise<Todo[]>) {
     try {
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
 
   const handleAddTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIdUpdatedTodo(todos.length);
+    setIndexUpdatedTodo(todos.length);
     setDisableInput(true);
     setTempTodo({
       id: 0,
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
       await loadedTodos(getTodos);
       setTempTodo(null);
       setDisableInput(false);
-      setIdUpdatedTodo(0);
+      setIndexUpdatedTodo(0);
       setHasError(false);
     } catch (error) {
       setTypeError('Unable to add a todo');
@@ -81,19 +81,19 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleUpdateTodo = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (todoForUpdate) {
+  const handleUpdateTodo = async (todo: Todo) => {
+    // event.preventDefault();
+    if (todo) {
       setTempTodo({
         id: 0,
         userId: USER_ID,
-        title: todoForUpdate.title,
-        completed: todoForUpdate.completed,
+        title: todo.title,
+        completed: todo.completed,
       });
 
-      await updateTodo(todoForUpdate.id, {
-        title: todoForUpdate.title,
-        completed: todoForUpdate.completed,
+      await updateTodo(todo.id, {
+        title: todo.title,
+        completed: todo.completed,
       });
       setHasEditTodo(false);
       setTempTodo(null);
@@ -128,7 +128,7 @@ export const App: React.FC = () => {
 
   (function handleTempTodo() {
     if (tempTodo) {
-      visibleTodos.splice(idUpdatedTodo, 1, tempTodo);
+      visibleTodos.splice(indexUpdatedTodo, 1, tempTodo);
     }
   }());
 
@@ -136,21 +136,30 @@ export const App: React.FC = () => {
   //   deleteTodo(todo.id);
   // }
 
-  // eslint-disable-next-line max-len
-  const handleEditTodo = (
-    event: React.ChangeEvent<HTMLInputElement>,
+  const handleChangeStatusTodo = (
+    // event:  React.MouseEvent<HTMLInputElement, MouseEvent>,
     todoId: number,
   ) => {
-    // setUpdatedText(`${todoTitle}${event.target.value}`);
-    setTodos(todos.map((todo) => {
+    setTodos(todos.map((todo, index) => {
       if (todo.id !== todoId) {
         return todo;
       }
 
-      if (event.type === 'checkbox') {
-        setTodoForUpdate({ ...todo, completed: !todo.completed });
+      setIndexUpdatedTodo(index);
 
-        return { ...todo, completed: !todo.completed };
+      setTodoForUpdate({ ...todo, completed: !todo.completed });
+
+      return { ...todo, completed: !todo.completed };
+    }));
+  };
+
+  const handleEditTodo = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    todoId: number,
+  ) => {
+    setTodos(todos.map((todo) => {
+      if (todo.id !== todoId) {
+        return todo;
       }
 
       setTodoForUpdate({ ...todo, title: event.target.value });
@@ -158,6 +167,12 @@ export const App: React.FC = () => {
       return { ...todo, title: event.target.value };
     }));
   };
+
+  useEffect(() => {
+    if (todoForUpdate) {
+      handleUpdateTodo(todoForUpdate);
+    }
+  }, [tempTodo]);
 
   const itemsLeftCount = visibleTodos.filter(todo => !todo.completed).length;
 
@@ -186,8 +201,11 @@ export const App: React.FC = () => {
           hasEditTodo={hasEditTodo}
           setHasEditTodo={setHasEditTodo}
           onUpdateTodo={handleUpdateTodo}
-          setIdUpdatedTodo={setIdUpdatedTodo}
-          idUpdatedTodo={idUpdatedTodo}
+          setIdUpdatedTodo={setIndexUpdatedTodo}
+          indexUpdatedTodo={indexUpdatedTodo}
+          onChangeStatusTodo={handleChangeStatusTodo}
+          todoForUpdate={todoForUpdate}
+          setTodoForUpdate={setTodoForUpdate}
         />
 
         {/* Hide the footer if there are no todos */}
