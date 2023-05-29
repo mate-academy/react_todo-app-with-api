@@ -32,7 +32,6 @@ export const App: FC = () => {
   const [isErrorNotification, setIsErrorNotification] = useState(false);
   const [isToogling, setIsToogling] = useState(false);
   const [isRemovingCompleted, setIsRemovingCompleted] = useState(false);
-  // const [isLoadingTodo, setIsLoadingTodo] = useState(false);
 
   const isNotEmptyArray = todos.length > 0;
   const isError = errorType !== ErrorType.None;
