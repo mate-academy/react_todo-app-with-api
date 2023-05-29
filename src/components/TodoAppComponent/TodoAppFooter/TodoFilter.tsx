@@ -1,5 +1,4 @@
-import '../styles/filter.scss';
-import { Filters } from '../types/Filters';
+import { Filters } from '../../../types/Filters';
 
 interface PropsTodoFilter {
   filtered: string;

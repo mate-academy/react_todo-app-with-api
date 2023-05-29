@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { FormEvent, KeyboardEvent, useState } from 'react';
-import { Todo } from '../../types/Todo';
-import { useTodosContext } from '../../utils/TodosContext';
+import { Todo } from '../../../types/Todo';
+import { useTodosContext } from '../../../Context/TodosContext';
 
 interface PropsTodoList {
   filteredTodos: Todo[];

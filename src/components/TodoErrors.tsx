@@ -1,16 +1,17 @@
 import cn from 'classnames';
-import { useTodosContext } from '../utils/TodosContext';
+import { useTodosContext } from '../Context/TodosContext';
 
 export const TodosError = () => {
-  const { error, setError, messageError } = useTodosContext();
+  const { setMessageError, messageError } = useTodosContext();
 
   return (
     <div
       className={cn(
         {
           // eslint-disable-next-line max-len
-          'notification is-danger is-light has-text-weight-normal hidden': !error,
-          'notification is-danger is-light has-text-weight-normal': error,
+          'notification is-danger is-light has-text-weight-normal hidden': !messageError,
+          // eslint-disable-next-line max-len
+          'notification is-danger is-light has-text-weight-normal': messageError,
         },
       )}
     >
@@ -18,7 +19,7 @@ export const TodosError = () => {
       <button
         type="button"
         className="delete"
-        onClick={() => setError(false)}
+        onClick={() => setMessageError('')}
       />
       {messageError}
     </div>

@@ -1,6 +1,6 @@
-import { TodoFilter } from '../TodoFilter';
-import { useTodosContext } from '../../utils/TodosContext';
-import { Filters } from '../../types/Filters';
+import { TodoFilter } from './TodoFilter';
+import { useTodosContext } from '../../../Context/TodosContext';
+import { Filters } from '../../../types/Filters';
 
 interface PropsTodoAppFooter {
   filtered: string,

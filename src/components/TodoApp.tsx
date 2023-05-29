@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { TodoAppHeader } from './TodoAppComponent/TodoAppHeader';
-import { TodoList } from './TodoAppComponent/TodoList';
-import { useTodosContext } from '../utils/TodosContext';
+import { TodoAppHeader } from './TodoAppComponent/TodoAppHeader/TodoAppHeader';
+import { TodoList } from './TodoAppComponent/TodoAppMain/TodoList';
+import { useTodosContext } from '../Context/TodosContext';
 import { Filters } from '../types/Filters';
-import { TodoAppFooter } from './TodoAppComponent/TodoAppFooter';
+import { TodoAppFooter } from './TodoAppComponent/TodoAppFooter/TodoAppFooter';
 
 export const TodoApp = () => {
   const [filtered, setFiltered] = useState<Filters>(Filters.All);

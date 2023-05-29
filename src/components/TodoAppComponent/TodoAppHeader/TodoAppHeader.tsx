@@ -1,7 +1,7 @@
 import cn from 'classnames';
 // import { useState } from 'react';
-import { NewTodo } from './TodoForm';
-import { useTodosContext } from '../../utils/TodosContext';
+import { TodoForm } from './TodoForm';
+import { useTodosContext } from '../../../Context/TodosContext';
 
 export const TodoAppHeader = () => {
   const {
@@ -24,7 +24,7 @@ export const TodoAppHeader = () => {
         />
       }
 
-      <NewTodo value={value} setValue={setValue} />
+      <TodoForm value={value} setValue={setValue} />
     </header>
   );
 };

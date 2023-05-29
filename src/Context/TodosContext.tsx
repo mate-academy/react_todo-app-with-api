@@ -4,13 +4,11 @@ import {
   createContext, useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { client } from './fetchClient';
+import { client } from '../utils/fetchClient';
 
 interface TodosContextInterface {
   todos: Todo[];
   setTodos(todos: Todo[]): void;
-  error: boolean;
-  setError(err: boolean): void;
   createNewTodo(event: FormEvent): void;
   messageError: string;
   setMessageError(message: string): void;
@@ -30,8 +28,6 @@ export const TodosContext = createContext<TodosContextInterface>(
   {
     todos: [],
     setTodos: () => { },
-    error: false,
-    setError: () => { },
     createNewTodo: () => { },
     messageError: '',
     setMessageError: () => { },
@@ -53,7 +49,6 @@ export const TodosConstextProvider = (
     children: ReactNode
   },
 ) => {
-  const [error, setError] = useState(false);
   const [messageError, setMessageError] = useState('');
   const [value, setValue] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -63,21 +58,20 @@ export const TodosConstextProvider = (
   const USER_ID = 10529;
   const url = `/todos?userId=${USER_ID}`;
 
-  if (error === true) {
-    setTimeout(() => setError(false), 3000);
+  if (messageError) {
+    setTimeout(() => setMessageError(''), 3000);
   }
 
   useEffect(() => {
     client.get<Todo[]>(url).then(response => {
       return setTodos(response);
-    }).catch(() => setError(true));
+    }).catch(() => setMessageError('Unable loading todos'));
   }, [tempTodo, todos]);
 
   const createNewTodo = useCallback((event: FormEvent) => {
     event.preventDefault();
 
     if (!value) {
-      setError(true);
       setMessageError('Title can\'t be empty');
     } else {
       const newTodo: Todo = {
@@ -93,10 +87,8 @@ export const TodosConstextProvider = (
         setValue('');
         setTempTodo(null);
         setMessageError('');
-        setError(false);
       }).catch(() => {
         setMessageError('Unable to add a todo');
-        setError(true);
       });
     }
   }, [value]);
@@ -202,8 +194,6 @@ export const TodosConstextProvider = (
     <TodosContext.Provider value={{
       todos,
       setTodos,
-      error,
-      setError,
       createNewTodo,
       value,
       setValue,
