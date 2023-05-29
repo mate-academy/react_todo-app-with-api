@@ -21,13 +21,13 @@ export const Footer: React.FC<Props> = ({
   completedTodos,
   leftItems,
 }) => {
-  function onDeleteCompleted() {
+  const onDeleteCompleted = () => {
     todoList.forEach(todo => {
       if (todo.completed) {
         removeTodo(todo.id, 'completed');
       }
     });
-  }
+  };
 
   return (
     <footer className="todoapp__footer">

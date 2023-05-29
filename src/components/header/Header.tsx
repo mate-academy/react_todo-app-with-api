@@ -38,9 +38,9 @@ export const Header:React.FC<Props> = ({
 
   useEffect(() => setAllActiveButton(
     todoList.some(item => !item.completed),
-  ));
+  ), [todoList]);
 
-  function onAddTodo(key: string, id: number, todoTitle: string) {
+  const onAddTodo = (key: string, id: number, todoTitle: string) => {
     if (key === 'Enter') {
       if (!inputValue.trim()) {
         setError(ErrorMessage.Title);
@@ -61,15 +61,15 @@ export const Header:React.FC<Props> = ({
           setError(ErrorMessage.Post);
         });
     }
-  }
+  };
 
-  function onAllCompleated() {
+  const onAllCompleated = () => {
     todoList.forEach(todo => {
       if (todo.completed !== allActiveButton) {
         editTodo(todo.id, { completed: allActiveButton });
       }
     });
-  }
+  };
 
   return (
     <header className="todoapp__header">

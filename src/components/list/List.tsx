@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import cn from 'classnames';
 import { KeyboardEvent, useState } from 'react';
 import { Todo } from '../../types/Todo';
@@ -29,9 +27,9 @@ export const List: React.FC<Props> = ({
 }) => {
   const [renameCurrentTitle, setRenameCurrentTitle] = useState<Todo | []>([]);
 
-  function onEditTitleByKeyDown(
+  const onEditTitleByKeyDown = (
     todo: Todo, e: null | KeyboardEvent<HTMLInputElement>,
-  ) {
+  ) => {
     const previousTitle = todo.title;
 
     if (e?.key === 'Enter') {
@@ -47,9 +45,9 @@ export const List: React.FC<Props> = ({
         removeTodo(todo.id, 'id');
       }
     }
-  }
+  };
 
-  function onEditTitleByBlur(todo: Todo, title: string) {
+  const onEditTitleByBlur = (todo: Todo, title: string) => {
     const previousTitle = todo.title;
 
     if (previousTitle === title) {
@@ -58,17 +56,19 @@ export const List: React.FC<Props> = ({
       return;
     }
 
-    title
-      ? editTodo(todo.id, { title: title.trim() })
-      : removeTodo(todo.id, 'id');
-  }
+    if (title) {
+      editTodo(todo.id, { title: title.trim() });
+    } else {
+      removeTodo(todo.id, 'id');
+    }
+  };
 
   return (
     <section className="todoapp__main">
 
       { todoList.map((todo: Todo) => (
         <div
-          className={cn('todo', { completed: todo.completed })}
+          className={cn('todo ', { completed: todo.completed })}
           key={todo.id}
         >
           <label className="todo__status-label">
@@ -102,6 +102,7 @@ export const List: React.FC<Props> = ({
                   className="todo__title-field"
                   placeholder="Empty todo will be deleted"
                   defaultValue={todo.title}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   onDoubleClick={() => setRenameCurrentTitle(todo)}
                   onKeyDown={(e) => onEditTitleByKeyDown(todo, e)}
@@ -112,7 +113,7 @@ export const List: React.FC<Props> = ({
 
           <div className={cn('modal overlay',
             {
-              'is-active': processing.includes(todo.id) || !todo.id,
+              'is-active ': processing.includes(todo.id) || !todo.id,
             })}
           >
             <div className="modal-background has-background-white-ter" />

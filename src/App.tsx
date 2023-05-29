@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Header } from './components/header/Header';
 import { List } from './components/list/List';
@@ -30,19 +28,24 @@ export const App: React.FC = () => {
   useEffect(() => loadTodos(), []);
 
   useEffect(() => {
-    setTimeout(() => setError(''), 3000);
-  }, [error]);
+    const timeoutID = setTimeout(() => setError(''), 3000);
+
+    return () => {
+      clearTimeout(timeoutID);
+    };
+  }, []);
 
   const completedTodos = useMemo(() => todoList
     .filter(todo => todo.completed).length, [todoList]);
 
-  const leftItems = todoList.length - completedTodos;
+  const leftItems = useMemo(() => todoList.length - completedTodos,
+    [todoList]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  function filterList() {
+  const filterList = () => {
     switch (filterBy) {
       case Active:
         return todoList.filter((todo: Todo) => !todo.completed);
@@ -54,25 +57,31 @@ export const App: React.FC = () => {
       default:
         return todoList;
     }
-  }
+  };
 
-  function addTodoToProcesing(id : number | null) {
-    !id ? setProcessing([]) : setProcessing(prev => [...prev, id]);
-  }
+  const addTodoToProcesing = (id : number | null) => {
+    if (!id) {
+      setProcessing([]);
+    } else {
+      setProcessing(prev => [...prev, id]);
+    }
+  };
 
-  function removeTodo(id: number, sortBy: string) {
+  const removeTodo = (id: number, sortBy: string) => {
     addTodoToProcesing(id);
     deleteTodo(id)
       .then(() => {
-        sortBy === 'completed'
-          ? setTodoList(todoList.filter(todo => !todo.completed))
-          : setTodoList(todoList.filter(todo => todo.id !== id));
+        if (sortBy === 'completed') {
+          setTodoList(todoList.filter(todo => !todo.completed));
+        } else {
+          setTodoList(todoList.filter(todo => todo.id !== id));
+        }
       })
       .catch(() => setError(ErrorMessage.Delete))
       .finally(() => addTodoToProcesing(null));
-  }
+  };
 
-  function editTodo(id: number, itemToEdit: object, changeTodo: string) {
+  const editTodo = (id: number, itemToEdit: object, changeTodo: string) => {
     addTodoToProcesing(id);
     updateTodo(id, itemToEdit)
       .then(() => setTodoList(todoList.map(currentTodo => {
@@ -86,7 +95,9 @@ export const App: React.FC = () => {
       })))
       .catch(() => setError(ErrorMessage.Patch))
       .finally(() => addTodoToProcesing(null));
-  }
+  };
+
+  const list = filterList();
 
   return (
     <div className="todoapp">
@@ -105,7 +116,7 @@ export const App: React.FC = () => {
 
         <List
           setTodoList={setTodoList}
-          todoList={filterList()}
+          todoList={list}
           setError={setError}
           processing={processing}
           removeTodo={(id: number) => removeTodo(id, 'id')}
