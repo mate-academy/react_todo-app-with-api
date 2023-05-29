@@ -14,8 +14,11 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
     handleClickCheck, editTitle,
   } = useTodosContext();
 
-  const handleDoubleClickEdit = (id: number) => {
+  const handleDoubleClickEdit = (todo: Todo) => {
+    const { id, title } = todo;
+
     setIsEditById(id);
+    setTempTitle(title);
   };
 
   const handleEditTitle = (event: FormEvent) => {
@@ -60,7 +63,7 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
             {isEditById !== id ? (
               <>
                 <span
-                  onDoubleClick={() => handleDoubleClickEdit(todo.id)}
+                  onDoubleClick={() => handleDoubleClickEdit(todo)}
                   className="todo__title"
                 >
                   {title}
@@ -85,7 +88,7 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
                     type="text"
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"
-                    value={tempTitle || title}
+                    value={tempTitle}
                     onChange={(event) => setTempTitle(event.target.value)}
                     onKeyUp={handleKeyUp}
                     onBlur={handleEditTitle}
@@ -104,7 +107,19 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
           </div>
         );
       })}
-      {tempTodo && <span className="todo__title">{tempTodo.title}</span>}
+      {tempTodo && (
+        <div className="todo">
+          <label
+            className="todo__status-label"
+          >
+            <input
+              type="checkbox"
+              className="todo__status"
+            />
+          </label>
+          <span className="todo__title">{tempTodo.title}</span>
+        </div>
+      )}
     </section>
   );
 };
