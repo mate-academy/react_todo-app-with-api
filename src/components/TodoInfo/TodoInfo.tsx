@@ -5,6 +5,8 @@ import {
   FormEvent,
   SetStateAction,
   useCallback,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
@@ -15,21 +17,19 @@ import { Errors } from '../../utils/enums';
 interface Props {
   todo: Todo;
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  setError:(error:Errors) => void;
+  onError:(error:Errors) => void;
   onUpdate:(Todo: Todo) => void;
   tempTodoId?: number;
   isChanging: boolean;
-  setIsChanging: (boolean: boolean) => void;
 }
 
 export const TodoInfo:FC<Props> = ({
   todo,
   setTodos,
-  setError,
+  onError,
   onUpdate,
   tempTodoId,
   isChanging,
-  setIsChanging,
 }) => {
   const {
     completed,
@@ -40,6 +40,7 @@ export const TodoInfo:FC<Props> = ({
   const [isLoading, setIsLoading] = useState(tempTodoId === todo.id);
   const [editingQuery, setEditingQuery] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleTodoDelete = () => {
     setIsLoading(true);
@@ -51,7 +52,7 @@ export const TodoInfo:FC<Props> = ({
         });
       })
       .catch(() => {
-        setError(Errors.Delete);
+        onError(Errors.Delete);
       })
       .finally(() => {
         setIsLoading(false);
@@ -75,49 +76,61 @@ export const TodoInfo:FC<Props> = ({
 
       onUpdate(updatedTodo);
     } catch {
-      setError(Errors.Update);
+      onError(Errors.Update);
     }
 
     setIsLoading(false);
   }, [completed]);
 
-  const handleTodoEscape = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Escape') {
-        setIsEditing(false);
-      }
-    }, [],
-  );
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing, id]);
+
+  const handleTodoEscape = useCallback((
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  }, []);
 
   const handleSubmit = useCallback(async (
     event: FormEvent,
   ) => {
     event.preventDefault();
 
-    const todoData = {
-      ...todo,
-      title: editingQuery.trim(),
-    };
-
-    if (!editingQuery) {
+    if (!editingQuery.trim()) {
       handleTodoDelete();
+
+      return;
     }
 
-    setIsChanging(true);
+    if (editingQuery.trim() === title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    const todoData = {
+      ...todo,
+      title: editingQuery,
+    };
+
     try {
       setIsEditing(true);
-      setEditingQuery(title);
+      setIsLoading(true);
       const updatedTodo = await patchTodo(id, todoData);
 
       onUpdate(updatedTodo);
     } catch {
-      setError(Errors.Update);
+      onError(Errors.Update);
     }
 
     setIsLoading(false);
     setIsEditing(false);
-    setIsChanging(false);
-  }, [editingQuery]);
+  }, [title, editingQuery]);
 
   return (
     <div
@@ -135,7 +148,7 @@ export const TodoInfo:FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
           <input
             type="text"
             className="todo__title-field"
@@ -143,6 +156,7 @@ export const TodoInfo:FC<Props> = ({
             value={editingQuery}
             onChange={(event) => setEditingQuery(event.target.value)}
             onKeyUp={handleTodoEscape}
+            ref={inputRef}
           />
         </form>
       )

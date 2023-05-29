@@ -8,20 +8,18 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   setTodos: Dispatch<SetStateAction<Todo[]>>;
-  setError:(error: Errors) => void;
+  onError:(error: Errors) => void;
   onUpdate:(Todo: Todo) => void;
   isChanging: boolean;
-  setIsChanging: (boolean: boolean) => void;
 }
 
 export const TodoList: FC<Props> = ({
   todos,
   tempTodo,
   setTodos,
-  setError,
+  onError,
   onUpdate,
   isChanging,
-  setIsChanging,
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
@@ -35,9 +33,8 @@ export const TodoList: FC<Props> = ({
             todo={todo}
             key={todo.id}
             setTodos={setTodos}
-            setError={setError}
+            onError={onError}
             onUpdate={onUpdate}
-            setIsChanging={setIsChanging}
             isChanging={isChanging}
           />
         </CSSTransition>
@@ -52,10 +49,9 @@ export const TodoList: FC<Props> = ({
           <TodoInfo
             todo={tempTodo}
             setTodos={setTodos}
-            setError={setError}
+            onError={onError}
             onUpdate={onUpdate}
             tempTodoId={tempTodo.id}
-            setIsChanging={setIsChanging}
             isChanging={isChanging}
           />
         </CSSTransition>

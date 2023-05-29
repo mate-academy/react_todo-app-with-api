@@ -2,12 +2,12 @@ import { FC } from 'react';
 import { Errors } from '../../utils/enums';
 
 interface Props {
-  onChangeError: (error: Errors | null) => void;
+  onError: (error: Errors | null) => void;
   error: Errors
 }
 
 export const ErrorNotification:FC<Props> = ({
-  onChangeError,
+  onError,
   error,
 }) => (
   <div
@@ -17,7 +17,7 @@ export const ErrorNotification:FC<Props> = ({
       aria-label="delete"
       type="button"
       className="delete"
-      onClick={() => onChangeError(null)}
+      onClick={() => onError(null)}
     />
     {error}
   </div>

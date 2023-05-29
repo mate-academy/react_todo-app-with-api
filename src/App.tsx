@@ -4,8 +4,9 @@ import { Todo } from './types/Todo';
 import { Errors, FilterType } from './utils/enums';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
-// eslint-disable-next-line max-len
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import {
+  ErrorNotification,
+} from './components/ErrorNotification/ErrorNotification';
 import { Header } from './components/Header';
 import { getTodos, removeTodo, patchTodo } from './api/todos';
 import { USER_ID } from './utils/UserId';
@@ -81,11 +82,13 @@ export const App: React.FC = () => {
   const deleteTodo = useCallback(async (todoId:number) => {
     setError(null);
     try {
+      setIsChanging(true);
       await removeTodo(todoId);
     } catch {
       setError(Errors.Delete);
     }
 
+    setIsChanging(false);
     loadTodos();
   }, []);
 
@@ -112,19 +115,18 @@ export const App: React.FC = () => {
         <Header
           todos={visibleTodos}
           onAdd={addTodo}
-          setError={setError}
-          setTempTodo={setTempTodo}
-          loadTodos={loadTodos}
-          handleAllTodosStatus={changeAllTodosStatus}
+          onError={setError}
+          onChange={setTempTodo}
+          onLoad={loadTodos}
+          onSelect={changeAllTodosStatus}
         />
 
         <TodoList
           todos={visibleTodos}
           tempTodo={tempTodo}
           setTodos={setTodos}
-          setError={setError}
+          onError={setError}
           onUpdate={updateTodo}
-          setIsChanging={setIsChanging}
           isChanging={isChanging}
         />
 
@@ -140,7 +142,7 @@ export const App: React.FC = () => {
 
       {error && (
         <ErrorNotification
-          onChangeError={setError}
+          onError={setError}
           error={error}
         />
       )}

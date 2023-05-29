@@ -28,8 +28,9 @@ export const Footer:FC<Props> = ({
       <nav className="filter">
         <a
           href="#/"
-          className={classNames('filter__link',
-            { selected: filter === 'All' })}
+          className={classNames('filter__link', {
+            selected: filter === 'All',
+          })}
           onClick={() => onChangeSort(FilterType.All)}
         >
           All

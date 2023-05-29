@@ -10,19 +10,19 @@ import { USER_ID } from '../../utils/UserId';
 interface Props {
   todos: Todo[];
   onAdd: (newTodo: Todo) => void;
-  setError: (error: null | Errors) => void;
-  setTempTodo: (newTodo: Todo | null) => void;
-  loadTodos: () => void;
-  handleAllTodosStatus: () => void;
+  onError: (error: null | Errors) => void;
+  onChange: (newTodo: Todo | null) => void;
+  onLoad: () => void;
+  onSelect: () => void;
 }
 
 export const Header:FC<Props> = ({
   todos,
   onAdd,
-  setError,
-  setTempTodo,
-  loadTodos,
-  handleAllTodosStatus,
+  onError,
+  onChange,
+  onLoad,
+  onSelect,
 }) => {
   const [query, setQuery] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
@@ -31,7 +31,7 @@ export const Header:FC<Props> = ({
     event.preventDefault();
 
     if (!query.trim()) {
-      setError(Errors.Title);
+      onError(Errors.Title);
 
       return;
     }
@@ -42,7 +42,7 @@ export const Header:FC<Props> = ({
       userId: USER_ID,
     };
 
-    setTempTodo({ ...todoData, id: 0 });
+    onChange({ ...todoData, id: 0 });
     try {
       setIsDisabled(true);
       const newTodo = await createTodo(todoData);
@@ -50,17 +50,17 @@ export const Header:FC<Props> = ({
       onAdd(newTodo);
       setQuery('');
     } catch {
-      setError(Errors.Add);
+      onError(Errors.Add);
     } finally {
-      loadTodos();
-      setTempTodo(null);
+      onLoad();
+      onChange(null);
       setIsDisabled(false);
     }
   }, [
     query,
-    setError,
-    setTempTodo,
-    loadTodos,
+    onError,
+    onChange,
+    onLoad,
     onAdd,
   ]);
 
@@ -71,7 +71,7 @@ export const Header:FC<Props> = ({
           aria-label="button"
           type="button"
           className="todoapp__toggle-all active"
-          onClick={handleAllTodosStatus}
+          onClick={onSelect}
         />
       )}
 
@@ -85,7 +85,7 @@ export const Header:FC<Props> = ({
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
-            setError(null);
+            onError(null);
           }}
           disabled={isDisabled}
         />
