@@ -8,6 +8,7 @@ type Props = {
   inputValue: string,
   onHandleAddTodo: (event: React.FormEvent<HTMLFormElement>) => void,
   disabeled: boolean,
+  onChangeStatusAllTodo: () => Promise<void>
 };
 
 export const Header: React.FC<Props> = ({
@@ -16,10 +17,10 @@ export const Header: React.FC<Props> = ({
   inputValue,
   onHandleAddTodo,
   disabeled,
+  onChangeStatusAllTodo,
 }) => {
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className={
@@ -28,9 +29,9 @@ export const Header: React.FC<Props> = ({
             { active: countActiveTodo > 0 },
           )
         }
+        onClick={onChangeStatusAllTodo}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onHandleAddTodo}>
         <input
           type="text"

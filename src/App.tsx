@@ -10,6 +10,7 @@ import { Footer } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { Main } from './components/Main/Main';
 import { ErrorMessages } from './components/ErrorMessages/ErrorMessages';
+import { ErrorTypes } from './types/ErrorTypes';
 
 const USER_ID = 10548;
 
@@ -19,27 +20,41 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState('all');
   const [disableInput, setDisableInput] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>();
-  const [hasError, setHasError] = useState(false);
-  const [typeError, setTypeError] = useState('');
+  const [typeError, setTypeError] = useState(ErrorTypes.default);
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
   const [indexUpdatedTodo, setIndexUpdatedTodo] = useState(0);
 
-  async function loadedTodos(f: (USER_ID: number) => Promise<Todo[]>) {
+  const getVisibleTodos = (statusTodo: string, todosArr: Todo[]) => {
+    switch (statusTodo) {
+      case 'active':
+        return [...todosArr].filter(todo => !todo.completed);
+      case 'completed':
+        return [...todosArr].filter(todo => todo.completed);
+      default:
+        return [...todosArr];
+    }
+  };
+
+  const visibleTodos = getVisibleTodos(status, todos);
+  const itemsLeftCount = todos.filter(todo => !todo.completed).length;
+
+  async function loadedTodos() {
     try {
-      const result = await f(USER_ID);
+      const result = await getTodos(USER_ID);
 
       setTodos(result);
-      setHasError(false);
+      setTypeError(ErrorTypes.default);
     } catch (error) {
-      setTypeError('Unable to load a todo');
-      setHasError(true);
+      setTypeError(ErrorTypes.ErrorGet);
     }
   }
 
-  useEffect(() => {
-    loadedTodos(getTodos);
-  }, []);
+  (function handleTempTodo() {
+    if (tempTodo) {
+      visibleTodos.splice(indexUpdatedTodo, 1, tempTodo);
+    }
+  }());
 
   const handleChangeInput = (event : React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -70,87 +85,108 @@ export const App: React.FC = () => {
         completed: false,
       });
 
-      await loadedTodos(getTodos);
+      await loadedTodos();
       setTempTodo(null);
       setDisableInput(false);
       setIndexUpdatedTodo(0);
-      setHasError(false);
+      setTypeError(ErrorTypes.default);
     } catch (error) {
-      setTypeError('Unable to add a todo');
-      setHasError(true);
+      setTypeError(ErrorTypes.ErrorPost);
+      setTempTodo(null);
+      setDisableInput(false);
     }
   };
 
   const handleUpdateTodo = async (todo: Todo) => {
     // event.preventDefault();
-    if (todo) {
-      setTempTodo({
-        id: 0,
-        userId: USER_ID,
-        title: todo.title,
-        completed: todo.completed,
-      });
+    // if (todo) {
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: todo.title,
+      completed: todo.completed,
+    });
 
+    try {
       await updateTodo(todo.id, {
         title: todo.title,
         completed: todo.completed,
       });
-      setHasEditTodo(false);
+      setTypeError(ErrorTypes.default);
       setTempTodo(null);
       setTodoForUpdate(null);
-    }
-  };
-
-  const handleRemoveTodo = async (id: number) => {
-    try {
-      await deleteTodo(id);
-      loadedTodos(getTodos);
-      setHasError(false);
     } catch (error) {
-      setTypeError('Unable to delete a todo');
-      setHasError(true);
+      setTempTodo(null);
+      setTodoForUpdate(null);
+      setTypeError(ErrorTypes.ErrorPatch);
+    }
+    // }
+  };
+
+  const handleRemoveTodo = async (todo: Todo, indexTodo: number) => {
+    setIndexUpdatedTodo(indexTodo);
+    setTempTodo({
+      id: 0,
+      userId: USER_ID,
+      title: todo.title,
+      completed: todo.completed,
+    });
+
+    try {
+      await deleteTodo(todo.id);
+      setTempTodo(null);
+      setTodos(prev => prev.filter(({ id }) => id !== todo.id));
+      setTypeError(ErrorTypes.default);
+    } catch (error) {
+      setTypeError(ErrorTypes.ErrorDelete);
+      setTempTodo(null);
     }
   };
 
-  const visibleTodos = todos.filter((todo) => {
-    switch (status) {
-      case 'active':
-        return !todo.completed;
-
-      case 'completed':
-        return !!todo.completed;
-
-      case 'all':
-      default:
-        return true;
-    }
-  });
-
-  (function handleTempTodo() {
-    if (tempTodo) {
-      visibleTodos.splice(indexUpdatedTodo, 1, tempTodo);
-    }
-  }());
-
-  // for (const todo of visibleTodos) {
-  //   deleteTodo(todo.id);
-  // }
-
-  const handleChangeStatusTodo = (
+  const handleChangeStatusTodo = async (
     // event:  React.MouseEvent<HTMLInputElement, MouseEvent>,
     todoId: number,
   ) => {
-    setTodos(todos.map((todo, index) => {
+    let newTodo: Todo | null = null;
+
+    await setTodos(todos.map((todo, index) => {
       if (todo.id !== todoId) {
         return todo;
       }
 
       setIndexUpdatedTodo(index);
-
-      setTodoForUpdate({ ...todo, completed: !todo.completed });
+      newTodo = { ...todo, completed: !todo.completed };
 
       return { ...todo, completed: !todo.completed };
     }));
+
+    if (newTodo) {
+      handleUpdateTodo(newTodo);
+    }
+  };
+
+  const handleChangeStatusAllTodo = async () => {
+    const arr: Todo[] = [];
+
+    if (itemsLeftCount > 0) {
+      await setTodos(prev => prev.map(
+        (todo) => {
+          arr.push({ ...todo, completed: true });
+
+          return ({ ...todo, completed: true });
+        },
+      ));
+    } else {
+      await setTodos(prev => prev.map(
+        (todo) => {
+          arr.push({ ...todo, completed: false });
+
+          return ({ ...todo, completed: false });
+        },
+      ));
+    }
+
+    arr.map(todo => handleUpdateTodo(todo));
   };
 
   const handleEditTodo = (
@@ -169,12 +205,8 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (todoForUpdate) {
-      handleUpdateTodo(todoForUpdate);
-    }
-  }, [tempTodo]);
-
-  const itemsLeftCount = visibleTodos.filter(todo => !todo.completed).length;
+    loadedTodos();
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -191,6 +223,7 @@ export const App: React.FC = () => {
           onHandleInput={handleChangeInput}
           onHandleAddTodo={handleAddTodo}
           disabeled={disableInput}
+          onChangeStatusAllTodo={handleChangeStatusAllTodo}
         />
 
         <Main
@@ -201,7 +234,7 @@ export const App: React.FC = () => {
           hasEditTodo={hasEditTodo}
           setHasEditTodo={setHasEditTodo}
           onUpdateTodo={handleUpdateTodo}
-          setIdUpdatedTodo={setIndexUpdatedTodo}
+          setIndexUpdatedTodo={setIndexUpdatedTodo}
           indexUpdatedTodo={indexUpdatedTodo}
           onChangeStatusTodo={handleChangeStatusTodo}
           todoForUpdate={todoForUpdate}
@@ -209,7 +242,7 @@ export const App: React.FC = () => {
         />
 
         {/* Hide the footer if there are no todos */}
-        {!!itemsLeftCount && (
+        {!!todos.length && (
           <Footer
             selectedStatus={status}
             onHandleStatus={handleStatus}
@@ -221,7 +254,13 @@ export const App: React.FC = () => {
 
       {/* Notification is shown in case of any error */}
       {/* Add the 'hidden' class to hide the message smoothly */}
-      {hasError && <ErrorMessages typeError={typeError} />}
+      {typeError !== ErrorTypes.default
+        && (
+          <ErrorMessages
+            typeError={typeError}
+            setTypeError={setTypeError}
+          />
+        )}
     </div>
   );
 };
