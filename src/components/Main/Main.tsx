@@ -18,6 +18,9 @@ type Props = {
   onChangeStatusTodo: (todoId: number) => void,
   todoForUpdate: Todo | null,
   setTodoForUpdate: React.Dispatch<React.SetStateAction<Todo | null>>,
+  isEachTodoCompleted: boolean,
+  itemsLeftCount: number,
+  isDeleteAllCompletedTodo: boolean,
 };
 
 export const Main: React.FC<Props> = ({
@@ -33,6 +36,9 @@ export const Main: React.FC<Props> = ({
   onChangeStatusTodo,
   todoForUpdate,
   setTodoForUpdate,
+  isEachTodoCompleted,
+  itemsLeftCount,
+  isDeleteAllCompletedTodo: deleteAll,
 }) => {
   return (
     <section className="todoapp__main">
@@ -47,6 +53,58 @@ export const Main: React.FC<Props> = ({
                 className="todo__title"
               >
                 {tempTodo.title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+              >
+                ×
+              </button>
+
+              <div className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          );
+        }
+
+        if (isEachTodoCompleted && todo.completed === !itemsLeftCount) {
+          return (
+            <div className="todo" key={+`0${todo.id}`}>
+              <label className="todo__status-label">
+                <input type="checkbox" className="todo__status" />
+              </label>
+              <span
+                className="todo__title"
+              >
+                {todo.title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+              >
+                ×
+              </button>
+
+              <div className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          );
+        }
+
+        if (deleteAll && todo.completed === true) {
+          return (
+            <div className="todo" key={+`0${todo.id}`}>
+              <label className="todo__status-label">
+                <input type="checkbox" className="todo__status" />
+              </label>
+              <span
+                className="todo__title"
+              >
+                {todo.title}
               </span>
               <button
                 type="button"

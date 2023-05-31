@@ -5,12 +5,14 @@ type Props = {
   selectedStatus: string,
   onHandleStatus: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   itemsLeftCount: number,
+  onDeleteCompletedTodo: () => Promise<void>,
 };
 
 export const Footer: React.FC<Props> = ({
   selectedStatus,
   onHandleStatus: onHanbleStatus,
   itemsLeftCount,
+  onDeleteCompletedTodo,
 }) => {
   return (
     <footer className="todoapp__footer">
@@ -65,7 +67,11 @@ export const Footer: React.FC<Props> = ({
       </nav>
 
       {/* don't show this button if there are no completed todos */}
-      <button type="button" className="todoapp__clear-completed">
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={onDeleteCompletedTodo}
+      >
         Clear completed
       </button>
     </footer>

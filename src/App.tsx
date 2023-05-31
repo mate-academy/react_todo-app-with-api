@@ -24,6 +24,9 @@ export const App: React.FC = () => {
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
   const [indexUpdatedTodo, setIndexUpdatedTodo] = useState(0);
+  const [isEachTodoCompleted, setIsEachTodoCompleted] = useState(false);
+  const [isDeleteAllCompletedTodo,
+    setIsDeleteAllCompletedTodo] = useState(false);
 
   const getVisibleTodos = (statusTodo: string, todosArr: Todo[]) => {
     switch (statusTodo) {
@@ -98,8 +101,6 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = async (todo: Todo) => {
-    // event.preventDefault();
-    // if (todo) {
     setTempTodo({
       id: 0,
       userId: USER_ID,
@@ -120,7 +121,6 @@ export const App: React.FC = () => {
       setTodoForUpdate(null);
       setTypeError(ErrorTypes.ErrorPatch);
     }
-    // }
   };
 
   const handleRemoveTodo = async (todo: Todo, indexTodo: number) => {
@@ -144,7 +144,6 @@ export const App: React.FC = () => {
   };
 
   const handleChangeStatusTodo = async (
-    // event:  React.MouseEvent<HTMLInputElement, MouseEvent>,
     todoId: number,
   ) => {
     let newTodo: Todo | null = null;
@@ -166,27 +165,36 @@ export const App: React.FC = () => {
   };
 
   const handleChangeStatusAllTodo = async () => {
-    const arr: Todo[] = [];
+    try {
+      const todosStatus = await Promise.all(todos.map(async (todo) => {
+        setIsEachTodoCompleted(true);
+        if (itemsLeftCount > 0) {
+          return updateTodo(todo.id, { completed: true });
+        }
 
-    if (itemsLeftCount > 0) {
-      await setTodos(prev => prev.map(
-        (todo) => {
-          arr.push({ ...todo, completed: true });
+        return updateTodo(todo.id, { completed: false });
+      }));
 
-          return ({ ...todo, completed: true });
-        },
-      ));
-    } else {
-      await setTodos(prev => prev.map(
-        (todo) => {
-          arr.push({ ...todo, completed: false });
-
-          return ({ ...todo, completed: false });
-        },
-      ));
+      setTodos(todosStatus);
+      setIsEachTodoCompleted(false);
+    } catch {
+      setTypeError(ErrorTypes.ErrorPatch);
     }
+  };
 
-    arr.map(todo => handleUpdateTodo(todo));
+  const handleDeleteCompletedTodo = async () => {
+    const todosDeleted = await Promise.all(todos.map(async (todo) => {
+      setIsDeleteAllCompletedTodo(true);
+      if (todo.completed) {
+        await deleteTodo(todo.id);
+      }
+
+      return todo;
+    }));
+
+    setTodos(todosDeleted);
+    await loadedTodos();
+    setIsDeleteAllCompletedTodo(false);
   };
 
   const handleEditTodo = (
@@ -239,21 +247,22 @@ export const App: React.FC = () => {
           onChangeStatusTodo={handleChangeStatusTodo}
           todoForUpdate={todoForUpdate}
           setTodoForUpdate={setTodoForUpdate}
+          isEachTodoCompleted={isEachTodoCompleted}
+          itemsLeftCount={itemsLeftCount}
+          isDeleteAllCompletedTodo={isDeleteAllCompletedTodo}
         />
 
-        {/* Hide the footer if there are no todos */}
         {!!todos.length && (
           <Footer
             selectedStatus={status}
             onHandleStatus={handleStatus}
             itemsLeftCount={itemsLeftCount}
+            onDeleteCompletedTodo={handleDeleteCompletedTodo}
           />
         )}
 
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       {typeError !== ErrorTypes.default
         && (
           <ErrorMessages
