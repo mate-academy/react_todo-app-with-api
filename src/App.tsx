@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
 import {
   addNewTodo, getTodos, removeTodo, updateTodo,
@@ -21,6 +21,9 @@ export const App: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<TodoType | null>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [editedTodoId, setEditedTodoId] = useState<number | null>(null);
+  const [editedTodoText, setEditedTodoText] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadTodos = useCallback(async () => {
     try {
@@ -32,6 +35,14 @@ export const App: React.FC = () => {
       }, 3000);
     }
   }, []);
+
+  useEffect(() => {
+    if (editedTodoId) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }
+  }, [editedTodoId]);
 
   useEffect(() => {
     handleLoadTodos();
@@ -177,6 +188,57 @@ export const App: React.FC = () => {
     Promise.all(completedTodosPromises);
   }, [todos]);
 
+  const handleEditTodo = (id: number) => {
+    setEditedTodoId(id);
+    const editedTodo = todos.find(todo => todo.id === id);
+
+    if (editedTodo) {
+      setEditedTodoText(editedTodo.title);
+    }
+  };
+
+  const handleEditedTodoSubmit
+  = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const editedTodo = todos.find(todo => todo.id === editedTodoId);
+
+    if (editedTodo) {
+      if (editedTodo.title === editedTodoText) {
+        setEditedTodoId(null);
+
+        return;
+      }
+
+      if (editedTodoText === '') {
+        handleRemoveTodo(editedTodo.id);
+        setEditedTodoId(null);
+
+        return;
+      }
+
+      if (editedTodo.title !== editedTodoText) {
+        try {
+          setLoadingTodoIds(prevIds => [...prevIds, editedTodo.id]);
+          const updatedTodo = { ...editedTodo, title: editedTodoText };
+
+          await updateTodo(editedTodo.id, updatedTodo);
+
+          setTodos(prevTodos => [...prevTodos
+            .map(todo => (todo.id === editedTodo.id ? updatedTodo : todo))]);
+        } catch (error) {
+          setErrorMessage('Unable to update a todo');
+          setTimeout(() => {
+            setErrorMessage('');
+          }, 3000);
+        } finally {
+          setLoadingTodoIds([]);
+          setEditedTodoId(null);
+        }
+      }
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -192,11 +254,18 @@ export const App: React.FC = () => {
           onToggleAllTodos={handleToggleAllTodos}
         />
         <TodoList
+          inputRef={inputRef}
           onToggleTodo={handleToggleTodo}
           tempTodo={tempTodo}
           visibleTodos={visibleTodos}
           onTodoRemove={handleRemoveTodo}
           isLoading={loadingTodoIds}
+          onEditTodo={handleEditTodo}
+          editedTodoId={editedTodoId}
+          setEditedTodoText={setEditedTodoText}
+          editedTodoText={editedTodoText}
+          onEditedTodoSubmit={handleEditedTodoSubmit}
+          setEditedTodoId={setEditedTodoId}
         />
         <Footer
           todos={todos}

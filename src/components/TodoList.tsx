@@ -8,6 +8,13 @@ interface TodoListProps {
   tempTodo: TodoType | null;
   isLoading: number[];
   onToggleTodo: (id: number) => void;
+  onEditTodo: (id: number) => void;
+  editedTodoId: number | null;
+  editedTodoText: string;
+  setEditedTodoText: (newTitle: string) => void;
+  onEditedTodoSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  setEditedTodoId: (id: number | null) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -16,6 +23,13 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   isLoading,
   onToggleTodo,
+  onEditTodo,
+  editedTodoId,
+  editedTodoText,
+  setEditedTodoText,
+  onEditedTodoSubmit,
+  setEditedTodoId,
+  inputRef,
 }) => {
   return (
     <section className="todoapp__main">
@@ -24,10 +38,17 @@ export const TodoList: React.FC<TodoListProps> = ({
           !isLoading.includes(todo.id)
             ? (
               <Todo
+                inputRef={inputRef}
+                editedTodoText={editedTodoText}
+                setEditedTodoText={setEditedTodoText}
                 onToggleTodo={onToggleTodo}
                 todo={todo}
                 key={todo.id}
                 onTodoRemove={onTodoRemove}
+                onEditTodo={onEditTodo}
+                editedTodoId={editedTodoId}
+                onEditedTodoSubmit={onEditedTodoSubmit}
+                setEditedTodoId={setEditedTodoId}
               />
             )
             : (

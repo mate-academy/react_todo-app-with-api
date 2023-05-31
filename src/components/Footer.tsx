@@ -19,8 +19,8 @@ export const Footer: React.FC<FooterProps> = ({
   onFilterChange,
   todos,
 }) => {
-  const amoutOfActiveTodosLeft = todos.
-    filter(todo => !todo.completed).length;
+  const amoutOfActiveTodosLeft = todos
+    .filter(todo => !todo.completed).length;
 
   return (
     todosLength > 0 ? (
