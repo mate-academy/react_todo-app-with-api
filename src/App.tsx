@@ -164,20 +164,22 @@ export const App: React.FC = () => {
     });
   };
 
+  const activeTodos = todos.find(todo => todo.completed);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            onClick={handleAllComplete}
-          />
+          {activeTodos && (
+            <button
+              type="button"
+              className="todoapp__toggle-all active"
+              onClick={handleAllComplete}
+            />
+          )}
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleAddTodo}>
             <input
               type="text"
@@ -202,6 +204,7 @@ export const App: React.FC = () => {
               handleFilter={handleFilter}
               filter={filter}
               handleRemoveCompletedTodos={handleRemoveCompletedTodos}
+              activeTodos={activeTodos}
             />
           )}
       </div>
