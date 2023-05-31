@@ -12,5 +12,4 @@ createRoot(document.getElementById('root') as HTMLDivElement)
     <TodoContextProvider>
       <App />
     </TodoContextProvider>,
-
   );

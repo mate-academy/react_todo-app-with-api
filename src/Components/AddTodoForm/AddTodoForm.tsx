@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import {
@@ -96,7 +95,10 @@ export const AddTodoForm = () => {
 
         setTodos(todos.map(todo => {
           if (!todo.completed) {
-            todo.completed = true;
+            return {
+              ...todo,
+              completed: true,
+            };
           }
 
           return todo;
@@ -116,9 +118,10 @@ export const AddTodoForm = () => {
         await Promise.all(todos.map(({ id }) => client.patch(`/todos/${id}`, { completed: false })));
 
         setTodos(todos.map(todo => {
-          todo.completed = false;
-
-          return todo;
+          return {
+            ...todo,
+            completed: false,
+          };
         }));
       } catch {
         setErrorMessage(Errors.UpdateError);

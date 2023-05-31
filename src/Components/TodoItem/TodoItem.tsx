@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 import {
   FC,
   useCallback,
@@ -65,7 +64,8 @@ export const TodoItem: FC<Props> = ({ todo }) => {
     setDeletingTodoId(todoId);
     try {
       await client.delete(`/todos/${todoId}`);
-      setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todoId));
+      setTodos(prevTodos => prevTodos
+        .filter(({ id: deleteId }) => deleteId !== todoId));
     } catch {
       setErrorMessage(Errors.DeleteError);
       delayErrorDisappear();
@@ -102,13 +102,15 @@ export const TodoItem: FC<Props> = ({ todo }) => {
           setClearingTodosId(prevIds => [...prevIds, currentTodoId]);
           await client.patch(`/todos/${currentTodoId}`, { title: editTodoTitle });
 
-          setTodos(todos.map(todo => {
-            if (todo.id === currentTodoId) {
-              // eslint-disable-next-line no-param-reassign
-              todo.title = editTodoTitle;
+          setTodos(todos.map(todoToUpdate => {
+            if (todoToUpdate.id === currentTodoId) {
+              return {
+                ...todoToUpdate,
+                title: editTodoTitle,
+              };
             }
 
-            return todo;
+            return todoToUpdate;
           }));
         }
       } catch {
@@ -121,18 +123,20 @@ export const TodoItem: FC<Props> = ({ todo }) => {
   );
 
   const handleCompleteTodo = useCallback(
-    async (todoId: number, completed: boolean) => {
+    async (todoId: number, isCompleted: boolean) => {
       try {
         setClearingTodosId(prevIds => [...prevIds, todoId]);
-        await client.patch(`/todos/${todoId}`, { completed: !completed });
+        await client.patch(`/todos/${todoId}`, { completed: !isCompleted });
 
-        setTodos(prevTodos => prevTodos.map(todo => {
-          if (todo.id === todoId) {
-            // eslint-disable-next-line no-param-reassign
-            todo.completed = !todo.completed;
+        setTodos(prevTodos => prevTodos.map(todoToComplete => {
+          if (todoToComplete.id === todoId) {
+            return {
+              ...todo,
+              completed: !todoToComplete.completed,
+            };
           }
 
-          return todo;
+          return todoToComplete;
         }));
       } catch {
         setErrorMessage(Errors.UpdateError);
@@ -199,8 +203,10 @@ export const TodoItem: FC<Props> = ({ todo }) => {
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': deletingTodoId === id
-    || clearingTodosId.some(item => item === id),
+        'is-active': (
+          deletingTodoId === id
+          || clearingTodosId.some(item => item === id)
+        ),
       })}
       >
         <div
