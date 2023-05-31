@@ -1,24 +1,63 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+} from 'react';
+import { getAllTodos } from './api/todos';
+import { TodoContext } from './TodoContext/TodoContext';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { TodoError } from './Components/TodoError';
+import { TodosFooter } from './Components/TodosFooter';
+import { USER_ID } from './utils/globalConst';
+import { AddTodoForm } from './Components/AddTodoForm';
+import { TodoList } from './Components/TodoList';
 
 export const App: React.FC = () => {
+  const {
+    setTodos,
+    setEditTodoTitle,
+    setEditingTodoId,
+  } = useContext(TodoContext);
+
+  useEffect(() => {
+    getAllTodos(USER_ID)
+      .then(setTodos);
+  }, []);
+
+  const handleEscKeyUp = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setEditTodoTitle('');
+        setEditingTodoId(null);
+      }
+    }, [],
+  );
+
+  useEffect(() => {
+    document.addEventListener('keyup', handleEscKeyUp);
+
+    return () => {
+      document.removeEventListener('keyup', handleEscKeyUp);
+    };
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <AddTodoForm />
+
+        <TodoList />
+
+        <TodosFooter />
+      </div>
+
+      <TodoError />
+    </div>
   );
 };
