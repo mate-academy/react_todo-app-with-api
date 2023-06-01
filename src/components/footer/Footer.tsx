@@ -4,26 +4,24 @@ import { Todo } from '../../types/Todo';
 import { Filter } from '../../types/Filter';
 
 interface Props {
-  setFilter: (filter: string) => void;
-  clearCompletedTodos: () => void;
+  onSelect: (filter: string) => void;
+  onClear: () => void;
   selectedFilter: string;
   comletedTodos: Todo[];
-  uncomletedTodoCount: number;
+  countUncompletedTodos: number;
 }
 
 export const Footer: React.FC<Props> = memo(({
-  setFilter,
-  clearCompletedTodos,
+  onSelect,
+  onClear,
   selectedFilter,
   comletedTodos,
-  uncomletedTodoCount,
+  countUncompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer">
-      {/* Hide the footer if there are no todos */}
-
       <span className="todo-count">
-        {`${uncomletedTodoCount} items left`}
+        {`${countUncompletedTodos} items left`}
       </span>
 
       <nav className="filter">
@@ -33,7 +31,7 @@ export const Footer: React.FC<Props> = memo(({
             selected: selectedFilter === Filter.ALL,
           })}
           onClick={() => {
-            setFilter(Filter.ALL);
+            onSelect(Filter.ALL);
           }}
         >
           All
@@ -45,7 +43,7 @@ export const Footer: React.FC<Props> = memo(({
             selected: selectedFilter === Filter.ACTIVE,
           })}
           onClick={() => {
-            setFilter(Filter.ACTIVE);
+            onSelect(Filter.ACTIVE);
           }}
         >
           Active
@@ -57,7 +55,7 @@ export const Footer: React.FC<Props> = memo(({
             selected: selectedFilter === Filter.COMPLETED,
           })}
           onClick={() => {
-            setFilter(Filter.COMPLETED);
+            onSelect(Filter.COMPLETED);
           }}
         >
           Completed
@@ -68,7 +66,7 @@ export const Footer: React.FC<Props> = memo(({
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={clearCompletedTodos}
+          onClick={onClear}
         >
           Clear completed
         </button>

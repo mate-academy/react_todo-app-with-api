@@ -6,20 +6,25 @@ import { TempTodo } from '../todoItem/TempTodo';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  handleDeleteTodo: (id: number) => void;
+  onDelete: (id: number) => void;
   loadingID: number[];
-  handleUpdateTodoIsCompleted: (
+  onUpdate: (
     id: number,
     complitedCurrVal: boolean,
   ) => void;
-  editTodo: (newTitle: string, id: number) => void;
+  editTodo: (
+    newTitle: string,
+    id: number,
+    setEditInput: (input: string) => void,
+    title: string,
+  ) => void;
 }
 export const Main: React.FC<Props> = memo(({
   todos,
   tempTodo,
-  handleDeleteTodo,
+  onDelete,
   loadingID,
-  handleUpdateTodoIsCompleted,
+  onUpdate,
   editTodo,
 }) => {
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
@@ -30,8 +35,7 @@ export const Main: React.FC<Props> = memo(({
 
   return (
     <section className="todoapp__main">
-      {todos
-      && todos.map(({
+      {todos && todos.map(({
         title,
         id,
         completed,
@@ -42,15 +46,14 @@ export const Main: React.FC<Props> = memo(({
           title={title}
           id={id}
           completed={completed}
-          onDelete={handleDeleteTodo}
-          onIsComplitedUpdate={handleUpdateTodoIsCompleted}
+          onDelete={onDelete}
+          onIsComplitedUpdate={onUpdate}
           setEditingTodoId={handleSetEditingTodoId}
           editingTodoId={editingTodoId}
           editTodo={editTodo}
         />
       ))}
-      {tempTodo
-      && (
+      {tempTodo && (
         <TempTodo tempTodo={tempTodo} />
       )}
     </section>

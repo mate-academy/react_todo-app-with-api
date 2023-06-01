@@ -8,9 +8,9 @@ import { addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-  setError: (errText: string) => void;
-  handleSetTempTodo: (todo: Todo | null) => void;
-  updateTodos: (todo: Todo) => void;
+  onError: (errText: string) => void;
+  onChange: (todo: Todo | null) => void;
+  onUpdate: (todo: Todo) => void;
   onToggle: () => void;
   userId: number;
   todos: Todo[] | null;
@@ -18,9 +18,9 @@ interface Props {
 
 export const Header: React.FC<Props> = memo(({
   userId,
-  setError,
-  handleSetTempTodo,
-  updateTodos,
+  onError,
+  onChange,
+  onUpdate,
   onToggle,
   todos,
 }) => {
@@ -33,14 +33,14 @@ export const Header: React.FC<Props> = memo(({
     event.preventDefault();
 
     if (!inputValue || inputValue.trim().length < 1) {
-      setError('title cant be empty');
+      onError('title cant be empty');
       setInputValue('');
 
       return;
     }
 
     setIsLoading(true);
-    handleSetTempTodo({
+    onChange({
       id: 0,
       userId: 10283,
       title: inputValue,
@@ -52,9 +52,9 @@ export const Header: React.FC<Props> = memo(({
         title: inputValue.trim(),
         userId,
         completed: false,
-      }).then(response => updateTodos(response as Todo));
+      }).then(response => onUpdate(response as Todo));
     } catch {
-      setError('can not add todo');
+      onError('can not add todo');
     }
 
     setIsLoading(false);
@@ -83,7 +83,7 @@ export const Header: React.FC<Props> = memo(({
           placeholder="What needs to be done?"
           onChange={(event) => {
             setInputValue(event.target.value);
-            setError('');
+            onError('');
           }}
         />
       </form>

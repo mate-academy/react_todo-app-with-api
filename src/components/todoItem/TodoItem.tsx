@@ -13,7 +13,12 @@ interface Props {
   loadingID: number[];
   setEditingTodoId: (id: number | null) => void;
   editingTodoId: number | null;
-  editTodo: (newTitle: string, id: number) => void;
+  editTodo: (
+    newTitle: string,
+    id: number,
+    setEditInput: (input: string) => void,
+    title: string,
+  ) => void;
 }
 
 export const TodoItem: React.FC<Props> = memo(({
@@ -48,7 +53,12 @@ export const TodoItem: React.FC<Props> = memo(({
       return;
     }
 
-    editTodo(newTitle, id);
+    editTodo(
+      newTitle,
+      id,
+      setEditInput,
+      title,
+    );
     setIsEditing(false);
     setEditingTodoId(null);
   };

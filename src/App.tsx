@@ -64,9 +64,21 @@ export const App = () => {
   }, [loadTodos]);
 
   const handleEditTodo = useCallback(
-    async (newTitle: string, todoId: number) => {
-      if (!newTitle || newTitle.trim().length < 1) {
+    async (
+      newTitle: string,
+      todoId: number,
+      setEditInput: (input: string) => void,
+      title: string,
+    ) => {
+      if (!newTitle) {
         handleDeleteTodo(todoId);
+
+        return;
+      }
+
+      if (newTitle && newTitle.trim().length < 1) {
+        setError('title can not be empty');
+        setEditInput(title);
 
         return;
       }
@@ -146,36 +158,36 @@ export const App = () => {
 
       <div className="todoapp__content">
         <Header
-          setError={handleSetError}
-          handleSetTempTodo={handleSetTempTodo}
+          onError={handleSetError}
+          onChange={handleSetTempTodo}
           userId={USER_ID}
-          updateTodos={updateTodos}
+          onUpdate={updateTodos}
           onToggle={handleToggleAllComplited}
           todos={todos}
         />
-        {todos && (
+
+        {todos.length > 0 && (
           <>
             <Main
               todos={visibleTodos}
               tempTodo={tempTodo}
-              handleDeleteTodo={handleDeleteTodo}
+              onDelete={handleDeleteTodo}
               loadingID={loadingID}
-              handleUpdateTodoIsCompleted={handleUpdateTodoIsCompleted}
+              onUpdate={handleUpdateTodoIsCompleted}
               editTodo={handleEditTodo}
             />
 
             <Footer
-              setFilter={HandleSelectFilter}
+              onSelect={HandleSelectFilter}
               selectedFilter={filter}
               comletedTodos={comletedTodos}
-              clearCompletedTodos={handleClearComplitedTodos}
-              uncomletedTodoCount={uncomletedTodoCount}
+              onClear={handleClearComplitedTodos}
+              countUncompletedTodos={uncomletedTodoCount}
             />
           </>
         )}
       </div>
-      {error
-      && (
+      {error && (
         <Notification
           setError={handleSetError}
           errorText={error}
