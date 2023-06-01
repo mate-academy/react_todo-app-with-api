@@ -95,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isTodoLoading }) => {
       return;
     }
 
-    if (updatedTodoTitle) {
+    if (updatedTodoTitle.trim()) {
       handleTodoEdit();
     } else {
       handleTodoDelete();
