@@ -13,6 +13,7 @@ interface TodoProps {
   onEditedTodoSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   setEditedTodoId: (id: number | null) => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  isLoading: number[];
 }
 
 export const Todo: React.FC<TodoProps> = React.memo(({
@@ -26,6 +27,7 @@ export const Todo: React.FC<TodoProps> = React.memo(({
   onEditedTodoSubmit,
   setEditedTodoId,
   inputRef,
+  isLoading,
 }) => {
   const { completed, id, title } = todo;
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -35,65 +37,91 @@ export const Todo: React.FC<TodoProps> = React.memo(({
   };
 
   return (
-    <div
-      className={cn('todo', {
-        completed,
-      })}
-      key={id}
-    >
-      <label className="todo__status-label">
-        <input
-          type="checkbox"
-          className="todo__status"
-          onChange={() => onToggleTodo(id)}
-        />
-      </label>
+    !isLoading.includes(id)
+      ? (
+        <div
+          className={cn('todo', {
+            completed,
+          })}
+          key={id}
+        >
+          <label className="todo__status-label">
+            <input
+              type="checkbox"
+              className="todo__status"
+              onChange={() => onToggleTodo(id)}
+            />
+          </label>
 
-      {editedTodoId !== id
-        ? (
-          <>
-            <span
-              className="todo__title"
-              onDoubleClick={() => onEditTodo(id)}
-            >
-              {title}
+          {editedTodoId !== id
+            ? (
+              <>
+                <span
+                  className="todo__title"
+                  onDoubleClick={() => onEditTodo(id)}
+                >
+                  {title}
 
-            </span>
+                </span>
 
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => onTodoRemove(id)}
-            >
-              ×
+                <button
+                  type="button"
+                  className="todo__remove"
+                  onClick={() => onTodoRemove(id)}
+                >
+                  ×
 
-            </button>
-          </>
-        )
-        : (
-          <>
-            <form
-              onSubmit={onEditedTodoSubmit}
-              onBlur={onEditedTodoSubmit}
-            >
-              <input
-                onKeyUp={() => handleKeyUp}
-                ref={inputRef}
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={editedTodoText}
-                onChange={(e) => setEditedTodoText(e.target.value)}
-              />
-            </form>
+                </button>
+              </>
+            )
+            : (
+              <>
+                <form
+                  onSubmit={onEditedTodoSubmit}
+                  onBlur={onEditedTodoSubmit}
+                >
+                  <input
+                    onKeyUp={() => handleKeyUp}
+                    ref={inputRef}
+                    type="text"
+                    className="todo__title-field"
+                    placeholder="Empty todo will be deleted"
+                    value={editedTodoText}
+                    onChange={(e) => setEditedTodoText(e.target.value)}
+                  />
+                </form>
 
-            <div className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </>
-        )}
+                <div className="modal overlay">
+                  <div className="modal-background has-background-white-ter" />
+                  <div className="loader" />
+                </div>
+              </>
+            )}
 
-    </div>
+        </div>
+      )
+      : (
+        <div
+          className={cn('todo', {
+            completed: todo.completed,
+          })}
+          key={todo.id}
+        >
+          <label className="todo__status-label">
+            <input type="checkbox" className="todo__status" />
+          </label>
+
+          <span className="todo__title">{todo.title}</span>
+          <button type="button" className="todo__remove">×</button>
+          <div className={cn('modal overlay',
+            { 'is-active': isLoading.includes(id) })}
+          >
+            <div
+              className="modal-background has-background-white-ter"
+            />
+            <div className="loader" />
+          </div>
+        </div>
+      )
   );
 });
