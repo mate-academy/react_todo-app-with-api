@@ -17,7 +17,7 @@ export const TodoForm = ({ value, setValue }: PropsTodoForm) => {
         placeholder="What needs to be done?"
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        disabled={tempTodo !== null}
+        disabled={!!tempTodo}
       />
     </form>
   );
