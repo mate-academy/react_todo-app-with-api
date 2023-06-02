@@ -12,6 +12,7 @@ interface Props {
   setTodoEditingId: (arg: number | null) => void;
   setIsUpdatingError: (arg: boolean) => void;
   todoEditingId: number | null;
+  todosForRemove: Todo[];
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   setTodoEditingId,
   todoEditingId,
   setIsUpdatingError,
+  todosForRemove,
 }) => {
   const { completed, title, id } = todo;
   const [selected, setSelected] = useState<number | null>(null);
@@ -39,23 +41,22 @@ export const TodoItem: React.FC<Props> = ({
     [],
   );
 
-  const updateTodoHandlerTitle = useCallback(
-    async (event: React.FormEvent) => {
-      event.preventDefault();
-      setSelected(id);
+  const updateTodoHandlerTitle = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSelected(id);
 
-      if (!newTitle) {
-        setIsUpdatingError(true);
+    if (!newTitle) {
+      setIsUpdatingError(true);
 
-        return;
-      }
+      return;
+    }
 
-      await updateTodoTitle(id, newTitle);
-      setTodoEditingId(null);
-      setSelected(null);
-    },
-    [],
-  );
+    await updateTodoTitle(id, newTitle);
+    setTodoEditingId(null);
+    setSelected(null);
+  }, [newTitle]);
+
+  const loading = todosForRemove.includes(todo) || todo.id === selected;
 
   return (
     <div
@@ -71,6 +72,7 @@ export const TodoItem: React.FC<Props> = ({
           onChange={updateTodoHandlerChek}
         />
       </label>
+
       {todoEditingId === id ? (
         <form onSubmit={updateTodoHandlerTitle}>
           <input
@@ -89,6 +91,7 @@ export const TodoItem: React.FC<Props> = ({
           >
             {title}
           </span>
+
           <button
             type="button"
             className="todo__remove"
@@ -98,8 +101,7 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       )}
-      {/* overlay will cover the todo while it is being updated */}
-      {todo.id === selected && <Loader />}
+      {loading && <Loader />}
     </div>
   );
 };

@@ -5,27 +5,29 @@ import { Todo, TodoData } from '../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 interface Props {
-  visibleTodos: Todo[];
+  todos: Todo[];
   tempTodo: TodoData | null;
   removeTodo: (todoId: number) => Promise<void>;
   updateTodoChek: (arg: number, completed: boolean) => Promise<void>;
   updateTodoTitle: (arg: number, title: string) => Promise<void>;
   setIsUpdatingError: (arg: boolean) => void;
+  todosForRemove: Todo[];
 }
 
 export const TodoList: React.FC<Props> = ({
-  visibleTodos,
+  todos,
   tempTodo,
   removeTodo,
   updateTodoChek,
   updateTodoTitle,
   setIsUpdatingError,
+  todosForRemove,
 }) => {
   const [todoEditingId, setTodoEditingId] = useState<number | null>(null);
 
   return (
     <section className="todoapp__main">
-      {visibleTodos.map(todo => (
+      {todos.map(todo => (
         <TodoItem
           todo={todo}
           key={todo.id}
@@ -35,6 +37,7 @@ export const TodoList: React.FC<Props> = ({
           setTodoEditingId={setTodoEditingId}
           todoEditingId={todoEditingId}
           setIsUpdatingError={setIsUpdatingError}
+          todosForRemove={todosForRemove}
         />
       ))}
       {tempTodo && (
@@ -50,13 +53,6 @@ export const TodoList: React.FC<Props> = ({
               defaultChecked={tempTodo.completed}
             />
           </label>
-          {/* <form>
-                    <input
-                      type="text"
-                      className="todo__title-field"
-                      placeholder="Empty todo will be deleted"
-                    />
-                  </form> */}
           <span className="todo__title">
             {tempTodo.title}
           </span>

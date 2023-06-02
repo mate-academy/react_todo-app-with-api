@@ -20,9 +20,10 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoadingError, setIsLoadingError] = useState(false);
   const [filteringBy, setFilteringBy] = useState(SelectedFiltering.All);
-  const [tempTodo, setTempTodo] = useState<null | TodoData>(null);
+  const [tempTodo, setTempTodo] = useState<TodoData | null>(null);
   const [isCreatingError, setIsCreatingError] = useState(false);
   const [isUpdatingError, setIsUpdatingError] = useState(false);
+  const [todosForRemove, setTodosForRemove] = useState<Todo[]>([]);
 
   const loadTodos = useCallback(async () => {
     setIsLoadingError(false);
@@ -54,6 +55,20 @@ export const App: React.FC = () => {
 
     loadTodos();
   }, []);
+
+  const removeCompletedTodos = useCallback(async () => {
+    const filtered = todos.filter(todo => (
+      todo.completed
+    ));
+
+    setTodosForRemove(filtered);
+
+    await Promise.all(filtered.map(todo => {
+      return deleteTodo(todo.id);
+    }));
+
+    await loadTodos();
+  }, [todos]);
 
   const updateTodoChek = useCallback(
     async (todoId: number, completed: boolean) => {
@@ -89,12 +104,14 @@ export const App: React.FC = () => {
     }, [],
   );
 
-  useEffect(
-    () => {
-      loadTodos();
-    },
-    [],
-  );
+  const todosPresent = todos.length > 0;
+  const completedTodosPresent = todos.filter(({ completed }) => {
+    return completed;
+  }).length > 0;
+
+  useEffect(() => {
+    loadTodos();
+  }, []);
 
   const visibleTodos = todos.filter(({ completed }) => {
     switch (filteringBy) {
@@ -124,24 +141,23 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          visibleTodos={visibleTodos}
+          todos={visibleTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
           updateTodoChek={updateTodoChek}
           updateTodoTitle={updateTodoTitle}
           setIsUpdatingError={setIsUpdatingError}
+          todosForRemove={todosForRemove}
         />
 
         {isLoadingError && <TodoLoadingError />}
 
-        {/* Hide the footer if there are no todos */}
-        {todos.length > 0 && (
+        {todosPresent && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${todos.length} items left`}
+              {`${todos.filter(todo => !todo.completed).length} items left`}
             </span>
 
-            {/* Active filter should have a 'selected' class */}
             <nav className="filter">
               <a
                 href="#/"
@@ -180,10 +196,15 @@ export const App: React.FC = () => {
               </a>
             </nav>
 
-            {/* don't show this button if there are no completed todos */}
-            <button type="button" className="todoapp__clear-completed">
-              Clear completed
-            </button>
+            {completedTodosPresent && (
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={removeCompletedTodos}
+              >
+                Clear completed
+              </button>
+            )}
           </footer>
         )}
 
