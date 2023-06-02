@@ -50,6 +50,9 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  setTimeout(() => setIsCreatingError(false), 5000);
+  setTimeout(() => setIsUpdatingError(false), 5000);
+
   const removeTodo = useCallback(async (todoDeletedId: number) => {
     await deleteTodo(todoDeletedId);
 

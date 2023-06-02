@@ -45,8 +45,9 @@ export const TodoItem: React.FC<Props> = ({
     event.preventDefault();
     setSelected(id);
 
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       setIsUpdatingError(true);
+      setSelected(null);
 
       return;
     }
