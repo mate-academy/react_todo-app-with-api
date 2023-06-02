@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { TodoAppHeader } from './TodoAppComponent/TodoAppHeader/TodoAppHeader';
 import { TodoList } from './TodoAppComponent/TodoAppMain/TodoList';
 import { useTodosContext } from '../Context/TodosContext';
@@ -9,20 +9,24 @@ export const TodoApp = () => {
   const [filtered, setFiltered] = useState<Filters>(Filters.All);
   const { todos } = useTodosContext();
 
-  let filteredTodos = todos;
+  const filteredTodos = useMemo(() => {
+    let newTodos = todos;
 
-  switch (filtered) {
-    case 'Active':
-      filteredTodos = filteredTodos.filter(todo => !todo.completed);
-      break;
-    case 'Completed':
-      filteredTodos = filteredTodos.filter(todo => todo.completed);
-      break;
-    case 'All':
-      filteredTodos = todos;
-      break;
-    default: throw new Error('wrong filters');
-  }
+    switch (filtered) {
+      case 'Active':
+        newTodos = newTodos.filter(todo => !todo.completed);
+        break;
+      case 'Completed':
+        newTodos = newTodos.filter(todo => todo.completed);
+        break;
+      case 'All':
+        newTodos = todos;
+        break;
+      default: throw new Error('wrong filters');
+    }
+
+    return newTodos;
+  }, [todos]);
 
   const isFooter = todos.length > 0;
 
