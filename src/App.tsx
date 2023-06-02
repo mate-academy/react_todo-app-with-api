@@ -19,14 +19,10 @@ export const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [status, setStatus] = useState('all');
   const [disableInput, setDisableInput] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>();
-  const [typeError, setTypeError] = useState(ErrorTypes.default);
+  const [errorMessage, setErrorMessage] = useState<ErrorTypes | null>(null);
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
-  const [indexUpdatedTodo, setIndexUpdatedTodo] = useState(0);
-  const [isEachTodoCompleted, setIsEachTodoCompleted] = useState(false);
-  const [isDeleteAllCompletedTodo,
-    setIsDeleteAllCompletedTodo] = useState(false);
+  const [idTodoForCheange, setIdTodoForSpinner] = useState<number[]>([]);
 
   const getVisibleTodos = (statusTodo: string, todosArr: Todo[]) => {
     switch (statusTodo) {
@@ -40,6 +36,7 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = getVisibleTodos(status, todos);
+
   const itemsLeftCount = todos.filter(todo => !todo.completed).length;
 
   async function loadedTodos() {
@@ -47,17 +44,11 @@ export const App: React.FC = () => {
       const result = await getTodos(USER_ID);
 
       setTodos(result);
-      setTypeError(ErrorTypes.default);
+      setErrorMessage(null);
     } catch (error) {
-      setTypeError(ErrorTypes.ErrorGet);
+      setErrorMessage(ErrorTypes.ErrorGet);
     }
   }
-
-  (function handleTempTodo() {
-    if (tempTodo) {
-      visibleTodos.splice(indexUpdatedTodo, 1, tempTodo);
-    }
-  }());
 
   const handleChangeInput = (event : React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value);
@@ -66,80 +57,69 @@ export const App: React.FC = () => {
   const handleStatus = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
-    setStatus(event.currentTarget.type);
+    setStatus(event.currentTarget.dataset.type || 'all');
   };
 
   const handleAddTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIndexUpdatedTodo(todos.length);
     setDisableInput(true);
-    setTempTodo({
+    const todoTempo = {
       id: 0,
       userId: USER_ID,
       title: input,
       completed: false,
-    });
+    };
+
+    todos.splice(todos.length, 1, todoTempo);
+
+    setIdTodoForSpinner((prev) => [...prev, todoTempo.id]);
 
     setInput('');
     try {
-      await createTodo(USER_ID, {
+      const createdTodo = await createTodo(USER_ID, {
         title: input,
         userId: USER_ID,
         completed: false,
       });
 
-      await loadedTodos();
-      setTempTodo(null);
+      todos.splice(todos.length - 1, 1);
+      await setTodos(prev => [...prev, createdTodo]);
       setDisableInput(false);
-      setIndexUpdatedTodo(0);
-      setTypeError(ErrorTypes.default);
+      setIdTodoForSpinner([]);
+      setErrorMessage(null);
     } catch (error) {
-      setTypeError(ErrorTypes.ErrorPost);
-      setTempTodo(null);
+      setErrorMessage(ErrorTypes.ErrorPost);
+      // setTempTodo(null);
       setDisableInput(false);
     }
   };
 
   const handleUpdateTodo = async (todo: Todo) => {
-    setTempTodo({
-      id: 0,
-      userId: USER_ID,
-      title: todo.title,
-      completed: todo.completed,
-    });
+    setIdTodoForSpinner((prev) => [...prev, todo.id]);
 
     try {
       await updateTodo(todo.id, {
         title: todo.title,
         completed: todo.completed,
       });
-      setTypeError(ErrorTypes.default);
-      setTempTodo(null);
+      setErrorMessage(null);
       setTodoForUpdate(null);
+      setIdTodoForSpinner([]);
     } catch (error) {
-      setTempTodo(null);
-      setTodoForUpdate(null);
-      setTypeError(ErrorTypes.ErrorPatch);
+      setErrorMessage(ErrorTypes.ErrorPatch);
     }
   };
 
-  const handleRemoveTodo = async (todo: Todo, indexTodo: number) => {
-    setIndexUpdatedTodo(indexTodo);
-    setTempTodo({
-      id: 0,
-      userId: USER_ID,
-      title: todo.title,
-      completed: todo.completed,
-    });
+  const handleRemoveTodo = async (todo: Todo) => {
+    setIdTodoForSpinner((prev) => [...prev, todo.id]);
 
     try {
       await deleteTodo(todo.id);
-      setTempTodo(null);
       setTodos(prev => prev.filter(({ id }) => id !== todo.id));
-      setTypeError(ErrorTypes.default);
+      setErrorMessage(null);
+      setIdTodoForSpinner([]);
     } catch (error) {
-      setTypeError(ErrorTypes.ErrorDelete);
-      setTempTodo(null);
+      setErrorMessage(ErrorTypes.ErrorDelete);
     }
   };
 
@@ -148,12 +128,11 @@ export const App: React.FC = () => {
   ) => {
     let newTodo: Todo | null = null;
 
-    await setTodos(todos.map((todo, index) => {
+    await setTodos(todos.map((todo) => {
       if (todo.id !== todoId) {
         return todo;
       }
 
-      setIndexUpdatedTodo(index);
       newTodo = { ...todo, completed: !todo.completed };
 
       return { ...todo, completed: !todo.completed };
@@ -166,35 +145,38 @@ export const App: React.FC = () => {
 
   const handleChangeStatusAllTodo = async () => {
     try {
-      const todosStatus = await Promise.all(todos.map(async (todo) => {
-        setIsEachTodoCompleted(true);
-        if (itemsLeftCount > 0) {
-          return updateTodo(todo.id, { completed: true });
-        }
+      const todosStatus = await Promise.all(todos.map(
+        ({ id }) => {
+          setIdTodoForSpinner((prev) => [...prev, id]);
 
-        return updateTodo(todo.id, { completed: false });
-      }));
+          return updateTodo(id, {
+            completed: !todos.every(todo => todo.completed),
+          });
+        },
+      ));
 
       setTodos(todosStatus);
-      setIsEachTodoCompleted(false);
+      setIdTodoForSpinner([]);
     } catch {
-      setTypeError(ErrorTypes.ErrorPatch);
+      setErrorMessage(ErrorTypes.ErrorPatch);
     }
   };
 
   const handleDeleteCompletedTodo = async () => {
-    const todosDeleted = await Promise.all(todos.map(async (todo) => {
-      setIsDeleteAllCompletedTodo(true);
-      if (todo.completed) {
+    try {
+      const comletedTodos = todos.filter(todo => todo.completed);
+
+      await Promise.all(comletedTodos.map(async todo => {
+        setIdTodoForSpinner((prev) => [...prev, todo.id]);
+
         await deleteTodo(todo.id);
-      }
+      }));
 
-      return todo;
-    }));
-
-    setTodos(todosDeleted);
-    await loadedTodos();
-    setIsDeleteAllCompletedTodo(false);
+      setTodos(prev => prev.filter(todo => todo.completed === false));
+      setIdTodoForSpinner([]);
+    } catch (error) {
+      setErrorMessage(ErrorTypes.ErrorDelete);
+    }
   };
 
   const handleEditTodo = (
@@ -210,6 +192,10 @@ export const App: React.FC = () => {
 
       return { ...todo, title: event.target.value };
     }));
+  };
+
+  const handleDeleteErrorMessage = () => {
+    setErrorMessage(null);
   };
 
   useEffect(() => {
@@ -230,26 +216,21 @@ export const App: React.FC = () => {
           inputValue={input}
           onHandleInput={handleChangeInput}
           onHandleAddTodo={handleAddTodo}
-          disabeled={disableInput}
+          disabled={disableInput}
           onChangeStatusAllTodo={handleChangeStatusAllTodo}
         />
 
         <Main
           visibleTodos={visibleTodos}
           onRemoveTodo={handleRemoveTodo}
-          tempTodo={tempTodo}
           onEditTodo={handleEditTodo}
           hasEditTodo={hasEditTodo}
           setHasEditTodo={setHasEditTodo}
           onUpdateTodo={handleUpdateTodo}
-          setIndexUpdatedTodo={setIndexUpdatedTodo}
-          indexUpdatedTodo={indexUpdatedTodo}
           onChangeStatusTodo={handleChangeStatusTodo}
           todoForUpdate={todoForUpdate}
           setTodoForUpdate={setTodoForUpdate}
-          isEachTodoCompleted={isEachTodoCompleted}
-          itemsLeftCount={itemsLeftCount}
-          isDeleteAllCompletedTodo={isDeleteAllCompletedTodo}
+          idTodoForCheange={idTodoForCheange}
         />
 
         {!!todos.length && (
@@ -263,11 +244,11 @@ export const App: React.FC = () => {
 
       </div>
 
-      {typeError !== ErrorTypes.default
+      {errorMessage
         && (
           <ErrorMessages
-            typeError={typeError}
-            setTypeError={setTypeError}
+            errorMessage={errorMessage}
+            onDeleteError={handleDeleteErrorMessage}
           />
         )}
     </div>

@@ -1,22 +1,24 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { ErrorTypes } from '../../types/ErrorTypes';
 
 type Props = {
-  typeError: ErrorTypes,
-  setTypeError: React.Dispatch<React.SetStateAction<ErrorTypes>>;
+  errorMessage: ErrorTypes,
+  onDeleteError: () => void;
 };
 
-export const ErrorMessages: React.FC<Props> = ({ typeError, setTypeError }) => {
+export const ErrorMessages: React.FC<Props> = (
+  { errorMessage, onDeleteError },
+) => {
   return (
     <div className="notification is-danger is-light has-text-weight-normal">
       <button
         type="button"
+        aria-label="button"
         className="delete"
-        onClick={() => (setTypeError(ErrorTypes.default))}
+        onClick={() => onDeleteError()}
       />
 
-      {typeError}
+      {errorMessage}
       <br />
     </div>
   );

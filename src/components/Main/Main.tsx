@@ -5,7 +5,6 @@ import { Todo } from '../../types/Todo';
 type Props = {
   visibleTodos: Todo[],
   onRemoveTodo: (todo: Todo, index: number) => void
-  tempTodo: Todo | null | undefined,
   onEditTodo: (
     event: React.ChangeEvent<HTMLInputElement>,
     todoId: number
@@ -13,91 +12,30 @@ type Props = {
   hasEditTodo: boolean,
   setHasEditTodo: React.Dispatch<React.SetStateAction<boolean>>,
   onUpdateTodo: (todo: Todo) => Promise<void>,
-  setIndexUpdatedTodo: React.Dispatch<React.SetStateAction<number>>;
-  indexUpdatedTodo: number;
   onChangeStatusTodo: (todoId: number) => void,
   todoForUpdate: Todo | null,
   setTodoForUpdate: React.Dispatch<React.SetStateAction<Todo | null>>,
-  isEachTodoCompleted: boolean,
-  itemsLeftCount: number,
-  isDeleteAllCompletedTodo: boolean,
+  idTodoForCheange: number[],
 };
 
 export const Main: React.FC<Props> = ({
   visibleTodos,
   onRemoveTodo,
-  tempTodo,
   onEditTodo,
   hasEditTodo,
   setHasEditTodo,
   onUpdateTodo,
-  setIndexUpdatedTodo,
-  indexUpdatedTodo,
   onChangeStatusTodo,
   todoForUpdate,
   setTodoForUpdate,
-  isEachTodoCompleted,
-  itemsLeftCount,
-  isDeleteAllCompletedTodo: deleteAll,
+  idTodoForCheange,
 }) => {
   return (
     <section className="todoapp__main">
       {visibleTodos.map((todo, index) => {
-        if (tempTodo && index === indexUpdatedTodo) {
+        if (idTodoForCheange.includes(todo.id)) {
           return (
-            <div className="todo" key={+`0${todo.id}`}>
-              <label className="todo__status-label">
-                <input type="checkbox" className="todo__status" />
-              </label>
-              <span
-                className="todo__title"
-              >
-                {tempTodo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-              >
-                ×
-              </button>
-
-              <div className="modal overlay is-active">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            </div>
-          );
-        }
-
-        if (isEachTodoCompleted && todo.completed === !itemsLeftCount) {
-          return (
-            <div className="todo" key={+`0${todo.id}`}>
-              <label className="todo__status-label">
-                <input type="checkbox" className="todo__status" />
-              </label>
-              <span
-                className="todo__title"
-              >
-                {todo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-              >
-                ×
-              </button>
-
-              <div className="modal overlay is-active">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div>
-            </div>
-          );
-        }
-
-        if (deleteAll && todo.completed === true) {
-          return (
-            <div className="todo" key={+`0${todo.id}`}>
+            <div className="todo" key={`todo-${todo.id}`}>
               <label className="todo__status-label">
                 <input type="checkbox" className="todo__status" />
               </label>
@@ -140,7 +78,12 @@ export const Main: React.FC<Props> = ({
             {hasEditTodo && todoForUpdate?.id === todo.id
               ? (
                 <>
-                  <form onSubmit={(event) => {
+                  <form onSubmit={(
+                    event: {
+                      preventDefault: () => void;
+                      stopPropagation: () => void;
+                    },
+                  ) => {
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -151,7 +94,9 @@ export const Main: React.FC<Props> = ({
                       className="todo__title-field"
                       type="text"
                       value={todo.title}
-                      onChange={(event) => {
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         event.stopPropagation();
                         event.preventDefault();
                         onEditTodo(event, todo.id);
@@ -166,7 +111,6 @@ export const Main: React.FC<Props> = ({
                     event.preventDefault();
                     event.stopPropagation();
                     setTodoForUpdate(todo);
-                    setIndexUpdatedTodo(index);
                     setHasEditTodo(true);
                   }}
                 >

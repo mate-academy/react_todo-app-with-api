@@ -10,7 +10,7 @@ type Props = {
 
 export const Footer: React.FC<Props> = ({
   selectedStatus,
-  onHandleStatus: onHanbleStatus,
+  onHandleStatus,
   itemsLeftCount,
   onDeleteCompletedTodo,
 }) => {
@@ -31,8 +31,8 @@ export const Footer: React.FC<Props> = ({
               { selected: selectedStatus === 'all' },
             )
           }
-          onClick={onHanbleStatus}
-          type="all"
+          onClick={onHandleStatus}
+          data-type="all"
         >
           All
         </a>
@@ -45,8 +45,8 @@ export const Footer: React.FC<Props> = ({
               { selected: selectedStatus === 'active' },
             )
           }
-          onClick={onHanbleStatus}
-          type="active"
+          onClick={onHandleStatus}
+          data-type="active"
         >
           Active
         </a>
@@ -59,8 +59,8 @@ export const Footer: React.FC<Props> = ({
               { selected: selectedStatus === 'completed' },
             )
           }
-          onClick={onHanbleStatus}
-          type="completed"
+          onClick={onHandleStatus}
+          data-type="completed"
         >
           Completed
         </a>

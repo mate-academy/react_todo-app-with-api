@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 
@@ -7,7 +6,7 @@ type Props = {
   onHandleInput: (event: React.ChangeEvent<HTMLInputElement>) => void,
   inputValue: string,
   onHandleAddTodo: (event: React.FormEvent<HTMLFormElement>) => void,
-  disabeled: boolean,
+  disabled: boolean,
   onChangeStatusAllTodo: () => Promise<void>
 };
 
@@ -16,13 +15,14 @@ export const Header: React.FC<Props> = ({
   onHandleInput,
   inputValue,
   onHandleAddTodo,
-  disabeled,
+  disabled: disabeled,
   onChangeStatusAllTodo,
 }) => {
   return (
     <header className="todoapp__header">
       <button
         type="button"
+        aria-label="button"
         className={
           cn(
             'todoapp__toggle-all',
