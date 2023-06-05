@@ -24,20 +24,18 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState<GetFilter>(GetFilter.ALL);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const hasSomeTodos = todos.length > 0;
+  const activeTodos = todos.filter(todo => todo.completed === false);
 
   const filteredTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (filterBy) {
-        case GetFilter.ACTIVE:
-          return !todo.completed;
-        case GetFilter.COMPLETED:
-          return todo.completed;
-        case GetFilter.ALL:
-          return true;
-        default:
-          return todo;
-      }
-    });
+    switch (filterBy) {
+      case GetFilter.ACTIVE:
+        return todos.filter(todo => todo.completed === false);
+      case GetFilter.COMPLETED:
+        return todos.filter(todo => todo.completed === true);
+      default:
+        return todos;
+    }
   }, [filterBy, todos]);
 
   const getTodosServer = async () => {
@@ -177,6 +175,7 @@ export const App: React.FC = () => {
           handleAddTodo={addTodo}
           selectAllTodos={selectAllTodos}
           isAllTodosCompleted={isAllTodosCompleted}
+          hasSomeTodos={hasSomeTodos}
         />
 
         <TodoList
@@ -191,6 +190,7 @@ export const App: React.FC = () => {
             filterBy={filterBy}
             setFilterBy={setFilterBy}
             handleDeleteTodoCompleted={deleteTodoCompleted}
+            activeTodos={activeTodos.length}
           />
         )}
       </div>

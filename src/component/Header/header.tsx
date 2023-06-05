@@ -7,6 +7,7 @@ type Props = {
   handleAddTodo: () => void,
   selectAllTodos: () => void,
   isAllTodosCompleted: boolean,
+  hasSomeTodos: boolean
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<Props> = ({
   handleAddTodo,
   selectAllTodos,
   isAllTodosCompleted,
+  hasSomeTodos,
 }) => {
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -25,14 +27,14 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line */}
-      <button
+      {hasSomeTodos && <button
         type="button"
         className={classNames(
           'todoapp__toggle-all',
           { active: isAllTodosCompleted },
         )}
         onClick={selectAllTodos}
-      />
+      />}
 
       <form onSubmit={handleSubmit}>
         <input

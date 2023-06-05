@@ -8,6 +8,7 @@ interface Props {
   filterBy: GetFilter,
   setFilterBy: (filterBy: GetFilter) => void,
   handleDeleteTodoCompleted: () => void;
+  activeTodos: number
 }
 
 export const Footer: React.FC<Props> = ({
@@ -15,14 +16,14 @@ export const Footer: React.FC<Props> = ({
   filterBy,
   setFilterBy,
   handleDeleteTodoCompleted,
+  activeTodos,
 }) => {
-  const todoLeft = todosShow.filter(todo => !todo.completed).length;
   const buttonClear = todosShow.filter(todo => todo.completed).length;
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todoLeft} items left`}
+        {`${activeTodos} items left`}
       </span>
 
       <nav className="filter">
