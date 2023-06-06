@@ -133,15 +133,6 @@
   }
 }
 
-.todoapp__item--loading {
-  padding: 12px 0 12px 0;
-  display: flex;
-  flex-direction: row;
-  margin: 0 0 0 11px 10px;
-  text-align: center;
-  border: 1px solid #777;
-}
-
-.loader {
-  margin: 10px 24px 0 10px;
+.hide {
+  display: none;
 }

@@ -157,7 +157,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header toggleAllTodos={handleToggleAllTodos} />
+        <Header toggleAllTodos={handleToggleAllTodos} error={error} />
         <form onSubmit={handleAddTodo}>
           <input
             type="text"
@@ -168,13 +168,7 @@ export const App: React.FC = () => {
             disabled={isLoading}
           />
         </form>
-        {tempTodo !== null && (
-          <div className="todoapp__item--loading">
-            <div className="loader" />
-            <span>{tempTodo.title}</span>
-          </div>
-        )}
-
+        {tempTodo !== null && <span className="hide">{tempTodo.title}</span>}
         <TodoList
           todos={todos}
           filterType={filterType}
@@ -182,7 +176,6 @@ export const App: React.FC = () => {
           onUpdateTodo={handleUpdateTodo}
           onUpdateTitle={handleUpdateTitle}
         />
-
         <Footer
           todos={todos}
           filterType={filterType}

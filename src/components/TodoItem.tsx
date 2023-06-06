@@ -18,6 +18,8 @@ const TodoItem: React.FC<TodoItemProps> = ({
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDelete = () => {
@@ -37,7 +39,11 @@ const TodoItem: React.FC<TodoItemProps> = ({
   };
 
   const handleTitleBlur = () => {
-    if (editedTitle.trim() !== '') {
+    if (editedTitle.trim() === '') {
+      handleDelete();
+    } else if (editedTitle !== title) {
+      setIsLoading(true);
+      setShowLoader(true);
       onUpdateTitle(id, editedTitle);
     }
 
@@ -67,6 +73,19 @@ const TodoItem: React.FC<TodoItemProps> = ({
     };
   }, [isEditing]);
 
+  useEffect(() => {
+    if (isLoading) {
+      const loaderTimeout = setTimeout(() => {
+        setIsLoading(false);
+        setShowLoader(false);
+      }, 300);
+
+      return () => clearTimeout(loaderTimeout);
+    }
+
+    return () => {};
+  }, [isLoading]);
+
   return (
     <div
       key={id}
@@ -83,9 +102,15 @@ const TodoItem: React.FC<TodoItemProps> = ({
 
       <span className="todo__title" onDoubleClick={handleDoubleClick}>
         {isEditing ? (
-          <form onSubmit={handleFormSubmit}>
+          <form className="form" onSubmit={handleFormSubmit}>
+            {showLoader && (
+              <div className="modal overlay">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            )}
             <input
-              className="edit__text"
+              className="todo__title-field"
               type="text"
               value={editedTitle}
               onChange={handleTitleChange}
@@ -102,10 +127,12 @@ const TodoItem: React.FC<TodoItemProps> = ({
         ×
       </button>
 
-      <div className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isLoading && (
+        <div className="modal overlay">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };
