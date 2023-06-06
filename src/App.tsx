@@ -226,6 +226,7 @@ export const App: React.FC = () => {
         />
         {filteredTodos.map(todo => (
           <TodoList
+            key={todo.id}
             todo={todo}
             todos={filteredTodos}
             handleDeleteTodo={handleDeleteTodo}

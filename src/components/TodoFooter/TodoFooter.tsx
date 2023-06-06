@@ -21,12 +21,11 @@ export const TodoFooter: React.FC<Props> = (
   const buttonClear = todos.filter(todo => todo.completed).length;
 
   return (
-
     <footer className="todoapp__footer">
       <span className="todo-count">
         {lengTodos}
         {' '}
-        {lengTodos === 1 ? 'item left' : 'items left' }
+        items left
       </span>
       <nav className="filter">
         <a
@@ -39,7 +38,6 @@ export const TodoFooter: React.FC<Props> = (
         >
           All
         </a>
-
         <a
           href="#/active"
           className={classNames(
@@ -50,7 +48,6 @@ export const TodoFooter: React.FC<Props> = (
         >
           Active
         </a>
-
         <a
           href="#/completed"
           className={classNames(

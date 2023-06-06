@@ -36,7 +36,6 @@ export const TodoList: React.FC<Props> = ({
     <ul>
       <li>
         <section className="todoapp__main">
-
           <div
             key={todo.id}
             className={classNames(
@@ -52,7 +51,6 @@ export const TodoList: React.FC<Props> = ({
                 onChange={() => {
                   handleUpdateStatus(todo.id);
                 }}
-
               />
             </label>
             {isEditing ? (
@@ -89,10 +87,8 @@ export const TodoList: React.FC<Props> = ({
                   />
                 </div>
               </>
-
             )}
           </div>
-
         </section>
       </li>
     </ul>

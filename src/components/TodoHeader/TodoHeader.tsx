@@ -34,7 +34,6 @@ export const TodoHeader: React.FC<Props> = ({
         )}
         onClick={handleUpdateAllTodoStatus}
       />
-
       <form onSubmit={handleSubmit}>
         <input
           type="text"
