@@ -169,7 +169,7 @@ export const App: React.FC = () => {
           />
         </form>
         {tempTodo !== null && (
-          <div className="todoapp__item todoapp__item--loading">
+          <div className="todoapp__item--loading">
             <div className="loader" />
             <span>{tempTodo.title}</span>
           </div>

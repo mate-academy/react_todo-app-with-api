@@ -100,3 +100,29 @@
     opacity: 0.5;
   }
 }
+
+.edit__text {
+  padding: 11px 15px;
+  width: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: inherit;
+  font-weight: 300;
+  line-height: inherit;
+  border: 1px solid #999;
+  box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  background-color: transparent;
+  color: inherit;
+  transition: border-color 0.2s ease-in-out;
+
+  &::placeholder {
+    font-style: italic;
+    font-weight: 300;
+    color: #e6e6e6;
+  }
+}
+
+.todo.editing .todo__title {
+  padding: 0;
+}
+

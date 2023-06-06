@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -18,6 +18,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDelete = () => {
     onDeleteTodo(id);
@@ -48,6 +49,24 @@ const TodoItem: React.FC<TodoItemProps> = ({
     handleTitleBlur();
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isEditing
+        && inputRef.current
+        && !inputRef.current.contains(event.target as Node)
+      ) {
+        handleTitleBlur();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isEditing]);
+
   return (
     <div
       key={id}
@@ -66,10 +85,12 @@ const TodoItem: React.FC<TodoItemProps> = ({
         {isEditing ? (
           <form onSubmit={handleFormSubmit}>
             <input
+              className="edit__text"
               type="text"
               value={editedTitle}
               onChange={handleTitleChange}
               onBlur={handleTitleBlur}
+              ref={inputRef}
             />
           </form>
         ) : (
