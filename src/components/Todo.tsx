@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TodoData } from '../types/TodoData';
 
 interface TodoFieldProps {
@@ -16,23 +16,23 @@ export const Todo = ({
 }: TodoFieldProps) => {
   const { completed, title, id } = todo;
 
-  const [isTodoEdited, setIsTodoEdited] = useState(false);
-  const [isTodoDeleting, setIsTodoDeleting] = useState(false);
-  const [isTodoUpdating, setIsTodoUpdating] = useState(false);
-  const [mouseClickCount, setMouseClickCount] = useState(0);
-  const [editedTodoTitle, setEditedTodoTitle] = useState(title);
+  const [isTodoBeingEdited, setIsTodoBeingEdited] = useState(false);
+  const [isTodoBeingDeleted, setIsTodoBeingDeleted] = useState(false);
+  const [isTodoBeingUpdated, setIsTodoBeingUpdated] = useState(false);
+  const [updatedTodoTitle, setUpdatedTodoTitle] = useState(title);
+  const todoInputRef = useRef<HTMLInputElement>(null);
 
   const handleCheckboxChange = () => {
     const newTodo = { ...todo, completed: !completed };
 
-    setIsTodoUpdating(true);
+    setIsTodoBeingUpdated(true);
 
-    onTodoUpdate(newTodo).finally(() => setIsTodoUpdating(false));
+    onTodoUpdate(newTodo).finally(() => setIsTodoBeingUpdated(false));
   };
 
   const handleTodoRemoval = () => {
-    setIsTodoDeleting(true);
-    onTodoDelete(id).finally(() => setIsTodoDeleting(false));
+    setIsTodoBeingDeleted(true);
+    onTodoDelete(id).finally(() => setIsTodoBeingDeleted(false));
   };
 
   const handleEditedTodoSubmission
@@ -40,11 +40,11 @@ export const Todo = ({
   | React.FormEvent<HTMLInputElement>) => {
     event.preventDefault();
 
-    if (editedTodoTitle) {
-      setIsTodoUpdating(true);
-      const newTodo = { ...todo, title: editedTodoTitle };
+    if (updatedTodoTitle) {
+      setIsTodoBeingUpdated(true);
+      const newTodo = { ...todo, title: updatedTodoTitle };
 
-      onTodoUpdate(newTodo).finally(() => setIsTodoUpdating(false));
+      onTodoUpdate(newTodo).finally(() => setIsTodoBeingUpdated(false));
     } else {
       handleTodoRemoval();
     }
@@ -53,29 +53,27 @@ export const Todo = ({
   const handleInputKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     switch (event.key) {
       case 'Escape':
-        setEditedTodoTitle(title);
-        setIsTodoEdited(false);
-        setMouseClickCount(0);
+        setUpdatedTodoTitle(title);
+        setIsTodoBeingEdited(false);
         break;
       case 'Enter':
         handleEditedTodoSubmission(event);
-        setIsTodoEdited(false);
-        setMouseClickCount(0);
+        setIsTodoBeingEdited(false);
         break;
       default:
         break;
     }
   };
 
-  const handleInputEdition = () => {
-    if (mouseClickCount === 2) {
-      setIsTodoEdited(true);
-      setMouseClickCount(0);
-    } else {
-      setMouseClickCount(prevMouseClickCount => (
-        prevMouseClickCount + 1));
+  useEffect(() => {
+    if (todoInputRef.current) {
+      if (isTodoBeingEdited) {
+        todoInputRef.current.focus();
+      } else {
+        todoInputRef.current.blur();
+      }
     }
-  };
+  }, [isTodoBeingEdited]);
 
   return (
     <>
@@ -88,28 +86,30 @@ export const Todo = ({
             onChange={handleCheckboxChange}
           />
         </label>
-        {isTodoEdited ? (
+        {isTodoBeingEdited ? (
           <form onSubmit={handleEditedTodoSubmission}>
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={editedTodoTitle}
-              onChange={(event) => setEditedTodoTitle(event.target.value)}
+              value={updatedTodoTitle}
+              onChange={(event) => setUpdatedTodoTitle(event.target.value)}
               onKeyUp={handleInputKeyUp}
+              ref={todoInputRef}
+              onBlur={() => setIsTodoBeingEdited(false)}
             />
           </form>
         ) : (
           <>
             <span
               className="todo__title"
-              onClick={handleInputEdition}
+              onDoubleClick={() => setIsTodoBeingEdited(true)}
             >
               {title}
 
             </span>
             <div className={classNames('modal overlay', {
-              todo: isTempTodo || isTodoDeleting || isTodoUpdating,
+              todo: isTempTodo || isTodoBeingDeleted || isTodoBeingUpdated,
             })}
             >
               <div className="modal-background has-background-white-ter" />
