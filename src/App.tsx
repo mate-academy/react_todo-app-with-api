@@ -4,6 +4,7 @@ import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
 import Footer from './components/Footer';
 import TodoList from './components/TodoList';
+import Header from './components/Header';
 
 export const userId = 10590;
 
@@ -14,6 +15,7 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
 
   const fetchTodos = () => {
     client
@@ -96,6 +98,30 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleUpdateTodo = (id: number, completed: boolean) => {
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        return { ...todo, completed };
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  };
+
+  const handleUpdateTitle = (id: number, title: string) => {
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        return { ...todo, title };
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  };
+
   const handleClearCompleted = () => {
     const completedTodos = todos.filter((todo) => todo.completed);
 
@@ -112,6 +138,16 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleToggleAllTodos = () => {
+    const updatedTodos = todos.map((todo) => ({
+      ...todo,
+      completed: !isAllCompleted,
+    }));
+
+    setTodos(updatedTodos);
+    setIsAllCompleted(!isAllCompleted);
+  };
+
   if (!userId) {
     return <UserWarning />;
   }
@@ -121,6 +157,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
+        <Header toggleAllTodos={handleToggleAllTodos} />
         <form onSubmit={handleAddTodo}>
           <input
             type="text"
@@ -131,7 +168,6 @@ export const App: React.FC = () => {
             disabled={isLoading}
           />
         </form>
-
         {tempTodo !== null && (
           <div className="todoapp__item todoapp__item--loading">
             <div className="loader" />
@@ -143,6 +179,8 @@ export const App: React.FC = () => {
           todos={todos}
           filterType={filterType}
           onDeleteTodo={handleDeleteTodo}
+          onUpdateTodo={handleUpdateTodo}
+          onUpdateTitle={handleUpdateTitle}
         />
 
         <Footer

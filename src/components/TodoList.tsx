@@ -3,13 +3,20 @@ import { Todo } from '../types/Todo';
 import TodoItem from './TodoItem';
 
 interface TodoListProps {
-  todos: Todo[],
-  filterType: string,
-  onDeleteTodo: (id: number) => void,
+  todos: Todo[];
+  filterType: string;
+  onDeleteTodo: (id: number) => void;
+  onUpdateTodo: (id: number, completed: boolean) => void;
+  onUpdateTitle: (id: number, title: string) => void;
 }
 
-const TodoList: React.FC<TodoListProps>
-= ({ todos, filterType, onDeleteTodo }) => {
+const TodoList: React.FC<TodoListProps> = ({
+  todos,
+  filterType,
+  onDeleteTodo,
+  onUpdateTodo,
+  onUpdateTitle,
+}) => {
   const filteredTodos = todos.filter((todo) => {
     if (filterType === 'active') {
       return !todo.completed;
@@ -29,6 +36,8 @@ const TodoList: React.FC<TodoListProps>
           key={todo.id}
           todo={todo}
           onDeleteTodo={onDeleteTodo}
+          onUpdateTodo={onUpdateTodo}
+          onUpdateTitle={onUpdateTitle}
         />
       ))}
     </div>
