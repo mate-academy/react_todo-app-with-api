@@ -39,7 +39,6 @@ export const App: React.FC = () => {
   const updateTodo = async (userId = 0, completed: boolean,
     title: string) => {
     setShowLoading(userId);
-    setShowClearCompleted(show => !show);
 
     if (completed) {
       setTodoStatus(show => !show);
@@ -71,15 +70,27 @@ export const App: React.FC = () => {
 
   const toggleAll = useCallback(() => {
     setTodoStatus(prev => !prev);
-    setTodos(prevTodos => {
-      return prevTodos.map(todo => {
-        return {
-          ...todo,
-          completed: todoStatus,
-        };
-      });
+    setShowClearCompleted(show => !show);
+
+    todos.map((todo) => {
+      updateTodo(todo.id, todoStatus, todo.title);
+
+      return todos;
     });
-  }, [todos]);
+  }, [todos, updateTodo]);
+
+  // const toggleAll = useCallback(() => {
+  //   setTodoStatus(prev => !prev);
+  //   setShowClearCompleted(show => !show);
+  //   setTodos(prevTodos => {
+  //     return prevTodos.map(todo => {
+  //       return {
+  //         ...todo,
+  //         completed: todoStatus,
+  //       };
+  //     });
+  //   });
+  // }, [todos]);
 
   const showBtnClearCompleted = () => {
     todos.forEach(todo => {
