@@ -180,7 +180,6 @@ export const App: React.FC = () => {
           && (
             <Todo
               todo={tempTodo}
-              isTempTodo
               onTodoDelete={handleTodoDelete}
               onTodoUpdate={handleTodoUpdate}
             />

@@ -17,7 +17,6 @@ export const TodoList = ({
         <Todo
           key={todo.id}
           todo={todo}
-          isTempTodo={false}
           onTodoDelete={onTodoDelete}
           onTodoUpdate={onTodoUpdate}
         />
