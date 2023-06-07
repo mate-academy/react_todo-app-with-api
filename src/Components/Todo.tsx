@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-autofocus */
 import { useState } from 'react';
 import { Todo as TodoType } from '../types/Todo';
 
@@ -19,11 +20,11 @@ export const Todo: React.FC<Props> = ({
   const { id, title, completed } = todo;
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState('');
+  const [editedTitle, setEditedTitle] = useState(title);
 
   const handleRemoveClick = () => {
     if (!temp && handleRemoveTodo) {
-      handleRemoveTodo(todo.id);
+      handleRemoveTodo(id);
       setIsDeleting(true);
     }
   };
@@ -31,6 +32,10 @@ export const Todo: React.FC<Props> = ({
   const handleCompleteChange = () => {
     if (handleComplete) {
       handleComplete(id, completed);
+      setIsDeleting(true);
+      setTimeout(() => {
+        setIsDeleting(false);
+      }, 700);
     }
   };
 
@@ -39,6 +44,10 @@ export const Todo: React.FC<Props> = ({
   };
 
   const handleSubmitEdit = () => {
+    if (editedTitle === '' && handleRemoveTodo) {
+      handleRemoveTodo(id);
+    }
+
     if (handleEditTitle) {
       handleEditTitle(id, editedTitle);
       setIsEditing(false);
@@ -91,6 +100,7 @@ export const Todo: React.FC<Props> = ({
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleSubmitEdit}
               onKeyUp={handleKeyUp}
+              autoFocus
             />
           </form>
         )}

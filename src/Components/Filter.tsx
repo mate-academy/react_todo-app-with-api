@@ -1,25 +1,26 @@
 import classnames from 'classnames';
+import { FilterOption } from '../types/FilterOption';
 import { Todo } from '../types/Todo';
 
 interface Props {
-  countNotCompletedtodos: number,
+  countNotCompletedTodos: number,
   handleFilter: (value: string) => void,
   filter: string,
   handleRemoveCompletedTodos: () => void,
-  activeTodos: Todo | undefined;
+  activeTodo: Todo | undefined;
 }
 
 export const Filter: React.FC<Props> = ({
-  countNotCompletedtodos,
+  countNotCompletedTodos,
   handleFilter,
   filter,
   handleRemoveCompletedTodos,
-  activeTodos,
+  activeTodo,
 }) => {
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${countNotCompletedtodos} items left`}
+        {`${countNotCompletedTodos} items left`}
       </span>
 
       <nav className="filter">
@@ -38,9 +39,9 @@ export const Filter: React.FC<Props> = ({
           href="#/active"
           className={classnames(
             'filter__link',
-            { selected: filter === 'Active' },
+            { selected: filter === FilterOption.Active },
           )}
-          onClick={() => handleFilter('Active')}
+          onClick={() => handleFilter(FilterOption.Active)}
         >
           Active
         </a>
@@ -49,19 +50,22 @@ export const Filter: React.FC<Props> = ({
           href="#/completed"
           className={classnames(
             'filter__link',
-            { selected: filter === 'Completed' },
+            { selected: filter === FilterOption.Completed },
           )}
-          onClick={() => handleFilter('Completed')}
+          onClick={() => handleFilter(FilterOption.Completed)}
         >
           Completed
         </a>
       </nav>
 
-      {activeTodos && (
+      {activeTodo && (
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={handleRemoveCompletedTodos}
+          onClick={() => {
+            handleRemoveCompletedTodos();
+            handleFilter(FilterOption.All);
+          }}
         >
           Clear completed
         </button>

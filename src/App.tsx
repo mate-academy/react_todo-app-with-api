@@ -2,6 +2,7 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Todo } from './Components/Todo';
 import { Todo as TodoType } from './types/Todo';
+import { FilterOption } from './types/FilterOption';
 import {
   getTodos,
   addTodo,
@@ -18,8 +19,8 @@ export const App: React.FC = () => {
   const [error, setError] = useState('');
   const [filteredTodos, setFilteredTodos] = useState<TodoType[]>([]);
   const [filter, setFilter] = useState('');
-  const [addValue, setAddValue] = useState('');
-  const [isInputDisable, setIsInputDisable] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [tempTodo, setTempTodo] = useState<TodoType | null>(null);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -30,7 +31,7 @@ export const App: React.FC = () => {
         setTodos(response);
       })
       .catch(() => setError('Unable to Load todos'));
-  }, [deleteIds, isUpdating]);
+  }, [deleteIds, isUpdating, tempTodo]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -38,7 +39,7 @@ export const App: React.FC = () => {
         setFilteredTodos(response);
       })
       .catch(() => setError('Unable to Load todos'));
-  }, [todos, tempTodo]);
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
@@ -48,12 +49,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     switch (filter) {
-      case 'Active': {
+      case FilterOption.Active: {
         setFilteredTodos(todos.filter(todo => todo.completed === false));
         break;
       }
 
-      case 'Completed': {
+      case FilterOption.Completed: {
         setFilteredTodos(todos.filter(todo => todo.completed === true));
         break;
       }
@@ -62,7 +63,7 @@ export const App: React.FC = () => {
         setFilteredTodos(todos);
       }
     }
-  }, [filter]);
+  }, [filter, todos]);
 
   const handleFilter = (value: string) => {
     setFilter(value);
@@ -75,24 +76,25 @@ export const App: React.FC = () => {
   const handleAddTodo = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!addValue) {
+    if (!inputValue) {
       setError('Title cant be empty');
     } else {
       const newTodo: TodoType = {
         id: 0,
         userId: USER_ID,
-        title: addValue,
+        title: inputValue,
         completed: false,
       };
 
       setTempTodo(newTodo);
-      setIsInputDisable(true);
+      setIsInputDisabled(true);
 
       addTodo(USER_ID, newTodo).then(() => {
-        setAddValue('');
-        setIsInputDisable(false);
+        setInputValue('');
+      }).catch(() => setError('Unable to add a todo')).finally(() => {
+        setIsInputDisabled(false);
         setTempTodo(null);
-      }).catch(() => setError('Unable to add a todo'));
+      });
     }
   };
 
@@ -103,7 +105,7 @@ export const App: React.FC = () => {
   };
 
   const handleComplete = (id: number, completed: boolean) => {
-    updateTodo(id, !completed).then(() => {
+    updateTodo(id, { completed: !completed }).then(() => {
       setIsUpdating(prevState => !prevState);
     }).catch(() => setError('Unable to update a todo'));
   };
@@ -115,21 +117,21 @@ export const App: React.FC = () => {
 
     if (allInCompleted.length === 0) {
       filteredTodos.forEach(todo => {
-        updateTodo(todo.id, false).then(() => {
+        updateTodo(todo.id, { completed: false }).then(() => {
           setIsUpdating(prevState => !prevState);
         }).catch(() => setError('Unable to update a todo'));
       });
     }
 
     allInCompleted.forEach(todo => {
-      updateTodo(todo.id, !todo.completed).then(() => {
+      updateTodo(todo.id, { completed: !todo.completed }).then(() => {
         setIsUpdating(prevState => !prevState);
       }).catch(() => setError('Unable to update a todo'));
     });
   };
 
   const handleEditTitle = (id: number, text: string) => {
-    updateTodo(id, text).then(() => {
+    updateTodo(id, { title: text }).then(() => {
       setIsUpdating(prevState => !prevState);
     }).catch(() => setError('Unable to update a todo'));
   };
@@ -144,7 +146,7 @@ export const App: React.FC = () => {
       handleEditTitle={handleEditTitle}
     />
   ));
-  const countNotCompletedtodos = todos.filter(todo => (
+  const countNotCompletedTodos = todos.filter(todo => (
     todo.completed === false
   )).length;
 
@@ -164,7 +166,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const activeTodos = todos.find(todo => todo.completed);
+  const activeTodo = todos.find(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -172,7 +174,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {activeTodos && (
+          {todos.length > 0 && (
             <button
               type="button"
               className="todoapp__toggle-all active"
@@ -185,9 +187,9 @@ export const App: React.FC = () => {
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
-              value={addValue}
-              onChange={(event) => setAddValue(event.target.value)}
-              disabled={isInputDisable && true}
+              value={inputValue}
+              onChange={(event) => setInputValue(event.target.value)}
+              disabled={isInputDisabled}
             />
           </form>
         </header>
@@ -200,11 +202,11 @@ export const App: React.FC = () => {
         {todos.length > 0
           && (
             <Filter
-              countNotCompletedtodos={countNotCompletedtodos}
+              countNotCompletedTodos={countNotCompletedTodos}
               handleFilter={handleFilter}
               filter={filter}
               handleRemoveCompletedTodos={handleRemoveCompletedTodos}
-              activeTodos={activeTodos}
+              activeTodo={activeTodo}
             />
           )}
       </div>
