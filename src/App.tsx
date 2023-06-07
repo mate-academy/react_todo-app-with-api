@@ -1,7 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos, addTodo, deleteTodos } from './api/todos';
+import {
+  getTodos, addTodo, deleteTodos, updateTodos,
+} from './api/todos';
 import ErrorMessage from './components/ErrorMessage';
 import NewTodoInputField from './components/NewTodoInputField';
 import TodosList from './components/TodosList';
@@ -17,19 +19,23 @@ const USER_ID = 10595;
 export const App: React.FC = () => {
   const [todosList, setTodosList] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
-  const [status, setStatus] = useState<TodoStatus>('all');
+  const [status, setStatus] = useState<TodoStatus>(TodoStatus.ALL);
 
-  const [error, setError] = useState<Errors>('');
+  const [error, setError] = useState<Errors>(Errors.NULL);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  useEffect(() => {
+  const handleLoadTodos = () => {
     getTodos(USER_ID)
       .then(response => {
         setTodosList(response);
         setVisibleTodos(response);
       })
-      .catch(() => setError('Unable to load a todo'));
+      .catch(() => setError(Errors.LOAD));
+  };
+
+  useEffect(() => {
+    handleLoadTodos();
   }, []);
 
   const handleAddNewTodo = (
@@ -46,7 +52,7 @@ export const App: React.FC = () => {
         completed: false,
       });
     } else {
-      setError('Title can\'t be empty');
+      setError(Errors.EMPTY_TITLE);
     }
   };
 
@@ -55,7 +61,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodosList(prev => prev.filter(todo => !ids.includes(todo.id)));
       })
-      .catch(() => setError('Unable to delete a todo'));
+      .catch(() => setError(Errors.DELETE));
   };
 
   const handleClearCompleted = () => {
@@ -65,14 +71,33 @@ export const App: React.FC = () => {
     handleDeleteTodo(ids);
   };
 
+  const handleUpdateTodo = (ids: number[], value: Partial<Todo>) => {
+    updateTodos(ids, value)
+      .then(() => handleLoadTodos())
+      .catch(() => setError(Errors.UPDATE));
+  };
+
+  const handleCompleteAll = () => {
+    const activeTodos = todosList.filter(todo => !todo.completed);
+    const ids = activeTodos.length > 0
+      ? activeTodos.map(todo => todo.id)
+      : todosList.map(todo => todo.id);
+
+    const currentStatus = activeTodos.length > 0;
+
+    updateTodos(ids, { completed: currentStatus })
+      .then(() => handleLoadTodos())
+      .catch(() => setError(Errors.UPDATE));
+  };
+
   const handleFilterTodos = (newStatus: TodoStatus) => {
     setStatus(newStatus);
 
     switch (newStatus) {
-      case 'completed':
+      case TodoStatus.COMPLETED:
         setVisibleTodos(todosList.filter(todo => todo.completed));
         break;
-      case 'active':
+      case TodoStatus.ACTIVE:
         setVisibleTodos(todosList.filter(todo => !todo.completed));
         break;
       default:
@@ -86,7 +111,7 @@ export const App: React.FC = () => {
         .then(response => {
           setTodosList(prev => [...prev, response]);
         })
-        .catch(() => setError('Unable to add a todo'));
+        .catch(() => setError(Errors.ADD));
     }
   }, [tempTodo]);
 
@@ -106,7 +131,10 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <NewTodoInputField
           hasTodos={todosList.length > 0}
+          isActive={todosList.filter(todo => todo.completed)
+            .length === todosList.length}
           handleAddNewTodo={handleAddNewTodo}
+          handleCompleteAll={handleCompleteAll}
         />
         {todosList.length > 0 && (
           <>
@@ -114,6 +142,7 @@ export const App: React.FC = () => {
               <TodosList
                 visibleTodos={visibleTodos}
                 handleDeleteTodo={handleDeleteTodo}
+                handleUpdateTodo={handleUpdateTodo}
               />
               {tempTodo && <TodoItem todo={tempTodo} isTemp />}
             </section>

@@ -4,16 +4,20 @@ import { useState } from 'react';
 
 interface Props {
   hasTodos: boolean
+  isActive: boolean
   handleAddNewTodo: (
     event: React.FormEvent<HTMLFormElement>,
     title: string,
   ) => void
+  handleCompleteAll: () => void;
 
 }
 
 export default function NewTodoInputField({
   hasTodos,
+  isActive,
   handleAddNewTodo,
+  handleCompleteAll,
 }: Props) {
   const [title, setTitle] = useState('');
 
@@ -22,9 +26,19 @@ export default function NewTodoInputField({
     setTitle('');
   };
 
+  const handleToggleTodos = () => {
+    handleCompleteAll();
+  };
+
   return (
     <header className="todoapp__header">
-      {hasTodos && <button type="button" className="todoapp__toggle-all" />}
+      {hasTodos && (
+        <button
+          type="button"
+          className={`todoapp__toggle-all ${isActive ? 'active' : ''}`}
+          onClick={() => handleToggleTodos()}
+        />
+      )}
 
       <form onSubmit={handleAddTodo}>
         <input

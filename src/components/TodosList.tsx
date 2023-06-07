@@ -3,10 +3,15 @@ import TodoItem from './Todo';
 
 interface Props {
   visibleTodos: Todo[];
-  handleDeleteTodo: (id: number[]) => void;
+  handleDeleteTodo: (ids: number[]) => void;
+  handleUpdateTodo: (ids: number[], value: Partial<Todo>) => void;
 }
 
-export default function TodosList({ visibleTodos, handleDeleteTodo }: Props) {
+export default function TodosList({
+  visibleTodos,
+  handleDeleteTodo,
+  handleUpdateTodo,
+}: Props) {
   return (
     <>
       {visibleTodos.map(todo => (
@@ -14,6 +19,7 @@ export default function TodosList({ visibleTodos, handleDeleteTodo }: Props) {
           todo={todo}
           isTemp={false}
           handleDeleteTodo={handleDeleteTodo}
+          handleUpdateTodo={handleUpdateTodo}
           key={todo.id}
         />
       ))}
