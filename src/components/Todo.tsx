@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent, useEffect, useState } from 'react';
 import { Todo as TodoType } from '../types/Todo';
 import { deleteTodo, updateIsCompleted, updateTitle } from '../api/todos';
 
 interface TodoProps {
   setTodos: React.Dispatch<React.SetStateAction<TodoType[]>>,
   todo: TodoType,
+  todos: TodoType[],
   temp:boolean,
   deleteTask: (id: number) => void,
   setError: (error:string) => void,
@@ -14,7 +15,7 @@ interface TodoProps {
 }
 
 export const Todo: React.FC<TodoProps> = ({
-  todo, temp, deleteTask, setError, setTodos, userId,
+  todo, temp, deleteTask, setError, setTodos, userId, todos,
 }) => {
   const [editable, setEditable] = useState(false);
   const [isChecked, setIsChecked] = useState(todo.completed);
@@ -23,6 +24,15 @@ export const Todo: React.FC<TodoProps> = ({
 
   const handleCheckbox = (checkboxCurrentState: boolean) => {
     setIsChecked(checkboxCurrentState);
+
+    setTodos(prev => prev.map(item => {
+      if (item.id === todo.id) {
+        return { ...item, completed: !isChecked };
+      }
+
+      return item;
+    }));
+
     setInProgress(true);
     updateIsCompleted(todo.id, !isChecked, userId)
       .catch(error => {
@@ -50,19 +60,26 @@ export const Todo: React.FC<TodoProps> = ({
     setTitleState(newTitle);
   };
 
+  useEffect(() => {
+    setIsChecked(todo.completed);
+  }, [todos]);
+
+  const processTitleChange = () => {
+    setEditable(false);
+    setInProgress(true);
+    updateTitle(todo.id, titleState)
+      .catch(error => {
+        setError(error);
+      })
+      .finally(() => {
+        setInProgress(false);
+      });
+  };
+
   const handleEnter = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 13) {
       event.preventDefault();
-
-      setEditable(false);
-      setInProgress(true);
-      updateTitle(todo.id, titleState)
-        .catch(error => {
-          setError(error);
-        })
-        .finally(() => {
-          setInProgress(false);
-        });
+      processTitleChange();
     }
   };
 
@@ -92,9 +109,7 @@ export const Todo: React.FC<TodoProps> = ({
               value={titleState}
               onChange={event => handleChangeTitle(event?.target.value)}
               onKeyDown={handleEnter}
-              onBlur={() => {
-                setEditable(false);
-              }}
+              onBlur={processTitleChange}
             />
           </form>
         )

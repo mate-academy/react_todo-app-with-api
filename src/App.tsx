@@ -6,7 +6,9 @@ import { Footer } from './components/Footer';
 import { Todo } from './components/Todo';
 import { Error } from './components/Error';
 import { Todo as TodoType } from './types/Todo';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateIsCompleted,
+} from './api/todos';
 import { Filter } from './types/Filter';
 
 export const USER_ID = 10583;
@@ -66,19 +68,34 @@ export const App: React.FC = () => {
         .catch(() => setError('Unable to delete a todo')));
   };
 
+  const toggleAllCompleted = () => {
+    const changeCompletedToThisValue = !todos.every(todo => todo.completed);
+
+    todos
+      // .filter((todo) => todo.completed)
+      .forEach((todo) => updateIsCompleted(
+        todo.id, changeCompletedToThisValue, USER_ID
+        ).then(() => {
+          setTodos(prev => prev.map(item => {
+            return { ...item, completed: changeCompletedToThisValue };
+          }));
+        })
+        .catch(() => setError('Unable to update a todo state')));
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        {todos?.length && (
-          <Header
-            setTempTodos={setTempTodos}
-            setError={setError}
-            isInputLocked={isInputLocked}
-            setIsInputLocked={setIsInputLocked}
-          />
-        )}
+        <Header
+          todos={todos}
+          toggleAllCompleted={toggleAllCompleted}
+          setTempTodos={setTempTodos}
+          setError={setError}
+          isInputLocked={isInputLocked}
+          setIsInputLocked={setIsInputLocked}
+        />
 
         <section className="todoapp__main">
           {todos
@@ -96,6 +113,7 @@ export const App: React.FC = () => {
             })
             .map((todo) => (
               <Todo
+                todos={todos}
                 setTodos={setTodos}
                 deleteTask={deleteTask}
                 key={todo.id}
@@ -108,6 +126,7 @@ export const App: React.FC = () => {
 
           {tempTodos?.map((tempTodo) => (
             <Todo
+              todos={todos}
               setTodos={setTodos}
               deleteTask={deleteTask}
               key={tempTodo.id}
@@ -119,14 +138,12 @@ export const App: React.FC = () => {
           ))}
         </section>
 
-        {todos?.length && (
-          <Footer
-            setFilter={setFilter}
-            filter={filter}
-            todos={todos}
-            removeAllCompleted={removeAllCompleted}
-          />
-        )}
+        <Footer
+          setFilter={setFilter}
+          filter={filter}
+          todos={todos}
+          removeAllCompleted={removeAllCompleted}
+        />
       </div>
 
       {error && <Error error={error} />}

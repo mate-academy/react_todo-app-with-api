@@ -19,7 +19,7 @@ export const updateTitle = (id:number, title:string) => {
 };
 
 export const updateIsCompleted = (
-  id:number, completed:boolean, userId:number
-  ) => {
+  id:number, completed:boolean, userId:number,
+) => {
   return client.patch(`/todos/${id}`, { completed, userId });
 };

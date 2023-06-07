@@ -1,10 +1,12 @@
 import {
-  KeyboardEvent, SetStateAction, useState,
+  KeyboardEvent, SetStateAction, useEffect, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface HeaderProps {
+  todos:Todo[],
+  toggleAllCompleted:()=>void,
   setTempTodos:React.Dispatch<React.SetStateAction<Todo[]>>
   setError: (value: SetStateAction<string>) => void,
   isInputLocked: boolean,
@@ -12,9 +14,20 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  setTempTodos, setError, isInputLocked, setIsInputLocked,
+    setTempTodos,
+    setError,
+    isInputLocked,
+    setIsInputLocked,
+    toggleAllCompleted,
+    todos,
 }) => {
   const [query, setQuery] = useState('');
+  const [isToggleAllActive, setIsToggleAllActive]
+    = useState(!todos.every(todo => todo.completed));
+
+  useEffect(() => {
+    setIsToggleAllActive(!todos.every(todo => todo.completed));
+  }, [todos]);
 
   const handleEnter = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 13) {
@@ -41,10 +54,18 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const handleToggleAllCompleted = () => {
+    toggleAllCompleted();
+  };
+
   return (
     <header className="todoapp__header">
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button type="button" className="todoapp__toggle-all active" />
+      <button
+        type="button"
+        className={`todoapp__toggle-all ${isToggleAllActive ? 'active' : ''}`}
+        onClick={handleToggleAllCompleted}
+      />
       <form>
         <input
           type="text"

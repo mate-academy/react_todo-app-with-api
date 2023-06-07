@@ -1,9 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FooterProps {
-  setFilter: (arg0:Filter) => void,
+  setFilter: (filter:Filter) => void,
   filter: Filter,
   todos:Todo[],
   removeAllCompleted:()=>void,
@@ -12,10 +13,17 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({
   setFilter, filter, todos, removeAllCompleted,
 }) => {
+  const [areCompleted, setAreCompleted]
+    = useState(todos.some(todo => todo.completed));
+
+  useEffect(() => {
+    setAreCompleted(todos.some(todo => todo.completed));
+  }, [todos]);
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todos.filter(todo => todo.completed).length} item${todos.length > 1 ? 's' : ''} left`}
+        {`${todos.filter(todo => !todo.completed).length} item${todos.length > 1 ? 's' : ''} left`}
       </span>
       <nav className="filter">
         <a
@@ -42,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({
           Completed
         </a>
       </nav>
-      {todos.some(todo => todo.completed)
+      {areCompleted
        && (
          <button
            type="button"
