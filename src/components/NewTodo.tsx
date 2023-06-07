@@ -7,14 +7,16 @@ interface NewTodoProps {
 export const NewTodo = ({ onTodoAdd }: NewTodoProps) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
 
+  const handleTodoSubmit = (event: React.FormEvent) => {
+    if (newTodoTitle) {
+      event.preventDefault();
+      onTodoAdd(newTodoTitle)
+        .finally(() => setNewTodoTitle(''));
+    }
+  };
+
   return (
-    <form onSubmit={() => {
-      if (newTodoTitle) {
-        onTodoAdd(newTodoTitle)
-          .finally(() => setNewTodoTitle(''));
-      }
-    }}
-    >
+    <form onSubmit={handleTodoSubmit}>
       <input
         type="text"
         className="todoapp__new-todo"
