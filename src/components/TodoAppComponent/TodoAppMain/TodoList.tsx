@@ -1,5 +1,7 @@
 import cn from 'classnames';
-import { FormEvent, KeyboardEvent, useState } from 'react';
+import {
+  FormEvent, KeyboardEvent, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../../../types/Todo';
 import { useTodosContext } from '../../../Context/TodosContext';
 
@@ -9,6 +11,8 @@ interface PropsTodoList {
 export const TodoList = ({ filteredTodos }: PropsTodoList) => {
   const [isEditById, setIsEditById] = useState(0);
   const [tempTitle, setTempTitle] = useState('');
+  const todoInputRef = useRef<HTMLInputElement>(null);
+
   const {
     tempTodo, loading, setLoading, handleDeleteTodo,
     handleClickCheck, editTitle,
@@ -20,6 +24,16 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
     setIsEditById(id);
     setTempTitle(title);
   };
+
+  useEffect(() => {
+    if (todoInputRef.current) {
+      if (isEditById) {
+        todoInputRef.current.focus();
+      } else {
+        todoInputRef.current.blur();
+      }
+    }
+  }, [isEditById]);
 
   const handleEditTitle = (event: FormEvent) => {
     setLoading(true);
@@ -92,7 +106,7 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
                     onChange={(event) => setTempTitle(event.target.value)}
                     onKeyUp={handleKeyUp}
                     onBlur={handleEditTitle}
-                    autoFocus
+                    ref={todoInputRef}
                   />
                 </form>
               )}
