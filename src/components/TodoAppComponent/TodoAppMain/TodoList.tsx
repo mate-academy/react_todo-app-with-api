@@ -92,6 +92,7 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
                     onChange={(event) => setTempTitle(event.target.value)}
                     onKeyUp={handleKeyUp}
                     onBlur={handleEditTitle}
+                    autoFocus
                   />
                 </form>
               )}
