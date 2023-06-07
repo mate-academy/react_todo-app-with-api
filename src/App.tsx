@@ -20,10 +20,11 @@ const USER_ID = 10524;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<TodoData[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<TodoData[]>([]);
-  const [errorMessage, setErrorMessage] = useState<ActionError | string>('');
+  const [errorMessage, setErrorMessage]
+  = useState<ActionError>(ActionError.NONE);
   const [tempTodo, setTempTodo] = useState<TodoData | null>(null);
   const [wasAnyTodoCompleted, setWasTodoCompleted] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<Status>('all');
+  const [filterStatus, setFilterStatus] = useState<Status>(Status.ALL);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -33,14 +34,14 @@ export const App: React.FC = () => {
         setWasTodoCompleted(downloadedTodos.some(todo => todo.completed));
       })
       .catch(() => {
-        setErrorMessage(ActionError.read);
+        setErrorMessage(ActionError.READ);
       });
   }, []);
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage('');
+        setErrorMessage(ActionError.NONE);
       }, 3000);
     }
   }, [errorMessage]);
@@ -65,7 +66,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
         setFilteredTodos(prevTodos => [...prevTodos, newTodo]);
       })
-      .catch(() => setErrorMessage(ActionError.add))
+      .catch(() => setErrorMessage(ActionError.ADD))
       .finally(() => setTempTodo(null));
   }, [todos]);
 
@@ -77,7 +78,7 @@ export const App: React.FC = () => {
         setTodos(newTodos);
         setFilteredTodos(newTodos);
       })
-      .catch(() => setErrorMessage(ActionError.delete));
+      .catch(() => setErrorMessage(ActionError.DELETE));
   }, [todos]);
 
   const handleCompletedTodosDelete = () => {
@@ -95,7 +96,7 @@ export const App: React.FC = () => {
         setTodos(updatedTodos);
         setFilteredTodos(updatedTodos);
       })
-      .catch(() => setErrorMessage(ActionError.delete));
+      .catch(() => setErrorMessage(ActionError.DELETE));
   };
 
   const handleTodoUpdate = useCallback((updatedTodo: TodoData) => {
@@ -111,7 +112,7 @@ export const App: React.FC = () => {
         setFilteredTodos(newTodos);
         setWasTodoCompleted(newTodos.some(todo => todo.completed));
       })
-      .catch(() => setErrorMessage(ActionError.update));
+      .catch(() => setErrorMessage(ActionError.UPDATE));
   }, [todos]);
 
   const handleTodosToggle = () => {
@@ -131,18 +132,18 @@ export const App: React.FC = () => {
     ).then((updatedTodos) => {
       setTodos(updatedTodos);
       setFilteredTodos(updatedTodos);
-    }).catch(() => setErrorMessage(ActionError.update));
+    }).catch(() => setErrorMessage(ActionError.UPDATE));
   };
 
   useMemo(() => {
     switch (filterStatus) {
-      case 'all':
+      case Status.ALL:
         setFilteredTodos([...todos]);
         break;
-      case 'completed':
+      case Status.COMPLETED:
         setFilteredTodos(todos.filter(todo => todo.completed));
         break;
-      case 'active':
+      case Status.ACTIVE:
         setFilteredTodos(todos.filter(todo => !todo.completed));
         break;
       default:

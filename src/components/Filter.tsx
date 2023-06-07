@@ -7,7 +7,7 @@ interface FilterProps {
 }
 
 export const Filter = memo(({ onFilterStatusChange }:FilterProps) => {
-  const [filterStatus, setFilterStatus] = useState<Status>('all');
+  const [filterStatus, setFilterStatus] = useState<Status>(Status.ALL);
 
   const pickFilterStatus = (chosenFilter: Status) => {
     setFilterStatus(chosenFilter);
@@ -19,9 +19,9 @@ export const Filter = memo(({ onFilterStatusChange }:FilterProps) => {
       <a
         href="#/"
         className={classNames('filter__link', {
-          selected: filterStatus === 'all',
+          selected: filterStatus === Status.ALL,
         })}
-        onClick={() => pickFilterStatus('all')}
+        onClick={() => pickFilterStatus(Status.ALL)}
       >
         All
       </a>
@@ -29,9 +29,9 @@ export const Filter = memo(({ onFilterStatusChange }:FilterProps) => {
       <a
         href="#/active"
         className={classNames('filter__link', {
-          selected: filterStatus === 'active',
+          selected: filterStatus === Status.ACTIVE,
         })}
-        onClick={() => pickFilterStatus('active')}
+        onClick={() => pickFilterStatus(Status.ACTIVE)}
       >
         Active
       </a>
@@ -39,9 +39,9 @@ export const Filter = memo(({ onFilterStatusChange }:FilterProps) => {
       <a
         href="#/completed"
         className={classNames('filter__link', {
-          selected: filterStatus === 'completed',
+          selected: filterStatus === Status.COMPLETED,
         })}
-        onClick={() => pickFilterStatus('completed')}
+        onClick={() => pickFilterStatus(Status.COMPLETED)}
       >
         Completed
       </a>
