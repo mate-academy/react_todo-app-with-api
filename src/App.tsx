@@ -1,30 +1,20 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { UserWarning } from './UserWarning';
-import { client } from './utils/fetchClient';
+import { UserWarning } from './components/UserWarning';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { Filter } from './components/Filter';
 import { ShowTodos } from './types/ShowTodos';
 import { ShowError } from './types/ShowErrors';
-
-const USER_ID = 10565;
-
-const todosFromServer = client
-  .get<Todo[]>(`/todos?userId=${USER_ID}`);
-const createTodoOnServer = (title: string) => client
-  .post<Todo>('/todos', {
-  title,
-  userId: USER_ID,
-  completed: false,
-});
-const deleteTodoOnServer = (todoId: number) => client
-  .delete(`/todos/${todoId}`);
-const toggleTodoOnServer = (todoId: number, completed: boolean) => client
-  .patch<Todo>(`/todos/${todoId}`, { completed: !completed });
-const updateTodoOnServer = (todoId: number, title: string) => client
-  .patch<Todo>(`/todos/${todoId}`, { title });
+import {
+  USER_ID,
+  todosFromServer,
+  createTodoOnServer,
+  deleteTodoOnServer,
+  toggleTodoOnServer,
+  updateTodoOnServer,
+} from './api/todos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -102,13 +92,13 @@ export const App: React.FC = () => {
     return getFilteredTodos(selectedTodos);
   }, [selectedTodos, todos]);
 
-  const createTodo = (event: React.FormEvent) => {
-    if (todoTitle === '') {
+  const handleCreateTodo = (event: React.FormEvent) => {
+    if (!todoTitle) {
       showErrors(ShowError.createTodo);
     }
 
     event.preventDefault();
-    if (todoTitle !== null) {
+    if (todoTitle) {
       setIsDisabled(true);
       setTempTodo({
         id: 0,
@@ -216,7 +206,7 @@ export const App: React.FC = () => {
             onClick={toggleAllTodos}
           />
 
-          <form onSubmit={createTodo}>
+          <form onSubmit={handleCreateTodo}>
             <input
               type="text"
               className="todoapp__new-todo"
@@ -295,7 +285,7 @@ export const App: React.FC = () => {
       <div className={classNames(
         'notification is-danger is-light has-text-weight-normal',
         {
-          hidden: error === null,
+          hidden: !error,
         },
       )}
       >

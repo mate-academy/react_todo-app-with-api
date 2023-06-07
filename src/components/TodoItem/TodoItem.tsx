@@ -18,7 +18,7 @@ export const TodoItem:React.FC<Prop> = React.memo(
 
     const handleSubmit = (event: React.FormEvent) => {
       event.preventDefault();
-      if (editingTodo === null) {
+      if (!editingTodo) {
         return;
       }
 
