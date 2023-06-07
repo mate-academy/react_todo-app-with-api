@@ -19,8 +19,10 @@ export default function FooterMenu({
   const [itemsCompleted, setItemsCompleted] = useState(0);
 
   useEffect(() => {
-    setItemsCompleted(todosList.filter(todo => todo.completed).length);
-    setItemsLeft(todosList.length - itemsCompleted);
+    const completed = todosList.filter(todo => todo.completed).length;
+
+    setItemsCompleted(completed);
+    setItemsLeft(todosList.length - completed);
   }, [todosList]);
 
   return (
