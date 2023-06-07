@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { CSSTransition } from 'react-transition-group';
 import { UserWarning } from './components/UserWarning';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
@@ -219,6 +220,8 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main">
+          {/* <TransitionGroup> */}
+
           {filteredTodos
           && filteredTodos.length > 0
           && (
@@ -236,20 +239,29 @@ export const App: React.FC = () => {
           </div>
 
           {tempTodo && (
-            <div className="todo">
-              <label className="todo__status-label">
-                <input type="checkbox" className="todo__status" />
-              </label>
+            <CSSTransition
+              key={0}
+              timeout={300}
+              classNames="temp-item"
+            >
+              <div className="todo">
+                <label className="todo__status-label">
+                  <input type="checkbox" className="todo__status" />
+                </label>
 
-              <span className="todo__title">Todo is being saved now</span>
-              <button type="button" className="todo__remove">×</button>
+                <span className="todo__title">Todo is being saved now</span>
+                <button type="button" className="todo__remove">×</button>
 
-              <div className="modal overlay is-active">
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
+                <div className="modal overlay is-active">
+                  <div
+                    className="modal-background has-background-white-ter"
+                  />
+                  <div className="loader" />
+                </div>
               </div>
-            </div>
+            </CSSTransition>
           )}
+          {/* </TransitionGroup> */}
         </section>
 
         {filteredTodos

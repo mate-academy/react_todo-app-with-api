@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
@@ -18,34 +19,42 @@ export const TodoList:React.FC<Prop> = React.memo(
     updateTodo,
   }) => {
     return (
-      <ul>
-        {todos.map(todo => {
-          return (
-            <li
-              key={todo.id}
-              className={classNames('todo', { completed: todo.completed })}
-            >
-              <label
-                id={todo.id.toString(10)}
-                className="todo__status-label"
+      <TransitionGroup>
+        <ul>
+          {todos.map(todo => {
+            return (
+              <CSSTransition
+                key={todo.id}
+                timeout={300}
+                classNames="item"
               >
-                <input
-                  type="checkbox"
-                  id={todo.id.toString(10)}
-                  className="todo__status"
-                  checked={todo.completed}
-                  onChange={() => toggleTodo(todo.id, todo.completed)}
-                />
-              </label>
-              <TodoItem
-                todo={todo}
-                deleteTodo={deleteTodo}
-                updateTodo={updateTodo}
-              />
-            </li>
-          );
-        })}
-      </ul>
+                <li
+                  key={todo.id}
+                  className={classNames('todo', { completed: todo.completed })}
+                >
+                  <label
+                    id={todo.id.toString(10)}
+                    className="todo__status-label"
+                  >
+                    <input
+                      type="checkbox"
+                      id={todo.id.toString(10)}
+                      className="todo__status"
+                      checked={todo.completed}
+                      onChange={() => toggleTodo(todo.id, todo.completed)}
+                    />
+                  </label>
+                  <TodoItem
+                    todo={todo}
+                    deleteTodo={deleteTodo}
+                    updateTodo={updateTodo}
+                  />
+                </li>
+              </CSSTransition>
+            );
+          })}
+        </ul>
+      </TransitionGroup>
     );
   },
 );
