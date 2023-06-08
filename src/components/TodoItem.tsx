@@ -5,21 +5,23 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDelete?: (todoId: number) => void;
+  onDeleteTodo?: (todoId: number) => void;
   isProcessed: boolean;
   onUpdateTodo?: (todoId: number, data: any) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDelete = () => {},
+  onDeleteTodo = () => {},
   isProcessed,
   onUpdateTodo = () => {},
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [title, setTitle] = useState('');
 
-  const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToggleChecked = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const { checked } = event.target;
 
     onUpdateTodo(todo.id, { completed: checked });
@@ -49,7 +51,7 @@ export const TodoItem: React.FC<Props> = ({
     if (!title.trim()) {
       setIsEdited(false);
 
-      onDelete(todo.id);
+      onDeleteTodo(todo.id);
 
       return;
     }
@@ -79,7 +81,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           disabled={isProcessed}
-          onChange={handleChange}
+          onChange={handleToggleChecked}
         />
       </label>
 
@@ -108,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onDelete(todo.id)}
+            onClick={() => onDeleteTodo(todo.id)}
           >
             ×
           </button>

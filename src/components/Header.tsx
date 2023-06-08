@@ -1,25 +1,40 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[];
-  onFormSubmit: (event: React.FormEvent) => Promise<void>;
-  todoTitle: string;
-  setTodoTitle: (title: string) => void;
+  onAddTodo: (title: string) => void;
   isCreating: boolean;
   onToggleAll: () => void;
 };
 
 export const Header: React.FC<Props> = ({
   todos,
-  onFormSubmit,
-  todoTitle,
-  setTodoTitle,
+  onAddTodo,
   isCreating,
   onToggleAll,
 }) => {
-  const allTodosCompleted = todos.every(todo => todo.completed);
+  const [todoTitle, setTodoTitle] = useState('');
+
+  const allTodosCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
+
+  const handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    onAddTodo(todoTitle);
+
+    setTodoTitle('');
+  };
+
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setTodoTitle(value);
+  };
 
   return (
     <header className="todoapp__header">
@@ -34,13 +49,13 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={onFormSubmit}>
+      <form onSubmit={handleFormSubmit}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={todoTitle}
-          onChange={(event) => setTodoTitle(event.target.value)}
+          onChange={handleChangeTitle}
           disabled={isCreating}
         />
       </form>

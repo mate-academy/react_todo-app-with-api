@@ -28,7 +28,6 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [processedTodoIds, setProcessedTodoIds] = useState<number[]>([]);
   const [filterStatus, setFilterStatus] = useState(FilterStatus.all);
-  const [todoTitle, setTodoTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorType, setErrorType] = useState(ErrorType.none);
@@ -75,10 +74,8 @@ export const App: React.FC = () => {
     });
   }, [todos, filterStatus]);
 
-  const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!todoTitle.trim()) {
+  const handleAddTodo = async (title: string) => {
+    if (!title.trim()) {
       showError(ErrorType.missingTitle);
 
       return;
@@ -92,24 +89,22 @@ export const App: React.FC = () => {
       setTempTodo({
         id: 0,
         userId: USER_ID,
-        title: todoTitle,
+        title,
         completed: false,
       });
 
-      const todo = await createTodo(USER_ID, todoTitle);
+      const todo = await createTodo(USER_ID, title);
 
       setTodos([
         ...todos,
         todo,
       ]);
-
-      setTodoTitle('');
-
-      setTempTodo(null);
     } catch {
       showError(ErrorType.onAdd);
     } finally {
       setIsCreating(false);
+
+      setTempTodo(null);
     }
   };
 
@@ -231,9 +226,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={todos}
-          onFormSubmit={handleFormSubmit}
-          todoTitle={todoTitle}
-          setTodoTitle={setTodoTitle}
+          onAddTodo={handleAddTodo}
           isCreating={isCreating}
           onToggleAll={handleToggleAll}
         />

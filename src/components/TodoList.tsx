@@ -30,7 +30,7 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={todo}
-              onDelete={onDeleteTodo}
+              onDeleteTodo={onDeleteTodo}
               isProcessed={processedTodoIds.includes(todo.id)}
               onUpdateTodo={onUpdateTodo}
             />
