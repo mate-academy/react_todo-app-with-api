@@ -27,7 +27,9 @@ export const App: React.FC = () => {
   const isActiveTodos = todos.filter((todo) => !todo.completed);
 
   const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
+    const { value } = event.target;
+
+    setTitle(value);
   };
 
   const handleCreateTodo = () => {
