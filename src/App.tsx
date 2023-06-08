@@ -1,67 +1,28 @@
-/* eslint-disable prefer-const */
-/* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {
-  useCallback,
   useEffect,
   useMemo,
-  useReducer,
   useState,
 } from 'react';
-import classNames from 'classnames';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { UserWarning } from './UserWarning';
 
-import { getTodos, createTodo, deleteTodo } from './api/todos';
+import {
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
 
 import { Todo } from './types/Todo';
-import { TodoItem } from './components/TodoItem';
+import { ErrorType } from './types/ErrorType';
+import { FilterStatus } from './types/FilterStatus';
+
+import { Notification } from './components/Notification';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
 
 const USER_ID = 10613;
-
-enum FilterStatus {
-  all = 'all',
-  active = 'active',
-  completed = 'completed',
-}
-
-enum ErrorType {
-  onLoad,
-  onAdd,
-  onDelete,
-  onUpdate,
-  missingTitle,
-}
-
-type SetError = {
-  type: 'set_error';
-  value: ErrorType;
-};
-
-type RemoveError = {
-  type: 'remove_error';
-};
-
-const reducer = (state: {
-  isError: boolean,
-  errorType: ErrorType | null,
-}, action: SetError | RemoveError) => {
-  switch (action.type) {
-    case 'set_error':
-      return {
-        errorType: action.value,
-        isError: true,
-      };
-
-    case 'remove_error':
-      return {
-        ...state,
-        isError: false,
-      };
-
-    default:
-      return state;
-  }
-};
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -70,21 +31,19 @@ export const App: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [error, dispatch] = useReducer(reducer, {
-    isError: false,
-    errorType: null,
-  });
+  const [errorType, setErrorType] = useState(ErrorType.none);
 
-  const showError = useCallback(
-    (value: ErrorType) => {
-      dispatch({ type: 'set_error', value });
+  const hideError = () => {
+    setErrorType(ErrorType.none);
+  };
 
-      setTimeout(() => {
-        dispatch({ type: 'remove_error' });
-      }, 3000);
-    },
-    [],
-  );
+  const showError = (value: ErrorType) => {
+    setErrorType(value);
+
+    setTimeout(() => {
+      hideError();
+    }, 3000);
+  };
 
   const loadTodos = async () => {
     try {
@@ -126,7 +85,7 @@ export const App: React.FC = () => {
     }
 
     try {
-      dispatch({ type: 'remove_error' }); // hide error before any next request
+      hideError();
 
       setIsCreating(true);
 
@@ -147,9 +106,6 @@ export const App: React.FC = () => {
       setTodoTitle('');
 
       setTempTodo(null);
-
-      // eslint-disable-next-line no-console
-      console.log(todo);
     } catch {
       showError(ErrorType.onAdd);
     } finally {
@@ -164,7 +120,7 @@ export const App: React.FC = () => {
         todoId,
       ]);
 
-      dispatch({ type: 'remove_error' });
+      hideError();
 
       await deleteTodo(todoId);
 
@@ -183,11 +139,82 @@ export const App: React.FC = () => {
 
       setProcessedTodoIds(completedTodoIds);
 
+      hideError();
+
       await Promise.all(completedTodoIds.map(todoId => deleteTodo(todoId)));
 
       setTodos(todos.filter(todo => !todo.completed));
     } catch {
       showError(ErrorType.onDelete);
+    } finally {
+      setProcessedTodoIds([]);
+    }
+  };
+
+  const handleUpdateTodo = async (todoId: number, data: any) => {
+    try {
+      setProcessedTodoIds([
+        ...processedTodoIds,
+        todoId,
+      ]);
+
+      hideError();
+
+      await updateTodo(todoId, data);
+
+      setTodos(prevTodos => {
+        return prevTodos.map(currTodo => {
+          if (currTodo.id !== todoId) {
+            return currTodo;
+          }
+
+          return {
+            ...currTodo,
+            ...data,
+          };
+        });
+      });
+    } catch {
+      showError(ErrorType.onUpdate);
+    } finally {
+      setProcessedTodoIds([]);
+    }
+  };
+
+  const handleToggleAll = async () => {
+    try {
+      const notCompletedTodoIds = todos.filter(todo => !todo.completed)
+        .map(todo => todo.id);
+
+      hideError();
+
+      if (notCompletedTodoIds.length) {
+        setProcessedTodoIds(notCompletedTodoIds);
+
+        await Promise.all(notCompletedTodoIds.map(todoId => {
+          return updateTodo(todoId, { completed: true });
+        }));
+
+        setTodos(todos.map(todo => ({
+          ...todo,
+          completed: true,
+        })));
+      } else {
+        const allTodoIds = todos.map(todo => todo.id);
+
+        setProcessedTodoIds(allTodoIds);
+
+        await Promise.all(allTodoIds.map(todoId => {
+          return updateTodo(todoId, { completed: false });
+        }));
+
+        setTodos(todos.map(todo => ({
+          ...todo,
+          completed: false,
+        })));
+      }
+    } catch {
+      showError(ErrorType.onUpdate);
     } finally {
       setProcessedTodoIds([]);
     }
@@ -202,135 +229,37 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {todos.length !== 0 && (
-            <button
-              type="button"
-              className={classNames(
-                'todoapp__toggle-all',
-                { active: todos.every(todo => todo.completed) },
-              )}
-            />
-          )}
-
-          <form onSubmit={handleFormSubmit}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={todoTitle}
-              onChange={(event) => setTodoTitle(event.target.value)}
-              disabled={isCreating}
-            />
-          </form>
-        </header>
-
-        <section className="todoapp__main">
-          <TransitionGroup>
-            {visibleTodos.map(todo => (
-              <CSSTransition
-                key={todo.id}
-                timeout={300}
-                classNames="item"
-              >
-                <TodoItem
-                  todo={todo}
-                  onDelete={handleDeleteTodo}
-                  isProcessed={processedTodoIds.includes(todo.id)}
-                />
-              </CSSTransition>
-            ))}
-
-            {tempTodo !== null && (
-              <CSSTransition
-                key={0}
-                timeout={300}
-                classNames="temp-item"
-              >
-                <TodoItem
-                  todo={tempTodo}
-                  isProcessed
-                />
-              </CSSTransition>
-            )}
-          </TransitionGroup>
-        </section>
-
-        {todos.length !== 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${todos.filter(todo => !todo.completed).length} items left`}
-            </span>
-
-            <nav className="filter">
-              <a
-                href="#/"
-                className={classNames(
-                  'filter__link',
-                  { selected: filterStatus === 'all' },
-                )}
-                onClick={() => setFilterStatus(FilterStatus.all)}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={classNames(
-                  'filter__link',
-                  { selected: filterStatus === 'active' },
-                )}
-                onClick={() => setFilterStatus(FilterStatus.active)}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={classNames(
-                  'filter__link',
-                  { selected: filterStatus === 'completed' },
-                )}
-                onClick={() => setFilterStatus(FilterStatus.completed)}
-              >
-                Completed
-              </a>
-            </nav>
-
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              disabled={todos.every(todo => !todo.completed)}
-              onClick={() => handleClearCompleted()}
-            >
-              Clear completed
-            </button>
-          </footer>
-        )}
-      </div>
-
-      <div className={classNames(
-        'notification',
-        'is-danger',
-        'is-light',
-        'has-text-weight-normal',
-        { hidden: !error.isError },
-      )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={() => dispatch({ type: 'remove_error' })}
+        <Header
+          todos={todos}
+          onFormSubmit={handleFormSubmit}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+          isCreating={isCreating}
+          onToggleAll={handleToggleAll}
         />
 
-        {error.errorType === ErrorType.onLoad && 'Unable to load the todos'}
-        {error.errorType === ErrorType.onAdd && 'Unable to add a todo'}
-        {error.errorType === ErrorType.onDelete && 'Unable to delete a todo'}
-        {error.errorType === ErrorType.onUpdate && 'Unable to update a todo'}
-        {error.errorType === ErrorType.missingTitle && (
-          "Title can't be empty"
+        <TodoList
+          visibleTodos={visibleTodos}
+          onDeleteTodo={handleDeleteTodo}
+          processedTodoIds={processedTodoIds}
+          tempTodo={tempTodo}
+          onUpdateTodo={handleUpdateTodo}
+        />
+
+        {!!todos.length && (
+          <Footer
+            todos={todos}
+            filterStatus={filterStatus}
+            onSetFilterStatus={setFilterStatus}
+            onClearCompleted={handleClearCompleted}
+          />
         )}
       </div>
+
+      <Notification
+        errorType={errorType}
+        onCloseNotification={hideError}
+      />
     </div>
   );
 };

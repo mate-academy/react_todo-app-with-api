@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
@@ -15,4 +16,8 @@ export const createTodo = (userId: number, title: string) => {
 
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
+};
+
+export const updateTodo = (todoId: number, data: any) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
