@@ -128,7 +128,7 @@ export const TodoList = ({
                     placeholder={todo.title}
                     value={newTitle}
                     onChange={handleNewTitle}
-                    onBlur={() => setEditTodo(null)}
+                    onBlur={handleTitleSubmit}
                     // onFocus={handleFocus}
                     // ref={titleRef}
                   />
