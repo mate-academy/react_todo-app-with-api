@@ -5,15 +5,15 @@ import { SortType } from '../../types/SortType';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  sortType: SortType
+  sortType: SortType,
   sortBy: {
     sortByAll: () => void,
     sortByActive: () => void,
     sortByCompleted: () => void,
   }
-  todos: Todo[]
-  removeCompleted: () => void
-  isActiveTodos: Todo[];
+  todos: Todo[],
+  removeCompleted: () => void,
+  activeTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
@@ -21,9 +21,8 @@ export const Footer: React.FC<Props> = ({
   sortBy,
   todos,
   removeCompleted,
-  isActiveTodos,
+  activeTodos,
 }) => {
-  // const isActiveTodos = todos.filter((todo) => !todo.completed);
   const hasCompletedTodos = !!todos.filter((todo) => todo.completed).length;
 
   return (
@@ -34,7 +33,7 @@ export const Footer: React.FC<Props> = ({
     )}
     >
       <span className="todo-count">
-        {`${isActiveTodos.length} items left`}
+        {`${activeTodos.length} items left`}
       </span>
 
       <FilterComponent

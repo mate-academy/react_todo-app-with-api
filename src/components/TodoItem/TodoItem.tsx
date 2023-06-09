@@ -4,18 +4,16 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  onDelete: (todoId: number) => void,
   todosLoading: number[],
-  todosUpdate: (id: number, data: Partial<Todo>) => void;
-  removeTodo: (id: number) => void;
+  todosUpdate: (id: number, data: Partial<Todo>) => void,
+  deleteTodo: (id: number) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDelete,
   todosLoading,
   todosUpdate,
-  removeTodo,
+  deleteTodo,
 }) => {
   const {
     completed,
@@ -39,7 +37,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const applyChanges = () => {
     if (!currentTitle) {
-      removeTodo(id);
+      deleteTodo(id);
     } else {
       todosUpdate(id, { title: currentTitle });
     }
@@ -110,7 +108,7 @@ export const TodoItem: React.FC<Props> = ({
       <button
         type="button"
         className="todo__remove"
-        onClick={() => onDelete(id)}
+        onClick={() => deleteTodo(id)}
       >
         ×
       </button>

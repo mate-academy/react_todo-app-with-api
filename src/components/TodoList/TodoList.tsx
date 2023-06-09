@@ -8,27 +8,25 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   visibleTodos: Todo[],
-  remove: (id: number) => void,
   tempTodo: Todo | null,
   isConnection: boolean,
-  todosLoading: number[];
-  todosUpdate: (id: number, data: Partial<Todo>) => void;
-  removeTodo: (id: number) => void;
+  todosLoading: number[],
+  todosUpdate: (id: number, data: Partial<Todo>) => void,
+  deleteTodo: (id: number) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
   visibleTodos,
-  remove,
   tempTodo,
   isConnection,
   todosLoading,
   todosUpdate,
-  removeTodo,
+  deleteTodo,
 }) => {
   return (
     <section className="todoapp__main">
       <TransitionGroup>
-        {visibleTodos?.map(todo => (
+        {visibleTodos.map(todo => (
           <CSSTransition
             key={todo.id}
             timeout={300}
@@ -36,10 +34,9 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={todo}
-              onDelete={remove}
               todosLoading={todosLoading}
               todosUpdate={todosUpdate}
-              removeTodo={removeTodo}
+              deleteTodo={deleteTodo}
             />
           </CSSTransition>
         ))}
@@ -52,10 +49,9 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={tempTodo}
-              onDelete={remove}
               todosLoading={todosLoading}
               todosUpdate={todosUpdate}
-              removeTodo={removeTodo}
+              deleteTodo={deleteTodo}
             />
           </CSSTransition>
         )}

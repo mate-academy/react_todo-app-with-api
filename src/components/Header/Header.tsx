@@ -8,7 +8,7 @@ type Props = {
   handleSubmit: (event: React.FormEvent) => void,
   todosLoading: number[],
   toggleCompleted: () => void;
-  isActiveTodos: Todo[];
+  activeTodos: Todo[],
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,7 +17,7 @@ export const Header: React.FC<Props> = ({
   handleSubmit,
   todosLoading,
   toggleCompleted,
-  isActiveTodos,
+  activeTodos,
 }) => {
   return (
     <header className="todoapp__header">
@@ -25,7 +25,7 @@ export const Header: React.FC<Props> = ({
         aria-label="toggleAllButton"
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !!isActiveTodos.length,
+          active: !!activeTodos.length,
         })}
         onClick={toggleCompleted}
       />

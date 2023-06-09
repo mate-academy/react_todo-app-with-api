@@ -149,7 +149,7 @@ export const App: React.FC = () => {
         case SortType.Completed:
           return todo.completed;
         default:
-          return todos;
+          return true;
       }
     });
   }, [todos, sortType]);
@@ -195,17 +195,16 @@ export const App: React.FC = () => {
           handleSubmit={handleSubmit}
           todosLoading={todosLoading}
           toggleCompleted={handleToggleCompleted}
-          isActiveTodos={isActiveTodos}
+          activeTodos={isActiveTodos}
         />
 
         <TodoList
           visibleTodos={visibleTodos}
-          remove={handleRemoveTodo}
           tempTodo={tempTodo}
           isConnection={isConnection}
           todosLoading={todosLoading}
           todosUpdate={handleUpdateTodo}
-          removeTodo={handleRemoveTodo}
+          deleteTodo={handleRemoveTodo}
         />
 
         <Footer
@@ -213,7 +212,7 @@ export const App: React.FC = () => {
           sortBy={sortBy}
           todos={todos}
           removeCompleted={handleRemoveCompleted}
-          isActiveTodos={isActiveTodos}
+          activeTodos={isActiveTodos}
         />
       </div>
 
