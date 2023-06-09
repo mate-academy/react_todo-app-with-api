@@ -28,6 +28,12 @@ export const TodoItem = (
       setEditedTodoId(null);
       setChangedTitle('');
     }
+
+    if (editedTodoId && changedTitle.trim().length === 0) {
+      handleTitleChange(editedTodoId, changedTitle.trim());
+      setEditedTodoId(null);
+      setChangedTitle('');
+    }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {

@@ -192,7 +192,7 @@ export const App: React.FC = () => {
     try {
       setIsLoading(true);
 
-      if (activeTodos && activeTodos !== todos) {
+      if (activeTodos.length) {
         activeTodos.forEach(todo => {
           const updatedTodo = { ...todo, completed: true };
           const index = todos.indexOf(todo);
@@ -209,8 +209,9 @@ export const App: React.FC = () => {
         setUpdatingTodoIds(prevIds => [...prevIds, ...activeTodoIds]);
       } else {
         setIsLoading(true);
+
         todos.forEach(todo => {
-          const updatedTodo = { ...todo, completed: !todo.completed };
+          const updatedTodo = { ...todo, completed: false };
           const index = todos.indexOf(todo);
 
           updateTodo(todo.id, updatedTodo);
@@ -247,13 +248,17 @@ export const App: React.FC = () => {
 
         const updatedTodo = { ...chosenTodo, title: changedTitle };
 
-        await updateTodo(todoId, updatedTodo);
+        if (changedTitle.length === 0) {
+          await client.delete(`/todos/${todoId}`);
 
-        const index = todos.indexOf(chosenTodo);
+          setTodos(todos.filter(todo => todo.id !== chosenTodo.id));
+        } else {
+          await updateTodo(todoId, updatedTodo);
+          const index = todos.indexOf(chosenTodo);
 
-        todos[index] = updatedTodo;
-
-        setTodos(todos);
+          todos[index] = updatedTodo;
+          setTodos(todos);
+        }
       }
     } catch {
       setError('Unable to update a todo');
