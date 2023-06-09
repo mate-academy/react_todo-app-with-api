@@ -3,30 +3,26 @@ import React from 'react';
 import classNames from 'classnames';
 
 type Props = {
-  isError: boolean,
-  isErrorNotification: boolean,
-  setIsErrorNotification: React.Dispatch<React.SetStateAction<boolean>>,
-  errorMessage: string,
+  setErrorType: React.Dispatch<React.SetStateAction<string | null>>
+  errorMessage: string | null,
 };
 
 export const Error: React.FC<Props> = ({
-  isError,
-  isErrorNotification,
-  setIsErrorNotification,
+  setErrorType,
   errorMessage,
 }) => (
   <>
-    {isError && (
+    {errorMessage && (
       <div className={classNames(
         'notification', 'is-danger', 'is-light', 'has-text-weight-normal', {
-          hidden: isErrorNotification,
+          hidden: !errorMessage,
         },
       )}
       >
         <button
           type="button"
           className="delete"
-          onClick={() => setIsErrorNotification(true)}
+          onClick={() => setErrorType(null)}
         />
 
         {errorMessage}

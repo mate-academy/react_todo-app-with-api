@@ -13,7 +13,7 @@ import {
 } from './api/todos';
 
 import { UserWarning } from './UserWarning';
-import { Status, ErrorType } from './enums/enums';
+import { Status } from './enums/enums';
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { TodosList } from './components/TodosList/TodosList';
@@ -26,51 +26,33 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Error Data
-  const [errorType, setErrorType] = useState(ErrorType.None);
-  const [isErrorNotification, setIsErrorNotification] = useState(false);
-  const isError = errorType !== ErrorType.None;
-  const setError = useCallback((typeOfError: ErrorType) => {
+  const errorObject = {
+    Add: 'Unable to add a todo',
+    EmptyTitle: 'Title can\'t be empty',
+    Delete: 'Unable to delete a todo',
+    Update: 'Unable to update a todo',
+  };
+  const [errorType, setErrorType] = useState<string | null>(null);
+  const setError = useCallback((typeOfError: string | null) => {
     setErrorType(typeOfError);
-    setTimeout(() => setErrorType(ErrorType.None), 3000);
-  }, [ErrorType]);
-
-  const errorMessage = useMemo(() => {
-    switch (errorType) {
-      case ErrorType.Add:
-        return 'Unable to add a todo';
-
-      case ErrorType.EmptyTitle:
-        return 'Title can\'t be empty';
-
-      case ErrorType.Delete:
-        return 'Unable to delete a todo';
-
-      case ErrorType.Update:
-        return 'Unable to update a todo';
-
-      default:
-        return 'Something wrong';
-    }
+    setTimeout(() => setErrorType(null), 3000);
   }, [errorType]);
 
-  // Header Data && Add Todo
   const todosCompleted = useMemo(() => todos
     .filter(todo => todo.completed), [todos]);
   const isActive = todosCompleted.length === todos.length;
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
-  // Add Todo
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const onAdd = async (event: React.FormEvent) => {
     event.preventDefault();
 
     setSelectedTodoId(null);
-    setError(ErrorType.None);
+    setError(null);
 
     if (newTodoTitle.trim() === '') {
-      setError(ErrorType.EmptyTitle);
+      setError(errorObject.EmptyTitle);
 
       return;
     }
@@ -87,24 +69,23 @@ export const App: React.FC = () => {
 
       setTodos((prev) => [...prev, responce]);
     } catch {
-      setError(ErrorType.Add);
+      setError(errorObject.Add);
     } finally {
       setTempTodo(null);
       setNewTodoTitle('');
     }
   };
 
-  // Delete Todo
   const onDelete = async (id: number) => {
     setSelectedTodoId(id);
     setIsUpdating(true);
-    setError(ErrorType.None);
+    setError(null);
 
     try {
       await deleteTodo(id);
       setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch {
-      setError(ErrorType.Delete);
+      setError(errorObject.Delete);
     } finally {
       setIsUpdating(false);
     }
@@ -118,25 +99,24 @@ export const App: React.FC = () => {
   const onDeleteCompleted = async () => {
     setIsClearCompletedTodos(true);
     setIsUpdating(true);
-    setError(ErrorType.None);
+    setError(null);
     try {
       await Promise.all(
         completedTodosId.map((id: number) => deleteTodo(id)),
       );
       setTodos((prev) => prev.filter(item => !item.completed));
     } catch (error) {
-      setError(ErrorType.Delete);
+      setError(errorObject.Delete);
     } finally {
       setIsClearCompletedTodos(false);
       setIsUpdating(false);
     }
   };
 
-  // Set New Todo Title
   const onTitleChange = async (todoId: number, title: string) => {
     setIsUpdating(true);
     setSelectedTodoId(todoId);
-    setError(ErrorType.None);
+    setError(null);
     const editedTodo = todos.find(todo => todo.id === todoId);
 
     if (editedTodo) {
@@ -153,7 +133,7 @@ export const App: React.FC = () => {
           return todo;
         }));
       } catch (error) {
-        setError(ErrorType.Update);
+        setError(errorObject.Update);
       } finally {
         setIsUpdating(false);
       }
@@ -163,7 +143,7 @@ export const App: React.FC = () => {
   const onToggleStatus = async (todoId: number, completed: boolean) => {
     setSelectedTodoId(todoId);
     setIsUpdating(true);
-    setError(ErrorType.None);
+    setError(null);
     const editedTodo = todos.find(todo => todo.id === todoId);
 
     if (editedTodo) {
@@ -180,7 +160,7 @@ export const App: React.FC = () => {
           return todo;
         }));
       } catch (error) {
-        setError(ErrorType.Update);
+        setError(errorObject.Update);
       } finally {
         setIsUpdating(false);
       }
@@ -191,7 +171,7 @@ export const App: React.FC = () => {
 
   const onToggleAll = async () => {
     setIsToggleAll(true);
-    setError(ErrorType.None);
+    setError(null);
     try {
       await Promise.all(
         todos.map((todo) => {
@@ -207,25 +187,27 @@ export const App: React.FC = () => {
         }),
       );
 
-      setTodos((prev) => prev.map((todo) => {
-        if (todo.completed === false) {
-          return {
-            ...todo,
-            completed: true,
-          };
-        }
+      if (errorType === null) {
+        setTodos((prev) => prev.map((todo) => {
+          if (todo.completed === false) {
+            return {
+              ...todo,
+              completed: true,
+            };
+          }
 
-        if (completedTodosId.length === todos.length) {
-          return {
-            ...todo,
-            completed: !todo.completed,
-          };
-        }
+          if (completedTodosId.length === todos.length) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
 
-        return todo;
-      }));
+          return todo;
+        }));
+      }
     } catch (error) {
-      setError(ErrorType.Update);
+      setError(errorObject.Update);
     } finally {
       setTimeout(() => {
         setIsToggleAll(false);
@@ -233,17 +215,16 @@ export const App: React.FC = () => {
     }
   };
 
-  // Get Todos From Server
   useEffect(() => {
     const fetchData = async () => {
       try {
         const responce = await getTodos(USER_ID);
         const todosFromServer = responce;
 
-        setError(ErrorType.None);
+        setError(null);
         setTodos(todosFromServer);
       } catch (error) {
-        setError(ErrorType.Add);
+        setError(errorObject.Add);
         Promise.reject();
       }
     };
@@ -251,7 +232,6 @@ export const App: React.FC = () => {
     fetchData();
   }, []);
 
-  // Todos Filter Data
   const [status, setStatus] = useState<Status>(Status.All);
   const filterTodos = (filter: Status) => {
     switch (filter) {
@@ -266,7 +246,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // Context Value
   const contextValue = {
     onDelete,
     onAdd,
@@ -317,10 +296,8 @@ export const App: React.FC = () => {
         </div>
 
         <Error
-          isError={isError}
-          isErrorNotification={isErrorNotification}
-          setIsErrorNotification={setIsErrorNotification}
-          errorMessage={errorMessage}
+          setErrorType={setErrorType}
+          errorMessage={errorType}
         />
       </div>
     </Context.Provider>

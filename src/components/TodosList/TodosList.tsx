@@ -38,7 +38,7 @@ export const TodosList: React.FC<Props> = React.memo(
         />
       ))}
 
-      {tempTodo !== null && (
+      {tempTodo && (
         <TodoItem tempTodo={tempTodo} />
       )}
     </section>
