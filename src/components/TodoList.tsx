@@ -1,5 +1,8 @@
+/* eslint-disable no-console */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-  ChangeEvent, FormEvent, useEffect, useState,
+  ChangeEvent, FormEvent, useEffect, useRef, useState,
 } from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Filter } from '../types/Filter';
@@ -28,7 +31,7 @@ export const TodoList = ({
     handleLoadTodos();
   }, [isUpdating]);
 
-  // const titleRef = useRef();
+  const titleRef = useRef<HTMLInputElement | null>(null);
 
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
@@ -81,15 +84,16 @@ export const TodoList = ({
       return;
     }
 
+    const editId = editTodo.id;
     const newTodo = {
       title: newTitle,
     };
 
     handleIsUpdating(true);
-    handleUpdatingIds([editTodo.id]);
-    updateTodo(editTodo.id, newTodo)
+    handleUpdatingIds([editId]);
+    setEditTodo(null);
+    updateTodo(editId, newTodo)
       .then(handleCleaner)
-      .then(() => setEditTodo(null))
       .catch(() => handleError('Unable to update a todo'));
   };
 
@@ -97,9 +101,16 @@ export const TodoList = ({
     setNewTitle(event.target.value);
   };
 
-  // const handleFocus = () => {
-  //   titleRef.current.focus();
-  // };
+  const handleFocus = () => {
+    if (titleRef.current) {
+      titleRef.current.focus();
+    }
+  };
+
+  useEffect(() => {
+    handleFocus();
+    console.log(editTodo);
+  }, [editTodo]);
 
   return (
     <section className="todoapp__main">
@@ -129,8 +140,7 @@ export const TodoList = ({
                     value={newTitle}
                     onChange={handleNewTitle}
                     onBlur={handleTitleSubmit}
-                    // onFocus={handleFocus}
-                    // ref={titleRef}
+                    ref={titleRef}
                   />
                 </form>
               )
@@ -138,7 +148,9 @@ export const TodoList = ({
                 <>
                   <span
                     className="todo__title"
-                    onDoubleClick={() => handleEditToto(todo)}
+                    onDoubleClick={() => {
+                      handleEditToto(todo);
+                    }}
                   >
                     {title}
                   </span>
