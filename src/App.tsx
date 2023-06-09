@@ -22,6 +22,9 @@ export const App: React.FC = () => {
   const [temporaryTodo, setTemporaryTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+  const [isToggleActive, setIsToggleActive] = useState<boolean>(
+    todos.every(todo => todo.completed),
+  );
 
   useEffect(() => {
     client.get<Todo[]>(`/todos?userId=${USER_ID}`)
@@ -132,12 +135,20 @@ export const App: React.FC = () => {
     return clearedTodos;
   };
 
-  const foundActiveTodo = useMemo(() => {
+  /* const foundActiveTodo = useMemo(() => {
     return todos.find(todo => !todo.completed);
-  }, [todos]);
+  }, [todos]); */
 
   const foundCompletedTodo = useMemo(() => {
     return todos.find(todo => todo.completed);
+  }, [todos]);
+
+  useEffect(() => {
+    if (todos.find(todo => !todo.completed)) {
+      setIsToggleActive(false);
+    } else {
+      setIsToggleActive(true);
+    }
   }, [todos]);
 
   const updateTodo = async (todoId: number, data: Todo) => {
@@ -151,7 +162,90 @@ export const App: React.FC = () => {
       if (chosenTodo) {
         setUpdatingTodoIds(prevIds => [...prevIds, todoId]);
         setIsLoading(true);
+
         const updatedTodo = { ...chosenTodo, completed: !chosenTodo.completed };
+
+        await updateTodo(todoId, updatedTodo);
+
+        const index = todos.indexOf(chosenTodo);
+
+        todos[index] = updatedTodo;
+
+        setTodos(todos);
+      }
+    } catch {
+      setError('Unable to update a todo');
+      setIsHidden(false);
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    } finally {
+      setIsHidden(true);
+      setIsLoading(false);
+      setUpdatingTodoIds([]);
+    }
+  };
+
+  const toggleAll = async () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    try {
+      setIsLoading(true);
+
+      if (activeTodos && activeTodos !== todos) {
+        activeTodos.forEach(todo => {
+          const updatedTodo = { ...todo, completed: true };
+          const index = todos.indexOf(todo);
+
+          updateTodo(todo.id, updatedTodo);
+          todos[index] = updatedTodo;
+        });
+
+        setTodos(todos);
+        const activeTodoIds = activeTodos.map(todo => {
+          return todo.id;
+        });
+
+        setUpdatingTodoIds(prevIds => [...prevIds, ...activeTodoIds]);
+      } else {
+        setIsLoading(true);
+        todos.forEach(todo => {
+          const updatedTodo = { ...todo, completed: !todo.completed };
+          const index = todos.indexOf(todo);
+
+          updateTodo(todo.id, updatedTodo);
+          todos[index] = updatedTodo;
+        });
+
+        setTodos(todos);
+        const todoIds = todos.map(todo => {
+          return todo.id;
+        });
+
+        setUpdatingTodoIds([...todoIds]);
+      }
+    } catch {
+      setError('Unable to update todos');
+      setIsHidden(false);
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+    } finally {
+      setIsHidden(true);
+      setIsLoading(false);
+      setUpdatingTodoIds([]);
+    }
+  };
+
+  const handleTitleChange = async (todoId: number, changedTitle: string) => {
+    try {
+      const chosenTodo = todos.find(todo => todo.id === todoId);
+
+      if (chosenTodo) {
+        setUpdatingTodoIds(prevIds => [...prevIds, todoId]);
+        setIsLoading(true);
+
+        const updatedTodo = { ...chosenTodo, title: changedTitle };
 
         await updateTodo(todoId, updatedTodo);
 
@@ -185,9 +279,11 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
 
-          {foundActiveTodo && (
-            <button type="button" className="todoapp__toggle-all active" />
-          )}
+          <button
+            type="button"
+            className={`todoapp__toggle-all ${isToggleActive ? 'active' : ''}`}
+            onClick={toggleAll}
+          />
 
           <TodoForm
             createTodo={createTodo}
@@ -206,6 +302,7 @@ export const App: React.FC = () => {
             isLoading={isLoading}
             updatingTodoIds={updatingTodoIds}
             handleStatusChange={handleStatusChange}
+            handleTitleChange={handleTitleChange}
           />
         )}
 

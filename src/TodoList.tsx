@@ -8,6 +8,7 @@ interface TodoListProps {
   isLoading: boolean,
   updatingTodoIds: number[],
   handleStatusChange: (id: number) => Promise<void>,
+  handleTitleChange: (id: number, title: string) => Promise<void>,
 }
 
 export const TodoList: React.FC<TodoListProps> = (
@@ -18,6 +19,7 @@ export const TodoList: React.FC<TodoListProps> = (
     isLoading,
     updatingTodoIds,
     handleStatusChange,
+    handleTitleChange,
   },
 ) => {
   return (
@@ -30,6 +32,7 @@ export const TodoList: React.FC<TodoListProps> = (
           isLoading={isLoading}
           updatingTodoIds={updatingTodoIds}
           handleStatusChange={handleStatusChange}
+          handleTitleChange={handleTitleChange}
         />
       ))}
       {temporaryTodo
@@ -41,6 +44,7 @@ export const TodoList: React.FC<TodoListProps> = (
             isLoading={isLoading}
             updatingTodoIds={[0]}
             handleStatusChange={handleStatusChange}
+            handleTitleChange={handleTitleChange}
           />
         )}
     </section>
