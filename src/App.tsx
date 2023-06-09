@@ -59,19 +59,17 @@ export const App: React.FC = () => {
   }, []);
 
   const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      switch (filterStatus) {
-        case FilterStatus.active:
-          return !todo.completed;
+    switch (filterStatus) {
+      case FilterStatus.active:
+        return todos.filter((todo) => !todo.completed);
 
-        case FilterStatus.completed:
-          return todo.completed;
+      case FilterStatus.completed:
+        return todos.filter((todo) => todo.completed);
 
-        case FilterStatus.all:
-        default:
-          return todo;
-      }
-    });
+      case FilterStatus.all:
+      default:
+        return todos;
+    }
   }, [todos, filterStatus]);
 
   const handleAddTodo = async (title: string) => {
