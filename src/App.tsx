@@ -149,7 +149,7 @@ export const App: React.FC = () => {
     } else {
       setIsToggleActive(true);
     }
-  }, [todos]);
+  }, [todos, updatingTodoIds]);
 
   const updateTodo = async (todoId: number, data: Todo) => {
     await client.patch(`/todos/${todoId}`, data);
