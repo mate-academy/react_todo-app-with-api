@@ -14,11 +14,11 @@ const USER_ID = 10599;
 export const App: React.FC = () => {
   const [todos, setFormValue] = useState<Todo[]>([]);
   const [filterStatus, setFilterStatus] = useState(FilterByWords.All);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [isCompletedTodos, setIsCompletedTodos] = useState<boolean>(false);
-  const [todosCounter, setTodosCounter] = useState<number>(0);
+  const [isCompletedTodos, setIsCompletedTodos] = useState(false);
+  const [todosCounter, setTodosCounter] = useState(0);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (tempTodo !== null) {
+    if (tempTodo) {
       setTempTodo(null);
     }
 
@@ -107,9 +107,9 @@ export const App: React.FC = () => {
   const copyTodoArray = useMemo(() => {
     switch (filterStatus) {
       case FilterByWords.Active:
-        return todos.filter((elem) => !elem.completed);
+        return todos.filter((todo) => !todo.completed);
       case FilterByWords.Completed:
-        return todos.filter((elem) => elem.completed);
+        return todos.filter((todo) => todo.completed);
       default:
         return todos;
     }
