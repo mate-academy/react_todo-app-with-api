@@ -6,7 +6,7 @@ import { Todo } from '../../../types/Todo';
 import { useTodosContext } from '../../../Context/TodosContext';
 
 export const TodoList = () => {
-  const [isEditById, setIsEditById] = useState(0);
+  const [isEditById, setIsEditById] = useState<number | null>(null);
   const [tempTitle, setTempTitle] = useState('');
   const todoInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,8 +35,11 @@ export const TodoList = () => {
   const handleEditTitle = (event: FormEvent) => {
     setLoading(true);
     event.preventDefault();
-    editTitle(isEditById, tempTitle);
-    setIsEditById(0);
+    if (isEditById !== null) {
+      editTitle(isEditById, tempTitle);
+    }
+
+    setIsEditById(null);
     setTempTitle('');
     setLoading(false);
   };

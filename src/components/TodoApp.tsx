@@ -5,26 +5,6 @@ import { TodoAppFooter } from './TodoAppComponent/TodoAppFooter/TodoAppFooter';
 
 export const TodoApp = () => {
   const { todos } = useTodosContext();
-  // const [filtered, setFiltered] = useState<Filters>(Filters.All);
-  // const filteredTodos = useMemo(() => {
-  //   let newTodos = todos;
-
-  //   switch (filtered) {
-  //     case 'Active':
-  //       newTodos = newTodos.filter(todo => !todo.completed);
-  //       break;
-  //     case 'Completed':
-  //       newTodos = newTodos.filter(todo => todo.completed);
-  //       break;
-  //     case 'All':
-  //       newTodos = todos;
-  //       break;
-  //     default: throw new Error('wrong filters');
-  //   }
-
-  //   return newTodos;
-  // }, [todos]);
-
   const isFooter = todos.length > 0;
 
   return (

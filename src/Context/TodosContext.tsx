@@ -102,25 +102,28 @@ export const TodosConstextProvider = (
     event.preventDefault();
 
     if (!value) {
-      return setMessageError('Title can\'t be empty');
+      setMessageError('Title can\'t be empty');
+    } else {
+      const newTodo: Todo = {
+        id: 0,
+        title: value,
+        userId: USER_ID,
+        completed: false,
+      };
+
+      setTempTodo(newTodo);
+
+      try {
+        await client.post(url, newTodo);
+        setTodos(prevState => [...prevState, newTodo]);
+      } catch {
+        setMessageError('Unable to add a todo');
+      } finally {
+        setValue('');
+        setTempTodo(null);
+        setMessageError('');
+      }
     }
-
-    const newTodo: Todo = {
-      id: 0,
-      title: value,
-      userId: USER_ID,
-      completed: false,
-    };
-
-    setTempTodo(newTodo);
-
-    return client.post(url, newTodo).catch(() => {
-      setMessageError('Unable to add a todo');
-    }).finally(() => {
-      setValue('');
-      setTimeout(() => setTempTodo(null), 200);
-      setMessageError('');
-    });
   }, [todos]);
 
   const handleToggleComplete = useCallback(async () => {
