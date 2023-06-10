@@ -24,14 +24,16 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<TodoType | null>(null);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [hasTempTodo, setHasTempTodo] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(response => {
         setTodos(response);
+        setTempTodo(null);
       })
       .catch(() => setError('Unable to Load todos'));
-  }, [deleteIds, isUpdating, tempTodo]);
+  }, [deleteIds, isUpdating, hasTempTodo]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -93,7 +95,7 @@ export const App: React.FC = () => {
         setInputValue('');
       }).catch(() => setError('Unable to add a todo')).finally(() => {
         setIsInputDisabled(false);
-        setTempTodo(null);
+        setHasTempTodo(prevState => !prevState);
       });
     }
   };
