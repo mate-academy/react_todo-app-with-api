@@ -1,10 +1,9 @@
+import { useTodosContext } from '../../../Context/TodosContext';
 import { Filters } from '../../../types/Filters';
 
-interface PropsTodoFilter {
-  filtered: string;
-  setFiltered(filter: Filters): void;
-}
-export const TodoFilter = ({ filtered, setFiltered }: PropsTodoFilter) => {
+export const TodoFilter = () => {
+  const { setFiltered, filtered } = useTodosContext();
+
   return (
     <nav className="filter">
       <a

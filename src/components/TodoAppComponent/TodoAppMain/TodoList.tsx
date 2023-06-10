@@ -5,17 +5,14 @@ import {
 import { Todo } from '../../../types/Todo';
 import { useTodosContext } from '../../../Context/TodosContext';
 
-interface PropsTodoList {
-  filteredTodos: Todo[];
-}
-export const TodoList = ({ filteredTodos }: PropsTodoList) => {
+export const TodoList = () => {
   const [isEditById, setIsEditById] = useState(0);
   const [tempTitle, setTempTitle] = useState('');
   const todoInputRef = useRef<HTMLInputElement>(null);
 
   const {
     tempTodo, loading, setLoading, handleDeleteTodo,
-    handleClickCheck, editTitle,
+    handleClickCheck, editTitle, filteredTodos,
   } = useTodosContext();
 
   const handleDoubleClickEdit = (todo: Todo) => {
@@ -133,6 +130,10 @@ export const TodoList = ({ filteredTodos }: PropsTodoList) => {
             />
           </label>
           <span className="todo__title">{tempTodo.title}</span>
+          <div className="modal overlay is-active">
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
         </div>
       )}
     </section>

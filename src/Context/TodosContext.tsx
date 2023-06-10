@@ -1,12 +1,14 @@
 import {
   FormEvent,
   ReactNode,
-  createContext, useCallback, useContext, useEffect, useState,
+  createContext, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
+import { Filters } from '../types/Filters';
 
 interface TodosContextInterface {
+  filteredTodos: Todo[],
   todos: Todo[];
   setTodos(todos: Todo[]): void;
   createNewTodo(event: FormEvent): void;
@@ -22,11 +24,14 @@ interface TodosContextInterface {
   handleDeleteCompleted(): void;
   handleClickCheck(todo: Todo): void;
   editTitle(id: number, title: string): void;
+  setFiltered(filtered: Filters): void;
+  filtered: Filters;
 }
 
 export const TodosContext = createContext<TodosContextInterface>(
   {
     todos: [],
+    filteredTodos: [],
     setTodos: () => { },
     createNewTodo: () => { },
     messageError: '',
@@ -41,6 +46,8 @@ export const TodosContext = createContext<TodosContextInterface>(
     handleDeleteCompleted: () => { },
     handleClickCheck: () => { },
     editTitle: () => { },
+    setFiltered: () => { },
+    filtered: Filters.All,
   },
 );
 
@@ -54,7 +61,26 @@ export const TodosConstextProvider = (
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loading, setLoading] = useState(false);
+  const [filtered, setFiltered] = useState<Filters>(Filters.All);
 
+  const filteredTodos = useMemo(() => {
+    let newTodos = todos;
+
+    switch (filtered) {
+      case 'Active':
+        newTodos = newTodos.filter(todo => !todo.completed);
+        break;
+      case 'Completed':
+        newTodos = newTodos.filter(todo => todo.completed);
+        break;
+      case 'All':
+        newTodos = todos;
+        break;
+      default: throw new Error('wrong filters');
+    }
+
+    return newTodos;
+  }, [todos]);
   const USER_ID = 10529;
   const url = `/todos?userId=${USER_ID}`;
 
@@ -63,37 +89,41 @@ export const TodosConstextProvider = (
   }
 
   useEffect(() => {
-    client.get<Todo[]>(url).then(response => {
-      return setTodos(response);
-    }).catch(() => setMessageError('Unable loading todos'));
-  }, [tempTodo, todos]);
+    const loadingData = async () => {
+      await client.get<Todo[]>(url).then(response => {
+        return setTodos(response);
+      }).catch(() => setMessageError('Unable loading todos'));
+    };
 
-  const createNewTodo = useCallback((event: FormEvent) => {
+    loadingData();
+  }, [todos]);
+
+  const createNewTodo = useCallback(async (event: FormEvent) => {
     event.preventDefault();
 
     if (!value) {
-      setMessageError('Title can\'t be empty');
-    } else {
-      const newTodo: Todo = {
-        id: 0,
-        title: value,
-        userId: USER_ID,
-        completed: false,
-      };
-
-      setTempTodo(newTodo);
-
-      client.post(url, newTodo).then(() => {
-        setValue('');
-        setTempTodo(null);
-        setMessageError('');
-      }).catch(() => {
-        setMessageError('Unable to add a todo');
-      });
+      return setMessageError('Title can\'t be empty');
     }
-  }, [value]);
 
-  const handleToggleComplete = useCallback(() => {
+    const newTodo: Todo = {
+      id: 0,
+      title: value,
+      userId: USER_ID,
+      completed: false,
+    };
+
+    setTempTodo(newTodo);
+
+    return client.post(url, newTodo).catch(() => {
+      setMessageError('Unable to add a todo');
+    }).finally(() => {
+      setValue('');
+      setTimeout(() => setTempTodo(null), 200);
+      setMessageError('');
+    });
+  }, [todos]);
+
+  const handleToggleComplete = useCallback(async () => {
     setLoading(true);
     const newTodos = todos.map(async todo => {
       let newTodo: Todo;
@@ -121,15 +151,16 @@ export const TodosConstextProvider = (
       const urlId = `/todos/${newTodo.id}?userId=${USER_ID}`;
 
       const patchedTodo = await client.patch(urlId, data)
-        .catch(() => setMessageError('Unable to update a todo'));
+        .catch(() => setMessageError('Unable to update a todo'))
+        .finally(() => {
+          setLoading(false);
+        });
 
       return patchedTodo;
     });
 
-    setLoading(false);
-
     return newTodos;
-  }, [todos]);
+  }, [filteredTodos]);
 
   const handleDeleteCompleted = useCallback(() => {
     const filterdTodos = todos
@@ -145,7 +176,7 @@ export const TodosConstextProvider = (
       });
 
     return filterdTodos;
-  }, [todos]);
+  }, [filteredTodos]);
 
   const handleDeleteTodo = useCallback(async (todo: Todo) => {
     const urlId = `/todos/${todo.id}?userId=${USER_ID}`;
@@ -155,7 +186,7 @@ export const TodosConstextProvider = (
     } catch {
       return setMessageError('Unable to delete a todo');
     }
-  }, [todos]);
+  }, [filteredTodos]);
 
   const handleClickCheck = useCallback(async (todo: Todo) => {
     setLoading(true);
@@ -176,7 +207,7 @@ export const TodosConstextProvider = (
     } catch {
       return setMessageError('Unable to update a todo');
     }
-  }, [todos]);
+  }, [filteredTodos]);
 
   const editTitle = useCallback((id: number, title: string) => {
     if (title.trim() === '') {
@@ -190,7 +221,7 @@ export const TodosConstextProvider = (
 
     return client.patch(urlId, data)
       .catch(() => setMessageError('Unable to update a todo'));
-  }, [todos]);
+  }, [filteredTodos]);
 
   return (
     <TodosContext.Provider value={{
@@ -209,6 +240,9 @@ export const TodosConstextProvider = (
       handleDeleteCompleted,
       handleClickCheck,
       editTitle,
+      filteredTodos,
+      setFiltered,
+      filtered,
     }}
     >
       {children}

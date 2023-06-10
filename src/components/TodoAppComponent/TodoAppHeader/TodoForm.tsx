@@ -1,11 +1,9 @@
 import { useTodosContext } from '../../../Context/TodosContext';
 
-interface PropsTodoForm {
-  value: string,
-  setValue(val: string): void;
-}
-export const TodoForm = ({ value, setValue }: PropsTodoForm) => {
-  const { createNewTodo, tempTodo } = useTodosContext();
+export const TodoForm = () => {
+  const {
+    createNewTodo, tempTodo, value, setValue,
+  } = useTodosContext();
 
   return (
     <form

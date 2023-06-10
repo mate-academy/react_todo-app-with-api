@@ -1,18 +1,11 @@
 import { TodoFilter } from './TodoFilter';
 import { useTodosContext } from '../../../Context/TodosContext';
-import { Filters } from '../../../types/Filters';
 
-interface PropsTodoAppFooter {
-  filtered: string,
-  setFiltered(filter: Filters): void;
-}
-
-export const TodoAppFooter = ({
-  filtered, setFiltered,
-}: PropsTodoAppFooter) => {
+export const TodoAppFooter = () => {
   const { todos, handleDeleteCompleted } = useTodosContext();
 
   const numberItems = todos.filter(todo => !todo.completed).length;
+  const isButtonCompleted = todos.length !== numberItems;
 
   return (
     <footer className="todoapp__footer">
@@ -20,15 +13,17 @@ export const TodoAppFooter = ({
         {`${numberItems} items left`}
       </span>
 
-      <TodoFilter filtered={filtered} setFiltered={setFiltered} />
+      <TodoFilter />
 
       <button
         type="button"
         className="todoapp__clear-completed"
         onClick={handleDeleteCompleted}
+        style={{ visibility: isButtonCompleted ? 'visible' : 'hidden' }}
       >
         Clear completed
       </button>
+
     </footer>
   );
 };

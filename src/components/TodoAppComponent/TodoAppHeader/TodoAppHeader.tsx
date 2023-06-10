@@ -5,7 +5,7 @@ import { useTodosContext } from '../../../Context/TodosContext';
 
 export const TodoAppHeader = () => {
   const {
-    todos, value, setValue, handleToggleComplete,
+    todos, handleToggleComplete,
   } = useTodosContext();
   const isActive = todos.filter(todo => !todo.completed).length > 0;
 
@@ -23,7 +23,7 @@ export const TodoAppHeader = () => {
         />
       }
 
-      <TodoForm value={value} setValue={setValue} />
+      <TodoForm />
     </header>
   );
 };
