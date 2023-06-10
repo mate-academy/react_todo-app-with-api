@@ -60,16 +60,15 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {isCompletedTodos && (
-        <button
-          type="button"
-          className={cn('todoapp__clear-completed')}
-          data-cy="ClearCompletedButton"
-          onClick={() => handleClearClick(FilterByWords.Completed)}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={cn('todoapp__clear-completed')}
+        style={{ visibility: !isCompletedTodos ? 'hidden' : 'visible' }}
+        data-cy="ClearCompletedButton"
+        onClick={() => handleClearClick(FilterByWords.Completed)}
+      >
+        Clear completed
+      </button>
     </>
   );
 };
