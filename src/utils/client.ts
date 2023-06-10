@@ -28,7 +28,7 @@ function request<T>(
     .then(() => fetch(BASE_URL + url, options))
     .then(response => {
       if (!response.ok) {
-        throw new Error();
+        throw new Error('There is an error with fetching.');
       }
 
       return response.json();
