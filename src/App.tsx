@@ -2,7 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
-  getTodos, addTodo, deleteTodos, updateTodos,
+  handleGetTodos,
+  handleAddTodo,
+  handleDeleteTodos,
+  handleUpdateTodos,
 } from './api/todos';
 import ErrorMessage from './components/ErrorMessage';
 import NewTodoInputField from './components/NewTodoInputField';
@@ -21,17 +24,17 @@ export const App: React.FC = () => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState<TodoStatus>(TodoStatus.ALL);
 
-  const [error, setError] = useState<Errors>(Errors.NULL);
+  const [errorType, setErrorType] = useState<Errors>(Errors.NULL);
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const handleLoadTodos = () => {
-    getTodos(USER_ID)
+    handleGetTodos(USER_ID)
       .then(response => {
         setTodosList(response);
         setVisibleTodos(response);
       })
-      .catch(() => setError(Errors.LOAD));
+      .catch(() => setErrorType(Errors.LOAD));
   };
 
   useEffect(() => {
@@ -52,16 +55,16 @@ export const App: React.FC = () => {
         completed: false,
       });
     } else {
-      setError(Errors.EMPTY_TITLE);
+      setErrorType(Errors.EMPTY_TITLE);
     }
   };
 
   const handleDeleteTodo = (ids: number[]) => {
-    deleteTodos(ids)
+    handleDeleteTodos(ids)
       .then(() => {
         setTodosList(prev => prev.filter(todo => !ids.includes(todo.id)));
       })
-      .catch(() => setError(Errors.DELETE));
+      .catch(() => setErrorType(Errors.DELETE));
   };
 
   const handleClearCompleted = () => {
@@ -72,9 +75,9 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = (ids: number[], value: Partial<Todo>) => {
-    updateTodos(ids, value)
+    handleUpdateTodos(ids, value)
       .then(() => handleLoadTodos())
-      .catch(() => setError(Errors.UPDATE));
+      .catch(() => setErrorType(Errors.UPDATE));
   };
 
   const handleCompleteAll = () => {
@@ -85,9 +88,9 @@ export const App: React.FC = () => {
 
     const currentStatus = activeTodos.length > 0;
 
-    updateTodos(ids, { completed: currentStatus })
+    handleUpdateTodos(ids, { completed: currentStatus })
       .then(() => handleLoadTodos())
-      .catch(() => setError(Errors.UPDATE));
+      .catch(() => setErrorType(Errors.UPDATE));
   };
 
   const handleFilterTodos = (newStatus: TodoStatus) => {
@@ -107,11 +110,11 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (tempTodo) {
-      addTodo(USER_ID, tempTodo)
+      handleAddTodo(USER_ID, tempTodo)
         .then(response => {
           setTodosList(prev => [...prev, response]);
         })
-        .catch(() => setError(Errors.ADD));
+        .catch(() => setErrorType(Errors.ADD));
     }
   }, [tempTodo]);
 
@@ -157,8 +160,8 @@ export const App: React.FC = () => {
         )}
       </div>
       {
-        error
-        && <ErrorMessage handleSetError={setError} errorType={error} />
+        errorType
+        && <ErrorMessage handleSetError={setErrorType} errorType={errorType} />
       }
     </div>
   );

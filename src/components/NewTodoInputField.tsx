@@ -10,7 +10,6 @@ interface Props {
     title: string,
   ) => void
   handleCompleteAll: () => void;
-
 }
 
 export default function NewTodoInputField({

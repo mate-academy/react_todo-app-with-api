@@ -60,6 +60,12 @@ export default function TodoItem({
     }
   };
 
+  const handleCancelEdition = () => {
+    setNewTitle(title);
+    setIsEditing(false);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     setIsLoading(false);
     setIsEditing(false);
@@ -87,7 +93,7 @@ export default function TodoItem({
               onChange={(event) => setNewTitle(event.target.value)}
               onBlur={(event) => handleEditTitle(event)}
               onKeyUp={(event) => (
-                event.key === 'Escape' && handleEditTitle(event)
+                event.key === 'Escape' && handleCancelEdition()
               )}
             />
           </form>
