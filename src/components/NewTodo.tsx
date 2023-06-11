@@ -5,7 +5,7 @@ interface NewTodoProps {
 }
 
 export const NewTodo = ({ onTodoAdd }: NewTodoProps) => {
-  const [newTodoTitle, setNewTodoTitle] = useState<string>('');
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const handleTodoSubmit = (event: React.FormEvent) => {
     if (newTodoTitle) {

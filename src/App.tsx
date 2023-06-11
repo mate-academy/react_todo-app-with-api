@@ -2,7 +2,6 @@
 import React, {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
-// import classNames from 'classnames';
 import { TodoData } from './types/TodoData';
 import {
   addTodo, getTodos, deleteTodo, updateTodo,
@@ -23,7 +22,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage]
   = useState<ActionError>(ActionError.NONE);
   const [tempTodo, setTempTodo] = useState<TodoData | null>(null);
-  const [wasAnyTodoCompleted, setWasTodoCompleted] = useState(false);
+  const [wasAnyTodoCompleted, setWasAnyTodoCompleted] = useState(false);
   const [filterStatus, setFilterStatus] = useState<Status>(Status.ALL);
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export const App: React.FC = () => {
       .then((downloadedTodos) => {
         setTodos(downloadedTodos);
         setFilteredTodos(downloadedTodos);
-        setWasTodoCompleted(downloadedTodos.some(todo => todo.completed));
       })
       .catch(() => {
         setErrorMessage(ActionError.READ);
@@ -46,25 +44,24 @@ export const App: React.FC = () => {
     }
   }, [errorMessage]);
 
+  useEffect(() => {
+    setWasAnyTodoCompleted(filteredTodos.some(todo => todo.completed));
+  }, [filteredTodos]);
+
   const handleTodoAdd = useCallback((newTodoTitle: string) => {
     const newTodo = {
-      title: newTodoTitle,
-      id: Math.max(...todos.map(todo => todo.id)) + 1,
-      completed: false,
-      userId: USER_ID,
-    };
-
-    setTempTodo({
       title: newTodoTitle,
       id: 0,
       completed: false,
       userId: USER_ID,
-    });
+    };
+
+    setTempTodo(newTodo);
 
     return addTodo(newTodo, USER_ID)
-      .then(() => {
-        setTodos(prevTodos => [...prevTodos, newTodo]);
-        setFilteredTodos(prevTodos => [...prevTodos, newTodo]);
+      .then((downloadedTodo) => {
+        setFilteredTodos(currentTodos => [...currentTodos, downloadedTodo]);
+        setTodos(currentTodos => [...currentTodos, downloadedTodo]);
       })
       .catch(() => setErrorMessage(ActionError.ADD))
       .finally(() => setTempTodo(null));
@@ -110,7 +107,7 @@ export const App: React.FC = () => {
 
         setTodos(newTodos);
         setFilteredTodos(newTodos);
-        setWasTodoCompleted(newTodos.some(todo => todo.completed));
+        setWasAnyTodoCompleted(newTodos.some(todo => todo.completed));
       })
       .catch(() => setErrorMessage(ActionError.UPDATE));
   }, [todos]);
@@ -177,8 +174,7 @@ export const App: React.FC = () => {
             onTodoDelete={handleTodoDelete}
             onTodoUpdate={handleTodoUpdate}
           />
-          {tempTodo
-          && (
+          {tempTodo && (
             <Todo
               todo={tempTodo}
               onTodoDelete={handleTodoDelete}
@@ -186,27 +182,30 @@ export const App: React.FC = () => {
             />
           )}
         </section>
-      </div>
-      <footer className="todoapp__footer">
-        <span className="todo-count">{uncompletedTodosCountInfo}</span>
-        <Filter onFilterStatusChange={handleFilterStatusChange} />
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleCompletedTodosDelete}
-          disabled={!wasAnyTodoCompleted}
-          style={
-            {
-              opacity: wasAnyTodoCompleted ? '1' : '0',
-              cursor: wasAnyTodoCompleted ? 'pointer' : 'default',
-            }
-          }
-        >
-          Clear completed
-        </button>
-      </footer>
 
-      <Notification errorMessage={errorMessage} />
+        {filteredTodos.length !== 0 && (
+          <footer className="todoapp__footer">
+            <span className="todo-count">{uncompletedTodosCountInfo}</span>
+            <Filter onFilterStatusChange={handleFilterStatusChange} />
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              onClick={handleCompletedTodosDelete}
+              disabled={!wasAnyTodoCompleted}
+              style={
+                {
+                  opacity: wasAnyTodoCompleted ? '1' : '0',
+                  cursor: wasAnyTodoCompleted ? 'pointer' : 'default',
+                }
+              }
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
+
+        {errorMessage && <Notification errorMessage={errorMessage} />}
+      </div>
     </div>
   );
 };

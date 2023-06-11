@@ -2,7 +2,7 @@
 import { ActionError } from '../types/ActionError';
 
 interface NotificationProps {
-  errorMessage: ActionError | string
+  errorMessage: ActionError
 }
 
 export const Notification = ({ errorMessage }: NotificationProps) => {
