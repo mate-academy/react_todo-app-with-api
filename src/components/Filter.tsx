@@ -21,7 +21,6 @@ export const Filter: React.FC<FilterProps> = ({
       >
         All
       </a>
-
       <a
         href="#/active"
         className={cn('filter__link', {
@@ -31,7 +30,6 @@ export const Filter: React.FC<FilterProps> = ({
       >
         Active
       </a>
-
       <a
         href="#/completed"
         className={cn('filter__link', {

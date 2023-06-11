@@ -31,7 +31,7 @@ export const Todo: React.FC<TodoProps> = React.memo(({
 }) => {
   const { completed, id, title } = todo;
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Esc') {
+    if (event.key === 'Escape') {
       setEditedTodoId(null);
     }
   };
@@ -52,7 +52,6 @@ export const Todo: React.FC<TodoProps> = React.memo(({
               onChange={() => onToggleTodo(id)}
             />
           </label>
-
           {editedTodoId !== id
             ? (
               <>
@@ -61,27 +60,23 @@ export const Todo: React.FC<TodoProps> = React.memo(({
                   onDoubleClick={() => onEditTodo(id)}
                 >
                   {title}
-
                 </span>
-
                 <button
                   type="button"
                   className="todo__remove"
                   onClick={() => onTodoRemove(id)}
                 >
                   ×
-
                 </button>
               </>
-            )
-            : (
+            ) : (
               <>
                 <form
                   onSubmit={onEditedTodoSubmit}
                   onBlur={onEditedTodoSubmit}
                 >
                   <input
-                    onKeyUp={() => handleKeyUp}
+                    onKeyUp={handleKeyUp}
                     ref={inputRef}
                     type="text"
                     className="todo__title-field"
@@ -90,14 +85,12 @@ export const Todo: React.FC<TodoProps> = React.memo(({
                     onChange={(e) => setEditedTodoText(e.target.value)}
                   />
                 </form>
-
                 <div className="modal overlay">
                   <div className="modal-background has-background-white-ter" />
                   <div className="loader" />
                 </div>
               </>
             )}
-
         </div>
       )
       : (
@@ -110,7 +103,6 @@ export const Todo: React.FC<TodoProps> = React.memo(({
           <label className="todo__status-label">
             <input type="checkbox" className="todo__status" />
           </label>
-
           <span className="todo__title">{todo.title}</span>
           <button type="button" className="todo__remove">×</button>
           <div className={cn('modal overlay',

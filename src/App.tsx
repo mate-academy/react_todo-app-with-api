@@ -37,10 +37,8 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (editedTodoId) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+    if (editedTodoId && inputRef.current) {
+      inputRef.current.focus();
     }
   }, [editedTodoId]);
 
@@ -242,7 +240,6 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <Header
           hasActiveTodos={hasActiveTodos}
@@ -276,9 +273,7 @@ export const App: React.FC = () => {
           onRemoveCompleted={handleRemoveCompleted}
         />
       </div>
-
-      {errorMessage
-      && (
+      {errorMessage && (
         <Notification
           onCleanErrorMessage={handleCleanErrorMessage}
           errorMessage={errorMessage}

@@ -16,15 +16,12 @@ export const Notification: React.FC<NotificationProps> = ({
         hidden: !errorMessage,
       })}
     >
-
       <button
         type="button"
         className="delete"
         onClick={onCleanErrorMessage}
       />
-
       {errorMessage}
-
     </div>
   );
 };
