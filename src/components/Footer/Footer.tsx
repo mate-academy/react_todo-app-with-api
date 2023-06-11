@@ -27,13 +27,15 @@ export const Footer: React.FC<FooterProps> = ({
         setFilter={setFilter}
       />
 
-      <button
-        type="button"
-        className={`todoapp__clear-completed ${hasCompletedTodos ? 'visible' : 'hidden'}`}
-        onClick={() => onDeleteCompleted()}
-      >
-        Clear completed
-      </button>
+      {hasCompletedTodos && (
+        <button
+          type="button"
+          className={`todoapp__clear-completed ${hasCompletedTodos ? 'visible' : 'hidden'}`}
+          onClick={() => onDeleteCompleted()}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };

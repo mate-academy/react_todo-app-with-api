@@ -92,7 +92,7 @@ export const TodoItem: React.FC<TodoProps> = ({
           <form onSubmit={onSubmit}>
             <input
               type="text"
-              className="todoapp__new-todo"
+              className="todoapp__edit-todo"
               placeholder={title}
               value={updateTodo}
               ref={inputRef}

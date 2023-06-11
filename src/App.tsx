@@ -35,6 +35,7 @@ export const App: React.FC = () => {
       setTodos(todosFromApi);
     } catch {
       setErrorMessage(ErrorType.Load);
+    } finally {
       setTimeout(() => {
         setErrorMessage('');
       }, 3000);
@@ -94,13 +95,13 @@ export const App: React.FC = () => {
       setTodos((prev) => [...prev, addedTodo]);
     } catch (err) {
       setErrorMessage(ErrorType.Add);
-      setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
     } finally {
       setTempTodo(null);
       setNewTodo('');
       setInputDisabled(false);
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
     }
   };
 
@@ -116,12 +117,15 @@ export const App: React.FC = () => {
     } finally {
       setInputDisabled(false);
       setIsUpdating([]);
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
     }
   };
 
   const completedTodosId = useMemo(() => completedTodos.map(todo => todo.id), [todos]);
 
-  const onDeleteCompleted = async () => {
+  const handleDeleteCompleted = async () => {
     setInputDisabled(true);
 
     try {
@@ -130,6 +134,10 @@ export const App: React.FC = () => {
       );
     } catch {
       setErrorMessage(ErrorType.Delete);
+    } finally {
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
     }
   };
 
@@ -154,12 +162,12 @@ export const App: React.FC = () => {
         }));
       } catch (error) {
         setErrorMessage(ErrorType.Update);
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
       } finally {
         setInputDisabled(false);
         setIsUpdating([]);
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
       }
     }
   };
@@ -172,7 +180,7 @@ export const App: React.FC = () => {
     try {
       await Promise.all(
         todos.map((todo) => {
-          if (todo.completed === false) {
+          if (!todo.completed) {
             updateTodo(todo.id, { completed: true });
           }
 
@@ -185,7 +193,7 @@ export const App: React.FC = () => {
       );
 
       setTodos((prev) => prev.map((todo) => {
-        if (todo.completed === false) {
+        if (!todo.completed) {
           return {
             ...todo,
             completed: true,
@@ -205,8 +213,9 @@ export const App: React.FC = () => {
       setErrorMessage(ErrorType.Update);
     } finally {
       setTimeout(() => {
+        setErrorMessage('');
         setIsToggleAll(false);
-      }, 300);
+      }, 3000);
     }
   };
 
@@ -231,12 +240,12 @@ export const App: React.FC = () => {
         }));
       } catch (error) {
         setErrorMessage(ErrorType.Update);
-        setTimeout(() => {
-          setErrorMessage('');
-        }, 3000);
       } finally {
         setInputDisabled(false);
         setIsUpdating([]);
+        setTimeout(() => {
+          setErrorMessage('');
+        }, 3000);
       }
     }
   };
@@ -276,7 +285,7 @@ export const App: React.FC = () => {
             setFilter={setFilter}
             todosLength={todos.length}
             hasCompletedTodos={completedTodos.length > 0}
-            onDeleteCompleted={onDeleteCompleted}
+            onDeleteCompleted={handleDeleteCompleted}
           />
         )}
       </div>
