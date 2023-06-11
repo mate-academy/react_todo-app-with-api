@@ -11,27 +11,27 @@ import { Header } from './components/Header/Header';
 import { Main } from './components/Main/Main';
 import { ErrorMessages } from './components/ErrorMessages/ErrorMessages';
 import { ErrorTypes } from './types/ErrorTypes';
+import { Status } from './types/Status';
 
 const USER_ID = 10548;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState('');
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState<Status>(Status.default);
   const [disableInput, setDisableInput] = useState(false);
   const [errorMessage, setErrorMessage] = useState<ErrorTypes | null>(null);
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
   const [idTodoForCheange, setIdTodoForSpinner] = useState<number[]>([]);
 
-  const getVisibleTodos = (statusTodo: string, todosArr: Todo[]) => {
+  const getVisibleTodos = (statusTodo: Status, todosArr: Todo[]) => {
     switch (statusTodo) {
-      case 'active':
-        return [...todosArr].filter(todo => !todo.completed);
-      case 'completed':
-        return [...todosArr].filter(todo => todo.completed);
+      case Status.active:
+        return todosArr.filter(todo => !todo.completed);
+      case Status.completed:
+        return todosArr.filter(todo => todo.completed);
       default:
-        return [...todosArr];
+        return todosArr;
     }
   };
 
@@ -50,47 +50,48 @@ export const App: React.FC = () => {
     }
   }
 
-  const handleChangeInput = (event : React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
   const handleStatus = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
-    setStatus(event.currentTarget.dataset.type || 'all');
+    setStatus(event.currentTarget.dataset.type as Status || Status.default);
   };
 
-  const handleAddTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddTodo = async (
+    event: React.FormEvent<HTMLFormElement>,
+    input: string,
+    setInput: React.Dispatch<React.SetStateAction<string>>,
+  ) => {
     event.preventDefault();
-    setDisableInput(true);
-    const todoTempo = {
-      id: 0,
-      userId: USER_ID,
-      title: input,
-      completed: false,
-    };
-
-    todos.splice(todos.length, 1, todoTempo);
-
-    setIdTodoForSpinner((prev) => [...prev, todoTempo.id]);
-
-    setInput('');
-    try {
-      const createdTodo = await createTodo(USER_ID, {
-        title: input,
+    if (input.trim()) {
+      setDisableInput(true);
+      const todoTempo = {
+        id: 0,
         userId: USER_ID,
+        title: input,
         completed: false,
-      });
+      };
 
-      todos.splice(todos.length - 1, 1);
-      await setTodos(prev => [...prev, createdTodo]);
-      setDisableInput(false);
-      setIdTodoForSpinner([]);
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage(ErrorTypes.ErrorPost);
-      // setTempTodo(null);
-      setDisableInput(false);
+      todos.splice(todos.length, 1, todoTempo);
+
+      setIdTodoForSpinner((prev) => [...prev, todoTempo.id]);
+
+      setInput('');
+      try {
+        const createdTodo = await createTodo(USER_ID, {
+          title: input,
+          userId: USER_ID,
+          completed: false,
+        });
+
+        todos.splice(todos.length - 1, 1);
+        await setTodos(prev => [...prev, createdTodo]);
+        setDisableInput(false);
+        setIdTodoForSpinner([]);
+        setErrorMessage(null);
+      } catch (error) {
+        setErrorMessage(ErrorTypes.ErrorPost);
+        setDisableInput(false);
+      }
     }
   };
 
@@ -135,7 +136,7 @@ export const App: React.FC = () => {
 
       newTodo = { ...todo, completed: !todo.completed };
 
-      return { ...todo, completed: !todo.completed };
+      return newTodo;
     }));
 
     if (newTodo) {
@@ -213,8 +214,6 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           countActiveTodo={itemsLeftCount}
-          inputValue={input}
-          onHandleInput={handleChangeInput}
           onHandleAddTodo={handleAddTodo}
           disabled={disableInput}
           onChangeStatusAllTodo={handleChangeStatusAllTodo}

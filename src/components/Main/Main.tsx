@@ -79,10 +79,7 @@ export const Main: React.FC<Props> = ({
               ? (
                 <>
                   <form onSubmit={(
-                    event: {
-                      preventDefault: () => void;
-                      stopPropagation: () => void;
-                    },
+                    event: React.FormEvent<HTMLFormElement>,
                   ) => {
                     event.preventDefault();
                     event.stopPropagation();

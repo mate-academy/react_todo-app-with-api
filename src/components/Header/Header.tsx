@@ -1,23 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
 
 type Props = {
   countActiveTodo: number,
-  onHandleInput: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  inputValue: string,
-  onHandleAddTodo: (event: React.FormEvent<HTMLFormElement>) => void,
+  onHandleAddTodo: (
+    event: React.FormEvent<HTMLFormElement>,
+    input: string,
+    setInput: React.Dispatch<React.SetStateAction<string>>,
+  ) => void,
   disabled: boolean,
   onChangeStatusAllTodo: () => Promise<void>
 };
 
 export const Header: React.FC<Props> = ({
   countActiveTodo,
-  onHandleInput,
-  inputValue,
   onHandleAddTodo,
   disabled: disabeled,
   onChangeStatusAllTodo,
 }) => {
+  const [input, setInput] = useState('');
+
+  const onChangeInput = (event : React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setInput(value);
+  };
+
   return (
     <header className="todoapp__header">
       <button
@@ -32,13 +40,13 @@ export const Header: React.FC<Props> = ({
         onClick={onChangeStatusAllTodo}
       />
 
-      <form onSubmit={onHandleAddTodo}>
+      <form onSubmit={(event) => (onHandleAddTodo(event, input, setInput))}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={inputValue}
-          onChange={onHandleInput}
+          value={input}
+          onChange={onChangeInput}
           disabled={disabeled}
         />
       </form>

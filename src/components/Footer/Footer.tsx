@@ -1,9 +1,10 @@
 import React from 'react';
 import cn from 'classnames';
+import { Status } from '../../types/Status';
 
 type Props = {
-  selectedStatus: string,
-  onHandleStatus: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+  selectedStatus: Status,
+  onHandleStatus:React.MouseEventHandler<HTMLAnchorElement>,
   itemsLeftCount: number,
   onDeleteCompletedTodo: () => Promise<void>,
 };
@@ -28,11 +29,11 @@ export const Footer: React.FC<Props> = ({
           className={
             cn(
               'filter__link',
-              { selected: selectedStatus === 'all' },
+              { selected: selectedStatus === Status.default },
             )
           }
+          data-type={Status.default}
           onClick={onHandleStatus}
-          data-type="all"
         >
           All
         </a>
@@ -42,11 +43,11 @@ export const Footer: React.FC<Props> = ({
           className={
             cn(
               'filter__link',
-              { selected: selectedStatus === 'active' },
+              { selected: selectedStatus === Status.active },
             )
           }
           onClick={onHandleStatus}
-          data-type="active"
+          data-type={Status.active}
         >
           Active
         </a>
@@ -56,11 +57,11 @@ export const Footer: React.FC<Props> = ({
           className={
             cn(
               'filter__link',
-              { selected: selectedStatus === 'completed' },
+              { selected: selectedStatus === Status.completed },
             )
           }
           onClick={onHandleStatus}
-          data-type="completed"
+          data-type={Status.completed}
         >
           Completed
         </a>
