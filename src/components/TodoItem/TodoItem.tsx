@@ -42,13 +42,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const handleUpdateTitle = () => {
     setIsEditingEnabled(false);
 
-    if (newTitle !== title) {
-      if (newTitle.trim().length > 0) {
-        setIsLoading(true);
-        onUpdateTodo(id, { title: newTitle });
-      } else {
-        handleDelete();
-      }
+    if (newTitle === title) {
+      return;
+    }
+
+    if (newTitle.trim().length > 0) {
+      setIsLoading(true);
+      onUpdateTodo(id, { title: newTitle });
+    } else {
+      handleDelete();
     }
   };
 

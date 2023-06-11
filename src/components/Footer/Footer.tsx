@@ -24,7 +24,7 @@ export const Footer: React.FC<FooterProps> = ({
 
     <Filter currentFilter={currentFilter} onSelectFilter={onSelectFilter} />
 
-    {allTodos.filter((todo) => todo.completed).length && (
+    {allTodos.filter((todo) => todo.completed).length > 0 && (
       <button
         type="button"
         className="todoapp__clear-completed"

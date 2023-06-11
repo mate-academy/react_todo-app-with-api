@@ -24,7 +24,15 @@ export const App: React.FC = () => {
   const [allLoading, setAllLoading] = useState(false);
   const [batchOperation, setBatchOperation] = useState<BatchOperations | null>(
     null,
-  ); // ugly line break, but linter wouldn't let the length go...
+  );
+
+  const getCompletedTodos = () => {
+    return todos.filter((todo) => todo.completed);
+  };
+
+  const getActiveTodos = () => {
+    return todos.filter((todo) => !todo.completed);
+  };
 
   const handleErrorMessage = (type: string) => {
     setErrorMessage(`Unable to ${type} a Todo`);
@@ -81,12 +89,12 @@ export const App: React.FC = () => {
   useEffect(() => {
     switch (filterType) {
       case FilterTypes.COMPLETED: {
-        setCurrentTodos(todos.filter((todo) => todo.completed));
+        setCurrentTodos(getCompletedTodos());
         break;
       }
 
       case FilterTypes.ACTIVE: {
-        setCurrentTodos(todos.filter((todo) => !todo.completed));
+        setCurrentTodos(getActiveTodos());
         break;
       }
 
@@ -97,7 +105,7 @@ export const App: React.FC = () => {
   }, [todos, filterType]);
 
   useEffect(() => {
-    if (todos.filter((todo) => !todo.completed).length > 0) {
+    if (getActiveTodos().length > 0) {
       setAllComplete(false);
     } else {
       setAllComplete(true);

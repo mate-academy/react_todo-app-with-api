@@ -35,7 +35,10 @@ export const NewTodo: React.FC<NewTodoProps> = ({
     addTodo(todo)
       .then((thisTodo) => onTodoAdded([...todos, thisTodo]))
       .catch(() => onGenericError('add'))
-      .finally(() => onTempTodo(null));
+      .finally(() => {
+        onTempTodo(null);
+        onTextChange('');
+      });
   };
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
