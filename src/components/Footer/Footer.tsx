@@ -7,6 +7,7 @@ interface FooterProps {
   currentTodos: Todo[];
   currentFilter: FilterTypes;
   onSelectFilter: (filterType: FilterTypes) => void;
+  onClearCompleted: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -14,6 +15,7 @@ export const Footer: React.FC<FooterProps> = ({
   currentTodos,
   currentFilter,
   onSelectFilter,
+  onClearCompleted,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
@@ -23,7 +25,11 @@ export const Footer: React.FC<FooterProps> = ({
     <Filter currentFilter={currentFilter} onSelectFilter={onSelectFilter} />
 
     {allTodos.filter((todo) => todo.completed).length && (
-      <button type="button" className="todoapp__clear-completed">
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => onClearCompleted()}
+      >
         Clear completed
       </button>
     )}

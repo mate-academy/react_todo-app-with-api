@@ -8,6 +8,7 @@ import { Notification } from './components/Notification/Notification';
 import { Todo } from './types/Todo';
 import { FilterTypes } from './types/FilterTypes';
 import { Footer } from './components/Footer/Footer';
+import { BatchOperations } from './types/BatchOperations';
 
 const USER_ID = 10596;
 
@@ -21,6 +22,9 @@ export const App: React.FC = () => {
   const [needUpdate, setNeedUpdate] = useState(false);
   const [allComplete, setAllComplete] = useState(false);
   const [allLoading, setAllLoading] = useState(false);
+  const [batchOperation, setBatchOperation] = useState<BatchOperations | null>(
+    null,
+  ); // ugly line break, but linter wouldn't let the length go...
 
   const handleErrorMessage = (type: string) => {
     setErrorMessage(`Unable to ${type} a Todo`);
@@ -43,6 +47,16 @@ export const App: React.FC = () => {
       .catch(() => handleErrorMessage('update'));
   };
 
+  const handleClearCompleted = () => {
+    setBatchOperation(BatchOperations.CLEAR);
+    setAllLoading(true);
+  };
+
+  const handleCompleteAll = () => {
+    setBatchOperation(BatchOperations.COMPLETE);
+    setAllLoading(true);
+  };
+
   useEffect(() => {
     getTodos(USER_ID)
       .then((value) => {
@@ -50,7 +64,10 @@ export const App: React.FC = () => {
         setNeedUpdate(false);
       })
       .catch(() => handleErrorMessage('get'))
-      .finally(() => setAllLoading(false));
+      .finally(() => {
+        setAllLoading(false);
+        setBatchOperation(null);
+      });
   }, [needUpdate]);
 
   useEffect(() => {
@@ -98,7 +115,7 @@ export const App: React.FC = () => {
             className={
               classNames('todoapp__toggle-all', { active: allComplete })
             }
-            onClick={() => setAllLoading(true)}
+            onClick={() => handleCompleteAll()}
           />
 
           <NewTodo
@@ -119,6 +136,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           allLoading={allLoading}
           allComplete={allComplete}
+          batchOperation={batchOperation}
           onDeleteTodo={handleDeleteTodo}
           onUpdateTodo={handleUpdateTodo}
         />
@@ -129,6 +147,7 @@ export const App: React.FC = () => {
             currentTodos={currentTodos}
             currentFilter={filterType}
             onSelectFilter={setFilterType}
+            onClearCompleted={handleClearCompleted}
           />
         )}
       </div>

@@ -7,6 +7,7 @@ interface TodoListProps {
   tempTodo: Todo | null;
   allLoading: boolean;
   allComplete: boolean;
+  batchOperation: string | null;
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (id: number, todo: Partial<Todo>) => void;
 }
@@ -16,6 +17,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   allLoading,
   allComplete,
+  batchOperation,
   onDeleteTodo,
   onUpdateTodo,
 }) => (
@@ -36,6 +38,7 @@ export const TodoList: React.FC<TodoListProps> = ({
               completed={completed}
               allLoading={allLoading}
               allComplete={allComplete}
+              batchOperation={batchOperation}
               onDeleteTodo={onDeleteTodo}
               onUpdateTodo={onUpdateTodo}
             />

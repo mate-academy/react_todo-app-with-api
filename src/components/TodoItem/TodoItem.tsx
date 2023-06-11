@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
+import { BatchOperations } from '../../types/BatchOperations';
 import { Todo } from '../../types/Todo';
 
 interface TodoItemProps {
@@ -8,6 +9,7 @@ interface TodoItemProps {
   completed: boolean;
   allLoading: boolean;
   allComplete: boolean;
+  batchOperation: string | null;
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (id: number, todo: Partial<Todo>) => void;
 }
@@ -18,6 +20,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   completed,
   allLoading,
   allComplete,
+  batchOperation,
   onDeleteTodo,
   onUpdateTodo,
 }) => {
@@ -65,7 +68,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   useEffect(() => {
     if (allLoading) {
       setIsLoading(true);
-      onUpdateTodo(id, { completed: !allComplete });
+
+      if (batchOperation === BatchOperations.COMPLETE) {
+        onUpdateTodo(id, { completed: !allComplete });
+      } else if (batchOperation === BatchOperations.CLEAR && completed) {
+        handleDelete();
+      }
     } else {
       setIsLoading(false);
     }
