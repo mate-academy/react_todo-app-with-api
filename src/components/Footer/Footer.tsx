@@ -7,6 +7,7 @@ type Props = {
   onHandleStatus:React.MouseEventHandler<HTMLAnchorElement>,
   itemsLeftCount: number,
   onDeleteCompletedTodo: () => Promise<void>,
+  isAnyTodoCompleted: boolean,
 };
 
 export const Footer: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const Footer: React.FC<Props> = ({
   onHandleStatus,
   itemsLeftCount,
   onDeleteCompletedTodo,
+  isAnyTodoCompleted,
 }) => {
   return (
     <footer className="todoapp__footer">
@@ -22,7 +24,6 @@ export const Footer: React.FC<Props> = ({
         items left
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"
@@ -67,11 +68,11 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"
         onClick={onDeleteCompletedTodo}
+        style={{ visibility: !isAnyTodoCompleted ? 'hidden' : 'visible' }}
       >
         Clear completed
       </button>

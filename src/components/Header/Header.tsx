@@ -9,7 +9,8 @@ type Props = {
     setInput: React.Dispatch<React.SetStateAction<string>>,
   ) => void,
   disabled: boolean,
-  onChangeStatusAllTodo: () => Promise<void>
+  onChangeStatusAllTodo: () => Promise<void>,
+  haveNotTodos: boolean,
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,6 +18,7 @@ export const Header: React.FC<Props> = ({
   onHandleAddTodo,
   disabled: disabeled,
   onChangeStatusAllTodo,
+  haveNotTodos,
 }) => {
   const [input, setInput] = useState('');
 
@@ -38,6 +40,7 @@ export const Header: React.FC<Props> = ({
           )
         }
         onClick={onChangeStatusAllTodo}
+        style={{ visibility: haveNotTodos ? 'hidden' : 'visible' }}
       />
 
       <form onSubmit={(event) => (onHandleAddTodo(event, input, setInput))}>

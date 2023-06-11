@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorTypes | null>(null);
   const [hasEditTodo, setHasEditTodo] = useState(false);
   const [todoForUpdate, setTodoForUpdate] = useState<Todo | null>(null);
-  const [idTodoForCheange, setIdTodoForSpinner] = useState<number[]>([]);
+  const [idTodoForChange, setIdTodoForChange] = useState<number[]>([]);
 
   const getVisibleTodos = (statusTodo: Status, todosArr: Todo[]) => {
     switch (statusTodo) {
@@ -38,6 +38,10 @@ export const App: React.FC = () => {
   const visibleTodos = getVisibleTodos(status, todos);
 
   const itemsLeftCount = todos.filter(todo => !todo.completed).length;
+
+  const isAnyTodoCompleted = todos.some(todo => todo.completed === true);
+
+  const haveNotTodos = todos.length === 0;
 
   async function loadedTodos() {
     try {
@@ -73,7 +77,7 @@ export const App: React.FC = () => {
 
       todos.splice(todos.length, 1, todoTempo);
 
-      setIdTodoForSpinner((prev) => [...prev, todoTempo.id]);
+      setIdTodoForChange((prev) => [...prev, todoTempo.id]);
 
       setInput('');
       try {
@@ -86,7 +90,7 @@ export const App: React.FC = () => {
         todos.splice(todos.length - 1, 1);
         await setTodos(prev => [...prev, createdTodo]);
         setDisableInput(false);
-        setIdTodoForSpinner([]);
+        setIdTodoForChange([]);
         setErrorMessage(null);
       } catch (error) {
         setErrorMessage(ErrorTypes.ErrorPost);
@@ -96,7 +100,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = async (todo: Todo) => {
-    setIdTodoForSpinner((prev) => [...prev, todo.id]);
+    setIdTodoForChange((prev) => [...prev, todo.id]);
 
     try {
       await updateTodo(todo.id, {
@@ -105,20 +109,20 @@ export const App: React.FC = () => {
       });
       setErrorMessage(null);
       setTodoForUpdate(null);
-      setIdTodoForSpinner([]);
+      setIdTodoForChange([]);
     } catch (error) {
       setErrorMessage(ErrorTypes.ErrorPatch);
     }
   };
 
   const handleRemoveTodo = async (todo: Todo) => {
-    setIdTodoForSpinner((prev) => [...prev, todo.id]);
+    setIdTodoForChange((prev) => [...prev, todo.id]);
 
     try {
       await deleteTodo(todo.id);
       setTodos(prev => prev.filter(({ id }) => id !== todo.id));
       setErrorMessage(null);
-      setIdTodoForSpinner([]);
+      setIdTodoForChange([]);
     } catch (error) {
       setErrorMessage(ErrorTypes.ErrorDelete);
     }
@@ -148,7 +152,7 @@ export const App: React.FC = () => {
     try {
       const todosStatus = await Promise.all(todos.map(
         ({ id }) => {
-          setIdTodoForSpinner((prev) => [...prev, id]);
+          setIdTodoForChange((prev) => [...prev, id]);
 
           return updateTodo(id, {
             completed: !todos.every(todo => todo.completed),
@@ -157,7 +161,7 @@ export const App: React.FC = () => {
       ));
 
       setTodos(todosStatus);
-      setIdTodoForSpinner([]);
+      setIdTodoForChange([]);
     } catch {
       setErrorMessage(ErrorTypes.ErrorPatch);
     }
@@ -168,13 +172,13 @@ export const App: React.FC = () => {
       const comletedTodos = todos.filter(todo => todo.completed);
 
       await Promise.all(comletedTodos.map(async todo => {
-        setIdTodoForSpinner((prev) => [...prev, todo.id]);
+        setIdTodoForChange((prev) => [...prev, todo.id]);
 
         await deleteTodo(todo.id);
       }));
 
       setTodos(prev => prev.filter(todo => todo.completed === false));
-      setIdTodoForSpinner([]);
+      setIdTodoForChange([]);
     } catch (error) {
       setErrorMessage(ErrorTypes.ErrorDelete);
     }
@@ -217,6 +221,7 @@ export const App: React.FC = () => {
           onHandleAddTodo={handleAddTodo}
           disabled={disableInput}
           onChangeStatusAllTodo={handleChangeStatusAllTodo}
+          haveNotTodos={haveNotTodos}
         />
 
         <Main
@@ -229,7 +234,7 @@ export const App: React.FC = () => {
           onChangeStatusTodo={handleChangeStatusTodo}
           todoForUpdate={todoForUpdate}
           setTodoForUpdate={setTodoForUpdate}
-          idTodoForCheange={idTodoForCheange}
+          idTodoForCheange={idTodoForChange}
         />
 
         {!!todos.length && (
@@ -238,6 +243,7 @@ export const App: React.FC = () => {
             onHandleStatus={handleStatus}
             itemsLeftCount={itemsLeftCount}
             onDeleteCompletedTodo={handleDeleteCompletedTodo}
+            isAnyTodoCompleted={isAnyTodoCompleted}
           />
         )}
 
