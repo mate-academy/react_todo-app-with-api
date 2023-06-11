@@ -23,7 +23,7 @@ export const TodoList = () => {
   };
 
   useEffect(() => {
-    if (todoInputRef.current) {
+    if (todoInputRef.current && isEditById) {
       if (isEditById) {
         todoInputRef.current.focus();
       } else {

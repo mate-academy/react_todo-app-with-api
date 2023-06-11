@@ -197,7 +197,7 @@ export const TodosConstextProvider = (
     const urlId = `/todos/${id}?userId=${USER_ID}`;
     let data;
 
-    if (todo.completed === false) {
+    if (!todo.completed) {
       data = { completed: true };
     } else {
       data = { completed: false };

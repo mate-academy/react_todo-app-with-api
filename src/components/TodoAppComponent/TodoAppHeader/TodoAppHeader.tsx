@@ -1,5 +1,5 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
-// import { useState } from 'react';
 import { TodoForm } from './TodoForm';
 import { useTodosContext } from '../../../Context/TodosContext';
 
@@ -11,17 +11,14 @@ export const TodoAppHeader = () => {
 
   return (
     <header className="todoapp__header">
-      {
-        //   eslint-disable-next-line jsx-a11y/control-has-associated-label
-        <button
-          type="button"
-          className={cn({
-            'todoapp__toggle-all active': isActive,
-            'todoapp__toggle-all': !isActive,
-          })}
-          onClick={handleToggleComplete}
-        />
-      }
+      <button
+        type="button"
+        className={cn({
+          'todoapp__toggle-all active': isActive,
+          'todoapp__toggle-all': !isActive,
+        })}
+        onClick={handleToggleComplete}
+      />
 
       <TodoForm />
     </header>
