@@ -30,19 +30,18 @@ export const App: React.FC = () => {
     client.get<Todo[]>(`/todos?userId=${USER_ID}`)
       .then(setTodos).catch(() => {
         setError('Unable to load todos');
-        setTimeout(() => {
-          setError('');
-        }, 3000);
-      });
+      }).finally(() => setTimeout(() => {
+        setError('');
+      }, 3000));
   }, []);
 
   const visibleTodos = useMemo(() => {
     let filteredTodos;
 
     switch (filterType) {
-      case 'completed':
+      case FilterType.Completed:
         return todos.filter(todo => todo.completed);
-      case 'active':
+      case FilterType.Active:
         return todos.filter(todo => !todo.completed);
       default:
         filteredTodos = todos;
@@ -85,10 +84,10 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to add a todo');
       setIsHidden(false);
+    } finally {
       setTimeout(() => {
         setError('');
       }, 3000);
-    } finally {
       setTemporaryTodo(null);
       setIsHidden(true);
       setQuery('');
@@ -97,7 +96,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const deleteTodo = async (todoId: number) => {
+  const handleTodoDelete = async (todoId: number) => {
     setIsLoading(true);
     setUpdatingTodoIds([todoId]);
     try {
@@ -109,10 +108,10 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to delete a todo');
       setIsHidden(false);
+    } finally {
       setTimeout(() => {
         setError('');
       }, 3000);
-    } finally {
       setIsHidden(true);
       setIsLoading(false);
       setUpdatingTodoIds([]);
@@ -120,7 +119,7 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    const chosenTodos = todos.filter(todo => todo.completed === true);
+    const chosenTodos = todos.filter(todo => todo.completed);
 
     setUpdatingTodoIds(chosenTodos.map(todo => todo.id));
 
@@ -135,13 +134,9 @@ export const App: React.FC = () => {
     return clearedTodos;
   };
 
-  /* const foundActiveTodo = useMemo(() => {
-    return todos.find(todo => !todo.completed);
-  }, [todos]); */
-
   const foundCompletedTodo = useMemo(() => {
     return todos.find(todo => todo.completed);
-  }, [todos]);
+  }, [todos, updatingTodoIds]);
 
   useEffect(() => {
     if (todos.find(todo => !todo.completed)) {
@@ -248,7 +243,7 @@ export const App: React.FC = () => {
 
         const updatedTodo = { ...chosenTodo, title: changedTitle };
 
-        if (changedTitle.length === 0) {
+        if (!changedTitle.length) {
           await client.delete(`/todos/${todoId}`);
 
           setTodos(todos.filter(todo => todo.id !== chosenTodo.id));
@@ -302,7 +297,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <TodoList
             todos={visibleTodos}
-            onDelete={deleteTodo}
+            onDelete={handleTodoDelete}
             temporaryTodo={temporaryTodo}
             isLoading={isLoading}
             updatingTodoIds={updatingTodoIds}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { Todo } from './types/todo';
 
 interface TodoItemProps {
@@ -44,12 +45,12 @@ export const TodoItem = (
   };
 
   useEffect(() => {
-    if (changingTitle.current) {
-      if (editedTodoId) {
-        changingTitle.current.focus();
-      } else {
-        changingTitle.current.blur();
-      }
+    if (changingTitle.current && editedTodoId) {
+      changingTitle.current.focus();
+    }
+
+    if (changingTitle.current && !editedTodoId) {
+      changingTitle.current?.blur();
     }
   }, [editedTodoId]);
 
@@ -103,7 +104,10 @@ export const TodoItem = (
 
       )}
 
-      <div className={`modal overlay ${isLoading && updatingTodoIds.includes(todo.id) ? 'is-active' : ''}`}>
+      <div className={classNames('modal overlay', {
+        'is-active': isLoading && updatingTodoIds.includes(todo.id),
+      })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
