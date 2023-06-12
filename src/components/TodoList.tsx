@@ -119,7 +119,11 @@ export const TodoList: React.FC<Props> = ({
         {/* this buttons is active only if there are some active todos */}
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn({
+            'todoapp__toggle-all': true,
+            active: !todos.find(todo => !todo.completed),
+          })}
+          // "todoapp__toggle-all active"
           aria-label="Toggle all"
         />
 
