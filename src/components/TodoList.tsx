@@ -2,7 +2,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-  ChangeEvent, FormEvent, useEffect, useRef, useState,
+  ChangeEvent, FocusEvent, FormEvent,
+  KeyboardEvent, useEffect, useRef, useState,
 } from 'react';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { Filter } from '../types/Filter';
@@ -76,10 +77,13 @@ export const TodoList = ({
     setNewTitle(todo.title);
   };
 
-  const handleTitleSubmit = (event: FormEvent) => {
+  const handleTitleSubmit = (
+    event: FormEvent<HTMLFormElement> | FocusEvent<HTMLInputElement, Element>,
+    id: number,
+  ) => {
     event.preventDefault();
     if (!newTitle.length || !editTodo) {
-      handleError('Title can\'t be empty');
+      handleDelete(id);
 
       return;
     }
@@ -109,8 +113,13 @@ export const TodoList = ({
 
   useEffect(() => {
     handleFocus();
-    console.log(editTodo);
   }, [editTodo]);
+
+  const handleEsc = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditTodo(null);
+    }
+  };
 
   return (
     <section className="todoapp__main">
@@ -125,21 +134,21 @@ export const TodoList = ({
               <input
                 type="checkbox"
                 className="todo__status"
-                checked={completed}
                 onClick={() => handleUpdateCompleted(id, completed)}
               />
             </label>
 
             {editTodo && editTodo.id === id
               ? (
-                <form onSubmit={handleTitleSubmit}>
+                <form onSubmit={(event) => handleTitleSubmit(event, id)}>
                   <input
                     type="text"
                     className="todo__title-field"
-                    placeholder={todo.title}
+                    placeholder="Empty todo will be deleted"
                     value={newTitle}
                     onChange={handleNewTitle}
-                    onBlur={handleTitleSubmit}
+                    onBlur={(event) => handleTitleSubmit(event, id)}
+                    onKeyUp={(key) => handleEsc(key)}
                     ref={titleRef}
                   />
                 </form>
@@ -148,9 +157,7 @@ export const TodoList = ({
                 <>
                   <span
                     className="todo__title"
-                    onDoubleClick={() => {
-                      handleEditToto(todo);
-                    }}
+                    onDoubleClick={() => handleEditToto(todo)}
                   >
                     {title}
                   </span>

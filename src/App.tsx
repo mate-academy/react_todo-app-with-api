@@ -30,6 +30,11 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const Cleaner = () => {
+    setTempTodo(null);
+    setIsUpdating(false);
+  };
+
   const handleFilter = (newFilter: Filter) => {
     setFilter(newFilter);
   };
@@ -53,6 +58,7 @@ export const App: React.FC = () => {
   const handleLoadTodos = () => {
     getTodos(USER_ID)
       .then(setTodos)
+      .then(Cleaner)
       .catch(() => setError('Unable to load todos'));
   };
 

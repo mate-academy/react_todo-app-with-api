@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { FormEvent, useState } from 'react';
 import { Todo } from '../types/Todo';
@@ -21,10 +22,9 @@ export const Header = ({
   const hasTodos = todos.length > 0;
 
   const handleCleaner = () => {
-    handleIsUpdating(false);
     setIsDisabled(false);
     setTodoTitle('');
-    handleTempTodo(null);
+    handleIsUpdating(true);
   };
 
   const handleUpdateAllCompleted = () => {
@@ -66,7 +66,6 @@ export const Header = ({
       completed: false,
     };
 
-    handleIsUpdating(true);
     handleTempTodo(newTodo);
     addTodo(newTodo, userId)
       .then(handleCleaner)
