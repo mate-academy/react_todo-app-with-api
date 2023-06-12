@@ -94,6 +94,59 @@ export const TodoList: React.FC<Props> = ({
       });
   };
 
+  const handleMassActiveToggle = () => {
+    if (!todos.find(todo => !todo.completed)) {
+      console.log('clokc');
+      setTodosToBeEdited(todos.map(todo => todo.id));
+      Promise.all(todos.map((todo) => {
+        return new Promise(
+          (resolve) => patchTodo(todo.id, { completed: !todo.completed })
+            .then(resolve),
+        )
+          .catch(() => {
+            setTodosToBeEdited([]);
+            setError?.(ErrorMessage.CantUpdate);
+          });
+      }))
+        .then(() => {
+          setTodosToBeEdited([]);
+          setTodos(todos.map(todo => {
+            return {
+              title: todo.title,
+              id: todo.id,
+              userId: todo.userId,
+              completed: !todo.completed,
+            };
+          }));
+        });
+    } else {
+      const unfinishedTodos = todos.filter(todo => !todo.completed);
+
+      setTodosToBeEdited(unfinishedTodos.map(todo => todo.id));
+      Promise.all(unfinishedTodos.map((todo) => {
+        return new Promise(
+          (resolve) => patchTodo(todo.id, { completed: !todo.completed })
+            .then(resolve),
+        )
+          .catch(() => {
+            setTodosToBeEdited([]);
+            setError?.(ErrorMessage.CantUpdate);
+          });
+      }))
+        .then(() => {
+          setTodosToBeEdited([]);
+          setTodos(todos.map(todo => {
+            return {
+              title: todo.title,
+              id: todo.id,
+              userId: todo.userId,
+              completed: true,
+            };
+          }));
+        });
+    }
+  };
+
   const handleDeletion = (todoId: number) => {
     if (todos) {
       setTodosToBeEdited([todoId]);
@@ -123,8 +176,8 @@ export const TodoList: React.FC<Props> = ({
             'todoapp__toggle-all': true,
             active: !todos.find(todo => !todo.completed),
           })}
-          // "todoapp__toggle-all active"
           aria-label="Toggle all"
+          onClick={handleMassActiveToggle}
         />
 
         <form>
