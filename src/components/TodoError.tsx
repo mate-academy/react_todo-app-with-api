@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { SetErrorContext } from '../utils/setErrorContext';
-import { ErrorMessage } from '../App';
+import { ErrorMessage } from '../utils/ErrorMessage';
 
 interface Props {
   error: string | null;
@@ -15,7 +15,7 @@ export const TodoError: React.FC<Props> = ({ error }) => {
         type="button"
         className="delete"
         aria-label="Close error"
-        onClick={() => setError?.(ErrorMessage.NoError)}
+        onClick={() => setError(ErrorMessage.NoError)}
         // #TODO: get rid of the nasty ?. somehow
 
       />

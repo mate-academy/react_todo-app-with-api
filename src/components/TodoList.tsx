@@ -217,10 +217,15 @@ export const TodoList: React.FC<Props> = ({
     if (event.key === 'Escape') {
       setEditingTitleTodo(null);
     }
+
+    // if (event.key === 'Enter') {
+    //   event.preventDefault();
+    //   handleFinishTodoNameChange(todo);
+    // }
   };
 
   const handleSubmitEditedTodo = (
-    event: React.FormEvent<HTMLInputElement>, todo: Todo,
+    event: React.FormEvent<HTMLFormElement>, todo: Todo,
   ) => {
     event.preventDefault();
     handleFinishTodoNameChange(todo);
@@ -273,16 +278,16 @@ export const TodoList: React.FC<Props> = ({
 
             {editingTitleTodo?.id === todo.id
               ? (
-                <form>
+                <form onSubmit={(event) => handleSubmitEditedTodo(event, todo)}>
                   <input
                     type="text"
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"
                     value={editingTitleTodo.title}
-                    onSubmit={(event) => handleSubmitEditedTodo(event, todo)}
                     onBlur={() => handleFinishTodoNameChange(todo)}
                     onChange={(event) => handleTodoNameChange(event)}
                     onKeyDown={(event) => handleOnKeyUp(event)}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                   />
                 </form>
