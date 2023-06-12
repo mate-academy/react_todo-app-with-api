@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { FormEvent, useState } from 'react';
 import { Todo } from '../types/Todo';
@@ -86,7 +85,6 @@ export const Header = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           type="text"

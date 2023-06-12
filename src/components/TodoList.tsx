@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
   ChangeEvent, FocusEvent, FormEvent,
   KeyboardEvent, useEffect, useRef, useState,
@@ -172,7 +169,6 @@ export const TodoList = ({
                 </>
               )}
 
-            {/* overlay will cover the todo while it is being updated */}
             <div className={`modal overlay ${isUpdating && updatingIds.includes(id) ? 'is-active' : ''}`}>
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
@@ -189,7 +185,6 @@ export const TodoList = ({
           <span className="todo__title">{tempTodo.title}</span>
           <button type="button" className="todo__remove">×</button>
 
-          {/* 'is-active' class puts this modal on top of the todo */}
           <div className="modal overlay is-active">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
