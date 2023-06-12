@@ -1,23 +1,23 @@
 import cn from 'classnames';
 import { useContext, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { addTodo, deleteTodo } from '../api/todos';
+import { addTodo, deleteTodo, patchTodo } from '../api/todos';
 import { SetErrorContext } from '../utils/setErrorContext';
 import { ErrorMessage } from '../utils/ErrorMessage';
 
 interface Props {
-  todos: Todo[] | null,
+  todos: Todo[],
   filteringMode: string,
   userId: number,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  todosToBeDeleted: Todo['id'][] | null,
-  setTodosToBeDeleted: React.Dispatch<React.SetStateAction<number[] | null>>,
+  todosToBeEdited: Todo['id'][] | null,
+  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[] | null>>,
 }
 
 let filteredTodos: Todo[] | null = [];
 
 export const TodoList: React.FC<Props> = ({
-  todos, filteringMode, userId, setTodos, todosToBeDeleted, setTodosToBeDeleted,
+  todos, filteringMode, userId, setTodos, todosToBeEdited, setTodosToBeEdited,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -70,9 +70,33 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
+  const handleActiveToggle = (todo: Todo) => {
+    setTodosToBeEdited([todo.id]);
+    patchTodo(todo.id, { completed: !todo.completed })
+      .then(() => {
+        setTodosToBeEdited([]);
+        const todoList = [...todos];
+
+        const todoIndex = todoList.findIndex(arrTodo => arrTodo.id === todo.id);
+
+        todoList[todoIndex] = {
+          id: todo.id,
+          userId: todo.userId,
+          title: todo.title,
+          completed: !todo.completed,
+        };
+
+        setTodos(todoList);
+      })
+      .catch(() => {
+        setError?.(ErrorMessage.CantUpdate);
+        setTodosToBeEdited([]);
+      });
+  };
+
   const handleDeletion = (todoId: number) => {
     if (todos) {
-      setTodosToBeDeleted([todoId]);
+      setTodosToBeEdited([todoId]);
       deleteTodo(todoId)
         .then(() => {
           const deletedId = todos?.findIndex(todo => todo.id === todoId);
@@ -80,10 +104,10 @@ export const TodoList: React.FC<Props> = ({
 
           splicedTodos?.splice(deletedId, 1);
           setTodos(splicedTodos);
-          setTodosToBeDeleted(null);
+          setTodosToBeEdited(null);
         })
         .catch(() => {
-          setTodosToBeDeleted(null);
+          setTodosToBeEdited(null);
           setError?.(ErrorMessage.CantDelete);
         });
     }
@@ -99,7 +123,6 @@ export const TodoList: React.FC<Props> = ({
           aria-label="Toggle all"
         />
 
-        {/* Add a todo on form submit */}
         <form>
           <input
             type="text"
@@ -127,6 +150,7 @@ export const TodoList: React.FC<Props> = ({
                 type="checkbox"
                 className="todo__status"
                 defaultChecked={todo.completed}
+                onClick={() => handleActiveToggle(todo)}
               />
             </label>
 
@@ -141,7 +165,7 @@ export const TodoList: React.FC<Props> = ({
             </button>
 
             <div className={
-              todosToBeDeleted?.includes(todo.id)
+              todosToBeEdited?.includes(todo.id)
                 ? 'modal overlay is-active'
                 : 'modal overlay'
             }

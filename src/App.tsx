@@ -37,8 +37,8 @@ export const App: React.FC = () => {
             filteringMode={filteringMode}
             userId={USER_ID}
             setTodos={setTodos}
-            todosToBeDeleted={todosToBeEdited}
-            setTodosToBeDeleted={setTodosToBeEdited}
+            todosToBeEdited={todosToBeEdited}
+            setTodosToBeEdited={setTodosToBeEdited}
           />
           {/* handle rendering the todo list and the todo entry field */}
 
@@ -49,7 +49,7 @@ export const App: React.FC = () => {
               filteringMode={filteringMode}
               todos={todos}
               setTodos={setTodos}
-              setTodosToBeDeleted={setTodosToBeEdited}
+              setTodosToBeEdited={setTodosToBeEdited}
             />
           )}
         </div>

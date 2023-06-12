@@ -10,12 +10,12 @@ interface Props {
   filteringMode: string;
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setTodosToBeDeleted: React.Dispatch<React.SetStateAction<number[] | null>>,
+  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[] | null>>,
 }
 
 export const TodoFooter: React.FC<Props>
   = ({
-    setFilteringMode, filteringMode, todos, setTodosToBeDeleted, setTodos,
+    setFilteringMode, filteringMode, todos, setTodosToBeEdited: setTodosToBeDeleted, setTodos,
   }) => {
     const setError = useContext(SetErrorContext);
 
