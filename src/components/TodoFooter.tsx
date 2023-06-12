@@ -15,25 +15,25 @@ interface Props {
 
 export const TodoFooter: React.FC<Props>
   = ({
-    setFilteringMode, filteringMode, todos, setTodosToBeEdited: setTodosToBeDeleted, setTodos,
+    setFilteringMode, filteringMode, todos, setTodosToBeEdited, setTodos,
   }) => {
     const setError = useContext(SetErrorContext);
 
     const handleMassDeletion = () => {
       const completedTodos = todos.filter(todo => todo.completed);
 
-      setTodosToBeDeleted(completedTodos.map(todo => todo.id));
+      setTodosToBeEdited(completedTodos.map(todo => todo.id));
 
       Promise.all(completedTodos.map((todo) => {
         return new Promise((resolve) => deleteTodo(todo.id)
           .then(resolve))
           .catch(() => {
-            setTodosToBeDeleted([]);
+            setTodosToBeEdited([]);
             setError?.(ErrorMessage.CantDelete);
           });
       }))
         .then(() => {
-          setTodosToBeDeleted([]);
+          setTodosToBeEdited([]);
           setTodos(todos.filter(todo => !todo.completed));
         });
     };
@@ -41,7 +41,9 @@ export const TodoFooter: React.FC<Props>
     return (
       <footer className="todoapp__footer">
         <span className="todo-count">
-          3 items left
+          {todos.filter(todo => !todo.completed).length}
+          {' '}
+          items left
         </span>
 
         {/* Active filter should have a 'selected' class */}
