@@ -19,6 +19,7 @@ import { Footer } from './components/Footer/Footer';
 import { TodosList } from './components/TodosList/TodosList';
 import { Error } from './components/Error/Error';
 import { Context } from './context';
+import { errorObject } from './constants/constants';
 
 const USER_ID = 10326;
 
@@ -26,12 +27,6 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const errorObject = {
-    Add: 'Unable to add a todo',
-    EmptyTitle: 'Title can\'t be empty',
-    Delete: 'Unable to delete a todo',
-    Update: 'Unable to update a todo',
-  };
   const [errorType, setErrorType] = useState<string | null>(null);
   const setError = useCallback((typeOfError: string | null) => {
     setErrorType(typeOfError);
@@ -175,7 +170,7 @@ export const App: React.FC = () => {
     try {
       await Promise.all(
         todos.map((todo) => {
-          if (todo.completed === false) {
+          if (!todo.completed) {
             updateTodo(todo.id, { completed: true });
           }
 
@@ -189,7 +184,7 @@ export const App: React.FC = () => {
 
       if (errorType === null) {
         setTodos((prev) => prev.map((todo) => {
-          if (todo.completed === false) {
+          if (!todo.completed) {
             return {
               ...todo,
               completed: true,
