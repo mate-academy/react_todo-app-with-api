@@ -114,8 +114,6 @@
     font-weight: inherit;
     color: inherit;
     text-decoration: none;
-
-    cursor: pointer;
     background: none;
 
     -webkit-appearance: none;
@@ -133,6 +131,7 @@
 
     &-active {
       opacity: 1;
+      cursor: pointer;
     }
   }
 }
