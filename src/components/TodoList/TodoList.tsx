@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
   handleDeleteTodo: (id: number) => void,
   handleUpdateStatus: (id: number) => void,
   handleUpdateTitle: (id: number, newTitle: string) => void,
+  processing: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,21 +16,38 @@ export const TodoList: React.FC<Props> = ({
   handleDeleteTodo,
   handleUpdateStatus,
   handleUpdateTitle,
+  processing,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
+  const input = useRef<HTMLInputElement | null>(null);
+  const isLoading = todo.id && processing.includes(todo.id);
 
-  const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement> |
-  React.FocusEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    if (!todo.title.trim()) {
-      handleDeleteTodo(todo.id);
+  const handleTitleSubmit = () => {
+    if (title === todo.title) {
+      setIsEditing(false);
 
       return;
     }
 
+    if (!todo.title.trim()) {
+      handleDeleteTodo(todo.id);
+    }
+
     handleUpdateTitle(todo.id, title);
     setIsEditing(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleTitleSubmit();
+  };
+
+  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTitle(todo.title);
+    }
   };
 
   return (
@@ -54,13 +72,16 @@ export const TodoList: React.FC<Props> = ({
               />
             </label>
             {isEditing ? (
-              <form onSubmit={handleTitleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <input
+                  ref={input}
                   type="text"
                   className="todo__title-field"
                   placeholder="Empty todo will be deleted"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
+                  onBlur={handleTitleSubmit}
+                  onKeyUp={cancelEditing}
                 />
               </form>
             ) : (
@@ -78,7 +99,12 @@ export const TodoList: React.FC<Props> = ({
                 >
                   ×
                 </button>
-                <div className="modal overlay">
+                <div
+                  className={classNames(
+                    'modal overlay',
+                    { 'is-active': isLoading },
+                  )}
+                >
                   <div
                     className="modal-background has-background-white-ter"
                   />

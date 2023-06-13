@@ -20,8 +20,17 @@ export const App: React.FC = () => {
   const [select, setSelect] = useState('all');
   const [isError, setIsError] = useState('');
   const [querySearch, setQuerySearch] = useState('');
+  const [processing, setProcessing] = useState<number[]>([]);
 
   const lengTodos = todos.filter(({ completed }) => !completed).length;
+
+  const addTodoToProcesing = (id : number | null) => {
+    if (!id) {
+      setProcessing([]);
+    } else {
+      setProcessing(prev => [...prev, id]);
+    }
+  };
 
   const getTodosAll = async () => {
     try {
@@ -33,6 +42,8 @@ export const App: React.FC = () => {
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -71,6 +82,8 @@ export const App: React.FC = () => {
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -78,11 +91,14 @@ export const App: React.FC = () => {
     try {
       await deleteTodos(todoId);
       await getTodosAll();
+      addTodoToProcesing(todoId);
     } catch {
       setIsError('Unable to delete a todo');
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -120,6 +136,8 @@ export const App: React.FC = () => {
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -170,6 +188,8 @@ export const App: React.FC = () => {
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -195,12 +215,15 @@ export const App: React.FC = () => {
           userId: USER_ID,
           id,
         });
+        addTodoToProcesing(todoToUpdate.id);
       }
     } catch {
       setIsError('Unable to update a todo');
       setTimeout(() => {
         setIsError('');
       }, 3000);
+    } finally {
+      addTodoToProcesing(null);
     }
   };
 
@@ -232,6 +255,7 @@ export const App: React.FC = () => {
             handleDeleteTodo={handleDeleteTodo}
             handleUpdateStatus={handleUpdateStatus}
             handleUpdateTitle={handleUpdateTitle}
+            processing={processing}
           />
         ))}
 
