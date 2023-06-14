@@ -28,6 +28,7 @@
   }
 
   &__toggle-all {
+    margin: 30px 0 0 4px;
     position: absolute;
 
     height: 100%;
@@ -130,4 +131,8 @@
       text-decoration: none;
     }
   }
+}
+
+.hide {
+  display: none;
 }
