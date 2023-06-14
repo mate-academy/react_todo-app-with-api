@@ -3,26 +3,33 @@ import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface FooterProps {
-  todos: Todo[],
-  filterType: string,
-  onFilterChange: (type: string) => void,
-  onClearCompleted: () => void,
+  todos: Todo[];
+  filterType: string;
+  onFilterChange: (type: string) => void;
+  onClearCompleted: () => void;
 }
 
-const Footer: React.FC<FooterProps>
-= ({
-  todos, filterType, onFilterChange, onClearCompleted,
+const filterTodos = (todos: Todo[], filterType: string) => {
+  switch (filterType) {
+    case 'active':
+      return todos.filter((todo) => !todo.completed);
+    case 'completed':
+      return todos.filter((todo) => todo.completed);
+    default:
+      return todos;
+  }
+};
+
+const Footer: React.FC<FooterProps> = ({
+  todos,
+  filterType,
+  onFilterChange,
+  onClearCompleted,
 }) => {
-  const filteredTodos = useMemo(() => {
-    switch (filterType) {
-      case 'active':
-        return todos.filter((todo) => !todo.completed);
-      case 'completed':
-        return todos.filter((todo) => todo.completed);
-      default:
-        return todos;
-    }
-  }, [todos, filterType]);
+  const filteredTodos = useMemo(() => filterTodos(todos, filterType), [
+    todos,
+    filterType,
+  ]);
 
   const hasCompletedTodos = todos.some((todo) => todo.completed);
 
@@ -43,9 +50,9 @@ const Footer: React.FC<FooterProps>
           <nav className="filter">
             <a
               href="#/"
-              className={classNames(
-                'filter__link', { selected: filterType === 'all' },
-              )}
+              className={classNames('filter__link', {
+                selected: filterType === 'all',
+              })}
               onClick={() => onFilterChange('all')}
             >
               All
@@ -53,9 +60,9 @@ const Footer: React.FC<FooterProps>
 
             <a
               href="#/active"
-              className={classNames(
-                'filter__link', { selected: filterType === 'active' },
-              )}
+              className={classNames('filter__link', {
+                selected: filterType === 'active',
+              })}
               onClick={() => onFilterChange('active')}
             >
               Active
@@ -63,9 +70,9 @@ const Footer: React.FC<FooterProps>
 
             <a
               href="#/completed"
-              className={classNames(
-                'filter__link', { selected: filterType === 'completed' },
-              )}
+              className={classNames('filter__link', {
+                selected: filterType === 'completed',
+              })}
               onClick={() => onFilterChange('completed')}
             >
               Completed

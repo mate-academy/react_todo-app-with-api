@@ -168,7 +168,7 @@ export const App: React.FC = () => {
             disabled={isLoading}
           />
         </form>
-        {tempTodo !== null && <span className="hide">{tempTodo.title}</span>}
+        {tempTodo && <span className="hide">{tempTodo.title}</span>}
         <TodoList
           todos={todos}
           filterType={filterType}

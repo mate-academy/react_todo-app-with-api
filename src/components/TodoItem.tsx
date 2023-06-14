@@ -18,6 +18,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const [originalTitle, setOriginalTitle] = useState(title);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,6 +33,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
 
   const handleDoubleClick = () => {
     setIsEditing(true);
+    setOriginalTitle(title);
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,7 +43,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
   const handleTitleBlur = () => {
     if (editedTitle.trim() === '') {
       handleDelete();
-    } else if (editedTitle !== title) {
+    } else if (editedTitle !== originalTitle) {
       setIsLoading(true);
       setShowLoader(true);
       onUpdateTitle(id, editedTitle);
@@ -53,6 +55,13 @@ const TodoItem: React.FC<TodoItemProps> = ({
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     handleTitleBlur();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditedTitle(originalTitle);
+      setIsEditing(false);
+    }
   };
 
   useEffect(() => {
@@ -115,6 +124,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
               value={editedTitle}
               onChange={handleTitleChange}
               onBlur={handleTitleBlur}
+              onKeyDown={handleKeyDown}
               ref={inputRef}
             />
           </form>
