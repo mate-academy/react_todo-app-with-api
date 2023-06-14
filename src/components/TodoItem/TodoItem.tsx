@@ -39,9 +39,13 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
-  const handleOnBlur = () => {
+  const saveChanges = () => {
     handleTodoTitleUpdate(todo, newTitle);
     setIsDoubleClicked(false);
+  };
+
+  const handleOnBlur = () => {
+    saveChanges();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({
       setNewTitle(title);
     }
 
-    handleOnBlur();
+    saveChanges();
   };
 
   const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
