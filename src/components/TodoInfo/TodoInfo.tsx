@@ -4,6 +4,7 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Context } from '../../context';
+import { Loader } from '../Loader/Loader';
 
 type Props = {
   todo: Todo,
@@ -120,13 +121,7 @@ export const TodoInfo: React.FC<Props> = React.memo(
 
         )}
 
-        <div className={classNames('modal', 'overlay', {
-          'is-active': isUpdating || isToggleAll,
-        })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
+        <Loader isUpdating={isUpdating} isToggleAll={isToggleAll} />
       </div>
     );
   },
