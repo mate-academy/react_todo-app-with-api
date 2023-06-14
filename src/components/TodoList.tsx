@@ -53,6 +53,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               key={tempTodo.id}
+              handleDeletingTodo={handleDeletingTodo}
               tempTodo={tempTodo}
               todosForTemp={todosForTemp}
               handleUpdatingTodo={handleUpdatingTodo}

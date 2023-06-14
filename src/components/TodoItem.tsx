@@ -4,7 +4,7 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo,
-  handleDeletingTodo?: (id: number) => void,
+  handleDeletingTodo: (id: number) => void,
   tempTodo?: Todo | null
   todosForTemp: number[]
   handleUpdatingTodo: (id: number, data: null | string) => void,
@@ -38,7 +38,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleSaveChanges = () => {
     setIsChanged(false);
     if (!titleValue.length) {
-      handleDeletingTodo?.(id);
+      handleDeletingTodo(id);
     } else if (title === titleValue) {
       handlerCancelEditing();
     } else {
@@ -87,7 +87,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => handleDeletingTodo?.(id)}
+              onClick={() => handleDeletingTodo(id)}
             >
               ×
             </button>

@@ -33,7 +33,7 @@ export const App: React.FC = () => {
   const leftTodosCount
     = todosFromServer?.filter(todo => !todo.completed).length || 0;
 
-  const filteredTodos = (todos: Todo[], value: FilterValues) => {
+  const getFilteredTodos = (todos: Todo[], value: FilterValues) => {
     return todos.filter(todo => {
       switch (value as FilterValues) {
         case FilterValues.Completed:
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const getId = (todos: Todo[]) => {
+  const getIds = (todos: Todo[]) => {
     return todos.map(todo => todo.id);
   };
 
@@ -62,12 +62,12 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setCompletedTodosID(() => getId(filteredTodos(todosFromServer,
+    setCompletedTodosID(() => getIds(getFilteredTodos(todosFromServer,
       FilterValues.Completed)));
   }, [todosFromServer, leftTodosCount]);
 
   const todosAfterFilter = useMemo(() => {
-    return filteredTodos(todosFromServer, filterValue);
+    return getFilteredTodos(todosFromServer, filterValue);
   }, [todosFromServer, filterValue]);
 
   const handleAddingTodos = (inputValue: string) => {
@@ -93,19 +93,17 @@ export const App: React.FC = () => {
   };
 
   const handleUpdatingTodo = (id: number, data: null | string) => {
-    const todoForUpdating = todosFromServer.find(t => t.id === id);
+    const todoForUpdating = todosFromServer.find(todo => todo.id === id);
     let dataForUpdating = {};
 
-    if (todoForUpdating && data === null) {
-      dataForUpdating = todoForUpdating.completed
-        ? { completed: false }
-        : { completed: true };
+    if (todoForUpdating && !data) {
+      dataForUpdating = { completed: !todoForUpdating.completed };
     } else if (todoForUpdating && typeof data === 'string') {
-      if (data.length) {
-        dataForUpdating = { title: data };
-      } else {
+      if (!data.length) {
         return;
       }
+
+      dataForUpdating = { title: data };
     }
 
     setTempTodo({
@@ -138,8 +136,8 @@ export const App: React.FC = () => {
 
   const handleToggleAll = (leftTodos: number) => {
     const IDs = leftTodos > 0
-      ? getId(filteredTodos(todosFromServer, FilterValues.Active))
-      : getId(filteredTodos(todosFromServer, FilterValues.Completed));
+      ? getIds(getFilteredTodos(todosFromServer, FilterValues.Active))
+      : getIds(getFilteredTodos(todosFromServer, FilterValues.Completed));
 
     IDs.forEach(id => handleUpdatingTodo(id, null));
 
