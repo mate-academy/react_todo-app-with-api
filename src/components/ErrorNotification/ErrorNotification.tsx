@@ -14,13 +14,9 @@ export const ErrorNotification: React.FC<Props> = React.memo(({
 
   return (
     <div
-      className={cn(
-        'notification',
-        'is-danger',
-        'is-light',
-        'has-text-weight-normal',
-        { hidden: !error },
-      )}
+      className={cn('notification is-danger is-light has-text-weight-normal', {
+        hidden: !error,
+      })}
     >
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button

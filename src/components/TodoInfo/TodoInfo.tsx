@@ -117,11 +117,9 @@ export const TodoInfo: React.FC<Props> = React.memo(({
         )}
 
       <div
-        className={cn(
-          'modal',
-          'overlay',
-          { 'is-active': loadingTodos.includes(id) },
-        )}
+        className={cn('modal overlay', {
+          'is-active': loadingTodos.includes(id),
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

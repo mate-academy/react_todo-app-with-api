@@ -43,10 +43,9 @@ export const TodoHeader: React.FC<Props> = React.memo(({
         /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
         <button
           type="button"
-          className={cn(
-            'todoapp__toggle-all',
-            { active: isAllCompleted },
-          )}
+          className={cn('todoapp__toggle-all', {
+            active: isAllCompleted,
+          })}
           onClick={handleToggleAllOnClick}
         />
       ))}
