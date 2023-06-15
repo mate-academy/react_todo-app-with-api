@@ -8,6 +8,12 @@ import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
+import {
+  validateTitle,
+  getCompletedTodos,
+  getActiveTodos,
+  getVisibleTodos,
+} from './utils/helpers';
 import { Todo } from './types/Todo';
 import { TodoFilterStatus } from './types/TodoFilterStatus';
 import {
@@ -49,32 +55,15 @@ export const App: React.FC = () => {
   }, [error]);
 
   const completedTodos = useMemo(() => {
-    return todos.filter((todo) => todo.completed);
+    return getCompletedTodos(todos);
   }, [todos, filterStatus]);
 
   const activeTodos = useMemo(() => {
-    return todos.filter((todo) => !todo.completed);
+    return getActiveTodos(todos);
   }, [todos, filterStatus]);
 
   const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      let status: boolean;
-
-      switch (filterStatus) {
-        case TodoFilterStatus.Active:
-          status = !todo.completed;
-          break;
-
-        case TodoFilterStatus.Completed:
-          status = todo.completed;
-          break;
-
-        default:
-          status = true;
-      }
-
-      return status;
-    });
+    return getVisibleTodos(todos, filterStatus);
   }, [todos, filterStatus]);
 
   const activeTodosLeft = activeTodos.length;
@@ -145,8 +134,8 @@ export const App: React.FC = () => {
     try {
       setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
 
-      if (data.title && data.title.trim() === '') {
-        throw new Error('Title cannot be empty');
+      if (data.title) {
+        validateTitle(data.title);
       }
 
       await updateTodo(todoId, data);
