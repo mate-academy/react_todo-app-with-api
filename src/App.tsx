@@ -83,7 +83,9 @@ export const App: React.FC = () => {
     });
 
     addTodo(USER_ID, newTodo)
-      .then(res => setTodosFromServer(prevTodos => [...prevTodos, res]))
+      .then(res => {
+        setTodosFromServer(prevTodos => [...prevTodos, res]);
+      })
       .catch(() => errorContext.setErrorMessage(ErrorValues.Adding))
       .finally(() => {
         inputHeaderRef.current.disabled = false;
@@ -96,14 +98,12 @@ export const App: React.FC = () => {
     const todoForUpdating = todosFromServer.find(todo => todo.id === id);
     let dataForUpdating = {};
 
-    if (todoForUpdating && !data) {
-      dataForUpdating = { completed: !todoForUpdating.completed };
-    } else if (todoForUpdating && typeof data === 'string') {
-      if (!data.length) {
-        return;
+    if (todoForUpdating) {
+      if (!data) {
+        dataForUpdating = { completed: !todoForUpdating.completed };
+      } else if (data.length) {
+        dataForUpdating = { title: data };
       }
-
-      dataForUpdating = { title: data };
     }
 
     setTempTodo({

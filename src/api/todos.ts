@@ -6,15 +6,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (userId: number, data: {}) => {
-  return client.post<Todo>(`/todos?userId=${userId}`, data)
-    .then(res => {
-      return {
-        id: res.id,
-        userId: res.userId,
-        title: res.title,
-        completed: res.completed,
-      };
-    });
+  return client.post<Todo>(`/todos?userId=${userId}`, data);
 };
 
 export const removeTodo = (userId: number, id: number) => {
