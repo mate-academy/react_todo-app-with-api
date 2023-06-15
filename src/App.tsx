@@ -46,7 +46,7 @@ export const App: React.FC = () => {
     setSelectedTodoId(null);
     setError(null);
 
-    if (newTodoTitle.trim() === '') {
+    if (!newTodoTitle.trim()) {
       setError(errorObject.EmptyTitle);
 
       return;
