@@ -70,10 +70,9 @@ export const TodoInfo: React.FC<Props> = React.memo(({
 
   return (
     <div
-      className={cn(
-        'todo',
-        { completed },
-      )}
+      className={cn('todo', {
+        completed,
+      })}
     >
       <label className="todo__status-label">
         <input
