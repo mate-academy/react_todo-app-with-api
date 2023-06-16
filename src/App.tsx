@@ -56,17 +56,17 @@ export const App: React.FC = () => {
 
   const activeTodos = useMemo(() => (
     todos.filter(todo => !todo.completed)
-  ), [todos, filter]);
+  ), [todos]);
 
   const completedTodos = useMemo(() => (
     todos.filter(todo => todo.completed)
-  ), [todos, filter]);
+  ), [todos]);
 
   const handleAddTodo = useCallback(async (todoTitle: string) => {
     try {
       const newTodo = {
         userId: USER_ID,
-        title: todoTitle,
+        title: todoTitle.trim(),
         completed: false,
       };
 
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  }, [todos]);
+  }, []);
 
   const handleRemoveTodo = useCallback(async (todoId: number) => {
     try {
@@ -97,7 +97,7 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setLoadingTodos([0]);
     }
-  }, [todos]);
+  }, []);
 
   const handleTodoStatusUpdate = useCallback(async (todoToUpdate: Todo) => {
     try {
@@ -122,7 +122,7 @@ export const App: React.FC = () => {
       setLoadingTodos(currentTodosId => currentTodosId
         .filter(todoId => todoId !== todoToUpdate.id));
     }
-  }, [todos]);
+  }, []);
 
   const handleTodoTitleUpdate = useCallback(async (
     todoToUpdate: Todo,
@@ -155,7 +155,7 @@ export const App: React.FC = () => {
       setLoadingTodos(currentTodosId => currentTodosId
         .filter(todoId => todoId !== todoToUpdate.id));
     }
-  }, [todos]);
+  }, []);
 
   const handleToggleAll = useCallback(() => {
     let toggledTodos = todos;
@@ -165,7 +165,7 @@ export const App: React.FC = () => {
     }
 
     toggledTodos.forEach(todo => handleTodoStatusUpdate(todo));
-  }, [todos]);
+  }, []);
 
   const handleClearCompleted = () => {
     completedTodos.forEach(async (todo) => {
