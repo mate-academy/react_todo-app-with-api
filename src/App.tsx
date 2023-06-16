@@ -88,7 +88,7 @@ export const App: React.FC = () => {
   const addTodo = useCallback(async (title: string) => {
     try {
       const newTodo = {
-        title,
+        title: title.trim(),
         completed: false,
         userId: USER_ID,
       };
