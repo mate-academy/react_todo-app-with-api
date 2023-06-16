@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -24,20 +29,10 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     todoTitleRef.current?.focus();
   }, [isEditing]);
 
-  const handleTodoStatusOnClick = () => {
-    editTodo(id, { completed: !completed });
-  };
-
-  const handleTodoOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (todoTitleRef.current) {
-      todoTitleRef.current.value = event.target.value;
-    }
-  };
-
-  const handleTodoOnBlur = () => {
+  const submitTodo = useCallback(() => {
     const newTitle = todoTitleRef.current?.value;
 
-    if (newTitle === title) {
+    if (newTitle && newTitle === title) {
       setIsEditing(false);
 
       return;
@@ -50,17 +45,29 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     }
 
     setIsEditing(false);
+  }, [todoTitleRef, removeTodo, editTodo]);
+
+  const handleTodoStatusOnClick = () => {
+    editTodo(id, { completed: !completed });
   };
 
-  const handleTodoOnKeyUp = (event: React.KeyboardEvent) => {
-    const { code } = event;
+  const handleTodoOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-    if (code === 'Escape') {
-      todoTitleRef.current?.blur();
+    submitTodo();
+  };
+
+  const handleTodoOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (todoTitleRef.current) {
+      todoTitleRef.current.value = event.target.value;
     }
+  };
 
-    if (code === 'Enter') {
-      handleTodoOnBlur();
+  const handleTodoOnBlur = () => submitTodo();
+
+  const handleTodoOnKeyUp = (event: React.KeyboardEvent) => {
+    if (event.code === 'Escape') {
+      setIsEditing(false);
     }
   };
 
@@ -85,16 +92,18 @@ export const TodoInfo: React.FC<Props> = React.memo(({
 
       {isEditing
         ? (
-          <input
-            ref={todoTitleRef}
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            defaultValue={title}
-            onChange={handleTodoOnChange}
-            onBlur={handleTodoOnBlur}
-            onKeyUp={handleTodoOnKeyUp}
-          />
+          <form onSubmit={handleTodoOnSubmit}>
+            <input
+              ref={todoTitleRef}
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              defaultValue={title}
+              onChange={handleTodoOnChange}
+              onBlur={handleTodoOnBlur}
+              onKeyUp={handleTodoOnKeyUp}
+            />
+          </form>
         )
         : (
           <>

@@ -130,12 +130,19 @@ export const App: React.FC = () => {
     });
   }, [completedTodos, removeTodo]);
 
-  const editTodo = useCallback(async (todoId: number, data: Partial<Todo>) => {
+  const editTodo = useCallback(async (
+    todoId: number,
+    todoUpdate: Partial<Todo>,
+  ) => {
+    const data = { ...todoUpdate };
+
     try {
       setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
 
       if (data.title) {
         validateTitle(data.title);
+
+        data.title = data.title.trim();
       }
 
       await updateTodo(todoId, data);
