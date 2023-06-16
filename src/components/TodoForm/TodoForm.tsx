@@ -12,7 +12,7 @@ export const TodoForm: React.FC<Props> = ({ handleAddTodo, setError }) => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       setError('Title can not be empty');
 
       return;
