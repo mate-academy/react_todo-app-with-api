@@ -60,7 +60,7 @@ export const TodoList: React.FC<Props> = ({
   const [reWrittenTodoId, setReWrittenTodoId] = useState(0);
   const [isTitleSame, setIsTitleSame] = useState(false);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
-  const [isModifiing, setIsModifiing] = useState(false);
+  const [isModifing, setIsModifing] = useState(false);
 
   const handleTodoUpdate = async (id: number, newTitle: string) => {
     const updatedTodo = todo.map((obj) => {
@@ -106,7 +106,7 @@ export const TodoList: React.FC<Props> = ({
       throw Error('Unable to update a todo');
     } finally {
       setIsTodoRenaming(false);
-      setIsModifiing(false);
+      setIsModifing(false);
     }
   };
 
@@ -118,7 +118,7 @@ export const TodoList: React.FC<Props> = ({
       event.preventDefault();
       setIsTodoRenaming(false);
       setIsUpdating(false);
-      setIsModifiing(false);
+      setIsModifing(false);
       setIsDoubleClickedName('');
     }
 
@@ -207,7 +207,7 @@ export const TodoList: React.FC<Props> = ({
                     }}
                   />
                 </label>
-                {isDoubleClickedName === task.title && isModifiing
+                {isDoubleClickedName === task.title && isModifing
                   ? (
                     <label>
                       <input
@@ -232,7 +232,7 @@ export const TodoList: React.FC<Props> = ({
                       onDoubleClick={() => {
                         setPlaceHolderText(task.title);
                         setIsDoubleClickedName(task.title);
-                        setIsModifiing(true);
+                        setIsModifing(true);
                       }}
                     >
                       {task.title}
