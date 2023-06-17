@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, {
   useEffect, useState, useMemo, useRef,
 } from 'react';
@@ -12,10 +13,15 @@ import { TodoList } from './components/TodoList';
 
 const USER_ID = 10377;
 
+function getRandomNumber(): number {
+  return Math.floor(Math.random() * 1001);
+}
+
 export const App: React.FC = () => {
-  const [todo, setTodo] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedTab, setSelectedTab] = useState(SortType.All);
   const [inputValue, setInputValue] = useState('');
+  const [apiResponseReceived, setApiResponseReceived] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isThereActiveTodo, setIsThereActiveTodo] = useState(false);
   const [isThereCompletedTodos, setIsThereCompletedTodos] = useState(false);
@@ -26,14 +32,16 @@ export const App: React.FC = () => {
   const [isThereIssue, setIsThereIssue] = useState(false);
   const [numberOfActiveTodos, setNumberOfActivTodos] = useState(0);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
+  const [isTitleEmpty, setIsTitleEmpty] = useState('');
   const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
   const [editTodo, setEditTodo] = useState('');
-  const [tempTodo, setTempTodo] = useState({
-    title: '',
-    userId: USER_ID,
-    completed: false,
-    id: 0,
-  });
+  const [isEveryThingDelete, setIsEveryThingDelete] = useState(false);
+  const [deletedTodoId, setDeletedTodoId] = useState(0);
+  const [isPlusOne, setIsPlusOne] = useState(false);
+  const [isEveryThingTrue, setIsEveryThingTrue] = useState(false);
+  const [toggleFalseTodosId, setToggleFalseTodosId] = useState([0]);
+  const [todoStatusChange, setTodoStatusChange] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const excludedInputRef = useRef<HTMLInputElement>(null);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
@@ -42,39 +50,133 @@ export const App: React.FC = () => {
       setIsLoading(true);
       const response = await getTodos(USER_ID);
 
-      setTodo(response);
+      setTodos(response);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.log('Unable to add a todo');
       setIsHidden('Unable to add a todo');
       setIsThereIssue(true);
       timeoutId.current = setTimeout(() => {
         setIsThereIssue(false);
       }, 3000);
+      console.log('Unable to add a todo');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const deleteTodo = async (id: number) => {
-    const tempTodos = todo.filter((element) => {
-      return element.id !== id;
+  const updateTempTodo = (value: string) => {
+    setInputValue(value);
+  };
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsThereIssue(false);
+    setIsLoading(true);
+    setIsPlusOne(true);
+
+    setTempTodo({
+      ...tempTodo,
+      title: inputValue.trim(),
+      id: 0,
+      completed: false,
+      userId: USER_ID,
     });
 
-    setTodo(tempTodos);
+    if (inputValue.trim() !== '') {
+      const tempTodoItem: Todo = {
+        title: inputValue.trim(),
+        userId: USER_ID,
+        completed: false,
+        id: getRandomNumber(),
+      };
+
+      try {
+        await client.post('/todos', tempTodoItem);
+        setTodos((prevTodo) => [...prevTodo, tempTodoItem]);
+        setApiResponseReceived(true);
+      } catch (error) {
+        setIsThereIssue(true);
+        setDeleteErrorMessage('Unable to add the todo');
+        timeoutId.current = setTimeout(() => {
+          setIsThereIssue(false);
+        }, 3000);
+        setIsPlusOne(false);
+      } finally {
+        setApiResponseReceived(false);
+        setIsLoading(false);
+        setIsPlusOne(false);
+      }
+    } else {
+      setIsThereIssue(true);
+      setIsPlusOne(false);
+      setIsTitleEmpty('Title can\'t be empty');
+    }
+
+    setInputValue('');
+  };
+
+  const deleteTodo = async (id: number) => {
+    setDeletedTodoId(id);
 
     try {
+      setIsLoading(true);
       await client.delete(`/todos/${id}`);
+      setTodos(todos.filter((todo) => todo.id !== id));
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('There is an issue.', error);
-      setDeleteErrorMessage('Unable to delete a todo');
+      setDeleteErrorMessage('Unable to delete the todo');
+      setIsThereIssue(true);
+      timeoutId.current = setTimeout(() => {
+        setIsThereIssue(false);
+      }, 3000);
+      setIsLoading(false);
+      console.log('Unable to delete the todo');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const updateAllTodo = async () => {
+    setTodoStatusChange(true);
+
+    const everyCompleted = todos.every((item) => item.completed);
+
+    if (everyCompleted) {
+      setIsEveryThingTrue(true);
+    }
+
+    const updatedTodos = todos.map((element) => {
+      if (!everyCompleted && element.completed === false) {
+        setToggleFalseTodosId(prevState => [...prevState, element.id]);
+      }
+
+      return everyCompleted
+        ? { ...element, completed: !element.completed }
+        : { ...element, completed: true };
+    });
+
+    setTodos(updatedTodos);
+
+    try {
+      await Promise.all(
+        updatedTodos.map(async (todoItem) => {
+          await client.patch(`/todos/${todoItem.id}`, {
+            ...todoItem,
+            completed: todoItem.completed,
+          });
+        }),
+      );
+    } catch (error) {
+      console.log('There is an issue updating todos.', error);
+    }
+
+    setToggleFalseTodosId([]);
+    setIsEveryThingTrue(false);
+    setTodoStatusChange(false);
   };
 
   const updateIndividualTodo = async (id: number) => {
     setUpdatingTodoId(id);
-    const updatedTodo = todo.map((obj) => {
+    const updatedTodo = todos.map((obj) => {
       if (obj.id === id) {
         return {
           ...obj,
@@ -85,7 +187,7 @@ export const App: React.FC = () => {
       return obj;
     });
 
-    const none = todo.some((element) => {
+    const none = todos.some((element) => {
       return element.id === id;
     });
 
@@ -94,10 +196,10 @@ export const App: React.FC = () => {
       setIsThereIssue(true);
     }
 
-    setTodo(updatedTodo);
+    setTodos(updatedTodo);
 
     try {
-      const todoToUpdate = todo.find((elem) => elem.id === id);
+      const todoToUpdate = todos.find((elem) => elem.id === id);
 
       if (todoToUpdate) {
         setIsLoading(true);
@@ -134,29 +236,28 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const isActive = todo.some((obj) => obj.completed === false);
-    const isFalse = todo.some((obj) => obj.completed === true);
-    const todoLength = todo.filter((obj) => {
+    const isActive = todos.some((obj) => obj.completed === false);
+    const isFalse = todos.some((obj) => obj.completed === true);
+    const todoLength = todos.filter((obj) => {
       return obj.completed === false;
     });
 
     setIsThereActiveTodo(isActive);
     setIsThereCompletedTodos(isFalse);
     setNumberOfActivTodos(todoLength.length);
-  }, [todo]);
+  }, [todos]);
 
-  const visibleTodos: Todo[] = useMemo(() => todo.filter((element) => {
+  const visibleTodos: Todo[] = useMemo(() => todos.filter((element) => {
     switch (selectedTab) {
       case SortType.Completed:
         return element.completed;
       case SortType.Active:
         return !element.completed;
       case SortType.All:
-        return todo;
       default:
-        return todo;
+        return todos;
     }
-  }), [todo, selectedTab]);
+  }), [todos, selectedTab]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -170,17 +271,14 @@ export const App: React.FC = () => {
         <div className="todoapp__content">
           <Header
             isThereActiveTodo={isThereActiveTodo}
-            setInputValue={setInputValue}
             inputValue={inputValue}
-            todo={todo}
-            setTodo={setTodo}
-            setTempTodo={setTempTodo}
-            tempTodo={tempTodo}
-            USER_ID={USER_ID}
-            setIsLoading={setIsLoading}
+            apiResponseReceived={apiResponseReceived}
+            updateAllTodo={updateAllTodo}
+            updateTempTodo={updateTempTodo}
+            handleFormSubmit={handleFormSubmit}
           />
           <TodoList
-            todo={todo}
+            todo={todos}
             visibleTodos={visibleTodos}
             isLoading={isLoading}
             updatingTodoId={updatingTodoId}
@@ -194,16 +292,26 @@ export const App: React.FC = () => {
             setIsDoubleClickedName={setIsDoubleClickedName}
             deleteTodo={deleteTodo}
             setIsUpdating={setIsUpdating}
-            setTodo={setTodo}
+            setTodos={setTodos}
+            isPlusOne={isPlusOne}
+            isThereIssue={isThereIssue}
+            setIsThereIssue={setIsThereIssue}
+            deletedTodoId={deletedTodoId}
+            isEveryThingDelete={isEveryThingDelete}
+            todoStatusChange={todoStatusChange}
+            toggleFalseTodosId={toggleFalseTodosId}
+            isEveryThingTrue={isEveryThingTrue}
+            setDeleteErrorMessage={setDeleteErrorMessage}
           />
-          {todo.length > 0 && (
+          {todos.length > 0 && (
             <Footer
               numberOfActiveTodos={numberOfActiveTodos}
               selectedTab={selectedTab}
               setSelectedTab={setSelectedTab}
               isThereCompletedTodos={isThereCompletedTodos}
-              todo={todo}
-              setTodo={setTodo}
+              todo={todos}
+              setIsEveryThingDelete={setIsEveryThingDelete}
+              setTodos={setTodos}
               setDeleteErrorMessage={setDeleteErrorMessage}
             />
           )}
@@ -216,6 +324,7 @@ export const App: React.FC = () => {
           isThereIssue={isThereIssue}
           editTodo={editTodo}
           setIsThereIssue={setIsThereIssue}
+          isTitleEmpty={isTitleEmpty}
         />
       </div>
     </>

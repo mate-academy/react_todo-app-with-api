@@ -6,6 +6,7 @@ interface Props {
   isThereIssue: boolean,
   editTodo: string,
   setIsThereIssue: (value: boolean) => void,
+  isTitleEmpty: string,
 }
 
 export const Error: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const Error: React.FC<Props> = ({
   isThereIssue,
   editTodo,
   setIsThereIssue,
+  isTitleEmpty,
 }) => {
   return (
     <>
@@ -29,6 +31,8 @@ export const Error: React.FC<Props> = ({
             {null}
           </button>
           {message}
+          <br />
+          {isTitleEmpty}
           <br />
           {deleteErrorMessage}
           <br />

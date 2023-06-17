@@ -9,8 +9,9 @@ interface Props {
   setSelectedTab: React.Dispatch<React.SetStateAction<SortType>>,
   isThereCompletedTodos: boolean,
   todo: Todo[],
-  setTodo: React.Dispatch<React.SetStateAction<Todo[]>>,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+  setIsEveryThingDelete: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export const Footer:React.FC<Props> = ({
@@ -19,10 +20,13 @@ export const Footer:React.FC<Props> = ({
   setSelectedTab,
   isThereCompletedTodos,
   todo,
-  setTodo,
+  setTodos,
   setDeleteErrorMessage,
+  setIsEveryThingDelete,
 }) => {
   const deleteCompletedTodos = async () => {
+    setIsEveryThingDelete(true);
+
     const completedTodoIds = todo
       .filter((element) => element.completed)
       .map((element) => element.id);
@@ -32,11 +36,12 @@ export const Footer:React.FC<Props> = ({
         completedTodoIds.map((id) => client.delete(`/todos/${id}`)),
       );
 
-      setTodo((prevTodo) => prevTodo.filter((element) => !element.completed));
+      setTodos((prevTodo) => prevTodo.filter((element) => !element.completed));
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('There is an issue deleting completed todos.', error);
       setDeleteErrorMessage('Unable to delete completed todos');
+      throw Error('There is an issue deleting completed todos.');
+    } finally {
+      setIsEveryThingDelete(false);
     }
   };
 
