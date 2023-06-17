@@ -1,13 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC } from 'react';
 import cn from 'classnames';
+import { ErrorInfoProps } from './ErrorInfoProps';
 
-interface Props {
-  visibleError: string,
-  setVisibleError: (value: React.SetStateAction<string>) => void,
-}
-
-export const ErrorInfo: FC<Props> = ({
+export const ErrorInfo: FC<ErrorInfoProps> = ({
   visibleError,
   setVisibleError,
 }) => {

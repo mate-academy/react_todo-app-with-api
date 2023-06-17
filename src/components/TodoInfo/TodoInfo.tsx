@@ -1,29 +1,79 @@
-import { useState, FC, ChangeEvent } from 'react';
+import {
+  useState,
+  FC,
+  ChangeEvent,
+  useEffect,
+  useRef,
+  memo,
+} from 'react';
 import cn from 'classnames';
-import { Todo } from '../../types/Todo';
+import { TodoInfoProps } from './TodoInfoProps';
 
-interface Props {
-  todo: Todo;
-  removesTodo: (id: number[]) => void;
-  loadingTodos: number[];
-  changeTodoStatus: (todosIds: number) => void;
-  handleOnQuery?: (event: ChangeEvent<HTMLInputElement>) => void;
-}
-
-export const TodoInfo: FC<Props> = ({
+export const TodoInfo: FC<TodoInfoProps> = memo(({
   todo,
   removesTodo,
   loadingTodos,
-  changeTodoStatus,
-  handleOnQuery,
+  onChangeTodo,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-
   const {
     title,
     completed,
     id,
   } = todo;
+  const formRef = useRef<HTMLInputElement | null>(null);
+  const [queryTodo, setQueryTodo] = useState(title);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (formRef.current) {
+      formRef.current.focus();
+    }
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+      }
+    };
+
+    document.addEventListener('keyup', handleKeyUp);
+
+    const updatedTitle = title.trim().replace(/\s+/g, ' ');
+
+    setQueryTodo(updatedTitle);
+
+    return () => {
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [isEditing]);
+
+  const handleOnQuery = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    setQueryTodo(event.target.value);
+  };
+
+  const handleOnSubmit = () => {
+    const updatedTitle = title.trim().replace(/\s+/g, ' ');
+    const updatedQuery = queryTodo.trim().replace(/\s+/g, ' ');
+
+    if (updatedTitle === updatedQuery) {
+      setQueryTodo(updatedQuery);
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!updatedQuery) {
+      removesTodo([id]);
+      setQueryTodo(updatedTitle);
+      setIsEditing(false);
+
+      return;
+    }
+
+    onChangeTodo(id, 'title', updatedQuery);
+    setIsEditing(false);
+  };
 
   return (
     <div
@@ -37,19 +87,23 @@ export const TodoInfo: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => changeTodoStatus(id)}
+          onClick={() => onChangeTodo(id, 'completed', [completed])}
         />
       </label>
 
       {isEditing ? (
-        <form>
+        <form
+          onSubmit={handleOnSubmit}
+          id="changedForm"
+        >
           <input
             type="text"
             className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            // value={queryTodo}
-            onBlur={() => setIsEditing(false)}
+            form="changedForm"
+            value={queryTodo}
             onChange={handleOnQuery}
+            onBlur={handleOnSubmit}
+            ref={formRef}
           />
         </form>
       ) : (
@@ -64,9 +118,7 @@ export const TodoInfo: FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => {
-              removesTodo([id]);
-            }}
+            onClick={() => removesTodo([id])}
           >
             ×
           </button>
@@ -83,4 +135,4 @@ export const TodoInfo: FC<Props> = ({
       </div>
     </div>
   );
-};
+});

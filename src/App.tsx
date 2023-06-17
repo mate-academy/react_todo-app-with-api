@@ -22,9 +22,10 @@ import { Todo } from './types/Todo';
 import { ErrorInfo } from './components/ErrorInfo/ErrorInfo';
 import {
   visibleTodos,
-  StatusValue,
   getcompletedTodosIds,
+  getcompletedTodos,
 } from './utils/todoUtils';
+import { StatusValue } from './types/StatusValue';
 
 const USER_ID = 10725;
 
@@ -36,14 +37,11 @@ export const App: FC = () => {
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
   const [statusTodo, setstatusTodo] = useState<StatusValue>(StatusValue.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-
   const [visibleError, setVisibleError] = useState('');
 
-  const completed = getcompletedTodosIds(todos);
-
-  const isToggleAll = todos.every(todo => todo.completed);
+  const completedTodosIds = getcompletedTodosIds(todos);
+  const completedTodos = getcompletedTodos(todos);
 
   const getTodosFromServer = async () => {
     try {
@@ -61,7 +59,7 @@ export const App: FC = () => {
     }
 
     getTodosFromServer();
-  }, [tempTodo]);
+  }, [tempTodo, loadingTodos, visibleError]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -86,10 +84,10 @@ export const App: FC = () => {
     }
   };
 
-  const addTodo = async () => {
+  const addTodo = async (title: string) => {
     try {
       const newTodo = {
-        title: queryTodo,
+        title: title.trim(),
         completed: false,
         userId: USER_ID,
       };
@@ -128,7 +126,7 @@ export const App: FC = () => {
       return;
     }
 
-    addTodo();
+    addTodo(queryTodo);
   };
 
   const handleOnQuery = (
@@ -137,26 +135,56 @@ export const App: FC = () => {
     setQueryTodo(event.target.value);
   };
 
-  const changeTodoStatus = async (todoId: number, toggleAll?: boolean) => {
+  const onChangeTodo = async (
+    todoId: number,
+    key: keyof Omit<Todo, 'id' | 'userId'>,
+    valuesOfKey: boolean[] | string,
+  ) => {
     setLoadingTodos((prevIds) => [...prevIds, todoId]);
 
+    const values = typeof valuesOfKey === 'string'
+      ? valuesOfKey
+      : !(valuesOfKey as boolean[]).every(value => value);
+
     try {
-      const todoToUpdate = todos.find(todo => todo.id === todoId);
+      let todoToUpdate = todos.find(todo => todo.id === todoId) as Todo;
 
-      if (todoToUpdate) {
-        const newCompletedValue = toggleAll !== undefined ? toggleAll : todoToUpdate.completed;
+      switch (key) {
+        case 'completed': {
+          await changeTodo(todoId, {
+            ...todoToUpdate,
+            [key]: Boolean(values),
+          });
 
-        const updatedTodo = await changeTodo(todoId, {
-          ...todoToUpdate,
-          completed: !newCompletedValue,
-        });
+          todoToUpdate = {
+            ...todoToUpdate,
+            [key]: Boolean(values),
+          };
+          break;
+        }
 
-        setTodos(prevTodos => prevTodos
-          .map(todo => (
-            todo.id === updatedTodo.id
-              ? updatedTodo
-              : todo)));
+        case 'title': {
+          await changeTodo(todoId, {
+            ...todoToUpdate,
+            [key]: valuesOfKey.toString(),
+          });
+
+          todoToUpdate = {
+            ...todoToUpdate,
+            [key]: valuesOfKey.toString(),
+          };
+          break;
+        }
+
+        default:
+          throw new Error(`Wrong key, ${key} is not defined`);
       }
+
+      setTodos((prevTodos) => prevTodos
+        .map((todo) => (
+          todo.id === todoToUpdate.id
+            ? todoToUpdate
+            : todo)) as Todo[]);
     } catch (error) {
       setVisibleError('Unable to update a todo');
     } finally {
@@ -173,9 +201,9 @@ export const App: FC = () => {
           <button
             type="button"
             className={cn('todoapp__toggle-all', {
-              active: isToggleAll,
+              active: todos.every(todo => todo.completed),
             })}
-            onClick={() => todos.map(todo => changeTodoStatus(todo.id, isToggleAll))}
+            onClick={() => todos.map(todo => onChangeTodo(todo.id, 'completed', completedTodos))}
           />
 
           <form
@@ -198,14 +226,13 @@ export const App: FC = () => {
           tempTodo={tempTodo}
           removesTodo={removesTodo}
           loadingTodos={loadingTodos}
-          changeTodoStatus={changeTodoStatus}
-          handleOnQuery={handleOnQuery}
+          onChangeTodo={onChangeTodo}
         />
 
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${completed.length} items left`}
+              {`${completedTodosIds.length} items left`}
             </span>
 
             <nav className="filter">
@@ -244,10 +271,10 @@ export const App: FC = () => {
             <button
               type="button"
               className="todoapp__clear-completed"
-              disabled={!completed.length}
+              disabled={!completedTodosIds.length}
               onClick={() => {
-                removesTodo(completed);
-                setLoadingTodos(completed);
+                removesTodo(completedTodosIds);
+                setLoadingTodos(completedTodosIds);
                 setstatusTodo(StatusValue.ALL);
               }}
             >
