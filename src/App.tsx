@@ -20,20 +20,20 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage]
     = useState<Error>(Error.NONE);
 
-  const activeTodosCount = useMemo(
+  const countOfActiveTodos = useMemo(
     () => todos.filter(todo => !todo.completed).length,
     [todos],
   );
 
-  const isTodoCompleted = useMemo(() => (
+  const isTodoDone = useMemo(() => (
     todos.some(todo => todo.completed)
   ), [todos]);
 
-  const areAllTodosCompleted = useMemo(() => (
+  const areAllTodosDone = useMemo(() => (
     todos.every(todo => todo.completed)
   ), [todos]);
 
-  const visibleTodos = useMemo(() => {
+  const filteredTodos = useMemo(() => {
     return (todos.filter((todo) => {
       switch (todoStatus) {
         case Status.ACTIVE:
@@ -156,7 +156,7 @@ export const App: React.FC = () => {
   const handleToggleAll = () => {
     let toggledTodos = todos;
 
-    if (activeTodosCount) {
+    if (countOfActiveTodos) {
       toggledTodos = todos.filter(todo => !todo.completed);
     }
 
@@ -187,11 +187,11 @@ export const App: React.FC = () => {
           handleTodoAdd={handleTodoAdd}
           todos={todos}
           handleToggleAll={handleToggleAll}
-          areAllTodosCompleted={areAllTodosCompleted}
+          areAllTodosDone={areAllTodosDone}
         />
 
         <TodoList
-          todos={visibleTodos}
+          todos={filteredTodos}
           handleTodoRemove={handleTodoRemove}
           handleTodoTitleUpdate={handleTodoTitleUpdate}
           tempoTodo={tempoTodo}
@@ -205,8 +205,8 @@ export const App: React.FC = () => {
               todoStatus={todoStatus}
               setTodoStatus={setTodoStatus}
               clearCompleted={handleClearCompleted}
-              isTodoCompleted={isTodoCompleted}
-              activeTodosCount={activeTodosCount}
+              isTodoDone={isTodoDone}
+              countOfActiveTodos={countOfActiveTodos}
             />
           </>
         )}
