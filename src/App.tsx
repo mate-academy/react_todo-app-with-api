@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { getTodos } from './api/todos';
@@ -6,12 +5,14 @@ import { Todo } from './types/Todo';
 import { ErrorMessage } from './utils/ErrorMessage';
 import { SetErrorContext } from './utils/setErrorContext';
 import { TodoList, TodoFooter, TodoError } from './components';
+import { FilteringMode } from './utils/FilteringMode';
 
 const USER_ID = 10624;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filteringMode, setFilteringMode] = useState('all');
+  const [filteringMode, setFilteringMode]
+    = useState<FilteringMode>(FilteringMode.all);
   const [error, setError] = useState<ErrorMessage>(ErrorMessage.NoError);
   const [todosToBeEdited, setTodosToBeEdited]
   = useState<Todo['id'][] | null>(null);
@@ -40,10 +41,8 @@ export const App: React.FC = () => {
             todosToBeEdited={todosToBeEdited}
             setTodosToBeEdited={setTodosToBeEdited}
           />
-          {/* handle rendering the todo list and the todo entry field */}
 
-          {/* Hide the footer if there are no todos */}
-          {todos.length !== 0 && (
+          {todos.length && (
             <TodoFooter
               setFilteringMode={setFilteringMode}
               filteringMode={filteringMode}
@@ -54,8 +53,6 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Notification is shown in case of any error */}
-        {/* Add the 'hidden' class to hide the message smoothly */}
         {error && <TodoError error={error} />}
       </div>
     </SetErrorContext.Provider>

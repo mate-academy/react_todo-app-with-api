@@ -4,10 +4,11 @@ import { Todo } from '../types/Todo';
 import { addTodo, deleteTodo, patchTodo } from '../api/todos';
 import { SetErrorContext } from '../utils/setErrorContext';
 import { ErrorMessage } from '../utils/ErrorMessage';
+import { FilteringMode } from '../utils/FilteringMode';
 
 interface Props {
   todos: Todo[],
-  filteringMode: string,
+  filteringMode: FilteringMode,
   userId: number,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   todosToBeEdited: Todo['id'][] | null,
@@ -22,14 +23,14 @@ export const TodoList: React.FC<Props> = ({
   const [todoTitle, setTodoTitle] = useState('');
   const [processing, setProcessing] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [editingTitleTodo, setEditingTitleTodo] = useState<Todo | null>(null);
+  const [editTodoTile, setEditTodoTitle] = useState<Todo | null>(null);
 
-  if (filteringMode !== 'all' && todos !== null) {
+  if (filteringMode !== FilteringMode.all && todos) {
     switch (filteringMode) {
-      case 'active':
+      case FilteringMode.active:
         filteredTodos = todos.filter(todo => !todo.completed);
         break;
-      case 'completed':
+      case FilteringMode.completed:
         filteredTodos = todos.filter(todo => todo.completed);
         break;
       default:
@@ -167,25 +168,25 @@ export const TodoList: React.FC<Props> = ({
   };
 
   const handleTodoNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (editingTitleTodo !== null) {
-      setEditingTitleTodo({
-        id: editingTitleTodo.id,
-        userId: editingTitleTodo.userId,
-        completed: editingTitleTodo.completed,
+    if (editTodoTile !== null) {
+      setEditTodoTitle({
+        id: editTodoTile.id,
+        userId: editTodoTile.userId,
+        completed: editTodoTile.completed,
         title: event.target.value,
       });
     }
   };
 
   const handleFinishTodoNameChange = (todo: Todo) => {
-    if (editingTitleTodo) {
-      if (editingTitleTodo.title === todo.title) {
-        setEditingTitleTodo(null);
-      } else if (!editingTitleTodo.title) {
+    if (editTodoTile) {
+      if (editTodoTile.title === todo.title) {
+        setEditTodoTitle(null);
+      } else if (!editTodoTile.title) {
         handleDeletion(todo.id);
       } else {
         setTodosToBeEdited([todo.id]);
-        patchTodo(editingTitleTodo.id, { title: editingTitleTodo.title })
+        patchTodo(editTodoTile.id, { title: editTodoTile.title })
           .then(() => {
             setTodosToBeEdited([]);
             const todoList = [...todos];
@@ -196,15 +197,15 @@ export const TodoList: React.FC<Props> = ({
             todoList[todoIndex] = {
               id: todo.id,
               userId: todo.userId,
-              title: editingTitleTodo.title,
+              title: editTodoTile.title,
               completed: todo.completed,
             };
 
-            setEditingTitleTodo(null);
+            setEditTodoTitle(null);
             setTodos(todoList);
           })
           .catch(() => {
-            setEditingTitleTodo(null);
+            setEditTodoTitle(null);
             setError?.(ErrorMessage.CantUpdate);
           });
       }
@@ -215,13 +216,8 @@ export const TodoList: React.FC<Props> = ({
     event: React.KeyboardEvent<HTMLElement>,
   ) => {
     if (event.key === 'Escape') {
-      setEditingTitleTodo(null);
+      setEditTodoTitle(null);
     }
-
-    // if (event.key === 'Enter') {
-    //   event.preventDefault();
-    //   handleFinishTodoNameChange(todo);
-    // }
   };
 
   const handleSubmitEditedTodo = (
@@ -259,7 +255,7 @@ export const TodoList: React.FC<Props> = ({
       </header>
 
       <section className="todoapp__main">
-        {filteredTodos?.map(todo => (
+        {filteredTodos?.map((todo) => (
           <div
             className={cn({
               todo: true,
@@ -276,14 +272,14 @@ export const TodoList: React.FC<Props> = ({
               />
             </label>
 
-            {editingTitleTodo?.id === todo.id
+            {editTodoTile?.id === todo.id
               ? (
                 <form onSubmit={(event) => handleSubmitEditedTodo(event, todo)}>
                   <input
                     type="text"
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"
-                    value={editingTitleTodo.title}
+                    value={editTodoTile.title}
                     onBlur={() => handleFinishTodoNameChange(todo)}
                     onChange={(event) => handleTodoNameChange(event)}
                     onKeyDown={(event) => handleOnKeyUp(event)}
@@ -295,13 +291,13 @@ export const TodoList: React.FC<Props> = ({
               : (
                 <span
                   className="todo__title"
-                  onDoubleClick={() => setEditingTitleTodo(todo)}
+                  onDoubleClick={() => setEditTodoTitle(todo)}
                 >
                   {todo.title}
                 </span>
               )}
 
-            {!(editingTitleTodo?.id === todo.id) && (
+            {!(editTodoTile?.id === todo.id) && (
               <button
                 type="button"
                 className="todo__remove"
