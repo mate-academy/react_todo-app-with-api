@@ -98,9 +98,8 @@ export const Header: React.FC<Props> = ({
             active: isThereActiveTodo,
           })}
           onClick={updateAllTodo}
-        >
-          {null}
-        </button>
+          aria-label="Update All Todos"
+        />
       </label>
       <form onSubmit={handleFormSubmit}>
         <input
@@ -111,7 +110,7 @@ export const Header: React.FC<Props> = ({
           onChange={(event) => {
             updateTempTodo(event.target.value);
           }}
-          disabled={apiResponseReceived}
+          disabled={!apiResponseReceived}
         />
       </form>
     </header>

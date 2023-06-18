@@ -9,7 +9,7 @@ interface Props {
   isTitleEmpty: string,
 }
 
-export const Error: React.FC<Props> = ({
+export const ErrorMessages: React.FC<Props> = ({
   message,
   deleteErrorMessage,
   isThereIssue,
@@ -27,9 +27,8 @@ export const Error: React.FC<Props> = ({
             type="button"
             className="delete"
             onClick={() => setIsThereIssue(false)}
-          >
-            {null}
-          </button>
+            aria-label="Close error message."
+          />
           {message}
           <br />
           {isTitleEmpty}

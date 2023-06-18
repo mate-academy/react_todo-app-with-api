@@ -1,26 +1,23 @@
+import { nanoid } from 'nanoid';
 import React, {
   useEffect, useState, useMemo, useRef,
 } from 'react';
 import { Todo, SortType } from './Types';
-import { UserWarning } from './UserWarning';
+import { UserWarning } from './components/UserWarning';
 import { getTodos } from './todos';
 import { client } from './utils/client';
-import { Error } from './components/ErrorMessages';
+import { ErrorMessages } from './components/ErrorMessages';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 
 const USER_ID = 10377;
 
-function getRandomNumber(): number {
-  return Math.floor(Math.random() * 1001);
-}
-
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [selectedTab, setSelectedTab] = useState(SortType.All);
   const [inputValue, setInputValue] = useState('');
-  const [apiResponseReceived, setApiResponseReceived] = useState(false);
+  const [apiResponseReceived, setApiResponseReceived] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isThereActiveTodo, setIsThereActiveTodo] = useState(false);
   const [isThereCompletedTodos, setIsThereCompletedTodos] = useState(false);
@@ -84,13 +81,13 @@ export const App: React.FC = () => {
         title: inputValue.trim(),
         userId: USER_ID,
         completed: false,
-        id: getRandomNumber(),
+        id: +nanoid(),
       };
 
       try {
         await client.post('/todos', tempTodoItem);
         setTodos((prevTodo) => [...prevTodo, tempTodoItem]);
-        setApiResponseReceived(true);
+        setApiResponseReceived(false);
       } catch (error) {
         setIsThereIssue(true);
         setDeleteErrorMessage('Unable to add the todo');
@@ -99,7 +96,7 @@ export const App: React.FC = () => {
         }, 3000);
         setIsPlusOne(false);
       } finally {
-        setApiResponseReceived(false);
+        setApiResponseReceived(true);
         setIsLoading(false);
         setIsPlusOne(false);
       }
@@ -233,7 +230,7 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        <Error
+        <ErrorMessages
           message={isHidden}
           deleteErrorMessage={deleteErrorMessage}
           isThereIssue={isThereIssue}

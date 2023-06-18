@@ -6,39 +6,53 @@ import { client } from '../utils/client';
 const USER_ID = 10377;
 
 interface TodoComponentProps {
+  updatingTodoId: number | null,
+  deletedTodoId: number,
+  isDoubleClickedName: string,
+  placeHolderText: string,
+  excludedInputRef: React.RefObject<HTMLInputElement>,
+}
+
+interface TodosArrayProps {
+  tempTodo: Todo | null,
   todos: Todo[],
   visibleTodos: Todo[],
-  isLoading: boolean,
-  updatingTodoId: number | null,
-  tempTodo: Todo | null,
-  deleteTodo: (id: number) => Promise<void>,
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  todoStatusChange: boolean,
   toggleFalseTodosId: number[],
+}
+
+interface RenderConditionsProps {
+  isUpdating: boolean,
+  isPlusOne: boolean,
+  isThereIssue: boolean,
+  isEveryThingDelete: boolean,
   isEveryThingTrue: boolean,
-  setIsHidden: React.Dispatch<React.SetStateAction<string>>,
+  todoStatusChange: boolean,
+  isLoading: boolean,
 }
 
 interface EditComponentProps {
-  isDoubleClickedName: string,
-  placeHolderText: string,
   setPlaceHolderText: React.Dispatch<React.SetStateAction<string>>,
-  excludedInputRef: React.RefObject<HTMLInputElement>,
-  isUpdating: boolean,
   setIsDoubleClickedName: React.Dispatch<React.SetStateAction<string>>,
   setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>,
-  isPlusOne: boolean,
-  isThereIssue: boolean,
-  deletedTodoId: number,
-  isEveryThingDelete: boolean,
   setIsThereIssue: React.Dispatch<React.SetStateAction<boolean>>,
   setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+}
+
+interface Functionalprops {
   setUpdatingTodoId: React.Dispatch<React.SetStateAction<number | null>>,
   setEditTodo: React.Dispatch<React.SetStateAction<string>>,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsHidden: React.Dispatch<React.SetStateAction<string>>,
+  deleteTodo: (id: number) => Promise<void>,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
 }
 
-interface Props extends TodoComponentProps, EditComponentProps {}
+interface Props extends
+  TodoComponentProps,
+  EditComponentProps,
+  RenderConditionsProps,
+  Functionalprops,
+  TodosArrayProps {}
 
 export const TodoList: React.FC<Props> = ({
   todos,
@@ -125,6 +139,10 @@ export const TodoList: React.FC<Props> = ({
   };
 
   const handleTodoUpdate = async (id: number, newTitle: string) => {
+    if (newTitle === '') {
+      deleteTodo(id);
+    }
+
     const updatedTodo = todos.map((obj) => {
       if (obj.id === id) {
         if (obj.title === newTitle) {
@@ -143,10 +161,6 @@ export const TodoList: React.FC<Props> = ({
     setReWrittenTodoId(id);
 
     setTodos(updatedTodo);
-
-    if (newTitle === '') {
-      deleteTodo(id);
-    }
 
     try {
       setIsTodoRenaming(true);
@@ -237,7 +251,7 @@ export const TodoList: React.FC<Props> = ({
                 </label>
                 <span className="todo__title todo__title-container">
                   {task.title}
-                  <div className="loader loader__ondelete" />
+                  <div className="loader loader__delete" />
                 </span>
                 <button
                   type="button"
@@ -338,7 +352,7 @@ export const TodoList: React.FC<Props> = ({
           </label>
           <span className="todo__title  todo__title-container">
             {tempTodo?.title}
-            <div className="loader loader__ondelete" />
+            <div className="loader loader__delete" />
           </span>
           <button
             type="button"
