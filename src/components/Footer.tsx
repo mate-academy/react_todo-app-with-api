@@ -8,10 +8,10 @@ interface Props {
   selectedTab: SortType,
   setSelectedTab: React.Dispatch<React.SetStateAction<SortType>>,
   isThereCompletedTodos: boolean,
-  todo: Todo[],
+  todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>,
-  setIsEveryThingDelete: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsEverythingDeleted: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export const Footer:React.FC<Props> = ({
@@ -19,15 +19,15 @@ export const Footer:React.FC<Props> = ({
   selectedTab,
   setSelectedTab,
   isThereCompletedTodos,
-  todo,
+  todos,
   setTodos,
   setDeleteErrorMessage,
-  setIsEveryThingDelete,
+  setIsEverythingDeleted,
 }) => {
   const deleteCompletedTodos = async () => {
-    setIsEveryThingDelete(true);
+    setIsEverythingDeleted(true);
 
-    const completedTodoIds = todo
+    const completedTodoIds = todos
       .filter((element) => element.completed)
       .map((element) => element.id);
 
@@ -41,7 +41,7 @@ export const Footer:React.FC<Props> = ({
       setDeleteErrorMessage('Unable to delete completed todos');
       throw Error('There is an issue deleting completed todos.');
     } finally {
-      setIsEveryThingDelete(false);
+      setIsEverythingDeleted(false);
     }
   };
 
@@ -94,7 +94,11 @@ export const Footer:React.FC<Props> = ({
         >
           Clear completed
         </button>
-      ) : <div className="todoapp__clearbutton-replacer" />}
+      ) : (
+        <div
+          className="todoapp__clearCompletedTodobutton-replacer-div"
+        />
+      )}
     </footer>
   );
 };

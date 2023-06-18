@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, {
   useEffect, useState, useMemo, useRef,
 } from 'react';
@@ -35,7 +34,7 @@ export const App: React.FC = () => {
   const [isTitleEmpty, setIsTitleEmpty] = useState('');
   const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
   const [editTodo, setEditTodo] = useState('');
-  const [isEveryThingDelete, setIsEveryThingDelete] = useState(false);
+  const [isEveryThingDelete, setIsEverythingDeleted] = useState(false);
   const [deletedTodoId, setDeletedTodoId] = useState(0);
   const [isPlusOne, setIsPlusOne] = useState(false);
   const [isEveryThingTrue, setIsEveryThingTrue] = useState(false);
@@ -52,13 +51,11 @@ export const App: React.FC = () => {
 
       setTodos(response);
     } catch (error) {
-      // eslint-disable-next-line no-console
       setIsHidden('Unable to add a todo');
       setIsThereIssue(true);
       timeoutId.current = setTimeout(() => {
         setIsThereIssue(false);
       }, 3000);
-      console.log('Unable to add a todo');
     } finally {
       setIsLoading(false);
     }
@@ -129,99 +126,8 @@ export const App: React.FC = () => {
         setIsThereIssue(false);
       }, 3000);
       setIsLoading(false);
-      console.log('Unable to delete the todo');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const updateAllTodo = async () => {
-    setTodoStatusChange(true);
-
-    const everyCompleted = todos.every((item) => item.completed);
-
-    if (everyCompleted) {
-      setIsEveryThingTrue(true);
-    }
-
-    const updatedTodos = todos.map((element) => {
-      if (!everyCompleted && element.completed === false) {
-        setToggleFalseTodosId(prevState => [...prevState, element.id]);
-      }
-
-      return everyCompleted
-        ? { ...element, completed: !element.completed }
-        : { ...element, completed: true };
-    });
-
-    setTodos(updatedTodos);
-
-    try {
-      await Promise.all(
-        updatedTodos.map(async (todoItem) => {
-          await client.patch(`/todos/${todoItem.id}`, {
-            ...todoItem,
-            completed: todoItem.completed,
-          });
-        }),
-      );
-    } catch (error) {
-      console.log('There is an issue updating todos.', error);
-    }
-
-    setToggleFalseTodosId([]);
-    setIsEveryThingTrue(false);
-    setTodoStatusChange(false);
-  };
-
-  const updateIndividualTodo = async (id: number) => {
-    setUpdatingTodoId(id);
-    const updatedTodo = todos.map((obj) => {
-      if (obj.id === id) {
-        return {
-          ...obj,
-          completed: !obj.completed,
-        };
-      }
-
-      return obj;
-    });
-
-    const none = todos.some((element) => {
-      return element.id === id;
-    });
-
-    if (!none) {
-      setEditTodo('Unable to update a todo');
-      setIsThereIssue(true);
-    }
-
-    setTodos(updatedTodo);
-
-    try {
-      const todoToUpdate = todos.find((elem) => elem.id === id);
-
-      if (todoToUpdate) {
-        setIsLoading(true);
-
-        await client.patch(`/todos/${id}`, {
-          completed: !todoToUpdate.completed,
-          title: todoToUpdate.title,
-          userId: USER_ID,
-          id,
-        });
-
-        setIsLoading(false);
-        setUpdatingTodoId(null);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Unable to update a todo');
-      setIsHidden('Unable to update a todo');
-      setIsThereIssue(true);
-      timeoutId.current = setTimeout(() => {
-        setIsThereIssue(false);
-      }, 3000);
     }
   };
 
@@ -273,17 +179,23 @@ export const App: React.FC = () => {
             isThereActiveTodo={isThereActiveTodo}
             inputValue={inputValue}
             apiResponseReceived={apiResponseReceived}
-            updateAllTodo={updateAllTodo}
+            setIsEveryThingTrue={setIsEveryThingTrue}
+            setToggleFalseTodosId={setToggleFalseTodosId}
+            setTodoStatusChange={setTodoStatusChange}
             updateTempTodo={updateTempTodo}
             handleFormSubmit={handleFormSubmit}
+            todos={todos}
+            setTodos={setTodos}
+            setDeleteErrorMessage={setDeleteErrorMessage}
+            setIsThereIssue={setIsThereIssue}
+            setIsLoading={setIsLoading}
           />
           <TodoList
-            todo={todos}
+            todos={todos}
             visibleTodos={visibleTodos}
             isLoading={isLoading}
             updatingTodoId={updatingTodoId}
             tempTodo={tempTodo}
-            updateIndividualTodo={updateIndividualTodo}
             isDoubleClickedName={isDoubleClickedName}
             placeHolderText={placeHolderText}
             setPlaceHolderText={setPlaceHolderText}
@@ -302,6 +214,10 @@ export const App: React.FC = () => {
             toggleFalseTodosId={toggleFalseTodosId}
             isEveryThingTrue={isEveryThingTrue}
             setDeleteErrorMessage={setDeleteErrorMessage}
+            setUpdatingTodoId={setUpdatingTodoId}
+            setEditTodo={setEditTodo}
+            setIsLoading={setIsLoading}
+            setIsHidden={setIsHidden}
           />
           {todos.length > 0 && (
             <Footer
@@ -309,13 +225,12 @@ export const App: React.FC = () => {
               selectedTab={selectedTab}
               setSelectedTab={setSelectedTab}
               isThereCompletedTodos={isThereCompletedTodos}
-              todo={todos}
-              setIsEveryThingDelete={setIsEveryThingDelete}
+              todos={todos}
+              setIsEverythingDeleted={setIsEverythingDeleted}
               setTodos={setTodos}
               setDeleteErrorMessage={setDeleteErrorMessage}
             />
           )}
-
         </div>
 
         <Error

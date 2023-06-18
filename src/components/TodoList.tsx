@@ -3,40 +3,49 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Todo } from '../Types';
 import { client } from '../utils/client';
 
-interface Props {
-  todo: Todo[],
+const USER_ID = 10377;
+
+interface TodoComponentProps {
+  todos: Todo[],
   visibleTodos: Todo[],
   isLoading: boolean,
   updatingTodoId: number | null,
   tempTodo: Todo | null,
-  updateIndividualTodo: (id: number) => Promise<void>,
+  deleteTodo: (id: number) => Promise<void>,
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+  todoStatusChange: boolean,
+  toggleFalseTodosId: number[],
+  isEveryThingTrue: boolean,
+  setIsHidden: React.Dispatch<React.SetStateAction<string>>,
+}
+
+interface EditComponentProps {
   isDoubleClickedName: string,
   placeHolderText: string,
   setPlaceHolderText: React.Dispatch<React.SetStateAction<string>>,
   excludedInputRef: React.RefObject<HTMLInputElement>,
   isUpdating: boolean,
   setIsDoubleClickedName: React.Dispatch<React.SetStateAction<string>>,
-  deleteTodo: (id: number) => Promise<void>,
   setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>,
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   isPlusOne: boolean,
   isThereIssue: boolean,
   deletedTodoId: number,
   isEveryThingDelete: boolean,
-  todoStatusChange: boolean,
-  toggleFalseTodosId: number[],
-  isEveryThingTrue: boolean,
   setIsThereIssue: React.Dispatch<React.SetStateAction<boolean>>,
   setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+  setUpdatingTodoId: React.Dispatch<React.SetStateAction<number | null>>,
+  setEditTodo: React.Dispatch<React.SetStateAction<string>>,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
+interface Props extends TodoComponentProps, EditComponentProps {}
+
 export const TodoList: React.FC<Props> = ({
-  todo,
+  todos,
   visibleTodos,
   isLoading,
   updatingTodoId,
   tempTodo,
-  updateIndividualTodo,
   isDoubleClickedName,
   placeHolderText,
   setPlaceHolderText,
@@ -55,6 +64,10 @@ export const TodoList: React.FC<Props> = ({
   isEveryThingTrue,
   setIsThereIssue,
   setDeleteErrorMessage,
+  setUpdatingTodoId,
+  setEditTodo,
+  setIsLoading,
+  setIsHidden,
 }) => {
   const [isTodoRenaming, setIsTodoRenaming] = useState(false);
   const [reWrittenTodoId, setReWrittenTodoId] = useState(0);
@@ -62,8 +75,57 @@ export const TodoList: React.FC<Props> = ({
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [isModifing, setIsModifing] = useState(false);
 
+  const updateIndividualTodo = async (id: number) => {
+    setUpdatingTodoId(id);
+    const updatedTodo = todos.map((obj) => {
+      if (obj.id === id) {
+        return {
+          ...obj,
+          completed: !obj.completed,
+        };
+      }
+
+      return obj;
+    });
+
+    const none = todos.some((element) => {
+      return element.id === id;
+    });
+
+    if (!none) {
+      setEditTodo('Unable to update a todo');
+      setIsThereIssue(true);
+    }
+
+    setTodos(updatedTodo);
+
+    try {
+      const todoToUpdate = todos.find((elem) => elem.id === id);
+
+      if (todoToUpdate) {
+        setIsLoading(true);
+
+        await client.patch(`/todos/${id}`, {
+          completed: !todoToUpdate.completed,
+          title: todoToUpdate.title,
+          userId: USER_ID,
+          id,
+        });
+
+        setIsLoading(false);
+        setUpdatingTodoId(null);
+      }
+    } catch (error) {
+      setIsHidden('Unable to update a todo');
+      setIsThereIssue(true);
+      timeoutId.current = setTimeout(() => {
+        setIsThereIssue(false);
+      }, 3000);
+    }
+  };
+
   const handleTodoUpdate = async (id: number, newTitle: string) => {
-    const updatedTodo = todo.map((obj) => {
+    const updatedTodo = todos.map((obj) => {
       if (obj.id === id) {
         if (obj.title === newTitle) {
           setIsTitleSame(true);
@@ -88,7 +150,7 @@ export const TodoList: React.FC<Props> = ({
 
     try {
       setIsTodoRenaming(true);
-      const todoToUpdate = todo.find((elem) => elem.id === id);
+      const todoToUpdate = todos.find((elem) => elem.id === id);
 
       if (todoToUpdate) {
         await client.patch(`/todos/${id}`, {
@@ -133,6 +195,8 @@ export const TodoList: React.FC<Props> = ({
     } else if (currentTitle !== tempTodo?.title) {
       handleTodoUpdate(id, currentTitle);
     }
+
+    setIsModifing(false);
   };
 
   useEffect(() => {
@@ -145,19 +209,18 @@ export const TodoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main">
-      {todo.length !== 0 && (
+      {todos.length !== 0 && (
         <>
           {visibleTodos.map((task) => {
-            const shouldChange
-            = (todoStatusChange && toggleFalseTodosId.includes(task.id))
+            const deletition = (isEveryThingDelete && task.completed)
+            || (deletedTodoId === task.id && isLoading);
+            const updating = (isLoading && updatingTodoId === task.id)
             || (isEveryThingTrue && todoStatusChange)
-            || (isLoading && updatingTodoId === task.id)
-            || (isEveryThingDelete && task.completed)
-            || (deletedTodoId === task.id && isLoading)
-            || (isTodoRenaming && reWrittenTodoId === task.id
+            || (todoStatusChange && toggleFalseTodosId.includes(task.id));
+            const renaming = (isTodoRenaming && reWrittenTodoId === task.id
               && !isTitleSame);
 
-            return shouldChange ? (
+            return deletition || updating || renaming ? (
               <div
                 className={classNames('todo todo-loader', {
                   completed: task?.completed,
@@ -217,7 +280,7 @@ export const TodoList: React.FC<Props> = ({
                         onChange={(event) => {
                           setPlaceHolderText(event.target.value);
                         }}
-                        onBlur={() => handleBlur(task.id, task.title)}
+                        onBlur={() => handleBlur(task.id, placeHolderText)}
                         onKeyUp={(event) => {
                           handleKeyDown(event, task.id);
                         }}
