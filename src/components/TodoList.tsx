@@ -12,10 +12,10 @@ interface Props {
   userId: number,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   todosToBeEdited: Todo['id'][] | null,
-  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[] | null>>,
+  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[]>>,
 }
 
-let filteredTodos: Todo[] | null = [];
+let filteredTodos: Todo[] = [];
 
 export const TodoList: React.FC<Props> = ({
   todos, filteringMode, userId, setTodos, todosToBeEdited, setTodosToBeEdited,
@@ -62,12 +62,10 @@ export const TodoList: React.FC<Props> = ({
             todos?.push(response);
           })
           .catch(() => setError?.(ErrorMessage.CantAdd));
-        // #TODO: get rid of the nasty ?. somehow
 
         setTodoTitle('');
       } else {
         setError?.(ErrorMessage.EmptyTitle);
-        // #TODO: get rid of the nasty ?. somehow
       }
     }
   };
@@ -105,12 +103,10 @@ export const TodoList: React.FC<Props> = ({
             .then(resolve),
         )
           .catch(() => {
-            setTodosToBeEdited([]);
             setError?.(ErrorMessage.CantUpdate);
           });
       }))
         .then(() => {
-          setTodosToBeEdited([]);
           setTodos(todos.map(todo => {
             return {
               title: todo.title,
@@ -119,6 +115,9 @@ export const TodoList: React.FC<Props> = ({
               completed: !todo.completed,
             };
           }));
+        })
+        .finally(() => {
+          setTodosToBeEdited([]);
         });
     } else {
       const unfinishedTodos = todos.filter(todo => !todo.completed);
@@ -158,10 +157,10 @@ export const TodoList: React.FC<Props> = ({
 
           splicedTodos?.splice(deletedId, 1);
           setTodos(splicedTodos);
-          setTodosToBeEdited(null);
+          setTodosToBeEdited([]);
         })
         .catch(() => {
-          setTodosToBeEdited(null);
+          setTodosToBeEdited([]);
           setError?.(ErrorMessage.CantDelete);
         });
     }
@@ -255,7 +254,7 @@ export const TodoList: React.FC<Props> = ({
       </header>
 
       <section className="todoapp__main">
-        {filteredTodos?.map((todo) => (
+        {filteredTodos.map((todo) => (
           <div
             className={cn({
               todo: true,
@@ -335,34 +334,6 @@ export const TodoList: React.FC<Props> = ({
             </div>
           </div>
         )}
-
-        {/* This todo is being edited */}
-        {/* <div className="todo">
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-            />
-          </label> */}
-
-        {/* This form is shown instead of the title and remove button */}
-        {/* <form>
-            <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value="Todo is being edited now"
-            />
-          </form>
-
-          <div className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div> */}
-
-        {/* This todo is in loadind state */}
-
       </section>
     </>
   );

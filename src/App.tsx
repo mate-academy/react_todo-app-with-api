@@ -15,7 +15,7 @@ export const App: React.FC = () => {
     = useState<FilteringMode>(FilteringMode.all);
   const [error, setError] = useState<ErrorMessage>(ErrorMessage.NoError);
   const [todosToBeEdited, setTodosToBeEdited]
-  = useState<Todo['id'][] | null>(null);
+  = useState<Todo['id'][]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
             setTodosToBeEdited={setTodosToBeEdited}
           />
 
-          {todos.length && (
+          {todos.length > 0 && (
             <TodoFooter
               setFilteringMode={setFilteringMode}
               filteringMode={filteringMode}

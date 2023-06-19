@@ -11,7 +11,7 @@ interface Props {
   filteringMode: FilteringMode,
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[] | null>>,
+  setTodosToBeEdited: React.Dispatch<React.SetStateAction<number[]>>,
 }
 
 export const TodoFooter: React.FC<Props>
@@ -29,13 +29,14 @@ export const TodoFooter: React.FC<Props>
         return new Promise((resolve) => deleteTodo(todo.id)
           .then(resolve))
           .catch(() => {
-            setTodosToBeEdited([]);
             setError?.(ErrorMessage.CantDelete);
           });
       }))
         .then(() => {
-          setTodosToBeEdited([]);
           setTodos(todos.filter(todo => !todo.completed));
+        })
+        .finally(() => {
+          setTodosToBeEdited([]);
         });
     };
 
