@@ -13,7 +13,8 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
   todo,
   removesTodo,
   loadingTodos,
-  onChangeTodo,
+  onTooglingTodo,
+  changeTitle,
 }) => {
   const {
     title,
@@ -71,7 +72,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
       return;
     }
 
-    onChangeTodo(id, 'title', updatedQuery);
+    changeTitle(id, queryTodo);
     setIsEditing(false);
   };
 
@@ -87,7 +88,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => onChangeTodo(id, 'completed', [completed])}
+          onClick={() => onTooglingTodo(id)}
         />
       </label>
 

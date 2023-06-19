@@ -10,7 +10,8 @@ export const TodosList: FC<TodosListProps> = memo(({
   tempTodo,
   removesTodo,
   loadingTodos,
-  onChangeTodo,
+  onTooglingTodo,
+  changeTitle,
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
@@ -24,7 +25,8 @@ export const TodosList: FC<TodosListProps> = memo(({
             todo={todo}
             removesTodo={removesTodo}
             loadingTodos={loadingTodos}
-            onChangeTodo={onChangeTodo}
+            onTooglingTodo={onTooglingTodo}
+            changeTitle={changeTitle}
           />
         </CSSTransition>
       ))}
@@ -39,7 +41,8 @@ export const TodosList: FC<TodosListProps> = memo(({
             todo={tempTodo}
             removesTodo={removesTodo}
             loadingTodos={loadingTodos}
-            onChangeTodo={onChangeTodo}
+            onTooglingTodo={onTooglingTodo}
+            changeTitle={changeTitle}
           />
         </CSSTransition>
       )}

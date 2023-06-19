@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable max-len */
 import {
   FC,
   ChangeEvent,
@@ -20,11 +19,7 @@ import {
 import { TodosList } from './components/TodosList/TodosList';
 import { Todo } from './types/Todo';
 import { ErrorInfo } from './components/ErrorInfo/ErrorInfo';
-import {
-  visibleTodos,
-  getcompletedTodosIds,
-  getcompletedTodos,
-} from './utils/todoUtils';
+import { visibleTodos, getcompletedTodosIds } from './utils/todoUtils';
 import { StatusValue } from './types/StatusValue';
 
 const USER_ID = 10725;
@@ -41,7 +36,7 @@ export const App: FC = () => {
   const [visibleError, setVisibleError] = useState('');
 
   const completedTodosIds = getcompletedTodosIds(todos);
-  const completedTodos = getcompletedTodos(todos);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
 
   const getTodosFromServer = async () => {
     try {
@@ -67,9 +62,10 @@ export const App: FC = () => {
 
   const removesTodo = async (todosId: number[]) => {
     try {
+      setLoadingTodos(prevIds => [...prevIds, ...todosId]);
+
       await Promise.all(
-        todosId.map(async (id) => {
-          setLoadingTodos((prevIds) => [...prevIds, id]);
+        todosId.map(async id => {
           await removeTodo(id);
         }),
       );
@@ -135,56 +131,57 @@ export const App: FC = () => {
     setQueryTodo(event.target.value);
   };
 
-  const onChangeTodo = async (
+  const onTooglingTodo = async (
     todoId: number,
-    key: keyof Omit<Todo, 'id' | 'userId'>,
-    valuesOfKey: boolean[] | string,
+    toggleAll?: boolean,
   ) => {
     setLoadingTodos((prevIds) => [...prevIds, todoId]);
 
-    const values = typeof valuesOfKey === 'string'
-      ? valuesOfKey
-      : !(valuesOfKey as boolean[]).every(value => value);
+    try {
+      const todoToUpdate = todos.find(todo => todo.id === todoId);
+
+      if (todoToUpdate) {
+        const newCompletedValue = toggleAll !== undefined
+          ? toggleAll
+          : todoToUpdate.completed;
+
+        const updatedTodo = await changeTodo(todoId, {
+          ...todoToUpdate,
+          completed: !newCompletedValue,
+        });
+
+        setTodos(prevTodos => prevTodos.map(todo => (
+          todo.id === updatedTodo.id
+            ? updatedTodo
+            : todo
+        )));
+      }
+    } catch (error) {
+      setVisibleError('Unable to update a todo');
+    } finally {
+      setLoadingTodos([]);
+    }
+  };
+
+  const changeTitle = async (
+    todoId: number,
+    newTitle: string,
+  ) => {
+    setLoadingTodos((prevIds) => [...prevIds, todoId]);
 
     try {
-      let todoToUpdate = todos.find(todo => todo.id === todoId) as Todo;
+      const todoToUpdate = todos.find(todo => todo.id === todoId);
 
-      switch (key) {
-        case 'completed': {
-          await changeTodo(todoId, {
-            ...todoToUpdate,
-            [key]: Boolean(values),
-          });
+      const updatedTodo = await changeTodo(todoId, {
+        ...todoToUpdate,
+        title: newTitle,
+      });
 
-          todoToUpdate = {
-            ...todoToUpdate,
-            [key]: Boolean(values),
-          };
-          break;
-        }
-
-        case 'title': {
-          await changeTodo(todoId, {
-            ...todoToUpdate,
-            [key]: valuesOfKey.toString(),
-          });
-
-          todoToUpdate = {
-            ...todoToUpdate,
-            [key]: valuesOfKey.toString(),
-          };
-          break;
-        }
-
-        default:
-          throw new Error(`Wrong key, ${key} is not defined`);
-      }
-
-      setTodos((prevTodos) => prevTodos
-        .map((todo) => (
-          todo.id === todoToUpdate.id
-            ? todoToUpdate
-            : todo)) as Todo[]);
+      setTodos(prevTodos => prevTodos.map(todo => (
+        todo.id === updatedTodo.id
+          ? updatedTodo
+          : todo
+      )));
     } catch (error) {
       setVisibleError('Unable to update a todo');
     } finally {
@@ -203,7 +200,9 @@ export const App: FC = () => {
             className={cn('todoapp__toggle-all', {
               active: todos.every(todo => todo.completed),
             })}
-            onClick={() => todos.map(todo => onChangeTodo(todo.id, 'completed', completedTodos))}
+            onClick={() => (
+              todos.map(todo => onTooglingTodo(todo.id, isAllTodosCompleted))
+            )}
           />
 
           <form
@@ -226,13 +225,14 @@ export const App: FC = () => {
           tempTodo={tempTodo}
           removesTodo={removesTodo}
           loadingTodos={loadingTodos}
-          onChangeTodo={onChangeTodo}
+          onTooglingTodo={onTooglingTodo}
+          changeTitle={changeTitle}
         />
 
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${completedTodosIds.length} items left`}
+              {`${todos.length - completedTodosIds.length} items left`}
             </span>
 
             <nav className="filter">
