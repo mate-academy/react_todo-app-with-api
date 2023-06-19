@@ -1,47 +1,82 @@
-import React, { useState } from 'react';
 import classNames from 'classnames';
+import React, { useState, FormEvent, useContext } from 'react';
 import { Todo } from '../../types/Todo';
+import { AuthContext } from '../Auth/AuthContext';
 
 interface TodoHeaderProps {
-  handleToggleAll: () => void,
-  addTodo: (title: string) => void,
-  todos: Todo[];
-  activeTodo: number,
-  isDisabled: boolean,
+  newTodoField: React.RefObject<HTMLInputElement>;
+  showError: (message: string) => void
+  isAddingTodo: boolean
+  onAddTodo: (fieldsForCreate: Omit<Todo, 'id'>) => Promise<void>
+  isAllTodosCompleted: boolean
+  onToogleTodoStatus: () => void
 }
 
 export const TodoHeader: React.FC<TodoHeaderProps> = ({
-  handleToggleAll, todos, addTodo, isDisabled, activeTodo,
+  newTodoField,
+  showError,
+  isAddingTodo,
+  onAddTodo,
+  isAllTodosCompleted,
+  onToogleTodoStatus,
 }) => {
-  const [newTodo, setNewTodo] = useState('');
+  const [title, setTitle] = useState('');
+  const user = useContext(AuthContext);
 
-  const handleSumbmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    addTodo(newTodo);
-    setNewTodo('');
+    if (!title) {
+      showError('Title is required');
+
+      return;
+    }
+
+    if (!user) {
+      showError('User not found');
+
+      return;
+    }
+
+    try {
+      await onAddTodo({
+        title,
+        userId: user?.id,
+        completed: false,
+      });
+
+      setTitle('');
+    } catch {
+      const inputRef = newTodoField.current;
+
+      if (inputRef) {
+        setTimeout(() => inputRef.focus(), 0);
+      }
+    }
   };
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
-        <button
-          type="button"
-          className={classNames('todoapp__toggle-all',
-            { active: activeTodo === 0 })}
-          onClick={handleToggleAll}
-        />
-      )}
+      {/* eslint-disable-next-line */}
+      <button
+        data-cy="ToggleAllButton"
+        type="button"
+        className={classNames('todoapp__toggle-all', {
+          active: isAllTodosCompleted,
+        })}
+        onClick={onToogleTodoStatus}
+      />
 
-      <form onSubmit={handleSumbmit}>
+      <form onSubmit={onSubmitForm}>
         <input
+          disabled={isAddingTodo}
+          data-cy="NewTodoField"
           type="text"
+          ref={newTodoField}
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={newTodo}
-          onChange={({ target }) => setNewTodo(target.value)}
-          disabled={isDisabled}
         />
       </form>
     </header>

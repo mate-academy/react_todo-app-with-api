@@ -1,26 +1,36 @@
-import React from 'react';
+import React, { memo, useEffect } from 'react';
 import classNames from 'classnames';
 
-type Props = {
-  error: string,
-  setError: (value: string) => void,
-};
+interface TodoErrorProps {
+  message: string;
+  onHideError: React.Dispatch<React.SetStateAction<string>>;
+}
 
-export const TodoError: React.FC<Props> = ({ error, setError }) => (
-  <div className={classNames(
-    'notification is-danger is-light has-text-weight-normal', {
-      hidden: !error,
-    },
-  )}
-  >
+export const TodoError: React.FC<TodoErrorProps> = memo(({
+  message,
+  onHideError,
+}) => {
+  useEffect(() => {
+    setTimeout(() => onHideError(''), 3000);
+  }, []);
 
-    <button
-      type="button"
-      className="delete"
-      onClick={() => setError('')}
+  return (
+    <div
+      data-cy="ErrorNotification"
+      className={classNames(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden: !message },
+      )}
     >
-      х
-    </button>
-    {error}
-  </div>
-);
+      <button
+        data-cy="HideErrorButton"
+        type="button"
+        className="delete"
+        onClick={() => onHideError('')}
+      >
+        x
+      </button>
+      {message}
+    </div>
+  );
+});

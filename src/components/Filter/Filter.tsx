@@ -1,66 +1,73 @@
-import React from 'react';
+import React, { memo } from 'react';
 import classNames from 'classnames';
-import { FilterEnum } from '../../types/FilterEnum';
+import { Filters } from '../../types/FilterEnum';
 
 interface FilterProps {
-  handleFilter: (value: FilterEnum) => void,
-  onClearCompleted: () => void,
-  activeFilter: FilterEnum,
-  completedTodo: number,
-  activeTodo: number,
+  filter: Filters,
+  activeTodos: number,
+  onChange: (arg: Filters) => void,
+  onDeleteCompleted: () => void,
 }
 
-export const Filter: React.FC<FilterProps> = ({
-  handleFilter,
-  onClearCompleted,
-  activeFilter,
-  completedTodo,
-  activeTodo,
-}) => {
-  return (
-    <>
-      <span className="todo-count">
-        {`${activeTodo} items left`}
-      </span>
-      <nav className="filter">
-        <a
-          href={`#/${FilterEnum.All}`}
-          className={classNames('filter__link', {
-            selected: activeFilter === FilterEnum.All,
-          })}
-          onClick={() => handleFilter(FilterEnum.All)}
-        >
-          {FilterEnum.All}
-        </a>
+export const Filter: React.FC<FilterProps> = memo(({
+  filter,
+  activeTodos: activeTodosCount,
+  onChange,
+  onDeleteCompleted,
+}) => (
+  <footer className="todoapp__footer" data-cy="Footer">
+    <span className="todo-count" data-cy="todosCounter">
+      {`${activeTodosCount} item${activeTodosCount > 1 ? 's' : ''} left`}
+    </span>
 
-        <a
-          href={`#/${FilterEnum.Active}`}
-          className={classNames('filter__link', {
-            selected: activeFilter === FilterEnum.Active,
-          })}
-          onClick={() => handleFilter(FilterEnum.Active)}
-        >
-          {FilterEnum.Active}
-        </a>
-
-        <a
-          href={`#/${FilterEnum.Completed}`}
-          className={classNames('filter__link', {
-            selected: activeFilter === FilterEnum.Completed,
-          })}
-          onClick={() => handleFilter(FilterEnum.Completed)}
-        >
-          {FilterEnum.Completed}
-        </a>
-      </nav>
-
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={onClearCompleted}
+    <nav className="filter" data-cy="Filter">
+      <a
+        data-cy="FilterLinkAll"
+        href="#/"
+        className={classNames(
+          'filter__link', {
+            selected: filter === Filters.ALL,
+          },
+        )}
+        onClick={() => onChange(Filters.ALL)}
       >
-        {completedTodo > 0 && ('Clear completed')}
-      </button>
-    </>
-  );
-};
+        All
+      </a>
+
+      <a
+        data-cy="FilterLinkActive"
+        href="#/active"
+        className={classNames(
+          'filter__link', {
+            selected: filter === Filters.ACTIVE,
+          },
+        )}
+        onClick={() => onChange(Filters.ACTIVE)}
+      >
+        Active
+      </a>
+
+      <a
+        data-cy="FilterLinkCompleted"
+        href="#/completed"
+        className={classNames(
+          'filter__link', {
+            selected: filter === Filters.COMPLETED,
+          },
+        )}
+        onClick={() => onChange(Filters.COMPLETED)}
+      >
+        Completed
+      </a>
+    </nav>
+
+    <button
+      data-cy="ClearCompletedButton"
+      type="button"
+      className="todoapp__clear-completed"
+      onClick={onDeleteCompleted}
+    >
+      Clear completed
+    </button>
+  </footer>
+));

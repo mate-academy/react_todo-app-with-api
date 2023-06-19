@@ -1,66 +1,47 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoInfo } from '../TodoInfo/TodoInfo';
 
 interface TodoListProps {
-  todos: Todo[],
-  handleChangeCompleted: (id: number) => void,
-  handleDoubleClick: (id: number) => void,
-  updateTitle: (id: number, value: string) => void,
-  setEditingTodo: (value: number) => void,
+  todos: Todo[]
   tempTodo: Todo | null,
-  deleteTodo: (id: number) => void,
-  deleteTodoId: number,
-  editingTodo: number,
-  loadingTodo: number,
-  isLoadingCompleted: boolean,
+  onDeleteTodo: (todoId: number) => Promise<void>,
+  delitingTodoIds: number[],
+  updateTodo: (
+    todoId: number,
+    updateData: Partial<Pick<Todo, 'title' | 'completed'>>,
+  ) => Promise<void>,
+  updatingTodoIds: number[],
 }
 
-export const TodoList: React.FC<TodoListProps> = ({
+export const TodoList: React.FC<TodoListProps> = memo(({
   todos,
-  handleChangeCompleted,
-  handleDoubleClick,
-  updateTitle,
-  deleteTodo,
-  setEditingTodo,
   tempTodo,
-  deleteTodoId,
-  editingTodo,
-  loadingTodo,
-  isLoadingCompleted,
+  onDeleteTodo,
+  delitingTodoIds,
+  updateTodo,
+  updatingTodoIds,
 }) => (
-  <>
-    {todos.map((todo) => {
-      return (
-        <TodoInfo
-          handleChangeCompleted={handleChangeCompleted}
-          handleDoubleClick={handleDoubleClick}
-          updateTitle={updateTitle}
-          deleteTodo={deleteTodo}
-          setEditingTodo={setEditingTodo}
-          editingTodo={editingTodo}
-          todo={todo}
-          key={todo.id}
-          deleteTodoId={deleteTodoId}
-          loadingTodo={loadingTodo}
-          isLoadingCompleted={isLoadingCompleted}
-        />
-      );
-    })}
+  <section className="todoapp__main" data-cy="TodoList">
+    {todos.map(todo => (
+      <TodoInfo
+        todo={todo}
+        key={todo.id}
+        onDeleteTodo={onDeleteTodo}
+        shouldShowLoader={
+          delitingTodoIds.includes(todo.id) || updatingTodoIds.includes(todo.id)
+        }
+        updateTodo={updateTodo}
+      />
+    ))}
 
     {tempTodo && (
       <TodoInfo
         todo={tempTodo}
-        handleChangeCompleted={handleChangeCompleted}
-        handleDoubleClick={handleDoubleClick}
-        updateTitle={updateTitle}
-        deleteTodo={deleteTodo}
-        setEditingTodo={setEditingTodo}
-        deleteTodoId={deleteTodoId}
-        loadingTodo={loadingTodo}
-        editingTodo={+tempTodo}
-        isLoadingCompleted={isLoadingCompleted}
+        onDeleteTodo={onDeleteTodo}
+        shouldShowLoader={delitingTodoIds.includes(tempTodo.id)}
+        updateTodo={updateTodo}
       />
     )}
-  </>
-);
+  </section>
+));
