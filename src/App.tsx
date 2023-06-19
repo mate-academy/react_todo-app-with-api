@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo,
 } from 'react';
 import { updateTodo, deleteTodo, getTodos } from './api/todos';
 import { ErrorTypes, FilterValues, USER_ID } from './constants';
@@ -35,22 +34,17 @@ export const App: React.FC = () => {
     .filter(todo => todo.completed)
     .map((todo) => todo.id);
 
-  const filteredTodos = useMemo(() => {
-    return todos.filter(todo => {
-      switch (selectedFilter) {
-        case FilterValues.COMPLETED:
-          return todo.completed;
+  const filteredTodos = todos.filter(todo => {
+    switch (selectedFilter) {
+      case FilterValues.COMPLETED:
+        return todo.completed;
 
-        case FilterValues.ACTIVE:
-          return !todo.completed;
+      case FilterValues.ACTIVE:
+        return !todo.completed;
 
-        case FilterValues.ALL:
-          return !todo.completed;
-
-        default: return todo;
-      }
-    });
-  }, [selectedFilter, todos]);
+      default: return true;
+    }
+  });
 
   const getTodosFromServer = async () => {
     try {
@@ -168,7 +162,7 @@ export const App: React.FC = () => {
       });
     };
 
-    const updateCompleted = () => {
+    const handleUpdateCompleted = () => {
       return completedTodos.map(todo => {
         setUpdatingTodoIds(completedTodosIds);
 
@@ -180,7 +174,7 @@ export const App: React.FC = () => {
     };
 
     const updatingTodos = isEveryTodosCompleted
-      ? updateCompleted()
+      ? handleUpdateCompleted()
       : updateActive();
 
     Promise.all(updatingTodos)
