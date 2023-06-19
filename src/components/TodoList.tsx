@@ -5,69 +5,51 @@ import { client } from '../utils/client';
 
 const USER_ID = 10377;
 
-interface TodoComponentProps {
-  updatingTodoId: number | null,
-  deletedTodoId: number,
-  isDoubleClickedName: string,
-  placeHolderText: string,
-  excludedInputRef: React.RefObject<HTMLInputElement>,
-}
-
-interface TodosArrayProps {
-  tempTodo: Todo | null,
-  todos: Todo[],
-  visibleTodos: Todo[],
-  toggleFalseTodosId: number[],
-}
-
-interface RenderConditionsProps {
-  isUpdating: boolean,
-  isPlusOne: boolean,
-  isThereIssue: boolean,
-  isEveryThingDelete: boolean,
-  isEveryThingTrue: boolean,
-  todoStatusChange: boolean,
-  isLoading: boolean,
+interface TodoListProps {
+  todos: Todo[];
+  visibleTodos: Todo[];
+  isLoading: boolean;
+  tempTodo: Todo | null;
+  isPlusOne: boolean;
+  isThereIssue: boolean;
+  deletedTodoId: number;
+  isEveryThingDelete: boolean;
+  todoStatusChange: boolean;
+  toggleFalseTodosId: number[];
+  isEveryThingTrue: boolean;
+  setIsThereIssue: React.Dispatch<React.SetStateAction<boolean>>;
+  setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsHidden: React.Dispatch<React.SetStateAction<string>>;
+  deleteTodo: (id: number) => Promise<void>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
 interface EditComponentProps {
-  setPlaceHolderText: React.Dispatch<React.SetStateAction<string>>,
-  setIsDoubleClickedName: React.Dispatch<React.SetStateAction<string>>,
-  setIsUpdating: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsThereIssue: React.Dispatch<React.SetStateAction<boolean>>,
-  setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+  setIsThereIssue: React.Dispatch<React.SetStateAction<boolean>>;
+  setDeleteErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-interface Functionalprops {
-  setUpdatingTodoId: React.Dispatch<React.SetStateAction<number | null>>,
-  setEditTodo: React.Dispatch<React.SetStateAction<string>>,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsHidden: React.Dispatch<React.SetStateAction<string>>,
-  deleteTodo: (id: number) => Promise<void>,
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
+interface RenderConditionsProps {
+  isPlusOne: boolean;
+  isThereIssue: boolean;
+  isEveryThingDelete: boolean;
+  isEveryThingTrue: boolean;
+  todoStatusChange: boolean;
+  isLoading: boolean;
 }
 
 interface Props extends
-  TodoComponentProps,
+  TodoListProps,
   EditComponentProps,
-  RenderConditionsProps,
-  Functionalprops,
-  TodosArrayProps {}
+  RenderConditionsProps {}
 
 export const TodoList: React.FC<Props> = ({
   todos,
   visibleTodos,
   isLoading,
-  updatingTodoId,
   tempTodo,
-  isDoubleClickedName,
-  placeHolderText,
-  setPlaceHolderText,
-  excludedInputRef,
-  isUpdating,
-  setIsDoubleClickedName,
   deleteTodo,
-  setIsUpdating,
   setTodos,
   isPlusOne,
   isThereIssue,
@@ -78,8 +60,6 @@ export const TodoList: React.FC<Props> = ({
   isEveryThingTrue,
   setIsThereIssue,
   setDeleteErrorMessage,
-  setUpdatingTodoId,
-  setEditTodo,
   setIsLoading,
   setIsHidden,
 }) => {
@@ -88,6 +68,17 @@ export const TodoList: React.FC<Props> = ({
   const [isTitleSame, setIsTitleSame] = useState(false);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [isModifing, setIsModifing] = useState(false);
+  const [isDoubleClickedId, setIsDoubleClickedId] = useState(0);
+  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
+  const [isUpdating, setIsUpdating] = useState(true);
+  const excludedInputRef = useRef<HTMLInputElement>(null);
+  const [placeHolderText, setPlaceHolderText] = useState('');
+
+  const handleDoubleClicked = (title: string, id: number) => {
+    setPlaceHolderText(title);
+    setIsDoubleClickedId((prevId) => (prevId === id ? 0 : id));
+    setIsModifing(true);
+  };
 
   const updateIndividualTodo = async (id: number) => {
     setUpdatingTodoId(id);
@@ -101,15 +92,6 @@ export const TodoList: React.FC<Props> = ({
 
       return obj;
     });
-
-    const none = todos.some((element) => {
-      return element.id === id;
-    });
-
-    if (!none) {
-      setEditTodo('Unable to update a todo');
-      setIsThereIssue(true);
-    }
 
     setTodos(updatedTodo);
 
@@ -139,10 +121,6 @@ export const TodoList: React.FC<Props> = ({
   };
 
   const handleTodoUpdate = async (id: number, newTitle: string) => {
-    if (newTitle === '') {
-      deleteTodo(id);
-    }
-
     const updatedTodo = todos.map((obj) => {
       if (obj.id === id) {
         if (obj.title === newTitle) {
@@ -195,10 +173,21 @@ export const TodoList: React.FC<Props> = ({
       setIsTodoRenaming(false);
       setIsUpdating(false);
       setIsModifing(false);
-      setIsDoubleClickedName('');
+      setIsDoubleClickedId(0);
     }
 
-    if (placeHolderText === '') {
+    if (event.key === 'Enter') {
+      handleTodoUpdate(id, placeHolderText);
+      setIsUpdating(false);
+      setIsModifing(false);
+      setIsDoubleClickedId(0);
+    }
+
+    if (placeHolderText === '' && event.key === 'Enter') {
+      deleteTodo(id);
+    }
+
+    if (placeHolderText === '' && event.key === 'Escape') {
       deleteTodo(id);
     }
   };
@@ -206,11 +195,13 @@ export const TodoList: React.FC<Props> = ({
   const handleBlur = (id: number, currentTitle: string) => {
     if (currentTitle === '' && currentTitle !== tempTodo?.title) {
       deleteTodo(id);
+      setIsDoubleClickedId(0);
+      setIsModifing(false);
     } else if (currentTitle !== tempTodo?.title) {
       handleTodoUpdate(id, currentTitle);
+      setIsDoubleClickedId(0);
+      setIsModifing(true);
     }
-
-    setIsModifing(false);
   };
 
   useEffect(() => {
@@ -220,6 +211,12 @@ export const TodoList: React.FC<Props> = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isModifing && excludedInputRef.current !== null) {
+      excludedInputRef.current.focus();
+    }
+  }, [isModifing]);
 
   return (
     <section className="todoapp__main">
@@ -284,7 +281,7 @@ export const TodoList: React.FC<Props> = ({
                     }}
                   />
                 </label>
-                {isDoubleClickedName === task.title && isModifing
+                {isDoubleClickedId === task.id && isModifing
                   ? (
                     <label>
                       <input
@@ -307,15 +304,13 @@ export const TodoList: React.FC<Props> = ({
                         ? 'onchange todo__title'
                         : 'todo__title'}
                       onDoubleClick={() => {
-                        setPlaceHolderText(task.title);
-                        setIsDoubleClickedName(task.title);
-                        setIsModifing(true);
+                        handleDoubleClicked(task.title, task.id);
                       }}
                     >
                       {task.title}
                     </span>
                   )}
-                {isDoubleClickedName !== task.title && (
+                {isDoubleClickedId !== task.id && (
                   <button
                     type="button"
                     className="todo__remove"

@@ -98,6 +98,14 @@
     top: 0;
     opacity: 0.5;
   }
+
+  &__edit-field {
+    outline: none;
+    border: 2px solid black;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 20px;
+  }
 }
 
 .loader__delete {

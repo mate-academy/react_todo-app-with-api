@@ -4,7 +4,6 @@ interface Props {
   message: string,
   deleteErrorMessage: string,
   isThereIssue: boolean,
-  editTodo: string,
   setIsThereIssue: (value: boolean) => void,
   isTitleEmpty: string,
 }
@@ -13,7 +12,6 @@ export const ErrorMessages: React.FC<Props> = ({
   message,
   deleteErrorMessage,
   isThereIssue,
-  editTodo,
   setIsThereIssue,
   isTitleEmpty,
 }) => {
@@ -34,8 +32,6 @@ export const ErrorMessages: React.FC<Props> = ({
           {isTitleEmpty}
           <br />
           {deleteErrorMessage}
-          <br />
-          {editTodo}
         </div>
       )}
     </>

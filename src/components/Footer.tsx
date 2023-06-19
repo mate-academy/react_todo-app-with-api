@@ -55,7 +55,7 @@ export const Footer:React.FC<Props> = ({
         <a
           href="#/"
           className={classNames('filter__link', {
-            selected: selectedTab === 'All',
+            selected: selectedTab === SortType.All,
           })}
           onClick={() => setSelectedTab(SortType.All)}
           role="button"
@@ -66,7 +66,7 @@ export const Footer:React.FC<Props> = ({
         <a
           href="#/active"
           className={classNames('filter__link', {
-            selected: selectedTab === 'Active',
+            selected: selectedTab === SortType.Active,
           })}
           onClick={() => setSelectedTab(SortType.Active)}
           role="button"
@@ -77,7 +77,7 @@ export const Footer:React.FC<Props> = ({
         <a
           href="#/completed"
           className={classNames('filter__link', {
-            selected: selectedTab === 'Completed',
+            selected: selectedTab === SortType.Completed,
           })}
           onClick={() => setSelectedTab(SortType.Completed)}
           role="button"
@@ -96,7 +96,7 @@ export const Footer:React.FC<Props> = ({
         </button>
       ) : (
         <div
-          className="todoapp__clearCompletedTodobutton-replacer-div"
+          className="todoapp__empty-filler-div"
         />
       )}
     </footer>

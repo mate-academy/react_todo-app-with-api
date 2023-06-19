@@ -21,16 +21,11 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isThereActiveTodo, setIsThereActiveTodo] = useState(false);
   const [isThereCompletedTodos, setIsThereCompletedTodos] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(true);
   const [isHidden, setIsHidden] = useState('');
-  const [placeHolderText, setPlaceHolderText] = useState('');
-  const [isDoubleClickedName, setIsDoubleClickedName] = useState('');
   const [isThereIssue, setIsThereIssue] = useState(false);
   const [numberOfActiveTodos, setNumberOfActivTodos] = useState(0);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
   const [isTitleEmpty, setIsTitleEmpty] = useState('');
-  const [updatingTodoId, setUpdatingTodoId] = useState<number | null>(null);
-  const [editTodo, setEditTodo] = useState('');
   const [isEveryThingDelete, setIsEverythingDeleted] = useState(false);
   const [deletedTodoId, setDeletedTodoId] = useState(0);
   const [isPlusOne, setIsPlusOne] = useState(false);
@@ -38,7 +33,6 @@ export const App: React.FC = () => {
   const [toggleFalseTodosId, setToggleFalseTodosId] = useState([0]);
   const [todoStatusChange, setTodoStatusChange] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const excludedInputRef = useRef<HTMLInputElement>(null);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const fetchTodos = async () => {
@@ -138,17 +132,21 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const isActive = todos.some((obj) => obj.completed === false);
-    const isFalse = todos.some((obj) => obj.completed === true);
-    const todoLength = todos.filter((obj) => {
-      return obj.completed === false;
-    });
+  const isActive = useMemo(() => todos.some((obj) => {
+    return obj.completed === false;
+  }), [todos]);
+  const isFalse = useMemo(() => todos.some((obj) => {
+    return obj.completed === true;
+  }), [todos]);
+  const todoLength = useMemo(() => todos.filter((obj) => {
+    return obj.completed === false;
+  }).length, [todos]);
 
+  useEffect(() => {
     setIsThereActiveTodo(isActive);
     setIsThereCompletedTodos(isFalse);
-    setNumberOfActivTodos(todoLength.length);
-  }, [todos]);
+    setNumberOfActivTodos(todoLength);
+  }, [isActive, isFalse, todoLength]);
 
   const visibleTodos: Todo[] = useMemo(() => todos.filter((element) => {
     switch (selectedTab) {
@@ -191,16 +189,8 @@ export const App: React.FC = () => {
             todos={todos}
             visibleTodos={visibleTodos}
             isLoading={isLoading}
-            updatingTodoId={updatingTodoId}
             tempTodo={tempTodo}
-            isDoubleClickedName={isDoubleClickedName}
-            placeHolderText={placeHolderText}
-            setPlaceHolderText={setPlaceHolderText}
-            excludedInputRef={excludedInputRef}
-            isUpdating={isUpdating}
-            setIsDoubleClickedName={setIsDoubleClickedName}
             deleteTodo={deleteTodo}
-            setIsUpdating={setIsUpdating}
             setTodos={setTodos}
             isPlusOne={isPlusOne}
             isThereIssue={isThereIssue}
@@ -211,8 +201,6 @@ export const App: React.FC = () => {
             toggleFalseTodosId={toggleFalseTodosId}
             isEveryThingTrue={isEveryThingTrue}
             setDeleteErrorMessage={setDeleteErrorMessage}
-            setUpdatingTodoId={setUpdatingTodoId}
-            setEditTodo={setEditTodo}
             setIsLoading={setIsLoading}
             setIsHidden={setIsHidden}
           />
@@ -234,7 +222,6 @@ export const App: React.FC = () => {
           message={isHidden}
           deleteErrorMessage={deleteErrorMessage}
           isThereIssue={isThereIssue}
-          editTodo={editTodo}
           setIsThereIssue={setIsThereIssue}
           isTitleEmpty={isTitleEmpty}
         />
