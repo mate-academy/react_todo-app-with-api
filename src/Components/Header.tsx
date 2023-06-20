@@ -6,6 +6,7 @@ import {
 import { Todo } from '../types/Todo';
 import { ErrorType } from '../types/ErrorType';
 import { getTodoId } from '../utils/functionsHelper';
+import { updateTodo } from '../api/todos';
 
 const USER_ID = 10632;
 
@@ -15,8 +16,8 @@ type HeaderProps = {
   updateTodos: (todoList: Todo[]) => void,
   updateError: (error: ErrorType) => void,
   postNewTodo: (newTodo: Todo) => void,
-  addToLoadingList: (id: number[]) => void,
   addTempTodo: (todo: Todo) => void,
+  updateLoadingStatus: (id: React.SetStateAction<number[]>) => void,
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,8 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
   updateTodos,
   updateError,
   postNewTodo,
-  addToLoadingList,
   addTempTodo,
+  updateLoadingStatus,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -37,10 +38,30 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const handleMarkAllTodos = () => {
-    const allTodosToCompleted = todos.map(todo => ({
-      ...todo,
-      completed: !isAllCompleted,
-    }));
+    const todosPromises: Array<Promise<Todo>> = [];
+
+    const allTodosToCompleted = todos.map(todo => {
+      updateLoadingStatus(prevLoadingIds => [...prevLoadingIds, todo.id]);
+      const updatedTodo = {
+        ...todo,
+        completed: !isAllCompleted,
+      };
+
+      todosPromises.push(updateTodo(updatedTodo.id, updatedTodo));
+
+      return updatedTodo;
+    });
+
+    Promise.all(todosPromises)
+      .then(todosFromServer => {
+        updateTodos(todosFromServer);
+      })
+      .catch(() => {
+        updateError(ErrorType.update);
+      })
+      .finally(() => {
+        updateLoadingStatus([]);
+      });
 
     setIsAllCompleted(!isAllCompleted);
 
@@ -59,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
           title: newTodoTitle,
         };
 
-        addToLoadingList([...loadingIds]);
+        updateLoadingStatus([...loadingIds]);
         addTempTodo({ ...newTodo, id: 0 });
         setNewTodoTitle('');
         postNewTodo(newTodo);

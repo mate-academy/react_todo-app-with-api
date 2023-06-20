@@ -6,7 +6,9 @@ import React, {
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { deleteTodo, getTodos, postTodo, updateTodo } from './api/todos';
+import {
+  deleteTodo, getTodos, postTodo, updateTodo,
+} from './api/todos';
 import { ErrorType } from './types/ErrorType';
 import { ErrorNorification } from './Components/ErrorNorification';
 import { TodosList } from './Components/TodosList';
@@ -201,8 +203,8 @@ export const App: React.FC = () => {
           updateTodos={UpdateTodosList}
           updateError={changeErrorType}
           postNewTodo={postNewTodoOnServer}
-          addToLoadingList={(id) => setLoadingIds(id)}
           addTempTodo={(todo) => setTempTodo(todo)}
+          updateLoadingStatus={setLoadingIds}
         />
 
         <TodosList
