@@ -45,7 +45,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     }
 
     setIsEditing(false);
-  }, [todoTitleRef, removeTodo, editTodo]);
+  }, [title, todoTitleRef, removeTodo, editTodo]);
 
   const handleTodoStatusOnClick = () => {
     editTodo(id, { completed: !completed });
