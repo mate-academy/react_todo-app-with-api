@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable */
+
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
@@ -161,7 +161,7 @@ export const App: React.FC = () => {
   };
 
   const handlerUpdateTodoTitle = async (todoId: number) => {
-    if(!editTitle) {
+    if (!editTitle) {
       handlerDeleteTodo(todoId);
 
       return;
@@ -193,7 +193,7 @@ export const App: React.FC = () => {
 
     const updateData = {
       completed: !isCompleted,
-    }
+    };
 
     const promisesArr = [];
 
@@ -211,7 +211,7 @@ export const App: React.FC = () => {
     }
 
     setIsWaitForRequestAll(false);
-  }
+  };
 
   useEffect(() => {
     fetchTodos();
@@ -222,8 +222,8 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header 
-          todos={todos} 
+        <Header
+          todos={todos}
           handlerToggleAll={handlerToggleAll}
           handlerAddTodo={handlerAddTodo}
           inputDisable={inputDisable}
@@ -256,11 +256,12 @@ export const App: React.FC = () => {
       </div>
 
       <div className={classNames('notification is-danger is-light has-text-weight-normal',
-      { hidden: !isError })}>
+        { hidden: !isError })}
+      >
         <button
           type="button"
           className="delete"
-          onClick={hideNotification}
+          onClick={() => setIsError(false)}
         />
         {error}
       </div>
