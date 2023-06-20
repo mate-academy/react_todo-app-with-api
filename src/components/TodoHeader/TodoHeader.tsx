@@ -22,13 +22,15 @@ export const TodoHeader: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* eslint-disable jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: areAllTodosCompleted,
-        })}
-        onClick={handleToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: areAllTodosCompleted,
+          })}
+          onClick={handleToggleAll}
+        />
+      )}
 
       <TodoForm handleAddTodo={handleAddTodo} setError={setError} />
     </header>
