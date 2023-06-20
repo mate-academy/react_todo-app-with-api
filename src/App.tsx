@@ -21,8 +21,8 @@ export const App: React.FC = () => {
   const [selectedType, setSelectedType] = useState(Type.All);
   const [isError, setIsError] = useState<Error>(Error.NONE);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isInputActive, setIsInputActive] = useState(true);
   const [todoIdUpdate, setTodoIdUpdate] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -62,8 +62,6 @@ export const App: React.FC = () => {
   const addTodo = useCallback(async (title: string) => {
     if (!title.trim()) {
       setIsError(Error.NOTITLE);
-
-      return;
     }
 
     try {
@@ -73,7 +71,7 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setIsInputActive(false);
+      setIsLoading(true);
 
       setTempTodo({
         ...newTodo,
@@ -87,7 +85,7 @@ export const App: React.FC = () => {
       setIsError(Error.ADD);
     } finally {
       setTempTodo(null);
-      setIsInputActive(true);
+      setIsLoading(false);
     }
   }, [USER_ID, todos]);
 
@@ -181,11 +179,11 @@ export const App: React.FC = () => {
         <Header
           todos={todos}
           addTodo={addTodo}
-          isInputActive={isInputActive}
           setToggleAllTodos={toggleAllTodos}
+          isLoading={isLoading}
         />
         <TodoList
-          todos={filteredTodos}
+          filteredTodos={filteredTodos}
           onError={() => setIsError}
           removeTodo={removeTodo}
           todoIdUpdate={todoIdUpdate}

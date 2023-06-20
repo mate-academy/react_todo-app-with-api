@@ -5,7 +5,7 @@ import { TodoInfo } from '../TodoInfo/TodoInfo';
 import './TodoList.scss';
 
 type Props = {
-  todos: Todo[],
+  filteredTodos: Todo[],
   onError: (isError: Error) => void,
   removeTodo: (todoId: number) => void,
   tempTodo: Todo | null;
@@ -15,13 +15,13 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos, onError, removeTodo, tempTodo, todoIdUpdate,
+  filteredTodos, onError, removeTodo, tempTodo, todoIdUpdate,
   toggleCompletedTodo, changeName,
 }) => {
   return (
     <ul className="todoapp__main">
       <TransitionGroup>
-        {todos.map(todo => (
+        {filteredTodos.map(todo => (
           <CSSTransition
             key={todo.id}
             timeout={300}

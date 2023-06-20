@@ -5,12 +5,12 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[],
   addTodo: (value: string) => void,
-  isInputActive: boolean,
+  isLoading: boolean,
   setToggleAllTodos: () => void
 };
 
 export const Header: React.FC<Props> = ({
-  todos, addTodo, isInputActive, setToggleAllTodos,
+  todos, addTodo, isLoading, setToggleAllTodos,
 }) => {
   const [value, setValue] = useState('');
 
@@ -24,6 +24,9 @@ export const Header: React.FC<Props> = ({
     event.preventDefault();
     setToggleAllTodos();
   };
+
+  // eslint-disable-next-line no-console
+  console.log(isLoading);
 
   return (
     <header className="todoapp__header">
@@ -44,7 +47,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          disabled={!isInputActive}
+          disabled={isLoading}
         />
       </form>
     </header>

@@ -4,5 +4,5 @@ export enum Error {
   ADD = 'Unable to add a todo',
   DELETE = 'Unable to delete a todo',
   UPDATE = 'Unable to update a todo',
-  NOTITLE = 'Title can&apos;t be empty',
+  NOTITLE = 'Title can\'t be empty',
 }
