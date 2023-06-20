@@ -32,7 +32,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
   const submitTodo = useCallback(() => {
     const newTitle = todoTitleRef.current?.value;
 
-    if (newTitle && newTitle === title) {
+    if (newTitle && newTitle.trim() === title.trim()) {
       setIsEditing(false);
 
       return;
