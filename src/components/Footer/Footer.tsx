@@ -7,8 +7,7 @@ type Props = {
   todos: Todo[],
   todoFilter: TodoFilter,
   setTodoFilter: (filter: TodoFilter) => void,
-  deleteTodosCompleted: (completedId: number[]) => void,
-  completedId: number[],
+  deleteTodosCompleted: () => void,
 };
 
 export const Footer: React.FC<Props> = ({
@@ -16,9 +15,13 @@ export const Footer: React.FC<Props> = ({
   todoFilter,
   setTodoFilter,
   deleteTodosCompleted,
-  completedId,
 }) => {
   const itemsLeft = todos.filter(todo => !todo.completed).length;
+  const completedTodos = todos.filter(todo => todo.completed);
+
+  const select = (filter: TodoFilter) => {
+    return () => setTodoFilter(filter);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -33,7 +36,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: todoFilter === TodoFilter.ALL },
           )}
-          onClick={() => setTodoFilter(TodoFilter.ALL)}
+          onClick={select(TodoFilter.ALL)}
         >
           All
         </a>
@@ -44,7 +47,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: todoFilter === TodoFilter.ACTIVE },
           )}
-          onClick={() => setTodoFilter(TodoFilter.ACTIVE)}
+          onClick={select(TodoFilter.ACTIVE)}
         >
           Active
         </a>
@@ -55,17 +58,17 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: todoFilter === TodoFilter.COMPLETED },
           )}
-          onClick={() => setTodoFilter(TodoFilter.COMPLETED)}
+          onClick={select(TodoFilter.COMPLETED)}
         >
           Completed
         </a>
       </nav>
 
-      {completedId.length > 0 && (
+      {completedTodos.length > 0 && (
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => deleteTodosCompleted(completedId)}
+          onClick={deleteTodosCompleted}
         >
           Clear completed
         </button>

@@ -6,7 +6,6 @@ type Props = {
   todo: Todo,
   handleDeleteTodo: (id: number) => void,
   tempTodo: Todo | null,
-  todosForDeleting: number[],
   changeStatus: (id: number, property: Partial<Todo>) => void,
 };
 
@@ -14,7 +13,6 @@ export const TodoInfo: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
   tempTodo,
-  todosForDeleting,
   changeStatus,
 }) => {
   const { id, title, completed } = todo;
@@ -108,7 +106,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       <div className={classNames('modal overlay',
         {
-          'is-active': tempTodo?.id === id || todosForDeleting.includes(id),
+          'is-active': tempTodo?.id === id,
         })}
       >
         <div className="modal-background has-background-white-ter" />

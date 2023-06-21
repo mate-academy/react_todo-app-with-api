@@ -7,7 +7,6 @@ type Props = {
   todos: Todo[],
   handleDeleteTodo: (id: number) => void,
   tempTodo: Todo | null,
-  todosForDeleting: number[],
   changeStatus: (id: number, property: Partial<Todo>) => void,
 };
 
@@ -15,7 +14,6 @@ export const TodoList: React.FC<Props> = ({
   todos,
   handleDeleteTodo,
   tempTodo,
-  todosForDeleting,
   changeStatus,
 }) => {
   return (
@@ -32,7 +30,6 @@ export const TodoList: React.FC<Props> = ({
               todo={todo}
               handleDeleteTodo={handleDeleteTodo}
               tempTodo={tempTodo}
-              todosForDeleting={todosForDeleting}
               changeStatus={changeStatus}
             />
           </CSSTransition>
@@ -49,7 +46,6 @@ export const TodoList: React.FC<Props> = ({
               key={tempTodo.id}
               handleDeleteTodo={handleDeleteTodo}
               tempTodo={tempTodo}
-              todosForDeleting={todosForDeleting}
               changeStatus={changeStatus}
             />
           </CSSTransition>

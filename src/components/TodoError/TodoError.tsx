@@ -4,18 +4,24 @@ import { ErrorNotification } from '../../types/ErrorNotification';
 
 type Props = {
   errorNotification: ErrorNotification,
-  closeError: () => void,
+  setErrorNotification: (error: ErrorNotification) => void,
 };
 
 export const TodoError: React.FC<Props> = ({
   errorNotification,
-  closeError,
+  setErrorNotification,
 }) => {
   useEffect(() => {
-    setTimeout(() => {
-      closeError();
+    const closeNotification = setTimeout(() => {
+      setErrorNotification(ErrorNotification.NONE);
     }, 3000);
-  }, []);
+
+    return () => clearTimeout(closeNotification);
+  }, [errorNotification]);
+
+  const handleCloseError = () => {
+    setErrorNotification(ErrorNotification.NONE);
+  };
 
   return (
     <div
@@ -24,13 +30,13 @@ export const TodoError: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !errorNotification },
+        { hidden: ErrorNotification.NONE },
       )}
     >
       <button
         type="button"
         className="delete"
-        onClick={closeError}
+        onClick={handleCloseError}
       >
         x
       </button>

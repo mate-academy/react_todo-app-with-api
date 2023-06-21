@@ -26,8 +26,6 @@ export const App: React.FC = () => {
     = useState<ErrorNotification>(ErrorNotification.NONE);
   const [search, setSearch] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [todosForDeleting, setTodosForDeleting] = useState<number[]>([]);
-  const [completedID, setCompletedsID] = useState<number[]>([]);
 
   const initialTodos = useMemo(() => {
     return (todos.filter(todo => {
@@ -36,6 +34,8 @@ export const App: React.FC = () => {
           return !todo.completed;
         case TodoFilter.COMPLETED:
           return todo.completed;
+        case TodoFilter.ALL:
+          return true;
         default:
           return todo;
       }
@@ -55,12 +55,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  useEffect(() => {
-    setCompletedsID(todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id));
-  }, [todos]);
 
   const isAllTodosCompleted = useMemo(() => (
     todos.every(todo => todo.completed)
@@ -170,8 +164,7 @@ export const App: React.FC = () => {
       .finally(() => setTempTodo(null));
   };
 
-  const deleteTodosCompleted = async (idsForDeleting: number[]) => {
-    setTodosForDeleting([...idsForDeleting]);
+  const deleteTodosCompleted = async () => {
     todos.filter(todo => todo.completed)
       .map(todo => handleDeleteTodo(todo.id));
   };
@@ -196,7 +189,6 @@ export const App: React.FC = () => {
               todos={initialTodos}
               handleDeleteTodo={handleDeleteTodo}
               tempTodo={tempTodo}
-              todosForDeleting={todosForDeleting}
               changeStatus={updateTodoStatus}
             />
             <Footer
@@ -204,7 +196,6 @@ export const App: React.FC = () => {
               todoFilter={todoFilter}
               setTodoFilter={setTodoFilter}
               deleteTodosCompleted={deleteTodosCompleted}
-              completedId={completedID}
             />
           </>
         )}
@@ -213,7 +204,7 @@ export const App: React.FC = () => {
       {errorNotification && (
         <TodoError
           errorNotification={errorNotification}
-          closeError={() => setErrorNotification(ErrorNotification.NONE)}
+          setErrorNotification={setErrorNotification}
         />
       )}
     </div>
