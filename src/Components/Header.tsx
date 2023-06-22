@@ -1,7 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import {
-  ChangeEvent, useEffect, useRef, useState,
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { ErrorType } from '../types/ErrorType';

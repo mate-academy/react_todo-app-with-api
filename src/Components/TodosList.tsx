@@ -120,9 +120,9 @@ export const TodosList: React.FC<ListOfTodos> = ({
   };
 
   return (
-    <section className="todoapp__main">
+    <ul className="todoapp__main">
       {todos.map(todo => (
-        <div
+        <li
           className={classNames(
             'todo',
             {
@@ -184,9 +184,9 @@ export const TodosList: React.FC<ListOfTodos> = ({
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
-        </div>
+        </li>
       ))}
 
-    </section>
+    </ul>
   );
 };
