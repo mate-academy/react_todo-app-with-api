@@ -31,7 +31,10 @@ export const TodosList: React.FC<ListOfTodos> = ({
   const [newTitleEdit, setNewTitleEdit] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handlechangeEdit = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlechangeEdit = (
+    event: React.ChangeEvent<HTMLInputElement>
+    | React.FocusEvent<HTMLInputElement>,
+  ) => {
     setNewTitleEdit(event.currentTarget.value);
   };
 
@@ -50,9 +53,19 @@ export const TodosList: React.FC<ListOfTodos> = ({
   const handleUpdateTodoOnServer = async (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Escape') {
+      setTodoToEdit(null);
+    }
+
+    if (event.key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
       if (newTitleEdit.trim() !== '' && todoToEdit) {
+        if (newTitleEdit === todoToEdit.title) {
+          setTodoToEdit(null);
+
+          return;
+        }
+
         const prevTodosList = structuredClone(todos);
         const updatedTodo = {
           ...todoToEdit,
@@ -70,6 +83,7 @@ export const TodosList: React.FC<ListOfTodos> = ({
         updateTodosList(updatedTodos);
 
         updateLoadingStatus([todoToEdit.id]);
+        setTodoToEdit(null);
 
         try {
           const updatedTodoFromServer: Todo = await updateTodoOnServer(
@@ -89,12 +103,20 @@ export const TodosList: React.FC<ListOfTodos> = ({
         } finally {
           updateLoadingStatus([]);
         }
-
-        setTodoToEdit(null);
-      } else {
-        // Handle case where the updated title is empty (delete todo or show error)
+      } else if (todoToEdit) {
+        try {
+          onDeleteTodo(todoToEdit);
+        } catch {
+          updateError(ErrorType.delete);
+        }
       }
     }
+  };
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    handleUpdateTodoOnServer(
+      event as unknown as React.KeyboardEvent<HTMLInputElement>,
+    );
   };
 
   return (
@@ -128,6 +150,7 @@ export const TodosList: React.FC<ListOfTodos> = ({
                 onDoubleClick={() => setTodoToEdit(todo)}
                 onChange={handlechangeEdit}
                 onKeyDown={handleUpdateTodoOnServer}
+                onBlur={handleBlur}
               />
             </form>
           ) : (
