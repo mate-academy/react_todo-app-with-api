@@ -37,8 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
     setIsAllCompleted(todos.every(todo => todo.completed));
   }, [todos]);
 
-  console.log(isAllCompleted);
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(e.target.value);
   };

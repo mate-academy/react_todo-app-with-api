@@ -1,5 +1,8 @@
 import classNames from 'classnames';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
+
+import { ErrorType } from '../types/ErrorType';
 
 type ListOfTodos = {
   todos: Todo[],
@@ -7,6 +10,10 @@ type ListOfTodos = {
   onDeleteTodo: (todo: Todo) => void,
   loadingIds: number[],
   tempTodo: Todo | null,
+  updateTodoOnServer: (id: number, todo: Todo) => Promise<Todo>,
+  updateLoadingStatus: (id: number[]) => void,
+  updateTodosList: (updatedTodos: Todo[]) => void;
+  updateError: (error: ErrorType) => void,
 };
 
 export const TodosList: React.FC<ListOfTodos> = ({
@@ -15,7 +22,81 @@ export const TodosList: React.FC<ListOfTodos> = ({
   onDeleteTodo,
   loadingIds,
   tempTodo,
+  updateTodoOnServer,
+  updateLoadingStatus,
+  updateTodosList,
+  updateError,
 }) => {
+  const [todoToEdit, setTodoToEdit] = useState<Todo | null>(null);
+  const [newTitleEdit, setNewTitleEdit] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handlechangeEdit = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitleEdit(event.currentTarget.value);
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [todoToEdit]);
+
+  useEffect(() => {
+    if (todoToEdit) {
+      setNewTitleEdit(todoToEdit.title);
+    }
+  }, [todoToEdit]);
+
+  const handleUpdateTodoOnServer = async (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (newTitleEdit.trim() !== '' && todoToEdit) {
+        const prevTodosList = structuredClone(todos);
+        const updatedTodo = {
+          ...todoToEdit,
+          title: newTitleEdit,
+        };
+
+        const updatedTodos = todos.map(todo => {
+          if (todo.id === todoToEdit.id) {
+            return updatedTodo;
+          }
+
+          return todo;
+        });
+
+        updateTodosList(updatedTodos);
+
+        updateLoadingStatus([todoToEdit.id]);
+
+        try {
+          const updatedTodoFromServer: Todo = await updateTodoOnServer(
+            todoToEdit.id, updatedTodo,
+          );
+
+          updateTodosList([...todos].map(todo => {
+            if (todo.id === updatedTodoFromServer.id) {
+              return updatedTodoFromServer;
+            }
+
+            return todo;
+          }));
+        } catch {
+          updateError(ErrorType.update);
+          updateTodosList(prevTodosList);
+        } finally {
+          updateLoadingStatus([]);
+        }
+
+        setTodoToEdit(null);
+      } else {
+        // Handle case where the updated title is empty (delete todo or show error)
+      }
+    }
+  };
+
   return (
     <section className="todoapp__main">
       {todos.map(todo => (
@@ -36,14 +117,36 @@ export const TodosList: React.FC<ListOfTodos> = ({
             />
           </label>
 
-          <span className="todo__title">{todo.title}</span>
-          <button
-            type="button"
-            className="todo__remove"
-            onClick={() => onDeleteTodo(todo)}
-          >
-            ×
-          </button>
+          {todoToEdit?.id === todo.id ? (
+            <form>
+              <input
+                ref={inputRef}
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                value={newTitleEdit}
+                onDoubleClick={() => setTodoToEdit(todo)}
+                onChange={handlechangeEdit}
+                onKeyDown={handleUpdateTodoOnServer}
+              />
+            </form>
+          ) : (
+            <>
+              <span
+                className="todo__title"
+                onDoubleClick={() => setTodoToEdit(todo)}
+              >
+                {todo.title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+                onClick={() => onDeleteTodo(todo)}
+              >
+                ×
+              </button>
+            </>
+          )}
 
           <div
             className={classNames(

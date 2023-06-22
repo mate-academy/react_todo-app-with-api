@@ -188,7 +188,7 @@ export const App: React.FC = () => {
     setTypeOfError(error);
   };
 
-  const UpdateTodosList = (todoList: Todo[]) => {
+  const updateTodosList = (todoList: Todo[]) => {
     setTodos(todoList);
   };
 
@@ -200,7 +200,7 @@ export const App: React.FC = () => {
         <Header
           todos={todos}
           loadingIds={loadingIds}
-          updateTodos={UpdateTodosList}
+          updateTodos={updateTodosList}
           updateError={changeErrorType}
           postNewTodo={postNewTodoOnServer}
           addTempTodo={(todo) => setTempTodo(todo)}
@@ -213,6 +213,10 @@ export const App: React.FC = () => {
           onDeleteTodo={handleDeleteTodo}
           loadingIds={loadingIds}
           tempTodo={tempTodo}
+          updateTodoOnServer={updateTodo}
+          updateLoadingStatus={setLoadingIds}
+          updateTodosList={updateTodosList}
+          updateError={changeErrorType}
         />
 
         {todos.length > 0 && (
@@ -231,7 +235,7 @@ export const App: React.FC = () => {
       {typeOfError && (
         <ErrorNorification
           errorType={typeOfError}
-          resetError={changeErrorType}
+          changeErrorType={changeErrorType}
         />
       )}
     </div>

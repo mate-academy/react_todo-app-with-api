@@ -6,12 +6,12 @@ import { ErrorType } from '../types/ErrorType';
 
 type ErrorComponent = {
   errorType: ErrorType,
-  resetError: (error: ErrorType) => void,
+  changeErrorType: (error: ErrorType) => void,
 };
 
 export const ErrorNorification: React.FC<ErrorComponent> = ({
   errorType,
-  resetError,
+  changeErrorType: resetError,
 }) => {
   const [isError, setIsError] = useState(false);
 
