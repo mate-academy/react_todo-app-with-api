@@ -75,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({
     updateTodos(allTodosToCompleted);
   };
 
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOnEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       if (!newTodoTitle.trim()) {
         updateError(ErrorType.add);
@@ -120,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
           placeholder="What needs to be done?"
           value={newTodoTitle}
           onChange={handleInputChange}
-          onKeyDown={handleOnKeyDown}
+          onKeyDown={handleOnEnter}
         />
       </form>
     </header>

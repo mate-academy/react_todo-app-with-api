@@ -57,7 +57,7 @@ export const TodosList: React.FC<ListOfTodos> = ({
       setTodoToEdit(null);
     }
 
-    if (event.key === 'Enter' || event.type === 'blur') {
+    if ((event.key === 'Enter' || event.type === 'blur')) {
       event.preventDefault();
       if (newTitleEdit.trim() !== '' && todoToEdit) {
         if (newTitleEdit === todoToEdit.title) {

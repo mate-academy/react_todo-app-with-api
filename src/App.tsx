@@ -7,7 +7,10 @@ import React, {
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
-  deleteTodo, getTodos, postTodo, updateTodo,
+  deleteTodo,
+  getTodos,
+  postTodo,
+  updateTodo,
 } from './api/todos';
 import { ErrorType } from './types/ErrorType';
 import { ErrorNorification } from './Components/ErrorNorification';
@@ -36,12 +39,6 @@ export const App: React.FC = () => {
 
     return activeTodosCount;
   }, [todos]);
-
-  useEffect(() => {
-    if (tempTodo) {
-      setTodos(prevTodos => [...prevTodos, tempTodo]);
-    }
-  }, [tempTodo]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -203,7 +200,7 @@ export const App: React.FC = () => {
           updateTodos={updateTodosList}
           updateError={changeErrorType}
           postNewTodo={postNewTodoOnServer}
-          addTempTodo={(todo) => setTempTodo(todo)}
+          addTempTodo={setTempTodo}
           updateLoadingStatus={setLoadingIds}
         />
 
@@ -218,6 +215,19 @@ export const App: React.FC = () => {
           updateTodosList={updateTodosList}
           updateError={changeErrorType}
         />
+        {tempTodo && (
+          <TodosList
+            todos={[tempTodo]}
+            updateTodoStatus={updateTodoStatus}
+            onDeleteTodo={handleDeleteTodo}
+            loadingIds={loadingIds}
+            tempTodo={tempTodo}
+            updateTodoOnServer={updateTodo}
+            updateLoadingStatus={setLoadingIds}
+            updateTodosList={updateTodosList}
+            updateError={changeErrorType}
+          />
+        )}
 
         {todos.length > 0 && (
           <TodoFooter
