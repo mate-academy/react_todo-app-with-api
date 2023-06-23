@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { Error } from '../../types/Error';
 
 type Props = {
   todo: Todo,
-  onError: (isError: Error) => void,
   removeTodo: (todoId: number) => void,
   todoIdUpdate: number[],
   toggleCompletedTodo: (todoId: number, completed: boolean) => void,
@@ -13,18 +11,19 @@ type Props = {
 };
 
 export const TodoInfo: React.FC<Props> = ({
-  todo, onError, removeTodo, todoIdUpdate, toggleCompletedTodo, changeName,
+  todo, removeTodo, todoIdUpdate, toggleCompletedTodo, changeName,
 }) => {
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [isEditedTitle, setIsEditedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = () => {
+  const checkTitle = (NewTitle: string) => {
     if (!isEditedTitle) {
       removeTodo(id);
     }
 
-    if (isEditedTitle !== title) {
+    if (isEditedTitle !== NewTitle) {
       changeName(id, isEditedTitle);
     }
 
@@ -42,9 +41,14 @@ export const TodoInfo: React.FC<Props> = ({
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      handleChange();
+      checkTitle(isEditedTitle);
+      setIsEditing(false);
     }
   };
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [isEditing]);
 
   return (
     <li
@@ -64,24 +68,28 @@ export const TodoInfo: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <input
-          type="text"
-          className="todo__title-field"
-          placeholder="Empty todo will be deleted"
-          value={isEditedTitle}
-          onChange={event => setIsEditedTitle(event.target.value)}
-          onKeyUp={handleKeyUp}
-          onKeyDown={handleKeyPress}
-          onBlur={handleChange}
-        />
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          checkTitle(isEditedTitle);
+        }}
+        >
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={isEditedTitle}
+            onChange={event => setIsEditedTitle(event.target.value)}
+            onKeyUp={handleKeyUp}
+            onKeyDown={handleKeyPress}
+            onBlur={() => checkTitle(isEditedTitle)}
+            ref={inputRef}
+          />
+        </form>
       ) : (
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => {
-              setIsEditing(true);
-              onError(Error.UPDATE);
-            }}
+            onDoubleClick={() => setIsEditing(true)}
           >
             {isEditedTitle}
           </span>
@@ -90,7 +98,6 @@ export const TodoInfo: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             onClick={() => {
-              onError(Error.DELETE);
               removeTodo(id);
             }}
           >

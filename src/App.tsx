@@ -131,7 +131,8 @@ export const App: React.FC = () => {
     } catch {
       setIsError(Error.UPDATE);
     } finally {
-      setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
+      // setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
+      setTodoIdUpdate([]);
     }
   }, [todos]);
 
@@ -164,6 +165,8 @@ export const App: React.FC = () => {
       }));
     } catch {
       setIsError(Error.UPDATE);
+    } finally {
+      setTodoIdUpdate([]);
     }
   }, [todos]);
 
@@ -184,7 +187,6 @@ export const App: React.FC = () => {
         />
         <TodoList
           filteredTodos={filteredTodos}
-          onError={() => setIsError}
           removeTodo={removeTodo}
           todoIdUpdate={todoIdUpdate}
           tempTodo={tempTodo}

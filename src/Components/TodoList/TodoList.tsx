@@ -6,7 +6,6 @@ import './TodoList.scss';
 
 type Props = {
   filteredTodos: Todo[],
-  onError: (isError: Error) => void,
   removeTodo: (todoId: number) => void,
   tempTodo: Todo | null;
   todoIdUpdate: number[];
@@ -15,7 +14,7 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = ({
-  filteredTodos, onError, removeTodo, tempTodo, todoIdUpdate,
+  filteredTodos, removeTodo, tempTodo, todoIdUpdate,
   toggleCompletedTodo, changeName,
 }) => {
   return (
@@ -29,7 +28,6 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoInfo
               todo={todo}
-              onError={() => onError}
               removeTodo={removeTodo}
               todoIdUpdate={todoIdUpdate}
               toggleCompletedTodo={toggleCompletedTodo}
@@ -46,7 +44,6 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoInfo
               todo={tempTodo}
-              onError={() => onError}
               removeTodo={removeTodo}
               todoIdUpdate={todoIdUpdate}
               toggleCompletedTodo={toggleCompletedTodo}
