@@ -15,7 +15,12 @@ import { Footer } from './components/Footer';
 import { ErrorMesage } from './components/ErrorMesage';
 import { Filter } from './types/Filter';
 import { Todo } from './types/Todo';
-import { fetchTodos, fetchAddTodo, remove } from './api/todos';
+import {
+  fetchTodos,
+  fetchAddTodo,
+  remove,
+  fetchUpdateTodos,
+} from './api/todos';
 
 const USER_ID = 10777;
 
@@ -90,6 +95,31 @@ export const App: React.FC = () => {
       });
   };
 
+  const toggleTodoStatus = async (todoId: number) => {
+    try {
+      const updatedTodos = todos.map((todo) => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            completed: !todo.completed,
+          };
+        }
+
+        return todo;
+      });
+
+      setTodos(updatedTodos);
+
+      const todoToUpdate = todos.find((todo) => todo.id === todoId);
+
+      if (todoToUpdate) {
+        await fetchUpdateTodos(todoId, todoToUpdate.title);
+      }
+    } catch {
+      setError('Unable to update a todo');
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -125,6 +155,26 @@ export const App: React.FC = () => {
     completedTodos.forEach((todo) => deleteTodo(todo.id));
   }, [todos]);
 
+  const updateTodoTitle = async (id: number, newTitle: string) => {
+    try {
+      const updatedTodos = todos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            ...todo,
+            title: newTitle,
+          };
+        }
+
+        return todo;
+      });
+
+      setTodos(updatedTodos);
+      await fetchUpdateTodos(id, newTitle);
+    } catch {
+      setError('Unable to update a todo');
+    }
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -148,6 +198,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           deleteTodo={deleteTodo}
           deleteTodoId={deleteTodoId}
+          toggleTodoStatus={toggleTodoStatus}
+          updateTodoTitle={updateTodoTitle}
         />
 
         {todos.length > 0 && (
