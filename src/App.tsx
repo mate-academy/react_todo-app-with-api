@@ -67,11 +67,17 @@ export const App: React.FC = () => {
 
   const hasCompleted = visibleTodos.some(todo => todo.completed);
 
-  (function handleTempTodo() {
+  useEffect(() => {
     if (tempTodo) {
-      visibleTodos.splice(indexUpdatedTodo, 1, tempTodo);
+      setTodos(prevTodos => {
+        const updatedTodos = [...prevTodos];
+
+        updatedTodos.splice(indexUpdatedTodo, 1, tempTodo);
+
+        return updatedTodos;
+      });
     }
-  }());
+  }, [tempTodo, indexUpdatedTodo]);
 
   const addTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -255,7 +261,7 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           loading={loading}
           toggleAll={toggleAll}
-          itemsLeft={itemsLeft}
+          visibleTodos={visibleTodos}
         />
 
         <TodoList

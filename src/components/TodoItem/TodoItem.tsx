@@ -40,6 +40,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = (event: React.MouseEvent) => {
     event.preventDefault();
+    event.stopPropagation();
     setEditedTodo(todo);
   };
 
@@ -59,7 +60,6 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
           onClick={onUpdateStatus}
         />
       </label>

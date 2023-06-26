@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   query: string,
@@ -8,7 +9,7 @@ type Props = {
   addTodo: (event: React.KeyboardEvent<HTMLFormElement>) => void,
   loading: boolean,
   toggleAll: (event: React.MouseEvent) => void,
-  itemsLeft: number,
+  visibleTodos: Todo[],
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,7 +18,7 @@ export const Header: React.FC<Props> = ({
   addTodo,
   loading,
   toggleAll,
-  itemsLeft,
+  visibleTodos,
 }) => {
   return (
     <header className="todoapp__header">
@@ -25,9 +26,10 @@ export const Header: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: itemsLeft === 0,
+          active: visibleTodos.every(todo => todo.completed),
         })}
         onClick={toggleAll}
+        style={{ visibility: !visibleTodos.length ? 'hidden' : 'visible' }}
       />
 
       <form onSubmit={addTodo}>
