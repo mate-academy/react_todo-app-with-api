@@ -7,8 +7,8 @@ interface Props {
   tempTodo: Todo | null;
   deleteTodo: (id: number) => void,
   deleteTodoId: number,
-  toggleTodoStatus: (todoId: number) => void,
-  updateTodoTitle: (id: number, newTitle: string) => void;
+  onToggleTodoStatus: (todoId: number) => void,
+  onUpdateTodoTitle: (id: number, newTitle: string) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -16,33 +16,38 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   deleteTodo,
   deleteTodoId,
-  toggleTodoStatus,
-  updateTodoTitle,
+  onToggleTodoStatus,
+  onUpdateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main">
-      {todos.map((todo) => {
-        return (
-          <TodoItem
-            todo={todo}
-            key={todo.id}
-            onDelete={deleteTodo}
-            deleteTodoId={deleteTodoId}
-            toggleTodoStatus={toggleTodoStatus}
-            updateTodoTitle={updateTodoTitle}
-          />
-        );
-      })}
+      <ul className="todo-list">
+        {todos.map((todo) => {
+          return (
+            <li key={todo.id}>
+              <TodoItem
+                todo={todo}
+                onDelete={deleteTodo}
+                deleteTodoId={deleteTodoId}
+                onToggleTodoStatus={onToggleTodoStatus}
+                onUpdateTodoTitle={onUpdateTodoTitle}
+              />
+            </li>
+          );
+        })}
 
-      {tempTodo && (
-        <TodoItem
-          todo={tempTodo}
-          onDelete={deleteTodo}
-          deleteTodoId={deleteTodoId}
-          toggleTodoStatus={toggleTodoStatus}
-          updateTodoTitle={updateTodoTitle}
-        />
-      )}
+        {tempTodo && (
+          <li>
+            <TodoItem
+              todo={tempTodo}
+              onDelete={deleteTodo}
+              deleteTodoId={deleteTodoId}
+              onToggleTodoStatus={onToggleTodoStatus}
+              onUpdateTodoTitle={onUpdateTodoTitle}
+            />
+          </li>
+        )}
+      </ul>
     </section>
   );
 };

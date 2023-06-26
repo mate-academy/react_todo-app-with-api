@@ -1,8 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React,
-{
+import React, {
   useState,
   useEffect,
   useMemo,
@@ -140,10 +139,13 @@ export const App: React.FC = () => {
     switch (filter) {
       case Filter.ACTIVE:
         return todos.filter(todo => !todo.completed);
+
       case Filter.COMPLETED:
         return todos.filter(todo => todo.completed);
+
       case Filter.ALL:
         return todos;
+
       default:
         return todos;
     }
@@ -191,6 +193,7 @@ export const App: React.FC = () => {
           newTodoTitle={newTodoTitle}
           onChangeTitle={setNewTodoTitle}
           isDisabled={isDisabled}
+          onToggleTodoStatus={toggleTodoStatus}
         />
 
         <TodoList
@@ -198,11 +201,11 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           deleteTodo={deleteTodo}
           deleteTodoId={deleteTodoId}
-          toggleTodoStatus={toggleTodoStatus}
-          updateTodoTitle={updateTodoTitle}
+          onToggleTodoStatus={toggleTodoStatus}
+          onUpdateTodoTitle={updateTodoTitle}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <Footer
             todos={filteredTodos}
             filter={filter}

@@ -1,17 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo,
   onDelete: (id: number) => void,
   deleteTodoId: number,
-  toggleTodoStatus: (todoId: number) => void;
-  updateTodoTitle: (id: number, newTitle: string) => void;
+  onToggleTodoStatus: (todoId: number) => void;
+  onUpdateTodoTitle: (id: number, newTitle: string) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
-  todo, onDelete, deleteTodoId, toggleTodoStatus, updateTodoTitle,
+  todo,
+  onDelete,
+  deleteTodoId,
+  onToggleTodoStatus,
+  onUpdateTodoTitle,
 }) => {
   const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [query, setQuery] = useState(todo.title);
@@ -30,7 +34,7 @@ export const TodoItem: React.FC<Props> = ({
     if (newTitle === '') {
       onDelete(todo.id);
     } else if (newTitle !== todo.title) {
-      updateTodoTitle(todo.id, newTitle);
+      onUpdateTodoTitle(todo.id, newTitle);
     }
 
     setIsEditing(false);
@@ -47,9 +51,14 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const changeCompleted = () => {
+    setIsCompleted(!isCompleted);
+    onToggleTodoStatus(todo.id);
+  };
+
   return (
     <div
-      className={classNames('todo', {
+      className={cn('todo', {
         completed: isCompleted,
       })}
     >
@@ -58,10 +67,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={isCompleted}
-          onChange={() => {
-            setIsCompleted(!isCompleted);
-            toggleTodoStatus(todo.id);
-          }}
+          onChange={changeCompleted}
         />
       </label>
 
@@ -101,7 +107,10 @@ export const TodoItem: React.FC<Props> = ({
         )}
       </span>
 
-      <div className={`modal overlay ${(!todo.id || deleteTodoId === todo.id) && ('is-active')}`}>
+      <div className={cn('modal overlay', {
+        'is-active': !todo.id || deleteTodoId === todo.id,
+      })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
