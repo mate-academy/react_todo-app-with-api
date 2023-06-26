@@ -112,11 +112,9 @@ export const App: React.FC = () => {
       fetchData();
       setTempTodo(null);
       setErrorType('');
+      setLoading(false);
     } catch (error) {
       setErrorType('Unable to add a todo');
-      setTempTodo(null);
-    } finally {
-      setLoading(false);
     }
   };
 
