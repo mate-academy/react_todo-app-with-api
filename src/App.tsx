@@ -17,6 +17,7 @@ export const App: React.FC = () => {
     todos,
     errorNotification,
     loadTodos,
+    tempTodo,
   } = useContext(TodosContext);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {!!todos.length && (
+        {(!!todos.length || tempTodo) && (
           <>
             <Main />
 
