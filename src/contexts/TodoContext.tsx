@@ -16,6 +16,8 @@ interface TodoContextProps {
   setError: (error: string | null) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 export const TodoContext = createContext<TodoContextProps>({
@@ -27,6 +29,8 @@ export const TodoContext = createContext<TodoContextProps>({
   setError: () => {},
   tempTodo: null,
   setTempTodo: () => {},
+  isLoading: false,
+  setIsLoading: () => {},
 });
 
 export const useTodoContext = () => useContext(TodoContext);
@@ -38,6 +42,7 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filters>(Filters.All);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <TodoContext.Provider
@@ -50,6 +55,8 @@ export const TodoContextProvider: React.FC<PropsWithChildren> = ({
         setError,
         filter,
         setFilter,
+        isLoading,
+        setIsLoading,
       }}
     >
       {children}

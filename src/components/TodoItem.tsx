@@ -49,21 +49,25 @@ export const TodoItem: React.FC<Props> = ({
   const handleUpdateTodo = (updatedTodo: Todo) => {
     setIsLoading(true);
 
-    updateTodo(updatedTodo)
-      .then((successUpdatedTodo) => {
-        setTodos(todos.map((currentTodo) => (
-          currentTodo.id === successUpdatedTodo.id
-            ? successUpdatedTodo
-            : currentTodo
-        )));
-      })
-      .catch(() => {
-        setError('Unable to update a todo');
-      })
-      .finally(() => {
-        setIsEditing(false);
-        setIsLoading(false);
-      });
+    if (updatedTodo.title.trim() !== '') {
+      updateTodo(updatedTodo)
+        .then((successUpdatedTodo) => {
+          setTodos(todos.map((currentTodo) => (
+            currentTodo.id === successUpdatedTodo.id
+              ? successUpdatedTodo
+              : currentTodo
+          )));
+        })
+        .catch(() => {
+          setError('Unable to update a todo');
+        })
+        .finally(() => {
+          setIsEditing(false);
+          setIsLoading(false);
+        });
+    } else {
+      handleDelete(updatedTodo.id);
+    }
   };
 
   const handleUpdateCheckbox = (completed: boolean) => {
