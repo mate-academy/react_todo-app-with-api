@@ -2,7 +2,9 @@ import {
   createContext, useCallback, useContext, useMemo, useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
-import { addTodo, deleteTodo, getTodos, updateTodo } from '../../api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodo,
+} from '../../api/todos';
 import { USER_ID } from '../../constans';
 import { FilterType } from '../../types/FilterType';
 import { FilterContext } from '../FilterContext';
