@@ -2,11 +2,10 @@
 import { FC } from 'react';
 
 interface Props {
-  errorMessage: string | null;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const Eror: FC<Props> = ({ setErrorMessage, errorMessage }) => {
+export const ErorMesage: FC<Props> = ({ setErrorMessage }) => {
   return (
     <div className="notification is-danger is-light has-text-weight-normal">
       <button
@@ -14,7 +13,7 @@ export const Eror: FC<Props> = ({ setErrorMessage, errorMessage }) => {
         className="delete"
         onClick={() => setErrorMessage(null)}
       />
-      {`Unable to create a todos, because ${errorMessage}`}
+      <p>Unable to create a todos</p>
     </div>
   );
 };

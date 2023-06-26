@@ -7,7 +7,6 @@ interface Props {
   handleDeleteTodo: (id: number) => void;
   handleTodoComplited:(id: number) => void;
   isLoading:boolean;
-  setIsLoading:React.Dispatch<React.SetStateAction<boolean>>
   setDeletingId:React.Dispatch<React.SetStateAction<number | null>>
   deletingId:number | null;
   handleTodoEdit:(id: number, EditTitle:string) => void
@@ -20,17 +19,30 @@ export const TodoItem: FC<Props> = ({
   setDeletingId,
   handleTodoComplited,
   isLoading,
-  setIsLoading,
   handleTodoEdit,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
+  const handleCansleEditing = (event:React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTitle(todo.title);
+    }
+  };
+
   const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement> |
   React.FocusEvent<HTMLInputElement>) => {
     event.preventDefault();
-    if (!todo.title.trim()) {
+    if (!title.trim()) {
       handleDeleteTodo(todo.id);
+
+      return;
+    }
+
+    if (title === todo.title) {
+      setIsEditing(false);
+      setTitle(todo.title);
 
       return;
     }
@@ -39,11 +51,18 @@ export const TodoItem: FC<Props> = ({
     setIsEditing(false);
   };
 
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
   return (
     <div
-      className={cn('todo',
-        { completed: todo.completed })}
+      className={cn('todo', {
+        completed: todo.completed,
+        editing: isEditing,
+      })}
       key={todo.id}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
@@ -64,13 +83,16 @@ export const TodoItem: FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            onKeyUp={(event) => handleCansleEditing(event)}
+            onBlur={handleTitleSubmit}
           />
         </form>
       ) : (
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
           >
             {todo.title}
           </span>
@@ -78,7 +100,6 @@ export const TodoItem: FC<Props> = ({
             type="button"
             className="todo__remove"
             onClick={() => {
-              setIsLoading(true);
               handleDeleteTodo(todo.id);
               setDeletingId(todo.id);
             }}

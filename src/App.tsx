@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
-import { Eror } from './components/ERROR';
+import { ErorMesage } from './components/ErrorComponent';
 import {
   getTodos,
   addTodo,
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
     }
   });
 
-  const addError = (error: Error) => {
+  const displayError = (error: Error) => {
     setErrorMessage(error);
     window.setTimeout(() => {
       setErrorMessage(null);
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
 
         setTodos(todosFromServer);
       } catch (error) {
-        addError(Error.LOAD);
+        displayError(Error.LOAD);
       }
     };
 
@@ -72,8 +72,7 @@ export const App: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('enter');
-    if (!inputValue) {
+    if (inputValue.trim() === '') {
       setErrorMessage('Title cannot be empty');
 
       return;
@@ -86,9 +85,9 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    setTempTodo(newTodo);
     try {
       setIsLoading(true);
+      setTempTodo(newTodo);
       addTodo(newTodo)
         .then((response) => {
           setTodos([...todos, response]);
@@ -196,7 +195,30 @@ export const App: React.FC = () => {
     }
   };
 
-  console.log(todos);
+  const handleTodoToggleAll = async () => {
+    try {
+      setErrorMessage('');
+      setIsLoading(true);
+
+      const allCompleted = todos.every((todo) => todo.completed);
+
+      await Promise.all(
+        todos.map((todo) => updateTodo(todo.id, {
+          ...todo,
+          completed: !allCompleted,
+        })),
+      );
+
+      setTodos((prevTodos) => prevTodos.map((todo) => ({
+        ...todo,
+        completed: !allCompleted,
+      })));
+    } catch {
+      setErrorMessage('Unable to update todos');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="todoapp">
@@ -204,7 +226,11 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button type="button" className="todoapp__toggle-all active" />
+          <button
+            type="button"
+            className="todoapp__toggle-all active"
+            onClick={handleTodoToggleAll}
+          />
 
           <form onSubmit={handleSubmit}>
             <input
@@ -217,33 +243,33 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList
-          todos={visibleTodos}
-          handleDeleteTodo={handleDeleteTodo}
-          handleTodoComplited={handleTodoComplited}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
-          deletingId={deletingId}
-          setDeletingId={setDeletingId}
-          tempTodo={tempTodo}
-          handleTodoEdit={handleTodoEdit}
-        />
-
-        <Footer
-          todos={todos}
-          visibleTodos={visibleTodos}
-          filterBy={filterBy}
-          setFilterBy={setFilterBy}
-          handleDeleteComplited={handleDeleteComplited}
-        />
+        {todos.length > 0 && (
+          <>
+            <TodoList
+              todos={visibleTodos}
+              handleDeleteTodo={handleDeleteTodo}
+              handleTodoComplited={handleTodoComplited}
+              isLoading={isLoading}
+              deletingId={deletingId}
+              setDeletingId={setDeletingId}
+              tempTodo={tempTodo}
+              handleTodoEdit={handleTodoEdit}
+            />
+            <Footer
+              visibleTodos={visibleTodos}
+              filterBy={filterBy}
+              setFilterBy={setFilterBy}
+              handleDeleteComplited={handleDeleteComplited}
+            />
+          </>
+        )}
       </div>
 
       {!selectedTodoId && errorMessage}
 
       {errorMessage
         && (
-          <Eror
-            errorMessage={errorMessage}
+          <ErorMesage
             setErrorMessage={setErrorMessage}
           />
         )}
