@@ -165,7 +165,7 @@ export const App: React.FC = () => {
     }
 
     toggledTodos.forEach(todo => handleTodoStatusUpdate(todo));
-  }, []);
+  }, [todos]);
 
   const handleClearCompleted = () => {
     completedTodos.forEach(async (todo) => {
