@@ -7,32 +7,32 @@ interface Props {
   handleDeleteTodo: (id: number) => void;
   handleTodoComplited:(id: number) => void;
   isLoading:boolean;
-  setDeletingId:React.Dispatch<React.SetStateAction<number | null>>
-  deletingId:number | null;
   tempTodo:Todo | null
   handleTodoEdit:(id: number, EditTitle:string) => void
+  selectedTodoId: number | null;
 }
 
 export const TodoList: FC<Props> = ({
   todos,
   handleDeleteTodo,
-  deletingId,
-  setDeletingId,
   handleTodoComplited,
   isLoading,
   tempTodo,
   handleTodoEdit,
+  selectedTodoId,
 }) => {
   return (
     <section className="todoapp__main">
       {todos.map(todo => (
         <TodoItem
+          key={todo.id}
           todo={todo}
           handleDeleteTodo={handleDeleteTodo}
           handleTodoComplited={handleTodoComplited}
-          isLoading={isLoading}
-          deletingId={deletingId}
-          setDeletingId={setDeletingId}
+          isLoading={isLoading
+            && (
+              !todo.id || selectedTodoId === todo.id
+            )}
           handleTodoEdit={handleTodoEdit}
         />
       ))}
@@ -41,12 +41,10 @@ export const TodoList: FC<Props> = ({
       && (
         <TodoItem
           todo={tempTodo}
-          isLoading={isLoading}
+          isLoading
           handleTodoEdit={handleTodoEdit}
           handleDeleteTodo={handleDeleteTodo}
           handleTodoComplited={handleTodoComplited}
-          deletingId={deletingId}
-          setDeletingId={setDeletingId}
         />
       )}
     </section>

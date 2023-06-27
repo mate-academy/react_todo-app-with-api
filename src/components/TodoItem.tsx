@@ -7,16 +7,12 @@ interface Props {
   handleDeleteTodo: (id: number) => void;
   handleTodoComplited:(id: number) => void;
   isLoading:boolean;
-  setDeletingId:React.Dispatch<React.SetStateAction<number | null>>
-  deletingId:number | null;
   handleTodoEdit:(id: number, EditTitle:string) => void
 }
 
 export const TodoItem: FC<Props> = ({
   todo,
   handleDeleteTodo,
-  deletingId,
-  setDeletingId,
   handleTodoComplited,
   isLoading,
   handleTodoEdit,
@@ -101,7 +97,6 @@ export const TodoItem: FC<Props> = ({
             className="todo__remove"
             onClick={() => {
               handleDeleteTodo(todo.id);
-              setDeletingId(todo.id);
             }}
           >
             ×
@@ -109,13 +104,12 @@ export const TodoItem: FC<Props> = ({
         </>
       )}
 
-      <div className={cn('modal overlay', {
-        'is-active': isLoading && deletingId === todo.id,
-      })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+      {isLoading && (
+        <div className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
     </div>
   );
 };

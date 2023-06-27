@@ -1,6 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable no-console */
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErorMesage } from './components/ErrorComponent';
@@ -27,9 +32,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const visibleTodos = todos.filter((todo) => {
+  const visibleTodos = useMemo(() => todos.filter((todo) => {
     switch (filterBy) {
       case FilterBy.Active:
         return !todo.completed;
@@ -40,7 +44,7 @@ export const App: React.FC = () => {
       default:
         return true;
     }
-  });
+  }), [todos, filterBy]);
 
   const displayError = (error: Error) => {
     setErrorMessage(error);
@@ -70,7 +74,7 @@ export const App: React.FC = () => {
       .map((todo) => todo.id);
   }, [todos]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (inputValue.trim() === '') {
       setErrorMessage('Title cannot be empty');
@@ -88,11 +92,11 @@ export const App: React.FC = () => {
     try {
       setIsLoading(true);
       setTempTodo(newTodo);
-      addTodo(newTodo)
-        .then((response) => {
-          setTodos([...todos, response]);
-          setInputValue('');
-        });
+
+      const response = await addTodo(newTodo);
+
+      setTodos([...todos, response]);
+      setInputValue('');
     } catch {
       setErrorMessage('Unable to add a todo');
     } finally {
@@ -101,18 +105,24 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleDeleteTodo = (id: number) => {
-    setIsLoading(true);
+  const handleDeleteTodo = useCallback(async (id: number) => {
+    try {
+      setErrorMessage('');
+      setSelectedTodoId(id);
+      setIsLoading(true);
 
-    deleteTodo(id)
-      .then(() => {
-        setTodos(todos.filter((todo) => todo.id !== id));
-      })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => setIsLoading(false));
-  };
+      await deleteTodo(id);
 
-  const handleTodoComplited = async (id: number) => {
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+    } catch {
+      setErrorMessage('Unable to delete a todo');
+    } finally {
+      setIsLoading(false);
+      setSelectedTodoId(null);
+    }
+  }, [todos]);
+
+  const handleTodoComplited = useCallback(async (id: number) => {
     try {
       setErrorMessage('');
 
@@ -142,9 +152,9 @@ export const App: React.FC = () => {
     } finally {
       setSelectedTodoId(null);
     }
-  };
+  }, [todos]);
 
-  const handleDeleteComplited = async () => {
+  const handleDeleteComplited = useCallback(async () => {
     try {
       setErrorMessage('');
 
@@ -159,7 +169,7 @@ export const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [todos, deleteTodo]);
 
   const handleTodoEdit = async (id: number, title: string) => {
     try {
@@ -250,8 +260,7 @@ export const App: React.FC = () => {
               handleDeleteTodo={handleDeleteTodo}
               handleTodoComplited={handleTodoComplited}
               isLoading={isLoading}
-              deletingId={deletingId}
-              setDeletingId={setDeletingId}
+              selectedTodoId={selectedTodoId}
               tempTodo={tempTodo}
               handleTodoEdit={handleTodoEdit}
             />
@@ -264,8 +273,6 @@ export const App: React.FC = () => {
           </>
         )}
       </div>
-
-      {!selectedTodoId && errorMessage}
 
       {errorMessage
         && (
