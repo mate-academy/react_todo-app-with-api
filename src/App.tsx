@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [deleteTodoId, setDeleteTodoId] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [allTodosCompleted, setAllTodosCompleted] = useState(false);
 
   const addTodo = async (title: string) => {
     if (!title.trim()) {
@@ -177,6 +178,22 @@ export const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const areAllCompleted = todos.every((todo) => todo.completed);
+
+    setAllTodosCompleted(areAllCompleted);
+  }, [todos]);
+
+  const handleToggleAll = async () => {
+    const updatedStatus = !allTodosCompleted;
+    const updatedTodos = todos.map((todo) => ({
+      ...todo,
+      completed: updatedStatus,
+    }));
+
+    setTodos(updatedTodos);
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -193,7 +210,7 @@ export const App: React.FC = () => {
           newTodoTitle={newTodoTitle}
           onChangeTitle={setNewTodoTitle}
           isDisabled={isDisabled}
-          onToggleTodoStatus={toggleTodoStatus}
+          onToggleTodoStatus={handleToggleAll}
         />
 
         <TodoList
@@ -203,6 +220,8 @@ export const App: React.FC = () => {
           deleteTodoId={deleteTodoId}
           onToggleTodoStatus={toggleTodoStatus}
           onUpdateTodoTitle={updateTodoTitle}
+          allTodosCompleted={allTodosCompleted}
+          setAllTodosCompleted={setAllTodosCompleted}
         />
 
         {!!todos.length && (

@@ -8,6 +8,8 @@ interface Props {
   deleteTodoId: number,
   onToggleTodoStatus: (todoId: number) => void;
   onUpdateTodoTitle: (id: number, newTitle: string) => void;
+  allTodosCompleted: boolean;
+  setAllTodosCompleted: (completed: boolean) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,6 +18,8 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodoId,
   onToggleTodoStatus,
   onUpdateTodoTitle,
+  allTodosCompleted,
+  setAllTodosCompleted,
 }) => {
   const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [query, setQuery] = useState(todo.title);
@@ -53,6 +57,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const changeCompleted = () => {
     setIsCompleted(!isCompleted);
+    setAllTodosCompleted(!allTodosCompleted);
     onToggleTodoStatus(todo.id);
   };
 
@@ -66,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={isCompleted}
+          checked={isCompleted || allTodosCompleted}
           onChange={changeCompleted}
         />
       </label>

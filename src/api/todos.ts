@@ -23,6 +23,10 @@ export const fetchUpdateTodos = (todoId: number, title: string) => {
   return client.patch<Todo>(`/todos/${todoId}`, { title });
 };
 
+export const fetchComplited = (todoId: number, todo: Todo) => {
+  return client.patch<Todo>(`/todos/${todoId}`, todo.completed);
+};
+
 export const remove = (id: number) => {
   return client.delete(`/todos/${id}`);
 };

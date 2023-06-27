@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
+import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
   newTodoTitle: string;
   onChangeTitle: (title: string) => void;
   isDisabled: boolean,
-  toggleTodoStatus: (todoId: number) => void;
+  onToggleTodoStatus: (todoId: number) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,7 +17,7 @@ export const Header: React.FC<Props> = ({
   newTodoTitle,
   onChangeTitle,
   isDisabled,
-  toggleTodoStatus,
+  onToggleTodoStatus,
 }) => {
   const isActive = todos.filter((todo) => !todo.completed);
 
@@ -29,9 +29,12 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
+    const areAllCompleted = todos.every((todo) => todo.completed);
+    const updatedStatus = !areAllCompleted;
+
     todos.forEach((todo) => {
-      if (!todo.completed) {
-        toggleTodoStatus(todo.id);
+      if (todo.completed !== updatedStatus) {
+        onToggleTodoStatus(todo.id);
       }
     });
   };
@@ -40,7 +43,7 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        className={classNames('todoapp__toggle-all', { active: isActive })}
+        className={cn('todoapp__toggle-all', { active: isActive })}
         aria-label="saveButton"
         onClick={handleToggleAll}
       />
