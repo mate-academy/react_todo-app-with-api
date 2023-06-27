@@ -4,4 +4,5 @@ export enum Error{
   UPDATE = 'Unable to update a todo',
   LOAD = 'Something wrong',
   EMPTYTITLE = 'Title can\'t be empty',
+  WRONGFILTER = 'Can not filter Todo',
 }

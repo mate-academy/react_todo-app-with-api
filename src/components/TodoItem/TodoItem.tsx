@@ -9,23 +9,25 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
+  loadingTodoIds: number[];
   onDelete: (todoDelte: Todo) => void;
   onCompleteUpdate: (todoId: number, completed: boolean) => void;
   onTitleUpdate: (todoId: number, title: string) => void;
-  isLoading: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
+  loadingTodoIds,
   onDelete,
   onCompleteUpdate,
   onTitleUpdate,
-  isLoading,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
   const isCompleted = todo.completed === true;
+
+  const isLoading = loadingTodoIds.includes(todo.id);
 
   const handleDeleteTodo = useCallback(() => {
     onDelete(todo);

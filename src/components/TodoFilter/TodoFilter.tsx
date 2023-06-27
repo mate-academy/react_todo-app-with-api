@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { FilterBy } from '../../types/TodosFilter';
 
 interface Props {
-  filter: string;
+  filter: FilterBy;
   onSetFilter: (filter: FilterBy) => void;
 }
 

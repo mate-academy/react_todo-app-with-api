@@ -5,6 +5,7 @@ import {
   useMemo,
   useCallback,
 } from 'react';
+import { ThreeDots } from 'react-loader-spinner';
 import {
   getTodos,
   deleteTodo,
@@ -17,8 +18,8 @@ import { Error } from './types/Errors';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { FilterBy } from './types/TodosFilter';
-import { TodoFilter } from './components/TodoFilter';
 import { Notification } from './components/Notification';
+import { Footer } from './components/Footer';
 
 const USER_ID = 10353;
 
@@ -27,22 +28,17 @@ export const App: FC = () => {
   const [filter, setFilter] = useState(FilterBy.ALL);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleError = useCallback((error: string) => {
-    setErrorMessage(error);
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const loadTodos = useCallback(async () => {
     try {
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
+      setIsLoading(false);
     } catch (error) {
-      handleError(Error.LOAD);
+      setErrorMessage(Error.LOAD);
     }
 
     setIsLoading(false);
@@ -74,6 +70,14 @@ export const App: FC = () => {
     return todos.filter(todo => todo.completed === true);
   }, [todos]);
 
+  const addLoadingTodoId = (todoId: number) => {
+    setLoadingTodoIds(prevIds => [...prevIds, todoId]);
+  };
+
+  const removeLoadingTodoId = (todoId: number) => {
+    setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
+  };
+
   const handleAddTodo = useCallback(async (newTodo: Todo) => {
     setTempTodo(newTodo);
 
@@ -87,56 +91,57 @@ export const App: FC = () => {
 
       setTodos((prevTodos) => [...prevTodos, todoToAdd]);
     } catch {
-      handleError(Error.ADD);
+      setErrorMessage(Error.ADD);
     } finally {
       setTempTodo(null);
     }
   }, []);
 
   const handleDelete = useCallback(async (todoToDelete: Todo) => {
-    setIsLoading(true);
     try {
+      addLoadingTodoId(todoToDelete.id);
       await deleteTodo(todoToDelete.id);
       setTodos((prevTodos) => prevTodos
         .filter((todo) => todo.id !== todoToDelete.id));
     } catch {
-      handleError(Error.DELETE);
+      setErrorMessage(Error.DELETE);
+    } finally {
+      removeLoadingTodoId(todoToDelete.id);
     }
-
-    setIsLoading(false);
   }, []);
 
   const handleDeleteCompletedTodos = useCallback(async () => {
     try {
       completedTodos.map(todo => handleDelete(todo));
     } catch {
-      handleError(Error.DELETE);
+      setErrorMessage(Error.DELETE);
     }
   }, [todos]);
 
   const handleUpdateCompletedTodo = useCallback(
     async (id: number, completed: boolean) => {
+      addLoadingTodoId(id);
+
+      const updatePromises = todos
+        .filter((todo) => todo.id === id)
+        .map((todo) => updateTodo(todo.id, { completed }));
+
       try {
-        await updateTodo(id, { completed });
+        await Promise.all(updatePromises);
 
-        setTodos((prevTodos) => prevTodos.map((todo) => {
-          if (todo.id === id) {
-            return {
-              ...todo,
-              completed,
-            };
-          }
-
-          return todo;
-        }));
+        setTodos((prevTodos) => prevTodos
+          .map((todo) => (todo.id === id ? { ...todo, completed } : todo)));
       } catch {
-        handleError(Error.UPDATE);
+        setErrorMessage(Error.UPDATE);
+      } finally {
+        removeLoadingTodoId(id);
       }
     }, [todos],
   );
 
   const handleUpdateTodoTitle = useCallback(
     async (id: number, title: string) => {
+      addLoadingTodoId(id);
       try {
         await updateTodo(id, { title });
 
@@ -151,30 +156,30 @@ export const App: FC = () => {
           return todo;
         }));
       } catch {
-        handleError(Error.UPDATE);
+        setErrorMessage(Error.UPDATE);
+      } finally {
+        removeLoadingTodoId(id);
       }
     }, [],
   );
 
-  const handleToggleAll = useCallback(async () => {
+  const handleToggleAll = useCallback(() => {
     if (!activeTodosLength) {
       todos.forEach(todo => {
         handleUpdateCompletedTodo(todo.id, !todo.completed);
       });
-
-      return;
+    } else {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          handleUpdateCompletedTodo(todo.id, !todo.completed);
+        }
+      });
     }
-
-    todos.forEach(todo => {
-      if (!todo.completed) {
-        handleUpdateCompletedTodo(todo.id, !todo.completed);
-      }
-    });
   }, [todos]);
 
   useEffect(() => {
     loadTodos();
-  }, [visibleTodos]);
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -184,51 +189,54 @@ export const App: FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todoapp__content">
-        <Header
-          onAddTodo={handleAddTodo}
-          onToggleAll={handleToggleAll}
-          onError={handleError}
-          activeTodosLength={activeTodosLength}
+      {isLoading ? (
+        <ThreeDots
+          height="80"
+          width="80"
+          radius="9"
+          color="#eb8a44"
+          ariaLabel="three-dots-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible
         />
-
-        {!!todos.length && (
-          <TodoList
-            todos={visibleTodos}
-            tempTodo={tempTodo}
-            onDelete={handleDelete}
-            onCompleteUpdate={handleUpdateCompletedTodo}
-            onTitleUpdate={handleUpdateTodoTitle}
-            isLoading={isLoading}
+      ) : (
+        <div className="todoapp__content">
+          <Header
+            onAddTodo={handleAddTodo}
+            onToggleAll={handleToggleAll}
+            onError={setErrorMessage}
+            activeTodosLength={activeTodosLength}
           />
-        )}
 
-        {!!todos.length && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodosLength} items left`}
-            </span>
-
-            <TodoFilter
-              filter={filter}
-              onSetFilter={setFilter}
+          {!!todos.length && (
+            <TodoList
+              todos={visibleTodos}
+              tempTodo={tempTodo}
+              loadingTodoIds={loadingTodoIds}
+              onDelete={handleDelete}
+              onCompleteUpdate={handleUpdateCompletedTodo}
+              onTitleUpdate={handleUpdateTodoTitle}
             />
+          )}
 
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={handleDeleteCompletedTodos}
-            >
-              Clear completed
-            </button>
-          </footer>
-        )}
-      </div>
+          {!!todos.length && (
+            <Footer
+              activeTodosLength={activeTodosLength}
+              filter={filter}
+              setFilter={setFilter}
+              handleDeleteCompletedTodos={handleDeleteCompletedTodos}
+            />
+          )}
+        </div>
+      )}
 
-      <Notification
-        message={errorMessage}
-        handleMessage={handleError}
-      />
+      {errorMessage && (
+        <Notification
+          message={errorMessage}
+          handleMessage={setErrorMessage}
+        />
+      )}
     </div>
   );
 };

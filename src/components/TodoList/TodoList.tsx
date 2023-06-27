@@ -5,19 +5,19 @@ import { TodoItem } from '../TodoItem';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
+  loadingTodoIds: number[];
   onDelete: (todoToDelete: Todo) => void;
   onCompleteUpdate: (todoId: number, completed: boolean) => void;
   onTitleUpdate: (todoId: number, title: string) => void;
-  isLoading: boolean;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
+  loadingTodoIds,
   onDelete,
   onCompleteUpdate,
   onTitleUpdate,
-  isLoading,
 }) => {
   return (
     <section className="todoapp__main">
@@ -25,14 +25,14 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
+          loadingTodoIds={loadingTodoIds}
           onDelete={onDelete}
           onCompleteUpdate={onCompleteUpdate}
           onTitleUpdate={onTitleUpdate}
-          isLoading={isLoading}
         />
       ))}
 
-      {tempTodo && <TempTodo tempTodo={tempTodo} />}
+      {tempTodo?.id === 0 && <TempTodo tempTodo={tempTodo} />}
     </section>
   );
 };

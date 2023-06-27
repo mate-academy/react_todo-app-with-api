@@ -1,7 +1,6 @@
 import classNames from 'classnames';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, ChangeEvent } from 'react';
 import { Error } from '../../types/Errors';
-// import { AddTodoForm } from '../AddTodoForm';
 import { Todo } from '../../types/Todo';
 
 const USER_ID = 10353;
@@ -21,6 +20,10 @@ export const Header: React.FC<Props> = ({
 }) => {
   const [query, setQuery] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
+
+  const handleChangeQuery = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -61,7 +64,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={handleChangeQuery}
           disabled={isInputDisabled}
         />
       </form>

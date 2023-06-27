@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useCallback, useEffect } from 'react';
 // import { useState } from 'react';
 
 interface Props {
@@ -10,9 +11,17 @@ export const Notification: React.FC<Props> = ({
   message,
   handleMessage,
 }) => {
-  const onDeleteError = () => {
-    setTimeout(() => handleMessage(''), 3000);
-  };
+  const deleteMessage = useCallback(() => {
+    handleMessage('');
+  }, []);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => deleteMessage(), 3000);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [message]);
 
   return (
     <div className={classNames(
@@ -27,7 +36,7 @@ export const Notification: React.FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={onDeleteError}
+        onClick={deleteMessage}
       />
       {message}
     </div>
