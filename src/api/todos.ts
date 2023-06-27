@@ -15,18 +15,30 @@ export const fetchTodos = async (userId: string): Promise<Todo[]> => {
   }
 };
 
-export const fetchAddTodo = (userId: number, todo: Todo) => {
+export const addOneTodo = (userId: number, todo: Todo) => {
   return client.post<Todo>(`/todos?userId=${userId}`, todo);
 };
 
-export const fetchUpdateTodos = (todoId: number, title: string) => {
+export const updateTodos = (todoId: number, title: string) => {
   return client.patch<Todo>(`/todos/${todoId}`, { title });
 };
 
-export const fetchComplited = (todoId: number, todo: Todo) => {
-  return client.patch<Todo>(`/todos/${todoId}`, todo.completed);
+export const complited = (todoId: number, todo: Todo) => {
+  return client.patch<Todo>(`/todos/${todoId}`, { completed: todo.completed });
+};
+
+export const complitedAll = (ids: number[], todos: Todo[]): Promise<Todo[]> => {
+  const complitedReq = ids.map((id, index) => complited(id, todos[index]));
+
+  return Promise.all(complitedReq);
 };
 
 export const remove = (id: number) => {
   return client.delete(`/todos/${id}`);
+};
+
+export const removeTodos = (ids: number[]) => {
+  const deleteReq = ids.map(id => remove(id));
+
+  return Promise.all(deleteReq);
 };

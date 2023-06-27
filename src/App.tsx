@@ -16,9 +16,11 @@ import { Filter } from './types/Filter';
 import { Todo } from './types/Todo';
 import {
   fetchTodos,
-  fetchAddTodo,
+  addOneTodo,
   remove,
-  fetchUpdateTodos,
+  updateTodos,
+  complitedAll,
+  removeTodos,
 } from './api/todos';
 
 const USER_ID = 10777;
@@ -52,7 +54,7 @@ export const App: React.FC = () => {
     setError('');
 
     try {
-      const res = await fetchAddTodo(USER_ID, newTodo);
+      const res = await addOneTodo(USER_ID, newTodo);
 
       setTodos((prevTodo) => [...prevTodo, res]);
       setFilter(Filter.ALL);
@@ -113,7 +115,7 @@ export const App: React.FC = () => {
       const todoToUpdate = todos.find((todo) => todo.id === todoId);
 
       if (todoToUpdate) {
-        await fetchUpdateTodos(todoId, todoToUpdate.title);
+        await updateTodos(todoId, todoToUpdate.title);
       }
     } catch {
       setError('Unable to update a todo');
@@ -153,9 +155,17 @@ export const App: React.FC = () => {
   }, [filter, todos]);
 
   const handleClearCompleted = useCallback(() => {
-    const completedTodos = todos.filter(todo => todo.completed);
+    const completedIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
 
-    completedTodos.forEach((todo) => deleteTodo(todo.id));
+    removeTodos(completedIds)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => !todo.completed));
+      })
+      .catch(() => {
+        setError('Unable to delete todos');
+      });
   }, [todos]);
 
   const updateTodoTitle = async (id: number, newTitle: string) => {
@@ -172,7 +182,7 @@ export const App: React.FC = () => {
       });
 
       setTodos(updatedTodos);
-      await fetchUpdateTodos(id, newTitle);
+      await updateTodos(id, newTitle);
     } catch {
       setError('Unable to update a todo');
     }
@@ -184,15 +194,15 @@ export const App: React.FC = () => {
     setAllTodosCompleted(areAllCompleted);
   }, [todos]);
 
-  const handleToggleAll = async () => {
-    const updatedStatus = !allTodosCompleted;
-    const updatedTodos = todos.map((todo) => ({
-      ...todo,
-      completed: updatedStatus,
-    }));
-
-    setTodos(updatedTodos);
-  };
+  const handleToggleAll = useCallback((ids: number[]) => {
+    complitedAll(ids, todos)
+      .then(() => {
+        setTodos(prev => prev.filter(todo => !todo.completed));
+      })
+      .catch(() => {
+        setError('Unable to complete todos');
+      });
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;

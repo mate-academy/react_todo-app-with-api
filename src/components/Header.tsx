@@ -8,7 +8,7 @@ type Props = {
   newTodoTitle: string;
   onChangeTitle: (title: string) => void;
   isDisabled: boolean,
-  onToggleTodoStatus: (todoId: number) => void;
+  onToggleTodoStatus: (todoId: number[]) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -29,14 +29,9 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
-    const areAllCompleted = todos.every((todo) => todo.completed);
-    const updatedStatus = !areAllCompleted;
+    const todoIds = todos.map((todo) => todo.id);
 
-    todos.forEach((todo) => {
-      if (todo.completed !== updatedStatus) {
-        onToggleTodoStatus(todo.id);
-      }
-    });
+    onToggleTodoStatus(todoIds);
   };
 
   return (
