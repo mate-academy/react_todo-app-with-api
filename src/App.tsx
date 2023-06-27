@@ -163,6 +163,13 @@ export const App: React.FC = () => {
       return todo;
     });
 
+    if (title.trim() === '') {
+      setHasError(ErrorType.Title);
+      deleteTodo(todoId);
+
+      return;
+    }
+
     try {
       await updateTodo(todoId, { title });
       setTodos(updatedTodos);
