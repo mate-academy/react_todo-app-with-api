@@ -166,8 +166,6 @@ export const App: React.FC = () => {
     if (title.trim() === '') {
       setHasError(ErrorType.Title);
       deleteTodo(todoId);
-
-      return;
     }
 
     try {
