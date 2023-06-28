@@ -188,7 +188,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAll = () => {
+  const handleToggleAll = useCallback(() => {
     const allCompleted = todos.every((todo) => todo.completed);
 
     const updatedTodos = todos.map((todo) => ({
@@ -205,7 +205,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setError('Unable to complete todos');
       });
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
