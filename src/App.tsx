@@ -188,21 +188,24 @@ export const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const areAllCompleted = todos.every((todo) => todo.completed);
+  const handleToggleAll = () => {
+    const allCompleted = todos.every((todo) => todo.completed);
 
-    setAllTodosCompleted(areAllCompleted);
-  }, [todos]);
+    const updatedTodos = todos.map((todo) => ({
+      ...todo,
+      completed: !allCompleted,
+    }));
 
-  const handleToggleAll = useCallback((ids: number[]) => {
-    complitedAll(ids, todos)
+    const todoIds = todos.map((todo) => todo.id);
+
+    complitedAll(todoIds, todos)
       .then(() => {
-        setTodos(prev => prev.filter(todo => !todo.completed));
+        setTodos(updatedTodos);
       })
       .catch(() => {
         setError('Unable to complete todos');
       });
-  }, [todos]);
+  };
 
   if (!USER_ID) {
     return <UserWarning />;

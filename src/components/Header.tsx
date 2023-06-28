@@ -29,9 +29,14 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleToggleAll = () => {
-    const todoIds = todos.map((todo) => todo.id);
+    const areAllCompleted = todos.every((todo) => todo.completed);
+    const updatedStatus = !areAllCompleted;
 
-    onToggleTodoStatus(todoIds);
+    todos.forEach((todo) => {
+      if (todo.completed !== updatedStatus) {
+        onToggleTodoStatus([todo.id]);
+      }
+    });
   };
 
   return (
