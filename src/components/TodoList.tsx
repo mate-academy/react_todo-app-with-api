@@ -9,6 +9,7 @@ interface Props {
   deleteTodoId: number,
   onToggleTodo: (todoId: number) => void,
   onUpdateTodoTitle: (id: number, newTitle: string) => void;
+  isDisabled: boolean,
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -18,6 +19,7 @@ export const TodoList: React.FC<Props> = ({
   deleteTodoId,
   onToggleTodo,
   onUpdateTodoTitle,
+  isDisabled,
 }) => {
   return (
     <section className="todoapp__main">
@@ -31,6 +33,7 @@ export const TodoList: React.FC<Props> = ({
                 deleteTodoId={deleteTodoId}
                 onToggleTodo={onToggleTodo}
                 onUpdateTodoTitle={onUpdateTodoTitle}
+                isDisabled={isDisabled}
               />
             </li>
           );
@@ -44,6 +47,7 @@ export const TodoList: React.FC<Props> = ({
               deleteTodoId={deleteTodoId}
               onToggleTodo={onToggleTodo}
               onUpdateTodoTitle={onUpdateTodoTitle}
+              isDisabled={isDisabled}
             />
           </li>
         )}

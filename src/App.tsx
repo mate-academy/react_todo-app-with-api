@@ -23,6 +23,7 @@ import {
   updateTodoStatuses,
   removeTodos,
 } from './api/todos';
+import { Loader } from './components/Loader';
 
 const USER_ID = 10777;
 
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
 
       setTodos((prevTodo) => [...prevTodo, res]);
       setFilter(Filter.ALL);
+      setIsDisabled(false);
     } catch {
       setError('Unable to add a todo');
 
@@ -74,12 +76,14 @@ export const App: React.FC = () => {
 
   const deleteTodo = (id: number) => {
     setDeleteTodoId(id);
+    setIsDisabled(true);
     remove(id)
       .then(() => {
         setTodos((prevTodo) => {
           return prevTodo.filter(todo => todo.id !== id);
         });
         setError('');
+        setIsDisabled(false);
       })
       .catch(() => {
         setError('Unable to delete a todo');
@@ -125,10 +129,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsDisabled(true);
       try {
         const arrTodos = await fetchTodos(USER_ID.toString());
 
         setTodos(arrTodos);
+        setIsDisabled(false);
       } catch {
         setError('Unable to fetch todos');
       }
@@ -160,9 +166,12 @@ export const App: React.FC = () => {
       .filter(todo => todo.completed)
       .map(todo => todo.id);
 
+    setIsDisabled(true);
+
     removeTodos(completedIds)
       .then(() => {
         setTodos(prev => prev.filter(todo => !todo.completed));
+        setIsDisabled(false);
       })
       .catch(() => {
         setError('Unable to delete todos');
@@ -225,14 +234,19 @@ export const App: React.FC = () => {
           onToggleTodoStatus={handleToggleAll}
         />
 
-        <TodoList
-          todos={filteredTodos}
-          tempTodo={tempTodo}
-          deleteTodo={deleteTodo}
-          deleteTodoId={deleteTodoId}
-          onToggleTodo={toggleTodoStatus}
-          onUpdateTodoTitle={updateTodoTitle}
-        />
+        {isDisabled
+          ? <Loader />
+          : (
+            <TodoList
+              todos={filteredTodos}
+              tempTodo={tempTodo}
+              deleteTodo={deleteTodo}
+              deleteTodoId={deleteTodoId}
+              onToggleTodo={toggleTodoStatus}
+              onUpdateTodoTitle={updateTodoTitle}
+              isDisabled={isDisabled}
+            />
+          )}
 
         {!!todos.length && (
           <Footer

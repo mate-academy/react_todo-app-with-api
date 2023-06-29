@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
+import { Loader } from './Loader';
 
 interface Props {
   todo: Todo,
@@ -8,6 +9,7 @@ interface Props {
   deleteTodoId: number,
   onUpdateTodoTitle: (id: number, newTitle: string) => void;
   onToggleTodo: (todoId: number) => void,
+  isDisabled: boolean,
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,6 +18,7 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodoId,
   onUpdateTodoTitle,
   onToggleTodo,
+  isDisabled,
 }) => {
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,58 +59,64 @@ export const TodoItem: React.FC<Props> = ({
         completed: todo.completed,
       })}
     >
-      <label className="todo__status-label">
-        <input
-          type="checkbox"
-          className="todo__status"
-          checked={todo.completed}
-          onChange={() => onToggleTodo(todo.id)}
-        />
-      </label>
-
-      <span className="todo__title">
-        {isEditing ? (
-          <form onSubmit={handleSaveChanges}>
+      {isDisabled ? (
+        <Loader />
+      ) : (
+        <>
+          <label className="todo__status-label">
             <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-              }}
-              onBlur={handleSaveChanges}
-              onKeyDown={handleKeyDown}
-              ref={inputRef}
+              type="checkbox"
+              className="todo__status"
+              checked={todo.completed}
+              onChange={() => onToggleTodo(todo.id)}
             />
-          </form>
-        ) : (
-          <>
-            <span
-              onDoubleClick={() => setIsEditing(true)}
-            >
-              {todo.title}
-            </span>
-            <button
-              type="button"
-              className="todo__remove"
-              onClick={() => {
-                onDelete(todo.id);
-              }}
-            >
-              ×
-            </button>
-          </>
-        )}
-      </span>
+          </label>
 
-      <div className={cn('modal overlay', {
-        'is-active': !todo.id || deleteTodoId === todo.id,
-      })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+          <span className="todo__title">
+            {isEditing ? (
+              <form onSubmit={handleSaveChanges}>
+                <input
+                  type="text"
+                  className="todo__title-field"
+                  placeholder="Empty todo will be deleted"
+                  value={query}
+                  onChange={(event) => {
+                    setQuery(event.target.value);
+                  }}
+                  onBlur={handleSaveChanges}
+                  onKeyDown={handleKeyDown}
+                  ref={inputRef}
+                />
+              </form>
+            ) : (
+              <>
+                <span
+                  onDoubleClick={() => setIsEditing(true)}
+                >
+                  {todo.title}
+                </span>
+                <button
+                  type="button"
+                  className="todo__remove"
+                  onClick={() => {
+                    onDelete(todo.id);
+                  }}
+                >
+                  ×
+                </button>
+              </>
+            )}
+          </span>
+
+          <div className={cn('modal overlay', {
+            'is-active': !todo.id || deleteTodoId === todo.id,
+          })}
+          >
+            <div className="modal-background has-background-white-ter" />
+            <div className="loader" />
+          </div>
+        </>
+      )}
     </div>
   );
 };
