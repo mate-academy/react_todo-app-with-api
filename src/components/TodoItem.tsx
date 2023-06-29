@@ -6,22 +6,17 @@ interface Props {
   todo: Todo,
   onDelete: (id: number) => void,
   deleteTodoId: number,
-  onToggleTodoStatus: (todoId: number) => void;
   onUpdateTodoTitle: (id: number, newTitle: string) => void;
-  allTodosCompleted: boolean;
-  setAllTodosCompleted: (completed: boolean) => void;
+  onToggleTodo: (todoId: number) => void,
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
   deleteTodoId,
-  onToggleTodoStatus,
   onUpdateTodoTitle,
-  allTodosCompleted,
-  setAllTodosCompleted,
+  onToggleTodo,
 }) => {
-  const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [query, setQuery] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,24 +50,18 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const changeCompleted = () => {
-    setIsCompleted(!isCompleted);
-    setAllTodosCompleted(!allTodosCompleted);
-    onToggleTodoStatus(todo.id);
-  };
-
   return (
     <div
       className={cn('todo', {
-        completed: isCompleted,
+        completed: todo.completed,
       })}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={isCompleted || allTodosCompleted}
-          onChange={changeCompleted}
+          checked={todo.completed}
+          onChange={() => onToggleTodo(todo.id)}
         />
       </label>
 

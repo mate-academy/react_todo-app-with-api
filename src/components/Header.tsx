@@ -8,7 +8,7 @@ type Props = {
   newTodoTitle: string;
   onChangeTitle: (title: string) => void;
   isDisabled: boolean,
-  onToggleTodoStatus: (todoId: number[]) => void;
+  onToggleTodoStatus: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -28,24 +28,13 @@ export const Header: React.FC<Props> = ({
     onChangeTitle('');
   };
 
-  const handleToggleAll = () => {
-    const areAllCompleted = todos.every((todo) => todo.completed);
-    const updatedStatus = !areAllCompleted;
-
-    todos.forEach((todo) => {
-      if (todo.completed !== updatedStatus) {
-        onToggleTodoStatus([todo.id]);
-      }
-    });
-  };
-
   return (
     <header className="todoapp__header">
       <button
         type="button"
         className={cn('todoapp__toggle-all', { active: isActive })}
         aria-label="saveButton"
-        onClick={handleToggleAll}
+        onClick={onToggleTodoStatus}
       />
 
       <form onSubmit={handleSubmit}>

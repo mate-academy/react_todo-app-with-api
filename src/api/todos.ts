@@ -19,16 +19,18 @@ export const addOneTodo = (userId: number, todo: Todo) => {
   return client.post<Todo>(`/todos?userId=${userId}`, todo);
 };
 
-export const updateTodos = (todoId: number, title: string) => {
+export const updateTodo = (todoId: number, title: string) => {
   return client.patch<Todo>(`/todos/${todoId}`, { title });
 };
 
-export const complited = (todoId: number, todo: Todo) => {
-  return client.patch<Todo>(`/todos/${todoId}`, { completed: todo.completed });
+export const updateTodoStatus = (todoId: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${todoId}`, { completed });
 };
 
-export const complitedAll = (ids: number[], todos: Todo[]): Promise<Todo[]> => {
-  const complitedReq = ids.map((id, index) => complited(id, todos[index]));
+export const updateTodoStatuses = (todos: Todo[]): Promise<Todo[]> => {
+  const complitedReq = todos.map(
+    (todo) => updateTodoStatus(todo.id, todo.completed),
+  );
 
   return Promise.all(complitedReq);
 };

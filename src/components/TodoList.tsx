@@ -7,10 +7,8 @@ interface Props {
   tempTodo: Todo | null;
   deleteTodo: (id: number) => void,
   deleteTodoId: number,
-  onToggleTodoStatus: (todoId: number) => void,
+  onToggleTodo: (todoId: number) => void,
   onUpdateTodoTitle: (id: number, newTitle: string) => void;
-  allTodosCompleted: boolean;
-  setAllTodosCompleted: (completed: boolean) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
@@ -18,10 +16,8 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   deleteTodo,
   deleteTodoId,
-  onToggleTodoStatus,
+  onToggleTodo,
   onUpdateTodoTitle,
-  allTodosCompleted,
-  setAllTodosCompleted,
 }) => {
   return (
     <section className="todoapp__main">
@@ -33,10 +29,8 @@ export const TodoList: React.FC<Props> = ({
                 todo={todo}
                 onDelete={deleteTodo}
                 deleteTodoId={deleteTodoId}
-                onToggleTodoStatus={onToggleTodoStatus}
+                onToggleTodo={onToggleTodo}
                 onUpdateTodoTitle={onUpdateTodoTitle}
-                allTodosCompleted={allTodosCompleted}
-                setAllTodosCompleted={setAllTodosCompleted}
               />
             </li>
           );
@@ -48,10 +42,8 @@ export const TodoList: React.FC<Props> = ({
               todo={tempTodo}
               onDelete={deleteTodo}
               deleteTodoId={deleteTodoId}
-              onToggleTodoStatus={onToggleTodoStatus}
+              onToggleTodo={onToggleTodo}
               onUpdateTodoTitle={onUpdateTodoTitle}
-              allTodosCompleted={allTodosCompleted}
-              setAllTodosCompleted={setAllTodosCompleted}
             />
           </li>
         )}

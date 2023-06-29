@@ -18,8 +18,9 @@ import {
   fetchTodos,
   addOneTodo,
   remove,
-  updateTodos,
-  complitedAll,
+  updateTodo,
+  updateTodoStatus,
+  updateTodoStatuses,
   removeTodos,
 } from './api/todos';
 
@@ -33,7 +34,6 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [deleteTodoId, setDeleteTodoId] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [allTodosCompleted, setAllTodosCompleted] = useState(false);
 
   const addTodo = async (title: string) => {
     if (!title.trim()) {
@@ -97,30 +97,31 @@ export const App: React.FC = () => {
       });
   };
 
-  const toggleTodoStatus = async (todoId: number) => {
-    try {
-      const updatedTodos = todos.map((todo) => {
-        if (todo.id === todoId) {
-          return {
-            ...todo,
-            completed: !todo.completed,
-          };
-        }
+  const toggleTodoStatus = useCallback(
+    async (todoId: number) => {
+      try {
+        const updatedTodos = todos.map(todo => {
+          if (todo.id === todoId) {
+            const updatedTodo = {
+              ...todo,
+              completed: !todo.completed,
+            };
 
-        return todo;
-      });
+            updateTodoStatus(todoId, updatedTodo.completed);
 
-      setTodos(updatedTodos);
+            return updatedTodo;
+          }
 
-      const todoToUpdate = todos.find((todo) => todo.id === todoId);
+          return todo;
+        });
 
-      if (todoToUpdate) {
-        await updateTodos(todoId, todoToUpdate.title);
+        setTodos(updatedTodos);
+      } catch {
+        setError('Unable to update a todo');
       }
-    } catch {
-      setError('Unable to update a todo');
-    }
-  };
+    },
+    [todos],
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,7 +183,7 @@ export const App: React.FC = () => {
       });
 
       setTodos(updatedTodos);
-      await updateTodos(id, newTitle);
+      await updateTodo(id, newTitle);
     } catch {
       setError('Unable to update a todo');
     }
@@ -196,9 +197,7 @@ export const App: React.FC = () => {
       completed: !allCompleted,
     }));
 
-    const todoIds = todos.map((todo) => todo.id);
-
-    complitedAll(todoIds, todos)
+    updateTodoStatuses(updatedTodos)
       .then(() => {
         setTodos(updatedTodos);
       })
@@ -231,10 +230,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           deleteTodo={deleteTodo}
           deleteTodoId={deleteTodoId}
-          onToggleTodoStatus={toggleTodoStatus}
+          onToggleTodo={toggleTodoStatus}
           onUpdateTodoTitle={updateTodoTitle}
-          allTodosCompleted={allTodosCompleted}
-          setAllTodosCompleted={setAllTodosCompleted}
         />
 
         {!!todos.length && (
