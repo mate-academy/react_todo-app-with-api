@@ -18,13 +18,13 @@ export const TodoInfo: React.FC<Props> = ({
   const [isEditedTitle, setIsEditedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const checkTitle = async (NewTitle: string) => {
-    if (!isEditedTitle) {
+  const checkTitle = (NewTitle: string) => {
+    if (!NewTitle) {
       removeTodo(id);
     }
 
-    if (isEditedTitle !== NewTitle) {
-      await changeName(id, isEditedTitle);
+    if (NewTitle !== title) {
+      changeName(id, isEditedTitle);
     }
 
     setIsEditing(false);
