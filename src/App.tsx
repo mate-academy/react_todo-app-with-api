@@ -224,7 +224,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-
         <Header
           todos={todos}
           onAdd={addTodo}
@@ -257,7 +256,6 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-
       {error && (
         <ErrorMesage error={error} setError={setError} />
       )}
