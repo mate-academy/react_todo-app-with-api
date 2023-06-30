@@ -18,13 +18,13 @@ export const TodoInfo: React.FC<Props> = ({
   const [isEditedTitle, setIsEditedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const checkTitle = (NewTitle: string) => {
+  const checkTitle = async (NewTitle: string) => {
     if (!isEditedTitle) {
       removeTodo(id);
     }
 
     if (isEditedTitle !== NewTitle) {
-      changeName(id, isEditedTitle);
+      await changeName(id, isEditedTitle);
     }
 
     setIsEditing(false);
@@ -36,9 +36,7 @@ export const TodoInfo: React.FC<Props> = ({
       setIsEditedTitle(title);
       setIsEditing(false);
     }
-  };
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
       checkTitle(isEditedTitle);
@@ -80,8 +78,9 @@ export const TodoInfo: React.FC<Props> = ({
             value={isEditedTitle}
             onChange={event => setIsEditedTitle(event.target.value)}
             onKeyUp={handleKeyUp}
-            onKeyDown={handleKeyPress}
-            onBlur={() => checkTitle(isEditedTitle)}
+            onBlur={async () => {
+              await checkTitle(isEditedTitle);
+            }}
             ref={inputRef}
           />
         </form>

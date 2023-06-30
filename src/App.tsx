@@ -131,8 +131,8 @@ export const App: React.FC = () => {
     } catch {
       setIsError(Error.UPDATE);
     } finally {
-      // setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
-      setTodoIdUpdate([]);
+      setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
+      // setTodoIdUpdate([]);
     }
   }, [todos]);
 
@@ -148,9 +148,14 @@ export const App: React.FC = () => {
     }
   }, [todos, allCompleted]);
 
-  const changeName = useCallback(async (
+  // eslint-disable-next-line no-console
+  console.log('qqqq');
+
+  const changeName = async (
     todoId: number, NewTitle: string,
   ) => {
+    // eslint-disable-next-line no-console
+    console.log('aaaa');
     setTodoIdUpdate(state => [...state, todoId]);
 
     try {
@@ -166,9 +171,9 @@ export const App: React.FC = () => {
     } catch {
       setIsError(Error.UPDATE);
     } finally {
-      setTodoIdUpdate([]);
+      setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
     }
-  }, [todos]);
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
