@@ -50,13 +50,9 @@ export const App: React.FC = () => {
   }, [todos, selectedType]);
 
   useEffect(() => {
-    if (isError) {
-      setIsError(isError);
-
-      setTimeout(() => {
-        setIsError(Error.NONE);
-      }, 3000);
-    }
+    setTimeout(() => {
+      setIsError(Error.NONE);
+    }, 3000);
   }, [isError]);
 
   const addTodo = useCallback(async (title: string) => {
@@ -132,7 +128,6 @@ export const App: React.FC = () => {
       setIsError(Error.UPDATE);
     } finally {
       setTodoIdUpdate(state => state.filter(todoItem => todoItem !== todoId));
-      // setTodoIdUpdate([]);
     }
   }, [todos]);
 
@@ -148,14 +143,9 @@ export const App: React.FC = () => {
     }
   }, [todos, allCompleted]);
 
-  // eslint-disable-next-line no-console
-  console.log('qqqq');
-
   const changeName = async (
     todoId: number, NewTitle: string,
   ) => {
-    // eslint-disable-next-line no-console
-    console.log('aaaa');
     setTodoIdUpdate(state => [...state, todoId]);
 
     try {
@@ -210,14 +200,17 @@ export const App: React.FC = () => {
 
       <div className={classNames(
         'notification is-danger is-light has-text-weight-normal',
-        { hidden: isError === Error.NONE },
+        { hidden: !isError },
       )}
       >
         <button
           type="button"
           className="delete"
           aria-label="DeleteButton"
-        />
+          onClick={() => setIsError(Error.NONE)}
+        >
+          x
+        </button>
         {isError}
       </div>
     </div>
