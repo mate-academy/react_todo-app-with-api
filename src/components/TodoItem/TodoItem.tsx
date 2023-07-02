@@ -30,6 +30,8 @@ export const TodoItem: FC<Props> = React.memo(({
   const isLoad = todo.id === todoId;
   const [isLoading, setIsLoading] = useState(isLoad);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editTitle, setEditTitle] = useState(todo.title);
 
   const handeleDelete = async () => {
     setIsLoading(true);
@@ -64,10 +66,45 @@ export const TodoItem: FC<Props> = React.memo(({
     setIsLoading(false);
   }, [completed]);
 
+  const handleDoubleClick = () => {
+    setIsEdit(true);
+  };
+
+  const finishEdit = () => {
+    setIsEdit(false);
+    setEditTitle(title);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(event.target.value);
+  };
+
+  const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement> |
+  React.FocusEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    if (!editTitle.trim()) {
+      deleteTodo(todo);
+
+      return;
+    }
+
+    if (editTitle === title) {
+      finishEdit();
+
+      return;
+    }
+
+    handleEditTodo(todo);
+    setIsEdit(false);
+  };
+
   return (
-    <div className={cn('todo', {
-      completed,
-    })}
+    <div
+      className={cn('todo', {
+        completed,
+        editing: isEdit,
+      })}
+      onDoubleClick={handleDoubleClick}
     >
       <label className="todo__status-label">
         <input
@@ -79,22 +116,46 @@ export const TodoItem: FC<Props> = React.memo(({
         />
       </label>
 
-      <span className="todo__title">{title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={handeleDelete}
-      >
-        ×
-      </button>
+      {isEdit ? (
+        <form
+          onSubmit={handleTitleSubmit}
+        >
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={title}
+            onChange={handleTitleChange}
+            onKeyUp={(event) => {
+              if (event.key === 'Escape') {
+                finishEdit();
+              }
+            }}
+            onBlur={handleTitleSubmit}
+          />
+        </form>
+      )
+        : (
+          <>
+            <span className="todo__title">{title}</span>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={handeleDelete}
+            >
+              ×
+            </button>
+            <div className={cn('modal overlay', {
+              'is-active': isLoading || isDeleted,
+            })}
+            >
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
+          </>
 
-      <div className={cn('modal overlay', {
-        'is-active': isLoading || isDeleted,
-      })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+        )}
+
     </div>
   );
 });

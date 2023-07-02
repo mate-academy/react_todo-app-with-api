@@ -11,7 +11,7 @@ and implement the ability to toggle and rename todos.
 
 Toggle the `completed` status on `TodoStatus` change:
 
-- covered the todo with a loader overlay while wating for API response;
+-t
 - the status should be changed on success;
 - show the `Unable to update a todo` notification in case of API error.
 
@@ -41,4 +41,4 @@ Implement the ability to edit a todo title on double click:
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://VladislavaT.github.io/react_todo-app-with-api/) and add it to the PR description.
