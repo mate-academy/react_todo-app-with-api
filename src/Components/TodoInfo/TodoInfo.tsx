@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -48,6 +50,8 @@ export const TodoInfo: React.FC<Props> = ({
     inputRef.current?.focus();
   }, [isEditing]);
 
+  const idUpdate = useMemo(() => todoIdUpdate.includes(id), [id]);
+
   return (
     <li
       key={id}
@@ -78,9 +82,7 @@ export const TodoInfo: React.FC<Props> = ({
             value={isEditedTitle}
             onChange={event => setIsEditedTitle(event.target.value)}
             onKeyUp={handleKeyUp}
-            onBlur={async () => {
-              await checkTitle(isEditedTitle);
-            }}
+            onBlur={() => checkTitle(isEditedTitle)}
             ref={inputRef}
           />
         </form>
@@ -107,7 +109,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       <div className={classNames(
         'modal overlay',
-        { 'is-active': todoIdUpdate.includes(id) },
+        { 'is-active': idUpdate },
       )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -16,8 +16,5 @@ export const deleteTodo = (todoId: number) => {
 export const updateTodo = (todoId: number, data: {
   title?: string, completed?: boolean
 }) => {
-  // eslint-disable-next-line no-console
-  console.log('here');
-
   return client.patch<Todo>(`/todos/${todoId}`, data);
 };

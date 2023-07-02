@@ -83,7 +83,7 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setIsLoading(false);
     }
-  }, [USER_ID, todos]);
+  }, [todos]);
 
   const removeTodo = useCallback(async (todoId: number) => {
     setTodoIdUpdate(state => [...state, todoId]);
@@ -96,7 +96,8 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(() => todos
+    .filter(todo => todo.completed), [todos]);
 
   const removeCompletedTodos = useCallback(async () => {
     setTodoIdUpdate(completedTodos.map(todo => todo.id));
@@ -188,7 +189,7 @@ export const App: React.FC = () => {
           toggleCompletedTodo={toggleTodo}
           changeName={changeName}
         />
-        {!!todos.length && (
+        {todos.length && (
           <Footer
             todos={todos}
             selectType={selectedType}
@@ -198,21 +199,23 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
-        { hidden: !isError },
-      )}
-      >
-        <button
-          type="button"
-          className="delete"
-          aria-label="DeleteButton"
-          onClick={() => setIsError(Error.NONE)}
+      {isError && (
+        <div className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !isError },
+        )}
         >
-          x
-        </button>
-        {isError}
-      </div>
+          <button
+            type="button"
+            className="delete"
+            aria-label="DeleteButton"
+            onClick={() => setIsError(Error.NONE)}
+          >
+            x
+          </button>
+          {isError}
+        </div>
+      )}
     </div>
   );
 };

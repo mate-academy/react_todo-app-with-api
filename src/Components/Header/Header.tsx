@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -25,8 +25,8 @@ export const Header: React.FC<Props> = ({
     setToggleAllTodos();
   };
 
-  // eslint-disable-next-line no-console
-  console.log(isLoading);
+  const someCompleted = useMemo(() => todos
+    .some(todo => !todo.completed), [todos]);
 
   return (
     <header className="todoapp__header">
@@ -34,7 +34,7 @@ export const Header: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__toggle-all',
-          { active: todos.some(todo => !todo.completed) },
+          { active: someCompleted },
         )}
         onClick={toggleAllTodos}
         aria-label="toggleButton"

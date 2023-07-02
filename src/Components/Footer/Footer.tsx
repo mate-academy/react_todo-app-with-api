@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Type } from '../../types/TodoTypes';
@@ -13,8 +13,10 @@ type Props = {
 export const Footer: React.FC<Props> = ({
   todos, selectType, setSelectedType, removeCompletedTodos,
 }) => {
-  const todosCompleted = todos.filter(todo => todo.completed).length;
-  const todosActive = todos.filter(todo => !todo.completed).length;
+  const todosCompleted = useMemo(() => todos
+    .filter(todo => todo.completed).length, [todos]);
+  const todosActive = useMemo(() => todos
+    .filter(todo => !todo.completed).length, [todos]);
 
   return (
     <footer className="todoapp__footer">
