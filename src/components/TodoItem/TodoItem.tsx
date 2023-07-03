@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -21,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [title, setTitle] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChangeCompletedTodo = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -28,11 +34,17 @@ export const TodoItem: React.FC<Props> = ({
     patchTodo(todo.id, creatPatchTodo('completed', event.target.checked));
   };
 
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
+
+  const handleDeleteClick = () => {
+    onDeleteTodo(todo.id);
+  };
+
   const handleEditNewText = (): void => {
     setIsEdited(true);
   };
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isEdited) {
@@ -99,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({
             value={title}
             placeholder="Empty todo will be deleted"
             ref={inputRef}
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={handleInputChange}
             onKeyUp={handleCancelEditing}
             onBlur={handleBlur}
           />
@@ -115,7 +127,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onDeleteTodo(todo.id)}
+            onClick={handleDeleteClick}
           >
             ×
           </button>

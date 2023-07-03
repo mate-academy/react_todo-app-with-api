@@ -31,6 +31,10 @@ export const Header: React.FC<Props> = ({
     return checkButton(todos);
   }, [todos]);
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
+  };
+
   const handleAllCompleted = () => {
     patchTodos(creatPatchTodo('completed', !activeButton));
   };
@@ -55,7 +59,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={todoTitle}
-          onChange={(event) => setTodoTitle(event.target.value)}
+          onChange={handleChange}
           disabled={!!tempTodo}
         />
       </form>

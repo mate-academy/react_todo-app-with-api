@@ -1,4 +1,3 @@
-//* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
@@ -15,8 +14,6 @@ import { TodoList } from './components/TodoList';
 import { Notification } from './components/Notification';
 import { ErrorType } from './types/ErrorType';
 
-const sortMethods = ['All', 'Active', 'Completed'];
-
 function creatTempTodo(userId: number, title: string): Todo {
   return {
     id: 0,
@@ -27,25 +24,19 @@ function creatTempTodo(userId: number, title: string): Todo {
 }
 
 function sortTodo(todos: Todo[], sortType: SortType) {
-  let newTodos = [...todos];
+  const newTodos = [...todos];
 
-  if (sortType === SortType.ALL) {
-    return newTodos;
+  switch (sortType) {
+    case SortType.ACTIVE:
+      return newTodos.filter(todo => !todo.completed);
+
+    case SortType.COMPLETED:
+      return newTodos.filter(todo => todo.completed);
+
+    case SortType.ALL:
+    default:
+      return newTodos;
   }
-
-  newTodos = newTodos.filter(todo => {
-    switch (sortType) {
-      case SortType.ACTIVE:
-        return !todo.completed;
-
-      case SortType.COMPLETED:
-        return todo.completed;
-
-      default: return true;
-    }
-  });
-
-  return newTodos;
 }
 
 const USER_ID = 10860;
@@ -87,7 +78,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleFilterChange = (
-    methodSort: string,
+    methodSort: SortType,
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ): void => {
     event.preventDefault();
@@ -121,7 +112,7 @@ export const App: React.FC = () => {
 
       const todo = await addTodo(USER_ID, todoTitle);
 
-      setTodos([...todos, todo]);
+      setTodos(prevTodos => ([...prevTodos, todo]));
       setTodoTitle('');
     } catch {
       newError(ErrorType.ADD);
@@ -238,7 +229,6 @@ export const App: React.FC = () => {
 
         <Footer
           todos={todos}
-          sortMethods={sortMethods}
           sortType={sortType}
           filterChange={handleFilterChange}
           clearCompletedTodos={handleClearCompleted}

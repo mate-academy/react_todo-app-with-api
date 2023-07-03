@@ -5,10 +5,9 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[],
-  sortMethods: string[],
   sortType: SortType,
   filterChange: (
-    methodSort: string,
+    methodSort: SortType,
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,) => void,
   clearCompletedTodos: () => void
 
@@ -16,14 +15,11 @@ interface Props {
 
 export const Footer: React.FC<Props> = ({
   todos,
-  sortMethods,
   sortType,
   filterChange,
   clearCompletedTodos,
 }) => {
-  const isVisible = () => {
-    return todos.some(todo => todo.completed);
-  };
+  const isVisible = todos.some(todo => todo.completed);
 
   return (
     <>
@@ -34,7 +30,7 @@ export const Footer: React.FC<Props> = ({
           </span>
 
           <nav className="filter">
-            {sortMethods.map(method => (
+            {Object.values(SortType).map(method => (
               <a
                 key={method}
                 href={`#/${method}`}
@@ -52,8 +48,8 @@ export const Footer: React.FC<Props> = ({
           <button
             type="button"
             className="todoapp__clear-completed"
-            onClick={() => clearCompletedTodos()}
-            style={{ visibility: isVisible() ? 'visible' : 'hidden' }}
+            onClick={clearCompletedTodos}
+            style={{ visibility: isVisible ? 'visible' : 'hidden' }}
           >
             Clear completed
           </button>
