@@ -1,17 +1,17 @@
 import React from 'react';
 import { TodoFilter } from '../TodoFilter';
-import { TodoFilterStatus } from '../../types/TodoFilterStatus';
+import { TodoStatusFilter } from '../../types/TodoStatusFilter';
 
 interface Props {
-  filterStatus: TodoFilterStatus;
-  changeFilterStatus: (status: TodoFilterStatus) => void;
+  statusFilter: TodoStatusFilter;
+  changeFilterStatus: (status: TodoStatusFilter) => void;
   clearCompleted: () => void;
   activeTodosLeft: number;
   isClearCompletedVisible: boolean;
 }
 
 export const TodoFooter: React.FC<Props> = ({
-  filterStatus,
+  statusFilter,
   changeFilterStatus,
   clearCompleted,
   activeTodosLeft,
@@ -26,7 +26,7 @@ export const TodoFooter: React.FC<Props> = ({
       </span>
 
       <TodoFilter
-        filterStatus={filterStatus}
+        statusFilter={statusFilter}
         changeFilterStatus={changeFilterStatus}
       />
 

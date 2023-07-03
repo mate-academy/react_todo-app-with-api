@@ -1,47 +1,45 @@
 import React from 'react';
 import cn from 'classnames';
-import { TodoFilterStatus } from '../../types/TodoFilterStatus';
+import { TodoStatusFilter } from '../../types/TodoStatusFilter';
 
 interface Props {
-  filterStatus: TodoFilterStatus;
-  changeFilterStatus: (status: TodoFilterStatus) => void;
+  statusFilter: TodoStatusFilter;
+  changeFilterStatus: (status: TodoStatusFilter) => void;
 }
 
 export const TodoFilter: React.FC<Props> = ({
-  filterStatus,
+  statusFilter,
   changeFilterStatus,
-}) => {
-  return (
-    <nav className="filter">
-      <a
-        href="#/"
-        className={cn('filter__link', {
-          selected: filterStatus === TodoFilterStatus.All,
-        })}
-        onClick={() => changeFilterStatus(TodoFilterStatus.All)}
-      >
-        All
-      </a>
+}) => (
+  <nav className="filter">
+    <a
+      href="#/"
+      className={cn('filter__link', {
+        selected: statusFilter === TodoStatusFilter.All,
+      })}
+      onClick={() => changeFilterStatus(TodoStatusFilter.All)}
+    >
+      All
+    </a>
 
-      <a
-        href="#/active"
-        className={cn('filter__link', {
-          selected: filterStatus === TodoFilterStatus.Active,
-        })}
-        onClick={() => changeFilterStatus(TodoFilterStatus.Active)}
-      >
-        Active
-      </a>
+    <a
+      href="#/active"
+      className={cn('filter__link', {
+        selected: statusFilter === TodoStatusFilter.Active,
+      })}
+      onClick={() => changeFilterStatus(TodoStatusFilter.Active)}
+    >
+      Active
+    </a>
 
-      <a
-        href="#/completed"
-        className={cn('filter__link', {
-          selected: filterStatus === TodoFilterStatus.Completed,
-        })}
-        onClick={() => changeFilterStatus(TodoFilterStatus.Completed)}
-      >
-        Completed
-      </a>
-    </nav>
-  );
-};
+    <a
+      href="#/completed"
+      className={cn('filter__link', {
+        selected: statusFilter === TodoStatusFilter.Completed,
+      })}
+      onClick={() => changeFilterStatus(TodoStatusFilter.Completed)}
+    >
+      Completed
+    </a>
+  </nav>
+);

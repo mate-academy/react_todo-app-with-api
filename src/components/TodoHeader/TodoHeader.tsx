@@ -40,12 +40,12 @@ export const TodoHeader: React.FC<Props> = React.memo(({
   return (
     <header className="todoapp__header">
       {(hasTodos && (
-        /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
             active: isAllCompleted,
           })}
+          aria-label="toggle-all"
           onClick={handleToggleAllOnClick}
         />
       ))}

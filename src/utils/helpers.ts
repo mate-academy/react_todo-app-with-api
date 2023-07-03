@@ -1,5 +1,5 @@
 import { Todo } from '../types/Todo';
-import { TodoFilterStatus } from '../types/TodoFilterStatus';
+import { TodoStatusFilter } from '../types/TodoStatusFilter';
 
 export function validateTitle(title: string): void {
   if (!title.trim()) {
@@ -15,16 +15,16 @@ export function getActiveTodos(todos: Todo[]) {
   return todos.filter((todo) => !todo.completed);
 }
 
-export function getVisibleTodos(todos: Todo[], filterStatus: TodoFilterStatus) {
+export function getVisibleTodos(todos: Todo[], filterStatus: TodoStatusFilter) {
   return todos.filter((todo) => {
     let status: boolean;
 
     switch (filterStatus) {
-      case TodoFilterStatus.Active:
+      case TodoStatusFilter.Active:
         status = !todo.completed;
         break;
 
-      case TodoFilterStatus.Completed:
+      case TodoStatusFilter.Completed:
         status = todo.completed;
         break;
 

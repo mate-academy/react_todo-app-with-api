@@ -15,7 +15,7 @@ import {
   getVisibleTodos,
 } from './utils/helpers';
 import { Todo } from './types/Todo';
-import { TodoFilterStatus } from './types/TodoFilterStatus';
+import { TodoStatusFilter } from './types/TodoStatusFilter';
 import {
   createTodo,
   deleteTodo,
@@ -27,19 +27,15 @@ const USER_ID = 10684;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterStatus, setFilterStatus] = useState(TodoFilterStatus.All);
+  const [statusFilter, setStatusFilter] = useState(TodoStatusFilter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState<number[]>([0]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then((todosFromServer) => {
-        setTodos(todosFromServer);
-      })
-      .catch((errorFromServer) => {
-        setError(errorFromServer.message);
-      });
+      .then((setTodos))
+      .catch((e) => setError(e.message));
   }, []);
 
   useEffect(() => {
@@ -54,24 +50,24 @@ export const App: React.FC = () => {
     return () => clearTimeout(timerId);
   }, [error]);
 
-  const completedTodos = useMemo(() => {
-    return getCompletedTodos(todos);
-  }, [todos, filterStatus]);
+  const completedTodos = useMemo(() => (
+    getCompletedTodos(todos)
+  ), [todos, statusFilter]);
 
-  const activeTodos = useMemo(() => {
-    return getActiveTodos(todos);
-  }, [todos, filterStatus]);
+  const activeTodos = useMemo(() => (
+    getActiveTodos(todos)
+  ), [todos, statusFilter]);
 
-  const visibleTodos = useMemo(() => {
-    return getVisibleTodos(todos, filterStatus);
-  }, [todos, filterStatus]);
+  const visibleTodos = useMemo(() => (
+    getVisibleTodos(todos, statusFilter)
+  ), [todos, statusFilter]);
 
   const activeTodosLeft = activeTodos.length;
 
   const hasTodos = todos.length > 0;
-  const isTodosVisible = todos.length > 0 || Boolean(tempTodo);
+  const hasVisibleTodos = todos.length > 0 || Boolean(tempTodo);
   const isAllTodosCompleted = !activeTodos.length;
-  const isClearCompletedVisible = completedTodos.length > 0;
+  const canClearCompleted = completedTodos.length > 0;
 
   const closeErrorNotification = useCallback(() => {
     setError(null);
@@ -81,9 +77,9 @@ export const App: React.FC = () => {
     setError(errorMessage);
   }, [setError]);
 
-  const changeFilterStatus = useCallback((status: TodoFilterStatus) => {
-    setFilterStatus(status);
-  }, [setFilterStatus]);
+  const changeFilterStatus = useCallback((status: TodoStatusFilter) => {
+    setStatusFilter(status);
+  }, [setStatusFilter]);
 
   const addTodo = useCallback(async (title: string) => {
     try {
@@ -111,7 +107,9 @@ export const App: React.FC = () => {
   const removeTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
+
       await deleteTodo(todoId);
+
       setTodos((currentTodos) => (
         currentTodos.filter((todo) => todo.id !== todoId)
       ));
@@ -132,9 +130,9 @@ export const App: React.FC = () => {
 
   const editTodo = useCallback(async (
     todoId: number,
-    todoUpdate: Partial<Todo>,
+    values: Partial<Todo>,
   ) => {
-    const data = { ...todoUpdate };
+    const data = { ...values };
 
     try {
       setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
@@ -146,13 +144,12 @@ export const App: React.FC = () => {
       }
 
       await updateTodo(todoId, data);
-      setTodos((currentTodos) => currentTodos.map((currentTodo) => {
-        if (currentTodo.id === todoId) {
-          return { ...currentTodo, ...data };
-        }
 
-        return currentTodo;
-      }));
+      setTodos((currentTodos) => currentTodos.map((currentTodo) => (
+        currentTodo.id === todoId
+          ? { ...currentTodo, ...data }
+          : currentTodo
+      )));
     } catch {
       setError('Unable to update a todo');
     } finally {
@@ -184,7 +181,7 @@ export const App: React.FC = () => {
           hasTodos={hasTodos}
         />
 
-        {isTodosVisible && (
+        {hasVisibleTodos && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -195,11 +192,11 @@ export const App: React.FC = () => {
             />
 
             <TodoFooter
-              filterStatus={filterStatus}
+              statusFilter={statusFilter}
               changeFilterStatus={changeFilterStatus}
               clearCompleted={clearCompleted}
               activeTodosLeft={activeTodosLeft}
-              isClearCompletedVisible={isClearCompletedVisible}
+              isClearCompletedVisible={canClearCompleted}
             />
           </>
         )}
