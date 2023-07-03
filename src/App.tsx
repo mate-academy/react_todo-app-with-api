@@ -17,7 +17,7 @@ const USER_ID = 7096;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todo, setTodo] = useState<Todo | null>(null);
-  const [error, setError] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [todosStatus, setTodosStatus] = useState<Status>(Status.All);
@@ -27,11 +27,11 @@ export const App: React.FC = () => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setError(true);
+        setIsError(true);
         setErrorMsg(ErrorMessage.onLoad);
 
         setTimeout(() => {
-          setError(false);
+          setIsError(false);
         }, 3000);
       });
   }, []);
@@ -53,10 +53,10 @@ export const App: React.FC = () => {
         .then(newTodo => setTodos([...todos, newTodo]))
         .catch(() => setErrorMsg(ErrorMessage.OnAdd));
     } else {
-      setError(true);
+      setIsError(true);
       setErrorMsg(ErrorMessage.onEmpty);
       setTimeout(() => {
-        setError(false);
+        setIsError(false);
         setErrorMsg('');
       }, 3000);
     }
@@ -65,7 +65,8 @@ export const App: React.FC = () => {
   const deleteTodo = (todoId: number) => {
     removeTodo(todoId)
       .then(() => {
-        setTodos(todos.filter(todoToDelete => todoToDelete.id !== todoId));
+        setTodos(oldTodos => oldTodos
+          .filter(todoToDelete => todoToDelete.id !== todoId));
       })
       .catch(() => setErrorMsg(ErrorMessage.onDelete));
   };
@@ -104,21 +105,25 @@ export const App: React.FC = () => {
 
   let visibleTodos = todos;
 
-  if (todosStatus === Status.Active) {
-    visibleTodos = todos.filter(todo => !todo.completed);
+  switch (todosStatus) {
+    case Status.Active:
+      visibleTodos = todos.filter(todo => !todo.completed);
+      break;
+
+    case Status.Completed:
+      visibleTodos = todos.filter(todo => todo.completed);
+      break;
+
+    default:
+      break;
   }
 
-  if (todosStatus === Status.Completed) {
-    visibleTodos = todos.filter(todo => todo.completed);
-  }
-
-  const completedTodos = visibleTodos.filter(td => td.completed);
-
-  const clearCompleted = () => {
-    completedTodos.forEach(td => {
-      deleteTodo(td.id);
-    });
-    setTodos(current => current.filter(todo => !todo.completed));
+  const clearCompleted = async () => {
+    visibleTodos
+      .filter(td => td.completed)
+      .map(completed => completed.id)
+      .forEach(id => deleteTodo(id));
+    setTodos(oldTodos => oldTodos.filter(t => !t.completed));
   };
 
   const hasUncompletedTodo = todos.some(todo => !todo.completed);
@@ -175,11 +180,11 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {error && (
+      {isError && (
         <TodoError
-          error={error}
+          error={isError}
           errorMsg={errorMsg}
-          setError={setError}
+          setError={setIsError}
         />
       )}
     </div>
