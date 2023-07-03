@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useState, useEffect, useMemo,
+  useState, useEffect, useMemo, useCallback,
 } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -16,7 +16,7 @@ import {
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
-import { getVisibleTodos, getCompletedTodosId } from './utils/utils';
+import { getVisibleTodos, getTodosId } from './utils/utils';
 import { IdsContext } from './utils/Context/IdsContext';
 
 const USER_ID = 10631;
@@ -38,7 +38,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorText, setErrorText] = useState('');
   const [searchValue, setSearchValue] = useState('');
-  const [deletedIds, setDeletedIds] = useState<number[]>([0]);
+  const [deletedIds, setDeletedIds] = useState<number[]>([]);
 
   const validValue = searchValue.trim();
 
@@ -46,11 +46,19 @@ export const App: React.FC = () => {
     return getVisibleTodos(todosFromServer, filter);
   }, [filter, todosFromServer]);
 
-  const completedTodosId = getCompletedTodosId(todosFromServer);
+  const completedTodosId = useMemo(() => {
+    return getTodosId(todosFromServer, filterOptions[2]);
+  }, [todosFromServer]);
+
+  const notCompletedTodosId = useMemo(() => {
+    return getTodosId(todosFromServer, filterOptions[1]);
+  }, [todosFromServer]);
 
   const changeFilter = (value: string) => setFilter(value);
 
-  const hideNotification = () => setIsHidden(true);
+  const hideNotification = useCallback(() => {
+    setIsHidden(true);
+  }, []);
 
   const searchHandler = (value: string) => {
     setSearchValue(value);
@@ -60,6 +68,8 @@ export const App: React.FC = () => {
     setIsError(true);
     setErrorText(text);
     setIsHidden(false);
+
+    setTimeout(() => setIsError(false), 3000);
   };
 
   const updateTodosList = (todo: Todo) => {
@@ -68,6 +78,13 @@ export const App: React.FC = () => {
 
   const deleteTodoFromList = (deletedId: number) => {
     setTodosFromServer(todos => todos.filter(todo => todo.id !== deletedId));
+  };
+
+  const updateAllStatuses = (newStatus: boolean) => {
+    setTodosFromServer(
+      prevTodos => prevTodos
+        .map(todo => ({ ...todo, completed: newStatus })),
+    );
   };
 
   const addNewTodo = (event:
@@ -82,6 +99,7 @@ export const App: React.FC = () => {
 
     if (validValue) {
       setTempTodo({ ...newTodo, id: 0 });
+      setDeletedIds([0]);
 
       addTodo(newTodo)
         .then(updateTodosList)
@@ -91,6 +109,7 @@ export const App: React.FC = () => {
         .finally(() => {
           setTempTodo(null);
           searchHandler('');
+          setDeletedIds([]);
         });
     } else {
       errorHandler(errorMessage.forTitle);
@@ -107,7 +126,7 @@ export const App: React.FC = () => {
       .catch(() => {
         errorHandler(errorMessage.forDelete);
       })
-      .finally(() => setDeletedIds([0]));
+      .finally(() => setDeletedIds([]));
   };
 
   const clearCompletedTodos = () => {
@@ -115,12 +134,12 @@ export const App: React.FC = () => {
 
     Promise.all(completedTodosId.map(id => deleteTodo(id)))
       .then(() => {
-        setTodosFromServer(getVisibleTodos(todosFromServer, 'Active'));
+        setTodosFromServer(getVisibleTodos(todosFromServer, filterOptions[1]));
       })
       .catch(() => {
         errorHandler(errorMessage.forDelete);
       })
-      .finally(() => setDeletedIds([0]));
+      .finally(() => setDeletedIds([]));
   };
 
   const updateTitle = (todoId: number, newTitle: string) => {
@@ -129,7 +148,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodosFromServer((prevTodos) => prevTodos.map(todo => {
           if (todo.id === todoId) {
-            return { ...todo, newTitle };
+            return { ...todo, title: newTitle };
           }
 
           return todo;
@@ -138,11 +157,8 @@ export const App: React.FC = () => {
       .catch(() => {
         errorHandler(errorMessage.forUpdate);
       })
-      .finally(() => setDeletedIds([0]));
+      .finally(() => setDeletedIds([]));
   };
-
-  // setTodosFromServer((prevTodos) => prevTodos
-  //   .map(todo => ({ ...todo, completed: false })));
 
   const updateStatus = (todoId: number, status: boolean) => {
     setDeletedIds([todoId]);
@@ -150,7 +166,7 @@ export const App: React.FC = () => {
       .then(() => {
         setTodosFromServer((prevTodos) => prevTodos.map(todo => {
           if (todo.id === todoId) {
-            return { ...todo, status };
+            return { ...todo, completed: status };
           }
 
           return todo;
@@ -159,90 +175,46 @@ export const App: React.FC = () => {
       .catch(() => {
         errorHandler(errorMessage.forUpdate);
       })
-      .finally(() => setDeletedIds([0]));
+      .finally(() => setDeletedIds([]));
   };
 
-  const toggleAll = async () => {
-    const notCompletedTodosId = getVisibleTodos(todosFromServer, 'Active')
-      .map(todo => todo.id);
-
-    // console.log(completedTodosId, 'ids');
-
+  const toggleAllStatuses = async () => {
     const isAllComplited = todosFromServer.every(todo => todo.completed);
 
     try {
       if (isAllComplited) {
-        // console.log(deletedIds, 'deletedIds');
-
-        Promise.all(todosFromServer
-          .map(todo => updateStatus(todo.id, false)));
-
         setDeletedIds(completedTodosId);
-        setTodosFromServer(getVisibleTodos(todosFromServer, 'Active'));
-      } else {
-        // console.log(deletedIds, 'deletedIds');
 
-        Promise.all(notCompletedTodosId
-          .map(id => updateStatus(id, true)));
+        await Promise.all(todosFromServer
+          .map(todo => updateTodoStatus(todo.id, false)));
+
+        updateAllStatuses(false);
+      } else {
         setDeletedIds(notCompletedTodosId);
-        setTodosFromServer(getVisibleTodos(todosFromServer, 'Completed'));
+
+        await Promise.all(notCompletedTodosId
+          .map(id => updateTodoStatus(id, true)));
+
+        updateAllStatuses(true);
       }
     } catch {
       errorHandler(errorMessage.forUpdate);
     } finally {
-      // setDeletedIds([0]);
+      setDeletedIds([]);
     }
   };
 
-  // const toggleAll = () => {
-  //   const notCompletedTodosId = getVisibleTodos(todosFromServer, 'Active')
-  //     .map(todo => todo.id);
+  const loadTodos = async () => {
+    try {
+      const todos = await getTodos(USER_ID);
 
-  //   const isAllComplited = todosFromServer.every(todo => todo.completed);
-
-  //   if (isAllComplited) {
-  //     setDeletedIds(completedTodosId);
-  //     console.log(deletedIds, 'deletedIds');
-  //     Promise.all(todosFromServer
-  //       .map(todo => updateStatus(todo.id, false)))
-  //       .then(() => {
-  //         // setDeletedIds(completedTodosId);
-  //         // console.log(deletedIds, 'deletedIds');
-  //         setTodosFromServer(getVisibleTodos(todosFromServer, 'Active'));
-  //       })
-  //       .catch(() => {
-  //         errorHandler(errorMessage.forUpdate);
-  //       })
-  //       .finally(() => setDeletedIds([0]));
-  //   } else {
-  //     setDeletedIds(notCompletedTodosId);
-  //     console.log(deletedIds, 'deletedIds');
-
-  //     Promise.all(notCompletedTodosId
-  //       .map(id => updateStatus(id, true)))
-  //       .then(() => {
-  //         // setDeletedIds(notCompletedTodosId);
-  //         // console.log(deletedIds, 'deletedIds');
-  //         setTodosFromServer(getVisibleTodos(todosFromServer, 'Completed'));
-  //       })
-  //       .catch(() => {
-  //         errorHandler(errorMessage.forUpdate);
-  //       })
-  //       .finally(() => setDeletedIds([0]));
-  //   }
-  // };
+      setTodosFromServer(todos);
+    } catch {
+      errorHandler(errorMessage.forLoad);
+    }
+  };
 
   useEffect(() => {
-    const loadTodos = async () => {
-      try {
-        const todos = await getTodos(USER_ID);
-
-        setTodosFromServer(todos);
-      } catch {
-        errorHandler(errorMessage.forUpdate);
-      }
-    };
-
     if (!isError) {
       loadTodos();
     }
@@ -252,7 +224,7 @@ export const App: React.FC = () => {
     return () => {
       clearTimeout(errorTimer);
     };
-  }, [todosFromServer]);
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -268,7 +240,7 @@ export const App: React.FC = () => {
           searchValue={searchValue}
           searchHandler={searchHandler}
           onAdd={addNewTodo}
-          toggleAll={toggleAll}
+          toggleAll={toggleAllStatuses}
         />
 
         {todosFromServer.length > 0 && (
@@ -298,8 +270,8 @@ export const App: React.FC = () => {
         <div
           className={classNames(
             'notification is-danger is-light has-text-weight-normal', {
-            hidden: isHidden,
-          },
+              hidden: isHidden,
+            },
           )}
         >
           <button

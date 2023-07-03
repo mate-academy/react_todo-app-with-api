@@ -1,4 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -17,17 +19,13 @@ export const TodoItem: React.FC<Props> = ({
   const [newTitle, setNewTitle] = useState(todo.title);
   const [isDbCclicked, setIsDbClicked] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const deletedIds = useContext(IdsContext);
+  const { id, title, completed } = todo;
 
-  const isLoading = deletedIds.includes(todo.id);
-
+  const isLoading = deletedIds.includes(id);
+  const deleteCurrentTodo = () => onDelete(id);
   const dbClickHandler = () => setIsDbClicked(true);
-
-  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(event.target.value);
-  };
-
-  const deleteCurrentTodo = () => onDelete(todo.id);
 
   const saveNewTitle = () => {
     setIsDbClicked(false);
@@ -38,20 +36,22 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (newTitle === todo.title) {
+    if (newTitle === title) {
       return;
     }
 
-    updateTitle(todo.id, newTitle);
+    updateTitle(id, newTitle);
   };
 
-  const blurHandler = () => {
-    saveNewTitle();
+  const blurHandler = () => saveNewTitle();
+
+  const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
   };
 
   const escapeHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setNewTitle(todo.title);
+      setNewTitle(title);
       setIsDbClicked(false);
     }
   };
@@ -62,12 +62,16 @@ export const TodoItem: React.FC<Props> = ({
     saveNewTitle();
   };
 
+  useEffect(() => {
+    if (isDbCclicked && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isDbCclicked]);
+
   return (
     <div
       className={classNames(
-        'todo', {
-          completed: todo.completed,
-        },
+        'todo', { completed },
       )}
     >
       <label
@@ -78,7 +82,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           defaultChecked
           onClick={() => {
-            updateStatus(todo.id, !todo.completed);
+            updateStatus(id, !completed);
           }}
         />
       </label>
@@ -88,6 +92,7 @@ export const TodoItem: React.FC<Props> = ({
         >
           <input
             type="text"
+            ref={inputRef}
             className="todo__title-field"
             placeholder="Empty todo will be removed"
             value={newTitle}
@@ -97,20 +102,23 @@ export const TodoItem: React.FC<Props> = ({
           />
         </form>
       ) : (
-        <span
-          className="todo__title"
-          onDoubleClick={dbClickHandler}
-        >
-          {todo.title}
-        </span>
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={dbClickHandler}
+          >
+            {title}
+          </span>
+
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={deleteCurrentTodo}
+          >
+            ×
+          </button>
+        </>
       )}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={deleteCurrentTodo}
-      >
-        ×
-      </button>
 
       <div
         className={classNames(

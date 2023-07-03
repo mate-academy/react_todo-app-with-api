@@ -13,6 +13,12 @@ export const getVisibleTodos = (todosFromServer: Todo[], filter: string) => {
   }
 };
 
-export const getCompletedTodosId = (todosFromServer: Todo[]) => {
-  return todosFromServer.filter(todo => todo.completed).map(todo => todo.id);
+export const getTodosId = (todosFromServer: Todo[], status: string) => {
+  return todosFromServer.filter(todo => {
+    if (status === 'Completed') {
+      return todo.completed;
+    }
+
+    return !todo.completed;
+  }).map(todo => todo.id);
 };

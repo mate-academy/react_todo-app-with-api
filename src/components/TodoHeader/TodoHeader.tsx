@@ -25,7 +25,6 @@ export const TodoHeader: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        // className="todoapp__toggle-all active"
         className={classNames(
           'todoapp__toggle-all', {
             active: isActiveClass,
