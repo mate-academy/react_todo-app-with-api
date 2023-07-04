@@ -1,6 +1,7 @@
 import cn from 'classnames';
 import { FC, useState } from 'react';
 import { Todo } from '../types/Todo';
+import { EditForm } from './EditForm';
 
 interface Props {
   todo: Todo;
@@ -15,8 +16,9 @@ export const TodoItem:FC<Props> = ({
   editTodoByID,
   isLoadingNow,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const { title, completed, id } = todo;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const onHandleRemoveTodo = async () => {
     setIsLoading(true);
@@ -24,10 +26,32 @@ export const TodoItem:FC<Props> = ({
     setIsLoading(false);
   };
 
-  const toggleCheckboxHandler = async () => {
+  const editCurrentTodo = async (data: Partial<Todo>) => {
     setIsLoading(true);
-    await editTodoByID(id, { completed: !completed });
+    await editTodoByID(id, data);
     setIsLoading(false);
+  };
+
+  const toggleCheckboxHandler = () => {
+    editCurrentTodo({ completed: !completed });
+  };
+
+  const editTodoTitle = (text: string) => {
+    editCurrentTodo({ title: text });
+  };
+
+  const toggleTodoEdit = () => {
+    setIsEditing(true);
+  };
+
+  const editFormSubmitHandler = (text: string) => {
+    if (text === '') {
+      onHandleRemoveTodo();
+    } else {
+      editTodoTitle(text);
+    }
+
+    setIsEditing(false);
   };
 
   return (
@@ -40,15 +64,30 @@ export const TodoItem:FC<Props> = ({
           onChange={toggleCheckboxHandler}
         />
       </label>
-
-      <span className="todo__title">{title}</span>
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={onHandleRemoveTodo}
-      >
-        ×
-      </button>
+      {isEditing
+        ? (
+          <EditForm
+            editFormSubmitHandler={editFormSubmitHandler}
+            setIsEditing={setIsEditing}
+            title={title}
+          />
+        ) : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={toggleTodoEdit}
+            >
+              {title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={onHandleRemoveTodo}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div className={cn('modal overlay', {
         'is-active': isLoading || isLoadingNow,
