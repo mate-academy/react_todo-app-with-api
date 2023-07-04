@@ -23,15 +23,17 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all', {
-            active: isActiveClass,
-          },
-        )}
-        onClick={toggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all', {
+              active: isActiveClass,
+            },
+          )}
+          onClick={toggleAll}
+        />
+      )}
       <form onSubmit={onAdd}>
         <input
           type="text"

@@ -18,10 +18,10 @@ import { TodoList } from './components/TodoList/TodoList';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { getVisibleTodos, getTodosId } from './utils/utils';
 import { IdsContext } from './utils/Context/IdsContext';
+import { Options } from './types/Options';
 
 const USER_ID = 10631;
 
-export const filterOptions = ['All', 'Active', 'Completed'];
 export const errorMessage = {
   forLoad: 'Unable to load todos',
   forAdd: 'Unable to add a todo',
@@ -32,7 +32,7 @@ export const errorMessage = {
 
 export const App: React.FC = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState(filterOptions[0]);
+  const [filter, setFilter] = useState(Options.ALL);
   const [isError, setIsError] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -47,14 +47,14 @@ export const App: React.FC = () => {
   }, [filter, todosFromServer]);
 
   const completedTodosId = useMemo(() => {
-    return getTodosId(todosFromServer, filterOptions[2]);
+    return getTodosId(todosFromServer, Options.COMPLETED);
   }, [todosFromServer]);
 
   const notCompletedTodosId = useMemo(() => {
-    return getTodosId(todosFromServer, filterOptions[1]);
+    return getTodosId(todosFromServer, Options.ACTIVE);
   }, [todosFromServer]);
 
-  const changeFilter = (value: string) => setFilter(value);
+  const changeFilter = (value: Options) => setFilter(value);
 
   const hideNotification = useCallback(() => {
     setIsHidden(true);
@@ -134,7 +134,7 @@ export const App: React.FC = () => {
 
     Promise.all(completedTodosId.map(id => deleteTodo(id)))
       .then(() => {
-        setTodosFromServer(getVisibleTodos(todosFromServer, filterOptions[1]));
+        setTodosFromServer(getVisibleTodos(todosFromServer, Options.ACTIVE));
       })
       .catch(() => {
         errorHandler(errorMessage.forDelete);
@@ -243,7 +243,7 @@ export const App: React.FC = () => {
           toggleAll={toggleAllStatuses}
         />
 
-        {todosFromServer.length > 0 && (
+        {(todosFromServer.length > 0 || deletedIds.includes(0)) && (
           <IdsContext.Provider value={deletedIds}>
             <TodoList
               todos={visibleTodos}
@@ -257,8 +257,7 @@ export const App: React.FC = () => {
 
         {todosFromServer.length > 0 && (
           <TodoFooter
-            filterOptions={filterOptions}
-            todos={visibleTodos}
+            todos={todosFromServer}
             filter={filter}
             changeFilter={changeFilter}
             clearCompletedTodos={clearCompletedTodos}

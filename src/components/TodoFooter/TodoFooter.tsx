@@ -1,26 +1,24 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { Options } from '../../types/Options';
 
 interface Props {
-  filterOptions: string[];
   todos: Todo[];
   filter: string;
-  changeFilter: (value: string) => void;
+  changeFilter: (value: Options) => void;
   clearCompletedTodos: () => void;
 }
 
 export const TodoFooter: React.FC<Props> = ({
-  filterOptions,
   todos,
   filter,
   changeFilter,
   clearCompletedTodos,
 }) => {
   const leftTodos = todos.filter(todo => !todo.completed).length;
-
   const isComplited = todos.some(todo => todo.completed);
-
+  const arrOptions = Object.values(Options);
   const normalizeHref = (href: string) => `#/${href.toLowerCase()}`;
 
   return (
@@ -29,7 +27,7 @@ export const TodoFooter: React.FC<Props> = ({
         {`${leftTodos} items left`}
       </span>
       <nav className="filter">
-        {filterOptions.map(option => (
+        {arrOptions.map(option => (
           <a
             href={option === 'All' ? '#/' : normalizeHref(option)}
             key={option}
