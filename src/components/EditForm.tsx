@@ -1,6 +1,7 @@
 import {
   ChangeEvent,
   FC,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -21,11 +22,24 @@ export const EditForm:FC<Props> = (
 ) => {
   const [query, setQuery] = useState(title);
 
+  const cancelChange = useCallback(() => {
+    setIsEditing(false);
+    setQuery(title);
+  }, [setIsEditing, title]);
+
   const onEditTodoFormChange = (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
     setQuery(event.target.value);
   };
+
+  const escKeyUpHandler = useCallback((
+    event: KeyboardEvent,
+  ) => {
+    if (event.key === 'Escape') {
+      cancelChange();
+    }
+  }, [cancelChange]);
 
   const textInput = useRef<HTMLInputElement | null>(null);
 
@@ -33,11 +47,17 @@ export const EditForm:FC<Props> = (
     if (textInput.current) {
       textInput.current.focus();
     }
-  }, []);
+
+    window.addEventListener('keyup', escKeyUpHandler);
+
+    return () => {
+      window.removeEventListener('keyup', escKeyUpHandler);
+    };
+  }, [escKeyUpHandler]);
 
   return (
     <form
-      onSubmit={() => editFormSubmitHandler(query)}
+      onSubmit={() => editFormSubmitHandler(query.trim())}
     >
       <input
         type="text"

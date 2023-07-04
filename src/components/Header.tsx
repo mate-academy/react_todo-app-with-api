@@ -51,7 +51,6 @@ export const Header:FC<Props> = (
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {isTodosExists && (
         <button
           type="button"
@@ -63,7 +62,6 @@ export const Header:FC<Props> = (
         />
       )}
 
-      {/* Add a todo on form submit */}
       <NewTodoForm
         addNewTodo={addNewTodo}
         setError={setError}
