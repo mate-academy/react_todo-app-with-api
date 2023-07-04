@@ -24,6 +24,7 @@ export const TodoInfo: React.FC<Props> = ({
   removeTodo,
   deletedTodoId,
   handleUpdateTodo,
+  updatingTodoIds,
 }) => {
   const { completed, title, id } = todo;
 
@@ -62,7 +63,9 @@ export const TodoInfo: React.FC<Props> = ({
 
     if (!editedTitle.trim()) {
       removeTodo(id);
-    } else if (title !== editedTitle) {
+    }
+
+    if (title !== editedTitle) {
       handleUpdateTodo(id, { title: editedTitle });
       setIsEdited(false);
     }
@@ -108,7 +111,9 @@ export const TodoInfo: React.FC<Props> = ({
             </button>
 
             <div className={cn('modal', 'overlay', {
-              'is-active': todo.id === 0 || deletedTodoId.includes(id),
+              'is-active': todo.id === 0
+              || deletedTodoId.includes(id)
+              || updatingTodoIds.includes(id),
             })}
             >
               <div className="modal-background has-background-white-ter" />
