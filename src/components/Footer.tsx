@@ -1,31 +1,41 @@
 import cn from 'classnames';
-import { FC } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import { FilterType } from '../Enums/FilterType';
 import { Todo } from '../types/Todo';
 import { TodosFilter } from './TodosFilter';
-// import { getCompletedTodos } from '../utils/getCompletedTodos';
+import { getCompletedTodos } from '../utils/getCompletedTodos';
 import { getNotCompletedTodosAmmount } from '../utils/getNotCompletedTodos';
 
 interface Props {
   todos: Todo[],
   filterType: FilterType,
   setFilterType:React.Dispatch<React.SetStateAction<FilterType>>,
-  // removeTodosByID: (todoID: number) => Promise<void>
+  removeTodoByID: (todoID: number) => Promise<boolean>
+  setCurrentlyLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 export const Footer:FC<Props> = ({
   todos,
   setFilterType,
   filterType,
-  // removeTodosByID,
+  removeTodoByID,
+  setCurrentlyLoadingTodos,
 }) => {
-  // const completedTodosIds = useMemo(() => (
-  //   getCompletedTodos(todos).map(todo => todo.id)
-  // ), [todos]);
+  const completedTodosIds = useMemo(() => (
+    getCompletedTodos(todos).map(todo => todo.id)
+  ), [todos]);
 
-  // const handleRemoveTodosById = useCallback(() => {
-  //   removeTodosByID(completedTodosIds);
-  // }, [completedTodosIds, removeTodosByID]);
+  const handleremoveTodosByID = useCallback(async () => {
+    setCurrentlyLoadingTodos(completedTodosIds);
+
+    await Promise.all(
+      completedTodosIds.map((todoId) => (
+        removeTodoByID(todoId)
+      )),
+    );
+
+    setCurrentlyLoadingTodos([]);
+  }, [completedTodosIds, removeTodoByID, setCurrentlyLoadingTodos]);
 
   return (
     <footer className="todoapp__footer">
@@ -33,19 +43,17 @@ export const Footer:FC<Props> = ({
         {`${getNotCompletedTodosAmmount(todos)} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <TodosFilter
         setFilterType={setFilterType}
         currentFilterType={filterType}
       />
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          // hidden: completedTodosIds.length === 0,
+          hidden: completedTodosIds.length === 0,
         })}
-        // onClick={handleRemoveTodosById}
+        onClick={handleremoveTodosByID}
       >
         Clear completed
       </button>

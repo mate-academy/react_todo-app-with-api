@@ -12,14 +12,20 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { LoadError } from './types/LoadError';
 import { FilterType } from './Enums/FilterType';
 import { filterTodos } from './utils/filterTodos';
-import { NewTodoForm } from './components/NewTodoForm';
 import { PostTodo } from './types/PostTodo';
+import { Header } from './components/Header';
 
 export const USER_ID = 10895;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState(FilterType.ALL);
+
+  const [
+    currentlyLoadingTodos,
+    setCurrentlyLoadingTodos,
+  ] = useState<number[]>([]);
+
   const [loadError, setError] = useState<LoadError>({
     status: false,
     message: '',
@@ -79,23 +85,23 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const removeTodosByID = useCallback(async (todoID: number) => {
+  const removeTodoByID = useCallback(async (todoID: number) => {
     try {
       await todosReguests.deleteTodo(todoID);
       setTodos(current => (
         current.filter(todo => todo.id !== todoID)
       ));
+
+      return true;
     } catch (error) {
       setError({
         status: true,
         message: 'Unable to delete todos',
       });
+
+      return false;
     }
   }, []);
-
-  const deleteTodoByID = useCallback(async (id: number) => {
-    await removeTodosByID(id);
-  }, [removeTodosByID]);
 
   useEffect(() => {
     fetchTodos();
@@ -128,51 +134,26 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // const editTodosByID = useCallback(async (
-  //   ids: number[], data: Partial<Todo>,
-  // ) => {
-  //   try {
-  //     await Promise.all(
-  //       ids.map(async (currentId) => {
-  //         await editTodo(currentId, { ...data });
-  //       }),
-  //     );
-  //   } catch (error) {
-  //     setError({
-  //       status: true,
-  //       message: 'Unable to edit todos',
-  //     });
-  //   }
-  // }, []);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          {isTodosExists && (
-            <button
-              type="button"
-              className="todoapp__toggle-all active"
-              aria-label="Toggle all"
-            />
-          )}
-
-          {/* Add a todo on form submit */}
-          <NewTodoForm
-            addNewTodo={addNewTodo}
-            setError={setError}
-          />
-        </header>
+        <Header
+          todos={preparedTodos}
+          addNewTodo={addNewTodo}
+          setError={setError}
+          editTodoByID={editTodoByID}
+          setCurrentlyLoadingTodos={setCurrentlyLoadingTodos}
+        />
 
         {isDisplayTodos && (
           <TodoList
             todos={preparedTodos}
             tempTodo={tempTodo}
-            deleteTodoByID={deleteTodoByID}
+            removeTodoByID={removeTodoByID}
             editTodoByID={editTodoByID}
+            currentlyLoadingTodos={currentlyLoadingTodos}
           />
         )}
 
@@ -181,7 +162,8 @@ export const App: React.FC = () => {
             todos={todos}
             filterType={filterType}
             setFilterType={setFilterType}
-            // removeTodosByID={removeTodosByID}
+            removeTodoByID={removeTodoByID}
+            setCurrentlyLoadingTodos={setCurrentlyLoadingTodos}
           />
         )}
       </div>

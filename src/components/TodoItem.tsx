@@ -4,23 +4,23 @@ import { Todo } from '../types/Todo';
 
 interface Props {
   todo: Todo;
-  deleteTodoByID: (arg: number) => void;
+  removeTodoByID: (arg: number) => void;
   editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>;
+  isLoadingNow: boolean;
 }
 
 export const TodoItem:FC<Props> = ({
   todo,
-  deleteTodoByID,
+  removeTodoByID,
   editTodoByID,
+  isLoadingNow,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { title, completed, id } = todo;
 
-  const isTemporaryTodo = id === 0;
-
   const onHandleRemoveTodo = async () => {
     setIsLoading(true);
-    await deleteTodoByID(id);
+    await removeTodoByID(id);
     setIsLoading(false);
   };
 
@@ -51,7 +51,7 @@ export const TodoItem:FC<Props> = ({
       </button>
 
       <div className={cn('modal overlay', {
-        'is-active': isLoading || isTemporaryTodo,
+        'is-active': isLoading || isLoadingNow,
       })}
       >
         <div className="modal-background has-background-white-ter" />
