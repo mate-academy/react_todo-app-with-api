@@ -11,9 +11,9 @@ import { TodoInfoProps } from './TodoInfoProps';
 
 export const TodoInfo: FC<TodoInfoProps> = memo(({
   todo,
-  removesTodo,
-  loadingTodos,
-  onTooglingTodo,
+  removeTodos,
+  loadingTodoIds,
+  handleToggleTodoStatus,
   changeTitle,
 }) => {
   const {
@@ -45,7 +45,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     return () => {
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isEditing]);
+  }, [isEditing, title]);
 
   const handleOnQuery = (
     event: ChangeEvent<HTMLInputElement>,
@@ -53,7 +53,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     setQueryTodo(event.target.value);
   };
 
-  const handleOnSubmit = () => {
+  const handleSubmit = () => {
     const updatedTitle = title.trim().replace(/\s+/g, ' ');
     const updatedQuery = queryTodo.trim().replace(/\s+/g, ' ');
 
@@ -65,7 +65,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     }
 
     if (!updatedQuery) {
-      removesTodo([id]);
+      removeTodos([id]);
       setQueryTodo(updatedTitle);
       setIsEditing(false);
 
@@ -88,13 +88,13 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => onTooglingTodo(id)}
+          onClick={() => handleToggleTodoStatus([id])}
         />
       </label>
 
       {isEditing ? (
         <form
-          onSubmit={handleOnSubmit}
+          onSubmit={handleSubmit}
           id="changedForm"
         >
           <input
@@ -103,7 +103,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
             form="changedForm"
             value={queryTodo}
             onChange={handleOnQuery}
-            onBlur={handleOnSubmit}
+            onBlur={handleSubmit}
             ref={formRef}
           />
         </form>
@@ -119,7 +119,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => removesTodo([id])}
+            onClick={() => removeTodos([id])}
           >
             ×
           </button>
@@ -128,7 +128,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
 
       <div
         className={cn('modal overlay', {
-          'is-active': loadingTodos.includes(id),
+          'is-active': loadingTodoIds.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

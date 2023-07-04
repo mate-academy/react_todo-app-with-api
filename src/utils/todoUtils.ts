@@ -1,7 +1,7 @@
 import { StatusValue } from '../types/StatusValue';
 import { Todo } from '../types/Todo';
 
-export const visibleTodos = (todos: Todo[], statusTodo: StatusValue) => {
+export const preparedTodos = (todos: Todo[], statusTodo: StatusValue) => {
   return todos.filter(todo => {
     switch (statusTodo) {
       case StatusValue.ALL:
@@ -28,4 +28,15 @@ export const getcompletedTodosIds = (todos: Todo[]) => {
 export const getcompletedTodos = (todos: Todo[]) => {
   return todos
     .map(todo => todo.completed);
+};
+
+export const filterTodosByCompletion = (todos: Todo[]) => {
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
+
+  return todos
+    .filter(todo => (
+      isAllTodosCompleted
+        ? todo.completed
+        : !todo.completed
+    ));
 };

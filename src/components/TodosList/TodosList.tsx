@@ -8,9 +8,9 @@ import '../../App.scss';
 export const TodosList: FC<TodosListProps> = memo(({
   todos,
   tempTodo,
-  removesTodo,
-  loadingTodos,
-  onTooglingTodo,
+  removeTodos,
+  loadingTodoIds,
+  handleToggleTodoStatus,
   changeTitle,
 }) => (
   <section className="todoapp__main">
@@ -23,9 +23,9 @@ export const TodosList: FC<TodosListProps> = memo(({
         >
           <TodoInfo
             todo={todo}
-            removesTodo={removesTodo}
-            loadingTodos={loadingTodos}
-            onTooglingTodo={onTooglingTodo}
+            removeTodos={removeTodos}
+            loadingTodoIds={loadingTodoIds}
+            handleToggleTodoStatus={handleToggleTodoStatus}
             changeTitle={changeTitle}
           />
         </CSSTransition>
@@ -39,9 +39,9 @@ export const TodosList: FC<TodosListProps> = memo(({
         >
           <TodoInfo
             todo={tempTodo}
-            removesTodo={removesTodo}
-            loadingTodos={loadingTodos}
-            onTooglingTodo={onTooglingTodo}
+            removeTodos={removeTodos}
+            loadingTodoIds={loadingTodoIds}
+            handleToggleTodoStatus={handleToggleTodoStatus}
             changeTitle={changeTitle}
           />
         </CSSTransition>

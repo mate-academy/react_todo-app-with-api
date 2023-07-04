@@ -6,8 +6,8 @@ export interface Todo {
 }
 
 export interface CommonTodosProps {
-  removesTodo: (id: number[]) => void;
-  loadingTodos: number[];
-  onTooglingTodo: (todoId: number, toggleAll?: boolean) => void;
+  removeTodos: (id: number[]) => void;
+  loadingTodoIds: number[];
+  handleToggleTodoStatus: (todoId: number[]) => void;
   changeTitle: (todoId: number, newTitle: string) => void;
 }

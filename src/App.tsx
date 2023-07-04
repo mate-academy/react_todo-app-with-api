@@ -6,6 +6,8 @@ import {
   useEffect,
   useRef,
   useState,
+  useMemo,
+  useCallback,
 } from 'react';
 import cn from 'classnames';
 import './App.scss';
@@ -19,7 +21,11 @@ import {
 import { TodosList } from './components/TodosList/TodosList';
 import { Todo } from './types/Todo';
 import { ErrorInfo } from './components/ErrorInfo/ErrorInfo';
-import { visibleTodos, getcompletedTodosIds } from './utils/todoUtils';
+import {
+  preparedTodos,
+  getcompletedTodosIds,
+  filterTodosByCompletion,
+} from './utils/todoUtils';
 import { StatusValue } from './types/StatusValue';
 
 const USER_ID = 10725;
@@ -29,16 +35,13 @@ export const App: FC = () => {
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [queryTodo, setQueryTodo] = useState('');
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [statusTodo, setstatusTodo] = useState<StatusValue>(StatusValue.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [visibleError, setVisibleError] = useState('');
 
-  const completedTodosIds = getcompletedTodosIds(todos);
-  const isAllTodosCompleted = todos.every(todo => todo.completed);
-
-  const getTodosFromServer = async () => {
+  const fetchTodosFromServer = async () => {
     try {
       const fetchedTodos = await getTodos(USER_ID);
 
@@ -53,35 +56,98 @@ export const App: FC = () => {
       formRef.current.focus();
     }
 
-    getTodosFromServer();
-  }, [tempTodo, loadingTodos, visibleError]);
+    fetchTodosFromServer();
+  }, [tempTodo, loadingTodoIds, visibleError]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const completedTodosIds = useMemo(() => (
+    getcompletedTodosIds(todos)
+  ), [todos]);
 
-  const removesTodo = async (todosId: number[]) => {
+  const visibleTodos = useMemo(() => (
+    preparedTodos(todos, statusTodo)
+  ), [todos, statusTodo]);
+
+  const removeTodos = useCallback(async (todoIds: number[]) => {
     try {
-      setLoadingTodos(prevIds => [...prevIds, ...todosId]);
+      setLoadingTodoIds(prevIds => [...prevIds, ...todoIds]);
 
       await Promise.all(
-        todosId.map(async id => {
+        todoIds.map(async id => {
           await removeTodo(id);
         }),
       );
 
-      const updatedTodos = todos.filter(todo => !todosId.includes(todo.id));
+      const updatedTodos = todos.filter(todo => !todoIds.includes(todo.id));
 
       setTodos(updatedTodos);
     } catch (error) {
       setVisibleError('Unable to delete a todo');
     } finally {
-      setLoadingTodos([]);
+      setLoadingTodoIds([]);
     }
-  };
+  }, [todos]);
 
-  const addTodo = async (title: string) => {
+  const handleToggleTodoStatus = useCallback(async (
+    todoIds: number[],
+  ) => {
     try {
+      setLoadingTodoIds((prevIds) => [...prevIds, ...todoIds]);
+
+      await Promise.all(
+        todoIds.map(async id => {
+          const todoToUpdate = todos.find(todo => todo.id === id);
+
+          if (todoToUpdate) {
+            const updatedTodo = await changeTodo(id, {
+              ...todoToUpdate,
+              completed: !todoToUpdate.completed,
+            });
+
+            setTodos(prevTodos => prevTodos.map(todo => (
+              todo.id === updatedTodo.id
+                ? updatedTodo
+                : todo
+            )));
+          }
+        }),
+      );
+    } catch (error) {
+      setVisibleError('Unable to update a todo');
+    } finally {
+      setLoadingTodoIds([]);
+    }
+  }, [todos]);
+
+  const changeTitle = useCallback(async (
+    todoId: number,
+    newTitle: string,
+  ) => {
+    setLoadingTodoIds((prevIds) => [...prevIds, todoId]);
+
+    try {
+      const todoToUpdate = todos.find(todo => todo.id === todoId);
+
+      const updatedTodo = await changeTodo(todoId, {
+        ...todoToUpdate,
+        title: newTitle,
+      });
+
+      setTodos(prevTodos => prevTodos.map(todo => (
+        todo.id === updatedTodo.id
+          ? updatedTodo
+          : todo
+      )));
+    } catch (error) {
+      setVisibleError('Unable to update a todo');
+    } finally {
+      setLoadingTodoIds([]);
+    }
+  }, [todos]);
+
+  const addTodo = useCallback(async (title: string) => {
+    try {
+      setIsInputDisabled(true);
+
       const newTodo = {
         title: title.trim(),
         completed: false,
@@ -94,23 +160,27 @@ export const App: FC = () => {
         ...newTodo,
         id: tempId,
       });
-      setIsInputDisabled(true);
-      setLoadingTodos([tempId]);
 
-      const setNewTodo = await addTodoToServer('/todos', newTodo);
+      setLoadingTodoIds([tempId]);
 
-      setTodos((currentTodos) => [...currentTodos, setNewTodo]);
+      const addedTodo = await addTodoToServer('/todos', newTodo);
+
+      setTodos((currentTodos) => [...currentTodos, addedTodo]);
     } catch (error) {
       setVisibleError('Unable to add a todo');
     } finally {
       setIsInputDisabled(false);
       setTempTodo(null);
-      setLoadingTodos([]);
+      setLoadingTodoIds([]);
       setQueryTodo('');
     }
-  };
+  }, []);
 
-  const handleOnSubmit = (
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
+
+  const handleSubmit = (
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
@@ -131,62 +201,10 @@ export const App: FC = () => {
     setQueryTodo(event.target.value);
   };
 
-  const onTooglingTodo = async (
-    todoId: number,
-    toggleAll?: boolean,
-  ) => {
-    setLoadingTodos((prevIds) => [...prevIds, todoId]);
-
-    try {
-      const todoToUpdate = todos.find(todo => todo.id === todoId);
-
-      if (todoToUpdate) {
-        const newCompletedValue = toggleAll !== undefined
-          ? toggleAll
-          : todoToUpdate.completed;
-
-        const updatedTodo = await changeTodo(todoId, {
-          ...todoToUpdate,
-          completed: !newCompletedValue,
-        });
-
-        setTodos(prevTodos => prevTodos.map(todo => (
-          todo.id === updatedTodo.id
-            ? updatedTodo
-            : todo
-        )));
-      }
-    } catch (error) {
-      setVisibleError('Unable to update a todo');
-    } finally {
-      setLoadingTodos([]);
-    }
-  };
-
-  const changeTitle = async (
-    todoId: number,
-    newTitle: string,
-  ) => {
-    setLoadingTodos((prevIds) => [...prevIds, todoId]);
-
-    try {
-      const todoToUpdate = todos.find(todo => todo.id === todoId);
-
-      const updatedTodo = await changeTodo(todoId, {
-        ...todoToUpdate,
-        title: newTitle,
-      });
-
-      setTodos(prevTodos => prevTodos.map(todo => (
-        todo.id === updatedTodo.id
-          ? updatedTodo
-          : todo
-      )));
-    } catch (error) {
-      setVisibleError('Unable to update a todo');
-    } finally {
-      setLoadingTodos([]);
-    }
+  const handleClearCompleted = () => {
+    removeTodos(completedTodosIds);
+    setLoadingTodoIds(completedTodosIds);
+    setstatusTodo(StatusValue.ALL);
   };
 
   return (
@@ -201,12 +219,14 @@ export const App: FC = () => {
               active: todos.every(todo => todo.completed),
             })}
             onClick={() => (
-              todos.map(todo => onTooglingTodo(todo.id, isAllTodosCompleted))
-            )}
+              handleToggleTodoStatus(
+                filterTodosByCompletion(todos)
+                  .map(todo => todo.id),
+              ))}
           />
 
           <form
-            onSubmit={handleOnSubmit}
+            onSubmit={handleSubmit}
           >
             <input
               type="text"
@@ -221,11 +241,11 @@ export const App: FC = () => {
         </header>
 
         <TodosList
-          todos={visibleTodos(todos, statusTodo)}
+          todos={visibleTodos}
           tempTodo={tempTodo}
-          removesTodo={removesTodo}
-          loadingTodos={loadingTodos}
-          onTooglingTodo={onTooglingTodo}
+          removeTodos={removeTodos}
+          loadingTodoIds={loadingTodoIds}
+          handleToggleTodoStatus={handleToggleTodoStatus}
           changeTitle={changeTitle}
         />
 
@@ -236,47 +256,25 @@ export const App: FC = () => {
             </span>
 
             <nav className="filter">
-              <a
-                href="#/"
-                className={cn('filter__link', {
-                  selected: statusTodo === StatusValue.ALL,
-                })}
-                defaultValue="all"
-                onClick={() => setstatusTodo(StatusValue.ALL)}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={cn('filter__link', {
-                  selected: statusTodo === StatusValue.ACTIVE,
-                })}
-                onClick={() => setstatusTodo(StatusValue.ACTIVE)}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={cn('filter__link', {
-                  selected: statusTodo === StatusValue.COMPLETED,
-                })}
-                onClick={() => setstatusTodo(StatusValue.COMPLETED)}
-              >
-                Completed
-              </a>
+              {Object.values(StatusValue).map(value => (
+                <a
+                  key={value}
+                  href={`#/${value === StatusValue.ALL ? '' : value}`}
+                  className={cn('filter__link', {
+                    selected: statusTodo === value,
+                  })}
+                  onClick={() => setstatusTodo(value)}
+                >
+                  {value[0].toUpperCase() + value.slice(1)}
+                </a>
+              ))}
             </nav>
 
             <button
               type="button"
               className="todoapp__clear-completed"
               disabled={!completedTodosIds.length}
-              onClick={() => {
-                removesTodo(completedTodosIds);
-                setLoadingTodos(completedTodosIds);
-                setstatusTodo(StatusValue.ALL);
-              }}
+              onClick={handleClearCompleted}
             >
               Clear completed
             </button>
