@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from './types/Todo';
-import { deleteTodo, getTodos, postTodo } from './api/todos';
+import { todosReguests } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -25,17 +25,17 @@ export const App: React.FC = () => {
     message: '',
   });
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [inLoadTodosID, setInLoadTodosID] = useState<number[]>([]);
 
   const preparedTodos = useMemo(() => (
     filterTodos(todos, filterType)
   ), [filterType, todos]);
 
   const isTodosExists = todos.length > 0;
+  const isDisplayTodos = isTodosExists || tempTodo;
 
   const fetchTodos = useCallback(async () => {
     try {
-      const responce = await getTodos(USER_ID);
+      const responce = await todosReguests.getTodos(USER_ID);
 
       setTodos(responce);
     } catch (error) {
@@ -59,7 +59,7 @@ export const App: React.FC = () => {
     });
 
     try {
-      const newSuccesfulTodo = await postTodo(newTodo);
+      const newSuccesfulTodo = await todosReguests.postTodo(newTodo);
 
       setTempTodo(null);
       setTodos(currentTodos => ([
@@ -79,21 +79,13 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const removeTodosByID = useCallback(async (todoID: number[]) => {
+  const removeTodosByID = useCallback(async (todoID: number) => {
     try {
-      setInLoadTodosID(todoID);
-      await Promise.all(
-        todoID.map(async (deleteId) => {
-          await deleteTodo(deleteId);
-        }),
-      );
-
+      await todosReguests.deleteTodo(todoID);
       setTodos(current => (
-        current.filter(todo => !todoID.includes(todo.id))
+        current.filter(todo => todo.id !== todoID)
       ));
-      setInLoadTodosID([]);
     } catch (error) {
-      setInLoadTodosID([]);
       setError({
         status: true,
         message: 'Unable to delete todos',
@@ -101,13 +93,57 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const deleteTodoByID = useCallback((id: number) => {
-    removeTodosByID([id]);
+  const deleteTodoByID = useCallback(async (id: number) => {
+    await removeTodosByID(id);
   }, [removeTodosByID]);
 
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
+
+  const editTodoByID = useCallback(async (
+    id: number, data: Partial<Todo>,
+  ) => {
+    try {
+      const result = await todosReguests.editTodo(id, { ...data });
+
+      setTodos((currentTodos) => (
+        currentTodos.map(todo => {
+          if (todo.id !== result.id) {
+            return todo;
+          }
+
+          return result;
+        })
+      ));
+
+      return true;
+    } catch (error) {
+      setError({
+        status: true,
+        message: 'Unable to edit todos',
+      });
+
+      return false;
+    }
+  }, []);
+
+  // const editTodosByID = useCallback(async (
+  //   ids: number[], data: Partial<Todo>,
+  // ) => {
+  //   try {
+  //     await Promise.all(
+  //       ids.map(async (currentId) => {
+  //         await editTodo(currentId, { ...data });
+  //       }),
+  //     );
+  //   } catch (error) {
+  //     setError({
+  //       status: true,
+  //       message: 'Unable to edit todos',
+  //     });
+  //   }
+  // }, []);
 
   return (
     <div className="todoapp">
@@ -131,21 +167,21 @@ export const App: React.FC = () => {
           />
         </header>
 
-        {isTodosExists && (
+        {isDisplayTodos && (
           <TodoList
             todos={preparedTodos}
             tempTodo={tempTodo}
-            inLoadTodosID={inLoadTodosID}
             deleteTodoByID={deleteTodoByID}
+            editTodoByID={editTodoByID}
           />
         )}
 
-        {isTodosExists && (
+        {isDisplayTodos && (
           <Footer
             todos={todos}
             filterType={filterType}
             setFilterType={setFilterType}
-            removeTodosByID={removeTodosByID}
+            // removeTodosByID={removeTodosByID}
           />
         )}
       </div>

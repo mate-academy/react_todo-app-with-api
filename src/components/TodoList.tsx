@@ -5,28 +5,25 @@ import { TodoItem } from './TodoItem';
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  inLoadTodosID: number[];
   deleteTodoByID: (arg: number) => void
+  editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>
 }
 
 export const TodoList:FC<Props> = ({
   todos,
   tempTodo,
-  inLoadTodosID,
   deleteTodoByID,
+  editTodoByID,
 }) => {
   return (
     <section className="todoapp__main">
-      {/* This is a completed todo */}
       {todos.map(todo => {
-        const isOnDeletingStage = inLoadTodosID.includes(todo.id);
-
         return (
           <TodoItem
             key={todo.id}
             todo={todo}
-            isLoading={isOnDeletingStage}
             deleteTodoByID={deleteTodoByID}
+            editTodoByID={editTodoByID}
           />
         );
       })}
@@ -34,7 +31,7 @@ export const TodoList:FC<Props> = ({
         <TodoItem
           todo={tempTodo}
           deleteTodoByID={deleteTodoByID}
-          isLoading
+          editTodoByID={editTodoByID}
         />
       )}
     </section>

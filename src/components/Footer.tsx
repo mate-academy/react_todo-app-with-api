@@ -1,31 +1,31 @@
 import cn from 'classnames';
-import { FC, useCallback, useMemo } from 'react';
+import { FC } from 'react';
 import { FilterType } from '../Enums/FilterType';
 import { Todo } from '../types/Todo';
 import { TodosFilter } from './TodosFilter';
-import { getCompletedTodos } from '../utils/getCompletedTodos';
+// import { getCompletedTodos } from '../utils/getCompletedTodos';
 import { getNotCompletedTodosAmmount } from '../utils/getNotCompletedTodos';
 
 interface Props {
   todos: Todo[],
   filterType: FilterType,
   setFilterType:React.Dispatch<React.SetStateAction<FilterType>>,
-  removeTodosByID: (todoID: number[]) => Promise<void>
+  // removeTodosByID: (todoID: number) => Promise<void>
 }
 
 export const Footer:FC<Props> = ({
   todos,
   setFilterType,
   filterType,
-  removeTodosByID,
+  // removeTodosByID,
 }) => {
-  const completedTodosIds = useMemo(() => (
-    getCompletedTodos(todos).map(todo => todo.id)
-  ), [todos]);
+  // const completedTodosIds = useMemo(() => (
+  //   getCompletedTodos(todos).map(todo => todo.id)
+  // ), [todos]);
 
-  const handleRemoveTodosById = useCallback(() => {
-    removeTodosByID(completedTodosIds);
-  }, [completedTodosIds, removeTodosByID]);
+  // const handleRemoveTodosById = useCallback(() => {
+  //   removeTodosByID(completedTodosIds);
+  // }, [completedTodosIds, removeTodosByID]);
 
   return (
     <footer className="todoapp__footer">
@@ -43,9 +43,9 @@ export const Footer:FC<Props> = ({
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          hidden: completedTodosIds.length === 0,
+          // hidden: completedTodosIds.length === 0,
         })}
-        onClick={handleRemoveTodosById}
+        // onClick={handleRemoveTodosById}
       >
         Clear completed
       </button>
