@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { TodoInfo } from '../TodoInfo';
 import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
@@ -21,26 +22,40 @@ export const TodoList: FC<Props> = ({
 }) => {
   return (
     <section className="todoapp__main">
-      {todos.map((todo) => (
-        <TodoInfo
-          key={todo.id}
-          todo={todo}
-          onRemoveTodo={onRemoveTodo}
-          loadingTodo={loadingTodo}
-          onUpdateTodo={onUpdateTodo}
-          handleShowError={handleShowError}
-        />
-      ))}
+      <TransitionGroup>
+        {todos.map((todo) => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoInfo
+              key={todo.id}
+              todo={todo}
+              onRemoveTodo={onRemoveTodo}
+              loadingTodo={loadingTodo}
+              onUpdateTodo={onUpdateTodo}
+              handleShowError={handleShowError}
+            />
+          </CSSTransition>
+        ))}
+        {tempTodo && (
+          <CSSTransition
+            key={tempTodo.id}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <TodoInfo
+              todo={tempTodo}
+              loadingTodo={loadingTodo}
+              onRemoveTodo={onRemoveTodo}
+              onUpdateTodo={onUpdateTodo}
+              handleShowError={handleShowError}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
 
-      {tempTodo && (
-        <TodoInfo
-          todo={tempTodo}
-          loadingTodo={loadingTodo}
-          onRemoveTodo={onRemoveTodo}
-          onUpdateTodo={onUpdateTodo}
-          handleShowError={handleShowError}
-        />
-      )}
     </section>
   );
 };

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useMemo,
   useEffect,
@@ -110,7 +109,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleclearCompletedTodo = () => {
+  const handleClearCompletedTodo = () => {
     completedTodos.forEach(async (todo) => {
       await removeTodo(todo.id);
     });
@@ -172,6 +171,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <button
+            aria-label="toggleAllCompletedTodos"
             type="button"
             className={cn('todoapp__toggle-all', {
               active: uncompletedTodos.length === 0,
@@ -205,7 +205,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 className="todoapp__clear-completed"
-                onClick={handleclearCompletedTodo}
+                onClick={handleClearCompletedTodo}
               >
                 Clear completed
               </button>

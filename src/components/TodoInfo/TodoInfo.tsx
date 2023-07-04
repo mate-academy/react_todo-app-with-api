@@ -1,4 +1,9 @@
-import { FC, useState } from 'react';
+import {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
@@ -6,8 +11,8 @@ interface Props {
   todo: Todo;
   onRemoveTodo: (todoId: number) => void;
   loadingTodo: number[];
-  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void
-  handleShowError(error: string): void;
+  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void;
+  handleShowError: (error: string) => void;
 }
 
 export const TodoInfo: FC<Props> = ({
@@ -17,22 +22,67 @@ export const TodoInfo: FC<Props> = ({
   onUpdateTodo,
   handleShowError,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const isLoadingTodo = loadingTodo.includes(todo.id);
 
-  const updateTodoHandler = async () => {
-    setIsLoading(true);
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
+
+  const handleSubmitTitle = async () => {
     try {
-      await onUpdateTodo(
-        todo.id,
-        { completed: !todo.completed },
-      );
-    } catch (error) {
-      handleShowError('Unable to update a todo:');
-    } finally {
-      setIsLoading(false);
+      if (newTitle.trim() === '') {
+        onRemoveTodo(todo.id);
+      } else if (newTitle.trim() !== todo.title) {
+        setIsEditing(false);
+        await onUpdateTodo(todo.id, { title: newTitle });
+      } else {
+        setIsEditing(false);
+      }
+    } catch {
+      handleShowError('Unable to update a todo');
+    }
+  };
+
+  const handleCancelEditingTitle = () => {
+    setNewTitle(todo.title);
+    setIsEditing(false);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSubmitTitle();
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      handleCancelEditingTitle();
+    }
+  };
+
+  const handleBlur = () => {
+    handleSubmitTitle();
+  };
+
+  const handleEditTitle = () => {
+    setIsEditing(true);
+  };
+
+  const editStatusHandler = () => {
+    try {
+      onUpdateTodo(todo.id, { completed: !todo.completed });
+    } catch {
+      handleShowError('Unable to update a todo');
     }
   };
 
@@ -43,22 +93,43 @@ export const TodoInfo: FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={updateTodoHandler}
-          disabled={isLoading}
+          onChange={editStatusHandler}
         />
       </label>
 
-      <span className="todo__title">{todo.title}</span>
+      {isEditing ? (
+        <form onSubmit={handleSubmitTitle} onBlur={handleBlur}>
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={handleTitleChange}
+            onKeyUp={handleKeyUp}
+            ref={inputRef}
+          />
+        </form>
+      ) : (
+        <>
+          <span className="todo__title" onDoubleClick={handleEditTitle}>
+            {todo.title}
+          </span>
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={() => onRemoveTodo(todo.id)}
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => onRemoveTodo(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
+
+      <div
+        className={cn('modal overlay', {
+          'is-active': isLoadingTodo,
+        })}
       >
-        ×
-      </button>
-
-      <div className={cn('modal overlay', { 'is-active': isLoadingTodo })}>
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
