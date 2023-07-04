@@ -1,4 +1,3 @@
-
 .todoapp {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 24px;
@@ -69,7 +68,7 @@
 
     border: none;
     background: rgba(0, 0, 0, 0.01);
-    box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
+    box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
 
     &::placeholder {
       font-style: italic;
@@ -129,5 +128,28 @@
     &:active {
       text-decoration: none;
     }
+  }
+}
+
+.editInput {
+  width: 100%;
+  padding: 16px 10px;
+
+  font-size: 24px;
+  line-height: 1.4em;
+  font-family: inherit;
+  font-weight: inherit;
+  // color: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  border: none;
+  background: rgba(0, 0, 0, 0.01);
+  box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
+
+  &::placeholder {
+    font-style: italic;
+    font-weight: 300;
+    color: #e6e6e6;
   }
 }
