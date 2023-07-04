@@ -1,24 +1,182 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useState,
+  FormEvent,
+} from 'react';
+import {
+  getTodos,
+  addTodos,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
 import { UserWarning } from './UserWarning';
+import { Header } from './components/TodoHeader';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/todoFooter';
+import { Message } from './components/ErrorMessege';
+import { Todo } from './types/Todo';
+import { client } from './utils/fetchClient';
+import { TodoStatus } from './types/TodoStatus';
+import { FilterTodos } from './utils/todoFilter';
 
-const USER_ID = 0;
+export const USER_ID = 10883;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todoFilter, setTodoFilter] = useState<TodoStatus>(TodoStatus.All);
+  const [visibleError, setVisibleError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [deletedTodoId, setDeletedTodoId] = useState([0]);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => {
+        setVisibleError('Unable to load todos');
+      });
+  }, []);
+
+  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    setTempTodo({
+      id: 0,
+      title: inputValue,
+      completed: false,
+      userId: USER_ID,
+    });
+
+    if (!inputValue.trim()) {
+      setVisibleError('Title can`t be empty');
+      setIsLoading(false);
+      setTempTodo(null);
+
+      return;
+    }
+
+    addTodos(USER_ID, {
+      title: inputValue,
+      userId: USER_ID,
+      completed: false,
+    })
+      .then((result) => {
+        setTodos(prevTodos => {
+          return [...prevTodos, result];
+        });
+      })
+      .catch(() => {
+        setVisibleError('Unable to add a todo');
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setTempTodo(null);
+        setInputValue('');
+      });
+  }, [inputValue, todos]);
+
+  const removeTodo = (todoId: number) => {
+    setDeletedTodoId((prevState) => [...prevState, todoId]);
+
+    deleteTodo(todoId)
+      .then(() => {
+        setTodos(
+          todos.filter(todo => (
+            todo.id !== todoId
+          )),
+        );
+      })
+      .catch(() => {
+        setVisibleError('Unable to delete a todo');
+      })
+      .finally(() => {
+        setDeletedTodoId([0]);
+      });
+  };
+
+  const handleToggleButton = async () => {
+    try {
+      const updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+
+      setTodos(updatedTodos);
+
+      await Promise.all(
+        updatedTodos.map(todo => updateTodo(todo.id, todo)),
+      );
+    } catch (error) {
+      setVisibleError('Unable to update todos');
+    }
+  };
+
+  const removeCompletedTodos = useCallback(() => {
+    const completedTodoIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    Promise.all(
+      completedTodoIds.map(id => (
+        client.delete(`/todos/${id}`)
+          .catch(() => {
+            setVisibleError(`Unable to delete todo with ID ${id}`);
+          }))),
+    )
+      .then(() => {
+        const filteredTodos = todos.filter(todo => !todo.completed);
+
+        setTodos(filteredTodos);
+      })
+      .catch(() => {
+        setVisibleError('Unable to delete completed todos');
+      });
+  }, [todos]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <Header
+        todos={todos}
+        handleSubmit={handleSubmit}
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        isLoading={isLoading}
+        handleToggleButton={handleToggleButton}
+      />
+
+      <div className="todoapp__content">
+
+        <TodoList
+          tempTodo={tempTodo}
+          todos={FilterTodos(todos, todoFilter)}
+          removeTodo={removeTodo}
+          deletedTodoId={deletedTodoId}
+        />
+
+        {todos.length > 0 && (
+          <Footer
+            setTodoFilter={setTodoFilter}
+            todoFilter={todoFilter}
+            todos={todos}
+            removeCompletedTodos={removeCompletedTodos}
+          />
+        )}
+      </div>
+
+      <Message
+        visibleError={visibleError}
+        setVisibleError={setVisibleError}
+      />
+    </div>
   );
 };
