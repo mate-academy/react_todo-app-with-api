@@ -6,7 +6,7 @@ interface Props {
   todo: Todo;
   onRemoveTodo: (todoId: number) => void;
   loadingTodo: number[];
-  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void;
+  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void
   handleShowError(error: string): void;
 }
 

@@ -7,7 +7,7 @@ interface Props {
   onRemoveTodo: (todoId: number) => void;
   loadingTodo: number[];
   tempTodo: Todo | null;
-  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void
+  onUpdateTodo: (todoId: number, args: UpdateTodoArgs) => void;
   handleShowError: (error: string) => void;
 }
 

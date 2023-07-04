@@ -6,6 +6,7 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo, UpdateTodoArgs } from './types/Todo';
 import {
@@ -96,10 +97,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleShowError = (erorMessage: string) => {
-    setError(erorMessage);
-  };
-
   const removeTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodo(prevTodoId => [...prevTodoId, todoId]);
@@ -124,7 +121,7 @@ export const App: React.FC = () => {
     args: UpdateTodoArgs,
   ) => {
     try {
-      setLoadingTodo([...loadingTodo, todoId]);
+      setLoadingTodo(prevLoadingTodo => [...prevLoadingTodo, todoId]);
       const updatedTodo: Todo = await patchTodo(todoId, args);
 
       setTodos(prevTodos => prevTodos.map(todo => {
@@ -142,14 +139,45 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  const handleToggleAll = async () => {
+    const allCompleted = todos.every(todo => todo.completed);
+
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !allCompleted,
+    }));
+
+    setTodos(updatedTodos);
+
+    try {
+      setLoadingTodo(prevLoadingTodo => (
+        [...prevLoadingTodo, ...updatedTodos.map(todo => todo.id)]));
+      await Promise.all(updatedTodos.map(todo => (
+        updateTodo(todo.id, { completed: !allCompleted }))));
+    } catch {
+      setError('Unable to update todos');
+    } finally {
+      setLoadingTodo([]);
+    }
+  };
+
+  const handleShowError = (erorMessage: string) => {
+    setError(erorMessage);
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button type="button" className="todoapp__toggle-all active" />
+          <button
+            type="button"
+            className={cn('todoapp__toggle-all', {
+              active: uncompletedTodos.length === 0,
+            })}
+            onClick={handleToggleAll}
+          />
           <TodoForm
             onAddTodo={addTodo}
             handleShowError={handleShowError}
