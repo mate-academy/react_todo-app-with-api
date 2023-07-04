@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { EditForm } from './EditForm';
 
@@ -20,31 +20,31 @@ export const TodoItem:FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  const onHandleRemoveTodo = async () => {
+  const onHandleRemoveTodo = useCallback(async () => {
     setIsLoading(true);
     await removeTodoByID(id);
     setIsLoading(false);
-  };
+  }, [id, removeTodoByID]);
 
-  const editCurrentTodo = async (data: Partial<Todo>) => {
+  const editCurrentTodo = useCallback(async (data: Partial<Todo>) => {
     setIsLoading(true);
     await editTodoByID(id, data);
     setIsLoading(false);
-  };
+  }, [editTodoByID, id]);
 
   const toggleCheckboxHandler = () => {
     editCurrentTodo({ completed: !completed });
   };
 
-  const editTodoTitle = (text: string) => {
+  const editTodoTitle = useCallback((text: string) => {
     editCurrentTodo({ title: text });
-  };
+  }, [editCurrentTodo]);
 
   const toggleTodoEdit = () => {
     setIsEditing(true);
   };
 
-  const editFormSubmitHandler = (text: string) => {
+  const editFormSubmitHandler = useCallback((text: string) => {
     if (text === '') {
       onHandleRemoveTodo();
     } else {
@@ -52,7 +52,7 @@ export const TodoItem:FC<Props> = ({
     }
 
     setIsEditing(false);
-  };
+  }, [editTodoTitle, onHandleRemoveTodo]);
 
   return (
     <div className={cn('todo', { completed })}>
