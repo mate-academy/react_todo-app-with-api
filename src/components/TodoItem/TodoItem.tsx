@@ -79,8 +79,8 @@ export const TodoItem: FC<Props> = React.memo(({
     setEditTitle(event.target.value);
   };
 
-  const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement> |
-  React.FocusEvent<HTMLInputElement>) => {
+  const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement>) => {
     event.preventDefault();
     if (!editTitle.trim()) {
       deleteTodo(todo);
@@ -94,7 +94,12 @@ export const TodoItem: FC<Props> = React.memo(({
       return;
     }
 
-    handleEditTodo(todo);
+    const updatedTodo = {
+      ...todo,
+      title: editTitle,
+    };
+
+    handleEditTodo(updatedTodo);
     setIsEdit(false);
   };
 
@@ -124,7 +129,7 @@ export const TodoItem: FC<Props> = React.memo(({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={title}
+            value={editTitle}
             onChange={handleTitleChange}
             onKeyUp={(event) => {
               if (event.key === 'Escape') {
