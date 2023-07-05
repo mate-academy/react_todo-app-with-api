@@ -1,19 +1,33 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { UpdateTodoArgs } from '../../types/UpdateTodoArgs';
 
 interface Props {
   todo: Todo;
   deleteTodo: (todoId: number) => void;
   deletingTodoId: number[];
+  toggleTodoStatus:(
+    todoId: number,
+    args: UpdateTodoArgs
+  ) => Promise<Todo | null>;
+  updatingTodosId: number[]
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
   deletingTodoId,
+  toggleTodoStatus,
+  updatingTodosId,
 }) => {
   const isDeletingItem = deletingTodoId.includes(todo.id);
+  const isUpdatingItem = updatingTodosId.includes(todo.id);
+
+  const handleToggleTodoStatus = () => toggleTodoStatus(
+    todo.id,
+    { completed: !todo.completed },
+  );
 
   return (
     <div
@@ -27,7 +41,8 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked
+          checked={todo.completed}
+          onChange={() => handleToggleTodoStatus()}
         />
       </label>
       <span className="todo__title">{todo.title}</span>
@@ -44,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={cn(
           'modal overlay',
-          { ' is-active': isDeletingItem },
+          { ' is-active': isDeletingItem || isUpdatingItem },
         )}
       >
         <div className="modal-background has-background-white-ter " />

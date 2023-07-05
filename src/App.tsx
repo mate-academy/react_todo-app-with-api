@@ -6,11 +6,14 @@ import './App.scss';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoNotification }
   from './components/TodoNotification/TodoNotification';
-import { createTodo, getTodos, removeTodo } from './api/todos';
+import {
+  createTodo, getTodos, removeTodo, updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterOptions } from './types/FilterOptions';
 import { filterTodos } from './Helpers';
 import { ErrorMessages } from './types/ErrorMessages';
+import { UpdateTodoArgs } from './types/UpdateTodoArgs';
 
 const USER_ID = 6795;
 
@@ -21,6 +24,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessages | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodosId, setDeletingTodosId] = useState<number[]>([]);
+  const [updatingTodosId, setUpdatingTodosId] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -42,6 +46,7 @@ export const App: React.FC = () => {
     [todos],
   );
   const isTodosPresent = todos.length > 0;
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -120,6 +125,54 @@ export const App: React.FC = () => {
     });
   };
 
+  const toggleTodoStatus = async (
+    todoId: number,
+    args: UpdateTodoArgs,
+  ) => {
+    try {
+      setUpdatingTodosId((prevState) => [...prevState, todoId]);
+
+      const updatedTodo = await updateTodo(
+        todoId,
+        args,
+      );
+
+      setTodos((prevState) => {
+        return prevState.map(todo => {
+          if (todo.id === todoId) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
+
+          return todo;
+        });
+      });
+
+      return updatedTodo;
+    } catch (error) {
+      setErrorMessage(ErrorMessages.UpdateError);
+
+      return null;
+    } finally {
+      setUpdatingTodosId([]);
+    }
+  };
+
+  const toggleAllTodos = () => {
+    let actionTodos: Todo[] = [];
+
+    actionTodos = isAllTodosCompleted
+      ? completedVisibleTodos
+      : activeVisibleTodos;
+
+    actionTodos.forEach(async todoToUpdate => {
+      await toggleTodoStatus(todoToUpdate.id,
+        { completed: !todoToUpdate.completed });
+    });
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -130,6 +183,8 @@ export const App: React.FC = () => {
           newTodoTitle={newTodoTitle}
           handleNewTodoTitleChange={handleNewTodoTitleChange}
           addNewTodo={addNewTodo}
+          isAllTodosCompleted={isAllTodosCompleted}
+          toggleAllTodos={toggleAllTodos}
         />
 
         <TodoList
@@ -137,6 +192,8 @@ export const App: React.FC = () => {
           deleteTodo={deleteTodo}
           tempTodo={tempTodo}
           deletingTodoId={deletingTodosId}
+          toggleTodoStatus={toggleTodoStatus}
+          updatingTodosId={updatingTodosId}
         />
 
         {isTodosPresent

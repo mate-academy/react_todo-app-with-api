@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 interface Props {
@@ -6,7 +7,9 @@ interface Props {
   newTodoTitle: string
   handleNewTodoTitleChange:
   (newTitle: React.ChangeEvent<HTMLInputElement>) => void;
-  addNewTodo: (title: string) => Promise<Todo | null>
+  addNewTodo: (title: string) => Promise<Todo | null>;
+  isAllTodosCompleted: boolean;
+  toggleAllTodos: any
 }
 
 export const TodoHeader: React.FC<Props> = (
@@ -15,6 +18,8 @@ export const TodoHeader: React.FC<Props> = (
     newTodoTitle,
     handleNewTodoTitleChange,
     addNewTodo,
+    isAllTodosCompleted,
+    toggleAllTodos,
   },
 ) => {
   const [isAdding, setIsAdding] = useState(false);
@@ -35,8 +40,9 @@ export const TodoHeader: React.FC<Props> = (
       {isTodosPresent && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn('todoapp__toggle-all', { active: isAllTodosCompleted })}
           aria-label="Show todos"
+          onClick={() => toggleAllTodos()}
         />
       )}
 

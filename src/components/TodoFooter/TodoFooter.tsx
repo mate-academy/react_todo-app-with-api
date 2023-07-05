@@ -51,10 +51,12 @@ export const TodoFooter: React.FC<Props> = (
 
       <button
         type="button"
-        className={cn(
-          'todoapp__clear-completed',
-          { hidden: isCompletedTodosPresent },
-        )}
+        className="todoapp__clear-completed"
+        style={{
+          visibility: isCompletedTodosPresent
+            ? 'visible'
+            : 'hidden',
+        }}
         onClick={() => deleteTodos(completedVisibleTodos)}
       >
         Clear completed

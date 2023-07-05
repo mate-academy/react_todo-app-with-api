@@ -2,12 +2,18 @@ import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { UpdateTodoArgs } from '../../types/UpdateTodoArgs';
 
 interface Props {
   todos: Todo[];
   deleteTodo: (todoId: number) => void;
   deletingTodoId: number[];
   tempTodo: Todo | null;
+  toggleTodoStatus:(
+    todoId: number,
+    args: UpdateTodoArgs
+  ) => Promise<Todo | null>;
+  updatingTodosId: number[];
 }
 
 export const TodoList: React.FC<Props> = (
@@ -16,6 +22,8 @@ export const TodoList: React.FC<Props> = (
     deleteTodo,
     tempTodo,
     deletingTodoId,
+    toggleTodoStatus,
+    updatingTodosId,
   },
 ) => {
   return (
@@ -27,6 +35,8 @@ export const TodoList: React.FC<Props> = (
           deleteTodo={deleteTodo}
           deletingTodoId={deletingTodoId}
           key={todo.id}
+          toggleTodoStatus={toggleTodoStatus}
+          updatingTodosId={updatingTodosId}
         />
       ))}
 
