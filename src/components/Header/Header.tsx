@@ -24,8 +24,12 @@ export const Header:React.FC<Props> = ({
   const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (newTodoTitle.length === 0) {
+    const trimmedNewTodoTitle = newTodoTitle.trim();
+
+    if (trimmedNewTodoTitle.length === 0) {
       setError('Title can\'t be empty');
+
+      return;
     }
 
     addNewTodo(newTodoTitle);
