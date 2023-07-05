@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { FilterBy } from './types/FilterBy';
 import { getFilteredTodos } from './helpers/getFilteredTodos';
 import { TodoList } from './components/TodoList';
+import { Header } from './components/Header';
 
 const USER_ID = 10775;
 
@@ -127,7 +128,7 @@ export const App: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!inputValue) {
+    if (!inputValue || inputValue.trim().length === 0) {
       setIsError('Title can not be empty');
 
       return;
@@ -158,6 +159,30 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleClearCompleted = () => {
+    todos.forEach(async (todo) => {
+      if (todo.completed) {
+        await removeTodo(todo.id);
+      }
+    });
+  };
+
+  const handleToggleAll = () => {
+    const isSomeTodosCompleted = todos.some(todo => todo.completed);
+
+    const isEveryTodosCompleted = todos.every(todo => todo.completed);
+
+    todos.forEach(async (todo) => {
+      if (isSomeTodosCompleted && !todo.completed) {
+        await updateStatus(todo.id);
+      }
+
+      if (isEveryTodosCompleted || !isSomeTodosCompleted) {
+        await updateStatus(todo.id);
+      }
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -169,24 +194,14 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          {(todos.length > 0) && (
-            <button type="button" className="todoapp__toggle-all " />
-          )}
-
-          {/* Add a todo on form submit */}
-          <form onSubmit={handleFormSubmit}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
-              disabled={disableInput}
-            />
-          </form>
-        </header>
+        <Header
+          handleFormSubmit={handleFormSubmit}
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          todosLength={todos.length}
+          disableInput={disableInput}
+          handleToggleAll={handleToggleAll}
+        />
 
         {todos.length > 0 && (
           <TodoList
@@ -204,6 +219,7 @@ export const App: React.FC = () => {
             todos={todos}
             filterBy={filterBy}
             setFilterBy={setFilterBy}
+            handleClearCompleted={handleClearCompleted}
           />
         )}
       </div>

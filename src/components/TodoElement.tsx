@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../types/Todo';
@@ -19,8 +19,16 @@ export const TodoElement: React.FC<Props> = ({
   updateTitle,
 }) => {
   const { id, title, completed } = todo;
-  const [editForm, setEditForm] = useState(false);
   const [editValue, setEditValue] = useState(title);
+  const [editForm, setEditForm] = useState(false);
+
+  const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editForm && ref.current) {
+      ref.current.focus();
+    }
+  }, [editForm]);
 
   const apply = () => {
     updateTitle(id, editValue);
@@ -84,6 +92,7 @@ export const TodoElement: React.FC<Props> = ({
               value={editValue}
               onChange={(event => setEditValue(event.target.value))}
               onKeyDown={cancel}
+              ref={ref}
             />
           </form>
         ) : (
