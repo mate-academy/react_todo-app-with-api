@@ -61,8 +61,6 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setIsLoading(true);
-
       postTodos(USER_ID, newTodo).then((todo) => {
         const receivedTodo = todo as Todo;
 
@@ -71,7 +69,6 @@ export const App: React.FC = () => {
         setTodos((prevTodos) => [...prevTodos, receivedTodo]);
         setInput('');
         setTempTodoId(null);
-        setIsLoading(false);
 
         if (error && error === TodoErros.Add) {
           setError('');
@@ -199,6 +196,7 @@ export const App: React.FC = () => {
               onRemoveTodo={handleRemoveTodo}
               onCheckedTodo={handleCheckBoxTodo}
               tempTodoId={tempTodoId}
+              handleImputTodo={handleImputTodo}
             />
           )}
         {!!todos.length && (

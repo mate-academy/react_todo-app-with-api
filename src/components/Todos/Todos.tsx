@@ -8,6 +8,7 @@ type Props = {
   onRemoveTodo: (todoId: number) => void
   onCheckedTodo: (todoId: number) => void
   tempTodoId: number | null
+  handleImputTodo: (e: React.ChangeEvent<HTMLInputElement>) => void
 };
 
 export const Todos: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const Todos: React.FC<Props> = ({
   onRemoveTodo,
   onCheckedTodo,
   tempTodoId,
+  handleImputTodo,
 }) => {
   return (
     <section className="todoapp__main">
@@ -25,6 +27,7 @@ export const Todos: React.FC<Props> = ({
           onRemoveTodo={onRemoveTodo}
           onCheckedTodo={onCheckedTodo}
           loading={todo.id === tempTodoId}
+          handleImputTodo={handleImputTodo}
         />
       ))}
     </section>
