@@ -26,10 +26,10 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoFilter, setTodoFilter] = useState<TodoStatus>(TodoStatus.All);
   const [visibleError, setVisibleError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [isTodoLoading, setIsTodoLoading] = useState(false);
+  const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletedTodoId, setDeletedTodoId] = useState([0]);
+  const [deletedTodoId, setDeletedTodoId] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -39,62 +39,45 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setIsLoading(true);
+    setIsTodoLoading(true);
 
-    setTempTodo({
-      id: 0,
-      title: inputValue,
-      completed: false,
-      userId: USER_ID,
-    });
-
-    if (!inputValue.trim()) {
+    if (!todoTitle.trim()) {
       setVisibleError('Title can`t be empty');
-      setIsLoading(false);
+      setIsTodoLoading(false);
       setTempTodo(null);
 
       return;
     }
 
     addTodos(USER_ID, {
-      title: inputValue,
+      title: todoTitle,
       userId: USER_ID,
       completed: false,
     })
       .then((result) => {
-        setTodos(prevTodos => {
-          return [...prevTodos, result];
-        });
+        setTodos(prevTodos => [...prevTodos, result]);
       })
       .catch(() => {
         setVisibleError('Unable to add a todo');
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsTodoLoading(false);
         setTempTodo(null);
-        setInputValue('');
+        setTodoTitle('');
       });
-  }, [inputValue, todos]);
-
+  }, [todoTitle, todos]);
   const removeTodo = (todoId: number) => {
-    setDeletedTodoId((prevState) => [...prevState, todoId]);
+    setDeletedTodoId(prevState => prevState.filter(id => id !== todoId));
 
     deleteTodo(todoId)
       .then(() => {
-        setTodos(
-          todos.filter(todo => (
-            todo.id !== todoId
-          )),
-        );
+        setTodos(todos.filter(todo => todo.id !== todoId));
       })
       .catch(() => {
         setVisibleError('Unable to delete a todo');
-      })
-      .finally(() => {
-        setDeletedTodoId([0]);
       });
   };
 
@@ -112,6 +95,26 @@ export const App: React.FC = () => {
       );
     } catch (error) {
       setVisibleError('Unable to update todos');
+    }
+  };
+
+  const handleCheck = async (todoId: number) => {
+    try {
+      const updatedTodos = todos.map(todo => {
+        if (todo.id === todoId) {
+          return { ...todo, completed: !todo.completed };
+        }
+
+        return todo;
+      });
+
+      setTodos(updatedTodos);
+
+      await Promise.all(
+        updatedTodos.map(todo => updateTodo(todo.id, todo)),
+      );
+    } catch (error) {
+      setVisibleError('Unable to update todo');
     }
   };
 
@@ -147,10 +150,10 @@ export const App: React.FC = () => {
 
       <Header
         todos={todos}
-        handleSubmit={handleSubmit}
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        isLoading={isLoading}
+        handleFormSubmit={handleFormSubmit}
+        todoTitle={todoTitle}
+        setTodoTitle={setTodoTitle}
+        isTodoLoading={isTodoLoading}
         handleToggleButton={handleToggleButton}
       />
 
@@ -161,6 +164,10 @@ export const App: React.FC = () => {
           todos={FilterTodos(todos, todoFilter)}
           removeTodo={removeTodo}
           deletedTodoId={deletedTodoId}
+          handleCheck={handleCheck}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+          handleFormSubmit={() => handleFormSubmit}
         />
 
         {todos.length > 0 && (
