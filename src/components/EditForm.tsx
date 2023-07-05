@@ -5,16 +5,19 @@ import {
   useRef,
   useState,
 } from 'react';
-// import classNames from 'classnames';
 import { TodoUpdate, Todo as TodoType } from '../types/Todo';
 
 type EProps = {
   todo: TodoType;
   updateTodo: (id: number, newValues: TodoUpdate) => void;
-  setIsEdit: (value: boolean) => void
+  setIsEdit: (value: boolean) => void;
 };
 
-export const EditForm: FC<EProps> = ({ todo, updateTodo, setIsEdit }) => {
+export const EditForm: FC<EProps> = ({
+  todo,
+  updateTodo,
+  setIsEdit,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(todo.title);
 
@@ -44,7 +47,7 @@ export const EditForm: FC<EProps> = ({ todo, updateTodo, setIsEdit }) => {
     }
   }, []);
 
-  const handleSubmit = (event: ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimedValue = value.trim();
@@ -58,7 +61,7 @@ export const EditForm: FC<EProps> = ({ todo, updateTodo, setIsEdit }) => {
   };
 
   return (
-    <form action="submit editInput" onSubmit={handleSubmit}>
+    <form action="submit" onSubmit={handleSubmit}>
       <input
         className="editInput"
         type="text"

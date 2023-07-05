@@ -1,10 +1,12 @@
 import {
   FC,
+  useContext,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { TodoUpdate, Todo as TodoType } from '../types/Todo';
 import { EditForm } from './EditForm';
+import { TodoContext } from '../TodoContext';
 
 type Props = {
   todo: TodoType;
@@ -13,8 +15,8 @@ type Props = {
 };
 
 export const Todo:FC<Props> = ({ todo, removeTodo, updateTodo }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const { todosIdsOnLoad } = useContext(TodoContext);
 
   const {
     id,
@@ -22,16 +24,14 @@ export const Todo:FC<Props> = ({ todo, removeTodo, updateTodo }) => {
     title,
   } = todo;
 
-  const handleRemove = async () => {
-    setIsLoading(true);
-    await removeTodo(id);
-    setIsLoading(false);
+  const isLoading = todosIdsOnLoad.includes(id);
+
+  const handleRemove = () => {
+    removeTodo(id);
   };
 
-  const handleCheck = async () => {
-    setIsLoading(true);
-    await updateTodo(id, { completed: !completed });
-    setIsLoading(false);
+  const handleCheck = () => {
+    updateTodo(id, { completed: !completed });
   };
 
   const handleDoubleClick = () => {
@@ -49,11 +49,15 @@ export const Todo:FC<Props> = ({ todo, removeTodo, updateTodo }) => {
             <input
               type="checkbox"
               className="todo__status"
-              checked
+              checked={isEdit}
               onChange={handleCheck}
             />
           </label>
-          <EditForm todo={todo} updateTodo={updateTodo} setIsEdit={setIsEdit} />
+          <EditForm
+            todo={todo}
+            updateTodo={updateTodo}
+            setIsEdit={setIsEdit}
+          />
         </li>
       ) : (
         <li
@@ -92,6 +96,5 @@ export const Todo:FC<Props> = ({ todo, removeTodo, updateTodo }) => {
         </li>
       )}
     </>
-
   );
 };

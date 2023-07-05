@@ -1,16 +1,23 @@
 import { TodoUpdate, Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-const USER_ID = 10923;
-
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const postTodo = (title: string) => {
+interface User {
+  id: number,
+  email:string,
+}
+
+export const getUserId = (email: string) => {
+  return client.get<User[]>(`/users?email=${email}`);
+};
+
+export const postTodo = (title: string, userId: number) => {
   return client.post<Todo>('/todos', {
     title,
-    userId: USER_ID,
+    userId,
     completed: false,
   });
 };

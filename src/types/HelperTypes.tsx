@@ -10,10 +10,5 @@ export enum ErrorType {
   ADD_UNABLE = 'Title can\'t be empty',
   DELETE_UNABLE = 'Unable to delete a todo',
   UPDATE_UNABLE = 'Unable to update a todo',
-}
-
-export interface TodosInfo {
-  length: number,
-  countOfActive: number,
-  hasCompleted: boolean,
+  WRONG_EMAIL = 'This email address is not registered',
 }

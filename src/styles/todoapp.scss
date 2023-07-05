@@ -133,19 +133,19 @@
 
 .editInput {
   width: 100%;
-  padding: 16px 10px;
+  height: 100%;
+  padding: 15px 12px;
 
   font-size: 24px;
   line-height: 1.4em;
   font-family: inherit;
   font-weight: inherit;
-  // color: inherit;
+  color: inherit;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  border: none;
-  background: rgba(0, 0, 0, 0.01);
-  box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
+  border: 1px solid teal;
+  border-radius: 5px;
 
   &::placeholder {
     font-style: italic;

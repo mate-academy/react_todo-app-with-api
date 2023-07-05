@@ -1,12 +1,13 @@
 import {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
 import { TodoUpdate, Todo } from './types/Todo';
-import { ErrorType, FilterType, TodosInfo } from './types/HelperTypes';
-import { getFilteredTodos, getTodosInfo } from './Helper';
+import { ErrorType, FilterType } from './types/HelperTypes';
+import { getFilteredTodos } from './Helper';
 import {
   deleteTodo,
   getTodos,
@@ -17,19 +18,12 @@ import { TodoList } from './components/TodoList';
 import { Header } from './components/Header';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 10923;
-
-const initialTodosInfo: TodosInfo = {
-  length: 0,
-  countOfActive: 0,
-  hasCompleted: false,
-};
+import { LoginForm } from './components/LoginForm';
+import { TodoContext } from './TodoContext';
 
 const initialTodo: Todo = {
   id: 0,
-  userId: USER_ID,
+  userId: 10923,
   completed: false,
   title: '',
 };
@@ -38,29 +32,33 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<FilterType>(FilterType.ALL);
   const [errorType, setErrorType] = useState<ErrorType | null>(null);
-  const [todosInfo, setTodosInfo] = useState<TodosInfo>(initialTodosInfo);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const {
+    addTodoIdOnLoad,
+    removeTodoIdAfterLoading,
+    userId,
+  } = useContext(TodoContext);
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     setErrorType(null);
 
     try {
-      const loadedTodos: Todo[] = await getTodos(USER_ID);
+      if (userId) {
+        const loadedTodos: Todo[] = await getTodos(userId);
 
-      setTodos(loadedTodos);
+        setTodos(loadedTodos);
+      }
     } catch {
       setErrorType(ErrorType.DATALOADING);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadTodos();
-  }, []);
+  }, [userId]);
 
   const visibleTodos: Todo[] = useMemo(() => {
     const filteredTodos = getFilteredTodos(todos, filterType);
-
-    setTodosInfo(getTodosInfo(todos));
 
     return filteredTodos;
   }, [todos, filterType]);
@@ -72,25 +70,36 @@ export const App: React.FC = () => {
         title,
       });
 
-      const newTodo: Todo = await postTodo(title);
+      if (userId) {
+        const newTodo: Todo = await postTodo(title, userId);
 
-      setTodos((prevTodos) => [
-        ...prevTodos,
-        newTodo,
-      ]);
+        setTodos((prevTodos) => [
+          ...prevTodos,
+          newTodo,
+        ]);
+      }
     } catch {
       setErrorType(ErrorType.ADD_UNABLE);
     } finally {
       setTempTodo(null);
     }
-  }, []);
+  }, [userId]);
+
+  const countOfActive = getFilteredTodos(
+    todos, FilterType.ACTIVE,
+  ).length;
+
+  const hasCompleted = todos.some(todo => todo?.completed);
 
   const removeTodo = useCallback(async (id: number) => {
     try {
+      addTodoIdOnLoad(id);
+
       const removedTodo = await deleteTodo(id);
 
       if (removedTodo) {
         setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== id));
+        removeTodoIdAfterLoading(id);
       }
     } catch {
       setErrorType(ErrorType.DELETE_UNABLE);
@@ -111,6 +120,7 @@ export const App: React.FC = () => {
 
   const updateTodo = async (id: number, newValues: TodoUpdate) => {
     try {
+      addTodoIdOnLoad(id);
       const updatedTodo: Todo = await patchTodo(id, newValues);
 
       const indexOfTodo: number = todos.findIndex(
@@ -122,6 +132,7 @@ export const App: React.FC = () => {
         updatedTodo,
         ...prevTodos.slice(indexOfTodo + 1),
       ]);
+      removeTodoIdAfterLoading(id);
     } catch {
       setErrorType(ErrorType.UPDATE_UNABLE);
     }
@@ -129,7 +140,7 @@ export const App: React.FC = () => {
 
   const updateAll = () => {
     try {
-      const newStatus: boolean = todosInfo.countOfActive > 0;
+      const newStatus: boolean = countOfActive > 0;
 
       todos.map(async (todo) => {
         await updateTodo(todo.id, { completed: newStatus });
@@ -147,8 +158,19 @@ export const App: React.FC = () => {
     setErrorType(null);
   };
 
-  if (!USER_ID) {
-    return <UserWarning />;
+  if (!userId) {
+    return (
+      <>
+        <LoginForm setErrorType={setErrorType} />
+        {errorType
+        && (
+          <ErrorMessage
+            errorType={errorType}
+            removeError={removeError}
+          />
+        )}
+      </>
+    );
   }
 
   return (
@@ -158,13 +180,13 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <Header
-          countOfActive={todosInfo.countOfActive}
+          countOfActive={countOfActive}
           addTodo={addTodo}
           setErrorType={setErrorType}
           updateAll={updateAll}
         />
 
-        {todosInfo.length !== 0
+        {todos.length !== 0
           && (
             <>
               <TodoList
@@ -176,8 +198,8 @@ export const App: React.FC = () => {
               <Footer
                 filterType={filterType}
                 handleFilterType={handleFilterType}
-                hasCompleted={todosInfo.hasCompleted}
-                countOfActive={todosInfo.countOfActive}
+                hasCompleted={hasCompleted}
+                countOfActive={countOfActive}
                 removeCompletedTodos={removeCompletedTodos}
               />
             </>
