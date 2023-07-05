@@ -26,7 +26,7 @@ export const Header: FC<Props> = ({
   const handleSubmit = async (event: ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       setErrorType(ErrorType.EMPTY_FIELD);
 
       return;
