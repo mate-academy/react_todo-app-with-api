@@ -98,6 +98,7 @@ export const App: React.FC = () => {
       );
       setTodos(updatedTodos);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(`An error occurred while toggling all todos ${error}`);
       setToggleTodoIsFailed(true);
     } finally {
