@@ -5,15 +5,20 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todos: Todo[];
   onDelete: CallableFunction;
-  loadingTodos: number[];
+  loadingTodoIds: number[];
   tempTodo: Todo | null,
+  handleUpdateTodo: (
+    todoId: number,
+    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
+  ) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
-  loadingTodos,
+  loadingTodoIds,
   tempTodo,
+  handleUpdateTodo,
 }) => (
 
   <section className="todoapp__main">
@@ -21,16 +26,18 @@ export const TodoList: React.FC<Props> = ({
       <TodoItem
         key={todo.id}
         todo={todo}
-        loadingTodos={loadingTodos}
+        loadingTodoIds={loadingTodoIds}
         onDelete={onDelete}
+        handleUpdateTodo={handleUpdateTodo}
       />
     ))}
 
     {tempTodo && (
       <TodoItem
         todo={tempTodo}
-        loadingTodos={loadingTodos}
+        loadingTodoIds={loadingTodoIds}
         onDelete={onDelete}
+        handleUpdateTodo={handleUpdateTodo}
       />
     )}
   </section>

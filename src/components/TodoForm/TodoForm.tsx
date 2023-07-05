@@ -35,7 +35,7 @@ export const TodoForm: React.FC<Props> = ({
         placeholder="What needs to be done?"
         value={newTodoTitle}
         onChange={(event) => setNewTodoTitle(event.target.value)}
-        disabled={!!tempTodo}
+        disabled={Boolean(tempTodo)}
       />
     </form>
   );

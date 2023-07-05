@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from './types/Todo';
-import { FilteringOptions } from './types/Filter';
+import { FilteringOption } from './types/Filter';
 import { UserWarning } from './UserWarning';
 import {
   addTodo,
@@ -23,10 +23,10 @@ const USER_ID = 10921;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState<FilteringOptions>(FilteringOptions.all);
+  const [filter, setFilter] = useState<FilteringOption>(FilteringOption.all);
   const [error, setError] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -44,6 +44,10 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
   const areAllCompleted = todos.every(todo => todo.completed);
 
+  const handleCloseError = () => {
+    setError(null);
+  };
+
   const handleAddTodo = useCallback(async (title: string) => {
     try {
       const newTodo = {
@@ -52,11 +56,14 @@ export const App: React.FC = () => {
         completed: false,
       };
 
+      const tempId = 0;
+
       setTempTodo({
-        id: 0,
+        id: tempId,
         ...newTodo,
       });
 
+      setLoadingTodoIds([tempId]);
       const addedTodo = await addTodo(newTodo);
 
       setTodos(curTodos => [...curTodos, addedTodo]);
@@ -64,19 +71,20 @@ export const App: React.FC = () => {
       setError('Unable to add a todo');
     } finally {
       setTempTodo(null);
+      setLoadingTodoIds([]);
     }
   }, []);
 
   const handleDeleteTodo = async (todoId: number) => {
     try {
-      setLoadingTodos(prevTodoIds => [...prevTodoIds, todoId]);
+      setLoadingTodoIds(prevTodoIds => [...prevTodoIds, todoId]);
       await deleteTodo(todoId);
       setTodos(curTodosIds => curTodosIds.filter(t => t.id !== todoId));
     } catch {
       setError('Unable to delete a todo');
     } finally {
       setTempTodo(null);
-      setLoadingTodos([0]);
+      setLoadingTodoIds([]);
     }
   };
 
@@ -96,7 +104,7 @@ export const App: React.FC = () => {
       newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>,
     ) => {
       try {
-        setLoadingTodos(prevIds => [...prevIds, todoId]);
+        setLoadingTodoIds(prevIds => [...prevIds, todoId]);
         const updatedTodo = await updateTodo(todoId, newTodoData);
 
         setTodos(prevTodos => prevTodos.map(todo => {
@@ -109,7 +117,7 @@ export const App: React.FC = () => {
       } catch {
         setError('Unable to update a todo');
       } finally {
-        setLoadingTodos([]);
+        setLoadingTodoIds([]);
       }
     },
     [todos],
@@ -135,10 +143,10 @@ export const App: React.FC = () => {
 
   const visibleTodos = useMemo(() => {
     switch (filter) {
-      case FilteringOptions.active:
+      case FilteringOption.active:
         return activeTodos;
 
-      case FilteringOptions.completed:
+      case FilteringOption.completed:
         return completedTodos;
 
       default:
@@ -165,8 +173,9 @@ export const App: React.FC = () => {
         <TodoList
           todos={visibleTodos}
           onDelete={handleDeleteTodo}
-          loadingTodos={loadingTodos}
+          loadingTodoIds={loadingTodoIds}
           tempTodo={tempTodo}
+          handleUpdateTodo={handleUpdateTodo}
         />
 
         {todos.length > 0 && (
@@ -194,7 +203,7 @@ export const App: React.FC = () => {
       </div>
       <Notifications
         error={error}
-        setError={setError}
+        handleCloseError={handleCloseError}
       />
     </div>
   );

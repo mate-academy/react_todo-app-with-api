@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
-import { FilteringOptions } from '../../types/Filter';
+import { FilteringOption } from '../../types/Filter';
 
 interface Props {
-  filter: FilteringOptions;
-  setFilter: (filter: FilteringOptions) => void;
+  filter: FilteringOption;
+  setFilter: (filter: FilteringOption) => void;
 }
 
 export const Filter: React.FC<Props> = ({
@@ -16,9 +16,9 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/"
         className={classNames('filter__link', {
-          selected: filter === FilteringOptions.all,
+          selected: filter === FilteringOption.all,
         })}
-        onClick={() => setFilter(FilteringOptions.all)}
+        onClick={() => setFilter(FilteringOption.all)}
       >
         All
       </a>
@@ -26,9 +26,9 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/active"
         className={classNames('filter__link', {
-          selected: filter === FilteringOptions.active,
+          selected: filter === FilteringOption.active,
         })}
-        onClick={() => setFilter(FilteringOptions.active)}
+        onClick={() => setFilter(FilteringOption.active)}
       >
         Active
       </a>
@@ -36,9 +36,9 @@ export const Filter: React.FC<Props> = ({
       <a
         href="#/completed"
         className={classNames('filter__link', {
-          selected: filter === FilteringOptions.completed,
+          selected: filter === FilteringOption.completed,
         })}
-        onClick={() => setFilter(FilteringOptions.completed)}
+        onClick={() => setFilter(FilteringOption.completed)}
       >
         Completed
       </a>
