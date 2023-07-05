@@ -13,11 +13,6 @@ export const deleteTodo = (id: number) => {
   return client.delete(`/todos/${id}`);
 };
 
-export const updateTodos = (
-  ids: number[],
-  updates: Partial<Todo>,
-) => {
-  const updateRequests = ids.map(id => client.patch<Todo>(`/todos/${id}`, updates));
-
-  return Promise.all(updateRequests);
+export const updateTodos = (id: number, todo: Todo) => {
+  return client.patch(`/todos/${id}`, todo);
 };

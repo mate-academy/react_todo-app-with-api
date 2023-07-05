@@ -1,12 +1,16 @@
 import { TodoInfo } from './TodoInfo';
 import { Todo } from '../types/Todo';
+import { ErrorMessage } from '../enums/error';
 
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
   deletedTodosId: number[] | [];
   handleDeletedTodo: (id: number) => void;
-  handleUpdatedTodo: (ids: number[], value: Partial<Todo>) => void;
+  handleUpdatedTodo: (id: number) => void;
+  setDeletedTodosId: React.Dispatch<React.SetStateAction<number[] | []>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setError: React.Dispatch<React.SetStateAction<ErrorMessage>>
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,6 +19,9 @@ export const TodoList: React.FC<Props> = ({
   deletedTodosId,
   handleDeletedTodo,
   handleUpdatedTodo,
+  setDeletedTodosId,
+  setTodos,
+  setError,
 }) => (
   <ul className="todoapp__main">
     {todos.map(todo => (
@@ -24,6 +31,10 @@ export const TodoList: React.FC<Props> = ({
           deletedTodosId={deletedTodosId}
           handleDeletedTodo={handleDeletedTodo}
           handleUpdatedTodo={handleUpdatedTodo}
+          setDeletedTodosId={setDeletedTodosId}
+          todos={todos}
+          setTodos={setTodos}
+          setError={setError}
         />
       </li>
     ))}
@@ -34,6 +45,10 @@ export const TodoList: React.FC<Props> = ({
         deletedTodosId={deletedTodosId}
         handleDeletedTodo={handleDeletedTodo}
         handleUpdatedTodo={handleUpdatedTodo}
+        setDeletedTodosId={setDeletedTodosId}
+        todos={todos}
+        setTodos={setTodos}
+        setError={setError}
       />
     )}
   </ul>

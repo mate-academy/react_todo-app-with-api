@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { Todo } from '../types/Todo';
 
 type Props = {
   amountOfActiveTodos: number,
@@ -6,8 +7,10 @@ type Props = {
   setValue: (value: string) => void,
   handleAddTodo: (event:
   React.FormEvent<HTMLFormElement>) => void,
-  isLoading: boolean,
-  handleSetAllCompleted: () => void;
+  handleUpdateStatusTodos: () => void;
+  deletedTodosId: number[] | [],
+  todos: Todo[] | [],
+  formInputRef: React.RefObject<HTMLInputElement>
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,21 +18,25 @@ export const Header: React.FC<Props> = ({
   value,
   setValue,
   handleAddTodo,
-  isLoading,
-  handleSetAllCompleted,
+  handleUpdateStatusTodos,
+  deletedTodosId,
+  todos,
+  formInputRef,
 }) => (
   <header className="todoapp__header">
-    <button
-      aria-label="none"
-      type="button"
-      className={classNames(
-        'todoapp__toggle-all',
-        {
-          active: !amountOfActiveTodos,
-        },
-      )}
-      onClick={() => handleSetAllCompleted}
-    />
+    {!!todos.length && (
+      <button
+        aria-label="none"
+        type="button"
+        className={classNames(
+          'todoapp__toggle-all',
+          {
+            active: !amountOfActiveTodos,
+          },
+        )}
+        onClick={handleUpdateStatusTodos}
+      />
+    )}
 
     <form onSubmit={handleAddTodo}>
       <input
@@ -38,7 +45,8 @@ export const Header: React.FC<Props> = ({
         placeholder="What needs to be done?"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        disabled={isLoading}
+        disabled={!!deletedTodosId.length}
+        ref={formInputRef}
       />
     </form>
   </header>

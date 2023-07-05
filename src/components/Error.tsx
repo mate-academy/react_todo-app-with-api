@@ -34,7 +34,7 @@ export const Error: React.FC<Props> = ({
         <p>
           {errorMessage === ErrorMessage.EMPTY
             ? "Title can't be empty"
-            : `Unable to ${errorMessage} a todo`}
+            : `${errorMessage}`}
         </p>
       )}
     </>

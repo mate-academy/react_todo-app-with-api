@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
@@ -9,7 +11,10 @@ import { ErrorMessage } from './enums/error';
 import { Error } from './components/Error';
 import { TodoList } from './components/TodoList';
 import {
-  getTodos, addTodos, deleteTodo, updateTodos,
+  getTodos,
+  addTodos,
+  deleteTodo,
+  updateTodos,
 } from './api/todos';
 
 const USER_ID = 10567;
@@ -20,9 +25,18 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage]
   = useState<ErrorMessage>(ErrorMessage.NONE);
   const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletedTodosId, setDeletedTodosId] = useState<number[] | []>([]);
+  const [activeFormInput, setActiveFormInput] = useState(false);
+  const formInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (formInputRef.current && activeFormInput) {
+      formInputRef.current.focus();
+    }
+
+    setActiveFormInput(false);
+  }, [todos]);
 
   const fetchData = async () => {
     try {
@@ -58,6 +72,68 @@ export const App: React.FC = () => {
       .finally(() => setDeletedTodosId([]));
   };
 
+  const handleUpdateTodo = (id: number) => {
+    setDeletedTodosId([id]);
+
+    const updateTodo = todos.find(todo => todo.id === id);
+
+    if (updateTodo) {
+      updateTodos(id, {
+        ...updateTodo,
+        completed: !updateTodo.completed,
+      })
+        .then(() => {
+          const newTodoList = todos.map(todo => {
+            return todo.id === id
+              ? { ...todo, completed: !todo.completed }
+              : todo;
+          });
+
+          setTodos(newTodoList);
+        })
+        .catch(() => setErrorMessage(ErrorMessage.UPDATE))
+        .finally(() => setDeletedTodosId([]));
+    }
+  };
+
+  const updateStatusTodos = (newStatus: boolean) => {
+    Promise.all(todos.map(todo => {
+      return todo.completed !== newStatus
+        ? updateTodos(todo.id, { ...todo, completed: newStatus })
+        : todo;
+    }))
+      .then(() => {
+        const newTodoList = todos.map(todo => ({
+          ...todo,
+          completed: newStatus,
+        }));
+
+        setTodos(newTodoList);
+      })
+      .catch(() => setErrorMessage(ErrorMessage.UPDATE))
+      .finally(() => setDeletedTodosId([]));
+  };
+
+  const handleUpdateStatusTodo = () => {
+    const isAllCompletedTodos = todos.every(todo => todo.completed);
+
+    if (isAllCompletedTodos) {
+      const allTodos = todos.map(todo => todo.id);
+
+      setDeletedTodosId(allTodos);
+
+      updateStatusTodos(false);
+    } else {
+      const activeTodosId = todos
+        .filter(todo => !todo.completed)
+        .map(todo => todo.id);
+
+      setDeletedTodosId(activeTodosId);
+
+      updateStatusTodos(true);
+    }
+  };
+
   const handleClearTodo = () => {
     const completedTodosId = todos
       .filter(todo => todo.completed)
@@ -80,7 +156,7 @@ export const App: React.FC = () => {
     event.preventDefault();
 
     if (value) {
-      setIsLoading(true);
+      setDeletedTodosId([0]);
 
       setTempTodo({
         id: 0,
@@ -103,8 +179,8 @@ export const App: React.FC = () => {
         .catch(() => setErrorMessage(ErrorMessage.ADD))
         .finally(() => {
           setValue('');
-          setIsLoading(false);
           setTempTodo(null);
+          setDeletedTodosId([]);
         });
     } else {
       setErrorMessage(ErrorMessage.EMPTY);
@@ -126,27 +202,6 @@ export const App: React.FC = () => {
 
   const hasCompletedTodos = todos.some(todo => todo.completed);
   const amountOfActiveTodos = todos.filter(todo => !todo.completed).length;
-  const activeTodos = todos.filter(todo => !todo.completed);
-
-  const handleUpdatedTodo = (
-    ids: number[],
-    updatedValue: Partial<Todo>,
-  ) => {
-    updateTodos(ids, updatedValue).then(() => fetchData())
-      .catch(() => setErrorMessage(ErrorMessage.UPDATE));
-  };
-
-  const handleSetAllCompleted = () => {
-    const ids = amountOfActiveTodos > 0
-      ? activeTodos.map(todo => todo.id)
-      : todos.map(todo => todo.id);
-
-    const status = amountOfActiveTodos > 0;
-
-    updateTodos(ids, { completed: status })
-      .then(() => fetchData())
-      .catch(() => setErrorMessage(ErrorMessage.UPDATE));
-  };
 
   return (
     <div className="todoapp">
@@ -158,28 +213,30 @@ export const App: React.FC = () => {
           value={value}
           setValue={setValue}
           handleAddTodo={handleAddTodo}
-          isLoading={isLoading}
-          handleSetAllCompleted={handleSetAllCompleted}
+          deletedTodosId={deletedTodosId}
+          handleUpdateStatusTodos={handleUpdateStatusTodo}
+          todos={todos}
+          formInputRef={formInputRef}
+        />
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+          deletedTodosId={deletedTodosId}
+          handleDeletedTodo={handleDeleteTodo}
+          handleUpdatedTodo={handleUpdateTodo}
+          setDeletedTodosId={setDeletedTodosId}
+          setTodos={setTodos}
+          setError={setErrorMessage}
         />
 
-        {!!todos.length && (
-          <>
-            <TodoList
-              todos={filteredTodos}
-              tempTodo={tempTodo}
-              deletedTodosId={deletedTodosId}
-              handleDeletedTodo={handleDeleteTodo}
-              handleUpdatedTodo={handleUpdatedTodo}
-            />
-
-            <Footer
-              filterValue={filterValue}
-              setFilter={setFilterValue}
-              hasCompletedTodos={hasCompletedTodos}
-              amountOfActiveTodos={amountOfActiveTodos}
-              handleClearTodo={handleClearTodo}
-            />
-          </>
+        {(!!todos.length || !!deletedTodosId.length) && (
+          <Footer
+            filterValue={filterValue}
+            setFilter={setFilterValue}
+            hasCompletedTodos={hasCompletedTodos}
+            amountOfActiveTodos={amountOfActiveTodos}
+            handleClearTodo={handleClearTodo}
+          />
         )}
       </div>
 

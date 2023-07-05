@@ -1,62 +1,86 @@
-import React, {
-  ChangeEvent, FormEvent, useEffect, useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { ErrorMessage } from '../enums/error';
+import { updateTodos } from '../api/todos';
 
 type Props = {
   todo: Todo;
+  todos: Todo[];
   deletedTodosId: number[] | [];
   handleDeletedTodo: (id: number) => void;
-  handleUpdatedTodo: (ids: number[], value: Partial<Todo>) => void;
+  handleUpdatedTodo: (id: number) => void;
+  setDeletedTodosId: React.Dispatch<React.SetStateAction<number[] | []>>;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  setError: React.Dispatch<React.SetStateAction<ErrorMessage>>
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
+  todos,
   deletedTodosId,
   handleDeletedTodo,
   handleUpdatedTodo,
+  setDeletedTodosId,
+  setTodos,
+  setError,
 }) => {
   const { title, completed, id } = todo;
   const isDeleted = deletedTodosId.some(todoId => todoId === id);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleDeleteButton = (todoId: number) => {
-    if (handleDeletedTodo) {
-      handleDeletedTodo(todoId);
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-  };
+  }, [isEditing]);
 
-  const handleTitleEdit = (
-    event:
-    FormEvent<HTMLFormElement>
-    | ChangeEvent<HTMLInputElement>,
-  ) => {
-    event.preventDefault();
+  const handleTitleEdit = () => {
+    setIsEditing(false);
 
-    if (newTitle === '') {
-      handleDeleteButton(id);
+    if (newTitle === title) {
+      return;
+    }
+
+    if (!newTitle) {
+      handleDeletedTodo(id);
 
       return;
     }
 
-    if (handleUpdatedTodo && title !== newTitle) {
-      handleUpdatedTodo([id], { title: newTitle });
-    } else {
+    setDeletedTodosId([id]);
+
+    updateTodos(id, {
+      ...todo,
+      title: newTitle,
+    })
+      .then(() => {
+        const newTodoList = todos.map(t => {
+          return t.id === id
+            ? { ...t, title: newTitle }
+            : t;
+        });
+
+        setTodos(newTodoList);
+      })
+      .catch(() => setError(ErrorMessage.UPDATE))
+      .finally(() => setDeletedTodosId([]));
+  };
+
+  const handleChangeStatus = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    handleTitleEdit();
+  };
+
+  const handleInputKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.code === 'Escape') {
+      setNewTitle(title);
       setIsEditing(false);
     }
   };
-
-  const handleChangeStatus = () => {
-    if (handleUpdatedTodo) {
-      handleUpdatedTodo([id], { completed: !completed });
-    }
-  };
-
-  useEffect(() => {
-    setIsEditing(false);
-  }, [todo]);
 
   return (
     <div className={classNames('todo', { completed })}>
@@ -64,22 +88,21 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={() => handleChangeStatus}
+          onChange={() => handleUpdatedTodo(id)}
         />
       </label>
 
       {isEditing
         ? (
-          <form onSubmit={handleTitleEdit}>
+          <form onSubmit={handleChangeStatus}>
             <input
               type="text"
               className="todo__title-field"
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
-              onBlur={(event) => handleTitleEdit(event)}
-              onKeyUp={(event) => (
-                event.key === 'Escape' && handleTitleEdit(event)
-              )}
+              onBlur={handleTitleEdit}
+              onKeyUp={handleInputKeyUp}
+              ref={inputRef}
             />
           </form>
         ) : (
