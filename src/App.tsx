@@ -14,11 +14,11 @@ import {
   getTodos,
   patchTodo,
 } from './api/todos';
-import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { Error } from './components/Error';
 import { Filters } from './types/Filters';
 import { Filter } from './components/Filter';
+import { TodoList } from './components/TodoList';
 
 const USER_ID = 10892;
 
