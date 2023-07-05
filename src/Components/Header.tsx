@@ -1,8 +1,13 @@
+import classNames from 'classnames';
+import { Todo } from '../types/Todo';
+
 interface Props {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   onChangeTitle: (event: React.ChangeEvent<HTMLInputElement>) => void,
   title: string;
   isInputDisabled: boolean,
+  handleToggleAll: () => void;
+  activeTodos: Todo[]
 }
 
 export const Header: React.FC<Props> = ({
@@ -10,14 +15,18 @@ export const Header: React.FC<Props> = ({
   onChangeTitle,
   title,
   isInputDisabled,
+  handleToggleAll,
+  activeTodos,
 }) => {
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
+        onClick={handleToggleAll}
         type="button"
-        className="todoapp__toggle-all active"
         aria-label="Toggle All"
+        className={classNames('todoapp__toggle-all', {
+          active: activeTodos.length === 0,
+        })}
       />
 
       {/* Add a todo on form submit */}

@@ -109,9 +109,19 @@ export const App: React.FC = () => {
   };
 
   const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
   const clearCompletedTodos = () => {
     completedTodos.map(todo => handleDeleteTodo(todo.id));
+  };
+
+  const toggleAll = () => {
+    const allCompleted = activeTodos.length === 0;
+    const todosToToggle = allCompleted ? completedTodos : activeTodos;
+
+    todosToToggle.forEach(todo => {
+      handleUpdateTodo({ ...todo, completed: !allCompleted });
+    });
   };
 
   useEffect(() => {
@@ -128,7 +138,7 @@ export const App: React.FC = () => {
     };
 
     fetchTodos();
-  }, []);
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -153,6 +163,8 @@ export const App: React.FC = () => {
             onChangeTitle={handleTitleChange}
             title={title}
             isInputDisabled={disabledInput}
+            handleToggleAll={toggleAll}
+            activeTodos={activeTodos}
           />
 
           <section className="todoapp__main">
@@ -163,8 +175,8 @@ export const App: React.FC = () => {
                   onDelete={() => handleDeleteTodo(todo.id)}
                   userId={todoID.includes(todo.id)}
                   onUpdate={handleUpdateTodo}
-                  onChangeTitle={handleTitleChange}
-                  onSubmit={handleFormSubmit}
+                  // onChangeTitle={handleTitleChange}
+                  // onSubmit={handleFormSubmit}
                 />
               );
             })}
