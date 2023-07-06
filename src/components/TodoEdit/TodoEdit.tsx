@@ -76,6 +76,8 @@ export const TodoEdit:React.FC<Props> = ({
         onChange={(event) => setNewTitle(event.target.value)}
         onBlur={handleBlur}
         onKeyUp={(event) => handleKeyUp(event)}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
       />
     </form>
   );
