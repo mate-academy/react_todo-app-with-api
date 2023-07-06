@@ -49,7 +49,11 @@ export const TodoFooter: React.FC<Props> = ({
       <button
         type="button"
         className="todoapp__clear-completed"
-        disabled={!completedTodos.length}
+        style={{
+          visibility: completedTodos.length
+            ? 'visible'
+            : 'hidden',
+        }}
         onClick={handleClearCompleted}
       >
         Clear completed

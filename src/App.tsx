@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
@@ -11,6 +10,7 @@ import { TodoHeader } from './components/TodoHeader';
 import { TodoFooter } from './components/TodoFooter';
 import { TodoError } from './components/TodoError';
 import { UpdateTodoArgs } from './types/UpdateTodoArgs';
+import { filterTodos } from './utils/filterTodos';
 
 const USER_ID = 10908;
 
@@ -43,20 +43,14 @@ export const App: React.FC = () => {
   const uncompletedTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
-  const filteredTodos = () => {
-    switch (filter) {
-      case Filters.Active:
-        return uncompletedTodos;
-
-      case Filters.Completed:
-        return completedTodos;
-      default:
-        return todos;
-    }
-  };
-
   const createTodo = async (title: string) => {
     try {
+      if (title.trim() === '') {
+        setErrorMessage('Todo title cannot be empty');
+
+        return;
+      }
+
       const newTodo = {
         title,
         userId: USER_ID,
@@ -89,7 +83,7 @@ export const App: React.FC = () => {
 
   const updateTodo = async (todoId: number, args: UpdateTodoArgs) => {
     try {
-      const updatedTodo = await changeTodo(todoId, args) as Todo;
+      const updatedTodo = await changeTodo(todoId, args);
 
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== todoId) {
@@ -131,6 +125,13 @@ export const App: React.FC = () => {
       { completed: !todo.completed }));
   };
 
+  const filteredTodos = filterTodos(
+    todos,
+    filter,
+    uncompletedTodos,
+    completedTodos,
+  );
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -146,7 +147,7 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          todos={filteredTodos()}
+          todos={filteredTodos}
           removeTodo={removeTodo}
           tempTodo={tempTodo}
           updateTodo={updateTodo}

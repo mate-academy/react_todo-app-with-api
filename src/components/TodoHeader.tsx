@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
@@ -24,6 +23,7 @@ export const TodoHeader: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
+        aria-label="toggle all todos"
         className={cn('todoapp__toggle-all',
           { active: uncompletedTodos.length !== 0 })}
         onClick={handleToggleAllTodos}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { UpdateTodoArgs } from '../types/UpdateTodoArgs';
@@ -16,6 +16,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { completed, title, id } = todo;
 
@@ -83,6 +84,12 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   return (
     <section className="todoapp__main">
       <div className={cn('todo', {
@@ -109,6 +116,7 @@ export const TodoItem: React.FC<Props> = ({
               value={changedTitle}
               onChange={handleEditChange}
               onKeyDown={handleExitEditing}
+              ref={inputRef}
             />
           </form>
         ) : (
@@ -136,7 +144,6 @@ export const TodoItem: React.FC<Props> = ({
             </div>
 
           </>
-
         )}
 
       </div>

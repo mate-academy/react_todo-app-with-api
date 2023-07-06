@@ -1,10 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 
 interface Props {
   errorMessage: string | null;
-  setErrorMessage: (value: React.SetStateAction<string | null>) => void;
+  setErrorMessage: (error: string | null) => void;
 }
 
 export const TodoError: React.FC<Props> = ({
@@ -19,6 +18,7 @@ export const TodoError: React.FC<Props> = ({
     >
       <button
         type="button"
+        aria-label="delete"
         className="delete"
         onClick={() => setErrorMessage(null)}
       />
