@@ -42,10 +42,10 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let timerId: number;
 
     if (error) {
-      timerId = setTimeout(() => {
+      timerId = window.setTimeout(() => {
         setError(null);
       }, 3000);
     }
@@ -57,17 +57,17 @@ export const App: React.FC = () => {
     return getFilteredTodos(todos, statusFilter);
   }, [statusFilter, todos]);
 
-  const selectStatusFilter = useCallback((status: TodoStatusFilter) => {
+  const selectStatusFilter = (status: TodoStatusFilter) => {
     setStatusFilter(status);
-  }, []);
+  };
 
-  const addError = useCallback((errorText: string) => {
+  const addError = (errorText: string) => {
     setError(errorText);
-  }, []);
+  };
 
-  const closeError = useCallback(() => {
+  const closeError = () => {
     setError(null);
-  }, []);
+  };
 
   const addTodo = useCallback(async (todoTitle: string) => {
     const newTodo = {
@@ -130,6 +130,26 @@ export const App: React.FC = () => {
     }
   }, [isLoadingTodo]);
 
+  const removeAllCompletedTodos = useCallback(() => {
+    todos.forEach((todo) => {
+      if (todo.completed) {
+        removeTodo(todo.id);
+      }
+    });
+  }, [todos]);
+
+  const handleToggleCompletedToActive = () => {
+    const areAllCompleted = todos.every((todo) => todo.completed);
+
+    todos.forEach((todo) => {
+      if (areAllCompleted) {
+        editTodo(todo.id, { completed: false });
+      } else if (!todo.completed) {
+        editTodo(todo.id, { completed: true });
+      }
+    });
+  };
+
   const onInputTodoTitle = useCallback((todoTitle: string) => {
     setInputTitle(todoTitle);
   }, []);
@@ -155,8 +175,7 @@ export const App: React.FC = () => {
           onInputTitle={onInputTodoTitle}
           onAddTodo={addTodo}
           onAddError={addError}
-          todos={todos}
-          onEditTodo={editTodo}
+          handleToggleCompletedToActive={handleToggleCompletedToActive}
         />
 
         {isVisibleTodoList && (
@@ -174,8 +193,7 @@ export const App: React.FC = () => {
               onSelectStatusFilter={selectStatusFilter}
               uncompletedTodosCount={activeTodosCount}
               isVisibleClearCompleted={isVisibleClearCompleted}
-              todos={todos}
-              onRemoveTodo={removeTodo}
+              onRemoveAllCompletedTodos={removeAllCompletedTodos}
             />
           </>
         )}

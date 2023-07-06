@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import cn from 'classnames';
-import { Todo } from '../../types/Todo';
+// import { Todo } from '../../types/Todo';
 
 type Props = {
   isActiveToggleAllActive: boolean,
@@ -9,8 +9,7 @@ type Props = {
   onInputTitle: (todoTitle: string) => void,
   onAddTodo: (title: string) => void,
   onAddError: (error: string) => void,
-  todos: Todo[],
-  onEditTodo: (todoId: number, properties: Partial<Todo>) => void,
+  handleToggleCompletedToActive: () => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -20,11 +19,8 @@ export const TodoHeader: React.FC<Props> = ({
   onInputTitle,
   onAddTodo,
   onAddError,
-  todos,
-  onEditTodo,
+  handleToggleCompletedToActive,
 }) => {
-  const [areActive, setAreActive] = useState(false);
-
   const handleInputTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     onInputTitle(event.target.value);
   };
@@ -41,14 +37,6 @@ export const TodoHeader: React.FC<Props> = ({
     onAddTodo(title);
   };
 
-  const handleToggleCompletedToActive = (todosFromServer: Todo[]) => {
-    todosFromServer.forEach((todo) => {
-      onEditTodo(todo.id, { completed: !areActive });
-    });
-
-    setAreActive(!areActive);
-  };
-
   return (
     <header className="todoapp__header">
       {isVisibleToggleAllActive && (
@@ -58,7 +46,7 @@ export const TodoHeader: React.FC<Props> = ({
           className={cn('todoapp__toggle-all', {
             active: isActiveToggleAllActive,
           })}
-          onClick={() => handleToggleCompletedToActive(todos)}
+          onClick={handleToggleCompletedToActive}
         />
       )}
 

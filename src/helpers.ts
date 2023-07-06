@@ -5,23 +5,14 @@ export const getFilteredTodos = (
   todos: Todo[],
   status: TodoStatusFilter,
 ): Todo[] => {
-  let todoFilterStatus = true;
-
   return todos.filter(todo => {
     switch (status) {
       case TodoStatusFilter.Active:
-        todoFilterStatus = !todo.completed;
-        break;
-
+        return !todo.completed;
       case TodoStatusFilter.Completed:
-        todoFilterStatus = todo.completed;
-        break;
-
+        return todo.completed;
       default:
-        todoFilterStatus = true;
-        break;
+        return true;
     }
-
-    return todoFilterStatus;
   });
 };

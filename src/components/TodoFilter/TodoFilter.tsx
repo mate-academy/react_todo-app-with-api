@@ -16,8 +16,9 @@ export const TodoFilter: React.FC<Props> = ({
     <nav className="filter">
       <a
         href="#/"
-        className={cn('filter__link',
-          { selected: status === TodoStatusFilter.All })}
+        className={cn('filter__link', {
+          selected: status === TodoStatusFilter.All,
+        })}
         onClick={() => onSelectStatusFilter(TodoStatusFilter.All)}
       >
         All
@@ -25,8 +26,9 @@ export const TodoFilter: React.FC<Props> = ({
 
       <a
         href="#/active"
-        className={cn('filter__link',
-          { selected: status === TodoStatusFilter.Active })}
+        className={cn('filter__link', {
+          selected: status === TodoStatusFilter.Active,
+        })}
         onClick={() => onSelectStatusFilter(TodoStatusFilter.Active)}
       >
         Active
@@ -34,8 +36,9 @@ export const TodoFilter: React.FC<Props> = ({
 
       <a
         href="#/completed"
-        className={cn('filter__link',
-          { selected: status === TodoStatusFilter.Completed })}
+        className={cn('filter__link', {
+          selected: status === TodoStatusFilter.Completed,
+        })}
         onClick={() => onSelectStatusFilter(TodoStatusFilter.Completed)}
       >
         Completed

@@ -27,6 +27,8 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     }
   }, [isEditing]);
 
+  const removeTodo = () => onRemoveTodo(todo.id);
+
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
   };
@@ -48,13 +50,9 @@ export const TodoInfo: React.FC<Props> = React.memo(({
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSubmitTitle();
-    }
+    event.preventDefault();
 
     if (event.key === 'Escape') {
-      event.preventDefault();
       handleCancelTitle();
     }
   };
@@ -70,6 +68,8 @@ export const TodoInfo: React.FC<Props> = React.memo(({
   const editStatusHandler = () => {
     onEditTodo(todo.id, { completed: !todo.completed });
   };
+
+  const isActiveModal = isLoadingTodo.includes(todo.id);
 
   return (
     <div className={cn('todo', { completed: todo.completed })}>
@@ -109,7 +109,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onRemoveTodo(todo.id)}
+            onClick={removeTodo}
           >
             ×
           </button>
@@ -117,7 +117,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
       )}
 
       <div className={cn('modal overlay', {
-        'is-active': isLoadingTodo.includes(todo.id),
+        'is-active': isActiveModal,
       })}
       >
         <div className="modal-background has-background-white-ter" />
