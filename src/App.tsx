@@ -25,6 +25,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingTodosId, setDeletingTodosId] = useState<number[]>([]);
   const [updatingTodosId, setUpdatingTodosId] = useState<number[]>([]);
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -173,6 +174,47 @@ export const App: React.FC = () => {
     });
   };
 
+  const updateTodoTitle = async (
+    todoId: number,
+    args: UpdateTodoArgs,
+  ) => {
+    try {
+      setUpdatingTodosId((prevState) => [...prevState, todoId]);
+
+      if (!args.title) {
+        deleteTodo(todoId);
+
+        return null;
+      }
+
+      const updatedTodo = await updateTodo(
+        todoId,
+        args,
+      );
+
+      setTodos((prevState) => {
+        return prevState.map(todo => {
+          if (todo.id === todoId && args.title) {
+            return {
+              ...todo,
+              title: args.title,
+            };
+          }
+
+          return todo;
+        });
+      });
+
+      return updatedTodo;
+    } catch (error) {
+      setErrorMessage(ErrorMessages.UpdateError);
+
+      return null;
+    } finally {
+      setUpdatingTodosId([]);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -194,6 +236,9 @@ export const App: React.FC = () => {
           deletingTodoId={deletingTodosId}
           toggleTodoStatus={toggleTodoStatus}
           updatingTodosId={updatingTodosId}
+          selectedTodoId={selectedTodoId}
+          setSelectedTodoId={setSelectedTodoId}
+          updateTodoTitle={updateTodoTitle}
         />
 
         {isTodosPresent

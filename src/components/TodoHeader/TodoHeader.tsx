@@ -9,7 +9,7 @@ interface Props {
   (newTitle: React.ChangeEvent<HTMLInputElement>) => void;
   addNewTodo: (title: string) => Promise<Todo | null>;
   isAllTodosCompleted: boolean;
-  toggleAllTodos: any
+  toggleAllTodos: () => void;
 }
 
 export const TodoHeader: React.FC<Props> = (

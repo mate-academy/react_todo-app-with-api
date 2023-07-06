@@ -14,6 +14,10 @@ interface Props {
     args: UpdateTodoArgs
   ) => Promise<Todo | null>;
   updatingTodosId: number[];
+  selectedTodoId: number | null;
+  setSelectedTodoId: (todoId: number | null) => void;
+  updateTodoTitle: (todoId: number, args: UpdateTodoArgs)
+  => Promise<Todo | null>
 }
 
 export const TodoList: React.FC<Props> = (
@@ -24,6 +28,10 @@ export const TodoList: React.FC<Props> = (
     deletingTodoId,
     toggleTodoStatus,
     updatingTodosId,
+    selectedTodoId,
+    setSelectedTodoId,
+    updateTodoTitle,
+
   },
 ) => {
   return (
@@ -37,6 +45,9 @@ export const TodoList: React.FC<Props> = (
           key={todo.id}
           toggleTodoStatus={toggleTodoStatus}
           updatingTodosId={updatingTodosId}
+          selectedTodoId={selectedTodoId}
+          setSelectedTodoId={setSelectedTodoId}
+          updateTodoTitle={updateTodoTitle}
         />
       ))}
 
