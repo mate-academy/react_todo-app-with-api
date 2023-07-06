@@ -109,9 +109,9 @@ export const App: React.FC = () => {
   );
 
   const handleClearCompleted = () => {
-    completedTodos.forEach(async (todo) => {
-      await removeTodo(todo.id);
-    });
+    const removalPromises = completedTodos.map(todo => removeTodo(todo.id));
+
+    Promise.all(removalPromises);
   };
 
   const handleToggleAllTodos = () => {
