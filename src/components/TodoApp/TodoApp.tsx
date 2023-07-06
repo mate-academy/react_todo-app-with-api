@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getTodos } from '../../api/todos';
-import { Form } from './form';
-import { ToggleTodosButton } from './toggleTodosButton';
-import { TodosFooter } from './todosFooter';
-import { Todos } from './todos';
-import { TodosError } from './todosError';
+import { Form } from './Form';
+import { ToggleTodosButton } from './ToggleTodosButton';
+import { TodosFooter } from './TodosFooter';
+import { Todos } from './Todos';
+import { TodosError } from './TodosError';
 
 import { ErrorType } from '../../types/Error';
 import { Todo } from '../../types/Todo';
@@ -15,7 +15,16 @@ export const TodoApp: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState(FilterType.NONE);
   const [errorType, setErrorType] = useState<ErrorType>(ErrorType.NONE);
-  const [todoLoadId, setTodoLoadId] = useState<number | null>(null);
+  const [loadingTodosId, setLoadingTodosId] = useState<number[]>([]);
+  const [tempNewTodo, setTempNewTodo] = useState<Todo | null>(null);
+
+  const addTodoLoadId = (todoId: number) => {
+    setLoadingTodosId((prevTodos) => [...prevTodos, todoId]);
+  };
+
+  const removeTodoLoadId = (todoId: number) => {
+    setLoadingTodosId((prevTodos) => prevTodos.filter((id) => todoId !== id));
+  };
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -39,13 +48,17 @@ export const TodoApp: React.FC = () => {
             todos={todos}
             setTodos={setTodos}
             onError={setErrorType}
-            // setTodoLoadId={setTodoLoadId}
+            addTodoLoadId={addTodoLoadId}
+            setLoadingTodosId={setLoadingTodosId}
           />
 
           <Form
             setTodos={setTodos}
             onError={setErrorType}
-            setTodoLoadId={setTodoLoadId}
+            addTodoLoadId={addTodoLoadId}
+            removeTodoLoadId={removeTodoLoadId}
+            tempNewTodo={tempNewTodo}
+            setTempNewTodo={setTempNewTodo}
           />
         </header>
 
@@ -55,8 +68,10 @@ export const TodoApp: React.FC = () => {
             filter={filterType}
             onError={setErrorType}
             setTodos={setTodos}
-            todoLoadId={todoLoadId}
-            setTodoLoadId={setTodoLoadId}
+            loadingTodosId={loadingTodosId}
+            addTodoLoadId={addTodoLoadId}
+            removeTodoLoadId={removeTodoLoadId}
+            tempNewTodo={tempNewTodo}
           />
         </section>
 
@@ -64,7 +79,10 @@ export const TodoApp: React.FC = () => {
           todos={todos}
           filter={filterType}
           setFilter={setFilterType}
+          onError={setErrorType}
           setTodos={setTodos}
+          addTodoLoadId={addTodoLoadId}
+          setLoadingTodosId={setLoadingTodosId}
         />
       </div>
 

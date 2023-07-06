@@ -7,19 +7,29 @@ type Props = {
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
   onError: (error: ErrorType) => void,
-  // setTodoLoadId: (id: number | null) => void,
+  addTodoLoadId: (id: number) => void,
+  setLoadingTodosId: (id: number[]) => void,
 };
 
 export const ToggleTodosButton: React.FC<Props> = ({
   todos,
   setTodos,
   onError: setErrorType,
-  // setTodoLoadId,
+  addTodoLoadId,
+  setLoadingTodosId,
 }) => {
   const toggleAll = () => {
     if (todos.some((item) => !item.completed)) {
       Promise.all(
-        todos.map((item) => (updateTodoCheck(item.id, true))),
+        todos.map((item) => {
+          if (!item.completed) {
+            addTodoLoadId(item.id);
+
+            return updateTodoCheck(item.id, true);
+          }
+
+          return item;
+        }),
       )
         .then(() => {
           const updatedTodos = todos.map((todo) => (
@@ -32,10 +42,21 @@ export const ToggleTodosButton: React.FC<Props> = ({
         })
         .catch(() => {
           setErrorType(ErrorType.UPDATE);
+        })
+        .finally(() => {
+          setLoadingTodosId([]);
         });
     } else {
       Promise.all(
-        todos.map((item) => updateTodoCheck(item.id, false)),
+        todos.map((item) => {
+          if (item.completed) {
+            addTodoLoadId(item.id);
+
+            return updateTodoCheck(item.id, false);
+          }
+
+          return item;
+        }),
       )
         .then(() => {
           const updatedTodos = todos.map((todo) => ({
@@ -47,6 +68,9 @@ export const ToggleTodosButton: React.FC<Props> = ({
         })
         .catch(() => {
           setErrorType(ErrorType.UPDATE);
+        })
+        .finally(() => {
+          setLoadingTodosId([]);
         });
     }
   };

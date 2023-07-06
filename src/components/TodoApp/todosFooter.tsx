@@ -2,28 +2,39 @@ import classNames from 'classnames';
 import { FilterType } from '../../types/Filter';
 import { Todo } from '../../types/Todo';
 import { deleteTodo } from '../../api/todos';
+import { ErrorType } from '../../types/Error';
 
 type Props = {
   todos: Todo[],
   setTodos : (todos: Todo[]) => void,
   filter: FilterType,
   setFilter: (type: FilterType) => void,
+  onError: (error: ErrorType) => void,
+  addTodoLoadId: (id: number) => void,
+  setLoadingTodosId: (id: number[]) => void,
 };
 
 export const TodosFooter: React.FC<Props> = ({
   todos,
   filter: filterType,
   setFilter: setFilterType,
+  onError: setErrorType,
   setTodos,
+  addTodoLoadId,
+  setLoadingTodosId,
 }) => {
   const clearCompleted = () => {
     todos.map((item) => {
       if (item.completed) {
+        addTodoLoadId(item.id);
+
         return (
           deleteTodo(item.id)
             .then(() => {
               setTodos(todos.filter((todo) => !todo.completed));
             })
+            .catch(() => setErrorType(ErrorType.DELETE))
+            .finally(() => setLoadingTodosId([]))
         );
       }
 

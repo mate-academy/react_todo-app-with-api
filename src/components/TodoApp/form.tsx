@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { ErrorType } from '../../types/Error';
@@ -7,16 +7,21 @@ import { USER_ID } from './consts';
 type Props = {
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   onError: (error: ErrorType) => void,
-  setTodoLoadId: (id: number | null) => void,
+  addTodoLoadId: (todoId: number) => void,
+  removeTodoLoadId: (todoId: number) => void,
+  tempNewTodo: Todo | null,
+  setTempNewTodo: (todo: Todo | null) => void,
 };
 
 export const Form: React.FC<Props> = ({
   setTodos,
   onError: setErrorType,
-  setTodoLoadId,
+  addTodoLoadId,
+  removeTodoLoadId,
+  tempNewTodo,
+  setTempNewTodo,
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [tempNewTodo, setTempNewTodo] = useState<Todo | null>(null);
 
   const addTodoHandler = () => {
     setTempNewTodo({
@@ -25,9 +30,11 @@ export const Form: React.FC<Props> = ({
       title: newTodoTitle,
       completed: false,
     });
+  };
 
+  useEffect(() => {
     if (tempNewTodo) {
-      setTodoLoadId(tempNewTodo.id);
+      addTodoLoadId(tempNewTodo.id);
 
       addTodo(USER_ID, tempNewTodo)
         .then((addedTodo) => {
@@ -39,10 +46,10 @@ export const Form: React.FC<Props> = ({
         .finally(() => {
           setTempNewTodo(null);
           setNewTodoTitle('');
-          setTodoLoadId(null);
+          removeTodoLoadId(tempNewTodo.id);
         });
     }
-  };
+  }, [tempNewTodo]);
 
   return (
     <form onSubmit={(e) => {

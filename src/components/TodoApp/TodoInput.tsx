@@ -9,7 +9,8 @@ type Props = {
   onError: (error: ErrorType) => void,
   todoTitle: string,
   setTodoTitle: (title: string) => void,
-  setTodoLoadId: (id: number | null) => void,
+  addTodoLoadId: (todoId: number) => void,
+  removeTodoLoadId: (todoId: number) => void,
 };
 
 export const TodoInput: React.FC<Props> = ({
@@ -18,7 +19,8 @@ export const TodoInput: React.FC<Props> = ({
   setEditableTodoId,
   onError: setErrorType,
   todoTitle,
-  setTodoLoadId,
+  addTodoLoadId,
+  removeTodoLoadId,
 }) => {
   const submitForm = (newTitle: string) => {
     if (newTitle.trim() === todoTitle) {
@@ -27,35 +29,37 @@ export const TodoInput: React.FC<Props> = ({
       return;
     }
 
-    setTodoLoadId(todo.id);
+    addTodoLoadId(todo.id);
 
-    if (newTitle.trim().length === 0) {
+    if (!newTitle.trim().length) {
       deleteTodo(todo.id)
         .then(() => {
           setTodos((prevTodos) => (
             prevTodos.filter((item) => todo.id !== item.id)));
         })
         .catch(() => setErrorType(ErrorType.DELETE))
-        .finally(() => setTodoLoadId(null));
-    } else {
-      updateTitle(todo.id, newTitle)
-        .then(() => {
-          setTodos((prevTodos) => {
-            return prevTodos.map((item: Todo) => {
-              if (item.id === todo.id) {
-                return {
-                  ...item,
-                  title: newTitle,
-                };
-              }
+        .finally(() => removeTodoLoadId(todo.id));
 
-              return item;
-            });
-          });
-        })
-        .catch(() => setErrorType(ErrorType.UPDATE))
-        .finally(() => setTodoLoadId(null));
+      return;
     }
+
+    updateTitle(todo.id, newTitle)
+      .then(() => {
+        setTodos((prevTodos) => {
+          return prevTodos.map((item: Todo) => {
+            if (item.id === todo.id) {
+              return {
+                ...item,
+                title: newTitle,
+              };
+            }
+
+            return item;
+          });
+        });
+      })
+      .catch(() => setErrorType(ErrorType.UPDATE))
+      .finally(() => removeTodoLoadId(todo.id));
 
     setEditableTodoId(null);
   };
@@ -79,6 +83,8 @@ export const TodoInput: React.FC<Props> = ({
           className="todo__title-field"
           placeholder="Empty todo will be deleted"
           defaultValue={todoTitle}
+          // eslint-disable-next-line
+          autoFocus
           onBlur={(e) => submitForm(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

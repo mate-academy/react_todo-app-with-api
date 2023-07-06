@@ -2,14 +2,20 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodoCheck } from '../../api/todos';
 import { ErrorType } from '../../types/Error';
+import { TodoInput } from './TodoInput';
+import { LoadingTodo } from './LoadingTodo';
 
 type Props = {
   todo: Todo,
   onError: (error: ErrorType) => void,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  onEditId: (id: number) => void,
+  onEditId: (id: number | null) => void,
+  editableTodoId: number | null,
   setTodoTitle: (title: string) => void,
-  setTodoLoadId: (id: number | null) => void,
+  todoTitle: string,
+  addTodoLoadId: (todoId: number) => void,
+  removeTodoLoadId: (todoId: number) => void,
+  loadingTodosId: number[]
 };
 
 export const LoadedTodo: React.FC<Props> = ({
@@ -17,11 +23,15 @@ export const LoadedTodo: React.FC<Props> = ({
   onError: setErrorType,
   setTodos,
   onEditId: setEditableTodoId,
+  editableTodoId,
   setTodoTitle,
-  setTodoLoadId,
+  todoTitle,
+  addTodoLoadId,
+  removeTodoLoadId,
+  loadingTodosId,
 }) => {
   const updateCheck = (todoToUpdate: Todo) => {
-    setTodoLoadId(todoToUpdate.id);
+    addTodoLoadId(todoToUpdate.id);
     updateTodoCheck(todoToUpdate.id, !todoToUpdate.completed)
       .then(() => {
         setTodos((prevTodos) => prevTodos.map((currentTodo) => {
@@ -38,11 +48,11 @@ export const LoadedTodo: React.FC<Props> = ({
       .catch(() => {
         setErrorType(ErrorType.UPDATE);
       })
-      .finally(() => setTodoLoadId(null));
+      .finally(() => removeTodoLoadId(todo.id));
   };
 
-  const deleteTodoHandler = () => {
-    setTodoLoadId(todo.id);
+  const handleDeleteTodo = () => {
+    addTodoLoadId(todo.id);
 
     deleteTodo(todo.id)
       .then(() => {
@@ -50,8 +60,33 @@ export const LoadedTodo: React.FC<Props> = ({
           prevTodos.filter((item) => todo.id !== item.id)));
       })
       .catch(() => setErrorType(ErrorType.DELETE))
-      .finally(() => setTodoLoadId(null));
+      .finally(() => removeTodoLoadId(todo.id));
   };
+
+  if (todo.id === editableTodoId) {
+    return (
+      <div>
+        <TodoInput
+          todo={todo}
+          setEditableTodoId={setEditableTodoId}
+          setTodos={setTodos}
+          onError={setErrorType}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+          addTodoLoadId={addTodoLoadId}
+          removeTodoLoadId={removeTodoLoadId}
+        />
+      </div>
+    );
+  }
+
+  if (loadingTodosId.includes(todo.id)) {
+    return (
+      <div>
+        <LoadingTodo todo={todo} />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -66,7 +101,7 @@ export const LoadedTodo: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={() => updateCheck(todo)}
+          onChange={() => updateCheck(todo)}
         />
       </label>
       <span className="todo__title">{todo.title}</span>
@@ -74,7 +109,7 @@ export const LoadedTodo: React.FC<Props> = ({
       <button
         type="button"
         className="todo__remove"
-        onClick={deleteTodoHandler}
+        onClick={handleDeleteTodo}
       >
         ×
       </button>
