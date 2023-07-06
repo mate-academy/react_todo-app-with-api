@@ -85,7 +85,7 @@ export const Layout: FC = () => {
 
       const createdTodo = await createTodo(newTodo);
 
-      setTodos(currentTodos => [createdTodo, ...currentTodos]);
+      setTodos(currentTodos => [...currentTodos, createdTodo]);
     } catch {
       setError('Unable to add a todo');
     } finally {

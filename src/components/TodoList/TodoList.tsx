@@ -20,21 +20,6 @@ export const TodoList: FC<Props> = ({
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
-      {tempTodo && (
-        <CSSTransition
-          key={0}
-          timeout={300}
-          classNames="temp-item"
-        >
-          <TodoInfo
-            todo={tempTodo}
-            loadingTodos={loadingTodos}
-            removeTodo={removeTodo}
-            editTodo={editTodo}
-          />
-        </CSSTransition>
-      )}
-
       {todos.map((todo) => (
         <CSSTransition
           key={todo.id}
@@ -49,6 +34,21 @@ export const TodoList: FC<Props> = ({
           />
         </CSSTransition>
       ))}
+
+      {tempTodo && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoInfo
+            todo={tempTodo}
+            loadingTodos={loadingTodos}
+            removeTodo={removeTodo}
+            editTodo={editTodo}
+          />
+        </CSSTransition>
+      )}
     </TransitionGroup>
   </section>
 );
