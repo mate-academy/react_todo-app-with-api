@@ -41,6 +41,21 @@ export const TodoInfo: React.FC<Props> = ({
     );
   };
 
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    changeTodoTitle();
+    setIsEditing(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    changeTodoTitle();
+    setIsEditing(false);
+  };
+
   return (
     <div
       key={id}
@@ -60,21 +75,14 @@ export const TodoInfo: React.FC<Props> = ({
       {isEditing
         ? (
           <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              changeTodoTitle();
-              setIsEditing(false);
-            }}
+            onSubmit={handleSubmit}
           >
             <input
               type="text"
               className="todo__title-field"
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
-              onBlur={() => {
-                changeTodoTitle();
-                setIsEditing(false);
-              }}
+              onBlur={handleBlur}
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
@@ -83,9 +91,7 @@ export const TodoInfo: React.FC<Props> = ({
         : (
           <span
             className="todo__title"
-            onDoubleClick={() => {
-              setIsEditing(true);
-            }}
+            onDoubleClick={handleDoubleClick}
           >
             {title}
           </span>
