@@ -35,6 +35,7 @@ export const TodoList:FC<Props> = ({
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
+          isPresentInLoadingTodos
         />
       )}
     </section>
