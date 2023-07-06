@@ -11,4 +11,6 @@ export enum FilterStatus {
   COMPLETED = 'completed',
 }
 
+export type AddTodoArgs = Omit<Todo, 'id'>;
+
 export type UpdateTodoArgs = Partial<Pick<Todo, 'title' | 'completed'>>;
