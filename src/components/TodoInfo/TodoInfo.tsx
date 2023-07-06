@@ -8,17 +8,16 @@ type Props = {
   todo: Todo;
   loadingTodos: number[];
   deleteTodo: (todoId: number) => void;
-  updateTodo: (
-    todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
-  ) => void;
+  onUpdateTodoStatus: (todo: Todo) => void;
+  onUpdateTodo: (todoId: number, netTitle: string) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   loadingTodos,
   deleteTodo,
-  updateTodo,
+  onUpdateTodoStatus,
+  onUpdateTodo,
 }) => {
   const {
     id, title, completed,
@@ -26,12 +25,16 @@ export const TodoInfo: React.FC<Props> = ({
 
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleToggleComplete = async () => {
-    await updateTodo(id, { completed: !todo.completed });
+  const handleToggleComplete = () => {
+    onUpdateTodoStatus(todo);
   };
 
   const handleDeleteButton = () => {
     deleteTodo(id);
+  };
+
+  const handleEditTitle = () => {
+    setIsUpdating(true);
   };
 
   return (
@@ -50,16 +53,16 @@ export const TodoInfo: React.FC<Props> = ({
           <UpdatingForm
             title={title}
             id={id}
-            updateTodo={updateTodo}
             deleteTodo={deleteTodo}
             setIsUpdating={setIsUpdating}
+            onUpdateTodo={onUpdateTodo}
           />
         )
         : (
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setIsUpdating(true)}
+              onDoubleClick={handleEditTitle}
             >
               {title}
             </span>

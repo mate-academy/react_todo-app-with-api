@@ -8,10 +8,8 @@ type Props = {
   tempTodo: Todo | null;
   loadingTodos: number[];
   deleteTodo: (todoId: number) => void;
-  updateTodo: (
-    todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
-  ) => void;
+  onUpdateTodoStatus: (todo: Todo) => void;
+  onUpdateTodo: (todoId: number, netTitle: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -19,7 +17,8 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   loadingTodos,
   deleteTodo,
-  updateTodo,
+  onUpdateTodoStatus,
+  onUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main">
@@ -29,7 +28,8 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           loadingTodos={loadingTodos}
           deleteTodo={deleteTodo}
-          updateTodo={updateTodo}
+          onUpdateTodoStatus={onUpdateTodoStatus}
+          onUpdateTodo={onUpdateTodo}
         />
       ))}
 
@@ -38,7 +38,8 @@ export const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           loadingTodos={loadingTodos}
           deleteTodo={deleteTodo}
-          updateTodo={updateTodo}
+          onUpdateTodoStatus={onUpdateTodoStatus}
+          onUpdateTodo={onUpdateTodo}
         />
       )}
     </section>

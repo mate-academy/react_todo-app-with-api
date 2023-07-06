@@ -1,32 +1,38 @@
-import React, { useState } from 'react';
-
-import { Todo } from '../../types/Todo';
+import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
-  title: string,
-  id: number,
-  deleteTodo: (todoId: number) => void,
-  updateTodo: (
-    todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
-  ) => void,
+  title: string;
+  id: number;
+  deleteTodo: (todoId: number) => void;
   setIsUpdating: (isUpdating: boolean) => void;
+  onUpdateTodo: (todoId: number, netTitle: string) => void;
 };
 
 export const UpdatingForm: React.FC<Props> = ({
   title,
   id,
   deleteTodo,
-  updateTodo,
   setIsUpdating,
+  onUpdateTodo,
 }) => {
   const [newTitle, setNewTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
 
   const cancelEditing = () => {
     setIsUpdating(false);
   };
 
-  const submit = async () => {
+  const submit = () => {
     const trimmedNewTitle = newTitle.trim();
 
     if (trimmedNewTitle === title) {
@@ -41,7 +47,7 @@ export const UpdatingForm: React.FC<Props> = ({
       return;
     }
 
-    await updateTodo(id, { title: trimmedNewTitle });
+    onUpdateTodo(id, trimmedNewTitle);
     setIsUpdating(false);
   };
 
@@ -67,9 +73,10 @@ export const UpdatingForm: React.FC<Props> = ({
         type="text"
         className="todo__title-field"
         value={newTitle}
-        onChange={(event) => setNewTitle(event.target.value)}
+        onChange={handleTitleChange}
         onBlur={handleOnBlur}
         onKeyUp={handleOnKeyUp}
+        ref={inputRef}
       />
     </form>
   );

@@ -11,6 +11,10 @@ type Props = {
 export const TodoForm: React.FC<Props> = ({ setError, addTodo, tempTodo }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
+  const handleInutChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -31,8 +35,8 @@ export const TodoForm: React.FC<Props> = ({ setError, addTodo, tempTodo }) => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={newTodoTitle}
-        onChange={(event) => setNewTodoTitle(event.target.value)}
-        disabled={tempTodo !== null}
+        onChange={handleInutChange}
+        disabled={!!tempTodo}
       />
     </form>
   );

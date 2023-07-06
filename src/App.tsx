@@ -2,7 +2,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
-import { Filter } from './components/Filter';
 import { TodoForm } from './components/TodoForm';
 import { Notifications } from './components/Notifications';
 import { TodoList } from './components/TodoList';
@@ -12,6 +11,8 @@ import {
   getTodos, createTodo, removeTodo, updateTodo,
 } from './api/todos';
 import { UserWarning } from './UserWarning';
+import { filterTodos } from './utils/helpers';
+import { Footer } from './components/Footer';
 
 const USER_ID = 10873;
 
@@ -21,6 +22,10 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterOptions>(FilterOptions.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState([0]);
+  const activeTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
+  const isTodosFormServer = todos.length > 0;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,10 +42,10 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
 
     if (error) {
-      timeoutId = setTimeout(() => setError(null), 3000);
+      timeoutId = window.setTimeout(() => setError(null), 3000);
     }
 
     return () => {
@@ -48,21 +53,8 @@ export const App: React.FC = () => {
     };
   }, [error]);
 
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
-  const isAllTodosCompleted = todos.every(todo => todo.completed);
-
   const visibleTodos = useMemo(() => {
-    switch (filter) {
-      case FilterOptions.ACTIVE:
-        return activeTodos;
-
-      case FilterOptions.COMPLETED:
-        return completedTodos;
-
-      default:
-        return todos;
-    }
+    return filterTodos(filter, todos, activeTodos, completedTodos);
   }, [todos, filter]);
 
   const addTodo = async (title: string) => {
@@ -110,8 +102,22 @@ export const App: React.FC = () => {
     }
   };
 
+  const onUpdateTodo = async (todoId: number, newTitle: string) => {
+    await updateTodo(todoId, { title: newTitle });
+  };
+
+  const onUpdateTodoStatus = async (todo: Todo) => {
+    await updateTodo(todo.id, { completed: !todo.completed });
+  };
+
   const handleToggleAllButton = () => {
-    todos.forEach(async (todo) => {
+    let todosForStatusChange = todos;
+
+    if (completedTodos.length > 0) {
+      todosForStatusChange = activeTodos;
+    }
+
+    todosForStatusChange.forEach(async (todo) => {
       await updateTodoInfo(
         todo.id,
         { completed: !isAllTodosCompleted },
@@ -159,7 +165,11 @@ export const App: React.FC = () => {
             })}
             onClick={handleToggleAllButton}
           />
-          <TodoForm setError={setError} addTodo={addTodo} tempTodo={tempTodo} />
+          <TodoForm
+            setError={setError}
+            addTodo={addTodo}
+            tempTodo={tempTodo}
+          />
         </header>
 
         <TodoList
@@ -167,31 +177,25 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           loadingTodos={loadingTodos}
           deleteTodo={deleteTodo}
-          updateTodo={updateTodoInfo}
+          onUpdateTodoStatus={onUpdateTodoStatus}
+          onUpdateTodo={onUpdateTodo}
         />
 
-        {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodos.length} items left`}
-            </span>
-
-            <Filter filter={filter} setFilter={setFilter} />
-
-            {completedTodos.length > 0 && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleDeleteCompletedButton}
-              >
-                Clear completed
-              </button>
-            )}
-          </footer>
+        {isTodosFormServer && (
+          <Footer
+            filter={filter}
+            setFilter={setFilter}
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            handleDeleteCompletedButton={handleDeleteCompletedButton}
+          />
         )}
       </div>
 
-      <Notifications error={error} setError={setError} />
+      <Notifications
+        error={error}
+        setError={setError}
+      />
     </div>
   );
 };

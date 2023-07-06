@@ -1,13 +1,16 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 
 type Props = {
   error: string | null;
-  setError: React.Dispatch<React.SetStateAction<string | null>>,
+  setError: (error: string | null) => void,
 };
 
 export const Notifications: React.FC<Props> = ({ error, setError }) => {
+  const handleCloseButtonClick = () => {
+    setError(null);
+  };
+
   return (
     <div className={cn(
       'notification is-danger is-light has-text-weight-normal',
@@ -16,8 +19,9 @@ export const Notifications: React.FC<Props> = ({ error, setError }) => {
     >
       <button
         type="button"
+        aria-label="Close"
         className="delete"
-        onClick={() => setError(null)}
+        onClick={handleCloseButtonClick}
       />
       {error}
     </div>
