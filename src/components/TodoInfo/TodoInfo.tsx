@@ -26,6 +26,7 @@ export const TodoInfo: React.FC<Props> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const isActive = updatedTodoId.includes(id) || id === removingTodoId;
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -121,7 +122,7 @@ export const TodoInfo: React.FC<Props> = ({
       </button>
 
       <div className={classNames('modal overlay', {
-        'is-active': updatedTodoId.includes(id) || id === removingTodoId,
+        'is-active': isActive,
       })}
       >
         <div
