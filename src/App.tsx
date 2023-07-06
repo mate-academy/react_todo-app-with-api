@@ -26,6 +26,7 @@ export const App: React.FC = () => {
     = useState<ErrorNotification>(ErrorNotification.NONE);
   const [search, setSearch] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [updatedTodoId, setUpdatedTodoId] = useState([0]);
 
   const initialTodos = useMemo(() => {
     return (todos.filter(todo => {
@@ -61,18 +62,6 @@ export const App: React.FC = () => {
   ), [todos]);
 
   const onUpdate = async (id: number) => {
-    const updatedTodo = todos.map((todo) => {
-      if (todo.id === id) {
-        return {
-          ...todo,
-          completed: !todo.completed,
-        };
-      }
-
-      return todo;
-    });
-
-    setTodos(updatedTodo);
     try {
       const todoToUpdate = todos.find((todo) => todo.id === id);
 
@@ -104,24 +93,34 @@ export const App: React.FC = () => {
       property: Partial<Todo>,
     ) => {
       try {
+        setUpdatedTodoId((prev) => [...prev, id]);
+
         await updateTodo(id, property);
         fetchData();
       } catch {
         setErrorNotification(ErrorNotification.UPDATE);
+      } finally {
+        setUpdatedTodoId([]);
       }
     }, [],
   );
 
+  // eslint-disable-next-line no-console
+  console.log(updatedTodoId, tempTodo);
+
   const selectAllTodos = useCallback(async () => {
     try {
-      await Promise.all(todos.map(todo => (
-        onUpdate(todo.id))));
+      await Promise.all(todos
+        .filter(todo => todo.completed === isAllTodosCompleted)
+        .map(todo => (onUpdate(todo.id))));
 
       setTodos(todos.map(todo => (
         { ...todo, completed: !isAllTodosCompleted }
       )));
     } catch {
       setErrorNotification(ErrorNotification.UPDATE);
+    } finally {
+      setUpdatedTodoId([]);
     }
   }, [todos]);
 
@@ -188,6 +187,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={initialTodos}
               handleDeleteTodo={handleDeleteTodo}
+              updateTodoId={updatedTodoId}
               tempTodo={tempTodo}
               changeStatus={updateTodoStatus}
             />

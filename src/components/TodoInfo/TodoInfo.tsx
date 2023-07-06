@@ -5,14 +5,14 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   handleDeleteTodo: (id: number) => void,
-  tempTodo: Todo | null,
+  updateTodoId: number[],
   changeStatus: (id: number, property: Partial<Todo>) => void,
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  tempTodo,
+  updateTodoId,
   changeStatus,
 }) => {
   const { id, title, completed } = todo;
@@ -29,6 +29,7 @@ export const TodoInfo: React.FC<Props> = ({
     }
 
     if (!changedTitle.trim()) {
+      setIsEditing(true);
       handleDeleteTodo(id);
     }
 
@@ -106,7 +107,7 @@ export const TodoInfo: React.FC<Props> = ({
 
       <div className={classNames('modal overlay',
         {
-          'is-active': tempTodo?.id === id,
+          'is-active': updateTodoId.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
