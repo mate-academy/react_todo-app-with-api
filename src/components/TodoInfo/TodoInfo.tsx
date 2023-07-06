@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
@@ -56,6 +56,14 @@ export const TodoInfo: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
   return (
     <div
       key={id}
@@ -83,8 +91,9 @@ export const TodoInfo: React.FC<Props> = ({
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleBlur}
+              ref={inputRef}
               // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
+              // autoFocus
             />
           </form>
         )
