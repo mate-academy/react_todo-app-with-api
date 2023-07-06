@@ -30,6 +30,8 @@ export const App: React.FC = () => {
   const [removingTodoId, setRemovingTodoId] = useState(0);
   const [updatedTodoId, setUpdatedTodoId] = useState([0]);
 
+  const completedTodo = todos.filter(todo => todo.completed);
+
   useEffect(() => {
     const loadTodosByUser = async () => {
       try {
@@ -139,6 +141,7 @@ export const App: React.FC = () => {
           onErrorMessageChange={setErrorMessage}
           initialTodos={todos}
           changeTodoDetails={changeTodoDetails}
+          completedTodo={completedTodo}
         />
         <TodoList
           todos={filteredTodos}
@@ -156,6 +159,7 @@ export const App: React.FC = () => {
               handleFilterChange={handleFilterChange}
               initialTodos={todos}
               removeTodo={removeTodo}
+              completedTodo={completedTodo}
             />
           )}
       </div>

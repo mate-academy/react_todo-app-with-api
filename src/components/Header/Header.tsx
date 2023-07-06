@@ -10,6 +10,7 @@ interface Props {
   onErrorMessageChange: (arg: string) => void;
   initialTodos: Todo[];
   changeTodoDetails: (todoId: number, data: UpdateTodoArgs) => void;
+  completedTodo: Todo[]
 }
 
 export const Header: React.FC<Props> = ({
@@ -19,9 +20,8 @@ export const Header: React.FC<Props> = ({
   onErrorMessageChange,
   initialTodos,
   changeTodoDetails,
+  completedTodo,
 }) => {
-  const completedTodo = initialTodos.filter(todo => todo.completed);
-
   const isEveryTodoCompleted = completedTodo.length >= initialTodos.length;
   const toggleAllTodo = () => {
     if (isEveryTodoCompleted) {

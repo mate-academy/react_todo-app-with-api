@@ -8,6 +8,7 @@ interface Props {
   handleFilterChange: (arg: FilterStatus) => void
   initialTodos: Todo[]
   removeTodo: (arg: number) => void;
+  completedTodo: Todo[]
 }
 
 export const Footer: React.FC<Props> = ({
@@ -15,10 +16,10 @@ export const Footer: React.FC<Props> = ({
   handleFilterChange,
   initialTodos,
   removeTodo,
+  completedTodo,
 }) => {
   const activeTodosQuantity = initialTodos
     .filter(todo => !todo.completed).length;
-  const completedTodo = initialTodos.filter(todo => todo.completed);
   const filterStatuses: string[] = Object.values(FilterStatus);
 
   const removeCompletedTodos = () => {
