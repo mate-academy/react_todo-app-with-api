@@ -19,15 +19,17 @@ export const TodoHeader: React.FC<Props> = ({
 }) => {
   const areAllTodosCompleted = todos.every(todo => todo.completed);
 
+  const isToggleAllButtonVisible = todos.length > 0;
+
   return (
     <header className="todoapp__header">
-      {/* eslint-disable jsx-a11y/control-has-associated-label */}
-      {todos.length > 0 && (
+      {isToggleAllButtonVisible && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
             active: areAllTodosCompleted,
           })}
+          aria-label="header-toggle-button"
           onClick={handleToggleAll}
         />
       )}

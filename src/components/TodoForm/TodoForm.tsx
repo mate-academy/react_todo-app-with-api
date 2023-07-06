@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 interface Props {
   handleAddTodo: (todoTitle: string) => Promise<void>;
-  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  setError: (error: string | null) => void;
 }
 
 export const TodoForm: React.FC<Props> = ({ handleAddTodo, setError }) => {

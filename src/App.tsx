@@ -21,6 +21,8 @@ import { Todo } from './types/Todo';
 import { TodoStatus } from './types/TodoStatus';
 import { TodoFooter } from './components/TodoFooter';
 
+import { getVisibleTodos } from './utils/helpres';
+
 const USER_ID = 10681;
 
 export const App: React.FC = () => {
@@ -174,16 +176,7 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = useMemo(() => {
-    switch (filter) {
-      case TodoStatus.COMPLETED:
-        return completedTodos;
-
-      case TodoStatus.ACTIVE:
-        return activeTodos;
-
-      default:
-        return todos;
-    }
+    return getVisibleTodos(filter, todos, completedTodos, activeTodos);
   }, [todos, filter]);
 
   return (
