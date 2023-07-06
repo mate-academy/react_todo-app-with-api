@@ -2,7 +2,6 @@ import {
   ChangeEvent,
   FC,
   KeyboardEvent,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -24,10 +23,10 @@ export const EditForm:FC<Props> = (
   const [query, setQuery] = useState(title);
   const textInput = useRef<HTMLInputElement | null>(null);
 
-  const cancelChange = useCallback(() => {
+  const cancelChange = () => {
     setIsEditing(false);
     setQuery(title);
-  }, [setIsEditing, title]);
+  };
 
   const onEditTodoFormChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -35,13 +34,13 @@ export const EditForm:FC<Props> = (
     setQuery(event.target.value);
   };
 
-  const escKeyUpHandler = useCallback((
+  const escKeyUpHandler = (
     event: KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
       cancelChange();
     }
-  }, [cancelChange]);
+  };
 
   const onFormSubmit = () => {
     if (query !== title) {
@@ -55,7 +54,7 @@ export const EditForm:FC<Props> = (
     if (textInput.current) {
       textInput.current.focus();
     }
-  }, [escKeyUpHandler]);
+  }, []);
 
   return (
     <form
