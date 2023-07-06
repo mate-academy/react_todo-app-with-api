@@ -26,6 +26,13 @@ export const TodoInfo: React.FC<Props> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   const changeTodoStatus = async () => {
     await changeTodoDetails(
@@ -56,13 +63,11 @@ export const TodoInfo: React.FC<Props> = ({
     setIsEditing(false);
   };
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
+  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
     }
-  }, [isEditing]);
+  };
 
   return (
     <div
@@ -92,8 +97,7 @@ export const TodoInfo: React.FC<Props> = ({
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleBlur}
               ref={inputRef}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              // autoFocus
+              onKeyUp={cancelEditing}
             />
           </form>
         )
