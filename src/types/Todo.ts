@@ -10,3 +10,5 @@ export enum FilterStatus {
   ACTIVE = 'active',
   COMPLETED = 'completed',
 }
+
+export type UpdateTodoArgs = Partial<Pick<Todo, 'title' | 'completed'>>;

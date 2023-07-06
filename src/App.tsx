@@ -7,8 +7,13 @@ import React, {
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
-import { FilterStatus, Todo } from './types/Todo';
-import { createTodo, deleteTodo, getTodos } from './api/todos';
+import { FilterStatus, Todo, UpdateTodoArgs } from './types/Todo';
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+} from './api/todos';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoLIst';
 import { Footer } from './components/Footer/Footer';
@@ -22,8 +27,8 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filterCondition, setFilterCondition] = useState(FilterStatus.ALL);
   const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [removingTodoId, setRemovingTodoId] = useState(0);
+  const [updatedTodoId, setUpdatedTodoId] = useState([0]);
 
   useEffect(() => {
     const loadTodosByUser = async () => {
@@ -59,10 +64,7 @@ export const App: React.FC = () => {
         ...newTodo,
       });
 
-      setIsLoading(true);
       const result = await createTodo(newTodo);
-
-      setIsLoading(false);
 
       setTodos((prev) => [...prev, result]);
     } catch (error) {
@@ -82,6 +84,25 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to delete a todo');
     } finally {
       setRemovingTodoId(0);
+    }
+  }, []);
+
+  const changeTodoDetails = useCallback(async (todoId: number, data: UpdateTodoArgs) => {
+    try {
+      setUpdatedTodoId((prev) => [...prev, todoId]);
+      const updatedTodo = await updateTodo(todoId, data);
+
+      setTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return updatedTodo;
+      }));
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setUpdatedTodoId([0]);
     }
   }, []);
 
@@ -115,40 +136,30 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           query={query}
           onQueryChange={setQuery}
-          isLoading={isLoading}
           onErrorMessageChange={setErrorMessage}
-          setIsLoading={setIsLoading}
+          initialTodos={todos}
+          changeTodoDetails={changeTodoDetails}
         />
-        {/* <header className="todoapp__header">
-          <button type="button" className="todoapp__toggle-all active" />
-
-          <form>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-            />
-          </form>
-        </header> */}
-
         <TodoList
           todos={filteredTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
           removingTodoId={removingTodoId}
+          updatedTodoId={updatedTodoId}
+          changeTodoDetails={changeTodoDetails}
         />
 
-        {/* Hide the footer if there are no todos */}
-        <Footer
-          filter={filterCondition}
-          handleFilterChange={handleFilterChange}
-          initialTodos={todos}
-          removeTodo={removeTodo}
-        />
+        {todos.length > 0
+          && (
+            <Footer
+              filter={filterCondition}
+              handleFilterChange={handleFilterChange}
+              initialTodos={todos}
+              removeTodo={removeTodo}
+            />
+          )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       {errorMessage && (
         <ErrorNotification
           error={errorMessage}

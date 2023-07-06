@@ -31,7 +31,6 @@ export const ErrorNotification: React.FC<Props> = ({
         onClick={closeNotification}
       />
 
-      {/* show only one message at a time */}
       {error}
     </div>
   );

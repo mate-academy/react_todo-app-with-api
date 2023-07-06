@@ -1,23 +1,44 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
+import classNames from 'classnames';
+import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
 interface Props {
   onAddTodo: (arg: string) => void;
   query: string;
   onQueryChange: (arg: string) => void;
-  isLoading: boolean;
   onErrorMessageChange: (arg: string) => void;
-  setIsLoading: (arg: boolean) => void;
+  initialTodos: Todo[];
+  changeTodoDetails: (todoId: number, data: UpdateTodoArgs) => void;
 }
 
 export const Header: React.FC<Props> = ({
   onAddTodo,
   query,
   onQueryChange,
-  isLoading,
   onErrorMessageChange,
-  setIsLoading,
+  initialTodos,
+  changeTodoDetails,
 }) => {
+  const completedTodo = initialTodos.filter(todo => todo.completed);
+
+  const isEveryTodoCompleted = completedTodo.length >= initialTodos.length;
+  const toggleAllTodo = () => {
+    if (isEveryTodoCompleted) {
+      initialTodos.map(todo => changeTodoDetails(
+        todo.id,
+        { completed: false },
+      ));
+    }
+
+    initialTodos
+      .filter(todo => !todo.completed)
+      .map(filteredTodo => changeTodoDetails(
+        filteredTodo.id,
+        { completed: true },
+      ));
+  };
+
   const handleSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -31,26 +52,24 @@ export const Header: React.FC<Props> = ({
     }
 
     try {
-      setIsLoading(true);
       onAddTodo(query);
       onQueryChange('');
     } catch {
       onErrorMessageChange('Unable to add todo title');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: isEveryTodoCompleted,
+        })}
+        onClick={toggleAllTodo}
         aria-label="toggle status"
       />
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleSubmitForm}
       >
@@ -60,8 +79,6 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          disabled={isLoading}
-          // createTodo({query, 10888, false});
         />
       </form>
     </header>
