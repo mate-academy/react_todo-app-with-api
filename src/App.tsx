@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from './types/Todo';
-import { todosReguests } from './api/todos';
+import { todosReguest } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
@@ -20,11 +20,7 @@ export const USER_ID = 10895;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState(FilterType.ALL);
-
-  const [
-    currentlyLoadingTodos,
-    setCurrentlyLoadingTodos,
-  ] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const [loadError, setError] = useState<LoadError>({
     status: false,
@@ -41,9 +37,9 @@ export const App: React.FC = () => {
 
   const fetchTodos = useCallback(async () => {
     try {
-      const responce = await todosReguests.getTodos(USER_ID);
+      const response = await todosReguest.getTodos(USER_ID);
 
-      setTodos(responce);
+      setTodos(response);
     } catch (error) {
       setError({
         status: true,
@@ -65,9 +61,8 @@ export const App: React.FC = () => {
     });
 
     try {
-      const newSuccesfulTodo = await todosReguests.postTodo(newTodo);
+      const newSuccesfulTodo = await todosReguest.postTodo(newTodo);
 
-      setTempTodo(null);
       setTodos(currentTodos => ([
         ...currentTodos,
         newSuccesfulTodo,
@@ -79,15 +74,16 @@ export const App: React.FC = () => {
         status: true,
         message: 'Failed to add new Todo, try again...',
       });
-      setTempTodo(null);
 
       return false;
+    } finally {
+      setTempTodo(null);
     }
   }, []);
 
   const removeTodoByID = useCallback(async (todoID: number) => {
     try {
-      await todosReguests.deleteTodo(todoID);
+      await todosReguest.deleteTodo(todoID);
       setTodos(current => (
         current.filter(todo => todo.id !== todoID)
       ));
@@ -103,15 +99,11 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
-
   const editTodoByID = useCallback(async (
     id: number, data: Partial<Todo>,
   ) => {
     try {
-      const result = await todosReguests.editTodo(id, { ...data });
+      const result = await todosReguest.editTodo(id, { ...data });
 
       setTodos((currentTodos) => (
         currentTodos.map(todo => {
@@ -134,6 +126,10 @@ export const App: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -144,7 +140,7 @@ export const App: React.FC = () => {
           addNewTodo={addNewTodo}
           setError={setError}
           editTodoByID={editTodoByID}
-          setCurrentlyLoadingTodos={setCurrentlyLoadingTodos}
+          setLoadingTodos={setLoadingTodos}
         />
 
         {isDisplayTodos && (
@@ -153,7 +149,7 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             removeTodoByID={removeTodoByID}
             editTodoByID={editTodoByID}
-            currentlyLoadingTodos={currentlyLoadingTodos}
+            loadingTodos={loadingTodos}
           />
         )}
 
@@ -163,7 +159,7 @@ export const App: React.FC = () => {
             filterType={filterType}
             setFilterType={setFilterType}
             removeTodoByID={removeTodoByID}
-            setCurrentlyLoadingTodos={setCurrentlyLoadingTodos}
+            setLoadingTodos={setLoadingTodos}
           />
         )}
       </div>

@@ -20,7 +20,7 @@ const editTodo = (
   return client.patch(`/todos/${todoID}`, data);
 };
 
-export const todosReguests = {
+export const todosReguest = {
   getTodos,
   postTodo,
   deleteTodo,

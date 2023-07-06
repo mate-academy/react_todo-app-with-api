@@ -9,7 +9,7 @@ interface Props {
   addNewTodo: (title: string) => Promise<boolean>,
   setError: React.Dispatch<React.SetStateAction<LoadError>>,
   editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>
-  setCurrentlyLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 export const Header:FC<Props> = (
@@ -18,7 +18,7 @@ export const Header:FC<Props> = (
     addNewTodo,
     setError,
     editTodoByID,
-    setCurrentlyLoadingTodos,
+    setLoadingTodos,
   },
 ) => {
   const isTodosExists = todos.length > 0;
@@ -34,7 +34,7 @@ export const Header:FC<Props> = (
   ), [todos]);
 
   const toggleAllHandler = async () => {
-    setCurrentlyLoadingTodos(allTodosIDs);
+    setLoadingTodos(allTodosIDs);
 
     await Promise.all(
       todos.map(currentTodo => {
@@ -46,7 +46,7 @@ export const Header:FC<Props> = (
       }),
     );
 
-    setCurrentlyLoadingTodos([]);
+    setLoadingTodos([]);
   };
 
   return (

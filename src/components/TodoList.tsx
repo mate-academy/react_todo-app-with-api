@@ -7,7 +7,7 @@ interface Props {
   tempTodo: Todo | null;
   removeTodoByID: (arg: number) => void;
   editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>;
-  currentlyLoadingTodos: number[];
+  loadingTodos: number[];
 }
 
 export const TodoList:FC<Props> = ({
@@ -15,12 +15,12 @@ export const TodoList:FC<Props> = ({
   tempTodo,
   removeTodoByID,
   editTodoByID,
-  currentlyLoadingTodos,
+  loadingTodos,
 }) => {
   return (
     <section className="todoapp__main">
       {todos.map(todo => {
-        const isPresentInLoadingTodos = currentlyLoadingTodos.includes(todo.id);
+        const isPresentInLoadingTodos = loadingTodos.includes(todo.id);
 
         return (
           <TodoItem

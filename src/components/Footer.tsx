@@ -11,7 +11,7 @@ interface Props {
   filterType: FilterType,
   setFilterType:React.Dispatch<React.SetStateAction<FilterType>>,
   removeTodoByID: (todoID: number) => Promise<boolean>
-  setCurrentlyLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 export const Footer:FC<Props> = ({
@@ -19,14 +19,14 @@ export const Footer:FC<Props> = ({
   setFilterType,
   filterType,
   removeTodoByID,
-  setCurrentlyLoadingTodos,
+  setLoadingTodos,
 }) => {
   const completedTodosIds = useMemo(() => (
     getCompletedTodos(todos).map(todo => todo.id)
   ), [todos]);
 
   const handleremoveTodosByID = useCallback(async () => {
-    setCurrentlyLoadingTodos(completedTodosIds);
+    setLoadingTodos(completedTodosIds);
 
     await Promise.all(
       completedTodosIds.map((todoId) => (
@@ -34,8 +34,8 @@ export const Footer:FC<Props> = ({
       )),
     );
 
-    setCurrentlyLoadingTodos([]);
-  }, [completedTodosIds, removeTodoByID, setCurrentlyLoadingTodos]);
+    setLoadingTodos([]);
+  }, [completedTodosIds, removeTodoByID, setLoadingTodos]);
 
   return (
     <footer className="todoapp__footer">
