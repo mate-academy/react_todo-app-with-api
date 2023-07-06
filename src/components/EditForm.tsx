@@ -1,24 +1,44 @@
-import { ChangeEvent, FormEvent } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { client } from '../utils/fetchClient';
+import { Todo } from '../types/Todo';
 
 type Props = {
-  handleFormSubmit: (event: FormEvent) => void;
-  inputValue: string;
-  handleOnInput: (event: ChangeEvent<HTMLInputElement>) => void;
+  todo: Todo;
+  todos: Todo[];
+  setTodos: (calueL: Todo[]) => void;
 };
 
-export const EditForm: React.FC<Props> = ({
-  handleFormSubmit,
-  inputValue,
-  handleOnInput,
-}) => (
-  <form onSubmit={handleFormSubmit}>
-    <input
-      type="text"
-      className="todo__title-field"
-      placeholder="Note: Empty title deletes a Todo"
-      defaultValue={inputValue}
-      onChange={handleOnInput}
-      onBlur={handleFormSubmit}
-    />
-  </form>
-);
+export const EditForm: React.FC<Props> = ({ todo, todos, setTodos }) => {
+  const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
+
+  const handleTodoTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
+  };
+
+  const updateTodoTitle = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const updatedTodo = await client.patch<Todo>(`/todos/${todo.id}`, {
+      title: newTodoTitle,
+    });
+
+    const updatedTodos = todos.map(item => (
+      item.id === updatedTodo.id ? updatedTodo : item
+    ));
+
+    setTodos(updatedTodos);
+  };
+
+  return (
+    <form onSubmit={updateTodoTitle}>
+      <input
+        type="text"
+        className="todo__title-field"
+        placeholder="Note: Empty title deletes a Todo"
+        value={newTodoTitle}
+        onChange={handleTodoTitleChange}
+        autoFocus
+      />
+    </form>
+  );
+};

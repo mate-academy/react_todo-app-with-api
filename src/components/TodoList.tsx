@@ -9,9 +9,9 @@ type Props = {
   deletedTodoId: number[];
   tempTodo: Todo | null;
   handleCheck: (value: number) => void;
-  handleFormSubmit: () => void;
   setTodoTitle: (value: string) => void;
   todoTitle: string;
+  setTodos: (value: Todo[]) => void;
 };
 export const TodoList: React.FC<Props> = ({
   todos,
@@ -19,9 +19,9 @@ export const TodoList: React.FC<Props> = ({
   deletedTodoId,
   tempTodo,
   handleCheck,
-  handleFormSubmit,
   setTodoTitle,
   todoTitle,
+  setTodos,
 }) => {
   const formRef = useRef<HTMLInputElement | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
@@ -33,6 +33,10 @@ export const TodoList: React.FC<Props> = ({
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        setIsEditing(null);
+      }
+
+      if (event.key === 'Enter') {
         setIsEditing(null);
       }
     };
@@ -47,12 +51,6 @@ export const TodoList: React.FC<Props> = ({
       document.removeEventListener('keyup', handleKeyUp);
     };
   }, [isEditing, todoTitle]);
-
-  const handleOnInput = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setTodoTitle(event.target.value);
-  };
 
   return (
     <section className="todoapp__main">
@@ -81,9 +79,9 @@ export const TodoList: React.FC<Props> = ({
 
             {isEditing === id ? (
               <EditForm
-                inputValue={todoTitle}
-                handleOnInput={handleOnInput}
-                handleFormSubmit={handleFormSubmit}
+                todo={todo}
+                todos={todos}
+                setTodos={setTodos}
               />
             ) : (
               <>

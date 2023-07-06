@@ -69,6 +69,7 @@ export const App: React.FC = () => {
         setTodoTitle('');
       });
   }, [todoTitle, todos]);
+
   const removeTodo = (todoId: number) => {
     setDeletedTodoId(prevState => prevState.filter(id => id !== todoId));
 
@@ -166,8 +167,8 @@ export const App: React.FC = () => {
           deletedTodoId={deletedTodoId}
           handleCheck={handleCheck}
           todoTitle={todoTitle}
+          setTodos={setTodos}
           setTodoTitle={setTodoTitle}
-          handleFormSubmit={() => handleFormSubmit}
         />
 
         {todos.length > 0 && (
