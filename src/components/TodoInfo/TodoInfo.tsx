@@ -42,13 +42,13 @@ export const TodoInfo: FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
-  const handleSubmitTitle = async () => {
+  const submitTitle = () => {
     try {
       if (newTitle.trim() === '') {
         onRemoveTodo(id);
       } else if (newTitle.trim() !== title) {
         setIsEditing(false);
-        await onUpdateTodo(id, { title: newTitle });
+        onUpdateTodo(id, { title: newTitle });
       } else {
         setIsEditing(false);
       }
@@ -57,19 +57,27 @@ export const TodoInfo: FC<Props> = ({
     }
   };
 
+  const handleSubmitTitle = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitTitle();
+  };
+
   const handleCancelEditingTitle = () => {
     setNewTitle(title);
     setIsEditing(false);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
     if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSubmitTitle();
+      if (newTitle.trim() === '') {
+        handleRemoveTodo();
+      } else {
+        submitTitle();
+      }
     }
 
     if (event.key === 'Escape') {
-      event.preventDefault();
       handleCancelEditingTitle();
     }
   };
@@ -78,7 +86,7 @@ export const TodoInfo: FC<Props> = ({
     if (newTitle.trim() === '') {
       handleRemoveTodo();
     } else {
-      handleSubmitTitle();
+      submitTitle();
     }
   };
 
