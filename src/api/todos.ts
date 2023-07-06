@@ -18,5 +18,3 @@ export const updateTodo = (
 ): Promise<Todo> => {
   return client.patch(`/todos/${todoId}`, data);
 };
-
-// Add more methods here

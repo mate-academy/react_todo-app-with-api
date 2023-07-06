@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect,
@@ -17,7 +15,8 @@ import {
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoLIst';
 import { Footer } from './components/Footer/Footer';
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { ErrorNotification }
+  from './components/ErrorNotification/ErrorNotification';
 
 const USER_ID = 10888;
 
@@ -89,7 +88,9 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const changeTodoDetails = useCallback(async (todoId: number, data: UpdateTodoArgs) => {
+  const changeTodoDetails = useCallback(async (
+    todoId: number, data: UpdateTodoArgs,
+  ) => {
     try {
       setUpdatedTodoId((prev) => [...prev, todoId]);
       const updatedTodo = await updateTodo(todoId, data);

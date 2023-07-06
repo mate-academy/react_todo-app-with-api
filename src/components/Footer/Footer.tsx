@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
 import { FilterStatus, Todo } from '../../types/Todo';
@@ -21,7 +20,6 @@ export const Footer: React.FC<Props> = ({
   const activeTodosQuantity = initialTodos
     .filter(todo => !todo.completed).length;
   const filterStatuses: string[] = Object.values(FilterStatus);
-
   const removeCompletedTodos = () => {
     completedTodo.map(todo => removeTodo(todo.id));
   };
