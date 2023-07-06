@@ -32,15 +32,15 @@ export const Layout: FC = () => {
   }, []);
 
   useEffect(() => {
-    let timerId: NodeJS.Timeout;
+    let timerId: number;
 
     if (error) {
-      timerId = setTimeout(() => {
+      timerId = window.setTimeout(() => {
         setError(null);
       }, 3000);
     }
 
-    return () => clearTimeout(timerId);
+    return () => window.clearTimeout(timerId);
   }, [error]);
 
   const completedTodos = useMemo(() => (
