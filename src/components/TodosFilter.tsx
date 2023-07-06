@@ -25,7 +25,7 @@ export const TodosFilter:FC<Props> = ({ setFilterType, currentFilterType }) => {
           })}
           onClick={() => handleSelectFilterType(value)}
         >
-          {value[0].toUpperCase() + value.slice(1)}
+          {value}
         </a>
       ))}
     </nav>

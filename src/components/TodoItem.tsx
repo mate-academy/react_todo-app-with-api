@@ -5,16 +5,16 @@ import { EditForm } from './EditForm';
 
 interface Props {
   todo: Todo;
-  removeTodoByID: (arg: number) => void;
-  editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>;
-  isLoadingNow: boolean;
+  removeTodoByID?: (arg: number) => void;
+  editTodoByID?: (id: number, data: Partial<Todo>) => Promise<boolean>;
+  isPresentInLoadingTodos?: boolean;
 }
 
 export const TodoItem:FC<Props> = ({
   todo,
-  removeTodoByID,
-  editTodoByID,
-  isLoadingNow,
+  removeTodoByID = () => {},
+  editTodoByID = () => {},
+  isPresentInLoadingTodos = false,
 }) => {
   const { title, completed, id } = todo;
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +90,7 @@ export const TodoItem:FC<Props> = ({
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': isLoading || isLoadingNow,
+        'is-active': isLoading || isPresentInLoadingTodos,
       })}
       >
         <div className="modal-background has-background-white-ter" />

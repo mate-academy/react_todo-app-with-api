@@ -20,7 +20,7 @@ export const TodoList:FC<Props> = ({
   return (
     <section className="todoapp__main">
       {todos.map(todo => {
-        const isLoadingNow = currentlyLoadingTodos.includes(todo.id);
+        const isPresentInLoadingTodos = currentlyLoadingTodos.includes(todo.id);
 
         return (
           <TodoItem
@@ -28,16 +28,13 @@ export const TodoList:FC<Props> = ({
             todo={todo}
             removeTodoByID={removeTodoByID}
             editTodoByID={editTodoByID}
-            isLoadingNow={isLoadingNow}
+            isPresentInLoadingTodos={isPresentInLoadingTodos}
           />
         );
       })}
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
-          removeTodoByID={removeTodoByID}
-          editTodoByID={editTodoByID}
-          isLoadingNow
         />
       )}
     </section>
