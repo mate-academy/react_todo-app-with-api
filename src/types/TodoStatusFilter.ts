@@ -1,5 +1,5 @@
 export enum TodoStatusFilter {
-  All = 'all',
+  All = '/',
   Active = 'active',
   Completed = 'completed',
 }

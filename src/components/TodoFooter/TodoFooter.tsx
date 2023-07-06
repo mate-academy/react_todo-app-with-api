@@ -1,43 +1,31 @@
-import React from 'react';
+import { FC } from 'react';
 import { TodoFilter } from '../TodoFilter';
-import { TodoStatusFilter } from '../../types/TodoStatusFilter';
 
 interface Props {
-  statusFilter: TodoStatusFilter;
-  changeFilterStatus: (status: TodoStatusFilter) => void;
   clearCompleted: () => void;
   activeTodosLeft: number;
-  isClearCompletedVisible: boolean;
+  canClearCompleted: boolean;
 }
 
-export const TodoFooter: React.FC<Props> = ({
-  statusFilter,
-  changeFilterStatus,
+export const TodoFooter: FC<Props> = ({
   clearCompleted,
   activeTodosLeft,
-  isClearCompletedVisible,
-}) => {
-  const handleClearCompletedOnClick = () => clearCompleted();
+  canClearCompleted,
+}) => (
+  <footer className="todoapp__footer">
+    <span className="todo-count">
+      {`${activeTodosLeft} items left`}
+    </span>
 
-  return (
-    <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodosLeft} items left`}
-      </span>
+    <TodoFilter />
 
-      <TodoFilter
-        statusFilter={statusFilter}
-        changeFilterStatus={changeFilterStatus}
-      />
-
-      <button
-        type="button"
-        className="todoapp__clear-completed"
-        disabled={!isClearCompletedVisible}
-        onClick={handleClearCompletedOnClick}
-      >
-        Clear completed
-      </button>
-    </footer>
-  );
-};
+    <button
+      type="button"
+      className="todoapp__clear-completed"
+      disabled={!canClearCompleted}
+      onClick={clearCompleted}
+    >
+      Clear completed
+    </button>
+  </footer>
+);

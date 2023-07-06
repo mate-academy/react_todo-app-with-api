@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import cn from 'classnames';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   hasTodos: boolean
 }
 
-export const TodoHeader: React.FC<Props> = React.memo(({
+export const TodoHeader: FC<Props> = ({
   changeError,
   addTodo,
   toggleAllTodos,
@@ -18,9 +18,7 @@ export const TodoHeader: React.FC<Props> = React.memo(({
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
-  const handleToggleAllOnClick = () => toggleAllTodos();
-
-  const handleFormOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const submitTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!todoTitle.trim()) {
@@ -33,32 +31,32 @@ export const TodoHeader: React.FC<Props> = React.memo(({
     setTodoTitle('');
   };
 
-  const handleTitleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const changeTodoTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(event.target.value);
   };
 
   return (
     <header className="todoapp__header">
-      {(hasTodos && (
+      {hasTodos && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
             active: isAllCompleted,
           })}
           aria-label="toggle-all"
-          onClick={handleToggleAllOnClick}
+          onClick={toggleAllTodos}
         />
-      ))}
+      )}
 
-      <form onSubmit={handleFormOnSubmit}>
+      <form onSubmit={submitTodo}>
         <input
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={todoTitle}
-          onChange={handleTitleOnChange}
+          onChange={changeTodoTitle}
         />
       </form>
     </header>
   );
-});
+};

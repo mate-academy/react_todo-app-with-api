@@ -1,8 +1,8 @@
 import React, {
-  useCallback,
+  FC,
+  useState,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -14,7 +14,7 @@ interface Props {
   editTodo: (todoId: number, data: Partial<Todo>) => void;
 }
 
-export const TodoInfo: React.FC<Props> = React.memo(({
+export const TodoInfo: FC<Props> = ({
   todo,
   loadingTodos,
   removeTodo,
@@ -29,7 +29,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     todoTitleRef.current?.focus();
   }, [isEditing]);
 
-  const submitTodo = useCallback(() => {
+  const submitTodo = () => {
     const newTitle = todoTitleRef.current?.value;
 
     if (newTitle && newTitle.trim() === title.trim()) {
@@ -45,35 +45,35 @@ export const TodoInfo: React.FC<Props> = React.memo(({
     }
 
     setIsEditing(false);
-  }, [title, todoTitleRef, removeTodo, editTodo]);
+  };
 
-  const handleTodoStatusOnClick = () => {
+  const handleTodoStatusClick = () => {
     editTodo(id, { completed: !completed });
   };
 
-  const handleTodoOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     submitTodo();
   };
 
-  const handleTodoOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTodoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (todoTitleRef.current) {
       todoTitleRef.current.value = event.target.value;
     }
   };
 
-  const handleTodoOnBlur = () => submitTodo();
-
-  const handleTodoOnKeyUp = (event: React.KeyboardEvent) => {
+  const handleTodoKeyUp = (event: React.KeyboardEvent) => {
     if (event.code === 'Escape') {
       setIsEditing(false);
     }
   };
 
-  const handleTodoOnDoubleClick = () => setIsEditing(true);
+  const handleTodoBlur = () => submitTodo();
 
-  const handleRemoveButtonOnClick = () => removeTodo(id);
+  const handleTodoDoubleClick = () => setIsEditing(true);
+
+  const handleRemoveButtonClick = () => removeTodo(id);
 
   return (
     <div
@@ -86,22 +86,22 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={handleTodoStatusOnClick}
+          onClick={handleTodoStatusClick}
         />
       </label>
 
       {isEditing
         ? (
-          <form onSubmit={handleTodoOnSubmit}>
+          <form onSubmit={handleTodoSubmit}>
             <input
               ref={todoTitleRef}
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               defaultValue={title}
-              onChange={handleTodoOnChange}
-              onBlur={handleTodoOnBlur}
-              onKeyUp={handleTodoOnKeyUp}
+              onChange={handleTodoChange}
+              onKeyUp={handleTodoKeyUp}
+              onBlur={handleTodoBlur}
             />
           </form>
         )
@@ -109,7 +109,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
           <>
             <span
               className="todo__title"
-              onDoubleClick={handleTodoOnDoubleClick}
+              onDoubleClick={handleTodoDoubleClick}
             >
               {title}
             </span>
@@ -117,7 +117,7 @@ export const TodoInfo: React.FC<Props> = React.memo(({
             <button
               type="button"
               className="todo__remove"
-              onClick={handleRemoveButtonOnClick}
+              onClick={handleRemoveButtonClick}
             >
               ×
             </button>
@@ -134,4 +134,4 @@ export const TodoInfo: React.FC<Props> = React.memo(({
       </div>
     </div>
   );
-});
+};

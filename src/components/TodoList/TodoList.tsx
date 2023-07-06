@@ -1,5 +1,5 @@
-import React from 'react';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { FC } from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoInfo } from '../TodoInfo';
 import { Todo } from '../../types/Todo';
 
@@ -11,46 +11,44 @@ interface Props {
   editTodo: (todoId: number, data: Partial<Todo>) => void;
 }
 
-export const TodoList: React.FC<Props> = React.memo(({
+export const TodoList: FC<Props> = ({
   todos,
   loadingTodos,
   tempTodo,
   removeTodo,
   editTodo,
-}) => {
-  return (
-    <section className="todoapp__main">
-      <TransitionGroup>
-        {todos.map((todo) => (
-          <CSSTransition
-            key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <TodoInfo
-              todo={todo}
-              loadingTodos={loadingTodos}
-              removeTodo={removeTodo}
-              editTodo={editTodo}
-            />
-          </CSSTransition>
-        ))}
+}) => (
+  <section className="todoapp__main">
+    <TransitionGroup>
+      {todos.map((todo) => (
+        <CSSTransition
+          key={todo.id}
+          timeout={300}
+          classNames="item"
+        >
+          <TodoInfo
+            todo={todo}
+            loadingTodos={loadingTodos}
+            removeTodo={removeTodo}
+            editTodo={editTodo}
+          />
+        </CSSTransition>
+      ))}
 
-        {tempTodo && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <TodoInfo
-              todo={tempTodo}
-              loadingTodos={loadingTodos}
-              removeTodo={removeTodo}
-              editTodo={editTodo}
-            />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    </section>
-  );
-});
+      {tempTodo && (
+        <CSSTransition
+          key={0}
+          timeout={300}
+          classNames="temp-item"
+        >
+          <TodoInfo
+            todo={tempTodo}
+            loadingTodos={loadingTodos}
+            removeTodo={removeTodo}
+            editTodo={editTodo}
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  </section>
+);
