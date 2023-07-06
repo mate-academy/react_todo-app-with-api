@@ -1,21 +1,15 @@
 import cn from 'classnames';
-import { Todo } from '../types/Todo';
+import { FilterStatus, Todo } from '../types/Todo';
 import { deleteTodos } from '../api/todos';
 import { showError } from '../helpers/helpers';
 
 interface Props {
   filter: string,
   todos: Todo[]
-  setFilter: (text: string) => void;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
+  setFilter: (text: FilterStatus) => void;
+  setTodos: (todos: Todo[]) => void;
   setError: React.Dispatch<React.SetStateAction<string>>
-  setLoader: React.Dispatch<React.SetStateAction<number[]>>
-}
-
-export enum FilterStatus {
-  ALL = 'all',
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
+  setLoader: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const Footer: React.FC<Props> = ({
@@ -28,22 +22,23 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const itemsLeft = todos.filter(todo => !todo.completed).length;
   const clearButtonIsVisible = todos.some(todo => todo.completed);
-  const clickHandler = () => {
+  const clickHandler = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const activeTodos = todos.filter(todo => !todo.completed);
 
-    completedTodos.forEach(todo => {
+    completedTodos.map(todo => {
       setLoader(prevState => [...prevState, todo.id]);
-      deleteTodos(todo.id)
-        .then(() => {
-          setTodos(activeTodos);
-          setLoader([]);
-        })
-        .catch(() => {
-          showError('Unable to delete a todo', setError);
-          setLoader([]);
-        });
+
+      return deleteTodos(todo.id);
     });
+    try {
+      await Promise.all(completedTodos);
+      setTodos(activeTodos);
+      setLoader([]);
+    } catch (error) {
+      showError('Unable to delete a todo', setError);
+      setLoader([]);
+    }
   };
 
   return (
@@ -84,15 +79,14 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {clearButtonIsVisible && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={clickHandler}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        style={{ visibility: clearButtonIsVisible ? 'visible' : 'hidden' }}
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={clickHandler}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

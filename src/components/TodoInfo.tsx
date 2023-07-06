@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
-import { UpdateTodo, deleteTodos } from '../api/todos';
+import { updateTodo, deleteTodos } from '../api/todos';
 import { showError } from '../helpers/helpers';
 import { Todo } from '../types/Todo';
 
@@ -19,13 +19,13 @@ export const TodoInfo:React.FC<Props> = ({
   setLoader,
   todo,
 }) => {
-  const [onEdit, setOnEdit] = useState<null | number>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState(todo.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [onEdit]);
+  }, [isEditing]);
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -44,7 +44,7 @@ export const TodoInfo:React.FC<Props> = ({
 
   const statusClickHandler = (todoId : number, todoStatus: boolean) => {
     setLoader(prevState => [...prevState, todoId]);
-    UpdateTodo(todoId, { completed: !todoStatus })
+    updateTodo(todoId, { completed: !todoStatus })
       .then((updatedTodo) => {
         setTodos(prevState => (
           prevState.map(prevTodo => {
@@ -58,7 +58,7 @@ export const TodoInfo:React.FC<Props> = ({
   };
 
   const blurHandler = () => {
-    setOnEdit(null);
+    setIsEditing(false);
 
     switch (searchQuery) {
       case '':
@@ -77,7 +77,7 @@ export const TodoInfo:React.FC<Props> = ({
 
       default:
         setLoader(prevState => [...prevState, todo.id]);
-        UpdateTodo(todo.id, { title: searchQuery })
+        updateTodo(todo.id, { title: searchQuery })
           .then((updatedTodo) => {
             setTodos(prevState => (
               prevState.map(prevTodo => {
@@ -100,15 +100,16 @@ export const TodoInfo:React.FC<Props> = ({
     event :React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
-      setOnEdit(null);
+      setIsEditing(true);
       setSearchQuery(todo.title);
     }
   };
 
+  const modalIsActive = loader.includes(todo.id);
+
   return (
     <div
       className={cn('todo', { completed: todo.completed })}
-      key={todo.id}
     >
       <label className="todo__status-label">
         <input
@@ -118,7 +119,7 @@ export const TodoInfo:React.FC<Props> = ({
         />
       </label>
 
-      {onEdit === todo.id ? (
+      {isEditing ? (
         <form
           onSubmit={submitHandler}
         >
@@ -137,7 +138,7 @@ export const TodoInfo:React.FC<Props> = ({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setOnEdit(todo.id)}
+            onDoubleClick={() => setIsEditing(true)}
           >
             {todo.title}
           </span>
@@ -145,7 +146,7 @@ export const TodoInfo:React.FC<Props> = ({
             type="button"
             className="todo__remove"
             onClick={() => clickHandler(todo.id)}
-            onDoubleClick={() => setOnEdit(todo.id)}
+            onDoubleClick={() => setIsEditing(true)}
           >
             ×
           </button>
@@ -153,7 +154,7 @@ export const TodoInfo:React.FC<Props> = ({
       )}
 
       <div className={cn('modal overlay', {
-        'is-active': loader.includes(todo.id),
+        'is-active': modalIsActive,
       })}
       >
         <div className="modal-background has-background-white-ter" />

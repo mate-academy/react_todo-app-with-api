@@ -6,3 +6,9 @@ export interface Todo {
 }
 
 export type UpdatingTodo = Partial<Pick<Todo, 'title' | 'completed'>>;
+
+export enum FilterStatus {
+  ALL = 'all',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+}

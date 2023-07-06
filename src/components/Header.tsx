@@ -2,14 +2,14 @@ import { useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { showError } from '../helpers/helpers';
-import { UpdateTodo, addTodos } from '../api/todos';
+import { updateTodo, addTodos } from '../api/todos';
 
 interface Props {
   todos: Todo[],
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  setSearchQuery: (SearchQuery: string) => void;
   searchQuery: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
-  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
+  setTempTodo: (tempTodo: Todo | null) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   setLoader: React.Dispatch<React.SetStateAction<number[]>>;
 }
@@ -62,7 +62,7 @@ export const Header: React.FC<Props> = ({
     if (activeInputButton) {
       todos.forEach(todo => {
         setLoader(prevState => [...prevState, todo.id]);
-        UpdateTodo(todo.id, { completed: !todo.completed })
+        updateTodo(todo.id, { completed: !todo.completed })
           .then((updatedTodo) => {
             setTodos(prevState => (
               prevState.map(prevTodo => {
@@ -78,7 +78,7 @@ export const Header: React.FC<Props> = ({
       todos.forEach(todo => {
         if (!todo.completed) {
           setLoader(prevState => [...prevState, todo.id]);
-          UpdateTodo(todo.id, { completed: !todo.completed })
+          updateTodo(todo.id, { completed: !todo.completed })
             .then((updatedTodo) => {
               setTodos(prevState => (
                 prevState.map(prevTodo => {
