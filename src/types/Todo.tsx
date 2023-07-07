@@ -8,6 +8,5 @@ export interface Todo {
 export interface CommonTodosProps {
   removeTodos: (id: number[]) => void;
   loadingTodoIds: number[];
-  handleToggleTodoStatus: (todoId: number[]) => void;
-  changeTitle: (todoId: number, newTitle: string) => void;
+  handleUpdate: (todoId: number[], newTitle?: string) => void;
 }

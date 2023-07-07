@@ -10,8 +10,7 @@ export const TodosList: FC<TodosListProps> = memo(({
   tempTodo,
   removeTodos,
   loadingTodoIds,
-  handleToggleTodoStatus,
-  changeTitle,
+  handleUpdate,
 }) => (
   <section className="todoapp__main">
     <TransitionGroup>
@@ -25,8 +24,7 @@ export const TodosList: FC<TodosListProps> = memo(({
             todo={todo}
             removeTodos={removeTodos}
             loadingTodoIds={loadingTodoIds}
-            handleToggleTodoStatus={handleToggleTodoStatus}
-            changeTitle={changeTitle}
+            handleUpdate={handleUpdate}
           />
         </CSSTransition>
       ))}
@@ -41,8 +39,7 @@ export const TodosList: FC<TodosListProps> = memo(({
             todo={tempTodo}
             removeTodos={removeTodos}
             loadingTodoIds={loadingTodoIds}
-            handleToggleTodoStatus={handleToggleTodoStatus}
-            changeTitle={changeTitle}
+            handleUpdate={handleUpdate}
           />
         </CSSTransition>
       )}

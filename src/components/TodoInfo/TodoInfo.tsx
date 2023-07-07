@@ -13,8 +13,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
   todo,
   removeTodos,
   loadingTodoIds,
-  handleToggleTodoStatus,
-  changeTitle,
+  handleUpdate,
 }) => {
   const {
     title,
@@ -22,7 +21,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     id,
   } = todo;
   const formRef = useRef<HTMLInputElement | null>(null);
-  const [queryTodo, setQueryTodo] = useState(title);
+  const [todoTitle, setTodoTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -40,25 +39,25 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
 
     const updatedTitle = title.trim().replace(/\s+/g, ' ');
 
-    setQueryTodo(updatedTitle);
+    setTodoTitle(updatedTitle);
 
     return () => {
       document.removeEventListener('keyup', handleKeyUp);
     };
   }, [isEditing, title]);
 
-  const handleOnQuery = (
+  const handleQueryChange = (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
-    setQueryTodo(event.target.value);
+    setTodoTitle(event.target.value);
   };
 
   const handleSubmit = () => {
     const updatedTitle = title.trim().replace(/\s+/g, ' ');
-    const updatedQuery = queryTodo.trim().replace(/\s+/g, ' ');
+    const updatedQuery = todoTitle.trim().replace(/\s+/g, ' ');
 
     if (updatedTitle === updatedQuery) {
-      setQueryTodo(updatedQuery);
+      setTodoTitle(updatedQuery);
       setIsEditing(false);
 
       return;
@@ -66,13 +65,13 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
 
     if (!updatedQuery) {
       removeTodos([id]);
-      setQueryTodo(updatedTitle);
+      setTodoTitle(updatedTitle);
       setIsEditing(false);
 
       return;
     }
 
-    changeTitle(id, queryTodo);
+    handleUpdate([id], todoTitle);
     setIsEditing(false);
   };
 
@@ -88,7 +87,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => handleToggleTodoStatus([id])}
+          onClick={() => handleUpdate([id])}
         />
       </label>
 
@@ -101,8 +100,8 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
             type="text"
             className="todo__title-field"
             form="changedForm"
-            value={queryTodo}
-            onChange={handleOnQuery}
+            value={todoTitle}
+            onChange={handleQueryChange}
             onBlur={handleSubmit}
             ref={formRef}
           />

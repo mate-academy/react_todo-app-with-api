@@ -1,9 +1,9 @@
 import { StatusValue } from '../types/StatusValue';
 import { Todo } from '../types/Todo';
 
-export const preparedTodos = (todos: Todo[], statusTodo: StatusValue) => {
+export const preparedTodos = (todos: Todo[], todoFilter: StatusValue) => {
   return todos.filter(todo => {
-    switch (statusTodo) {
+    switch (todoFilter) {
       case StatusValue.ALL:
         return todo;
 
@@ -14,12 +14,12 @@ export const preparedTodos = (todos: Todo[], statusTodo: StatusValue) => {
         return todo.completed === true;
 
       default:
-        throw new Error(`Wrong filter, ${statusTodo} is not defined`);
+        throw new Error(`Wrong filter, ${todoFilter} is not defined`);
     }
   });
 };
 
-export const getcompletedTodosIds = (todos: Todo[]) => {
+export const getcompletedTodoIds = (todos: Todo[]) => {
   return todos
     .filter(todo => todo.completed)
     .map(todo => todo.id);
