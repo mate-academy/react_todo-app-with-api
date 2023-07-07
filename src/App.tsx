@@ -1,8 +1,19 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
-import { getTodos, createTodo, removeTodo } from './api/todos';
-import { Todo, CreatedTodo } from './types/Todo';
-import { Message } from './components/ErrorMessage';
+import React, {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  getTodos,
+  createTodo,
+  removeTodo,
+  updateTodo,
+} from './api/todos';
+import { Todo, CreatedTodo, UpdatedTodo } from './types/Todo';
+import { ErrorMessage } from './components/ErrorMessage';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { TodoHeader } from './components/TodoHeader';
@@ -12,9 +23,10 @@ const USER_ID = 10910;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filtredTodos, setFiltredTodos] = useState<string>(FilterTodos.all);
+  const [filtredTodos, setFiltredTodos] = useState<string>(FilterTodos.ALL);
   const [visibleError, setVisibleError] = useState('');
   const [title, setTitle] = useState('');
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (!USER_ID) {
@@ -27,14 +39,16 @@ export const App: React.FC = () => {
   }, []);
 
   const visibleTodos = useMemo<Todo[]>(() => {
-    switch (filtredTodos) {
-      case 'Active':
-        return todos.filter(todo => !todo.completed);
-      case 'Completed':
-        return todos.filter(todo => todo.completed);
-      default:
-        return todos;
-    }
+    return todos.filter(todo => {
+      switch (filtredTodos) {
+        case FilterTodos.ACTIVE:
+          return !todo.completed;
+        case FilterTodos.COMPLETED:
+          return todo.completed;
+        default:
+          return todo;
+      }
+    });
   }, [todos, filtredTodos]);
 
   const handleSubmit = async (data: CreatedTodo) => {
@@ -90,6 +104,54 @@ export const App: React.FC = () => {
     return removedTodos;
   };
 
+  const handleUpdateTodo = useCallback(async (
+    todoId: number,
+    args: UpdatedTodo,
+  ) => {
+    if (updatingTodoIds.includes(todoId)) {
+      return;
+    }
+
+    setUpdatingTodoIds((prevState) => [...prevState, todoId]);
+
+    try {
+      const updatedTodo = await updateTodo(todoId, args);
+
+      setTodos(prevTodos => (prevTodos.map((todo: Todo) => (
+        todo.id === todoId
+          ? updatedTodo
+          : todo)) as Todo[]));
+    } catch {
+      setVisibleError('Unable to update a todo');
+    } finally {
+      setUpdatingTodoIds([]);
+    }
+  }, [updatingTodoIds]);
+
+  const handleSubmitonChange = (
+    event: FormEvent,
+    newTitle: string,
+    id: number,
+    isEdit: (value: boolean) => void,
+    editTitle: (value: string) => void,
+  ) => {
+    event.preventDefault();
+
+    if (!newTitle.trim()) {
+      removeTodo(id);
+
+      setTodos((prevTodos: Todo[]) => prevTodos.filter(t => t.id !== id));
+    }
+
+    if (title !== newTitle) {
+      handleUpdateTodo(id, { title: newTitle });
+      isEdit(false);
+    }
+
+    isEdit(false);
+    editTitle(newTitle.trim());
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -108,18 +170,20 @@ export const App: React.FC = () => {
           visibleTodos={visibleTodos}
           handleRemove={handleRemove}
           handleChangeCheckBox={handleChangeCheckBox}
+          handleSubmitonChange={handleSubmitonChange}
         />
 
-        {/* Hide the footer if there are no todos */}
-        <TodoFooter
-          visibleTodos={visibleTodos}
-          filtredTodos={filtredTodos}
-          setFiltredTodos={setFiltredTodos}
-          handleClearCompletedTodos={handleClearCompletedTodos}
-        />
+        {todos.length > 0 && (
+          <TodoFooter
+            visibleTodos={visibleTodos}
+            filtredTodos={filtredTodos}
+            setFiltredTodos={setFiltredTodos}
+            handleClearCompletedTodos={handleClearCompletedTodos}
+          />
+        )}
       </div>
 
-      <Message
+      <ErrorMessage
         visibleError={visibleError}
         setVisibleError={setVisibleError}
       />

@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import cn from 'classnames';
+import '../styles/todoFooter.scss';
 import { Todo } from '../types/Todo';
 import { FilterTodos } from '../types/FilterTodos';
 
@@ -25,14 +26,13 @@ export const TodoFooter: FC<Props> = ({
         {`${visibleTodos.length} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: filtredTodos === FilterTodos.all,
+            selected: filtredTodos === FilterTodos.ALL,
           })}
-          onClick={() => setFiltredTodos(FilterTodos.all)}
+          onClick={() => setFiltredTodos(FilterTodos.ALL)}
         >
           All
         </a>
@@ -40,9 +40,9 @@ export const TodoFooter: FC<Props> = ({
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: filtredTodos === FilterTodos.active,
+            selected: filtredTodos === FilterTodos.ACTIVE,
           })}
-          onClick={() => setFiltredTodos(FilterTodos.active)}
+          onClick={() => setFiltredTodos(FilterTodos.ACTIVE)}
         >
           Active
         </a>
@@ -50,9 +50,9 @@ export const TodoFooter: FC<Props> = ({
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: filtredTodos === FilterTodos.completed,
+            selected: filtredTodos === FilterTodos.COMPLETED,
           })}
-          onClick={() => setFiltredTodos(FilterTodos.completed)}
+          onClick={() => setFiltredTodos(FilterTodos.COMPLETED)}
         >
           Completed
         </a>
@@ -60,10 +60,8 @@ export const TodoFooter: FC<Props> = ({
 
       <button
         type="button"
-        className="todoapp__clear-completed"
-        style={isSomeCompeletedTodos
-          ? {}
-          : { opacity: 0 }}
+        className={cn('todoapp__clear-completed',
+          { isSomeCompeletedTodos: !isSomeCompeletedTodos })}
         onClick={handleClearCompletedTodos}
       >
         Clear completed

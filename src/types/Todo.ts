@@ -10,3 +10,5 @@ export interface CreatedTodo {
   completed?: boolean,
   userId: number,
 }
+
+export type UpdatedTodo = Partial<Omit<Todo, 'id' | 'userId'>>;

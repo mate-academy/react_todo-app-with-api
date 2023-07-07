@@ -6,7 +6,10 @@ type Props = {
   setVisibleError: (value: string) => void;
 };
 
-export const Message: React.FC<Props> = ({ visibleError, setVisibleError }) => {
+export const ErrorMessage: React.FC<Props> = ({
+  visibleError,
+  setVisibleError,
+}) => {
   const removeErrorMessage = () => {
     setVisibleError('');
   };

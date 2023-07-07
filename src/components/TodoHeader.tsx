@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import cn from 'classnames';
 import { CreatedTodo, Todo } from '../types/Todo';
 
 interface Props {
@@ -31,15 +32,13 @@ export const TodoHeader: FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* Toggle all todos */}
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
-        className={`todoapp__toggle-all ${isAllTodosComleted ? 'active' : ''}`}
+        aria-label="toggle all todos"
+        className={cn('todoapp__toggle-all', { active: isAllTodosComleted })}
         onClick={handleToggleAll}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={(event) => {
         event.preventDefault();
         handleSubmit({
