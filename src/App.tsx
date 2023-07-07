@@ -197,7 +197,7 @@ export const App: React.FC = () => {
           todos={todos}
         />
 
-        {todos && (
+        {!!todos.length && (
           <>
             <section className="todoapp__main">
               {visibleTodos && (
