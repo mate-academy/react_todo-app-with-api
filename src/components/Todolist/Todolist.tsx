@@ -20,6 +20,16 @@ export const Todolist: React.FC<Props> = ({
   updatingTodoIds,
 }) => (
   <section className="todoapp__main">
+    {tempTodo && (
+      <TodoInfo
+        todo={tempTodo}
+        removeTodo={removeTodo}
+        deletedTodoId={deletedTodoId}
+        handleUpdateTodo={handleUpdateTodo}
+        updatingTodoIds={updatingTodoIds}
+      />
+    )}
+
     {filteredTodos?.map(todo => (
       <TodoInfo
         todo={todo}
@@ -31,14 +41,5 @@ export const Todolist: React.FC<Props> = ({
       />
     ))}
 
-    {tempTodo && (
-      <TodoInfo
-        todo={tempTodo}
-        removeTodo={removeTodo}
-        deletedTodoId={deletedTodoId}
-        handleUpdateTodo={handleUpdateTodo}
-        updatingTodoIds={updatingTodoIds}
-      />
-    )}
   </section>
 );
