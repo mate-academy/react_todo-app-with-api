@@ -45,6 +45,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleOnBlur = () => {
+    if (!newTitle.trim()) {
+      handleRemoveTodo(id);
+    }
+
     saveChanges();
   };
 
