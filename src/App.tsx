@@ -223,7 +223,7 @@ export const App: React.FC = () => {
 
         </header>
 
-        {todos.length && (
+        {todos.length > 0 && (
           <>
             <TodoList
               todos={visibleTodos}
