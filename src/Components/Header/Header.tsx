@@ -7,7 +7,7 @@ import {
 import cn from 'classnames';
 
 interface Props {
-  setError: React.Dispatch<string | null>;
+  setErrorMessage: React.Dispatch<string | null>;
   addTodo: (title: string) => Promise<void>;
   toggleTodosCompleted: () => void;
   isAllCompleted: boolean;
@@ -15,7 +15,7 @@ interface Props {
 
 export const Header: FC<Props> = ({
   addTodo,
-  setError,
+  setErrorMessage,
   toggleTodosCompleted,
   isAllCompleted,
 }) => {
@@ -30,7 +30,7 @@ export const Header: FC<Props> = ({
     const normalizeTitle = value.trim();
 
     if (!normalizeTitle) {
-      setError('Title can\'t be empty');
+      setErrorMessage('Title can\'t be empty');
 
       return;
     }

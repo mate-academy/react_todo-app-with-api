@@ -2,13 +2,16 @@ import { FC } from 'react';
 import cn from 'classnames';
 
 interface Props {
-  error: string | null;
-  setError: (error: string | null) => void;
+  errorMessage: string | null;
+  setErrorMessage: (error: string | null) => void;
 }
 
-export const TodoNotification: FC<Props> = ({ error, setError }) => {
+export const TodoNotification: FC<Props> = ({
+  errorMessage,
+  setErrorMessage,
+}) => {
   const closeNotification = () => {
-    setError(null);
+    setErrorMessage(null);
   };
 
   return (
@@ -18,7 +21,7 @@ export const TodoNotification: FC<Props> = ({ error, setError }) => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !error },
+        { hidden: !errorMessage },
       )}
     >
       <button
@@ -27,7 +30,7 @@ export const TodoNotification: FC<Props> = ({ error, setError }) => {
         aria-label="close"
         onClick={closeNotification}
       />
-      {error}
+      {errorMessage}
     </div>
   );
 };

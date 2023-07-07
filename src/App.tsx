@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   FC,
-  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -25,7 +24,7 @@ const USER_ID = 10898;
 export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterOption, setFilterOption] = useState(FilterOption.All);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingItems, setLoadingItems] = useState<number[]>([]);
   const [isLoadingAddTodo, setIsLoadingAddTodo] = useState(false);
@@ -47,32 +46,36 @@ export const App: FC = () => {
     });
   }, [filterOption, todos]);
 
+  const fetchTodos = async () => {
+    try {
+      const todosFromServer = await getTodos(USER_ID);
+
+      setErrorMessage(null);
+      setTodos(todosFromServer);
+    } catch (error) {
+      setErrorMessage('Unable to upload todos');
+    }
+  };
+
   useEffect(() => {
-    getTodos(USER_ID)
-      .then((todosFromServer) => {
-        setError(null);
-        setTodos(todosFromServer);
-      })
-      .catch(() => {
-        setError('Unable to upload todos');
-      });
+    fetchTodos();
   }, []);
 
   useEffect(() => {
     let errorTimer: number;
 
-    if (error) {
+    if (errorMessage) {
       errorTimer = window.setTimeout(() => {
-        setError(null);
+        setErrorMessage(null);
       }, 3000);
     }
 
     return () => {
       clearTimeout(errorTimer);
     };
-  }, [error]);
+  }, [errorMessage]);
 
-  const addTodo = useCallback(async (title: string) => {
+  const addTodo = async (title: string) => {
     setIsLoadingAddTodo(true);
 
     const newTodo = {
@@ -89,45 +92,44 @@ export const App: FC = () => {
 
       setTodos(prevTodos => [...prevTodos, createdTodo]);
     } catch (err) {
-      setError('Unable to add a todo');
+      setErrorMessage('Unable to add a todo');
     } finally {
       setTempTodo(null);
       setIsLoadingAddTodo(false);
     }
-  }, []);
+  };
 
-  const removeTodo = useCallback((todoId: number) => {
+  const removeTodo = async (todoId: number) => {
     setLoadingItems(prevItems => [...prevItems, todoId]);
 
-    deleteTodo(todoId)
-      .then(() => {
-        setTodos(prevTodos => prevTodos.filter(
-          todo => todo.id !== todoId,
-        ));
-      })
-      .catch(() => {
-        setError('Unable to delete a todo');
-      })
-      .finally(() => {
-        setLoadingItems(prevItems => prevItems.filter(
-          id => id !== todoId,
-        ));
-      });
-  }, []);
+    try {
+      await deleteTodo(todoId);
 
-  const removeCompletedTodos = useCallback(() => {
+      setTodos(prevTodos => prevTodos.filter(
+        todo => todo.id !== todoId,
+      ));
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
+    } finally {
+      setLoadingItems(prevItems => prevItems.filter(
+        id => id !== todoId,
+      ));
+    }
+  };
+
+  const removeCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.forEach(todo => removeTodo(todo.id));
-  }, [removeTodo, todos]);
+  };
 
-  const editTodo = useCallback(async (
+  const editTodo = async (
     todoId: number,
     args: UpdateTodoArgs,
   ) => {
     setLoadingItems(prevItems => [...prevItems, todoId]);
 
-    const updatedTodo: UpdateTodoArgs = { ...args };
+    const updatedTodo = { ...args };
 
     try {
       const response = await updateTodo(todoId, updatedTodo);
@@ -144,33 +146,31 @@ export const App: FC = () => {
           : todo
       )));
     } catch (err) {
-      setError('Unable to update a todo');
+      setErrorMessage('Unable to update a todo');
     } finally {
       setLoadingItems(prevItems => prevItems.filter(id => id !== todoId));
     }
-  }, []);
+  };
 
-  const toggleTodosCompleted = useCallback(() => {
-    if (!isAllCompleted) {
-      todos.forEach(todo => {
+  const toggleTodosCompleted = () => {
+    todos.forEach(todo => {
+      if (isAllCompleted) {
+        editTodo(
+          todo.id,
+          { completed: false },
+        );
+      }
+
+      if (!isAllCompleted) {
         if (!todo.completed) {
           editTodo(
             todo.id,
             { completed: !isAllCompleted },
           );
         }
-      });
-    }
-
-    if (isAllCompleted) {
-      todos.forEach(todo => {
-        editTodo(
-          todo.id,
-          { completed: !isAllCompleted },
-        );
-      });
-    }
-  }, [editTodo, isAllCompleted, todos]);
+      }
+    });
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -185,7 +185,7 @@ export const App: FC = () => {
       <div className="todoapp__content">
         <Header
           addTodo={addTodo}
-          setError={setError}
+          setErrorMessage={setErrorMessage}
           toggleTodosCompleted={toggleTodosCompleted}
           isAllCompleted={isAllCompleted}
         />
@@ -212,8 +212,8 @@ export const App: FC = () => {
       </div>
 
       <TodoNotification
-        error={error}
-        setError={setError}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );

@@ -11,37 +11,27 @@ export const TodoFilter: FC<Props> = ({
   filterOption,
   setFilterOption,
 }) => {
+  const filterOptions = Object.keys(FilterOption);
+
   return (
     <nav className="filter">
-      <a
-        href="#/"
-        className={cn('filter__link', {
-          selected: filterOption === FilterOption.All,
-        })}
-        onClick={() => setFilterOption(FilterOption.All)}
-      >
-        All
-      </a>
+      {filterOptions.map((option) => {
+        const filterOptionKey = option as keyof typeof FilterOption;
+        const selectedOption = FilterOption[filterOptionKey];
 
-      <a
-        href="#/active"
-        className={cn('filter__link', {
-          selected: filterOption === FilterOption.Active,
-        })}
-        onClick={() => setFilterOption(FilterOption.Active)}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={cn('filter__link', {
-          selected: filterOption === FilterOption.Completed,
-        })}
-        onClick={() => setFilterOption(FilterOption.Completed)}
-      >
-        Completed
-      </a>
+        return (
+          <a
+            key={option}
+            href={`#/${option}`}
+            className={cn('filter__link', {
+              selected: filterOption === selectedOption,
+            })}
+            onClick={() => setFilterOption(selectedOption)}
+          >
+            {selectedOption}
+          </a>
+        );
+      })}
     </nav>
   );
 };
