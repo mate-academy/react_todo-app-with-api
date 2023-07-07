@@ -31,9 +31,11 @@ export const TodoItem: FC<Props> = ({
     || (isLoadingAddTodo && todo.id === 0);
 
   useEffect(() => {
-    if (inputRef.current && isEditing) {
-      inputRef.current.focus();
+    if (!inputRef.current && !isEditing) {
+      return;
     }
+
+    inputRef.current?.focus();
   }, [isEditing, isLoading]);
 
   const handleCompleteChange = async () => {
@@ -73,10 +75,12 @@ export const TodoItem: FC<Props> = ({
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.code === 'Escape') {
-      handleTitleChange();
-      setIsEditing(false);
+    if (event.code !== 'Escape') {
+      return;
     }
+
+    handleTitleChange();
+    setIsEditing(false);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

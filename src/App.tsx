@@ -2,7 +2,6 @@
 import {
   FC,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
@@ -31,20 +30,18 @@ export const App: FC = () => {
 
   const isAllCompleted = todos.every(todo => todo.completed);
 
-  const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      switch (filterOption) {
-        case FilterOption.Active:
-          return !todo.completed;
+  const visibleTodos = todos.filter((todo) => {
+    switch (filterOption) {
+      case FilterOption.Active:
+        return !todo.completed;
 
-        case FilterOption.Completed:
-          return todo.completed;
+      case FilterOption.Completed:
+        return todo.completed;
 
-        default:
-          return FilterOption.All;
-      }
-    });
-  }, [filterOption, todos]);
+      default:
+        return FilterOption.All;
+    }
+  });
 
   const fetchTodos = async () => {
     try {
@@ -152,22 +149,22 @@ export const App: FC = () => {
     }
   };
 
-  const toggleTodosCompleted = () => {
+  const toggleCompletedTodo = () => {
     todos.forEach(todo => {
       if (isAllCompleted) {
         editTodo(
           todo.id,
           { completed: false },
         );
+
+        return;
       }
 
-      if (!isAllCompleted) {
-        if (!todo.completed) {
-          editTodo(
-            todo.id,
-            { completed: !isAllCompleted },
-          );
-        }
+      if (!todo.completed) {
+        editTodo(
+          todo.id,
+          { completed: !isAllCompleted },
+        );
       }
     });
   };
@@ -186,7 +183,7 @@ export const App: FC = () => {
         <Header
           addTodo={addTodo}
           setErrorMessage={setErrorMessage}
-          toggleTodosCompleted={toggleTodosCompleted}
+          toggleCompletedTodo={toggleCompletedTodo}
           isAllCompleted={isAllCompleted}
         />
 

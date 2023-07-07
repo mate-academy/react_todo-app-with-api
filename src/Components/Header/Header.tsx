@@ -9,17 +9,17 @@ import cn from 'classnames';
 interface Props {
   setErrorMessage: React.Dispatch<string | null>;
   addTodo: (title: string) => Promise<void>;
-  toggleTodosCompleted: () => void;
+  toggleCompletedTodo: () => void;
   isAllCompleted: boolean;
 }
 
 export const Header: FC<Props> = ({
   addTodo,
   setErrorMessage,
-  toggleTodosCompleted,
+  toggleCompletedTodo,
   isAllCompleted,
 }) => {
-  const [value, setValue] = useState<string>('');
+  const [todoTitle, setTodoTitle] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +27,7 @@ export const Header: FC<Props> = ({
   const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const normalizeTitle = value.trim();
+    const normalizeTitle = todoTitle.trim();
 
     if (!normalizeTitle) {
       setErrorMessage('Title can\'t be empty');
@@ -40,15 +40,15 @@ export const Header: FC<Props> = ({
     await addTodo(normalizeTitle);
 
     setIsLoading(false);
-    setValue('');
+    setTodoTitle('');
   };
 
   const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value);
+    setTodoTitle(event.target.value);
   };
 
   const toggleAllTodos = () => {
-    toggleTodosCompleted();
+    toggleCompletedTodo();
   };
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export const Header: FC<Props> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={value}
+          value={todoTitle}
           onChange={handleChangeInput}
           disabled={isLoading}
           ref={inputRef}
