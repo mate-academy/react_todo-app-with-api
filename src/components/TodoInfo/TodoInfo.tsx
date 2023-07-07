@@ -24,17 +24,18 @@ export const TodoInfo: React.FC<Props> = ({
   } = todo;
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const isTodoLoading = loadingTodos.includes(id);
 
   const handleToggleComplete = () => {
     onUpdateTodoStatus(todo);
   };
 
-  const handleDeleteButton = () => {
-    deleteTodo(id);
-  };
-
   const handleEditTitle = () => {
     setIsUpdating(true);
+  };
+
+  const handleDeleteButton = () => {
+    deleteTodo(id);
   };
 
   return (
@@ -79,7 +80,7 @@ export const TodoInfo: React.FC<Props> = ({
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': loadingTodos.includes(id),
+        'is-active': isTodoLoading,
       })}
       >
         <div className="modal-background has-background-white-ter" />

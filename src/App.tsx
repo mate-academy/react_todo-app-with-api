@@ -103,11 +103,11 @@ export const App: React.FC = () => {
   };
 
   const onUpdateTodo = async (todoId: number, newTitle: string) => {
-    await updateTodo(todoId, { title: newTitle });
+    await updateTodoInfo(todoId, { title: newTitle });
   };
 
   const onUpdateTodoStatus = async (todo: Todo) => {
-    await updateTodo(todo.id, { completed: !todo.completed });
+    await updateTodoInfo(todo.id, { completed: !todo.completed });
   };
 
   const handleToggleAllButton = () => {
