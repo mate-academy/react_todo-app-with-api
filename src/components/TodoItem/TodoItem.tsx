@@ -55,6 +55,15 @@ export const TodoItem: React.FC<Props> = memo(
       handleSubmit(event);
     };
 
+    const handleCancelEditing = (
+      event: React.KeyboardEvent<HTMLInputElement>,
+    ) => {
+      if (event.key === 'Escape') {
+        setIsEditing(false);
+        setNewTitle(title);
+      }
+    };
+
     return (
       <div
         className={cN('todo', {
@@ -84,6 +93,7 @@ export const TodoItem: React.FC<Props> = memo(
                 value={newTitle}
                 onChange={handleChangeNewTitle}
                 onBlur={handleBlur}
+                onKeyUp={handleCancelEditing}
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
