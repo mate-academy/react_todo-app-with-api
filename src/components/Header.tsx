@@ -32,7 +32,7 @@ export const Header: React.FC<Props> = ({
       return;
     }
 
-    onTodoAdd(newTitle);
+    onTodoAdd(newTitle.trim());
 
     setNewTitle('');
   };
