@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 
 interface ErrorProps {
@@ -21,7 +22,11 @@ export const Error: React.FC<ErrorProps> = ({ error }) => {
     <>
       {message
       && (
-        <div className={`notification is-danger is-light has-text-weight-normal ${isHidden ? 'hidden' : ''}`}>
+        <div className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: isHidden },
+        )}
+        >
           <button
             type="button"
             className="delete"

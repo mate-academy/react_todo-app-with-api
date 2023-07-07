@@ -17,12 +17,14 @@ interface TodoProps {
 export const Todo: React.FC<TodoProps> = ({
   todo, temp, deleteTask, setError, setTodos, userId, todos,
 }) => {
-  const [editable, setEditable] = useState(false);
+  const [isTodoEditable, setIsTodoEditable] = useState(false);
   const [isChecked, setIsChecked] = useState(todo.completed);
   const [titleState, setTitleState] = useState(todo.title);
   const [inProgress, setInProgress] = useState(temp);
 
-  const handleCheckbox = (checkboxCurrentState: boolean) => {
+  const handleCheckbox = (
+    checkboxCurrentState: boolean,
+  ) => {
     setIsChecked(checkboxCurrentState);
 
     setTodos(prev => prev.map(item => {
@@ -64,8 +66,8 @@ export const Todo: React.FC<TodoProps> = ({
     setIsChecked(todo.completed);
   }, [todos]);
 
-  const processTitleChange = () => {
-    setEditable(false);
+  const handleTitleUpdate = () => {
+    setIsTodoEditable(false);
     setInProgress(true);
     updateTitle(todo.id, titleState)
       .catch(error => {
@@ -79,7 +81,7 @@ export const Todo: React.FC<TodoProps> = ({
   const handleEnter = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.keyCode === 13) {
       event.preventDefault();
-      processTitleChange();
+      handleTitleUpdate();
     }
   };
 
@@ -97,7 +99,7 @@ export const Todo: React.FC<TodoProps> = ({
         />
       </label>
 
-      {editable
+      {isTodoEditable
         ? (
           <form>
             <input
@@ -109,7 +111,7 @@ export const Todo: React.FC<TodoProps> = ({
               value={titleState}
               onChange={event => handleChangeTitle(event?.target.value)}
               onKeyDown={handleEnter}
-              onBlur={processTitleChange}
+              onBlur={handleTitleUpdate}
             />
           </form>
         )
@@ -117,7 +119,7 @@ export const Todo: React.FC<TodoProps> = ({
           <>
             <span
               className="todo__title"
-              onClick={() => setEditable(true)}
+              onClick={() => setIsTodoEditable(true)}
             >
               {titleState}
             </span>

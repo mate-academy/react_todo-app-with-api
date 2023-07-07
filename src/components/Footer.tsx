@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface FooterProps {
-  setFilter: (filter:Filter) => void,
+  setFilter: (filter: Filter) => void,
   filter: Filter,
-  todos:Todo[],
-  removeAllCompleted:()=>void,
+  todos: Todo[],
+  removeAllCompleted: () => void,
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -20,32 +19,39 @@ export const Footer: React.FC<FooterProps> = ({
     setAreCompleted(todos.some(todo => todo.completed));
   }, [todos]);
 
+  const filterTodos: string = (() => {
+    const listLength = todos.filter(todo => !todo.completed).length;
+    const itemOrS = `item${listLength > 1 ? 's' : ''}`;
+
+    return `${listLength} ${itemOrS} left`;
+  })();
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todos.filter(todo => !todo.completed).length} item${todos.length > 1 ? 's' : ''} left`}
+        {filterTodos}
       </span>
       <nav className="filter">
         <a
           href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
-          onClick={() => setFilter('all')}
+          className={`filter__link ${filter === Filter.all ? 'selected' : ''}`}
+          onClick={() => setFilter(Filter.all)}
         >
           All
         </a>
 
         <a
           href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
-          onClick={() => setFilter('active')}
+          className={`filter__link ${filter === Filter.active ? 'selected' : ''}`}
+          onClick={() => setFilter(Filter.active)}
         >
           Active
         </a>
 
         <a
           href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
-          onClick={() => setFilter('completed')}
+          className={`filter__link ${filter === Filter.completed ? 'selected' : ''}`}
+          onClick={() => setFilter(Filter.completed)}
         >
           Completed
         </a>

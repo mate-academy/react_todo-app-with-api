@@ -18,7 +18,23 @@ export const App: React.FC = () => {
   const [tempTodos, setTempTodos] = useState<TodoType[]>([]);
   const [error, setError] = useState<string>('');
   const [isInputLocked, setIsInputLocked] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.all);
+
+  const filterTodos = (todosToFilter:TodoType[]) => {
+    return todosToFilter
+      .filter((todo: TodoType) => {
+        switch (filter) {
+          case Filter.all:
+            return true;
+          case Filter.active:
+            return !todo.completed;
+          case Filter.completed:
+            return todo.completed;
+          default:
+            return true;
+        }
+      });
+  };
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -72,14 +88,13 @@ export const App: React.FC = () => {
     const changeCompletedToThisValue = !todos.every(todo => todo.completed);
 
     todos
-      // .filter((todo) => todo.completed)
       .forEach((todo) => updateIsCompleted(
-        todo.id, changeCompletedToThisValue, USER_ID
-        ).then(() => {
-          setTodos(prev => prev.map(item => {
-            return { ...item, completed: changeCompletedToThisValue };
-          }));
-        })
+        todo.id, changeCompletedToThisValue, USER_ID,
+      ).then(() => {
+        setTodos(prev => prev.map(item => {
+          return { ...item, completed: changeCompletedToThisValue };
+        }));
+      })
         .catch(() => setError('Unable to update a todo state')));
   };
 
@@ -98,19 +113,7 @@ export const App: React.FC = () => {
         />
 
         <section className="todoapp__main">
-          {todos
-            ?.filter((todo: TodoType) => {
-              switch (filter) {
-                case 'all':
-                  return true;
-                case 'active':
-                  return !todo.completed;
-                case 'completed':
-                  return todo.completed;
-                default:
-                  return true;
-              }
-            })
+          {filterTodos(todos)
             .map((todo) => (
               <Todo
                 todos={todos}

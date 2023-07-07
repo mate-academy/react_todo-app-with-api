@@ -5,21 +5,21 @@ import { Todo } from '../types/Todo';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface HeaderProps {
-  todos:Todo[],
-  toggleAllCompleted:()=>void,
-  setTempTodos:React.Dispatch<React.SetStateAction<Todo[]>>
+  todos: Todo[],
+  toggleAllCompleted: () => void,
+  setTempTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setError: (value: SetStateAction<string>) => void,
   isInputLocked: boolean,
-  setIsInputLocked: (arg0:boolean) => void,
+  setIsInputLocked: (isLocked: boolean) => void,
 }
 
 export const Header: React.FC<HeaderProps> = ({
-    setTempTodos,
-    setError,
-    isInputLocked,
-    setIsInputLocked,
-    toggleAllCompleted,
-    todos,
+  setTempTodos,
+  setError,
+  isInputLocked,
+  setIsInputLocked,
+  toggleAllCompleted,
+  todos,
 }) => {
   const [query, setQuery] = useState('');
   const [isToggleAllActive, setIsToggleAllActive]
