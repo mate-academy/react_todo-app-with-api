@@ -155,7 +155,7 @@ export const App: React.FC = () => {
   React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (value) {
+    if (value.trim()) {
       setDeletedTodosId([0]);
 
       setTempTodo({
@@ -185,6 +185,8 @@ export const App: React.FC = () => {
     } else {
       setErrorMessage(ErrorMessage.EMPTY);
     }
+
+    setActiveFormInput(true);
   };
 
   const filteredTodos = useMemo(() => {

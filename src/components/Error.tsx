@@ -4,7 +4,7 @@ import { ErrorMessage } from '../enums/error';
 
 type Props = {
   errorMessage: ErrorMessage,
-  setErrorMessage: (value: ErrorMessage) => void,
+  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorMessage>>
 };
 
 export const Error: React.FC<Props> = ({
@@ -21,7 +21,6 @@ export const Error: React.FC<Props> = ({
     )}
   >
     <button
-      aria-label="none"
       type="button"
       className="delete"
       onClick={() => setErrorMessage(ErrorMessage.NONE)}
@@ -29,14 +28,12 @@ export const Error: React.FC<Props> = ({
       x
     </button>
 
-    <>
-      {errorMessage && (
-        <p>
-          {errorMessage === ErrorMessage.EMPTY
-            ? "Title can't be empty"
-            : `${errorMessage}`}
-        </p>
-      )}
-    </>
+    {errorMessage && (
+      <p>
+        {errorMessage === ErrorMessage.EMPTY
+          ? "Title can't be empty"
+          : `${errorMessage}`}
+      </p>
+    )}
   </div>
 );

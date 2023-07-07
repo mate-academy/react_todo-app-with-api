@@ -4,7 +4,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   amountOfActiveTodos: number,
   value: string,
-  setValue: (value: string) => void,
+  setValue: React.Dispatch<React.SetStateAction<string>>
   handleAddTodo: (event:
   React.FormEvent<HTMLFormElement>) => void,
   handleUpdateStatusTodos: () => void;

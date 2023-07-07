@@ -1,3 +1,4 @@
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { TodoInfo } from './TodoInfo';
 import { Todo } from '../types/Todo';
 import { ErrorMessage } from '../enums/error';
@@ -23,9 +24,14 @@ export const TodoList: React.FC<Props> = ({
   setTodos,
   setError,
 }) => (
-  <ul className="todoapp__main">
+  <section className="todoapp__main">
+    <TransitionGroup />
     {todos.map(todo => (
-      <li key={todo.id}>
+      <CSSTransition
+        key={todo.id}
+        timeout={300}
+        classNames="item"
+      >
         <TodoInfo
           todo={todo}
           deletedTodosId={deletedTodosId}
@@ -36,20 +42,26 @@ export const TodoList: React.FC<Props> = ({
           setTodos={setTodos}
           setError={setError}
         />
-      </li>
+      </CSSTransition>
     ))}
 
     {!!tempTodo && (
-      <TodoInfo
-        todo={tempTodo}
-        deletedTodosId={deletedTodosId}
-        handleDeletedTodo={handleDeletedTodo}
-        handleUpdatedTodo={handleUpdatedTodo}
-        setDeletedTodosId={setDeletedTodosId}
-        todos={todos}
-        setTodos={setTodos}
-        setError={setError}
-      />
+      <CSSTransition
+        key={0}
+        timeout={300}
+        classNames="temp-item"
+      >
+        <TodoInfo
+          todo={tempTodo}
+          deletedTodosId={deletedTodosId}
+          handleDeletedTodo={handleDeletedTodo}
+          handleUpdatedTodo={handleUpdatedTodo}
+          setDeletedTodosId={setDeletedTodosId}
+          todos={todos}
+          setTodos={setTodos}
+          setError={setError}
+        />
+      </CSSTransition>
     )}
-  </ul>
+  </section>
 );

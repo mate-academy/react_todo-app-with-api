@@ -22,6 +22,7 @@ export const Footer: React.FC<Props> = ({
       {amountOfActiveTodos === 1
         ? '1 item left'
         : `${amountOfActiveTodos} items left`}
+
     </span>
 
     <nav className="filter">

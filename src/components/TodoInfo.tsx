@@ -88,6 +88,7 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
+          checked
           onChange={() => handleUpdatedTodo(id)}
         />
       </label>
