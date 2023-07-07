@@ -1,20 +1,20 @@
 import React, { Fragment, memo } from 'react';
 import cn from 'classnames';
-import { FilterStatus } from '../../types/FilterStatus';
+import { StatusFilter } from '../../types/StatusFilter';
 import './TodoFilter.scss';
 
 interface TodoFilterProps {
-  filterStatus: FilterStatus;
-  onFilter: (filterBy: FilterStatus) => void;
+  statusFilter: StatusFilter;
+  onFilter: (filterBy: StatusFilter) => void;
 }
 
 export const TodoFilter: React.FC<TodoFilterProps> = memo(({
-  filterStatus,
+  statusFilter,
   onFilter,
 }) => {
   const handleFilterClick = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    filterByStatus: FilterStatus,
+    filterByStatus: StatusFilter,
   ) => {
     event.preventDefault();
 
@@ -22,7 +22,7 @@ export const TodoFilter: React.FC<TodoFilterProps> = memo(({
   };
 
   const filterStatuses = Object
-    .keys(FilterStatus) as (keyof typeof FilterStatus)[];
+    .keys(StatusFilter) as (keyof typeof StatusFilter)[];
 
   return (
     <nav className="filter">
@@ -31,9 +31,9 @@ export const TodoFilter: React.FC<TodoFilterProps> = memo(({
           <a
             href={status !== 'all' ? `#/${status}` : '#/'}
             className={cn('filter__link', {
-              selected: status === filterStatus,
+              selected: status === statusFilter,
             })}
-            onClick={event => handleFilterClick(event, FilterStatus[status])}
+            onClick={event => handleFilterClick(event, StatusFilter[status])}
           >
             {status}
           </a>

@@ -1,19 +1,19 @@
 import React, { memo } from 'react';
-import { FilterStatus } from '../../types/FilterStatus';
+import { StatusFilter } from '../../types/StatusFilter';
 import { TodoFilter } from '../TodoFilter';
 
 interface FooterProps {
-  isSomeCompletedTodos: boolean;
+  hasSomeCompletedTodos: boolean;
   count: number;
-  filterStatus: FilterStatus;
-  onFilter: (filterBy: FilterStatus) => void;
+  statusFilter: StatusFilter;
+  onFilter: (filterBy: StatusFilter) => void;
   onClearCompletedTodos: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = memo(({
-  isSomeCompletedTodos,
+  hasSomeCompletedTodos,
   count,
-  filterStatus,
+  statusFilter,
   onFilter,
   onClearCompletedTodos,
 }) => {
@@ -28,11 +28,11 @@ export const Footer: React.FC<FooterProps> = memo(({
       </span>
 
       <TodoFilter
-        filterStatus={filterStatus}
+        statusFilter={statusFilter}
         onFilter={onFilter}
       />
 
-      {isSomeCompletedTodos && (
+      {hasSomeCompletedTodos && (
         <button
           type="button"
           className="todoapp__clear-completed"

@@ -3,8 +3,8 @@ import cn from 'classnames';
 
 interface HeaderProps {
   title: string;
-  isFetching: boolean;
-  isSomeActiveTodos: boolean;
+  isLoading: boolean;
+  hasSomeActiveTodos : boolean;
   onToggleAllTodos: () => void
   onAddTodo: (title: string) => void;
   onChangeTitle: (title: string) => void;
@@ -13,8 +13,8 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = memo(({
   title,
-  isFetching,
-  isSomeActiveTodos,
+  isLoading,
+  hasSomeActiveTodos,
   onToggleAllTodos,
   onAddTodo,
   onChangeTitle,
@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = memo(({
           type="button"
           className={cn(
             'todoapp__toggle-all', {
-              active: isSomeActiveTodos,
+              active: hasSomeActiveTodos,
             },
           )}
           onClick={handleToggleTodos}
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = memo(({
           placeholder="What needs to be done?"
           value={title}
           onChange={handleTitleChange}
-          disabled={isFetching}
+          disabled={isLoading}
         />
       </form>
     </header>

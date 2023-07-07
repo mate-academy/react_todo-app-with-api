@@ -9,7 +9,7 @@ import { Header } from './components/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import { Notification } from './components/Notification';
 import { getFilteredTodos } from './helpers';
-import { FilterStatus } from './types/FilterStatus';
+import { StatusFilter } from './types/StatusFilter';
 import { Todo } from './types/Todo';
 import { USER_ID } from './consts/consts';
 import './styles/todoapp.scss';
@@ -17,15 +17,15 @@ import './styles/todoapp.scss';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [filterStatus, setFilterStatus] = useState(FilterStatus.all);
+  const [statusFilter, setFilterStatus] = useState(StatusFilter.all);
   const [error, setError] = useState<string | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
-  const [loadingTodoIds, setLoadingTodoIds] = useState([0]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos()
-      .then(todosFromServer => setTodos(todosFromServer))
+      .then(setTodos)
       .catch(errorFromServer => setError(errorFromServer.message));
   }, []);
 
@@ -42,22 +42,24 @@ export const App: React.FC = () => {
   }, [error]);
 
   const todosCount = todos.length;
-  const isTodosVisible = todosCount > 0;
+  const areTodosVisible = todosCount > 0;
 
-  const visibleTodos = useMemo(() => {
-    return getFilteredTodos(todos, filterStatus);
-  }, [todos, filterStatus]);
+  const visibleTodos = useMemo(() => (
+    getFilteredTodos(todos, statusFilter)
+  ), [todos, statusFilter]);
 
-  const completedTodos = useMemo(() => {
-    return todos.filter((todo) => todo.completed);
-  }, [todos, filterStatus]);
+  const completedTodos = useMemo(() => (
+    todos.filter((todo) => todo.completed)
+  ), [todos, statusFilter]);
 
-  const activeTodosCount = todosCount - completedTodos.length;
+  const activeTodos = useMemo(() => (
+    todos.filter((todo) => !todo.completed)
+  ), [todos, statusFilter]);
 
-  const isSomeActiveTodos = activeTodosCount > 0;
-  const isSomeCompletedTodos = completedTodos.length > 0;
+  const hasSomeActiveTodos = activeTodos.length > 0;
+  const hasSomeCompletedTodos = completedTodos.length > 0;
 
-  const changeFilterStatus = useCallback((filterStaus: FilterStatus) => {
+  const changeFilterStatus = useCallback((filterStaus: StatusFilter) => {
     setFilterStatus(filterStaus);
   }, []);
 
@@ -72,7 +74,7 @@ export const App: React.FC = () => {
   };
 
   const addTodo = useCallback((todoTitle: string) => {
-    setIsFetching(true);
+    setIsLoading(true);
 
     const newTodo = {
       userId: USER_ID,
@@ -96,7 +98,7 @@ export const App: React.FC = () => {
         setError('Unable to add a todo');
       })
       .finally(() => {
-        setIsFetching(false);
+        setIsLoading(false);
         setTempTodo(null);
         setTitle('');
       });
@@ -183,15 +185,15 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           title={title}
-          isFetching={isFetching}
-          isSomeActiveTodos={isSomeActiveTodos}
+          isLoading={isLoading}
+          hasSomeActiveTodos={hasSomeActiveTodos}
           onAddTodo={addTodo}
           onChangeTitle={changeTitle}
           onToggleAllTodos={toggleAllTodos}
           onChangeNotification={changeNotification}
         />
 
-        {isTodosVisible && (
+        {areTodosVisible && (
           <>
             <TodoList
               tempTodo={tempTodo}
@@ -202,9 +204,9 @@ export const App: React.FC = () => {
             />
 
             <Footer
-              isSomeCompletedTodos={isSomeCompletedTodos}
-              count={activeTodosCount}
-              filterStatus={filterStatus}
+              hasSomeCompletedTodos={hasSomeCompletedTodos}
+              count={activeTodos.length}
+              statusFilter={statusFilter}
               onFilter={changeFilterStatus}
               onClearCompletedTodos={clearCompletedTodos}
             />
