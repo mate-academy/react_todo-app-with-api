@@ -44,12 +44,12 @@ export const TodoItem: React.FC<Props> = ({
     setIsDoubleClicked(false);
   };
 
-  const handleOnBlur = () => {
+  const handleOnBlur = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!newTitle.trim()) {
       handleRemoveTodo(id);
     }
-
-    saveChanges();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
