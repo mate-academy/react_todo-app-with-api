@@ -74,13 +74,18 @@ export const App: React.FC = () => {
   ) => {
     try {
       setLoadingTodo(prevTodosId => [...prevTodosId, id]);
-      const updatingTodoIndex = todos.findIndex(todo => todo.id === id);
+      const updatingTodo = todos.find(todo => todo.id === id);
+
+      if (!updatingTodo) {
+        return;
+      }
+
       const hasTitle = title
         ? { title }
-        : { completed: !todos[updatingTodoIndex].completed };
+        : { completed: !updatingTodo?.completed };
 
       const updatedTodo = {
-        ...todos[updatingTodoIndex],
+        ...updatingTodo,
         ...hasTitle,
       };
 
@@ -104,9 +109,13 @@ export const App: React.FC = () => {
   const updateStatus = async (id: number) => {
     try {
       setLoadingTodo(prevTodosId => [...prevTodosId, id]);
-      const updatingTodoIndex = todos.findIndex(todo => todo.id === id);
+      const updatingTodo = todos.find(todo => todo.id === id);
 
-      await updateTodoStatus(id, !todos[updatingTodoIndex].completed);
+      if (!updatingTodo) {
+        return;
+      }
+
+      await updateTodoStatus(id, !updatingTodo.completed);
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id === id) {
           return {
