@@ -14,6 +14,8 @@ import { FilterType } from './Enums/FilterType';
 import { filterTodos } from './utils/filterTodos';
 import { PostTodo } from './types/PostTodo';
 import { Header } from './components/Header';
+import { checkIfAllTodosCompleted } from './utils/checkIfAllTodosCompleted';
+import { getUncompletedTodos } from './utils/getUncompletedTodos';
 
 export const USER_ID = 10895;
 
@@ -67,15 +69,8 @@ export const App: React.FC = () => {
         ...currentTodos,
         newSuccesfulTodo,
       ]));
-
-      return true;
     } catch (error) {
-      setError({
-        status: true,
-        message: 'Failed to add new Todo, try again...',
-      });
-
-      return false;
+      throw new Error('Cant add new todo... Try again');
     } finally {
       setTempTodo(null);
     }
@@ -87,17 +82,25 @@ export const App: React.FC = () => {
       setTodos(current => (
         current.filter(todo => todo.id !== todoID)
       ));
-
-      return true;
-    } catch (error) {
+    } catch {
       setError({
         status: true,
-        message: 'Unable to delete todos',
+        message: 'Can\'t delete todo. Try again',
       });
-
-      return false;
     }
   }, []);
+
+  const replaceTodo = (todoToReplace: Todo) => {
+    setTodos((currentTodos) => (
+      currentTodos.map(todo => {
+        if (todo.id !== todoToReplace.id) {
+          return todo;
+        }
+
+        return todoToReplace;
+      })
+    ));
+  };
 
   const editTodoByID = useCallback(async (
     id: number, data: Partial<Todo>,
@@ -105,26 +108,45 @@ export const App: React.FC = () => {
     try {
       const result = await todosReguest.editTodo(id, { ...data });
 
-      setTodos((currentTodos) => (
-        currentTodos.map(todo => {
-          if (todo.id !== result.id) {
-            return todo;
-          }
-
-          return result;
-        })
-      ));
-
-      return true;
+      replaceTodo(result);
     } catch (error) {
       setError({
         status: true,
-        message: 'Unable to edit todos',
+        message: 'Unable to edit todo... Try again',
       });
-
-      return false;
     }
   }, []);
+
+  // const allTodosIDs = useMemo(() => (
+  //   todos.map(todo => todo.id)
+  // ), [todos]);
+
+  const toggleAllHandler = async () => {
+    const isAllTodosCompleted = checkIfAllTodosCompleted(todos);
+    const todosToChange = !isAllTodosCompleted
+      ? getUncompletedTodos(todos)
+      : todos;
+
+    setLoadingTodos(todosToChange.map(todo => todo.id));
+
+    await Promise.all(
+      todosToChange.map(currentTodo => {
+        const { id, completed } = currentTodo;
+
+        if (!completed) {
+          return editTodoByID(id, { completed: true });
+        }
+
+        if (isAllTodosCompleted) {
+          return editTodoByID(id, { completed: !completed });
+        }
+
+        return false;
+      }),
+    );
+
+    setLoadingTodos([]);
+  };
 
   useEffect(() => {
     fetchTodos();
@@ -139,8 +161,7 @@ export const App: React.FC = () => {
           todos={preparedTodos}
           addNewTodo={addNewTodo}
           setError={setError}
-          editTodoByID={editTodoByID}
-          setLoadingTodos={setLoadingTodos}
+          toggleAllHandler={toggleAllHandler}
         />
 
         {isDisplayTodos && (

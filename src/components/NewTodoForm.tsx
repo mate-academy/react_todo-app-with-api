@@ -7,7 +7,7 @@ import {
 import { LoadError } from '../types/LoadError';
 
 interface Props {
-  addNewTodo: (title: string) => Promise<boolean>
+  addNewTodo: (title: string) => Promise<void>
   setError: React.Dispatch<React.SetStateAction<LoadError>>
 }
 
@@ -33,13 +33,17 @@ export const NewTodoForm:FC<Props> = ({ addNewTodo, setError }) => {
     }
 
     setIsInputDisabled(true);
-    const isSucsess = await addNewTodo(newTodoQuery);
-
-    if (isSucsess) {
+    try {
+      await addNewTodo(newTodoQuery);
       setNewTodoQuery('');
+    } catch (error) {
+      setError({
+        status: true,
+        message: (error as Error).message,
+      });
+    } finally {
+      setIsInputDisabled(false);
     }
-
-    setIsInputDisabled(false);
   };
 
   return (

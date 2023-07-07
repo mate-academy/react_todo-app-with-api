@@ -3,13 +3,13 @@ import { FC, useMemo } from 'react';
 import { LoadError } from '../types/LoadError';
 import { Todo } from '../types/Todo';
 import { NewTodoForm } from './NewTodoForm';
+import { checkIfAllTodosCompleted } from '../utils/checkIfAllTodosCompleted';
 
 interface Props {
   todos: Todo[],
-  addNewTodo: (title: string) => Promise<boolean>,
+  addNewTodo: (title: string) => Promise<void>,
   setError: React.Dispatch<React.SetStateAction<LoadError>>,
-  editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>
-  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
+  toggleAllHandler: () => Promise<void>
 }
 
 export const Header:FC<Props> = (
@@ -17,37 +17,14 @@ export const Header:FC<Props> = (
     todos,
     addNewTodo,
     setError,
-    editTodoByID,
-    setLoadingTodos,
+    toggleAllHandler,
   },
 ) => {
   const isTodosExists = todos.length > 0;
 
   const isAllTodosCompleted = useMemo(() => (
-    todos.every(currentTodo => (
-      currentTodo.completed === true
-    ))
+    checkIfAllTodosCompleted(todos)
   ), [todos]);
-
-  const allTodosIDs = useMemo(() => (
-    todos.map(todo => todo.id)
-  ), [todos]);
-
-  const toggleAllHandler = async () => {
-    setLoadingTodos(allTodosIDs);
-
-    await Promise.all(
-      todos.map(currentTodo => {
-        const { id, completed } = currentTodo;
-
-        return completed && !isAllTodosCompleted
-          ? editTodoByID(id, { completed })
-          : editTodoByID(id, { completed: !completed });
-      }),
-    );
-
-    setLoadingTodos([]);
-  };
 
   return (
     <header className="todoapp__header">

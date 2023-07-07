@@ -6,7 +6,7 @@ interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
   removeTodoByID: (arg: number) => void;
-  editTodoByID: (id: number, data: Partial<Todo>) => Promise<boolean>;
+  editTodoByID: (id: number, data: Partial<Todo>) => Promise<void>;
   loadingTodos: number[];
 }
 

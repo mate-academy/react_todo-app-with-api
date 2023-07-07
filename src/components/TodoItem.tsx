@@ -6,7 +6,7 @@ import { EditForm } from './EditForm';
 interface Props {
   todo: Todo;
   removeTodoByID?: (arg: number) => void;
-  editTodoByID?: (id: number, data: Partial<Todo>) => Promise<boolean>;
+  editTodoByID?: (id: number, data: Partial<Todo>) => Promise<void>;
   isPresentInLoadingTodos?: boolean;
 }
 

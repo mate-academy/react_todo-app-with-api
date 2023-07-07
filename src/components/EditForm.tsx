@@ -50,6 +50,10 @@ export const EditForm:FC<Props> = (
     setIsEditing(false);
   };
 
+  const onBlurHandler = () => {
+    onFormSubmit();
+  };
+
   useEffect(() => {
     if (textInput.current) {
       textInput.current.focus();
@@ -66,7 +70,7 @@ export const EditForm:FC<Props> = (
         placeholder="Empty todo will be deleted"
         value={query}
         onChange={onEditTodoFormChange}
-        onBlur={() => setIsEditing(false)}
+        onBlur={onBlurHandler}
         ref={textInput}
         onKeyUp={escKeyUpHandler}
       />

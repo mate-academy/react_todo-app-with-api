@@ -4,13 +4,13 @@ import { FilterType } from '../Enums/FilterType';
 import { Todo } from '../types/Todo';
 import { TodosFilter } from './TodosFilter';
 import { getCompletedTodos } from '../utils/getCompletedTodos';
-import { getNotCompletedTodosAmmount } from '../utils/getNotCompletedTodos';
+import { getUncompletedTodos } from '../utils/getUncompletedTodos';
 
 interface Props {
   todos: Todo[],
   filterType: FilterType,
   setFilterType:React.Dispatch<React.SetStateAction<FilterType>>,
-  removeTodoByID: (todoID: number) => Promise<boolean>
+  removeTodoByID: (todoID: number) => Promise<void>
   setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
 }
 
@@ -40,7 +40,7 @@ export const Footer:FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${getNotCompletedTodosAmmount(todos)} items left`}
+        {`${getUncompletedTodos(todos).length} items left`}
       </span>
 
       <TodosFilter
