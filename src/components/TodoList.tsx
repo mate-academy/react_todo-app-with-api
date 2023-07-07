@@ -82,6 +82,7 @@ export const TodoList: React.FC<Props> = ({
                 todo={todo}
                 todos={todos}
                 setTodos={setTodos}
+                formRef={formRef}
               />
             ) : (
               <>

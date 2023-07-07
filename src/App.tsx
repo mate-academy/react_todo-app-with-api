@@ -39,8 +39,8 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleFormSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFormSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
     setIsTodoLoading(true);
 
@@ -80,23 +80,6 @@ export const App: React.FC = () => {
       .catch(() => {
         setVisibleError('Unable to delete a todo');
       });
-  };
-
-  const handleToggleButton = async () => {
-    try {
-      const updatedTodos = todos.map(todo => ({
-        ...todo,
-        completed: false,
-      }));
-
-      setTodos(updatedTodos);
-
-      await Promise.all(
-        updatedTodos.map(todo => updateTodo(todo.id, todo)),
-      );
-    } catch (error) {
-      setVisibleError('Unable to update todos');
-    }
   };
 
   const handleCheck = async (todoId: number) => {
@@ -155,7 +138,8 @@ export const App: React.FC = () => {
         todoTitle={todoTitle}
         setTodoTitle={setTodoTitle}
         isTodoLoading={isTodoLoading}
-        handleToggleButton={handleToggleButton}
+        setTodos={setTodos}
+        setVisibleError={setVisibleError}
       />
 
       <div className="todoapp__content">

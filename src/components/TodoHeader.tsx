@@ -3,26 +3,46 @@ import React, {
   FormEvent,
 } from 'react';
 import cn from 'classnames';
+import { updateTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[];
   isTodoLoading: boolean;
   handleFormSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  handleToggleButton: () => void;
   todoTitle: string
   setTodoTitle: (input: string) => void;
+  setTodos: (value: Todo[]) => void;
+  setVisibleError: (value: string) => void;
 };
 
 export const Header: React.FC<Props> = ({
   todos,
   setTodoTitle,
   handleFormSubmit,
-  handleToggleButton,
   todoTitle,
   isTodoLoading,
+  setTodos,
+  setVisibleError,
 }) => {
   const isToggleButtonVisible = todos.every(todo => todo.completed);
+
+  const handleToggleButton = async () => {
+    try {
+      const updatedTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+
+      setTodos(updatedTodos);
+
+      await Promise.all(
+        updatedTodos.map(todo => updateTodo(todo.id, todo)),
+      );
+    } catch (error) {
+      setVisibleError('Unable to update todos');
+    }
+  };
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,

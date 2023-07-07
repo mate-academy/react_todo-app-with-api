@@ -6,9 +6,15 @@ type Props = {
   todo: Todo;
   todos: Todo[];
   setTodos: (calueL: Todo[]) => void;
+  formRef: React.RefObject<HTMLInputElement> | null;
 };
 
-export const EditForm: React.FC<Props> = ({ todo, todos, setTodos }) => {
+export const EditForm: React.FC<Props> = ({
+  todo,
+  todos,
+  setTodos,
+  formRef,
+}) => {
   const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
 
   const handleTodoTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +43,7 @@ export const EditForm: React.FC<Props> = ({ todo, todos, setTodos }) => {
         placeholder="Note: Empty title deletes a Todo"
         value={newTodoTitle}
         onChange={handleTodoTitleChange}
-        autoFocus
+        ref={formRef}
       />
     </form>
   );
