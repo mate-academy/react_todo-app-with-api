@@ -15,23 +15,17 @@ export function getActiveTodos(todos: Todo[]) {
   return todos.filter((todo) => !todo.completed);
 }
 
-export function getVisibleTodos(todos: Todo[], filterStatus: TodoStatusFilter) {
+export function getVisibleTodos(todos: Todo[], statusFilter: TodoStatusFilter) {
   return todos.filter((todo) => {
-    let status: boolean;
-
-    switch (filterStatus) {
+    switch (statusFilter) {
       case TodoStatusFilter.Active:
-        status = !todo.completed;
-        break;
+        return !todo.completed;
 
       case TodoStatusFilter.Completed:
-        status = todo.completed;
-        break;
+        return todo.completed;
 
       default:
-        status = true;
+        return true;
     }
-
-    return status;
   });
 }

@@ -19,7 +19,7 @@ const USER_ID = 10684;
 
 export const Layout: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([0]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([0]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,7 +95,7 @@ export const Layout: FC = () => {
 
   const removeTodo = useCallback(async (todoId: number) => {
     try {
-      setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
+      setLoadingTodoIds((currentTodos) => [...currentTodos, todoId]);
 
       await deleteTodo(todoId);
 
@@ -105,7 +105,7 @@ export const Layout: FC = () => {
     } catch {
       setError('Unable to delete a todo');
     } finally {
-      setLoadingTodos((currentTodos) => (
+      setLoadingTodoIds((currentTodos) => (
         currentTodos.filter((id) => id !== todoId)
       ));
     }
@@ -122,7 +122,7 @@ export const Layout: FC = () => {
     const data = { ...values };
 
     try {
-      setLoadingTodos((currentTodos) => [...currentTodos, todoId]);
+      setLoadingTodoIds((currentTodos) => [...currentTodos, todoId]);
 
       if (data.title) {
         validateTitle(data.title);
@@ -140,7 +140,7 @@ export const Layout: FC = () => {
     } catch {
       setError('Unable to update a todo');
     } finally {
-      setLoadingTodos((currentTodos) => (
+      setLoadingTodoIds((currentTodos) => (
         currentTodos.filter((id) => id !== todoId)
       ));
     }
@@ -170,7 +170,7 @@ export const Layout: FC = () => {
           <>
             <TodoList
               todos={visibleTodos}
-              loadingTodos={loadingTodos}
+              loadingTodoIds={loadingTodoIds}
               tempTodo={tempTodo}
               removeTodo={removeTodo}
               editTodo={editTodo}

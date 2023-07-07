@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todos: Todo[];
-  loadingTodos: number[];
+  loadingTodoIds: number[];
   tempTodo: Todo | null;
   removeTodo: (todoId: number) => void;
   editTodo: (todoId: number, data: Partial<Todo>) => void;
@@ -13,7 +13,7 @@ interface Props {
 
 export const TodoList: FC<Props> = ({
   todos,
-  loadingTodos,
+  loadingTodoIds,
   tempTodo,
   removeTodo,
   editTodo,
@@ -28,7 +28,7 @@ export const TodoList: FC<Props> = ({
         >
           <TodoInfo
             todo={todo}
-            loadingTodos={loadingTodos}
+            loadingTodoIds={loadingTodoIds}
             removeTodo={removeTodo}
             editTodo={editTodo}
           />
@@ -43,7 +43,7 @@ export const TodoList: FC<Props> = ({
         >
           <TodoInfo
             todo={tempTodo}
-            loadingTodos={loadingTodos}
+            loadingTodoIds={loadingTodoIds}
             removeTodo={removeTodo}
             editTodo={editTodo}
           />
