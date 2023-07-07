@@ -98,17 +98,16 @@ export const TodoInfo: FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleSubmitTitle} onBlur={handleBlur}>
-          <input
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={newTitle}
-            onChange={handleTitleChange}
-            onKeyUp={handleKeyUp}
-            ref={inputRef}
-          />
-        </form>
+        <input
+          type="text"
+          className="todo__title-field"
+          placeholder="Empty todo will be deleted"
+          value={newTitle}
+          onChange={handleTitleChange}
+          onKeyUp={handleKeyUp}
+          ref={inputRef}
+          onBlur={handleBlur}
+        />
       ) : (
         <>
           <span className="todo__title" onDoubleClick={handleEditTitle}>

@@ -5,7 +5,6 @@ import React, {
   useState,
   useCallback,
 } from 'react';
-import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo, UpdateTodoArgs } from './types/Todo';
 import {
@@ -14,11 +13,11 @@ import {
   getTodos,
   patchTodo,
 } from './api/todos';
-import { TodoForm } from './components/TodoForm';
 import { Error } from './components/Error';
 import { Filters } from './types/Filters';
-import { Filter } from './components/Filter';
 import { TodoList } from './components/TodoList';
+import { Header } from './Header';
+import { Footer } from './Footer';
 
 const USER_ID = 10892;
 
@@ -55,6 +54,7 @@ export const App: React.FC = () => {
 
   const uncompletedTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
+  const isActiveTodos = uncompletedTodos.length === 0;
 
   const filteredTodos = useMemo(() => {
     switch (filter) {
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
     setError(null);
   };
 
-  const addTodo = useCallback(async (title: string) => {
+  const addTodo = async (title: string) => {
     try {
       const newTodo = {
         userId: USER_ID,
@@ -94,9 +94,9 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  }, []);
+  };
 
-  const removeTodo = useCallback(async (todoId: number) => {
+  const removeTodo = async (todoId: number) => {
     try {
       setLoadingTodo(prevTodoId => [...prevTodoId, todoId]);
       await deleteTodo(todoId);
@@ -107,12 +107,16 @@ export const App: React.FC = () => {
       setTempTodo(null);
       setLoadingTodo([0]);
     }
-  }, []);
+  };
 
-  const handleClearCompletedTodo = () => {
-    completedTodos.forEach(async (todo) => {
-      await removeTodo(todo.id);
-    });
+  const handleClearCompletedTodo = async () => {
+    try {
+      await Promise.all(completedTodos.map(
+        todo => removeTodo(todo.id),
+      ));
+    } catch {
+      setError('Unable to clear completed todos');
+    }
   };
 
   const updateTodo = useCallback(async (
@@ -121,7 +125,7 @@ export const App: React.FC = () => {
   ) => {
     try {
       setLoadingTodo(prevLoadingTodo => [...prevLoadingTodo, todoId]);
-      const updatedTodo: Todo = await patchTodo(todoId, args);
+      const updatedTodo = await patchTodo(todoId, args);
 
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== todoId) {
@@ -169,20 +173,12 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            aria-label="toggleAllCompletedTodos"
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: uncompletedTodos.length === 0,
-            })}
-            onClick={handleToggleAll}
-          />
-          <TodoForm
-            onAddTodo={addTodo}
-            handleShowError={handleShowError}
-          />
-        </header>
+        <Header
+          handleShowError={handleShowError}
+          handleToggleAll={handleToggleAll}
+          isActiveTodos={isActiveTodos}
+          OnAddTodo={addTodo}
+        />
 
         <TodoList
           todos={filteredTodos}
@@ -194,23 +190,13 @@ export const App: React.FC = () => {
         />
 
         {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${uncompletedTodos.length} items left`}
-            </span>
-
-            <Filter filter={filter} onChangeFilter={setFilter} />
-
-            {completedTodos && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleClearCompletedTodo}
-              >
-                Clear completed
-              </button>
-            )}
-          </footer>
+          <Footer
+            uncompletedTodos={uncompletedTodos}
+            completedTodos={completedTodos}
+            todoFilter={filter}
+            onChangeFilter={setFilter}
+            onClearCompletedTodos={handleClearCompletedTodo}
+          />
         )}
       </div>
 
