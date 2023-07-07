@@ -117,10 +117,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // const allTodosIDs = useMemo(() => (
-  //   todos.map(todo => todo.id)
-  // ), [todos]);
-
   const toggleAllHandler = async () => {
     const isAllTodosCompleted = checkIfAllTodosCompleted(todos);
     const todosToChange = !isAllTodosCompleted

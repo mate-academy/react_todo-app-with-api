@@ -25,6 +25,8 @@ export const Footer:FC<Props> = ({
     getCompletedTodos(todos).map(todo => todo.id)
   ), [todos]);
 
+  const isCompletedTodosAreNotPresent = completedTodosIds.length === 0;
+
   const handleremoveTodosByID = useCallback(async () => {
     setLoadingTodos(completedTodosIds);
 
@@ -51,7 +53,7 @@ export const Footer:FC<Props> = ({
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          hidden: completedTodosIds.length === 0,
+          hidden: isCompletedTodosAreNotPresent,
         })}
         onClick={handleremoveTodosByID}
       >
