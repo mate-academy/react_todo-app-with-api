@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
+import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
@@ -8,7 +8,8 @@ interface Props {
   onDelete: CallableFunction;
   handleUpdateTodo: (
     todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
+    newTodoData: UpdateTodoArgs,
+    newTitle?: string,
   ) => void;
 }
 
@@ -18,11 +19,11 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   handleUpdateTodo,
 }) => {
+  const { id, title, completed } = todo;
+
   const [isLoading, setIsLoading] = useState(false);
   const [isTitleEdited, setIsTitleEdited] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-
-  const { id, title, completed } = todo;
+  const [newTitle, setNewTitle] = useState(todo.title);
 
   const inputReference = useRef<HTMLInputElement>(null);
 
@@ -57,12 +58,21 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleOnBlur = () => {
-    handleUpdateTodo(todo.id, { title: newTitle });
+    if (newTitle.trim() === '') {
+      onDelete(todo.id);
+    } else {
+      handleUpdateTodo(todo.id, { title: newTitle });
+    }
+
     setIsTitleEdited(false);
   };
 
   const handleToggleComplete = () => {
     handleUpdateTodo(id, { completed: !todo.completed });
+  };
+
+  const handleDelete = () => {
+    onDelete(id);
   };
 
   return (
@@ -101,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onDelete(id)}
+            onClick={handleDelete}
             disabled={isLoading}
           >
             ×

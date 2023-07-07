@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Todo } from './types/Todo';
+import { Todo, UpdateTodoArgs } from './types/Todo';
 import { FilteringOption } from './types/Filter';
 import { UserWarning } from './UserWarning';
 import {
@@ -14,10 +14,10 @@ import {
   getTodos,
   updateTodo,
 } from './api/todos';
-import { Filter } from './components/Filter';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Notifications } from './components/Notifications';
+import { Footer } from './components/Footer/Footer';
 
 const USER_ID = 10921;
 
@@ -77,9 +77,10 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = async (todoId: number) => {
     try {
-      setLoadingTodoIds(prevTodoIds => [...prevTodoIds, todoId]);
+      setLoadingTodoIds(prevLoadingTodoIds => [...prevLoadingTodoIds, todoId]);
       await deleteTodo(todoId);
-      setTodos(curTodosIds => curTodosIds.filter(t => t.id !== todoId));
+      setTodos(prevTodoIds => prevTodoIds
+        .filter(prevTodoId => prevTodoId.id !== todoId));
     } catch {
       setError('Unable to delete a todo');
     } finally {
@@ -101,7 +102,7 @@ export const App: React.FC = () => {
   const handleUpdateTodo = useCallback(
     async (
       todoId: number,
-      newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>,
+      newTodoData: UpdateTodoArgs,
     ) => {
       try {
         setLoadingTodoIds(prevIds => [...prevIds, todoId]);
@@ -178,28 +179,14 @@ export const App: React.FC = () => {
           handleUpdateTodo={handleUpdateTodo}
         />
 
-        {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodos.length} items left`}
-            </span>
-
-            <Filter
-              filter={filter}
-              setFilter={setFilter}
-            />
-
-            {completedTodos.length > 0 && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleClearCompletedTodos}
-              >
-                Clear completed
-              </button>
-            )}
-          </footer>
-        )}
+        <Footer
+          todos={visibleTodos}
+          filter={filter}
+          setFilter={setFilter}
+          activeTodos={activeTodos}
+          completedTodos={completedTodos}
+          handleClearCompletedTodos={handleClearCompletedTodos}
+        />
       </div>
       <Notifications
         error={error}

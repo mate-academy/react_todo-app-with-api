@@ -1,6 +1,6 @@
 import React from 'react';
 import { TodoItem } from '../TodoItem/TodoItem';
-import { Todo } from '../../types/Todo';
+import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
 interface Props {
   todos: Todo[];
@@ -9,7 +9,7 @@ interface Props {
   tempTodo: Todo | null,
   handleUpdateTodo: (
     todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
+    newTodoData: UpdateTodoArgs,
   ) => void;
 }
 
