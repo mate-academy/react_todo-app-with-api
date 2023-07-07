@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useState,
   useEffect,
@@ -56,7 +55,7 @@ export const App: React.FC = () => {
     setIsLoading(false);
   };
 
-  const onAddTodo = useCallback(async (newTitle: string) => {
+  const handleAddTodo = useCallback(async (newTitle: string) => {
     if (!newTitle) {
       setErrorMessage(ErrorMessage.TITLE);
 
@@ -84,7 +83,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const onDeleteTodo = useCallback(async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodoIds((prevIds) => [...prevIds, todoId]);
       await removeTodo(todoId);
@@ -128,17 +127,17 @@ export const App: React.FC = () => {
     }
   }, [todos, selectedFilter]);
 
-  const onDeleteCompletedTodos = async () => {
+  const deleteCompletedTodos = async () => {
     try {
       await completedTodos.forEach(todo => {
-        onDeleteTodo(todo.id);
+        handleDeleteTodo(todo.id);
       });
     } catch {
       setErrorMessage(ErrorMessage.REMOVE);
     }
   };
 
-  const onUpdateTodo = useCallback(async (
+  const handleUpdateTodo = useCallback(async (
     todoToUpdate: Todo, newTitle?: string,
   ) => {
     if (newTitle === todoToUpdate.title) {
@@ -146,7 +145,7 @@ export const App: React.FC = () => {
     }
 
     if (newTitle === '') {
-      onDeleteTodo(todoToUpdate.id);
+      handleDeleteTodo(todoToUpdate.id);
 
       return;
     }
@@ -190,7 +189,7 @@ export const App: React.FC = () => {
         : activeTodos;
 
       await todosToUpdate.forEach(todo => {
-        onUpdateTodo(todo);
+        handleUpdateTodo(todo);
       });
     } catch {
       setErrorMessage(ErrorMessage.UPDATE);
@@ -208,6 +207,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           <button
+            aria-label="togggle"
             type="button"
             className={classNames('todoapp__toggle-all', {
               active: isToggleActive,
@@ -217,19 +217,19 @@ export const App: React.FC = () => {
 
           <CreateNewTodo
             setErrorMessage={setErrorMessage}
-            onAddTodo={onAddTodo}
+            onAddTodo={handleAddTodo}
             isLoading={isLoading}
           />
 
         </header>
 
-        {todos.length > 0 && (
+        {todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
-              onDeleteTodo={onDeleteTodo}
+              onDeleteTodo={handleDeleteTodo}
               loadingTodoIds={loadingTodoIds}
-              onUpdateTodo={onUpdateTodo}
+              onUpdateTodo={handleUpdateTodo}
             />
             {tempTodo && (
               <TodoInfo
@@ -252,7 +252,7 @@ export const App: React.FC = () => {
                 <button
                   type="button"
                   className="todoapp__clear-completed"
-                  onClick={onDeleteCompletedTodos}
+                  onClick={deleteCompletedTodos}
                 >
                   Clear completed
                 </button>
@@ -271,6 +271,7 @@ export const App: React.FC = () => {
         )}
       >
         <button
+          aria-label="delete"
           type="button"
           className="delete"
           onClick={handleCloseError}

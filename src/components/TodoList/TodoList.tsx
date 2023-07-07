@@ -14,17 +14,25 @@ export const TodoList: React.FC<Props> = React.memo(({
   onDeleteTodo,
   loadingTodoIds,
   onUpdateTodo,
-}) => (
-  <section className="todoapp__main">
-    {todos.map(todo => (
-      <TodoInfo
-        key={todo.id}
-        todo={todo}
-        onDeleteTodo={onDeleteTodo}
-        loadingTodoId={loadingTodoIds.includes(todo.id)
-          ? todo.id : null}
-        onUpdateTodo={onUpdateTodo}
-      />
-    ))}
-  </section>
-));
+}) => {
+  const loadingTodoId = (todoId: number) => {
+    return (
+      loadingTodoIds.includes(todoId)
+        ? todoId : null
+    );
+  };
+
+  return (
+    <section className="todoapp__main">
+      {todos.map(todo => (
+        <TodoInfo
+          key={todo.id}
+          todo={todo}
+          onDeleteTodo={onDeleteTodo}
+          loadingTodoId={loadingTodoId(todo.id)}
+          onUpdateTodo={onUpdateTodo}
+        />
+      ))}
+    </section>
+  );
+});

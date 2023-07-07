@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface Props {
-  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorMessage | null>>;
+  setErrorMessage: (error: ErrorMessage | null) => void;
   onAddTodo: (newTitle: string) => void;
   isLoading: boolean;
 }
