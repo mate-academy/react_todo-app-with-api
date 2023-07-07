@@ -27,12 +27,16 @@ export const App: React.FC = () => {
     setErrorText(null);
   };
 
+  const setError = (errorTxt: string) => {
+    setErrorText(errorTxt);
+    setTimeout(resetError, 3000);
+  };
+
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch((error) => {
-        setErrorText(error.message);
-        setTimeout(resetError, 3000);
+        setError(error.message);
       });
   }, []);
 
@@ -42,7 +46,7 @@ export const App: React.FC = () => {
 
   const onAddTodo = async (title: string) => {
     if (!/\S/g.test(title)) {
-      setErrorText('Title can\'t be empty');
+      setError('Title can\'t be empty');
 
       return false;
     }
@@ -60,7 +64,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch {
-      setErrorText('Unable to add a todo');
+      setError('Unable to add a todo');
     } finally {
       setTempTodo(null);
     }
@@ -76,7 +80,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
     } catch {
-      setErrorText('Unable to delete a todo');
+      setError('Unable to delete a todo');
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }
@@ -99,7 +103,7 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch {
-      setErrorText('Unable to update a todo');
+      setError('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }

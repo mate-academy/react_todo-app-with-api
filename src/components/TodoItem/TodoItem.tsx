@@ -43,9 +43,8 @@ export const TodoItem: React.FC<Props> = memo(
 
       if (!newTitle.trim().length) {
         onDelete(id);
-      }
-
-      if (title !== newTitle) {
+      } else if (title !== newTitle) {
+        setNewTitle(prevTitle => prevTitle.trim());
         onUpdateTodo(id, { title: newTitle });
       }
     };
