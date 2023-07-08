@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
@@ -60,7 +65,7 @@ export const App: React.FC = () => {
     }
   }, [todos, filter]);
 
-  const addTodo = async (title: string) => {
+  const addTodo = useCallback(async (title: string) => {
     try {
       const newTodo = {
         title,
@@ -81,9 +86,9 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  };
+  }, [todos]);
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
       setLoadingTodos(prevIds => [...prevIds, todoId]);
       await removeTodo(todoId);
@@ -93,7 +98,7 @@ export const App: React.FC = () => {
     } finally {
       setLoadingTodos(prevIds => prevIds.filter(id => id !== todoId));
     }
-  };
+  }, [loadingTodos]);
 
   const handleDeleteCompletedButton = async () => {
     const deletePromises = completedTodos.map(todo => deleteTodo(todo.id));
