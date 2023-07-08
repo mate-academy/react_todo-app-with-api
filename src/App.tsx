@@ -66,6 +66,7 @@ export const App: React.FC = () => {
       const todoToUpdate = todos.find((todo) => todo.id === id);
 
       if (todoToUpdate) {
+        setUpdatedTodoId((prev) => [...prev, id]);
         await client.patch(`/todos/${id}`, {
           completed: !todoToUpdate.completed,
           title: todoToUpdate.title,
@@ -104,9 +105,6 @@ export const App: React.FC = () => {
       }
     }, [],
   );
-
-  // eslint-disable-next-line no-console
-  console.log(updatedTodoId, tempTodo);
 
   const selectAllTodos = useCallback(async () => {
     try {
