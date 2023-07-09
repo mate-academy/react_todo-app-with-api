@@ -50,7 +50,13 @@ export const TodoItem: React.FC<Props> = ({
     if (!newTitle.trim()) {
       handleRemoveTodo(id);
     }
+
+    saveChanges();
   };
+
+  useEffect(() => {
+
+  });
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -4,42 +4,25 @@ import cn from 'classnames';
 import { TodoStatus } from '../../types/TodoStatus';
 
 interface Props {
-  filter: TodoStatus;
+  filterType: TodoStatus;
   onChangeFilter: (filter: TodoStatus) => void;
 }
 
-export const Filter: React.FC<Props> = ({ filter, onChangeFilter }) => {
+export const TodoFilter: React.FC<Props> = ({ filterType, onChangeFilter }) => {
   return (
     <nav className="filter">
-      <a
-        href="#/"
-        className={cn('filter__link', {
-          selected: filter === TodoStatus.ALL,
-        })}
-        onClick={() => onChangeFilter(TodoStatus.ALL)}
-      >
-        All
-      </a>
-
-      <a
-        href="#/active"
-        className={cn('filter__link', {
-          selected: filter === TodoStatus.ACTIVE,
-        })}
-        onClick={() => onChangeFilter(TodoStatus.ACTIVE)}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={cn('filter__link', {
-          selected: filter === TodoStatus.COMPLETED,
-        })}
-        onClick={() => onChangeFilter(TodoStatus.COMPLETED)}
-      >
-        Completed
-      </a>
+      {Object.values(TodoStatus).map((status) => (
+        <a
+          key={status}
+          href={`#/${status.toLowerCase()}`}
+          className={cn('filter__link', {
+            selected: filterType === status,
+          })}
+          onClick={() => onChangeFilter(status)}
+        >
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </a>
+      ))}
     </nav>
   );
 };

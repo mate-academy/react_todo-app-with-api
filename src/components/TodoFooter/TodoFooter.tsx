@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter } from '../TodoFilter';
+import { TodoFilter } from '../TodoFilter';
 
 import { Todo } from '../../types/Todo';
 import { TodoStatus } from '../../types/TodoStatus';
@@ -7,7 +7,7 @@ import { TodoStatus } from '../../types/TodoStatus';
 interface Props {
   completedTodos: Todo[];
   activeTodos: Todo[];
-  filter: TodoStatus;
+  filterType: TodoStatus;
   onChangeFilter: (filter: TodoStatus) => void;
   handleClearCompleted: () => void;
 }
@@ -15,7 +15,7 @@ interface Props {
 export const TodoFooter: React.FC<Props> = ({
   completedTodos,
   activeTodos,
-  filter,
+  filterType,
   onChangeFilter,
   handleClearCompleted,
 }) => {
@@ -25,7 +25,7 @@ export const TodoFooter: React.FC<Props> = ({
         {`${activeTodos.length} items left`}
       </span>
 
-      <Filter filter={filter} onChangeFilter={onChangeFilter} />
+      <TodoFilter filterType={filterType} onChangeFilter={onChangeFilter} />
 
       <button
         type="button"

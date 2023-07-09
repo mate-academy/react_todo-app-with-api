@@ -28,18 +28,22 @@ const USER_ID = 10681;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState(TodoStatus.ALL);
+  const [filterType, setFilterType] = useState(TodoStatus.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingTodos, setLoadingTodos] = useState([0]);
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then((fetchedTodos: Todo[]) => {
+    try {
+      const fetchData = async () => {
+        const fetchedTodos = await getTodos(USER_ID);
+
         setTodos(fetchedTodos);
-      })
-      .catch((fetchedError: Error) => {
-        setError(fetchedError?.message ?? 'Something went wrong');
-      });
+      };
+
+      fetchData();
+    } catch {
+      setError('Something went wrong');
+    }
   }, []);
 
   useEffect(() => {
@@ -56,13 +60,9 @@ export const App: React.FC = () => {
     };
   }, [error]);
 
-  const activeTodos = useMemo(() => (
-    todos.filter(todo => !todo.completed)
-  ), [todos]);
+  const activeTodos = todos.filter(todo => !todo.completed);
 
-  const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed)
-  ), [todos]);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   const handleAddTodo = useCallback(async (todoTitle: string) => {
     try {
@@ -121,8 +121,9 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to update a todo');
     } finally {
-      setLoadingTodos(currentTodosId => currentTodosId
-        .filter(todoId => todoId !== todoToUpdate.id));
+      setLoadingTodos(currentTodosId => (
+        currentTodosId.filter(todoId => todoId !== todoToUpdate.id)
+      ));
     }
   }, []);
 
@@ -154,8 +155,9 @@ export const App: React.FC = () => {
     } catch {
       setError('Unable to update a todo');
     } finally {
-      setLoadingTodos(currentTodosId => currentTodosId
-        .filter(todoId => todoId !== todoToUpdate.id));
+      setLoadingTodos(currentTodosId => (
+        currentTodosId.filter(todoId => todoId !== todoToUpdate.id)
+      ));
     }
   }, []);
 
@@ -176,8 +178,8 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = useMemo(() => {
-    return getVisibleTodos(filter, todos, completedTodos, activeTodos);
-  }, [todos, filter]);
+    return getVisibleTodos(filterType, todos, completedTodos, activeTodos);
+  }, [todos, filterType]);
 
   return (
     <div className="todoapp">
@@ -204,8 +206,8 @@ export const App: React.FC = () => {
           <TodoFooter
             completedTodos={completedTodos}
             activeTodos={activeTodos}
-            filter={filter}
-            onChangeFilter={setFilter}
+            filterType={filterType}
+            onChangeFilter={setFilterType}
             handleClearCompleted={handleClearCompleted}
           />
         )}
