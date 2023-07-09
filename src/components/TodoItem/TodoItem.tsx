@@ -76,10 +76,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleCancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setNewTitle(title);
-      setIsDoubleClicked(false);
+    if (event.key !== 'Escape') {
+      return;
     }
+    
+    setNewTitle(title);
+    setIsDoubleClicked(false);
   };
 
   const handleUpdateStatus = () => {
