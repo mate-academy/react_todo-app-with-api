@@ -12,8 +12,10 @@ export const TodoForm: React.FC<Props> = ({ handleAddTodo, setError }) => {
   const handleFormSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       setError('Please enter a title');
+
+      return;
     }
 
     try {
