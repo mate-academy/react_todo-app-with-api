@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-import { Todo } from '../../types/Todo';
+import { TodoUpdateData } from '../../types/Todo';
 
 type Props = {
   title: string,
@@ -8,7 +8,7 @@ type Props = {
   deleteTodo: (todoId: number) => void,
   updateTodo: (
     todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
+    newTodoData: TodoUpdateData
   ) => void,
   setIsUpdating: (isUpdating: boolean) => void;
 };
@@ -22,11 +22,23 @@ export const UpdatingTodos: React.FC<Props> = ({
 }) => {
   const [newTitle, setNewTitle] = useState(title);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(event.target.value);
+  };
+
   const cancelEdiditing = () => {
     setIsUpdating(false);
   };
 
-  const submit = async () => {
+  const handleUpdateTodo = async () => {
     const normalizedTitle = newTitle.trim();
 
     if (normalizedTitle === title) {
@@ -48,11 +60,11 @@ export const UpdatingTodos: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    submit();
+    handleUpdateTodo();
   };
 
   const handleOnBlur = () => {
-    submit();
+    handleUpdateTodo();
   };
 
   const handleOnKeyUp = (event: React.KeyboardEvent) => {
@@ -67,9 +79,10 @@ export const UpdatingTodos: React.FC<Props> = ({
         type="text"
         className="todo__title-field"
         value={newTitle}
-        onChange={(event) => setNewTitle(event.target.value)}
+        onChange={handleTitleChange}
         onBlur={handleOnBlur}
         onKeyUp={handleOnKeyUp}
+        ref={inputRef}
       />
     </form>
   );

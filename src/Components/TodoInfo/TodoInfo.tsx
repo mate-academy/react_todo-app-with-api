@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import cn from 'classnames';
 
-import { Todo } from '../../types/Todo';
-import { UpdatingTodos } from '../UpdatingTodos';
+import { Todo, TodoUpdateData } from '../../types/Todo';
+import { UpdatingTodos } from '../UpdateTodoForm';
 
 type Props = {
   todo: Todo,
@@ -10,7 +10,7 @@ type Props = {
   deleteTodo: (todoId: number) => void;
   updateTodo: (
     todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>
+    newTodoData: TodoUpdateData,
   ) => void;
 };
 
@@ -74,7 +74,6 @@ export const TodoInfo: React.FC<Props> = ({
           </>
         )}
 
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div className={cn('modal overlay', {
         'is-active': loadingTodos.includes(id),
       })}

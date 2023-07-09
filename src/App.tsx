@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
-import { Filter } from './Components/Filter';
 import { TodoForm } from './Components/TodoForm';
 import { ErrorMessage } from './Components/ErrorMessage';
 import { TodoList } from './Components/TodoList';
 import { FilterOptions } from './types/FilterOptions';
-import { Todo } from './types/Todo';
+import { Todo, TodoUpdateData } from './types/Todo';
 import {
   getTodos, createTodo, removeTodo, updateTodo,
 } from './api/todos';
 import { UserWarning } from './UserWarning';
+import { Footer } from './Components/Footer';
 
 const USER_ID = 10903;
 
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
 
   const updateTodoInfo = async (
     todoId: number,
-    newTodoData: Partial<Pick<Todo, 'title' | 'completed'>>,
+    newTodoData: TodoUpdateData,
   ) => {
     try {
       setLoadingTodos(prevIds => [...prevIds, todoId]);
@@ -113,13 +113,11 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleButton = () => {
-    todos.forEach(async (todo) => {
-      await updateTodoInfo(
-        todo.id,
-        { completed: !isAllTodosCompleted },
-      );
-    });
+  const handleToggleButton = async () => {
+    const updatePromises = todos.map(todo => updateTodoInfo(todo.id,
+      { completed: !isAllTodosCompleted }));
+
+    await Promise.all(updatePromises);
   };
 
   const handleDeleteComplitedTodos = async () => {
@@ -167,23 +165,13 @@ export const App: React.FC = () => {
         />
 
         {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodos.length} items left`}
-            </span>
-
-            <Filter filter={filter} setFilter={setFilter} />
-            {completedTodos.length > 0 && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleDeleteComplitedTodos}
-              >
-                Clear completed
-              </button>
-            )}
-
-          </footer>
+          <Footer
+            filter={filter}
+            setFilter={setFilter}
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            handleDeleteComplitedTodos={handleDeleteComplitedTodos}
+          />
         )}
 
       </div>
