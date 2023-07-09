@@ -79,7 +79,7 @@ export const TodoItem: React.FC<Props> = ({
     if (event.key !== 'Escape') {
       return;
     }
-    
+
     setNewTitle(title);
     setIsDoubleClicked(false);
   };
