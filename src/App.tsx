@@ -1,56 +1,25 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
 import { Filters, TodoFilter } from './components/TodoFilter/TodoFilter';
 import { TodoForm } from './components/TodoForm/TodoForm';
 import { TodoError } from './components/TodoError/TodoError';
-import { useTodos } from './hooks/useTodos';
-import { TodoType } from './types/Todo';
+import { useTodos } from './contexts/todosContext';
 
-const USER_ID = 10538;
-
-type TodosMap = {
-  all: TodoType[];
-  completed: TodoType[];
-  active: TodoType[];
+type AppProps = {
+  userId: number;
 };
 
-export const App = () => {
+export const App = ({ userId }: AppProps) => {
   const [activeFilter, setActiveFilter] = useState<Filters>('all');
-
-  const {
-    todos,
-    error,
-    tempTodo,
-    handleAddTodo,
-    handleDeleteTodo,
-    handleClearCompleted,
-  } = useTodos(USER_ID);
-
-  const todosMap: TodosMap = useMemo(
-    () => todos.reduce(
-      (acc, nextTodo) => {
-        const todoMapKey = nextTodo.completed ? 'completed' : 'active';
-
-        return {
-          ...acc,
-          [todoMapKey]: [...acc[todoMapKey], nextTodo],
-        };
-      },
-      {
-        all: todos,
-        completed: [],
-        active: [],
-      },
-    ),
-    [todos],
-  );
+  const { todosMap, error, handleToggleCompletedAll } = useTodos();
 
   const filteredTodos = todosMap[activeFilter];
   const { completed, active } = todosMap;
 
-  if (!USER_ID) {
+  if (!userId) {
     return <UserWarning />;
   }
 
@@ -60,30 +29,26 @@ export const App = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {active.length > 0 && (
-            <button
-              type="button"
-              className="todoapp__toggle-all active"
-              aria-label="AddTodo"
-            />
-          )}
+          <button
+            type="button"
+            className={classNames('todoapp__toggle-all', {
+              active: active.length <= 0,
+            })}
+            aria-label="Toggle all todos"
+            onClick={handleToggleCompletedAll}
+          />
 
-          <TodoForm addTodo={handleAddTodo} loading={!!tempTodo} />
+          <TodoForm />
         </header>
 
-        <TodoList
-          todos={filteredTodos}
-          deleteTodo={handleDeleteTodo}
-          tempTodo={tempTodo}
-        />
+        <TodoList todos={filteredTodos} />
 
-        {todos.length > 0 && (
+        {todosMap.all.length > 0 && (
           <TodoFilter
             activeFilter={activeFilter}
             changeFilter={setActiveFilter}
             activeTodosCount={active.length}
             completedTodosCount={completed.length}
-            clearCompleted={() => handleClearCompleted(completed)}
           />
         )}
       </div>

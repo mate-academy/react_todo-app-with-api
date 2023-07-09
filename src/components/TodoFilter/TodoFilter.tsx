@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useTodos } from '../../contexts/todosContext';
 
 export type Filters = 'all' | 'active' | 'completed';
 
@@ -7,7 +8,6 @@ type TodoFilterProps = {
   completedTodosCount: number;
   activeTodosCount: number;
   changeFilter: (filterName: Filters) => void;
-  clearCompleted: () => void;
 };
 
 export const TodoFilter = ({
@@ -15,23 +15,19 @@ export const TodoFilter = ({
   activeFilter,
   completedTodosCount,
   activeTodosCount,
-  clearCompleted,
 }: TodoFilterProps) => {
+  const { handleClearCompleted } = useTodos();
+
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">
-        {`${activeTodosCount} items left`}
-      </span>
+      <span className="todo-count">{`${activeTodosCount} items left`}</span>
 
       <nav className="filter">
         <a
           href="#/"
-          className={
-            classNames(
-              'filter__link',
-              { selected: activeFilter === 'all' },
-            )
-          }
+          className={classNames('filter__link', {
+            selected: activeFilter === 'all',
+          })}
           onClick={() => changeFilter('all')}
         >
           All
@@ -39,12 +35,9 @@ export const TodoFilter = ({
 
         <a
           href="#/active"
-          className={
-            classNames(
-              'filter__link',
-              { selected: activeFilter === 'active' },
-            )
-          }
+          className={classNames('filter__link', {
+            selected: activeFilter === 'active',
+          })}
           onClick={() => changeFilter('active')}
         >
           Active
@@ -52,29 +45,24 @@ export const TodoFilter = ({
 
         <a
           href="#/completed"
-          className={
-            classNames(
-              'filter__link',
-              { selected: activeFilter === 'completed' },
-            )
-          }
+          className={classNames('filter__link', {
+            selected: activeFilter === 'completed',
+          })}
           onClick={() => changeFilter('completed')}
         >
           Completed
         </a>
       </nav>
 
-      {
-        completedTodosCount > 0 && (
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            onClick={clearCompleted}
-          >
-            Clear completed
-          </button>
-        )
-      }
+      {completedTodosCount > 0 && (
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={handleClearCompleted}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };

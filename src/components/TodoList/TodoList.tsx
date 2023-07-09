@@ -1,39 +1,41 @@
+/* eslint-disable consistent-return */
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import classNames from 'classnames';
 import { TodoType } from '../../types/Todo';
 import { Todo } from '../Todo/Todo';
+import { useTodos } from '../../contexts/todosContext';
 
 type TodoListProps = {
   todos: TodoType[];
-  tempTodo: TodoType | null;
-  deleteTodo: (todoId: number) => void;
 };
 
-export const TodoList = ({ todos, tempTodo, deleteTodo }: TodoListProps) => {
+export const TodoList = ({ todos }: TodoListProps) => {
+  const { tempTodo, processedTodos } = useTodos();
+
   return (
     <section className="todoapp__main">
       <TransitionGroup>
-        {todos.map((todo) => (
-          <CSSTransition
-            key={todo.id}
-            timeout={300}
-            classNames="item"
-          >
-            <Todo
+        {[...todos, tempTodo].map((todo) => {
+          if (!todo) {
+            return;
+          }
+
+          return (
+            <CSSTransition
               key={todo.id}
-              todo={todo}
-              deleteTodo={() => deleteTodo(todo.id)}
-            />
-          </CSSTransition>
-        ))}
-        {tempTodo && (
-          <CSSTransition
-            key={0}
-            timeout={300}
-            classNames="temp-item"
-          >
-            <Todo key={0} todo={tempTodo} loading />
-          </CSSTransition>
-        )}
+              timeout={300}
+              classNames={classNames('item', {
+                'temp-item': todo.id === 0,
+              })}
+            >
+              <Todo
+                isProcessed={processedTodos.some(({ id }) => id === todo.id)}
+                key={todo.id}
+                todo={todo}
+              />
+            </CSSTransition>
+          );
+        })}
       </TransitionGroup>
     </section>
   );
