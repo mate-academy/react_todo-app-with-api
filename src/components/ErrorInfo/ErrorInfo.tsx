@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { FC } from 'react';
 import cn from 'classnames';
 import { ErrorInfoProps } from './ErrorInfoProps';
@@ -19,16 +18,14 @@ export const ErrorInfo: FC<ErrorInfoProps> = ({
 
   return (
     <div className={cn(
-      'notification',
-      'is-danger',
-      'is-light',
-      'has-text-weight-normal',
+      'notification', 'is-danger', 'is-light', 'has-text-weight-normal',
       {
         hidden: !visibleError,
       },
     )}
     >
       <button
+        aria-label="remove-error"
         type="button"
         className="delete"
         onClick={removeErrorOnClick}

@@ -100,6 +100,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
             type="text"
             className="todo__title-field"
             form="changedForm"
+            placeholder="Empty todo will be deleted"
             value={todoTitle}
             onChange={handleQueryChange}
             onBlur={handleSubmit}

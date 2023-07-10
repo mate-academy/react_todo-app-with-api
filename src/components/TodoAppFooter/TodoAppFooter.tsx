@@ -10,10 +10,12 @@ export const TodoAppFooter: FC<TodoAppFooterProps> = memo(({
   setTodoFilter,
   handleClearCompleted,
 }) => {
+  const unfinishedTodoCount = todos.length - completedTodoIds.length;
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todos.length - completedTodoIds.length} items left`}
+        {`${unfinishedTodoCount} items left`}
       </span>
 
       <nav className="filter">

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   FC,
   memo,
@@ -25,12 +24,15 @@ export const TodoAppHeader: FC<TodoAppHeaderProps> = memo(({
     }
   }, [todos]);
 
+  const isAllTodoCompleted = todos.every(todo => todo.completed);
+
   return (
     <header className="todoapp__header">
       <button
+        aria-label="toggle-all"
         type="button"
         className={cn('todoapp__toggle-all', {
-          active: todos.every(todo => todo.completed),
+          active: isAllTodoCompleted,
         })}
         onClick={() => (
           handleUpdate(

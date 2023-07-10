@@ -31,7 +31,6 @@ export const App: FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [todoFilter, setTodoFilter] = useState<StatusValue>(StatusValue.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [visibleError, setVisibleError] = useState('');
 
   const fetchTodosFromServer = async () => {
@@ -113,8 +112,6 @@ export const App: FC = () => {
 
   const addTodo = useCallback(async (title: string) => {
     try {
-      setIsInputDisabled(true);
-
       const newTodo = {
         title: title.trim(),
         completed: false,
@@ -136,7 +133,6 @@ export const App: FC = () => {
     } catch (error) {
       setVisibleError('Unable to add a todo');
     } finally {
-      setIsInputDisabled(false);
       setTempTodo(null);
       setLoadingTodoIds([]);
       setTodoTitle('');
@@ -173,6 +169,8 @@ export const App: FC = () => {
     setLoadingTodoIds(completedTodoIds);
     setTodoFilter(StatusValue.ALL);
   };
+
+  const isInputDisabled = Boolean(loadingTodoIds.length);
 
   return (
     <div className="todoapp">
