@@ -19,6 +19,7 @@ export const TodoForm: React.FC<Props> = ({
 
   const hasTodos = Boolean(todos.length);
   const hasActiveTodos = todos.filter(todo => !todo.completed);
+  const hasAllCompleted = todos.every(todo => todo.completed);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -54,7 +55,7 @@ export const TodoForm: React.FC<Props> = ({
           aria-label="setAllComplete"
           type="button"
           className={cN('todoapp__toggle-all', {
-            active: !hasActiveTodos,
+            active: hasAllCompleted,
           })}
           onClick={onCheckActiveTodos}
         />
