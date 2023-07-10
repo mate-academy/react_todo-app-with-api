@@ -26,12 +26,12 @@ export const TodoItem: FC<Props> = React.memo(({
   handleEditTodo = () => {},
   displayError = () => {},
 }) => {
-  const { completed, title } = todo;
+  const { id, completed, title } = todo;
   const isLoad = todo.id === todoId;
   const [isLoading, setIsLoading] = useState(isLoad);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [editTitle, setEditTitle] = useState(todo.title);
+  const [editTitle, setEditTitle] = useState(title);
 
   const handeleDelete = async () => {
     setIsLoading(true);
@@ -55,7 +55,7 @@ export const TodoItem: FC<Props> = React.memo(({
       setIsDisabled(true);
       setIsLoading(true);
 
-      const editingTodo = await patchTodo(todo.id, data);
+      const editingTodo = await patchTodo(id, data);
 
       handleEditTodo(editingTodo);
     } catch {
@@ -72,16 +72,27 @@ export const TodoItem: FC<Props> = React.memo(({
 
   const finishEdit = () => {
     setIsEdit(false);
-    setEditTitle(title);
+
+    if (editTitle !== title) {
+      setEditTitle(title);
+    }
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditTitle(event.target.value);
   };
 
-  const handleTitleSubmit = (event: React.FormEvent<HTMLFormElement>
-  | React.FocusEvent<HTMLInputElement>) => {
+  const handleTitleSubmit = useCallback(async (
+    event: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement>,
+  ) => {
     event.preventDefault();
+
+    const data = {
+      ...todo,
+      title: editTitle,
+    };
+
     if (!editTitle.trim()) {
       deleteTodo(todo);
 
@@ -94,14 +105,22 @@ export const TodoItem: FC<Props> = React.memo(({
       return;
     }
 
-    const updatedTodo = {
-      ...todo,
-      title: editTitle,
-    };
+    try {
+      setIsDisabled(true);
+      setIsLoading(true);
 
-    handleEditTodo(updatedTodo);
-    setIsEdit(false);
-  };
+      const editingTodo = await patchTodo(id, data);
+
+      handleEditTodo(editingTodo);
+    } catch {
+      displayError(ErrorsType.UPDATE);
+    }
+
+    setIsDisabled(false);
+    setIsLoading(false);
+    finishEdit();
+  },
+  [title, editTitle, todo, deleteTodo, handleEditTodo, displayError]);
 
   return (
     <div
