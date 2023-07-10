@@ -120,7 +120,7 @@ export const TodoItem: FC<Props> = React.memo(({
     setIsLoading(false);
     finishEdit();
   },
-  [title, editTitle, todo, deleteTodo, handleEditTodo, displayError]);
+  [title, editTitle]);
 
   return (
     <div
