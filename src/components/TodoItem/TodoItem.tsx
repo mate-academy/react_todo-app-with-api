@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo, UpdateTodoArgs } from '../../types/Todo';
 
@@ -39,6 +44,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsTitleEdited(true);
+    setNewTitle(title.trim());
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +73,9 @@ export const TodoItem: React.FC<Props> = ({
     setIsTitleEdited(false);
   };
 
-  const handleToggleComplete = () => {
-    handleUpdateTodo(id, { completed: !todo.completed });
-  };
+  const handleToggleComplete = useCallback(() => {
+    handleUpdateTodo(id, { completed: !completed });
+  }, [id, completed, handleUpdateTodo]);
 
   const handleDelete = () => {
     onDelete(id);
