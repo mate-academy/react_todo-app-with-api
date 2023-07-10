@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import classNames from 'classnames';
 
@@ -7,7 +6,10 @@ interface Props {
   handleCloseError: () => void;
 }
 
-export const Notifications: React.FC<Props> = ({ error, handleCloseError }) => {
+export const NotificationError: React.FC<Props> = ({
+  error,
+  handleCloseError,
+}) => {
   return (
     <div className={classNames(
       'notification is-danger is-light has-text-weight-normal',
@@ -18,6 +20,7 @@ export const Notifications: React.FC<Props> = ({ error, handleCloseError }) => {
         type="button"
         className="delete"
         onClick={handleCloseError}
+        aria-label="Close Error"
       />
       {error}
     </div>

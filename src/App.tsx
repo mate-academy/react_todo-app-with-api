@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect,
@@ -16,7 +15,7 @@ import {
 } from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
-import { Notifications } from './components/Notifications';
+import { NotificationError } from './components/Notifications';
 import { Footer } from './components/Footer/Footer';
 
 const USER_ID = 10921;
@@ -180,7 +179,6 @@ export const App: React.FC = () => {
         />
 
         <Footer
-          todos={visibleTodos}
           filter={filter}
           setFilter={setFilter}
           activeTodos={activeTodos}
@@ -188,7 +186,7 @@ export const App: React.FC = () => {
           handleClearCompletedTodos={handleClearCompletedTodos}
         />
       </div>
-      <Notifications
+      <NotificationError
         error={error}
         handleCloseError={handleCloseError}
       />
