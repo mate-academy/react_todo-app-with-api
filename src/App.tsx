@@ -146,10 +146,13 @@ export const App: React.FC = () => {
     try {
       const updatedTodo = await updateTodo(todoId, args);
 
-      setVisibleTodos(prevTodos => (prevTodos.map((todo: Todo) => (
-        todo.id === todoId
-          ? updatedTodo
-          : todo)) as Todo[]));
+      setVisibleTodos(prevTodos => prevTodos.map(todo => {
+        if (todo.id !== todoId) {
+          return todo;
+        }
+
+        return updatedTodo;
+      }));
     } catch {
       setErrorMessage(ErrorMessage.updateError);
     } finally {

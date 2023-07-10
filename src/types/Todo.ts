@@ -5,4 +5,4 @@ export interface Todo {
   completed: boolean;
 }
 
-export type UpdatedTodo = Partial<Omit<Todo, 'id' | 'userId'>>;
+export type UpdatedTodo = Partial<Pick<Todo, 'title' | 'completed'>>;

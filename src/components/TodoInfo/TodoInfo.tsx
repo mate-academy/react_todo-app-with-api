@@ -60,8 +60,9 @@ export const TodoInfo: React.FC<Props> = ({
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+    setEditedTitle(prevTitle => prevTitle.trim());
 
-    if (!editedTitle.trim()) {
+    if (!editedTitle) {
       removeTodo(id);
     }
 
@@ -79,7 +80,7 @@ export const TodoInfo: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={completed}
+          defaultChecked={completed}
           onClick={handleIsCompletedChange}
         />
       </label>
