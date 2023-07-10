@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState(StatusFilterType.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([0]);
 
   useEffect(() => {
     getTodos(USER_ID)
