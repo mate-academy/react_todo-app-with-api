@@ -1,153 +1,311 @@
-/* eslint-disable no-console */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { ChangeEvent, useState } from 'react';
+/* eslint-disable max-len */
+import React, {
+  useCallback, useEffect, useState, useMemo,
+} from 'react';
 import { UserWarning } from './UserWarning';
-import {
-  getTodos, postTodos, deleteTodo, patchTodo,
-} from './api/todos';
+import { Footer } from './Footer/Footer';
+import { Main } from './Main/Main';
+import { ErrorNotification } from './ErrorNotification/ErrorNotification';
+import { Header } from './Header/Header';
 import { Todo } from './types/Todo';
-import { TodoFilter } from './filterTodos/filterTodos';
-import { TodoList } from './TodoList/TodoList';
-import { Errors } from './Errors/Errors';
-import { TodoError } from './types/TodoError';
-
-const USER_ID = 10327;
+import { SelectOptions } from './types/SelectOptions';
+import { ErrorType } from './types/ErrorType';
+import {
+  deleteTodos, getTodos, postTodos, patchTodoStatus, patchTodoTitle,
+} from './api/todos';
+import { USER_ID } from './utils/userId';
+import { filterTodosBySelectOptions } from './utils/filterTodos';
 
 export const App: React.FC = () => {
-  const [todoItem, setTodoItem] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errors, setErrors] = useState(TodoError.NONE);
-  const [isLoadWait, setIsLoadWait] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorType, setErrorType] = useState<ErrorType>(ErrorType.ADD);
+  const [completedTodosId, setCompletedTodosId] = useState<number[]>([]);
 
-  const fetchTodos = () => getTodos(USER_ID).then(setTodos);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isResponse, setIsResponse] = useState(true);
+  const [todoLoadingId, setTodoLoadingId] = useState<number[]>([]);
+  const [selectedOption, setSelectedOption] = useState<SelectOptions>(SelectOptions.ALL);
 
-  const todoCount = todos.filter(({ completed }) => !completed).length;
-  const todoCompleted = todos.filter(todo => todo.completed === true);
-  const hasCompletedTodo = todoCompleted.length > 0;
+  const getCompletedTodosId = useCallback((allTodos: Todo[]) => () => {
+    return allTodos
+      .filter((todo: Todo) => todo.completed)
+      .map(todoItem => todoItem.id);
+  }, []);
+
+  const setOptionSelect = (type: SelectOptions) => {
+    setSelectedOption(type);
+  };
+
+  const loadTodosFromServer = useCallback(async () => {
+    try {
+      const todosData = await getTodos(USER_ID);
+
+      setTodos(todosData);
+      setCompletedTodosId(getCompletedTodosId(todosData));
+    } catch (err) {
+      setIsError(true);
+    }
+  }, []);
+
+  const visibleTodos = useMemo(() => {
+    return filterTodosBySelectOptions(todos, selectedOption);
+  }, [todos, selectedOption]);
+
+  const emptyTodo = useCallback((title = '') => {
+    const emptyNewTodo = {
+      id: 0,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
+    setTempTodo(emptyNewTodo);
+  }, []);
+
+  const postTodoOnServer = useCallback(async (
+    todoToPost: Pick<Todo, 'userId' | 'title' | 'completed'>,
+  ) => {
+    try {
+      emptyTodo(todoToPost.title);
+      setIsResponse(false);
+      const postNewTodo = await postTodos(todoToPost);
+
+      if (postNewTodo) {
+        setTodos(prevState => ([...prevState, postNewTodo]));
+      }
+    } catch {
+      setErrorType(ErrorType.ADD);
+      setIsError(true);
+    } finally {
+      setIsResponse(true);
+      setTempTodo(null);
+    }
+  }, []);
+
+  const deleteTodoFromServer = useCallback(async (todoId: number) => {
+    try {
+      setIsResponse(false);
+      const deleteExistTodo = await deleteTodos(todoId);
+
+      if (deleteExistTodo) {
+        setTodos(prevState => {
+          return prevState.filter(todo => todo.id !== todoId);
+        });
+        setTodoLoadingId([]);
+      }
+    } catch {
+      setErrorType(ErrorType.DELETE);
+      setIsError(true);
+    } finally {
+      setIsResponse(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTodosFromServer();
+  }, []);
+
+  useEffect(() => {
+    const timeoutID = setTimeout(() => {
+      setIsError(false);
+    }, 3000);
+
+    return () => clearTimeout(timeoutID);
+  }, [isError]);
+
+  const closeNotification = () => {
+    setIsError(false);
+  };
+
+  const addComplitedTodo = (todoId:number) => {
+    const currentTodo = todos.find(todo => todo.id === todoId);
+
+    if (currentTodo) {
+      if (!completedTodosId.includes(todoId)) {
+        setCompletedTodosId(prevState => ([...prevState, todoId]));
+      } else {
+        setCompletedTodosId(prevState => {
+          return prevState.filter(id => id !== todoId);
+        });
+      }
+    }
+  };
+
+  const patchTodoStatusOnServer = async (todoId: number) => {
+    try {
+      setIsResponse(false);
+      const currentTodo = todos.find(todo => todo.id === todoId);
+
+      if (currentTodo) {
+        const newStatus = !currentTodo.completed;
+
+        const responce = await patchTodoStatus(todoId, {
+          completed: newStatus,
+        });
+
+        if (responce) {
+          currentTodo.completed = newStatus;
+          setTodos(prevState => (
+            prevState.map(todo => (
+              todo.id === todoId
+                ? currentTodo
+                : todo
+            ))
+          ));
+        }
+      }
+    } catch {
+      setErrorType(ErrorType.UPDATE);
+      setIsError(true);
+    } finally {
+      setIsResponse(true);
+      setTodoLoadingId([]);
+    }
+  };
+
+  const updateTodoStatus = (todoId: number) => {
+    setTodoLoadingId([todoId]);
+    patchTodoStatusOnServer(todoId);
+  };
+
+  const addTodo = (todo: Pick<Todo, 'userId' | 'title' | 'completed' >) => {
+    if (!todo.title.trim()) {
+      setErrorType(ErrorType.ADD);
+      setIsError(true);
+
+      return;
+    }
+
+    postTodoOnServer(todo);
+  };
+
+  const deleteTodo = (todoId: number) => {
+    const todoToDelete = todos.find(todo => todo.id === todoId);
+
+    if (!todoToDelete) {
+      setErrorType(ErrorType.DELETE);
+      setIsError(true);
+
+      return;
+    }
+
+    setTodoLoadingId([todoId]);
+    deleteTodoFromServer(todoId);
+  };
+
+  const deleteCompletedTodos = async () => {
+    try {
+      setTodoLoadingId(completedTodosId);
+      await Promise.all(
+        completedTodosId.map(id => deleteTodos(id)),
+      );
+
+      setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
+    } catch {
+      setIsError(true);
+      setErrorType(ErrorType.DELETE);
+    } finally {
+      setTodoLoadingId([]);
+    }
+  };
+
+  const isToggleAllActive = completedTodosId.length < 1
+    || completedTodosId.length === todos.length;
+
+  const onActiveToggle = async () => {
+    if (isToggleAllActive) {
+      setTodoLoadingId(todos.map(todo => todo.id));
+      await Promise.all(todos.map(
+        todo => patchTodoStatusOnServer(todo.id),
+      ));
+    }
+  };
+
+  const patchTodoTitleOnServer = async (
+    todoId: number, newTitle: string,
+  ) => {
+    try {
+      setIsResponse(false);
+      const currentTodo = todos.find(todo => todo.id === todoId);
+
+      if (currentTodo) {
+        const responce = await patchTodoTitle(todoId, {
+          title: newTitle,
+        });
+
+        if (responce) {
+          currentTodo.title = newTitle;
+          setTodos(prevState => (
+            prevState.map(todo => (
+              todo.id === todoId
+                ? currentTodo
+                : todo
+            ))
+          ));
+        }
+      }
+    } catch {
+      setErrorType(ErrorType.UPDATE);
+      setIsError(true);
+    } finally {
+      setIsResponse(true);
+      setTodoLoadingId([]);
+    }
+  };
+
+  const updateTodoTitle = (todoId: number, title: string) => {
+    setTodoLoadingId([todoId]);
+    patchTodoTitleOnServer(todoId, title);
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
   }
-
-  const clearTodoField = () => setTodoItem('');
-
-  const createTodo = async (event: ChangeEvent<HTMLFormElement>) => {
-    try {
-      event.preventDefault();
-      setIsLoadWait(true);
-
-      const newTodo = {
-        userId: USER_ID,
-        title: todoItem,
-        completed: false,
-      };
-
-      await postTodos(USER_ID, newTodo);
-      fetchTodos();
-      clearTodoField();
-    } catch {
-      setErrors(TodoError.ADD_ERROR);
-    } finally {
-      setIsLoadWait(false);
-    }
-  };
-
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      await deleteTodo(id);
-      fetchTodos();
-      setIsLoadWait(true);
-    } catch {
-      setErrors(TodoError.REMOVE_ERROR);
-    } finally {
-      setIsLoadWait(false);
-    }
-  };
-
-  const handleChangeTodo = async (id: number, isCompleted: boolean) => {
-    try {
-      await patchTodo(id, { completed: !isCompleted });
-      fetchTodos();
-      setIsLoadWait(true);
-    } catch {
-      setErrors(TodoError.UPDATE_ERROR);
-    } finally {
-      setIsLoadWait(false);
-    }
-  };
-
-  const activeFilter = () => {
-    setTodos(todos.filter((todo) => todo.completed === false));
-  };
-
-  const completedFilter = () => {
-    setTodos(todos.filter((todo) => todo.completed === true));
-  };
-
-  const deleteFilter = () => {
-    fetchTodos();
-  };
-
-  const deleteAllCompleted = () => {
-    todoCompleted.map((todo) => handleDeleteTodo(todo.id));
-  };
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button type="button" className="todoapp__toggle-all active" />
-
-          <form
-            onSubmit={createTodo}
-          >
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={todoItem}
-              onChange={event => setTodoItem(event.target.value)}
-            />
-          </form>
-        </header>
-
-        <TodoList
-          todos={todos}
-          deleteTodo={handleDeleteTodo}
-          changeTodo={handleChangeTodo}
-          isLoad={isLoadWait}
+        <Header
+          onAddTodo={addTodo}
+          inputDisable={isResponse}
+          isToggleAllActive={isToggleAllActive}
+          handleToggleClick={onActiveToggle}
         />
 
-        {todos.length > 0 && (
-          <>
-            <footer className="todoapp__footer">
-              <span className="todo-count">
-                {`${todoCount} items left`}
-              </span>
+        {!!todos.length
+          && (
+            <Main
+              todos={visibleTodos}
+              addComplitedTodo={addComplitedTodo}
+              onTodoChangingStatus={updateTodoStatus}
+              onTodoDelete={deleteTodo}
+              onTodoChangingTitle={updateTodoTitle}
+              todoLoadingId={todoLoadingId}
+              tempTodo={tempTodo}
+            />
+          )}
 
-              <TodoFilter
-                onAll={deleteFilter}
-                onActive={activeFilter}
-                onCompleted={completedFilter}
-              />
-
-              {hasCompletedTodo && (
-                <button
-                  type="button"
-                  className="todoapp__clear-completed"
-                  onClick={deleteAllCompleted}
-                >
-                  Clear completed
-                </button>
-              )}
-            </footer>
-          </>
-        )}
+        {!!todos.length
+          && (
+            <Footer
+              filterTodos={setOptionSelect}
+              todosCount={todos.length}
+              completedTodosCount={completedTodosId.length}
+              deleteCompletedTodos={deleteCompletedTodos}
+            />
+          )}
       </div>
 
-      <Errors error={errors} />
+      {isError && (
+        <ErrorNotification
+          onNotificationClose={closeNotification}
+          isErrorOccuring={isError}
+          errorTypeToShow={errorType}
+        />
+      )}
     </div>
   );
 };

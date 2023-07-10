@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
@@ -6,14 +5,24 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const postTodos = (userId: number, data: any) => {
-  return client.post(`/todos?userId=${userId}`, data);
+// Add more methods here
+export const postTodos = (data: Pick<
+Todo, 'userId' | 'title' | 'completed'>) => {
+  return client.post<Todo>('/todos', data);
 };
 
-export const deleteTodo = (todeId: number) => {
-  return client.delete(`/todos/${todeId}`);
+export const deleteTodos = (todoId:number) => {
+  return client.delete(`/todos/${todoId}`);
 };
 
-export const patchTodo = (todoId: number, data: any) => {
-  return client.patch(`/todos/${todoId}`, data);
+export const patchTodoStatus = (
+  todoId: number, data: Pick<Todo, 'completed'>,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
+};
+
+export const patchTodoTitle = (
+  todoId: number, data: Pick<Todo, 'title'>,
+) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 };
