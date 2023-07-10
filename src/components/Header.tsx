@@ -1,8 +1,10 @@
 import React from 'react';
 
 interface Props {
-  handleFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
+  setIsError: (err: string | null) => void,
+  setDisableInput: (value: boolean) => void,
   inputValue: string,
+  addTodo: (title: string) => void,
   setInputValue: (value: string) => void,
   todosLength: number,
   disableInput: boolean,
@@ -10,20 +12,46 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({
-  handleFormSubmit,
+  setIsError,
+  setDisableInput,
+  addTodo,
   inputValue,
   setInputValue,
   todosLength,
   disableInput,
   handleToggleAll,
 }) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!inputValue || inputValue.trim().length === 0) {
+      setIsError('Title can not be empty');
+
+      return;
+    }
+
+    try {
+      setDisableInput(true);
+      await addTodo(inputValue);
+    } catch {
+      setIsError('Unable to add a todo');
+    } finally {
+      setDisableInput(false);
+      setInputValue('');
+    }
+  };
+
   return (
     <header className="todoapp__header">
 
       {(todosLength > 0) && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           type="button"
+          aria-label="toogle"
           className="todoapp__toggle-all "
           onClick={handleToggleAll}
         />
@@ -35,7 +63,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
+          onChange={handleInputChange}
           disabled={disableInput}
         />
       </form>

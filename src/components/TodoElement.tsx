@@ -24,13 +24,15 @@ export const TodoElement: React.FC<Props> = ({
 
   const ref = useRef<HTMLInputElement>(null);
 
+  const handleEditValue = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditValue(event.target.value);
+  };
+
   useEffect(() => {
-    if (editForm && ref.current) {
-      ref.current.focus();
-    }
+    ref.current?.focus();
   }, [editForm]);
 
-  const apply = () => {
+  const applyChanges = () => {
     updateTitle(id, editValue);
     setEditForm(false);
   };
@@ -39,8 +41,14 @@ export const TodoElement: React.FC<Props> = ({
     setEditForm(true);
   };
 
-  const handleBlur = () => {
-    apply();
+  const handleBlur = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!editValue.trim()) {
+      removeTodo(id);
+    }
+
+    applyChanges();
   };
 
   const cancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -62,7 +70,7 @@ export const TodoElement: React.FC<Props> = ({
       setEditForm(false);
     }
 
-    apply();
+    applyChanges();
   };
 
   return (
@@ -90,7 +98,7 @@ export const TodoElement: React.FC<Props> = ({
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={editValue}
-              onChange={(event => setEditValue(event.target.value))}
+              onChange={handleEditValue}
               onKeyDown={cancel}
               ref={ref}
             />

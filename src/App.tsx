@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
+import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -38,11 +39,17 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    let errorExistingTime: NodeJS.Timeout;
+
     if (isError) {
-      setTimeout(() => {
+      errorExistingTime = setTimeout(() => {
         setIsError(null);
       }, 3000);
     }
+
+    return () => {
+      clearTimeout(errorExistingTime);
+    };
   }, [isError]);
 
   const addTodo = async (todoTitle: string) => {
@@ -101,8 +108,9 @@ export const App: React.FC = () => {
     } catch {
       setIsError('Unable to update a todo');
     } finally {
-      setLoadingTodo(currentTodosId => currentTodosId
-        .filter(todoId => todoId !== id));
+      setLoadingTodo(currentTodosId => (
+        currentTodosId.filter(todoId => todoId !== id)
+      ));
     }
   };
 
@@ -129,28 +137,9 @@ export const App: React.FC = () => {
     } catch {
       setIsError('Unable to update a todo');
     } finally {
-      setLoadingTodo(currentTodosId => currentTodosId
-        .filter(todoId => todoId !== id));
-    }
-  };
-
-  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!inputValue || inputValue.trim().length === 0) {
-      setIsError('Title can not be empty');
-
-      return;
-    }
-
-    try {
-      setDisableInput(true);
-      await addTodo(inputValue);
-    } catch {
-      setIsError('Unable to add a todo');
-    } finally {
-      setDisableInput(false);
-      setInputValue('');
+      setLoadingTodo(currentTodosId => (
+        currentTodosId.filter(todoId => todoId !== id)
+      ));
     }
   };
 
@@ -196,6 +185,7 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const todosLeft = todos.filter(todo => !todo.completed).length;
   const filteredTodos = getFilteredTodos(todos, filterBy);
 
   return (
@@ -204,9 +194,11 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          handleFormSubmit={handleFormSubmit}
           inputValue={inputValue}
           setInputValue={setInputValue}
+          setIsError={setIsError}
+          setDisableInput={setDisableInput}
+          addTodo={addTodo}
           todosLength={todos.length}
           disableInput={disableInput}
           handleToggleAll={handleToggleAll}
@@ -225,7 +217,7 @@ export const App: React.FC = () => {
 
         {(todos.length > 0) && (
           <Footer
-            todos={todos}
+            todosLeft={todosLeft}
             filterBy={filterBy}
             setFilterBy={setFilterBy}
             handleClearCompleted={handleClearCompleted}
@@ -233,8 +225,10 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
+      <Notification
+        isError={isError}
+        setIsError={setIsError}
+      />
 
       <div
         className={classNames(

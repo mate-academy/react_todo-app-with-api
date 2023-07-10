@@ -1,24 +1,23 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 import { FilterBy } from '../types/FilterBy';
 
 type Props = {
-  todos: Todo[];
+  todosLeft: number;
   filterBy: FilterBy;
   setFilterBy: (value: FilterBy) => void;
   handleClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
+  todosLeft,
   filterBy,
   setFilterBy,
   handleClearCompleted,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
-      {todos.filter(todo => !todo.completed).length}
+      {todosLeft}
       {' '}
       items left
     </span>

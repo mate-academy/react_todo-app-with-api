@@ -6,7 +6,7 @@ export const getTodos = (userId: number) => {
 };
 
 export const postTodos = (todo: Omit<Todo, 'id'>) => {
-  return client.post<Todo>('/todos', todo);
+  return client.post<Todo, Omit<Todo, 'id'>>('/todos', todo);
 };
 
 export const deleteTodo = (todoId: number) => {
