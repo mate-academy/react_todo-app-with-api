@@ -7,6 +7,8 @@ type Props = {
 };
 
 export const ErrorMessage: React.FC<Props> = ({ error, setError }) => {
+  const handleDeleteErrorMessage = () => setError(null);
+
   return (
     <div
       className={cn(
@@ -17,7 +19,7 @@ export const ErrorMessage: React.FC<Props> = ({ error, setError }) => {
       <button
         type="button"
         className="delete"
-        onClick={() => setError(null)}
+        onClick={handleDeleteErrorMessage}
         aria-label="deleteWarning"
       />
       {error}

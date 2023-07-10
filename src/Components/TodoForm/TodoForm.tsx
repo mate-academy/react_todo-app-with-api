@@ -24,6 +24,10 @@ export const TodoForm: React.FC<Props> = ({ setError, addTodo, tempTodo }) => {
     setNewTodoTitle('');
   };
 
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(event.target.value);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <input
@@ -31,7 +35,7 @@ export const TodoForm: React.FC<Props> = ({ setError, addTodo, tempTodo }) => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={newTodoTitle}
-        onChange={(event) => setNewTodoTitle(event.target.value)}
+        onChange={handleChangeTitle}
         disabled={tempTodo !== null}
       />
     </form>

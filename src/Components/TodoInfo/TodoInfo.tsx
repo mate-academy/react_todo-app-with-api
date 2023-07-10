@@ -34,6 +34,10 @@ export const TodoInfo: React.FC<Props> = ({
     await updateTodo(id, { completed: !todo.completed });
   };
 
+  const handleApdatingTodo = () => setIsUpdating(true);
+
+  const isTodoActive = loadingTodos.includes(id);
+
   return (
     <div className={cn('todo', { completed })}>
       <label className="todo__status-label">
@@ -59,7 +63,7 @@ export const TodoInfo: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setIsUpdating(true)}
+              onDoubleClick={handleApdatingTodo}
             >
               {title}
             </span>
@@ -75,7 +79,7 @@ export const TodoInfo: React.FC<Props> = ({
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': loadingTodos.includes(id),
+        'is-active': isTodoActive,
       })}
       >
         <div className="modal-background has-background-white-ter" />

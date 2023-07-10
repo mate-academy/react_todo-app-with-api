@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import cn from 'classnames';
 
-import { TodoForm } from './Components/TodoForm';
 import { ErrorMessage } from './Components/ErrorMessage';
 import { TodoList } from './Components/TodoList';
 import { FilterOptions } from './types/FilterOptions';
@@ -11,6 +9,7 @@ import {
 } from './api/todos';
 import { UserWarning } from './UserWarning';
 import { Footer } from './Components/Footer';
+import { Header } from './Components/Header';
 
 const USER_ID = 10903;
 
@@ -113,14 +112,22 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleButton = async () => {
-    const updatePromises = todos.map(todo => updateTodoInfo(todo.id,
-      { completed: !isAllTodosCompleted }));
+  const handleToggleButton = () => {
+    let todosForStatusChange = todos;
 
-    await Promise.all(updatePromises);
+    if (activeTodos.length > 0) {
+      todosForStatusChange = activeTodos;
+    }
+
+    todosForStatusChange.forEach(async (todo) => {
+      await updateTodoInfo(
+        todo.id,
+        { completed: !isAllTodosCompleted },
+      );
+    });
   };
 
-  const handleDeleteComplitedTodos = async () => {
+  const handleDeleteCompletedTodos = async () => {
     const deletePromises = completedTodos.map(todo => deleteTodo(todo.id));
 
     try {
@@ -139,22 +146,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: isAllTodosCompleted,
-            })}
-            aria-label="active"
-            onClick={handleToggleButton}
-          />
-          <TodoForm
-            setError={setError}
-            addTodo={addTodo}
-            tempTodo={tempTodo}
-          />
-        </header>
+        <Header
+          setError={setError}
+          addTodo={addTodo}
+          tempTodo={tempTodo}
+          isAllTodosCompleted={isAllTodosCompleted}
+          handleToggleButton={handleToggleButton}
+        />
 
         <TodoList
           todos={visibleTodos}
@@ -170,7 +168,7 @@ export const App: React.FC = () => {
             setFilter={setFilter}
             activeTodos={activeTodos}
             completedTodos={completedTodos}
-            handleDeleteComplitedTodos={handleDeleteComplitedTodos}
+            handleDeleteComplitedTodos={handleDeleteCompletedTodos}
           />
         )}
 
