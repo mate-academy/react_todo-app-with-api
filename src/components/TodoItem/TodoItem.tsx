@@ -85,7 +85,7 @@ export const TodoItem: React.FC<Props> = ({
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              className="todo__title"
+              className="todo__title-field"
               ref={input}
               onChange={handleChangeTodo}
               value={query}

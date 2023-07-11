@@ -54,11 +54,11 @@ export const App: React.FC = () => {
   };
 
   const handleAddTodo = useCallback(async (newTodo: NewTodo) => {
-    setIsLoading(true);
     setHasError(ErrorType.NONE);
 
     if (!newTodo.title.trim()) {
       showError(ErrorType.EMPTY_TITLE);
+      setIsLoading(false);
 
       return;
     }
@@ -88,7 +88,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleClearCompleted = () => {
-    setIsLoading(true);
+    setIsLoading(false);
 
     const completedTodoIds = completedTodos
       .filter(todo => todo.id !== undefined)
@@ -109,11 +109,20 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    getTodos(USER_ID).then(data => setTodos(data))
-      .catch(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getTodos(USER_ID);
+
+        setIsLoading(false);
+
+        setTodos(data);
+      } catch (error) {
         setHasError(ErrorType.LOAD);
-      });
-  });
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleCloseError = useCallback(() => {
     setHasError(ErrorType.NONE);
@@ -237,6 +246,16 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 className="todoapp__clear-completed"
+                onClick={handleClearCompleted}
+              >
+                Clear completed
+              </button>
+            )}
+
+            {completedTodos.length === 0 && (
+              <button
+                type="button"
+                className="todoapp__clear-completed--hidden"
                 onClick={handleClearCompleted}
               >
                 Clear completed
