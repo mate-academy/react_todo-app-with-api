@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
   todosLength: number,
   disableInput: boolean,
   handleToggleAll: () => void,
+  isEveryTodosCompleted: boolean,
 }
 
 export const Header: React.FC<Props> = ({
@@ -20,6 +22,7 @@ export const Header: React.FC<Props> = ({
   todosLength,
   disableInput,
   handleToggleAll,
+  isEveryTodosCompleted,
 }) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -52,7 +55,8 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           aria-label="toogle"
-          className="todoapp__toggle-all "
+          className={classNames('todoapp__toggle-all',
+            { active: isEveryTodosCompleted })}
           onClick={handleToggleAll}
         />
       )}

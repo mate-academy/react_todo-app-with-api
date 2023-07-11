@@ -188,6 +188,7 @@ export const App: React.FC = () => {
   const filteredTodos = getFilteredTodos(todos, filterBy);
 
   const isTodosCompleted = filteredTodos.some(todo => todo.completed);
+  const isEveryTodosCompleted = filteredTodos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -203,6 +204,7 @@ export const App: React.FC = () => {
           todosLength={todos.length}
           disableInput={disableInput}
           handleToggleAll={handleToggleAll}
+          isEveryTodosCompleted={isEveryTodosCompleted}
         />
 
         {todos.length > 0 && (
