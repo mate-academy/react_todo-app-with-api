@@ -36,7 +36,7 @@ export const TodoInfo: React.FC<Props> = ({
 
   const handleApdatingTodo = () => setIsUpdating(true);
 
-  const isTodoActive = loadingTodos.includes(id);
+  const isLoadingTodo = loadingTodos.includes(id);
 
   return (
     <div className={cn('todo', { completed })}>
@@ -79,7 +79,7 @@ export const TodoInfo: React.FC<Props> = ({
         )}
 
       <div className={cn('modal overlay', {
-        'is-active': isTodoActive,
+        'is-active': isLoadingTodo,
       })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -115,7 +115,7 @@ export const App: React.FC = () => {
   const handleToggleButton = () => {
     let todosForStatusChange = todos;
 
-    if (activeTodos.length > 0) {
+    if (activeTodos.length) {
       todosForStatusChange = activeTodos;
     }
 
