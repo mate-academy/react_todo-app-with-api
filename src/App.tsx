@@ -84,6 +84,8 @@ export const App: React.FC = () => {
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
     } catch {
       setHasError(ErrorType.DELETE);
+      setIsLoading(false);
+      setLoadingTodo([0]);
     }
   }, []);
 
@@ -118,6 +120,8 @@ export const App: React.FC = () => {
         setTodos(data);
       } catch (error) {
         setHasError(ErrorType.LOAD);
+        setIsLoading(false);
+        setLoadingTodo([0]);
       }
     };
 
