@@ -11,15 +11,13 @@ interface Props{
   deleteTodos: (todoIds: Todo[]) => void;
 }
 
-export const TodoFooter: React.FC<Props> = (
-  {
-    filterOption,
-    setFilterOption,
-    activeVisibleTodosLength,
-    completedVisibleTodos,
-    deleteTodos,
-  },
-) => {
+export const TodoFooter: React.FC<Props> = ({
+  filterOption,
+  setFilterOption,
+  activeVisibleTodosLength,
+  completedVisibleTodos,
+  deleteTodos,
+}) => {
   const isCompletedTodosPresent = completedVisibleTodos.length > 0;
 
   return (

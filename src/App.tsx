@@ -7,7 +7,7 @@ import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { TodoNotification }
   from './components/TodoNotification/TodoNotification';
 import {
-  createTodo, getTodos, removeTodo, updateTodo,
+  getTodos, removeTodo, updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterOptions } from './types/FilterOptions';
@@ -20,12 +20,9 @@ const USER_ID = 6795;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterOption, setFilterOption] = useState(FilterOptions.ALL);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState<ErrorMessages | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletingTodosId, setDeletingTodosId] = useState<number[]>([]);
   const [updatingTodosId, setUpdatingTodosId] = useState<number[]>([]);
-  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -53,52 +50,9 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const handleNewTodoTitleChange
-  = (event: React.ChangeEvent<HTMLInputElement>) => (
-    setNewTodoTitle(event.target.value)
-  );
-
-  const clearNewTodoTitle = () => (
-    setNewTodoTitle('')
-  );
-
-  const addNewTodo = async (title: string) => {
-    if (!title) {
-      setErrorMessage(ErrorMessages.TitleError);
-
-      return null;
-    }
-
-    try {
-      const newTodoPayload = {
-        completed: false,
-        title,
-        userId: USER_ID,
-      };
-
-      setTempTodo({
-        id: 0,
-        ...newTodoPayload,
-      });
-
-      const newTodo = await createTodo(newTodoPayload);
-
-      clearNewTodoTitle();
-      setTodos((prevState) => [...prevState, newTodo]);
-
-      return newTodo;
-    } catch (error) {
-      setErrorMessage(ErrorMessages.TitleError);
-
-      return null;
-    } finally {
-      setTempTodo(null);
-    }
-  };
-
   const deleteTodo = async (todoId: number) => {
     try {
-      setDeletingTodosId((prevState) => [...prevState, todoId]);
+      setUpdatingTodosId((prevState) => [...prevState, todoId]);
 
       const removeResult = await removeTodo(todoId);
 
@@ -108,15 +62,11 @@ export const App: React.FC = () => {
         return;
       }
 
-      setTodos((prevState) => {
-        const resultState = prevState.filter(todo => todo.id !== todoId);
-
-        return [...resultState];
-      });
+      setTodos((prevState) => (prevState.filter(todo => todo.id !== todoId)));
     } catch (error) {
       setErrorMessage(ErrorMessages.DeleteError);
     } finally {
-      setDeletingTodosId([]);
+      setUpdatingTodosId([]);
     }
   };
 
@@ -133,29 +83,20 @@ export const App: React.FC = () => {
     try {
       setUpdatingTodosId((prevState) => [...prevState, todoId]);
 
-      const updatedTodo = await updateTodo(
-        todoId,
-        args,
-      );
+      await updateTodo(todoId, args);
 
-      setTodos((prevState) => {
-        return prevState.map(todo => {
-          if (todo.id === todoId) {
-            return {
-              ...todo,
-              completed: !todo.completed,
-            };
-          }
+      setTodos((prevState) => prevState.map(todo => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            completed: !todo.completed,
+          };
+        }
 
-          return todo;
-        });
-      });
-
-      return updatedTodo;
+        return todo;
+      }));
     } catch (error) {
       setErrorMessage(ErrorMessages.UpdateError);
-
-      return null;
     } finally {
       setUpdatingTodosId([]);
     }
@@ -182,34 +123,25 @@ export const App: React.FC = () => {
       setUpdatingTodosId((prevState) => [...prevState, todoId]);
 
       if (!args.title) {
-        deleteTodo(todoId);
+        await deleteTodo(todoId);
 
-        return null;
+        return;
       }
 
-      const updatedTodo = await updateTodo(
-        todoId,
-        args,
-      );
+      await updateTodo(todoId, args);
 
-      setTodos((prevState) => {
-        return prevState.map(todo => {
-          if (todo.id === todoId && args.title) {
-            return {
-              ...todo,
-              title: args.title,
-            };
-          }
+      setTodos((prevState) => prevState.map(todo => {
+        if (todo.id === todoId && args.title) {
+          return {
+            ...todo,
+            title: args.title,
+          };
+        }
 
-          return todo;
-        });
-      });
-
-      return updatedTodo;
+        return todo;
+      }));
     } catch (error) {
       setErrorMessage(ErrorMessages.UpdateError);
-
-      return null;
     } finally {
       setUpdatingTodosId([]);
     }
@@ -222,27 +154,24 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           isTodosPresent={isTodosPresent}
-          newTodoTitle={newTodoTitle}
-          handleNewTodoTitleChange={handleNewTodoTitleChange}
-          addNewTodo={addNewTodo}
           isAllTodosCompleted={isAllTodosCompleted}
           toggleAllTodos={toggleAllTodos}
+          setTempTodo={setTempTodo}
+          setErrorMessage={setErrorMessage}
+          setTodos={setTodos}
+          USER_ID={USER_ID}
         />
 
         <TodoList
           todos={visibleTodos}
           deleteTodo={deleteTodo}
           tempTodo={tempTodo}
-          deletingTodoId={deletingTodosId}
           toggleTodoStatus={toggleTodoStatus}
           updatingTodosId={updatingTodosId}
-          selectedTodoId={selectedTodoId}
-          setSelectedTodoId={setSelectedTodoId}
           updateTodoTitle={updateTodoTitle}
         />
 
-        {isTodosPresent
-        && (
+        {isTodosPresent && (
           <TodoFooter
             filterOption={filterOption}
             setFilterOption={setFilterOption}

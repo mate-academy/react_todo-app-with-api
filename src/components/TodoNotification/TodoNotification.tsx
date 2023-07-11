@@ -7,12 +7,10 @@ interface Props{
   setErrorMessage:(error: ErrorMessages | null) => void;
 }
 
-export const TodoNotification: React.FC<Props> = (
-  {
-    errorMessage,
-    setErrorMessage,
-  },
-) => {
+export const TodoNotification: React.FC<Props> = ({
+  errorMessage,
+  setErrorMessage,
+}) => {
   useEffect(() => {
     setTimeout(() => {
       setErrorMessage(null);

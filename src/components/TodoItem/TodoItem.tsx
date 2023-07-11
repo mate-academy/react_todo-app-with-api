@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { UpdateTodoArgs } from '../../types/UpdateTodoArgs';
@@ -6,22 +6,19 @@ import { UpdateTodoArgs } from '../../types/UpdateTodoArgs';
 interface Props {
   todo: Todo;
   deleteTodo: (todoId: number) => void;
-  deletingTodoId: number[];
   toggleTodoStatus:(
     todoId: number,
     args: UpdateTodoArgs
-  ) => Promise<Todo | null>;
+  ) => void;
   updatingTodosId: number[]
   selectedTodoId: number | null;
   setSelectedTodoId: (todoId: number | null) => void;
-  updateTodoTitle: (todoId: number, args: UpdateTodoArgs)
-  => Promise<Todo | null>
+  updateTodoTitle: (todoId: number, args: UpdateTodoArgs) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
-  deletingTodoId,
   toggleTodoStatus,
   updatingTodosId,
   selectedTodoId,
@@ -31,7 +28,6 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
-  const isDeletingItem = deletingTodoId.includes(todo.id);
   const isUpdatingItem = updatingTodosId.includes(todo.id);
 
   const handleToggleTodoStatus = () => toggleTodoStatus(
@@ -83,6 +79,14 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const inputField = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputField.current) {
+      inputField.current.focus();
+    }
+  }, [isSelectedTodoId]);
+
   return (
     <div
       className={cn(
@@ -97,25 +101,25 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => handleToggleTodoStatus()}
+          onChange={handleToggleTodoStatus}
         />
       </label>
 
       { isSelectedTodoId
         ? (
           <form
-            onSubmit={(event) => (handleSubmit(event))}
+            onSubmit={handleSubmit}
           >
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={editedTitle}
-              onChange={(event) => handleInputChanges(event)}
-              onBlur={() => handleOnBlur()}
-              onKeyDown={(event) => handleCancelEditing(event)}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
+              onChange={handleInputChanges}
+              onBlur={handleOnBlur}
+              onKeyDown={handleCancelEditing}
+              ref={inputField}
+
             />
           </form>
         )
@@ -143,7 +147,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={cn(
           'modal overlay',
-          { ' is-active': isDeletingItem || isUpdatingItem },
+          { ' is-active': isUpdatingItem },
         )}
       >
         <div className="modal-background has-background-white-ter " />
