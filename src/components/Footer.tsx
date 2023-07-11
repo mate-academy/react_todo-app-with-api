@@ -7,6 +7,7 @@ type Props = {
   filterBy: FilterBy;
   setFilterBy: (value: FilterBy) => void;
   handleClearCompleted: () => void;
+  isTodosCompleted: boolean;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const Footer: React.FC<Props> = ({
   filterBy,
   setFilterBy,
   handleClearCompleted,
+  isTodosCompleted,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
@@ -23,40 +25,28 @@ export const Footer: React.FC<Props> = ({
     </span>
 
     <nav className="filter">
-      <a
-        href="#/"
-        className={classNames('filter__link',
-          { selected: filterBy === FilterBy.ALL })}
-        onClick={() => setFilterBy(FilterBy.ALL)}
-      >
-        All
-      </a>
-
-      <a
-        href="#/active"
-        className={classNames('filter__link',
-          { selected: filterBy === FilterBy.ACTIVE })}
-        onClick={() => setFilterBy(FilterBy.ACTIVE)}
-      >
-        Active
-      </a>
-
-      <a
-        href="#/completed"
-        className={classNames('filter__link',
-          { selected: filterBy === FilterBy.COMPLETED })}
-        onClick={() => setFilterBy(FilterBy.COMPLETED)}
-      >
-        Completed
-      </a>
+      {Object.entries(FilterBy).map(([, value]) => (
+        <a
+          href={`#/${value.toLowerCase()}`}
+          className={classNames('filter__link', {
+            selected: filterBy === value,
+          })}
+          onClick={() => setFilterBy(value)}
+        >
+          {value}
+        </a>
+      ))}
     </nav>
 
-    <button
-      type="button"
-      className="todoapp__clear-completed"
-      onClick={() => handleClearCompleted()}
-    >
-      Clear completed
-    </button>
+    {isTodosCompleted
+      && (
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          onClick={handleClearCompleted}
+        >
+          Clear completed
+        </button>
+      )}
   </footer>
 );

@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
-import classNames from 'classnames';
 import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
 import {
@@ -188,6 +187,8 @@ export const App: React.FC = () => {
   const todosLeft = todos.filter(todo => !todo.completed).length;
   const filteredTodos = getFilteredTodos(todos, filterBy);
 
+  const isTodosCompleted = filteredTodos.some(todo => todo.completed);
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -221,6 +222,7 @@ export const App: React.FC = () => {
             filterBy={filterBy}
             setFilterBy={setFilterBy}
             handleClearCompleted={handleClearCompleted}
+            isTodosCompleted={isTodosCompleted}
           />
         )}
       </div>
@@ -229,23 +231,6 @@ export const App: React.FC = () => {
         isError={isError}
         setIsError={setIsError}
       />
-
-      <div
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !isError },
-        )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={() => setIsError(null)}
-        />
-        {isError}
-      </div>
     </div>
   );
 };

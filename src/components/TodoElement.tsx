@@ -73,6 +73,16 @@ export const TodoElement: React.FC<Props> = ({
     applyChanges();
   };
 
+  const handleUpdateStatus = () => {
+    updateStatus(id);
+  };
+
+  const handleRemoveTodo = () => {
+    removeTodo(id);
+  };
+
+  const loadingTodoIncludesId = loadingTodo.includes(id);
+
   return (
     <div className={cn('todo', {
       completed,
@@ -83,7 +93,7 @@ export const TodoElement: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => updateStatus(id)}
+          onClick={handleUpdateStatus}
         />
       </label>
 
@@ -115,7 +125,7 @@ export const TodoElement: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => removeTodo(id)}
+              onClick={handleRemoveTodo}
             >
               ×
             </button>
@@ -123,7 +133,7 @@ export const TodoElement: React.FC<Props> = ({
         )}
 
       <div className={cn('modal overlay',
-        { 'is-active': loadingTodo.includes(id) })}
+        { 'is-active': loadingTodoIncludesId })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

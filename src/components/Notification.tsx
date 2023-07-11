@@ -28,7 +28,7 @@ export const Notification: React.FC<Props> = ({
         type="button"
         aria-label="close"
         className="delete"
-        onClick={() => closeErrorWindow}
+        onClick={closeErrorWindow}
       />
       {isError}
     </div>
