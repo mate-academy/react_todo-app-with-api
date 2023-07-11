@@ -1,49 +1,46 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
+import {
   useState, useEffect, useMemo, useCallback,
 } from 'react';
-import { UserWarning } from './UserWarning';
-import { client } from './utils/fetchClient';
-import { getTodos, getPostTodos, deleteTodos } from './api/todos';
+import { UserWarning } from './component/UserWarning';
+import {
+  getTodos, getPostTodos, deleteTodos, updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { NewTodo } from './types/NewTodo';
-import { TodoList } from './components/TodoList/TodoList';
-import { TodoHeader } from './components/TodoHeader/TodoHeader';
-import { TodoFooter } from './components/TodoFooter/TodoFooter';
+import { TodoHeader } from './component/TodoHeader';
+import { TodoFooter } from './component/TodoFooter';
 import { SortEnum } from './types/sort';
+import { TodoList } from './components/TodoList';
 
 const USER_ID = 10589;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [select, setSelect] = useState('all');
-  const [isError, setIsError] = useState('');
+  const [select, setSelect] = useState(SortEnum.ALL);
+  const [error, setError] = useState('');
   const [querySearch, setQuerySearch] = useState('');
   const [processing, setProcessing] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const lengTodos = todos.filter(({ completed }) => !completed).length;
+  const unCompletedLength = todos.filter(({ completed }) => !completed).length;
 
-  const addTodoToProcesing = (id : number | null) => {
-    if (!id) {
-      setProcessing([]);
-    } else {
-      setProcessing(prev => [...prev, id]);
-    }
-  };
+  // const addTodoToProcesing = (id : number | null) => {
+  //   setProcessing(prev => (!id ? [] : [...prev, id]));
+  // };
 
   const getTodosAll = async () => {
     try {
+      setProcessing(prevLoadingTodoIds => [...prevLoadingTodoIds]);
       const receivedTodos = await getTodos(USER_ID);
 
       setTodos(receivedTodos);
     } catch {
-      setIsError('Failed to load todos');
+      setError('Failed to load todos');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setProcessing([]);
     }
   };
 
@@ -68,37 +65,52 @@ export const App: React.FC = () => {
   }, []);
 
   const addTodo = async () => {
+    const querySearchVerefy = querySearch.trim();
+
+    if (querySearchVerefy.length < 1) {
+      return;
+    }
+
     const newTodo: NewTodo = {
       userId: USER_ID,
       completed: false,
-      title: querySearch,
+      title: querySearch.trim(),
     };
 
     try {
+      const tempId = 0;
+
+      setTempTodo({
+        id: tempId,
+        ...newTodo,
+      });
+      setProcessing([tempId]);
       await getPostTodos(USER_ID, newTodo);
       await getTodosAll();
     } catch {
-      setIsError('Unable to add a todo');
+      setError('Unable to add a todo');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setTempTodo(null);
+      setProcessing([]);
     }
   };
 
   const handleDeleteTodo = async (todoId: number) => {
     try {
+      setProcessing(prevLoadingTodoIds => [...prevLoadingTodoIds, todoId]);
       await deleteTodos(todoId);
       await getTodosAll();
-      addTodoToProcesing(todoId);
     } catch {
-      setIsError('Unable to delete a todo');
+      setError('Unable to delete a todo');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setTempTodo(null);
+      setProcessing([]);
     }
   };
 
@@ -121,10 +133,11 @@ export const App: React.FC = () => {
 
     setTodos(updatedTodo);
     try {
+      setProcessing(prevLoadingTodoIds => [...prevLoadingTodoIds, id]);
       const todoToUpdate = todos.find((todo) => todo.id === id);
 
       if (todoToUpdate) {
-        await client.patch(`/todos/${id}`, {
+        await updateTodo(id, {
           completed: !todoToUpdate.completed,
           title: todoToUpdate.title,
           userId: USER_ID,
@@ -132,20 +145,20 @@ export const App: React.FC = () => {
         });
       }
     } catch {
-      setIsError('Unable to override task status');
+      setError('Unable to override task status');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setProcessing([]);
     }
   };
 
   const handleUpdateAllTodoStatus = async () => {
-    const someCompleted = todos.some(todo => !todo.completed);
+    const hasCompleted = todos.some(todo => !todo.completed);
 
     const updatedAllTodo = todos.map((todo) => {
-      if (someCompleted) {
+      if (hasCompleted) {
         return {
           ...todo,
           completed: true,
@@ -160,45 +173,42 @@ export const App: React.FC = () => {
 
     setTodos(updatedAllTodo);
     try {
-      if (someCompleted) {
+      setProcessing(prevLoadingTodoIds => [...prevLoadingTodoIds]);
+      if (hasCompleted) {
         todos.forEach(async ({
-          title, id,
+          id,
         }) => {
-          await client.patch(`/todos/${id}`, {
+          setProcessing(prevIds => [...prevIds]);
+          await updateTodo(id, {
             completed: true,
-            title,
-            userId: USER_ID,
-            id,
           });
         });
       } else {
         todos.forEach(async ({
-          title, id, completed,
+          id, completed,
         }) => {
-          await client.patch(`/todos/${id}`, {
+          setProcessing(prevIds => [...prevIds]);
+          await updateTodo(id, {
             completed: !completed,
-            title,
-            userId: USER_ID,
-            id,
           });
         });
       }
     } catch {
-      setIsError('Unable to override all tasks status');
+      setError('Unable to override all tasks status');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setProcessing([]);
     }
   };
 
   const handleUpdateTitle = async (id: number, newTitle: string) => {
     const updatedTodo = todos.map((todo) => {
-      if (todo.id === id) {
+      if (todo.id === id && newTitle.trim().length > 0) {
         return {
           ...todo,
-          title: newTitle,
+          title: newTitle.trim(),
         };
       }
 
@@ -207,28 +217,28 @@ export const App: React.FC = () => {
 
     setTodos(updatedTodo);
     try {
+      setProcessing(prevIds => [...prevIds, id]);
       const todoToUpdate = todos.find((todo) => todo.id === id);
 
       if (todoToUpdate) {
-        await client.patch(`/todos/${id}`, {
+        await updateTodo(id, {
           title: newTitle,
           userId: USER_ID,
           id,
         });
-        addTodoToProcesing(todoToUpdate.id);
       }
     } catch {
-      setIsError('Unable to update a todo');
+      setError('Unable to update a todo');
       setTimeout(() => {
-        setIsError('');
+        setError('');
       }, 3000);
     } finally {
-      addTodoToProcesing(null);
+      setProcessing([]);
     }
   };
 
   const handleCleanErrorMessage = useCallback(() => {
-    setIsError('');
+    setError('');
   }, []);
 
   if (!USER_ID) {
@@ -247,27 +257,24 @@ export const App: React.FC = () => {
           addTodo={addTodo}
           handleUpdateAllTodoStatus={handleUpdateAllTodoStatus}
         />
-        {filteredTodos.map(todo => (
-          <TodoList
-            key={todo.id}
-            todo={todo}
-            todos={filteredTodos}
-            handleDeleteTodo={handleDeleteTodo}
-            handleUpdateStatus={handleUpdateStatus}
-            handleUpdateTitle={handleUpdateTitle}
-            processing={processing}
-          />
-        ))}
+        <TodoList
+          tempTodo={tempTodo}
+          todos={filteredTodos}
+          handleDeleteTodo={handleDeleteTodo}
+          handleUpdateStatus={handleUpdateStatus}
+          handleUpdateTitle={handleUpdateTitle}
+          processing={processing}
+        />
 
         <TodoFooter
           select={select}
           setSelect={setSelect}
           todos={filteredTodos}
-          lengTodos={lengTodos}
+          lengTodos={unCompletedLength}
           handleDeleteTodoCompleted={handleDeleteTodoCompleted}
         />
       </div>
-      {isError && (
+      {error && (
         <div
           className="notification is-danger is-light has-text-weight-normal"
         >
@@ -275,11 +282,11 @@ export const App: React.FC = () => {
             type="button"
             className="delete"
             onClick={handleCleanErrorMessage}
+            aria-label="delete tode"
           />
-          {isError}
+          {error}
         </div>
       )}
-
     </div>
   );
 };

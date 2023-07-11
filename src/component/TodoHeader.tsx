@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
+import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[],
@@ -32,7 +32,7 @@ export const TodoHeader: React.FC<Props> = ({
           { active: isActicve },
         )}
         onClick={handleUpdateAllTodoStatus}
-        aria-label="Toggle All Completed"
+        aria-label="delete tode"
       />
       <form onSubmit={handleSubmit}>
         <input
