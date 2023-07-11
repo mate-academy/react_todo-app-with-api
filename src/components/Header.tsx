@@ -51,7 +51,9 @@ export const Header: React.FC<Props> = ({
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (!todoTitle.length) {
+    const trimmedTitle = todoTitle.trim();
+
+    if (!trimmedTitle.length) {
       handleError('Title can\'t be empty');
 
       return;
@@ -61,7 +63,7 @@ export const Header: React.FC<Props> = ({
     const newTodo: Todo = {
       id: 0,
       userId,
-      title: todoTitle,
+      title: trimmedTitle,
       completed: false,
     };
 
