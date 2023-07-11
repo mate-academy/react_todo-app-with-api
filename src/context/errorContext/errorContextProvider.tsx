@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const ErrorContextProvider: FC<Props> = memo(({ children }) => {
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const notifyAboutError = (text: string) => {
     setErrorMessage(text);

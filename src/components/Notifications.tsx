@@ -9,10 +9,12 @@ export const Notifications: FC<NotificationsProps> = (props) => {
   const { onClose, errorMessage } = props;
 
   useEffect(() => {
-    setTimeout(() => {
+    const timerId = setTimeout(() => {
       onClose();
     }, 3000);
-  }, []);
+
+    return () => clearTimeout(timerId);
+  }, [errorMessage]);
 
   return (
     <div className="notification is-danger is-light has-text-weight-normal">

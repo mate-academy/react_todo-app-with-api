@@ -12,11 +12,9 @@ import {
 
 createRoot(document.getElementById('root') as HTMLDivElement)
   .render(
-    <>
-      <TodoContextProvider>
-        <ErrorContextProvider>
-          <App />
-        </ErrorContextProvider>
-      </TodoContextProvider>
-    </>,
+    <TodoContextProvider>
+      <ErrorContextProvider>
+        <App />
+      </ErrorContextProvider>
+    </TodoContextProvider>,
   );

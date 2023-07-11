@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect } from 'react';
-import { UserWarning } from './UserWarning';
 import { TodoContent } from './components/TodoContent';
 import { Notifications } from './components/Notifications';
 import { todosApi } from './api/todos-api';
@@ -18,13 +17,9 @@ export const App: React.FC = () => {
     todosApi.getByUser(USER_ID)
       .then(setTodos)
       .catch(() => {
-        notifyAboutError('Something went wrong');
+        notifyAboutError('Unable to load todos');
       });
   }, []);
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
 
   const closeNotification = () => {
     notifyAboutError('');

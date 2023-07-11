@@ -17,9 +17,14 @@ export const TodoContentFooter: FC<TodoContentFooterProps> = (props) => {
     onSelectStatusTodo,
   } = props;
 
-  const { todos, setHandlingTodoIds } = useTodoContext();
+  const {
+    todos,
+    setHandlingTodoIds,
+    size,
+    countCompleted,
+    removeTodos,
+  } = useTodoContext();
   const { notifyAboutError } = useErrorContext();
-  const { size, countCompleted, removeTodos } = useTodoContext();
   const statusKeys = getEnumKeys(TodoStatus);
 
   const onRemoveCompletedTodos = async () => {
@@ -32,8 +37,9 @@ export const TodoContentFooter: FC<TodoContentFooterProps> = (props) => {
       if (results.every(result => result)) {
         removeTodos(ids);
       }
-    } catch {
-      notifyAboutError('Unable to delete a todo');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifyAboutError(`Unable to delete a todo: ${error.message}`);
     } finally {
       setHandlingTodoIds([]);
     }

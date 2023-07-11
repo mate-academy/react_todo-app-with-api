@@ -41,8 +41,9 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
       if (result) {
         removeTodos([id]);
       }
-    } catch {
-      notifyAboutError('Unable to delete a todo');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifyAboutError(`Unable to delete a todo: ${error.message}`);
     } finally {
       setHandlingTodoIds([]);
     }
@@ -57,8 +58,9 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
       }]);
 
       updateTodos(updatedTodos);
-    } catch {
-      notifyAboutError('Unable to update a todo');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifyAboutError(`Unable to update a todo: ${error.message}`);
     } finally {
       setHandlingTodoIds([]);
     }
@@ -66,14 +68,6 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
 
   const onChangeStatus = (id: number, isChecked: boolean) => {
     onEdit(id, { completed: isChecked });
-  };
-
-  const handlerDoubleClick = (countClick: number, id: number) => {
-    if (countClick !== 2) {
-      return;
-    }
-
-    setEditedTodoId(id);
   };
 
   const handleTodoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +94,7 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
     }
 
     if (todoTitleRef.current) {
-      await onEdit(id, { title: todoTitleRef.current.value });
+      await onEdit(id, { title: trimmedTitle });
       setEditedTodoId(null);
     }
   };
@@ -116,7 +110,7 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
               completed: todo.completed,
             },
           )}
-          onClick={(event) => handlerDoubleClick(event.detail, todo.id)}
+          onDoubleClick={() => setEditedTodoId(todo.id)}
         >
           <label className="todo__status-label">
             <input

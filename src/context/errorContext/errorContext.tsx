@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 
 export interface ErrorContextProps {
-  errorMessage: string,
+  errorMessage: string | null,
   notifyAboutError: (text: string) => void,
 }
 

@@ -26,8 +26,11 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!title) {
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
       notifyAboutError("Title can't be empty");
+      setTitle('');
 
       return;
     }
@@ -47,8 +50,9 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
       });
 
       addTodo(createdTodo);
-    } catch {
-      notifyAboutError('Unable to add a todo');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifyAboutError(`Unable to add a todo: ${error.message}`);
     } finally {
       setTitle('');
       setTempTodo(null);
@@ -79,8 +83,9 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
         .update(prepareToUpdate);
 
       updateTodos(updatedTodos);
-    } catch {
-      notifyAboutError('Unable to update todos');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifyAboutError(`Unable to update todos: ${error.message}`);
     } finally {
       setHandlingTodoIds([]);
     }
@@ -88,8 +93,8 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="toggleTodoStatus"
         type="button"
         className={classNames(
           'todoapp__toggle-all', {
