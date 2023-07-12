@@ -51,7 +51,7 @@ export const TodoElement: React.FC<Props> = ({
     applyChanges();
   };
 
-  const cancel = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setEditValue(editValue);
       setEditForm(false);
@@ -109,7 +109,7 @@ export const TodoElement: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={editValue}
               onChange={handleEditValue}
-              onKeyDown={cancel}
+              onKeyDown={cancelEditing}
               ref={ref}
             />
           </form>

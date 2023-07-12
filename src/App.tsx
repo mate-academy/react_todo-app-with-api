@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
 import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
@@ -157,11 +156,15 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompleted = () => {
-    todos.forEach(async (todo) => {
+    const pendingTodos = todos.map((todo) => {
       if (todo.completed) {
-        await removeTodo(todo.id);
+        removeTodo(todo.id);
       }
+
+      return todo;
     });
+
+    Promise.all(pendingTodos);
   };
 
   const handleToggleAll = () => {
@@ -170,11 +173,10 @@ export const App: React.FC = () => {
     const isEveryTodosCompleted = todos.every(todo => todo.completed);
 
     todos.forEach(async (todo) => {
-      if (isSomeTodosCompleted && !todo.completed) {
-        await updateStatus(todo.id);
-      }
+      const isToggleSome = isSomeTodosCompleted && !todo.completed;
+      const isToggleEvery = isEveryTodosCompleted || !isSomeTodosCompleted;
 
-      if (isEveryTodosCompleted || !isSomeTodosCompleted) {
+      if ((isToggleSome) || (isToggleEvery)) {
         await updateStatus(todo.id);
       }
     });
