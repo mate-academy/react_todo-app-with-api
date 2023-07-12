@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import cN from 'classnames';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoPatch } from '../../types/TodoPatch';
 
@@ -66,7 +66,7 @@ export const TodoItem: React.FC<Props> = memo(
 
     return (
       <div
-        className={cN('todo', {
+        className={classNames('todo', {
           completed,
         })}
       >
@@ -116,7 +116,7 @@ export const TodoItem: React.FC<Props> = memo(
         </button>
 
         <div
-          className={cN('modal overlay', {
+          className={classNames('modal overlay', {
             'is-active': isLoading,
           })}
         >

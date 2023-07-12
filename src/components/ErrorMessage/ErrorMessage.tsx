@@ -1,5 +1,5 @@
 import React from 'react';
-import cN from 'classnames';
+import classNames from 'classnames';
 
 type Props = {
   isVisible: boolean,
@@ -13,7 +13,7 @@ export const ErrorMessage: React.FC<Props> = ({
   clearError,
 }) => (
   <div
-    className={cN('notification is-danger',
+    className={classNames('notification is-danger',
       'is-light has-text-weight-normal',
       {
         hidden: !isVisible,

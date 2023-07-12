@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import cN from 'classnames';
+import classNames from 'classnames';
 import { FilterBy } from '../../utils/enums';
 import { Todo } from '../../types/Todo';
 
@@ -39,7 +39,7 @@ export const TodoFilter: React.FC<Props> = memo(
         <nav className="filter">
           <a
             href="#/"
-            className={cN('filter__link', {
+            className={classNames('filter__link', {
               selected: statusFilter === FilterBy.All,
             })}
             onClick={() => onFilterChange(FilterBy.All)}
@@ -49,7 +49,7 @@ export const TodoFilter: React.FC<Props> = memo(
 
           <a
             href="#/active"
-            className={cN('filter__link', {
+            className={classNames('filter__link', {
               selected: statusFilter === FilterBy.Active,
             })}
             onClick={() => onFilterChange(FilterBy.Active)}
@@ -59,7 +59,7 @@ export const TodoFilter: React.FC<Props> = memo(
 
           <a
             href="#/completed"
-            className={cN('filter__link', {
+            className={classNames('filter__link', {
               selected: statusFilter === FilterBy.Completed,
             })}
             onClick={() => onFilterChange(FilterBy.Completed)}
@@ -70,7 +70,7 @@ export const TodoFilter: React.FC<Props> = memo(
 
         <button
           type="button"
-          className={cN('todoapp__clear-completed', {
+          className={classNames('todoapp__clear-completed', {
             'is-invisible': !hasCompletedTodos,
           })}
           onClick={clearCompleted}
