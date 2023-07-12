@@ -17,6 +17,8 @@ export const TodoNotification: React.FC<Props> = ({
     }, 3000);
   }, [errorMessage, setErrorMessage]);
 
+  const removeErrorMessage = () => (setErrorMessage(null));
+
   return (
     <div
       className={cn(
@@ -27,7 +29,7 @@ export const TodoNotification: React.FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={() => setErrorMessage(null)}
+        onClick={removeErrorMessage}
         aria-label="Remove"
       />
 

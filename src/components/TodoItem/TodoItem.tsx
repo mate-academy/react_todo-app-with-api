@@ -11,8 +11,8 @@ interface Props {
     args: UpdateTodoArgs
   ) => void;
   updatingTodosId: number[]
-  selectedTodoId: number | null;
-  setSelectedTodoId: (todoId: number | null) => void;
+  // selectedTodoId: number | null;
+  // setSelectedTodoId: (todoId: number | null) => void;
   updateTodoTitle: (todoId: number, args: UpdateTodoArgs) => void;
 }
 
@@ -21,31 +21,40 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   toggleTodoStatus,
   updatingTodosId,
-  selectedTodoId,
-  setSelectedTodoId,
+  // selectedTodoId,
+  // setSelectedTodoId,
   updateTodoTitle,
 
 }) => {
   const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [isDoubleClicked, setIsDoubleClicked] = useState(false);
 
+  const inputField = useRef<HTMLInputElement>(null);
   const isUpdatingItem = updatingTodosId.includes(todo.id);
+
+  useEffect(() => {
+    if (inputField.current) {
+      inputField.current.focus();
+    }
+  }, [isDoubleClicked]);
+
+  const clearSelectedTodoId = () => {
+    setIsDoubleClicked(false);
+  };
+
+  const resetTitle = () => setEditedTitle(todo.title);
 
   const handleToggleTodoStatus = () => toggleTodoStatus(
     todo.id,
     { completed: !todo.completed },
   );
 
-  const clearSelectedTodoId = () => setSelectedTodoId(null);
-
   const handleDoubleClick = (
-    event: React.MouseEvent<HTMLSpanElement, MouseEvent>,
-    todoId: number,
+    event: React.MouseEvent<HTMLSpanElement>,
   ) => {
     event.preventDefault();
-    setSelectedTodoId(todoId);
+    setIsDoubleClicked(true);
   };
-
-  const isSelectedTodoId = selectedTodoId === todo.id;
 
   const handleInputChanges = (event:React.ChangeEvent<HTMLInputElement>) => (
     setEditedTitle(event.target.value)
@@ -76,16 +85,11 @@ export const TodoItem: React.FC<Props> = ({
   ) => {
     if (event.key === 'Escape') {
       clearSelectedTodoId();
+      resetTitle();
     }
   };
 
-  const inputField = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputField.current) {
-      inputField.current.focus();
-    }
-  }, [isSelectedTodoId]);
+  const handleTodoRemove = () => deleteTodo(todo.id);
 
   return (
     <div
@@ -93,7 +97,6 @@ export const TodoItem: React.FC<Props> = ({
         'todo',
         { completed: todo.completed },
       )}
-      key={todo.id}
     >
 
       <label className="todo__status-label">
@@ -105,7 +108,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      { isSelectedTodoId
+      { isDoubleClicked
         ? (
           <form
             onSubmit={handleSubmit}
@@ -127,7 +130,7 @@ export const TodoItem: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={(event) => handleDoubleClick(event, todo.id)}
+              onDoubleClick={handleDoubleClick}
 
             >
               {todo.title}
@@ -136,7 +139,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => deleteTodo(todo.id)}
+              onClick={handleTodoRemove}
             >
               ×
 

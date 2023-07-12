@@ -1,70 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
-import { Todo } from '../../types/Todo';
-import { ErrorMessages } from '../../types/ErrorMessages';
-import { createTodo } from '../../api/todos';
 
 interface Props {
   isTodosPresent: boolean;
   isAllTodosCompleted: boolean;
   toggleAllTodos: () => void;
-  setTempTodo: (todo: Todo | null) => void;
-  setErrorMessage: (errorName: ErrorMessages) => void;
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  USER_ID: number;
+  isAdding: boolean;
+  formSubmitHandler: (event: React.FormEvent<HTMLFormElement>) => void
+  handleNewTodoTitleChange: (
+    event: React.ChangeEvent<HTMLInputElement>) => void;
+  newTodoTitle: string;
 }
 
 export const TodoHeader: React.FC<Props> = ({
   isTodosPresent,
   isAllTodosCompleted,
   toggleAllTodos,
-  setTempTodo,
-  setErrorMessage,
-  setTodos,
-  USER_ID,
+  isAdding,
+  formSubmitHandler,
+  handleNewTodoTitleChange,
+  newTodoTitle,
 }) => {
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
-
-  const handleNewTodoTitleChange
-  = (event: React.ChangeEvent<HTMLInputElement>) => (
-    setNewTodoTitle(event.target.value)
-  );
-
-  const clearNewTodoTitle = () => (
-    setNewTodoTitle('')
-  );
-
-  const addNewTodo = async (title: string) => {
-    if (!title) {
-      setErrorMessage(ErrorMessages.TitleError);
-
-      return;
-    }
-
-    try {
-      const newTodoPayload = {
-        completed: false,
-        title,
-        userId: USER_ID,
-      };
-
-      setTempTodo({
-        id: 0,
-        ...newTodoPayload,
-      });
-
-      const newTodo = await createTodo(newTodoPayload);
-
-      clearNewTodoTitle();
-      setTodos((prevState) => [...prevState, newTodo]);
-    } catch (error) {
-      setErrorMessage(ErrorMessages.TitleError);
-    } finally {
-      setTempTodo(null);
-    }
-  };
-
   const inputField = useRef<HTMLInputElement>(null);
   const didMountRef = useRef(false);
 
@@ -77,18 +33,6 @@ export const TodoHeader: React.FC<Props> = ({
       didMountRef.current = true;
     }
   }, [isAdding, isTodosPresent]);
-
-  const formSubmitHandler = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-
-    setIsAdding(true);
-
-    addNewTodo(newTodoTitle);
-
-    setIsAdding(false);
-  };
 
   return (
     <header className="todoapp__header">

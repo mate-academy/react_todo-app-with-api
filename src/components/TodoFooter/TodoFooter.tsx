@@ -20,6 +20,8 @@ export const TodoFooter: React.FC<Props> = ({
 }) => {
   const isCompletedTodosPresent = completedVisibleTodos.length > 0;
 
+  const handleRemoveCompletedTodos = () => deleteTodos(completedVisibleTodos);
+
   return (
 
     <footer className="todoapp__footer">
@@ -55,7 +57,7 @@ export const TodoFooter: React.FC<Props> = ({
             ? 'visible'
             : 'hidden',
         }}
-        onClick={() => deleteTodos(completedVisibleTodos)}
+        onClick={handleRemoveCompletedTodos}
       >
         Clear completed
       </button>

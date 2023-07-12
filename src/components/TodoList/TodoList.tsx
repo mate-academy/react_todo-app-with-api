@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import cn from 'classnames';
+import React from 'react';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 import { UpdateTodoArgs } from '../../types/UpdateTodoArgs';
@@ -25,8 +24,6 @@ export const TodoList: React.FC<Props> = ({
   updateTodoTitle,
 
 }) => {
-  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
-
   return (
     <section className="todoapp__main">
 
@@ -37,48 +34,18 @@ export const TodoList: React.FC<Props> = ({
           key={todo.id}
           toggleTodoStatus={toggleTodoStatus}
           updatingTodosId={updatingTodosId}
-          selectedTodoId={selectedTodoId}
-          setSelectedTodoId={setSelectedTodoId}
           updateTodoTitle={updateTodoTitle}
         />
       ))}
 
       {tempTodo && (
-
-        <div
-          className={cn(
-            'todo',
-            { completed: tempTodo.completed },
-          )}
-        >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              checked
-            />
-          </label>
-          <span className="todo__title">{tempTodo.title}</span>
-
-          <button
-            type="button"
-            className="todo__remove"
-          >
-            ×
-
-          </button>
-
-          <div
-            className={cn(
-              'modal overlay',
-              { ' is-active': tempTodo },
-            )}
-          >
-            <div className="modal-background has-background-white-ter " />
-            <div className="loader " />
-          </div>
-        </div>
-
+        <TodoItem
+          todo={tempTodo}
+          deleteTodo={deleteTodo}
+          toggleTodoStatus={toggleTodoStatus}
+          updatingTodosId={updatingTodosId}
+          updateTodoTitle={updateTodoTitle}
+        />
       )}
 
     </section>
