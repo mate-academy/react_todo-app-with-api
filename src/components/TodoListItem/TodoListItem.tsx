@@ -47,6 +47,11 @@ export const TodoListItem: React.FC<Props> = ({
     setIsEditField(false);
   };
 
+  const cancelButton = () => {
+    setTodoTitle(todo.title);
+    setIsEditField(false);
+  };
+
   return (
     <div
       className={cn('todo', {
@@ -68,6 +73,7 @@ export const TodoListItem: React.FC<Props> = ({
           todoTitle={todoTitle}
           onTodoTitle={setTodoTitle}
           submitButton={submitButton}
+          onCancel={cancelButton}
         />
       ) : (
         <>
