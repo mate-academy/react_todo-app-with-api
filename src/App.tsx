@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { UserWarning } from './UserWarning';
 import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 import { TodoList } from './components/TodoList/TodoList';
 import { Todo } from './types/Todo';
@@ -22,13 +21,15 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState(FilterBy.All);
   const [errorText, setErrorText] = useState<null | string>(null);
+  const [hasError, setHasError] = useState(false);
 
-  const resetError = () => {
-    setErrorText(null);
-  };
+  const resetError = useCallback(() => {
+    setHasError(false);
+  }, []);
 
   const setError = (errorTxt: string) => {
     setErrorText(errorTxt);
+    setHasError(true);
     setTimeout(resetError, 3000);
   };
 
@@ -63,7 +64,7 @@ export const App: React.FC = () => {
       const addedTodo = await addTodo(newTodo);
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
-    } catch {
+    } catch (error) {
       setError('Unable to add a todo');
     } finally {
       setTempTodo(null);
@@ -79,7 +80,7 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
 
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-    } catch {
+    } catch (error) {
       setError('Unable to delete a todo');
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
@@ -102,23 +103,23 @@ export const App: React.FC = () => {
 
         return todo;
       }));
-    } catch {
+    } catch (error) {
       setError('Unable to update a todo');
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }
   }, []);
 
-  const visibleTodos = filterBy === FilterBy.All
-    ? todos
-    : todos.filter(todo => (
-      filterBy === FilterBy.Active
-        ? !todo.completed
-        : todo.completed
+  const filterTodos = (todosArray: Todo[], filter: FilterBy) => {
+    return todosArray.filter(({ completed }) => (
+      filter === FilterBy.Active ? !completed : completed
     ));
+  };
 
-  if (!USER_ID) {
-    return <UserWarning />;
+  let visibleTodos = todos;
+
+  if (filterBy !== FilterBy.All) {
+    visibleTodos = filterTodos(todos, filterBy);
   }
 
   return (
@@ -152,6 +153,7 @@ export const App: React.FC = () => {
       </div>
 
       <ErrorMessage
+        isVisible={hasError}
         errorText={errorText}
         clearError={resetError}
       />

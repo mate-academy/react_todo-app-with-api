@@ -7,7 +7,7 @@ type Props = {
   todo: Todo,
   onDelete: (todoId: number) => void,
   onUpdateTodo?: (todoId: number, data: TodoPatch) => void,
-  isLoading?: boolean
+  isLoading: boolean
 };
 
 export const TodoItem: React.FC<Props> = memo(
@@ -15,7 +15,7 @@ export const TodoItem: React.FC<Props> = memo(
     todo,
     onDelete,
     onUpdateTodo = () => { },
-    isLoading = true,
+    isLoading,
   }) => {
     const {
       id,
@@ -30,7 +30,7 @@ export const TodoItem: React.FC<Props> = memo(
 
     const handleToggleTodo = () => onUpdateTodo(id, { completed: !completed });
 
-    const handleToggleEgiting = () => setIsEditing(state => !state);
+    const handleToggleEditing = () => setIsEditing(state => !state);
 
     const handleChangeNewTitle = (
       event: React.ChangeEvent<HTMLInputElement>,
@@ -45,12 +45,13 @@ export const TodoItem: React.FC<Props> = memo(
         onDelete(id);
       } else if (title !== newTitle) {
         setNewTitle(prevTitle => prevTitle.trim());
+        handleToggleEditing();
         onUpdateTodo(id, { title: newTitle });
       }
     };
 
     const handleBlur = (event: React.FormEvent) => {
-      handleToggleEgiting();
+      handleToggleEditing();
       handleSubmit(event);
     };
 
@@ -68,7 +69,6 @@ export const TodoItem: React.FC<Props> = memo(
         className={cN('todo', {
           completed,
         })}
-        key={todo.id}
       >
         <label className="todo__status-label">
           <input
@@ -101,7 +101,7 @@ export const TodoItem: React.FC<Props> = memo(
           : (
             <span
               className="todo__title"
-              onDoubleClick={handleToggleEgiting}
+              onDoubleClick={handleToggleEditing}
             >
               {title}
             </span>
