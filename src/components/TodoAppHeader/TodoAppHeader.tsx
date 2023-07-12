@@ -1,20 +1,22 @@
 import {
+  ChangeEvent,
   FC,
+  FormEvent,
   memo,
   useEffect,
   useRef,
 } from 'react';
 import cn from 'classnames';
-import { filterTodosByCompletion } from '../../utils/todoUtils';
 import { TodoAppHeaderProps } from './TodoAppHeaderProps';
 
 export const TodoAppHeader: FC<TodoAppHeaderProps> = memo(({
   todos,
-  handleUpdate,
-  handleSubmit,
   todoTitle,
-  handleQueryChange,
+  setTitle,
+  handleUpdateAllStatus,
   isInputDisabled,
+  setError,
+  addTodo,
 }) => {
   const formRef = useRef<HTMLInputElement | null>(null);
 
@@ -23,6 +25,27 @@ export const TodoAppHeader: FC<TodoAppHeaderProps> = memo(({
       formRef.current.focus();
     }
   }, [todos]);
+
+  const handleSubmit = (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    if (!todoTitle.trim()) {
+      setTitle('');
+      setError('Title can\'t be empty');
+
+      return;
+    }
+
+    addTodo(todoTitle);
+  };
+
+  const handleQueryChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTitle(event.target.value);
+  };
 
   const isAllTodoCompleted = todos.every(todo => todo.completed);
 
@@ -34,11 +57,7 @@ export const TodoAppHeader: FC<TodoAppHeaderProps> = memo(({
         className={cn('todoapp__toggle-all', {
           active: isAllTodoCompleted,
         })}
-        onClick={() => (
-          handleUpdate(
-            filterTodosByCompletion(todos)
-              .map(todo => todo.id),
-          ))}
+        onClick={handleUpdateAllStatus}
       />
 
       <form

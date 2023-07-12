@@ -30,7 +30,7 @@ export const getcompletedTodos = (todos: Todo[]) => {
     .map(todo => todo.completed);
 };
 
-export const filterTodosByCompletion = (todos: Todo[]) => {
+export const filteredTodosByCompletion = (todos: Todo[]) => {
   const isAllTodosCompleted = todos.every(todo => todo.completed);
 
   return todos

@@ -4,15 +4,15 @@ import { ErrorInfoProps } from './ErrorInfoProps';
 
 export const ErrorInfo: FC<ErrorInfoProps> = ({
   visibleError,
-  setVisibleError,
+  setError,
 }) => {
-  const removeErrorOnClick = () => {
-    setVisibleError('');
+  const removeError = () => {
+    setError('');
   };
 
   setTimeout(() => {
     if (visibleError) {
-      removeErrorOnClick();
+      removeError();
     }
   }, 3000);
 
@@ -28,7 +28,7 @@ export const ErrorInfo: FC<ErrorInfoProps> = ({
         aria-label="remove-error"
         type="button"
         className="delete"
-        onClick={removeErrorOnClick}
+        onClick={removeError}
       />
 
       {visibleError}

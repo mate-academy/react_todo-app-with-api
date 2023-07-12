@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   memo,
+  KeyboardEvent,
 } from 'react';
 import cn from 'classnames';
 import { TodoInfoProps } from './TodoInfoProps';
@@ -29,22 +30,10 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
       formRef.current.focus();
     }
 
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsEditing(false);
-      }
-    };
-
-    document.addEventListener('keyup', handleKeyUp);
-
     const updatedTitle = title.trim().replace(/\s+/g, ' ');
 
     setTodoTitle(updatedTitle);
-
-    return () => {
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [isEditing, title]);
+  }, [title, isEditing]);
 
   const handleQueryChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -75,6 +64,19 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     setIsEditing(false);
   };
 
+  const handleOnClickTodoStatus = () => handleUpdate([id]);
+  const handleOnDoubleClickTitle = () => setIsEditing(true);
+  const handleOnClickRemoveTodo = () => removeTodos([id]);
+  const handleOnKeyUpEscapeTitle = (
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
+  const isIdInLoadingTodoIds = loadingTodoIds.includes(id);
+
   return (
     <div
       className={cn('todo', {
@@ -87,7 +89,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={() => handleUpdate([id])}
+          onClick={handleOnClickTodoStatus}
         />
       </label>
 
@@ -103,6 +105,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
             placeholder="Empty todo will be deleted"
             value={todoTitle}
             onChange={handleQueryChange}
+            onKeyUp={handleOnKeyUpEscapeTitle}
             onBlur={handleSubmit}
             ref={formRef}
           />
@@ -111,7 +114,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={handleOnDoubleClickTitle}
           >
             {title}
           </span>
@@ -119,7 +122,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => removeTodos([id])}
+            onClick={handleOnClickRemoveTodo}
           >
             ×
           </button>
@@ -128,7 +131,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
 
       <div
         className={cn('modal overlay', {
-          'is-active': loadingTodoIds.includes(id),
+          'is-active': isIdInLoadingTodoIds,
         })}
       >
         <div className="modal-background has-background-white-ter" />

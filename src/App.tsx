@@ -1,7 +1,5 @@
 import {
   FC,
-  ChangeEvent,
-  FormEvent,
   useEffect,
   useState,
   useMemo,
@@ -18,7 +16,11 @@ import {
 import { TodosList } from './components/TodosList/TodosList';
 import { Todo } from './types/Todo';
 import { ErrorInfo } from './components/ErrorInfo/ErrorInfo';
-import { preparedTodos, getcompletedTodoIds } from './utils/todoUtils';
+import {
+  preparedTodos,
+  getcompletedTodoIds,
+  filteredTodosByCompletion,
+} from './utils/todoUtils';
 import { StatusValue } from './types/StatusValue';
 import { TodoAppHeader } from './components/TodoAppHeader/TodoAppHeader';
 import { TodoAppFooter } from './components/TodoAppFooter/TodoAppFooter';
@@ -110,6 +112,13 @@ export const App: FC = () => {
     }
   }, [todos]);
 
+  const handleUpdateAllStatus = () => (
+    handleUpdate(
+      filteredTodosByCompletion(todos)
+        .map(todo => todo.id),
+    )
+  );
+
   const addTodo = useCallback(async (title: string) => {
     try {
       const newTodo = {
@@ -143,25 +152,12 @@ export const App: FC = () => {
     return <UserWarning />;
   }
 
-  const handleSubmit = (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-
-    if (!todoTitle.trim()) {
-      setTodoTitle('');
-      setVisibleError('Title can\'t be empty');
-
-      return;
-    }
-
-    addTodo(todoTitle);
+  const setTitle = (title: string) => {
+    setTodoTitle(title);
   };
 
-  const handleQueryChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    setTodoTitle(event.target.value);
+  const setError = (newError: string) => {
+    setVisibleError(newError);
   };
 
   const handleClearCompleted = () => {
@@ -180,10 +176,11 @@ export const App: FC = () => {
         <TodoAppHeader
           todos={todos}
           todoTitle={todoTitle}
-          handleQueryChange={handleQueryChange}
-          handleSubmit={handleSubmit}
-          handleUpdate={handleUpdate}
+          setTitle={setTitle}
+          handleUpdateAllStatus={handleUpdateAllStatus}
           isInputDisabled={isInputDisabled}
+          setError={setError}
+          addTodo={addTodo}
         />
 
         <TodosList
@@ -207,7 +204,7 @@ export const App: FC = () => {
 
       <ErrorInfo
         visibleError={visibleError}
-        setVisibleError={setVisibleError}
+        setError={setError}
       />
     </div>
   );

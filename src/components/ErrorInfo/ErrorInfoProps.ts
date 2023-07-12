@@ -1,4 +1,4 @@
 export interface ErrorInfoProps {
-  visibleError: string,
-  setVisibleError: (value: React.SetStateAction<string>) => void,
+  visibleError: string;
+  setError: (newError: string) => void;
 }
