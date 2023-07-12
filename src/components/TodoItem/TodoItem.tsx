@@ -21,8 +21,11 @@ export const TodoItem: React.FC<Props> = ({
 
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  const handleSubmit = async (event: any) => {
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement>,
+  ) => {
     event.preventDefault();
     setIsEditing(true);
 

@@ -55,7 +55,7 @@ export const App: React.FC = () => {
     return () => {};
   }, [errorMessage]);
 
-  const hasActiveTodo = todos?.find((todo) => todo.completed === false);
+  const hasActiveTodo = !!todos?.some((todo) => !todo.completed);
   const completedTodos = todos?.filter((todo) => todo.completed);
   const uncompletedTodos = todos?.filter((todo) => !todo.completed);
   const areAllTodosCompleted = useCallback(() => todos.every((todo) => todo.completed), []);

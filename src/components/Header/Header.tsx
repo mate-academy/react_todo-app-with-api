@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  hasActiveTodo: Todo | undefined;
+  hasActiveTodo: boolean;
   areAllTodosCompleted: () => boolean;
   handleToggleAllTodosCompleted: () => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
