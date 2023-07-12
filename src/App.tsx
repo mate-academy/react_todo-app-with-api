@@ -9,7 +9,6 @@ import { todosReguest } from './api/todos';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
-import { LoadError } from './types/LoadError';
 import { FilterType } from './Enums/FilterType';
 import { filterTodos } from './utils/filterTodos';
 import { PostTodo } from './types/PostTodo';
@@ -24,10 +23,7 @@ export const App: React.FC = () => {
   const [filterType, setFilterType] = useState(FilterType.ALL);
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
-  const [loadError, setError] = useState<LoadError>({
-    status: false,
-    message: '',
-  });
+  const [loadError, setError] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const preparedTodos = useMemo(() => (
@@ -43,10 +39,7 @@ export const App: React.FC = () => {
 
       setTodos(response);
     } catch (error) {
-      setError({
-        status: true,
-        message: 'Unable to load a todos, retry later',
-      });
+      setError('Unable to load a todos, retry later');
     }
   }, []);
 
@@ -83,10 +76,7 @@ export const App: React.FC = () => {
         current.filter(todo => todo.id !== todoID)
       ));
     } catch {
-      setError({
-        status: true,
-        message: 'Can\'t delete todo. Try again',
-      });
+      setError('Can\'t delete todo. Try again');
     }
   }, []);
 
@@ -110,10 +100,7 @@ export const App: React.FC = () => {
 
       replaceTodo(result);
     } catch (error) {
-      setError({
-        status: true,
-        message: 'Unable to edit todo... Try again',
-      });
+      setError('Unable to edit todo... Try again');
     }
   }, []);
 

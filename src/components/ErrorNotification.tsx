@@ -1,33 +1,31 @@
 import cn from 'classnames';
-import { FC, useCallback, useMemo } from 'react';
-import { LoadError } from '../types/LoadError';
-import { debounce } from '../utils/debounce';
+import {
+  FC, memo, useCallback, useEffect, useRef,
+} from 'react';
 
 interface Props {
-  loadError: LoadError,
-  setError: React.Dispatch<React.SetStateAction<LoadError>>,
+  loadError: string | null,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
 }
 
-export const ErrorNotification:FC<Props> = ({ loadError, setError }) => {
+export const ErrorNotification:FC<Props> = memo(({ loadError, setError }) => {
   const disableError = useCallback(() => {
-    setError((current) => ({
-      ...current,
-      status: false,
-    }));
+    setError(null);
   }, [setError]);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const debouncedDisableError = useMemo(() => (
-    debounce(disableError, 3000)
-  ), [disableError]);
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-  if (loadError.status) {
-    debouncedDisableError();
-  }
+    timeoutRef.current = setTimeout(disableError, 3000);
+  }, [loadError]);
 
   return (
     <div
       className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: !loadError.status,
+        hidden: !loadError,
       })}
     >
       <button
@@ -37,7 +35,7 @@ export const ErrorNotification:FC<Props> = ({ loadError, setError }) => {
         onClick={disableError}
       />
 
-      {loadError.message}
+      {loadError}
     </div>
   );
-};
+});

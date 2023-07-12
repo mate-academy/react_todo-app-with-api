@@ -4,11 +4,10 @@ import {
   FormEvent,
   useState,
 } from 'react';
-import { LoadError } from '../types/LoadError';
 
 interface Props {
   addNewTodo: (title: string) => Promise<void>
-  setError: React.Dispatch<React.SetStateAction<LoadError>>
+  setError: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 export const NewTodoForm:FC<Props> = ({ addNewTodo, setError }) => {
@@ -21,12 +20,10 @@ export const NewTodoForm:FC<Props> = ({ addNewTodo, setError }) => {
 
   const addNewTodoHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const isNewTitleEmpty = !newTodoQuery.trim();
 
-    if (!newTodoQuery.trim()) {
-      setError({
-        status: true,
-        message: 'Title can\'t be empty',
-      });
+    if (isNewTitleEmpty) {
+      setError('Title can\'t be empty');
       setIsInputDisabled(false);
 
       return;
@@ -37,10 +34,7 @@ export const NewTodoForm:FC<Props> = ({ addNewTodo, setError }) => {
       await addNewTodo(newTodoQuery);
       setNewTodoQuery('');
     } catch (error) {
-      setError({
-        status: true,
-        message: (error as Error).message,
-      });
+      setError((error as Error).message);
     } finally {
       setIsInputDisabled(false);
     }

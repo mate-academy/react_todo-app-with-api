@@ -25,9 +25,10 @@ export const Footer:FC<Props> = ({
     getCompletedTodos(todos).map(todo => todo.id)
   ), [todos]);
 
-  const isCompletedTodosAreNotPresent = completedTodosIds.length === 0;
+  const isCompletedTodosPresent = completedTodosIds.length > 0;
+  const uncompletedTodosAmmount = getUncompletedTodos(todos).length;
 
-  const handleremoveTodosByID = useCallback(async () => {
+  const handleRemoveTodosByID = useCallback(async () => {
     setLoadingTodos(completedTodosIds);
 
     await Promise.all(
@@ -42,7 +43,7 @@ export const Footer:FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${getUncompletedTodos(todos).length} items left`}
+        {`${uncompletedTodosAmmount} items left`}
       </span>
 
       <TodosFilter
@@ -53,9 +54,9 @@ export const Footer:FC<Props> = ({
       <button
         type="button"
         className={cn('todoapp__clear-completed', {
-          hidden: isCompletedTodosAreNotPresent,
+          hidden: !isCompletedTodosPresent,
         })}
-        onClick={handleremoveTodosByID}
+        onClick={handleRemoveTodosByID}
       >
         Clear completed
       </button>

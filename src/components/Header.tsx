@@ -1,6 +1,5 @@
 import cn from 'classnames';
 import { FC, useMemo } from 'react';
-import { LoadError } from '../types/LoadError';
 import { Todo } from '../types/Todo';
 import { NewTodoForm } from './NewTodoForm';
 import { checkIfAllTodosCompleted } from '../utils/checkIfAllTodosCompleted';
@@ -8,7 +7,7 @@ import { checkIfAllTodosCompleted } from '../utils/checkIfAllTodosCompleted';
 interface Props {
   todos: Todo[],
   addNewTodo: (title: string) => Promise<void>,
-  setError: React.Dispatch<React.SetStateAction<LoadError>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
   toggleAllHandler: () => Promise<void>
 }
 

@@ -43,8 +43,10 @@ export const EditForm:FC<Props> = (
   };
 
   const onFormSubmit = () => {
-    if (query !== title) {
-      editFormSubmitHandler(query.trim());
+    const isChanged = query !== title;
+
+    if (isChanged) {
+      editFormSubmitHandler(query);
     }
 
     setIsEditing(false);

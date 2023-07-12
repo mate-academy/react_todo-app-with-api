@@ -45,10 +45,12 @@ export const TodoItem:FC<Props> = ({
   };
 
   const editFormSubmitHandler = useCallback((text: string) => {
-    if (text === '') {
-      onHandleRemoveTodo();
+    const trimmedText = text.trim();
+
+    if (trimmedText) {
+      editTodoTitle(trimmedText);
     } else {
-      editTodoTitle(text);
+      onHandleRemoveTodo();
     }
 
     setIsEditing(false);
