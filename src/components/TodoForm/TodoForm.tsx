@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import cN from 'classnames';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoPatch } from '../../types/TodoPatch';
 
@@ -54,7 +54,7 @@ export const TodoForm: React.FC<Props> = ({
         <button
           aria-label="setAllComplete"
           type="button"
-          className={cN('todoapp__toggle-all', {
+          className={classNames('todoapp__toggle-all', {
             active: hasAllCompleted,
           })}
           onClick={onCheckActiveTodos}

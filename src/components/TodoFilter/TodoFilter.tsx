@@ -21,9 +21,11 @@ export const TodoFilter: React.FC<Props> = memo(
     const hasCompletedTodos = todos.length !== activeTodosNumber;
 
     const clearCompleted = () => {
-      const completedTodosId = todos
-        .filter(todo => todo.completed)
-        .map(todo => todo.id);
+      const completedTodosId = todos.reduce((acc: number[], curr) => {
+        return curr.completed
+          ? [...acc, curr.id]
+          : acc;
+      }, []);
 
       completedTodosId.forEach(onDeleteTodo);
     };

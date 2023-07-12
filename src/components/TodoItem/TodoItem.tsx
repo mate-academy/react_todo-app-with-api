@@ -45,13 +45,13 @@ export const TodoItem: React.FC<Props> = memo(
         onDelete(id);
       } else if (title !== newTitle) {
         setNewTitle(prevTitle => prevTitle.trim());
-        handleToggleEditing();
         onUpdateTodo(id, { title: newTitle });
       }
+
+      handleToggleEditing();
     };
 
     const handleBlur = (event: React.FormEvent) => {
-      handleToggleEditing();
       handleSubmit(event);
     };
 
