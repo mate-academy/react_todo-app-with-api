@@ -54,7 +54,7 @@ export const App: React.FC = () => {
   );
 
   const addNewTodo = async (title: string) => {
-    if (!title) {
+    if (!title.trim()) {
       setErrorMessage(ErrorMessages.TitleError);
 
       return;
@@ -67,17 +67,17 @@ export const App: React.FC = () => {
         userId: USER_ID,
       };
 
+      const newTodo = await createTodo(newTodoPayload);
+
       setTempTodo({
         id: 0,
         ...newTodoPayload,
       });
 
-      const newTodo = await createTodo(newTodoPayload);
-
       clearNewTodoTitle();
       setTodos((prevState) => [...prevState, newTodo]);
     } catch (error) {
-      setErrorMessage(ErrorMessages.TitleError);
+      setErrorMessage(ErrorMessages.AddError);
     } finally {
       setTempTodo(null);
     }
