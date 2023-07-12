@@ -75,12 +75,10 @@ export const TodoItem: FC<Props> = ({
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.code !== 'Escape') {
-      return;
+    if (event.code === 'Escape') {
+      setNewTitle(todo.title);
+      setIsEditing(false);
     }
-
-    handleTitleChange();
-    setIsEditing(false);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -88,6 +86,8 @@ export const TodoItem: FC<Props> = ({
 
     handleTitleChange();
   };
+
+  const deleteTodo = () => removeTodo(todo.id);
 
   return (
     <div
@@ -128,7 +128,7 @@ export const TodoItem: FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => removeTodo(todo.id)}
+            onClick={deleteTodo}
           >
             ×
           </button>
