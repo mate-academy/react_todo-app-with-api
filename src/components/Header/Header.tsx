@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={todoTitle}
           onChange={(e) => setTodoTitle(e.target.value)}
-          disabled={tempTodo !== null}
+          disabled={!!tempTodo}
         />
       </form>
     </header>

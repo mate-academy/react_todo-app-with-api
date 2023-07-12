@@ -56,17 +56,27 @@ export const App: React.FC = () => {
   }, [errorMessage]);
 
   const hasActiveTodo = !!todos?.some((todo) => !todo.completed);
-  const completedTodos = todos?.filter((todo) => todo.completed);
-  const uncompletedTodos = todos?.filter((todo) => !todo.completed);
   const areAllTodosCompleted = useCallback(() => todos.every((todo) => todo.completed), []);
+  const [completedTodo, uncompletedTodo] = todos.reduce<[Todo[], Todo[]]>(
+    (acc, todo) => {
+      if (todo.completed) {
+        acc[0].push(todo);
+      } else {
+        acc[1].push(todo);
+      }
+
+      return acc;
+    },
+    [[], []],
+  );
 
   const visibleTodos = useMemo(() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
-        return uncompletedTodos;
+        return uncompletedTodo;
 
       case FilterStatus.COMPLETED:
-        return completedTodos;
+        return completedTodo;
 
       case FilterStatus.ALL:
       default:
@@ -213,10 +223,10 @@ export const App: React.FC = () => {
 
         {todos?.length > 0 && (
           <Footer
-            uncompletedTodos={uncompletedTodos}
+            uncompletedTodos={uncompletedTodo}
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
-            completedTodos={completedTodos}
+            completedTodos={completedTodo}
             handleClearAllCompletedTodos={handleClearAllCompletedTodos}
           />
         )}
