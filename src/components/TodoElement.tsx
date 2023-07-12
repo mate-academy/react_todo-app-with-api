@@ -21,6 +21,7 @@ export const TodoElement: React.FC<Props> = ({
   const { id, title, completed } = todo;
   const [editValue, setEditValue] = useState(title);
   const [editForm, setEditForm] = useState(false);
+  const [initialEditValue, setInitialEditValue] = useState('');
 
   const ref = useRef<HTMLInputElement>(null);
 
@@ -38,6 +39,7 @@ export const TodoElement: React.FC<Props> = ({
   };
 
   const handleDoubleClick = () => {
+    setInitialEditValue(editValue);
     setEditForm(true);
   };
 
@@ -53,7 +55,7 @@ export const TodoElement: React.FC<Props> = ({
 
   const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setEditValue(editValue);
+      setEditValue(initialEditValue);
       setEditForm(false);
     }
   };
