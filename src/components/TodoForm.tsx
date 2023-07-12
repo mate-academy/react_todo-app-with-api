@@ -58,7 +58,7 @@ export const TodoForm:React.FC<Props> = ({
   };
 
   const handleSubmit = async () => {
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       setErrorMessage('Title can\'t be empty');
 
       return;

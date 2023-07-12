@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { deleteTodo, updateTodo } from '../api/todos';
 import { EventType } from '../types/types';
@@ -22,6 +22,13 @@ export const TodoItem: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
   const handleCheckboxClick = async () => {
     setIsLoading(true);
 
@@ -126,6 +133,7 @@ export const TodoItem: React.FC<Props> = ({
                 onKeyDown={event => {
                   onKeyDown(event.key);
                 }}
+                ref={inputRef}
               />
             </form>
           </>
