@@ -6,8 +6,6 @@ import { updateTodo, addTodos, USER_ID } from '../api/todos';
 
 interface Props {
   todos: Todo[],
-  // setSearchQuery: (SearchQuery: string) => void;
-  // searchQuery: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
   setTempTodo: (tempTodo: Todo | null) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -16,8 +14,6 @@ interface Props {
 
 export const Header: React.FC<Props> = ({
   todos,
-  // setSearchQuery,
-  // searchQuery,
   setError,
   setTempTodo,
   setTodos,

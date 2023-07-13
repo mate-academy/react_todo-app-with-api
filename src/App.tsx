@@ -41,8 +41,6 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={visibleTodos}
-          // setSearchQuery={setSearchQuery}
-          // searchQuery={searchQuery}
           setError={setError}
           setTempTodo={setTempTodo}
           setTodos={setTodos}
