@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 type Props = {
   isVisible: boolean,
-  errorText?: null | string,
+  errorText: string,
   clearError: () => void,
 };
 

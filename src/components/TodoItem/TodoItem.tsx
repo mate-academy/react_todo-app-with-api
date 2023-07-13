@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoPatch } from '../../types/TodoPatch';
+import { ESCAPE } from '../../utils/constants';
 
 type Props = {
   todo: Todo,
@@ -28,7 +29,11 @@ export const TodoItem: React.FC<Props> = memo(
 
     const handleDeleteTodo = () => onDelete(id);
 
-    const handleToggleTodo = () => onUpdateTodo(id, { completed: !completed });
+    const handleToggleTodo = () => {
+      if (onUpdateTodo) {
+        onUpdateTodo(id, { completed: !completed });
+      }
+    };
 
     const handleToggleEditing = () => setIsEditing(state => !state);
 
@@ -58,7 +63,7 @@ export const TodoItem: React.FC<Props> = memo(
     const handleCancelEditing = (
       event: React.KeyboardEvent<HTMLInputElement>,
     ) => {
-      if (event.key === 'Escape') {
+      if (event.key === ESCAPE) {
         setIsEditing(false);
         setNewTitle(title);
       }

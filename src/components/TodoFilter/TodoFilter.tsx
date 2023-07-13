@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import classNames from 'classnames';
 import { FilterBy } from '../../utils/enums';
 import { Todo } from '../../types/Todo';
+import { clearCompleted } from '../../utils/clearCompleted';
 
 type Props = {
   todos: Todo[],
@@ -20,15 +21,7 @@ export const TodoFilter: React.FC<Props> = memo(
     const activeTodosNumber = todos.filter(todo => !todo.completed).length;
     const hasCompletedTodos = todos.length !== activeTodosNumber;
 
-    const clearCompleted = () => {
-      const completedTodosId = todos.reduce((acc: number[], curr) => {
-        return curr.completed
-          ? [...acc, curr.id]
-          : acc;
-      }, []);
-
-      completedTodosId.forEach(onDeleteTodo);
-    };
+    const handleClearCompleted = () => clearCompleted(todos, onDeleteTodo);
 
     return (
       <footer className="todoapp__footer">
@@ -73,7 +66,7 @@ export const TodoFilter: React.FC<Props> = memo(
           className={classNames('todoapp__clear-completed', {
             'is-invisible': !hasCompletedTodos,
           })}
-          onClick={clearCompleted}
+          onClick={handleClearCompleted}
         >
           Clear completed
         </button>

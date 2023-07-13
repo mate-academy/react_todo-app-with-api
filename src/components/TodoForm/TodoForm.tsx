@@ -25,8 +25,14 @@ export const TodoForm: React.FC<Props> = ({
     event.preventDefault();
 
     setIsLoading(true);
-
-    await onAddTodo(todoTitle);
+    try {
+      await onAddTodo(todoTitle.trim());
+    } catch (error) {
+      if (error instanceof Error) {
+        // eslint-disable-next-line no-console
+        console.log(error.message);
+      }
+    }
 
     setIsLoading(false);
     setTodoTitle('');

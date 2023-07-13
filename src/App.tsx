@@ -12,6 +12,8 @@ import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { FilterBy } from './utils/enums';
 import { TodoForm } from './components/TodoForm/TodoForm';
 import { TodoPatch } from './types/TodoPatch';
+import { filterTodos } from './utils/filterTodos';
+import { errorMessage } from './utils/errorMessage';
 
 const USER_ID = 10897;
 
@@ -20,7 +22,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState(FilterBy.All);
-  const [errorText, setErrorText] = useState<null | string>(null);
+  const [errorText, setErrorText] = useState('');
   const [hasError, setHasError] = useState(false);
 
   const resetError = useCallback(() => {
@@ -65,7 +67,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
     } catch (error) {
-      setError('Unable to add a todo');
+      setError(`Unable to add a todo ${errorMessage(error)}`);
     } finally {
       setTempTodo(null);
     }
@@ -81,7 +83,7 @@ export const App: React.FC = () => {
 
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
     } catch (error) {
-      setError('Unable to delete a todo');
+      setError(`Unable to delete a todo ${errorMessage(error)}`);
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }
@@ -104,19 +106,13 @@ export const App: React.FC = () => {
         return todo;
       }));
     } catch (error) {
-      setError('Unable to update a todo');
+      setError(`Unable to update a todo ${errorMessage(error)}`);
     } finally {
       setLoadingTodoIds(prevIds => prevIds.filter(id => id !== todoId));
     }
   }, []);
 
-  const filterTodos = (todosArray: Todo[], filter: FilterBy) => {
-    return todosArray.filter(({ completed }) => (
-      filter === FilterBy.Active ? !completed : completed
-    ));
-  };
-
-  let visibleTodos = todos;
+  let visibleTodos = [...todos];
 
   if (filterBy !== FilterBy.All) {
     visibleTodos = filterTodos(todos, filterBy);
