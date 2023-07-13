@@ -20,7 +20,7 @@ export const TodoElement: React.FC<Props> = ({
 }) => {
   const { id, title, completed } = todo;
   const [editValue, setEditValue] = useState(title);
-  const [editForm, setEditForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [initialEditValue, setInitialEditValue] = useState('');
 
   const ref = useRef<HTMLInputElement>(null);
@@ -31,16 +31,16 @@ export const TodoElement: React.FC<Props> = ({
 
   useEffect(() => {
     ref.current?.focus();
-  }, [editForm]);
+  }, [isEditing]);
 
   const applyChanges = () => {
     updateTitle(id, editValue);
-    setEditForm(false);
+    setIsEditing(false);
   };
 
   const handleDoubleClick = () => {
     setInitialEditValue(editValue);
-    setEditForm(true);
+    setIsEditing(true);
   };
 
   const handleBlur = (event: React.FormEvent<HTMLFormElement>) => {
@@ -54,10 +54,11 @@ export const TodoElement: React.FC<Props> = ({
   };
 
   const cancelEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      setEditValue(initialEditValue);
-      setEditForm(false);
+    if (event.key !== 'Escape') {
+      return;
     }
+
+    setEditValue(initialEditValue);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -69,7 +70,6 @@ export const TodoElement: React.FC<Props> = ({
 
     if (editValue === title) {
       setEditValue(title);
-      setEditForm(false);
     }
 
     applyChanges();
@@ -99,7 +99,7 @@ export const TodoElement: React.FC<Props> = ({
         />
       </label>
 
-      {editForm
+      {isEditing
         ? (
           <form
             onSubmit={handleSubmit}

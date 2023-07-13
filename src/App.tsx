@@ -123,14 +123,14 @@ export const App: React.FC = () => {
 
       await updateTodoStatus(id, !updatingTodo.completed);
       setTodos(prevTodos => prevTodos.map(todo => {
-        if (todo.id === id) {
-          return {
-            ...todo,
-            completed: !todo.completed,
-          };
+        if (todo.id !== id) {
+          return todo;
         }
 
-        return todo;
+        return {
+          ...todo,
+          completed: !todo.completed,
+        };
       }));
     } catch {
       setIsError('Unable to update a todo');
@@ -210,24 +210,24 @@ export const App: React.FC = () => {
         />
 
         {todos.length > 0 && (
-          <TodoList
-            todos={filteredTodos}
-            removeTodo={removeTodo}
-            tempTodo={tempTodo}
-            loadingTodo={loadingTodo}
-            updateStatus={updateStatus}
-            updateTitle={updateTitle}
-          />
-        )}
+          <>
+            <TodoList
+              todos={filteredTodos}
+              removeTodo={removeTodo}
+              tempTodo={tempTodo}
+              loadingTodo={loadingTodo}
+              updateStatus={updateStatus}
+              updateTitle={updateTitle}
+            />
 
-        {(todos.length > 0) && (
-          <Footer
-            todosLeft={todosLeft}
-            filterBy={filterBy}
-            setFilterBy={setFilterBy}
-            handleClearCompleted={handleClearCompleted}
-            isTodosCompleted={isTodosCompleted}
-          />
+            <Footer
+              todosLeft={todosLeft}
+              filterBy={filterBy}
+              setFilterBy={setFilterBy}
+              handleClearCompleted={handleClearCompleted}
+              isTodosCompleted={isTodosCompleted}
+            />
+          </>
         )}
       </div>
 

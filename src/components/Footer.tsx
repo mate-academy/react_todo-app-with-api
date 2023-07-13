@@ -19,9 +19,7 @@ export const Footer: React.FC<Props> = ({
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
-      {todosLeft}
-      {' '}
-      items left
+      {`${todosLeft} items left`}
     </span>
 
     <nav className="filter">
