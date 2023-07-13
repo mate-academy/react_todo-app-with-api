@@ -1,44 +1,25 @@
 import classNames from 'classnames';
-import { deleteTodo } from '../api/todos';
-import { Filter } from '../types/Filter';
+import { FilterTypes } from '../types/FilterTypes';
 import { Todo } from '../types/Todo';
 
 interface Props {
-  todos: Todo[],
-  filter: Filter,
-  handleFilter: (filter: Filter) => void,
-  handleError: (error: string) => void,
-  handleIsUpdating: (status: boolean) => void,
-  handleUpdatingIds: (ids: number[]) => void,
+  todos: Todo[];
+  filter: FilterTypes;
+  handleFilter: (filter: FilterTypes) => void;
+  handleError: (error: string) => void;
+  handleIsUpdating: (status: boolean) => void;
+  handleUpdatingIds: (ids: number[]) => void;
+  handleDeleteCompleted: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
-  todos, filter, handleFilter, handleError, handleIsUpdating, handleUpdatingIds,
+  todos,
+  filter,
+  handleFilter,
+  handleDeleteCompleted,
 }) => {
   const hasCompleted = todos.some(todo => todo.completed);
   const todosLeft = todos.filter(todo => !todo.completed).length;
-
-  const handleCleaner = () => {
-    handleUpdatingIds([]);
-    handleIsUpdating(false);
-  };
-
-  const handleDeleteCompleted = () => {
-    handleIsUpdating(true);
-    const completedIds = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
-    handleUpdatingIds(completedIds);
-
-    completedIds.map(id => deleteTodo(id)
-      .catch(() => handleError('Unable to delete a todo'))
-      .finally(() => {
-        if (id === completedIds[completedIds.length - 1]) {
-          handleCleaner();
-        }
-      }));
-  };
 
   return (
     <footer className="todoapp__footer">
@@ -51,9 +32,9 @@ export const Footer: React.FC<Props> = ({
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.All },
+            { selected: filter === FilterTypes.All },
           )}
-          onClick={() => handleFilter(Filter.All)}
+          onClick={() => handleFilter(FilterTypes.All)}
         >
           All
         </a>
@@ -62,9 +43,9 @@ export const Footer: React.FC<Props> = ({
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.Active },
+            { selected: filter === FilterTypes.Active },
           )}
-          onClick={() => handleFilter(Filter.Active)}
+          onClick={() => handleFilter(FilterTypes.Active)}
         >
           Active
         </a>
@@ -73,9 +54,9 @@ export const Footer: React.FC<Props> = ({
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: filter === Filter.Completed },
+            { selected: filter === FilterTypes.Completed },
           )}
-          onClick={() => handleFilter(Filter.Completed)}
+          onClick={() => handleFilter(FilterTypes.Completed)}
         >
           Completed
         </a>

@@ -1,3 +1,3 @@
-export enum Filter {
+export enum FilterTypes {
   All, Active, Completed,
 }

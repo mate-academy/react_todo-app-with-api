@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
   error: string,
 }
@@ -9,17 +8,32 @@ interface Props {
 export const ErrorNotification: React.FC<Props> = ({ error }) => {
   const [isHidden, setIsHidden] = useState(false);
 
+  const handleHidden = () => {
+    setIsHidden(true);
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleHidden();
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className={classNames(
-      'notification is-danger is-light has-text-weight-normal',
-      { hidden: isHidden },
-    )}
+    <div
+      className={classNames(
+        'notification is-danger is-light has-text-weight-normal',
+        { hidden: isHidden },
+      )}
     >
       <button
         type="button"
         className="delete"
-        onClick={() => setIsHidden(true)}
-      />
+        onClick={handleHidden}
+      >
+        <span className="visually-hidden">Close</span>
+      </button>
       {error}
     </div>
   );

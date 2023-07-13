@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-import { getTodos } from './api/todos';
+import { deleteTodo, getTodos, updateTodo } from './api/todos';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoList } from './components/TodoList';
 import { ErrorNotification } from './components/ErrorNotification';
-import { Filter } from './types/Filter';
+import { FilterTypes } from './types/FilterTypes';
 
 const USER_ID = 10926;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState<Filter>(Filter.All);
+  const [filter, setFilter] = useState<FilterTypes>(FilterTypes.All);
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [updatingIds, setUpdatingIds] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const hasTodos = todos.length > 0;
 
@@ -26,16 +26,12 @@ export const App: React.FC = () => {
       .catch(() => setError('Unable to load todos'));
   }, []);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const clearFields = () => {
     setTempTodo(null);
     setIsUpdating(false);
   };
 
-  const handleFilter = (newFilter: Filter) => {
+  const handleFilter = (newFilter: FilterTypes) => {
     setFilter(newFilter);
   };
 
@@ -52,7 +48,7 @@ export const App: React.FC = () => {
   };
 
   const handleUpdatingIds = (ids: number[]) => {
-    setUpdatingIds(ids);
+    setLoadingTodoIds(ids);
   };
 
   const handleLoadTodos = () => {
@@ -62,6 +58,54 @@ export const App: React.FC = () => {
       .catch(() => setError('Unable to load todos'));
   };
 
+  const handleCleaner = () => {
+    handleUpdatingIds([]);
+    handleIsUpdating(false);
+  };
+
+  const handleDeleteCompleted = () => {
+    handleIsUpdating(true);
+    const completedIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
+
+    handleUpdatingIds(completedIds);
+
+    Promise.all(
+      completedIds.map(id => deleteTodo(id)
+        .catch(() => handleError('Unable to delete a todo'))),
+    ).finally(() => {
+      handleCleaner();
+    });
+  };
+
+  const handleUpdateAllCompleted = () => {
+    handleIsUpdating(true);
+    let isAllCompleted = true;
+    const AllIds = todos.map(todo => {
+      if (!todo.completed) {
+        isAllCompleted = false;
+      }
+
+      return todo.id;
+    });
+
+    handleUpdatingIds(AllIds);
+    const updatedTodo = {
+      completed: !isAllCompleted,
+    };
+
+    AllIds.forEach(id => {
+      updateTodo(id, updatedTodo)
+        .then(() => handleCleaner())
+        .catch(() => handleError('Unable to update a todo'));
+    });
+  };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -70,10 +114,11 @@ export const App: React.FC = () => {
         <Header
           todos={todos}
           userId={USER_ID}
-          handleTempTodo={handleTempTodo}
           handleError={handleError}
+          handleTempTodo={handleTempTodo}
           handleIsUpdating={handleIsUpdating}
           handleUpdatingIds={handleUpdatingIds}
+          handleUpdateAllCompleted={handleUpdateAllCompleted}
         />
 
         <TodoList
@@ -83,7 +128,7 @@ export const App: React.FC = () => {
           handleError={handleError}
           isUpdating={isUpdating}
           handleIsUpdating={handleIsUpdating}
-          updatingIds={updatingIds}
+          updatingIds={loadingTodoIds}
           handleUpdatingIds={handleUpdatingIds}
           handleLoadTodos={handleLoadTodos}
         />
@@ -96,13 +141,12 @@ export const App: React.FC = () => {
             handleError={handleError}
             handleIsUpdating={handleIsUpdating}
             handleUpdatingIds={handleUpdatingIds}
+            handleDeleteCompleted={handleDeleteCompleted}
           />
         )}
       </div>
 
-      {error && (
-        <ErrorNotification error={error} />
-      )}
+      {error && <ErrorNotification error={error} />}
     </div>
   );
 };

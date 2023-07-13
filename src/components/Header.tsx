@@ -1,20 +1,20 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { FormEvent, useState } from 'react';
 import { Todo } from '../types/Todo';
-import { addTodo, updateTodo } from '../api/todos';
+import { addTodo } from '../api/todos';
 
 interface Props {
-  todos: Todo[],
-  userId: number,
-  handleTempTodo: (todo: Todo | null) => void,
+  todos: Todo[];
+  userId: number;
   handleError: (error: string) => void;
-  handleIsUpdating: (status: boolean) => void,
-  handleUpdatingIds: (ids: number[]) => void,
+  handleTempTodo: (todo: Todo | null) => void;
+  handleIsUpdating: (status: boolean) => void;
+  handleUpdatingIds: (ids: number[]) => void;
+  handleUpdateAllCompleted: () => void;
 }
 
 export const Header: React.FC<Props> = ({
   todos, userId, handleError, handleTempTodo,
-  handleIsUpdating, handleUpdatingIds,
+  handleIsUpdating, handleUpdateAllCompleted,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
@@ -24,29 +24,6 @@ export const Header: React.FC<Props> = ({
     setIsDisabled(false);
     setTodoTitle('');
     handleIsUpdating(true);
-  };
-
-  const handleUpdateAllCompleted = () => {
-    handleIsUpdating(true);
-    let isAllCompleted = true;
-    const AllIds = todos.map(todo => {
-      if (!todo.completed) {
-        isAllCompleted = false;
-      }
-
-      return todo.id;
-    });
-
-    handleUpdatingIds(AllIds);
-    const updatedTodo = {
-      completed: !isAllCompleted,
-    };
-
-    AllIds.forEach(id => {
-      updateTodo(id, updatedTodo)
-        .then(() => handleCleaner())
-        .catch(() => handleError('Unable to update a todo'));
-    });
   };
 
   const handleSubmit = (event: FormEvent) => {
@@ -82,8 +59,9 @@ export const Header: React.FC<Props> = ({
       {hasTodos && (
         <button
           type="button"
+          aria-label="toggle-all"
           className="todoapp__toggle-all active"
-          onClick={() => handleUpdateAllCompleted()}
+          onClick={handleUpdateAllCompleted}
         />
       )}
 
