@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { getTodos } from './api/todos';
+import { USER_ID, getTodos } from './api/todos';
 import { FilterStatus, Todo } from './types/Todo';
 import { showError, GetFilteredTodos } from './helpers/helpers';
 import { Error } from './components/Error';
@@ -9,11 +9,9 @@ import { Footer } from './components/Footer';
 import { Todos } from './components/Todos';
 import { Header } from './components/Header';
 
-const USER_ID = 10881;
-
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  // const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState(FilterStatus.ALL);
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
@@ -43,8 +41,8 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={visibleTodos}
-          setSearchQuery={setSearchQuery}
-          searchQuery={searchQuery}
+          // setSearchQuery={setSearchQuery}
+          // searchQuery={searchQuery}
           setError={setError}
           setTempTodo={setTempTodo}
           setTodos={setTodos}

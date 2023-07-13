@@ -21,7 +21,7 @@ export const Footer: React.FC<Props> = ({
   setLoader,
 }) => {
   const itemsLeft = todos.filter(todo => !todo.completed).length;
-  const clearButtonIsVisible = todos.some(todo => todo.completed);
+  const isClearButtonIsVisible = todos.some(todo => todo.completed);
   const clickHandler = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const activeTodos = todos.filter(todo => !todo.completed);
@@ -80,7 +80,7 @@ export const Footer: React.FC<Props> = ({
       </nav>
 
       <button
-        style={{ visibility: clearButtonIsVisible ? 'visible' : 'hidden' }}
+        style={{ visibility: isClearButtonIsVisible ? 'visible' : 'hidden' }}
         type="button"
         className="todoapp__clear-completed"
         onClick={clickHandler}

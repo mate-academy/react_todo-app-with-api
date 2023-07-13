@@ -2,12 +2,12 @@ import { useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { showError } from '../helpers/helpers';
-import { updateTodo, addTodos } from '../api/todos';
+import { updateTodo, addTodos, USER_ID } from '../api/todos';
 
 interface Props {
   todos: Todo[],
-  setSearchQuery: (SearchQuery: string) => void;
-  searchQuery: string;
+  // setSearchQuery: (SearchQuery: string) => void;
+  // searchQuery: string;
   setError: React.Dispatch<React.SetStateAction<string>>;
   setTempTodo: (tempTodo: Todo | null) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
@@ -16,15 +16,17 @@ interface Props {
 
 export const Header: React.FC<Props> = ({
   todos,
-  setSearchQuery,
-  searchQuery,
+  // setSearchQuery,
+  // searchQuery,
   setError,
   setTempTodo,
   setTodos,
   setLoader,
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [submitDisable, setSubmitDisable] = useState(false);
   const activeInputButton = todos.every(todo => todo.completed);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     (setSearchQuery(event.target.value));
   };
@@ -43,7 +45,8 @@ export const Header: React.FC<Props> = ({
       showError('Title can\'t be empty', setError);
       setSubmitDisable(false);
     } else {
-      addTodos(10881, searchQuery)
+      setLoader(prevState => [...prevState, newTodo.id]);
+      addTodos(USER_ID, searchQuery)
         .then(todo => {
           setTodos(prevState => {
             setTempTodo(null);
@@ -58,9 +61,25 @@ export const Header: React.FC<Props> = ({
     }
   };
 
-  const handleClick = () => {
-    if (activeInputButton) {
-      todos.forEach(todo => {
+  const makeAllTodosActive = () => {
+    todos.forEach(todo => {
+      updateTodo(todo.id, { completed: !todo.completed })
+        .then((updatedTodo) => {
+          setTodos(prevState => (
+            prevState.map(prevTodo => {
+              return (prevTodo.id === todo.id) ? updatedTodo : prevTodo;
+            })
+          ));
+
+          setLoader(prevState => prevState.filter(id => id !== todo.id));
+        })
+        .catch(() => showError('Unable to update a todo', setError));
+    });
+  };
+
+  const makeActiveTodosCompleted = () => {
+    todos.forEach(todo => {
+      if (!todo.completed) {
         setLoader(prevState => [...prevState, todo.id]);
         updateTodo(todo.id, { completed: !todo.completed })
           .then((updatedTodo) => {
@@ -73,24 +92,15 @@ export const Header: React.FC<Props> = ({
             setLoader(prevState => prevState.filter(id => id !== todo.id));
           })
           .catch(() => showError('Unable to update a todo', setError));
-      });
-    } else {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          setLoader(prevState => [...prevState, todo.id]);
-          updateTodo(todo.id, { completed: !todo.completed })
-            .then((updatedTodo) => {
-              setTodos(prevState => (
-                prevState.map(prevTodo => {
-                  return (prevTodo.id === todo.id) ? updatedTodo : prevTodo;
-                })
-              ));
+      }
+    });
+  };
 
-              setLoader(prevState => prevState.filter(id => id !== todo.id));
-            })
-            .catch(() => showError('Unable to update a todo', setError));
-        }
-      });
+  const handleCompleteTasksButtonClick = () => {
+    if (activeInputButton) {
+      makeAllTodosActive();
+    } else {
+      makeActiveTodosCompleted();
     }
   };
 
@@ -101,7 +111,7 @@ export const Header: React.FC<Props> = ({
           <button
             aria-label="complete all tasks"
             type="button"
-            onClick={handleClick}
+            onClick={handleCompleteTasksButtonClick}
             className={cn('todoapp__toggle-all', {
               active: activeInputButton,
             })}

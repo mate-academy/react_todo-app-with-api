@@ -13,15 +13,12 @@ export const GetFilteredTodos = (todos: Todo[], filter: FilterStatus) => (
     switch (filter) {
       case FilterStatus.COMPLETED:
         return todo.completed;
-        break;
 
       case FilterStatus.ACTIVE:
         return !todo.completed;
-        break;
 
       default:
         return todo;
-        break;
     }
   })
 );
