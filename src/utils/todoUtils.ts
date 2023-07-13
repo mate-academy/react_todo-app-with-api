@@ -8,10 +8,10 @@ export const preparedTodos = (todos: Todo[], todoFilter: StatusValue) => {
         return todo;
 
       case StatusValue.ACTIVE:
-        return todo.completed === false;
+        return !todo.completed;
 
       case StatusValue.COMPLETED:
-        return todo.completed === true;
+        return todo.completed;
 
       default:
         throw new Error(`Wrong filter, ${todoFilter} is not defined`);
@@ -19,15 +19,10 @@ export const preparedTodos = (todos: Todo[], todoFilter: StatusValue) => {
   });
 };
 
-export const getcompletedTodoIds = (todos: Todo[]) => {
+export const getCompletedTodoIds = (todos: Todo[]) => {
   return todos
     .filter(todo => todo.completed)
     .map(todo => todo.id);
-};
-
-export const getcompletedTodos = (todos: Todo[]) => {
-  return todos
-    .map(todo => todo.completed);
 };
 
 export const filteredTodosByCompletion = (todos: Todo[]) => {
@@ -39,4 +34,8 @@ export const filteredTodosByCompletion = (todos: Todo[]) => {
         ? todo.completed
         : !todo.completed
     ));
+};
+
+export const capitalize = (word: string) => {
+  return word[0].toUpperCase() + word.slice(1);
 };

@@ -2,6 +2,7 @@ import { FC, memo } from 'react';
 import cn from 'classnames';
 import { StatusValue } from '../../types/StatusValue';
 import { TodoAppFooterProps } from './TodoAppFooterProps';
+import { capitalize } from '../../utils/todoUtils';
 
 export const TodoAppFooter: FC<TodoAppFooterProps> = memo(({
   todos,
@@ -28,7 +29,7 @@ export const TodoAppFooter: FC<TodoAppFooterProps> = memo(({
             })}
             onClick={() => setTodoFilter(value)}
           >
-            {value[0].toUpperCase() + value.slice(1)}
+            {capitalize(value)}
           </a>
         ))}
       </nav>

@@ -18,7 +18,7 @@ import { Todo } from './types/Todo';
 import { ErrorInfo } from './components/ErrorInfo/ErrorInfo';
 import {
   preparedTodos,
-  getcompletedTodoIds,
+  getCompletedTodoIds,
   filteredTodosByCompletion,
 } from './utils/todoUtils';
 import { StatusValue } from './types/StatusValue';
@@ -41,16 +41,18 @@ export const App: FC = () => {
 
       setTodos(fetchedTodos as Todo[]);
     } catch (error) {
-      setVisibleError('Unable to load a todos');
+      if (error instanceof Error) {
+        setVisibleError(`Unable to load a todos: ${error.message}`);
+      }
     }
   };
 
   useEffect(() => {
     fetchTodosFromServer();
-  }, [tempTodo, loadingTodoIds, visibleError]);
+  }, [tempTodo, loadingTodoIds]);
 
   const completedTodoIds = useMemo(() => (
-    getcompletedTodoIds(todos)
+    getCompletedTodoIds(todos)
   ), [todos]);
 
   const visibleTodos = useMemo(() => (
@@ -71,7 +73,9 @@ export const App: FC = () => {
         previousTodos.filter(todo => !todoIds.includes(todo.id))
       ));
     } catch (error) {
-      setVisibleError('Unable to delete a todo');
+      if (error instanceof Error) {
+        setVisibleError(`Unable to delete a todo: ${error.message}`);
+      }
     } finally {
       setLoadingTodoIds([]);
     }
@@ -89,11 +93,13 @@ export const App: FC = () => {
           const todoToUpdate = todos.find(todo => todo.id === id);
 
           if (todoToUpdate) {
+            const isTodoCompleted = newTitle
+              ? todoToUpdate.completed
+              : !todoToUpdate.completed;
+
             const updatedTodo = await changeTodo(id, {
               ...todoToUpdate,
-              completed: newTitle
-                ? todoToUpdate.completed
-                : !todoToUpdate.completed,
+              completed: isTodoCompleted,
               title: newTitle || todoToUpdate.title,
             });
 
@@ -106,7 +112,9 @@ export const App: FC = () => {
         }),
       );
     } catch (error) {
-      setVisibleError('Unable to update a todo');
+      if (error instanceof Error) {
+        setVisibleError(`Unable to update a todo: ${error.message}`);
+      }
     } finally {
       setLoadingTodoIds([]);
     }
@@ -140,7 +148,9 @@ export const App: FC = () => {
 
       setTodos((currentTodos) => [...currentTodos, addedTodo]);
     } catch (error) {
-      setVisibleError('Unable to add a todo');
+      if (error instanceof Error) {
+        setVisibleError(`Unable to add a todo: ${error.message}`);
+      }
     } finally {
       setTempTodo(null);
       setLoadingTodoIds([]);

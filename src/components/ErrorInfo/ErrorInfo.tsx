@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import cn from 'classnames';
 import { ErrorInfoProps } from './ErrorInfoProps';
 
@@ -6,15 +6,21 @@ export const ErrorInfo: FC<ErrorInfoProps> = ({
   visibleError,
   setError,
 }) => {
-  const removeError = () => {
+  const removeError = useCallback(() => {
     setError('');
-  };
+  }, [setError]);
 
-  setTimeout(() => {
-    if (visibleError) {
-      removeError();
-    }
-  }, 3000);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (visibleError) {
+        removeError();
+      }
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [removeError, visibleError]);
 
   return (
     <div className={cn(
@@ -30,9 +36,7 @@ export const ErrorInfo: FC<ErrorInfoProps> = ({
         className="delete"
         onClick={removeError}
       />
-
       {visibleError}
-
       <br />
     </div>
   );

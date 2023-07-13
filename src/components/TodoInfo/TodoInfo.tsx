@@ -64,13 +64,15 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
     setIsEditing(false);
   };
 
-  const handleOnClickTodoStatus = () => handleUpdate([id]);
-  const handleOnDoubleClickTitle = () => setIsEditing(true);
-  const handleOnClickRemoveTodo = () => removeTodos([id]);
-  const handleOnKeyUpEscapeTitle = (
+  const handleTodoStatus = () => handleUpdate([id]);
+  const handleEditTitle = () => setIsEditing(true);
+  const handleRemoveTodo = () => removeTodos([id]);
+  const handleAbolitionEditTitle = (
     event: KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Escape') {
+    const ESCAPE = 'Escape';
+
+    if (event.key === ESCAPE) {
       setIsEditing(false);
     }
   };
@@ -89,7 +91,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           type="checkbox"
           className="todo__status"
           defaultChecked={completed}
-          onClick={handleOnClickTodoStatus}
+          onClick={handleTodoStatus}
         />
       </label>
 
@@ -105,7 +107,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
             placeholder="Empty todo will be deleted"
             value={todoTitle}
             onChange={handleQueryChange}
-            onKeyUp={handleOnKeyUpEscapeTitle}
+            onKeyUp={handleAbolitionEditTitle}
             onBlur={handleSubmit}
             ref={formRef}
           />
@@ -114,7 +116,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
         <>
           <span
             className="todo__title"
-            onDoubleClick={handleOnDoubleClickTitle}
+            onDoubleClick={handleEditTitle}
           >
             {title}
           </span>
@@ -122,7 +124,7 @@ export const TodoInfo: FC<TodoInfoProps> = memo(({
           <button
             type="button"
             className="todo__remove"
-            onClick={handleOnClickRemoveTodo}
+            onClick={handleRemoveTodo}
           >
             ×
           </button>
