@@ -8,29 +8,29 @@ interface Props {
   todos: Todo[];
   filter: FilterTypes;
   tempTodo: Todo | null;
-  handleError: (error: string) => void;
+  changeErrorText: (error: string) => void;
   isUpdating: boolean;
   handleIsUpdating: (status: boolean) => void;
   updatingIds: number[];
   handleUpdatingIds: (ids: number[]) => void;
-  handleLoadTodos: () => void;
+  loadTodos: () => void;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   filter,
   tempTodo,
-  handleError,
+  changeErrorText,
   isUpdating,
   handleIsUpdating,
   updatingIds,
   handleUpdatingIds,
-  handleLoadTodos,
+  loadTodos,
 }) => {
   const filteredTodos = preparedTodos(todos, filter);
 
   useEffect(() => {
-    handleLoadTodos();
+    loadTodos();
   }, [isUpdating]);
 
   return (
@@ -43,8 +43,8 @@ export const TodoList: React.FC<Props> = ({
           updatingIds={updatingIds}
           handleIsUpdating={handleIsUpdating}
           handleUpdatingIds={handleUpdatingIds}
-          handleError={handleError}
-          handleLoadTodos={handleLoadTodos}
+          changeErrorText={changeErrorText}
+          loadTodos={loadTodos}
         />
       ))}
 
@@ -55,8 +55,8 @@ export const TodoList: React.FC<Props> = ({
           updatingIds={updatingIds}
           handleIsUpdating={handleIsUpdating}
           handleUpdatingIds={handleUpdatingIds}
-          handleError={handleError}
-          handleLoadTodos={handleLoadTodos}
+          changeErrorText={changeErrorText}
+          loadTodos={loadTodos}
         />
       )}
     </section>

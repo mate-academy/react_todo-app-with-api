@@ -8,13 +8,13 @@ interface Props {
 export const ErrorNotification: React.FC<Props> = ({ error }) => {
   const [isHidden, setIsHidden] = useState(false);
 
-  const handleHidden = () => {
+  const hideError = () => {
     setIsHidden(true);
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      handleHidden();
+      hideError();
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -30,7 +30,7 @@ export const ErrorNotification: React.FC<Props> = ({ error }) => {
       <button
         type="button"
         className="delete"
-        onClick={handleHidden}
+        onClick={hideError}
       >
         <span className="visually-hidden">Close</span>
       </button>

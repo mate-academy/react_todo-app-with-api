@@ -5,22 +5,22 @@ import { addTodo } from '../api/todos';
 interface Props {
   todos: Todo[];
   userId: number;
-  handleError: (error: string) => void;
-  handleTempTodo: (todo: Todo | null) => void;
+  changeErrorText: (error: string) => void;
+  addTempTodo: (todo: Todo | null) => void;
   handleIsUpdating: (status: boolean) => void;
   handleUpdatingIds: (ids: number[]) => void;
-  handleUpdateAllCompleted: () => void;
+  updateCompletedTodos: () => void;
 }
 
 export const Header: React.FC<Props> = ({
-  todos, userId, handleError, handleTempTodo,
-  handleIsUpdating, handleUpdateAllCompleted,
+  todos, userId, changeErrorText, addTempTodo,
+  handleIsUpdating, updateCompletedTodos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
   const hasTodos = todos.length > 0;
 
-  const handleCleaner = () => {
+  const handleCleanUp = () => {
     setIsDisabled(false);
     setTodoTitle('');
     handleIsUpdating(true);
@@ -31,7 +31,7 @@ export const Header: React.FC<Props> = ({
     const trimmedTitle = todoTitle.trim();
 
     if (!trimmedTitle.length) {
-      handleError('Title can\'t be empty');
+      changeErrorText('Title can\'t be empty');
 
       return;
     }
@@ -44,10 +44,10 @@ export const Header: React.FC<Props> = ({
       completed: false,
     };
 
-    handleTempTodo(newTodo);
+    addTempTodo(newTodo);
     addTodo(newTodo, userId)
-      .then(handleCleaner)
-      .catch(() => handleError('Unable to add a todo'));
+      .then(handleCleanUp)
+      .catch(() => changeErrorText('Unable to add a todo'));
   };
 
   const handleTodoTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +61,7 @@ export const Header: React.FC<Props> = ({
           type="button"
           aria-label="toggle-all"
           className="todoapp__toggle-all active"
-          onClick={handleUpdateAllCompleted}
+          onClick={updateCompletedTodos}
         />
       )}
 

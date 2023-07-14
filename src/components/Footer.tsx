@@ -5,18 +5,18 @@ import { Todo } from '../types/Todo';
 interface Props {
   todos: Todo[];
   filter: FilterTypes;
-  handleFilter: (filter: FilterTypes) => void;
-  handleError: (error: string) => void;
+  handleFilterChange: (filter: FilterTypes) => void;
+  changeErrorText: (error: string) => void;
   handleIsUpdating: (status: boolean) => void;
   handleUpdatingIds: (ids: number[]) => void;
-  handleDeleteCompleted: () => void;
+  deleteCompletedTodos: () => void;
 }
 
 export const Footer: React.FC<Props> = ({
   todos,
   filter,
-  handleFilter,
-  handleDeleteCompleted,
+  handleFilterChange,
+  deleteCompletedTodos,
 }) => {
   const hasCompleted = todos.some(todo => todo.completed);
   const todosLeft = todos.filter(todo => !todo.completed).length;
@@ -34,7 +34,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filter === FilterTypes.All },
           )}
-          onClick={() => handleFilter(FilterTypes.All)}
+          onClick={() => handleFilterChange(FilterTypes.All)}
         >
           All
         </a>
@@ -45,7 +45,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filter === FilterTypes.Active },
           )}
-          onClick={() => handleFilter(FilterTypes.Active)}
+          onClick={() => handleFilterChange(FilterTypes.Active)}
         >
           Active
         </a>
@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: filter === FilterTypes.Completed },
           )}
-          onClick={() => handleFilter(FilterTypes.Completed)}
+          onClick={() => handleFilterChange(FilterTypes.Completed)}
         >
           Completed
         </a>
@@ -66,7 +66,7 @@ export const Footer: React.FC<Props> = ({
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => handleDeleteCompleted()}
+          onClick={() => deleteCompletedTodos()}
         >
           Clear completed
         </button>

@@ -9,8 +9,8 @@ interface Props {
   updatingIds: number[];
   handleIsUpdating: (status: boolean) => void;
   handleUpdatingIds: (ids: number[]) => void;
-  handleError: (error: string) => void;
-  handleLoadTodos: () => void;
+  changeErrorText: (error: string) => void;
+  loadTodos: () => void;
 }
 
 const TodoItem: React.FC<Props> = ({
@@ -19,8 +19,8 @@ const TodoItem: React.FC<Props> = ({
   updatingIds,
   handleIsUpdating,
   handleUpdatingIds,
-  handleError,
-  handleLoadTodos,
+  changeErrorText,
+  loadTodos,
 }) => {
   const { id, title, completed } = todo;
   const [editTodo, setEditTodo] = React.useState<Todo | null>(null);
@@ -36,8 +36,8 @@ const TodoItem: React.FC<Props> = ({
     };
 
     updateTodo(id, updatedTodo)
-      .then(() => handleLoadTodos())
-      .catch(() => handleError('Unable to update a todo'))
+      .then(() => loadTodos())
+      .catch(() => changeErrorText('Unable to update a todo'))
       .finally(() => handleIsUpdating(false));
   };
 
@@ -50,9 +50,15 @@ const TodoItem: React.FC<Props> = ({
     handleIsUpdating(true);
     handleUpdatingIds([id]);
     deleteTodo(id)
-      .then(() => handleLoadTodos())
-      .catch(() => handleError('Unable to delete a todo'))
+      .then(() => loadTodos())
+      .catch(() => changeErrorText('Unable to delete a todo'))
       .finally(() => handleIsUpdating(false));
+  };
+
+  const resetTodo = () => {
+    setEditTodo(null);
+    setNewTitle('');
+    handleIsUpdating(false);
   };
 
   const handleTitleSubmit = (
@@ -74,12 +80,10 @@ const TodoItem: React.FC<Props> = ({
     handleIsUpdating(true);
     handleUpdatingIds([todoId]);
     updateTodo(todoId, updatedTodo)
-      .then(() => handleLoadTodos())
-      .catch(() => handleError('Unable to update a todo'))
+      .then(() => loadTodos())
+      .catch(() => changeErrorText('Unable to update a todo'))
       .finally(() => {
-        setEditTodo(null);
-        setNewTitle('');
-        handleIsUpdating(false);
+        resetTodo();
       });
   };
 

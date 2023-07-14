@@ -31,15 +31,15 @@ export const App: React.FC = () => {
     setIsUpdating(false);
   };
 
-  const handleFilter = (newFilter: FilterTypes) => {
+  const handleFilterChange = (newFilter: FilterTypes) => {
     setFilter(newFilter);
   };
 
-  const handleError = (newError: string) => {
+  const changeErrorText = (newError: string) => {
     setError(newError);
   };
 
-  const handleTempTodo = (newTodo: Todo | null) => {
+  const addTempTodo = (newTodo: Todo | null) => {
     setTempTodo(newTodo);
   };
 
@@ -51,19 +51,19 @@ export const App: React.FC = () => {
     setLoadingTodoIds(ids);
   };
 
-  const handleLoadTodos = () => {
+  const loadTodos = () => {
     getTodos(USER_ID)
       .then(setTodos)
       .then(clearFields)
       .catch(() => setError('Unable to load todos'));
   };
 
-  const handleCleaner = () => {
+  const handleCleanUp = () => {
     handleUpdatingIds([]);
     handleIsUpdating(false);
   };
 
-  const handleDeleteCompleted = () => {
+  const deleteCompletedTodos = () => {
     handleIsUpdating(true);
     const completedIds = todos
       .filter(todo => todo.completed)
@@ -73,16 +73,16 @@ export const App: React.FC = () => {
 
     Promise.all(
       completedIds.map(id => deleteTodo(id)
-        .catch(() => handleError('Unable to delete a todo'))),
+        .catch(() => changeErrorText('Unable to delete a todo'))),
     ).finally(() => {
-      handleCleaner();
+      handleCleanUp();
     });
   };
 
-  const handleUpdateAllCompleted = () => {
+  const updateCompletedTodos = () => {
     handleIsUpdating(true);
     let isAllCompleted = true;
-    const AllIds = todos.map(todo => {
+    const allIds = todos.map(todo => {
       if (!todo.completed) {
         isAllCompleted = false;
       }
@@ -90,15 +90,15 @@ export const App: React.FC = () => {
       return todo.id;
     });
 
-    handleUpdatingIds(AllIds);
+    handleUpdatingIds(allIds);
     const updatedTodo = {
       completed: !isAllCompleted,
     };
 
-    AllIds.forEach(id => {
+    allIds.forEach(id => {
       updateTodo(id, updatedTodo)
-        .then(() => handleCleaner())
-        .catch(() => handleError('Unable to update a todo'));
+        .then(() => handleCleanUp())
+        .catch(() => changeErrorText('Unable to update a todo'));
     });
   };
 
@@ -114,34 +114,34 @@ export const App: React.FC = () => {
         <Header
           todos={todos}
           userId={USER_ID}
-          handleError={handleError}
-          handleTempTodo={handleTempTodo}
+          changeErrorText={changeErrorText}
+          addTempTodo={addTempTodo}
           handleIsUpdating={handleIsUpdating}
           handleUpdatingIds={handleUpdatingIds}
-          handleUpdateAllCompleted={handleUpdateAllCompleted}
+          updateCompletedTodos={updateCompletedTodos}
         />
 
         <TodoList
           todos={todos}
           filter={filter}
           tempTodo={tempTodo}
-          handleError={handleError}
+          changeErrorText={changeErrorText}
           isUpdating={isUpdating}
           handleIsUpdating={handleIsUpdating}
           updatingIds={loadingTodoIds}
           handleUpdatingIds={handleUpdatingIds}
-          handleLoadTodos={handleLoadTodos}
+          loadTodos={loadTodos}
         />
 
         {hasTodos && (
           <Footer
             todos={todos}
             filter={filter}
-            handleFilter={handleFilter}
-            handleError={handleError}
+            handleFilterChange={handleFilterChange}
+            changeErrorText={changeErrorText}
             handleIsUpdating={handleIsUpdating}
             handleUpdatingIds={handleUpdatingIds}
-            handleDeleteCompleted={handleDeleteCompleted}
+            deleteCompletedTodos={deleteCompletedTodos}
           />
         )}
       </div>
