@@ -7,11 +7,9 @@ export const filterTodos = (
 ) => todos.filter(todo => {
   switch (filterOption) {
     case FilterOptions.ACTIVE:
-
       return !todo.completed;
 
     case FilterOptions.COMPLETED:
-
       return todo.completed;
 
     default:

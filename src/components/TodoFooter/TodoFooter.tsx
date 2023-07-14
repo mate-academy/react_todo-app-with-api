@@ -19,11 +19,9 @@ export const TodoFooter: React.FC<Props> = ({
   deleteTodos,
 }) => {
   const isCompletedTodosPresent = completedVisibleTodos.length > 0;
-
   const handleRemoveCompletedTodos = () => deleteTodos(completedVisibleTodos);
 
   return (
-
     <footer className="todoapp__footer">
       <span className="todo-count">
         {`${activeVisibleTodosLength} items left`}
@@ -61,7 +59,6 @@ export const TodoFooter: React.FC<Props> = ({
       >
         Clear completed
       </button>
-
     </footer>
   );
 };

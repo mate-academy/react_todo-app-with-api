@@ -42,8 +42,9 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={tempTodo}
           deleteTodo={deleteTodo}
+          key={tempTodo.id}
           toggleTodoStatus={toggleTodoStatus}
-          updatingTodosId={updatingTodosId}
+          updatingTodosId={[tempTodo.id]}
           updateTodoTitle={updateTodoTitle}
         />
       )}

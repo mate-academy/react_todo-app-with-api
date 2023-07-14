@@ -11,13 +11,17 @@ export const TodoNotification: React.FC<Props> = ({
   errorMessage,
   setErrorMessage,
 }) => {
+  const removeErrorMessageTimer = 3000;
+
   useEffect(() => {
     setTimeout(() => {
       setErrorMessage(null);
-    }, 3000);
+    }, removeErrorMessageTimer);
   }, [errorMessage, setErrorMessage]);
 
-  const removeErrorMessage = () => (setErrorMessage(null));
+  const removeErrorMessage = () => {
+    setErrorMessage(null);
+  };
 
   return (
     <div
@@ -32,9 +36,7 @@ export const TodoNotification: React.FC<Props> = ({
         onClick={removeErrorMessage}
         aria-label="Remove"
       />
-
       {errorMessage}
-
     </div>
   );
 };

@@ -11,8 +11,6 @@ interface Props {
     args: UpdateTodoArgs
   ) => void;
   updatingTodosId: number[]
-  // selectedTodoId: number | null;
-  // setSelectedTodoId: (todoId: number | null) => void;
   updateTodoTitle: (todoId: number, args: UpdateTodoArgs) => void;
 }
 
@@ -21,8 +19,6 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   toggleTodoStatus,
   updatingTodosId,
-  // selectedTodoId,
-  // setSelectedTodoId,
   updateTodoTitle,
 
 }) => {
@@ -83,13 +79,17 @@ export const TodoItem: React.FC<Props> = ({
   const handleCancelEditing = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === 'Escape') {
-      clearSelectedTodoId();
-      resetTitle();
+    if (event.key !== 'Escape') {
+      return;
     }
+
+    clearSelectedTodoId();
+    resetTitle();
   };
 
-  const handleTodoRemove = () => deleteTodo(todo.id);
+  const handleTodoRemove = () => {
+    deleteTodo(todo.id);
+  };
 
   return (
     <div

@@ -67,12 +67,12 @@ export const App: React.FC = () => {
         userId: USER_ID,
       };
 
-      const newTodo = await createTodo(newTodoPayload);
-
       setTempTodo({
         id: 0,
         ...newTodoPayload,
       });
+
+      const newTodo = await createTodo(newTodoPayload);
 
       clearNewTodoTitle();
       setTodos((prevState) => [...prevState, newTodo]);
@@ -123,9 +123,9 @@ export const App: React.FC = () => {
   };
 
   const removeCompletedTodos = (todosToDelete: Todo[]) => {
-    todosToDelete.forEach(async todoToDelete => {
-      await deleteTodo(todoToDelete.id);
-    });
+    Promise.all(todosToDelete.map(
+      todoToDelete => deleteTodo(todoToDelete.id),
+    ));
   };
 
   const toggleTodoStatus = async (
@@ -138,14 +138,12 @@ export const App: React.FC = () => {
       await updateTodo(todoId, args);
 
       setTodos((prevState) => prevState.map(todo => {
-        if (todo.id === todoId) {
-          return {
+        return (todo.id === todoId)
+          ? {
             ...todo,
             completed: !todo.completed,
-          };
-        }
-
-        return todo;
+          }
+          : todo;
       }));
     } catch (error) {
       setErrorMessage(ErrorMessages.UpdateError);
@@ -185,14 +183,12 @@ export const App: React.FC = () => {
       await updateTodo(todoId, args);
 
       setTodos((prevState) => prevState.map(todo => {
-        if (todo.id === todoId && args.title) {
-          return {
+        return (todo.id === todoId && args.title)
+          ? {
             ...todo,
             title: args.title,
-          };
-        }
-
-        return todo;
+          }
+          : todo;
       }));
     } catch (error) {
       setErrorMessage(ErrorMessages.UpdateError);
