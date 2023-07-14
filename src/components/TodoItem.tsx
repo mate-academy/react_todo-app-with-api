@@ -48,7 +48,7 @@ export const TodoItem: FC<Props> = ({
             setIsEditing={setIsEditing}
             // isEditing={isEditing}
             // onUpdate={onUpdate}
-            // onDelete={onDelete}
+            onDelete={onDelete}
             editTodo={editTodo}
           />
         )

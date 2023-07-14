@@ -5,22 +5,24 @@ import React, {
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { deleteTodo } from '../api/todos';
 
 interface Props {
   todo: Todo;
   setIsEditing: (value:boolean) => void;
   editTodo: (id:number, data: Partial<Todo>) => void
+  onDelete: (todoId: number) => void
 }
 
 export const TodoEdit: FC<Props> = ({
   todo,
   setIsEditing,
   editTodo,
+  onDelete,
 }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
-
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const isTitleChanged = todo.title === newTitle;
 
   useEffect(() => {
     if (inputRef.current) {
@@ -31,15 +33,6 @@ export const TodoEdit: FC<Props> = ({
   const handleCancel = () => {
     setIsEditing(false);
     setNewTitle(todo.title);
-  };
-
-  const handleBlur = () => {
-    if (todo.title === newTitle) {
-      return;
-    }
-
-    setNewTitle(newTitle);
-    editTodo(todo.id, { title: newTitle });
   };
 
   useEffect(() => {
@@ -70,16 +63,28 @@ export const TodoEdit: FC<Props> = ({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todo.title === newTitle) {
+    if (isTitleChanged) {
       return;
     }
 
-    if (newTitle.trim() === '') {
-      await deleteTodo(todo.id);
+    const trimmedTitle = newTitle.trim();
+
+    if (trimmedTitle === '') {
+      onDelete(todo.id);
+    } else {
+      editTodo(todo.id, { title: trimmedTitle });
     }
 
-    editTodo(todo.id, { title: newTitle });
     setIsEditing(false);
+  };
+
+  const handleBlur = (event:React.FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement>) => {
+    if (isTitleChanged) {
+      return;
+    }
+
+    handleSubmit(event as React.FormEvent<HTMLFormElement>);
   };
 
   return (
