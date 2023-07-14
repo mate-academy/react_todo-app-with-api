@@ -8,7 +8,8 @@ interface Props {
   onDelete: (todoId: number) => void;
   onUpdate: (id: number, status: boolean, title:string) => void;
   loadingIds: number[];
-  setTodos: () => void;
+  editTodo: (id:number, data: Partial<Todo>) => void
+  // setTodos: () => void;
 }
 
 export const TodoList: FC<Props> = ({
@@ -17,10 +18,9 @@ export const TodoList: FC<Props> = ({
   onUpdate,
   onDelete,
   loadingIds,
-  setTodos,
+  editTodo,
+  // setTodos,
 }) => {
-  console.log('rendering list');
-
   return (
     <section className="todoapp__main">
       {todos?.map(todo => (
@@ -30,7 +30,7 @@ export const TodoList: FC<Props> = ({
           loadingIds={loadingIds}
           onUpdate={onUpdate}
           onDelete={onDelete}
-          setTodos={setTodos}
+          editTodo={editTodo}
         />
       ))}
 
@@ -41,7 +41,7 @@ export const TodoList: FC<Props> = ({
           loadingIds={loadingIds}
           onUpdate={onUpdate}
           onDelete={onDelete}
-          setTodos={setTodos}
+          editTodo={editTodo}
         />
       )}
 

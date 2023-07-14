@@ -8,7 +8,7 @@ interface Props {
   onDelete: (todoId: number) => void;
   onUpdate: (id: number, status: boolean, title: string) => void;
   loadingIds: number[];
-  setTodos:() => void;
+  editTodo: (id:number, data: Partial<Todo>) => void
 }
 
 export const TodoItem: FC<Props> = ({
@@ -16,41 +16,11 @@ export const TodoItem: FC<Props> = ({
   onUpdate,
   onDelete,
   loadingIds,
-  setTodos,
+  editTodo,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
 
-  console.log(isEditing)
   const isActive = loadingIds.includes(todo.id);
-
-  // const inputRef = useRef<HTMLInputElement | null>(null);
-
-  // const handleNewTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setNewTitle(event.target.value);
-  // };
-
-  // const handleCancelEditing = (event: React.KeyboardEvent<Element>) => {
-  //   if (event.key === 'Escape') {
-  //     setIsEditing(false);
-  //     setNewTitle(todo.title);
-  //   }
-  // };
-
-  // const handleBlur = () => {
-  //   if (newTitle !== todo.title) {
-  //     onCheck(todo.id, todo.completed, newTitle);
-  //   } else if (newTitle.trim() === '') {
-  //     onDelete(todo.id);
-  //   } else {
-  //     setIsEditing(false);
-  //     setNewTitle(todo.title);
-  //   }
-  // };
-
-  // const handleSubmit = (event: React.FormEvent) => {
-  //   event.preventDefault();
-  // };
 
   const handleEditing = () => {
     setIsEditing(true);
@@ -75,13 +45,11 @@ export const TodoItem: FC<Props> = ({
         ? (
           <TodoEdit
             todo={todo}
-            setTodos={setTodos}
-            newTitle={newTitle}
             setIsEditing={setIsEditing}
-            setNewTitle={setNewTitle}
-            isEditing={isEditing}
-            onUpdate={onUpdate}
-            onDelete={onDelete}
+            // isEditing={isEditing}
+            // onUpdate={onUpdate}
+            // onDelete={onDelete}
+            editTodo={editTodo}
           />
         )
         : (

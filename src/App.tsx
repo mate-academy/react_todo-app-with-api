@@ -81,13 +81,11 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const updateStatus = useCallback(async (
-    id: number, status: boolean, newTitle:string,
-  ) => {
+  const updateStatus = useCallback(async (id: number, status: boolean) => {
     setLoadingIds(prevIds => [...prevIds, id]);
 
     try {
-      await updateTodo(id, status, newTitle);
+      await updateTodo(id, { completed: status });
       setTodos(prevTodos => prevTodos.map(todo => {
         if (todo.id !== id) {
           return todo;
@@ -96,7 +94,6 @@ export const App: React.FC = () => {
         return {
           ...todo,
           completed: status,
-          newTitle,
         };
       }));
 
@@ -123,6 +120,24 @@ export const App: React.FC = () => {
         setTodos(prevTodos => (
           prevTodos.filter(todo => !todo.completed)))
       ));
+  };
+
+  const editTodo = async (currentId: number, data: Partial<Todo>) => {
+    setLoadingIds(prevIds => [...prevIds, currentId]);
+
+    try {
+      const updatedTodo = await updateTodo(currentId, data);
+
+      setTodos(prevTodos => prevTodos.map(prevTodo => (
+        prevTodo.id === updatedTodo.id
+          ? updatedTodo
+          : prevTodo
+      )));
+
+      setLoadingIds([0]);
+    } catch {
+      setError('Unable to update a todo');
+    }
   };
 
   const filters: string[] = [
@@ -159,6 +174,7 @@ export const App: React.FC = () => {
           onUpdate={updateStatus}
           onDelete={removeTodo}
           loadingIds={loadingIds}
+          editTodo={editTodo}
         />
         <TodoFooter
           count={amountCompletedTodos}

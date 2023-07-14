@@ -1,51 +1,52 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Todo } from '../types/Todo';
+import { deleteTodo } from '../api/todos';
 
 interface Props {
   todo: Todo;
-  isEditing: boolean;
-  newTitle:string;
-  setNewTitle: (value:string) => void;
   setIsEditing: (value:boolean) => void;
-  onDelete: (todoId: number) => void;
-  onUpdate: (id: number, status: boolean, title: string) => void;
-  setTodos:(todos:Todo) => void;
+  editTodo: (id:number, data: Partial<Todo>) => void
 }
-
-type PopupClick = MouseEvent & {
-  path: Node[];
-};
 
 export const TodoEdit: FC<Props> = ({
   todo,
-  isEditing,
-  setNewTitle,
   setIsEditing,
-  newTitle,
-  onUpdate,
-  onDelete,
-  setTodos,
+  editTodo,
 }) => {
+  const [newTitle, setNewTitle] = useState(todo.title);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEditing) {
+    if (inputRef.current) {
       inputRef.current?.focus();
-      setNewTitle(todo.title);
     }
-  }, [isEditing]);
+  }, []);
 
-  const handleEditClick = () => {
+  const handleCancel = () => {
     setIsEditing(false);
     setNewTitle(todo.title);
   };
 
+  const handleBlur = () => {
+    if (todo.title === newTitle) {
+      return;
+    }
+
+    setNewTitle(newTitle);
+    editTodo(todo.id, { title: newTitle });
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const Event = event as PopupClick;
-
-      if (inputRef.current && !Event.path.includes(inputRef.current)) {
-        handleEditClick();
+      if (inputRef.current
+        && !inputRef.current.contains(event.target as Node)) {
+        handleCancel();
       }
     };
 
@@ -60,22 +61,36 @@ export const TodoEdit: FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
-  const handleCancelEditing = (event?:React.KeyboardEvent<Element>) => {
-    if (event?.key === 'Escape') {
+  const handleCancelEditing = (event:React.KeyboardEvent<Element>) => {
+    if (event.key === 'Escape') {
       setIsEditing(false);
-      setNewTitle(todo.title);
     }
   };
 
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (todo.title === newTitle) {
+      return;
+    }
+
+    if (newTitle.trim() === '') {
+      await deleteTodo(todo.id);
+    }
+
+    editTodo(todo.id, { title: newTitle });
+    setIsEditing(false);
+  };
 
   return (
-    <form>
+    <form
+      onSubmit={handleSubmit}
+    >
       <input
         className="todoapp__edit-todo"
         onKeyUp={(event) => handleCancelEditing(event)}
         type="text"
+        onBlur={handleBlur}
         ref={inputRef}
         value={newTitle}
         onChange={handleNewTitle}
