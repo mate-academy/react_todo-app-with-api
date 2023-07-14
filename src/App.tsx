@@ -4,12 +4,9 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { CreateNewTodo } from './components/CreateNewTodo';
 import { Todo, TodoUpdateData } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { Filter } from './components/Filter';
 import {
   getTodos,
   addTodos,
@@ -19,6 +16,10 @@ import {
 import { ErrorMessage } from './types/ErrorMessage';
 import { StatusFilter } from './types/StatusFilter';
 import { TodoInfo } from './components/TodoInfo';
+import { Header } from './components/header/Header';
+import { Footer } from './components/Footer/Footer';
+import { ErrorMessageItem }
+  from './components/ErrorMessageItem/ErrorMessageItem';
 
 const USER_ID = 10906;
 
@@ -129,9 +130,10 @@ export const App: React.FC = () => {
 
   const deleteCompletedTodos = async () => {
     try {
-      await completedTodos.forEach(todo => {
-        handleDeleteTodo(todo.id);
-      });
+      const promisesToDelete = completedTodos.map(todo => (
+        handleDeleteTodo(todo.id)));
+
+      await Promise.all(promisesToDelete);
     } catch {
       setErrorMessage(ErrorMessage.REMOVE);
     }
@@ -188,9 +190,10 @@ export const App: React.FC = () => {
         ? completedTodos
         : activeTodos;
 
-      await todosToUpdate.forEach(todo => {
-        handleUpdateTodo(todo);
-      });
+      const promisesToUpdate = todosToUpdate.map(todo => (
+        handleUpdateTodo(todo)));
+
+      await Promise.all(promisesToUpdate);
     } catch {
       setErrorMessage(ErrorMessage.UPDATE);
     }
@@ -205,23 +208,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            aria-label="togggle"
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: isToggleActive,
-            })}
-            onClick={handleToggleAll}
-          />
-
-          <CreateNewTodo
-            setErrorMessage={setErrorMessage}
-            onAddTodo={handleAddTodo}
-            isLoading={isLoading}
-          />
-
-        </header>
+        <Header
+          isLoading={isLoading}
+          isToggleActive={isToggleActive}
+          handleToggleAll={handleToggleAll}
+          setErrorMessage={setErrorMessage}
+          handleAddTodo={handleAddTodo}
+        />
 
         {todos.length > 0 && (
           <>
@@ -231,6 +224,7 @@ export const App: React.FC = () => {
               loadingTodoIds={loadingTodoIds}
               onUpdateTodo={handleUpdateTodo}
             />
+
             {tempTodo && (
               <TodoInfo
                 todo={tempTodo}
@@ -238,48 +232,22 @@ export const App: React.FC = () => {
               />
             )}
 
-            <footer className="todoapp__footer">
-              <span className="todo-count">
-                {`${activeTodos.length} items left`}
-              </span>
-
-              <Filter
-                setSelectedFilter={setSelectedFilter}
-                selectedFilter={selectedFilter}
-              />
-
-              {completedTodos && (
-                <button
-                  type="button"
-                  className="todoapp__clear-completed"
-                  onClick={deleteCompletedTodos}
-                >
-                  Clear completed
-                </button>
-              )}
-
-            </footer>
+            <Footer
+              activeTodos={activeTodos}
+              selectedFilter={selectedFilter}
+              completedTodos={completedTodos}
+              deleteCompletedTodos={deleteCompletedTodos}
+              setSelectedFilter={setSelectedFilter}
+            />
           </>
         )}
       </div>
 
-      <div
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal', {
-            hidden: !errorMessage,
-          },
-        )}
-      >
-        <button
-          aria-label="delete"
-          type="button"
-          className="delete"
-          onClick={handleCloseError}
-        />
+      <ErrorMessageItem
+        errorMessage={errorMessage}
+        handleCloseError={handleCloseError}
+      />
 
-        {errorMessage}
-        <br />
-      </div>
     </div>
   );
 };

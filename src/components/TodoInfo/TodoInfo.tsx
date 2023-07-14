@@ -11,9 +11,9 @@ interface Props {
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  onDeleteTodo = () => {},
+  onDeleteTodo,
   loadingTodoId = null,
-  onUpdateTodo = () => {},
+  onUpdateTodo,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -37,17 +37,17 @@ export const TodoInfo: React.FC<Props> = ({
     }
   }, [isEditingTitle]);
 
-  const handleDeleteTodo = () => {
-    onDeleteTodo(id);
-  };
+  const handleDeleteTodo = () => (
+    onDeleteTodo && onDeleteTodo(id)
+  );
 
-  const handleUpdateStatus = () => {
-    onUpdateTodo(todo);
-  };
+  const handleUpdateStatus = () => (
+    onUpdateTodo && onUpdateTodo(todo)
+  );
 
-  const handleDoubleClick = () => {
-    setIsEditingTitle(true);
-  };
+  const handleDoubleClick = () => (
+    setIsEditingTitle(true)
+  );
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(event.target.value);
@@ -63,12 +63,18 @@ export const TodoInfo: React.FC<Props> = ({
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    onUpdateTodo(todo, newTitle);
+    if (onUpdateTodo) {
+      onUpdateTodo(todo, newTitle);
+    }
+
     setIsEditingTitle(false);
   };
 
   const handleBlur = () => {
-    onUpdateTodo(todo, newTitle);
+    if (onUpdateTodo) {
+      onUpdateTodo(todo, newTitle);
+    }
+
     setIsEditingTitle(false);
   };
 

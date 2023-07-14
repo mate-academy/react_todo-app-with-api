@@ -15,12 +15,10 @@ export const TodoList: React.FC<Props> = React.memo(({
   loadingTodoIds,
   onUpdateTodo,
 }) => {
-  const loadingTodoId = (todoId: number) => {
-    return (
-      loadingTodoIds.includes(todoId)
-        ? todoId : null
-    );
-  };
+  const loadingTodoId = (todoId: number) => (
+    loadingTodoIds.includes(todoId)
+      ? todoId : null
+  );
 
   return (
     <section className="todoapp__main">
