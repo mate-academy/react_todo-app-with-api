@@ -17,7 +17,7 @@ import './styles/todoapp.scss';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [statusFilter, setFilterStatus] = useState(StatusFilter.all);
+  const [statusFilter, setFilterStatus] = useState(StatusFilter.ALL);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
@@ -26,7 +26,9 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos()
       .then(setTodos)
-      .catch(errorFromServer => setError(errorFromServer.message));
+      .catch(errorFromServer => {
+        setError(`Unable to load todos: ${errorFromServer.message}`);
+      });
   }, []);
 
   useEffect(() => {
@@ -56,8 +58,8 @@ export const App: React.FC = () => {
     todos.filter((todo) => !todo.completed)
   ), [todos, statusFilter]);
 
-  const hasSomeActiveTodos = activeTodos.length > 0;
   const hasSomeCompletedTodos = completedTodos.length > 0;
+  const hasOnlyCompletedTodos = completedTodos.length === todosCount;
 
   const changeFilterStatus = useCallback((filterStaus: StatusFilter) => {
     setFilterStatus(filterStaus);
@@ -94,8 +96,8 @@ export const App: React.FC = () => {
           todoFromResponse,
         ]);
       })
-      .catch(() => {
-        setError('Unable to add a todo');
+      .catch((errorFromServer) => {
+        setError(`Unable to add a todo: ${errorFromServer.message}`);
       })
       .finally(() => {
         setIsLoading(false);
@@ -116,7 +118,9 @@ export const App: React.FC = () => {
           currentTodos.filter((todo) => todo.id !== todoId)
         ));
       })
-      .catch(() => setError('Unable to delete a todo'))
+      .catch((errorFromServer) => {
+        setError(`Unable to delete a todo: ${errorFromServer.message}`);
+      })
       .finally(() => {
         setLoadingTodoIds((currentIds) => (
           currentIds.filter((id) => id !== todoId)
@@ -139,20 +143,13 @@ export const App: React.FC = () => {
       todoId,
     ]);
 
-    const updatedTodo: Partial<Todo> = {};
+    const updatedField = typeof updatedValue === 'boolean'
+      ? 'completed'
+      : 'title';
 
-    switch (typeof updatedValue) {
-      case 'string':
-        updatedTodo.title = updatedValue;
-        break;
-
-      case 'boolean':
-        updatedTodo.completed = updatedValue;
-        break;
-
-      default:
-        break;
-    }
+    const updatedTodo: Partial<Todo> = {
+      [updatedField]: updatedValue,
+    };
 
     patchTodo(todoId, updatedTodo)
       .then((todoFromServer) => {
@@ -162,8 +159,8 @@ export const App: React.FC = () => {
 
         setTodos(updatedTodos);
       })
-      .catch(() => {
-        setError('Unable to update a todo');
+      .catch((errorFromServer) => {
+        setError(`Unable to update a todo: ${errorFromServer.message}`);
       })
       .finally(() => {
         setLoadingTodoIds((currentIds) => (
@@ -186,7 +183,7 @@ export const App: React.FC = () => {
         <Header
           title={title}
           isLoading={isLoading}
-          hasSomeActiveTodos={hasSomeActiveTodos}
+          hasOnlyCompletedTodos={hasOnlyCompletedTodos}
           onAddTodo={addTodo}
           onChangeTitle={changeTitle}
           onToggleAllTodos={toggleAllTodos}

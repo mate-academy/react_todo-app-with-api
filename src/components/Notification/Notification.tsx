@@ -21,11 +21,11 @@ export const Notification: React.FC<NotificationProps> = ({
         },
       )}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className="delete"
         onClick={onCloseNotifications}
+        aria-label="Close Notifications"
       />
       {error}
     </div>

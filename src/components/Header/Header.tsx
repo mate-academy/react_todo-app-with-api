@@ -4,7 +4,7 @@ import cn from 'classnames';
 interface HeaderProps {
   title: string;
   isLoading: boolean;
-  hasSomeActiveTodos : boolean;
+  hasOnlyCompletedTodos : boolean;
   onToggleAllTodos: () => void
   onAddTodo: (title: string) => void;
   onChangeTitle: (title: string) => void;
@@ -14,7 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = memo(({
   title,
   isLoading,
-  hasSomeActiveTodos,
+  hasOnlyCompletedTodos,
   onToggleAllTodos,
   onAddTodo,
   onChangeTitle,
@@ -42,18 +42,16 @@ export const Header: React.FC<HeaderProps> = memo(({
 
   return (
     <header className="todoapp__header">
-      {true && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
-        <button
-          type="button"
-          className={cn(
-            'todoapp__toggle-all', {
-              active: hasSomeActiveTodos,
-            },
-          )}
-          onClick={handleToggleTodos}
-        />
-      )}
+      <button
+        type="button"
+        className={cn(
+          'todoapp__toggle-all', {
+            active: hasOnlyCompletedTodos,
+          },
+        )}
+        onClick={handleToggleTodos}
+        aria-label="Toggle Todos"
+      />
 
       <form onSubmit={handleSubmit}>
         <input

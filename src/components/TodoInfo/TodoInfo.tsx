@@ -77,7 +77,9 @@ export const TodoInfo: React.FC<TodoInfoProps> = ({
   };
 
   const handleKeyTouch = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.code === 'Escape') {
+    const ESCAPE = 'Escape';
+
+    if (event.code === ESCAPE) {
       setCurrentTitle(title);
       setIsActiveEditForm(false);
     }

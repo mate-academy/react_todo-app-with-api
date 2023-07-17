@@ -21,19 +21,18 @@ export const TodoFilter: React.FC<TodoFilterProps> = memo(({
     onFilter(filterByStatus);
   };
 
-  const filterStatuses = Object
-    .keys(StatusFilter) as (keyof typeof StatusFilter)[];
+  const filterStatuses = Object.keys(StatusFilter) as StatusFilter[];
 
   return (
     <nav className="filter">
       {filterStatuses.map(status => (
         <Fragment key={status}>
           <a
-            href={status !== 'all' ? `#/${status}` : '#/'}
+            href={status !== StatusFilter.ALL ? `#/${status}` : '#/'}
             className={cn('filter__link', {
               selected: status === statusFilter,
             })}
-            onClick={event => handleFilterClick(event, StatusFilter[status])}
+            onClick={event => handleFilterClick(event, status)}
           >
             {status}
           </a>
