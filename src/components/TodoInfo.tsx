@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { updateTodo, deleteTodos } from '../api/todos';
 import { showError } from '../helpers/helpers';
-import { Todo } from '../types/Todo';
+import { Todo } from '../types/Types';
 
 interface Props {
   setError: React.Dispatch<React.SetStateAction<string>>,
@@ -27,11 +27,13 @@ export const TodoInfo:React.FC<Props> = ({
     inputRef.current?.focus();
   }, [isEditing]);
 
-  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSearchQuery = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setSearchQuery(event.target.value);
   };
 
-  const clickHandler = (id: number) => {
+  const handleTodoRemoveButtonClick = (id: number) => {
     setLoader(prevState => [...prevState, id]);
     deleteTodos(id)
       .then(() => {
@@ -39,10 +41,10 @@ export const TodoInfo:React.FC<Props> = ({
           prevState.filter(prevTodo => prevTodo.id !== id)
         ));
       })
-      .catch(() => showError('Unable to delete a todo', setError));
+      .catch((err) => showError(`Unable to delete a todo: ${err.message}`, setError));
   };
 
-  const statusClickHandler = (todoId : number, todoStatus: boolean) => {
+  const handleStatusClick = (todoId : number, todoStatus: boolean) => {
     setLoader(prevState => [...prevState, todoId]);
     updateTodo(todoId, { completed: !todoStatus })
       .then((updatedTodo) => {
@@ -54,10 +56,10 @@ export const TodoInfo:React.FC<Props> = ({
 
         setLoader(prevState => prevState.filter(id => id !== todoId));
       })
-      .catch(() => showError('Unable to delete a todo', setError));
+      .catch((err) => showError(`Unable to delete a todo :${err.message}`, setError));
   };
 
-  const blurHandler = () => {
+  const handleBlurTodoEditing = () => {
     setIsEditing(false);
 
     switch (searchQuery) {
@@ -69,7 +71,7 @@ export const TodoInfo:React.FC<Props> = ({
               prevState.filter(prevTodo => prevTodo.id !== todo.id)
             ));
           })
-          .catch(() => showError('Unable to delete a todo', setError));
+          .catch((err) => showError(`Unable to delete a todo :${err.message}`, setError));
         break;
 
       case todo.title:
@@ -87,16 +89,16 @@ export const TodoInfo:React.FC<Props> = ({
 
             setLoader(prevState => prevState.filter(id => id !== todo.id));
           })
-          .catch(() => showError('Unable to update a todo', setError));
+          .catch((err) => showError(`Unable to update a todo :${err.message}`, setError));
     }
   };
 
-  const submitHandler = (event:React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event:React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    blurHandler();
+    handleBlurTodoEditing();
   };
 
-  const keyUpHandler = (
+  const handleKeyUp = (
     event :React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
@@ -115,13 +117,13 @@ export const TodoInfo:React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onClick={() => statusClickHandler(todo.id, todo.completed)}
+          onClick={() => handleStatusClick(todo.id, todo.completed)}
         />
       </label>
 
       {isEditing ? (
         <form
-          onSubmit={submitHandler}
+          onSubmit={handleSubmit}
         >
           <input
             ref={inputRef}
@@ -129,9 +131,9 @@ export const TodoInfo:React.FC<Props> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={searchQuery}
-            onChange={changeHandler}
-            onBlur={blurHandler}
-            onKeyUp={keyUpHandler}
+            onChange={handleChangeSearchQuery}
+            onBlur={handleBlurTodoEditing}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
@@ -145,7 +147,7 @@ export const TodoInfo:React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => clickHandler(todo.id)}
+            onClick={() => handleTodoRemoveButtonClick(todo.id)}
             onDoubleClick={() => setIsEditing(true)}
           >
             ×

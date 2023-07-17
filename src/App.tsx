@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos } from './api/todos';
-import { FilterStatus, Todo } from './types/Todo';
-import { showError, GetFilteredTodos } from './helpers/helpers';
+import { FilterStatus, Todo } from './types/Types';
+import { showError, getFilteredTodos } from './helpers/helpers';
 import { Error } from './components/Error';
 import { Footer } from './components/Footer';
 import { Todos } from './components/Todos';
@@ -11,7 +11,6 @@ import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  // const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState(FilterStatus.ALL);
   const [error, setError] = useState('');
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
@@ -26,9 +25,7 @@ export const App: React.FC = () => {
 
   let visibleTodos = todos;
 
-  useMemo(() => {
-    visibleTodos = GetFilteredTodos(todos, filter);
-  }, [todos, filter]);
+  visibleTodos = getFilteredTodos(todos, filter);
 
   if (!USER_ID) {
     return <UserWarning />;

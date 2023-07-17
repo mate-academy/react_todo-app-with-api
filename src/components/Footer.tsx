@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FilterStatus, Todo } from '../types/Todo';
+import { FilterStatus, Todo } from '../types/Types';
 import { deleteTodos } from '../api/todos';
 import { showError } from '../helpers/helpers';
 

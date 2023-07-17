@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { FilterStatus, Todo } from '../types/Todo';
+import { FilterStatus, Todo } from '../types/Types';
 
 export const showError = (
   errorText : string, setError: Dispatch<SetStateAction<string>>,
@@ -8,7 +8,7 @@ export const showError = (
   setTimeout(() => setError(''), 3000);
 };
 
-export const GetFilteredTodos = (todos: Todo[], filter: FilterStatus) => (
+export const getFilteredTodos = (todos: Todo[], filter: FilterStatus) => (
   todos.filter(todo => {
     switch (filter) {
       case FilterStatus.COMPLETED:

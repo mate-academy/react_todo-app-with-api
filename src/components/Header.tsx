@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import cn from 'classnames';
-import { Todo } from '../types/Todo';
+import { Todo } from '../types/Types';
 import { showError } from '../helpers/helpers';
 import { updateTodo, addTodos, USER_ID } from '../api/todos';
 
