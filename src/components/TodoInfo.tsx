@@ -64,14 +64,7 @@ export const TodoInfo:React.FC<Props> = ({
 
     switch (searchQuery) {
       case '':
-        setLoader(prevState => [...prevState, todo.id]);
-        deleteTodos(todo.id)
-          .then(() => {
-            setTodos(prevState => (
-              prevState.filter(prevTodo => prevTodo.id !== todo.id)
-            ));
-          })
-          .catch((err) => showError(`Unable to delete a todo :${err.message}`, setError));
+        handleTodoRemoveButtonClick(todo.id);
         break;
 
       case todo.title:
