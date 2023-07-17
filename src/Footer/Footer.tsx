@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import cn from 'classnames';
 import { Filter } from '../components/Filter';
 import { Todo } from '../types/Todo';
 import { Filters } from '../types/Filters';
@@ -30,15 +31,15 @@ export const Footer: FC<Props> = ({
         onChangeFilter={onChangeFilter}
       />
 
-      {completedTodos.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={onClearCompletedTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={cn('todoapp__clear-completed', {
+          hidden: completedTodos.length === 0,
+        })}
+        onClick={onClearCompletedTodos}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, {
   useMemo,
   useEffect,
@@ -56,6 +55,7 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
   const isActiveTodos = uncompletedTodos.length === 0;
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const filteredTodos = useMemo(() => {
     switch (filter) {
       case Filters.COMPLETED:
@@ -119,6 +119,7 @@ export const App: React.FC = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const updateTodo = useCallback(async (
     todoId: number,
     args: UpdateTodoArgs,
@@ -142,25 +143,21 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const handleToggleAll = async () => {
-    const allCompleted = todos.every(todo => todo.completed);
-
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !allCompleted,
-    }));
-
-    setTodos(updatedTodos);
+  const handleToggleAll = () => {
+    const todosForStatusChange = uncompletedTodos.length > 0
+      ? uncompletedTodos
+      : todos;
+    const allCompletedTodos = todos.every(todo => todo.completed);
 
     try {
-      setLoadingTodo(prevLoadingTodo => (
-        [...prevLoadingTodo, ...updatedTodos.map(todo => todo.id)]));
-      await Promise.all(updatedTodos.map(todo => (
-        updateTodo(todo.id, { completed: !allCompleted }))));
+      todosForStatusChange.forEach(async (todo) => {
+        await updateTodo(
+          todo.id,
+          { completed: !allCompletedTodos },
+        );
+      });
     } catch {
       setError('Unable to update todos');
-    } finally {
-      setLoadingTodo([]);
     }
   };
 
