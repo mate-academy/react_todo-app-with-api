@@ -1,7 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Todo } from '../types/Todo';
-import { deleteTodo, updateTodo } from '../api/todos';
-import { EventType } from '../types/types';
+import {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Todo } from '../../types/Todo';
+import { deleteTodo, updateTodo } from '../../api/todos';
+import { EventType } from '../../types/types';
 
 interface Props {
   todo: Todo,
@@ -11,7 +16,7 @@ interface Props {
   isLoadingCompleted: boolean,
 }
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem:FC<Props> = ({
   todo,
   setTodos,
   setErrorMessage,
@@ -24,6 +29,10 @@ export const TodoItem: React.FC<Props> = ({
   const [editedTitle, setEditedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const shouldShowLoader = todosLoader
+  || isLoading
+  || (isLoadingCompleted && completed);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -32,21 +41,12 @@ export const TodoItem: React.FC<Props> = ({
   const handleCheckboxClick = async () => {
     setIsLoading(true);
 
-    if (completed) {
-      await updateTodo(
-        todo.id,
-        { completed: false },
-        setTodos,
-        setErrorMessage,
-      );
-    } else {
-      await updateTodo(
-        todo.id,
-        { completed: true },
-        setTodos,
-        setErrorMessage,
-      );
-    }
+    await updateTodo(
+      todo.id,
+      { completed: !completed },
+      setTodos,
+      setErrorMessage,
+    );
 
     setIsLoading(false);
   };
@@ -110,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div className={`todo${completed ? ' completed' : ''}`}>
-      {(todosLoader || isLoading || (isLoadingCompleted && completed)) && (
+      {shouldShowLoader && (
         <div className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

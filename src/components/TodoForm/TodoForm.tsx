@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import classNames from 'classnames';
-import { completedTodosCheck } from '../helpers';
-import { addTodo, updateTodo } from '../api/todos';
-import { Todo } from '../types/Todo';
-import { EventType } from '../types/types';
+import { completedTodosCheck } from '../../helpers';
+import { addTodo, updateTodo } from '../../api/todos';
+import { Todo } from '../../types/Todo';
+import { EventType } from '../../types/types';
 
 interface Props {
   todos: Todo[],
@@ -15,7 +15,7 @@ interface Props {
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
 }
 
-export const TodoForm:React.FC<Props> = ({
+export const TodoForm:FC<Props> = ({
   todos,
   setTodos,
   setErrorMessage,
@@ -57,7 +57,7 @@ export const TodoForm:React.FC<Props> = ({
     setTodoTitle('');
   };
 
-  const handleSubmit = async () => {
+  const onSubmit = async () => {
     if (!todoTitle.trim()) {
       setErrorMessage('Title can\'t be empty');
 
@@ -73,9 +73,14 @@ export const TodoForm:React.FC<Props> = ({
     clearForm();
   };
 
-  const handleTodoTitleChange = (event: EventType) => {
-    setTodoTitle(event.target.value);
+  const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
   };
+
+  function handleTodoTitleChange(event: EventType) {
+    setTodoTitle(event.target.value);
+  }
 
   return (
     <>
@@ -89,12 +94,8 @@ export const TodoForm:React.FC<Props> = ({
         onClick={handleToggleAll}
       />
 
-      {/* Add a todo on form submit */}
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleSubmit();
-        }}
+        onSubmit={handleSubmit}
       >
         <input
           type="text"

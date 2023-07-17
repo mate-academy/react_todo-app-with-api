@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import { FC, useEffect, useState } from 'react';
 
 import { Todo } from './types/Todo';
 import { deleteTodo, getTodos } from './api/todos';
-import { Filter } from './types/types';
-import { TodoList } from './components/TodoList';
-import { TodoForm } from './components/TodoForm';
+import { TodoList } from './components/TodoList/TodoList';
+import { TodoForm } from './components/TodoForm/TodoForm';
+import { filteredTodos } from './helpers';
+import { Footer } from './components/Footer';
+import { TodoModal } from './components/TodoModal/TodoModal';
 
 const USER_ID = 10917;
 
-export const App: React.FC = () => {
+export const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
 
@@ -19,6 +20,24 @@ export const App: React.FC = () => {
   const [todosLoader, setTodosLoader] = useState<boolean>(false);
   const [isLoadingCompleted, setIsLoadingCompleted] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
+  const todoFormProps = {
+    todos,
+    setTodos,
+    setErrorMessage,
+    formLoader,
+    setFormLoader,
+    setTodosLoader,
+    setTempTodo,
+  };
+
+  const todoListProps = {
+    visibleTodos,
+    setTodos,
+    setErrorMessage,
+    todosLoader,
+    isLoadingCompleted,
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,19 +55,10 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setVisibleTodos(todos.filter((todo) => {
-      switch (filter) {
-        case Filter.Active:
-          return !todo.completed;
-        case Filter.Completed:
-          return todo.completed;
-        default:
-          return true;
-      }
-    }));
+    setVisibleTodos(filteredTodos(todos, filter));
   }, [filter, todos]);
 
-  const handleClearCompleted = async () => {
+  const clearCompletedTodos = async () => {
     try {
       const completedTodos = todos.filter(todo => todo.completed);
       const deletedTodos = completedTodos
@@ -70,102 +80,27 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <TodoForm
-            todos={todos}
-            setTodos={setTodos}
-            setErrorMessage={setErrorMessage}
-            formLoader={formLoader}
-            setFormLoader={setFormLoader}
-            setTodosLoader={setTodosLoader}
-            setTempTodo={setTempTodo}
-          />
+          <TodoForm {...todoFormProps} />
         </header>
 
         <section className="todoapp__main">
 
           <div>
-            <TodoList
-              visibleTodos={visibleTodos}
-              setTodos={setTodos}
-              setErrorMessage={setErrorMessage}
-              todosLoader={todosLoader}
-              isLoadingCompleted={isLoadingCompleted}
-            />
+            <TodoList {...todoListProps} />
+
             {(formLoader && tempTodo) && (
-              <div className="todo">
-                <div className="modal overlay is-active">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-                <label className="todo__status-label">
-                  <input
-                    type="checkbox"
-                    className="todo__status"
-                  />
-                </label>
-
-                <span className="todo__title">{tempTodo?.title}</span>
-                <button type="button" className="todo__remove">×</button>
-
-                <div className="modal overlay">
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              </div>
+              <TodoModal tempTodo={tempTodo} />
             )}
           </div>
         </section>
 
         {todos.length !== 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${todos.filter(todo => !todo.completed).length} items left`}
-            </span>
-            <nav className="filter">
-              <a
-                href="#/"
-                className={classNames(
-                  'filter__link',
-                  { selected: filter === '' },
-                )}
-                onClick={() => setFilter('')}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={classNames(
-                  'filter__link',
-                  { selected: filter === 'Active' },
-                )}
-                onClick={() => setFilter('Active')}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={classNames(
-                  'filter__link',
-                  { selected: filter === 'Completed' },
-                )}
-                onClick={() => setFilter('Completed')}
-              >
-                Completed
-              </a>
-            </nav>
-
-            {todos.filter(todo => todo.completed).length !== 0 && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                onClick={handleClearCompleted}
-              >
-                Clear completed
-              </button>
-            )}
-          </footer>
+          <Footer
+            todos={todos}
+            filter={filter}
+            setFilter={setFilter}
+            clearCompletedTodos={clearCompletedTodos}
+          />
         )}
       </div>
       {errorMessage && (
