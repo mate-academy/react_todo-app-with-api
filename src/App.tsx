@@ -31,7 +31,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     postService
       .getTodos(USER_ID)
-      .then((todo: Todo[]) => setTodos(todo))
+      .then((todo: Todo[]) => todo
+        .map(tod => setTodos(prev => [tod, ...prev])))
       .catch(() => setIsError('Unable to load a todo'));
   }, []);
 
