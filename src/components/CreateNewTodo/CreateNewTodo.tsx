@@ -25,7 +25,12 @@ export const CreateNewTodo: React.FC<Props> = ({
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    onAddTodo(newTodoTitle);
+    const newTitle = newTodoTitle.trim();
+
+    if (newTitle) {
+      onAddTodo(newTitle);
+    }
+
     setNewTodoTitle('');
   };
 

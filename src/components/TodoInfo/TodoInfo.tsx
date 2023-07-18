@@ -4,15 +4,15 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  onDeleteTodo?: (todoId: number) => void;
-  loadingTodoId?: number | null;
-  onUpdateTodo?: (todoToUpdate: Todo, newTitle?: string) => void;
+  onDeleteTodo: (todoId: number) => void;
+  loadingTodoId: number | null;
+  onUpdateTodo: (todoToUpdate: Todo, newTitle?: string) => void;
 }
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   onDeleteTodo,
-  loadingTodoId = null,
+  loadingTodoId,
   onUpdateTodo,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,11 +38,11 @@ export const TodoInfo: React.FC<Props> = ({
   }, [isEditingTitle]);
 
   const handleDeleteTodo = () => (
-    onDeleteTodo && onDeleteTodo(id)
+    onDeleteTodo(id)
   );
 
   const handleUpdateStatus = () => (
-    onUpdateTodo && onUpdateTodo(todo)
+    onUpdateTodo(todo)
   );
 
   const handleDoubleClick = () => (
@@ -56,6 +56,7 @@ export const TodoInfo: React.FC<Props> = ({
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditingTitle(false);
+      setNewTitle(todo.title);
     }
   };
 
@@ -63,17 +64,13 @@ export const TodoInfo: React.FC<Props> = ({
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    if (onUpdateTodo) {
-      onUpdateTodo(todo, newTitle);
-    }
+    onUpdateTodo(todo, newTitle);
 
     setIsEditingTitle(false);
   };
 
   const handleBlur = () => {
-    if (onUpdateTodo) {
-      onUpdateTodo(todo, newTitle);
-    }
+    onUpdateTodo(todo, newTitle);
 
     setIsEditingTitle(false);
   };

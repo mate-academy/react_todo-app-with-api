@@ -15,11 +15,12 @@ import {
 } from './api/todos';
 import { ErrorMessage } from './types/ErrorMessage';
 import { StatusFilter } from './types/StatusFilter';
-import { TodoInfo } from './components/TodoInfo';
 import { Header } from './components/header/Header';
 import { Footer } from './components/Footer/Footer';
 import { ErrorMessageItem }
   from './components/ErrorMessageItem/ErrorMessageItem';
+import { filteredTodos } from './helpers';
+import { TempTodo } from './components/TempTodo/TempTodo';
 
 const USER_ID = 10906;
 
@@ -106,27 +107,16 @@ export const App: React.FC = () => {
   };
 
   const activeTodos = useMemo(() => (
-    todos.filter(todo => !todo.completed)
+    filteredTodos(todos, StatusFilter.ACTIVE)
   ), [todos]);
 
   const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed)
+    filteredTodos(todos, StatusFilter.COMPLETED)
   ), [todos]);
 
-  const visibleTodos = useMemo(() => {
-    const { ACTIVE, COMPLETED } = StatusFilter;
-
-    switch (selectedFilter) {
-      case ACTIVE:
-        return activeTodos;
-
-      case COMPLETED:
-        return completedTodos;
-
-      default:
-        return todos;
-    }
-  }, [todos, selectedFilter]);
+  const visibleTodos = useMemo(() => (
+    filteredTodos(todos, selectedFilter)
+  ), [todos, selectedFilter]);
 
   const deleteCompletedTodos = async () => {
     try {
@@ -142,11 +132,13 @@ export const App: React.FC = () => {
   const handleUpdateTodo = useCallback(async (
     todoToUpdate: Todo, newTitle?: string,
   ) => {
-    if (newTitle === todoToUpdate.title) {
+    const newTrimTitle = newTitle?.trim();
+
+    if (newTrimTitle === todoToUpdate.title) {
       return;
     }
 
-    if (newTitle === '') {
+    if (newTrimTitle === '') {
       handleDeleteTodo(todoToUpdate.id);
 
       return;
@@ -226,7 +218,7 @@ export const App: React.FC = () => {
             />
 
             {tempTodo && (
-              <TodoInfo
+              <TempTodo
                 todo={tempTodo}
                 loadingTodoId={tempTodo.id}
               />
