@@ -156,7 +156,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const hasActiveTodo = !!todos?.some((todo) => !todo.completed);
   const allCopmletedCheck = useCallback(() => todos.every((todo) => todo.completed), []);
   const [completedTodo, uncompletedTodo] = todos.reduce<[Todo[], Todo[]]>(
     (acc, todo) => {
@@ -195,7 +194,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          hasActiveTodo={hasActiveTodo}
+          todos={todos}
           allCopmletedCheck={allCopmletedCheck}
           handleToggleAllTodosCompleted={handleToggleAllTodosCompleted}
           handleSubmit={handleSubmit}

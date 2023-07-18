@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  hasActiveTodo: boolean;
+  todos: Todo[];
   allCopmletedCheck: () => boolean;
   handleToggleAllTodosCompleted: () => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -14,7 +14,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  hasActiveTodo,
+  todos,
   allCopmletedCheck,
   handleToggleAllTodosCompleted,
   handleSubmit,
@@ -24,7 +24,7 @@ export const Header: React.FC<Props> = ({
 }) => {
   return (
     <header className="todoapp__header">
-      {hasActiveTodo && (
+      {todos.length > 0 && (
 
         /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
         <button
