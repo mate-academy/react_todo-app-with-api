@@ -46,7 +46,7 @@ export const Header: FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: countOfActive,
+          active: !countOfActive,
         })}
         onClick={() => updateAll()}
       />

@@ -6,7 +6,7 @@ import {
 import classNames from 'classnames';
 import { TodoUpdate, Todo as TodoType } from '../types/Todo';
 import { EditForm } from './EditForm';
-import { TodoContext } from '../TodoContext';
+import { TodoContext } from '../context/TodoContext';
 
 type Props = {
   todo: TodoType;

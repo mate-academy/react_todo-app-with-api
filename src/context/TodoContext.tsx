@@ -4,8 +4,8 @@ import {
   useState,
   createContext,
 } from 'react';
-import { getUserId } from './api/todos';
-import { useUserId } from './hooks/useUserId';
+import { getUserId } from '../api/todos';
+import { useUserId } from '../hooks/useUserId';
 
 interface Context {
   userId: number | null;

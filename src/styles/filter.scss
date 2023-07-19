@@ -1,5 +1,7 @@
 .filter {
   display: flex;
+  align-self: center;
+  justify-self: center;
 
   &__link {
     margin: 3px;

@@ -10,7 +10,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import { TodoContext } from '../TodoContext';
+import { TodoContext } from '../context/TodoContext';
 import { ErrorType } from '../types/HelperTypes';
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const LoginForm: FC<Props> = ({ setErrorType }) => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState('imarchuk90@gmail.com');
   const { handleUserId } = useContext(TodoContext);
 
   const handleInputChanges = (event: ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,6 @@ export const LoginForm: FC<Props> = ({ setErrorType }) => {
       }
     } catch {
       setErrorType(ErrorType.WRONG_EMAIL);
-      setValue('imarchuk90@gmail.com');
     }
   };
 

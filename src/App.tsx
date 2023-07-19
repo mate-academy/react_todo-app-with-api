@@ -19,7 +19,7 @@ import { Header } from './components/Header';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Footer } from './components/Footer';
 import { LoginForm } from './components/LoginForm';
-import { TodoContext } from './TodoContext';
+import { TodoContext } from './context/TodoContext';
 
 const initialTodo: Todo = {
   id: 0,
@@ -39,22 +39,16 @@ export const App: React.FC = () => {
     userId,
   } = useContext(TodoContext);
 
-  const loadTodos = useCallback(async () => {
+  useEffect(() => {
     setErrorType(null);
 
     try {
       if (userId) {
-        const loadedTodos: Todo[] = await getTodos(userId);
-
-        setTodos(loadedTodos);
+        getTodos(userId).then(setTodos);
       }
     } catch {
       setErrorType(ErrorType.DATALOADING);
     }
-  }, [userId]);
-
-  useEffect(() => {
-    loadTodos();
   }, [userId]);
 
   const visibleTodos: Todo[] = useMemo(() => {
