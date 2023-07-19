@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
@@ -33,13 +32,14 @@ export const Header: React.FC<Props> = ({
     setNewTodoTitle('');
   };
 
-  const hasUncompletedTodos = todos.some((todo) => todo.completed === false);
+  const hasUncompletedTodos = todos.some((todo) => !todo.completed);
 
   return (
     <header className="todoapp__header">
 
       <button
         type="button"
+        aria-label="toggle-button"
         className={cn(
           'todoapp__toggle-all',
           { active: !hasUncompletedTodos },

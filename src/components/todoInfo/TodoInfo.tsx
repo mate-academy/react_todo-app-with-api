@@ -27,7 +27,9 @@ export const TodoInfo: React.FC<Props> = ({
   setError,
 }) => {
   const {
-    id, title, completed,
+    id,
+    title,
+    completed,
   } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
@@ -78,10 +80,10 @@ export const TodoInfo: React.FC<Props> = ({
       title: newTitle,
     })
       .then(() => {
-        const newTodoList = todos.map(t => {
-          return t.id === id
-            ? { ...t, title: newTitle }
-            : t;
+        const newTodoList = todos.map(todoItem => {
+          return todoItem.id === id
+            ? { ...todoItem, title: newTitle }
+            : todoItem;
         });
 
         setTodos(newTodoList);

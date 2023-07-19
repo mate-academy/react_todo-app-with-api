@@ -1,9 +1,11 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
-  createTodo, getTodos, removeTodo, updateTodo,
+  createTodo,
+  getTodos,
+  removeTodo,
+  updateTodo,
 } from './api/todos';
 import { Header } from './components/header';
 import { TodoList } from './components/todos';
@@ -52,8 +54,8 @@ export const App: React.FC = () => {
     };
   }, [error]);
 
-  const completedTodos = todos.filter((todo) => todo.completed === true);
-  const activeTodos = todos.filter((todo) => todo.completed !== true);
+  const completedTodos = todos.filter((todo) => todo.completed);
+  const activeTodos = todos.filter((todo) => !todo.completed);
 
   const visibleTodos: Todo[] = useMemo(() => {
     switch (filterMethod) {
@@ -140,7 +142,7 @@ export const App: React.FC = () => {
   };
 
   const toggleAllTodos = async () => {
-    const hasUncompletedTodos = todos.some((todo) => todo.completed === false);
+    const hasUncompletedTodos = todos.some((todo) => !todo.completed);
 
     let actionTodos: Todo[] = [];
 
@@ -153,6 +155,8 @@ export const App: React.FC = () => {
         { completed: !todoToUpdate.completed });
     });
   };
+
+  const todosLength = todos.filter(todo => !todo.completed).length;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -185,9 +189,9 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {todos.filter(todo => !todo.completed).length}
+              {todosLength}
               {' '}
-              items left
+              {todosLength === 1 ? 'item left' : 'items left'}
             </span>
 
             <Filter filter={filterMethod} setFilter={setFilterMethod} />
