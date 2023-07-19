@@ -1,28 +1,49 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 interface Props {
   isTodosPresent: boolean;
   isAllTodosCompleted: boolean;
   toggleAllTodos: () => void;
-  isAdding: boolean;
-  formSubmitHandler: (event: React.FormEvent<HTMLFormElement>) => void
-  handleNewTodoTitleChange: (
-    event: React.ChangeEvent<HTMLInputElement>) => void;
-  newTodoTitle: string;
+  addNewTodo: (title: string) => Promise<void>;
 }
 
 export const TodoHeader: React.FC<Props> = ({
   isTodosPresent,
   isAllTodosCompleted,
   toggleAllTodos,
-  isAdding,
-  formSubmitHandler,
-  handleNewTodoTitleChange,
-  newTodoTitle,
+  addNewTodo,
 }) => {
+  const [isAdding, setIsAdding] = useState<boolean>(false);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+
   const inputField = useRef<HTMLInputElement>(null);
   const didMountRef = useRef(false);
+
+  const clearNewTodoTitle = () => (
+    setNewTodoTitle('')
+  );
+
+  const formSubmitHandler = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    setIsAdding(true);
+
+    addNewTodo(newTodoTitle);
+
+    if (newTodoTitle.trim()) {
+      clearNewTodoTitle();
+    }
+
+    setIsAdding(false);
+  };
+
+  const handleNewTodoTitleChange
+  = (event: React.ChangeEvent<HTMLInputElement>) => (
+    setNewTodoTitle(event.target.value)
+  );
 
   useEffect(() => {
     if (didMountRef.current && inputField.current) {

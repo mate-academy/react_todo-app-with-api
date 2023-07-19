@@ -24,8 +24,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<ErrorMessages | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [updatingTodosId, setUpdatingTodosId] = useState<number[]>([]);
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -49,10 +47,6 @@ export const App: React.FC = () => {
   const isTodosPresent = todos.length > 0;
   const isAllTodosCompleted = todos.every(todo => todo.completed);
 
-  const clearNewTodoTitle = () => (
-    setNewTodoTitle('')
-  );
-
   const addNewTodo = async (title: string) => {
     if (!title.trim()) {
       setErrorMessage(ErrorMessages.TitleError);
@@ -74,30 +68,12 @@ export const App: React.FC = () => {
 
       const newTodo = await createTodo(newTodoPayload);
 
-      clearNewTodoTitle();
       setTodos((prevState) => [...prevState, newTodo]);
     } catch (error) {
       setErrorMessage(ErrorMessages.AddError);
     } finally {
       setTempTodo(null);
     }
-  };
-
-  const handleNewTodoTitleChange
-  = (event: React.ChangeEvent<HTMLInputElement>) => (
-    setNewTodoTitle(event.target.value)
-  );
-
-  const formSubmitHandler = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault();
-
-    setIsAdding(true);
-
-    addNewTodo(newTodoTitle);
-
-    setIsAdding(false);
   };
 
   const deleteTodo = async (todoId: number) => {
@@ -212,10 +188,7 @@ export const App: React.FC = () => {
           isTodosPresent={isTodosPresent}
           isAllTodosCompleted={isAllTodosCompleted}
           toggleAllTodos={toggleAllTodos}
-          formSubmitHandler={formSubmitHandler}
-          isAdding={isAdding}
-          newTodoTitle={newTodoTitle}
-          handleNewTodoTitleChange={handleNewTodoTitleChange}
+          addNewTodo={addNewTodo}
         />
 
         <TodoList
