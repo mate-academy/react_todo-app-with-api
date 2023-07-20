@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { getTodos } from '../../api/todos';
 import { createTodo, deleteTodo, updateTodo } from '../../utils/workWithTodos';
@@ -32,17 +32,14 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
   const [isClicked, setIsClicked] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isBeingEdited, setIsBeingEdited] = useState(0);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const activeTodos = useMemo(() => todos
+    .filter(todo => !todo.completed), [todos]);
 
   useEffect(() => {
     getTodos(userId)
       .then(todosFromServer => setTodos(todosFromServer))
       .catch(() => setErrorMessage(ErrorNames.LoadingError));
   }, []);
-
-  const handleSortTypeChange = (sortedType: SortType) => {
-    setSortType(sortedType);
-  };
 
   const handleTodoTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -151,7 +148,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
         await updateTodoAtIndex(index + 1);
       };
 
-      await updateTodoAtIndex(0);
+      updateTodoAtIndex(0);
     } finally {
       setIsCompleted(newCompletedValue);
       setIsUpdatingTodoId(0);
@@ -213,7 +210,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
             <TodoAppFooter
               activeTodosCount={activeTodos.length}
               sortType={sortType}
-              handleSortTypeChange={handleSortTypeChange}
+              setSortType={setSortType}
               deleteCompletedTodos={deleteCompletedTodos}
             />
           </>

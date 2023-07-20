@@ -6,14 +6,14 @@ import { SortType } from '../../../types/SortType';
 type Props = {
   activeTodosCount: number,
   sortType: SortType,
-  handleSortTypeChange: (param: SortType) => void,
+  setSortType: (param: SortType) => void,
   deleteCompletedTodos: () => void,
 };
 
 export const TodoAppFooter: React.FC<Props> = ({
   activeTodosCount,
   sortType,
-  handleSortTypeChange,
+  setSortType,
   deleteCompletedTodos,
 }) => {
   return (
@@ -31,7 +31,7 @@ export const TodoAppFooter: React.FC<Props> = ({
               selected: sortType === SortType.ALL,
             },
           )}
-          onClick={() => handleSortTypeChange(SortType.ALL)}
+          onClick={() => setSortType(SortType.ALL)}
         >
           All
         </a>
@@ -44,7 +44,7 @@ export const TodoAppFooter: React.FC<Props> = ({
               selected: sortType === SortType.ACTIVE,
             },
           )}
-          onClick={() => handleSortTypeChange(SortType.ACTIVE)}
+          onClick={() => setSortType(SortType.ACTIVE)}
         >
           Active
         </a>
@@ -57,7 +57,7 @@ export const TodoAppFooter: React.FC<Props> = ({
               selected: sortType === SortType.COMPLETED,
             },
           )}
-          onClick={() => handleSortTypeChange(SortType.COMPLETED)}
+          onClick={() => setSortType(SortType.COMPLETED)}
         >
           Completed
         </a>

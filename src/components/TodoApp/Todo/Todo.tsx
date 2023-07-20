@@ -27,14 +27,14 @@ export const Todo: React.FC<Props> = ({
   title,
   id,
   completed,
-  onDelete = () => {},
+  onDelete = () => { },
   isUpdatingTodoId = 0,
-  handleUpdateTodo = () => {},
+  handleUpdateTodo = () => { },
   isClicked = false,
-  setIsClicked = () => {},
+  setIsClicked = () => { },
   isBeingEdited = false,
-  setIsBeingEdited = () => {},
-  handleEditedTodoFormSubmit = () => {},
+  setIsBeingEdited = () => { },
+  handleEditedTodoFormSubmit = () => { },
 }) => {
   const [editedTitleValue, setEditedTitleValue]
     = useState('');
@@ -47,6 +47,11 @@ export const Todo: React.FC<Props> = ({
   const handleDoubleClick = (todoId: number) => {
     setIsBeingEdited(todoId);
     setEditedTitleValue(title);
+  };
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleEditedTodoFormSubmit(editedTitleValue, id, completed);
   };
 
   return (
@@ -63,10 +68,7 @@ export const Todo: React.FC<Props> = ({
           </label>
 
           <form
-            onSubmit={event => {
-              event.preventDefault();
-              handleEditedTodoFormSubmit(editedTitleValue, id, completed);
-            }}
+            onSubmit={onSubmit}
           >
             <input
               type="text"

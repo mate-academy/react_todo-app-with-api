@@ -14,7 +14,6 @@ export const filterTodos = (
       return todos.filter(todo => todo.completed);
     }
 
-    case SortType.ALL:
     default: {
       return todos;
     }
