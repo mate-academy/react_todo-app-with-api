@@ -28,11 +28,17 @@ export const App: React.FC = () => {
   const [loadingTodos, setLoadingTodos] = useState([0]);
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(todosFromServer => {
+    const fetchData = async () => {
+      try {
+        const todosFromServer = await getTodos(USER_ID);
+
         setTodos(todosFromServer);
-      })
-      .catch(() => setError('Error: cannot upload todos'));
+      } catch (errorUpload) {
+        setError('Error: cannot upload todos');
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -45,6 +51,7 @@ export const App: React.FC = () => {
       }, 2000);
       errorTimer = window.setTimeout(() => {
         setError(null);
+        setIsHidden(false);
       }, 3000);
     }
 
@@ -54,8 +61,15 @@ export const App: React.FC = () => {
     };
   }, [error]);
 
-  const completedTodos = todos.filter((todo) => todo.completed);
-  const activeTodos = todos.filter((todo) => !todo.completed);
+  const completedTodos = useMemo(
+    () => todos.filter((todo) => todo.completed),
+    [todos],
+  );
+
+  const activeTodos = useMemo(
+    () => todos.filter((todo) => !todo.completed),
+    [todos],
+  );
 
   const visibleTodos: Todo[] = useMemo(() => {
     switch (filterMethod) {
@@ -156,8 +170,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const todosLength = todos.filter(todo => !todo.completed).length;
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -189,9 +201,9 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {todosLength}
+              {activeTodos.length}
               {' '}
-              {todosLength === 1 ? 'item left' : 'items left'}
+              {activeTodos.length === 1 ? 'item left' : 'items left'}
             </span>
 
             <Filter filter={filterMethod} setFilter={setFilterMethod} />
