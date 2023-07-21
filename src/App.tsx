@@ -25,7 +25,7 @@ export const App: React.FC = () => {
   const [updatedTodoIds, setUpdatedTodoIds] = useState([0]);
 
   const [isTodoEditing, setIsTodoEditing] = useState<boolean>(false);
-  const [todoEditing, setTodoEditing] = useState<Todo>();
+  const [todoEditing, setTodoEditing] = useState<Todo | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
   const handleErrorMessage = (message: string) => {
