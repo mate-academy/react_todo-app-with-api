@@ -41,10 +41,6 @@ export const App: React.FC = () => {
     setEditingTodoId(null);
   };
 
-  const handleCancelEdit = () => {
-    setEditingTodoId(null);
-  };
-
   useEffect(() => {
     getTodos(USER_ID)
       .then((todosFromServer) => {
@@ -214,7 +210,6 @@ export const App: React.FC = () => {
                 <TodoEditForm
                   todo={todo}
                   onEdit={handleSaveTodo}
-                  onCancel={handleCancelEdit}
                 />
               ) : (
                 <span
