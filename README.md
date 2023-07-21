@@ -1,8 +1,6 @@
 # React Todo App 
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
-
-and here is a [DEMO LINK](https://novak-k.github.io/react_todo-app-with-api/)
+> Here is a [DEMO LINK](https://novak-k.github.io/react_todo-app-with-api/)
 
 ## Stack
 
