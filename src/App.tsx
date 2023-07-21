@@ -137,10 +137,10 @@ export const App: React.FC = () => {
       ? completedVisibleTodos
       : activeVisibleTodos;
 
-    actionTodos.forEach(async todoToUpdate => {
-      await toggleTodoStatus(todoToUpdate.id,
-        { completed: !todoToUpdate.completed });
-    });
+    Promise.all(
+      actionTodos.map(todoToUpdate => toggleTodoStatus(todoToUpdate.id,
+        { completed: !todoToUpdate.completed })),
+    );
   };
 
   const updateTodoTitle = async (
