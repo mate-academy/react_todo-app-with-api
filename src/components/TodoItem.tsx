@@ -26,11 +26,6 @@ export const TodoItem: React.FC<Props> = ({
   const [tempTitle, setTempTitle] = useState(todo.title);
   const [isSaving, setIsSaving] = useState(false);
 
-  //! left for future tasks so lint doesn't complain
-  if (selectedTodo?.id === -1) {
-    setSelectedTodo(null);
-  }
-
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
