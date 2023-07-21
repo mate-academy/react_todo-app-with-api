@@ -1,4 +1,4 @@
-import { SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { Todo } from '../types/Todo';
 
 export const TodoEditForm = ({ todo, onEdit }
@@ -6,7 +6,7 @@ export const TodoEditForm = ({ todo, onEdit }
   const [title, setTitle] = useState(todo.title);
 
   const handleTitleChange
-  = (event: { target: { value: SetStateAction<string>; }; }) => {
+  = (event: { target: { value: string; }; }) => {
     setTitle(event.target.value);
   };
 

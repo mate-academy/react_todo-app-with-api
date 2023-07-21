@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
@@ -16,7 +15,7 @@ const USER_ID = 10;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState(false);
+  const [hasError, setHasError] = useState<boolean>(false);
   const [filterStatus, setFilterStatus] = useState(Status.ALL);
 
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
@@ -25,12 +24,12 @@ export const App: React.FC = () => {
     setEditingTodoId((prevTodoId) => (prevTodoId === todoId ? null : todoId));
   };
 
-  const handleSaveTodo = (editedTodo: { id: number; title: any; }) => {
+  const handleSaveTodo = (editedTodo: { id: number; title: string; }) => {
     updateTodoStatus(editedTodo.id, { title: editedTodo.title })
       .then(() => {
-        // eslint-disable-next-line max-len
-        setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === editedTodo.id
-          ? { ...todo, title: editedTodo.title } : todo)));
+        setTodos(
+          (prevTodos) => prevTodos.map((todo) => (todo.id === editedTodo.id
+            ? { ...todo, title: editedTodo.title } : todo)));
       })
       .catch((error) => {
         setHasError(true);
@@ -79,7 +78,14 @@ export const App: React.FC = () => {
     const todoToUpdate = updatedTodos.find((todo) => todo.id === todoId);
 
     if (todoToUpdate) {
-      client.patch(`/todos/${todoId}`, { completed: todoToUpdate.completed });
+      client.patch(`/todos/${todoId}`, { completed: todoToUpdate.completed })
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error('Failed to update todo status:', error);
+          setTodos(prevTodos => prevTodos.map(
+            todo => (todo.id === todoId
+              ? { ...todo, completed: !todo.completed } : todo)));
+        });
     }
   };
 
@@ -166,13 +172,13 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {todoIsActive && (
+            // eslint-disable-next-line jsx-a11y/control-has-associated-label
             <button type="button" className="todoapp__toggle-all active" />
           )}
           <form
             onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
               event.preventDefault();
               const form = event.target as HTMLFormElement;
-              // eslint-disable-next-line max-len
               const newTodoTitle = form.newTodoTitle.value.trim();
 
               if (newTodoTitle) {
@@ -294,11 +300,14 @@ export const App: React.FC = () => {
           },
         )}
       >
-        <button
-          type="button"
-          className="delete"
-          onClick={() => setHasError(false)}
-        />
+        {
+          // eslint-disable-next-line jsx-a11y/control-has-associated-label
+          <button
+            type="button"
+            className="delete"
+            onClick={() => setHasError(false)}
+          />
+        }
         Unable to load todos
       </div>
     </div>

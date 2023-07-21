@@ -20,10 +20,9 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-// export const updateTodoStatus = (todoId: number, completed: boolean) => {
-//   return client.put<Todo>(`/todos/${todoId}`, { completed });
-// };
-
-export const updateTodoStatus = (todoId: any, updatedData: any) => {
+export const updateTodoStatus = (
+  todoId: number,
+  updatedData: Partial<Todo>,
+) => {
   return client.patch(`/todos/${todoId}`, updatedData);
 };
