@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
 import { UserWarning } from './UserWarning';
@@ -9,29 +7,26 @@ import { Todos } from './components/Todos';
 import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
 import {
-  deleteTodos, getTodos, patchTodos, postTodos,
+  deleteTodos,
+  getTodos,
+  patchTodos,
+  postTodos,
 } from './api/todos';
+import { TodoErrors } from './types/Errors';
+import { Header } from './components/Header/Header';
 
 export const USER_ID = '10682';
 
-export enum TodoErros {
-  Add = ' Unable to add a todo',
-  Delete = 'Unable to delete a todo',
-  Update = 'Unable to update a todo',
-  ErrorTodo = 'Can not find todos',
-}
-
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState<string>('');
+  const [tempTodoId, setTempTodoId] = useState<number | null>(null);
   const [filter, setFilter] = useState(FilterTypes.All);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-  const [tempTodoId, setTempTodoId] = useState<number | null>(null);
+  const [loadingTodos, setLoadingTodos] = useState<number[] | null>(null);
+  const [error, setError] = useState<TodoErrors | null>(null);
+
+  const [temporaryNewTodo, setTemporaryNewTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -39,9 +34,10 @@ export const App: React.FC = () => {
     getTodos(USER_ID).then(
       fetchedTodos => {
         setTodos(fetchedTodos as Todo[]);
-        setIsLoading(false);
       },
-    ).catch(() => setError(TodoErros.ErrorTodo));
+    ).catch(() => {
+      setError(TodoErrors.ErrorTodo);
+    }).finally(() => setIsLoading(false));
   }, []);
 
   const handleImputTodo = (
@@ -54,6 +50,7 @@ export const App: React.FC = () => {
     e: React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
+
     if (input.trim()) {
       const newTodo: Omit<Todo, 'id'> = {
         userId: Number(USER_ID),
@@ -61,19 +58,20 @@ export const App: React.FC = () => {
         completed: false,
       };
 
+      setTemporaryNewTodo({ ...newTodo, id: 1 });
+
       postTodos(USER_ID, newTodo).then((todo) => {
         const receivedTodo = todo as Todo;
 
-        setTempTodoId(receivedTodo.id);
-
         setTodos((prevTodos) => [...prevTodos, receivedTodo]);
         setInput('');
-        setTempTodoId(null);
 
-        if (error && error === TodoErros.Add) {
-          setError('');
+        if (error && error === TodoErrors.Add) {
+          setError(null);
         }
-      }).catch(() => setError(TodoErros.Add));
+      }).catch(() => {
+        setError(TodoErrors.Add);
+      }).finally(() => setTemporaryNewTodo(null));
     }
   };
 
@@ -83,70 +81,80 @@ export const App: React.FC = () => {
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       setTempTodoId(null);
 
-      if (error && error === TodoErros.Delete) {
-        setError('');
+      if (error && error === TodoErrors.Delete) {
+        setError(null);
       }
-    }).catch(() => setError(TodoErros.Delete));
+    }).catch(() => setError(TodoErrors.Delete));
   };
 
   const removeCompletedTodos = () => {
-    todos.filter(todo => todo.completed === true)
-      .map(currentTodo => deleteTodos(USER_ID, currentTodo.id)
-        .then(() => {
-          setTodos(prevTodos => prevTodos
-            .filter(todo => todo.completed === false));
+    const complitedTodos = todos.filter(todo => todo.completed === true);
 
-          if (error && error === TodoErros.Delete) {
-            setError('');
-          }
-        }).catch(() => setError(TodoErros.Delete)));
+    const complitedIds = complitedTodos.map(todo => todo.id);
+
+    setLoadingTodos(complitedIds);
+
+    complitedTodos.map(currentTodo => deleteTodos(USER_ID, currentTodo.id)
+      .then(() => {
+        setTodos(prevTodos => prevTodos
+          .filter(todo => todo.completed === false));
+
+        if (error && error === TodoErrors.Delete) {
+          setError(null);
+        }
+      }).catch(() => {
+        setError(TodoErrors.Delete);
+      }).finally(() => setLoadingTodos(null)));
   };
 
-  const handleCheckBoxTodo = (todoId: number) => {
+  const handleCheckBoxTodo = async (todoId: number) => {
     const curentTodo: Todo | undefined = todos.find(todo => todo.id === todoId);
 
     if (!curentTodo) {
       return;
     }
 
-    patchTodos(todoId, USER_ID, curentTodo).then(() => {
-      setTodos(prevTodos => prevTodos.map(
-        todo => {
-          if (todo.id === todoId) {
-            return {
-              ...todo,
-              completed: !todo.completed,
-            };
-          }
+    const updatedTodos = todos.map(todo => {
+      if (todo.id === todoId) {
+        return {
+          ...todo,
+          completed: !todo.completed,
+        };
+      }
 
-          return todo;
-        },
-      ));
+      if (error && error === TodoErrors.Update) {
+        setError(null);
+      }
+
+      return todo;
     });
+
+    setTodos(updatedTodos);
+
+    await Promise.all(updatedTodos.map(async (todo) => {
+      await patchTodos(USER_ID, todo).catch(() => {
+        setError(TodoErrors.Update);
+      });
+    }));
   };
 
-  const handleChackAllTodos = () => {
-    setTodos(currentTodos => currentTodos
-      .map(
-        currentTodo => {
-          return {
-            ...currentTodo,
-            completed: true,
-          };
-        },
-      ));
+  const handleChackAllTodos = async () => {
+    let updatedTodos = [];
 
-    if (todos.every(currTodo => currTodo.completed === true)) {
-      setTodos(currentTodos => currentTodos
-        .map(
-          currentTodo => {
-            return {
-              ...currentTodo,
-              completed: !currentTodo.completed,
-            };
-          },
-        ));
-    }
+    updatedTodos = todos.map(currTodo => {
+      return {
+        ...currTodo,
+        completed: !todos.every(currentTodo => currentTodo.completed),
+      };
+    });
+
+    setTodos(updatedTodos);
+
+    await Promise.all(updatedTodos.map(async (todo) => {
+      await patchTodos(USER_ID, todo).catch(() => {
+        setError(TodoErrors.Update);
+      });
+    }));
   };
 
   const filteredTodos = filter === FilterTypes.All
@@ -159,50 +167,42 @@ export const App: React.FC = () => {
       return !todo.completed;
     });
 
-  const filterTodos = (
-    type: FilterTypes,
-  ) => {
-    setFilter(type);
-  };
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          <button
-            type="button"
-            className={`todoapp__toggle-all ${todos.length > 0 && 'active'}`}
-            onClick={handleChackAllTodos}
-          />
-
-          <form onSubmit={handleAddTodo}>
-            <input
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={input}
-              onChange={handleImputTodo}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          input={input}
+          addTodo={handleAddTodo}
+          onCheckAllTodos={handleChackAllTodos}
+          handleImputTodo={handleImputTodo}
+        />
 
         {isLoading
           ? <Loader />
           : (
             <Todos
+              error={error}
               todos={filteredTodos}
+              loadingTodos={loadingTodos}
               onRemoveTodo={handleRemoveTodo}
               onCheckedTodo={handleCheckBoxTodo}
               tempTodoId={tempTodoId}
               handleImputTodo={handleImputTodo}
+              temporaryNewTodo={temporaryNewTodo}
             />
           )}
         {!!todos.length && (
           <Footer
             todos={todos}
-            onFilterType={filterTodos}
+            onFilterType={setFilter}
+            filter={filter}
             onRemoveTodos={removeCompletedTodos}
           />
         )}

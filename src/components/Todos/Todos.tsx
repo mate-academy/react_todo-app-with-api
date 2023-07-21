@@ -1,14 +1,18 @@
 import React from 'react';
 
-import { TodoItem } from '../../TodoItem';
+import { TodoItem } from '../TodoItem';
 import { Todo } from '../../types/Todo';
+import { TodoErrors } from '../../types/Errors';
 
 type Props = {
-  todos: Todo[]
-  onRemoveTodo: (todoId: number) => void
-  onCheckedTodo: (todoId: number) => void
-  tempTodoId: number | null
-  handleImputTodo: (e: React.ChangeEvent<HTMLInputElement>) => void
+  todos: Todo[];
+  onRemoveTodo: (todoId: number) => void;
+  onCheckedTodo: (todoId: number) => void;
+  tempTodoId: number | null;
+  handleImputTodo: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error: TodoErrors | null;
+  temporaryNewTodo?: Todo | null
+  loadingTodos?: number[] | null
 };
 
 export const Todos: React.FC<Props> = ({
@@ -17,19 +21,35 @@ export const Todos: React.FC<Props> = ({
   onCheckedTodo,
   tempTodoId,
   handleImputTodo,
+  error,
+  temporaryNewTodo,
+  loadingTodos,
 }) => {
   return (
     <section className="todoapp__main">
-      {todos.map(todo => (
+      {todos.map((todo) => (
         <TodoItem
+          error={error}
           todo={todo}
           key={todo.id}
           onRemoveTodo={onRemoveTodo}
           onCheckedTodo={onCheckedTodo}
-          loading={todo.id === tempTodoId}
+          loading={
+            todo.id === tempTodoId
+            || loadingTodos?.includes(todo.id)
+          }
           handleImputTodo={handleImputTodo}
         />
       ))}
+      {
+        temporaryNewTodo
+        && (
+          <TodoItem
+            todo={temporaryNewTodo}
+            loading
+          />
+        )
+      }
     </section>
   );
 };
