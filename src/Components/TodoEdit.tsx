@@ -27,7 +27,7 @@ export const TodoEditForm = ({ todo, onEdit }
       onChange={handleTitleChange}
       onBlur={handleBlur}
       onKeyPress={handleKeyPress}
-      className="todo__title-field" // Убедитесь, что у этого класса есть нужные стили для совпадения с элементом задачи
+      className="todo__title-field"
       // eslint-disable-next-line jsx-a11y/no-autofocus
       autoFocus
     />

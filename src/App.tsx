@@ -2,7 +2,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
-import { addTodo, deleteTodo, getTodos, updateTodoStatus } from './api/todos';
+import {
+  addTodo, deleteTodo, getTodos, updateTodoStatus,
+} from './api/todos';
 import { Status } from './types/Status';
 import { Todo } from './types/Todo';
 import { client } from './utils/fetchClient';
@@ -17,15 +19,12 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [filterStatus, setFilterStatus] = useState(Status.ALL);
 
-  // Вверху компонента App
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
 
-  // Функция для обработки начала редактирования задачи
   const handleEditTodo = (todoId: number) => {
     setEditingTodoId((prevTodoId) => (prevTodoId === todoId ? null : todoId));
   };
 
-  // Функция для обработки завершения редактирования задачи
   const handleSaveTodo = (editedTodo: { id: number; title: any; }) => {
     updateTodoStatus(editedTodo.id, { title: editedTodo.title })
       .then(() => {
@@ -42,7 +41,6 @@ export const App: React.FC = () => {
     setEditingTodoId(null);
   };
 
-  // Функция для обработки отмены редактирования задачи
   const handleCancelEdit = () => {
     setEditingTodoId(null);
   };
