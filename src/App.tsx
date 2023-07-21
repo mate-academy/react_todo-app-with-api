@@ -7,7 +7,6 @@ import React, {
 import { UserWarning } from './UserWarning';
 import { Todo, UpdatedTodo } from './types/Todo';
 import {
-  addTodos,
   deleteTodo,
   getTodos,
   updateTodo,
@@ -26,11 +25,9 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<TodoStatus>(TodoStatus.all);
   const [errorMessage, setErrorMessage]
   = useState<ErrorMessage>(ErrorMessage.noError);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletedTodoId, setDeletedTodoId] = useState<number[]>([]);
-  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
+  const [delUpdTodoIds, setDelUpdTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -60,47 +57,47 @@ export const App: React.FC = () => {
   const completedTodos = filteredTodos.filter(todo => todo.completed);
   const activeTodos = filteredTodos.filter(todo => !todo.completed);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-    setIsLoading(true);
-    setTempTodo({
-      id: 0,
-      title: newTodoTitle,
-      completed: false,
-      userId: USER_ID,
-    });
+  //   setIsLoading(true);
+  //   setTempTodo({
+  //     id: 0,
+  //     title: newTodoTitle,
+  //     completed: false,
+  //     userId: USER_ID,
+  //   });
 
-    if (!newTodoTitle.trim()) {
-      setErrorMessage(ErrorMessage.titleError);
-      setIsLoading(false);
-      setTempTodo(null);
+  //   if (!newTodoTitle.trim()) {
+  //     setErrorMessage(ErrorMessage.titleError);
+  //     setIsLoading(false);
+  //     setTempTodo(null);
 
-      return;
-    }
+  //     return;
+  //   }
 
-    addTodos(USER_ID, {
-      title: newTodoTitle,
-      userId: USER_ID,
-      completed: false,
-    })
-      .then((result) => {
-        setVisibleTodos((prevTodos) => {
-          return [result, ...prevTodos];
-        });
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.addError);
-      })
-      .finally(() => {
-        setIsLoading(false);
-        setTempTodo(null);
-        setNewTodoTitle('');
-      });
-  };
+  //   addTodos(USER_ID, {
+  //     title: newTodoTitle,
+  //     userId: USER_ID,
+  //     completed: false,
+  //   })
+  //     .then((result) => {
+  //       setVisibleTodos((prevTodos) => {
+  //         return [result, ...prevTodos];
+  //       });
+  //     })
+  //     .catch(() => {
+  //       setErrorMessage(ErrorMessage.addError);
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //       setTempTodo(null);
+  //       setNewTodoTitle('');
+  //     });
+  // };
 
   const removeTodo = (todoId: number) => {
-    setDeletedTodoId((prevState) => [...prevState, todoId]);
+    setDelUpdTodoIds((prevState) => [...prevState, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -114,13 +111,13 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.deleteError);
       })
       .finally(() => {
-        setDeletedTodoId([]);
+        setDelUpdTodoIds([]);
       });
   };
 
   const handleRemoveCompleted = () => {
     const todoToRemove = completedTodos.map(todo => {
-      setDeletedTodoId((prevState) => [...prevState, todo.id]);
+      setDelUpdTodoIds((prevState) => [...prevState, todo.id]);
 
       return deleteTodo(todo.id);
     });
@@ -128,7 +125,7 @@ export const App: React.FC = () => {
     Promise.all(todoToRemove)
       .then(() => {
         setVisibleTodos(activeTodos);
-        setDeletedTodoId([0]);
+        setDelUpdTodoIds([0]);
       });
   };
 
@@ -136,12 +133,12 @@ export const App: React.FC = () => {
     todoId: number,
     args: UpdatedTodo,
   ) => {
-    if (updatingTodoIds.includes(todoId)) {
+    if (delUpdTodoIds.includes(todoId)) {
       return;
     }
 
     setIsLoading(true);
-    setUpdatingTodoIds((prevState) => [...prevState, todoId]);
+    setDelUpdTodoIds((prevState) => [...prevState, todoId]);
 
     try {
       const updatedTodo = await updateTodo(todoId, args);
@@ -156,10 +153,10 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage(ErrorMessage.updateError);
     } finally {
-      setUpdatingTodoIds([]);
+      setDelUpdTodoIds([]);
       setIsLoading(false);
     }
-  }, [updatingTodoIds]);
+  }, [delUpdTodoIds]);
 
   const toggleAll = useCallback(async () => {
     await Promise.all(activeTodos.map(todo => (
@@ -184,19 +181,20 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           activeTodos={activeTodos}
-          handleSubmit={handleSubmit}
-          newTodoTitle={newTodoTitle}
-          setNewTodoTitle={setNewTodoTitle}
+          setTempTodo={setTempTodo}
           isLoading={isLoading}
           toggleAll={toggleAll}
+          USER_ID={USER_ID}
+          setVisibleTodos={setVisibleTodos}
+          setIsLoading={setIsLoading}
+          setErrorMessage={setErrorMessage}
         />
         <Todolist
           filteredTodos={filteredTodos}
           tempTodo={tempTodo}
           removeTodo={removeTodo}
-          deletedTodoId={deletedTodoId}
           handleUpdateTodo={handleUpdateTodo}
-          updatingTodoIds={updatingTodoIds}
+          delUpdTodoIds={delUpdTodoIds}
         />
 
         {visibleTodos.length !== 0 && (

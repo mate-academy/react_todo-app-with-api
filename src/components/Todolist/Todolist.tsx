@@ -5,28 +5,25 @@ type Props = {
   filteredTodos: Todo[];
   tempTodo: Todo | null,
   removeTodo: (todoId: number) => void,
-  deletedTodoId: number[],
   handleUpdateTodo: (todoId: number,
     args: UpdatedTodo) => void,
-  updatingTodoIds: number[],
+  delUpdTodoIds: number[],
 };
 
 export const Todolist: React.FC<Props> = ({
   filteredTodos,
   tempTodo,
   removeTodo,
-  deletedTodoId,
   handleUpdateTodo,
-  updatingTodoIds,
+  delUpdTodoIds,
 }) => (
   <section className="todoapp__main">
     {tempTodo && (
       <TodoInfo
         todo={tempTodo}
         removeTodo={removeTodo}
-        deletedTodoId={deletedTodoId}
+        delUpdTodoIds={delUpdTodoIds}
         handleUpdateTodo={handleUpdateTodo}
-        updatingTodoIds={updatingTodoIds}
       />
     )}
 
@@ -35,9 +32,8 @@ export const Todolist: React.FC<Props> = ({
         todo={todo}
         key={todo.id}
         removeTodo={removeTodo}
-        deletedTodoId={deletedTodoId}
+        delUpdTodoIds={delUpdTodoIds}
         handleUpdateTodo={handleUpdateTodo}
-        updatingTodoIds={updatingTodoIds}
       />
     ))}
 

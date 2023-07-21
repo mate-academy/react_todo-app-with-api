@@ -13,18 +13,16 @@ import { EditForm } from '../EditForm/EditForm';
 type Props = {
   todo: Todo,
   removeTodo: (todoId: number) => void,
-  deletedTodoId: number[],
   handleUpdateTodo: (todoId: number,
     args: UpdatedTodo) => void,
-  updatingTodoIds: number[],
+  delUpdTodoIds: number[],
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   removeTodo,
-  deletedTodoId,
   handleUpdateTodo,
-  updatingTodoIds,
+  delUpdTodoIds,
 }) => {
   const { completed, title, id } = todo;
 
@@ -113,8 +111,7 @@ export const TodoInfo: React.FC<Props> = ({
 
             <div className={cn('modal', 'overlay', {
               'is-active': todo.id === 0
-              || deletedTodoId.includes(id)
-              || updatingTodoIds.includes(id),
+              || delUpdTodoIds.includes(id),
             })}
             >
               <div className="modal-background has-background-white-ter" />
