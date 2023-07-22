@@ -83,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({
     event: React.FormEvent<HTMLFormElement>
     | React.FocusEvent<HTMLInputElement>,
   ) => {
-    if (event instanceof FormDataEvent) {
+    if (event.type === 'submit') {
       event.preventDefault();
     }
 
