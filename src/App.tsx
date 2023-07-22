@@ -108,7 +108,6 @@ export const App: React.FC = () => {
 
     handleAddTodo(todoTitle);
     setTodoTitle('');
-
   };
 
   const handleToggleCompleted = useCallback(
