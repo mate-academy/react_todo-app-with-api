@@ -102,10 +102,13 @@ export const App: React.FC = () => {
 
     if (!todoTitle.trim()) {
       setErrorMessage(ErrorMessages.TITLE);
+
+      return;
     }
 
     handleAddTodo(todoTitle);
     setTodoTitle('');
+
   };
 
   const handleToggleCompleted = useCallback(
