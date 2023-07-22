@@ -10,7 +10,6 @@ type Props = {
 export const TempTodo: React.FC<Props> = ({ tempTodo, isLoading }) => {
   return (
     <div
-      key={tempTodo.id}
       className={cn('todo', {
         completed: tempTodo?.completed,
       })}

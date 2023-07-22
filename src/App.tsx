@@ -94,7 +94,7 @@ export const App: React.FC = () => {
   const handleClearAllCompletedTodos = useCallback(async () => {
     todos
       .filter((todo) => todo.completed)
-      .map((todo) => handleRemoveTodo(todo.id));
+      .forEach((todo) => handleRemoveTodo(todo.id));
   }, [todos]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -143,7 +143,7 @@ export const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      todos.map((todo) => handleToggleCompleted(todo.id, todo.completed));
+      todos.forEach((todo) => handleToggleCompleted(todo.id, todo.completed));
     } catch {
       setErrorMessage(ErrorMessages.TOGGLE);
     } finally {
@@ -167,7 +167,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const allCopmletedCheck = useCallback(() => todos
+  const allCompletedCheck = useCallback(() => todos
     .every((todo) => todo.completed), []);
   const [completedTodo, uncompletedTodo] = todos
     .reduce<[Todo[], Todo[]]>(
@@ -208,7 +208,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={todos}
-          allCopmletedCheck={allCopmletedCheck}
+          allCompletedCheck={allCompletedCheck}
           handleToggleAllTodosCompleted={handleToggleAllTodosCompleted}
           handleSubmit={handleSubmit}
           todoTitle={todoTitle}
@@ -225,7 +225,7 @@ export const App: React.FC = () => {
           handleChangeTitle={handleChangeTitle}
         />
 
-        {!!todos?.length && (
+        {!!todos.length && (
           <Footer
             uncompletedTodos={uncompletedTodo}
             filterStatus={filterStatus}

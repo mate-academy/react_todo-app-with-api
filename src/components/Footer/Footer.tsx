@@ -25,7 +25,7 @@ export const Footer: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${uncompletedTodos?.length} items left`}</span>
+      <span className="todo-count">{`${uncompletedTodos.length} items left`}</span>
 
       <nav className="filter">
         <a
@@ -62,7 +62,7 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         className="todoapp__clear-completed"
-        style={{ opacity: completedTodos.length ? '1' : '0' }}
+        style={{ opacity: completedTodos.length > 0 ? '1' : '0' }}
         disabled={!completedTodos}
         onClick={handleClearAllCompletedTodos}
       >

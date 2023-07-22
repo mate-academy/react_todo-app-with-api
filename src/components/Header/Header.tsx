@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todos: Todo[];
-  allCopmletedCheck: () => boolean;
+  allCompletedCheck: () => boolean;
   handleToggleAllTodosCompleted: () => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   todoTitle: string;
@@ -15,7 +15,7 @@ type Props = {
 
 export const Header: React.FC<Props> = ({
   todos,
-  allCopmletedCheck,
+  allCompletedCheck,
   handleToggleAllTodosCompleted,
   handleSubmit,
   todoTitle,
@@ -24,13 +24,13 @@ export const Header: React.FC<Props> = ({
 }) => {
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
 
         /* eslint-disable-next-line jsx-a11y/control-has-associated-label */
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: allCopmletedCheck,
+            active: allCompletedCheck(),
           })}
           onClick={handleToggleAllTodosCompleted}
         />
