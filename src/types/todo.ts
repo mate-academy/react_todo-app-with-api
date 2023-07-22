@@ -8,7 +8,7 @@ export interface Todo {
 export type TodoForServer = {
   completed?: boolean;
   title?: string;
-}
+};
 
 export enum Filter {
   All = 'all',
