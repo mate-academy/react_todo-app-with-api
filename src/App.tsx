@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos } from './api/todos';
@@ -23,9 +22,7 @@ export const App: React.FC = () => {
       .catch(() => showError('Failed to get list of todos', setError));
   }, []);
 
-  let visibleTodos = todos;
-
-  visibleTodos = getFilteredTodos(todos, filter);
+  const visibleTodos = getFilteredTodos(todos, filter);
 
   if (!USER_ID) {
     return <UserWarning />;

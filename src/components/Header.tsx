@@ -30,7 +30,7 @@ export const Header: React.FC<Props> = ({
   const newTodo = {
     id: 0,
     title: searchQuery,
-    userId: 10881,
+    userId: USER_ID,
     completed: false,
   };
 
@@ -115,7 +115,6 @@ export const Header: React.FC<Props> = ({
         )
       }
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleSubmit}
       >
