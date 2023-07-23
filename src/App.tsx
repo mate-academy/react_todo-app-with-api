@@ -21,7 +21,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const [errorState, setErrorState] = useState<ErrorState>(
-    { message: ErrorMessages.noError, showError: false },
+    { message: ErrorMessages.NoError, showError: false },
   );
 
   const resetErrorMessage = useCallback((clearTimer = false) => {
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
 
         setTodosList(res);
       } catch (e) {
-        createNotification(ErrorMessages.fetchAll);
+        createNotification(ErrorMessages.FetchAll);
       }
     };
 
@@ -64,7 +64,7 @@ export const App: React.FC = () => {
 
   const createNewTodo = useCallback(async (title: string) => {
     if (!title.trim().length) {
-      createNotification(ErrorMessages.emptyValue);
+      createNotification(ErrorMessages.EmptyValue);
 
       return;
     }
@@ -85,7 +85,7 @@ export const App: React.FC = () => {
       setTodosList(currentList => [...currentList, newTodo]);
       setTempTodo(null);
     } catch (e) {
-      createNotification(ErrorMessages.addError);
+      createNotification(ErrorMessages.AddError);
       setTempTodo(null);
     }
   }, [createNotification]);
@@ -96,7 +96,7 @@ export const App: React.FC = () => {
 
       setTodosList(list => list.filter(t => t.id !== +id));
     } catch (e) {
-      createNotification(ErrorMessages.deleteError);
+      createNotification(ErrorMessages.DeleteError);
     }
   }, [createNotification]);
 
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
       await Promise.all(preparedToDelete);
       setTodosList(list => list.filter(t => !t.completed));
     } catch (e) {
-      createNotification(ErrorMessages.deleteError);
+      createNotification(ErrorMessages.DeleteError);
     }
   }, [todosList, createNotification]);
 
@@ -125,7 +125,7 @@ export const App: React.FC = () => {
           return t;
         }));
       } catch (e) {
-        createNotification(ErrorMessages.updateError);
+        createNotification(ErrorMessages.UpdateError);
       }
     }, [createNotification],
   );
@@ -151,7 +151,7 @@ export const App: React.FC = () => {
           setTodosList(todos);
         }
       } catch (e) {
-        createNotification(ErrorMessages.updateError);
+        createNotification(ErrorMessages.UpdateError);
       }
     }, [createNotification, todosList],
   );

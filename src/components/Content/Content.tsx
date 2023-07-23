@@ -35,21 +35,26 @@ const Content: React.FC<Props> = memo(({
       case Filter.Completed:
         return todos.filter(todo => todo.completed);
 
-      case Filter.All:
       default:
         return todos;
     }
   }, [filter, todos]);
 
-  const areAllTasksCompleted = todos.every(todo => todo.completed);
-  const isSomeTaskCompleted = todos.some(todo => todo.completed);
-  const countOfActiveTodos = todos.reduce((count, todo) => {
-    if (!todo.completed) {
-      return count + 1;
-    }
+  const areAllTasksCompleted = useMemo(
+    () => todos.every(todo => todo.completed), [todos],
+  );
+  const isSomeTaskCompleted = useMemo(
+    () => todos.some(todo => todo.completed), [todos],
+  );
+  const countOfActiveTodos = useMemo(
+    () => todos.reduce((count, todo) => {
+      if (!todo.completed) {
+        return count + 1;
+      }
 
-    return count;
-  }, 0);
+      return count;
+    }, 0), [todos],
+  );
 
   return (
     <div className="todoapp__content">

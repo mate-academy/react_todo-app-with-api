@@ -32,7 +32,7 @@ const TodoFooter: React.FC<Props> = React.memo(({
 
       <nav className="filter">
         <a
-          href="src/components/TodoHeader#/"
+          href="#/"
           className={cn(
             'filter__link',
             { selected: filter === Filter.All },
@@ -43,7 +43,7 @@ const TodoFooter: React.FC<Props> = React.memo(({
         </a>
 
         <a
-          href="src/components/TodoHeader#/active"
+          href="#/active"
           className={cn(
             'filter__link',
             { selected: filter === Filter.Active },
@@ -54,7 +54,7 @@ const TodoFooter: React.FC<Props> = React.memo(({
         </a>
 
         <a
-          href="src/components/TodoHeader#/completed"
+          href="#/completed"
           className={cn(
             'filter__link',
             { selected: filter === Filter.Completed },

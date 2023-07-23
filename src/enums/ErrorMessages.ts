@@ -1,8 +1,8 @@
 export enum ErrorMessages {
-  noError = '',
-  fetchAll = 'Unable to fetch todos',
-  emptyValue = 'Title can\'t be empty',
-  addError = 'Unable to add a todo',
-  deleteError = 'Unable to delete a todo',
-  updateError = 'Unable to update a todo',
+  NoError = '',
+  FetchAll = 'Unable to fetch todos',
+  EmptyValue = 'Title can\'t be empty',
+  AddError = 'Unable to add a todo',
+  DeleteError = 'Unable to delete a todo',
+  UpdateError = 'Unable to update a todo',
 }
