@@ -32,6 +32,13 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(event.target.value);
   };
 
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditingTodoId(null);
+      setNewTitle(title);
+    }
+  };
+
   const handleCheckboxChange = () => onUpdate(id, { completed: !completed });
 
   const saveChanges = () => {
@@ -74,6 +81,7 @@ export const TodoItem: React.FC<Props> = ({
             value={newTitle}
             onChange={handleTitleChange}
             onBlur={saveChanges}
+            onKeyUp={handleKeyUp}
             ref={titleField}
           />
         </form>

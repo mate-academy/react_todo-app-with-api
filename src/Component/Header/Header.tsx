@@ -5,23 +5,24 @@ import { ErrorType } from '../../types/ErrorType';
 type Props = {
   activeTodosCount: number;
   onSubmit: (title: string) => void;
-  onEmptyValue: (value: ErrorType) => void;
+  setEmptyValueErr: (value: ErrorType | null) => void;
   onToggle: (status: boolean) => void;
 };
 
 export const Header: React.FC<Props> = ({
-  activeTodosCount, onSubmit, onEmptyValue, onToggle,
+  activeTodosCount, onSubmit, setEmptyValueErr, onToggle,
 }) => {
   const [titleQuery, setTitleQuery] = useState('');
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitleQuery(event.target.value);
+    setEmptyValueErr(null);
   };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (titleQuery.trim() === '') {
-      onEmptyValue(ErrorType.EMPTY);
+      setEmptyValueErr(ErrorType.EMPTY);
     } else {
       onSubmit(titleQuery);
       setTitleQuery('');

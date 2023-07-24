@@ -25,12 +25,15 @@ export const App: React.FC = () => {
   const [isHidden, setIsHidden] = useState<boolean>(false);
   const [isProcessings, setIsProcessings] = useState<number[]>([]);
 
-  const showNotification = (value: ErrorType) => {
-    setErrorMessage(value);
-    setTimeout(() => {
+  useEffect(() => {
+    const hideTimer = setTimeout(() => {
       setIsHidden(true);
     }, 3000);
-  };
+
+    return () => {
+      clearTimeout(hideTimer);
+    };
+  }, [errorMessage]);
 
   const loadTodos = async () => {
     setErrorMessage(null);
@@ -40,7 +43,7 @@ export const App: React.FC = () => {
 
       setTodos(loadedTodos);
     } catch {
-      showNotification(ErrorType.LOAD);
+      setErrorMessage(ErrorType.LOAD);
     }
   };
 
@@ -49,6 +52,8 @@ export const App: React.FC = () => {
   }, []);
 
   const addTodo = async (title: string) => {
+    setErrorMessage(null);
+    setIsHidden(false);
     const newTodo = {
       userId: USER_ID,
       title,
@@ -61,19 +66,21 @@ export const App: React.FC = () => {
 
       setTodos(currentTodos => [...currentTodos, addedTodo]);
     } catch {
-      showNotification(ErrorType.ADD);
+      setErrorMessage(ErrorType.ADD);
     } finally {
       setTempTodo(null);
     }
   };
 
   const deleteTodo = async (todoId: number) => {
+    setErrorMessage(null);
+    setIsHidden(false);
     setIsProcessings(currentTodoId => [...currentTodoId, todoId]);
     try {
       await todoService.deleteTodo(todoId);
       setTodos(currentTodos => currentTodos.filter(({ id }) => id !== todoId));
     } catch {
-      showNotification(ErrorType.DELETE);
+      setErrorMessage(ErrorType.DELETE);
     } finally {
       setIsProcessings([]);
     }
@@ -85,6 +92,8 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = async (todoId: number, args: Partial<Todo>) => {
+    setErrorMessage(null);
+    setIsHidden(false);
     setIsProcessings(currentTodoId => [...currentTodoId, todoId]);
     try {
       const updatedTodo = await todoService.updateTodo(todoId, args);
@@ -97,7 +106,7 @@ export const App: React.FC = () => {
         return updatedTodo;
       }));
     } catch {
-      showNotification(ErrorType.UPDATE);
+      setErrorMessage(ErrorType.UPDATE);
     } finally {
       setIsProcessings([]);
     }
@@ -141,7 +150,7 @@ export const App: React.FC = () => {
         <Header
           activeTodosCount={activeTodosCount}
           onSubmit={addTodo}
-          onEmptyValue={showNotification}
+          setEmptyValueErr={setErrorMessage}
           onToggle={toggleAllStatus}
         />
         {visibleTodos.length > 0 && (
