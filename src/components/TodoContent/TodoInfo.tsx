@@ -38,7 +38,7 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
       return;
     }
 
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       onDeleteTodo(todo.id);
 
       return;

@@ -12,20 +12,25 @@ export const ErrorNotification: FC = () => {
   } = useContext(TodoContext);
 
   const errorMessage = useRef(error);
+  const timerId = useRef(0);
 
   useEffect(() => {
     errorMessage.current = error;
+    clearTimeout(timerId.current);
 
     if (error) {
-      setTimeout(() => onErrorChange(null), 3000);
+      timerId.current = window.setTimeout(() => {
+        onErrorChange(null);
+      }, 3000);
     }
   }, [error]);
 
   return (
-    /* eslint-disable-next-line max-len */
-    <div className={classNames('notification is-danger is-light has-text-weight-normal', {
-      hidden: !error,
-    })}
+    <div
+      /* eslint-disable-next-line max-len */
+      className={classNames('notification is-danger is-light has-text-weight-normal', {
+        hidden: !error,
+      })}
     >
       <button
         type="button"

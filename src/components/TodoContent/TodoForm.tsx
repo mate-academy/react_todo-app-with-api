@@ -38,7 +38,7 @@ export const TodoForm: FC = () => {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       onErrorChange(ErrorType.EmptyTitle);
 
       return;
