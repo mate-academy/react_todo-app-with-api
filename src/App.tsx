@@ -215,6 +215,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
           addTodo={addTodo}
           setEmptyTitleError={setErrorMessage}
           allTodosCompleted={todos.length === completedCount}

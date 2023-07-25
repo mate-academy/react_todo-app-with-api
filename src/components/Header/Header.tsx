@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
+import { Todo } from '../../types/Todo';
 
 interface Props {
   addTodo: (title: string) => void;
   setEmptyTitleError?: (message: ErrorMessage) => void;
   allTodosCompleted: boolean;
   onToggleAll: (completed: boolean) => void;
+  todos: Todo[];
 }
 
 export const Header: React.FC<Props> = ({
@@ -14,6 +16,7 @@ export const Header: React.FC<Props> = ({
   setEmptyTitleError,
   allTodosCompleted,
   onToggleAll,
+  todos,
 }) => {
   const [newTodo, setNewTodo] = useState('');
 
@@ -40,15 +43,17 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: allTodosCompleted,
-        })}
-        onClick={handleToggleAll}
-        disabled={!allTodosCompleted}
-      />
+      {todos.length > 0 && (
+        // eslint-disable-next-line jsx-a11y/control-has-associated-label
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: allTodosCompleted,
+          })}
+          onClick={handleToggleAll}
+          disabled={!allTodosCompleted}
+        />
+      )}
 
       <form onSubmit={handleFormSubmit}>
         <input
