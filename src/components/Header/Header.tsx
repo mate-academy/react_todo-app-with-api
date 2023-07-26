@@ -7,7 +7,7 @@ interface Props {
   addTodo: (title: string) => void;
   setEmptyTitleError?: (message: ErrorMessage) => void;
   allTodosCompleted: boolean;
-  onToggleAll: (completed: boolean) => void;
+  onToggleAll: (completed: boolean, todoId?: number) => void;
   todos: Todo[];
 }
 
@@ -51,7 +51,6 @@ export const Header: React.FC<Props> = ({
             active: allTodosCompleted,
           })}
           onClick={handleToggleAll}
-          disabled={!allTodosCompleted}
         />
       )}
 

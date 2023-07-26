@@ -157,23 +157,32 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleToggleAll = (completed: boolean) => {
-    const updatedTodos = todos.map((todo) => ({
-      ...todo,
-      completed,
-    }));
+  const handleToggleAll = async (completed: boolean) => {
+    const activeTodos = todos.filter((todo) => todo.completed !== completed);
+    const todoIdsToUpdate = activeTodos.map((todo) => todo.id);
 
-    setTodos(updatedTodos);
+    try {
+      setLoadingTodoIds(todoIdsToUpdate);
 
-    const newCompletedCount = completed ? todos.length : 0;
+      const updatedTodos = todos.map((todo) => ({
+        ...todo,
+        completed,
+      }));
 
-    setCompletedCount(newCompletedCount);
+      setTodos(updatedTodos);
 
-    updatedTodos.forEach((todo) => {
-      if (todo.completed !== completed) {
-        updateTodoStatus(todo.id, completed);
-      }
-    });
+      await Promise.all(
+        activeTodos.map((todo) => updateTodoStatus(todo.id, completed)),
+      );
+
+      const newCompletedCount = completed ? todos.length : 0;
+
+      setCompletedCount(newCompletedCount);
+    } catch (error) {
+      setErrorMessage(ErrorMessage.UpdateTodo);
+    } finally {
+      setLoadingTodoIds([]);
+    }
   };
 
   const handleEditTodo = async (todoId: number, newTitle: string) => {
