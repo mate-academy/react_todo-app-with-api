@@ -13,7 +13,8 @@ type Action =
   | { type: 'DELETE_TODO', payload: number }
   | { type: 'SET_ERROR', payload: string }
   | { type: 'SET_LOADING', payload: boolean }
-  | { type: 'SET_SELECTED', payload: number | null }
+  | { type: 'SET_SELECTED', payload: number }
+  | { type: 'CLEAR_SELECTED' }
   | { type: 'SET_FILTER', payload: StatusType }
   | { type: 'SET_TEMP_TODO', payload: ITodo | null }
   | { type: 'TOGGLE_TODO', payload: number }
@@ -26,7 +27,7 @@ interface State {
   loading: boolean;
   error: string;
   tempTodo: ITodo | null;
-  selectedTodoId: number | null;
+  selectedTodoIds: number[];
 }
 
 const reducer = (state: State, action: Action): State => {
@@ -73,7 +74,13 @@ const reducer = (state: State, action: Action): State => {
     case 'SET_SELECTED':
       return {
         ...state,
-        selectedTodoId: action.payload,
+        selectedTodoIds: [...state.selectedTodoIds, action.payload],
+      };
+
+    case 'CLEAR_SELECTED':
+      return {
+        ...state,
+        selectedTodoIds: [],
       };
 
     case 'SET_ERROR':
@@ -130,7 +137,7 @@ const initialState: State = {
   loading: false,
   error: '',
   tempTodo: null,
-  selectedTodoId: null,
+  selectedTodoIds: [],
 };
 
 export const StateContext = createContext(initialState);

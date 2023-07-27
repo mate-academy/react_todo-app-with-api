@@ -37,6 +37,7 @@ export const TodoForm: React.FC = () => {
   const toggleAllTodos = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: '' });
+    todos.forEach(todo => dispatch({ type: 'SET_SELECTED', payload: todo.id }));
 
     try {
       const allTodosCompleted = todos.every(todo => todo.completed);
@@ -65,6 +66,7 @@ export const TodoForm: React.FC = () => {
       dispatch({ type: 'SET_TODOS', payload: todos });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'CLEAR_SELECTED' });
     }
   };
 

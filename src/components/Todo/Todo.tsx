@@ -15,12 +15,12 @@ type Props = {
 export const Todo: React.FC<Props> = ({
   todo: { id, title, completed },
 }) => {
-  const { loading, selectedTodoId, todos } = useContext(StateContext);
+  const { loading, selectedTodoIds, todos } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const input = useRef<HTMLInputElement>(null);
 
-  const isSelected = selectedTodoId === id;
+  const isSelected = selectedTodoIds.includes(id);
 
   useEffect(() => {
     if (isEditing && input.current) {
@@ -46,7 +46,7 @@ export const Todo: React.FC<Props> = ({
       dispatch({ type: 'SET_ERROR', payload: 'Unable to delete a todo' });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
-      dispatch({ type: 'SET_SELECTED', payload: null });
+      dispatch({ type: 'CLEAR_SELECTED' });
     }
   };
 
@@ -75,7 +75,7 @@ export const Todo: React.FC<Props> = ({
       dispatch({ type: 'SET_TODOS', payload: todos });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
-      dispatch({ type: 'SET_SELECTED', payload: null });
+      dispatch({ type: 'CLEAR_SELECTED' });
     }
   };
 
@@ -96,7 +96,7 @@ export const Todo: React.FC<Props> = ({
       dispatch({ type: 'SET_TODOS', payload: todos });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
-      dispatch({ type: 'SET_SELECTED', payload: null });
+      dispatch({ type: 'CLEAR_SELECTED' });
     }
   };
 

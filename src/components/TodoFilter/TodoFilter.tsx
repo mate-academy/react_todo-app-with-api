@@ -31,13 +31,18 @@ export const TodoFilter: React.FC = () => {
   };
 
   const onClearCompleted = async () => {
+    const completedTodos = todos.filter((todo) => todo.completed);
+    const activeTodos = todos.filter((todo) => !todo.completed);
+    const completedTodoIds = completedTodos.map((todo) => todo.id);
+
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: '' });
+    completedTodos.forEach((todo) => {
+      dispatch({ type: 'SET_SELECTED', payload: todo.id });
+    });
 
     try {
-      const completedTodos = todos.filter((todo) => todo.completed);
-      const activeTodos = todos.filter((todo) => !todo.completed);
-      const completedTodoIds = completedTodos.map((todo) => todo.id);
+      dispatch({ type: 'SET_TODOS', payload: activeTodos });
 
       const deletedTodos = completedTodoIds.map((todoId) => (
         todoService.deleteTodo(
@@ -46,14 +51,14 @@ export const TodoFilter: React.FC = () => {
       ));
 
       await Promise.all(deletedTodos);
-
-      dispatch({ type: 'SET_TODOS', payload: activeTodos });
     } catch (error) {
       dispatch(
         { type: 'SET_ERROR', payload: 'Unable to clear completed todos' },
       );
+      dispatch({ type: 'SET_TODOS', payload: todos });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'CLEAR_SELECTED' });
     }
   };
 
