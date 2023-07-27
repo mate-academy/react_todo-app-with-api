@@ -6,7 +6,7 @@ type Props = {
   todo: Todo;
   onDelete: (id: number) => void
   updateTodo: (uTodo: Todo) => void,
-  loadingTodoIds: number[]
+  loadingTodoIds: number[],
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -38,8 +38,7 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const handlerChangeStatus = (e: React.ChangeEvent) => {
-    e.preventDefault();
+  const handlerChangeStatus = () => {
     const updatedTodo = { ...todo, completed: !todo.completed };
 
     updateTodo(updatedTodo);
@@ -57,13 +56,12 @@ export const TodoItem: React.FC<Props> = ({
       className={classNames('todo', {
         completed,
       })}
-      key={id}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          defaultChecked={completed}
+          checked={completed}
           onChange={handlerChangeStatus}
         />
       </label>

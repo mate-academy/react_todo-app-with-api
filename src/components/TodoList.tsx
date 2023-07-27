@@ -7,14 +7,14 @@ type Props = {
   onDelete: (id: number) => void;
   tempTodo: Todo | null,
   updateTodo: (uTodo: Todo) => void,
-  loadingTodoIds: number[]
+  loadingTodoIds: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
   preparedTodos,
-  onDelete = () => { },
+  onDelete,
   tempTodo,
-  updateTodo = () => { },
+  updateTodo,
   loadingTodoIds,
 }) => {
   return (

@@ -18,6 +18,11 @@ export const Footer: React.FC<Props> = ({
 }) => {
   const isActiveTodos = todos.filter(todo => !todo.completed);
 
+  // const handleClick = (event: React.MouseEvent) => {
+  //   event.preventDefault();
+  //   setSelectItem(selectItem);
+  // };
+
   const handleClear = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
@@ -38,7 +43,10 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectItem === Status.ALL,
           })}
-          onClick={() => setSelectItem(Status.ALL)}
+          onClick={(event) => {
+            event.preventDefault();
+            setSelectItem(Status.ALL);
+          }}
         >
           All
         </a>
@@ -48,7 +56,10 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectItem === Status.ACTIVE,
           })}
-          onClick={() => setSelectItem(Status.ACTIVE)}
+          onClick={(event) => {
+            event.preventDefault();
+            setSelectItem(Status.ACTIVE);
+          }}
         >
           Active
         </a>
@@ -58,7 +69,10 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectItem === Status.COMPLETED,
           })}
-          onClick={() => setSelectItem(Status.COMPLETED)}
+          onClick={(event) => {
+            event.preventDefault();
+            setSelectItem(Status.COMPLETED);
+          }}
         >
           Completed
         </a>

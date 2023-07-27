@@ -50,7 +50,7 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  }, [USER_ID, todos]);
+  }, [USER_ID]);
 
   const deleteTodo = async (todoId: number) => {
     setLoadingTodoIds(prevIds => [...prevIds, todoId]);
@@ -62,9 +62,6 @@ export const App: React.FC = () => {
         setTodos(todos);
         setErrorMessage('Unable to delete a todo');
         throw err;
-      })
-      .finally(() => {
-        setLoadingTodoIds([0]);
       });
   };
 
@@ -100,7 +97,7 @@ export const App: React.FC = () => {
 
         case Status.ALL:
         default:
-          return todos;
+          return true;
       }
     });
   }, [todoStatus, todos]);

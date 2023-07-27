@@ -9,8 +9,6 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({ todos, addTodo, updateTodo }) => {
-  const isSomeActive = todos.some(todo => !todo.completed);
-
   const [value, setValue] = useState('');
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,19 +17,19 @@ export const Header: React.FC<Props> = ({ todos, addTodo, updateTodo }) => {
     setValue('');
   };
 
-  const handleCompleteAll = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleCompleteAll = () => {
     const activeTodos = todos.filter(todo => !todo.completed);
+    const isSomeActive = todos.some(todo => !todo.completed);
 
     if (isSomeActive) {
       activeTodos.forEach(todo => {
-        const updatedTodo = { ...todo, completed: !todo.completed };
+        const updatedTodo = { ...todo, completed: true };
 
         updateTodo(updatedTodo);
       });
     } else {
       todos.forEach(todo => {
-        const updatedTodo = { ...todo, completed: !todo.completed };
+        const updatedTodo = { ...todo, completed: false };
 
         updateTodo(updatedTodo);
       });
@@ -45,7 +43,8 @@ export const Header: React.FC<Props> = ({ todos, addTodo, updateTodo }) => {
           type="button"
           aria-label="button"
           className={classNames('todoapp__toggle-all',
-            isSomeActive ? '' : 'active')}
+            todos.some(todo => !todo.completed)
+              ? '' : 'active')}
           onClick={handleCompleteAll}
         />
       )}
