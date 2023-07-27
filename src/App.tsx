@@ -3,7 +3,9 @@ import React, {
 } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo, TodoStatus } from './types/Todo';
-import { createTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  createTodo, deleteTodo, getTodos,
+} from './api/todos';
 import { filterTodos } from './utils/todoUtil';
 import { TodoList } from './components/TodoList';
 import { Header } from './components/Header';
@@ -19,13 +21,13 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState(TodoStatus.ALL);
   const [errorMessage, setErrorMessage] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [activeTodoId, setActiveTodoId] = useState<number | null>(null);
+  const [activeTodosId, setActiveTodosId] = useState<number[]>([]);
   const [temporatyTodo, setTemporatyTodo] = useState<Todo | null>(null);
   // #endregion
 
   // #region handlers
   const handleTodoDelete = useCallback((todoId: number) => {
-    setActiveTodoId(todoId);
+    setActiveTodosId([todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -33,7 +35,7 @@ export const App: React.FC = () => {
       })
       .catch(() => setErrorMessage('Unable to delete todo'))
       .finally(() => {
-        setActiveTodoId(null);
+        setActiveTodosId([]);
         setTitle('');
       });
   }, []);
@@ -85,7 +87,7 @@ export const App: React.FC = () => {
     return filterTodos(todos, TodoStatus.ACTIVE);
   }, [todos]);
 
-  const isDisabled = activeTodoId && isLoading;
+  const isDisabled = activeTodosId.length > 0 && isLoading;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -106,7 +108,7 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={visibleTodos}
-          activeTodoId={activeTodoId}
+          activeTodosId={activeTodosId}
           temporaryTodo={temporatyTodo}
           onDelete={handleTodoDelete}
           isDeleteDisabled={isDisabled}

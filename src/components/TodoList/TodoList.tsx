@@ -4,7 +4,7 @@ import { TodoInfo } from '../TodoInfo';
 
 type Props = {
   todos: Todo[];
-  activeTodoId: number | null;
+  activeTodosId: number[];
   temporaryTodo: Todo | null;
   onDelete: (id: number) => void;
   isDeleteDisabled: boolean | null | 0;
@@ -12,7 +12,7 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  activeTodoId,
+  activeTodosId,
   temporaryTodo,
   onDelete,
   isDeleteDisabled,
@@ -23,7 +23,7 @@ export const TodoList: React.FC<Props> = ({
         todo={todo}
         onDelete={onDelete}
         isDeleteDisabled={isDeleteDisabled}
-        isLoading={activeTodoId ? activeTodoId === todo.id : false}
+        isLoading={activeTodosId.some(activeId => activeId === todo.id)}
         key={todo.id}
       />
     ))}
