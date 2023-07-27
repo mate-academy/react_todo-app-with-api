@@ -13,6 +13,6 @@ export const createTodo = (data: Omit<Todo, 'id'>) => {
   return client.post<Todo>(`/todos?userId=${data.userId}`, data);
 };
 
-export const updateTodo = (updatedTodo: Todo) => {
-  return client.patch<Todo>(`/todos/${updatedTodo.id}`, updatedTodo);
+export const updateTodo = (todoId: number, todo: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${todoId}`, todo);
 };

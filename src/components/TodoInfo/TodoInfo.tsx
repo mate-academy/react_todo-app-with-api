@@ -7,6 +7,7 @@ type Props = {
   isLoading?: boolean;
   onDelete: (todoId: number) => void;
   isDeleteDisabled: boolean | null | 0;
+  onCheckedChange: (todoId: number, completed: boolean) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const TodoInfo: React.FC<Props> = ({
   isLoading = true,
   onDelete,
   isDeleteDisabled,
+  onCheckedChange,
 }) => (
   <div
     className={classNames('todo', {
@@ -24,7 +26,9 @@ export const TodoInfo: React.FC<Props> = ({
       <input
         type="checkbox"
         className="todo__status"
-        checked
+        checked={todo.completed}
+        id={`todo-${todo.id}`}
+        onClick={() => onCheckedChange(todo.id, todo.completed)}
       />
     </label>
 

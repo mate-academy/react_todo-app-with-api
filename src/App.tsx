@@ -4,7 +4,7 @@ import React, {
 import { UserWarning } from './UserWarning';
 import { Todo, TodoStatus } from './types/Todo';
 import {
-  createTodo, deleteTodo, getTodos,
+  createTodo, deleteTodo, getTodos, updateTodo,
 } from './api/todos';
 import { filterTodos } from './utils/todoUtil';
 import { TodoList } from './components/TodoList';
@@ -66,6 +66,25 @@ export const App: React.FC = () => {
         setTemporatyTodo(null);
       });
   }, [title]);
+
+  const handleCheckedChange = (todoId: number, completed: boolean) => {
+    setActiveTodosId([todoId]);
+
+    const updatedTodo = {
+      completed: !completed,
+    };
+
+    updateTodo(todoId, updatedTodo)
+      .then(() => setTodos(prev => {
+        return prev.map(todo => {
+          return todo.id === todoId ? { ...todo, completed: !completed } : todo;
+        });
+      }))
+      .catch(error => {
+        setErrorMessage(error.message);
+      })
+      .finally(() => setActiveTodosId([]));
+  };
   // #endregion
 
   useEffect(() => {
@@ -112,6 +131,7 @@ export const App: React.FC = () => {
           temporaryTodo={temporatyTodo}
           onDelete={handleTodoDelete}
           isDeleteDisabled={isDisabled}
+          onCheckedChange={handleCheckedChange}
         />
 
         {todos.length > 0 && (
