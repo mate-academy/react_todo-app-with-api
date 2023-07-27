@@ -3,28 +3,20 @@ import React, {
   useEffect, useRef, useState,
 } from 'react';
 import classNames from 'classnames';
+import * as todoService from '../../api/todos';
 import { ITodo } from '../../types/Todo';
 import { Form, TodoCard, Toggler } from '../common';
-import { StateContext } from '../GlobalStateProvider';
+import { DispatchContext, StateContext } from '../GlobalStateProvider';
 
 type Props = {
   todo: ITodo
-  deleteTodo: (id: number) => void;
-  editTodo: (id: number, newTitle: string) => void;
-  toggleTodoStatus: (id: number) => void;
-
 };
 
-export const Todo: React.FC<Props> = (
-  {
-    todo: { id, title, completed },
-    deleteTodo,
-    editTodo,
-    toggleTodoStatus,
-
-  },
-) => {
-  const { loading, selectedTodoId } = useContext(StateContext);
+export const Todo: React.FC<Props> = ({
+  todo: { id, title, completed },
+}) => {
+  const { loading, selectedTodoId, todos } = useContext(StateContext);
+  const dispatch = useContext(DispatchContext);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -41,13 +33,58 @@ export const Todo: React.FC<Props> = (
     input.current?.focus();
   };
 
-  const onEdit = (newTitle: string) => {
-    editTodo(
-      id,
-      newTitle,
-    );
+  const deleteTodo = async (todoId: number) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' });
+    dispatch({ type: 'SET_SELECTED', payload: todoId });
 
-    setIsEditing(false);
+    try {
+      await todoService.deleteTodo(todoId);
+
+      dispatch({ type: 'DELETE_TODO', payload: todoId });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Unable to delete a todo' });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_SELECTED', payload: null });
+    }
+  };
+
+  const editTodo = async (newTitle: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' });
+    dispatch({ type: 'SET_SELECTED', payload: id });
+
+    try {
+      if (!newTitle) {
+        await deleteTodo(id);
+
+        return;
+      }
+
+      dispatch({ type: 'EDIT_TODO', payload: { id, title: newTitle } });
+
+      await todoService.updateTodo(
+        {
+          id,
+          title: newTitle,
+        },
+      );
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Unable to edit a todo' });
+      dispatch({ type: 'SET_TODOS', payload: todos });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_SELECTED', payload: null });
+    }
+  };
+
+  const toggleTodoStatus = (todoId: number) => {
+    if (!todoId) {
+      dispatch({ type: 'SET_ERROR', payload: 'Unable to toggle todo status' });
+    }
+
+    // console.log('Toggle todo status', todoId);
   };
 
   return (
@@ -73,7 +110,8 @@ export const Todo: React.FC<Props> = (
         <Form
           ref={input}
           todoTitle={title}
-          onSubmit={onEdit}
+          onSubmit={editTodo}
+          setIsEditing={setIsEditing}
         />
       )}
 

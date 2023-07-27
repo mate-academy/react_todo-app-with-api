@@ -5,6 +5,7 @@ import { DispatchContext, StateContext } from '../GlobalStateProvider';
 type Props = {
   onSubmit: (title: string) => void;
   todoTitle?: string;
+  setIsEditing?: (isEditing: boolean) => void;
 };
 
 export const Form = React.forwardRef<HTMLInputElement, Props>(
@@ -12,6 +13,7 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
     {
       onSubmit,
       todoTitle = '',
+      setIsEditing = () => { },
     },
     ref,
   ) => {
@@ -19,8 +21,11 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
     const { loading } = useContext(StateContext);
     const dispatch = useContext(DispatchContext);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleAddTodoSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (ref) {
+        return;
+      }
 
       if (!title.trim()) {
         dispatch({ type: 'SET_ERROR', payload: "Title can't be empty" });
@@ -33,8 +38,25 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
       setTitle('');
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        setTitle(todoTitle);
+        setIsEditing(false);
+      }
+
+      if (event.key === 'Enter') {
+        onSubmit(title);
+        setIsEditing(false);
+      }
+    };
+
+    const handleBlur = () => {
+      onSubmit(title);
+      setIsEditing(false);
+    };
+
     return (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleAddTodoSubmit}>
         <input
           ref={ref}
           type="text"
@@ -53,6 +75,8 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           disabled={loading}
+          onKeyDown={ref ? handleKeyDown : () => { }}
+          onBlur={ref ? handleBlur : () => { }}
         />
       </form>
     );

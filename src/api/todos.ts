@@ -5,10 +5,15 @@ export const getTodos = (userId: number) => {
   return client.get<ITodo[]>(`/todos?userId=${userId}`);
 };
 
-export const deleteTodo = (postId: number) => {
-  return client.delete(`/todos/${postId}`);
+export const deleteTodo = (todoId: number) => {
+  return client.delete(`/todos/${todoId}`);
 };
 
 export const createTodo = ({ userId, title, completed }: Omit<ITodo, 'id'>) => {
   return client.post<ITodo>('/todos', { userId, title, completed });
+};
+
+export const updateTodo = ({ id, ...rest }:
+Partial<ITodo>) => {
+  return client.patch<ITodo>(`/todos/${id}`, { ...rest });
 };
