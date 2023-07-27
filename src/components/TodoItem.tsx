@@ -52,10 +52,6 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  // const handleNewTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setNewTitle(event.target.value);
-  // };
-
   return (
     <div
       className={classNames('todo', {

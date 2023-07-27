@@ -16,7 +16,3 @@ export function createTodo({ userId, title, completed }: Omit<Todo, 'id'>) {
 export function updateTodo(todo: Todo) {
   return client.patch<Todo>(`/todos/${todo.id}`, todo);
 }
-
-// export const updateTodo = (id: number, title: string) => {
-//   return client.patch<Todo>(`/todos/${id}`, title);
-// };
