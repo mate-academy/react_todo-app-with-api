@@ -11,8 +11,6 @@ export const UserTodoList: React.FC = () => {
   const { todos, error, loading } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
-  console.log('UserTodoList rendered', todos);
-
   const hasTodos = todos.length > 0;
   const onClose = () => (
     dispatch({ type: 'SET_ERROR', payload: '' })

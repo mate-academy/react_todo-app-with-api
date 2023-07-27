@@ -34,6 +34,40 @@ export const TodoForm: React.FC = () => {
     }
   };
 
+  const toggleAllTodos = async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' });
+
+    try {
+      const allTodosCompleted = todos.every(todo => todo.completed);
+
+      if (allTodosCompleted) {
+        dispatch({ type: 'TOGGLE_ALL_TODOS', payload: false });
+
+        await Promise.all(
+          todos.map(todo => todoService.updateTodo({
+            ...todo,
+            completed: false,
+          })),
+        );
+      } else {
+        dispatch({ type: 'TOGGLE_ALL_TODOS', payload: true });
+
+        await Promise.all(
+          todos.map(todo => todoService.updateTodo({
+            ...todo,
+            completed: true,
+          })),
+        );
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Unable to toggle all todos' });
+      dispatch({ type: 'SET_TODOS', payload: todos });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
   return (
     <header className="todoapp__header">
       <button
@@ -44,6 +78,8 @@ export const TodoForm: React.FC = () => {
           })
         }
         aria-label="toggle all todos status"
+        onClick={toggleAllTodos}
+
       />
 
       <Form

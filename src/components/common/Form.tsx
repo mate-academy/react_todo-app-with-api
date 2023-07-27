@@ -38,6 +38,11 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
       setTitle('');
     };
 
+    const editTodo = () => {
+      onSubmit(title);
+      setIsEditing(false);
+    };
+
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Escape') {
         setTitle(todoTitle);
@@ -45,14 +50,12 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
       }
 
       if (event.key === 'Enter') {
-        onSubmit(title);
-        setIsEditing(false);
+        editTodo();
       }
     };
 
     const handleBlur = () => {
-      onSubmit(title);
-      setIsEditing(false);
+      editTodo();
     };
 
     return (

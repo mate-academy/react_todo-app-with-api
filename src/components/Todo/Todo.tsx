@@ -79,12 +79,25 @@ export const Todo: React.FC<Props> = ({
     }
   };
 
-  const toggleTodoStatus = (todoId: number) => {
-    if (!todoId) {
-      dispatch({ type: 'SET_ERROR', payload: 'Unable to toggle todo status' });
-    }
+  const toggleTodoStatus = async (todoId: number) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'SET_ERROR', payload: '' });
+    dispatch({ type: 'SET_SELECTED', payload: todoId });
 
-    // console.log('Toggle todo status', todoId);
+    try {
+      dispatch({ type: 'TOGGLE_TODO', payload: todoId });
+
+      await todoService.updateTodo({
+        id: todoId,
+        completed: !completed,
+      });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Unable to toggle a todo' });
+      dispatch({ type: 'SET_TODOS', payload: todos });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_SELECTED', payload: null });
+    }
   };
 
   return (
