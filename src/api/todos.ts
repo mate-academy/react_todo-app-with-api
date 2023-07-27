@@ -1,4 +1,4 @@
-import { Todo } from '../types/Todo';
+import { Todo, TodoData } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 import { USER_ID } from '../utils/user';
 
@@ -12,4 +12,8 @@ export function addTodo(title: string, completed: boolean) {
 
 export function deleteTodo(todoId: number) {
   return client.delete(`/todos/${todoId}`);
+}
+
+export function updateTodo(todoId: number, data: TodoData) {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
 }

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
-import { Todo } from './types/Todo';
+import { Todo, TodoData } from './types/Todo';
 import * as todosService from './api/todos';
 import { NotificationText, SortCondition } from './types/enums';
 import { Footer } from './components/Footer';
@@ -18,31 +18,25 @@ export const App: React.FC = () => {
   const [completedItemsCount, setCompletedItemsCount] = useState(0);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todosInProcess, setTodosInProcess] = useState<number[]>([]);
+  const [isAllItemsAreCompleted, setIsAllItemsAreCompleted] = useState(false);
+  const [notificationMessage, setNotificationMessage]
+    = useState<NotificationText | null>(null);
 
-  // #region Notifications
-  const [
-    notificationMessage,
-    setNotificationMessage,
-  ] = useState<NotificationText | null>(null);
-
-  function showNotification(text: NotificationText) {
+  const showNotification = (text: NotificationText) => {
     setNotificationMessage(text);
 
     setTimeout(() => {
       setNotificationMessage(null);
     }, 3000);
-  }
-  // #endregion
+  };
 
-  // #region Add/Delete/Update dunctions
-  function addTodoToTheTodoList(newTodo: Todo) {
+  const addTodoToTheTodoList = (newTodo: Todo) => {
     setActiveItemsCount(current => current + 1);
     setTodosFromServer(currentTodos => {
       return currentTodos ? [...currentTodos, newTodo] : [newTodo];
     });
-  }
+  };
 
-  // #region Delete
   const deleteTodoFromTodoList = (todoToDevelte: Todo) => {
     const { id, completed } = todoToDevelte;
 
@@ -57,7 +51,7 @@ export const App: React.FC = () => {
     }
   };
 
-  function deleteTodo(todo: Todo) {
+  const deleteTodo = (todo: Todo) => {
     setTodosInProcess(current => [...current, todo.id]);
 
     todosService.deleteTodo(todo.id)
@@ -65,24 +59,84 @@ export const App: React.FC = () => {
         deleteTodoFromTodoList(todo);
       })
       .catch((error) => {
-        setNotificationMessage(NotificationText.Delete);
+        showNotification(NotificationText.Delete);
         throw error;
       })
       .finally(() => {
         setTodosInProcess(current => current.filter(id => id !== todo.id));
       });
-  }
+  };
 
-  function deleteCompletedTodos() {
+  const deleteCompletedTodos = () => {
     const completedTodos = todosFromServer?.filter(todo => todo.completed);
 
     completedTodos?.forEach(todo => deleteTodo(todo));
+    setIsAllItemsAreCompleted(false);
+  };
+
+  function updateTodoInTheTodoList(updateTodo: Todo) {
+    setTodosFromServer(currentTodos => {
+      if (currentTodos) {
+        const newTodos: Todo[] = [...currentTodos];
+        const index = newTodos.findIndex(todo => todo.id === updateTodo.id);
+
+        newTodos.splice(index, 1, updateTodo);
+
+        return newTodos;
+      }
+
+      return currentTodos;
+    });
+
+    if (updateTodo.completed) {
+      if (todosFromServer
+        && completedItemsCount === todosFromServer?.length - 1
+      ) {
+        setIsAllItemsAreCompleted(true);
+      }
+
+      setCompletedItemsCount(current => current + 1);
+    } else {
+      setActiveItemsCount(current => current + 1);
+      setIsAllItemsAreCompleted(false);
+    }
   }
-  // #endregion
 
-  // #endregion
+  const updateTodo = (todoId: number, data: TodoData) => {
+    setTodosInProcess(current => [...current, todoId]);
 
-  // #region Filter Todos
+    todosService.updateTodo(todoId, data)
+      .then(updateTodoInTheTodoList)
+      .catch((error) => {
+        showNotification(NotificationText.Update);
+        throw error;
+      })
+      .finally(() => {
+        setTodosInProcess(current => current.filter(id => id !== todoId));
+      });
+  };
+
+  const toggleAllTodos = () => {
+    let itemsToToggle: Todo[] = [];
+
+    if (!todosFromServer) {
+      return;
+    }
+
+    if (activeItemsCount) {
+      itemsToToggle = todosFromServer?.filter(todo => !todo.completed);
+    } else {
+      itemsToToggle = todosFromServer?.filter(todo => todo.completed);
+    }
+
+    setIsAllItemsAreCompleted(current => !current);
+
+    itemsToToggle.forEach(todo => updateTodo(
+      todo.id,
+      { completed: !todo.completed },
+    ));
+  };
+
   function filterTodos(allTodos: Todo[]) {
     let filteredTodos = allTodos;
     const activeTodos = filteredTodos.filter(todo => !todo.completed);
@@ -104,7 +158,6 @@ export const App: React.FC = () => {
       filterTodos(todosFromServer);
     }
   }, [todosFromServer, filterBy]);
-  // #endregion
 
   useEffect(() => {
     setNotificationMessage(null);
@@ -128,9 +181,11 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
 
         <Header
-          showError={(error) => showNotification(error)}
-          setNewTodo={(newTodo) => addTodoToTheTodoList(newTodo)}
+          isAllItemsAreCompleted={isAllItemsAreCompleted}
+          showError={showNotification}
+          setNewTodo={addTodoToTheTodoList}
           setTempTodo={setTempTodo}
+          toggleAll={toggleAllTodos}
         />
 
         {visibleTodos && (
@@ -139,7 +194,8 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               tempTodo={tempTodo}
               todosInProcess={todosInProcess}
-              deleteTodo={(todo) => deleteTodo(todo)}
+              deleteTodo={deleteTodo}
+              changeTodo={updateTodo}
             />
 
             <Footer
@@ -147,7 +203,7 @@ export const App: React.FC = () => {
               visibleItemsCount={activeItemsCount}
               isCompletedTodos={completedItemsCount > 0}
               setFilterCOndition={setFilterBy}
-              clearCompleted={() => deleteCompletedTodos()}
+              clearCompleted={deleteCompletedTodos}
             />
           </>
         )}
