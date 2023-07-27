@@ -1,22 +1,25 @@
 import React from 'react';
+import classNames from 'classnames';
 
 type Props = {
-  completed: boolean;
-  onToggle?: () => void;
+  hasActiveTodos: boolean;
+  toggleAllTodos: () => void;
 };
 
 export const Toggler: React.FC<Props> = ({
-  completed,
-  onToggle = () => { },
+  hasActiveTodos,
+  toggleAllTodos,
 }) => {
   return (
-    <label className="todo__status-label">
-      <input
-        type="checkbox"
-        className="todo__status"
-        onChange={onToggle}
-        checked={completed}
-      />
-    </label>
+    <button
+      type="button"
+      className={
+        classNames('todoapp__toggle-all', {
+          active: hasActiveTodos,
+        })
+      }
+      aria-label="toggle all todos status"
+      onClick={toggleAllTodos}
+    />
   );
 };

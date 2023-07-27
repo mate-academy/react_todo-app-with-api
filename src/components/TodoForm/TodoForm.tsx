@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import classNames from 'classnames';
 import * as todoService from '../../api/todos';
 import { DispatchContext, StateContext } from '../GlobalStateProvider';
-import { Form } from '../common';
+import { Form, Toggler } from '../common';
 
 export const TodoForm: React.FC = () => {
   const { todos, userId } = useContext(StateContext);
@@ -72,16 +71,10 @@ export const TodoForm: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={
-          classNames('todoapp__toggle-all', {
-            active: hasActiveTodos,
-          })
-        }
-        aria-label="toggle all todos status"
-        onClick={toggleAllTodos}
 
+      <Toggler
+        hasActiveTodos={hasActiveTodos}
+        toggleAllTodos={toggleAllTodos}
       />
 
       <Form

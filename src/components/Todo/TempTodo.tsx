@@ -1,7 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 import { ITodo } from '../../types/Todo';
-import { TodoCard, Toggler } from '../common';
+import { StatusToggler } from './StatusToggler';
+import { TodoCard } from './TodoCard';
 
 type Props = {
   todo: ITodo
@@ -20,7 +21,7 @@ export const TempTodo: React.FC<Props> = (
       completed,
     })}
     >
-      <Toggler
+      <StatusToggler
         completed={completed}
       />
 

@@ -5,8 +5,10 @@ import React, {
 import classNames from 'classnames';
 import * as todoService from '../../api/todos';
 import { ITodo } from '../../types/Todo';
-import { Form, TodoCard, Toggler } from '../common';
+import { Form } from '../common';
 import { DispatchContext, StateContext } from '../GlobalStateProvider';
+import { TodoCard } from './TodoCard';
+import { StatusToggler } from './StatusToggler';
 
 type Props = {
   todo: ITodo
@@ -106,7 +108,7 @@ export const Todo: React.FC<Props> = ({
     })}
     >
 
-      <Toggler
+      <StatusToggler
         completed={completed}
         onToggle={() => toggleTodoStatus(id)}
       />
