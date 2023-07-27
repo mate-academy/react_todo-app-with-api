@@ -28,6 +28,7 @@ export const TodoForm: React.FC = () => {
       dispatch({ type: 'ADD_TODO', payload: todo });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Unable to add a todo' });
+      dispatch({ type: 'SET_TEMP_TODO', payload: null });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
