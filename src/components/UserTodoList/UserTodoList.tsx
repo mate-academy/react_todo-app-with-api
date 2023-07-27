@@ -5,9 +5,10 @@ import { TodoFilter } from '../TodoFilter';
 import { Notification } from '../common';
 import { Section } from '../Section';
 import { DispatchContext, StateContext } from '../GlobalStateProvider';
+import { Loader } from '../Loader';
 
 export const UserTodoList: React.FC = () => {
-  const { todos, error } = useContext(StateContext);
+  const { todos, error, loading } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const hasTodos = todos.length > 0;
@@ -20,9 +21,15 @@ export const UserTodoList: React.FC = () => {
       <div className="todoapp__content">
         <TodoForm />
 
-        {hasTodos && <TodoList />}
+        {loading && !hasTodos
+          ? (<Loader />)
+          : (
+            <>
+              <TodoList />
+              <TodoFilter />
+            </>
+          )}
 
-        {hasTodos && <TodoFilter />}
       </div>
 
       {error && (
