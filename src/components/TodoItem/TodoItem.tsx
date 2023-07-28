@@ -42,6 +42,19 @@ export const TodoItem: React.FC<Props> = ({
     updateTodos(todo.id, { title: updatedTitle });
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleTitleChange(event);
+    } else if (event.key === 'Escape') {
+      setDoubleClick(false);
+    }
+  };
+
+  const handleTodoCheckboxChange = () => {
+    updateTodos(todo.id, { completed: !todo.completed });
+  };
+
   return (
     <div
       className={classNames('todo', {
@@ -53,8 +66,8 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
-          onChange={() => updateTodos(todo.id, { completed: !todo.completed })}
+          checked={todo.completed}
+          onChange={handleTodoCheckboxChange}
         />
       </label>
 
@@ -69,11 +82,7 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title-field"
             onChange={(event) => setUpdatedTitle(event.target.value)}
             onBlur={handleTitleChange}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                setDoubleClick(false);
-              }
-            }}
+            onKeyDown={handleKeyDown}
           />
         </form>
       ) : (
@@ -85,7 +94,6 @@ export const TodoItem: React.FC<Props> = ({
               setDoubleClick(true);
               setUpdatedTitle(todo.title);
             }}
-            onBlur={() => setDoubleClick(false)}
           >
             {todo.title}
           </span>

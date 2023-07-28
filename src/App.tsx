@@ -13,13 +13,13 @@ const USER_ID = 11098;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todosFilterBy, setTodosFilterBy] = useState<Status>(
-    Status.ALL,
+    Status.All,
   );
   const [isError, setIsError] = useState('');
   const [selectedId, setSelectedId] = useState(0);
   const [toggleAll, setToggleAll] = useState(true);
   const [toggleLoader, setToggleLoader] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [updateLoadingState, setUpdateLoadingState] = useState(false);
 
   const showError = (text: string) => {
     setIsError(text);
@@ -31,55 +31,56 @@ export const App: React.FC = () => {
   useEffect(() => {
     postService
       .getTodos(USER_ID)
-      .then((todo: Todo[]) => todo
-        .map(tod => setTodos(prev => [tod, ...prev])))
-      .catch(() => setIsError('Unable to load a todo'));
+      .then((todo: Todo[]) => {
+        setTodos(todo);
+      })
+      .catch(() => setIsError('Unable to load todos'));
   }, []);
 
   const addTodo = ({ userId, title, completed }: Omit<Todo, 'id'>) => {
-    setIsLoading(true);
+    setUpdateLoadingState(true);
 
     postService
-      .createTodos(USER_ID, { userId, title, completed })
+      .createTodo(USER_ID, { userId, title, completed })
       .then((newTodo: Todo) => {
         setTodos((prevTodo) => [newTodo, ...prevTodo]);
         setSelectedId(newTodo.id);
       })
       .catch(() => showError('Unable to add a todo'))
       .finally(() => {
-        setIsLoading(false);
+        setUpdateLoadingState(false);
         setToggleLoader(false);
       });
   };
 
   const deleteTodo = (todoId: number) => {
-    setIsLoading(true);
+    setUpdateLoadingState(true);
     setSelectedId(todoId);
 
     postService
-      .deleteTodos(todoId)
+      .deleteTodo(todoId)
       .then(() => setTodos((currentTodos) => currentTodos
         .filter((todo) => todo.id !== todoId)))
       .catch(() => showError('Unable to deletion a todo'))
       .finally(() => {
-        setIsLoading(false);
+        setUpdateLoadingState(false);
         setToggleLoader(false);
       });
   };
 
   const updateTodos = (todoId: number, data: Partial<Todo>) => {
-    setIsLoading(true);
+    setUpdateLoadingState(true);
     setSelectedId(todoId);
 
     postService
-      .updateTodos(todoId, data)
+      .updateTodo(todoId, data)
       .then((updateTodo) => {
         setTodos((prev) => prev
           .map((todo) => (todo.id === todoId ? updateTodo : todo)));
       })
       .catch(() => showError('Unable to update a todo'))
       .finally(() => {
-        setIsLoading(false);
+        setUpdateLoadingState(false);
         setToggleLoader(false);
       });
   };
@@ -87,10 +88,10 @@ export const App: React.FC = () => {
   const filteredTodos = useMemo(() => {
     return todos.filter((todo) => {
       switch (todosFilterBy) {
-        case Status.ACTIVE:
+        case Status.Active:
           return !todo.completed;
 
-        case Status.COMPLETED:
+        case Status.Completed:
           return todo.completed;
 
         default:
@@ -99,7 +100,7 @@ export const App: React.FC = () => {
     });
   }, [todosFilterBy, todos]);
 
-  const isActiveTodos = useMemo(() => {
+  const activeTodos = useMemo(() => {
     return todos.filter((todo) => !todo.completed);
   }, [todos]);
 
@@ -107,12 +108,13 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const handlerToggler = () => {
+  const handlerToggler = async () => {
     setToggleAll(!toggleAll);
     setToggleLoader(true);
 
-    return filteredTodos
-      .forEach((todo) => updateTodos(todo.id, { completed: toggleAll }));
+    await Promise.all(filteredTodos.map(
+      todo => updateTodos(todo.id, { completed: toggleAll }),
+    ));
   };
 
   return (
@@ -123,19 +125,19 @@ export const App: React.FC = () => {
         <Header
           showError={showError}
           todos={todos}
-          isActive={isActiveTodos.length}
-          isLoading={setIsLoading}
+          activeTodos={activeTodos.length}
+          setUpdateLoadingState={setUpdateLoadingState}
           createTodo={addTodo}
           handlerToggler={handlerToggler}
         />
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={filteredTodos}
               deleteTodo={deleteTodo}
               updateTodos={updateTodos}
-              isLoading={isLoading}
+              isLoading={updateLoadingState}
               selectedId={selectedId}
               toggleLoader={toggleLoader}
             />
@@ -143,7 +145,7 @@ export const App: React.FC = () => {
             <Footer
               todos={todos}
               filterBy={todosFilterBy}
-              isActive={isActiveTodos}
+              activeTodos={activeTodos}
               deleteTodo={deleteTodo}
               setFilterBy={setTodosFilterBy}
             />

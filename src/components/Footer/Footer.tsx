@@ -6,14 +6,14 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todos: Todo[];
   filterBy: Status;
-  isActive: Todo[];
+  activeTodos: Todo[];
   setFilterBy: React.Dispatch<React.SetStateAction<Status>>;
   deleteTodo: (id: number) => void;
 }
 
 export const Footer: React.FC<Props> = ({
   filterBy,
-  isActive,
+  activeTodos,
   setFilterBy,
   deleteTodo,
   todos,
@@ -31,15 +31,15 @@ export const Footer: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer">
-      <span className="todo-count">{`${isActive.length} items left`}</span>
+      <span className="todo-count">{`${activeTodos.length} items left`}</span>
 
       <nav className="filter">
         <a
           href="#/"
           className={classNames('filter__link', {
-            selected: filterBy === Status.ALL,
+            selected: filterBy === Status.All,
           })}
-          onClick={() => setFilterBy(Status.ALL)}
+          onClick={() => setFilterBy(Status.All)}
         >
           All
         </a>
@@ -47,9 +47,9 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           className={classNames('filter__link', {
-            selected: filterBy === Status.ACTIVE,
+            selected: filterBy === Status.Active,
           })}
-          onClick={() => setFilterBy(Status.ACTIVE)}
+          onClick={() => setFilterBy(Status.Active)}
         >
           Active
         </a>
@@ -57,9 +57,9 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           className={classNames('filter__link', {
-            selected: filterBy === Status.COMPLETED,
+            selected: filterBy === Status.Completed,
           })}
-          onClick={() => setFilterBy(Status.COMPLETED)}
+          onClick={() => setFilterBy(Status.Completed)}
         >
           Completed
         </a>

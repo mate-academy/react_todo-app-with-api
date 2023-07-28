@@ -5,29 +5,30 @@ import { Todo } from '../../types/Todo';
 interface Props {
   showError: (text: string) => void;
   todos: Todo[];
-  isActive: number;
+  activeTodos: number;
   createTodo: (data: Omit<Todo, 'id'>) => void;
   handlerToggler: () => void;
-  isLoading: (s: boolean) => void;
+  setUpdateLoadingState: (s: boolean) => void;
 }
 
 export const Header: React.FC<Props> = ({
   todos,
-  isActive,
+  activeTodos,
   showError,
   createTodo,
   handlerToggler,
-  isLoading,
+  setUpdateLoadingState,
 }) => {
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e: React.FormEvent<EventTarget>): void => {
     e.preventDefault();
-    isLoading(true);
+    setUpdateLoadingState(true);
 
-    if (query.trim().length === 0) {
+    if (!query.trim().length) {
       showError("Title can't be empty");
       setQuery('');
+      setUpdateLoadingState(false);
 
       return;
     }
@@ -42,12 +43,12 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           aria-label="todo comleted"
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: !isActive,
+            active: !activeTodos,
           })}
           onClick={handlerToggler}
         />
