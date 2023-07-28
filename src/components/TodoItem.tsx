@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/no-autofocus */
 // #region IMPORTS
 import React, { useContext, useState } from 'react';
@@ -29,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     showLoaderFor,
   } = todosContext;
 
-  // #region HANDLINGE
+  // #region HANDLINGEVENT
   const handleDeleteTodo = async (todoId: number) => {
     removeTodo(todoId);
   };
@@ -76,6 +75,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     event.preventDefault();
     handleEditSubmit();
   }
+  // #endregion
 
   return (
     <div className={cn('todo', { completed })}>
