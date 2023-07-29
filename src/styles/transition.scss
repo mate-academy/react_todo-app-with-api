@@ -1,3 +1,30 @@
+.list-enter {
+  background-color: white;
+  max-height: 0;
+  opacity: 0;
+}
+
+.list-enter-active {
+  overflow: hidden;
+  background-color: aqua;
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.list-exit {
+  background-color: aqua;
+  max-height: 500px;
+  opacity: 1;
+}
+
+.list-exit-active {
+  background-color: white;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
 .item-enter {
   max-height: 0;
 }

@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import { CSSTransition } from 'react-transition-group';
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
@@ -188,24 +189,33 @@ export const App: React.FC = () => {
           toggleAll={toggleAllTodos}
         />
 
-        {visibleTodos && (
-          <>
-            <TodoList
-              todos={visibleTodos}
-              tempTodo={tempTodo}
-              todosInProcess={todosInProcess}
-              deleteTodo={deleteTodo}
-              changeTodo={updateTodo}
-            />
+        {visibleTodos?.length && (
+          <CSSTransition
+            key="listOfTodos"
+            mountOnEnter
+            in={visibleTodos.length > 0}
+            appear={visibleTodos.length > 0}
+            timeout={300}
+            classNames="list"
+          >
+            <>
+              <TodoList
+                todos={visibleTodos}
+                tempTodo={tempTodo}
+                todosInProcess={todosInProcess}
+                deleteTodo={deleteTodo}
+                changeTodo={updateTodo}
+              />
 
-            <Footer
-              filterCondition={filterBy}
-              visibleItemsCount={activeItemsCount}
-              isCompletedTodos={completedItemsCount > 0}
-              setFilterCOndition={setFilterBy}
-              clearCompleted={deleteCompletedTodos}
-            />
-          </>
+              <Footer
+                filterCondition={filterBy}
+                visibleItemsCount={activeItemsCount}
+                isCompletedTodos={completedItemsCount > 0}
+                setFilterCOndition={setFilterBy}
+                clearCompleted={deleteCompletedTodos}
+              />
+            </>
+          </CSSTransition>
         )}
       </div>
 

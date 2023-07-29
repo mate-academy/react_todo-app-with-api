@@ -24,7 +24,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <ul className="todo__list">
-        <TransitionGroup>
+        <TransitionGroup component={null}>
           {todos.map(todo => (
             <CSSTransition
               key={todo.id}
@@ -55,5 +55,6 @@ export const TodoList: React.FC<Props> = React.memo(({
         </TransitionGroup>
       </ul>
     </section>
+
   );
 });
