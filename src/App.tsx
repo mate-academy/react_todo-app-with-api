@@ -33,9 +33,14 @@ export const App: React.FC = () => {
     return filterTodos(todos, TodoStatus.ACTIVE);
   }, [todos]);
 
+  const completedTodos = useMemo(() => {
+    return filterTodos(todos, TodoStatus.COMPLETED);
+  }, [todos]);
+
   // #region handlers
   const handleTodoDelete = useCallback((todoId: number) => {
     setActiveTodosId([todoId]);
+    setIsLoading(true);
 
     deleteTodo(todoId)
       .then(() => {
@@ -45,6 +50,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setActiveTodosId([]);
         setTitle('');
+        setIsLoading(false);
       });
   }, []);
 
@@ -65,6 +71,7 @@ export const App: React.FC = () => {
     };
 
     setTemporatyTodo(todo);
+    setIsLoading(true);
     createTodo(todo)
       .then(newTodo => {
         setTodos(prev => [...prev, newTodo]);
@@ -72,11 +79,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTemporatyTodo(null);
+        setIsLoading(false);
       });
   }, [title]);
 
-  const handleCheckedChange = (todoId: number, completed: boolean) => {
+  const handleStatusChange = (todoId: number, completed: boolean) => {
     setActiveTodosId([todoId]);
+    setIsLoading(true);
 
     const updatedTodo = {
       completed: !completed,
@@ -91,10 +100,15 @@ export const App: React.FC = () => {
       .catch(error => {
         setErrorMessage(error.message);
       })
-      .finally(() => setActiveTodosId([]));
+      .finally(() => {
+        setActiveTodosId([]);
+        setIsLoading(false);
+      });
   };
 
-  const handleUncompletedCheckedChange = async () => {
+  const handleUncompletedStatusChange = async () => {
+    setIsLoading(true);
+
     if (activeTodos.length === 0) {
       try {
         const todoIds = todos.map(todo => todo.id);
@@ -112,6 +126,7 @@ export const App: React.FC = () => {
         setErrorMessage('Some updating API error');
       } finally {
         setActiveTodosId([]);
+        setIsLoading(false);
       }
     } else {
       const updatedTodosIds = activeTodos.map(todo => todo.id);
@@ -132,7 +147,31 @@ export const App: React.FC = () => {
         setErrorMessage('Some updating API error');
       } finally {
         setActiveTodosId([]);
+        setIsLoading(false);
       }
+    }
+  };
+
+  const handleClearCompleted = async () => {
+    const deletedTodosIds = completedTodos.map(todo => todo.id);
+
+    setActiveTodosId(deletedTodosIds);
+    setIsLoading(true);
+    try {
+      await Promise.all(deletedTodosIds.map(id => {
+        return deleteTodo(id);
+      }));
+
+      setTodos(prev => prev.filter(todo => {
+        return !deletedTodosIds.some(id => {
+          return id === todo.id;
+        });
+      }));
+    } catch (error) {
+      setErrorMessage('Some deletion on API error message');
+    } finally {
+      setActiveTodosId([]);
+      setIsLoading(false);
     }
   };
   // #endregion
@@ -163,7 +202,7 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           activeTodosQuantity={activeTodos.length}
           onAdd={handleTodoAdd}
-          onUncompletedCheckedChange={handleUncompletedCheckedChange}
+          onUncompletedCheckedChange={handleUncompletedStatusChange}
         />
 
         <TodoList
@@ -171,7 +210,7 @@ export const App: React.FC = () => {
           activeTodosId={activeTodosId}
           temporaryTodo={temporatyTodo}
           onDelete={handleTodoDelete}
-          onCheckedChange={handleCheckedChange}
+          onStatusChange={handleStatusChange}
         />
 
         {todos.length > 0 && (
@@ -179,7 +218,8 @@ export const App: React.FC = () => {
             filterBy={filterBy}
             setFilterBy={setFilterBy}
             activeTodosQuantity={activeTodos.length}
-            completedTodosQuantity={todos.length - activeTodos.length}
+            completedTodosQuantity={completedTodos.length}
+            onClearCompleted={handleClearCompleted}
           />
         )}
       </div>

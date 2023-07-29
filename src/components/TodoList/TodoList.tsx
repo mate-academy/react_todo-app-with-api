@@ -7,7 +7,7 @@ type Props = {
   activeTodosId: number[];
   temporaryTodo: Todo | null;
   onDelete: (id: number) => void;
-  onCheckedChange: (todoId: number, completed: boolean) => void;
+  onStatusChange: (todoId: number, completed: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -15,7 +15,7 @@ export const TodoList: React.FC<Props> = ({
   activeTodosId,
   temporaryTodo,
   onDelete,
-  onCheckedChange,
+  onStatusChange,
 }) => (
   <section className="todoapp__main">
     {todos.map(todo => (
@@ -25,7 +25,7 @@ export const TodoList: React.FC<Props> = ({
         isLoading={activeTodosId.some(activeId => {
           return activeId === todo.id;
         })}
-        onCheckedChange={onCheckedChange}
+        onStatusChange={onStatusChange}
         key={todo.id}
       />
     ))}
@@ -35,7 +35,7 @@ export const TodoList: React.FC<Props> = ({
         todo={temporaryTodo}
         onDelete={onDelete}
         isLoading={!!temporaryTodo}
-        onCheckedChange={onCheckedChange}
+        onStatusChange={onStatusChange}
       />
     )}
   </section>

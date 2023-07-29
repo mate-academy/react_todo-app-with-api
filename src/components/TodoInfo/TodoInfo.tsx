@@ -6,14 +6,14 @@ type Props = {
   todo: Todo;
   isLoading?: boolean;
   onDelete: (todoId: number) => void;
-  onCheckedChange: (todoId: number, completed: boolean) => void;
+  onStatusChange: (todoId: number, completed: boolean) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
   isLoading = true,
   onDelete,
-  onCheckedChange,
+  onStatusChange,
 }) => (
   <div
     className={classNames('todo', {
@@ -26,7 +26,7 @@ export const TodoInfo: React.FC<Props> = ({
         className="todo__status"
         checked={todo.completed}
         id={`todo-${todo.id}`}
-        onClick={() => onCheckedChange(todo.id, todo.completed)}
+        onClick={() => onStatusChange(todo.id, todo.completed)}
       />
     </label>
 

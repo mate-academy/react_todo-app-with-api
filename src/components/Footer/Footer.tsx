@@ -7,6 +7,7 @@ type Props = {
   setFilterBy: (filterBy: TodoStatus) => void;
   activeTodosQuantity: number;
   completedTodosQuantity: number;
+  onClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const Footer: React.FC<Props> = ({
   setFilterBy,
   activeTodosQuantity,
   completedTodosQuantity,
+  onClearCompleted,
 }) => (
   <footer className="todoapp__footer">
     <span className="todo-count">
@@ -58,7 +60,8 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         className="todoapp__clear-completed"
-        hidden={!(activeTodosQuantity > 0)}
+        hidden={!(completedTodosQuantity > 0)}
+        onClick={onClearCompleted}
       >
         Clear completed
       </button>
