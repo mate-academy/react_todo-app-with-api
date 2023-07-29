@@ -50,9 +50,10 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
       });
 
       addTodo(createdTodo);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      notifyAboutError(`Unable to add a todo: ${error.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        notifyAboutError(`Unable to add a todo: ${error.message}`);
+      }
     } finally {
       setTitle('');
       setTempTodo(null);
@@ -83,9 +84,10 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
         .update(prepareToUpdate);
 
       updateTodos(updatedTodos);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      notifyAboutError(`Unable to update todos: ${error.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        notifyAboutError(`Unable to update todos: ${error.message}`);
+      }
     } finally {
       setHandlingTodoIds([]);
     }
@@ -107,7 +109,7 @@ export const TodoContentHeader: FC<TodoContentHeaderProps> = (props) => {
       <form onSubmit={submit}>
         <TextField
           value={title}
-          onChange={setTitle}
+          inputHandler={(event) => setTitle(event.target.value)}
           isDisabled={isHandleRequest}
         />
       </form>

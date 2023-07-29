@@ -5,9 +5,8 @@ interface NotificationsProps {
   errorMessage: string,
 }
 
-export const Notifications: FC<NotificationsProps> = (props) => {
-  const { onClose, errorMessage } = props;
-
+export const Notifications
+: FC<NotificationsProps> = ({ onClose, errorMessage }) => {
   useEffect(() => {
     const timerId = setTimeout(() => {
       onClose();
@@ -17,10 +16,12 @@ export const Notifications: FC<NotificationsProps> = (props) => {
   }, [errorMessage]);
 
   return (
-    <div className="notification is-danger is-light has-text-weight-normal">
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+    <div
+      className="notification is-danger is-light has-text-weight-normal"
+    >
       <button
         type="button"
+        aria-label="closeNotification"
         className="delete"
         onClick={onClose}
       />

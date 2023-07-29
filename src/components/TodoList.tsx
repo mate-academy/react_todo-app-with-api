@@ -41,9 +41,10 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
       if (result) {
         removeTodos([id]);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      notifyAboutError(`Unable to delete a todo: ${error.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        notifyAboutError(`Unable to delete a todo: ${error.message}`);
+      }
     } finally {
       setHandlingTodoIds([]);
     }
@@ -58,9 +59,10 @@ export const TodoContentMain: FC<TodoContentMainProps> = (props) => {
       }]);
 
       updateTodos(updatedTodos);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      notifyAboutError(`Unable to update a todo: ${error.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        notifyAboutError(`Unable to update a todo: ${error.message}`);
+      }
     } finally {
       setHandlingTodoIds([]);
     }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoContentHeader } from './TodoContentHeader';
 import { TodoContentFooter } from './TodoContentFooter';
-import { TodoContentMain } from './TodoContentMain';
+import { TodoContentMain } from './TodoList';
 import { TodoStatus } from '../types/TodoStatus';
 import { getFilteredTodos } from '../helpers/getFilteredTodos';
 import { useTodoContext } from '../context/todoContext/useTodoContext';

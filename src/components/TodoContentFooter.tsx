@@ -37,9 +37,10 @@ export const TodoContentFooter: FC<TodoContentFooterProps> = (props) => {
       if (results.every(result => result)) {
         removeTodos(ids);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      notifyAboutError(`Unable to delete a todo: ${error.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        notifyAboutError(`Unable to delete a todo: ${error.message}`);
+      }
     } finally {
       setHandlingTodoIds([]);
     }
