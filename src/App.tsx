@@ -25,6 +25,14 @@ export const App: React.FC = () => {
   const [temporatyTodo, setTemporatyTodo] = useState<Todo | null>(null);
   // #endregion
 
+  const visibleTodos = useMemo(() => {
+    return filterTodos(todos, filterBy);
+  }, [todos, filterBy]);
+
+  const activeTodos = useMemo(() => {
+    return filterTodos(todos, TodoStatus.ACTIVE);
+  }, [todos]);
+
   // #region handlers
   const handleTodoDelete = useCallback((todoId: number) => {
     setActiveTodosId([todoId]);
@@ -85,6 +93,48 @@ export const App: React.FC = () => {
       })
       .finally(() => setActiveTodosId([]));
   };
+
+  const handleUncompletedCheckedChange = async () => {
+    if (activeTodos.length === 0) {
+      try {
+        const todoIds = todos.map(todo => todo.id);
+
+        setActiveTodosId(todoIds);
+
+        await Promise.all(todos.map(todo => {
+          return updateTodo(todo.id, { completed: false });
+        }));
+
+        setTodos(prev => prev.map(todo => {
+          return { ...todo, completed: false };
+        }));
+      } catch (error) {
+        setErrorMessage('Some updating API error');
+      } finally {
+        setActiveTodosId([]);
+      }
+    } else {
+      const updatedTodosIds = activeTodos.map(todo => todo.id);
+
+      setActiveTodosId(updatedTodosIds);
+
+      try {
+        await Promise.all(updatedTodosIds.map(id => {
+          return updateTodo(id, { completed: true });
+        }));
+
+        setTodos(prev => prev.map(todo => {
+          return updatedTodosIds.some(id => todo.id === id)
+            ? { ...todo, completed: true }
+            : todo;
+        }));
+      } catch (error) {
+        setErrorMessage('Some updating API error');
+      } finally {
+        setActiveTodosId([]);
+      }
+    }
+  };
   // #endregion
 
   useEffect(() => {
@@ -98,16 +148,6 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const visibleTodos = useMemo(() => {
-    return filterTodos(todos, filterBy);
-  }, [todos, filterBy]);
-
-  const activeTodos = useMemo(() => {
-    return filterTodos(todos, TodoStatus.ACTIVE);
-  }, [todos]);
-
-  const isDisabled = activeTodosId.length > 0 && isLoading;
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -118,11 +158,12 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          isLoading={isLoading}
           title={title}
           setTitle={setTitle}
-          isDisabled={isDisabled}
           activeTodosQuantity={activeTodos.length}
           onAdd={handleTodoAdd}
+          onUncompletedCheckedChange={handleUncompletedCheckedChange}
         />
 
         <TodoList
@@ -130,7 +171,6 @@ export const App: React.FC = () => {
           activeTodosId={activeTodosId}
           temporaryTodo={temporatyTodo}
           onDelete={handleTodoDelete}
-          isDeleteDisabled={isDisabled}
           onCheckedChange={handleCheckedChange}
         />
 
