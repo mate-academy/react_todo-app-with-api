@@ -174,6 +174,20 @@ export const App: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const handleTitleChange = (id: number, newTitle: string) => {
+    setActiveTodosId([id]);
+
+    updateTodo(id, { title: newTitle })
+      .then(() => setTodos(prev => prev.map(todo => {
+        return todo.id === id ? { ...todo, title: newTitle }
+          : todo;
+      })))
+      .catch(error => {
+        setErrorMessage(error.message);
+      })
+      .finally(() => setActiveTodosId([]));
+  };
   // #endregion
 
   useEffect(() => {
@@ -211,6 +225,7 @@ export const App: React.FC = () => {
           temporaryTodo={temporatyTodo}
           onDelete={handleTodoDelete}
           onStatusChange={handleStatusChange}
+          onTitleChange={handleTitleChange}
         />
 
         {todos.length > 0 && (

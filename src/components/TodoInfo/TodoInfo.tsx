@@ -1,4 +1,6 @@
-import React from 'react';
+import React, {
+  useState, KeyboardEvent, useRef, useEffect, FormEvent, FocusEvent,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -7,6 +9,7 @@ type Props = {
   isLoading?: boolean;
   onDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
+  onTitleChange: (id: number, title: string) => void;
 };
 
 export const TodoInfo: React.FC<Props> = ({
@@ -14,39 +17,98 @@ export const TodoInfo: React.FC<Props> = ({
   isLoading = true,
   onDelete,
   onStatusChange,
-}) => (
-  <div
-    className={classNames('todo', {
-      completed: todo.completed,
-    })}
-  >
-    <label className="todo__status-label">
-      <input
-        type="checkbox"
-        className="todo__status"
-        checked={todo.completed}
-        id={`todo-${todo.id}`}
-        onClick={() => onStatusChange(todo.id, todo.completed)}
-      />
-    </label>
+  onTitleChange,
+}) => {
+  const { id, title, completed } = todo;
 
-    <span className="todo__title">{todo.title}</span>
+  const [isEdited, setIsEdited] = useState(false);
+  const [newTitle, setNewTitle] = useState(title);
 
-    <button
-      type="button"
-      className="todo__remove"
-      onClick={() => onDelete(todo.id)}
-      disabled={isLoading}
+  const inputElement = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputElement.current) {
+      inputElement.current.focus();
+    }
+  });
+
+  const handleTitleChange = async (event: FormEvent<HTMLFormElement>
+  | FocusEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    if (newTitle.trim() === '') {
+      onDelete(id);
+    }
+
+    if (title !== newTitle) {
+      onTitleChange(id, newTitle);
+    }
+
+    setIsEdited(false);
+  };
+
+  const handleCancelEdit = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setNewTitle(title);
+      setIsEdited(false);
+    }
+  };
+
+  return (
+    <div
+      className={classNames('todo', {
+        completed,
+      })}
     >
-      ×
-    </button>
+      <label className="todo__status-label">
+        <input
+          type="checkbox"
+          className="todo__status"
+          checked={todo.completed}
+          onClick={() => onStatusChange(id, completed)}
+        />
+      </label>
 
-    <div className={classNames('modal overlay', {
-      'is-active': isLoading,
-    })}
-    >
-      <div className="modal-background has-background-white-ter" />
-      <div className="loader" />
+      {isEdited ? (
+        <form onSubmit={handleTitleChange}>
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={event => setNewTitle(event.target.value)}
+            onBlur={handleTitleChange}
+            onKeyUp={handleCancelEdit}
+            ref={inputElement}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={() => setIsEdited(true)}
+          >
+            {title}
+          </span>
+
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={() => onDelete(id)}
+            disabled={isLoading}
+          >
+            ×
+          </button>
+        </>
+      )}
+
+      <div className={classNames('modal overlay', {
+        'is-active': isLoading,
+      })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
-  </div>
-);
+  );
+};
