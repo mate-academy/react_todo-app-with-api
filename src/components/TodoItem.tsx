@@ -34,11 +34,31 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       .finally(() => setLoading(false));
   }
 
+  function handleUpdateTodo(editedTodo: Todo) {
+    setLoading(true);
+
+    updateTodo(editedTodo)
+      .then((updatedTodo) => {
+        onUpdateTodo(updatedTodo);
+        setTitle(updatedTodo.title);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+        throw new Error('Unable to update a todo');
+      })
+      .finally(() => {
+        setLoading(false);
+        setIsEditing(false);
+      });
+  }
+
   function onStatusChange() {
-    updateTodo({
+    const editedTodo = {
       ...todo,
       completed: !todo.completed,
-    });
+    };
+
+    handleUpdateTodo(editedTodo);
   }
 
   function onTitleChange(event?: React.FormEvent) {
@@ -64,21 +84,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       title: normalizedQuery,
     };
 
-    setLoading(true);
-
-    updateTodo(editedTodo)
-      .then((updatedTodo) => {
-        onUpdateTodo(updatedTodo);
-        setTitle(updatedTodo.title);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-        throw new Error('Unable to update a todo');
-      })
-      .finally(() => {
-        setLoading(false);
-        setIsEditing(false);
-      });
+    handleUpdateTodo(editedTodo);
   }
 
   useEffect(() => {
