@@ -17,7 +17,7 @@ export const TodoList: React.FC = () => {
           >
             <TodoInfo
               todo={todo}
-              onProcessed={loading}
+              loader={loading.includes(todo.id)}
             />
           </CSSTransition>
         ))}
@@ -30,7 +30,7 @@ export const TodoList: React.FC = () => {
           >
             <TodoInfo
               todo={todoInCreation}
-              onProcessed={loading}
+              loader
             />
           </CSSTransition>
         )}

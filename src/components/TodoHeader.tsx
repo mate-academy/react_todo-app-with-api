@@ -5,8 +5,6 @@ import { ErrorOption, TodoContext } from '../context/TodoContext';
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const TodoHeader: React.FC = () => {
   const {
-    loading,
-    setLoading,
     todoInCreation,
     visibleTodos,
     activeTodosAmount,
@@ -20,7 +18,6 @@ export const TodoHeader: React.FC = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    setLoading(true);
 
     if (!title.trim()) {
       setError(ErrorOption.TitleErr);
@@ -58,7 +55,7 @@ export const TodoHeader: React.FC = () => {
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={Boolean(todoInCreation) || loading}
+          disabled={Boolean(todoInCreation)}
         />
       </form>
     </header>

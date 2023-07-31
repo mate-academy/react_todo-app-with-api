@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
 import React, {
   ReactNode, useCallback, useEffect, useMemo, useState,
@@ -27,16 +28,14 @@ type Props = {
 
 interface ContextValues {
   todos: Todo[],
-  selectedTodo: Todo | null,
   visibleTodos: Todo[],
   activeTodosAmount: number,
   error: string | null,
   filter: string,
-  loading: boolean,
+  loading: number[],
   todoInCreation: Todo | null,
   setTodoInCreation: React.Dispatch<React.SetStateAction<Todo | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<number[]>>,
   setError: React.Dispatch<React.SetStateAction<ErrorOption | null>>,
   setFilter: React.Dispatch<React.SetStateAction<StateOption>>,
   deleteTodo: (todoId: number) => void,
@@ -50,15 +49,12 @@ export const TodoContext = React.createContext({} as ContextValues);
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [todoInCreation, setTodoInCreation] = useState<Todo | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<number[]>([]);
   const [filter, setFilter] = useState<StateOption>(StateOption.all);
   const [error, setError] = useState<ErrorOption | null>(null);
 
   useEffect(() => {
-    setError(null);
-
     todosService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => setError(ErrorOption.FetchErr));
@@ -89,13 +85,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       userId: USER_ID,
     };
 
-    setLoading(true);
     setTodoInCreation(newTodo);
     setError(null);
 
     return todosService.postTodo(newTodo)
       .then(todo => {
         setTodos(curTodos => [...curTodos, todo]);
+        setLoading(loading => [...loading, todo.id]);
         setError(null);
 
         return true;
@@ -106,36 +102,40 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         return false;
       })
       .finally(() => {
-        setLoading(false);
+        setLoading([...loading]);
         setTodoInCreation(null);
       });
   }, []);
 
   const deleteTodo = useCallback((todoId: number) => {
-    setLoading(true);
+    setLoading(loading => [...loading, todoId]);
     setError(null);
 
     todosService.deleteTodo(todoId)
       .then(() => setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId)))
       .catch(() => setError(ErrorOption.DeleteError))
-      .finally(() => setLoading(false));
+      .finally(() => setLoading([...loading]));
   }, []);
 
   const handleUpdateTodo = useCallback((todoToUpdate: Todo) => {
-    setLoading(true);
+    setLoading(loading => [...loading, todoToUpdate.id]);
     setError(null);
 
     todosService.updateTodo(todoToUpdate)
       .then(() => setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoToUpdate.id ? todoToUpdate : todo))))
       .catch(() => setError(ErrorOption.UpdateError))
-      .finally(() => setLoading(false));
+      .finally(() => setLoading([...loading]));
   }, []);
 
   const toggleStatus = useCallback(() => {
-    todos.map(todo => handleUpdateTodo({
-      ...todo,
-      completed: !todo.completed,
-    }));
+    setTodos(currentTodos => (currentTodos.every(todo => todo.completed)
+      ? currentTodos.map(todo => ({
+        ...todo,
+        completed: false,
+      })) : currentTodos.map(todo => ({
+        ...todo,
+        completed: true,
+      }))));
   }, [todos]);
 
   const handleClearCompleted = useCallback(() => {
@@ -160,8 +160,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setTodoInCreation,
     setLoading,
     setFilter,
-    selectedTodo,
-    setSelectedTodo,
     deleteTodo,
     addTodo,
     handleClearCompleted,
@@ -172,7 +170,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     loading,
     todoInCreation,
     visibleTodos,
-    selectedTodo,
     activeTodosAmount,
     error,
     filter,

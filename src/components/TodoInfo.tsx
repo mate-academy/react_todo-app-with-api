@@ -8,17 +8,16 @@ import { TodoContext } from '../context/TodoContext';
 
 type Props = {
   todo: Todo,
-  onProcessed?: boolean,
+  loader: boolean,
 };
 
 export const TodoInfo: React.FC<Props> = ({
   todo,
-  onProcessed,
+  loader,
 }) => {
   const {
     deleteTodo,
     handleUpdateTodo,
-    todoInCreation,
   } = useContext(TodoContext);
 
   const [editTitle, setEditTitle] = useState(todo.title);
@@ -105,7 +104,7 @@ export const TodoInfo: React.FC<Props> = ({
             ×
           </button>
           <div className={classNames('modal overlay', {
-            'is-active': onProcessed || todoInCreation,
+            'is-active': loader,
           })}
           >
             <div className="modal-background has-background-white-ter" />
