@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
 import React, {
@@ -128,14 +129,22 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const toggleStatus = useCallback(() => {
-    setTodos(currentTodos => (currentTodos.every(todo => todo.completed)
-      ? currentTodos.map(todo => ({
-        ...todo,
-        completed: false,
-      })) : currentTodos.map(todo => ({
-        ...todo,
-        completed: true,
-      }))));
+    return todos.every(todo => todo.completed)
+      ? todos.map(todo => {
+        const todoToUpdate = {
+          ...todo,
+          completed: false,
+        };
+
+        return handleUpdateTodo(todoToUpdate);
+      }) : todos.map(todo => {
+        const todoToUpdate = {
+          ...todo,
+          completed: true,
+        };
+
+        return handleUpdateTodo(todoToUpdate);
+      });
   }, [todos]);
 
   const handleClearCompleted = useCallback(() => {
