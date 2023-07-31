@@ -8,83 +8,147 @@ type Props = {
   todo: TodoType;
   onDelete: (todoId: number) => Promise<void>;
   ids: number[];
+  updatedStatus: number[];
+  onChangeStatus: (todo: TodoType) => Promise<void>;
+  onChangeTitle: (todo: TodoType) => Promise<void>;
 };
 
-export const Todo: React.FC<Props> = ({ todo, onDelete, ids }) => {
-  const [completed, setCompleted] = useState(todo.completed);
-  const [loading, setLoading] = useState(false);
+export const Todo: React.FC<Props> = ({
+  todo,
+  onDelete,
+  ids,
+  updatedStatus,
+  onChangeStatus,
+  onChangeTitle,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInput, setIsInput] = useState(false);
+  const [title, setTitle] = useState('');
 
-  const handleCompleted = () => setCompleted(!completed);
+  function handleLoading<T>(
+    cause: (param: T) => Promise<void>,
+    param: T,
+  ): void {
+    setIsLoading(true);
+
+    cause(param)
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }
 
   const deleteTodo = () => {
-    setLoading(true);
+    handleLoading<number>(onDelete, todo.id);
+  };
 
-    onDelete(todo.id)
-      .finally(() => {
-        setLoading(false);
-      });
+  const updateStatus = () => {
+    handleLoading<TodoType>(onChangeStatus, todo);
+  };
+
+  const handleIsInput = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setIsInput(!isInput);
+
+    if (title === '') {
+      setIsLoading(true);
+
+      onDelete(todo.id)
+        .finally(() => {
+          setIsLoading(false);
+        });
+
+      return;
+    }
+
+    if (todo.title !== title) {
+      setIsLoading(true);
+
+      onChangeTitle({ ...todo, title })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
+
+  const onDoubleClick = () => {
+    setIsInput(!isInput);
+    setTitle(todo.title);
+  };
+
+  const handleSetTitle = (event: React.ChangeEvent<HTMLInputElement>) => (
+    setTitle(event.target.value)
+  );
+
+  const resetChanges = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.code === 'Escape') {
+      setIsInput(!isInput);
+      setTitle(todo.title);
+    }
   };
 
   return (
-    <div className={cn('todo', { completed })}>
+    <div className={cn('todo', { completed: todo.completed })}>
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          onClick={handleCompleted}
+          onClick={updateStatus}
         />
       </label>
 
-      <span
-        className="todo__title"
-      >
-        {todo.title}
-      </span>
+      {isInput && (
+        <form
+          onSubmit={handleIsInput}
+          onBlur={handleIsInput}
+        >
+          <input
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={title}
+            onChange={handleSetTitle}
+            onKeyUp={resetChanges}
+            // eslint-disable-next-line
+            autoFocus
+          />
+        </form>
+      )}
 
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={deleteTodo}
-        disabled={loading || ids.includes(todo.id)}
-      >
-        ×
-      </button>
+      {!isInput && (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={onDoubleClick}
+          >
+            {todo.title}
+          </span>
+
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={deleteTodo}
+            disabled={isLoading || ids.includes(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         className={cn(
           'modal',
           'overlay',
-          { 'is-active': loading || ids.includes(todo.id) },
+          {
+            'is-active': isLoading
+              || ids.includes(todo.id)
+              || updatedStatus.includes(todo.id),
+          },
         )}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
     </div>
-
-  // {/* This todo is being edited */}
-  // <div className="todo">
-  //   <label className="todo__status-label">
-  //     <input
-  //       type="checkbox"
-  //       className="todo__status"
-  //     />
-  //   </label>
-
-  //   {/* This form is shown instead of the title and remove button */}
-  //   <form>
-  //     <input
-  //       type="text"
-  //       className="todo__title-field"
-  //       placeholder="Empty todo will be deleted"
-  //       // value="Todo is being edited now"
-  //     />
-  //   </form>
-
-  //   <div className="modal overlay">
-  //     <div className="modal-background has-background-white-ter" />
-  //     <div className="loader" />
-  //   </div>
-  // </div>
   );
 };

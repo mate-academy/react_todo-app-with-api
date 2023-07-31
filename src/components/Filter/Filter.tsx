@@ -13,8 +13,9 @@ export const Filter: React.FC<Props> = ({
   filterValue,
   handleFilter,
 }) => {
-  const makeHandleFilter
-    = (sortField: FilterValue) => () => handleFilter(sortField);
+  const makeHandleFilter = (sortField: FilterValue) => () => (
+    handleFilter(sortField)
+  );
 
   return (
     <nav className="filter">
