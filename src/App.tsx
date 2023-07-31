@@ -5,8 +5,12 @@ import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { Completion } from './types/Completion';
 import { TodoError } from './types/TodoError';
-import { deleteTodoFromServer, getTodosFromServer } from './api/todos';
 import { USER_ID } from './constants';
+import {
+  deleteTodoFromServer,
+  getTodosFromServer,
+  updateTodoOnServer,
+} from './api/todos';
 
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
@@ -18,6 +22,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(TodoError.NoError);
   const [completionFilter, setCompletionFilter] = useState(Completion.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   useEffect(() => {
     getTodosFromServer(USER_ID)
@@ -54,12 +59,41 @@ export const App: React.FC = () => {
     ));
   };
 
+  const updateTodo = (updatedTodo: Todo) => {
+    setTodos(currentTodos => currentTodos.map(todo => (
+      todo.id === updatedTodo.id ? updatedTodo : todo
+    )));
+  };
+
   const deleteCompletedTodos = () => {
-    completedTodos.forEach(completedTodo => {
+    setLoadingTodos(completedTodos.map(todo => todo.id));
+
+    Promise.all(completedTodos.map(completedTodo => (
       deleteTodoFromServer(completedTodo.id)
         .then(() => deleteTodo(completedTodo.id))
-        .catch(() => setErrorMessage(TodoError.Delete));
-    });
+    )))
+      .catch(() => setErrorMessage(TodoError.Delete))
+      .finally(() => setLoadingTodos([]));
+  };
+
+  const isEverythingCompleted = todos.length === completedTodos.length;
+
+  const toggleAll = () => {
+    const todosToToggle = isEverythingCompleted ? todos : activeTodos;
+
+    setLoadingTodos(todosToToggle.map(todo => todo.id));
+
+    Promise.all(todosToToggle.map(todo => {
+      const updatedTodo: Todo = {
+        ...todo,
+        completed: !todo.completed,
+      };
+
+      return updateTodoOnServer(updatedTodo)
+        .then(todoFromServer => updateTodo(todoFromServer));
+    }))
+      .catch(() => setErrorMessage(TodoError.Update))
+      .finally(() => setLoadingTodos([]));
   };
 
   return (
@@ -72,8 +106,9 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
-                active: todos.length === completedTodos.length,
+                active: isEverythingCompleted,
               })}
+              onClick={toggleAll}
             />
           )}
 
@@ -90,6 +125,8 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             deleteTodo={deleteTodo}
             setErrorMessage={setErrorMessage}
+            updateTodo={updateTodo}
+            loadingTodos={loadingTodos}
           />
         </section>
 
