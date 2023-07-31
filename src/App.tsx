@@ -131,10 +131,12 @@ export const App: React.FC = () => {
     let changingTodos: Todo[] = [];
 
     if (todos.some(todo => todo.completed === false)) {
-      changingTodos = todos.map(todo => ({
-        ...todo,
-        completed: true,
-      }));
+      changingTodos = todos
+        .filter(todo => todo.completed === false)
+        .map(todo => ({
+          ...todo,
+          completed: true,
+        }));
     }
 
     if (todos.every(todo => todo.completed === true)) {
@@ -148,14 +150,28 @@ export const App: React.FC = () => {
 
     Promise.all(updatePromises)
       .then((updatedTodos) => {
-        const todosWithNewStatus = updatedTodos as Todo[];
+        const newTodos = updatedTodos as Todo[];
 
-        setTodos(todosWithNewStatus);
-        setErrorMessage('');
-        setIsChangingStatus(false);
+        setTodos(currentTodos => {
+          const updatedTodoIds = new Set(newTodos.map(todo => todo.id));
+          const updatedTodosArray = currentTodos.map(todo => {
+            if (updatedTodoIds.has(todo.id)) {
+              const updatedTodo = newTodos.find(updated => updated.id === todo.id);
+
+              return updatedTodo || todo;
+            }
+
+            return todo;
+          });
+
+          return updatedTodosArray;
+        });
       })
       .catch(() => {
         setErrorMessage(ErrorType.updateTodo);
+        setIsChangingStatus(false);
+      })
+      .finally(() => {
         setIsChangingStatus(false);
       });
   };
