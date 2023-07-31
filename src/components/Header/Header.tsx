@@ -9,7 +9,7 @@ type Props = {
   addTodo: (todo: Omit<Todo, 'id'>) => Promise<void>;
   userId: number;
   setError: (error: string) => void;
-  clearError: (clearOption: string) => void;
+  clearError: () => void;
   updateActiveTodos: () => void;
 };
 
@@ -30,7 +30,7 @@ export const Header: React.FC<Props> = ({
 
     if (!title.trim()) {
       setError('Title can\'t be empty');
-      clearError('');
+      clearError();
     } else {
       setIsSubmitting(true);
 

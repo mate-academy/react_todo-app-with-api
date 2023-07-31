@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const BASE_URL = 'https://mate.academy/students-api';
 
 function wait(delay: number) {
@@ -12,7 +11,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data: any = null,
+  data: unknown = null,
 ): Promise<T> {
   const options: RequestInit = { method };
 

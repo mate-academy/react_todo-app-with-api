@@ -32,7 +32,7 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter(todo => todo.completed);
 
   const clearError = useCallback(
-    debounce(setError, 3000),
+    debounce(() => setError(''), 3000),
     [],
   );
 
@@ -41,7 +41,7 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setError('Unable to get todos');
-        clearError('');
+        clearError();
       });
   }, []);
 
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
       setTodos(curTodos => curTodos.filter(todo => todo.id !== todoId));
     } catch (e) {
       setError('Unable to delete a todo');
-      clearError('');
+      clearError();
     }
   };
 
@@ -96,7 +96,7 @@ export const App: React.FC = () => {
       .then(newTodo => setTodos(curTodos => [...curTodos, newTodo]))
       .catch(e => {
         setError('Unable to add a todo');
-        clearError('');
+        clearError();
         throw e;
       })
       .finally(() => setTempTodo(null));
@@ -117,7 +117,7 @@ export const App: React.FC = () => {
       });
     } catch (e) {
       setError('Unable to update a todo');
-      clearError('');
+      clearError();
     }
   };
 
