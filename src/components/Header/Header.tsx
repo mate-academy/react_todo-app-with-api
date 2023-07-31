@@ -27,7 +27,10 @@ export const Header: React.FC<Props> = React.memo(({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.style.outline = 'none';
+    }
   });
 
   function reset() {
