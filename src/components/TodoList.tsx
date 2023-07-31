@@ -29,9 +29,22 @@ export const AppList: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editingTodoId !== null && inputRef.current) {
+    if (inputRef.current) {
       inputRef.current.focus();
     }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && editingTodoId !== null) {
+        setUpdatingTitle('');
+        setEditingTodoId(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [editingTodoId]);
 
   const handleTitleDoubleClick = (todo: Todo) => {
@@ -44,7 +57,9 @@ export const AppList: React.FC<Props> = ({
   };
 
   const handleTitleSave = (todo: Todo) => {
-    if (updatingTitle !== todo.title) {
+    if (updatingTitle.length === 0) {
+      onDelete(todo.id);
+    } else if (updatingTitle !== todo.title) {
       onChange(todo.id, updatingTitle);
     }
 
