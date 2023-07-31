@@ -19,7 +19,7 @@ export const TodoList:React.FC<Props> = ({ todos }) => {
         hidden: todos.length === 0,
       })}
     >
-      {todos.length > 0 && todos.map(todo => (
+      {todos.map(todo => (
         <React.Fragment key={todo.id}>
           <TodoItem todo={todo} />
         </React.Fragment>

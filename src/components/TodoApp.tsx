@@ -17,15 +17,13 @@ export const TodoApp: React.FC = () => {
     todos,
     filterBy,
     USER_ID,
+    setToggleStatus,
+    isAllTodosCompleted,
   } = useContext(TodosContext);
 
   const preparedTodos = React.useMemo(() => {
     return filterTodos(todos, filterBy);
   }, [todos, filterBy]);
-
-  const isAllTodosCompleted = React.useMemo(() => {
-    return todos.every(todo => todo.completed);
-  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -43,6 +41,7 @@ export const TodoApp: React.FC = () => {
               className={cn('todoapp__toggle-all', {
                 active: isAllTodosCompleted,
               })}
+              onClick={() => setToggleStatus(true)}
             />
           )}
 

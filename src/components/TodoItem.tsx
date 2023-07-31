@@ -13,11 +13,15 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState(todo.title || '');
   const {
+    todos,
     tempTodo,
     onDeleteTodo,
     onUpdateTodo,
     setErrorMessage,
     deletingCompletedTodo,
+    toggleStatus,
+    isAllTodosCompleted,
+    setToggleStatus,
   } = useContext(TodosContext);
 
   function handleTodoDelete(todoId: number) {
@@ -52,13 +56,11 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       });
   }
 
-  function onStatusChange() {
-    const editedTodo = {
-      ...todo,
-      completed: !todo.completed,
-    };
-
-    handleUpdateTodo(editedTodo);
+  function onStatusChange(editedTodo: Todo, status: boolean) {
+    handleUpdateTodo({
+      ...editedTodo,
+      completed: status,
+    });
   }
 
   function onTitleChange(event?: React.FormEvent) {
@@ -94,6 +96,15 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
     setLoading(isLoading);
   }, [deletingCompletedTodo, tempTodo]);
 
+  useEffect(() => {
+    if (!toggleStatus) {
+      return;
+    }
+
+    todos.forEach(todoItem => onStatusChange(todoItem, !isAllTodosCompleted));
+    setToggleStatus(false);
+  }, [toggleStatus]);
+
   return (
     <div
       className={cn('todo', {
@@ -106,7 +117,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={onStatusChange}
+          onChange={() => onStatusChange(todo, !todo.completed)}
         />
       </label>
 

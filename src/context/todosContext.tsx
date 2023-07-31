@@ -18,6 +18,9 @@ interface Todos {
   setTempTodo: (tempTodo: Todo | null) => void;
   deletingCompletedTodo: boolean;
   setDeletingCompletedTodo: (value: boolean) => void;
+  toggleStatus: boolean;
+  setToggleStatus: (v: boolean | ((v: boolean) => boolean)) => void;
+  isAllTodosCompleted: boolean;
 }
 
 export const TodosContext = React.createContext<Todos>({
@@ -34,6 +37,9 @@ export const TodosContext = React.createContext<Todos>({
   setErrorMessage: () => {},
   setTempTodo: () => {},
   setDeletingCompletedTodo: () => {},
+  toggleStatus: false,
+  setToggleStatus: () => {},
+  isAllTodosCompleted: false,
 });
 
 interface Props {
@@ -46,6 +52,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingCompletedTodo, setDeletingCompletedTodo] = useState(false);
+  const [toggleStatus, setToggleStatus] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -71,6 +78,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     ));
   }
 
+  const isAllTodosCompleted = React.useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
+
   const todosValues = {
     USER_ID,
     todos,
@@ -78,6 +89,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     filterBy,
     errorMessage,
     deletingCompletedTodo,
+    toggleStatus,
     onAddTodo,
     onDeleteTodo,
     onUpdateTodo,
@@ -85,6 +97,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setErrorMessage,
     setTempTodo,
     setDeletingCompletedTodo,
+    setToggleStatus,
+    isAllTodosCompleted,
   };
 
   return (
