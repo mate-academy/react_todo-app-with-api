@@ -21,7 +21,7 @@ export const TodoInfo: React.FC<Props> = ({
     todoInCreation,
   } = useContext(TodoContext);
 
-  const [editTitle, setEditTitle] = useState('');
+  const [editTitle, setEditTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
   const changeCompletedState = (e: ChangeEvent<HTMLInputElement>) => {
