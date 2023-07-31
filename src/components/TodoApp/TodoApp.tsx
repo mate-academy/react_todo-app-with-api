@@ -67,7 +67,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
   ) => {
     event.preventDefault();
 
-    if (title.length === 0) {
+    if (!title.length) {
       setErrorMessage('Title can\'t be empty');
 
       return;
@@ -171,7 +171,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
   const updateAllTodosStatus = () => {
     let incompleteTodos = todos.filter(todo => !todo.completed);
 
-    if (incompleteTodos.length === 0) {
+    if (!incompleteTodos.length) {
       incompleteTodos = todos;
     }
 
@@ -196,6 +196,8 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
   const makeSetNewTitle = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => setNewTitle(event.target.value);
+
+  const completedTodosCount = todos.filter(todo => !todo.completed).length;
 
   return (
     <div className="todoapp">
@@ -222,7 +224,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
               placeholder="What needs to be done?"
               value={newTitle}
               onChange={makeSetNewTitle}
-              disabled={tempTodo !== null}
+              disabled={!!tempTodo}
             />
           </form>
         </header>
@@ -247,10 +249,10 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
           )}
         </section>
 
-        {(todos.length > 0) && (
+        {!!todos.length && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${todos.filter(todo => !todo.completed).length} items left`}
+              {`${completedTodosCount} item${(completedTodosCount !== 1) ? 's' : ''} left`}
             </span>
 
             <Filter filterValue={filterValue} handleFilter={setFilterValue} />
@@ -275,7 +277,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
           'is-danger',
           'is-light',
           'has-text-weight-normal',
-          { hidden: errorMessage === '' },
+          { hidden: !errorMessage },
         )}
       >
         <button

@@ -23,7 +23,7 @@ export const Todo: React.FC<Props> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInput, setIsInput] = useState(false);
-  const [title, setTitle] = useState('');
+  const [newTitle, setNewTitle] = useState('');
 
   function handleLoading<T>(
     cause: (param: T) => Promise<void>,
@@ -37,8 +37,10 @@ export const Todo: React.FC<Props> = ({
       });
   }
 
+  const { id, title } = todo;
+
   const deleteTodo = () => {
-    handleLoading<number>(onDelete, todo.id);
+    handleLoading<number>(onDelete, id);
   };
 
   const updateStatus = () => {
@@ -50,10 +52,10 @@ export const Todo: React.FC<Props> = ({
 
     setIsInput(!isInput);
 
-    if (title === '') {
+    if (!newTitle) {
       setIsLoading(true);
 
-      onDelete(todo.id)
+      onDelete(id)
         .finally(() => {
           setIsLoading(false);
         });
@@ -61,10 +63,10 @@ export const Todo: React.FC<Props> = ({
       return;
     }
 
-    if (todo.title !== title) {
+    if (title !== newTitle) {
       setIsLoading(true);
 
-      onChangeTitle({ ...todo, title })
+      onChangeTitle({ ...todo, title: newTitle })
         .finally(() => {
           setIsLoading(false);
         });
@@ -73,17 +75,17 @@ export const Todo: React.FC<Props> = ({
 
   const onDoubleClick = () => {
     setIsInput(!isInput);
-    setTitle(todo.title);
+    setNewTitle(title);
   };
 
   const handleSetTitle = (event: React.ChangeEvent<HTMLInputElement>) => (
-    setTitle(event.target.value)
+    setNewTitle(event.target.value)
   );
 
   const resetChanges = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.code === 'Escape') {
       setIsInput(!isInput);
-      setTitle(todo.title);
+      setNewTitle(title);
     }
   };
 
@@ -97,7 +99,7 @@ export const Todo: React.FC<Props> = ({
         />
       </label>
 
-      {isInput && (
+      {isInput ? (
         <form
           onSubmit={handleIsInput}
           onBlur={handleIsInput}
@@ -106,29 +108,27 @@ export const Todo: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={title}
+            value={newTitle}
             onChange={handleSetTitle}
             onKeyUp={resetChanges}
             // eslint-disable-next-line
             autoFocus
           />
         </form>
-      )}
-
-      {!isInput && (
+      ) : (
         <>
           <span
             className="todo__title"
             onDoubleClick={onDoubleClick}
           >
-            {todo.title}
+            {title}
           </span>
 
           <button
             type="button"
             className="todo__remove"
             onClick={deleteTodo}
-            disabled={isLoading || ids.includes(todo.id)}
+            disabled={isLoading || ids.includes(id)}
           >
             ×
           </button>
@@ -141,8 +141,8 @@ export const Todo: React.FC<Props> = ({
           'overlay',
           {
             'is-active': isLoading
-              || ids.includes(todo.id)
-              || updatedStatus.includes(todo.id),
+              || ids.includes(id)
+              || updatedStatus.includes(id),
           },
         )}
       >
