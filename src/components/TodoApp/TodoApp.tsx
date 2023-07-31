@@ -21,10 +21,9 @@ export const TodoApp: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<null | Todo>(null);
   const [disabledButton, setDisabledButton] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const ref = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const idsOfCompletedTodos: number[] = [];
+  let idsForLoading: number[] = [];
 
   const handleAddTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
@@ -56,14 +55,13 @@ export const TodoApp: React.FC = () => {
         setDisabledButton(false);
         setTempTodo(null);
         setLoading([]);
-        inputRef.current?.focus();
       });
   };
 
   const completedTodos = useMemo(() => {
     return todos.filter(todo => {
       if (todo.completed) {
-        idsOfCompletedTodos.push(todo.id);
+        idsForLoading.push(todo.id);
       }
 
       return todo.completed;
@@ -75,16 +73,18 @@ export const TodoApp: React.FC = () => {
   }, [allTodos]);
 
   const deleteCompletedTodos = () => {
-    setLoading(idsOfCompletedTodos);
+    setLoading(idsForLoading);
 
-    idsOfCompletedTodos.map(id => deleteTodo(id));
-
-    setTimeout(() => {
-      setTodos(currentTodos => (
-        currentTodos.filter(currTodo => !currTodo.completed)
-      ));
-      setLoading([]);
-    }, 300);
+    idsForLoading.forEach(id => {
+      deleteTodo(id)
+        .then(() => {
+          setTodos(currentTodos => (
+            currentTodos.filter(currTodo => !currTodo.completed)
+          ));
+        })
+        .catch(() => setError('Unable to delete a todos'))
+        .finally(() => setLoading([]));
+    });
   };
 
   const areAllTodosCompleted = useMemo(() => {
@@ -92,27 +92,57 @@ export const TodoApp: React.FC = () => {
   }, [allTodos]);
 
   const setAllChecked = () => {
-    if (ref.current) {
-      allTodos.map(todo => updateTodo(todo.id, { completed: false }));
+    idsForLoading = [];
 
-      setTodos(currentTodos => {
-        return currentTodos.map(currTodo => ({
-          ...currTodo,
-          completed: false,
-        }));
+    if (areAllTodosCompleted) {
+      const todosForUpdate = allTodos.filter(todo => {
+        if (todo.completed) {
+          idsForLoading.push(todo.id);
+        }
+
+        return todo.completed;
+      });
+
+      setLoading(idsForLoading);
+
+      todosForUpdate.forEach(todo => {
+        updateTodo(todo.id, { completed: false })
+          .then(response => {
+            if (response) {
+              setTodos(currentTodos => {
+                return currentTodos.map(currTodo => ({
+                  ...currTodo,
+                  completed: false,
+                }));
+              });
+            }
+          })
+          .catch(() => setError('Unable to update a todos'))
+          .finally(() => setLoading([]));
       });
     } else {
-      allTodos.map(todo => updateTodo(todo.id, { completed: true }));
+      const todosForUpdate = allTodos.filter(todo => !todo.completed);
 
-      setTodos(currentTodos => {
-        return currentTodos.map(currTodo => ({
-          ...currTodo,
-          completed: true,
-        }));
+      todosForUpdate.forEach(todo => idsForLoading.push(todo.id));
+
+      setLoading(idsForLoading);
+
+      todosForUpdate.forEach(todo => {
+        updateTodo(todo.id, { completed: true })
+          .then(response => {
+            if (response) {
+              setTodos(currentTodos => {
+                return currentTodos.map(currTodo => ({
+                  ...currTodo,
+                  completed: true,
+                }));
+              });
+            }
+          })
+          .catch(() => setError('Unable to update a todos'))
+          .finally(() => setLoading([]));
       });
     }
-
-    ref.current = !ref.current;
   };
 
   return (
@@ -159,7 +189,7 @@ export const TodoApp: React.FC = () => {
                 type="button"
                 className={cn('todoapp__clear-completed',
                   { 'is-invisible': completedTodos.length === 0 })}
-                onClick={() => deleteCompletedTodos()}
+                onClick={deleteCompletedTodos}
               >
                 Clear completed
               </button>

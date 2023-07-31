@@ -20,16 +20,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setLoading([todoId]);
 
     deleteTodo(todoId)
-      .catch(() => setError('Unable to delete a todo'))
       .then(response => {
         if (response) {
           setTodos(currentTodos => (
             currentTodos.filter(currTodo => currTodo.id !== todoId)
           ));
         }
-
-        setLoading([]);
-      });
+      })
+      .catch(() => setError('Unable to delete a todo'))
+      .finally(() => setLoading([]));
   };
 
   const handleToggle = (todoId: number) => {
