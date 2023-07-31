@@ -23,6 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   useEffect(() => {
     if (isTitleEditing && inputRef.current) {
       inputRef.current.focus();
+      inputRef.current.style.outline = 'none';
     }
   }, [isTitleEditing]);
 

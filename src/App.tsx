@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { CSSTransition } from 'react-transition-group';
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
@@ -76,6 +75,9 @@ export const App: React.FC = () => {
   };
 
   function updateTodoInTheTodoList(updateTodo: Todo) {
+    const isAllCompleted = todosFromServer
+    && completedItemsCount === todosFromServer?.length - 1;
+
     setTodosFromServer(currentTodos => {
       if (currentTodos) {
         const newTodos: Todo[] = [...currentTodos];
@@ -90,9 +92,7 @@ export const App: React.FC = () => {
     });
 
     if (updateTodo.completed) {
-      if (todosFromServer
-        && completedItemsCount === todosFromServer?.length - 1
-      ) {
+      if (isAllCompleted) {
         setIsAllItemsAreCompleted(true);
       }
 
@@ -124,11 +124,8 @@ export const App: React.FC = () => {
       return;
     }
 
-    if (activeItemsCount) {
-      itemsToToggle = todosFromServer?.filter(todo => !todo.completed);
-    } else {
-      itemsToToggle = todosFromServer?.filter(todo => todo.completed);
-    }
+    itemsToToggle = todosFromServer?.filter(todo => (activeItemsCount
+      ? !todo.completed : todo.completed));
 
     setIsAllItemsAreCompleted(current => !current);
 
@@ -180,7 +177,6 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-
         <Header
           isAllItemsAreCompleted={isAllItemsAreCompleted}
           showError={showNotification}
@@ -189,33 +185,24 @@ export const App: React.FC = () => {
           toggleAll={toggleAllTodos}
         />
 
-        {visibleTodos?.length && (
-          <CSSTransition
-            key="listOfTodos"
-            mountOnEnter
-            in={visibleTodos.length > 0}
-            appear={visibleTodos.length > 0}
-            timeout={300}
-            classNames="list"
-          >
-            <>
-              <TodoList
-                todos={visibleTodos}
-                tempTodo={tempTodo}
-                todosInProcess={todosInProcess}
-                deleteTodo={deleteTodo}
-                changeTodo={updateTodo}
-              />
+        {!!visibleTodos?.length && (
+          <TodoList
+            todos={visibleTodos}
+            tempTodo={tempTodo}
+            todosInProcess={todosInProcess}
+            deleteTodo={deleteTodo}
+            changeTodo={updateTodo}
+          />
+        )}
 
-              <Footer
-                filterCondition={filterBy}
-                visibleItemsCount={activeItemsCount}
-                isCompletedTodos={completedItemsCount > 0}
-                setFilterCOndition={setFilterBy}
-                clearCompleted={deleteCompletedTodos}
-              />
-            </>
-          </CSSTransition>
+        {todosFromServer?.length && (
+          <Footer
+            filterCondition={filterBy}
+            visibleItemsCount={activeItemsCount}
+            isCompletedTodos={completedItemsCount > 0}
+            setFilterCOndition={setFilterBy}
+            clearCompleted={deleteCompletedTodos}
+          />
         )}
       </div>
 
