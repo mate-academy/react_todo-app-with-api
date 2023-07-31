@@ -46,7 +46,11 @@ export const TodoItem: React.FC<Props> = (
   };
 
   const onBlurHandler = () => {
-    cancelEditing();
+    if (updateTodo && todo) {
+      updateTodo({ ...todo, title });
+    }
+
+    setEditing(false);
   };
 
   const onKeyUpHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
