@@ -27,3 +27,11 @@ export function getFilteredTodos(
 
   return filteredTodos;
 }
+
+export function completedTodos(todos: Todo[]) {
+  return todos.filter(todo => todo.completed);
+}
+
+export function uncompletedTodos(todos: Todo[]) {
+  return todos.filter(todo => !todo.completed);
+}

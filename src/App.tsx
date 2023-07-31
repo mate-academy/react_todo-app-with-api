@@ -10,11 +10,10 @@ import { Footer } from './components/Footer';
 import { Notifications } from './components/Notifications';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
+import * as TodoFilter from './utils/TodoFilter';
 import { FilterType } from './types/FilterType';
-import { getFilteredTodos } from './utils/TodoFilter';
 import { NOTIFICATION } from './types/Notification';
 import { USER_ID } from './constants/USER_ID';
-import { completedTodos } from './utils/CompletedTodos';
 import { findTodoById } from './utils/FindPostById';
 
 export const App: React.FC = () => {
@@ -87,7 +86,7 @@ export const App: React.FC = () => {
   const deleteCompletedTodo = useCallback(() => {
     setLoading(true);
 
-    const completedTodosList = completedTodos(todos);
+    const completedTodosList = TodoFilter.completedTodos(todos);
 
     const completedTodoId = completedTodosList.map((todo) => todo.id);
 
@@ -136,12 +135,20 @@ export const App: React.FC = () => {
 
   const reverteCompletedTodo = useCallback((todosForRevert: Todo[]) => {
     const todosForUpdate = todosForRevert;
+    const uncompletedTodosForUpdate = TodoFilter
+      .uncompletedTodos(todosForRevert);
 
-    const todosForUpdateId = todosForUpdate.map(todo => todo.id);
+    const todosForUpdateId = uncompletedTodosForUpdate.length !== 0
+      ? uncompletedTodosForUpdate.map(todo => todo.id)
+      : todosForUpdate.map(todo => todo.id);
 
     setUpdatingTodos(todosForUpdateId);
 
-    todosForUpdate.map(todo => changeTodoCompleted(todo.id));
+    if (uncompletedTodosForUpdate.length !== 0) {
+      uncompletedTodosForUpdate.map(todo => changeTodoCompleted(todo.id));
+    } else {
+      todosForUpdate.map(todo => changeTodoCompleted(todo.id));
+    }
   }, [todos]);
 
   const updateTodo = useCallback((todoId: number | null, title: string) => {
@@ -176,7 +183,7 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const filteredTodos: Todo[] = useMemo(() => {
-    return getFilteredTodos(todos, filterType);
+    return TodoFilter.getFilteredTodos(todos, filterType);
   }, [todos, filterType]);
 
   if (!USER_ID) {

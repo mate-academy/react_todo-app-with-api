@@ -43,6 +43,10 @@ export const TodoList: React.FC<Props> = ({
     }
   }, [selectedTodoId]);
 
+  useEffect(() => {
+    setIsUpdating(null);
+  }, todos);
+
   const handleUpdate = (event?: FormEvent) => {
     event?.preventDefault();
 
@@ -63,7 +67,6 @@ export const TodoList: React.FC<Props> = ({
     updateTodo(selectedTodoId, tempTitle);
 
     setSelectedTodoId(null);
-    setIsUpdating(null);
     setTempTitle('');
   };
 
@@ -132,11 +135,11 @@ export const TodoList: React.FC<Props> = ({
             )}
 
           <div className={classNames('modal overlay', {
-            'modal overlay is-active':
-              (loading && todoForDelete === todo.id)
-              || (loading && listOfTodoId.includes(todo.id))
-              || (loading && isUpdating === todo.id)
-              || (loading && updatingTodos.includes(todo.id)),
+            'modal overlay is-active': loading
+              && (todoForDelete === todo.id
+                || listOfTodoId.includes(todo.id)
+                || isUpdating === todo.id
+                || updatingTodos.includes(todo.id)),
           })}
           >
             <div className="modal-background has-background-white-ter" />
@@ -145,7 +148,8 @@ export const TodoList: React.FC<Props> = ({
         </div>
       ))}
 
-      {tempTodo
+      {
+        tempTodo
         && (
           <div className={classNames('todo', {
             'todo completed': tempTodo.completed,
@@ -176,7 +180,8 @@ export const TodoList: React.FC<Props> = ({
               <div className="loader" />
             </div>
           </div>
-        )}
+        )
+      }
     </section>
   );
 };

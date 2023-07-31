@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { FilterType } from '../../types/FilterType';
-import { completedTodos } from '../../utils/CompletedTodos';
+import { completedTodos } from '../../utils/TodoFilter';
 
 type Props = {
   todos: Todo[]
