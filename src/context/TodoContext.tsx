@@ -131,12 +131,12 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const toggleStatus = () => {
+  const toggleStatus = useCallback(() => {
     todos.map(todo => handleUpdateTodo({
       ...todo,
       completed: !todo.completed,
     }));
-  };
+  }, [todos]);
 
   const handleClearCompleted = useCallback(() => {
     todos.map(todo => (todo.completed ? deleteTodo(todo.id) : todo));
@@ -168,6 +168,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     handleUpdateTodo,
     toggleStatus,
   }), [
+    todos,
     loading,
     todoInCreation,
     visibleTodos,

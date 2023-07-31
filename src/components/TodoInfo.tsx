@@ -1,8 +1,7 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/no-autofocus */
 import classNames from 'classnames';
 import React, {
-  ChangeEvent, useCallback, useContext, useState,
+  ChangeEvent, useContext, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../context/TodoContext';
@@ -22,19 +21,19 @@ export const TodoInfo: React.FC<Props> = ({
     todoInCreation,
   } = useContext(TodoContext);
 
-  const [editTitle, setEditTitle] = useState(todo.title);
+  const [editTitle, setEditTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  const changeCompletedState = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  const changeCompletedState = (e: ChangeEvent<HTMLInputElement>) => {
     const todoToCheck = {
       ...todo,
       completed: e.target.checked,
     };
 
     handleUpdateTodo(todoToCheck);
-  }, []);
+  };
 
-  const handleTitleEdit = useCallback((e?: React.FormEvent) => {
+  const handleTitleEdit = (e?: React.FormEvent) => {
     e?.preventDefault();
 
     if (todo.title === editTitle) {
@@ -56,18 +55,14 @@ export const TodoInfo: React.FC<Props> = ({
 
     handleUpdateTodo(todoToUpdate);
     setIsEditing(false);
-  }, []);
+  };
 
-  const cancelEditing = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+  const cancelEditing = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setEditTitle(todo.title);
       setIsEditing(false);
     }
-
-    if (e.key === 'Enter') {
-      handleTitleEdit();
-    }
-  }, []);
+  };
 
   return (
     <div className={classNames('todo', {

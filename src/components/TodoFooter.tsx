@@ -1,4 +1,5 @@
-import { useContext } from 'react';
+/* eslint-disable max-len */
+import { useContext, useMemo } from 'react';
 import classNames from 'classnames';
 import { StateOption, TodoContext } from '../context/TodoContext';
 
@@ -11,7 +12,7 @@ export const TodoFooter = () => {
     activeTodosAmount,
   } = useContext(TodoContext);
 
-  const completedTodosAmount = visibleTodos.some(todo => todo.completed);
+  const completedTodosAmount = useMemo(() => visibleTodos.some(todo => todo.completed), [visibleTodos]);
 
   return (
     <footer className="todoapp__footer">
