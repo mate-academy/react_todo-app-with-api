@@ -84,6 +84,18 @@ export const TodoItem: React.FC<Props> = ({
     handleTitleChange();
   };
 
+  const handleKeySubmit = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleTitleChange();
+    }
+  };
+
+  const handleKeyCancel = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      clearEditFields();
+    }
+  };
+
   return (
     <div
       className={classNames('todo', {
@@ -127,16 +139,8 @@ export const TodoItem: React.FC<Props> = ({
             value={newTodoTitle}
             onChange={changeTitle}
             onBlur={onLostFocus}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                handleTitleChange();
-              }
-            }}
-            onKeyUp={(event) => {
-              if (event.key === 'Escape') {
-                clearEditFields();
-              }
-            }}
+            onKeyDown={handleKeySubmit}
+            onKeyUp={handleKeyCancel}
           />
         </form>
       )}
