@@ -30,6 +30,9 @@ export const TodoItem: React.FC<Props> = ({
     if (newTitle !== todo.title) {
       onUpdateTodo(todo.id, { title: newTitle });
     }
+    if (!newTitle.trim()) {
+      onDeleteTodo(todo.id);
+    }
   };
 
   const handleUpdateSubmit = (event: React.FormEvent) => {
