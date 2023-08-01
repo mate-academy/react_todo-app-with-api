@@ -15,6 +15,8 @@ export const App: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState(SelectStatus.All);
   const [errorMesage, setErrorMesage] = useState(TodoError.empty);
   const [newAddedTodoId, setNewAddedTodoId] = useState<number | null>(null);
+  const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
+  const [changedStatusIds, setChangedStatusIds] = useState<number[]>([]);
 
   const getFilteredTodos = (todos: Todo[]) => {
     const filteredTodos = [...todos];
@@ -51,6 +53,38 @@ export const App: React.FC = () => {
       });
   };
 
+  const toggleTodoStatus = async ({
+    id,
+    title,
+    userId,
+    completed,
+  }: Todo) => {
+    try {
+      const newTodos = visibleTodos.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, completed: !completed };
+        }
+
+        return todo;
+      });
+
+      setTodosFromServer(newTodos);
+      setSelectedTodoId(id);
+
+      await todoService.updateTodo({
+        id,
+        title,
+        userId,
+        completed: !completed,
+      });
+    } catch {
+      setErrorMesage(TodoError.update);
+      setTodosFromServer(visibleTodos);
+    } finally {
+      setSelectedTodoId(null);
+    }
+  };
+
   if (!todoService.USER_ID) {
     return <UserWarning />;
   }
@@ -65,12 +99,17 @@ export const App: React.FC = () => {
           setTodosFromServer={setTodosFromServer}
           setErrorMesage={setErrorMesage}
           setNewAddedTodoId={setNewAddedTodoId}
+          setChangedStatusIds={setChangedStatusIds}
         />
         <Main
           todos={visibleTodos}
           setTodosFromServer={setTodosFromServer}
           setErrorMesage={setErrorMesage}
           newAddedTodoId={newAddedTodoId}
+          selectedTodoId={selectedTodoId}
+          setSelectedTodoId={setSelectedTodoId}
+          toggleTodoStatus={toggleTodoStatus}
+          changedStatusIds={changedStatusIds}
         />
         {todosFromServer.length > 0
           && (

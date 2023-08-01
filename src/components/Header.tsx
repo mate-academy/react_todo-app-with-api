@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoError } from '../types/TodoError';
 import { USER_ID } from '../api/todos';
@@ -9,6 +10,7 @@ type Props = {
   setErrorMesage: (errorMesage: TodoError) => void,
   setTodosFromServer: (todos: Todo[]) => void,
   setNewAddedTodoId: (todoId: number | null) => void,
+  setChangedStatusIds: (ids: number[]) => void,
 };
 
 export const Header: React.FC<Props> = ({
@@ -16,6 +18,7 @@ export const Header: React.FC<Props> = ({
   setErrorMesage,
   setTodosFromServer,
   setNewAddedTodoId,
+  setChangedStatusIds,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
@@ -58,17 +61,55 @@ export const Header: React.FC<Props> = ({
     }
   };
 
+  const areAllCompleted = () => {
+    return todos.every((todo) => todo.completed);
+  };
+
+  const updateSelectedTodoId = () => {
+    const differentStatusTodos = todos.filter(
+      (todo) => todo.completed === areAllCompleted(),
+    );
+
+    const ids = differentStatusTodos.map((todo) => todo.id);
+
+    setChangedStatusIds(ids);
+  };
+
+  const toggleAllTodos = async () => {
+    const newStatus = !areAllCompleted();
+
+    const updatedTodos = todos.map(todo => {
+      return ({
+        ...todo,
+        completed: newStatus,
+      });
+    });
+
+    try {
+      await Promise.all(
+        updatedTodos.map(updateTodo => todoService.updateTodo(updateTodo)),
+      );
+      setTodosFromServer(updatedTodos);
+      updateSelectedTodoId();
+    } catch {
+      setErrorMesage(TodoError.update);
+      setTodosFromServer(todos);
+    } finally {
+      setTimeout(() => setChangedStatusIds([]), 300);
+    }
+  };
+
   return (
     <header className="todoapp__header">
-      {
-        todos.length > 0 && (
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            aria-label="toggle"
-          />
-        )
-      }
+      <button
+        type="button"
+        className={classNames(
+          'todoapp__toggle-all',
+          { active: areAllCompleted() },
+        )}
+        aria-label="toggle"
+        onClick={toggleAllTodos}
+      />
 
       <form>
         <input
