@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import cn from 'classnames';
 
 import './Todo.scss';
@@ -24,6 +24,12 @@ export const Todo: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isInput, setIsInput] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+
+  const currentInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    currentInputRef.current?.focus();
+  }, [isInput]);
 
   function handleLoading<T>(
     cause: (param: T) => Promise<void>,
@@ -105,14 +111,14 @@ export const Todo: React.FC<Props> = ({
           onBlur={handleIsInput}
         >
           <input
+            id="current-input"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={handleSetTitle}
             onKeyUp={resetChanges}
-            // eslint-disable-next-line
-            autoFocus
+            ref={currentInputRef}
           />
         </form>
       ) : (
@@ -137,8 +143,7 @@ export const Todo: React.FC<Props> = ({
 
       <div
         className={cn(
-          'modal',
-          'overlay',
+          'modal overlay',
           {
             'is-active': isLoading
               || ids.includes(id)

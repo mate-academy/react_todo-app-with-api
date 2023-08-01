@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 
 import './TodoApp.scss';
@@ -38,6 +40,8 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
   const [deletedTodoIds, setDeletedTodoIds] = useState<number[]>([]);
   const [updatedStatusIds, setUpdatedStatusIds] = useState<number[]>([]);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   const handleError = useCallback((message: string) => {
     setErrorMessage(message);
 
@@ -53,6 +57,10 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
       .then(setTodos)
       .catch(() => handleError('Unable to load todos'));
   }, []);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [newTitle]);
 
   const makeSetErrorMessage = (message: string) => () => (
     setErrorMessage(message)
@@ -193,7 +201,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
     return updateTitleFunctionCall(todo.id, { ...todo });
   };
 
-  const makeSetNewTitle = (
+  const handleNewTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => setNewTitle(event.target.value);
 
@@ -223,8 +231,9 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
               value={newTitle}
-              onChange={makeSetNewTitle}
+              onChange={handleNewTitleChange}
               disabled={!!tempTodo}
+              ref={inputRef}
             />
           </form>
         </header>
@@ -273,10 +282,7 @@ export const TodoApp: React.FC<Props> = ({ userId }) => {
 
       <div
         className={cn(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
+          'notification is-danger is-light has-text-weight-normal',
           { hidden: !errorMessage },
         )}
       >
