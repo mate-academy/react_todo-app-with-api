@@ -29,7 +29,9 @@ export const TodoItem: React.FC<Props> = ({
   const [value, setValue] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (value.trim() === '') {
       deleteItem(id);
     } else if (value.trim() !== title) {
@@ -54,9 +56,9 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (event: React.FormEvent<HTMLFormElement>) => {
     if (isEditing) {
-      handleSubmit();
+      handleSubmit(event);
     }
   };
 
@@ -95,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
         isEditing
           ? (
             <form
-              onSubmit={handleSubmit}
+              onSubmit={(event) => handleSubmit(event)}
               onBlur={handleBlur}
             >
               <input
