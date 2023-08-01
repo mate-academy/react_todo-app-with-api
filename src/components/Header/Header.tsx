@@ -42,7 +42,7 @@ export const Header: React.FC<Props> = React.memo(({
   const addNewTodo = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!inputValue) {
+    if (!inputValue.trim()) {
       showError(NotificationText.InputIsEmpty);
 
       return;

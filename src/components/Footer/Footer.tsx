@@ -55,15 +55,14 @@ export const Footer: React.FC<Props> = React.memo(({
         </a>
       </nav>
 
-      {isCompletedTodos && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => clearCompleted()}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={() => clearCompleted()}
+        style={{ visibility: !isCompletedTodos ? 'hidden' : 'visible' }}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 });
