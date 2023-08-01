@@ -1,4 +1,6 @@
-import React, { FormEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo, Error } from '../types/Todo';
 import * as todosService from '../api/todos';
@@ -7,18 +9,19 @@ type Props = {
   todos: Todo[],
   setTodos: (value: Todo[]) => void,
   todo: Todo,
-  isNewTodoLoading: boolean
   setHasError: (value: Error) => void,
+  loadingIds: number[],
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todos,
   setTodos,
   todo,
-  isNewTodoLoading,
   setHasError,
+  loadingIds,
+  setLoadingIds,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
 
@@ -31,7 +34,9 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEdited]);
 
   const handleDeleteTodoById = () => {
-    setIsLoading(true);
+    setLoadingIds((ids) => {
+      return [...ids, todo.id];
+    });
     todosService.deleteTodos(todo.id)
       .then(() => {
         if (setTodos && todos) {
@@ -42,13 +47,17 @@ export const TodoItem: React.FC<Props> = ({
       })
       .catch(() => setHasError(Error.DELETE))
       .finally(() => {
-        setIsLoading(false);
+        setLoadingIds((ids) => {
+          return ids.filter(id => id !== todo.id);
+        });
         setIsEdited(false);
       });
   };
 
-  const handleTodoUpdate = (todoId: number, args: Partial<Todo>) => {
-    setIsLoading(true);
+  const changeStatus = (todoId: number, args: Partial<Todo>) => {
+    setLoadingIds((ids) => {
+      return [...ids, todo.id];
+    });
     setHasError(Error.NOTHING);
 
     todosService.updateTodo(todoId, args)
@@ -65,11 +74,13 @@ export const TodoItem: React.FC<Props> = ({
         setHasError(Error.UPDATE);
       })
       .finally(() => {
-        setIsLoading(false);
+        setLoadingIds((ids) => {
+          return ids.filter(id => id !== todo.id);
+        });
       });
   };
 
-  const handleSubmit = (event?: FormEvent<HTMLFormElement>): void => {
+  const updateTitle = (event?: FormEvent<HTMLFormElement>): void => {
     if (event) {
       event.preventDefault();
     }
@@ -87,8 +98,10 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     setIsEdited(false);
-    setIsLoading(true);
     setHasError(Error.NOTHING);
+    setLoadingIds((ids) => {
+      return [...ids, todo.id];
+    });
 
     todosService.updateTodo(todo.id, { title: editedTitle })
       .then((updatedTodo) => setTodos(
@@ -104,7 +117,9 @@ export const TodoItem: React.FC<Props> = ({
         setHasError(Error.UPDATE);
       })
       .finally(() => {
-        setIsLoading(false);
+        setLoadingIds((ids) => {
+          return ids.filter(id => id !== todo.id);
+        });
       });
   };
 
@@ -131,7 +146,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => {
-            handleTodoUpdate(todo.id, { completed: !todo.completed });
+            changeStatus(todo.id, { completed: !todo.completed });
           }}
         />
       </label>
@@ -154,7 +169,7 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={updateTitle}>
           <input
             type="text"
             className="todo__title-field"
@@ -162,7 +177,7 @@ export const TodoItem: React.FC<Props> = ({
             value={editedTitle}
             onChange={(event) => setEditedTitle(event.target.value)}
             onBlur={() => {
-              handleSubmit();
+              updateTitle();
               setEditMode(false);
             }}
             onKeyUp={onEscape}
@@ -172,7 +187,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div className={cn('modal overlay', {
-        'is-active': isNewTodoLoading || isLoading,
+        'is-active': loadingIds.includes(todo.id),
       })}
       >
         <div className="modal-background has-background-white-ter" />

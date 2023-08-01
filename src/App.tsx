@@ -16,7 +16,7 @@ export const App: React.FC = () => {
   const [hasError, setHasError] = useState(Error.NOTHING);
   const [filterTodos, setFilterTodos] = useState(Filter.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isNewTodoLoading, setIsNewTodoLoading] = useState(false);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const filteredTodos = useMemo(() => {
     switch (filterTodos) {
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
     const uncompletedTodos = todos.filter(todo => !todo.completed);
 
     completedTodos.forEach(todo => {
-      todosService.deleteTodos(todo.id);
+      return todosService.deleteTodos(todo.id);
     });
 
     setTodos(uncompletedTodos);
@@ -56,19 +56,21 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          loadingIds={loadingIds}
+          setLoadingIds={setLoadingIds}
           todos={todos}
           setTodos={setTodos}
           tempTodo={tempTodo}
           setTempTodo={setTempTodo}
-          setLoading={setIsNewTodoLoading}
           setHasError={setHasError}
         />
         <TodoList
+          loadingIds={loadingIds}
+          setLoadingIds={setLoadingIds}
           todos={todos}
           setTodos={setTodos}
           tempTodo={tempTodo}
           setHasError={setHasError}
-          isNewTodoLoading={isNewTodoLoading}
           filteredTodos={filteredTodos}
         />
 

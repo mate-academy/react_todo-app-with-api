@@ -7,8 +7,9 @@ type Props = {
   setTodos: (value: Todo[]) => void,
   tempTodo: Todo | null,
   filteredTodos: Todo[],
-  isNewTodoLoading: boolean,
   setHasError: (value: Error) => void,
+  loadingIds: number[],
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,28 +17,31 @@ export const TodoList: React.FC<Props> = ({
   setTodos,
   tempTodo,
   filteredTodos,
-  isNewTodoLoading,
   setHasError,
+  loadingIds,
+  setLoadingIds,
 }) => {
   return (
     <section className="todoapp__main">
       {filteredTodos.map(todo => (
         <TodoItem
+          loadingIds={loadingIds}
+          setLoadingIds={setLoadingIds}
           todos={todos}
           setTodos={setTodos}
           todo={todo}
           key={todo.id}
-          isNewTodoLoading={isNewTodoLoading}
           setHasError={setHasError}
         />
       ))}
       {tempTodo
         && (
           <TodoItem
+            loadingIds={loadingIds}
+            setLoadingIds={setLoadingIds}
             todos={todos}
             setTodos={setTodos}
             todo={tempTodo}
-            isNewTodoLoading={isNewTodoLoading}
             setHasError={setHasError}
           />
         )}

@@ -9,7 +9,8 @@ type Props = {
   tempTodo: Todo | null,
   setTempTodo: (value: null | Todo) => void,
   setHasError: (value: Error) => void,
-  setLoading: (value: boolean) => void,
+  loadingIds: number[],
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -18,39 +19,43 @@ export const TodoHeader: React.FC<Props> = ({
   tempTodo,
   setTempTodo,
   setHasError,
-  setLoading,
+  loadingIds,
+  setLoadingIds,
 }) => {
   const [title, setTitle] = useState('');
 
   const USER_ID = 11041;
-  const isAllTodosActive = todos.every(todo => todo.completed);
+  const neededStatus = !todos.every(todo => todo.completed);
 
-  const toggleAllTodos = () => {
-    setLoading(true);
-    todos.forEach(todo => {
-      if (todo.completed !== isAllTodosActive) {
-        return;
+  const toggleAllTodos = async () => {
+    const arrayTodoToUpdate = todos.filter(todo => {
+      if (todo.completed === neededStatus) {
+        return false;
       }
 
-      todosService.updateTodo(todo.id, { completed: !isAllTodosActive })
-        .then(() => {
-          setTodos(todos.map(t => ({
-            ...t,
-            completed: !isAllTodosActive,
-          })));
-        })
-        .catch(() => {
-          setHasError(Error.UPDATE);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      return true;
     });
+
+    setLoadingIds(arrayTodoToUpdate.map(i => i.id));
+
+    await Promise.all(arrayTodoToUpdate.map(async (todo) => {
+      try {
+        await todosService.updateTodo(todo.id, { completed: neededStatus });
+      } catch (err) {
+        setHasError(Error.UPDATE);
+      }
+    }));
+
+    setTodos(todos.map(t => ({
+      ...t,
+      completed: neededStatus,
+    })));
+
+    setLoadingIds([]);
   };
 
   const handleTodoAdd = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
 
     if (title.trim() === '') {
       setHasError(Error.EMPTY);
@@ -58,12 +63,15 @@ export const TodoHeader: React.FC<Props> = ({
       return;
     }
 
-    setTempTodo({
+    const todoToCreate = {
       userId: USER_ID,
       title: title.trim(),
       completed: false,
       id: 0,
-    });
+    };
+
+    setLoadingIds([todoToCreate.id, ...loadingIds]);
+    setTempTodo(todoToCreate);
 
     todosService.addTodos({
       userId: USER_ID,
@@ -73,7 +81,9 @@ export const TodoHeader: React.FC<Props> = ({
       setTodos([...todos, newTodo]);
     }).catch(() => setHasError(Error.ADD))
       .finally(() => {
-        setLoading(false);
+        setLoadingIds((ids) => {
+          return ids.filter(id => id !== todoToCreate.id);
+        });
         setTempTodo(null);
       });
 
@@ -87,7 +97,7 @@ export const TodoHeader: React.FC<Props> = ({
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: isAllTodosActive,
+            active: !neededStatus,
           })}
           onClick={toggleAllTodos}
         />
