@@ -1,17 +1,15 @@
 /*eslint-disable*/
-import React, { createContext, useEffect, useState } from 'react';
-import { USER_ID } from '../App';
-import {
-  deleteTodo, getTodos, patchTodo, postTodo,
-} from '../api/todos';
-import { SORT } from '../types/SortEnum';
-import { Todo } from '../types/Todo';
-import { IContext } from '../types/TodosContext';
+import React, { createContext, useEffect, useState } from "react";
+import { USER_ID } from "../App";
+import { deleteTodo, getTodos, patchTodo, postTodo } from "../api/todos";
+import { SORT } from "../types/SortEnum";
+import { Todo } from "../types/Todo";
+import { IContext } from "../types/TodosContext";
 
 export const TodosContext = createContext<IContext>({
   todos: [],
   sortField: SORT.ALL,
-  error: '',
+  error: "",
   updateSortField: () => {},
   onCloseError: () => {},
   todoLoading: false,
@@ -35,7 +33,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [todoLoading, setTodoLoading] = useState(false);
   const [sortField, setSortField] = useState<SORT>(SORT.ALL);
-  const [todosError, setTodosError] = useState('');
+  const [todosError, setTodosError] = useState("");
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [togglingLoading, setTogglingLoading] = useState(false);
   const [loadedId, setLoadedId] = useState<number[]>([]);
@@ -44,7 +42,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     getTodos(USER_ID)
       .then((serverTodos) => setTodos(serverTodos))
-      .catch(() => setTodosError('Unable to fetch a todo'));
+      .catch(() => setTodosError("Unable to fetch a todo"));
   }, []);
 
   const updateSortField = (term: SORT) => {
@@ -52,7 +50,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const onCloseError = () => {
-    setTodosError('');
+    setTodosError("");
   };
 
   const onAddNewTodo = async (todo: Todo) => {
@@ -60,7 +58,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     const { userId, completed, title } = todo;
 
     setTempTodo({
-      userId, completed, title, id: 0,
+      userId,
+      completed,
+      title,
+      id: 0,
     });
 
     try {
@@ -68,7 +69,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       setTodos((prev) => [...prev, responce]);
     } catch (error) {
-      setTodosError('Unable to add a todo');
+      setTodosError("Unable to add a todo");
 
       return;
     } finally {
@@ -81,9 +82,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     try {
       await deleteTodo(todoId);
 
-      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== todoId));
+      setTodos((currentTodos) =>
+        currentTodos.filter((todo) => todo.id !== todoId)
+      );
     } catch {
-      setTodosError('Unable to delete a todo');
+      setTodosError("Unable to delete a todo");
     }
   };
 
@@ -104,7 +107,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       return responce;
     } catch {
-      setTodosError('Unable to update a todo');
+      setTodosError("Unable to update a todo");
+
+      return;
     }
   };
 
@@ -132,7 +137,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(() => allTodos);
       }
     } catch {
-      setTodosError('Unable to update a todo');
+      setTodosError("Unable to update a todo");
     } finally {
       setTogglingLoading(false);
     }
@@ -155,7 +160,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(() => allTodos);
       }
     } catch {
-      setTodosError('Cannot clear completed todos');
+      setTodosError("Cannot clear completed todos");
 
       return;
     } finally {
@@ -170,7 +175,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       currentTodo.title = newTitle;
 
       try {
-        const responce = await patchTodo(currentTodo.id, { ...currentTodo }) as number;
+        const responce = (await patchTodo(currentTodo.id, {
+          ...currentTodo,
+        })) as number;
 
         const allTodos = await getTodos(USER_ID);
 
@@ -178,8 +185,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
         return responce;
       } catch {
-        setTodosError('Unable to update a todo');
+        setTodosError("Unable to update a todo");
+
+        return;
       }
+    } else {
+      return;
     }
   };
 
