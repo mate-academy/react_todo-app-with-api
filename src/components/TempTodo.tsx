@@ -3,14 +3,15 @@ import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  tempTodo: Todo,
+  todo: Todo,
+  isLoading: boolean,
 };
 
-export const TempTodo: React.FC<Props> = ({ tempTodo }) => {
+export const TempTodo: React.FC<Props> = ({ todo, isLoading }) => {
   return (
     <div
       className={cn('todo', {
-        completed: tempTodo.completed,
+        completed: todo.completed,
       })}
     >
       <label className="todo__status-label">
@@ -18,11 +19,15 @@ export const TempTodo: React.FC<Props> = ({ tempTodo }) => {
       </label>
 
       <span className="todo__title">
-        {tempTodo.title}
+        {todo.title}
       </span>
       <button type="button" className="todo__remove">x</button>
 
-      <div className="modal overlay is-active">
+      <div
+        className={cn('modal overlay', {
+          'is-active': isLoading,
+        })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

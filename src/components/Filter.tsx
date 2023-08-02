@@ -1,46 +1,27 @@
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { FilterTypes } from '../types/Filter';
-import { ErrorType } from '../types/Error';
-import { deleteOnServer } from '../api/todos';
 
 type Props = {
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  visibletodos: Todo[];
   filter: FilterTypes,
   setFilter: (filter: FilterTypes) => void;
-  setError: (value: ErrorType) => void;
-  setIsLoading: (value: boolean) => void;
-  setUpdatingTodos: (value: number[]) => void;
+  onDeleteTodo:(value:number) => void;
 };
 
 export const Filter: React.FC<Props> = ({
-  todos,
-  setTodos,
+  visibletodos,
   filter,
   setFilter,
-  setError,
-  setIsLoading,
-  setUpdatingTodos,
+  onDeleteTodo,
 }) => {
-  const amountActiveTodos = todos.filter((todo) => !todo.completed).length;
-  const availableCompletedTodos = todos.some((todo) => todo.completed);
+  const amountActiveTodos = visibletodos.filter(todo => !todo.completed).length;
+  const availableCompletedTodos = visibletodos.some((todo) => todo.completed);
+  const allCompletedTodos = visibletodos.filter(todo => todo.completed);
 
-  function clearCompletedTodos() {
-    const completedTodosId = todos.filter((todo) => todo.completed)
-      .map((todo) => todo.id);
-
-    setUpdatingTodos(completedTodosId);
-    completedTodosId.forEach((id) => {
-      setIsLoading(true);
-      deleteOnServer(id).catch(() => setError(ErrorType.Delete))
-        .finally(() => {
-          setIsLoading(false);
-          setTodos(todos.filter((todo) => !todo.completed));
-          setUpdatingTodos([]);
-        });
-    });
-  }
+  const clearCompletedTodos = () => {
+    allCompletedTodos.forEach(todo => onDeleteTodo(todo.id));
+  };
 
   return (
     <footer className="todoapp__footer">

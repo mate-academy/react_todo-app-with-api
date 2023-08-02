@@ -8,20 +8,19 @@ import { Notification } from './components/Notification';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/Error';
 import { FilterTypes } from './types/Filter';
-import { getTodos } from './api/todos';
+import * as TodoServices from './api/todos';
 
 const USER_ID = 11133;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState(ErrorType.None);
-  const [isLoading, setIsLoading] = useState(false);
   const [updatingTodos, setUpdatingTodos] = useState<number[]>([]);
   const [filter, setFilter] = useState<FilterTypes>(FilterTypes.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
-    getTodos(USER_ID)
+    TodoServices.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => setError(ErrorType.Load));
   }, []);
@@ -45,46 +44,111 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const addTodo = (title: string) => {
+    const temporaryTodo = {
+      id: 0,
+      userId: USER_ID,
+      title,
+      completed: false,
+    };
+
+    setTempTodo(temporaryTodo);
+
+    return TodoServices.addOnServer(title, USER_ID)
+      .then(addedTodo => {
+        setTodos(currentTodos => [...currentTodos, addedTodo]);
+      })
+      .catch((err) => {
+        setError(ErrorType.Add);
+        throw err;
+      })
+      .finally(() => {
+        setTempTodo(null);
+      });
+  };
+
+  const deleteTodo = (todoId:number) => {
+    setUpdatingTodos(curId => [todoId, ...curId]);
+
+    return TodoServices.deleteOnServer(todoId)
+      .then(() => {
+        setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
+      })
+      .catch((newError) => {
+        setError(ErrorType.Delete);
+        throw newError;
+      })
+      .finally(() => {
+        setUpdatingTodos([]);
+      });
+  };
+
+  const updateTodo = (todoId: number, data: Partial<Todo>) => {
+    setUpdatingTodos(curId => [todoId, ...curId]);
+
+    return TodoServices.updateOnServer(todoId, data)
+      .then((updatedTodo) => {
+        setTodos(currentTodos => currentTodos.map(
+          todo => (todo.id === updatedTodo.id ? updatedTodo : todo),
+        ));
+      })
+      .catch((newError) => {
+        setError(ErrorType.Update);
+        throw newError;
+      })
+      .finally(() => setUpdatingTodos([]));
+  };
+
+  const handleTodosStatus = (status: boolean) => {
+    let updatedTodos = [...todos];
+    const updatedTodoIds = updatedTodos.map(todo => todo.id);
+
+    setUpdatingTodos(updatedTodoIds);
+
+    updatedTodos = updatedTodos.map((todo) => ({ ...todo, completed: status }));
+
+    updatedTodos.forEach(todo => TodoServices.updateOnServer(
+      todo.id,
+      { completed: status },
+    )
+      .then(() => setTodos(updatedTodos))
+      .catch(() => setError(ErrorType.Update))
+      .finally(() => setUpdatingTodos([])));
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <NewTodo
-          userId={USER_ID}
           todos={todos}
-          setTodos={setTodos}
+          onAddTodo={addTodo}
           setError={setError}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
-          setUpdatingTodos={setUpdatingTodos}
-          setTempTodo={setTempTodo}
+          onStatusChange={handleTodosStatus}
         />
 
         {todos.length > 0 && (
           <TodoList
             todos={filteredTodos}
-            setTodos={setTodos}
-            setError={setError}
             updatingTodos={updatingTodos}
             tempTodo={tempTodo}
+            onDeleteTodo={deleteTodo}
+            onUpdateTodo={updateTodo}
           />
         )}
 
         {todos.length > 0 && (
           <Filter
-            todos={todos}
-            setTodos={setTodos}
+            visibletodos={todos}
             filter={filter}
             setFilter={setFilter}
-            setError={setError}
-            setIsLoading={setIsLoading}
-            setUpdatingTodos={setUpdatingTodos}
+            onDeleteTodo={deleteTodo}
           />
         )}
       </div>
 
-      {!ErrorType.None && <Notification error={error} setError={setError} />}
+      <Notification error={error} closeError={setError} />
     </div>
   );
 };

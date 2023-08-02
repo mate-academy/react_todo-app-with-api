@@ -1,40 +1,58 @@
+import React from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { TodoItem } from './TodoItem';
 import { TempTodo } from './TempTodo';
 import { Todo } from '../types/Todo';
-import { ErrorType } from '../types/Error';
 
 type Props = {
   todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  setError: (value: ErrorType) => void;
+  onDeleteTodo:(id: number) => void;
+  onUpdateTodo: (todoId: number, args: Partial<Todo>) => Promise<void>,
   updatingTodos: number[];
   tempTodo : Todo | null;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  setTodos,
-  setError,
   updatingTodos,
   tempTodo,
+  onDeleteTodo,
+  onUpdateTodo,
 }) => {
   return (
     <section className="todoapp__main">
-      {todos.map((todo) => (
-        <TodoItem
-          todo={todo}
-          todos={todos}
-          setTodos={setTodos}
-          setError={setError}
-          isUpdating={updatingTodos.includes(todo.id)}
-          key={todo.id}
-        />
-      ))}
-      {tempTodo && (
-        <TempTodo
-          tempTodo={tempTodo}
-        />
-      )}
+      <TransitionGroup>
+        {todos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={3000}
+            classNames="item"
+          >
+            <TodoItem
+              todo={todo}
+              onDeleteTodo={() => onDeleteTodo(todo.id)}
+              onUpdateTodo={onUpdateTodo}
+              isUpdating={updatingTodos.includes(todo.id)}
+            />
+
+          </CSSTransition>
+        ))}
+
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={3000}
+            classNames="temp-item"
+          >
+
+            <TempTodo
+              todo={tempTodo}
+              isLoading
+            />
+
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };

@@ -4,13 +4,13 @@ import { ErrorType } from '../types/Error';
 
 type Props = {
   error: ErrorType;
-  setError: (error: ErrorType) => void;
+  closeError: (error: ErrorType) => void;
 };
 
-export const Notification: React.FC<Props> = ({ error, setError }) => {
+export const Notification: React.FC<Props> = ({ error, closeError }) => {
   useEffect(() => {
     setTimeout(() => {
-      setError(ErrorType.None);
+      closeError(ErrorType.None);
     }, 3000);
   }, [error]);
 
@@ -24,15 +24,12 @@ export const Notification: React.FC<Props> = ({ error, setError }) => {
         type="button"
         className="delete"
         id="deleteButton"
-        onClick={() => setError(ErrorType.None)}
+        onClick={() => closeError(ErrorType.None)}
       >
         Delete
       </button>
-      {error === ErrorType.Load && <>Unable to load todos</>}
-      {error === ErrorType.Add && <>Unable to add a todo</>}
-      {error === ErrorType.Delete && <>Unable to delete a todo</>}
-      {error === ErrorType.Update && <>Unable to update a tod</>}
-      {error === ErrorType.Empty && <>{'Title can\'t be empty'}</>}
+      {error}
+
     </div>
   );
 };
