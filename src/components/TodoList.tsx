@@ -34,6 +34,13 @@ export const TodoList: React.FC<Props> = ({
     }
   });
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && editingTodoId !== null) {
+      setUpdatingTitle('');
+      setEditingTodoId(null);
+    }
+  };
+
   const handleTitleDoubleClick = (todo: Todo) => {
     setEditingTodoId(todo.id);
     setUpdatingTitle(todo.title);
@@ -41,6 +48,7 @@ export const TodoList: React.FC<Props> = ({
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUpdatingTitle(event.target.value);
+    document.addEventListener('keydown', handleKeyDown);
   };
 
   const handleTitleSave = (todo: Todo) => {
@@ -69,8 +77,6 @@ export const TodoList: React.FC<Props> = ({
                   type="checkbox"
                   className="todo__status"
                   onChange={() => onChange(todo.id)}
-                  onFocus={() => document
-                    .addEventListener('keydown', handleKeyDown)}
                 />
               </label>
 
