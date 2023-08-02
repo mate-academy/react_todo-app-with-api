@@ -6,12 +6,12 @@ import { Todo } from '../types/Todo';
 type Props = {
   todos: Todo[],
   onDelete: (todoId: number) => void,
-  isDeleted: number | null;
+  isDeleted: number[];
   isLoading: boolean,
   title: string,
   onChange: (todoId: number, todoTitle?: string) => Promise<void>,
   isUpdatingId: number | null,
-  isChansingStatus: boolean,
+  isChansingStatus: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -57,7 +57,7 @@ export const TodoList: React.FC<Props> = ({
   };
 
   const handleTitleSave = (todo: Todo) => {
-    if (updatingTitle.length === 0) {
+    if (updatingTitle.trim().length === 0) {
       onDelete(todo.id);
     } else if (updatingTitle !== todo.title) {
       onChange(todo.id, updatingTitle);
@@ -118,8 +118,8 @@ export const TodoList: React.FC<Props> = ({
               )}
 
               <div className={classNames('modal overlay', {
-                'is-active': isChansingStatus
-                  || (todo.id === isDeleted)
+                'is-active': isChansingStatus.includes(todo.id)
+                  || isDeleted.includes(todo.id)
                   || (todo.id === isUpdatingId),
               })}
               >

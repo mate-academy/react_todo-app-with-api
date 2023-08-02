@@ -2,7 +2,7 @@ import React from 'react';
 import { ErrorType } from '../types/Error';
 
 type Props = {
-  onSubmit: (title: string) => {},
+  onSubmit: (title: string) => Promise<void>,
   title: string,
   onHandleTitleChange: (title: string) => void,
   onHandleSubmitError: (error: ErrorType) => void,
@@ -20,21 +20,41 @@ export const AddForm: React.FC<Props> = ({
     onHandleTitleChange(event.target.value);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  // const handleSubmit = async (event: React.FormEvent) => {
+  //   event.preventDefault();
+
+  //   if (title.trim().length < 1) {
+  //     onHandleSubmitError(ErrorType.emptyValue);
+
+  //     return Promise.reject();
+  //   }
+
+  //   if (title.trim().length > 1) {
+  //     await onSubmit(title);
+  //     onHandleTitleChange('');
+  //   }
+
+  //   return Promise.resolve();
+  // };
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (title.trim().length < 1) {
-      onHandleSubmitError(ErrorType.emptyValue);
+    return new Promise<void>((resolve, reject) => {
+      if (title.trim().length < 1) {
+        onHandleSubmitError(ErrorType.emptyValue);
+        reject();
+      }
 
-      return Promise.reject();
-    }
-
-    if (title.trim().length > 1) {
-      await onSubmit(title);
-      onHandleTitleChange('');
-    }
-
-    return Promise.resolve();
+      if (title.trim().length > 1) {
+        onSubmit(title)
+          .then(() => {
+            onHandleTitleChange('');
+            resolve();
+          });
+      } else {
+        resolve();
+      }
+    });
   };
 
   return (

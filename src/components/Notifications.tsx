@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable */
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 
@@ -19,8 +19,7 @@ export const Notifications: React.FC<Props> = ({
 
       return () => clearTimeout(timeoutId);
     }
-
-    return () => {};
+    return;
   }, [error]);
 
   return (

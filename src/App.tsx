@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import classNames from 'classnames';
 
 import { UserWarning } from './UserWarning';
@@ -22,10 +24,10 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [errorMessage, setErrorMessage] = useState('');
-  const [deletedTodoId, setDeletingTodoId] = useState<number | null>(null);
+  const [deletedTodoId, setDeletingTodoId] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isChansingStatus, setIsChangingStatus] = useState(false);
   const [isUpdatingId, setIsUpdatingId] = useState<number | null>(null);
+  const [changingTodoId, setChangingTodoId] = useState<number[]>([]);
   const [title, setTitle] = useState('');
 
   useEffect(() => {
@@ -43,11 +45,7 @@ export const App: React.FC = () => {
     filter,
   ), [todos, filter]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const addTodo = (newTitle: string) => {
+  const addTodo = useCallback((newTitle: string) => {
     const newTodo: Omit<Todo, 'id'> = {
       userId: USER_ID,
       title: newTitle,
@@ -66,10 +64,10 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorType.addTodo);
         setIsLoading(false);
       });
-  };
+  }, []);
 
-  const removeTodo = (todoId: number) => {
-    setDeletingTodoId(todoId);
+  const removeTodo = useCallback((todoId: number) => {
+    setDeletingTodoId(prevIds => [...prevIds, todoId]);
 
     return deleteTodo(todoId)
       .then(() => {
@@ -80,11 +78,11 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorType.deleteTodo);
       })
       .finally(() => {
-        setDeletingTodoId(null);
+        setDeletingTodoId([]);
       });
-  };
+  }, []);
 
-  const changeTodo = (todoId: number, todoTitle?: string) => {
+  const changeTodo = useCallback((todoId: number, todoTitle?: string) => {
     setIsUpdatingId(todoId);
 
     const updatingTodo = todos.find(todo => todo.id === todoId);
@@ -116,7 +114,6 @@ export const App: React.FC = () => {
         });
 
         setErrorMessage('');
-        setIsUpdatingId(null);
       })
       .catch(() => {
         setErrorMessage(ErrorType.updateTodo);
@@ -124,10 +121,13 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsUpdatingId(null);
       });
-  };
+  }, [todos]);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   const handleToggleAll = () => {
-    setIsChangingStatus(true);
     let changingTodos: Todo[] = [];
 
     if (todos.some(todo => todo.completed === false)) {
@@ -145,6 +145,8 @@ export const App: React.FC = () => {
         completed: false,
       }));
     }
+
+    setChangingTodoId(changingTodos.map(todo => todo.id));
 
     const updatePromises = changingTodos.map(todo => updateTodo(todo));
 
@@ -169,10 +171,9 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorType.updateTodo);
-        setIsChangingStatus(false);
       })
       .finally(() => {
-        setIsChangingStatus(false);
+        setChangingTodoId([]);
       });
   };
 
@@ -208,7 +209,7 @@ export const App: React.FC = () => {
           title={title}
           onChange={changeTodo}
           isUpdatingId={isUpdatingId}
-          isChansingStatus={isChansingStatus}
+          isChansingStatus={changingTodoId}
         />
 
         {todos.length > 0 && (
