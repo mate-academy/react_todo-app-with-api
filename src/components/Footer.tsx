@@ -72,21 +72,21 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectedLink === 'Completed',
           })}
-          onClick={(event) => handleChange(Filter.Completed)(event)}
+          onClick={handleChange(Filter.Completed)}
         >
           Completed
         </a>
       </nav>
 
-      {completedItems.length > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={handleClear}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames('todoapp__clear-completed', {
+          'is-invisible': completedItems.length < 1,
+        })}
+        onClick={handleClear}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

@@ -126,7 +126,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleCompliteAll = () => {
+  const handleToggleAll = () => {
     setIsChangingStatus(true);
     let changingTodos: Todo[] = [];
 
@@ -189,7 +189,7 @@ export const App: React.FC = () => {
             className={classNames('todoapp__toggle-all', {
               active: completedItems,
             })}
-            onClick={handleCompliteAll}
+            onClick={handleToggleAll}
           />
 
           <AddForm
