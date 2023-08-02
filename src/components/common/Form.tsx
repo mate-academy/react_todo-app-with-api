@@ -38,8 +38,8 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
       setTitle('');
     };
 
-    const editTodo = () => {
-      onSubmit(title);
+    const handleEditTodo = () => {
+      onSubmit(title.trim());
       setIsEditing(false);
     };
 
@@ -50,12 +50,12 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
       }
 
       if (event.key === 'Enter') {
-        editTodo();
+        handleEditTodo();
       }
     };
 
     const handleBlur = () => {
-      editTodo();
+      handleEditTodo();
     };
 
     return (

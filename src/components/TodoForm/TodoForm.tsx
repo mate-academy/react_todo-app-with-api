@@ -37,12 +37,15 @@ export const TodoForm: React.FC = () => {
   const toggleAllTodos = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: '' });
-    todos.forEach(todo => dispatch({ type: 'SET_SELECTED', payload: todo.id }));
 
     try {
       const allTodosCompleted = todos.every(todo => todo.completed);
 
       if (allTodosCompleted) {
+        todos.forEach(todo => {
+          dispatch({ type: 'SET_SELECTED', payload: todo.id });
+        });
+
         dispatch({ type: 'TOGGLE_ALL_TODOS', payload: false });
 
         await Promise.all(
@@ -52,6 +55,12 @@ export const TodoForm: React.FC = () => {
           })),
         );
       } else {
+        todos.forEach(todo => {
+          if (!todo.completed) {
+            dispatch({ type: 'SET_SELECTED', payload: todo.id });
+          }
+        });
+
         dispatch({ type: 'TOGGLE_ALL_TODOS', payload: true });
 
         await Promise.all(
