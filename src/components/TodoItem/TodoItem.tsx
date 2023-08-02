@@ -1,26 +1,21 @@
 import {
-  ChangeEvent, FormEvent, MouseEvent, useState,
+  MouseEvent, useEffect, useRef, useState,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
 import { useAppContext } from '../Context/AppContext';
-import { getTodos } from '../../api/todos';
-import { ErrorTypes } from '../../types/ErrorTypes';
 
 type Props = {
   todoInfo: Todo,
 };
 export const TodoItem = ({ todoInfo }: Props) => {
   const {
-    userId,
-    setTodos,
-    setErrorType,
     processing,
     setProcessing,
-    editTodoId,
-    setEditTodoId,
+    deleteTodo,
+    updateTodo,
   } = useAppContext();
+
   const {
     id,
     title,
@@ -28,25 +23,20 @@ export const TodoItem = ({ todoInfo }: Props) => {
   } = todoInfo;
 
   const [editTitle, setEditTitle] = useState<string>(title);
+  const [editTodo, setEditTodo] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleCheckboxToggle = (todo: Todo, event: ChangeEvent) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (editTodo && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editTodo]);
 
+  const handleCheckboxToggle = (todo: Todo) => {
     setProcessing([...processing, todo.id]);
 
-    client.patch(`/todos/${todo.id}`, { completed: !todo.completed })
-      .then(() => {
-        getTodos(userId)
-          .then(setTodos)
-          .catch(() => {
-            setErrorType(ErrorTypes.load);
-          })
-          .finally(() => {
-            setProcessing(processing.filter(todoId => todoId !== todo.id));
-          });
-      })
-      .catch(() => {
-        setErrorType(ErrorTypes.update);
+    updateTodo({ id: todo.id, completed: !todo.completed })
+      .finally(() => {
         setProcessing(processing.filter(todoId => todoId !== todo.id));
       });
   };
@@ -56,81 +46,37 @@ export const TodoItem = ({ todoInfo }: Props) => {
 
     setProcessing([...processing, todoId]);
 
-    client.delete(`/todos/${todoId}`)
-      .then(() => {
-        getTodos(userId)
-          .then(setTodos)
-          .catch(() => {
-            setErrorType(ErrorTypes.load);
-          })
-          .finally(() => {
-            setProcessing(processing.filter(num => num !== todoId));
-          });
-      })
-      .catch(() => {
-        setErrorType(ErrorTypes.delete);
+    deleteTodo(todoId)
+      .finally(() => {
         setProcessing(processing.filter(num => num !== todoId));
       });
   };
 
-  const handleEdit = (event: MouseEvent) => {
-    event.preventDefault();
-    setEditTodoId(id);
-  };
-
-  const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleEscape = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setEditTitle(title);
+      setEditTodo(false);
     }
   };
 
-  const handleSubmitEdit = (event: FormEvent) => {
-    if (event.type !== 'blur') {
-      event.preventDefault();
-    }
-
-    setProcessing([...processing, editTodoId]);
-
+  const handleSubmitEdit = () => {
     if (editTitle.length < 1) {
-      client.delete(`/todos/${editTodoId}`)
-        .then(() => {
-          getTodos(userId)
-            .then(setTodos)
-            .catch(() => {
-              setErrorType(ErrorTypes.load);
-            })
-            .finally(() => {
-              setProcessing([...processing]);
-              setEditTodoId(-1);
-            });
-        })
-        .catch(() => {
-          setErrorType(ErrorTypes.delete);
+      setProcessing([...processing, id]);
+      deleteTodo(id)
+        .finally(() => {
           setProcessing([...processing]);
+          setEditTodo(false);
         });
     }
 
     if (editTitle !== title && editTitle.length > 0) {
-      client.patch(`/todos/${id}`, { title: editTitle })
-        .then(() => {
-          getTodos(userId)
-            .then(setTodos)
-            .catch(() => {
-              setErrorType(ErrorTypes.load);
-            })
-            .finally(() => {
-              setProcessing([...processing]);
-              setEditTodoId(-1);
-            });
-        })
-        .catch(() => {
-          setErrorType(ErrorTypes.update);
+      setProcessing([...processing, id]);
+      updateTodo({ id, title: editTitle })
+        .finally(() => {
           setProcessing([...processing]);
+          setEditTodo(false);
         });
     }
-
-    setProcessing([...processing]);
-    setEditTodoId(-1);
   };
 
   return (
@@ -147,16 +93,35 @@ export const TodoItem = ({ todoInfo }: Props) => {
           checked={completed}
           disabled={processing.length > 0}
           onChange={(event) => {
-            handleCheckboxToggle(todoInfo, event);
+            event.preventDefault();
+            handleCheckboxToggle(todoInfo);
           }}
         />
       </label>
 
-      {editTodoId !== id ? (
+      {editTodo ? (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSubmitEdit();
+          }}
+        >
+          <input
+            ref={inputRef}
+            onKeyUp={(event) => handleEscape(event)}
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editTitle}
+            onChange={event => setEditTitle(event.target.value)}
+            onBlur={handleSubmitEdit}
+          />
+        </form>
+      ) : (
         <>
           <span
             className="todo__title"
-            onDoubleClick={handleEdit}
+            onDoubleClick={() => setEditTodo(true)}
           >
             {title}
           </span>
@@ -169,20 +134,6 @@ export const TodoItem = ({ todoInfo }: Props) => {
             x
           </button>
         </>
-      ) : (
-        <form onSubmit={handleSubmitEdit}>
-          <input
-            onKeyUp={(event) => handleEscape(event)}
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value={editTitle}
-            onChange={event => setEditTitle(event.target.value)}
-            onBlur={handleSubmitEdit}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={editTodoId === id && editTitle === title}
-          />
-        </form>
       )}
 
       <div

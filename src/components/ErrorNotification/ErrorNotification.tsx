@@ -16,14 +16,6 @@ export const ErrorNotification = () => {
     }
   }, [errorType]);
 
-  const handleDeleteNotification = () => {
-    setErrorType('');
-  };
-
-  if (!errorType.length) {
-    return null;
-  }
-
   return (
     <div
       className={cn(
@@ -31,13 +23,14 @@ export const ErrorNotification = () => {
         'is-danger',
         'is-light',
         'has-text-weight-normal',
+        { hidden: errorType.length < 1 },
       )}
     >
       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
         type="button"
         className="delete"
-        onClick={handleDeleteNotification}
+        onClick={() => setErrorType('')}
       />
       {errorType}
     </div>

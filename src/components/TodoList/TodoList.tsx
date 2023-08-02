@@ -2,22 +2,22 @@ import { Todo } from '../../types/Todo';
 import { useAppContext } from '../Context/AppContext';
 import { TodoItem } from '../TodoItem/TodoItem';
 
-type Props = {
-  tempTodo: Todo | null,
-};
-
-export const TodoList = ({ tempTodo }: Props) => {
+export const TodoList = () => {
   const {
     todos,
     filterType,
+    tempTodo,
   } = useAppContext();
 
-  const preparedTodos = [...todos]
+  const preparedTodos = todos
     .filter((todo) => {
       switch (filterType) {
-        case 'active': return !todo.completed;
-        case 'completed': return todo.completed;
-        default: return todo;
+        case 'active':
+          return !todo.completed;
+        case 'completed':
+          return todo.completed;
+        default:
+          return true;
       }
     });
 

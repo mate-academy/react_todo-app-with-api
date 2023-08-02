@@ -27,15 +27,15 @@ function request<T>(
   }
 
   // we wait for testing purpose to see loaders
-  return wait(300)
-    .then(() => fetch(BASE_URL + url, options))
-    .then(response => {
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      return response.json();
-    });
+  return Promise.all([
+    fetch(BASE_URL + url, options), // first Promise
+    wait(300), // second Promise
+  ])
+    // we use array for check response from FIRST element in Promise array
+    .then(([response]) => (response.ok
+      ? response.json()
+      : Promise.reject()
+    ));
 }
 
 export const client = {
