@@ -31,7 +31,14 @@ export const TodoItem: React.FC<Props> = ({
   const savingEditing = () => {
     setEditedTodoId(null);
 
-    if (newTitle !== todo.title) {
+    if (newTitle === '') {
+      deleteTodo(todo.id);
+      setNewTitle(todo.title);
+
+      return;
+    }
+
+    if ((newTitle !== todo.title)) {
       onUpdateTodo(todo.id, { title: newTitle })
         .catch(() => setNewTitle(todo.title));
     }
