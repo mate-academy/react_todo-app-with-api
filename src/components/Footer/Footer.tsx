@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../context/TodosContext';
 import { TodosFilter } from '../TodosFilter';
@@ -6,21 +6,19 @@ import { TodosFilter } from '../TodosFilter';
 export const Footer: React.FC = () => {
   const { todos, onClearCompleted } = useContext(TodosContext);
 
-  const countUnfinished = useCallback(
-    (listTodo: Todo[]) => {
+  const countUnfinished = useMemo(() => {
+    return (listTodo: Todo[]) => {
       return listTodo.map((todo) => todo.completed).filter((todo) => !todo)
         .length;
-    },
-    [todos],
-  );
+    };
+  }, [todos]);
 
-  const countFinished = useCallback(
-    (listTodo: Todo[]) => {
+  const countFinished = useMemo(() => {
+    return (listTodo: Todo[]) => {
       return listTodo.map((todo) => todo.completed).filter((todo) => todo)
         .length;
-    },
-    [todos],
-  );
+    };
+  }, [todos]);
 
   return (
     <footer className="todoapp__footer">
@@ -34,7 +32,7 @@ export const Footer: React.FC = () => {
       <div>
         {countFinished(todos) ? (
           <button
-            onClick={() => onClearCompleted()}
+            onClick={onClearCompleted}
             type="button"
             className="todoapp__clear-completed"
           >

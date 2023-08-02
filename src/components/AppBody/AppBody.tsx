@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { TodosContext } from '../../context/TodosContext';
 import { TodoList } from '../TodoList';
 import { Footer } from '../Footer';
@@ -10,7 +10,9 @@ import { TempTodoItem } from '../TempTodoItem';
 export const AppBody: React.FC = () => {
   const { todos, sortField, tempTodo } = useContext(TodosContext);
 
-  const visibleTodos = filterTodo(todos, sortField);
+  const visibleTodos = useMemo(() => {
+    return filterTodo(todos, sortField);
+  }, [todos, sortField]);
 
   return (
     <div className="todoapp">

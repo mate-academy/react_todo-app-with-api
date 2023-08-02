@@ -15,7 +15,7 @@ export const TodosContext = createContext<IContext>({
   todoLoading: false,
   tempTodo: null,
   onAddNewTodo: () => {},
-  onDeleteTodo: () => {},
+  onDeleteTodo: async () => {},
   toggleStatus: async () => {},
   toggleAll: () => {},
   togglingLoading: false,
@@ -55,6 +55,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const onAddNewTodo = async (todo: Todo) => {
+    onCloseError();
     setTodoLoading(true);
     const { userId, completed, title } = todo;
 
@@ -80,18 +81,24 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const onDeleteTodo = async (todoId: number) => {
+    onCloseError();
     try {
-      await deleteTodo(todoId);
+      const responce = (await deleteTodo(todoId)) as number;
 
       setTodos((currentTodos) =>
         currentTodos.filter((todo) => todo.id !== todoId)
       );
+
+      return responce;
     } catch {
       setTodosError("Unable to delete a todo");
+
+      throw Promise.reject();
     }
   };
 
   const toggleStatus = async (todoId: number) => {
+    onCloseError();
     const currentTodo = todos.find((todo) => todo.id === todoId) as Todo;
 
     currentTodo.completed = !currentTodo.completed;
@@ -115,6 +122,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const toggleAll = async () => {
+    onCloseError();
     const isEveryCompleted = todos.every((todo) => todo.completed);
 
     setTogglingLoading(true);
@@ -145,6 +153,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const onClearCompleted = async () => {
+    onCloseError();
     const completedId = todos
       .filter((todo) => todo.completed)
       .map((todo) => todo.id);
@@ -163,6 +172,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     } catch {
       setTodosError("Cannot clear completed todos");
 
+      setAreClearing(false);
+
       return;
     } finally {
       setAreClearing(false);
@@ -170,6 +181,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const updateTodo = async (id: number, newTitle: string) => {
+    onCloseError();
     const currentTodo = todos.find((todo) => todo.id === id) as Todo;
 
     if (currentTodo.title !== newTitle) {
@@ -216,7 +228,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     loadedId,
     updateTodo,
     areClearing,
-    updateError
+    updateError,
   };
 
   return (

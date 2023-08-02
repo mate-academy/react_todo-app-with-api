@@ -2,7 +2,9 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import classNames from 'classnames';
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../context/TodosContext';
 
@@ -18,6 +20,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [firstTitle, setFirstTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   const {
     onDeleteTodo,
     toggleStatus,
@@ -25,6 +35,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     loadedId,
     updateTodo,
     areClearing,
+    error,
   } = useContext(TodosContext);
 
   useEffect(() => {
@@ -43,7 +54,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const onRemoveTodo = () => {
     setInProcessDeleting(true);
-    onDeleteTodo(todo.id);
+    onDeleteTodo(todo.id).finally(() => setInProcessDeleting(false));
   };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLLIElement>) => {
@@ -52,18 +63,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const onKeyUp = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const onKeyUp = async (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
       setUpdateField(firstTitle);
     }
 
     if (event.key === 'Enter') {
-      setIsEditing(false);
-
       if (updateField.length === 0) {
-        onDeleteTodo(todo.id);
+        await onDeleteTodo(todo.id);
       }
+
+      setIsEditing(false);
     }
   };
 
@@ -104,6 +115,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title-field"
             value={updateField}
             onChange={(event) => setUpdateField(event.target.value)}
+            ref={inputRef}
+            placeholder="Empty Todo will be deleted"
           />
         </form>
       ) : (
@@ -124,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         className={classNames({
           'modal overlay': true,
-          'is-active': loadCondition,
+          'is-active': loadCondition && !error,
         })}
       >
         <div className="modal-background has-background-white-ter" />

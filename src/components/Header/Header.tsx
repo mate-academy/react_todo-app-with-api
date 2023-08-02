@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
       <button
         type="button"
         className="todoapp__toggle-all active"
-        onClick={() => toggleAll()}
+        onClick={toggleAll}
       />
 
       {/* Add a todo on form submit */}

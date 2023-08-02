@@ -10,7 +10,7 @@ export interface IContext {
   todoLoading: boolean;
   tempTodo: Todo | null;
   onAddNewTodo: (todo: Todo) => void;
-  onDeleteTodo: (todoId: number) => void;
+  onDeleteTodo: (todoId: number) => Promise<number | void>;
   toggleStatus: (todoId: number) => Promise<Todo | void>;
   toggleAll: () => void;
   togglingLoading: boolean;
