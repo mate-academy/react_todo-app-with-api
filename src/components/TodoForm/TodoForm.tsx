@@ -4,19 +4,19 @@ import { useState } from 'react';
 /* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
   todoTitle: string,
-  setTodoTitle: (newTodoTitle: string) => void,
+  onTodoCreate: (newTodoTitle: string) => void,
   createTodo: () => Promise<any>,
 }
 
 export const TodoForm: React.FC<Props> = ({
   todoTitle,
-  setTodoTitle,
+  onTodoCreate,
   createTodo,
 }) => {
   const [isProcesing, setIsProcesing] = useState(false);
 
   const titleFieldReset = () => {
-    setTodoTitle('');
+    onTodoCreate('');
   };
 
   const onSubmit = (event: React.FormEvent) => {
@@ -39,7 +39,7 @@ export const TodoForm: React.FC<Props> = ({
         placeholder="What needs to be done?"
         disabled={isProcesing}
         value={todoTitle}
-        onChange={(event) => setTodoTitle(event.target.value)}
+        onChange={(event) => onTodoCreate(event.target.value)}
       />
     </form>
   );

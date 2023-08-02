@@ -15,25 +15,13 @@ import {
   patchTodoTitle,
 } from './api/todos';
 import { FilterParams } from './types/FilterParams';
-import { USER_ID } from './utils/userId';
-
-function getPreperedTodos(todosForFilter: Todo[], filterField: FilterParams) {
-  return todosForFilter.filter(todo => {
-    switch (filterField) {
-      case FilterParams.active:
-        return !todo.completed;
-      case FilterParams.completed:
-        return todo.completed;
-      default:
-        return todo;
-    }
-  });
-}
+import { USER_ID } from './utils/constants';
+import { getPreperedTodos } from './utils/getPreperedTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | []>([]);
   const [filter, setFilter] = useState(FilterParams.all);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [todoTitle, setTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -80,33 +68,29 @@ export const App: React.FC = () => {
           return prevTodos.filter(todo => todo.id !== todoId);
         });
       })
-      .catch((error) => {
+      .catch(() => {
         setTodos(todos);
         setErrorMessage('Unable to delete a todo');
-        throw error;
       });
   };
 
   const clearCompleted = () => {
-    setIsLoading(true);
-
     const completedTodo = todos.filter(todo => todo.completed);
 
     completedTodo.forEach(todo => {
-      deleteTodo(todo.id).then(() => {
-        setTodos(prevTodos => {
-          return prevTodos.filter(t => t.id !== todo.id);
-        });
-      }).catch((error) => {
-        setTodos(todos);
-        setErrorMessage('Unable to delete a todo');
-        throw error;
-      })
-        .finally(() => setIsLoading(false));
+      setLoadingIds(prevIds => [...prevIds, todo.id]);
+
+      removeTodo(todo.id).finally(() => setLoadingIds([]));
     });
   };
 
   const createTodo = () => {
+    if (!todoTitle) {
+      setErrorMessage('Title can`t be empty');
+
+      return Promise.reject();
+    }
+
     setTempTodo({
       id: 0,
       title: todoTitle,
@@ -122,40 +106,13 @@ export const App: React.FC = () => {
       .then(newTodo => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to add todo');
-        throw error;
       })
       .finally(() => setTempTodo(null));
   };
 
-  const patchTodo = (todoId: number, state: boolean) => {
-    setIsLoading(true);
-
-    return patchTodoStatus(todoId,
-      { completed: state })
-      .then(() => {
-        setTodos(prevTodos => {
-          return prevTodos.map(todo => {
-            if (todo.id === todoId) {
-              return {
-                ...todo,
-                completed: state,
-              };
-            }
-
-            return todo;
-          });
-        });
-      })
-      .catch(error => {
-        setErrorMessage('Unable to update todo');
-        throw error;
-      })
-      .finally(() => setIsLoading(false));
-  };
-
-  const updateTodo = (todoId: number) => {
+  const updateTodoStatus = (todoId: number) => {
     const switchedTodo = todos.find(t => t.id === todoId);
 
     return patchTodoStatus(todoId,
@@ -176,9 +133,8 @@ export const App: React.FC = () => {
           });
         }
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to update todo');
-        throw error;
       });
   };
 
@@ -214,23 +170,27 @@ export const App: React.FC = () => {
 
     getTodos(USER_ID)
       .then(setTodos)
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage('Unable to get todos');
-        throw error;
-      })
-      .finally(() => setIsLoading(false));
+      });
   }, []);
 
   const toggleAll = () => {
-    setIsLoading(true);
-
     if (todos.every(todo => todo.completed)) {
-      todos.forEach(todo => {
-        return patchTodo(todo.id, false).finally(() => setIsLoading(false));
+      const completedTodos = todos.filter(todo => todo.completed);
+
+      completedTodos.forEach(todo => {
+        setLoadingIds(prevIds => [...prevIds, todo.id]);
+
+        return updateTodoStatus(todo.id).finally(() => setLoadingIds([]));
       });
     } else {
-      todos.forEach(todo => {
-        return patchTodo(todo.id, true).finally(() => setIsLoading(false));
+      const uncompletedTodos = todos.filter(todo => !todo.completed);
+
+      uncompletedTodos.forEach(todo => {
+        setLoadingIds(prevIds => [...prevIds, todo.id]);
+
+        return updateTodoStatus(todo.id).finally(() => setLoadingIds([]));
       });
     }
   };
@@ -249,13 +209,13 @@ export const App: React.FC = () => {
             className={classNames('todoapp__toggle-all', {
               active: todos.every(todo => todo.completed),
             })}
-            onClick={() => toggleAll()}
+            onClick={toggleAll}
           />
         )}
 
         <TodoForm
           todoTitle={todoTitle}
-          setTodoTitle={(newTitle) => setTodoTitle(newTitle)}
+          onTodoCreate={setTodoTitle}
           createTodo={createTodo}
         />
       </header>
@@ -263,11 +223,11 @@ export const App: React.FC = () => {
         {todosCheck && (
           <TodoList
             todos={preparedTodos}
-            removeTodo={(todoId: number) => removeTodo(todoId)}
-            isLoading={isLoading}
-            updateTodo={updateTodo}
+            removeTodo={removeTodo}
+            loadingIds={loadingIds}
+            updateTodo={updateTodoStatus}
             updateTodoTitle={updateTodoTitle}
-            setNewTodoTitle={setNewTodoTitle}
+            changeTodoTitle={setNewTodoTitle}
             newTodoTitle={newTodoTitle}
           />
         )}

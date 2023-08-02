@@ -8,9 +8,9 @@ interface Props {
   removeTodo: (todoId: number) => Promise<any>,
   updateTodo: (todoId: number) => Promise<any>,
   updateTodoTitle: (todoId: number) => Promise<any>,
-  setNewTodoTitle: (newTitle: string) => void,
+  changeTodoTitle: (newTitle: string) => void,
   newTodoTitle: string,
-  isLoading: boolean,
+  loadingIds: number[],
 }
 
 export const TodoItem: React.FC<Props> = ({
@@ -18,9 +18,9 @@ export const TodoItem: React.FC<Props> = ({
   removeTodo,
   updateTodo,
   updateTodoTitle,
-  setNewTodoTitle,
+  changeTodoTitle,
   newTodoTitle,
-  isLoading,
+  loadingIds,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isTodoLoading, setIsTodoLoading] = useState(false);
@@ -38,12 +38,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const enterEditMode = () => {
-    setNewTodoTitle(todo.title);
+    changeTodoTitle(todo.title);
     setIsEditing(true);
   };
 
   const clearEditFields = () => {
-    setNewTodoTitle('');
+    changeTodoTitle('');
     setIsEditing(false);
   };
 
@@ -77,7 +77,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const changeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoTitle(event.target.value);
+    changeTodoTitle(event.target.value);
   };
 
   const onLostFocus = () => {
@@ -110,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({
           checked={todo.completed}
           type="checkbox"
           className="todo__status"
-          onChange={() => handleToggle()}
+          onChange={handleToggle}
         />
       </label>
       {!isEditing && (
@@ -120,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             disabled={isTodoLoading}
             className="todo__remove"
-            onClick={() => handleDelete()}
+            onClick={handleDelete}
           >
             ×
           </button>
@@ -146,7 +146,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
       <div
         className={classNames('modal overlay', {
-          'is-active': isTodoLoading || isLoading,
+          'is-active': isTodoLoading || loadingIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

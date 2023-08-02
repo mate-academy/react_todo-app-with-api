@@ -15,10 +15,12 @@ export const TodoFilterBar: React.FC<Props> = ({
   clearCompleted,
   todos,
 }) => {
+  const uncompletedTodos = todos.filter(todo => !todo.completed);
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todos.length} items left`}
+        {`${uncompletedTodos.length} items left`}
       </span>
 
       {/* Active filter should have a 'selected' class */}
