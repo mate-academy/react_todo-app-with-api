@@ -17,6 +17,7 @@ import {
 import { FilterParams } from './types/FilterParams';
 import { USER_ID } from './utils/constants';
 import { getPreperedTodos } from './utils/getPreperedTodos';
+import { TodoItem } from './components/TodoItem';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[] | []>([]);
@@ -38,26 +39,6 @@ export const App: React.FC = () => {
   const applyFilter = (filterField: FilterParams) => {
     setFilter(filterField);
   };
-
-  const tempTodoMarkup = (
-    <div className="todo">
-      <label className="todo__status-label">
-        <input type="checkbox" className="todo__status" />
-      </label>
-
-      <span className="todo__title">{tempTodo?.title}</span>
-      <button type="button" className="todo__remove">×</button>
-
-      {/* 'is-active' class puts this modal on top of the todo */}
-      <div className={classNames('modal overlay', {
-        'is-active': tempTodo !== null,
-      })}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-    </div>
-  );
 
   const todosCheck = todos.length > 0;
 
@@ -231,7 +212,17 @@ export const App: React.FC = () => {
             newTodoTitle={newTodoTitle}
           />
         )}
-        {tempTodo !== null && tempTodoMarkup}
+        {tempTodo !== null && (
+          <TodoItem
+            todo={tempTodo}
+            removeTodo={removeTodo}
+            updateTodo={updateTodoStatus}
+            updateTodoTitle={updateTodoTitle}
+            changeTodoTitle={setNewTodoTitle}
+            newTodoTitle={newTodoTitle}
+            loadingIds={[tempTodo.id]}
+          />
+        )}
 
         {todosCheck && (
           <TodoFilterBar
