@@ -59,15 +59,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTodoLoading(true);
     const { userId, completed, title } = todo;
 
+    setTempTodo({
+      userId,
+      completed,
+      title,
+      id: 0,
+    });
+
     try {
       const responce = await postTodo(USER_ID, { userId, completed, title });
-
-      setTempTodo({
-        userId,
-        completed,
-        title,
-        id: 0,
-      });
 
       setTodos((prev) => [...prev, responce]);
     } catch (error) {
