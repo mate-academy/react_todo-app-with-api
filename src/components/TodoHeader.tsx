@@ -41,15 +41,14 @@ export const TodoHeader: React.FC<Props> = ({
     await Promise.all(arrayTodoToUpdate.map(async (todo) => {
       try {
         await todosService.updateTodo(todo.id, { completed: neededStatus });
+        setTodos(todos.map(t => ({
+          ...t,
+          completed: neededStatus,
+        })));
       } catch (err) {
         setHasError(Error.UPDATE);
       }
     }));
-
-    setTodos(todos.map(t => ({
-      ...t,
-      completed: neededStatus,
-    })));
 
     setLoadingIds([]);
   };
@@ -79,15 +78,17 @@ export const TodoHeader: React.FC<Props> = ({
       completed: false,
     }).then(newTodo => {
       setTodos([...todos, newTodo]);
-    }).catch(() => setHasError(Error.ADD))
+      setTitle('');
+    }).catch((error) => {
+      setHasError(Error.ADD);
+      throw error;
+    })
       .finally(() => {
         setLoadingIds((ids) => {
           return ids.filter(id => id !== todoToCreate.id);
         });
         setTempTodo(null);
       });
-
-    setTitle('');
   };
 
   return (
@@ -100,6 +101,7 @@ export const TodoHeader: React.FC<Props> = ({
             active: !neededStatus,
           })}
           onClick={toggleAllTodos}
+          disabled={loadingIds.length > 0}
         />
       )}
 

@@ -29,14 +29,21 @@ export const App: React.FC = () => {
     }
   }, [filterTodos, todos]);
 
-  const deleteCompletedTodos = () => {
+  const deleteCompletedTodos = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
     const uncompletedTodos = todos.filter(todo => !todo.completed);
 
-    completedTodos.forEach(todo => {
-      return todosService.deleteTodos(todo.id);
-    });
+    setLoadingIds(completedTodos.map(todo => todo.id));
 
+    await Promise.all(completedTodos.map(async (todo) => {
+      try {
+        await todosService.deleteTodos(todo.id);
+      } catch (error) {
+        setHasError(Error.DELETE);
+        throw error;
+      }
+    }));
+    setLoadingIds([]);
     setTodos(uncompletedTodos);
   };
 
