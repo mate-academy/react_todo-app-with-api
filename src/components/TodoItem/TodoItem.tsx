@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { TodoErrors } from '../../types/Errors';
 
 type Props = {
-  todo: Todo;
-  onRemoveTodo?: (todoId: number) => void;
-  onCheckedTodo?: (todoId: number) => void;
-  loading: boolean | undefined;
-  handleImputTodo?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: TodoErrors | null;
+  todo: Todo
+  onRemoveTodo?: (todoId: number) => void
+  onCheckedTodo?: (todoId: number) => void
+  loading?: boolean
+  isSelectedTodo?: boolean
+  onSelectedTodo?: (id: number) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,20 +15,24 @@ export const TodoItem: React.FC<Props> = ({
   onRemoveTodo,
   onCheckedTodo,
   loading,
-  handleImputTodo,
-  error,
+  isSelectedTodo,
+  onSelectedTodo,
 }) => {
-  const { id, completed, title } = todo;
+  const { title, id } = todo;
+  const [renameTodo, setRenameTodo] = useState<string>(title);
 
-  const [activeRenameTodo, setActiveRenameTodo] = useState<boolean>(false);
-
-  const handleTargetTodo = (todoId: number) => {
-    setActiveRenameTodo(id === todoId);
+  const handleTargetTodo = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setRenameTodo(e.target.value);
   };
 
   return (
     <>
-      <div className={`todo ${completed && 'completed'}`}>
+      <div
+        key={id}
+        className={`todo ${todo.completed && 'completed'}`}
+      >
         <label className="todo__status-label">
           <input
             type="checkbox"
@@ -38,42 +41,42 @@ export const TodoItem: React.FC<Props> = ({
           />
         </label>
 
-        {activeRenameTodo
+        {isSelectedTodo
           ? (
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
-              value={title}
-              onChange={handleImputTodo}
+              value={renameTodo}
+              onChange={handleTargetTodo}
             />
           )
           : (
             <>
               <span
                 className="todo__title"
-                onDoubleClick={() => handleTargetTodo(id)}
+                onDoubleClick={() => onSelectedTodo && onSelectedTodo(id)}
               >
-                {title}
+                {todo.title}
               </span>
 
               <button
                 type="button"
                 className="todo__remove"
-                onClick={() => onRemoveTodo && onRemoveTodo(id)}
+                onClick={() => onRemoveTodo && onRemoveTodo(todo.id)}
               >
                 ×
-
               </button>
 
-              {!error?.length && loading && (
+              {loading && (
                 <div className="modal overlay is-active">
                   <div className="modal-background has-background-white-ter" />
                   <div className="loader" />
                 </div>
-              )}
+              ) }
             </>
           )}
+
       </div>
     </>
   );

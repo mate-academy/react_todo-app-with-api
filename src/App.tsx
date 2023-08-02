@@ -7,10 +7,7 @@ import { Todos } from './components/Todos';
 import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
 import {
-  deleteTodos,
-  getTodos,
-  patchTodos,
-  postTodos,
+  deleteTodos, getTodos, patchTodos, postTodos,
 } from './api/todos';
 import { TodoErrors } from './types/Errors';
 import { Header } from './components/Header/Header';
@@ -31,24 +28,21 @@ export const App: React.FC = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    getTodos(USER_ID).then(
-      fetchedTodos => {
+    getTodos(USER_ID)
+      .then((fetchedTodos) => {
         setTodos(fetchedTodos as Todo[]);
-      },
-    ).catch(() => {
-      setError(TodoErrors.ErrorTodo);
-    }).finally(() => setIsLoading(false));
+      })
+      .catch(() => {
+        setError(TodoErrors.ErrorTodo);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const handleImputTodo = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImputTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
-  const handleAddTodo = (
-    e: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (input.trim()) {
@@ -60,61 +54,71 @@ export const App: React.FC = () => {
 
       setTemporaryNewTodo({ ...newTodo, id: 1 });
 
-      postTodos(USER_ID, newTodo).then((todo) => {
-        const receivedTodo = todo as Todo;
+      postTodos(USER_ID, newTodo)
+        .then((todo) => {
+          const receivedTodo = todo as Todo;
 
-        setTodos((prevTodos) => [...prevTodos, receivedTodo]);
-        setInput('');
+          setTodos((prevTodos) => [...prevTodos, receivedTodo]);
+          setInput('');
 
-        if (error && error === TodoErrors.Add) {
-          setError(null);
-        }
-      }).catch(() => {
-        setError(TodoErrors.Add);
-      }).finally(() => setTemporaryNewTodo(null));
+          if (error && error === TodoErrors.Add) {
+            setError(null);
+          }
+        })
+        .catch(() => {
+          setError(TodoErrors.Add);
+        })
+        .finally(() => setTemporaryNewTodo(null));
     }
   };
 
   const handleRemoveTodo = (todoId: number) => {
     setTempTodoId(todoId);
-    deleteTodos(USER_ID, todoId).then(() => {
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-      setTempTodoId(null);
-
-      if (error && error === TodoErrors.Delete) {
-        setError(null);
-      }
-    }).catch(() => setError(TodoErrors.Delete));
-  };
-
-  const removeCompletedTodos = () => {
-    const complitedTodos = todos.filter(todo => todo.completed === true);
-
-    const complitedIds = complitedTodos.map(todo => todo.id);
-
-    setLoadingTodos(complitedIds);
-
-    complitedTodos.map(currentTodo => deleteTodos(USER_ID, currentTodo.id)
+    deleteTodos(USER_ID, todoId)
       .then(() => {
-        setTodos(prevTodos => prevTodos
-          .filter(todo => todo.completed === false));
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
+        setTempTodoId(null);
 
         if (error && error === TodoErrors.Delete) {
           setError(null);
         }
-      }).catch(() => {
+      })
+      .catch(() => setError(TodoErrors.Delete));
+  };
+
+  const removeCompletedTodos = () => {
+    const complitedTodos = todos.filter((todo) => todo.completed === true);
+
+    const complitedIds = complitedTodos.map((todo) => todo.id);
+
+    setLoadingTodos(complitedIds);
+
+    complitedTodos.map((currentTodo) => deleteTodos(USER_ID, currentTodo.id)
+      .then(() => {
+        setTodos(
+          (prevTodos) => prevTodos.filter((todo) => todo.completed === false),
+        );
+
+        if (error && error === TodoErrors.Delete) {
+          setError(null);
+        }
+      })
+      .catch(() => {
         setError(TodoErrors.Delete);
-      }).finally(() => setLoadingTodos(null)));
+      })
+      .finally(() => setLoadingTodos(null)));
   };
 
   const handleCheckBoxTodo = async (todoId: number) => {
-    const curentTodo: Todo | undefined = todos.find(todo => todo.id === todoId);
+    const curentTodo: Todo | undefined = todos.find(
+      (todo) => todo.id === todoId,
+    );
 
     if (!curentTodo) {
       return;
     }
 
-    const updatedTodos = todos.map(todo => {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === todoId) {
         return {
           ...todo,
@@ -131,41 +135,46 @@ export const App: React.FC = () => {
 
     setTodos(updatedTodos);
 
-    await Promise.all(updatedTodos.map(async (todo) => {
-      await patchTodos(USER_ID, todo).catch(() => {
-        setError(TodoErrors.Update);
-      });
-    }));
+    await Promise.all(
+      updatedTodos.map(async (todo) => {
+        await patchTodos(USER_ID, todo).catch(() => {
+          setError(TodoErrors.Update);
+        });
+      }),
+    );
   };
 
   const handleChackAllTodos = async () => {
     let updatedTodos = [];
 
-    updatedTodos = todos.map(currTodo => {
+    updatedTodos = todos.map((currTodo) => {
       return {
         ...currTodo,
-        completed: !todos.every(currentTodo => currentTodo.completed),
+        completed: !todos.every((currentTodo) => currentTodo.completed),
       };
     });
 
     setTodos(updatedTodos);
 
-    await Promise.all(updatedTodos.map(async (todo) => {
-      await patchTodos(USER_ID, todo).catch(() => {
-        setError(TodoErrors.Update);
-      });
-    }));
+    await Promise.all(
+      updatedTodos.map(async (todo) => {
+        await patchTodos(USER_ID, todo).catch(() => {
+          setError(TodoErrors.Update);
+        });
+      }),
+    );
   };
 
-  const filteredTodos = filter === FilterTypes.All
-    ? todos
-    : todos.filter((todo) => {
-      if (filter === FilterTypes.Completed) {
-        return todo.completed;
-      }
+  const filteredTodos
+    = filter === FilterTypes.All
+      ? todos
+      : todos.filter((todo) => {
+        if (filter === FilterTypes.Completed) {
+          return todo.completed;
+        }
 
-      return !todo.completed;
-    });
+        return !todo.completed;
+      });
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -184,20 +193,18 @@ export const App: React.FC = () => {
           handleImputTodo={handleImputTodo}
         />
 
-        {isLoading
-          ? <Loader />
-          : (
-            <Todos
-              error={error}
-              todos={filteredTodos}
-              loadingTodos={loadingTodos}
-              onRemoveTodo={handleRemoveTodo}
-              onCheckedTodo={handleCheckBoxTodo}
-              tempTodoId={tempTodoId}
-              handleImputTodo={handleImputTodo}
-              temporaryNewTodo={temporaryNewTodo}
-            />
-          )}
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <Todos
+            todos={filteredTodos}
+            loadingTodos={loadingTodos}
+            onRemoveTodo={handleRemoveTodo}
+            onCheckedTodo={handleCheckBoxTodo}
+            tempTodoId={tempTodoId}
+            temporaryNewTodo={temporaryNewTodo}
+          />
+        )}
         {!!todos.length && (
           <Footer
             todos={todos}
