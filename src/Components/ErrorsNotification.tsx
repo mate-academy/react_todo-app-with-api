@@ -34,7 +34,7 @@ export const ErrorNotification: React.FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={() => closeError(ErrorType.none)}
+        onClick={() => closeError}
         aria-label="closeBtn"
       />
 

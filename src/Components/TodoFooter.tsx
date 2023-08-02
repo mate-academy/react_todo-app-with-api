@@ -6,15 +6,15 @@ import { Todo } from '../types/Todo';
 type Props = {
   todos: Todo[];
   filterType: FilterType;
-  setFilterType: (value: FilterType) => void;
-  hanldeDeleteTodo:(value:number) => Promise<void>;
+  changeFilterType: (value: FilterType) => void;
+  onDeleteTodo:(value:number) => Promise<void>;
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
   filterType,
-  setFilterType,
-  hanldeDeleteTodo,
+  changeFilterType,
+  onDeleteTodo,
 }) => {
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed);
@@ -24,7 +24,7 @@ export const TodoFooter: React.FC<Props> = ({
   }, [todos]);
 
   const deleteCompletedTodos = () => {
-    completedTodos.forEach(todo => hanldeDeleteTodo(todo.id));
+    completedTodos.forEach(todo => onDeleteTodo(todo.id));
   };
 
   return (
@@ -40,7 +40,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.All,
           })}
-          onClick={() => setFilterType(FilterType.All)}
+          onClick={() => changeFilterType(FilterType.All)}
         >
           {FilterType.All}
         </a>
@@ -50,7 +50,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.Active,
           })}
-          onClick={() => setFilterType(FilterType.Active)}
+          onClick={() => changeFilterType(FilterType.Active)}
         >
           {FilterType.Active}
         </a>
@@ -60,7 +60,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.Completed,
           })}
-          onClick={() => setFilterType(FilterType.Completed)}
+          onClick={() => changeFilterType(FilterType.Completed)}
         >
           {FilterType.Completed}
         </a>

@@ -114,17 +114,17 @@ export const App: React.FC = () => {
         <TodoHeader
           todos={todos}
           addTodo={handleAddTodo}
-          setError={setError}
-          setTempTodo={setTempTodo}
-          handleToogleStatus={handleToogleStatus}
+          onErrorMessage={setError}
+          addTempTodo={setTempTodo}
+          changeTodoStatus={handleToogleStatus}
         />
 
         <TodoList
-          isLoading={loading}
           tempTodo={tempTodo}
           visibleTodos={visibleTodos}
+          loadingTodods={loadingId}
+          isLoading={loading}
           onDeleteTodo={hanldeDeleteTodo}
-          loadingId={loadingId}
           onUpdateTodo={handleUpdateTodo}
         />
 
@@ -132,8 +132,8 @@ export const App: React.FC = () => {
           <TodoFooter
             todos={todos}
             filterType={filterType}
-            setFilterType={setFilterType}
-            hanldeDeleteTodo={hanldeDeleteTodo}
+            changeFilterType={setFilterType}
+            onDeleteTodo={hanldeDeleteTodo}
           />
         )}
 

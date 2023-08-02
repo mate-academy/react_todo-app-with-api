@@ -7,18 +7,18 @@ const USER_ID = 11128;
 
 type Props = {
   todos: Todo[];
-  setTempTodo:(todo: Todo | null) => void;
+  addTempTodo:(todo: Todo | null) => void;
   addTodo: (newTodo: Todo) => Promise<void>;
-  setError:(error:ErrorType) => void;
-  handleToogleStatus:()=>void;
+  onErrorMessage:(error:ErrorType) => void;
+  changeTodoStatus:()=>void;
 };
 
 export const TodoHeader: React.FC<Props> = ({
   todos,
   addTodo,
-  setError,
-  setTempTodo,
-  handleToogleStatus,
+  onErrorMessage,
+  addTempTodo,
+  changeTodoStatus,
 }) => {
   const [title, setTitle] = useState<string>('');
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
@@ -27,7 +27,7 @@ export const TodoHeader: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title.trim()) {
-      setError(ErrorType.emptyTitle);
+      onErrorMessage(ErrorType.emptyTitle);
 
       return;
     }
@@ -39,16 +39,16 @@ export const TodoHeader: React.FC<Props> = ({
       userId: USER_ID,
     };
 
-    setTempTodo(newTodo);
+    addTempTodo(newTodo);
     setIsSubmit(true);
 
     addTodo(newTodo)
       .then(() => setTitle(''))
       .catch(() => {
-        setError(ErrorType.addTodo);
+        onErrorMessage(ErrorType.addTodo);
       })
       .finally(() => {
-        setTempTodo(null);
+        addTempTodo(null);
         setIsSubmit(false);
       });
   };
@@ -65,7 +65,7 @@ export const TodoHeader: React.FC<Props> = ({
               className={classNames('todoapp__toggle-all', {
                 active: complitedTodods,
               })}
-              onClick={() => handleToogleStatus()}
+              onClick={changeTodoStatus}
             />
           )}
 

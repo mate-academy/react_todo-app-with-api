@@ -7,7 +7,7 @@ type Props = {
   visibleTodos: Todo[],
   tempTodo:Todo | null;
   isLoading:boolean;
-  loadingId:number[];
+  loadingTodods:number[];
   onDeleteTodo:(value:number) => Promise<void>;
   onUpdateTodo: (todoId: number, args: Partial<Todo>) => Promise<void>,
 };
@@ -18,7 +18,7 @@ export const TodoList: React.FC<Props> = ({
   tempTodo,
   isLoading,
   onUpdateTodo,
-  loadingId,
+  loadingTodods,
 }) => {
   return (
     <section className="todoapp__main">
@@ -32,7 +32,7 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               deleteTodo={onDeleteTodo}
               todo={todo}
-              loadingId={loadingId}
+              loadingId={loadingTodods}
               onUpdateTodo={onUpdateTodo}
             />
           </CSSTransition>
