@@ -32,16 +32,7 @@ export const TodoList: React.FC<Props> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && editingTodoId !== null) {
-        setUpdatingTitle('');
-        setEditingTodoId(null);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-  }, [editingTodoId]);
+  });
 
   const handleTitleDoubleClick = (todo: Todo) => {
     setEditingTodoId(todo.id);
@@ -78,6 +69,8 @@ export const TodoList: React.FC<Props> = ({
                   type="checkbox"
                   className="todo__status"
                   onChange={() => onChange(todo.id)}
+                  onFocus={() => document
+                    .addEventListener('keydown', handleKeyDown)}
                 />
               </label>
 
