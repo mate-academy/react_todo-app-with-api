@@ -64,18 +64,16 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const filterTodos = (
     array: Todo[], selectedFilterOption: StateOption,
   ) => {
-    const filteredArray = array.filter(todo => {
+    return array.filter(todo => {
       switch (selectedFilterOption) {
         case StateOption.active:
           return !todo.completed;
         case StateOption.completed:
           return todo.completed;
         default:
-          return todo;
+          return true;
       }
     });
-
-    return filteredArray;
   };
 
   const addTodo = useCallback((todoTitle: string) => {
