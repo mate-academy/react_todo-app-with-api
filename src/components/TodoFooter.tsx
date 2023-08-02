@@ -1,9 +1,9 @@
+import classNames from 'classnames';
+import { useMemo } from 'react';
 import { FilterTypes } from '../types/FilterTypes';
 import { Todo } from '../types/Todo';
-import classNames from 'classnames';
 
 import { TodoFilter } from './TodoFilter';
-import { useMemo } from 'react';
 
 type Props = {
   todos: Todo[],
@@ -19,11 +19,11 @@ export const TodoFooter: React.FC<Props> = ({
   onClearBtn,
 }) => {
   const activeTodos = useMemo(() => {
-    return todos.filter(todo => !todo.completed)
+    return todos.filter(todo => !todo.completed);
   }, [todos]);
 
   const completedTodosAmount = useMemo(() => {
-    return todos.some(todo => todo.completed)
+    return todos.some(todo => todo.completed);
   }, [todos]);
 
   return (
@@ -43,7 +43,7 @@ export const TodoFooter: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__clear-completed',
-          {'todoapp__clear-completed-hide': !completedTodosAmount},
+          { 'todoapp__clear-completed-hide': !completedTodosAmount },
         )}
         onClick={onClearBtn}
       >
