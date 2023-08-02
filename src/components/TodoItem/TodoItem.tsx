@@ -57,12 +57,6 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
     }
   };
 
-  const handleTitleClick = (event: React.MouseEvent) => {
-    if (event.detail === 2) {
-      setEditing(true);
-    }
-  };
-
   const handleFormSubmit = async (
     event: React.FormEvent,
     todoToUpdate: Todo,
@@ -89,7 +83,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
     }
   };
 
-  const handleKeyboardClick = (event: KeyboardEvent) => {
+  const handleKeyboardClick = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setQuery(todo.title);
       setEditing(false);
@@ -99,12 +93,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
   useEffect(() => {
     if (editing) {
       todoRef.current?.focus();
-      window.addEventListener('keyup', handleKeyboardClick);
     }
-
-    return () => {
-      window.removeEventListener('keyup', handleKeyboardClick);
-    };
   }, [editing]);
 
   return (
@@ -126,7 +115,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
         <>
           <span
             className="todo__title"
-            onClick={handleTitleClick}
+            onDoubleClick={() => setEditing(true)}
           >
             {todo.title}
           </span>
@@ -148,6 +137,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
             ref={todoRef}
             onChange={(event) => setQuery(event.target.value)}
             onBlur={(event) => handleFormSubmit(event, todo)}
+            onKeyUp={handleKeyboardClick}
           />
         </form>
       )}

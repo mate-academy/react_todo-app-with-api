@@ -13,7 +13,7 @@ import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
-  const { todos, status, errorMessage } = useContext(TodoContext);
+  const { todos, status } = useContext(TodoContext);
 
   const filteredTodos = useMemo(() => {
     return getFilteredTodos(todos, status);
@@ -41,9 +41,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {errorMessage && (
-        <ErrorNotification />
-      )}
+      <ErrorNotification />
     </div>
   );
 };
