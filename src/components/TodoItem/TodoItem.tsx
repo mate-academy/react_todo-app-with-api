@@ -2,11 +2,13 @@
 /* eslint-disable space-in-parens */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import classNames from "classnames";
+import classNames from 'classnames';
 
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Todo } from "../../types/Todo";
-import { TodosContext } from "../../context/TodosContext";
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
+import { Todo } from '../../types/Todo';
+import { TodosContext } from '../../context/TodosContext';
 
 type Props = {
   todo: Todo;
@@ -16,7 +18,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [inProcessDeleting, setInProcessDeleting] = useState(false);
   const [inProcessToggling, setInProcessTogling] = useState(false);
   const [inProcessEdit, setInProcessEdit] = useState(false);
-  const [updateField, setUpdateField] = useState(todo.title || "");
+  const [updateField, setUpdateField] = useState(todo.title || '');
   const [firstTitle, setFirstTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -39,8 +41,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   } = useContext(TodosContext);
 
   useEffect(() => {
-    setFirstTitle(todo.title || "");
-    setUpdateField(todo.title || "");
+    setFirstTitle(todo.title || '');
+    setUpdateField(todo.title || '');
   }, [todo]);
 
   const isLoad = loadedId.includes(todo.id);
@@ -64,12 +66,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const onKeyUp = async (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       setIsEditing(false);
       setUpdateField(firstTitle);
     }
 
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       if (updateField.length === 0) {
         await onDeleteTodo(todo.id);
       }
@@ -87,13 +89,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
   };
 
-  const loadCondition =
-    (areClearing && todo.completed) ||
-    inProcessDeleting ||
-    inProcessToggling ||
-    togglingLoading ||
-    isLoad ||
-    inProcessEdit;
+  const loadCondition
+    = (areClearing && todo.completed)
+    || inProcessDeleting
+    || inProcessToggling
+    || togglingLoading
+    || isLoad
+    || inProcessEdit;
 
   return (
     <div
@@ -138,8 +140,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       <div
         className={classNames({
-          "modal overlay": true,
-          "is-active": loadCondition && !error,
+          'modal overlay': true,
+          'is-active': loadCondition && !error,
         })}
       >
         <div className="modal-background has-background-white-ter" />
