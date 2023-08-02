@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 
@@ -7,13 +7,47 @@ type Props = {
   deleteTodoHandler: (todoId: number) => void,
   processing: boolean;
   toggleCompletedTodo: (todoId: number) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onRename: (todo: Todo, title: string) => Promise<any>;
 };
 
 export const TodoItem: React.FC<Props> = (
   {
-    todo, deleteTodoHandler, processing, toggleCompletedTodo,
+    todo, deleteTodoHandler, processing, toggleCompletedTodo, onRename,
   },
 ) => {
+  const [editing, setEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    setEditing(false);
+  };
+
+  const save = async () => {
+    if (newTitle) {
+      await onRename(todo, newTitle).then(() => {
+        setNewTitle(newTitle);
+      }).catch(() => {
+        setNewTitle(todo.title);
+      });
+    } else {
+      await deleteTodoHandler(todo.id);
+    }
+
+    setEditing(false);
+  };
+
   return (
     <div className={classNames('todo', { completed: todo.completed })}>
       <label className="todo__status-label">
@@ -21,25 +55,49 @@ export const TodoItem: React.FC<Props> = (
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          readOnly
           onClick={() => {
             toggleCompletedTodo(todo.id);
           }}
         />
       </label>
 
-      <span className="todo__title">{todo.title}</span>
+      {editing ? (
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          save();
+        }}
+        >
+          <input
+            ref={inputRef}
+            onBlur={save}
+            onKeyDown={handleKeyDown}
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            className="todo__title"
+            onDoubleClick={() => setEditing(true)}
+          >
+            {todo.title}
 
-      {/* Remove button appears only on hover */}
-      <button
-        onClick={() => deleteTodoHandler(todo.id)}
-        type="button"
-        className="todo__remove"
-      >
-        ×
+          </span>
+          <button
+            onClick={() => deleteTodoHandler(todo.id)}
+            type="button"
+            className="todo__remove"
+          >
+            ×
+          </button>
+        </>
+      )}
 
-      </button>
-
-      {/* overlay will cover the todo while it is being updated */}
       <div className={classNames('modal overlay', {
         'is-active': processing,
       })}

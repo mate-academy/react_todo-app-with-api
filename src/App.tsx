@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { UserWarning } from './UserWarning';
 import {
-  addTodo, deleteTodo, getTodos, updateTodo,
+  addTodo, deleteTodo, getTodos, patchTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
@@ -33,7 +32,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const visibletodos = useMemo(() => {
+  const visibleTodos = useMemo(() => {
     switch (filter) {
       case FilterType.COMPLETED:
         return todos.filter((todo) => todo.completed);
@@ -70,6 +69,7 @@ export const App: React.FC = () => {
       })
         .then((newTodo) => {
           setTodos([...todos, newTodo]);
+          setTitle('');
         })
         .catch(() => {
           setErrorText('Unable to add a todo');
@@ -79,8 +79,6 @@ export const App: React.FC = () => {
           setProcessing(false);
         });
     }
-
-    setTitle('');
   };
 
   const deleteTodoHandler = (todoId: number) => {
@@ -112,7 +110,7 @@ export const App: React.FC = () => {
       completed: !updatedTodo?.completed,
     };
 
-    updateTodo(changedTodo)
+    patchTodo(changedTodo)
       .then(() => {
         setTodos(
           (prevTodos) => prevTodos.map(
@@ -126,48 +124,41 @@ export const App: React.FC = () => {
       });
   };
 
-  const checkTodo = (selectedTodo: Todo, isCompleted?: boolean) => {
-    setProcessing(true);
-    updateTodo({
-      ...selectedTodo,
-      completed: isCompleted || !selectedTodo.completed,
-    }).catch(() => {
-      setErrorText('Unable to update a todo');
-    }).finally(() => {
-      setProcessing(false);
+  const handleCompleteAll = () => {
+    const todosToChange = activeTodos.length
+      ? activeTodos
+      : visibleTodos;
+
+    todosToChange.forEach(todo => {
+      toggleCompletedTodo(todo.id);
     });
   };
 
-  const handleToggleAll = () => {
-    const allTodosCompleted = todos.every(todo => todo.completed);
-
-    todos.forEach(todo => {
-      if ((allTodosCompleted && todo.completed) || (
-        !allTodosCompleted && !todo.completed)) {
-        checkTodo(todo, !todo.completed);
-      }
-    });
+  const renameTodo = async (todoUpdate: Todo, newTitle: string) => {
+    return patchTodo({ ...todoUpdate, title: newTitle })
+      .then((updatedTodo) => {
+        setTodos(prevTodos => prevTodos.map(
+          todo => (todo.id === updatedTodo.id ? updatedTodo : todo),
+        ));
+      })
+      .catch(() => {
+        setErrorText('Unable to update a todo');
+      });
   };
-
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           <button
             type="button"
-            onClick={handleToggleAll}
+            onClick={handleCompleteAll}
             className={classNames('todoapp__toggle-all', {
               active: activeTodos.length > 0,
             })}
           />
 
-          {/* Add a todo on form submit */}
           <form onSubmit={(event) => {
             addTodosHandler(event);
           }}
@@ -187,9 +178,10 @@ export const App: React.FC = () => {
         </header>
 
         <Todolist
+          onRename={renameTodo}
           processing={processing}
           deleteTodoHandler={deleteTodoHandler}
-          todos={visibletodos}
+          todos={visibleTodos}
           toggleCompletedTodo={toggleCompletedTodo}
         />
 
@@ -202,7 +194,6 @@ export const App: React.FC = () => {
             <span className="todo__title">{tempTodo?.title}</span>
             <button type="button" className="todo__remove">×</button>
 
-            {/* 'is-active' class puts this modal on top of the todo */}
             <div className={classNames('modal overlay', {
               'is-active': tempTodo !== null,
             })}
@@ -213,17 +204,14 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
               {`${activeTodos.length} items left`}
             </span>
 
-            {/* Active filter should have a 'selected' class */}
             <TodoFilter filter={filter} setFilter={setFilter} />
 
-            {/* don't show this button if there are no completed todos */}
             {completedTodos.length > 0 && (
               <button
                 onClick={clearCompletedTodos}
@@ -238,8 +226,6 @@ export const App: React.FC = () => {
 
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       {hasError && (
         <TodoErrors
           hasError={hasError}
