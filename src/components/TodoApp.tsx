@@ -39,25 +39,27 @@ export const TodoApp: React.FC = () => {
     }
   }), [todos, filterChoise]);
 
-  const uncompleatedTodos = todos.filter((todo) => !todo.completed);
-  const completedTodos = todos.filter((todo) => todo.completed);
-  const uncompleatedTodosText
-    = uncompleatedTodos.length === 1 ? 'item' : 'items';
+  const uncompleatedTodos = useMemo(() => {
+    return todos.filter((todo) => !todo.completed);
+  }, [todos]);
 
-  const [allCompleated, setAllCompleated] = useState(
-    uncompleatedTodos.length === 0,
-  );
+  const completedTodos = useMemo(() => {
+    return todos.filter((todo) => todo.completed);
+  }, [todos]);
 
-  useMemo(() => {
-    setAllCompleated(uncompleatedTodos.length === 0);
-  }, [uncompleatedTodos.length]);
+  const uncompleatedTodosText = useMemo(() => {
+    return uncompleatedTodos.length === 1 ? 'item' : 'items';
+  }, [uncompleatedTodos]);
+
+  const allCompleated = useMemo(() => uncompleatedTodos.length === 0,
+    [uncompleatedTodos.length]);
 
   const hideError = () => {
     setToHideError(true);
 
     setTimeout(() => {
       setErrorMsg('');
-    }, 5000);
+    }, 3000);
   };
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export const TodoApp: React.FC = () => {
 
     setTimeout(() => {
       hideError();
-    }, 5000);
+    }, 3000);
   }, [errorMsg]);
 
   const handleTodoAdd = (event: React.FormEvent<HTMLFormElement>) => {
@@ -85,25 +87,24 @@ export const TodoApp: React.FC = () => {
       hideError();
     }
 
-    setTempTodo({
+    const todoToAdd = { // Renamed from newTodo to todoToAdd
       userId: USER_ID,
       title: todoTitle.trim(),
       completed: false,
-      id: 0,
-    });
+    };
 
-    addTodo({
-      userId: USER_ID,
-      title: todoTitle.trim(),
-      completed: false,
-    })
+    setTempTodo({ ...todoToAdd, id: 0 });
+
+    addTodo(todoToAdd)
       .then((newTodo) => {
         setTodos([...todos, newTodo]);
       })
       .catch(() => {
         setErrorMsg('Unable to add a todo');
       })
-      .finally(() => setTempTodo(null));
+      .finally(() => {
+        setTempTodo(null);
+      });
 
     setTodoTitle('');
   };
@@ -165,7 +166,6 @@ export const TodoApp: React.FC = () => {
 
       return todo;
     }));
-    setAllCompleated(!allCompleated);
     setProcessedTodoIds([]);
   };
 
@@ -242,8 +242,9 @@ export const TodoApp: React.FC = () => {
       {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification
         toHideError={toHideError}
-        setToHideError={setToHideError}
+        hideError={hideError}
       />
+
     </div>
   );
 };

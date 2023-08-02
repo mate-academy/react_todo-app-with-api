@@ -5,22 +5,14 @@ import { TodosContext } from '../context/TodoContext';
 
 type Props = {
   toHideError: boolean,
-  setToHideError: (boolean: boolean) => void,
+  hideError: () => void,
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   toHideError,
-  setToHideError,
+  hideError,
 }) => {
-  const [, ,errorMsg, setErrorMsg] = useContext(TodosContext);
-
-  const hideError = () => {
-    setToHideError(true);
-
-    setTimeout(() => {
-      setErrorMsg('');
-    }, 3000);
-  };
+  const [, ,errorMsg, ,] = useContext(TodosContext);
 
   return (
     <div
