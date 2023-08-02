@@ -36,10 +36,6 @@ export const App: React.FC = () => {
     setErrorMessage('');
   };
 
-  const applyFilter = (filterField: FilterParams) => {
-    setFilter(filterField);
-  };
-
   const todosCheck = todos.length > 0;
 
   const removeTodo = (todoId: number) => {
@@ -227,7 +223,7 @@ export const App: React.FC = () => {
         {todosCheck && (
           <TodoFilterBar
             filter={filter}
-            applyFilter={applyFilter}
+            applyFilter={setFilter}
             clearCompleted={clearCompleted}
             todos={todos}
           />
