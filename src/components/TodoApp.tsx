@@ -1,7 +1,7 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable no-param-reassign */
 import React, {
-  useState, useContext, useEffect, useRef,
+  useState, useContext, useEffect, useRef, useMemo, useCallback,
 } from 'react';
 import classNames from 'classnames';
 import { FilterStatus } from '../types/FilterStatus';
@@ -11,6 +11,7 @@ import { TodosFilter } from './TodosFilter';
 import { addTodo, deleteTodo, updateTodo } from '../api/todos';
 import { USER_ID } from '../variables';
 import { Todo } from '../types/Todo';
+import { Error } from './Error';
 
 export const TodoApp: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,24 +23,22 @@ export const TodoApp: React.FC = () => {
 
   const [todosPrep, setTodos, errorMsg, setErrorMsg] = useContext(TodosContext);
 
-  const todos = todosPrep.filter((todo) => {
-    switch (filterStatus) {
-      case FilterStatus.Active:
-        return !todo.completed;
-      case FilterStatus.Completed:
-        return todo.completed;
-      default:
-        return true;
-    }
-  });
+  const todos = useMemo(() => {
+    return todosPrep.filter((todo) => {
+      switch (filterStatus) {
+        case FilterStatus.Active:
+          return !todo.completed;
+        case FilterStatus.Completed:
+          return todo.completed;
+        default:
+          return true;
+      }
+    });
+  }, [todosPrep, filterStatus]);
 
   const leftTodos = todosPrep.filter((todo) => !todo.completed);
   const completedTodos = todosPrep.filter((todo) => todo.completed);
   const leftTodosText = leftTodos.length === 1 ? 'item' : 'items';
-
-  const [allCompleated, setAllCompleated] = useState(
-    leftTodos.length === 0,
-  );
 
   const hideError = () => {
     setToHideError(true);
@@ -49,8 +48,8 @@ export const TodoApp: React.FC = () => {
     }, 3000);
   };
 
-  useEffect(() => {
-    setAllCompleated(leftTodos.length === 0);
+  const allCompleated = useMemo(() => {
+    return leftTodos.length === 0;
   }, [leftTodos.length]);
 
   useEffect(() => {
@@ -71,41 +70,40 @@ export const TodoApp: React.FC = () => {
     }
   }, [todos.length]);
 
-  const handleTodoAdd = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleTodoAdd = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    if (todoTitle.trim() === '') {
-      setErrorMsg('Title can\'t be empty');
+      if (todoTitle.trim() === '') {
+        setErrorMsg('Title can\'t be empty');
 
-      return;
-    }
+        return;
+      }
 
-    if (errorMsg !== '') {
-      hideError();
-    }
+      if (errorMsg !== '') {
+        hideError();
+      }
 
-    setTempTodo({
-      userId: USER_ID,
-      title: todoTitle.trim(),
-      completed: false,
-      id: 0,
-    });
+      const newTodo = {
+        userId: USER_ID,
+        title: todoTitle.trim(),
+        completed: false,
+      };
 
-    addTodo({
-      userId: USER_ID,
-      title: todoTitle.trim(),
-      completed: false,
-    })
-      .then((newTodo) => {
-        setTodos([...todosPrep, newTodo]);
-      })
-      .catch(() => {
-        setErrorMsg('Unable to add a todo');
-      })
-      .finally(() => setTempTodo(null));
+      setTempTodo({ ...newTodo, id: 0 });
 
-    setTodoTitle('');
-  };
+      addTodo(newTodo)
+        .then((todoFromServer) => {
+          setTodos([...todosPrep, todoFromServer]);
+        })
+        .catch(() => {
+          setErrorMsg('Unable to add a todo');
+        })
+        .finally(() => setTempTodo(null));
+
+      setTodoTitle('');
+    }, [todoTitle, todosPrep, errorMsg],
+  );
 
   const handleClearCompleted = async () => {
     const idsToDelete: number[] = [];
@@ -164,7 +162,6 @@ export const TodoApp: React.FC = () => {
 
       return todo;
     }));
-    setAllCompleated(!allCompleated);
     setProcessedTodoIds([]);
   };
 
@@ -233,19 +230,7 @@ export const TodoApp: React.FC = () => {
         )}
       </div>
 
-      <div
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: toHideError },
-        )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={hideError}
-        />
-        {errorMsg}
-      </div>
+      <Error toHideError={toHideError} hideError={hideError} />
     </div>
   );
 };

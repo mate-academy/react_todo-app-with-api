@@ -95,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({
       hideError();
     }
 
-    if (tempTitle === '') {
+    if (tempTitle.trim() === '') {
       handleTodoDeletion();
 
       return;
