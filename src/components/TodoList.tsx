@@ -41,10 +41,6 @@ export const TodoList: React.FC<Props> = ({
     };
 
     document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
   }, [editingTodoId]);
 
   const handleTitleDoubleClick = (todo: Todo) => {
