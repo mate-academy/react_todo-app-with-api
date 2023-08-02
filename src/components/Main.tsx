@@ -106,10 +106,12 @@ export const Main: React.FC<Props> = ({
       return;
     }
 
+    if (newTitle.trim() === '') {
+      deleteTodo(todo.id);
+    }
+
     if (newTitle.trim() !== '') {
       updateTodoTitle({ ...todo, title: newTitle });
-    } else {
-      setErrorMesage(TodoError.emtyTitle);
     }
   };
 
