@@ -17,7 +17,6 @@ export const TodoItem: React.FC<Props> = ({
   completedTodos,
   updateTodo,
 }) => {
-  const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
@@ -58,7 +57,6 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (title.trim().length === 0) {
-      setCurrentTodo(todo);
       deleteTodoById(todo.id);
 
       return;
@@ -73,6 +71,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const onBlurEvent = (currentElement: Todo) => {
+    if (currentElement.title !== title) {
+      updateTodo({ ...currentElement, title });
+    }
+
     setIsEditing(false);
     setTitle(currentElement.title);
   };
@@ -123,8 +125,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal', 'overlay', {
-        'is-active': (isLoading && todo.id === currentTodo?.id)
-          || (isLoading && completedTodos.includes(todo)),
+        'is-active': isLoading && completedTodos.includes(todo),
       })}
       >
         <div className="modal-background has-background-white-ter" />
