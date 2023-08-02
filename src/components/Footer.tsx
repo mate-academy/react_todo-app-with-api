@@ -5,13 +5,13 @@ import { Filter } from '../types/Filter';
 
 type Props = {
   todos: Todo[],
-  setFilter: React.Dispatch<React.SetStateAction<Filter>>,
+  onHandleFilterChange: React.Dispatch<React.SetStateAction<Filter>>,
   onClear: (todoId: number) => void,
 };
 
 export const Footer: React.FC<Props> = ({
   todos,
-  setFilter,
+  onHandleFilterChange,
   onClear,
 }) => {
   const [selectedLink, setSelectedLink] = useState<string | null>('All');
@@ -23,7 +23,7 @@ export const Footer: React.FC<Props> = ({
     const selectedLinkText = event.currentTarget.textContent;
 
     setSelectedLink(selectedLinkText);
-    setFilter(filterType);
+    onHandleFilterChange(filterType);
   };
 
   const countItemsLeft = useMemo(() => {
@@ -52,7 +52,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectedLink === 'All',
           })}
-          onClick={(event) => handleChange(Filter.All)(event)}
+          onClick={handleChange(Filter.All)}
         >
           All
         </a>
@@ -62,7 +62,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: selectedLink === 'Active',
           })}
-          onClick={(event) => handleChange(Filter.Active)(event)}
+          onClick={handleChange(Filter.Active)}
         >
           Active
         </a>

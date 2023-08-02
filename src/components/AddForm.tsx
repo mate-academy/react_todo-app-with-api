@@ -4,34 +4,34 @@ import { ErrorType } from '../types/Error';
 type Props = {
   onSubmit: (title: string) => {},
   title: string,
-  setTitle: (title: string) => void,
-  setError: (error: ErrorType) => void,
+  onHandleTitleChange: (title: string) => void,
+  onHandleSubmitError: (error: ErrorType) => void,
 };
 
 export const AddForm: React.FC<Props> = ({
   onSubmit,
   title,
-  setTitle,
-  setError,
+  onHandleTitleChange,
+  onHandleSubmitError,
 }) => {
   const handleTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setTitle(event.target.value);
+    onHandleTitleChange(event.target.value);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (title.trim().length < 1) {
-      setError(ErrorType.emptyValue);
+      onHandleSubmitError(ErrorType.emptyValue);
 
       return Promise.reject();
     }
 
     if (title.trim().length > 1) {
       await onSubmit(title);
-      setTitle('');
+      onHandleTitleChange('');
     }
 
     return Promise.resolve();

@@ -14,7 +14,7 @@ type Props = {
   isChansingStatus: boolean,
 };
 
-export const AppList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   todos,
   onDelete,
   isDeleted,

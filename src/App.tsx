@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
 import { UserWarning } from './UserWarning';
-import { AppList } from './components/TodoList';
+import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { AddForm } from './components/AddForm';
 import {
@@ -151,9 +151,9 @@ export const App: React.FC = () => {
     Promise.all(updatePromises)
       .then((updatedTodos) => {
         const newTodos = updatedTodos as Todo[];
+        const updatedTodoIds = new Set(newTodos.map(todo => todo.id));
 
         setTodos(currentTodos => {
-          const updatedTodoIds = new Set(newTodos.map(todo => todo.id));
           const updatedTodosArray = currentTodos.map(todo => {
             if (updatedTodoIds.has(todo.id)) {
               const updatedTodo = newTodos.find(updated => updated.id === todo.id);
@@ -195,12 +195,12 @@ export const App: React.FC = () => {
           <AddForm
             onSubmit={addTodo}
             title={title}
-            setTitle={setTitle}
-            setError={setErrorMessage}
+            onHandleTitleChange={setTitle}
+            onHandleSubmitError={setErrorMessage}
           />
         </header>
 
-        <AppList
+        <TodoList
           todos={filteredTodos}
           onDelete={removeTodo}
           isDeleted={deletedTodoId}
@@ -214,7 +214,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <Footer
             todos={todos}
-            setFilter={setFilter}
+            onHandleFilterChange={setFilter}
             onClear={removeTodo}
           />
         )}
@@ -222,7 +222,7 @@ export const App: React.FC = () => {
 
       <Notifications
         error={errorMessage}
-        reset={setErrorMessage}
+        resetErrorMessage={setErrorMessage}
       />
     </div>
   );
