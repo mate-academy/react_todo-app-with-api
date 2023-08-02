@@ -7,14 +7,12 @@ type Props = {
   onSubmit: (todo: Todo) => Promise<void>,
   setErrorMessage: (error: Error) => void,
   setTempTodo: (todo: Todo | null) => void,
-  todo?: Todo | null,
 };
 
 export const TodoForm: React.FC<Props> = ({
   onSubmit,
   setErrorMessage,
   setTempTodo,
-  todo,
 }) => {
   const [title, setTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,9 +27,9 @@ export const TodoForm: React.FC<Props> = ({
     }
 
     const tempTodo: Todo = {
-      id: todo?.id || 0,
+      id: 0,
       title,
-      completed: todo?.completed || false,
+      completed: false,
       userId: USER_ID,
     };
 
