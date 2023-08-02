@@ -18,4 +18,5 @@ export interface IContext {
   loadedId: number[];
   updateTodo: (id: number, newTitle: string) => Promise<number | void>;
   areClearing: boolean;
+  updateError: (error: string) => void;
 }

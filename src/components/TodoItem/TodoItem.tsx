@@ -121,19 +121,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </>
       )}
 
-      {loadCondition ? (
-        <div className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      ) : (
-        <div className="modal overlay">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
-
-      <div className="modal overlay">
+      <div
+        className={classNames({
+          'modal overlay': true,
+          'is-active': loadCondition,
+        })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

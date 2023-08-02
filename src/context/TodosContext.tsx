@@ -23,6 +23,7 @@ export const TodosContext = createContext<IContext>({
   loadedId: [],
   updateTodo: async () => {},
   areClearing: false,
+  updateError: () => {},
 });
 
 type Props = {
@@ -194,6 +195,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
+  const updateError = (error: string) => {
+    setTodosError(error);
+  };
+
   const value = {
     todos,
     sortField,
@@ -211,6 +216,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     loadedId,
     updateTodo,
     areClearing,
+    updateError
   };
 
   return (

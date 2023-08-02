@@ -4,12 +4,14 @@ import { USER_ID } from '../../App';
 
 export const AddTodoForm: React.FC = () => {
   const [searchField, setSearchField] = useState('');
-  const { onAddNewTodo, todoLoading } = useContext(TodosContext);
+  const { onAddNewTodo, todoLoading, updateError } = useContext(TodosContext);
 
   const onSubmitTodoForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!searchField) {
+    if (!searchField.trim()) {
+      updateError("Title can't be empty");
+
       return;
     }
 
