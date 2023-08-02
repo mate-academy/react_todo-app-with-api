@@ -8,23 +8,23 @@ type Props = {
   todos: Todo[];
   isLoading: boolean;
   listOfTodosIds: number[];
-  setListOfTodosIds: React.Dispatch<React.SetStateAction<number[]>>;
+  onDelete: React.Dispatch<React.SetStateAction<number[]>>;
   tempTodo: Todo | null;
   updateTodo: (todoId: number | null, query?: string) => void
   listOfTodosIdsForChange: number[];
-  setListOfTodosIdsForChange: React.Dispatch<React.SetStateAction<number[]>>;
+  onChanged: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
-export const TodoMain: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = ({
   deleteTodo,
   todos,
   isLoading,
   listOfTodosIds,
-  setListOfTodosIds,
+  onDelete,
   tempTodo,
   updateTodo,
   listOfTodosIdsForChange,
-  setListOfTodosIdsForChange,
+  onChanged,
 }) => {
   const [todoId, setTodoId] = useState<number | null>(null);
   const [query, setQuery] = useState('');
@@ -69,7 +69,7 @@ export const TodoMain: React.FC<Props> = ({
               checked={todo.completed}
               onClick={() => {
                 updateTodo(todo.id);
-                setListOfTodosIdsForChange([todo.id]);
+                onChanged([todo.id]);
               }}
             />
           </label>
@@ -97,7 +97,7 @@ export const TodoMain: React.FC<Props> = ({
                 onDoubleClick={() => {
                   setTodoId(todo.id);
                   setQuery(todo.title);
-                  setListOfTodosIdsForChange([todo.id]);
+                  onChanged([todo.id]);
                 }}
               >
                 {todo.title}
@@ -108,7 +108,7 @@ export const TodoMain: React.FC<Props> = ({
                 className="todo__remove"
                 onClick={() => {
                   deleteTodo(todo.id);
-                  setListOfTodosIds([todo.id]);
+                  onDelete([todo.id]);
                 }}
               >
                 ×

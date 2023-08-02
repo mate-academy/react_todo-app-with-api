@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoForm } from './components/TodoForm';
-import { TodoMain } from './components/TodoMain';
+import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { TodoErrors } from './components/TodoErrors';
 import { Todo } from './types/Todo';
@@ -130,8 +130,13 @@ export const App: React.FC = () => {
   };
 
   const reverseTodos = (todosForRevert: Todo[]) => {
-    const todosForUpdate = todosForRevert;
-    const todosIds = todosForUpdate.map(todo => todo.id);
+    let todosForUpdate = todosForRevert;
+    let todosIds = todosForUpdate.map(todo => todo.id);
+
+    if (todosForUpdate.some(todo => !todo.completed)) {
+      todosForUpdate = todosForUpdate.filter(todo => !todo.completed);
+      todosIds = todosForUpdate.map(todo => todo.id);
+    }
 
     setListOfTodosIdsForChange(todosIds);
 
@@ -156,7 +161,7 @@ export const App: React.FC = () => {
           <TodoForm
             loading={isLoading}
             addTodo={(newTodo) => addTodo(newTodo)}
-            setError={setError}
+            onFail={setError}
           />
         </header>
 
@@ -164,7 +169,7 @@ export const App: React.FC = () => {
           todos.length !== 0
           && (
             <>
-              <TodoMain
+              <TodoList
                 deleteTodo={deleteTodo}
                 todos={filteredTodos}
                 isLoading={isLoading}
@@ -172,13 +177,13 @@ export const App: React.FC = () => {
                 tempTodo={tempTodo}
                 updateTodo={updateTodo}
                 listOfTodosIdsForChange={listOfTodosIdsForChange}
-                setListOfTodosIdsForChange={setListOfTodosIdsForChange}
-                setListOfTodosIds={setListOfTodosIds}
+                onChanged={setListOfTodosIdsForChange}
+                onDelete={setListOfTodosIds}
               />
               <TodoFooter
                 todos={todos}
                 filterBy={filterBy}
-                setFilterBy={setFilterBy}
+                onFiltered={setFilterBy}
                 deleteCompletedTodos={deleteCompletedTodos}
               />
             </>

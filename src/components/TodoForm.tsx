@@ -6,13 +6,13 @@ import { USER_ID } from '../utils/UserId';
 type Props = {
   loading: boolean,
   addTodo: (newTodo: Todo) => void;
-  setError: React.Dispatch<React.SetStateAction<string>>;
+  onFail: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const TodoForm: React.FC<Props> = ({
   loading,
   addTodo,
-  setError,
+  onFail,
 }) => {
   const [value, setValue] = useState('');
 
@@ -20,7 +20,7 @@ export const TodoForm: React.FC<Props> = ({
     event.preventDefault();
 
     if (!value.trim()) {
-      setError('Unable to add a blank todo');
+      onFail('Unable to add a blank todo');
 
       return;
     }

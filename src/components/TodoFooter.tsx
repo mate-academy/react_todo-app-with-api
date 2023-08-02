@@ -7,14 +7,14 @@ import { todosForDelete } from '../utils/todosForDelete';
 type Props = {
   todos: Todo[];
   filterBy: string;
-  setFilterBy: React.Dispatch<React.SetStateAction<FilteredBy>>;
+  onFiltered: React.Dispatch<React.SetStateAction<FilteredBy>>;
   deleteCompletedTodos: () => void,
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
   filterBy,
-  setFilterBy,
+  onFiltered,
   deleteCompletedTodos,
 }) => {
   const completedTodos = todosForDelete(todos);
@@ -31,7 +31,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterBy === FilteredBy.ALL,
           })}
-          onClick={() => setFilterBy(FilteredBy.ALL)}
+          onClick={() => onFiltered(FilteredBy.ALL)}
         >
           All
         </a>
@@ -41,7 +41,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterBy === FilteredBy.ACTIVE,
           })}
-          onClick={() => setFilterBy(FilteredBy.ACTIVE)}
+          onClick={() => onFiltered(FilteredBy.ACTIVE)}
         >
           Active
         </a>
@@ -51,7 +51,7 @@ export const TodoFooter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterBy === FilteredBy.COMPLETED,
           })}
-          onClick={() => setFilterBy(FilteredBy.COMPLETED)}
+          onClick={() => onFiltered(FilteredBy.COMPLETED)}
         >
           Completed
         </a>
