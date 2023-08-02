@@ -19,3 +19,10 @@ export const updateTodo = (
 ) => {
   return client.patch(`/todos/${todoId}`, data);
 };
+
+export const updateComplete = (
+  todoId: number,
+  data: { completed: boolean },
+) => {
+  return client.patch(`/todos/${todoId}`, data);
+};

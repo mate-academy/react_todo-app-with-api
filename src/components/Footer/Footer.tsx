@@ -10,6 +10,7 @@ type Props = {
   setTodos: (todos: Todo[]) => void;
   setHasError: (value: Error) => void;
   setIsLoading: (value: boolean) => void;
+  setCompletedIdx: (arr: number[]) => void;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Footer: React.FC<Props> = ({
   setTodos,
   setHasError,
   setIsLoading,
+  setCompletedIdx,
 }) => {
   const countItems = todos.filter(todo => !todo.completed).length;
   const item = countItems > 1 ? 'items' : 'item';
@@ -29,28 +31,15 @@ export const Footer: React.FC<Props> = ({
   ) => {
     e.preventDefault();
 
-    switch (type) {
-      case Filter.All:
-        setFilter(Filter.All);
-        break;
-
-      case Filter.Active:
-        setFilter(Filter.Active);
-        break;
-
-      case Filter.Completed:
-        setFilter(Filter.Completed);
-        break;
-
-      default:
-        break;
-    }
+    setFilter(type);
   };
 
   const clearCompletedHandler = () => {
     const ids = todos
       .filter(t => t.completed)
       .map(t => t.id);
+
+    setCompletedIdx(ids);
 
     ids.forEach(id => {
       setIsLoading(true);
@@ -59,7 +48,10 @@ export const Footer: React.FC<Props> = ({
         .catch(() => {
           setHasError(Error.Delete);
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => {
+          setIsLoading(false);
+          setCompletedIdx([]);
+        });
     });
 
     setTodos(todos.filter(t => !t.completed));

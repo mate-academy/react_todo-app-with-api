@@ -7,24 +7,24 @@ import { Error, Todo, TodoForServer } from '../../types/todo';
 
 type Props = {
   todo: Todo;
-  todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
-  setHasError: (value: Error) => void;
-  isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
+  todos?: Todo[];
+  setTodos?: (todos: Todo[]) => void;
+  setHasError?: (value: Error) => void;
+  isProcessing?: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  setTodos,
-  todos,
-  setHasError,
-  isLoading,
-  setIsLoading,
+  setTodos = () => {},
+  todos = [],
+  setHasError = () => {},
+  isProcessing = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,13 +61,13 @@ export const TodoItem: React.FC<Props> = ({
         setHasError(Error.Update);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsToggling(false);
         setIsEdited(false);
       });
   };
 
   const removeTodoHandler = (todoId: number) => {
-    setIsLoading(true);
+    setIsDeleting(true);
 
     removeTodo(todoId)
       .then(() => {
@@ -78,14 +78,11 @@ export const TodoItem: React.FC<Props> = ({
       .catch(() => {
         setHasError(Error.Delete);
       })
-      .finally(() => {
-        setIsLoading(false);
-        setIsEdited(false);
-      });
+      .finally(() => setIsDeleting(false));
   };
 
   const toggleComplete = (todoId: number) => {
-    setIsLoading(true);
+    setIsToggling(true);
     updateTodoHandler(todoId, { completed: !todo.completed });
   };
 
@@ -156,7 +153,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': isLoading,
+        'is-active': isDeleting || isToggling || isProcessing || todo.id === 0,
       })}
       >
         <div className="modal-background has-background-white-ter" />

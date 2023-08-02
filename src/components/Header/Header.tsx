@@ -2,28 +2,23 @@ import classNames from 'classnames';
 import React, {
   FormEvent, useEffect, useRef, useState,
 } from 'react';
-import { createTodo, getTodos, updateTodo } from '../../api/todos';
-import { Error, Filter, Todo } from '../../types/todo';
-import { filterTodos } from '../../utils/helpers';
+import { updateComplete } from '../../api/todos';
+import { Error, Todo } from '../../types/todo';
 
 type Props = {
-  userId: number;
   todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
-  filter: Filter;
+  setTodos: (todos: Todo[] | ((todos: Todo[]) => void)) => void;
   setHasError: (value: Error) => void;
-  setIsLoading: (value: boolean) => void;
   isLoading: boolean;
+  onTodo: (title: string) => Promise<void>;
 };
 
 export const Header: React.FC<Props> = ({
-  userId,
   todos,
   setTodos,
-  filter,
   setHasError,
-  setIsLoading,
   isLoading,
+  onTodo,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
@@ -45,33 +40,15 @@ export const Header: React.FC<Props> = ({
       return;
     }
 
-    const newTodo: Omit<Todo, 'id'> = {
-      title: todoTitle,
-      completed: false,
-      userId,
-    };
-
-    setIsLoading(true);
-
-    createTodo(newTodo).then(() => {
-      getTodos(userId)
-        .then(data => {
-          const newTodos = filterTodos(filter, data);
-
-          setTodos(newTodos);
-          setTodoTitle('');
-          setIsLoading(false);
-        });
-    })
-      .catch(() => {
-        setHasError(Error.Add);
-        setIsLoading(false);
+    onTodo(todoTitle)
+      .then(() => {
+        setTodoTitle('');
       });
   };
 
   const togglerAllCompleteHandler = () => {
     todos.forEach(todo => {
-      updateTodo(todo.id, { completed: !isBtnActive })
+      updateComplete(todo.id, { completed: !isBtnActive })
         .then(() => {
           setTodos(todos.map(t => ({
             ...t,
