@@ -94,7 +94,7 @@ export const TodoMain: React.FC<Props> = ({
   };
 
   const handleKeyUp = (e: React.KeyboardEvent, todo: Todo) => {
-    if (e.key === 'Enter' && editedTodoTitle !== todo.title) {
+    if (e.key === 'Enter') {
       handleSaveTodoTitle(todo);
     } else if (e.key === 'Escape') {
       setEditedTodoTitle(todo.title);
@@ -134,6 +134,7 @@ export const TodoMain: React.FC<Props> = ({
             {editingTodoId === todo.id ? (
               <input
                 type="text"
+                className="todo__title-field"
                 value={editedTodoTitle}
                 onChange={(e) => setEditedTodoTitle(e.target.value)}
                 onBlur={() => handleSaveTodoTitle(todo)}

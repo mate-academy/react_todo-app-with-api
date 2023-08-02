@@ -1,6 +1,11 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
@@ -26,7 +31,7 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
 
     if (!inputValue.trim()) {
@@ -61,26 +66,23 @@ export const App: React.FC = () => {
         setInputDisable(false);
         setTempTodo(null);
       });
-  };
+  }, [inputValue, setHasError, setInputDisable, setTempTodo, setTodosFromServer]);
 
-  const handleDeleteTodo = (todoId: number) => {
+  const handleDeleteTodo = useCallback((todoId: number) => {
     setLoadingIds((ids) => [...ids, todoId]);
     setHasError(TodoErrorType.noError);
 
     deleteTodos(todoId)
       .then(() => {
-        setTodosFromServer(currentTodos => currentTodos.filter(
-          todo => todo.id !== todoId,
-        ));
+        setTodosFromServer((currentTodos) => currentTodos.filter((todo) => todo.id !== todoId));
       })
-
       .catch(() => {
         setHasError(TodoErrorType.deleteTodoError);
       })
       .finally(() => {
-        setLoadingIds((ids) => ids.filter(id => id !== todoId));
+        setLoadingIds((ids) => ids.filter((id) => id !== todoId));
       });
-  };
+  }, [setLoadingIds, setHasError, deleteTodos, setTodosFromServer]);
 
   useEffect(() => {
     setHasError(TodoErrorType.noError);
@@ -106,13 +108,25 @@ export const App: React.FC = () => {
     }
   }, [todosFromServer, filteredBy]);
 
-  const handleToggleAll = () => {
+  const handleToggleAll = useCallback(() => {
     const areAllCompleted = preparedTodos.every((todo) => todo.completed);
+    let updatedTodos: Todo[];
 
-    const updatedTodos = preparedTodos.map((todo) => ({
-      ...todo,
-      completed: !areAllCompleted,
-    }));
+    if (areAllCompleted) {
+      setLoadingIds(preparedTodos.map((todo) => todo.id));
+      updatedTodos = preparedTodos.map((todo) => ({
+        ...todo,
+        completed: false,
+      }));
+    } else {
+      const todosToUpdate = preparedTodos.filter((todo) => !todo.completed);
+
+      setLoadingIds(todosToUpdate.map((todo) => todo.id));
+      updatedTodos = todosToUpdate.map((todo) => ({
+        ...todo,
+        completed: true,
+      }));
+    }
 
     Promise.all(
       updatedTodos.map((updatedTodo) => updateTodoStatus(updatedTodo.id, updatedTodo.completed)),
@@ -123,8 +137,11 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setHasError(TodoErrorType.updateTodoError);
+      })
+      .finally(() => {
+        setLoadingIds([]);
       });
-  };
+  }, [preparedTodos, setTodosFromServer, setHasError, setLoadingIds]);
 
   if (!USER_ID) {
     return <UserWarning />;
