@@ -3,14 +3,11 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../context/todoContext';
 
-export const AddTodoFormHeader: React.FC = () => {
+export const Header: React.FC = () => {
   const {
-    inputValue,
-    addNewTodoInput,
-    handleSubmit,
-    itemsLeft,
-    handleToggleTodos,
-  } = useContext(TodoContext);
+    title, addNewTitle, handleSubmit, itemsLeft, handleToggleTodos,
+  }
+    = useContext(TodoContext);
 
   const activeTasks = itemsLeft;
 
@@ -29,9 +26,9 @@ export const AddTodoFormHeader: React.FC = () => {
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={inputValue}
+          value={title}
           onChange={(event) => {
-            addNewTodoInput(event.target.value);
+            addNewTitle(event.target.value);
           }}
         />
       </form>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { UserWarning } from './UserWarning';
-import { AddTodoFormHeader } from './components/AddTodoFormHeader';
-import { TodoListSection } from './components/TodoListSection';
-import { TodoFooter } from './components/TodoFooter';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
 import { ErrorNotifications } from './components/ErrorNotifications';
 import { TodoProvider } from './context/todoContext';
 
@@ -19,9 +19,9 @@ export const App: React.FC = () => {
         <h1 className="todoapp__title">todos</h1>
 
         <div className="todoapp__content">
-          <AddTodoFormHeader />
-          <TodoListSection />
-          <TodoFooter />
+          <Header />
+          <TodoList />
+          <Footer />
         </div>
 
         <ErrorNotifications />

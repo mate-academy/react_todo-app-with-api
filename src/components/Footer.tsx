@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { TodoContext } from '../context/todoContext';
 import { SORT } from '../types/Sort';
 
-export const TodoFooter: React.FC = () => {
+export const Footer: React.FC = () => {
   const {
     todos,
     itemsLeft,

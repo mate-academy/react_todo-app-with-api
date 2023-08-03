@@ -7,20 +7,25 @@ type Props = {
   todo: Todo;
 };
 
-export const TodoObject: React.FC<Props> = ({ todo }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
-    handleDeleteTodo, loading, handleToggleTodo, addNewTodoInput,
+    handleDeleteTodo, loading, handleToggleTodo, handleRename,
   }
     = useContext(TodoContext);
 
   const [editing, setEditing] = useState(false);
+  const [titleToUpdate, setTitleToUpdate] = useState(todo.title);
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
-    if (event.key !== 'Escape') {
-      return;
-    }
+    if (event.key === 'Enter') {
+      if (titleToUpdate.trim()) {
+        handleRename(titleToUpdate, todo.id);
+      }
 
-    setEditing(false);
+      setEditing(false);
+    } else if (event.key === 'Escape') {
+      setEditing(false);
+    }
   };
 
   return (
@@ -46,17 +51,18 @@ export const TodoObject: React.FC<Props> = ({ todo }) => {
               onKeyUp={handleKeyUp}
               type="text"
               className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              onChange={(event) => {
-                addNewTodoInput(event.target.value);
-              }}
+              placeholder={titleToUpdate}
+              value={titleToUpdate}
+              onChange={(event) => setTitleToUpdate(event.target.value)}
             />
           </form>
         ) : (
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => setEditing(true)}
+              onDoubleClick={() => {
+                setEditing(true);
+              }}
             >
               {todo.title}
             </span>

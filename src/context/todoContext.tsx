@@ -1,7 +1,10 @@
 /* eslint-disable max-len */
-/* eslint-disable no-console */
 import React, {
-  createContext, useEffect, useMemo, useState,
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { SORT } from '../types/Sort';
@@ -13,54 +16,52 @@ type Props = {
 };
 
 interface TodoContextType {
-  inputValue: string;
-  addNewTodoInput: (str: string) => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  title: string;
   todos: Todo[];
-  handleDeleteTodo: (todoId: number) => void;
-  handleToggleTodo: (todoId: number) => void;
-  handleToggleTodos: () => void;
-  handleDeleteCompletedTodos: () => void;
-  countItemsLeft: () => number;
-  itemsLeft: number;
-  countItemsCompleted: () => number;
-  itemsCompleted: number;
+  tempTodo: Todo | null;
+  loading: number[];
   currentFilter: SORT;
   setCurrentFilter: React.Dispatch<React.SetStateAction<SORT>>;
   errorMessage: TodoError;
   setErrorMessage: React.Dispatch<React.SetStateAction<TodoError>>;
-  loading: number[];
-  tempTodo: Todo | null;
+  addNewTitle: (str: string) => void;
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleDeleteTodo: (todoId: number) => void;
+  handleToggleTodo: (todoId: number) => void;
+  handleToggleTodos: () => void;
+  handleDeleteCompletedTodos: () => void;
+  handleRename: (newTitle: string, todoId: number) => void;
+  itemsLeft: number;
+  itemsCompleted: number;
 }
 
 export const TodoContext = createContext<TodoContextType>({
-  inputValue: '',
-  addNewTodoInput: () => {},
-  handleSubmit: () => {},
+  title: '',
   todos: [],
-  handleDeleteTodo: () => {},
-  handleToggleTodo: () => {},
-  handleToggleTodos: () => {},
-  handleDeleteCompletedTodos: () => {},
-  countItemsLeft: () => 0,
-  itemsLeft: 0,
-  countItemsCompleted: () => 0,
-  itemsCompleted: 0,
+  tempTodo: null,
+  loading: [],
   currentFilter: SORT.ALL,
   setCurrentFilter: () => {},
   errorMessage: TodoError.empty,
   setErrorMessage: () => {},
-  loading: [],
-  tempTodo: null,
+  addNewTitle: () => {},
+  handleSubmit: () => {},
+  handleDeleteTodo: () => {},
+  handleToggleTodo: () => {},
+  handleToggleTodos: () => {},
+  handleDeleteCompletedTodos: () => {},
+  handleRename: () => {},
+  itemsLeft: 0,
+  itemsCompleted: 0,
 });
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [title, setTitle] = useState('');
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [currentFilter, setCurrentFilter] = useState<SORT>(SORT.ALL);
-  const [errorMessage, setErrorMessage] = useState(TodoError.empty);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loading, setLoading] = useState<number[]>([]);
+  const [currentFilter, setCurrentFilter] = useState<SORT>(SORT.ALL);
+  const [errorMessage, setErrorMessage] = useState(TodoError.empty);
 
   const USER_ID = 11238;
 
@@ -81,43 +82,46 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     fetchTodosFromServer();
   }, []);
 
-  const addNewTodoInput = (str: string) => {
-    setInputValue(str);
+  const addNewTitle = (str: string) => {
+    setTitle(str);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (inputValue.trim() === '') {
-      setErrorMessage(TodoError.emptyTodo);
-      setInputValue('');
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (title.trim() === '') {
+        setErrorMessage(TodoError.emptyTodo);
+        setTitle('');
 
-      return;
-    }
+        return;
+      }
 
-    const newTodo = {
-      userId: USER_ID,
-      title: inputValue,
-      completed: false,
-      id: 0,
-    };
+      const newTodo = {
+        userId: USER_ID,
+        title,
+        completed: false,
+        id: 0,
+      };
 
-    setTempTodo(newTodo);
-    setLoading([0]);
+      setTempTodo(newTodo);
+      setLoading([0]);
 
-    try {
-      const response = await client.post<Todo>('/todos', newTodo);
+      try {
+        const response = await client.post<Todo>('/todos', newTodo);
 
-      setTodos((prevTodos) => [...prevTodos, response]);
-    } catch {
-      setErrorMessage(TodoError.add);
-    } finally {
-      setLoading([]);
-      setTempTodo(null);
-      setInputValue('');
-    }
-  };
+        setTodos((prevTodos) => [...prevTodos, response]);
+      } catch {
+        setErrorMessage(TodoError.add);
+      } finally {
+        setLoading([]);
+        setTempTodo(null);
+        setTitle('');
+      }
+    },
+    [title],
+  );
 
-  const handleDeleteTodo = async (todoId: number) => {
+  const handleDeleteTodo = useCallback(async (todoId: number) => {
     setLoading([todoId]);
 
     try {
@@ -129,32 +133,45 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     } finally {
       setLoading([]);
     }
-  };
+  }, []);
 
-  const handleToggleTodo = async (todoId: number) => {
-    setLoading([todoId]);
+  const handleToggleTodo = useCallback(
+    async (todoId: number) => {
+      setLoading([todoId]);
 
-    try {
-      const currentTodo = todos.find((todo) => todo.id === todoId);
-      const newCompletedStatus = !currentTodo?.completed;
+      try {
+        const currentTodo = todos.find((todo) => todo.id === todoId);
+        const newCompletedStatus = !currentTodo?.completed;
 
-      await client.patch(`/todos/${todoId}`, { completed: newCompletedStatus });
-      setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, completed: newCompletedStatus } : todo)));
-      setErrorMessage(TodoError.empty);
-    } catch {
-      setErrorMessage(TodoError.update);
-    } finally {
-      setLoading([]);
+        await client.patch(`/todos/${todoId}`, {
+          completed: newCompletedStatus,
+        });
+        setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
+          ? { ...todo, completed: newCompletedStatus }
+          : todo)));
+        setErrorMessage(TodoError.empty);
+      } catch {
+        setErrorMessage(TodoError.update);
+      } finally {
+        setLoading([]);
+      }
+    },
+    [todos],
+  );
+
+  const completedTodos = todos.filter((todo) => todo.completed);
+  const notCompletedTodos = todos.filter((todo) => !todo.completed);
+
+  const handleToggleTodos = useCallback(async () => {
+    let todoIds = notCompletedTodos.map((todo) => todo.id);
+    const allTodosCompleted = todos.every((todo) => todo.completed);
+
+    if (allTodosCompleted) {
+      todoIds = completedTodos.map((todo) => todo.id);
     }
-  };
-
-  const handleToggleTodos = async () => {
-    const todoIds = todos.map((todo) => todo.id);
 
     setLoading(todoIds);
-
     try {
-      const allTodosCompleted = todos.every((todo) => todo.completed);
       const updatedTodos = todos.map((todo) => ({
         ...todo,
         completed: !allTodosCompleted,
@@ -171,11 +188,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     } finally {
       setLoading([]);
     }
-  };
+  }, [todos]);
 
-  const handleDeleteCompletedTodos = async () => {
-    const completedTodos = todos.filter((todo) => todo.completed);
-    const notCompletedTodos = todos.filter((todo) => !todo.completed);
+  const handleDeleteCompletedTodos = useCallback(async () => {
     const todoIds = completedTodos.map((todo) => todo.id);
 
     setLoading(todoIds);
@@ -191,22 +206,36 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     } finally {
       setLoading([]);
     }
-  };
+  }, [todos]);
 
-  const countItemsLeft = () => {
-    const notCompletedTask = todos.filter((todo) => todo.completed === false);
+  const handleRename = useCallback(
+    async (newTitle: string, todoId: number) => {
+      setLoading([todoId]);
 
-    return notCompletedTask.length;
-  };
+      try {
+        if (newTitle.trim() !== '') {
+          await client.patch(`/todos/${todoId}`, { title: newTitle });
+          setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, title: newTitle } : todo)));
+        }
 
-  const countItemsCompleted = () => {
-    const completedTask = todos.filter((todo) => todo.completed === true);
+        setErrorMessage(TodoError.empty);
+      } catch {
+        setErrorMessage(TodoError.update);
+      } finally {
+        setLoading([]);
+      }
+    },
+    [title],
+  );
 
-    return completedTask.length;
-  };
-
-  const itemsLeft = useMemo(countItemsLeft, [todos]);
-  const itemsCompleted = useMemo(countItemsCompleted, [todos]);
+  const itemsLeft = useMemo(
+    () => todos.filter((todo) => todo.completed === false).length,
+    [todos],
+  );
+  const itemsCompleted = useMemo(
+    () => todos.filter((todo) => todo.completed === true).length,
+    [todos],
+  );
 
   const visibleTodos = useMemo(() => {
     return todos.filter((todo) => {
@@ -223,24 +252,23 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   }, [todos, currentFilter]);
 
   const value = {
-    inputValue,
-    addNewTodoInput,
-    handleSubmit,
+    title,
     todos: visibleTodos,
-    handleDeleteTodo,
-    handleToggleTodo,
-    handleToggleTodos,
-    handleDeleteCompletedTodos,
-    countItemsLeft,
-    itemsLeft,
-    countItemsCompleted,
-    itemsCompleted,
+    tempTodo,
+    loading,
     currentFilter,
     setCurrentFilter,
     errorMessage,
     setErrorMessage,
-    loading,
-    tempTodo,
+    addNewTitle,
+    handleSubmit,
+    handleDeleteTodo,
+    handleToggleTodo,
+    handleToggleTodos,
+    handleDeleteCompletedTodos,
+    handleRename,
+    itemsLeft,
+    itemsCompleted,
   };
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
