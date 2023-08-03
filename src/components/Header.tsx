@@ -53,7 +53,10 @@ export const Header: React.FC<Props> = ({
       {todos.length > 0 && (
         <button
           type="button"
-          className={classNames('todoapp__toggle-all', { active: allCompleted })}
+          className={classNames(
+            'todoapp__toggle-all',
+            { active: allCompleted },
+          )}
           onClick={onToggleAllTodos}
         />
       )}
