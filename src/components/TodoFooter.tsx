@@ -1,28 +1,27 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 import { FilteredBy } from '../types/FilteredBy';
-import { todosForDelete } from '../utils/todosForDelete';
+import { Todo } from '../types/Todo';
 
 type Props = {
-  todos: Todo[];
+  completedTodos: Todo[];
+  uncompletedTodos: number;
   filterBy: string;
   onFiltered: React.Dispatch<React.SetStateAction<FilteredBy>>;
   deleteCompletedTodos: () => void,
 };
 
 export const TodoFooter: React.FC<Props> = ({
-  todos,
+  completedTodos,
+  uncompletedTodos,
   filterBy,
   onFiltered,
   deleteCompletedTodos,
 }) => {
-  const completedTodos = todosForDelete(todos);
-
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todos.filter(todo => !todo.completed).length} items left`}
+        {`${uncompletedTodos} items left`}
       </span>
 
       <nav className="filter">
@@ -61,7 +60,7 @@ export const TodoFooter: React.FC<Props> = ({
         <button
           type="button"
           className="todoapp__clear-completed"
-          onClick={() => deleteCompletedTodos()}
+          onClick={deleteCompletedTodos}
         >
           Clear completed
         </button>

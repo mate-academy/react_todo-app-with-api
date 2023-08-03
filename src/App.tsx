@@ -1,6 +1,11 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoForm } from './components/TodoForm';
@@ -40,11 +45,7 @@ export const App: React.FC = () => {
       .every(filteredTodo => filteredTodo.completed);
   }, [filteredTodos]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = useCallback((todoId: number) => {
     setLoading(true);
     TodoService.deleteTodo(todoId)
       .then(() => {
@@ -59,9 +60,9 @@ export const App: React.FC = () => {
         setLoading(false);
         setListOfTodosIds([]);
       });
-  };
+  }, [todos]);
 
-  const deleteCompletedTodos = () => {
+  const deleteCompletedTodos = useCallback(() => {
     setLoading(true);
 
     const completedTodos = todosForDelete(todos);
@@ -77,9 +78,9 @@ export const App: React.FC = () => {
     }
 
     completedTodos.map(todo => deleteTodo(todo.id));
-  };
+  }, [todos]);
 
-  const addTodo = (newTodo: Todo) => {
+  const addTodo = useCallback((newTodo: Todo) => {
     setLoading(true);
     setTempTodo(newTodo);
 
@@ -94,9 +95,9 @@ export const App: React.FC = () => {
         setLoading(false);
         setTempTodo(null);
       });
-  };
+  }, [todos]);
 
-  const updateTodo = (todoId: number | null, query?: string) => {
+  const updateTodo = useCallback((todoId: number | null, query?: string) => {
     const todoForUpdate = findTodoById(todos, todoId);
 
     setLoading(true);
@@ -127,9 +128,9 @@ export const App: React.FC = () => {
           setListOfTodosIdsForChange([]);
         });
     }
-  };
+  }, [todos]);
 
-  const reverseTodos = (todosForRevert: Todo[]) => {
+  const reverseTodos = useCallback((todosForRevert: Todo[]) => {
     let todosForUpdate = todosForRevert;
     let todosIds = todosForUpdate.map(todo => todo.id);
 
@@ -141,7 +142,18 @@ export const App: React.FC = () => {
     setListOfTodosIdsForChange(todosIds);
 
     todosForUpdate.map(todo => updateTodo(todo.id));
-  };
+  }, [todos]);
+
+  const uncompletedTodos = useMemo(() => {
+    return todos
+      .filter(todo => !todo.completed).length;
+  }, [todos]);
+
+  const completedTodos = useMemo(() => todosForDelete(todos), [todos]);
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -181,7 +193,8 @@ export const App: React.FC = () => {
                 onDelete={setListOfTodosIds}
               />
               <TodoFooter
-                todos={todos}
+                completedTodos={completedTodos}
+                uncompletedTodos={uncompletedTodos}
                 filterBy={filterBy}
                 onFiltered={setFilterBy}
                 deleteCompletedTodos={deleteCompletedTodos}
