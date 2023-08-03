@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import cn from 'classnames';
+import '../styles/transition.scss';
 import { TodosContext } from './TodoContext';
 
 export const TodoErrors: React.FC = () => {

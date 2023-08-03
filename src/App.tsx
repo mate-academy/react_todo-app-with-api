@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import cn from 'classnames';
+import './styles/transition.scss';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { Todo } from './types/Todo';
@@ -16,7 +17,6 @@ import { TodosContext } from './components/TodoContext';
 import { Filter } from './types/Filter';
 import { TodoErrors } from './components/TodoErrors';
 import { ErrorType } from './types/Error';
-import { TodoItem } from './components/TodoItem';
 // #endregion
 
 export const App: React.FC = () => {
@@ -126,11 +126,10 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList todos={filteredTodos} />
-
-        {tempTodo && (
-          <TodoItem todo={tempTodo} />
-        )}
+        <TodoList
+          todos={filteredTodos}
+          tempTodo={tempTodo}
+        />
 
         {todos.length !== 0 && (
           <TodoFooter
