@@ -1,7 +1,6 @@
 import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { TodoItem } from './TodoItem';
-import { TempTodo } from './TempTodo';
 import { Todo } from '../types/Todo';
 
 type Props = {
@@ -45,9 +44,9 @@ export const TodoList: React.FC<Props> = ({
             classNames="temp-item"
           >
 
-            <TempTodo
+            <TodoItem
               todo={tempTodo}
-              isLoading
+              isUpdating
             />
 
           </CSSTransition>

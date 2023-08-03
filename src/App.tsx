@@ -44,6 +44,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
+  const completedTodos = todos.filter((todo) => todo.completed);
+
   const addTodo = (title: string) => {
     const temporaryTodo = {
       id: 0,
@@ -126,17 +128,16 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           setError={setError}
           onStatusChange={handleTodosStatus}
+          statusForChange={completedTodos.length !== todos.length}
         />
 
-        {todos.length > 0 && (
-          <TodoList
-            todos={filteredTodos}
-            updatingTodos={updatingTodos}
-            tempTodo={tempTodo}
-            onDeleteTodo={deleteTodo}
-            onUpdateTodo={updateTodo}
-          />
-        )}
+        <TodoList
+          todos={filteredTodos}
+          updatingTodos={updatingTodos}
+          tempTodo={tempTodo}
+          onDeleteTodo={deleteTodo}
+          onUpdateTodo={updateTodo}
+        />
 
         {todos.length > 0 && (
           <Filter

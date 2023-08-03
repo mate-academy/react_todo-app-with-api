@@ -4,15 +4,15 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
-  onDeleteTodo:() => void;
-  onUpdateTodo: (todoId: number, args: Partial<Todo>) => Promise<void>,
+  onDeleteTodo?:() => void;
+  onUpdateTodo?: (todoId: number, args: Partial<Todo>) => Promise<void>,
   isUpdating: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDeleteTodo,
-  onUpdateTodo,
+  onDeleteTodo = () => {},
+  onUpdateTodo = () => {},
   isUpdating,
 
 }) => {

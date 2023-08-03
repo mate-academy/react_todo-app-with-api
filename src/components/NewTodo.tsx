@@ -8,6 +8,7 @@ type Props = {
   setError: (value: ErrorType) => void;
   onAddTodo: (value: string) => Promise<void>;
   onStatusChange: (value: boolean)=>void;
+  statusForChange: boolean;
 };
 
 export const NewTodo: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const NewTodo: React.FC<Props> = ({
   setError,
   onAddTodo,
   onStatusChange,
+  statusForChange,
 
 }) => {
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
@@ -35,20 +37,17 @@ export const NewTodo: React.FC<Props> = ({
       .finally(() => setDisabledInput(false));
   };
 
-  const visibleTodos = todos.length;
-  const completedTodos = todos.filter((todo) => todo.completed);
-
   return (
     <header className="todoapp__header">
-      {visibleTodos > 0 && (
+      {todos.length > 0 && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: completedTodos.length > 0,
+            active: todos.every(td => td.completed),
           })}
           onClick={
-            () => onStatusChange(completedTodos.length !== todos.length)
+            () => onStatusChange(statusForChange)
           }
         />
       )}
