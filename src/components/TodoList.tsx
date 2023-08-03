@@ -3,8 +3,7 @@ import { Todo, Error } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
 type Props = {
-  todos: Todo[],
-  setTodos: (value: Todo[]) => void,
+  setTodos: (value: (prevTodos: Todo[]) => Todo[]) => void,
   tempTodo: Todo | null,
   filteredTodos: Todo[],
   setHasError: (value: Error) => void,
@@ -13,7 +12,6 @@ type Props = {
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos,
   setTodos,
   tempTodo,
   filteredTodos,
@@ -27,7 +25,6 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           loadingIds={loadingIds}
           setLoadingIds={setLoadingIds}
-          todos={todos}
           setTodos={setTodos}
           todo={todo}
           key={todo.id}
@@ -39,7 +36,6 @@ export const TodoList: React.FC<Props> = ({
           <TodoItem
             loadingIds={loadingIds}
             setLoadingIds={setLoadingIds}
-            todos={todos}
             setTodos={setTodos}
             todo={tempTodo}
             setHasError={setHasError}

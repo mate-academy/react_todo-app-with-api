@@ -6,8 +6,7 @@ import { Todo, Error } from '../types/Todo';
 import * as todosService from '../api/todos';
 
 type Props = {
-  todos: Todo[],
-  setTodos: (value: Todo[]) => void,
+  setTodos: (value: (prevTodos: Todo[]) => Todo[]) => void,
   todo: Todo,
   setHasError: (value: Error) => void,
   loadingIds: number[],
@@ -15,7 +14,6 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todos,
   setTodos,
   todo,
   setHasError,
@@ -39,11 +37,9 @@ export const TodoItem: React.FC<Props> = ({
     });
     todosService.deleteTodos(todo.id)
       .then(() => {
-        if (setTodos && todos) {
-          const newTodos: Todo[] = todos.filter(t => t.id !== todo.id);
-
-          setTodos(newTodos);
-        }
+        setTodos((prevTodos) => {
+          return prevTodos.filter(t => t.id !== todo.id);
+        });
       })
       .catch(() => setHasError(Error.DELETE))
       .finally(() => {
@@ -61,15 +57,17 @@ export const TodoItem: React.FC<Props> = ({
     setHasError(Error.NOTHING);
 
     todosService.updateTodo(todoId, args)
-      .then((updatedTodo) => setTodos(
-        todos.map(currentTodo => {
-          if (currentTodo.id === todoId) {
-            return updatedTodo;
-          }
+      .then((updatedTodo) => {
+        setTodos((prevTodos) => {
+          return prevTodos.map((currentTodo) => {
+            if (currentTodo.id === todoId) {
+              return updatedTodo;
+            }
 
-          return currentTodo;
-        }),
-      ))
+            return currentTodo;
+          });
+        });
+      })
       .catch(() => {
         setHasError(Error.UPDATE);
       })
@@ -104,15 +102,17 @@ export const TodoItem: React.FC<Props> = ({
     });
 
     todosService.updateTodo(todo.id, { title: editedTitle })
-      .then((updatedTodo) => setTodos(
-        todos.map(currentTodo => {
-          if (currentTodo.id === todo.id) {
-            return updatedTodo;
-          }
+      .then((updatedTodo) => {
+        setTodos((prevTodos) => {
+          return prevTodos.map((currentTodo) => {
+            if (currentTodo.id === todo.id) {
+              return updatedTodo;
+            }
 
-          return currentTodo;
-        }),
-      ))
+            return currentTodo;
+          });
+        });
+      })
       .catch(() => {
         setHasError(Error.UPDATE);
       })

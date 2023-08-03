@@ -6,7 +6,7 @@ import * as todosService from '../api/todos';
 type Props = {
   todos: Todo[],
   setTodos: (value: Todo[]) => void,
-  tempTodo: Todo | null,
+  isTempTodoExist: boolean,
   setTempTodo: (value: null | Todo) => void,
   setHasError: (value: Error) => void,
   loadingIds: number[],
@@ -16,7 +16,7 @@ type Props = {
 export const TodoHeader: React.FC<Props> = ({
   todos,
   setTodos,
-  tempTodo,
+  isTempTodoExist,
   setTempTodo,
   setHasError,
   loadingIds,
@@ -112,7 +112,7 @@ export const TodoHeader: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={title}
           onChange={event => setTitle(event.target.value)}
-          disabled={!!tempTodo}
+          disabled={isTempTodoExist}
         />
       </form>
     </header>

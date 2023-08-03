@@ -67,14 +67,13 @@ export const App: React.FC = () => {
           setLoadingIds={setLoadingIds}
           todos={todos}
           setTodos={setTodos}
-          tempTodo={tempTodo}
+          isTempTodoExist={!!tempTodo}
           setTempTodo={setTempTodo}
           setHasError={setHasError}
         />
         <TodoList
           loadingIds={loadingIds}
           setLoadingIds={setLoadingIds}
-          todos={todos}
           setTodos={setTodos}
           tempTodo={tempTodo}
           setHasError={setHasError}
