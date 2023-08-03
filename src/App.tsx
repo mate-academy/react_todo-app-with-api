@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 
 import { UserWarning } from './UserWarning';
@@ -42,19 +47,21 @@ export const App: React.FC = () => {
     () => prepareTodos(todos, filteringField), [todos, filteringField],
   );
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const todoCount = (currentTodos: Todo[]) => {
     return currentTodos.filter(todo => !todo.completed).length;
   };
 
-  const addTodo = (todo: Todo) => {
-    setLoading(true);
-    setTempTodo(todo);
+  const addTodo = useCallback((title: string) => {
+    const todo: Omit<Todo, 'id'> = {
+      title,
+      completed: false,
+      userId: USER_ID,
+    };
 
-    return createTodo(todo)
+    setLoading(true);
+    setTempTodo({ ...todo, id: 0 });
+
+    createTodo(todo)
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
@@ -63,21 +70,21 @@ export const App: React.FC = () => {
         setLoading(false);
         setTempTodo(null);
       });
-  };
+  }, []);
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = useCallback((todoId: number) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
 
-    return removeTodo(todoId)
+    removeTodo(todoId)
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(todo => todo.id !== todoId));
       })
       .catch(() => setErrorMessage('Unable to delete a todo'))
       .finally(() => setLoadingTodoIds(ids => ids.filter(id => id !== todoId)));
-  };
+  }, []);
 
-  const updateTodo = (updatedTodo: Todo) => {
+  const updateTodo = useCallback(async (updatedTodo: Todo) => {
     setLoadingTodoIds(currentIds => [...currentIds, updatedTodo.id]);
 
     return updatingTodo(updatedTodo)
@@ -93,13 +100,16 @@ export const App: React.FC = () => {
           return newTodos;
         });
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch((error) => {
+        setErrorMessage('Unable to update a todo');
+        throw error;
+      })
       .finally(() => setLoadingTodoIds(
         currentIds => currentIds.filter(id => {
           return id !== updatedTodo.id;
         }),
       ));
-  };
+  }, []);
 
   const deleteCompletedTodo = () => {
     const completedIds = todos
@@ -124,6 +134,10 @@ export const App: React.FC = () => {
       );
     }
   };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
@@ -151,7 +165,6 @@ export const App: React.FC = () => {
 
           <AddTodoForm
             setErrorMessage={setErrorMessage}
-            userId={USER_ID}
             addTodo={addTodo}
             loading={loading}
           />

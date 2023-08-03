@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo?: Todo;
   tempTodo?: Todo;
-  deleteTodo?: (todoId: number) => Promise<void>;
+  deleteTodo?: (todoId: number) => void;
   updateTodo?: (todo: Todo) => Promise<void>;
   loadingTodoIds?: number[];
 };
@@ -60,7 +60,7 @@ export const TodoItem: React.FC<Props> = (
     }
   };
 
-  const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!title.trim()) {
@@ -69,7 +69,11 @@ export const TodoItem: React.FC<Props> = (
       }
     } else {
       if (updateTodo && todo) {
-        updateTodo({ ...todo, title });
+        try {
+          await updateTodo({ ...todo, title });
+        } catch (error) {
+          setTitle(todo.title);
+        }
       }
 
       setEditing(false);

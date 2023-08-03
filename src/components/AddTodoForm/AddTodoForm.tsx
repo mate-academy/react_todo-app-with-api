@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import { Todo } from '../../types/Todo';
 
 type Props = {
   setErrorMessage: (err: string) => void;
-  userId: number;
-  addTodo: (todo: Todo) => Promise<void>;
+  addTodo: (title: string) => void;
   loading: boolean;
 };
 
 export const AddTodoForm: React.FC<Props> = ({
   setErrorMessage,
-  userId,
   addTodo,
   loading,
 }) => {
@@ -31,14 +28,7 @@ export const AddTodoForm: React.FC<Props> = ({
       return;
     }
 
-    const newTodo: Todo = {
-      id: Date.now(),
-      completed: false,
-      title,
-      userId,
-    };
-
-    addTodo(newTodo);
+    addTodo(title);
     reset();
   };
 
