@@ -38,9 +38,13 @@ export const App: React.FC = () => {
   const deleteCompletedTodos = () => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
 
-    const deletePromises = completedTodos.map(todo => (
-      todoService.deleteTodo(String(todo.id))
-    ));
+    const deletePromises = completedTodos.map(todo => {
+      setChangedStatusIds(ids => [...ids, todo.id]);
+
+      return (
+        todoService.deleteTodo(String(todo.id))
+      );
+    });
 
     Promise.all(deletePromises)
       .then(() => {
@@ -50,7 +54,8 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMesage(TodoError.delete);
-      });
+      })
+      .finally(() => setChangedStatusIds([]));
   };
 
   const toggleTodoStatus = async ({
