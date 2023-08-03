@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoForm } from './components/TodoForm';
@@ -38,7 +43,7 @@ export const App: React.FC = () => {
 
   const todosCheck = todos.length > 0;
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     return deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => {
@@ -49,9 +54,9 @@ export const App: React.FC = () => {
         setTodos(todos);
         setErrorMessage('Unable to delete a todo');
       });
-  };
+  }, [todos]);
 
-  const clearCompleted = () => {
+  const clearCompleted = useCallback(() => {
     const completedTodo = todos.filter(todo => todo.completed);
 
     completedTodo.forEach(todo => {
@@ -59,10 +64,10 @@ export const App: React.FC = () => {
 
       removeTodo(todo.id).finally(() => setLoadingIds([]));
     });
-  };
+  }, [todos]);
 
-  const createTodo = () => {
-    if (!todoTitle) {
+  const createTodo = useCallback(() => {
+    if (!todoTitle.trim()) {
       setErrorMessage('Title can`t be empty');
 
       return Promise.reject();
@@ -70,13 +75,13 @@ export const App: React.FC = () => {
 
     setTempTodo({
       id: 0,
-      title: todoTitle,
+      title: todoTitle.trim(),
       completed: false,
       userId: USER_ID,
     });
 
     return addTodo({
-      title: todoTitle,
+      title: todoTitle.trim(),
       completed: false,
       userId: USER_ID,
     })
@@ -87,60 +92,41 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to add todo');
       })
       .finally(() => setTempTodo(null));
-  };
+  }, [todoTitle]);
 
-  const updateTodoStatus = (todoId: number) => {
+  const updateTodoStatus = useCallback((todoId: number) => {
     const switchedTodo = todos.find(t => t.id === todoId);
 
     return patchTodoStatus(todoId,
       { completed: !switchedTodo?.completed })
       .then(() => {
         if (switchedTodo) {
-          setTodos(prevTodos => {
-            return prevTodos.map(todo => {
-              if (todo.id === todoId) {
-                return {
-                  ...todo,
-                  completed: !todo.completed,
-                };
-              }
-
-              return todo;
-            });
-          });
+          setTodos(prevTodos => prevTodos.map(todo => (todo.id === todoId
+            ? { ...todo, completed: !todo.completed }
+            : todo)));
         }
       })
       .catch(() => {
         setErrorMessage('Unable to update todo');
       });
-  };
+  }, [todos]);
 
-  const updateTodoTitle = (todoId: number) => {
+  const updateTodoTitle = useCallback((todoId: number) => {
     const changedTodo = todos.find(t => t.id === todoId);
 
     return patchTodoTitle(todoId,
-      { title: newTodoTitle })
+      { title: newTodoTitle.trim() })
       .then(() => {
         if (changedTodo) {
-          setTodos(prevTodos => {
-            return prevTodos.map(todo => {
-              if (todo.id === todoId) {
-                return {
-                  ...todo,
-                  title: newTodoTitle,
-                };
-              }
-
-              return todo;
-            });
-          });
+          setTodos(prevTodos => prevTodos.map(todo => (todo.id === todoId
+            ? { ...todo, title: newTodoTitle.trim() }
+            : todo)));
         }
       })
-      .catch(error => {
+      .catch(() => {
         setErrorMessage('Unable to update todo');
-        throw error;
       });
-  };
+  }, [newTodoTitle]);
 
   useEffect(() => {
     setErrorMessage('');
@@ -152,7 +138,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const toggleAll = () => {
+  const toggleAll = useCallback(() => {
     if (todos.every(todo => todo.completed)) {
       const completedTodos = todos.filter(todo => todo.completed);
 
@@ -170,7 +156,7 @@ export const App: React.FC = () => {
         return updateTodoStatus(todo.id).finally(() => setLoadingIds([]));
       });
     }
-  };
+  }, [todos]);
 
   if (!USER_ID) {
     return <UserWarning />;

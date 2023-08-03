@@ -4,10 +4,10 @@ import { TodoItem } from '../TodoItem';
 
 interface Props {
   todos: Todo[];
-  removeTodo: (todoId: number) => Promise<any>;
+  removeTodo: (todoId: number) => Promise<void>;
   loadingIds: number[],
-  updateTodo: (todoId: number) => Promise<any>,
-  updateTodoTitle: (todoId: number) => Promise<any>,
+  updateTodo: (todoId: number) => Promise<void>,
+  updateTodoTitle: (todoId: number) => Promise<void>,
   changeTodoTitle: (newTitle: string) => void,
   newTodoTitle: string,
 }

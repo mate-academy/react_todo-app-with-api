@@ -5,9 +5,9 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo,
-  removeTodo: (todoId: number) => Promise<any>,
-  updateTodo: (todoId: number) => Promise<any>,
-  updateTodoTitle: (todoId: number) => Promise<any>,
+  removeTodo: (todoId: number) => Promise<void>,
+  updateTodo: (todoId: number) => Promise<void>,
+  updateTodoTitle: (todoId: number) => Promise<void>,
   changeTodoTitle: (newTitle: string) => void,
   newTodoTitle: string,
   loadingIds: number[],
@@ -59,12 +59,12 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (!newTodoTitle) {
+    if (!newTodoTitle.trim()) {
       clearEditFields();
       handleDelete();
     }
 
-    if (newTodoTitle) {
+    if (newTodoTitle.trim()) {
       setIsTodoLoading(true);
       updateTodoTitle(todo.id).finally(() => setIsTodoLoading(false));
       clearEditFields();
