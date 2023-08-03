@@ -1,5 +1,5 @@
 // #region IMPORTS
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TodosContextType } from '../types/TodoContext';
 import { Todo } from '../types/Todo';
 import {
@@ -46,7 +46,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setError(errorType);
   };
 
-  const addTodo = (title: string, id: number) => {
+  const addTodo = useCallback((title: string, id: number) => {
     setShowLoaderFor(prev => [...prev, id]);
 
     const newTempTodo: Todo = {
@@ -74,9 +74,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setDisabledInput(false);
         setShowLoaderFor(prev => prev.filter(todoId => todoId !== id));
       });
-  };
+  }, [todos]);
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setShowLoaderFor(prev => [...prev, todoId]);
 
     return deleteTodo(todoId)
@@ -92,9 +92,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(id => id !== todoId));
       });
-  };
+  }, [todos]);
 
-  const updateTodoTitle = (id: number, newTitle: string) => {
+  const updateTodoTitle = useCallback((id: number, newTitle: string) => {
     setShowLoaderFor(prev => [...prev, id]);
     const todoToRename = todos.find(todo => todo.id === id);
 
@@ -122,9 +122,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(todoId => id !== todoId));
       });
-  };
+  }, [todos]);
 
-  const toggleTodo = (id: number) => {
+  const toggleTodo = useCallback((id: number) => {
     const todoToToggle = todos.find(todo => todo.id === id);
 
     if (!todoToToggle) {
@@ -153,7 +153,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(togId => togId !== id));
       });
-  };
+  }, [todos]);
 
   const deleteCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);

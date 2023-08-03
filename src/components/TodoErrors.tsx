@@ -18,8 +18,6 @@ export const TodoErrors: React.FC = () => {
         resetError();
       }, 3000);
     }
-
-    return () => {};
   }, [error]);
 
   function handleErrorHiding(event: React.MouseEvent<HTMLButtonElement>): void {
