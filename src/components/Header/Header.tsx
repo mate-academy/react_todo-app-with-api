@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, {
-  FormEvent, useEffect, useRef, useState, Dispatch, SetStateAction
+  FormEvent, useEffect, useRef, useState, Dispatch, SetStateAction,
 } from 'react';
 import { updateComplete } from '../../api/todos';
 import { Error, Todo } from '../../types/todo';
@@ -62,7 +62,7 @@ export const Header: React.FC<Props> = ({
         })
         .catch(() => {
           setHasError(Error.Update);
-        })
+        });
     });
   };
 
