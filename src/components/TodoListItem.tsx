@@ -1,5 +1,11 @@
 import React, {
-  ChangeEvent, FormEvent, useContext, useEffect, useRef, useState,
+  ChangeEvent,
+  FormEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  KeyboardEvent,
 } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
@@ -53,20 +59,12 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ todo }) => {
     setEditMode(false);
   };
 
-  useEffect(() => {
-    const cancelEditing = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setEditMode(false);
-        setNewTitleInput(todo.title);
-      }
-    };
-
-    document.addEventListener('keyup', cancelEditing);
-
-    return () => {
-      document.removeEventListener('keyup', cancelEditing);
-    };
-  }, []);
+  const cancelEditing = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditMode(false);
+      setNewTitleInput(todo.title);
+    }
+  };
 
   useEffect(() => {
     if (editMode && titleRef.current) {
@@ -99,6 +97,7 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ todo }) => {
               value={newTitleInput}
               onChange={event => setNewTitleInput(event.target.value)}
               onBlur={handleEditTodoTitle}
+              onKeyUp={cancelEditing}
             />
           </form>
         ) : (
@@ -120,8 +119,7 @@ const TodoListItem: React.FC<TodoListItemProps> = ({ todo }) => {
         )
       }
 
-      {/* overlay will cover the todo while it is being updated */
-      }
+      {/* overlay will cover the todo while it is being updated */}
       <div className={cn('modal overlay', {
         'is-active': todo.id === loadingTodo?.id
       || selectedTodoIds.includes(todo.id),

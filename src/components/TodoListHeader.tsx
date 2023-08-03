@@ -22,9 +22,10 @@ const TodoListHeader:React.FC = () => {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    addNewTodo(inputTitle);
-
-    setInputTitle('');
+    if (inputTitle.trim()) {
+      addNewTodo(inputTitle);
+      setInputTitle('');
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, {
-  PropsWithChildren, useEffect, useMemo, useState,
+  PropsWithChildren, useCallback, useEffect, useMemo, useState,
 } from 'react';
 import { Todo, TodoListFilterStatus } from '../types/Todo';
 import {
@@ -59,9 +59,8 @@ export const TodoProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     return getTodosStatistics(todosFromServer);
   }, [todosFromServer, todos]);
 
-  const addNewTodo = (title: string) => {
-    const newTodo: Todo = {
-      id: 0,
+  const addNewTodo = useCallback((title: string) => {
+    const newTodo: Omit<Todo, 'id'> = {
       title,
       completed: false,
       userId: USER_ID,
@@ -73,7 +72,7 @@ export const TodoProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
       return;
     }
 
-    setLoadingTodo(newTodo);
+    setLoadingTodo({ ...newTodo, id: 0 });
 
     createTodo(USER_ID, newTodo)
       .then(createdTodo => {
@@ -87,9 +86,9 @@ export const TodoProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
         setError(ErrorValues.CantCreateTodoError);
       })
       .finally(() => setLoadingTodo(null));
-  };
+  }, []);
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setSelectedTodoIds([todoId]);
 
     deleteTodo(todoId)
@@ -99,7 +98,7 @@ export const TodoProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
         ),
       ))
       .finally(() => setSelectedTodoIds([]));
-  };
+  }, []);
 
   const removeCompletedTodos = () => {
     const completedTodosIds = todosFromServer
@@ -142,15 +141,13 @@ export const TodoProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const toggleAllTodosStatus = () => {
     const isAllCompleted = todosFromServer.every(
       (todo, _index, array) => {
-        if (array.length > 0 && todo.completed) {
-          return true;
-        }
-
-        return false;
+        return array.length > 0 && todo.completed;
       },
     );
 
-    setSelectedTodoIds(todosFromServer.map(todo => todo.id));
+    setSelectedTodoIds(todosFromServer
+      .filter(todo => todo.completed === isAllCompleted)
+      .map(todo => todo.id));
 
     const needToUpdateTodos = todosFromServer.map(
       todo => updateTodo(todo.id, { ...todo, completed: !isAllCompleted }),
