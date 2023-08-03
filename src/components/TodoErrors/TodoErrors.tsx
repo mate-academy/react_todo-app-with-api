@@ -1,14 +1,22 @@
-import { FormEvent, useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 
 export const TodoErrors: React.FC = () => {
+  const [isHidden, setIsHidden] = useState(false);
+
   const {
     errorMessage,
+    setErrorMessage,
   } = useContext(TodosContext);
 
-  const handleOnClick = (event: FormEvent<HTMLButtonElement>) => {
-    event.currentTarget.parentElement?.classList.add('hidden');
-  };
+  useEffect(() => {
+    const timerid = setTimeout(() => {
+      setErrorMessage('');
+    }, 3000);
+
+    return () => clearTimeout(timerid);
+  }, []);
 
   return (
     <div
@@ -16,9 +24,11 @@ export const TodoErrors: React.FC = () => {
     >
       <button
         type="button"
-        className="delete"
+        className={classNames('delete', {
+          hidden: isHidden,
+        })}
         aria-label="delete-button"
-        onClick={handleOnClick}
+        onClick={() => setIsHidden(true)}
       />
       {errorMessage}
     </div>

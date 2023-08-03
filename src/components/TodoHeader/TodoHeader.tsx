@@ -9,6 +9,7 @@ export const TodoHeader: React.FC = () => {
     isEveryTodoCompleted,
     setTempTodo,
     toggleAllToStatus,
+    setErrorMessage,
   } = useContext(TodosContext);
 
   const [query, setQuery] = useState('');
@@ -18,6 +19,16 @@ export const TodoHeader: React.FC = () => {
   const handleOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
+
+    if (!query.trim()) {
+      setIsLoading(false);
+      setErrorMessage('Title can\'t be empty!');
+
+      setQuery('');
+
+      return;
+    }
+
     todoAdd(query)
       .catch()
       .finally(() => {

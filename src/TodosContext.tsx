@@ -1,7 +1,9 @@
 import React, {
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { Filter } from './services/enums';
@@ -12,33 +14,12 @@ import {
   updateTodo,
 } from './api/todos';
 import { Todo } from './types';
+import { filterTodosByCompleted } from './utils/functions';
 
 const USER_ID = 11138;
 
 interface FilterParams {
   filterBy?: Filter,
-}
-
-function filterTodosByCompleted(todos: Todo[], filter: Filter): Todo[] {
-  let todosCopy = [...todos];
-
-  switch (filter) {
-    case (Filter.ACTIVE): {
-      todosCopy = todosCopy.filter(todo => !todo.completed);
-      break;
-    }
-
-    case (Filter.COMPLETED): {
-      todosCopy = todosCopy.filter(todo => todo.completed);
-      break;
-    }
-
-    default: {
-      break;
-    }
-  }
-
-  return todosCopy;
 }
 
 function filterTodos(todos: Todo[], { filterBy }: FilterParams): Todo[] {
@@ -124,7 +105,9 @@ export const DataContextProvider: React.FC<DataProviderProps> = ({
   const [toggleToStatus, setToggleToStatus]
     = useState<boolean | null>(null);
 
-  const visibleTodos = filterTodos(todos, { filterBy });
+  const visibleTodos = useMemo(() => {
+    return filterTodos(todos, { filterBy });
+  }, [todos, filterBy]);
 
   const value = {
     todos,
@@ -163,6 +146,7 @@ interface ContextProps {
   filterBy: Filter,
   setFilterBy: React.Dispatch<SetStateAction<Filter>>,
   errorMessage: string,
+  setErrorMessage: React.Dispatch<SetStateAction<string>>,
   areCompletedDeletingNow: boolean,
   tempTodo: Todo | null,
   setTempTodo: React.Dispatch<SetStateAction<Todo | null>>,
@@ -185,6 +169,7 @@ export const TodosContext = React.createContext<ContextProps>({
   filterBy: Filter.ALL,
   setFilterBy: () => {},
   errorMessage: '',
+  setErrorMessage: () => {},
   areCompletedDeletingNow: false,
   tempTodo: null,
   setTempTodo: () => {},
@@ -219,20 +204,12 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
   } = useContext(TodosDataContext);
 
   useEffect(() => {
-    getTodos(USER_ID).then(setTodos);
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => setErrorMessage('Some error happened!'));
   }, []);
 
-  const handleErrorOccuring = (errorTitle: string) => {
-    setErrorMessage(errorTitle);
-
-    const timerid = setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-
-    return () => clearTimeout(timerid);
-  };
-
-  const todoAdd = (newQuery: string) => {
+  const todoAdd = useCallback((newQuery: string) => {
     const normalizedQuery = newQuery.trim();
 
     return new Promise<boolean>((resolve, reject) => {
@@ -250,14 +227,14 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
           resolve(true);
         })
         .catch(() => {
-          handleErrorOccuring('Unable to add a todo');
+          setErrorMessage('Unable to add a todo');
           reject(new Error(errorMessage));
         });
     })
       .catch(error => error);
-  };
+  }, [todos]);
 
-  const todoDelete = (todoId: number) => {
+  const todoDelete = useCallback((todoId: number) => {
     return new Promise<boolean>((resolve, reject) => {
       deleteTodo(todoId)
         .then(() => {
@@ -270,14 +247,14 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
           resolve(true);
         })
         .catch(() => {
-          handleErrorOccuring('Unable to delete a todo');
+          setErrorMessage('Unable to delete a todo');
           reject(new Error(errorMessage));
         });
     })
       .catch(error => error);
-  };
+  }, [todos]);
 
-  const todoUpdate = (newTodo: Todo) => {
+  const todoUpdate = useCallback((newTodo: Todo) => {
     return new Promise<boolean>((resolve, reject) => {
       updateTodo(newTodo)
         .then(() => {
@@ -292,13 +269,13 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
           resolve(true);
         })
         .catch(() => {
-          handleErrorOccuring('Unable to update a todo');
+          setErrorMessage('Unable to update a todo');
           reject(new Error(errorMessage));
         });
     });
-  };
+  }, [todos]);
 
-  const toggleAllToStatus = (newStatus: boolean) => {
+  const toggleAllToStatus = useCallback((newStatus: boolean) => {
     setToggleToStatus(newStatus);
 
     return new Promise<boolean>((resolve, reject) => {
@@ -322,14 +299,14 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
           resolve(true);
         })
         .catch(() => {
-          handleErrorOccuring('Unable to update a todo');
+          setErrorMessage('Unable to update a todo');
           reject(new Error(errorMessage));
         })
         .finally(() => setToggleToStatus(null));
     });
-  };
+  }, [todos]);
 
-  const clearAllCompleted = () => {
+  const clearAllCompleted = useCallback(() => {
     const todosIdsToOperate = [...todos]
       .filter(todo => todo.completed)
       .map(todo => todo.id);
@@ -346,15 +323,15 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
 
         setAreCompletedDeletingNow(false);
       });
-  };
+  }, [todos]);
 
-  const isTodosHasCompleted = () => {
+  const isTodosHasCompleted = useMemo(() => () => {
     return todos.some(todo => todo.completed);
-  };
+  }, [todos]);
 
-  const isEveryTodoCompleted = () => {
+  const isEveryTodoCompleted = useMemo(() => () => {
     return todos.every(todo => todo.completed);
-  };
+  }, [todos]);
 
   const value = {
     todos,
@@ -368,6 +345,7 @@ export const TodosProvider: React.FC<ProviderProps> = ({ children }) => {
     filterBy,
     setFilterBy,
     errorMessage,
+    setErrorMessage,
     areCompletedDeletingNow,
     tempTodo,
     setTempTodo,

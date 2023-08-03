@@ -23,8 +23,10 @@ export const TodoItem: React.FC<Props> = ({
     toggleToStatus,
   } = useContext(TodosContext);
 
+  const { id, title, completed } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
-  const [query, setQuery] = useState(todo.title);
+  const [query, setQuery] = useState(title);
 
   const [isLoading, setIsLoading] = useState(isTempTodo || false);
 
@@ -34,7 +36,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleOnToggle = () => {
     const newTodo: Todo = {
       ...todo,
-      completed: !todo.completed,
+      completed: !completed,
     };
 
     setIsLoading(true);
@@ -45,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const reset = () => {
-    setQuery(todo.title);
+    setQuery(title);
     setIsEditing(false);
   };
 
@@ -54,7 +56,7 @@ export const TodoItem: React.FC<Props> = ({
       setIsLoading(true);
     }
 
-    todoDelete(todo.id)
+    todoDelete(id)
       .catch(error => error)
       .finally(() => setIsLoading(false));
   };
@@ -62,7 +64,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (query === todo.title) {
+    if (query === title) {
       setIsEditing(false);
 
       return;
@@ -96,7 +98,7 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <div
       className={cn('todo', {
-        completed: todo.completed,
+        completed,
       })}
     >
 
@@ -104,7 +106,7 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          defaultChecked={completed}
           onChange={handleOnToggle}
         />
       </label>
@@ -146,7 +148,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         className={cn('modal', 'overlay', {
           'is-active': isLoading
-            || (areCompletedDeletingNow && todo.completed)
+            || (areCompletedDeletingNow && completed)
             || isChangingStatus,
         })}
       >
