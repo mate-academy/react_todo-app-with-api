@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
 import { Main } from './components/Main';
@@ -18,24 +18,26 @@ export const App: React.FC = () => {
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [changedStatusIds, setChangedStatusIds] = useState<number[]>([]);
 
-  const getFilteredTodos = (todos: Todo[]) => {
-    const filteredTodos = [...todos];
+  const getFilteredTodos = useMemo(() => {
+    return ((todos: Todo[]) => {
+      const filteredTodos = [...todos];
 
-    switch (selectedStatus) {
-      case SelectStatus.Active:
-        return filteredTodos.filter(todo => !todo.completed);
+      switch (selectedStatus) {
+        case SelectStatus.Active:
+          return filteredTodos.filter(todo => !todo.completed);
 
-      case SelectStatus.Completed:
-        return filteredTodos.filter(todo => todo.completed);
+        case SelectStatus.Completed:
+          return filteredTodos.filter(todo => todo.completed);
 
-      default:
-        return filteredTodos;
-    }
-  };
+        default:
+          return filteredTodos;
+      }
+    });
+  }, [todosFromServer, selectedStatus]);
 
   const visibleTodos = getFilteredTodos(todosFromServer);
 
-  const deleteCompletedTodos = () => {
+  const deleteCompletedTodos = useCallback(() => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
 
     const deletePromises = completedTodos.map(todo => {
@@ -56,9 +58,9 @@ export const App: React.FC = () => {
         setErrorMesage(TodoError.delete);
       })
       .finally(() => setChangedStatusIds([]));
-  };
+  }, [todosFromServer]);
 
-  const toggleTodoStatus = async ({
+  const toggleTodoStatus = useCallback(async ({
     id,
     title,
     userId,
@@ -84,11 +86,10 @@ export const App: React.FC = () => {
       });
     } catch {
       setErrorMesage(TodoError.update);
-      setTodosFromServer(visibleTodos);
     } finally {
       setSelectedTodoId(null);
     }
-  };
+  }, [todosFromServer]);
 
   if (!todoService.USER_ID) {
     return <UserWarning />;

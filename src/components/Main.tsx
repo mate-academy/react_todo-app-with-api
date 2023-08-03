@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoError } from '../types/TodoError';
@@ -41,7 +43,7 @@ export const Main: React.FC<Props> = ({
     }
   }, [editedTodoId]);
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
 
     setTimeout(() => setTodosFromServer(
@@ -54,9 +56,9 @@ export const Main: React.FC<Props> = ({
         setErrorMesage(TodoError.delete);
         throw error;
       }).finally(() => setSelectedTodoId(null));
-  };
+  }, [todos]);
 
-  const updateTodoTitle = async ({
+  const updateTodoTitle = useCallback(async ({
     id,
     title,
     userId,
@@ -87,7 +89,7 @@ export const Main: React.FC<Props> = ({
     } finally {
       setSelectedTodoId(null);
     }
-  };
+  }, [todos]);
 
   const handleDoudleClick = (
     event: React.MouseEvent<HTMLSpanElement, MouseEvent>,

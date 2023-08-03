@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoError } from '../types/TodoError';
@@ -30,7 +30,7 @@ export const Header: React.FC<Props> = ({
     userId: USER_ID,
   };
 
-  const addTodo = ({ title, userId, completed }: Todo) => {
+  const addTodo = useCallback(({ title, userId, completed }: Todo) => {
     setIsInputDisabled(true);
 
     return todoService.createTodo({ title, userId, completed })
@@ -47,7 +47,7 @@ export const Header: React.FC<Props> = ({
           setNewAddedTodoId(null);
         }, 300);
       });
-  };
+  }, [todos]);
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -75,7 +75,7 @@ export const Header: React.FC<Props> = ({
     setChangedStatusIds(ids);
   };
 
-  const toggleAllTodos = async () => {
+  const toggleAllTodos = useCallback(async () => {
     const newStatus = !areAllCompleted();
 
     const updatedTodos = todos.map(todo => {
@@ -93,11 +93,10 @@ export const Header: React.FC<Props> = ({
       updateSelectedTodoId();
     } catch {
       setErrorMesage(TodoError.update);
-      setTodosFromServer(todos);
     } finally {
       setTimeout(() => setChangedStatusIds([]), 300);
     }
-  };
+  }, [todos]);
 
   return (
     <header className="todoapp__header">
