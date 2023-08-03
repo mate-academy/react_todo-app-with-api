@@ -40,10 +40,8 @@ export const TodoItem: React.FC<Props> = ({
       } catch {
         setTitle(todo.title);
       }
-    } else {
-      if (onDelete) {
-        await onDelete();
-      }
+    } else if (onDelete) {
+      await onDelete();
     }
 
     setEditing(false);
