@@ -7,7 +7,7 @@ export const TodoForm: React.FC = () => {
   const { todos, userId } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
-  const hasActiveTodos = todos.some(todo => !todo.completed);
+  const allTodosCompleted = todos.every(todo => todo.completed);
 
   const addTodo = async (title: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
@@ -39,15 +39,14 @@ export const TodoForm: React.FC = () => {
     dispatch({ type: 'SET_ERROR', payload: '' });
 
     try {
-      const allTodosCompleted = todos.every(todo => todo.completed);
-
-      if (allTodosCompleted) {
-        todos.forEach(todo => {
+      todos
+        .filter(todo => todo.completed === allTodosCompleted)
+        .forEach(todo => {
           dispatch({ type: 'SET_SELECTED', payload: todo.id });
+          dispatch({ type: 'TOGGLE_TODO', payload: todo.id });
         });
 
-        dispatch({ type: 'TOGGLE_ALL_TODOS', payload: false });
-
+      if (allTodosCompleted) {
         await Promise.all(
           todos.map(todo => todoService.updateTodo({
             ...todo,
@@ -55,14 +54,6 @@ export const TodoForm: React.FC = () => {
           })),
         );
       } else {
-        todos.forEach(todo => {
-          if (!todo.completed) {
-            dispatch({ type: 'SET_SELECTED', payload: todo.id });
-          }
-        });
-
-        dispatch({ type: 'TOGGLE_ALL_TODOS', payload: true });
-
         await Promise.all(
           todos.map(todo => todoService.updateTodo({
             ...todo,
@@ -83,7 +74,7 @@ export const TodoForm: React.FC = () => {
     <header className="todoapp__header">
 
       <Toggler
-        hasActiveTodos={hasActiveTodos}
+        hasAllTodosCompleted={allTodosCompleted}
         toggleAllTodos={toggleAllTodos}
       />
 

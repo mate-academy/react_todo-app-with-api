@@ -2,12 +2,12 @@ import React from 'react';
 import classNames from 'classnames';
 
 type Props = {
-  hasActiveTodos: boolean;
+  hasAllTodosCompleted: boolean;
   toggleAllTodos: () => void;
 };
 
 export const Toggler: React.FC<Props> = ({
-  hasActiveTodos,
+  hasAllTodosCompleted,
   toggleAllTodos,
 }) => {
   return (
@@ -15,7 +15,7 @@ export const Toggler: React.FC<Props> = ({
       type="button"
       className={
         classNames('todoapp__toggle-all', {
-          active: hasActiveTodos,
+          active: hasAllTodosCompleted,
         })
       }
       aria-label="toggle all todos status"

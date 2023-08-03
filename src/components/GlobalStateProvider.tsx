@@ -17,8 +17,7 @@ type Action =
   | { type: 'CLEAR_SELECTED' }
   | { type: 'SET_FILTER', payload: StatusType }
   | { type: 'SET_TEMP_TODO', payload: ITodo | null }
-  | { type: 'TOGGLE_TODO', payload: number }
-  | { type: 'TOGGLE_ALL_TODOS', payload: boolean };
+  | { type: 'TOGGLE_TODO', payload: number };
 
 interface State {
   userId: number;
@@ -114,15 +113,6 @@ const reducer = (state: State, action: Action): State => {
 
           return todo;
         }),
-      };
-
-    case 'TOGGLE_ALL_TODOS':
-      return {
-        ...state,
-        todos: state.todos.map(todo => ({
-          ...todo,
-          completed: action.payload,
-        })),
       };
 
     default:
