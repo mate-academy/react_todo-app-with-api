@@ -37,6 +37,6 @@ function request<T>(
 export const apiClient = {
   get: <T>(url: string) => request<T>(url),
   post: <T>(url: string, data: any) => request<T>(url, 'POST', data),
-  delete: <T>(url: string) => request<T>(url, 'DELETE'),
+  delete: (url: string) => request(url, 'DELETE'),
   patch: <T>(url: string, data: any) => request<T>(url, 'PATCH', data),
 };

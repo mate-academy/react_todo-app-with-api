@@ -9,9 +9,9 @@ type Props = {
 
 export const Error: React.FC<Props> = ({ message, onClose }) => {
   useEffect(() => {
-    if (message) {
-      setTimeout(() => onClose, 3000);
-    }
+    setTimeout(() => {
+      onClose();
+    }, 3000);
   }, [message]);
 
   return (

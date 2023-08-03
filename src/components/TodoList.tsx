@@ -5,9 +5,9 @@ import { TodoItem } from './TodoItem';
 interface Props {
   todos: Todo[];
   deleteTodo: (todoId: number) => Promise<any>;
-  isLoading: boolean,
+  loadingId: number[];
   updateTodoTitle: (todoId: number) => Promise<any>,
-  setNewTodoTitle: (newTitle: string) => void,
+  changeTodoTitle: (newTitle: string) => void,
   newTodoTitle: string,
   updateTodo: (todoId: number) => Promise<any>,
 }
@@ -15,9 +15,9 @@ interface Props {
 export const TodoList: React.FC<Props> = ({
   todos,
   deleteTodo,
-  isLoading,
+  loadingId,
   updateTodoTitle,
-  setNewTodoTitle,
+  changeTodoTitle,
   newTodoTitle,
   updateTodo,
 }) => {
@@ -27,11 +27,11 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          deleteTodo={(todoId: number) => deleteTodo(todoId)}
-          isLoading={isLoading}
+          deleteTodo={deleteTodo}
+          loadingId={loadingId}
           updateTodo={updateTodo}
           updateTodoTitle={updateTodoTitle}
-          setNewTodoTitle={setNewTodoTitle}
+          changeTodoTitle={changeTodoTitle}
           newTodoTitle={newTodoTitle}
         />
       ))}

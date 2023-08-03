@@ -3,14 +3,14 @@ import classNames from 'classnames';
 import { FilterStatus, Todo } from '../types/Todo';
 
 type Props = {
-  selected: FilterStatus;
+  select: FilterStatus;
   filter: (status: FilterStatus) => void;
   clearCompleted: () => void;
   todos: Todo[];
 };
 
 export const TodoFilter: React.FC<Props> = ({
-  selected,
+  select,
   filter,
   clearCompleted,
   todos,
@@ -29,7 +29,7 @@ export const TodoFilter: React.FC<Props> = ({
         <a
           href="#/"
           className={classNames('filter__link',
-            { selected: selected === FilterStatus.All })}
+            { selected: select === FilterStatus.All })}
           onClick={() => filter(FilterStatus.All)}
         >
           All
@@ -38,7 +38,7 @@ export const TodoFilter: React.FC<Props> = ({
         <a
           href="#/"
           className={classNames('filter__link',
-            { selected: selected === FilterStatus.Active })}
+            { selected: select === FilterStatus.Active })}
           onClick={() => filter(FilterStatus.Active)}
         >
           Active
@@ -47,7 +47,7 @@ export const TodoFilter: React.FC<Props> = ({
         <a
           href="#/"
           className={classNames('filter__link',
-            { selected: selected === FilterStatus.Completed })}
+            { selected: select === FilterStatus.Completed })}
           onClick={() => filter(FilterStatus.Completed)}
         >
           Completed
@@ -62,7 +62,7 @@ export const TodoFilter: React.FC<Props> = ({
             ? 'hidden'
             : 'visible',
         }}
-        onClick={() => clearCompleted()}
+        onClick={clearCompleted}
       >
         Clear completed
       </button>

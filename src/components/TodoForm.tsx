@@ -3,23 +3,24 @@ import React, { useState } from 'react';
 
 interface Props {
   todoTitle: string,
-  setTitle: (newTitle: string) => void,
+  onCreate: (newTitle: string) => void,
   createTodo: () => Promise<any>,
 }
 
 export const TodoForm: React.FC<Props> = ({
   todoTitle,
-  setTitle,
+  onCreate,
   createTodo,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const titleReset = () => {
-    setTitle('');
+    onCreate('');
   };
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
     setIsProcessing(true);
     createTodo().finally(() => setIsProcessing(false));
 
@@ -38,11 +39,7 @@ export const TodoForm: React.FC<Props> = ({
         placeholder="What needs to be done?"
         disabled={isProcessing}
         value={todoTitle}
-        onChange={
-          (event: React.ChangeEvent<HTMLInputElement>) => setTitle(
-            event.target.value,
-          )
-        }
+        onChange={(event) => onCreate(event.target.value)}
       />
     </form>
   );

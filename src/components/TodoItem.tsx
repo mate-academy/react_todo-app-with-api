@@ -6,20 +6,20 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   deleteTodo: (todoId: number) => Promise<any>;
-  isLoading: boolean;
+  loadingId: number[];
   updateTodo: (todoId: number) => Promise<any>,
   updateTodoTitle: (todoId: number) => Promise<any>,
-  setNewTodoTitle: (newTitle: string) => void,
+  changeTodoTitle: (newTitle: string) => void,
   newTodoTitle: string,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
-  isLoading,
+  loadingId,
   updateTodo,
   updateTodoTitle,
-  setNewTodoTitle,
+  changeTodoTitle,
   newTodoTitle,
 }) => {
   const [isEdited, setIsEdited] = useState(false);
@@ -32,12 +32,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const enterEditMode = () => {
-    setNewTodoTitle(todo.title);
+    changeTodoTitle(todo.title);
     setIsEdited(true);
   };
 
   const clearEditFields = () => {
-    setNewTodoTitle('');
+    changeTodoTitle('');
     setIsEdited(false);
   };
 
@@ -89,7 +89,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const changeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoTitle(event.target.value);
+    changeTodoTitle(event.target.value);
   };
 
   const onLostFocus = () => {
@@ -107,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           disabled={isTodoLoading}
-          onChange={() => handleSwitch()}
+          onChange={handleSwitch}
         />
       </label>
 
@@ -118,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={handleDelete}
             disabled={isTodoLoading}
           >
             ×
@@ -134,7 +134,7 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             disabled={isTodoLoading}
             className="todo__title-field"
-            placeholder="Empty todo will be deleted"
+            placeholder="Delete empty todo"
             ref={selectedField}
             value={newTodoTitle}
             onChange={changeTitle}
@@ -146,7 +146,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': isLoading || isTodoLoading,
+        'is-active': loadingId.includes(todo.id) || isTodoLoading,
       })}
       >
         <div className="modal-background has-background-white-ter" />
