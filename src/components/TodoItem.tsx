@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo,
   onDelete?: () => Promise<void>,
-  onRename?: (title: string) => void,
+  onRename?: (title: string) => Promise<void>,
   onToggle?: () => Promise<void>,
   loading?: boolean,
 };
@@ -33,11 +33,17 @@ export const TodoItem: React.FC<Props> = ({
   const save = async () => {
     if (title) {
       setIsDisabledInput(true);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      onRename ? await onRename(title) : null;
+      try {
+        if (onRename) {
+          await onRename(title);
+        }
+      } catch {
+        setTitle(todo.title);
+      }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      onDelete ? await onDelete() : null;
+      if (onDelete) {
+        await onDelete();
+      }
     }
 
     setEditing(false);
@@ -53,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({
           checked={todo.completed}
           onChange={() => {
             if (onToggle) {
-              onToggle()
+              onToggle();
             }
           }}
         />
@@ -88,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => onDelete ? onDelete() : null }
+            onClick={() => onDelete?.()}
           >
             ×
           </button>

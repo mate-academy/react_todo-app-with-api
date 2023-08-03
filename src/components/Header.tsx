@@ -29,14 +29,16 @@ export const Header: React.FC<Props> = ({
     e.preventDefault();
     setIsDisabledInput(true);
 
-    if (!title) {
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
       showError("Title can't be empty");
       setIsDisabledInput(false);
 
       return;
     }
 
-    onAdd(title)
+    onAdd(trimmedTitle)
       .then(() => {
         setTitle('');
         setIsDisabledInput(false);

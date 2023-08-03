@@ -34,9 +34,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     todoService.getTodos()
       .then(setTodos)
-      .catch(error => {
+      .catch(() => {
         showError('Unable to load todos');
-        throw error;
       });
   }, []);
 
@@ -51,34 +50,34 @@ export const App: React.FC = () => {
     }
   }, [todos, filterValue]);
 
-  const addTodo = (title: string) => {
+  const addTodo = useCallback((title: string) => {
     return todoService.createTodo(title)
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
       .catch(error => {
         showError('Unable to add a todo');
+        setTempTodo(null);
         throw error;
       });
-  };
+  }, []);
 
-  const deleteTodo = (todoId: number) => {
-    setLoading(ids => [...ids, todoId])
+  const deleteTodo = useCallback((todoId: number) => {
+    setLoading(ids => [...ids, todoId]);
 
     return todoService.deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
       })
-      .catch(error => {
+      .catch(() => {
         showError('Unable to delete a todo');
-        throw error;
       })
       .finally(() => {
-        setLoading(ids => ids.filter(id => id !== todoId))
-      })
-  };
+        setLoading(ids => ids.filter(id => id !== todoId));
+      });
+  }, []);
 
-  const renameTodo = (todoToUpdate: Todo, newTitle: string) => {
+  const renameTodo = useCallback((todoToUpdate: Todo, newTitle: string) => {
     setLoading(ids => [...ids, todoToUpdate.id]);
 
     return todoService.updateTodo({ ...todoToUpdate, title: newTitle })
@@ -92,12 +91,12 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setLoading(ids => ids.filter(id => id !== todoToUpdate.id))
-      })
-  };
+        setLoading(ids => ids.filter(id => id !== todoToUpdate.id));
+      });
+  }, []);
 
   const toggleTodo = (todoToUpdate: Todo) => {
-    setLoading(ids => [...ids, todoToUpdate.id])
+    setLoading(ids => [...ids, todoToUpdate.id]);
 
     return todoService.updateTodo({
       ...todoToUpdate,
