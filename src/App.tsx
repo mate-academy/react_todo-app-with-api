@@ -72,15 +72,18 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const deleteTodo = useCallback((todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
 
-    removeTodo(todoId)
+    return removeTodo(todoId)
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch((error) => {
+        setErrorMessage('Unable to delete a todo');
+        throw error;
+      })
       .finally(() => setLoadingTodoIds(ids => ids.filter(id => id !== todoId)));
   }, []);
 

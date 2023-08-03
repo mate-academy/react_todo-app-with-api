@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo?: Todo;
   tempTodo?: Todo;
-  deleteTodo?: (todoId: number) => void;
+  deleteTodo?: (todoId: number) => Promise<void>;
   updateTodo?: (todo: Todo) => Promise<void>;
   loadingTodoIds?: number[];
 };
@@ -65,19 +65,27 @@ export const TodoItem: React.FC<Props> = (
 
     if (!title.trim()) {
       if (deleteTodo && todo) {
-        deleteTodo(todo.id);
-      }
-    } else {
-      if (updateTodo && todo) {
         try {
-          await updateTodo({ ...todo, title });
+          await deleteTodo(todo.id);
         } catch (error) {
           setTitle(todo.title);
         }
       }
 
       setEditing(false);
+
+      return;
     }
+
+    if (updateTodo && todo) {
+      try {
+        await updateTodo({ ...todo, title });
+      } catch (error) {
+        setTitle(todo.title);
+      }
+    }
+
+    setEditing(false);
   };
 
   return (
