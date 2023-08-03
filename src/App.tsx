@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getTodos } from './api/todos';
 import { Todo } from './types/Todo';
-import { USER_ID } from './utils/UserId';
+import { USER_ID } from './utils/userId';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Field } from './types/Field';
@@ -13,12 +13,13 @@ import { Footer } from './components/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState([] as Todo[]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedField, setSelectedField] = useState<Field>(Field.all);
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [inputTitle, setInputTitle] = useState('');
   const [updatedTitle, setUpdatedTitle] = useState('');
+  const [wasError, setWasError] = useState(false);
 
   const loadTodos = () => getTodos(USER_ID)
     .then(someTodos => {
@@ -30,26 +31,14 @@ export const App: React.FC = () => {
     loadTodos();
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  }, []);
-
-  let preparedTodos = [...todos];
-
-  useMemo(() => {
+  const preparedTodos: Todo[] = useMemo(() => {
     switch (selectedField) {
       case 'active':
-        preparedTodos = preparedTodos.filter(todo => !todo.completed);
-        break;
-
+        return todos.filter(todo => !todo.completed);
       case 'completed':
-        preparedTodos = preparedTodos.filter(todo => todo.completed);
-        break;
-
+        return todos.filter(todo => todo.completed);
       default:
-        preparedTodos = [...todos];
+        return todos;
     }
   }, [todos, selectedField]);
 
@@ -59,6 +48,8 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          todos={todos}
+          setWasError={setWasError}
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}
           inputTitle={inputTitle}
@@ -67,6 +58,7 @@ export const App: React.FC = () => {
         />
 
         <TodoList
+          todos={todos}
           preparedTodos={preparedTodos}
           setTodos={setTodos}
           selectedTodo={selectedTodo}
@@ -75,10 +67,13 @@ export const App: React.FC = () => {
           updatedTitle={updatedTitle}
           setUpdatedTitle={setUpdatedTitle}
           loadTodos={loadTodos}
+          setWasError={setWasError}
+          wasError={wasError}
         />
 
         {/* Hide the footer if there are no todos */}
         <Footer
+          setErrorMessage={setErrorMessage}
           preparedTodos={preparedTodos}
           todos={todos}
           setSelectedField={setSelectedField}

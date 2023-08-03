@@ -3,8 +3,9 @@
 import classNames from 'classnames';
 import React, { Dispatch, SetStateAction } from 'react';
 import { Todo } from '../types/Todo';
-import { USER_ID } from '../utils/UserId';
+import { USER_ID } from '../utils/userId';
 import { client } from '../utils/fetchClient';
+import { getMax } from '../utils/getMax';
 
 type Props = {
   todo: Todo;
@@ -15,6 +16,9 @@ type Props = {
   setErrorMessage: (err: string) => void;
   setUpdatedTitle: (title: string) => void;
   loadTodos: () => Promise<void>;
+  wasError: boolean;
+  setWasError: (wasErr: boolean) => void;
+  todos: Todo[];
 };
 
 export const TodoItem:React.FC<Props> = ({
@@ -26,18 +30,51 @@ export const TodoItem:React.FC<Props> = ({
   setErrorMessage,
   setUpdatedTitle,
   loadTodos,
+  wasError,
+  setWasError,
+  todos,
 }) => {
   const inputClickHandler = () => {
-    setTodos(someTodos => {
-      const newTodos = [...someTodos];
-      // eslint-disable-next-line max-len
-      const index = someTodos.findIndex(t => t.id === todo.id);
-      const newTodo = { ...todo, completed: !todo.completed };
+    setTodos(someTodos => someTodos.map(t => (t.id === todo.id
+      ? { ...t, isLoading: true }
+      : t)));
 
-      newTodos.splice(index, 1, newTodo);
+    client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: !todo.completed })
+      .then(loadTodos)
+      .catch((err) => setErrorMessage(err));
+  };
+
+  const buttonClickHandler = () => {
+    setTodos(someTodos => {
+      const index = someTodos.findIndex(t => t.id === todo.id);
+      const deletedTodo = { ...todo, completed: true, isLoading: true };
+
+      const newTodos = [...someTodos];
+
+      newTodos.splice(index, 1, deletedTodo);
 
       return newTodos;
     });
+
+    client.delete(`/todos/${todo.id}?userId=${USER_ID}`)
+      .then(() => {
+        setTodos(someTodos => someTodos.filter(t => t.id !== todo.id));
+      })
+      .catch(() => {
+        setErrorMessage('Can\'t delete todo');
+        setWasError(true);
+        setTodos(someTodos => {
+          const index = someTodos.findIndex(t => t.id === todo.id);
+
+          const newTodos = [...someTodos];
+
+          newTodos.splice(index, 1, todo);
+
+          return newTodos;
+        });
+
+        return Promise.reject();
+      });
   };
 
   const formSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -45,14 +82,18 @@ export const TodoItem:React.FC<Props> = ({
     setErrorMessage('');
 
     if (updatedTitle.trim() === '') {
-      setErrorMessage('Enter updated title');
+      buttonClickHandler();
     } else {
       setTodos(someTodos => {
         const newTodos = [...someTodos];
         // eslint-disable-next-line max-len
         const index = someTodos.findIndex(t => t.id === todo.id);
         const newTodo = {
-          ...todo, title: updatedTitle, id: 0,
+          ...todo,
+          title: updatedTitle,
+          id: getMax(todos),
+          completed: true,
+          isLoading: true,
         };
 
         newTodos.splice(index, 1, newTodo);
@@ -61,8 +102,28 @@ export const TodoItem:React.FC<Props> = ({
       });
 
       client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
+        .catch(() => {
+          setErrorMessage('Can\'t update a todo');
+          setWasError(true);
+          setTodos(someTodos => {
+            const newTodos = [...someTodos];
+            // eslint-disable-next-line max-len
+            const index = someTodos.findIndex(t => t.title === 'some');
+            const someTodo = someTodos.find(t => t.title === 'some') || todo;
+            const newTodo = {
+              ...someTodo, title: 'new',
+            };
+
+            newTodos.splice(index, 1, newTodo);
+
+            return newTodos;
+          });
+        })
         .then(loadTodos)
-        .catch(() => setErrorMessage('Can\'t update a todo'));
+        .catch(() => {
+          setErrorMessage('Can\'t delete todos');
+          setWasError(true);
+        });
 
       setSelectedTodo(null);
     }
@@ -78,14 +139,23 @@ export const TodoItem:React.FC<Props> = ({
     setErrorMessage('');
 
     if (updatedTitle.trim() === '') {
-      setErrorMessage('Enter updated title');
+      client.delete(`/todos/${todo.id}?userId=${USER_ID}`);
+      setTodos(someTodos => {
+        const filteredTodos = [...someTodos].filter(t => t.id !== todo.id);
+
+        return filteredTodos;
+      });
     } else {
       setTodos(someTodos => {
         const newTodos = [...someTodos];
         // eslint-disable-next-line max-len
         const index = someTodos.findIndex(t => t.id === todo.id);
         const newTodo = {
-          ...todo, title: updatedTitle, id: 0,
+          ...todo,
+          updatedTitle,
+          id: getMax(todos),
+          completed: true,
+          isLoading: true,
         };
 
         newTodos.splice(index, 1, newTodo);
@@ -95,7 +165,10 @@ export const TodoItem:React.FC<Props> = ({
 
       client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
         .then(loadTodos)
-        .catch(() => setErrorMessage('Can\'t update a todo'));
+        .catch(() => {
+          setErrorMessage('Can\'t update a todo');
+          setWasError(true);
+        });
 
       setSelectedTodo(null);
     }
@@ -106,62 +179,71 @@ export const TodoItem:React.FC<Props> = ({
     setUpdatedTitle(todo.title);
   };
 
-  const buttonClickHandler = () => {
-    client.delete(`/todos/${todo.id}?userId=${USER_ID}`);
-    setTodos(someTodos => {
-      const filteredTodos = [...someTodos].filter(t => t.id !== todo.id);
-
-      return filteredTodos;
-    });
-  };
-
   return (
-    <div
-      className={classNames('todo',
-        { completed: todo.completed })}
-      key={todo.id}
-    >
-      <label className="todo__status-label">
-        <input
-          type="checkbox"
-          className="todo__status"
-          checked={todo.completed}
-          onClick={inputClickHandler}
-        />
-      </label>
-      {selectedTodo === todo
-        ? (
-          <form onSubmit={formSubmitHandler}>
+    <>
+      {!todo.isLoading && (
+        <div
+          className={classNames('todo',
+            { completed: todo.completed })}
+          key={todo.id}
+        >
+          <label className="todo__status-label">
             <input
-              type="text"
-              className="todo__title-field"
-              placeholder="Todo title can't be empty"
-              value={updatedTitle}
-              onChange={inputChangeHandler}
-              onBlur={inputBlurHandler}
-              autoFocus
+              type="checkbox"
+              className="todo__status"
+              checked={todo.completed}
+              onClick={inputClickHandler}
             />
-          </form>
-        ) : (
+          </label>
+          {selectedTodo === todo
+            ? (
+              <form onSubmit={formSubmitHandler}>
+                <input
+                  type="text"
+                  className="todo__title-field"
+                  placeholder="Todo title can't be empty"
+                  value={updatedTitle}
+                  onChange={inputChangeHandler}
+                  onBlur={inputBlurHandler}
+                  autoFocus
+                />
+              </form>
+            ) : (
+              <div
+                className="todo__title"
+                onDoubleClick={divDblClickHandler}
+              >
+                {todo.title}
+              </div>
+            )}
+          {/* Remove button appears only on hover */}
+          <button
+            type="button"
+            className="todo__remove"
+            onClick={buttonClickHandler}
+          >
+            ×
+          </button>
+        </div>
+      ) }
+      {todo.isLoading && !wasError && (
+        <div
+          className="todo"
+        >
+          <label className="todo__status-label">
+            <input
+              type="checkbox"
+              className="todo__status"
+            />
+          </label>
+
           <div
             className="todo__title"
-            onDoubleClick={divDblClickHandler}
           >
-            {todo.id !== 0
-              ? todo.title
-              : (
-                <span className="loader" />
-              )}
+            <span className="loader" />
           </div>
-        )}
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        onClick={buttonClickHandler}
-      >
-        ×
-      </button>
-    </div>
+        </div>
+      )}
+    </>
   );
 };

@@ -13,6 +13,9 @@ type Props = {
   updatedTitle: string;
   setUpdatedTitle: (title: string) => void;
   loadTodos: () => Promise<void>;
+  wasError: boolean;
+  setWasError: (wasErr: boolean) => void;
+  todos: Todo[];
 };
 
 export const TodoList:React.FC<Props> = ({
@@ -24,6 +27,9 @@ export const TodoList:React.FC<Props> = ({
   updatedTitle,
   setUpdatedTitle,
   loadTodos,
+  todos,
+  wasError,
+  setWasError,
 }) => {
   return (
     <>
@@ -41,6 +47,9 @@ export const TodoList:React.FC<Props> = ({
               setSelectedTodo={setSelectedTodo}
               setUpdatedTitle={setUpdatedTitle}
               selectedTodo={selectedTodo}
+              setWasError={setWasError}
+              wasError={wasError}
+              todos={todos}
             />
           ))}
         </section>

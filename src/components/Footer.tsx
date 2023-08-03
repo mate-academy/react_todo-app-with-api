@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import classNames from 'classnames';
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useMemo } from 'react';
 import { Todo } from '../types/Todo';
 import { Field } from '../types/Field';
-import { USER_ID } from '../utils/UserId';
+import { USER_ID } from '../utils/userId';
 import { client } from '../utils/fetchClient';
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   setSelectedField: (field: Field) => void,
   selectedField: Field,
   setTodos: Dispatch<SetStateAction<Todo[]>>;
+  setErrorMessage: (err: string) => void;
 };
 
 export const Footer:React.FC<Props> = ({
@@ -20,8 +21,9 @@ export const Footer:React.FC<Props> = ({
   setSelectedField,
   selectedField,
   setTodos,
+  setErrorMessage,
 }) => {
-  const itemsLeft = todos.filter(t => !t.completed).length;
+  const itemsLeft = useMemo(() => todos.filter(t => !t.completed).length, [todos]);
 
   const linkClickHandler = (event:React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     return (field: Field) => {
@@ -31,15 +33,23 @@ export const Footer:React.FC<Props> = ({
   };
 
   const buttonClickHandler = () => {
-    setTodos(someTodos => {
-      const newTodos = [...someTodos].filter(todo => !todo.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
 
-      [...someTodos]
-        .filter(todo => todo.completed)
-        .map(todo => client.delete(`/todos/${todo.id}?userId=${USER_ID}`));
+    setTodos(someTodos => someTodos.map(t => (completedTodos.includes(t)
+      ? { ...t, isLoading: true }
+      : t)));
 
-      return newTodos;
+    const promise = completedTodos.map(todo => {
+      return client.delete(`/todos/${todo.id}?userId=${USER_ID}`);
     });
+
+    Promise.all(promise)
+      .then(() => {
+        setTodos(someTodos => {
+          return someTodos.filter(todo => !todo.completed);
+        });
+      })
+      .catch(err => setErrorMessage(err));
   };
 
   return (

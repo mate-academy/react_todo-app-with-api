@@ -1,8 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { Dispatch, SetStateAction } from 'react';
-import { USER_ID } from '../utils/UserId';
+import { USER_ID } from '../utils/userId';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
+import { getMax } from '../utils/getMax';
 
 type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>;
@@ -10,6 +11,8 @@ type Props = {
   inputTitle: string;
   setInputTitle: (title: string) => void;
   loadTodos: () => Promise<void>;
+  setWasError: (wasErr: boolean) => void;
+  todos: Todo[];
 };
 
 /* eslint-disable max-len */
@@ -19,23 +22,45 @@ export const Header:React.FC<Props> = ({
   inputTitle,
   loadTodos,
   setInputTitle,
+  setWasError,
+  todos,
 }) => {
   const clickHandler = () => {
-    setTodos((someTodos: Todo[]) => {
-      const newTodos = [...someTodos]
-        .map(todo => {
-          const isSomeComplited = [...someTodos]
-            .filter(someTodo => someTodo.completed).length !== someTodos.length;
+    const isAllComplited = todos.filter(someTodo => someTodo.completed).length !== todos.length;
 
-          if (isSomeComplited) {
-            return { ...todo, completed: true };
-          }
+    let notCompletedTodos: Todo[] = [];
 
-          return { ...todo, completed: false };
-        });
+    if (isAllComplited) {
+      notCompletedTodos = todos.filter(todo => !todo.completed);
 
-      return newTodos;
-    });
+      setTodos(someTodos => someTodos.map(todo => {
+        if (notCompletedTodos.includes(todo)) {
+          const completedTodo = { ...todo, isLoading: true };
+
+          return completedTodo;
+        }
+
+        return todo;
+      }));
+
+      const promise = notCompletedTodos.map(todo => {
+        return client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
+      });
+
+      Promise.all(promise)
+        .then(loadTodos)
+        .catch((err) => setErrorMessage(err));
+    } else {
+      setTodos(someTodos => someTodos.map(todo => ({ ...todo, isLoading: true })));
+
+      const promise = todos.map(todo => {
+        return client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
+      });
+
+      Promise.all(promise)
+        .then(loadTodos)
+        .catch((err) => setErrorMessage(err));
+    }
   };
 
   const formSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -46,13 +71,20 @@ export const Header:React.FC<Props> = ({
       setErrorMessage('Enter a title');
     } else {
       setTodos((prevTodos: Todo[]) => [...prevTodos, {
-        id: 0, title: inputTitle, completed: false, userId: USER_ID,
+        id: getMax(todos),
+        title: inputTitle,
+        completed: true,
+        userId: USER_ID,
+        isLoading: true,
       }]);
       client.post(`/todos?userId=${USER_ID}`, { title: inputTitle, completed: false, userId: USER_ID })
         .then(loadTodos)
-        .catch(() => setErrorMessage('Can\'t load a todo'));
-
-      setInputTitle('');
+        .catch((err) => {
+          setErrorMessage('Can\'t load a todo');
+          setWasError(true);
+          throw err;
+        })
+        .then(() => setInputTitle(''));
     }
   };
 
