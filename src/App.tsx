@@ -111,7 +111,6 @@ export const App: React.FC = () => {
               { active: hasAllCompleted },
             )}
             onClick={handleToggleAll}
-            disabled={!hasAllCompleted}
           />
 
           <form onSubmit={createTodo}>

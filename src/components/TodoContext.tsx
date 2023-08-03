@@ -65,9 +65,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(prevTodos => [...prevTodos, createdTodo]);
         setError('');
       })
-      .catch(() => {
+      .catch((serverError) => {
         setTempTodo(null);
         setError(ErrorType.addTodo);
+        throw serverError;
       })
       .finally(() => {
         setDisabledInput(false);
@@ -84,8 +85,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           currentTodos => currentTodos.filter(todo => todo.id !== todoId),
         );
       })
-      .catch(() => {
+      .catch((serverError) => {
         setError(ErrorType.deleteTodo);
+        throw serverError;
       })
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(id => id !== todoId));
@@ -113,8 +115,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           ),
         );
       })
-      .catch(() => {
+      .catch((serverError) => {
         setError(ErrorType.updateTodo);
+        throw serverError;
       })
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(todoId => id !== todoId));
@@ -143,8 +146,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           ),
         );
       })
-      .catch(() => {
+      .catch((serverError) => {
         setError(ErrorType.updateTodo);
+        throw serverError;
       })
       .finally(() => {
         setShowLoaderFor(prev => prev.filter(togId => togId !== id));
@@ -155,32 +159,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     const completedTodos = todos.filter(todo => todo.completed);
     const completedTodoIds = completedTodos.map(todo => todo.id);
 
-    setShowLoaderFor(prev => [...prev, ...completedTodoIds]);
-
-    Promise.all(completedTodoIds.map(id => deleteTodo(id)))
-      .then(() => {
-        setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
-      })
-      .catch(() => {
-        setError(ErrorType.deleteTodo);
-      })
-      .finally(() => {
-        setShowLoaderFor(
-          prev => prev.filter(id => !completedTodoIds.includes(id)),
-        );
-      });
+    completedTodoIds.forEach(removeTodo);
   };
 
   const toggleAllTodos = () => {
-    Promise.all(todos.map(todo => toggleTodo(todo.id)))
-      .then(() => {
-        setTodos(prevTodos => prevTodos.map(
-          todo => ({ ...todo, completed: !todo.completed }),
-        ));
-      })
-      .catch(() => {
-        setError(ErrorType.updateTodo);
-      });
+    const hasAllCompleted = todos.every(todo => todo.completed);
+
+    todos
+      .filter(todo => todo.completed === hasAllCompleted)
+      .forEach(todo => toggleTodo(todo.id));
   };
 
   return (
