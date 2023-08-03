@@ -208,6 +208,7 @@ export const TodoApp: React.FC = () => {
                 todos={filteredTodos}
                 hideError={hideError}
                 proccessedTodoIds={processedTodoIds}
+                tempTodo={tempTodo}
               />
             </section>
 

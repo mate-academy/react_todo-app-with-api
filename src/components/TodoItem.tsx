@@ -14,7 +14,7 @@ type Props = {
   selectedTodo?: Todo | null;
   setSelectedTodo?: (todo: Todo | null) => void;
   hideError?: () => void;
-  isProcessing?: boolean;
+  processedTodoIds?: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,7 +22,8 @@ export const TodoItem: React.FC<Props> = ({
   selectedTodo = null,
   setSelectedTodo = () => { },
   hideError = () => { },
-  isProcessing = false,
+  processedTodoIds = [],
+
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [todos, setTodos, errorMsg, setErrorMsg] = useContext(TodosContext);
@@ -183,7 +184,8 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         className={classNames('modal overlay', {
-          'is-active': isSaving || todo.id === 0 || isProcessing,
+          'is-active': isSaving || todo.id === 0
+          || processedTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
