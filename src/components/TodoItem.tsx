@@ -11,6 +11,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   disabled: boolean;
+  processing: boolean;
   selectedTodoIds: number[];
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (todo: Todo) => void;
@@ -19,7 +20,7 @@ type Props = {
 export const TodoItem: React.FC<Props> = React.memo(({
   todo,
   disabled,
-  selectedTodoIds,
+  processing,
   onDeleteTodo,
   onUpdateTodo,
 }) => {
@@ -27,7 +28,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
   const [newTitle, setNewTitle] = useState(todo.title);
 
   const editingRef = useRef<HTMLInputElement | null>(null);
-  const processing = selectedTodoIds.includes(todo.id);
 
   function updateTodoTitle() {
     if (todo.title === newTitle) {
@@ -129,7 +129,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': processing || disabled,
+        'is-active': processing,
       })}
       >
         <div className="modal-background has-background-white-ter" />

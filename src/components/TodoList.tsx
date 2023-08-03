@@ -20,6 +20,7 @@ export const TodoList: React.FC = () => {
           key={todo.id}
           onDeleteTodo={onDeleteTodo}
           disabled={loading}
+          processing={selectedTodoIds.includes(todo.id)}
           onUpdateTodo={onUpdateTodo}
           selectedTodoIds={selectedTodoIds}
         />
@@ -28,6 +29,7 @@ export const TodoList: React.FC = () => {
         <TodoItem
           todo={tempTodo}
           onDeleteTodo={onDeleteTodo}
+          processing
           disabled={loading}
           onUpdateTodo={onUpdateTodo}
           selectedTodoIds={selectedTodoIds}
