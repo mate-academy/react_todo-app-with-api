@@ -23,7 +23,7 @@ export const TodoHeader: React.FC = () => {
       setError(ErrorOption.TitleErr);
     }
 
-    if (title) {
+    if (title.trim()) {
       const newTodo = addTodo(title);
 
       if (!newTodo) {

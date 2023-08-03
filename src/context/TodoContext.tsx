@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable max-len */
@@ -117,8 +118,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const handleUpdateTodo = useCallback((todoToUpdate: Todo) => {
-    setLoading(loading => [...loading, todoToUpdate.id]);
     setError(null);
+    setLoading(loading => [...loading, todoToUpdate.id]);
 
     todosService.updateTodo(todoToUpdate)
       .then(() => setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoToUpdate.id ? todoToUpdate : todo))))
@@ -136,6 +137,10 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
         return handleUpdateTodo(todoToUpdate);
       }) : todos.map(todo => {
+        if (todo.completed) {
+          return;
+        }
+
         const todoToUpdate = {
           ...todo,
           completed: true,
