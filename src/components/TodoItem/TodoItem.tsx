@@ -15,9 +15,6 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [inProcessDeleting, setInProcessDeleting] = useState(false);
-  const [inProcessToggling, setInProcessTogling] = useState(false);
-  const [inProcessEdit, setInProcessEdit] = useState(false);
   const [updateField, setUpdateField] = useState(todo.title || '');
   const [firstTitle, setFirstTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,14 +28,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEditing]);
 
   const {
-    onDeleteTodo,
-    toggleStatus,
-    togglingLoading,
-    loadedId,
-    updateTodo,
-    areClearing,
-    error,
-  } = useContext(TodosContext);
+    onDeleteTodo, toggleStatus, loadedId, updateTodo, error,
+  }
+    = useContext(TodosContext);
 
   useEffect(() => {
     setFirstTitle(todo.title || '');
@@ -48,15 +40,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const isLoad = loadedId.includes(todo.id);
 
   const onToggleTodo = () => {
-    setInProcessTogling(true);
-    toggleStatus(todo.id).finally(() => {
-      setInProcessTogling(false);
-    });
+    toggleStatus(todo.id);
   };
 
   const onRemoveTodo = () => {
-    setInProcessDeleting(true);
-    onDeleteTodo(todo.id).finally(() => setInProcessDeleting(false));
+    onDeleteTodo(todo.id);
   };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLLIElement>) => {
@@ -83,19 +71,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const onEditTodo = (id: number, event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
-    setInProcessEdit(true);
-
-    updateTodo(id, updateField).finally(() => setInProcessEdit(false));
+    updateTodo(id, updateField);
     setIsEditing(false);
   };
-
-  const loadCondition
-    = (areClearing && todo.completed)
-    || inProcessDeleting
-    || inProcessToggling
-    || togglingLoading
-    || isLoad
-    || inProcessEdit;
 
   return (
     <div
@@ -141,7 +119,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       <div
         className={classNames({
           'modal overlay': true,
-          'is-active': loadCondition && !error,
+          'is-active': isLoad && !error,
         })}
       >
         <div className="modal-background has-background-white-ter" />

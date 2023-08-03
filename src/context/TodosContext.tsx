@@ -12,17 +12,14 @@ export const TodosContext = createContext<IContext>({
   error: "",
   updateSortField: () => {},
   onCloseError: () => {},
-  todoLoading: false,
   tempTodo: null,
   onAddNewTodo: () => {},
   onDeleteTodo: async () => {},
   toggleStatus: async () => {},
   toggleAll: () => {},
-  togglingLoading: false,
   onClearCompleted: () => {},
   loadedId: [],
   updateTodo: async () => {},
-  areClearing: false,
   updateError: () => {},
 });
 
@@ -32,13 +29,10 @@ type Props = {
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [todoLoading, setTodoLoading] = useState(false);
   const [sortField, setSortField] = useState<SORT>(SORT.ALL);
   const [todosError, setTodosError] = useState("");
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [togglingLoading, setTogglingLoading] = useState(false);
   const [loadedId, setLoadedId] = useState<number[]>([]);
-  const [areClearing, setAreClearing] = useState(false);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -56,8 +50,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const onAddNewTodo = async (todo: Todo) => {
     onCloseError();
-    setTodoLoading(true);
     const { userId, completed, title } = todo;
+
+    setLoadedId((ids) => [...ids, todo.id]);
 
     setTempTodo({
       userId,
@@ -75,13 +70,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       return;
     } finally {
-      setTodoLoading(false);
       setTempTodo(null);
+      setLoadedId((ids) => ids.filter((id) => id !== todo.id));
     }
   };
 
   const onDeleteTodo = async (todoId: number) => {
     onCloseError();
+
+    setLoadedId((ids) => [...ids, todoId]);
     try {
       const responce = (await deleteTodo(todoId)) as number;
 
@@ -94,11 +91,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setTodosError("Unable to delete a todo");
 
       throw Promise.reject();
+    } finally {
+      setLoadedId((ids) => ids.filter((id) => id !== todoId));
     }
   };
 
   const toggleStatus = async (todoId: number) => {
     onCloseError();
+
+    setLoadedId((ids) => [...ids, todoId]);
     const currentTodo = todos.find((todo) => todo.id === todoId) as Todo;
 
     currentTodo.completed = !currentTodo.completed;
@@ -118,6 +119,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setTodosError("Unable to update a todo");
 
       return;
+    } finally {
+      setLoadedId((ids) => ids.filter((id) => id !== todoId));
     }
   };
 
@@ -125,7 +128,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     onCloseError();
     const isEveryCompleted = todos.every((todo) => todo.completed);
 
-    setTogglingLoading(true);
+    if (isEveryCompleted) {
+      const idsEvery = todos.map((todo) => todo.id);
+      setLoadedId((ids) => [...ids, ...idsEvery]);
+    } else {
+      const idsSome = todos
+        .filter((todo) => !todo.completed)
+        .map((todo) => todo.id);
+      setLoadedId((ids) => [...ids, ...idsSome]);
+    }
 
     try {
       if (isEveryCompleted) {
@@ -148,7 +159,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     } catch {
       setTodosError("Unable to update a todo");
     } finally {
-      setTogglingLoading(false);
+      setLoadedId([]);
     }
   };
 
@@ -158,7 +169,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .filter((todo) => todo.completed)
       .map((todo) => todo.id);
 
-    setAreClearing(true);
+    setLoadedId(completedId);
 
     try {
       for (const todoId of completedId) {
@@ -172,17 +183,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     } catch {
       setTodosError("Cannot clear completed todos");
 
-      setAreClearing(false);
-
       return;
     } finally {
-      setAreClearing(false);
+      setLoadedId([]);
     }
   };
 
   const updateTodo = async (id: number, newTitle: string) => {
     onCloseError();
     const currentTodo = todos.find((todo) => todo.id === id) as Todo;
+
+    setLoadedId((ids) => [...ids, id]);
 
     if (currentTodo.title !== newTitle) {
       currentTodo.title = newTitle;
@@ -201,6 +212,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodosError("Unable to update a todo");
 
         return;
+      } finally {
+        setLoadedId((ids) => ids.filter((id) => id !== id));
       }
     } else {
       return;
@@ -218,16 +231,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     onCloseError,
     error: todosError,
     tempTodo,
-    todoLoading,
     onAddNewTodo,
     onDeleteTodo,
     toggleStatus,
     toggleAll,
-    togglingLoading,
     onClearCompleted,
     loadedId,
     updateTodo,
-    areClearing,
     updateError,
   };
 
