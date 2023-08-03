@@ -1,24 +1,13 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import { FC } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Layout } from './components/Layout';
 
-const USER_ID = 0;
+export const App: FC = () => (
+  <Routes>
+    <Route path="/" element={<Layout />}>
+      <Route path=":status" element={<Layout />} />
+    </Route>
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
-
-      <p className="subtitle">Styles are already copied</p>
-    </section>
-  );
-};
+    <Route path="*" element={<Navigate to="/" />} />
+  </Routes>
+);
