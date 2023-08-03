@@ -11,6 +11,7 @@ type Props = {
   setHasError: (value: Error) => void,
   loadingIds: number[],
   setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
+  deleteTodo: (todoId: number) => Promise<void>
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const TodoItem: React.FC<Props> = ({
   setHasError,
   loadingIds,
   setLoadingIds,
+  deleteTodo,
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -31,23 +33,9 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEdited]);
 
-  const handleDeleteTodoById = () => {
-    setLoadingIds((ids) => {
-      return [...ids, todo.id];
-    });
-    todosService.deleteTodos(todo.id)
-      .then(() => {
-        setTodos((prevTodos) => {
-          return prevTodos.filter(t => t.id !== todo.id);
-        });
-      })
-      .catch(() => setHasError(Error.DELETE))
-      .finally(() => {
-        setLoadingIds((ids) => {
-          return ids.filter(id => id !== todo.id);
-        });
-        setIsEdited(false);
-      });
+  const handleDeleteTodoById = async () => {
+    await deleteTodo(todo.id);
+    setIsEdited(false);
   };
 
   const changeStatus = (todoId: number, args: Partial<Todo>) => {

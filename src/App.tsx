@@ -18,6 +18,12 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
+  useEffect(() => {
+    todosService.getTodos(USER_ID)
+      .then((data) => setTodos(data))
+      .catch(() => setHasError(Error.FETCH));
+  }, []);
+
   const filteredTodos = useMemo(() => {
     switch (filterTodos) {
       case Filter.COMPLETED:
@@ -28,6 +34,52 @@ export const App: React.FC = () => {
         return todos;
     }
   }, [filterTodos, todos]);
+
+  const deleteTodo = async (todoId: number) => {
+    setLoadingIds((ids) => {
+      return [...ids, todoId];
+    });
+
+    try {
+      await todosService.deleteTodos(todoId);
+
+      setTodos((prevTodos) => {
+        return prevTodos.filter(t => t.id !== todoId);
+      });
+    } catch (error) {
+      setHasError(Error.DELETE);
+    }
+
+    setLoadingIds((ids) => {
+      return ids.filter(id => id !== todoId);
+    });
+  };
+
+  const addTodo = async (title: string) => {
+    const todoToAdd = {
+      completed: false,
+      title,
+      userId: USER_ID,
+    };
+
+    setLoadingIds([0, ...loadingIds]);
+    setTempTodo({ id: 0, ...todoToAdd});
+
+    try {
+      const createdTodo = await todosService.addTodos(todoToAdd);
+
+      setTodos(prevTodos => [...prevTodos, createdTodo]);
+    } catch (error) {
+      setTempTodo(null);
+      setHasError(Error.ADD);
+      throw error;
+    }
+
+    setTempTodo(null);
+    setLoadingIds((ids) => {
+      return ids.filter(id => id !== 0);
+    });
+  };
 
   const deleteCompletedTodos = async () => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -47,12 +99,6 @@ export const App: React.FC = () => {
     setTodos(uncompletedTodos);
   };
 
-  useEffect(() => {
-    todosService.getTodos(USER_ID)
-      .then((data) => setTodos(data))
-      .catch(() => setHasError(Error.FETCH));
-  }, []);
-
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -63,15 +109,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          addTodo={addTodo}
           loadingIds={loadingIds}
           setLoadingIds={setLoadingIds}
           todos={todos}
           setTodos={setTodos}
           isTempTodoExist={!!tempTodo}
-          setTempTodo={setTempTodo}
           setHasError={setHasError}
         />
         <TodoList
+          deleteTodo={deleteTodo}
           loadingIds={loadingIds}
           setLoadingIds={setLoadingIds}
           setTodos={setTodos}

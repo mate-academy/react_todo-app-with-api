@@ -7,24 +7,23 @@ type Props = {
   todos: Todo[],
   setTodos: (value: Todo[]) => void,
   isTempTodoExist: boolean,
-  setTempTodo: (value: null | Todo) => void,
   setHasError: (value: Error) => void,
   loadingIds: number[],
   setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
+  addTodo: (title: string) => Promise<void>
 };
 
 export const TodoHeader: React.FC<Props> = ({
   todos,
   setTodos,
   isTempTodoExist,
-  setTempTodo,
   setHasError,
   loadingIds,
   setLoadingIds,
+  addTodo,
 }) => {
   const [title, setTitle] = useState('');
 
-  const USER_ID = 11041;
   const neededStatus = !todos.every(todo => todo.completed);
 
   const toggleAllTodos = async () => {
@@ -53,7 +52,7 @@ export const TodoHeader: React.FC<Props> = ({
     setLoadingIds([]);
   };
 
-  const handleTodoAdd = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoAdd = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim() === '') {
@@ -62,33 +61,8 @@ export const TodoHeader: React.FC<Props> = ({
       return;
     }
 
-    const todoToCreate = {
-      userId: USER_ID,
-      title: title.trim(),
-      completed: false,
-      id: 0,
-    };
-
-    setLoadingIds([todoToCreate.id, ...loadingIds]);
-    setTempTodo(todoToCreate);
-
-    todosService.addTodos({
-      userId: USER_ID,
-      title: title.trim(),
-      completed: false,
-    }).then(newTodo => {
-      setTodos([...todos, newTodo]);
-      setTitle('');
-    }).catch((error) => {
-      setHasError(Error.ADD);
-      throw error;
-    })
-      .finally(() => {
-        setLoadingIds((ids) => {
-          return ids.filter(id => id !== todoToCreate.id);
-        });
-        setTempTodo(null);
-      });
+    await addTodo(title);
+    setTitle('');
   };
 
   return (
