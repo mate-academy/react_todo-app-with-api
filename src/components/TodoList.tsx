@@ -10,7 +10,8 @@ type Props = {
   listOfTodosIds: number[];
   onDelete: React.Dispatch<React.SetStateAction<number[]>>;
   tempTodo: Todo | null;
-  updateTodo: (todoId: number | null, query?: string) => void
+  renameTodo: (todoId: number | null, query: string) => void;
+  toggleTodo: (todoId: number | null) => void;
   listOfTodosIdsForChange: number[];
   onChanged: React.Dispatch<React.SetStateAction<number[]>>;
 };
@@ -22,7 +23,8 @@ export const TodoList: React.FC<Props> = ({
   listOfTodosIds,
   onDelete,
   tempTodo,
-  updateTodo,
+  renameTodo,
+  toggleTodo,
   listOfTodosIdsForChange,
   onChanged,
 }) => {
@@ -47,7 +49,7 @@ export const TodoList: React.FC<Props> = ({
       return;
     }
 
-    updateTodo(todoId, query);
+    renameTodo(todoId, query);
 
     setTodoId(null);
     setQuery('');
@@ -68,7 +70,7 @@ export const TodoList: React.FC<Props> = ({
               className="todo__status"
               checked={todo.completed}
               onClick={() => {
-                updateTodo(todo.id);
+                toggleTodo(todo.id);
                 onChanged([todo.id]);
               }}
             />

@@ -97,31 +97,40 @@ export const App: React.FC = () => {
       });
   }, [todos]);
 
-  const updateTodo = useCallback((todoId: number | null, query?: string) => {
+  const renameTodo = useCallback((todoId: number | null, query: string) => {
     const todoForUpdate = findTodoById(todos, todoId);
 
     setLoading(true);
 
     if (todoForUpdate !== null) {
-      if (query) {
-        todoForUpdate.title = query;
-      } else {
-        todoForUpdate.completed = !todoForUpdate.completed;
-      }
-
-      TodoService.updateTodo(todoForUpdate)
-        .then((todo) => {
-          setTodos((currentTodos: Todo[]) => {
-            const newTodos = [...currentTodos];
-            const index = newTodos.findIndex(newTodo => newTodo.id === todoForUpdate.id);
-
-            newTodos.splice(index, 1, todo);
-
-            return newTodos;
-          });
+      TodoService.updateTodo({ ...todoForUpdate, title: query })
+        .then((updatedTodo) => {
+          setTodos((currentTodos: Todo[]) => currentTodos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)));
         })
-        .catch(() => {
+        .catch((error1) => {
           setError('Unable to update a todo');
+          throw error1;
+        })
+        .finally(() => {
+          setLoading(false);
+          setListOfTodosIdsForChange([]);
+        });
+    }
+  }, [todos]);
+
+  const toggleTodo = useCallback((todoId: number | null) => {
+    const todoForUpdate = findTodoById(todos, todoId);
+
+    setLoading(true);
+
+    if (todoForUpdate !== null) {
+      TodoService.updateTodo({ ...todoForUpdate, completed: !todoForUpdate.completed })
+        .then((updatedTodo) => {
+          setTodos((currentTodos: Todo[]) => currentTodos.map(todo => (todo.id === updatedTodo.id ? updatedTodo : todo)));
+        })
+        .catch((error1) => {
+          setError('Unable to update a todo');
+          throw error1;
         })
         .finally(() => {
           setLoading(false);
@@ -141,7 +150,7 @@ export const App: React.FC = () => {
 
     setListOfTodosIdsForChange(todosIds);
 
-    todosForUpdate.map(todo => updateTodo(todo.id));
+    todosForUpdate.map(todo => toggleTodo(todo.id));
   }, [todos]);
 
   const uncompletedTodos = useMemo(() => {
@@ -187,7 +196,8 @@ export const App: React.FC = () => {
                 isLoading={isLoading}
                 listOfTodosIds={listOfTodosIds}
                 tempTodo={tempTodo}
-                updateTodo={updateTodo}
+                renameTodo={renameTodo}
+                toggleTodo={toggleTodo}
                 listOfTodosIdsForChange={listOfTodosIdsForChange}
                 onChanged={setListOfTodosIdsForChange}
                 onDelete={setListOfTodosIds}
