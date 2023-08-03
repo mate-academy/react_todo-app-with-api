@@ -9,6 +9,7 @@ type Props = {
   showError: (message: string) => void,
   setTempTodo: (todo: Todo | null) => void,
   onToggleAllTodos: () => void,
+  allCompleted: boolean,
 };
 
 const USER_ID = 11131;
@@ -19,6 +20,7 @@ export const Header: React.FC<Props> = ({
   showError,
   setTempTodo,
   onToggleAllTodos,
+  allCompleted,
 }) => {
   const [title, setTitle] = useState('');
   const [isDisabledInput, setIsDisabledInput] = useState(false);
@@ -51,7 +53,7 @@ export const Header: React.FC<Props> = ({
       {todos.length > 0 && (
         <button
           type="button"
-          className={classNames('todoapp__toggle-all', { active: true })}
+          className={classNames('todoapp__toggle-all', { active: allCompleted })}
           onClick={onToggleAllTodos}
         />
       )}

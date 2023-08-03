@@ -101,37 +101,19 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleUpdateTodo = useCallback((todoToUpdate: Todo) => {
-    setLoading(currentValues => [...currentValues, todoToUpdate.id]);
-
-    todoService.updateTodo(todoToUpdate)
-      .then(() => {
-        setTodos(currentTodos => currentTodos.map(todo => (
-          todo.id === todoToUpdate.id ? todoToUpdate : todo
-        )));
-        setLoading([]);
-      })
-      .catch(() => setErrorMessage('Unable to toggle a todo'));
-  }, []);
+  const allCompleted = useMemo(() => {
+    return filteredTodos.every(todo => todo.completed);
+  }, [filteredTodos]);
 
   const toggleAllTodos = useCallback(() => {
-    return todos.every(todo => todo.completed)
-      ? todos.map(todo => {
-        const todoToUpdate = {
-          ...todo,
-          completed: false,
-        };
-
-        return handleUpdateTodo(todoToUpdate);
-      }) : todos.map(todo => {
-        const todoToUpdate = {
-          ...todo,
-          completed: true,
-        };
-
-        return handleUpdateTodo(todoToUpdate);
-      });
-  }, [todos]);
+    if (allCompleted) {
+      filteredTodos.forEach(toggleTodo);
+    } else {
+      filteredTodos
+        .filter(todo => !todo.completed)
+        .forEach(toggleTodo);
+    }
+  }, [filteredTodos]);
 
   const deleteAllCompletedTodos = () => {
     todos.forEach(todo => {
@@ -153,6 +135,7 @@ export const App: React.FC = () => {
           showError={showError}
           setTempTodo={setTempTodo}
           onToggleAllTodos={toggleAllTodos}
+          allCompleted={allCompleted}
         />
 
         <section className="todoapp__main">
