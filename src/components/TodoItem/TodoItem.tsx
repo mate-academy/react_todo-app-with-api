@@ -70,19 +70,23 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    const newTodo = {
-      ...todo,
-      title: query.trim(),
-    };
+    const normalizedQuery = query.trim();
+
+    setQuery(normalizedQuery);
 
     setIsEditing(false);
     setIsLoading(true);
 
-    if (!query) {
+    if (!normalizedQuery) {
       handleOnDelete();
 
       return;
     }
+
+    const newTodo = {
+      ...todo,
+      title: normalizedQuery,
+    };
 
     todoUpdate(newTodo)
       .catch(error => error)
