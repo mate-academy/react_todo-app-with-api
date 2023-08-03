@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React, {
-  FormEvent, useEffect, useRef, useState,
+  FormEvent, useEffect, useRef, useState, Dispatch, SetStateAction
 } from 'react';
 import { updateComplete } from '../../api/todos';
 import { Error, Todo } from '../../types/todo';
@@ -11,6 +11,7 @@ type Props = {
   setHasError: (value: Error) => void;
   isLoading: boolean;
   onTodo: (title: string) => Promise<void>;
+  setCompletedIdx: Dispatch<SetStateAction<number[]>>;
 };
 
 export const Header: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Header: React.FC<Props> = ({
   setHasError,
   isLoading,
   onTodo,
+  setCompletedIdx,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
@@ -48,16 +50,19 @@ export const Header: React.FC<Props> = ({
 
   const togglerAllCompleteHandler = () => {
     todos.forEach(todo => {
+      setCompletedIdx(prev => [...prev, todo.id]);
+
       updateComplete(todo.id, { completed: !isBtnActive })
         .then(() => {
           setTodos(todos.map(t => ({
             ...t,
             completed: !isBtnActive,
           })));
+          setCompletedIdx(prev => prev.filter(p => p !== todo.id));
         })
         .catch(() => {
           setHasError(Error.Update);
-        });
+        })
     });
   };
 

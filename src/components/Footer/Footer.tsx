@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { removeTodo } from '../../api/todos';
 import { Error, Filter, Todo } from '../../types/todo';
 
@@ -10,7 +10,7 @@ type Props = {
   setTodos: (todos: Todo[]) => void;
   setHasError: (value: Error) => void;
   setIsLoading: (value: boolean) => void;
-  setCompletedIdx: (arr: number[]) => void;
+  setCompletedIdx: Dispatch<SetStateAction<number[]>>;
 };
 
 export const Footer: React.FC<Props> = ({
@@ -43,18 +43,19 @@ export const Footer: React.FC<Props> = ({
 
     ids.forEach(id => {
       setIsLoading(true);
+      setCompletedIdx(prev => [...prev, id]);
 
       removeTodo(id)
+        .then(() => {
+          setTodos(todos.filter(t => !t.completed));
+        })
         .catch(() => {
           setHasError(Error.Delete);
         })
         .finally(() => {
           setIsLoading(false);
-          setCompletedIdx([]);
         });
     });
-
-    setTodos(todos.filter(t => !t.completed));
   };
 
   return (

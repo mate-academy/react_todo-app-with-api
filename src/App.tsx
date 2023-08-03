@@ -78,6 +78,7 @@ export const App: React.FC = () => {
           setHasError={setHasError}
           isLoading={isLoading}
           onTodo={addTodo}
+          setCompletedIdx={setCompletedIdx}
         />
 
         {!!todos.length && (
