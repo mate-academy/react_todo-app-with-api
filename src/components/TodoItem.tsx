@@ -15,18 +15,18 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
   const [title, setTitle] = useState(todo.title || '');
   const {
     todos,
-    tempTodo,
     onDeleteTodo,
     onUpdateTodo,
     setErrorMessage,
-    deletingCompletedTodo,
     toggleStatus,
     isAllTodosCompleted,
     setToggleStatus,
+    processingIds,
+    setProcessingIds,
   } = useContext(TodosContext);
 
   function handleTodoDelete(todoId: number) {
-    setLoading(true);
+    setProcessingIds(ids => [...ids, todoId]);
 
     deleteTodo(todoId)
       .then(() => {
@@ -34,12 +34,15 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       })
       .catch(() => {
         setErrorMessage(ErrorType.deleteTodo);
+        throw new Error(ErrorType.deleteTodo);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setProcessingIds(ids => ids.filter(id => id !== todoId));
+      });
   }
 
   function handleUpdateTodo(editedTodo: Todo) {
-    setLoading(true);
+    setProcessingIds(ids => [...ids, editedTodo.id]);
 
     updateTodo(editedTodo)
       .then((updatedTodo) => {
@@ -48,17 +51,18 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
       })
       .catch(() => {
         setErrorMessage(ErrorType.updateTodo);
+        throw new Error(ErrorType.updateTodo);
       })
       .finally(() => {
-        setLoading(false);
         setIsEditing(false);
+        setProcessingIds(ids => ids.filter(id => id !== editedTodo.id));
       });
   }
 
-  function onStatusChange(editedTodo: Todo, status: boolean) {
+  function onStatusChange(editedTodo: Todo) {
     handleUpdateTodo({
       ...editedTodo,
-      completed: status,
+      completed: !editedTodo.completed,
     });
   }
 
@@ -89,18 +93,18 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
   }
 
   useEffect(() => {
-    const isLoading = (deletingCompletedTodo && todo.completed)
-      || todo.id === 0;
-
-    setLoading(isLoading);
-  }, [deletingCompletedTodo, tempTodo]);
+    setLoading(processingIds.includes(todo.id));
+  }, [processingIds]);
 
   useEffect(() => {
     if (!toggleStatus) {
       return;
     }
 
-    todos.forEach(todoItem => onStatusChange(todoItem, !isAllTodosCompleted));
+    todos
+      .filter(todoItem => todoItem.completed === isAllTodosCompleted)
+      .forEach(todoItem => onStatusChange(todoItem));
+
     setToggleStatus(false);
   }, [toggleStatus]);
 
@@ -116,7 +120,7 @@ export const TodoItem:React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onStatusChange(todo, !todo.completed)}
+          onChange={() => onStatusChange(todo)}
         />
       </label>
 

@@ -12,6 +12,7 @@ export const NewTodo:React.FC = () => {
     setErrorMessage,
     setTempTodo,
     USER_ID,
+    setProcessingIds,
   } = useContext(TodosContext);
 
   const onSubmit = (event: React.FormEvent) => {
@@ -20,8 +21,7 @@ export const NewTodo:React.FC = () => {
 
     if (!normalizedQuery) {
       setErrorMessage(ErrorType.emptyValue);
-
-      return;
+      throw new Error(ErrorType.emptyValue);
     }
 
     const newTodo = {
@@ -32,6 +32,7 @@ export const NewTodo:React.FC = () => {
     };
 
     setLoading(true);
+    setProcessingIds(ids => [...ids, newTodo.id]);
 
     setTempTodo(newTodo);
 
@@ -42,10 +43,12 @@ export const NewTodo:React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorType.addTodo);
+        throw new Error(ErrorType.addTodo);
       })
       .finally(() => {
         setLoading(false);
         setTempTodo(null);
+        setProcessingIds(ids => ids.filter(id => id !== newTodo.id));
       });
   };
 

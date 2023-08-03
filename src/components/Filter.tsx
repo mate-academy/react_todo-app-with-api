@@ -12,7 +12,7 @@ export const Filter: React.FC = () => {
     onDeleteTodo,
     setFilterBy,
     setErrorMessage,
-    setDeletingCompletedTodo,
+    setProcessingIds,
   } = useContext(TodosContext);
 
   const countActiveTodos = React.useMemo(
@@ -25,10 +25,15 @@ export const Filter: React.FC = () => {
   }, [todos]);
 
   function onDeleteCompletedTodos() {
+    const deletingIds: number[] = [];
     const promises = todos.filter(todo => todo.completed)
-      .map(todo => deleteTodo(todo.id));
+      .map(todo => {
+        deletingIds.push(todo.id);
 
-    setDeletingCompletedTodo(true);
+        return deleteTodo(todo.id);
+      });
+
+    setProcessingIds(ids => [...ids, ...deletingIds]);
 
     Promise.all(promises)
       .then(() => todos.forEach(todo => {
@@ -38,8 +43,11 @@ export const Filter: React.FC = () => {
       }))
       .catch(() => {
         setErrorMessage(ErrorType.deleteTodo);
+        throw new Error(ErrorType.deleteTodo);
       })
-      .finally(() => setDeletingCompletedTodo(false));
+      .finally(() => setProcessingIds(
+        ids => ids.filter(id => !deletingIds.includes(id)),
+      ));
   }
 
   return (

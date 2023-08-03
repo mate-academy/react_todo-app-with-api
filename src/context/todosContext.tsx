@@ -11,17 +11,17 @@ interface Todos {
   tempTodo: Todo | null;
   filterBy: FilterBy;
   errorMessage: string;
+  toggleStatus: boolean;
+  isAllTodosCompleted: boolean;
+  processingIds: number[];
   onAddTodo: (newTodo: Todo) => void;
   onDeleteTodo: (todoId: number) => void;
   onUpdateTodo: (editedTodo: Todo) => void;
   setFilterBy: (filter: FilterBy) => void;
   setErrorMessage: (error: string) => void;
   setTempTodo: (tempTodo: Todo | null) => void;
-  deletingCompletedTodo: boolean;
-  setDeletingCompletedTodo: (value: boolean) => void;
-  toggleStatus: boolean;
   setToggleStatus: (v: boolean | ((v: boolean) => boolean)) => void;
-  isAllTodosCompleted: boolean;
+  setProcessingIds: (ids: number[] | ((ids: number[]) => number[])) => void;
 }
 
 export const TodosContext = React.createContext<Todos>({
@@ -30,17 +30,17 @@ export const TodosContext = React.createContext<Todos>({
   tempTodo: null,
   filterBy: FilterBy.ALL,
   errorMessage: '',
-  deletingCompletedTodo: false,
+  toggleStatus: false,
+  isAllTodosCompleted: false,
+  processingIds: [],
   onAddTodo: () => {},
   onDeleteTodo: () => {},
   onUpdateTodo: () => {},
   setFilterBy: () => {},
   setErrorMessage: () => {},
   setTempTodo: () => {},
-  setDeletingCompletedTodo: () => {},
-  toggleStatus: false,
   setToggleStatus: () => {},
-  isAllTodosCompleted: false,
+  setProcessingIds: () => {},
 });
 
 interface Props {
@@ -52,14 +52,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletingCompletedTodo, setDeletingCompletedTodo] = useState(false);
   const [toggleStatus, setToggleStatus] = useState(false);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
         setErrorMessage(ErrorType.fetchTodo);
+        throw new Error(ErrorType.fetchTodo);
       });
   }, []);
 
@@ -89,17 +90,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     tempTodo,
     filterBy,
     errorMessage,
-    deletingCompletedTodo,
     toggleStatus,
+    isAllTodosCompleted,
+    processingIds,
     onAddTodo,
     onDeleteTodo,
     onUpdateTodo,
     setFilterBy,
     setErrorMessage,
     setTempTodo,
-    setDeletingCompletedTodo,
     setToggleStatus,
-    isAllTodosCompleted,
+    setProcessingIds,
   };
 
   return (
