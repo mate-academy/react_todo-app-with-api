@@ -1,14 +1,16 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import classNames from 'classnames';
 import {
   addTodo, deleteTodo, getTodos, patchTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
-import { TodoFilter } from './TodoFilter';
 import { Todolist } from './TodoList';
 import { TodoErrors } from './TodoErrors';
+import { TodoFooter } from './TodoFooter';
 
 const USER_ID = 11129;
 
@@ -18,7 +20,7 @@ export const App: React.FC = () => {
   const [errorText, setErrorText] = useState('');
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [processing, setProcessing] = useState(false);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const hasError = !!errorText;
 
@@ -43,31 +45,30 @@ export const App: React.FC = () => {
     }
   }, [todos, filter]);
 
-  const addTodosHandler = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const addTodosHandler = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    if (!title.trim()) {
-      setErrorText('Title can\'t be empty');
+      if (!title.trim()) {
+        setErrorText('Title can\'t be empty');
 
-      return;
-    }
+        return;
+      }
 
-    setProcessing(true);
+      setTempTodo({
+        id: 0,
+        title,
+        completed: false,
+        userId: USER_ID,
+      });
 
-    setTempTodo({
-      id: 0,
-      title,
-      completed: false,
-      userId: USER_ID,
-    });
-
-    if (title.trim()) {
       addTodo({
         userId: USER_ID,
         title,
         completed: false,
       })
         .then((newTodo) => {
+          setProcessingIds(ids => [...ids, newTodo.id]);
           setTodos([...todos, newTodo]);
           setTitle('');
         })
@@ -76,32 +77,43 @@ export const App: React.FC = () => {
         })
         .finally(() => {
           setTempTodo(null);
-          setProcessing(false);
+          setProcessingIds(ids => ids.filter(id => !id));
         });
-    }
-  };
+    }, [todos, title],
+  );
 
-  const deleteTodoHandler = (todoId: number) => {
-    setProcessing(true);
+  const deleteTodoHandler = useCallback((todoId: number) => {
+    setProcessingIds(ids => [...ids, todoId]);
+
     deleteTodo(todoId).then(() => setTodos(todos
       .filter(todo => todo.id !== todoId)))
       .catch(() => {
         setErrorText('Unable to delete a todo');
       }).finally(() => {
-        setProcessing(false);
+        setProcessingIds(ids => ids.filter(id => id !== todoId));
       });
-  };
+  }, [todos]);
 
-  const activeTodos = todos.filter(todo => !todo.completed);
-  const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = useMemo(() => todos
+    .filter(todo => !todo.completed),
+  [todos]);
 
-  const clearCompletedTodos = () => {
-    completedTodos.forEach((item) => deleteTodo(item.id));
-    setTodos(activeTodos);
-  };
+  const completedTodos = useMemo(() => todos
+    .filter(todo => todo.completed),
+  [todos]);
 
-  const toggleCompletedTodo = (todoId: number) => {
-    setProcessing(true);
+  const clearCompletedTodos = useCallback(() => {
+    completedTodos.forEach(todo => {
+      setProcessingIds(ids => [...ids, todo.id]);
+      deleteTodo(todo.id).then(() => {
+        setTodos(activeTodos);
+      }).catch(() => {
+        setErrorText('Unable to clear todos');
+      }).finally(() => setProcessingIds(ids => ids.filter(id => !id)));
+    });
+  }, [todos]);
+
+  const toggleCompletedTodo = useCallback((todoId: number) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const updatedTodo = todos.find(todo => todo.id === todoId)!;
 
@@ -110,7 +122,9 @@ export const App: React.FC = () => {
       completed: !updatedTodo?.completed,
     };
 
-    patchTodo(changedTodo)
+    setProcessingIds(ids => [...ids, todoId]);
+
+    return patchTodo(changedTodo)
       .then(() => {
         setTodos(
           (prevTodos) => prevTodos.map(
@@ -120,11 +134,11 @@ export const App: React.FC = () => {
       }).catch(() => {
         setErrorText('Unable to update a todo');
       }).finally(() => {
-        setProcessing(false);
+        setProcessingIds(ids => ids.filter(id => id !== todoId));
       });
-  };
+  }, [todos]);
 
-  const handleCompleteAll = () => {
+  const handleCompleteAll = useCallback(() => {
     const todosToChange = activeTodos.length
       ? activeTodos
       : visibleTodos;
@@ -132,9 +146,11 @@ export const App: React.FC = () => {
     todosToChange.forEach(todo => {
       toggleCompletedTodo(todo.id);
     });
-  };
+  }, [todos]);
 
-  const renameTodo = async (todoUpdate: Todo, newTitle: string) => {
+  const renameTodo = useCallback((todoUpdate: Todo, newTitle: string) => {
+    setProcessingIds(ids => [...ids, todoUpdate.id]);
+
     return patchTodo({ ...todoUpdate, title: newTitle })
       .then((updatedTodo) => {
         setTodos(prevTodos => prevTodos.map(
@@ -143,8 +159,10 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorText('Unable to update a todo');
+      }).finally(() => {
+        setProcessingIds(ids => ids.filter(id => id !== todoUpdate.id));
       });
-  };
+  }, [todos]);
 
   return (
     <div className="todoapp">
@@ -155,7 +173,7 @@ export const App: React.FC = () => {
             type="button"
             onClick={handleCompleteAll}
             className={classNames('todoapp__toggle-all', {
-              active: activeTodos.length > 0,
+              active: activeTodos.length === visibleTodos.length,
             })}
           />
 
@@ -172,56 +190,28 @@ export const App: React.FC = () => {
               type="text"
               className="todoapp__new-todo"
               placeholder="What needs to be done?"
-              disabled={processing}
+              disabled={!!tempTodo}
             />
           </form>
         </header>
 
         <Todolist
           onRename={renameTodo}
-          processing={processing}
+          processingIds={processingIds}
           deleteTodoHandler={deleteTodoHandler}
           todos={visibleTodos}
           toggleCompletedTodo={toggleCompletedTodo}
+          tempTodo={tempTodo}
         />
 
-        {tempTodo !== null && (
-          <div className="todo">
-            <label className="todo__status-label">
-              <input type="checkbox" className="todo__status" />
-            </label>
-
-            <span className="todo__title">{tempTodo?.title}</span>
-            <button type="button" className="todo__remove">×</button>
-
-            <div className={classNames('modal overlay', {
-              'is-active': tempTodo !== null,
-            })}
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        )}
-
         {todos.length > 0 && (
-          <footer className="todoapp__footer">
-            <span className="todo-count">
-              {`${activeTodos.length} items left`}
-            </span>
-
-            <TodoFilter filter={filter} setFilter={setFilter} />
-
-            {completedTodos.length > 0 && (
-              <button
-                onClick={clearCompletedTodos}
-                type="button"
-                className="todoapp__clear-completed"
-              >
-                Clear completed
-              </button>
-            )}
-          </footer>
+          <TodoFooter
+            filter={filter}
+            setFilter={setFilter}
+            activeTodos={activeTodos}
+            completedTodos={completedTodos}
+            clearCompletedTodos={clearCompletedTodos}
+          />
         )}
 
       </div>

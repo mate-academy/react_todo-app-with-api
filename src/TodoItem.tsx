@@ -7,13 +7,12 @@ type Props = {
   deleteTodoHandler: (todoId: number) => void,
   processing: boolean;
   toggleCompletedTodo: (todoId: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onRename: (todo: Todo, title: string) => Promise<any>;
+  onRename: (todo: Todo, title: string) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = (
   {
-    todo, deleteTodoHandler, processing, toggleCompletedTodo, onRename,
+    todo, deleteTodoHandler, processing = false, toggleCompletedTodo, onRename,
   },
 ) => {
   const [editing, setEditing] = useState(false);
@@ -35,9 +34,9 @@ export const TodoItem: React.FC<Props> = (
   };
 
   const save = async () => {
-    if (newTitle) {
+    if (newTitle.trim()) {
       await onRename(todo, newTitle).then(() => {
-        setNewTitle(newTitle);
+        setNewTitle(newTitle.trim());
       }).catch(() => {
         setNewTitle(todo.title);
       });

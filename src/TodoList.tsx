@@ -5,15 +5,20 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[]
   deleteTodoHandler: (todoId: number) => void;
-  processing: boolean;
   toggleCompletedTodo: (todoId: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onRename: (todo: Todo, title: string) => Promise<any>;
+  onRename: (todo: Todo, title: string) => Promise<void>;
+  processingIds: number[],
+  tempTodo: Todo | null,
 };
 
 export const Todolist: React.FC<Props> = (
   {
-    todos, deleteTodoHandler, processing, toggleCompletedTodo, onRename,
+    todos,
+    deleteTodoHandler,
+    toggleCompletedTodo,
+    onRename,
+    processingIds,
+    tempTodo,
   },
 ) => {
   return (
@@ -21,13 +26,23 @@ export const Todolist: React.FC<Props> = (
       {todos.map(todo => (
         <TodoItem
           onRename={onRename}
-          processing={processing}
+          processing={processingIds.includes(todo.id)}
           deleteTodoHandler={deleteTodoHandler}
           todo={todo}
           key={todo.id}
           toggleCompletedTodo={toggleCompletedTodo}
         />
       ))}
+      {tempTodo && (
+        <TodoItem
+          todo={tempTodo}
+          processing
+          onRename={onRename}
+          toggleCompletedTodo={() => {}}
+          deleteTodoHandler={() => {}}
+        />
+      )}
+
     </section>
   );
 };
