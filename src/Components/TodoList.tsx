@@ -26,7 +26,7 @@ export const TodoList: React.FC<Props> = ({
         {visibleTodos.map(todo => (
           <CSSTransition
             key={todo.id}
-            timeout={3000}
+            timeout={300}
             classNames="item"
           >
             <TodoItem
@@ -41,7 +41,7 @@ export const TodoList: React.FC<Props> = ({
         {tempTodo && (
           <CSSTransition
             key={0}
-            timeout={3000}
+            timeout={300}
             classNames="temp-item"
           >
 

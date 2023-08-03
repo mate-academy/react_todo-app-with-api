@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/Errors';
@@ -37,20 +39,22 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleAddTodo = ({ title, completed, userId }: Todo) => {
+  const handleAddTodo = useCallback(({ title, completed, userId }: Todo) => {
     setLoading(true);
 
     return TodoServices.createTodo({ title, completed, userId })
       .then(newTodo => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
-      .catch((newError) => {
-        throw newError;
+      .catch((errorAdd) => {
+        throw new Error(errorAdd);
       })
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  const handleUpdateTodo = (todoId: number, data: Partial<Todo>) => {
+  const handleUpdateTodo = useCallback((
+    todoId: number, data: Partial<Todo>,
+  ) => {
     setLoadingId(curId => [todoId, ...curId]);
 
     return TodoServices.updateTodo(todoId, data)
@@ -68,24 +72,23 @@ export const App: React.FC = () => {
         setError(ErrorType.updateTodo);
         throw newError;
       })
-      .finally(() => setLoadingId([]));
-  };
+      .finally(() => setLoadingId(curId => curId.filter(id => id !== todoId)));
+  }, []);
 
-  const hanldeDeleteTodo = (todoId:number) => {
+  const hanldeDeleteTodo = useCallback((todoId:number) => {
     setLoadingId(curId => [todoId, ...curId]);
 
     return TodoServices.deleteTodo(todoId)
       .then(() => {
         setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
       })
-      .catch((newError) => {
+      .catch(() => {
         setError(ErrorType.deleteTodo);
-        throw newError;
       })
       .finally(() => {
-        setLoadingId([]);
+        setLoadingId(curId => curId.filter(id => id !== todoId));
       });
-  };
+  }, []);
 
   const handleToogleStatus = () => {
     if (complitedTodods) {

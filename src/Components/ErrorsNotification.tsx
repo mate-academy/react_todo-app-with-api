@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { ErrorType } from '../types/Errors';
 
 type Props = {
-  errorMessage: string;
+  errorMessage: ErrorType;
   closeError: (value: ErrorType)=>void;
 };
 
@@ -34,7 +34,7 @@ export const ErrorNotification: React.FC<Props> = ({
       <button
         type="button"
         className="delete"
-        onClick={() => closeError}
+        onClick={() => closeError(ErrorType.none)}
         aria-label="closeBtn"
       />
 

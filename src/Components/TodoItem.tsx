@@ -31,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({
   const savingEditing = () => {
     setEditedTodoId(null);
 
-    if (newTitle === '') {
+    if (newTitle === '' || newTitle.trim() === '') {
       deleteTodo(todo.id);
       setNewTitle(todo.title);
 
