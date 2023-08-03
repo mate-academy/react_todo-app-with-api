@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [filterValue, setFilterValue] = useState(FilterTypes.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [Loading, setLoading] = useState<number[]>([]);
+  const [loading, setLoading] = useState<number[]>([]);
 
   const errorTimerId = useRef(0);
 
@@ -62,18 +62,25 @@ export const App: React.FC = () => {
       });
   };
 
-  const deleteTodo = (id: number) => {
-    return todoService.deleteTodo(id)
+  const deleteTodo = (todoId: number) => {
+    setLoading(ids => [...ids, todoId])
+
+    return todoService.deleteTodo(todoId)
       .then(() => {
-        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
       })
       .catch(error => {
         showError('Unable to delete a todo');
         throw error;
-      });
+      })
+      .finally(() => {
+        setLoading(ids => ids.filter(id => id !== todoId))
+      })
   };
 
   const renameTodo = (todoToUpdate: Todo, newTitle: string) => {
+    setLoading(ids => [...ids, todoToUpdate.id]);
+
     return todoService.updateTodo({ ...todoToUpdate, title: newTitle })
       .then((updatedTodo) => {
         setTodos(currentTodos => currentTodos.map(
@@ -83,10 +90,15 @@ export const App: React.FC = () => {
       .catch(error => {
         showError('Unable to rename a todo');
         throw error;
-      });
+      })
+      .finally(() => {
+        setLoading(ids => ids.filter(id => id !== todoToUpdate.id))
+      })
   };
 
   const toggleTodo = (todoToUpdate: Todo) => {
+    setLoading(ids => [...ids, todoToUpdate.id])
+
     return todoService.updateTodo({
       ...todoToUpdate,
       completed: !todoToUpdate.completed,
@@ -98,6 +110,9 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError('Unable to toggle a todo');
+      })
+      .finally(() => {
+        setLoading(ids => ids.filter(id => id !== todoToUpdate.id));
       });
   };
 
@@ -146,7 +161,7 @@ export const App: React.FC = () => {
               onDelete={() => deleteTodo(todo.id)}
               onRename={(newTitle) => renameTodo(todo, newTitle)}
               onToggle={() => toggleTodo(todo)}
-              loading={Loading.includes(todo.id)}
+              loading={loading.includes(todo.id)}
             />
           ))}
 

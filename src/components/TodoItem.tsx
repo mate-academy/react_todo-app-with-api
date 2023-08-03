@@ -15,12 +15,11 @@ export const TodoItem: React.FC<Props> = ({
   onDelete,
   onRename,
   onToggle,
-  loading,
+  loading = false,
 }) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
   const [isDisabledInput, setIsDisabledInput] = useState(false);
-  const [isModalActive, setIsModalActive] = useState(false);
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
     if (event.key !== 'Escape') {
@@ -33,16 +32,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const save = async () => {
     if (title) {
-      setIsModalActive(true);
       setIsDisabledInput(true);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       onRename ? await onRename(title) : null;
-      setIsModalActive(false);
     } else {
-      setIsModalActive(true);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       onDelete ? await onDelete() : null;
-      setIsModalActive(false);
     }
 
     setEditing(false);
@@ -57,11 +52,8 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked={todo.completed}
           onChange={() => {
-            setIsModalActive(true);
-
             if (onToggle) {
               onToggle()
-                .then(() => setIsModalActive(false));
             }
           }}
         />
@@ -96,13 +88,7 @@ export const TodoItem: React.FC<Props> = ({
           <button
             type="button"
             className="todo__remove"
-            onClick={() => {
-              if (onDelete) {
-                setIsModalActive(true);
-                onDelete()
-                  .then(() => setIsModalActive(false));
-              }
-            }}
+            onClick={() => onDelete ? onDelete() : null }
           >
             ×
           </button>
@@ -111,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         className={classNames('modal overlay', {
-          'is-active': isModalActive || todo.id === 0 || loading,
+          'is-active': todo.id === 0 || loading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
