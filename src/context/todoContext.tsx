@@ -208,25 +208,22 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     }
   }, [todos]);
 
-  const handleRename = useCallback(
-    async (newTitle: string, todoId: number) => {
-      setLoading([todoId]);
+  const handleRename = useCallback(async (newTitle: string, todoId: number) => {
+    setLoading([todoId]);
 
-      try {
-        if (newTitle.trim() !== '') {
-          await client.patch(`/todos/${todoId}`, { title: newTitle });
-          setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, title: newTitle } : todo)));
-        }
-
-        setErrorMessage(TodoError.empty);
-      } catch {
-        setErrorMessage(TodoError.update);
-      } finally {
-        setLoading([]);
+    try {
+      if (newTitle.trim() !== '') {
+        await client.patch(`/todos/${todoId}`, { title: newTitle });
+        setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, title: newTitle } : todo)));
       }
-    },
-    [title],
-  );
+
+      setErrorMessage(TodoError.empty);
+    } catch {
+      setErrorMessage(TodoError.update);
+    } finally {
+      setLoading([]);
+    }
+  }, []);
 
   const itemsLeft = useMemo(
     () => todos.filter((todo) => todo.completed === false).length,

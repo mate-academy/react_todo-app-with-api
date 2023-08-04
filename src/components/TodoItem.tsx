@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
@@ -16,10 +17,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editing, setEditing] = useState(false);
   const [titleToUpdate, setTitleToUpdate] = useState(todo.title);
 
-  const handleKeyUp = (event: React.KeyboardEvent) => {
+  const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      if (titleToUpdate.trim()) {
-        handleRename(titleToUpdate, todo.id);
+      if (titleToUpdate) {
+        await handleRename(titleToUpdate, todo.id);
       }
 
       setEditing(false);
@@ -46,9 +47,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         </label>
 
         {editing ? (
-          <form>
+          <form onSubmit={(event) => event.preventDefault()}>
             <input
               onKeyUp={handleKeyUp}
+              onBlur={() => setEditing(false)}
               type="text"
               className="todo__title-field"
               placeholder={titleToUpdate}
