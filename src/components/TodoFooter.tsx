@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import classNames from 'classnames';
+import { MouseEvent } from 'react';
 import { useTodoContext } from '../hooks/useTodoContext';
 import { TodoStatus } from '../types/Todo';
 
@@ -11,6 +12,11 @@ const TodoFooter = () => {
     filterByStatus,
     onDeleteCompleted,
   } = useTodoContext();
+
+  const handleChangeStatus = (e: MouseEvent, status: TodoStatus) => {
+    e.preventDefault();
+    filterByStatus(status);
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -24,7 +30,7 @@ const TodoFooter = () => {
           className={classNames('filter__link', {
             selected: selectedStatus === TodoStatus.All,
           })}
-          onClick={() => filterByStatus(TodoStatus.All)}
+          onClick={(e) => handleChangeStatus(e, TodoStatus.All)}
         >
           All
         </a>
@@ -34,7 +40,7 @@ const TodoFooter = () => {
           className={classNames('filter__link', {
             selected: selectedStatus === TodoStatus.Active,
           })}
-          onClick={() => filterByStatus(TodoStatus.Active)}
+          onClick={(e) => handleChangeStatus(e, TodoStatus.Active)}
         >
           Active
         </a>
@@ -44,7 +50,7 @@ const TodoFooter = () => {
           className={classNames('filter__link', {
             selected: selectedStatus === TodoStatus.Completed,
           })}
-          onClick={() => filterByStatus(TodoStatus.Completed)}
+          onClick={(e) => handleChangeStatus(e, TodoStatus.Completed)}
         >
           Completed
         </a>

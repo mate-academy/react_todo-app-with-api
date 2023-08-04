@@ -34,10 +34,14 @@ const TodoItem = ({ todo, onProcessed }: Props) => {
 
     if (todoTitle === todo.title) {
       setUpdating(false);
+
+      return;
     }
 
-    if (!todoTitle) {
+    if (!todoTitle.trim()) {
       onDeleteTodo(todo.id);
+
+      return;
     }
 
     setUpdating(false);

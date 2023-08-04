@@ -15,6 +15,11 @@ const TodoHeader = () => {
 
   const handleCreateTodo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!newTodo.trim()) {
+      return;
+    }
+
     const data = {
       title: newTodo,
       userId: USER_ID,
@@ -27,7 +32,6 @@ const TodoHeader = () => {
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {todos.length > 0 && (
         <button
           type="button"
