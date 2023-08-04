@@ -10,16 +10,16 @@ type Props = {
   todos: Todo[],
   setErrorMesage: (errorMesage: TodoError) => void,
   setTodosFromServer: (todos: Todo[]) => void,
-  setNewAddedTodoId: (todoId: number | null) => void,
   setChangedStatusIds: (ids: number[]) => void,
+  setNewAddedTodoId: (id: number | null) => void,
 };
 
 export const Header: React.FC<Props> = ({
   todos,
   setErrorMesage,
   setTodosFromServer,
-  setNewAddedTodoId,
   setChangedStatusIds,
+  setNewAddedTodoId,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
@@ -43,10 +43,11 @@ export const Header: React.FC<Props> = ({
       .finally(() => {
         setTodoTitle('');
 
-        setTimeout(() => {
-          setIsInputDisabled(false);
-          setNewAddedTodoId(null);
-        }, 300);
+        wait(300)
+          .then(() => {
+            setIsInputDisabled(false);
+            setNewAddedTodoId(null);
+          });
       });
   }, [todos]);
 
@@ -86,16 +87,16 @@ export const Header: React.FC<Props> = ({
       });
     });
 
+    updateSelectedTodoId();
+
     try {
       await Promise.all(
         updatedTodos.map(updateTodo => todoService.updateTodo(updateTodo)),
       );
       setTodosFromServer(updatedTodos);
-      updateSelectedTodoId();
     } catch {
       setErrorMesage(TodoError.update);
     } finally {
-      await wait(300);
       setChangedStatusIds([]);
     }
   }, [todos]);

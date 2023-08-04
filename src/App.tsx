@@ -1,22 +1,31 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
-import { Main } from './components/Main';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { SelectStatus } from './types/SelectStatus';
 import { TodoError } from './types/TodoError';
 import { ErrorTab } from './components/ErrorTab';
 import * as todoService from './api/todos';
+import { TodoItem } from './components/TodoItem';
 
 export const App: React.FC = () => {
   const [todosFromServer, setTodosFromServer] = useState<Todo[]>([]);
   const [selectedStatus, setSelectedStatus] = useState(SelectStatus.All);
-  const [errorMesage, setErrorMesage] = useState(TodoError.empty);
   const [newAddedTodoId, setNewAddedTodoId] = useState<number | null>(null);
+  const [errorMesage, setErrorMesage] = useState(TodoError.empty);
   const [selectedTodoId, setSelectedTodoId] = useState<number | null>(null);
   const [changedStatusIds, setChangedStatusIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    todoService
+      .getTodos(todoService.USER_ID)
+      .then(allTodos => setTodosFromServer(allTodos))
+      .catch(() => setErrorMesage(TodoError.load));
+  }, []);
 
   const getFilteredTodos = useMemo(() => {
     return ((todos: Todo[]) => {
@@ -104,20 +113,32 @@ export const App: React.FC = () => {
           todos={visibleTodos}
           setTodosFromServer={setTodosFromServer}
           setErrorMesage={setErrorMesage}
-          setNewAddedTodoId={setNewAddedTodoId}
           setChangedStatusIds={setChangedStatusIds}
+          setNewAddedTodoId={setNewAddedTodoId}
         />
-        <Main
-          todos={visibleTodos}
-          setTodosFromServer={setTodosFromServer}
-          setErrorMesage={setErrorMesage}
-          newAddedTodoId={newAddedTodoId}
-          selectedTodoId={selectedTodoId}
-          setSelectedTodoId={setSelectedTodoId}
-          toggleTodoStatus={toggleTodoStatus}
-          changedStatusIds={changedStatusIds}
-        />
-        {todosFromServer.length > 0
+
+        {visibleTodos.length > 0 && (
+          <section className="todoapp__main">
+            {
+              visibleTodos.map(todo => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  todos={visibleTodos}
+                  newAddedTodoId={newAddedTodoId}
+                  setErrorMesage={setErrorMesage}
+                  selectedTodoId={selectedTodoId}
+                  setSelectedTodoId={setSelectedTodoId}
+                  toggleTodoStatus={toggleTodoStatus}
+                  setTodosFromServer={setTodosFromServer}
+                  changedStatusIds={changedStatusIds}
+                />
+              ))
+            }
+          </section>
+        )}
+
+        {visibleTodos.length > 0
           && (
             <Footer
               filteredTodos={visibleTodos}
