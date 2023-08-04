@@ -60,7 +60,7 @@ export const TodoItem = ({ todoInfo }: Props) => {
   };
 
   const handleSubmitEdit = () => {
-    if (editTitle.length < 1) {
+    if (editTitle.trim().length < 1) {
       setProcessing([...processing, id]);
       deleteTodo(id)
         .finally(() => {
@@ -69,9 +69,9 @@ export const TodoItem = ({ todoInfo }: Props) => {
         });
     }
 
-    if (editTitle !== title && editTitle.length > 0) {
+    if (editTitle.trim() !== title && editTitle.trim().length > 0) {
       setProcessing([...processing, id]);
-      updateTodo({ id, title: editTitle })
+      updateTodo({ id, title: editTitle.trim() })
         .finally(() => {
           setProcessing([...processing]);
           setEditTodo(false);

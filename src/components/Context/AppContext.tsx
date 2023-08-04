@@ -1,5 +1,6 @@
 import React, {
   FormEvent,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -40,7 +41,7 @@ export const AppProvider = ({ children }: Props) => {
       });
   };
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
       await todoService.deleteTodo(todoId);
       await downloadTodos();
@@ -48,9 +49,9 @@ export const AppProvider = ({ children }: Props) => {
       setErrorType(ErrorTypes.delete);
       throw new Error('Unable to delete a todos');
     }
-  };
+  }, []);
 
-  const updateTodo = async (todoData: Partial<Todo>) => {
+  const updateTodo = useCallback(async (todoData: Partial<Todo>) => {
     const {
       id,
       completed,
@@ -65,9 +66,9 @@ export const AppProvider = ({ children }: Props) => {
       setErrorType(ErrorTypes.update);
       throw new Error('Unable to delete a todos');
     }
-  };
+  }, []);
 
-  const createTodo = async (todoData: Partial<Todo>) => {
+  const createTodo = useCallback(async (todoData: Partial<Todo>) => {
     const {
       completed,
       title,
@@ -81,7 +82,7 @@ export const AppProvider = ({ children }: Props) => {
       setErrorType(ErrorTypes.add);
       throw new Error('Unable to delete a todos');
     }
-  };
+  }, []);
 
   const handleToggleAllTodos = () => {
     const arrOfPromises: Promise<unknown>[] = [];
@@ -115,8 +116,11 @@ export const AppProvider = ({ children }: Props) => {
 
   const handleHeaderFormSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (todoTitle.length === 0) {
+    if (todoTitle.trim().length === 0) {
       setErrorType(ErrorTypes.title);
+      setTodoTitle('');
+
+      return;
     }
 
     const newTodo = {
