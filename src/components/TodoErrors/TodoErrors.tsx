@@ -20,13 +20,18 @@ export const TodoErrors: React.FC = () => {
 
   return (
     <div
-      className="notification is-danger is-light has-text-weight-normal"
+      className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal', {
+          hidden: isHidden,
+        },
+      )}
     >
       <button
         type="button"
-        className={classNames('delete', {
-          hidden: isHidden,
-        })}
+        className="delete"
         aria-label="delete-button"
         onClick={() => setIsHidden(true)}
       />
