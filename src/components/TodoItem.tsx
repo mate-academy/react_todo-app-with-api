@@ -12,7 +12,7 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDeleteTodo = () => {},
-  onUpdateTodo = () => {},
+  onUpdateTodo = async () => {},
   isUpdating,
 
 }) => {
@@ -43,8 +43,9 @@ export const TodoItem: React.FC<Props> = ({
     if (updatedTitle === todo.title) {
       setIsEditing(false);
     } else {
-      onUpdateTodo(todo.id, { title: updatedTitle });
-      setIsEditing(false);
+      onUpdateTodo(todo.id, { title: updatedTitle })
+        .catch(() => setUpdatedTitle(todo.title))
+        .finally(() => setIsEditing(false));
     }
   };
 

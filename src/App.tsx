@@ -1,5 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+}
+  from 'react';
 import { UserWarning } from './UserWarning';
 import { NewTodo } from './components/NewTodo';
 import { TodoList } from './components/TodoList';
@@ -40,13 +46,9 @@ export const App: React.FC = () => {
     }
   })(), [filter, todos]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
   const completedTodos = todos.filter((todo) => todo.completed);
 
-  const addTodo = (title: string) => {
+  const addTodo = useCallback((title: string) => {
     const temporaryTodo = {
       id: 0,
       userId: USER_ID,
@@ -67,9 +69,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
       });
-  };
+  }, []);
 
-  const deleteTodo = (todoId:number) => {
+  const deleteTodo = useCallback((todoId:number) => {
     setUpdatingTodos(curId => [todoId, ...curId]);
 
     return TodoServices.deleteOnServer(todoId)
@@ -83,9 +85,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setUpdatingTodos([]);
       });
-  };
+  }, []);
 
-  const updateTodo = (todoId: number, data: Partial<Todo>) => {
+  const updateTodo = useCallback((todoId: number, data: Partial<Todo>) => {
     setUpdatingTodos(curId => [todoId, ...curId]);
 
     return TodoServices.updateOnServer(todoId, data)
@@ -99,24 +101,17 @@ export const App: React.FC = () => {
         throw newError;
       })
       .finally(() => setUpdatingTodos([]));
-  };
+  }, []);
 
   const handleTodosStatus = (status: boolean) => {
-    let updatedTodos = [...todos];
-    const updatedTodoIds = updatedTodos.map(todo => todo.id);
+    const updatedTodos = todos.filter(todo => todo.completed !== status);
 
-    setUpdatingTodos(updatedTodoIds);
-
-    updatedTodos = updatedTodos.map((todo) => ({ ...todo, completed: status }));
-
-    updatedTodos.forEach(todo => TodoServices.updateOnServer(
-      todo.id,
-      { completed: status },
-    )
-      .then(() => setTodos(updatedTodos))
-      .catch(() => setError(ErrorType.Update))
-      .finally(() => setUpdatingTodos([])));
+    updatedTodos.forEach(todo => updateTodo(todo.id, { completed: status }));
   };
+
+  if (!USER_ID) {
+    return <UserWarning />;
+  }
 
   return (
     <div className="todoapp">
