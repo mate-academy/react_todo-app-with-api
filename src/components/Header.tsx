@@ -4,6 +4,7 @@ import { Todo } from '../types/Todo';
 import { TodoError } from '../types/TodoError';
 import { USER_ID } from '../api/todos';
 import * as todoService from '../api/todos';
+import { wait } from '../utils/fetchClient';
 
 type Props = {
   todos: Todo[],
@@ -94,7 +95,8 @@ export const Header: React.FC<Props> = ({
     } catch {
       setErrorMesage(TodoError.update);
     } finally {
-      setTimeout(() => setChangedStatusIds([]), 300);
+      await wait(300);
+      setChangedStatusIds([]);
     }
   }, [todos]);
 
