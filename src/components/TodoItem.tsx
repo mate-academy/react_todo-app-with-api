@@ -100,7 +100,7 @@ export const TodoItem: React.FC<Props> = ({
       hideError();
     }
 
-    if (tempTitle === '') {
+    if (tempTitle.trim() === '') {
       handleTodoDeletion();
 
       return;
@@ -118,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({
         setTodos(todos.map((t) => (t.id === todo.id ? updatedTodo : t)));
       })
       .catch(() => {
-        setErrorMsg('Unable to update a todo');
+        setErrorMsg('Cant update a todo');
       })
       .finally(() => {
         setIsSaving(false);
