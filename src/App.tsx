@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import classNames from 'classnames';
 
 import { UserWarning } from './UserWarning';
@@ -116,18 +118,9 @@ export const App: React.FC = () => {
       { completed: !switchedTodo?.completed })
       .then(() => {
         if (switchedTodo) {
-          setTodos(previousTodos => {
-            return previousTodos.map(todo => {
-              if (todo.id === todoId) {
-                return {
-                  ...todo,
-                  completed: !todo.completed,
-                };
-              }
-
-              return todo;
-            });
-          });
+          setTodos(previousTodos => previousTodos.map(todo => (todo.id === todoId
+            ? { ...todo, completed: !todo.completed }
+            : todo)));
         }
       })
       .catch(() => {
@@ -135,7 +128,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const updateTodoTitle = (todoId: number) => {
+  const updateTodoTitle = useCallback((todoId: number) => {
     const changedTodo = todos.find(todo => todo.id === todoId);
 
     return patchTodoTitle(todoId,
@@ -159,7 +152,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage('Unable to update todo');
       });
-  };
+  }, [todos, newTodoTitle, patchTodoTitle]);
 
   useEffect(() => {
     setErrorMessage('');

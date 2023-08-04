@@ -53,7 +53,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (!newTodoTitle) {
+    if (!newTodoTitle || newTodoTitle.trim() === '') {
       clearEditFields();
       handleDelete();
     }
