@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isToggling, setIsToggling] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,6 +42,8 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const updateTodoHandler = (todoId: number, data: TodoForServer) => {
+    setIsUpdating(true);
+
     updateTodo(todoId, data)
       .then(() => {
         const newTodos = todos.map(t => {
@@ -58,10 +60,12 @@ export const TodoItem: React.FC<Props> = ({
         setTodos(newTodos);
       })
       .catch(() => {
+        setTodos(todos);
+        setEditedTitle(todo.title);
         setHasError(Error.Update);
       })
       .finally(() => {
-        setIsToggling(false);
+        setIsUpdating(false);
         setIsEdited(false);
       });
   };
@@ -82,7 +86,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const toggleComplete = (todoId: number) => {
-    setIsToggling(true);
+    setIsUpdating(true);
     updateTodoHandler(todoId, { completed: !todo.completed });
   };
 
@@ -153,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': isDeleting || isToggling || isProcessing || todo.id === 0,
+        'is-active': isDeleting || isUpdating || isProcessing || todo.id === 0,
       })}
       >
         <div className="modal-background has-background-white-ter" />

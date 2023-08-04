@@ -49,7 +49,7 @@ export const Header: React.FC<Props> = ({
   };
 
   const togglerAllCompleteHandler = () => {
-    todos.forEach(todo => {
+    todos.filter(t => t.completed === isBtnActive).forEach(todo => {
       setCompletedIdx(prev => [...prev, todo.id]);
 
       updateComplete(todo.id, { completed: !isBtnActive })
