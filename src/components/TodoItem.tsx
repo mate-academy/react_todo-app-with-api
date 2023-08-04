@@ -8,7 +8,7 @@ import { TodoError } from '../types/TodoError';
 
 type Props = {
   todo: Todo,
-  todos?: Todo[],
+  todos: Todo[],
   toggleTodoStatus: (todo: Todo) => void,
   setTodosFromServer: React.Dispatch<React.SetStateAction<Todo[]>>,
   newAddedTodoId: number | null,
@@ -83,16 +83,10 @@ export const TodoItem: React.FC<Props> = ({
         completed,
       });
       setEditedTodoId(null);
-
-      if (newTodos) {
-        setTodosFromServer(newTodos);
-      }
+      setTodosFromServer(newTodos);
     } catch {
       setErrorMesage(TodoError.update);
-
-      if (todos) {
-        setTodosFromServer(todos);
-      }
+      setTodosFromServer(todos);
     } finally {
       setSelectedTodoId(null);
     }
