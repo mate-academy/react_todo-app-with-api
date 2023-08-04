@@ -19,8 +19,6 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
-  const [loading, setLoading] = useState(false);
-  const [currentTodoIds, setCurrentTodoIds] = useState<number[]>([]);
   const [editing, setEditing] = useState(false);
   const [query, setQuery] = useState(todo.title);
 
@@ -28,34 +26,14 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
     deleteTodo,
     deletedTodos,
     updateTodo,
-    updateLoading,
+    processingIds,
   } = useContext(TodoContext);
 
-  const isShowModal = currentTodoIds.includes(todo.id)
+  const isShowModal = processingIds.includes(todo.id)
     || (deletedTodos?.includes(todo))
-    || loading
-    || updateLoading
     || tempLoader;
 
   const todoRef = useRef<null | HTMLInputElement>(null);
-
-  const handleDeleteTodos = async (deletedTodo: Todo) => {
-    setCurrentTodoIds(todoIds => [...todoIds, deletedTodo.id]);
-
-    await deleteTodo(todo.id);
-
-    setCurrentTodoIds([]);
-  };
-
-  const handleUpdateTodo = async (todoToUpdate: Todo) => {
-    try {
-      setLoading(true);
-
-      await updateTodo(todoToUpdate, 'completed', !todoToUpdate.completed);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFormSubmit = async (
     event: React.FormEvent,
@@ -63,23 +41,18 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
   ) => {
     event.preventDefault();
 
-    try {
-      setLoading(true);
-      setEditing(false);
+    setEditing(false);
 
-      if (query === todo.title) {
-        return;
-      }
+    if (query === todo.title) {
+      return;
+    }
 
-      if (editing && !query) {
-        handleDeleteTodos(todo);
-      }
+    if (editing && !query.trim()) {
+      deleteTodo(todo.id);
+    }
 
-      if (editing && query) {
-        await updateTodo(todoToUpdate, 'title', query);
-      }
-    } finally {
-      setLoading(false);
+    if (editing && query.trim()) {
+      updateTodo(todoToUpdate, 'title', query);
     }
   };
 
@@ -107,7 +80,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
           type="checkbox"
           className="todo__status"
           defaultChecked={todo.completed}
-          onClick={() => handleUpdateTodo(todo)}
+          onClick={() => updateTodo(todo, 'completed', !todo.completed)}
         />
       </label>
 
@@ -122,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({ todo, tempLoader }) => {
           <button
             type="button"
             className="todo__remove"
-            onClick={() => handleDeleteTodos(todo)}
+            onClick={() => deleteTodo(todo.id)}
           >
             ×
           </button>

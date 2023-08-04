@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, {
   ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -33,8 +34,8 @@ export const TodoContext = React.createContext({
   updateTodo: (_todo: Todo, _fieldToUpdate: string, _newValue: unknown) => { },
   updateAllTodos: () => { },
   isAllTodosCompleted: false,
-  updateLoading: false,
-  setUpdateLoading: (_value: boolean) => { },
+  processingIds: [] as number[],
+  setProcessingIds: (_ids: number[] | ((prevIds: number[]) => number[])) => { },
 });
 
 export const TodoProvider: React.FC<Props> = ({ children }) => {
@@ -43,7 +44,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState<Error | null>(null);
   const [deletedTodos, setDeletedTodos] = useState<Todo[] | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [updateLoading, setUpdateLoading] = useState(false);
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const isAllTodosCompleted = todos.every(todo => todo.completed);
 
@@ -61,8 +62,10 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     getTodos();
   }, []);
 
-  const addTodo = async (todoToAdd: Todo) => {
+  const addTodo = useCallback(async (todoToAdd: Todo) => {
     try {
+      setProcessingIds(ids => [...ids, todoToAdd.id]);
+
       const newTodo = await api.createTodo(todoToAdd);
 
       setTodos(currentTodos => [...currentTodos, newTodo]);
@@ -70,15 +73,18 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage(Error.ADD);
     } finally {
       setTempTodo(null);
+      setProcessingIds(ids => ids.filter(id => id !== todoToAdd.id));
     }
-  };
+  }, []);
 
-  const updateTodo = async (
+  const updateTodo = useCallback(async (
     todoToUpdate: Todo,
     fieldToUpdate: string,
     newValue: unknown,
   ) => {
     try {
+      setProcessingIds(ids => [...ids, todoToUpdate.id]);
+
       const updatedTodo = {
         ...todoToUpdate,
         [fieldToUpdate]: newValue,
@@ -97,42 +103,37 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       });
     } catch (error) {
       setErrorMessage(Error.UPDATE);
+    } finally {
+      setProcessingIds(ids => ids.filter(id => id !== todoToUpdate.id));
     }
-  };
+  }, []);
 
-  const updateAllTodos = async () => {
+  const updateAllTodos = () => {
     try {
-      setUpdateLoading(true);
+      const uncompletedTodos = todos
+        .filter(todo => todo.completed === isAllTodosCompleted);
 
-      const updatedTodos = await Promise.all(todos.map(async (todo) => {
-        const updatedTodo = {
-          ...todo,
-          completed: !isAllTodosCompleted,
-        };
-
-        await api.updateTodo(updatedTodo);
-
-        return updatedTodo;
-      }));
-
-      setTodos(updatedTodos);
+      uncompletedTodos
+        .forEach((todo) => updateTodo(todo, 'completed', !todo.completed));
     } catch (error) {
       setErrorMessage(Error.UPDATE);
-    } finally {
-      setUpdateLoading(false);
     }
   };
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = useCallback(async (todoId: number) => {
     try {
+      setProcessingIds(ids => [...ids, todoId]);
+
       await api.deleteTodo(todoId);
 
       setTodos(currentTodos => currentTodos
         .filter(todo => todo.id !== todoId));
     } catch (error) {
       setErrorMessage(Error.DELETE);
+    } finally {
+      setProcessingIds(ids => ids.filter(id => id !== todoId));
     }
-  };
+  }, []);
 
   const deleteCompeledTodos = async () => {
     try {
@@ -169,8 +170,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       setTempTodo,
       updateAllTodos,
       isAllTodosCompleted,
-      updateLoading,
-      setUpdateLoading,
+      processingIds,
+      setProcessingIds,
     };
   }, [
     todos,
@@ -179,7 +180,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     deletedTodos,
     tempTodo,
     isAllTodosCompleted,
-    updateLoading,
+    processingIds,
   ]);
 
   return (

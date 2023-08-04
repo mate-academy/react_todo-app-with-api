@@ -11,9 +11,10 @@ import { Error } from '../../types/Error';
 
 export const TodoHeader = () => {
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const {
+    todos,
     addTodo,
     setErrorMessage,
     setTempTodo,
@@ -31,7 +32,7 @@ export const TodoHeader = () => {
     }
 
     try {
-      setLoading(true);
+      setDisabled(true);
       setQuery('');
 
       const newTodo = {
@@ -44,20 +45,22 @@ export const TodoHeader = () => {
 
       await addTodo(newTodo as Todo);
     } finally {
-      setLoading(false);
+      setDisabled(false);
     }
   };
 
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: isAllTodosCompleted,
-        })}
-        onClick={() => updateAllTodos()}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllTodosCompleted,
+          })}
+          onClick={updateAllTodos}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleFormSubmit}>
@@ -67,7 +70,7 @@ export const TodoHeader = () => {
           placeholder="What needs to be done?"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          disabled={loading}
+          disabled={disabled}
         />
       </form>
     </header>
