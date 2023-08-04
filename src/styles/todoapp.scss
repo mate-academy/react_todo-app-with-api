@@ -54,7 +54,7 @@
       line-height: 0;
     }
   }
-
+  &__edit-todo,
   &__new-todo {
     width: 100%;
     padding: 16px 16px 16px 60px;
@@ -76,6 +76,10 @@
       font-weight: 300;
       color: #e6e6e6;
     }
+  }
+
+  &__edit-todo {
+    padding: 12px 15px;
   }
 
   &__main {
@@ -128,6 +132,10 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &:disabled {
+      opacity: 0;
     }
   }
 }
