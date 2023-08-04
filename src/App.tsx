@@ -181,7 +181,7 @@ export const App: React.FC = () => {
           />
           <AddTodoForm
             loading={isLoading}
-            addTodo={(newTodo) => addTodo(newTodo)}
+            addTodo={addTodo}
             onFail={setError}
           />
         </header>
