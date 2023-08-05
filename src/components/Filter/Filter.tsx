@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
-import { FILTERS } from '../../types/FILTERS';
+import { Filters } from '../../types/Filters';
 
 type Props = {
-  filter: FILTERS;
-  setFilter: (v: FILTERS) => void;
+  filter: Filters;
+  setFilter: (v: Filters) => void;
 };
 
 export const Filter: React.FC<Props> = React.memo(({
@@ -16,9 +16,9 @@ export const Filter: React.FC<Props> = React.memo(({
         href="#/"
         className={classNames(
           'filter__link',
-          { selected: filter === FILTERS.ALL },
+          { selected: filter === Filters.ALL },
         )}
-        onClick={() => setFilter(FILTERS.ALL)}
+        onClick={() => setFilter(Filters.ALL)}
       >
         All
       </a>
@@ -27,9 +27,9 @@ export const Filter: React.FC<Props> = React.memo(({
         href="#/active"
         className={classNames(
           'filter__link',
-          { selected: filter === FILTERS.ACTIVE },
+          { selected: filter === Filters.ACTIVE },
         )}
-        onClick={() => setFilter(FILTERS.ACTIVE)}
+        onClick={() => setFilter(Filters.ACTIVE)}
       >
         Active
       </a>
@@ -38,9 +38,9 @@ export const Filter: React.FC<Props> = React.memo(({
         href="#/completed"
         className={classNames(
           'filter__link',
-          { selected: filter === FILTERS.COMPLETED },
+          { selected: filter === Filters.COMPLETED },
         )}
-        onClick={() => setFilter(FILTERS.COMPLETED)}
+        onClick={() => setFilter(Filters.COMPLETED)}
       >
         Completed
       </a>

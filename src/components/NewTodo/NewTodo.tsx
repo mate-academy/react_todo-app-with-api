@@ -4,11 +4,11 @@ type Props = {
   addTodo: () => Promise<void>,
   query: string,
   setQuery: (v: string) => void,
-  isAdding: boolean,
+  disabled: boolean,
 };
 
 export const NewTodo: React.FC<Props> = React.memo(({
-  addTodo, query, setQuery, isAdding,
+  addTodo, query, setQuery, disabled,
 }) => {
   const [focus, setFocus] = useState(false);
   const thisTodo = useRef<HTMLInputElement>(null);
@@ -39,7 +39,7 @@ export const NewTodo: React.FC<Props> = React.memo(({
         placeholder="What needs to be done?"
         value={query}
         onChange={handleChange}
-        disabled={isAdding}
+        disabled={disabled}
       />
     </form>
   );

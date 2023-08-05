@@ -2,7 +2,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
-import { FILTERS } from './types/FILTERS';
+import { Filters } from './types/Filters';
+import { ErrorMessage } from './types/ErrorMessage';
 import * as todoService from './api/todos';
 import { USER_ID } from './utils/constants';
 import { UserWarning } from './UserWarning';
@@ -12,11 +13,12 @@ import { NewTodo } from './components/NewTodo';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [filter, setFilter] = useState(FILTERS.ALL);
+  const [
+    errorMessage, setErrorMessage,
+  ] = useState<ErrorMessage>(ErrorMessage.DEFAULT);
+  const [filter, setFilter] = useState(Filters.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [query, setQuery] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
   const [isProcessed, setIsProcessed] = useState<number[]>([]);
 
   const allTodoCompleted = useMemo(() => {
@@ -24,16 +26,15 @@ export const App: React.FC = () => {
   }, [todos]);
 
   const addTodo = () => {
-    setErrorMessage('');
+    setErrorMessage(ErrorMessage.DEFAULT);
 
     if (query.trim() === '') {
-      setErrorMessage('Title can\'t be empty');
+      setErrorMessage(ErrorMessage.EMPTY);
       setQuery('');
 
       throw new Error();
     }
 
-    setIsAdding(true);
     setTempTodo({
       id: 0,
       userId: USER_ID,
@@ -51,18 +52,17 @@ export const App: React.FC = () => {
         setTodos((currentTodos: Todo[]) => [...currentTodos, newTodo]);
       })
       .catch(error => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(ErrorMessage.ADD);
 
         throw error;
       })
       .finally(() => {
-        setIsAdding(false);
         setTempTodo(null);
       });
   };
 
   const deleteTodo = (todoId: number) => {
-    setErrorMessage('');
+    setErrorMessage(ErrorMessage.DEFAULT);
     setIsProcessed(currentId => [...currentId, todoId]);
 
     todoService.deleteTodo(todoId)
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
           currentTodos.filter(currentTodo => currentTodo.id !== todoId)
         ));
       })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch(() => setErrorMessage(ErrorMessage.DELETE))
       .finally(() => setIsProcessed([]));
   };
 
@@ -86,7 +86,7 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setErrorMessage('');
+    setErrorMessage(ErrorMessage.DEFAULT);
     setIsProcessed(currentId => [...currentId, updatedTodo.id]);
 
     return todoService.updateTodo(updatedTodo)
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
         });
       })
       .catch(error => {
-        setErrorMessage('Unable to update a todo');
+        setErrorMessage(ErrorMessage.UPDATE);
 
         throw error;
       })
@@ -119,13 +119,13 @@ export const App: React.FC = () => {
 
   const visibleTodos = useMemo(() => {
     switch (filter) {
-      case FILTERS.ALL:
+      case Filters.ALL:
         return todos;
 
-      case FILTERS.ACTIVE:
+      case Filters.ACTIVE:
         return todos.filter(todo => !todo.completed);
 
-      case FILTERS.COMPLETED:
+      case Filters.COMPLETED:
         return todos.filter(todo => todo.completed);
 
       default:
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
     todoService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to download todos');
+        setErrorMessage(ErrorMessage.DOWNLOAD);
       });
   }, []);
 
@@ -145,7 +145,7 @@ export const App: React.FC = () => {
     let timeoutId: NodeJS.Timeout | undefined;
 
     if (errorMessage !== '') {
-      const clearErrorMessage = () => setErrorMessage('');
+      const clearErrorMessage = () => setErrorMessage(ErrorMessage.DEFAULT);
 
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -194,7 +194,7 @@ export const App: React.FC = () => {
             addTodo={addTodo}
             query={query}
             setQuery={setQuery}
-            isAdding={isAdding}
+            disabled={!!tempTodo}
           />
         </header>
 
@@ -237,7 +237,7 @@ export const App: React.FC = () => {
         <button
           type="button"
           className="delete"
-          onClick={() => setErrorMessage('')}
+          onClick={() => setErrorMessage(ErrorMessage.DEFAULT)}
         />
         {errorMessage}
       </div>
