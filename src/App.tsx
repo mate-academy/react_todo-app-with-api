@@ -109,6 +109,16 @@ export const App: React.FC = () => {
       .finally(() => setLoadingTodos(null)));
   };
 
+  const handleEditTodo = (modifiedTodo: string, id: number) => {
+    const updatedTodos = todos.map(currTodo => (
+      currTodo.id === id ? { ...currTodo, title: modifiedTodo } : currTodo
+    ));
+
+    setTodos(updatedTodos);
+
+    patchTodos(USER_ID, { title: modifiedTodo, id });
+  };
+
   const handleCheckBoxTodo = async (todoId: number) => {
     const curentTodo: Todo | undefined = todos.find(
       (todo) => todo.id === todoId,
@@ -203,6 +213,7 @@ export const App: React.FC = () => {
             onCheckedTodo={handleCheckBoxTodo}
             tempTodoId={tempTodoId}
             temporaryNewTodo={temporaryNewTodo}
+            handleEditTodo={handleEditTodo}
           />
         )}
         {!!todos.length && (

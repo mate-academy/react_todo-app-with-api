@@ -10,6 +10,7 @@ type Props = {
   tempTodoId: number | null;
   temporaryNewTodo?: Todo | null
   loadingTodos?: number[] | null
+  handleEditTodo: (modifiedTodo: string, id: number) => void
 };
 
 export const Todos: React.FC<Props> = ({
@@ -19,8 +20,9 @@ export const Todos: React.FC<Props> = ({
   tempTodoId,
   temporaryNewTodo,
   loadingTodos,
+  handleEditTodo,
 }) => {
-  const [isSelectedTodo, setIsSelectedTodo] = useState<number>();
+  const [isSelectedTodo, setIsSelectedTodo] = useState<number | null>();
 
   return (
     <section className="todoapp__main">
@@ -34,8 +36,9 @@ export const Todos: React.FC<Props> = ({
             todo.id === tempTodoId
             || loadingTodos?.includes(todo.id)
           }
-          isSelectedTodo={todo.id === isSelectedTodo}
+          isSelectedTodo={isSelectedTodo}
           onSelectedTodo={setIsSelectedTodo}
+          handleEditTodo={handleEditTodo}
         />
       ))}
       {

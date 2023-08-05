@@ -6,8 +6,9 @@ type Props = {
   onRemoveTodo?: (todoId: number) => void
   onCheckedTodo?: (todoId: number) => void
   loading?: boolean
-  isSelectedTodo?: boolean
-  onSelectedTodo?: (id: number) => void
+  isSelectedTodo?: number | null | undefined
+  onSelectedTodo?: (id: number | null) => void
+  handleEditTodo?: (modifiedTodo: string, id: number) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -17,21 +18,58 @@ export const TodoItem: React.FC<Props> = ({
   loading,
   isSelectedTodo,
   onSelectedTodo,
+  handleEditTodo,
 }) => {
   const { title, id } = todo;
   const [renameTodo, setRenameTodo] = useState<string>(title);
 
-  const handleTargetTodo = (
+  const handleRenameTodo = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setRenameTodo(e.target.value);
   };
 
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement>,
+  ) => {
+    e.preventDefault();
+
+    if (renameTodo !== title && handleEditTodo) {
+      handleEditTodo(renameTodo, id);
+    }
+
+    if (onSelectedTodo) {
+      onSelectedTodo(null);
+    }
+  };
+
+  const handleKeyUp = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === 'Escape') {
+      setRenameTodo(title);
+    }
+  };
+
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement>,
+  ) => {
+    e.preventDefault();
+    if (renameTodo !== title && handleEditTodo) {
+      handleEditTodo(renameTodo, id);
+    }
+
+    if (onSelectedTodo) {
+      onSelectedTodo(null);
+    }
+  };
+
   return (
     <>
-      <div
+      <form
         key={id}
         className={`todo ${todo.completed && 'completed'}`}
+        onSubmit={handleSubmit}
       >
         <label className="todo__status-label">
           <input
@@ -41,14 +79,16 @@ export const TodoItem: React.FC<Props> = ({
           />
         </label>
 
-        {isSelectedTodo
+        {isSelectedTodo === id
           ? (
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={renameTodo}
-              onChange={handleTargetTodo}
+              onChange={handleRenameTodo}
+              onKeyUp={handleKeyUp}
+              onBlur={handleBlur}
             />
           )
           : (
@@ -77,7 +117,7 @@ export const TodoItem: React.FC<Props> = ({
             </>
           )}
 
-      </div>
+      </form>
     </>
   );
 };

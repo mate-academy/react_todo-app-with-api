@@ -18,10 +18,10 @@ export const deleteTodos = (userId: string, todoId: number) => {
 
 export const patchTodos = (
   userId: string,
-  currentTodo: Todo,
+  currentTodo: Partial<Todo>,
 ) => {
   return client.patch(
     `/${currentTodo.id}?userId=${userId}`,
-    { completed: currentTodo.completed },
+    currentTodo,
   );
 };
