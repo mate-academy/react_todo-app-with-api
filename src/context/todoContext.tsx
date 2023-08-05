@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Todo } from '../types/Todo';
 import * as todoService from '../api/todos';
 import { ErrorType, SelectType } from '../enums';
@@ -7,6 +12,7 @@ import { USER_ID } from '../consts';
 
 interface Context {
   todos: Todo[];
+  deletedTodos: Todo[] | null;
   tempTodo: Todo | null;
   itemsLeft: number;
   loading: boolean;
@@ -17,6 +23,7 @@ interface Context {
   select: SelectType;
   selectedTodoIds: number[];
   onDeleteTodo: (todoId: number) => void;
+  onDeletedTodos: (value: Todo[]) => void;
   onAddTodo: (title: string) => void;
   onUpdateTodo: (todo: Todo) => void;
   updateAllTodos: () => void;
@@ -27,6 +34,7 @@ interface Context {
 
 export const TodoContext = React.createContext<Context>({
   todos: [],
+  deletedTodos: [],
   tempTodo: {} as Todo | null,
   error: null,
   itemsLeft: 0,
@@ -37,6 +45,7 @@ export const TodoContext = React.createContext<Context>({
   select: SelectType.All,
   selectedTodoIds: [],
   onDeleteTodo: () => {},
+  onDeletedTodos: () => {},
   onAddTodo: () => {},
   onUpdateTodo: async () => {},
   updateAllTodos: async () => {},
@@ -54,6 +63,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [error, setError] = useState<ErrorType | null>(null);
   const [select, setSelect] = useState(SelectType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [deletedTodos, setDeletedTodos] = useState<Todo[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTodoIds, setSelectedTodoIds] = useState<number[]>([]);
 
@@ -72,9 +82,11 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const selectedTodos = selectTodos(todos, select);
-  const isAllCompletedTodos = selectedTodos.every(todo => todo.completed);
+  const isAllCompletedTodos = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [selectedTodos]);
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = useCallback((todoId: number) => {
     const updatedTodoIds = [...selectedTodoIds, todoId];
 
     setSelectedTodoIds(updatedTodoIds);
@@ -89,9 +101,11 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           prevTodoIds.filter(id => id !== todoId)
         ));
       });
-  };
+  }, [
 
-  const addTodo = (title: string) => {
+  ]);
+
+  const addTodo = useCallback((title: string) => {
     const newTodo = {
       id: 0,
       title,
@@ -115,9 +129,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         setTempTodo(null);
         setLoading(false);
       });
-  };
+  }, []);
 
-  const updateTodo = async (updatedTodo: Todo) => {
+  const updateTodo = useCallback(async (updatedTodo: Todo) => {
     try {
       const updatedTodoIds = [...selectedTodoIds, updatedTodo.id];
 
@@ -136,7 +150,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         prevTodoIds.filter(id => id !== updatedTodo.id)
       ));
     }
-  };
+  }, [selectedTodoIds]);
 
   const updateAllTodos = async () => {
     try {
@@ -163,34 +177,34 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   const onDeleteCompletedTodos = async () => {
     try {
-      const completedTodosIds = todos
-        .filter(todo => todo.completed)
-        .map(todo => todo.id);
+      setLoading(true);
+      const updadetTodos = todos.filter(todo => todo.completed);
 
-      setSelectedTodoIds(completedTodosIds);
+      setDeletedTodos(updadetTodos);
 
-      const deleteTasks = completedTodosIds.map(todoId => (
-        deleteTodo(todoId)
-      ));
-
-      await Promise.all(deleteTasks);
+      await Promise.all(updadetTodos.map(todo => todoService.deleteTodo(todo.id)));
 
       setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
     } catch {
       setError(ErrorType.DeleteError);
     } finally {
-      setSelectedTodoIds([]);
+      setLoading(false);
+      setDeletedTodos(null);
     }
   };
 
-  const itemsLeft = selectedTodos.filter(todo => !todo.completed).length;
-  const visibleFooter = todos.length;
-  const visibleButtonClearCompleted = selectedTodos.filter(
-    (todo) => todo.completed,
-  ).length;
+  const itemsLeft = useMemo(() => {
+    return todos.filter(todo => !todo.completed).length;
+  }, [todos]);
+
+  const visibleFooter = useMemo(() => todos.length, [todos]);
+  const visibleButtonClearCompleted = useMemo(() => {
+    return todos.filter((todo) => todo.completed).length;
+  }, [todos]);
 
   const value: Context = useMemo(() => ({
     todos: selectedTodos,
+    deletedTodos,
     itemsLeft,
     loading,
     visibleFooter,
@@ -202,6 +216,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     select,
     updateAllTodos,
     onDeleteTodo: deleteTodo,
+    onDeletedTodos: setDeletedTodos,
     onAddTodo: addTodo,
     onUpdateTodo: updateTodo,
     onErrorHandler: setError,

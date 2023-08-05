@@ -1,12 +1,15 @@
 import React, {
   useState,
   ChangeEvent,
+  KeyboardEvent,
   FormEvent,
   useEffect,
   useRef,
+  useContext,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { TodoContext } from '../context/todoContext';
 
 type Props = {
   todo: Todo;
@@ -26,6 +29,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
 }) => {
   const [editing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+
+  const { deletedTodos } = useContext(TodoContext);
 
   const editingRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,20 +76,12 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
   }, [editing]);
 
-  useEffect(() => {
-    const cancel = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setEditing(false);
-        setNewTitle(todo.title);
-      }
-    };
-
-    document.addEventListener('keyup', cancel);
-
-    return () => {
-      document.removeEventListener('keyup', cancel);
-    };
-  }, []);
+  const cancel = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditing(false);
+      setNewTitle(todo.title);
+    }
+  };
 
   return (
     <div className={classNames('todo', { completed: todo.completed })}>
@@ -107,6 +104,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             ref={editingRef}
             onChange={event => setNewTitle(event.target.value)}
             onBlur={handleEditTodoTitle}
+            onKeyUp={cancel}
           />
         </form>
       ) : (
@@ -129,7 +127,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': processing,
+        'is-active': disabled || processing || (deletedTodos?.includes(todo)),
       })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -19,7 +19,7 @@ export const TodoHeader: React.FC = () => {
   const handleChange = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!title) {
+    if (!title.trim()) {
       onErrorHandler(ErrorType.EmptyTitle);
 
       return;
