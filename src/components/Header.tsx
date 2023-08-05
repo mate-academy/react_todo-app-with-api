@@ -2,8 +2,8 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { USER_ID } from '../utils/userId';
 import { Todo } from '../types/Todo';
-import { client } from '../utils/fetchClient';
 import { getMax } from '../utils/getMax';
+import { createTodo, updateTodo } from '../api/todos';
 
 type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>;
@@ -44,7 +44,7 @@ export const Header:React.FC<Props> = ({
       }));
 
       const promise = notCompletedTodos.map(todo => {
-        return client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
+        return updateTodo(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
       });
 
       Promise.all(promise)
@@ -54,7 +54,7 @@ export const Header:React.FC<Props> = ({
       setTodos(someTodos => someTodos.map(todo => ({ ...todo, isLoading: true })));
 
       const promise = todos.map(todo => {
-        return client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
+        return updateTodo(`/todos/${todo.id}?userId=${USER_ID}`, { completed: isAllComplited });
       });
 
       Promise.all(promise)
@@ -77,13 +77,14 @@ export const Header:React.FC<Props> = ({
         userId: USER_ID,
         isLoading: true,
       }]);
-      client.post(`/todos?userId=${USER_ID}`, { title: inputTitle, completed: false, userId: USER_ID })
+      createTodo(`/todos?userId=${USER_ID}`, { title: inputTitle, completed: false, userId: USER_ID })
         .then(loadTodos)
         .catch((err) => {
           setErrorMessage('Can\'t load a todo');
           setWasError(true);
           throw err;
         })
+        .finally(() => setWasError(false))
         .then(() => setInputTitle(''));
     }
   };

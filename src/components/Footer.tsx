@@ -4,7 +4,7 @@ import React, { Dispatch, SetStateAction, useMemo } from 'react';
 import { Todo } from '../types/Todo';
 import { Field } from '../types/Field';
 import { USER_ID } from '../utils/userId';
-import { client } from '../utils/fetchClient';
+import { deleteTodo } from '../api/todos';
 
 type Props = {
   preparedTodos: Todo[],
@@ -40,7 +40,7 @@ export const Footer:React.FC<Props> = ({
       : t)));
 
     const promise = completedTodos.map(todo => {
-      return client.delete(`/todos/${todo.id}?userId=${USER_ID}`);
+      return deleteTodo(`/todos/${todo.id}?userId=${USER_ID}`);
     });
 
     Promise.all(promise)

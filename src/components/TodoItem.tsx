@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import React, { Dispatch, SetStateAction } from 'react';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../utils/userId';
-import { client } from '../utils/fetchClient';
 import { getMax } from '../utils/getMax';
+import { deleteTodo, updateTodo } from '../api/todos';
 
 type Props = {
   todo: Todo;
@@ -34,29 +34,22 @@ export const TodoItem:React.FC<Props> = ({
   setWasError,
   todos,
 }) => {
-  const inputClickHandler = () => {
-    setTodos(someTodos => someTodos.map(t => (t.id === todo.id
-      ? { ...t, isLoading: true }
-      : t)));
+  const setSomeTodos = () => setTodos(someTodos => someTodos.map(item => (item.id === todo.id
+    ? { ...item, completed: true, isLoading: true }
+    : item)));
 
-    client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { completed: !todo.completed })
+  const inputClickHandler = () => {
+    setSomeTodos();
+
+    updateTodo(`/todos/${todo.id}?userId=${USER_ID}`, { completed: !todo.completed })
       .then(loadTodos)
       .catch((err) => setErrorMessage(err));
   };
 
   const buttonClickHandler = () => {
-    setTodos(someTodos => {
-      const index = someTodos.findIndex(t => t.id === todo.id);
-      const deletedTodo = { ...todo, completed: true, isLoading: true };
+    setSomeTodos();
 
-      const newTodos = [...someTodos];
-
-      newTodos.splice(index, 1, deletedTodo);
-
-      return newTodos;
-    });
-
-    client.delete(`/todos/${todo.id}?userId=${USER_ID}`)
+    deleteTodo(`/todos/${todo.id}?userId=${USER_ID}`)
       .then(() => {
         setTodos(someTodos => someTodos.filter(t => t.id !== todo.id));
       })
@@ -74,7 +67,8 @@ export const TodoItem:React.FC<Props> = ({
         });
 
         return Promise.reject();
-      });
+      })
+      .finally(() => setWasError(false));
   };
 
   const formSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -101,7 +95,7 @@ export const TodoItem:React.FC<Props> = ({
         return newTodos;
       });
 
-      client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
+      updateTodo(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
         .catch(() => {
           setErrorMessage('Can\'t update a todo');
           setWasError(true);
@@ -119,11 +113,13 @@ export const TodoItem:React.FC<Props> = ({
             return newTodos;
           });
         })
+        .finally(() => setWasError(false))
         .then(loadTodos)
         .catch(() => {
           setErrorMessage('Can\'t delete todos');
           setWasError(true);
-        });
+        })
+        .finally(() => setWasError(false));
 
       setSelectedTodo(null);
     }
@@ -139,7 +135,7 @@ export const TodoItem:React.FC<Props> = ({
     setErrorMessage('');
 
     if (updatedTitle.trim() === '') {
-      client.delete(`/todos/${todo.id}?userId=${USER_ID}`);
+      deleteTodo(`/todos/${todo.id}?userId=${USER_ID}`);
       setTodos(someTodos => {
         const filteredTodos = [...someTodos].filter(t => t.id !== todo.id);
 
@@ -163,12 +159,13 @@ export const TodoItem:React.FC<Props> = ({
         return newTodos;
       });
 
-      client.patch(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
+      updateTodo(`/todos/${todo.id}?userId=${USER_ID}`, { title: updatedTitle })
         .then(loadTodos)
         .catch(() => {
           setErrorMessage('Can\'t update a todo');
           setWasError(true);
-        });
+        })
+        .finally(() => setWasError(false));
 
       setSelectedTodo(null);
     }
