@@ -1,8 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
-import { TodoList } from './components/TodoList';
+import { TodoItem } from './components/TodoItem';
 import { Footer } from './components/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
 import { TempTodoItem } from './components/TempTodoItem';
@@ -35,10 +40,6 @@ export const App: React.FC = () => {
     return allTodos.every(todo => todo.completed);
   }, [allTodos]);
 
-  const areAllActive = useMemo(() => {
-    return allTodos.every(todo => !todo.completed);
-  }, [allTodos]);
-
   const completedTodos = useMemo(() => {
     return allTodos.filter(todo => todo.completed);
   }, [allTodos]);
@@ -65,19 +66,14 @@ export const App: React.FC = () => {
     }
   }), [allTodos, filter]);
 
-  const showErrorMessage = (message: string): void => {
-    setErrorMessage(message);
-
-    setInterval(() => {
-      setErrorMessage('');
-    }, 3000);
-  };
-
-  const handleFormSubmit = (event: React.FormEvent, newTitle: string) => {
+  const handleFormSubmit = useCallback((
+    event: React.FormEvent,
+    newTitle: string,
+  ) => {
     event.preventDefault();
 
     if (!newTitle.trim()) {
-      showErrorMessage(ErrorStatus.NoTitle);
+      setErrorMessage(ErrorStatus.NoTitle);
 
       return;
     }
@@ -97,9 +93,9 @@ export const App: React.FC = () => {
       })
       .catch(() => setErrorMessage(ErrorStatus.Add))
       .finally(() => setTempTodo(null));
-  };
+  }, [title]);
 
-  const handleDeleteTodo = (todoId: number) => {
+  const handleDeleteTodo = useCallback((todoId: number) => {
     setIdsToDelete(prevIds => [...prevIds, todoId]);
 
     deleteTodo(USER_ID, todoId)
@@ -108,13 +104,13 @@ export const App: React.FC = () => {
           ({ id }) => id !== todoId,
         ));
       })
-      .catch(() => showErrorMessage(ErrorStatus.Delete))
+      .catch(() => setErrorMessage(ErrorStatus.Delete))
       .finally(() => setIdsToDelete(
         prevIds => prevIds.filter(id => id !== todoId),
       ));
-  };
+  }, []);
 
-  const handleClearCompleted = () => {
+  const handleClearCompleted = useCallback(() => {
     setIdsToDelete(completedTodos.map(({ id }) => id));
 
     Promise.all(completedTodos.map(todo => {
@@ -126,9 +122,9 @@ export const App: React.FC = () => {
         );
       })
       .catch(() => setErrorMessage(ErrorStatus.Delete));
-  };
+  }, [completedTodos]);
 
-  const handleToggleTodo = (todo: Todo): void => {
+  const handleToggleTodo = useCallback((todo: Todo): void => {
     setIdsToToggle(prevIds => [...prevIds, todo.id]);
 
     patchTodo(USER_ID, { ...todo, completed: !todo.completed })
@@ -141,37 +137,23 @@ export const App: React.FC = () => {
           return item;
         }));
       })
-      .catch(() => showErrorMessage(ErrorStatus.Update))
+      .catch(() => setErrorMessage(ErrorStatus.Update))
       .finally(() => setIdsToToggle(
         prevIds => prevIds.filter(id => id !== todo.id),
       ));
-  };
+  }, []);
 
-  const handleToggleAll = () => {
-    if (areAllComplete || areAllActive) {
-      Promise.all(allTodos.map(todo => handleToggleTodo(todo)))
-        .then(() => setAllTodos(prevTodos => {
-          return prevTodos.map(
-            todo => ({ ...todo, completed: !todo.completed }),
-          );
-        }))
-        .catch(() => setErrorMessage(ErrorStatus.Update));
-    } else {
-      Promise.all(activeTodos.map(todo => handleToggleTodo(todo)))
-        .then(() => setAllTodos(prevTodos => {
-          return prevTodos.map(todo => {
-            if (!todo.completed) {
-              return { ...todo, completed: true };
-            }
+  const handleToggleAll = useCallback(() => {
+    Promise.all(activeTodos.map(todo => handleToggleTodo(todo)))
+      .then(() => setAllTodos(prevTodos => {
+        return prevTodos.map(todo => {
+          return { ...todo, completed: !areAllComplete };
+        });
+      }))
+      .catch(() => setErrorMessage(ErrorStatus.Update));
+  }, [activeTodos]);
 
-            return todo;
-          });
-        }))
-        .catch(() => setErrorMessage(ErrorStatus.Update));
-    }
-  };
-
-  const handleTodoEdit: HandleTodoEdit = (
+  const handleTodoEdit: HandleTodoEdit = useCallback((
     oldTodo,
     newTitle,
     setIsBeingUpdated,
@@ -200,19 +182,19 @@ export const App: React.FC = () => {
           return item;
         }));
       })
-      .catch(() => showErrorMessage(ErrorStatus.Update))
+      .catch(() => setErrorMessage(ErrorStatus.Update))
       .finally(() => {
         setIsBeingUpdated(false);
         setTodoOnEdit(null);
       });
-  };
+  }, []);
 
   useEffect(() => {
     setErrorMessage('');
 
     getTodos(USER_ID)
       .then(setAllTodos)
-      .catch(() => showErrorMessage(ErrorStatus.Load));
+      .catch(() => setErrorMessage(ErrorStatus.Load));
   }, []);
 
   if (!USER_ID) {
@@ -225,13 +207,15 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              active: areAllComplete,
-            })}
-            onClick={handleToggleAll}
-          />
+          {allTodos.length > 0 && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: areAllComplete,
+              })}
+              onClick={handleToggleAll}
+            />
+          )}
 
           <form onSubmit={(event) => handleFormSubmit(event, title)}>
             <input
@@ -246,16 +230,21 @@ export const App: React.FC = () => {
         </header>
 
         {allTodos.length > 0 && (
-          <TodoList
-            todos={filteredTodos}
-            onDelete={handleDeleteTodo}
-            idsToDelete={idsToDelete}
-            idsToToggle={idsToToggle}
-            onToggle={handleToggleTodo}
-            todoOnEdit={todoOnEdit}
-            setTodoOnEdit={setTodoOnEdit}
-            handleTodoEdit={handleTodoEdit}
-          />
+          <section className="todoapp__main">
+            {filteredTodos.map(todo => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                onDelete={handleDeleteTodo}
+                idsToDelete={idsToDelete}
+                idsToToggle={idsToToggle}
+                onToggle={handleToggleTodo}
+                todoOnEdit={todoOnEdit}
+                setTodoOnEdit={setTodoOnEdit}
+                handleTodoEdit={handleTodoEdit}
+              />
+            ))}
+          </section>
         ) }
         {tempTodo && <TempTodoItem todo={tempTodo} />}
 
