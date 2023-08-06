@@ -21,15 +21,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     todosService.getTodos(todosService.USER_ID)
       .then(setTodos)
-      .catch((error) => {
-        setErrorMessage(Errors.LOAD);
-        throw error;
-      })
-      .finally(() => {
-        setTimeout(() => {
-          setErrorMessage(Errors.NULL);
-        }, 3000);
-      });
+      .catch(() => setErrorMessage(Errors.LOAD))
+      .finally(() => setTimeout(() => setErrorMessage(Errors.NULL), 3000));
   }, []);
 
   // Filtering todos by FilteringBy without request on server
@@ -101,14 +94,11 @@ export const App: React.FC = () => {
   const deleteTodo = (todoId: number) => {
     setNewTodoId(currentIDs => [...currentIDs, todoId]);
 
-    return todosService.deleteTodo(todoId)
+    todosService.deleteTodo(todoId)
       .then(() => setTodos(
         currentTodos => currentTodos.filter(todo => todo.id !== todoId),
       ))
-      .catch((error) => {
-        setErrorMessage(Errors.DELETE);
-        throw error;
-      })
+      .catch(() => setErrorMessage(Errors.DELETE))
       .finally(() => {
         setNewTodoId([]);
         setTimeout(() => setErrorMessage(Errors.NULL), 3000);
