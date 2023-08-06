@@ -35,7 +35,7 @@ export const Footer: React.FC<Props> = ({
     }
   };
 
-  const handleCatch = () => {
+  const handleError = () => {
     setHiddenError(false);
     setTimeout(() => setHiddenError(true), 3000);
     setErrorMessage('Unable to delete a todo');
@@ -49,7 +49,7 @@ export const Footer: React.FC<Props> = ({
 
     completed.forEach(todo => deleteTodos(todo.id)
       .then(() => setTodos(todos.filter(t => !t.completed)))
-      .catch(handleCatch)
+      .catch(handleError)
       .finally(() => setLoading(false)));
   };
 

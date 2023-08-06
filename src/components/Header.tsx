@@ -27,7 +27,7 @@ export const Header: React.FC<Props> = ({
   const [inputValue, setInputValue] = useState('');
   const toggleActive = todos.every(todo => todo.completed);
   const USER_ID = 11093;
-  const handleCatch = (message: string) => {
+  const handleError = (message: string) => {
     setHiddenError(false);
     setTimeout(() => setHiddenError(true), 3000);
     setErrorMessage(message);
@@ -62,7 +62,7 @@ export const Header: React.FC<Props> = ({
 
         setTodos(prev => [...prev, newTodoRes]);
       })
-        .catch(() => handleCatch('Unable to add a todo'))
+        .catch(() => handleError('Unable to add a todo'))
         .finally(handleFinally);
     };
 
@@ -70,7 +70,7 @@ export const Header: React.FC<Props> = ({
     if (data.title) {
       handlerAddTodos();
     } else {
-      handleCatch("Title can't be empty");
+      handleError("Title can't be empty");
     }
 
     setInputValue('');
@@ -98,7 +98,7 @@ export const Header: React.FC<Props> = ({
             return updateTodo;
           });
         })
-          .catch(() => handleCatch('Unable to update a todo'))
+          .catch(() => handleError('Unable to update a todo'))
           .finally(handleFinally);
       }
     });

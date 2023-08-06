@@ -39,7 +39,6 @@ export const ShowTodos: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    // Додаємо обробник подій під час монтування компонента
     document.addEventListener('keydown', handleKeyPress);
 
     return () => {
@@ -57,13 +56,13 @@ export const ShowTodos: React.FC<Props> = ({
     }
   };
 
-  const handleCatch = (message: string) => {
+  const handleError = (message: string) => {
     setHiddenError(false);
     setTimeout(() => setHiddenError(true), 3000);
     setErrorMessage(message);
   };
 
-  const handleFinally = () => {
+  const resetLoadingState = () => {
     setItemId([0]);
     setLoading(false);
   };
@@ -79,8 +78,8 @@ export const ShowTodos: React.FC<Props> = ({
         prev.filter(todo => todo.id !== postId)
       ));
     })
-      .catch(() => handleCatch('Unable to delete a todo'))
-      .finally(handleFinally);
+      .catch(() => handleError('Unable to delete a todo'))
+      .finally(resetLoadingState);
   };
 
   const handleUpdate = (todo: Todo) => {
@@ -97,8 +96,8 @@ export const ShowTodos: React.FC<Props> = ({
         return updateTodo;
       });
     })
-      .catch(() => handleCatch('Unable to update a todo'))
-      .finally(handleFinally);
+      .catch(() => handleError('Unable to update a todo'))
+      .finally(resetLoadingState);
   };
 
   const getRenameElement = (todo: Todo) => {
@@ -128,8 +127,8 @@ export const ShowTodos: React.FC<Props> = ({
         return updateTodo;
       });
     })
-      .catch(() => handleCatch('Unable to update a todo'))
-      .finally(handleFinally);
+      .catch(() => handleError('Unable to update a todo'))
+      .finally(resetLoadingState);
   };
 
   const baseSubmit = () => {
@@ -168,7 +167,6 @@ export const ShowTodos: React.FC<Props> = ({
           {renameTodo && renameTodo.id === todo.id
             ? (
               <div className="todo">
-                <br />
                 <form onSubmit={e => handleSubmit(e)}>
                   <input
                     type="text"
