@@ -63,7 +63,7 @@ export const App: React.FC = () => {
     };
 
     setLoadingIds([0, ...loadingIds]);
-    setTempTodo({ id: 0, ...todoToAdd});
+    setTempTodo({ id: 0, ...todoToAdd });
 
     try {
       const createdTodo = await todosService.addTodos(todoToAdd);
@@ -78,6 +78,34 @@ export const App: React.FC = () => {
     setTempTodo(null);
     setLoadingIds((ids) => {
       return ids.filter(id => id !== 0);
+    });
+  };
+
+  const updateTodo = async (todoId: number, args: Partial<Todo>) => {
+    setHasError(Error.NOTHING);
+
+    setLoadingIds((ids) => {
+      return [...ids, todoId];
+    });
+
+    try {
+      const updatedTodo = await todosService.updateTodo(todoId, args);
+
+      setTodos((prevTodos) => {
+        return prevTodos.map((currentTodo) => {
+          if (currentTodo.id === todoId) {
+            return updatedTodo;
+          }
+
+          return currentTodo;
+        });
+      });
+    } catch (error) {
+      setHasError(Error.UPDATE);
+    }
+
+    setLoadingIds((ids) => {
+      return ids.filter(id => id !== todoId);
     });
   };
 
@@ -109,21 +137,19 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
+          todos={todos}
+          setTodos={setTodos}
           addTodo={addTodo}
           loadingIds={loadingIds}
           setLoadingIds={setLoadingIds}
-          todos={todos}
-          setTodos={setTodos}
           isTempTodoExist={!!tempTodo}
           setHasError={setHasError}
         />
         <TodoList
+          updateTodo={updateTodo}
           deleteTodo={deleteTodo}
           loadingIds={loadingIds}
-          setLoadingIds={setLoadingIds}
-          setTodos={setTodos}
           tempTodo={tempTodo}
-          setHasError={setHasError}
           filteredTodos={filteredTodos}
         />
 

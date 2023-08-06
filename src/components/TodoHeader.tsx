@@ -6,21 +6,21 @@ import * as todosService from '../api/todos';
 type Props = {
   todos: Todo[],
   setTodos: (value: Todo[]) => void,
-  isTempTodoExist: boolean,
-  setHasError: (value: Error) => void,
+  addTodo: (title: string) => Promise<void>,
   loadingIds: number[],
   setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
-  addTodo: (title: string) => Promise<void>
+  isTempTodoExist: boolean,
+  setHasError: (value: Error) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
   todos,
   setTodos,
-  isTempTodoExist,
-  setHasError,
+  addTodo,
   loadingIds,
   setLoadingIds,
-  addTodo,
+  isTempTodoExist,
+  setHasError,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -28,11 +28,7 @@ export const TodoHeader: React.FC<Props> = ({
 
   const toggleAllTodos = async () => {
     const arrayTodoToUpdate = todos.filter(todo => {
-      if (todo.completed === neededStatus) {
-        return false;
-      }
-
-      return true;
+      return todo.completed !== neededStatus;
     });
 
     setLoadingIds(arrayTodoToUpdate.map(i => i.id));

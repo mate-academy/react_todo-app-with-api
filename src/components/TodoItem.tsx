@@ -2,25 +2,20 @@ import React, {
   FormEvent, useEffect, useRef, useState,
 } from 'react';
 import cn from 'classnames';
-import { Todo, Error } from '../types/Todo';
-import * as todosService from '../api/todos';
+import { Todo } from '../types/Todo';
 
 type Props = {
-  setTodos: (value: (prevTodos: Todo[]) => Todo[]) => void,
   todo: Todo,
-  setHasError: (value: Error) => void,
+  updateTodo: (todoId: number, args: Partial<Todo>) => Promise<void>,
+  deleteTodo: (todoId: number) => Promise<void>,
   loadingIds: number[],
-  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
-  deleteTodo: (todoId: number) => Promise<void>
 };
 
 export const TodoItem: React.FC<Props> = ({
-  setTodos,
   todo,
-  setHasError,
-  loadingIds,
-  setLoadingIds,
+  updateTodo,
   deleteTodo,
+  loadingIds,
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -38,35 +33,15 @@ export const TodoItem: React.FC<Props> = ({
     setIsEdited(false);
   };
 
-  const changeStatus = (todoId: number, args: Partial<Todo>) => {
-    setLoadingIds((ids) => {
-      return [...ids, todo.id];
-    });
-    setHasError(Error.NOTHING);
-
-    todosService.updateTodo(todoId, args)
-      .then((updatedTodo) => {
-        setTodos((prevTodos) => {
-          return prevTodos.map((currentTodo) => {
-            if (currentTodo.id === todoId) {
-              return updatedTodo;
-            }
-
-            return currentTodo;
-          });
-        });
-      })
-      .catch(() => {
-        setHasError(Error.UPDATE);
-      })
-      .finally(() => {
-        setLoadingIds((ids) => {
-          return ids.filter(id => id !== todo.id);
-        });
-      });
+  const changeStatus = async (
+    todoId: number, args: Partial<Todo>,
+  ): Promise<void> => {
+    await updateTodo(todoId, args);
   };
 
-  const updateTitle = (event?: FormEvent<HTMLFormElement>): void => {
+  const updateTitle = async (
+    event?: FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     if (event) {
       event.preventDefault();
     }
@@ -78,47 +53,20 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (editedTitle.length === 0) {
-      handleDeleteTodoById();
+      await handleDeleteTodoById();
 
       return;
     }
 
+    await updateTodo(todo.id, { title: editedTitle });
+
     setIsEdited(false);
-    setHasError(Error.NOTHING);
-    setLoadingIds((ids) => {
-      return [...ids, todo.id];
-    });
-
-    todosService.updateTodo(todo.id, { title: editedTitle })
-      .then((updatedTodo) => {
-        setTodos((prevTodos) => {
-          return prevTodos.map((currentTodo) => {
-            if (currentTodo.id === todo.id) {
-              return updatedTodo;
-            }
-
-            return currentTodo;
-          });
-        });
-      })
-      .catch(() => {
-        setHasError(Error.UPDATE);
-      })
-      .finally(() => {
-        setLoadingIds((ids) => {
-          return ids.filter(id => id !== todo.id);
-        });
-      });
-  };
-
-  const setEditMode = (value: boolean) => {
-    setIsEdited(value);
   };
 
   const onEscape = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setEditedTitle(todo.title);
-      setEditMode(false);
+      setIsEdited(false);
     }
   };
 
@@ -133,8 +81,8 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {
-            changeStatus(todo.id, { completed: !todo.completed });
+          onChange={async () => {
+            await changeStatus(todo.id, { completed: !todo.completed });
           }}
         />
       </label>
@@ -143,7 +91,7 @@ export const TodoItem: React.FC<Props> = ({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setEditMode(true)}
+            onDoubleClick={() => setIsEdited(true)}
           >
             {todo.title}
           </span>
@@ -164,9 +112,8 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             onChange={(event) => setEditedTitle(event.target.value)}
-            onBlur={() => {
-              updateTitle();
-              setEditMode(false);
+            onBlur={async () => {
+              await updateTitle();
             }}
             onKeyUp={onEscape}
             ref={titleField}
