@@ -111,7 +111,10 @@ export const TodoItem: React.FC<Props> = React.memo(({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setEditing(true)}
+            onDoubleClick={() => {
+              setEditing(true);
+              setNewTitle(todo.title);
+            }}
           >
             {todo.title}
           </span>

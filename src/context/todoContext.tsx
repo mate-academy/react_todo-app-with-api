@@ -182,7 +182,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
       setDeletedTodos(updadetTodos);
 
-      await Promise.all(updadetTodos.map(todo => todoService.deleteTodo(todo.id)));
+      await Promise.all(
+        updadetTodos.map((todo) => todoService.deleteTodo(todo.id)),
+      );
 
       setTodos(prevTodos => prevTodos.filter(todo => !todo.completed));
     } catch {
