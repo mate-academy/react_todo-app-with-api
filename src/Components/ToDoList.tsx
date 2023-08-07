@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { Error } from '../types/Error';
 
 type Props = {
   todos: Todo[];
@@ -12,7 +14,8 @@ export const TodoList: React.FC<Props> = React.memo(
   ({ todos, onDelete, onUpdate }) => {
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
     const [newTitle, setNewTitle] = useState('');
-    const [isLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<Error>(Error.NONE);
 
     const handleStartEditing = (todoId: number, title: string) => {
       setEditingTodoId(todoId);
@@ -23,11 +26,20 @@ export const TodoList: React.FC<Props> = React.memo(
       return todos.find(todo => todo.id === todoId);
     };
 
-    const updateTodoTitle = (todoId: number, title: string) => {
-      const todoToUpdate = findTodoById(todoId);
+    const updateTodoTitle = async (todoId: number, title: string) => {
+      try {
+        const todoToUpdate = findTodoById(todoId);
 
-      if (todoToUpdate) {
-        onUpdate(todoId, { ...todoToUpdate, title });
+        if (todoToUpdate) {
+          setIsLoading(true);
+          await onUpdate(todoId, { ...todoToUpdate, title });
+          setError(Error.NONE);
+        }
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      } catch (error) {
+        setError(Error.UPDATE);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -58,11 +70,11 @@ export const TodoList: React.FC<Props> = React.memo(
     return (
       <section className="todoapp__main">
 
-        {isLoading && (
+        {/* {isLoading && (
           <div className="loader-overlay">
             <div className="loader" />
           </div>
-        )}
+        )} */}
 
         {todos.map(({ id, completed, title }) => {
           const isEditing = editingTodoId === id;
