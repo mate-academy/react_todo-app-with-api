@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = React.memo(
         if (todoToUpdate) {
           setIsLoading(true);
           await onUpdate(todoId, { ...todoToUpdate, title });
-          setError(Error.NONE);
+          setError(error);
         }
       // eslint-disable-next-line @typescript-eslint/no-shadow
       } catch (error) {
@@ -133,18 +133,22 @@ export const TodoList: React.FC<Props> = React.memo(
                 </button>
               )}
 
-              <div
+              {/* <div
                 className={classNames('modal overlay', {
                   'is-active': isEditing,
                 })}
               >
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
-              </div>
+              </div> */}
               {isLoading && (
-                <div className="loader-overlay">
+                <>
+                  <div className={classNames('loader-overlay', {
+                    'is-active': isEditing,
+                  })}
+                  />
                   <div className="loader" />
-                </div>
+                </>
               )}
             </div>
           );
