@@ -181,7 +181,6 @@ export const App: React.FC = () => {
               setFilterBy={setFilterBy}
               todos={visibleTodos}
               onDelete={deleteAllCompletedTodos}
-              deleteAllCompletedTodos={deleteAllCompletedTodos}
             />
           </>
         )}

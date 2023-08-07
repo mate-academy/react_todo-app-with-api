@@ -7,7 +7,6 @@ type Props = {
   setFilterBy: (value: FilterType) => void,
   todos: Todo[],
   onDelete: (id: number) => void,
-  deleteAllCompletedTodos: () => void,
 };
 
 const filterOptions = Object.values(FilterType);
