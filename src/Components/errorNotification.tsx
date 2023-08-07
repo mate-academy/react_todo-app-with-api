@@ -1,45 +1,34 @@
-import { useState } from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { useEffect } from 'react';
+import cn from 'classnames';
+import { Error } from '../types/Error';
 
-import classNames from 'classnames';
-
-interface NotificationProps {
-  isError: boolean;
+interface Props {
+  error: Error;
+  onErrorChange: (error: Error) => void,
 }
 
-export const Notification: React.FC<NotificationProps> = ({ isError }) => {
-  const [isHidden, setIsHidden] = useState(!isError);
+export const Notification: React.FC<Props> = ({ error, onErrorChange }) => {
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => onErrorChange(Error.NONE), 3000);
+    }
+  }, [error]);
 
-  const autoHide = () => {
-    setTimeout(() => {
-      setIsHidden(true);
-    }, 3000);
-  };
-
-  autoHide();
+  // eslint-disable-next-line @typescript-eslint/no-shadow
 
   return (
-    <div
-      className={classNames(
-        'notification',
-        'is-danger',
-        'is-light',
-        'has-text-weight-normal',
-        { hidden: isHidden },
-      )}
+    <div className={cn('notification',
+      'is-danger is-light has-text-weight-normal', {
+        hidden: error === Error.NONE,
+      })}
     >
-      <button // eslint-disable-line jsx-a11y/control-has-associated-label
+      <button
         type="button"
         className="delete"
-        onClick={() => setIsHidden(true)}
+        onClick={() => onErrorChange(Error.NONE)}
       />
-
-      {/* show only one message at a time */}
-      Unable to add a todo
-      <br />
-      Unable to delete a todo
-      <br />
-      Unable to update a todo
+      {error}
     </div>
-
   );
 };

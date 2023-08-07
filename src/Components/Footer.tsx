@@ -5,7 +5,9 @@ import { Todo, FilterType } from '../types/Todo';
 type Props = {
   filterBy: FilterType,
   setFilterBy: (value: FilterType) => void,
-  todos: Todo[]
+  todos: Todo[],
+  onDelete: (id: number) => void,
+  deleteAllCompletedTodos: () => void,
 };
 
 const filterOptions = Object.values(FilterType);
@@ -14,8 +16,16 @@ export const Footer: React.FC<Props> = React.memo(({
   filterBy,
   setFilterBy,
   todos,
+  onDelete,
 }) => {
   const itemsLeftLength = todos.filter((todo) => !todo.completed).length;
+
+  const deleteAllCompletedTodos = async () => {
+    const completedTodoIds = todos.filter(todo => todo.completed);
+    const idCompletesTodoId = completedTodoIds.map(todo => todo.id);
+
+    await Promise.all(idCompletesTodoId.map(id => onDelete(id)));
+  };
 
   return (
     <footer className="todoapp__footer">
@@ -41,7 +51,11 @@ export const Footer: React.FC<Props> = React.memo(({
         })}
       </nav>
 
-      <button type="button" className="todoapp__clear-completed">
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        onClick={deleteAllCompletedTodos}
+      >
         Clear completed
       </button>
     </footer>

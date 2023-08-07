@@ -12,15 +12,11 @@ export const TodoList: React.FC<Props> = React.memo(
   ({ todos, onDelete, onUpdate }) => {
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
     const [newTitle, setNewTitle] = useState('');
+    const [isLoading] = useState(false);
 
     const handleStartEditing = (todoId: number, title: string) => {
       setEditingTodoId(todoId);
       setNewTitle(title);
-    };
-
-    const handleCancelEditing = () => {
-      setEditingTodoId(null);
-      setNewTitle('');
     };
 
     const findTodoById = (todoId: number): Todo | undefined => {
@@ -36,7 +32,7 @@ export const TodoList: React.FC<Props> = React.memo(
     };
 
     const handleSaveEditing = (todoId: number, title: string) => {
-      if (title.trim() === '') {
+      if (!title.trim()) {
         return;
       }
 
@@ -61,6 +57,13 @@ export const TodoList: React.FC<Props> = React.memo(
 
     return (
       <section className="todoapp__main">
+
+        {isLoading && (
+          <div className="loader-overlay">
+            <div className="loader" />
+          </div>
+        )}
+
         {todos.map(({ id, completed, title }) => {
           const isEditing = editingTodoId === id;
 
@@ -82,14 +85,23 @@ export const TodoList: React.FC<Props> = React.memo(
               </label>
 
               {isEditing ? (
-                <input
-                  type="text"
-                  className="todo__edit-input"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  onBlur={() => handleSaveEditing(id, newTitle)}
-                  onKeyDown={(e) => handleKeyDown(e, id)}
-                />
+                <>
+                  <input
+                    type="text"
+                    className="todo__edit-input"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    onBlur={() => handleSaveEditing(id, newTitle)}
+                    onKeyDown={(e) => handleKeyDown(e, id)}
+                  />
+                  <button
+                    type="button"
+                    className="todo__remove"
+                    onClick={() => onDelete(id)}
+                  >
+                    ×
+                  </button>
+                </>
               ) : (
                 <span
                   className="todo__title"
@@ -99,15 +111,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 </span>
               )}
 
-              {isEditing ? (
-                <button
-                  type="button"
-                  className="todo__cancel-edit"
-                  onClick={handleCancelEditing}
-                >
-                  Cancel
-                </button>
-              ) : (
+              {isEditing || (
                 <button
                   type="button"
                   className="todo__remove"
@@ -117,10 +121,19 @@ export const TodoList: React.FC<Props> = React.memo(
                 </button>
               )}
 
-              <div className="modal overlay">
+              <div
+                className={classNames('modal overlay', {
+                  'is-active': isEditing,
+                })}
+              >
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
               </div>
+              {isLoading && (
+                <div className="loader-overlay">
+                  <div className="loader" />
+                </div>
+              )}
             </div>
           );
         })}
