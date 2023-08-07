@@ -3,7 +3,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoForm } from './components/TodoForm/TodoForm';
@@ -23,7 +25,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [filterBy, setFilterBy] = useState<string>(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [removingId, setRemovingId] = useState<number | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   const isError = !!errorMessage;
 
@@ -39,7 +41,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const addTodo = (createdTodo: Todo) => {
+  const addTodo = useCallback((createdTodo: Todo) => {
     setLoading(true);
     setTempTodo(createdTodo);
 
@@ -54,10 +56,10 @@ export const App: React.FC = () => {
         setLoading(false);
         setTempTodo(null);
       });
-  };
+  }, []);
 
-  const deleteTodo = (todoId: number) => {
-    setRemovingId(todoId);
+  const deleteTodo = useCallback((todoId: number) => {
+    setLoadingTodoIds(ids => [...ids, todoId]);
     postServes.deleteTodos(todoId)
       .then(() => {
         setTodos((currentTodos: Todo[] | null) => {
@@ -71,11 +73,11 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
-        setRemovingId(null);
+        setLoadingTodoIds(ids => ids.filter(id => id !== todoId));
       });
-  };
+  }, []);
 
-  const deleteCompletedTodo = () => {
+  const deleteCompletedTodo = useCallback(() => {
     setLoading(true);
 
     const completedTodos = todos?.filter(todo => todo.completed);
@@ -103,10 +105,10 @@ export const App: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  };
+  }, [todos]);
 
-  const updateTodo = (updatedTodo: Todo) => {
-    setLoading(true);
+  const updateTodo = useCallback((updatedTodo: Todo) => {
+    setLoadingTodoIds(currentIds => [...currentIds, updatedTodo.id]);
 
     postServes.updateTodo(updatedTodo)
       .then(updTodo => {
@@ -124,10 +126,12 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage('Unable to update todos');
       })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+      .finally(() => setLoadingTodoIds(
+        currentIds => currentIds.filter(id => {
+          return id !== updatedTodo.id;
+        }),
+      ));
+  }, []);
 
   const toggleAllTodos = () => {
     if (!todos || todos.length === 0) {
@@ -184,7 +188,7 @@ export const App: React.FC = () => {
 
           <TodoForm
             loading={loading}
-            addTodo={(newTodo) => addTodo(newTodo)}
+            addTodo={addTodo}
             userId={USER_ID}
             setNotification={setErrorMessage}
             tempTodo={tempTodo}
@@ -197,8 +201,8 @@ export const App: React.FC = () => {
               todos={vidibleTodos}
               tempTodo={tempTodo}
               removeTodo={deleteTodo}
-              removingId={removingId}
-              updateTodo={(updTodo) => updateTodo(updTodo)}
+              updateTodo={updateTodo}
+              loadingTodoIds={loadingTodoIds}
             />
           </section>
         )}

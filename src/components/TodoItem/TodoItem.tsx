@@ -5,12 +5,17 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   removeTodo?: (todoId: number) => void,
-  removingId?: number | null,
   updateTodo: (todo: Todo) => void,
+  tempTodo?: Todo | null,
+  loadingTodoIds?: number[],
 };
 
 export const TodoItem:React.FC<Props> = ({
-  todo, removeTodo, removingId, updateTodo,
+  todo,
+  removeTodo,
+  updateTodo,
+  tempTodo,
+  loadingTodoIds,
 }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const [edit, setEdit] = useState<boolean>(false);
@@ -116,7 +121,8 @@ export const TodoItem:React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': removingId === todo.id,
+        'is-active': (todo?.id && loadingTodoIds?.includes(todo?.id))
+                    || tempTodo,
       })}
       >
         <div className="modal-background has-background-white-ter" />

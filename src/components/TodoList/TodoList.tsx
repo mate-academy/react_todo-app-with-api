@@ -3,15 +3,19 @@ import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 type Props = {
-  todos: Todo[] | null,
+  todos: Todo[],
   tempTodo?: Todo | null,
   removeTodo: (todoId: number) => void,
-  removingId: number | null,
   updateTodo: (todo: Todo) => void,
+  loadingTodoIds: number[],
 };
 
 export const TodoList:React.FC<Props> = ({
-  todos, tempTodo, removeTodo, removingId, updateTodo,
+  todos,
+  tempTodo,
+  removeTodo,
+  updateTodo,
+  loadingTodoIds,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,13 +30,14 @@ export const TodoList:React.FC<Props> = ({
               todo={todo}
               key={todo.id}
               removeTodo={removeTodo}
-              removingId={removingId}
               updateTodo={(updTodo) => updateTodo(updTodo)}
+              tempTodo={tempTodo}
+              loadingTodoIds={loadingTodoIds}
             />
           </CSSTransition>
         ))}
 
-        {tempTodo && (
+        {tempTodo?.id !== undefined && tempTodo?.id > 0 && (
           <CSSTransition
             key={0}
             timeout={300}
