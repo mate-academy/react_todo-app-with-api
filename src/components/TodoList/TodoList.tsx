@@ -3,28 +3,16 @@ import { TodoItem } from '../TodoItem';
 
 type Props = {
   visibleTodos: Todo[],
-  onDelete: (todoId: number) => void,
-  isLoading: boolean,
-  isActiveIds: number[],
-  tempTodo: Todo | null,
-  toggleTodoCompleted: (todoId: number) => void,
-  editMode: boolean,
-  setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
-  setSelectedTodo: (todo: Todo | null) => void,
-  selectedTodo: Todo | null,
-  updateTodo: (todoId: number, updatedTitle: string) => void,
+  updateTodoItem: (todoId: number, updatedTitle: string) => void,
+  deleteTodo: (todoId: number) => void,
+  toggleTodoCompleted: (todoId: number) => Promise<void>,
 };
 
 export const TodoList: React.FC<Props> = ({
   visibleTodos,
-  onDelete,
-  isLoading,
-  isActiveIds,
+  updateTodoItem,
+  deleteTodo,
   toggleTodoCompleted,
-  setSelectedTodo,
-  selectedTodo,
-  setEditMode,
-  updateTodo,
 }) => {
   return (
     <>
@@ -32,14 +20,9 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={todo.id}
           todo={todo}
-          onDelete={onDelete}
-          isLoading={isLoading}
-          isActiveIds={isActiveIds}
+          updateTodoItem={updateTodoItem}
+          deleteTodo={deleteTodo}
           toggleTodoCompleted={toggleTodoCompleted}
-          setEditMode={setEditMode}
-          setSelectedTodo={setSelectedTodo}
-          selectedTodo={selectedTodo}
-          updateTodo={updateTodo}
         />
       ))}
     </>

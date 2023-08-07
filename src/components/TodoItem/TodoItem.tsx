@@ -1,30 +1,31 @@
 import cn from 'classnames';
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+  useState, useRef, useEffect, useContext,
+} from 'react';
 import { Todo } from '../../types/Todo';
+import { TodosContext } from '../context/TodosContext';
 
 type Props = {
   todo: Todo,
-  onDelete: (todoId: number) => void,
-  isLoading: boolean,
-  isActiveIds: number[],
+  updateTodoItem: (todoId: number, updatedTitle: string) => void,
+  deleteTodo: (todoId: number) => void,
   toggleTodoCompleted: (todoId: number) => void,
-  setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
-  setSelectedTodo: (todo: Todo | null) => void,
-  selectedTodo: Todo | null,
-  updateTodo: (todoId: number, updatedTitle: string) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDelete,
-  isLoading,
-  isActiveIds,
+  updateTodoItem,
+  deleteTodo,
   toggleTodoCompleted,
-  setEditMode,
-  setSelectedTodo,
-  selectedTodo,
-  updateTodo,
 }) => {
+  const {
+    isLoading,
+    isActiveIds,
+    setEditMode,
+    setSelectedTodo,
+    selectedTodo,
+  } = useContext(TodosContext);
+
   const [updatedTitle, setUpdatedTitle] = useState<string>(todo.title);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -38,13 +39,13 @@ export const TodoItem: React.FC<Props> = ({
     e.preventDefault();
 
     if (!updatedTitle.trim()) {
-      onDelete(todo.id);
+      deleteTodo(todo.id);
 
       return;
     }
 
     if (updatedTitle !== todo.title) {
-      updateTodo(todo.id, updatedTitle);
+      updateTodoItem(todo.id, updatedTitle);
     }
 
     if (updatedTitle === todo.title) {
@@ -106,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => onDelete(todo.id)}
+              onClick={() => deleteTodo(todo.id)}
             >
               ×
             </button>
