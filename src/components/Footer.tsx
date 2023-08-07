@@ -4,22 +4,22 @@ import { Todo } from '../types/Todo';
 import { SelectStatus } from '../types/SelectStatus';
 
 type Props = {
-  filteredTodos: Todo[],
   todosFromServer: Todo[],
   selectedStatus: string,
   setSelectedStatus: (value: SelectStatus) => void;
   deleteCompletedTodos: () => void,
+  allCompletedTodos: Todo[],
+  allActiveTodos: Todo[],
 };
 
 export const Footer: React.FC<Props> = ({
-  filteredTodos: todos,
   todosFromServer,
   selectedStatus,
   setSelectedStatus,
   deleteCompletedTodos,
+  allCompletedTodos,
+  allActiveTodos,
 }) => {
-  const areCompletedTodos = todos.some(todo => todo.completed);
-
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
@@ -44,7 +44,13 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedStatus === SelectStatus.Active },
           )}
-          onClick={() => setSelectedStatus(SelectStatus.Active)}
+          onClick={() => {
+            if (allActiveTodos.length > 0) {
+              setSelectedStatus(SelectStatus.Active);
+            } else {
+              setSelectedStatus(SelectStatus.All);
+            }
+          }}
         >
           {SelectStatus.Active}
         </a>
@@ -55,7 +61,13 @@ export const Footer: React.FC<Props> = ({
             'filter__link',
             { selected: selectedStatus === SelectStatus.Completed },
           )}
-          onClick={() => setSelectedStatus(SelectStatus.Completed)}
+          onClick={() => {
+            if (allCompletedTodos.length > 0) {
+              setSelectedStatus(SelectStatus.Completed);
+            } else {
+              setSelectedStatus(SelectStatus.All);
+            }
+          }}
         >
           {SelectStatus.Completed}
         </a>
@@ -65,7 +77,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className={classNames(
           'todoapp__clear-completed',
-          { 'is-invisible': !areCompletedTodos },
+          { 'is-invisible': !allCompletedTodos },
         )}
         onClick={deleteCompletedTodos}
       >

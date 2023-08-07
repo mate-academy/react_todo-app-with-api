@@ -42,11 +42,10 @@ export const TodoItem: React.FC<Props> = ({
 
   const deleteTodo = useCallback((todoId: number) => {
     setSelectedTodoId(todoId);
-    if (todos) {
-      setTimeout(() => setTodosFromServer(
-        todos.filter(deletedTodo => deletedTodo.id !== todoId),
-      ), 300);
-    }
+
+    setTimeout(() => setTodosFromServer(
+      todos.filter(deletedTodo => deletedTodo.id !== todoId),
+    ), 300);
 
     return todoService.deleteTodo(String(todoId))
       .catch((error) => {

@@ -27,24 +27,36 @@ export const App: React.FC = () => {
       .catch(() => setErrorMesage(TodoError.load));
   }, []);
 
+  useEffect(() => {
+    const noActiveTodos = !todosFromServer.some(todo => !todo.completed);
+    const noCompletedTodos = !todosFromServer.some(todo => todo.completed);
+
+    if (noActiveTodos && selectedStatus === SelectStatus.Active) {
+      setSelectedStatus(SelectStatus.All);
+    } else if (noCompletedTodos
+      && selectedStatus === SelectStatus.Completed) {
+      setSelectedStatus(SelectStatus.All);
+    }
+  }, [todosFromServer]);
+
   const getFilteredTodos = useMemo(() => {
-    return ((todos: Todo[]) => {
-      const filteredTodos = [...todos];
+    const filteredTodos = [...todosFromServer];
 
-      switch (selectedStatus) {
-        case SelectStatus.Active:
-          return filteredTodos.filter(todo => !todo.completed);
+    switch (selectedStatus) {
+      case SelectStatus.Active:
+        return filteredTodos.filter(todo => !todo.completed);
 
-        case SelectStatus.Completed:
-          return filteredTodos.filter(todo => todo.completed);
+      case SelectStatus.Completed:
+        return filteredTodos.filter(todo => todo.completed);
 
-        default:
-          return filteredTodos;
-      }
-    });
+      default:
+        return filteredTodos;
+    }
   }, [todosFromServer, selectedStatus]);
 
-  const visibleTodos = getFilteredTodos(todosFromServer);
+  const visibleTodos = getFilteredTodos;
+  const allCompletedTodos = todosFromServer.filter(todo => todo.completed);
+  const allActiveTodos = todosFromServer.filter(todo => !todo.completed);
 
   const deleteCompletedTodos = useCallback(() => {
     const completedTodos = visibleTodos.filter(todo => todo.completed);
@@ -66,7 +78,10 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMesage(TodoError.delete);
       })
-      .finally(() => setChangedStatusIds([]));
+      .finally(() => {
+        setChangedStatusIds([]);
+        setSelectedStatus(SelectStatus.All);
+      });
   }, [todosFromServer]);
 
   const toggleTodoStatus = useCallback(async ({
@@ -76,7 +91,7 @@ export const App: React.FC = () => {
     completed,
   }: Todo) => {
     try {
-      const newTodos = visibleTodos.map(todo => {
+      const newTodos = todosFromServer.map(todo => {
         if (todo.id === id) {
           return { ...todo, completed: !completed };
         }
@@ -92,13 +107,16 @@ export const App: React.FC = () => {
         title,
         userId,
         completed: !completed,
+      }).then(() => {
+        todoService
+          .getTodos(todoService.USER_ID);
       });
     } catch {
       setErrorMesage(TodoError.update);
     } finally {
       setSelectedTodoId(null);
     }
-  }, [todosFromServer]);
+  }, [todosFromServer, selectedStatus]);
 
   if (!todoService.USER_ID) {
     return <UserWarning />;
@@ -110,7 +128,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={visibleTodos}
+          todos={todosFromServer}
           setTodosFromServer={setTodosFromServer}
           setErrorMesage={setErrorMesage}
           setChangedStatusIds={setChangedStatusIds}
@@ -124,7 +142,7 @@ export const App: React.FC = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
-                  todos={visibleTodos}
+                  todos={todosFromServer}
                   newAddedTodoId={newAddedTodoId}
                   setErrorMesage={setErrorMesage}
                   selectedTodoId={selectedTodoId}
@@ -141,11 +159,12 @@ export const App: React.FC = () => {
         {visibleTodos.length > 0
           && (
             <Footer
-              filteredTodos={visibleTodos}
               todosFromServer={todosFromServer}
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
               deleteCompletedTodos={deleteCompletedTodos}
+              allCompletedTodos={allCompletedTodos}
+              allActiveTodos={allActiveTodos}
             />
           )}
       </div>
