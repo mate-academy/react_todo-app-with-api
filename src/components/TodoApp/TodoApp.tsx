@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import cn from 'classnames';
 import * as todoServise from '../../api/todos';
+import * as getTodos from '../../utils/getTodos';
 import { Footer } from '../Footer';
 import { TodoList } from '../TodoList';
 import { Status } from '../../types/Status';
@@ -30,6 +31,7 @@ export const TodoApp: React.FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
   const [sortField, setSortField] = useState(Status.All);
   const [error, setError] = useState(Error.NONE);
+  const [toggleTodosIsActive, setToggleTodosIsActive] = useState(false);
 
   useEffect(() => {
     todoServise.getTodos(USER_ID)
@@ -70,13 +72,31 @@ export const TodoApp: React.FC = () => {
     }
   };
 
-  const toggleTodoCompletedAll = () => {
-    const todoIds = visibleTodos.map(todo => todo.id);
+  const toggleTodoCompletedAll = async () => {
+    const updatedToggleTodosIsActive = !toggleTodosIsActive;
 
-    todoIds.forEach(todoId => {
-      toggleTodoCompleted(todoId);
-      setIsActiveIds(todoIds);
-    });
+    setToggleTodosIsActive(updatedToggleTodosIsActive);
+
+    const updatedIds = visibleTodos.map(todo => todo.id);
+
+    setIsActiveIds(updatedIds);
+    setIsLoading(true);
+
+    try {
+      await Promise.all(
+        visibleTodos.map(todo => todoServise.updateTodo(
+          { ...todo, completed: !toggleTodosIsActive }, todo.id,
+        )),
+      );
+      setTodos(currentTodos => currentTodos.map(
+        todo => ({ ...todo, completed: !toggleTodosIsActive }),
+      ));
+    } catch {
+      setError(Error.UPDATE);
+    } finally {
+      setIsLoading(false);
+      setIsActiveIds([]);
+    }
   };
 
   const updateTodoItem = async (todoId: number, updatedTitle: string) => {
@@ -111,14 +131,6 @@ export const TodoApp: React.FC = () => {
   }
 
   const todosExist = todos.length > 0;
-
-  function getNotCompletedTodos() {
-    return todos.filter(todo => !todo.completed);
-  }
-
-  function getCompletedTodos() {
-    return todos.filter(todo => todo.completed);
-  }
 
   const handleAddTodo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +182,9 @@ export const TodoApp: React.FC = () => {
   };
 
   const clearCompleted = () => {
-    const completedTodosIds = getCompletedTodos().map(todo => todo.id);
+    const completedTodosIds = getTodos.getCompletedTodos(todos).map(
+      todo => todo.id,
+    );
 
     completedTodosIds.forEach(todoId => {
       deleteTodo(todoId);
@@ -192,7 +206,7 @@ export const TodoApp: React.FC = () => {
                   active: filteredTodos.every(todo => todo.completed),
                 })}
                 aria-label="toggleButton"
-                onClick={() => toggleTodoCompletedAll()}
+                onClick={toggleTodoCompletedAll}
               />
             )}
 
@@ -221,8 +235,12 @@ export const TodoApp: React.FC = () => {
               </section>
 
               <Footer
-                numberOfCompletedTodos={getCompletedTodos().length}
-                numberOfNotCompletedTodos={getNotCompletedTodos().length}
+                numberOfCompletedTodos={
+                  getTodos.getCompletedTodos(todos).length
+                }
+                numberOfNotCompletedTodos={
+                  getTodos.getNotCompletedTodos(todos).length
+                }
                 sortField={sortField}
                 setSortField={setSortField}
                 clearCompleted={clearCompleted}
