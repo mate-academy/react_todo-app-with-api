@@ -6,9 +6,9 @@ export const getTodos = (userId: number) => {
 };
 
 export const addTodo = (
-  { title, userId, completed }: Omit<Todo, 'id'>,
+  { userId, title, completed }: Omit<Todo, 'id'>,
 ) :Promise<Todo> => {
-  return client.post<Todo>('/todos', { title, userId, completed });
+  return client.post<Todo>('/todos', { userId, title, completed });
 };
 
 export const deleteTodo = (todoId :number) => {
