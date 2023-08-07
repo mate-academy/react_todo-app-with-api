@@ -3,7 +3,6 @@ import React, {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
 import classNames from 'classnames';
-import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
 import { TodoApp } from './components/TodoApp';

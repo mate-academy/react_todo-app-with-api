@@ -11,7 +11,7 @@ type Props = {
   setLoadingById: React.Dispatch<React.SetStateAction<number[]>>
 };
 
-export const TodoList: React.FC<Props> = React.memo(({
+export const TodoList: React.FC<Props> = ({
   todos,
   deleteTodo = () => { },
   tempTodo,
@@ -46,4 +46,4 @@ export const TodoList: React.FC<Props> = React.memo(({
       )}
     </section>
   );
-});
+};
