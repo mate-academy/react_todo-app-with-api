@@ -32,15 +32,15 @@ export const TodoItem: React.FC<Item> = ({
     }
   }, [editing]);
 
-  function enterEdit() {
+  const enterEdit = () => {
     switchTodoTitle(todo.title);
     setEditing(true);
-  }
+  };
 
-  function clearEdit() {
+  const clearEdit = () => {
     switchTodoTitle('');
     setEditing(false);
-  }
+  };
 
   const handleToggle = () => {
     setLoadingTodo(true);
@@ -56,7 +56,7 @@ export const TodoItem: React.FC<Item> = ({
 
   const handleTitleChange = () => {
     const isTitleChanged = newTodoTitle !== todo.title;
-    const isTitleEmpty = !newTodoTitle;
+    const isTitleEmpty = !newTodoTitle.trim();
 
     if (!isTitleChanged || isTitleEmpty) {
       clearEdit();

@@ -1,5 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoFilterBar } from './components/TodoFilter';
@@ -59,8 +64,8 @@ export const App: React.FC = () => {
     });
   };
 
-  const createTodo = async () => {
-    if (!todoTitle) {
+  const createTodo = useCallback(async () => {
+    if (!todoTitle.trim()) {
       setErrorMessage('Title shouldn`t be empty');
 
       return;
@@ -68,14 +73,14 @@ export const App: React.FC = () => {
 
     setTempTodo({
       id: 0,
-      title: todoTitle,
+      title: todoTitle.trim(),
       completed: false,
       userId: USER_ID,
     });
 
     try {
       const newTodo = await addTodo({
-        title: todoTitle,
+        title: todoTitle.trim(),
         completed: false,
         userId: USER_ID,
       });
@@ -86,9 +91,9 @@ export const App: React.FC = () => {
     } finally {
       setTempTodo(null);
     }
-  };
+  }, [addTodo, todoTitle, USER_ID]);
 
-  const updateTodoStatus = async (todoId: number) => {
+  const updateTodoStatus = useCallback(async (todoId: number) => {
     try {
       const switchedTodo = todos.find(t => t.id === todoId);
 
@@ -102,13 +107,13 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to update todo');
     }
-  };
+  }, [patchTodoStatus, todos]);
 
-  const updateTodoTitle = async (todoId: number) => {
+  const updateTodoTitle = useCallback(async (todoId: number) => {
     try {
       const changedTodo = todos.find(t => t.id === todoId);
 
-      await patchTodoTitle(todoId, { title: newTodoTitle });
+      await patchTodoTitle(todoId, { title: newTodoTitle.trim() });
       if (changedTodo) {
         setTodos(prevTodos => prevTodos.map(todo => {
           if (todo.id === todoId) {
@@ -122,7 +127,7 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to update todo');
       throw error;
     }
-  };
+  }, [patchTodoTitle, todos, newTodoTitle]);
 
   useEffect(() => {
     setErrorMessage('');
