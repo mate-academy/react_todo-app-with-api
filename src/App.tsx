@@ -38,7 +38,7 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const handleImputTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputTodo = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
@@ -87,16 +87,20 @@ export const App: React.FC = () => {
   };
 
   const removeCompletedTodos = () => {
-    const complitedTodos = todos.filter((todo) => todo.completed === true);
+    const completedTodos = todos.filter((todo) => todo.completed === true);
 
-    const complitedIds = complitedTodos.map((todo) => todo.id);
+    const completedIds = completedTodos.map((todo) => todo.id);
 
-    setLoadingTodos(complitedIds);
+    setLoadingTodos(completedIds);
 
-    complitedTodos.map((currentTodo) => deleteTodos(USER_ID, currentTodo.id)
+    const deletePromises = completedTodos.map(
+      (currentTodo) => deleteTodos(USER_ID, currentTodo.id),
+    );
+
+    Promise.all(deletePromises)
       .then(() => {
         setTodos(
-          (prevTodos) => prevTodos.filter((todo) => todo.completed === false),
+          (prevTodos) => prevTodos.filter((todo) => !todo.completed),
         );
 
         if (error && error === TodoErrors.Delete) {
@@ -106,7 +110,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setError(TodoErrors.Delete);
       })
-      .finally(() => setLoadingTodos(null)));
+      .finally(() => setLoadingTodos(null));
   };
 
   const handleEditTodo = (modifiedTodo: string, id: number) => {
@@ -200,7 +204,7 @@ export const App: React.FC = () => {
           input={input}
           addTodo={handleAddTodo}
           onCheckAllTodos={handleChackAllTodos}
-          handleImputTodo={handleImputTodo}
+          handleImputTodo={handleInputTodo}
         />
 
         {isLoading ? (
