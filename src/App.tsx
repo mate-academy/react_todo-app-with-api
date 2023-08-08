@@ -169,6 +169,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDelete={handleTodoDelete}
               onUpdate={updateTodoItem}
+              setError={setError}
             />
 
             <Footer

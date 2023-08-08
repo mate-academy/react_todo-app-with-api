@@ -9,13 +9,16 @@ type Props = {
   todos: Todo[];
   onDelete: (todoId: number) => void;
   onUpdate: (todoId: number, updatedTodo: Todo) => void;
+  setError: (error: Error) => void;
 };
 
 export const TodoList: React.FC<Props> = React.memo(
-  ({ todos, onDelete, onUpdate }) => {
+  ({
+    todos, onDelete, onUpdate, setError,
+  }) => {
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
     const [newTitle, setNewTitle] = useState('');
-    const [error, setError] = useState<Error>(Error.NONE);
+    // const [error, setError] = useState<Error>(Error.NONE);
     const [loadingStates, setLoadingStates] = useState<boolean[]>(
       todos.map(() => false),
     );
