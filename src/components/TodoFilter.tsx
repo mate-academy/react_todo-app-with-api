@@ -3,13 +3,10 @@ import { FilterType } from '../types/FilterType';
 
 type Props = {
   status: FilterType,
-  onStatusChange: (filter: FilterType) => void,
+  setStatus: (filter: FilterType) => void,
 };
 
-export const TodoFilter: React.FC<Props> = ({ status, onStatusChange }) => {
-  const handleStatusChange
-  = (filterType: FilterType) => () => onStatusChange(filterType);
-
+export const TodoFilter: React.FC<Props> = ({ status, setStatus }) => {
   return (
     <nav className="filter">
       <a
@@ -17,7 +14,7 @@ export const TodoFilter: React.FC<Props> = ({ status, onStatusChange }) => {
         className={cn('filter__link', {
           selected: status === FilterType.All,
         })}
-        onClick={handleStatusChange(FilterType.All)}
+        onClick={() => setStatus(FilterType.All)}
       >
         {FilterType.All}
       </a>
@@ -27,7 +24,7 @@ export const TodoFilter: React.FC<Props> = ({ status, onStatusChange }) => {
         className={cn('filter__link', {
           selected: status === FilterType.Active,
         })}
-        onClick={handleStatusChange(FilterType.Active)}
+        onClick={() => setStatus(FilterType.Active)}
       >
         {FilterType.Active}
       </a>
@@ -37,7 +34,7 @@ export const TodoFilter: React.FC<Props> = ({ status, onStatusChange }) => {
         className={cn('filter__link', {
           selected: status === FilterType.Completed,
         })}
-        onClick={handleStatusChange(FilterType.Completed)}
+        onClick={() => setStatus(FilterType.Completed)}
       >
         {FilterType.Completed}
       </a>

@@ -1,6 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useEffect, useMemo, useRef, useState,
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import cn from 'classnames';
 import * as postService from './api/todos';
@@ -32,10 +35,8 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(Error.None);
   const [status, setStatus] = useState(FilterType.All);
   const [query, setQuery] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -59,47 +60,36 @@ export const App: React.FC = () => {
     setQuery(event.target.value);
   };
 
-  function addTodo({ userId, title, completed }: Todo): Promise<void> {
-    setErrorMessage(Error.None);
-
-    return postService.createTodos({ userId, title, completed })
-      .then(newTodo => {
-        setTodos(curentTodos => [...curentTodos, newTodo]);
-        inputRef.current?.focus();
-      })
-      .catch((errorAdd) => {
-        setErrorMessage(Error.Add);
-        throw errorAdd;
-      });
-  }
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    setIsSubmitting(true);
 
-    const newTodo: Todo = {
-      id: todos.length + 1,
-      userId: USER_ID,
-      title: query,
-      completed: false,
-    };
-
-    if (query.length === 0) {
+    if (query.trim() === '') {
       setErrorMessage(Error.EmptyTitle);
-    } else {
-      addTodo(newTodo)
-        .then(() => {
-          setQuery('');
-        })
-        .finally(() => {
-          setTempTodo(null);
-          setIsSubmitting(false);
-        });
+
+      return;
     }
 
-    setTempTodo({
-      ...newTodo,
-    });
+    const newTodo = { title: query, userId: USER_ID, completed: false };
+
+    setTempTodo({ ...newTodo, id: 0 });
+    setLoadingIds((ids) => [...ids, 0]);
+
+    postService.createTodo(newTodo)
+      .then(() => {
+        getTodos(USER_ID)
+          .then((value) => {
+            setTodos(value);
+            setTempTodo(null);
+          })
+          .finally(() => {
+            setLoadingIds((ids) => ids.filter(id => id !== 0));
+          });
+      })
+      .catch(() => {
+        setErrorMessage(Error.Add);
+      });
+
+    setQuery('');
   };
 
   const onDeleteTodo = (todoId: number) => {
@@ -121,32 +111,52 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    const newStatus
-      = todos.every(todo => todo.completed)
-        ? FilterType.Active : FilterType.Completed;
-    const updatedTodos
-      = todos.map(todo => ({
-        ...todo, completed: newStatus === FilterType.Completed,
-      }));
+    const uncompletedTodos = todos.filter(todo => todo.completed === false);
+    const uncompletedTodosIds = uncompletedTodos.map(todo => todo.id);
 
-    setTodos(updatedTodos);
-    setStatus(newStatus);
+    if (uncompletedTodos.length === 0) {
+      setLoadingIds(currIds => [...currIds, ...todos.map(todo => todo.id)]);
 
-    const changedTodos
-      = updatedTodos.filter(
-        (todo, index) => todo.completed !== todos[index].completed,
-      );
-
-    changedTodos.forEach((todo) => {
-      postService.updateTodo(todo.id, todo)
-        .catch((errorUpdate) => {
-          setErrorMessage(Error.Update);
-          throw (errorUpdate);
+      Promise.all(todos.map(todo => {
+        return postService.updateTodo(todo.id, { completed: !todo.completed });
+      }))
+        .then(() => {
+          getTodos(USER_ID)
+            .then((value) => {
+              setTodos(value);
+              setLoadingIds([]);
+            })
+            .catch(() => {
+              setErrorMessage(Error.Load);
+            });
         })
-        .finally(() => {
-          setStatus(FilterType.All);
+        .catch(() => {
+          setErrorMessage(Error.Update);
         });
-    });
+
+      return;
+    }
+
+    setLoadingIds(currIds => [...currIds, ...uncompletedTodosIds]);
+
+    Promise.all(uncompletedTodos.map(todo => {
+      return postService.updateTodo(todo.id, { completed: !todo.completed });
+    }))
+      .then(() => {
+        getTodos(USER_ID)
+          .then((value) => {
+            setTodos(value);
+          })
+          .catch(() => {
+            setErrorMessage(Error.Load);
+          })
+          .finally(() => {
+            setLoadingIds([]);
+          });
+      })
+      .catch(() => {
+        setErrorMessage(Error.Update);
+      });
   };
 
   return (
@@ -157,11 +167,12 @@ export const App: React.FC = () => {
         <header className="todoapp__header">
           {todos.length !== 0 && (
             <button
+              aria-label="btn"
               type="button"
               className={cn('todoapp__toggle-all', {
-                active: todos.every(todo => todo.completed),
+                active: completedTodoCount !== 0,
               })}
-              onClick={handleToggleAll}
+              onClick={() => handleToggleAll()}
             />
           )}
 
@@ -172,8 +183,6 @@ export const App: React.FC = () => {
               placeholder="What needs to be done?"
               value={query}
               onChange={handleQuery}
-              disabled={isSubmitting}
-              ref={inputRef}
             />
           </form>
         </header>
@@ -190,8 +199,11 @@ export const App: React.FC = () => {
 
             {tempTodo && (
               <TodoItem
-                tempTodo={tempTodo}
-                isSubmitting={isSubmitting}
+                todo={tempTodo}
+                onDeleteTodo={onDeleteTodo}
+                setTodos={setTodos}
+                loadingIds={loadingIds}
+                setLoadingIds={setLoadingIds}
               />
             )}
 
@@ -200,7 +212,7 @@ export const App: React.FC = () => {
                 {`${todoCount} items left`}
               </span>
 
-              <TodoFilter status={status} onStatusChange={setStatus} />
+              <TodoFilter status={status} setStatus={setStatus} />
 
               <button
                 type="button"
