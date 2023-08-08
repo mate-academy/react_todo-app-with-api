@@ -122,7 +122,7 @@ export const App: React.FC = () => {
       const todosToUpdate = preparedTodos.filter((todo) => !todo.completed);
 
       setLoadingIds(todosToUpdate.map((todo) => todo.id));
-      updatedTodos = todosToUpdate.map((todo) => ({
+      updatedTodos = preparedTodos.map((todo) => ({
         ...todo,
         completed: true,
       }));
