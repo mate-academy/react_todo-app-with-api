@@ -8,6 +8,7 @@ type Props = {
   removeTodo: (todoId: number) => void,
   updateTodo: (todo: Todo) => void,
   loadingTodoIds: number[],
+  setErrorMessage: (message: string) => void,
 };
 
 export const TodoList:React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoList:React.FC<Props> = ({
   removeTodo,
   updateTodo,
   loadingTodoIds,
+  setErrorMessage,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -33,11 +35,12 @@ export const TodoList:React.FC<Props> = ({
               updateTodo={(updTodo) => updateTodo(updTodo)}
               tempTodo={tempTodo}
               loadingTodoIds={loadingTodoIds}
+              setErrorMessage={setErrorMessage}
             />
           </CSSTransition>
         ))}
 
-        {tempTodo?.id !== undefined && tempTodo?.id > 0 && (
+        {tempTodo?.id !== undefined && (
           <CSSTransition
             key={0}
             timeout={300}
@@ -46,6 +49,7 @@ export const TodoList:React.FC<Props> = ({
             <TodoItem
               todo={tempTodo}
               updateTodo={(updTodo) => updateTodo(updTodo)}
+              loadingTodoIds={loadingTodoIds}
             />
           </CSSTransition>
         )}

@@ -7,7 +7,8 @@ type Props = {
   removeTodo?: (todoId: number) => void,
   updateTodo: (todo: Todo) => void,
   tempTodo?: Todo | null,
-  loadingTodoIds?: number[],
+  loadingTodoIds: number[],
+  setErrorMessage?: (message: string) => void,
 };
 
 export const TodoItem:React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoItem:React.FC<Props> = ({
   updateTodo,
   tempTodo,
   loadingTodoIds,
+  setErrorMessage,
 }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
   const [edit, setEdit] = useState<boolean>(false);
@@ -45,8 +47,12 @@ export const TodoItem:React.FC<Props> = ({
     }
 
     if (!editedTitle && removeTodo) {
-      removeTodo(todo.id);
+      setErrorMessage!("Title can't be empty");
 
+      return;
+    }
+
+    if (editedTitle.trim() === '') {
       return;
     }
 
@@ -73,9 +79,9 @@ export const TodoItem:React.FC<Props> = ({
 
   return (
     <div
-      key={todo?.id}
+      key={todo.id}
       className={classNames('todo', {
-        completed: todo?.completed,
+        completed: todo.completed || tempTodo?.completed,
       })}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
@@ -84,7 +90,7 @@ export const TodoItem:React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo?.completed}
+          checked={todo.completed}
           onChange={handleToggleStatus}
         />
       </label>
@@ -114,15 +120,14 @@ export const TodoItem:React.FC<Props> = ({
         <button
           type="button"
           className="todo__remove"
-          onClick={() => removeTodo?.(todo!.id)}
+          onClick={() => removeTodo?.(todo.id)}
         >
           ×
         </button>
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': (todo?.id && loadingTodoIds?.includes(todo?.id))
-                    || tempTodo,
+        'is-active': loadingTodoIds.includes(todo.id),
       })}
       >
         <div className="modal-background has-background-white-ter" />

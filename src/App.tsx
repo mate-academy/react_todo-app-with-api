@@ -44,6 +44,7 @@ export const App: React.FC = () => {
   const addTodo = useCallback((createdTodo: Todo) => {
     setLoading(true);
     setTempTodo(createdTodo);
+    setLoadingTodoIds([createdTodo.id]);
 
     postServes.createTodo(createdTodo)
       .then(newTodo => {
@@ -55,6 +56,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setLoading(false);
         setTempTodo(null);
+        setLoadingTodoIds([]);
       });
   }, []);
 
@@ -142,14 +144,21 @@ export const App: React.FC = () => {
 
     setLoading(true);
 
-    const updatedTodos = todos.map(todo => ({
+    const newTodos = todos.map(todo => ({
       ...todo,
       completed: !isAllCompletedTodos,
     }));
 
+    const updatedTodos = todos
+      .filter(todo => todo.completed === isAllCompletedTodos)
+      .map(todo => ({
+        ...todo,
+        completed: !isAllCompletedTodos,
+      }));
+
     Promise.all(updatedTodos.map(updateTodo))
       .then(() => {
-        setTodos(updatedTodos);
+        setTodos(newTodos);
       })
       .catch(() => {
         setErrorMessage("Unable to update todos' status");
@@ -203,6 +212,7 @@ export const App: React.FC = () => {
               removeTodo={deleteTodo}
               updateTodo={updateTodo}
               loadingTodoIds={loadingTodoIds}
+              setErrorMessage={setErrorMessage}
             />
           </section>
         )}
