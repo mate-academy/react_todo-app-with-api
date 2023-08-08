@@ -22,9 +22,14 @@ export const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessingTodos, setIsProcessingTodos] = useState<number[]>([]);
 
-  const visibleTodos = useMemo(() => (
-    getVisibleTodos(todos, filter)
-  ), [todos, filter]);
+  const visibleTodos = useMemo(() => getVisibleTodos(todos, filter), [todos, filter]);
+  const numberOfActiveTodos = useMemo(() => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    return activeTodos.length;
+  }, [todos]);
+  const hasActiveTodos = useMemo(() => todos.some(todo => !todo.completed), [todos]);
+  const completedTodos = useMemo(() => todos.filter(todo => todo.completed), [todos]);
 
   useEffect(() => {
     todoService.getTodos(USER_ID)
@@ -32,27 +37,16 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage(Error.load));
   }, []);
 
-  const numberOfActiveTodos = useMemo(() => (
-    todos.filter(todo => !todo.completed).length
-  ), [todos]);
-
-  const hasActiveTodos = useMemo(() => (
-    todos.some(todo => !todo.completed)
-  ), [todos]);
-
-  const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed)
-  ), [todos]);
-
   const deleteTodo = (todoId: number) => {
     setIsProcessing(true);
-    setIsProcessingTodos((currentIds) => [...currentIds, todoId]);
+    setIsProcessingTodos(currentIds => [...currentIds, todoId]);
 
     return todoService.removeTodo(todoId)
       .then(() => setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId)))
       .catch(() => {
         setErrorMessage(Error.delete);
-      }).finally(() => {
+      })
+      .finally(() => {
         setIsProcessingTodos([]);
         setIsProcessing(false);
       });
@@ -78,7 +72,7 @@ export const App: React.FC = () => {
 
   const editTodo = (todoId: number, data: Partial<Todo>) => {
     setErrorMessage(Error.none);
-    setIsProcessingTodos((currentIds) => [...currentIds, todoId]);
+    setIsProcessingTodos(currentIds => [...currentIds, todoId]);
 
     return todoService.updateTodo(todoId, data)
       .then(todo => {
@@ -170,28 +164,22 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {numberOfActiveTodos === 1 ? (
-                `${numberOfActiveTodos} item left`
-              ) : (
-                `${numberOfActiveTodos} items left`
-              )}
+              {numberOfActiveTodos === 1
+                ? `${numberOfActiveTodos} item left`
+                : `${numberOfActiveTodos} items left`}
             </span>
 
-            <TodoFilter
-              filter={filter}
-              setFilter={setFilter}
-            />
+            <TodoFilter filter={filter} setFilter={setFilter} />
 
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={deleteCompletedTodos}
-            >
-              {completedTodos.length > 0 && (
-                'Clear completed'
-              )}
-            </button>
-
+            {completedTodos.length > 0 && (
+              <button
+                type="button"
+                className="todoapp__clear-completed"
+                onClick={deleteCompletedTodos}
+              >
+                Clear completed
+              </button>
+            )}
           </footer>
         )}
       </div>
