@@ -21,11 +21,6 @@ export const App: React.FC = () => {
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    loadTodosData();
-  }, []);
-
   const loadTodosData = async () => {
     try {
       setError(Error.NONE);
@@ -33,9 +28,13 @@ export const App: React.FC = () => {
 
       setTodos(todosFromServer);
     } catch {
-      setError(Error.LOAD);
+      setError(Error.DOWNLOADING);
     }
   };
+
+  useEffect(() => {
+    loadTodosData();
+  }, []);
 
   const addNewTodo = async () => {
     if (!inputQuery.trim()) {
@@ -101,18 +100,14 @@ export const App: React.FC = () => {
   };
 
   const visibleTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      switch (filterBy) {
-        case FilterType.ACTIVE:
-          return !todo.completed;
-
-        case FilterType.COMPLETED:
-          return todo.completed;
-
-        default:
-          return true;
-      }
-    });
+    switch (filterBy) {
+      case FilterType.ACTIVE:
+        return todos.filter((todo) => !todo.completed);
+      case FilterType.COMPLETED:
+        return todos.filter((todo) => todo.completed);
+      default:
+        return todos;
+    }
   }, [filterBy, todos]);
 
   if (!USER_ID) {

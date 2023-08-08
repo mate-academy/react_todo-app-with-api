@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { Error } from '../types/Error';
@@ -14,16 +15,23 @@ export const TodoList: React.FC<Props> = React.memo(
   ({ todos, onDelete, onUpdate }) => {
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
     const [newTitle, setNewTitle] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error>(Error.NONE);
+    const [loadingStates, setLoadingStates] = useState<boolean[]>(
+      todos.map(() => false),
+    );
+
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const handleStartEditing = (todoId: number, title: string) => {
       setEditingTodoId(todoId);
       setNewTitle(title);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     };
 
     const findTodoById = (todoId: number): Todo | undefined => {
-      return todos.find(todo => todo.id === todoId);
+      return todos.find((todo) => todo.id === todoId);
     };
 
     const updateTodoTitle = async (todoId: number, title: string) => {
@@ -31,29 +39,44 @@ export const TodoList: React.FC<Props> = React.memo(
         const todoToUpdate = findTodoById(todoId);
 
         if (todoToUpdate) {
-          setIsLoading(true);
+          setLoadingStates((prevStates) => {
+            const updatedStates = [...prevStates];
+
+            updatedStates[todoId] = true;
+
+            return updatedStates;
+          });
+
           await onUpdate(todoId, { ...todoToUpdate, title });
-          setError(error);
+          setError(Error.NONE);
         }
-      // eslint-disable-next-line @typescript-eslint/no-shadow
       } catch (error) {
         setError(Error.UPDATE);
       } finally {
-        setIsLoading(false);
+        setLoadingStates((prevStates) => {
+          const updatedStates = [...prevStates];
+
+          updatedStates[todoId] = false;
+
+          return updatedStates;
+        });
       }
     };
 
-    const handleSaveEditing = (todoId: number, title: string) => {
+    const handleSaveEditing = async (todoId: number, title: string) => {
       if (!title.trim()) {
-        return;
+        onDelete(todoId);
+      } else {
+        await updateTodoTitle(todoId, title);
+        setEditingTodoId(null);
+        setNewTitle('');
       }
-
-      setEditingTodoId(null);
-      updateTodoTitle(todoId, title);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>,
-      todoId: number) => {
+    const handleKeyDown = (
+      e: React.KeyboardEvent<HTMLInputElement>,
+      todoId: number,
+    ) => {
       if (e.key === 'Enter') {
         handleSaveEditing(todoId, newTitle);
       }
@@ -69,23 +92,14 @@ export const TodoList: React.FC<Props> = React.memo(
 
     return (
       <section className="todoapp__main">
-
-        {/* {isLoading && (
-          <div className="loader-overlay">
-            <div className="loader" />
-          </div>
-        )} */}
-
         {todos.map(({ id, completed, title }) => {
           const isEditing = editingTodoId === id;
+          const isLoading = loadingStates[id] && isEditing;
 
           return (
             <div
               key={id}
-              className={classNames(
-                'todo',
-                { completed, editing: isEditing },
-              )}
+              className={classNames('todo', { completed, editing: isEditing })}
             >
               <label className="todo__status-label">
                 <input
@@ -97,23 +111,27 @@ export const TodoList: React.FC<Props> = React.memo(
               </label>
 
               {isEditing ? (
-                <>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveEditing(id, newTitle);
+                  }}
+                >
                   <input
+                    ref={inputRef}
                     type="text"
-                    className="todo__edit-input"
+                    className={classNames('todo__edit-input', {
+                      'todo__edit-input--full-width': isEditing,
+                    })}
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     onBlur={() => handleSaveEditing(id, newTitle)}
                     onKeyDown={(e) => handleKeyDown(e, id)}
                   />
-                  <button
-                    type="button"
-                    className="todo__remove"
-                    onClick={() => onDelete(id)}
-                  >
+                  <button type="submit" className="todo__remove">
                     ×
                   </button>
-                </>
+                </form>
               ) : (
                 <span
                   className="todo__title"
@@ -123,7 +141,7 @@ export const TodoList: React.FC<Props> = React.memo(
                 </span>
               )}
 
-              {isEditing || (
+              {!isEditing && (
                 <button
                   type="button"
                   className="todo__remove"
@@ -133,23 +151,16 @@ export const TodoList: React.FC<Props> = React.memo(
                 </button>
               )}
 
-              {/* <div
-                className={classNames('modal overlay', {
-                  'is-active': isEditing,
-                })}
-              >
-                <div className="modal-background has-background-white-ter" />
-                <div className="loader" />
-              </div> */}
-              {isLoading && (
-                <>
-                  <div className={classNames('loader-overlay', {
-                    'is-active': isEditing,
+              <div className="loader-overlay">
+                <div
+                  className={classNames('modal overlay', {
+                    'is-active': isLoading,
                   })}
-                  />
+                >
+                  <div className="modal-background has-background-white-ter" />
                   <div className="loader" />
-                </>
-              )}
+                </div>
+              </div>
             </div>
           );
         })}
