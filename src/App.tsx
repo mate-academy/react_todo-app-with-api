@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 import * as postService from './api/todos';
 import { UserWarning } from './UserWarning';
@@ -33,6 +35,7 @@ export const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -46,8 +49,7 @@ export const App: React.FC = () => {
   const todoCount = useMemo(() => todos.filter(todo => !todo.completed).length,
     [todos]);
 
-  const isCompletedTodos = useMemo(() => todos.some(todo => todo.completed),
-    [todos]);
+  const completedTodoCount = todos.filter(todo => todo.completed).length;
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -63,6 +65,7 @@ export const App: React.FC = () => {
     return postService.createTodos({ userId, title, completed })
       .then(newTodo => {
         setTodos(curentTodos => [...curentTodos, newTodo]);
+        inputRef.current?.focus();
       })
       .catch((errorAdd) => {
         setErrorMessage(Error.Add);
@@ -85,7 +88,9 @@ export const App: React.FC = () => {
       setErrorMessage(Error.EmptyTitle);
     } else {
       addTodo(newTodo)
-        .then(() => setQuery(''))
+        .then(() => {
+          setQuery('');
+        })
         .finally(() => {
           setTempTodo(null);
           setIsSubmitting(false);
@@ -128,9 +133,9 @@ export const App: React.FC = () => {
     setStatus(newStatus);
 
     const changedTodos
-    = updatedTodos.filter(
-      (todo, index) => todo.completed !== todos[index].completed,
-    );
+      = updatedTodos.filter(
+        (todo, index) => todo.completed !== todos[index].completed,
+      );
 
     changedTodos.forEach((todo) => {
       postService.updateTodo(todo.id, todo)
@@ -160,7 +165,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(event) => handleSubmit(event)}>
             <input
               type="text"
               className="todoapp__new-todo"
@@ -168,6 +173,7 @@ export const App: React.FC = () => {
               value={query}
               onChange={handleQuery}
               disabled={isSubmitting}
+              ref={inputRef}
             />
           </form>
         </header>
@@ -196,15 +202,14 @@ export const App: React.FC = () => {
 
               <TodoFilter status={status} onStatusChange={setStatus} />
 
-              {isCompletedTodos && (
-                <button
-                  type="button"
-                  className="todoapp__clear-completed"
-                  onClick={onDeleteCompleted}
-                >
-                  Clear completed
-                </button>
-              )}
+              <button
+                type="button"
+                className={cn('todoapp__clear-completed',
+                  { 'is-invisible': completedTodoCount === 0 })}
+                onClick={onDeleteCompleted}
+              >
+                Clear completed
+              </button>
             </footer>
           </>
         )}
