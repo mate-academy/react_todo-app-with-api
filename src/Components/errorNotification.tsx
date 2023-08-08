@@ -15,8 +15,6 @@ export const Notification: React.FC<Props> = ({ error, onErrorChange }) => {
     }
   }, [error]);
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-
   return (
     <div className={cn('notification',
       'is-danger is-light has-text-weight-normal', {

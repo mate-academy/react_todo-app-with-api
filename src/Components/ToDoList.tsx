@@ -18,7 +18,6 @@ export const TodoList: React.FC<Props> = React.memo(
   }) => {
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
     const [newTitle, setNewTitle] = useState('');
-    // const [error, setError] = useState<Error>(Error.NONE);
     const [loadingStates, setLoadingStates] = useState<boolean[]>(
       todos.map(() => false),
     );
