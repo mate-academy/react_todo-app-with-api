@@ -187,7 +187,7 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -200,6 +200,7 @@ export const App: React.FC = () => {
             {tempTodo && (
               <TodoItem
                 todo={tempTodo}
+                todos={todos}
                 onDeleteTodo={onDeleteTodo}
                 setTodos={setTodos}
                 loadingIds={loadingIds}
@@ -209,7 +210,8 @@ export const App: React.FC = () => {
 
             <footer className="todoapp__footer">
               <span className="todo-count">
-                {`${todoCount} items left`}
+                {todoCount === 1 ? ('1 item left')
+                  : (`${todoCount} items left`)}
               </span>
 
               <TodoFilter status={status} setStatus={setStatus} />

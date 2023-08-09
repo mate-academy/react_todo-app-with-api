@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import { FormEvent, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
@@ -12,6 +13,7 @@ type Props = {
   loadingIds: number[],
   setTodos: (v: Todo[]) => void,
   setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>,
+  todos:Todo[]
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -20,6 +22,7 @@ export const TodoItem: React.FC<Props> = ({
   loadingIds,
   setLoadingIds,
   setTodos,
+  todos,
 }) => {
   const [, setErrorMessage] = useState(Error.None);
   const [doubleClicked, setDoubleClicked] = useState(false);
@@ -56,12 +59,12 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleClickedFormSubmit = (
     event: FormEvent,
-    title: string,
     todoId: number,
   ) => {
     event.preventDefault();
+    const currentTodo = todos.find(todo => todo.id === todoId);
 
-    if (title.trim() === '') {
+    if (currentTodo?.title.trim() === '') {
       setDoubleClicked(false);
       setLoadingIds(currIds => [...currIds, todoId]);
 
@@ -84,7 +87,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (title !== todo.title) {
+    if (currentTodo?.title !== todo.title) {
       setLoadingIds(currIds => [...currIds, todoId]);
 
       postService.updateTodo(todoId, { title: editingTitle })
@@ -137,12 +140,10 @@ export const TodoItem: React.FC<Props> = ({
         <form
           onSubmit={(event) => handleClickedFormSubmit(
             event,
-            editingTitle,
             todo.id,
           )}
           onBlur={(event) => handleClickedFormSubmit(
             event,
-            editingTitle,
             todo.id,
           )}
         >
