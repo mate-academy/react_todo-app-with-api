@@ -20,6 +20,14 @@ body {
   pointer-events: none;
 }
 
+.hidden {
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 0.3s ease-in-out, visibility 0s linear 0.3s;
+}
+
+
 @import "./todoapp";
 @import "./todo";
 @import "./filter";
+@import "./transitions.scss";
