@@ -10,7 +10,10 @@ import { ErrorOnPage } from './components/ErrorOnPage';
 import { FilterBy } from './utils/FilterBy';
 import { Todo } from './types/Todo';
 import {
-  getTodos, createTodo, removeTodo, updateTodo,
+  getTodos,
+  createTodo,
+  removeTodo,
+  updateTodo,
 } from './todos';
 
 import { getFilteredTodos } from './utils/NewfilterTodos';
@@ -26,19 +29,19 @@ export const App: React.FC = () => {
   const [newError, setNewError] = useState<ErrorMessages | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [deleteTodosId, setDeleteTodosId] = useState<number[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const isTodoShow = todos.length > 0;
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
 
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
         setNewError(ErrorMessages.LoadError);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setIsLoading(false));
   }, []);
 
   const deleteTodo = async (todoId: number) => {
@@ -74,7 +77,9 @@ export const App: React.FC = () => {
   };
 
   const addNewTodo = async (title: string): Promise<null | Todo> => {
-    if (!title) {
+    const trimmedTitle = title.trim();
+
+    if (!trimmedTitle) {
       setNewError(ErrorMessages.TitleError);
 
       return null;
@@ -83,7 +88,7 @@ export const App: React.FC = () => {
     try {
       const newTodoStr = {
         completed: false,
-        title,
+        title: trimmedTitle,
         userId: USER_ID,
       };
 
@@ -106,13 +111,24 @@ export const App: React.FC = () => {
   };
 
   const updateTodoItem = async (todoId: number, updatedTodo: Todo) => {
+    const trimmedTitle = updatedTodo.title.trim();
+
+    if (!trimmedTitle) {
+      setNewError(ErrorMessages.TitleError);
+
+      return;
+    }
+
     try {
       setNewError(null);
-      await client.patch<Todo>(`/todos/${todoId}`, updatedTodo);
+      await client.patch<Todo>(`/todos/${todoId}`, {
+        ...updatedTodo,
+        title: trimmedTitle,
+      });
 
       setTodos(prevTodos => prevTodos.map(
-        todo => (todo.id === todoId ? updatedTodo : todo),
-      ));
+        todo => (todo.id === todoId ? updatedTodo : todo)
+        ));
     } catch (error) {
       setNewError(ErrorMessages.UpdateError);
     }
@@ -129,7 +145,7 @@ export const App: React.FC = () => {
     setTodos(updateTodos);
   };
 
-  const handleChackBox = async (updateNewTodo: Todo): Promise<void> => {
+  const handleCheckBox = async (updateNewTodo: Todo): Promise<void> => {
     try {
       const newTodo = {
         ...updateNewTodo,
@@ -142,6 +158,16 @@ export const App: React.FC = () => {
         .map((todo) => (todo.id === newTodo.id ? newTodo : todo)));
     } catch (error) {
       setNewError(ErrorMessages.TitleError);
+    }
+  };
+
+  const removeCompletTodos = async (todoIds: number[]) => {
+    try {
+      const deletePromises = todoIds.map((todoId) => deleteTodo(todoId));
+
+      await Promise.all(deletePromises);
+    } catch (error) {
+      setNewError(ErrorMessages.DeleteError);
     }
   };
 
@@ -162,7 +188,7 @@ export const App: React.FC = () => {
           checkAllTodos={handleAll}
         />
 
-        {loading
+        {isLoading
           ? (
             <div className="modal overlay is-active">
               <div className="modal-background has-background-white-ter" />
@@ -175,7 +201,7 @@ export const App: React.FC = () => {
                 deleteId={deleteTodosId}
                 deleteTodo={deleteTodo}
                 editTodo={updateTodoItem}
-                checkedTodo={handleChackBox}
+                checkedTodo={handleCheckBox}
               />
             </section>
           )}
@@ -184,15 +210,15 @@ export const App: React.FC = () => {
           todos={todos}
           filterBy={filterBy}
           filterTodos={setFilterBy}
+          deleteTodo={removeCompletTodos}
         />
 
-        {newError
-          && (
-            <ErrorOnPage
-              error={newError}
-              setNewError={setNewError}
-            />
-          )}
+        {newError && (
+          <ErrorOnPage
+            isError={newError}
+            setNewError={setNewError}
+          />
+        )}
       </div>
     </div>
   );

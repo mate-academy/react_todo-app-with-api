@@ -8,14 +8,17 @@ type Props = {
   todos: Todo[];
   filterBy: FilterBy;
   filterTodos: (filterBy: FilterBy) => void;
+  deleteTodo: (todoIds: number[]) => void;
 };
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
   filterBy,
   filterTodos,
+  deleteTodo,
 }) => {
   const uncompletedTodosLength = todos.filter(todo => !todo.completed).length;
+  const doneTodos = todos.filter(todo => todo.completed);
 
   return (
     <footer className="todoapp__footer">
@@ -54,6 +57,23 @@ export const TodoFooter: React.FC<Props> = ({
           Completed
         </a>
       </nav>
+      {doneTodos.length !== 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__clear-completed', {
+            hidden: uncompletedTodosLength === todos.length,
+          })}
+          onClick={() => {
+            const completedTodoIds = todos
+              .filter((todo) => todo.completed)
+              .map((todo) => todo.id);
+
+            deleteTodo(completedTodoIds);
+          }}
+        >
+          Clear completed
+        </button>
+      )}
     </footer>
   );
 };
