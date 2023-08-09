@@ -158,13 +158,12 @@ export const App: React.FC = () => {
 
     function isAllTodosChecked(todos: Todo[]) {
       for (const todo of todos) {
-        if (todo.completed) {
-          return true;
+        if (!todo.completed) {
+          return false;
         }
-        return false;
       }
+      return true;
     }
-
     
     const changeStatusAllTodos = (todos: Todo[]) => {
       try {
