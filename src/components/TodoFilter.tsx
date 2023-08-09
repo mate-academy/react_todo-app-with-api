@@ -1,8 +1,9 @@
 import classNames from 'classnames';
+import { FilterValue } from '../utils/FilterValue';
 
 type Props = {
-  setFilterValue: (filterValue: string) => void;
-  filterValue: string;
+  setFilterValue: (filterValue: FilterValue) => void;
+  filterValue: FilterValue;
 };
 
 export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
@@ -13,7 +14,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
         className={classNames('filter__link', {
           selected: filterValue === 'all',
         })}
-        onClick={() => setFilterValue('all')}
+        onClick={() => setFilterValue(FilterValue.All)}
       >
         All
       </a>
@@ -23,7 +24,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
         className={classNames('filter__link', {
           selected: filterValue === 'active',
         })}
-        onClick={() => setFilterValue('active')}
+        onClick={() => setFilterValue(FilterValue.Active)}
       >
         Active
       </a>
@@ -33,7 +34,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
         className={classNames('filter__link', {
           selected: filterValue === 'completed',
         })}
-        onClick={() => setFilterValue('completed')}
+        onClick={() => setFilterValue(FilterValue.Completed)}
       >
         Completed
       </a>

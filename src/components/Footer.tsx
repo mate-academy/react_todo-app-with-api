@@ -1,9 +1,10 @@
 import { TodoFilter } from './TodoFilter';
 import { Todo } from '../types/Todo';
+import { FilterValue } from '../utils/FilterValue';
 
 type Props = {
-  setFilterValue: (filterValue: string) => void;
-  filterValue: string;
+  filterValue: FilterValue;
+  setFilterValue: (filterValue: FilterValue) => void;
   todos: Todo[];
   clearCompletedTodos: () => void;
   completedTodos: Todo[];
@@ -13,10 +14,12 @@ export const Footer: React.FC <Props>
 = ({
   setFilterValue, filterValue, todos, clearCompletedTodos, completedTodos,
 }) => {
+  const activeTodos = todos.filter(todo => !todo.completed);
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {todos.length}
+        {activeTodos.length}
         {' '}
         items left
       </span>

@@ -1,36 +1,39 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable */ 
-import React, { useState, useEffect} from 'react';
-import { UserWarning } from './UserWarning';
+/* eslint-disable */
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import classNames from 'classnames';
-import { getTodos, addNewTodo, deleteTodo } from './api/todos';
+import { UserWarning } from './UserWarning';
+import {
+  getTodos, addNewTodo, deleteTodo, updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Notification } from './components/Notification';
 import { Error } from './utils/Error';
+import { FilterValue } from './utils/FilterValue';
 
 const USER_ID = 6752;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filterValue, setFilterValue] = useState('all');
+  const [filterValue, setFilterValue] = useState(FilterValue.All);
   const [errorMessage, setErrorMessage] = useState<Error>(Error.NoError);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [showNotification, setShowNotification] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadTodos = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       const todosFromServer = await getTodos(USER_ID);
 
       setTodos(todosFromServer);
     } catch (error) {
       setErrorMessage(Error.Loading);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -42,15 +45,15 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const getFilteringTodos = ():Todo[] => {
+  const getFilteringTodos = () => {
     let visibleTodos = [...todos];
 
     switch (filterValue) {
-      case 'active': visibleTodos = visibleTodos.filter(
+      case FilterValue.Active: visibleTodos = visibleTodos.filter(
         (todo) => !todo.completed,
       );
         break;
-      case 'completed': visibleTodos = visibleTodos.filter(
+      case FilterValue.Completed: visibleTodos = visibleTodos.filter(
         (todo) => todo.completed,
       );
         break;
@@ -61,11 +64,11 @@ export const App: React.FC = () => {
     return visibleTodos;
   };
 
-  const handleInput = (event: any) => {
+  const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
   };
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const newTodo: Omit<Todo, 'id'> = {
@@ -86,31 +89,29 @@ export const App: React.FC = () => {
 
     if (newTodoTitle.trim()) {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const newTodoResponse = await addNewTodo(newTodo);
 
         setTodos((prevTodos) => [...prevTodos, newTodoResponse]);
         setTempTodo(null);
       } catch (error) {
-        setErrorMessage(Error.Loading);
         setErrorMessage(Error.Adding);
         setShowNotification(true);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
   };
 
   const handleDelete = async (id:number) => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       await deleteTodo(id);
       setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== id));
     } catch (error) {
-      setErrorMessage(Error.Loading);
       setErrorMessage(Error.Deleting);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -122,116 +123,100 @@ export const App: React.FC = () => {
 
   const changeStatus = (todo:Todo) => {
     try {
-      setLoading(true);
-      setTodos(todos => todos.map(todoItem =>
-        todoItem.id === todo.id ? { ...todoItem, completed: !todoItem.completed } : todoItem
-      ));
-      
-    }
-     catch (error) {
+      setIsLoading(true);
+      setTodos(todos => todos.map(todoItem => (todoItem.id === todo.id ? { ...todoItem, completed: !todoItem.completed } : todoItem)));
+      updateTodo(todo);
+    } catch (error) {
       setErrorMessage(Error.Loading);
-      setErrorMessage(Error.Updating)
-     }
-     finally {
-      setLoading(false);
-     }
+      setErrorMessage(Error.Updating);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    
   const changeTitle = (todo:Todo, editedTitle: string) => {
     try {
-      setLoading(true);
-      setTodos(todos => todos.map(todoItem =>
-        todoItem.id === todo.id ? { ...todoItem, title: editedTitle } : todoItem
-      ));
-      
-    }
-     catch (error) {
+      setIsLoading(true);
+      setTodos(todos => todos.map(todoItem => (todoItem.id === todo.id ? { ...todoItem, title: editedTitle } : todoItem)));
+      updateTodo(todo);
+    } catch (error) {
       setErrorMessage(Error.Loading);
-      setErrorMessage(Error.Updating)
-     }
-     finally {
-      setLoading(false);
-     }
+      setErrorMessage(Error.Updating);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-
-    function isAllTodosChecked(todos: Todo[]) {
-      for (const todo of todos) {
-        if (!todo.completed) {
-          return false;
-        }
+  function isAllTodosChecked(todos: Todo[]) {
+    for (const todo of todos) {
+      if (!todo.completed) {
+        return false;
       }
-      return true;
-    }
-    
-    const changeStatusAllTodos = (todos: Todo[]) => {
-      try {
-        setLoading(true);
-  
-        setTodos(todos => todos.map((todoItem ) => todoItem.completed === false ? { ...todoItem, completed: true} : todoItem));
-
-        if(isAllTodosChecked(todos)) {
-          setTodos((todos) => todos.map(todoItem => ({ ...todoItem, completed: false })))
-        }
-       
-      }
-       catch (error) {
-        setErrorMessage(Error.Loading);
-        setErrorMessage(Error.Updating)
-       }
-       finally {
-        setLoading(false);
-       }
     }
 
-  return ( 
-  <div className="todoapp">
-        <h1 className="todoapp__title">todos</h1>
+    return true;
+  }
 
-        <div className="todoapp__content">
-          <header className="todoapp__header">
-            {todos
+  const changeStatusAllTodos = () => {
+    try {
+      setIsLoading(true);
+      setTodos(todos => todos.map((todoItem) => (todoItem.completed === false ? { ...todoItem, completed: true } : todoItem)));
+    } catch (error) {
+      setErrorMessage(Error.Loading);
+      setErrorMessage(Error.Updating);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {todos
              && (
                <button
                  type="button"
-                 className={classNames('todoapp__toggle-all', {'active': !isAllTodosChecked})}
-                 onClick={() => changeStatusAllTodos(todos)}
+                 className={classNames('todoapp__toggle-all', { active: !isAllTodosChecked })}
+                 onClick={() => changeStatusAllTodos()}
                />
              )}
 
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                className="todoapp__new-todo"
-                placeholder="What needs to be done?"
-                value={newTodoTitle}
-                onChange={handleInput}
-                disabled={loading}
-              />
-            </form>
-          </header>
-
-          <section className="todoapp__main">
-            {{tempTodo} && (
-            <TodoList
-            todos={getFilteringTodos()} 
-            handleDelete={handleDelete} 
-            changeStatus={changeStatus}
-            changeTitle={changeTitle}
-            />)}
-          </section>
-          {todos.length !== 0 ? (
-            <Footer
-              setFilterValue={setFilterValue}
-              filterValue={filterValue}
-              todos={todos}
-              clearCompletedTodos={clearCompletedTodos}
-              completedTodos={completedTodos}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              value={newTodoTitle}
+              onChange={handleInput}
+              disabled={isLoading}
             />
-          ) : null}
-        </div>
-        {errorMessage
+          </form>
+        </header>
+
+        <section className="todoapp__main">
+          {{ tempTodo } && (
+            <TodoList
+              todos={getFilteringTodos()}
+              handleDelete={handleDelete}
+              changeStatus={changeStatus}
+              changeTitle={changeTitle}
+            />
+          )}
+        </section>
+        {todos.length !== 0 ? (
+          <Footer
+            setFilterValue={setFilterValue}
+            filterValue={filterValue}
+            todos={todos}
+            clearCompletedTodos={clearCompletedTodos}
+            completedTodos={completedTodos}
+          />
+        ) : null}
+      </div>
+      {errorMessage
         && (
           <Notification
             errorMessage={errorMessage}
@@ -239,6 +224,6 @@ export const App: React.FC = () => {
             setShowNotification={setShowNotification}
           />
         )}
-      </div>
+    </div>
   );
- }
+};
