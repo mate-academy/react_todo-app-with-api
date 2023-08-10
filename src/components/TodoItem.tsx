@@ -19,14 +19,32 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      if (titleToUpdate) {
+      if (titleToUpdate !== todo.title && titleToUpdate.length !== 0) {
         await handleRename(titleToUpdate, todo.id);
+      } else if (titleToUpdate.length === 0) {
+        await handleDeleteTodo(todo.id);
       }
 
       setEditing(false);
-    } else if (event.key === 'Escape') {
+    }
+
+    if (event.key === 'Escape') {
       setEditing(false);
     }
+  };
+
+  const handleBlur = async (
+    event: React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    if (event.type === 'blur') {
+      if (titleToUpdate !== todo.title && titleToUpdate.length !== 0) {
+        await handleRename(titleToUpdate, todo.id);
+      } else if (titleToUpdate.length === 0) {
+        await handleDeleteTodo(todo.id);
+      }
+    }
+
+    setEditing(false);
   };
 
   return (
@@ -50,7 +68,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <form onSubmit={(event) => event.preventDefault()}>
             <input
               onKeyUp={handleKeyUp}
-              onBlur={() => setEditing(false)}
+              onBlur={handleBlur}
               type="text"
               className="todo__title-field"
               placeholder={titleToUpdate}
