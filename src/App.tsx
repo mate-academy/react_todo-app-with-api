@@ -1,24 +1,59 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import { useState } from 'react';
+
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
+import { TodoList } from './components/TodoList/TodoList';
+import { Filters, TodoFilter } from './components/TodoFilter/TodoFilter';
+import { TodoForm } from './components/TodoForm/TodoForm';
+import { TodoError } from './components/TodoError/TodoError';
+import { useTodos } from './contexts/todosContext';
 
-const USER_ID = 0;
+type AppProps = {
+  userId: number;
+};
 
-export const App: React.FC = () => {
-  if (!USER_ID) {
+export const App = ({ userId }: AppProps) => {
+  const [activeFilter, setActiveFilter] = useState<Filters>('all');
+  const { todosMap, error, handleToggleCompletedAll } = useTodos();
+
+  const filteredTodos = todosMap[activeFilter];
+  const { completed, active } = todosMap;
+
+  if (!userId) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          <button
+            type="button"
+            className={classNames('todoapp__toggle-all', {
+              active: active.length <= 0,
+            })}
+            aria-label="Toggle all todos"
+            onClick={handleToggleCompletedAll}
+          />
+
+          <TodoForm />
+        </header>
+
+        <TodoList todos={filteredTodos} />
+
+        {todosMap.all.length > 0 && (
+          <TodoFilter
+            activeFilter={activeFilter}
+            changeFilter={setActiveFilter}
+            activeTodosCount={active.length}
+            completedTodosCount={completed.length}
+          />
+        )}
+      </div>
+
+      {error && <TodoError errorMsg={error} />}
+    </div>
   );
 };
