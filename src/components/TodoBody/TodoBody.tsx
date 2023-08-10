@@ -1,11 +1,12 @@
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { Errors } from '../../types/Errors';
+import './animations.scss';
 
 type Props = {
   filteringBy: Todo[],
-  newTodoId: number[],
+  isProcessing: number[],
   tempTodo: Omit<Todo, 'id'> | null,
   deleteTodo: (todoId: number) => void,
   updateTodo: (updatedTodo: Todo) => Promise<void>,
@@ -13,7 +14,7 @@ type Props = {
 
 export const TodoBody: React.FC<Props> = ({
   filteringBy,
-  newTodoId,
+  isProcessing,
   tempTodo,
   deleteTodo,
   updateTodo,
@@ -39,7 +40,7 @@ export const TodoBody: React.FC<Props> = ({
     }
 
     switch (editValue) {
-      case Errors.NULL:
+      case '':
         return deleteTodo(todo.id);
       case todo.title:
         return setIsEditing(null);
@@ -54,7 +55,7 @@ export const TodoBody: React.FC<Props> = ({
 
   // Reset the edited todo on KeyUp "Escape"
   const resetEditing = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.code === 'Escape') {
+    if (event.key === 'Escape') {
       setIsEditing(null);
       setEditValue('');
     }
@@ -63,92 +64,107 @@ export const TodoBody: React.FC<Props> = ({
   return (
     <section className="todoapp__main">
       {/* Todos from server response */}
-      {filteringBy.map(todo => (
-        <div
-          className={classNames(
-            'todo',
-            { completed: todo.completed },
-          )}
-          key={todo.id}
-          onDoubleClick={() => {
-            setIsEditing(todo.id);
-            setEditValue(todo.title);
-          }}
-        >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-              onChange={() => updateTodo(
-                { ...todo, completed: !todo.completed },
-              )}
-            />
-          </label>
+      <TransitionGroup>
+        {filteringBy.map(todo => {
+          const { id, completed, title } = todo;
 
-          {/* Edit input which activate after OnDoubleClick */}
-          {todo.id === isEditing ? (
-            <form onSubmit={(event) => handleEditingTodo(event, todo)}>
-              <input
-                ref={editFocus}
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={editValue}
-                onKeyUp={resetEditing}
-                onBlur={() => handleEditingTodo(null, todo)}
-                onChange={(event) => setEditValue(event.target.value)}
-              />
-            </form>
-          ) : (
-            <>
-              {/* Standart Todo from server */}
+          return (
+            <CSSTransition
+              key={id}
+              timeout={300}
+              classNames="item"
+            >
+              <div
+                className={classNames('todo', { completed })}
+                key={todo.id}
+                onDoubleClick={() => {
+                  setIsEditing(id);
+                  setEditValue(title);
+                }}
+              >
+                <label className="todo__status-label">
+                  <input
+                    type="checkbox"
+                    className="todo__status"
+                    onChange={() => updateTodo(
+                      { ...todo, completed: !completed },
+                    )}
+                  />
+                </label>
+
+                {/* Edit input which activate after OnDoubleClick */}
+                {todo.id === isEditing ? (
+                  <form onSubmit={(event) => handleEditingTodo(event, todo)}>
+                    <input
+                      ref={editFocus}
+                      type="text"
+                      className="todo__title-field"
+                      placeholder="Empty todo will be deleted"
+                      value={editValue}
+                      onKeyUp={resetEditing}
+                      onBlur={() => handleEditingTodo(null, todo)}
+                      onChange={(event) => setEditValue(event.target.value)}
+                    />
+                  </form>
+                ) : (
+                  <>
+                    {/* Standart Todo from server */}
+                    <span className="todo__title">
+                      {title}
+                    </span>
+
+                    <button
+                      type="button"
+                      className="todo__remove"
+                      onClick={() => deleteTodo(id)}
+                    >
+                      ×
+                    </button>
+                  </>
+                )}
+
+                <div className={classNames(
+                  'modal overlay',
+                  { 'is-active': isProcessing.includes(id) },
+                )}
+                >
+                  <div className="modal-background has-background-white-ter" />
+                  <div className="loader" />
+                </div>
+              </div>
+            </CSSTransition>
+          );
+        })}
+
+        {/* Temproary Todo during waitind for server response */}
+        {tempTodo && (
+          <CSSTransition
+            key={0}
+            timeout={300}
+            classNames="temp-item"
+          >
+            <div
+              className="todo"
+            >
+              <label className="todo__status-label">
+                <input
+                  type="checkbox"
+                  className="todo__status"
+                />
+              </label>
+
               <span className="todo__title">
-                {todo.title}
+                {tempTodo.title}
               </span>
 
-              <button
-                type="button"
-                className="todo__remove"
-                onClick={() => deleteTodo(todo.id)}
-              >
-                ×
-              </button>
-            </>
-          )}
-
-          <div className={classNames(
-            'modal overlay',
-            { 'is-active': newTodoId.includes(todo.id || 0) },
-          )}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      ))}
-
-      {/* Temproary Todo during waitind for server response */}
-      {tempTodo && (
-        <div
-          className="todo"
-        >
-          <label className="todo__status-label">
-            <input
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          <span className="todo__title">
-            {tempTodo.title}
-          </span>
-
-          <div className="modal overlay is-active">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
-      )}
+              <div className="modal overlay is-active">
+                <div className="modal-background has-background-white-ter" />
+                <div className="loader" />
+              </div>
+            </div>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };
