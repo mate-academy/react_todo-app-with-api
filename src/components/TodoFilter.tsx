@@ -12,7 +12,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
       <a
         href="#/"
         className={classNames('filter__link', {
-          selected: filterValue === 'all',
+          selected: filterValue === FilterValue.All,
         })}
         onClick={() => setFilterValue(FilterValue.All)}
       >
@@ -22,7 +22,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
       <a
         href="#/active"
         className={classNames('filter__link', {
-          selected: filterValue === 'active',
+          selected: filterValue === FilterValue.Active,
         })}
         onClick={() => setFilterValue(FilterValue.Active)}
       >
@@ -32,7 +32,7 @@ export const TodoFilter = ({ setFilterValue, filterValue }: Props) => {
       <a
         href="#/completed"
         className={classNames('filter__link', {
-          selected: filterValue === 'completed',
+          selected: filterValue === FilterValue.Completed,
         })}
         onClick={() => setFilterValue(FilterValue.Completed)}
       >

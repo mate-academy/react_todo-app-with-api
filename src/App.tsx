@@ -160,7 +160,7 @@ export const App: React.FC = () => {
   const changeStatusAllTodos = () => {
     try {
       setIsLoading(true);
-      setTodos(todos => todos.map((todoItem) => (todoItem.completed === false ? { ...todoItem, completed: true } : todoItem)));
+      setTodos(todos => todos.map((todoItem) => (!todoItem.completed ? { ...todoItem, completed: true } : todoItem)));
     } catch (error) {
       setErrorMessage(Error.Loading);
       setErrorMessage(Error.Updating);
@@ -206,7 +206,7 @@ export const App: React.FC = () => {
             />
           )}
         </section>
-        {todos.length !== 0 ? (
+        {todos.length !== 0 &&(
           <Footer
             setFilterValue={setFilterValue}
             filterValue={filterValue}
@@ -214,7 +214,7 @@ export const App: React.FC = () => {
             clearCompletedTodos={clearCompletedTodos}
             completedTodos={completedTodos}
           />
-        ) : null}
+        )}
       </div>
       {errorMessage
         && (

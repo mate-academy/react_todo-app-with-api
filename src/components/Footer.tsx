@@ -26,7 +26,7 @@ export const Footer: React.FC <Props>
 
       <TodoFilter setFilterValue={setFilterValue} filterValue={filterValue} />
       {completedTodos.length !== 0
-        ? (
+        && (
           <button
             type="button"
             className="todoapp__clear-completed"
@@ -34,7 +34,7 @@ export const Footer: React.FC <Props>
           >
             Clear completed
           </button>
-        ) : null}
+        )}
     </footer>
   );
 };
