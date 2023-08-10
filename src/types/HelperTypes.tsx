@@ -1,0 +1,14 @@
+export enum FilterType {
+  COMPLETED = 'COMPLETED',
+  ACTIVE = 'ACTIVE',
+  ALL = 'ALL',
+}
+
+export enum ErrorType {
+  DATALOADING = 'Error loading data',
+  EMPTY_FIELD = 'Title can\'t be empty',
+  ADD_UNABLE = 'Title can\'t be empty',
+  DELETE_UNABLE = 'Unable to delete a todo',
+  UPDATE_UNABLE = 'Unable to update a todo',
+  WRONG_EMAIL = 'This email address is not registered',
+}
