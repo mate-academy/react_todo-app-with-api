@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, { useEffect, useMemo, useState } from 'react';
 import * as todosService from './api/todos';
@@ -135,6 +134,7 @@ export const App: React.FC = () => {
           className="notification is-danger is-light has-text-weight-normal"
         >
           <button
+            aria-label="close-error-message"
             type="button"
             className={classNames('delete', {
               hidden: !errorMessage,
