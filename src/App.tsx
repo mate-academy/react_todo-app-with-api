@@ -21,10 +21,10 @@ export const App: React.FC = () => {
   const [loadedTodos, setLoadingTodos] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState(ErrorText.Empty);
   const [selectedFilter, setSelectedFilter] = useState<Filters>(Filters.All);
-  const [title, setTitle] = useState('');
-  const [isDisabledInput, setIsDisabledInput] = useState(false);
+  const [title, setTitle] = useState<string>('');
+  const [isDisabledInput, setIsDisabledInput] = useState<boolean>(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isFocusedHeader, setIsFocusedHeader] = useState(false);
+  const [isFocusedHeader, setIsFocusedHeader] = useState<boolean>(false);
 
   const filteredTodos = (filterChar: Filters) => {
     return todos.filter(todo => {
@@ -145,7 +145,7 @@ export const App: React.FC = () => {
           onSetErrorMessage={setErrorMessage}
           isDisabledInput={isDisabledInput}
           onUpdateTodos={updateTodos}
-          onIsFocusedHeader={isFocusedHeader}
+          isFocusedHeader={isFocusedHeader}
         />
 
         <TodoList

@@ -12,10 +12,10 @@ type Props = {
   onSetErrorMessage: (text: ErrorText) => void,
   isDisabledInput: boolean,
   onUpdateTodos: (newTodos: Todo[]) => void,
-  onIsFocusedHeader: boolean,
+  isFocusedHeader: boolean,
 };
 
-function getChangeTodosCompleted(todos: Todo[]) {
+function getToggledTodos(todos: Todo[]) {
   const changeTodosCompleted = todos.map(todo => {
     return { ...todo, completed: !todo.completed };
   });
@@ -31,14 +31,14 @@ export const Header: React.FC<Props> = ({
   onSetErrorMessage,
   isDisabledInput,
   onUpdateTodos,
-  onIsFocusedHeader,
+  isFocusedHeader,
 }) => {
   const activeTodos = todos.filter(t => t.completed === false);
 
   const handlerCompletedAll = () => {
     const newTodos = (activeTodos.length < 1)
-      ? getChangeTodosCompleted(todos)
-      : getChangeTodosCompleted(activeTodos);
+      ? getToggledTodos(todos)
+      : getToggledTodos(activeTodos);
 
     return onUpdateTodos(newTodos);
   };
@@ -52,7 +52,7 @@ export const Header: React.FC<Props> = ({
   const handlerSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (title.length < 1) {
+    if (title.trim().length < 1) {
       onSetErrorMessage(ErrorText.EmptyTitle);
 
       return;
@@ -64,7 +64,7 @@ export const Header: React.FC<Props> = ({
   const editedCompletedInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (editedCompletedInput.current !== null && onIsFocusedHeader) {
+    if (editedCompletedInput.current !== null && isFocusedHeader) {
       editedCompletedInput.current.focus();
     }
   }, [todos]);

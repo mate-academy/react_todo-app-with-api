@@ -23,6 +23,8 @@ export const OneTodo: React.FC<Props> = ({
   editedTitle,
   onSetEditedTitle,
 }) => {
+  const { id, title, completed } = todo;
+
   const handlerEscCancel = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onSetEditedTodoId(null);
@@ -33,12 +35,12 @@ export const OneTodo: React.FC<Props> = ({
     event.preventDefault();
     onSetEditedTodoId(null);
 
-    if (editedTitle === todo.title) {
+    if (editedTitle === title) {
       return;
     }
 
     if (editedTitle.length < 1) {
-      onDeleteTodo([todo.id]);
+      onDeleteTodo([id]);
 
       return;
     }
@@ -53,14 +55,14 @@ export const OneTodo: React.FC<Props> = ({
   };
 
   const handlerEditedTodo = () => {
-    onSetEditedTodoId(todo.id);
-    onSetEditedTitle(todo.title);
+    onSetEditedTodoId(id);
+    onSetEditedTitle(title);
   };
 
   const handlerCompletedTodo = () => {
     const newTodo = {
       ...todo,
-      completed: !todo.completed,
+      completed: !completed,
     };
 
     onUpdateTodos([newTodo]);
@@ -76,33 +78,33 @@ export const OneTodo: React.FC<Props> = ({
 
   return (
     <div className={classNames(
-      'todo', { completed: todo.completed },
+      'todo', { completed },
     )}
     >
       <label className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onClick={handlerCompletedTodo}
           readOnly
         />
       </label>
 
-      {editedTodoId !== todo.id
+      {editedTodoId !== id
         ? (
           <>
             <span
               className="todo__title"
               onDoubleClick={handlerEditedTodo}
             >
-              {todo.title}
+              {title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
-              onClick={() => onDeleteTodo([todo.id])}
+              onClick={() => onDeleteTodo([id])}
             >
               ×
             </button>
@@ -125,7 +127,7 @@ export const OneTodo: React.FC<Props> = ({
         )}
 
       <div className={classNames(
-        'modal', 'overlay', { 'is-active': loadingTodoId?.includes(todo.id) },
+        'modal', 'overlay', { 'is-active': loadingTodoId?.includes(id) },
       )}
       >
         <div className="modal-background has-background-white-ter" />

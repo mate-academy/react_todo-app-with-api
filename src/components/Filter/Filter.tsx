@@ -35,7 +35,7 @@ export const Filter: React.FC<Props> = ({
         <button
           type="button"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'all' },
+            'filter__link', { selected: selectedFilter === Filters.All },
           )}
           onClick={() => onSetSelectedFilter(Filters.All)}
         >
@@ -45,7 +45,7 @@ export const Filter: React.FC<Props> = ({
         <button
           type="button"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'active' },
+            'filter__link', { selected: selectedFilter === Filters.Active },
           )}
           onClick={() => onSetSelectedFilter(Filters.Active)}
         >
@@ -55,7 +55,7 @@ export const Filter: React.FC<Props> = ({
         <button
           type="button"
           className={classNames(
-            'filter__link', { selected: selectedFilter === 'completed' },
+            'filter__link', { selected: selectedFilter === Filters.Completed },
           )}
           onClick={() => onSetSelectedFilter(Filters.Completed)}
         >
