@@ -1,15 +1,18 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
+import cn from 'classnames';
+
 import { UserWarning } from './UserWarning';
 import { TodoHeader } from './components/TodoHeader';
-import { client } from './utils/fetchClient';
-import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
 import { TodoFooter } from './components/TodoFooter';
 import { Notification } from './components/Notification';
+
+import { Todo } from './types/Todo';
 import { FilterBy } from './types/FilterBy';
 import { Errors } from './types/Errors';
 
+import { client } from './utils/fetchClient';
 import * as utils from './utils/utils';
 
 const USER_ID = 11246;
@@ -202,7 +205,12 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="todoapp">
+    <div
+      className={cn(
+        'todoapp',
+        { 'has-error': error },
+      )}
+    >
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <TodoHeader

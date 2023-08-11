@@ -1,4 +1,6 @@
 import React from 'react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+
 import { TodoItem } from '../TodoItem/TodoItem';
 
 import { Todo } from '../../types/Todo';
@@ -12,6 +14,8 @@ type Props = {
   onChangeTodo: (id: number, title: string) => Promise<void>;
 };
 
+const TRANSTION_DURATION = 300;
+
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
@@ -24,22 +28,40 @@ export const TodoList: React.FC<Props> = ({
     return isActiveLoaderTodos.includes(id);
   }
 
-  const todosToRender: Todo[] = tempTodo
-    ? [...todos, tempTodo]
-    : todos;
-
   return (
-    <>
-      {todosToRender.map(todo => (
-        <TodoItem
+    <TransitionGroup>
+      {todos.map(todo => (
+        <CSSTransition
           key={todo.id}
-          todo={todo}
-          hasLoader={isActiveLoaderTodo(todo.id)}
-          onDeleteTodo={onDeleteTodo}
-          onToggleTodo={onToggleTodo}
-          onChangeTodo={onChangeTodo}
-        />
+          in={!!todo.id}
+          appear
+          unmountOnExit
+          timeout={TRANSTION_DURATION}
+          classNames="todo"
+        >
+          <TodoItem
+            todo={todo}
+            hasLoader={isActiveLoaderTodo(todo.id)}
+            onDeleteTodo={onDeleteTodo}
+            onToggleTodo={onToggleTodo}
+            onChangeTodo={onChangeTodo}
+          />
+        </CSSTransition>
       ))}
-    </>
+      {tempTodo && (
+        <CSSTransition
+          timeout={TRANSTION_DURATION}
+          classNames="todo-temp"
+        >
+          <TodoItem
+            todo={tempTodo}
+            hasLoader
+            onDeleteTodo={onDeleteTodo}
+            onToggleTodo={onToggleTodo}
+            onChangeTodo={onChangeTodo}
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
   );
 };
