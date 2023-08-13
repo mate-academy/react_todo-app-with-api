@@ -12,27 +12,31 @@ import { Todo } from './types/Todo';
 import { FilterBy } from './types/FilterBy';
 import { Errors } from './types/Errors';
 
-import { client } from './utils/fetchClient';
+import {
+  getTodosFromServer,
+  addTodoOnServer,
+  deleteTodoFromServer,
+  toggleTodoOnServer,
+  changeTitleTodoOnServer,
+} from './api/todos';
 import * as utils from './utils/utils';
 
 const USER_ID = 11246;
-const BASE_ADD_URL = '/todos';
-const URL_GET = `?userId=${USER_ID}`;
 const DELAY_ERROR = 3000;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [hasTodoLoaderIds, setHasTodoLoaderIds] = useState<number[]>([]);
+  const [todoLoaderIds, setTodoLoaderIds] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.all);
   const [error, setError] = useState<Errors | null>(null);
 
   const addLoader = (id: number) => {
-    setHasTodoLoaderIds(currentIds => [...currentIds, id]);
+    setTodoLoaderIds(currentIds => [...currentIds, id]);
   };
 
   const deleteLoader = (id: number) => {
-    setHasTodoLoaderIds(currentIds => [...currentIds].filter(
+    setTodoLoaderIds(currentIds => [...currentIds].filter(
       hasLoaderId => hasLoaderId !== id,
     ));
   };
@@ -70,7 +74,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const applyFilter = (filter: FilterBy) => {
+  const setFilter = (filter: FilterBy) => {
     setFilterBy(filter);
   };
 
@@ -82,25 +86,25 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setHasTodoLoaderIds([0]);
+      setTodoLoaderIds([0]);
       setTempTodo({
         ...newTodo,
         id: 0,
       });
 
       try {
-        const addedTodo = await client.post<Todo>(BASE_ADD_URL, newTodo);
+        const addedTodo = await addTodoOnServer(newTodo);
 
         setTodos(currentTodos => [
           ...currentTodos,
           addedTodo,
         ]);
-      } catch (caughtError) {
+      } catch {
         setError(Errors.add);
-        throw caughtError;
+        throw new Error();
       } finally {
         setTempTodo(null);
-        setHasTodoLoaderIds([]);
+        setTodoLoaderIds([]);
       }
     } else {
       setError(Errors.emptyTitle);
@@ -111,11 +115,11 @@ export const App: React.FC = () => {
     addLoader(id);
 
     try {
-      await client.delete(`${BASE_ADD_URL}/${id}`);
+      await deleteTodoFromServer(id);
       setTodos(currentTodos => {
         return [...currentTodos].filter(todo => todo.id !== id);
       });
-    } catch (errorCought) {
+    } catch {
       if (!error) {
         setError(Errors.delete);
       }
@@ -128,7 +132,7 @@ export const App: React.FC = () => {
     addLoader(id);
 
     try {
-      await client.patch(`/todos/${id}`, { completed: !completed });
+      await toggleTodoOnServer(id, !completed);
       changeAndToggleTodo(id, 'completed', completed);
     } catch (e) {
       if (!error) {
@@ -140,7 +144,7 @@ export const App: React.FC = () => {
   };
 
   const changeTodo = async (id: number, newTitle: string) => {
-    setHasTodoLoaderIds(currentIds => [...currentIds, id]);
+    setTodoLoaderIds(currentIds => [...currentIds, id]);
 
     if (!newTitle) {
       deleteTodo(id);
@@ -148,12 +152,12 @@ export const App: React.FC = () => {
 
     if (newTitle) {
       try {
-        await client.patch(`/todos/${id}`, { title: newTitle });
+        await changeTitleTodoOnServer(id, newTitle);
         changeAndToggleTodo(id, 'title', newTitle);
-      } catch (caughtError) {
+      } catch {
         if (!error) {
           setError(Errors.update);
-          throw caughtError;
+          throw new Error();
         }
       } finally {
         deleteLoader(id);
@@ -189,8 +193,8 @@ export const App: React.FC = () => {
   const areThereTodos = todos.length > 0;
 
   useEffect(() => {
-    client.get<Todo[]>(BASE_ADD_URL + URL_GET)
-      .then(dTodos => setTodos(dTodos))
+    getTodosFromServer(USER_ID)
+      .then(setTodos)
       .catch(() => setError(Errors.load));
   }, []);
 
@@ -226,14 +230,14 @@ export const App: React.FC = () => {
               <TodoList
                 todos={todosToRender}
                 tempTodo={tempTodo}
-                isActiveLoaderTodos={hasTodoLoaderIds}
-                onDeleteTodo={id => deleteTodo(id)}
-                onToggleTodo={(id, completed) => toggleTodo(id, completed)}
-                onChangeTodo={(id, title) => changeTodo(id, title)}
+                isActiveLoaderTodos={todoLoaderIds}
+                onDeleteTodo={deleteTodo}
+                onToggleTodo={toggleTodo}
+                onChangeTodo={changeTodo}
               />
             </section>
             <TodoFooter
-              onChangeFilter={applyFilter}
+              onChangeFilter={setFilter}
               filterSelected={filterBy}
               activeTodos={activeTodos.length}
               completedTodos={completedTodos.length}

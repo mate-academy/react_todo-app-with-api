@@ -15,6 +15,7 @@ export const TodoHeader: React.FC<Props> = React.memo((({
   areThereTodos,
   toggleAll,
 }) => {
+  const [value, setValue] = useState<string>('');
   const [isCheckedToggler, setIsCheckedToggler]
     = useState(areAllTodosCompleted);
   const inputField = useRef<HTMLInputElement | null>(null);
@@ -34,7 +35,7 @@ export const TodoHeader: React.FC<Props> = React.memo((({
   const resetInput = () => {
     if (inputField.current) {
       inputField.current.disabled = false;
-      inputField.current.value = '';
+      setValue('');
       inputField.current.focus();
     }
   };
@@ -42,7 +43,7 @@ export const TodoHeader: React.FC<Props> = React.memo((({
   const submitNewTodo = () => {
     if (inputField.current) {
       inputField.current.disabled = true;
-      onAddTodo(inputField.current.value)
+      onAddTodo(value.trim())
         .then(resetInput)
         .finally(() => {
           if (inputField.current) {
@@ -77,10 +78,12 @@ export const TodoHeader: React.FC<Props> = React.memo((({
       <form>
         <input
           ref={inputField}
+          value={value}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onKeyDown={handlerPressedKey}
+          onChange={(e) => setValue(e.target.value)}
         />
       </form>
     </header>

@@ -10,6 +10,12 @@ type Props = {
   clearCompleted: () => void;
 };
 
+function getProperty<T, K extends keyof T>(
+  obj: T, key: K,
+): T[K] {
+  return obj[key];
+}
+
 export const TodoFooter: React.FC<Props> = ({
   onChangeFilter,
   filterSelected,
@@ -17,13 +23,12 @@ export const TodoFooter: React.FC<Props> = ({
   completedTodos,
   clearCompleted,
 }) => {
-  const filterButtons = Object.keys(FilterBy);
+  const filterButtons = Object.values(FilterBy).map(k => {
+    return getProperty(FilterBy, k);
+  });
 
-  const handleClickFilter = (filterName: string) => {
-    const index = Object.keys(FilterBy).indexOf(filterName);
-    const filter = Object.values(FilterBy)[index];
-
-    onChangeFilter(filter);
+  const onChangeFilterType = (f: keyof typeof FilterBy) => {
+    onChangeFilter(getProperty(FilterBy, f));
   };
 
   return (
@@ -41,7 +46,7 @@ export const TodoFooter: React.FC<Props> = ({
               'filter__link',
               { selected: button === filterSelected },
             )}
-            onClick={() => handleClickFilter(button)}
+            onClick={() => onChangeFilterType(button)}
           >
             {button}
           </a>

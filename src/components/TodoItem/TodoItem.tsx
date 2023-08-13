@@ -20,15 +20,21 @@ export const TodoItem: React.FC<Props> = ({
   onChangeTodo,
 }) => {
   const { id, title, completed } = todo;
+  const [value, setValue] = useState<string>(title);
   const [isEditingTodo, setIsEditingTodo] = useState<boolean>(false);
   const editingTodoField = useRef<HTMLInputElement | null>(null);
 
-  const changeTitle = async (idTodo: number, titleTodo: string) => {
+  const changeTodoTitle = async (idTodo: number, titleTodo: string) => {
     try {
       await onChangeTodo(idTodo, titleTodo);
+      setValue(titleTodo);
       setIsEditingTodo(false);
-    } catch (e) {
-      editingTodoField.current?.focus();
+    } catch {
+      if (editingTodoField.current) {
+        setValue(title);
+        setIsEditingTodo(false);
+        editingTodoField.current.blur();
+      }
     }
   };
 
@@ -56,19 +62,18 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const handleOnBlurEditingTodoField = () => {
-    if (editingTodoField.current) {
-      const newTitle = editingTodoField.current.value;
+  const handleOnBlurEditingTodoField = (
+    e: React.FocusEvent<HTMLInputElement>,
+  ) => {
+    const newTitle = e.target.value;
 
-      if (newTitle === title) {
-        setIsEditingTodo(false);
+    if (newTitle === title) {
+      setIsEditingTodo(false);
 
-        return;
-      }
-
-      // onChangeTodo(id, newTitle);
-      changeTitle(id, newTitle);
+      return;
     }
+
+    changeTodoTitle(id, newTitle);
   };
 
   useEffect(() => {
@@ -95,9 +100,10 @@ export const TodoItem: React.FC<Props> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            defaultValue={title}
-            onBlur={handleOnBlurEditingTodoField}
+            value={value}
+            onBlur={(e) => handleOnBlurEditingTodoField(e)}
             onKeyDown={handleKeyboardEditingTodoField}
+            onChange={e => setValue(e.target.value)}
           />
         </form>
       ) : (
@@ -105,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__title"
           onClick={handleClickTodoField}
         >
-          {title}
+          {value}
         </span>
       )}
 
