@@ -38,11 +38,17 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!trimedTitle) {
       removeTodo(id);
-    } else {
+    } else if (trimedTitle !== title) {
       updateTodo({ ...todo, title: trimedTitle });
     }
 
     setIsEditing(false);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -85,15 +91,12 @@ export const TodoItem: React.FC<Props> = ({
             <input
               type="text"
               className="todo__title-field"
+              placeholder="Empty todo will be deleted"
               ref={editInput}
               value={editedTitle}
               onChange={(event) => setEditedTitle(event.target.value)}
               onBlur={handleFormSubmit}
-              onKeyUp={(event) => {
-                if (event.key === 'Escape') {
-                  setIsEditing(false);
-                }
-              }}
+              onKeyUp={handleKeyUp}
             />
           </form>
         )}

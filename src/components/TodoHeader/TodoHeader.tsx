@@ -6,10 +6,7 @@ import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   todos: Todo[],
-  setIsError: (status: boolean) => void,
   setErrorMessage: (message: ErrorMessage) => void
-  loadingTodoIds: number[],
-  setLoadingTodoIds: (ids: number[]) => void,
   createTodo: (todoTitle: string) => void,
   updateTodo: (changedTodo: Todo) => void,
 
@@ -17,7 +14,6 @@ type Props = {
 
 export const TodoHeader: React.FC<Props> = ({
   todos,
-  setIsError,
   setErrorMessage,
   createTodo,
   updateTodo,
@@ -31,7 +27,6 @@ export const TodoHeader: React.FC<Props> = ({
 
     if (!trimedTitle) {
       setErrorMessage('Title can\'t be empty');
-      setIsError(true);
 
       return;
     }

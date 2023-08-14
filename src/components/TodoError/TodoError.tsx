@@ -1,15 +1,14 @@
 import cn from 'classnames';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
-  isError: boolean,
-  onSetError: (value: boolean) => void;
   errorMessage: string,
+  setErrorMessage: (message: ErrorMessage) => void,
 };
 
 export const TodoError: React.FC<Props> = ({
-  isError,
-  onSetError,
   errorMessage,
+  setErrorMessage,
 }) => {
   return (
     <div
@@ -18,13 +17,13 @@ export const TodoError: React.FC<Props> = ({
         'is-danger',
         'is-light',
         'has-text-weight-normal',
-        { hidden: !isError },
+        { hidden: !errorMessage },
       )}
     >
       <button
         type="button"
         className="delete"
-        onClick={() => onSetError(false)}
+        onClick={() => setErrorMessage('')}
       >
         ×
       </button>

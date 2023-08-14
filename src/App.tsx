@@ -19,21 +19,19 @@ const USER_ID = 11276;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isError, setIsError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage>('');
   const [filterStatus, setFilterStatus] = useState(FilterStatus.All);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  if (isError) {
-    setTimeout(() => setIsError(false), 3000);
+  if (errorMessage) {
+    setTimeout(() => setErrorMessage(''), 3000);
   }
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setIsError(true);
         setErrorMessage('Unable to fetch todos');
       });
   }, []);
@@ -68,9 +66,8 @@ export const App: React.FC = () => {
       const newTodo = await postTodo(preparedTodo);
 
       setTodos([...todos, newTodo]);
-    } catch (e) {
+    } catch {
       setErrorMessage('Unable to add a todo');
-      setIsError(true);
     } finally {
       setTempTodo(null);
     }
@@ -83,9 +80,8 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
 
       setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
-    } catch (e) {
+    } catch {
       setErrorMessage('Unable to delete a todo');
-      setIsError(true);
     } finally {
       setLoadingTodoIds(current => current.filter(id => id !== todoId));
     }
@@ -108,9 +104,8 @@ export const App: React.FC = () => {
 
         return todosCopy;
       });
-    } catch (e) {
+    } catch {
       setErrorMessage('Unable to update a todo');
-      setIsError(true);
     } finally {
       setLoadingTodoIds(current => current.filter(id => id !== changedTodo.id));
     }
@@ -123,10 +118,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           todos={todos}
-          setIsError={setIsError}
           setErrorMessage={setErrorMessage}
-          loadingTodoIds={loadingTodoIds}
-          setLoadingTodoIds={setLoadingTodoIds}
           createTodo={createTodo}
           updateTodo={updateTodo}
         />
@@ -158,9 +150,8 @@ export const App: React.FC = () => {
       </div>
 
       <TodoError
-        isError={isError}
-        onSetError={setIsError}
         errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );
