@@ -116,7 +116,15 @@ export const App: React.FC = () => {
   };
 
   const clearCompletedTodos = () => {
-    setTodos((prevTodos) => prevTodos.filter(todo => !todo.completed));
+    todos.filter(todo => {
+      if (todo.completed) {
+        deleteTodo(todo.id);
+        handleDelete(todo.id);
+      }
+
+      return todo;
+    });
+    setTodos(todos);
   };
 
   const completedTodos = todos.filter(todo => todo.completed);
