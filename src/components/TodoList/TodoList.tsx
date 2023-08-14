@@ -1,34 +1,32 @@
 import React from 'react';
-import { Todo } from '../../types/Todo';
+import {
+  CSSTransition,
+  TransitionGroup,
+} from 'react-transition-group';
 import { TodoItem } from '../TodoItem/TodoItem';
 
-interface Props {
-  visibleTodos: Todo[],
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>,
-  todosLoader: boolean,
-  isLoadingCompleted: boolean,
-}
+import './TodoList.scss';
+import { useTodosContext } from '../../context/useTodosContext';
 
-export const TodoList:React.FC<Props> = ({
-  visibleTodos,
-  setTodos,
-  setErrorMessage,
-  todosLoader,
-  isLoadingCompleted,
-}) => {
+export const TodoList:React.FC = () => {
+  const { visibleTodos } = useTodosContext();
+
   return (
     <>
-      {visibleTodos.map(todo => (
-        <TodoItem
-          todo={todo}
-          setTodos={setTodos}
-          setErrorMessage={setErrorMessage}
-          todosLoader={todosLoader}
-          isLoadingCompleted={isLoadingCompleted}
-          key={todo.id}
-        />
-      ))}
+      <TransitionGroup>
+        {visibleTodos.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoItem
+              todo={todo}
+              key={todo.id}
+            />
+          </CSSTransition>
+        ))}
+      </TransitionGroup>
     </>
   );
 };

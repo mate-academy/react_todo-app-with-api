@@ -4,26 +4,19 @@ import { completedTodosCheck } from '../../helpers';
 import { addTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 import { EventType } from '../../types/types';
+import { useTodosContext } from '../../context/useTodosContext';
 
-interface Props {
-  todos: Todo[],
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>,
-  formLoader: boolean,
-  setFormLoader: React.Dispatch<React.SetStateAction<boolean>>,
-  setTodosLoader: React.Dispatch<React.SetStateAction<boolean>>,
-  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
-}
+export const TodoForm:FC = () => {
+  const {
+    todos,
+    setTodos,
+    setErrorMessage,
+    setTodosLoader,
+    formLoader,
+    setFormLoader,
+    setTempTodo,
+  } = useTodosContext();
 
-export const TodoForm:FC<Props> = ({
-  todos,
-  setTodos,
-  setErrorMessage,
-  formLoader,
-  setFormLoader,
-  setTodosLoader,
-  setTempTodo,
-}) => {
   const [todoTitle, setTodoTitle] = useState<string>('');
 
   const handleToggleAll = async () => {

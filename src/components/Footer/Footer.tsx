@@ -1,20 +1,35 @@
 import { FC } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
+import { deleteTodo } from '../../api/todos';
+import { useTodosContext } from '../../context/useTodosContext';
 
-interface Props {
-  todos: Todo[];
-  filter: string | null;
-  setFilter: React.Dispatch<React.SetStateAction<string | null>>;
-  clearCompletedTodos: () => void;
-}
+export const Footer:FC = () => {
+  const {
+    todos,
+    setTodos,
+    setVisibleTodos,
+    setErrorMessage,
+    filter,
+    setFilter,
+    setIsLoadingCompleted,
+  } = useTodosContext();
 
-export const Footer:FC<Props> = ({
-  todos,
-  filter,
-  setFilter,
-  clearCompletedTodos,
-}) => {
+  const clearCompletedTodos = async () => {
+    try {
+      const completedTodos = todos.filter(todo => todo.completed);
+      const deletedTodos = completedTodos
+        .map(todo => deleteTodo(todo.id, setTodos, setErrorMessage));
+
+      setIsLoadingCompleted(true);
+      await Promise.all(deletedTodos);
+      setVisibleTodos(todos.filter(todo => !todo.completed));
+      setIsLoadingCompleted(false);
+    } catch (error) {
+      setErrorMessage('Unable to delete completed todos');
+      throw new Error('Error');
+    }
+  };
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">

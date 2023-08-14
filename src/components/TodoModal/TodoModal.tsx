@@ -1,11 +1,11 @@
 import { FC } from 'react';
-import { Todo } from '../../types/Todo';
+import { useTodosContext } from '../../context/useTodosContext';
 
-interface Props {
-  tempTodo: Todo;
-}
+export const TodoModal: FC = () => {
+  const {
+    tempTodo,
+  } = useTodosContext();
 
-export const TodoModal: FC<Props> = ({ tempTodo }) => {
   return (
     <div className="todo">
       <div className="modal overlay is-active">

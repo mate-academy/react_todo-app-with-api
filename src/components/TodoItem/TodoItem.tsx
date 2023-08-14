@@ -7,23 +7,24 @@ import {
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { EventType } from '../../types/types';
+import { useTodosContext } from '../../context/useTodosContext';
 
 interface Props {
   todo: Todo,
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>,
-  todosLoader: boolean,
-  isLoadingCompleted: boolean,
 }
 
 export const TodoItem:FC<Props> = ({
   todo,
-  setTodos,
-  setErrorMessage,
-  todosLoader,
-  isLoadingCompleted,
 }) => {
   const { completed, title, id } = todo;
+
+  const {
+    setTodos,
+    setErrorMessage,
+    isLoadingCompleted,
+    todosLoader,
+  } = useTodosContext();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
