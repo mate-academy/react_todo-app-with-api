@@ -36,7 +36,8 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (!editedTitle) {
+    if (!editedTitle || editedTitle === '') {
+      handleDelete(editingTodo.id);
       deleteTodo(editingTodo.id);
     }
 
