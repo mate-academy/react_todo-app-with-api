@@ -60,7 +60,7 @@ export const EditingForm: React.FC<Props> = (
         ref={inputField}
         onChange={event => setEditedTodoTitle(event.target.value)}
         onKeyUp={handleEscape}
-        onBlur={() => handleSubmit()}
+        onBlur={handleSubmit}
       />
     </form>
   );
