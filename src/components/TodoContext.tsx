@@ -1,13 +1,10 @@
 import {
   FC, ReactNode, createContext, useEffect, useMemo, useState, useCallback,
 } from 'react';
-import { Todo } from '../types/Todo';
-import { ErrorType } from '../types/ErrorType';
 import {
   getTodos, postTodo, deleteTodo, updateTodo,
 } from '../api/todos';
-import { TodoStatus } from '../types/TodoStatus';
-import { UpdateTodos } from '../types/UpdateTodos';
+import { TodoStatus, ErrorType, Todo } from '../types';
 import { getFilteredTodos } from '../utils/getFilteredTodos';
 
 type Props = {
@@ -30,7 +27,7 @@ interface Context {
   onDeleteTodo: (todoId: number) => void;
   onDeleteCompletedTodos: () => void;
   onUpdateTodo: (todo: Todo) => void;
-  onUpdateSeveralTodos: (todosForUpdate: UpdateTodos) => void;
+  onToggleSeveralTodos: () => void;
 }
 
 const USER_ID = 11043;
@@ -50,13 +47,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
   ), [todos, filterBy]);
 
   const activeTodosLeft = useMemo(() => (
-    todos.reduce((count, todo) => {
-      if (!todo.completed) {
-        return count + 1;
-      }
-
-      return count;
-    }, 0)
+    todos.filter(todo => !todo.completed).length
   ), [todos]);
 
   useEffect(() => {
@@ -162,12 +153,11 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     }
   }, [selectedTodoIds]);
 
-  // eslint-disable-next-line max-len
-  const onUpdateSeveralTodos = useCallback(async (todosForUpdate: UpdateTodos) => {
+  const onToggleSeveralTodos = useCallback(async () => {
     try {
-      const targetTodos = todosForUpdate === UpdateTodos.Some
-        ? todos.filter(todo => !todo.completed)
-        : todos;
+      const targetTodos = todos.filter((todo) => (
+        todo.completed === !activeTodosLeft
+      ));
 
       setSelectedTodoIds(targetTodos.map(todo => todo.id));
 
@@ -213,7 +203,7 @@ export const TodoProvider: FC<Props> = ({ children }) => {
     onDeleteTodo,
     onDeleteCompletedTodos,
     onUpdateTodo,
-    onUpdateSeveralTodos,
+    onToggleSeveralTodos,
   };
 
   return (

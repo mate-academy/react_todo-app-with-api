@@ -4,13 +4,12 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../TodoContext';
-import { ErrorType } from '../../types/ErrorType';
-import { UpdateTodos } from '../../types/UpdateTodos';
+import { ErrorType } from '../../types';
 
 export const TodoForm: FC = () => {
   const [todoTitle, setTodoTitle] = useState('');
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const isFirstRender = useRef(true);
 
   const {
@@ -20,7 +19,7 @@ export const TodoForm: FC = () => {
     error,
     onAddNewTodo,
     onErrorChange,
-    onUpdateSeveralTodos,
+    onToggleSeveralTodos,
   } = useContext(TodoContext);
 
   useEffect(() => {
@@ -51,22 +50,12 @@ export const TodoForm: FC = () => {
     }
   };
 
-  const updateTodos = () => {
-    if ((activeTodosLeft === todosCount) || (activeTodosLeft === 0)) {
-      onUpdateSeveralTodos(UpdateTodos.Every);
-
-      return;
-    }
-
-    onUpdateSeveralTodos(UpdateTodos.Some);
-  };
-
   return (
     <header className="todoapp__header">
       {todosCount > 0 && (
         <button
           type="button"
-          onClick={updateTodos}
+          onClick={onToggleSeveralTodos}
           className={classNames('todoapp__toggle-all', {
             active: activeTodosLeft === 0,
           })}

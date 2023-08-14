@@ -1,7 +1,7 @@
 import { FC, useContext } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../TodoContext';
-import { TodoStatus } from '../../types/TodoStatus';
+import { TodoStatus } from '../../types';
 
 export const TodoFilter: FC = () => {
   const {
@@ -12,11 +12,11 @@ export const TodoFilter: FC = () => {
     onDeleteCompletedTodos,
   } = useContext(TodoContext);
 
-  const filterLinkClasses = (currentOption: TodoStatus) => {
-    return classNames('filter__link', {
+  const filterLinkClasses = (currentOption: TodoStatus) => (
+    classNames('filter__link', {
       selected: filterBy === currentOption,
-    });
-  };
+    })
+  );
 
   return (
     <footer className="todoapp__footer">

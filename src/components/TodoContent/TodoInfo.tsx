@@ -1,8 +1,8 @@
 import {
-  FC, ChangeEvent, useContext, useState, useEffect, FormEvent, useRef,
+  FC, useContext, useState, useEffect, FormEvent, useRef,
 } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
+import { Todo } from '../../types';
 import { TodoContext } from '../TodoContext';
 
 type Props = {
@@ -20,18 +20,13 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
 
-  const editRef = useRef<HTMLInputElement | null>(null);
+  const editRef = useRef<HTMLInputElement>(null);
 
   const isProcessed = selectedTodoIds.includes(todo.id);
 
-  const updateTodoCompleted = (event: ChangeEvent<HTMLInputElement>) => {
-    const todoForUpdate: Todo = {
-      ...todo,
-      completed: event.target.checked,
-    };
-
-    onUpdateTodo(todoForUpdate);
-  };
+  const updateTodoCompleted = (newStatus: boolean) => (
+    onUpdateTodo({ ...todo, completed: newStatus })
+  );
 
   const updateTodoTitle = () => {
     if (todo.title === newTitle) {
@@ -44,12 +39,7 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
       return;
     }
 
-    const todoForUpdate: Todo = {
-      ...todo,
-      title: newTitle,
-    };
-
-    onUpdateTodo(todoForUpdate);
+    onUpdateTodo({ ...todo, title: newTitle });
   };
 
   const handleEditTodoTitle = (event?: FormEvent) => {
@@ -62,10 +52,11 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
 
   useEffect(() => {
     const cancelEditing = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsEditing(false);
-        setNewTitle(todo.title);
+      if (event.key !== 'Escape') {
+        return;
       }
+
+      setIsEditing(false);
     };
 
     document.addEventListener('keyup', cancelEditing);
@@ -76,6 +67,8 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
   }, []);
 
   useEffect(() => {
+    setNewTitle(todo.title);
+
     if (isEditing && editRef.current) {
       editRef.current.focus();
     }
@@ -91,7 +84,7 @@ export const TodoInfo: FC<Props> = ({ todo, isLoading = false }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={updateTodoCompleted}
+          onChange={(event) => updateTodoCompleted(event.target.checked)}
         />
       </label>
 
