@@ -18,7 +18,7 @@ export const TodoList: React.FC<Props> = ({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState<string>('');
 
-  const handleChecked = async (id: number) => {
+  const handleChecked = async (id: number | undefined) => {
     const updatedTodos = todos.map(todo => {
       if (todo.id === id) {
         const updatedTodo = { ...todo, completed: !todo.completed };
@@ -39,7 +39,7 @@ export const TodoList: React.FC<Props> = ({
     setTodos(updatedTodos);
   };
 
-  const handleRemoveTodo = async (id: number) => {
+  const handleRemoveTodo = async (id: number | undefined) => {
     try {
       await client.delete(`/todos/${id}`);
       setTodos((prevTodos: Todo[]) => prevTodos.filter(todo => todo.id !== id));
@@ -48,35 +48,33 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
-  const handleDoubleClick = (id: number, newTitle: string) => {
+  const handleDoubleClick = (id: number | undefined, newTitle: string) => {
     setEditingId(id);
     setEditingTitle(newTitle);
   };
 
-  const handleSaveEdit = async (id: number | null) => {
+  const handleSaveEdit = async (id: number | undefined) => {
     if (!editingTitle.trim()) {
       return;
     }
 
-    if (id) {
-      return;
-    }
+    if (id !== null) {
+      try {
+        const updatedTodo
+          = { ...todos.find(todo => todo.id === id), title: editingTitle };
 
-    try {
-      const updatedTodo
-        = { ...todos.find(todo => todo.id === id), title: editingTitle };
+        await client.patch(`/todos/${id}`, updatedTodo);
 
-      await client.patch(`/todos/${id}`, updatedTodo);
+        const updatedTodos
+          = todos.map(todo => (todo.id === id ? updatedTodo : todo));
 
-      const updatedTodos
-        = todos.map(todo => (todo.id === id ? updatedTodo : todo));
-
-      setTodos(updatedTodos);
-    } catch (error) {
-      setErrorMessage('Unable to update todo');
-    } finally {
-      setEditingId(null);
-      setEditingTitle('');
+        setTodos(updatedTodos);
+      } catch (error) {
+        setErrorMessage('Unable to update todo');
+      } finally {
+        setEditingId(null);
+        setEditingTitle('');
+      }
     }
   };
 
