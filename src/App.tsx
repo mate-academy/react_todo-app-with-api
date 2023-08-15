@@ -89,20 +89,40 @@ export const App: React.FC = () => {
   };
 
   const toggleAll = () => {
-    const allComplete = todos.every(todo => todo.completed);
+    const allCompleted = todos.every(todo => todo.completed);
+    const notCompletedTodo = todos.filter(todo => !todo.completed);
 
-    const newTodos = todos.map((todo) => ({
-      ...todo,
-      completed: !allComplete,
-    }));
+    let toggleToCompleted;
 
-    const todosToUpdate = newTodos.map(todo => Postservice.updateTodo(todo));
+    if (allCompleted) {
+      toggleToCompleted = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+    } else {
+      toggleToCompleted = notCompletedTodo
+        .map(todo => ({
+          ...todo,
+          completed: true,
+        }));
+    }
+
+    const todosToUpdate = toggleToCompleted
+      .map(todo => Postservice.updateTodo(todo));
 
     setIsLoading(true);
-    setGroupSelected(newTodos);
+    setGroupSelected(toggleToCompleted);
 
     Promise.all(todosToUpdate)
-      .then(setTodos)
+      .then(updatedTodos => {
+        setTodos(prevTodos => {
+          const updatedTodoIds = updatedTodos.map(todo => todo.id);
+          const newTodos = prevTodos.filter(todo => !updatedTodoIds
+            .includes(todo.id));
+
+          return newTodos.concat(updatedTodos);
+        });
+      })
       .catch(() => setErrorWithTimeout(
         ErrorMessage.Update,
         3000,

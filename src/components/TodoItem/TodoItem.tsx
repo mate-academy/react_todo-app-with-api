@@ -68,13 +68,15 @@ export const TodoItem: React.FC<Props> = ({
 
     if (preparedTitle === '') {
       deleteTodo(id)();
-    } else {
+    } else if (preparedTitle !== title) {
       const updatedTodo = {
         ...todo,
         title: preparedTitle,
       };
 
       updateTodo(updatedTodo);
+      setIsEdit(false);
+    } else {
       setIsEdit(false);
     }
   };
