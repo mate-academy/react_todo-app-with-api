@@ -40,7 +40,7 @@ export const TodoItem: React.FC<Props> = ({
   }, []);
 
   const handleEditSave = () => {
-    if (editTitle.trim() !== '') {
+    if (editTitle.trim()) {
       if (editTitle !== todo.title) {
         const updatedTodo = { ...todo, title: editTitle };
 
@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (editTitle.trim() === '' && event.key === 'Enter') {
+    if (!editTitle.trim() && event.key === 'Enter') {
       deleted();
 
       return;

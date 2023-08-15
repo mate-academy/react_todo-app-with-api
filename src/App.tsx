@@ -45,8 +45,10 @@ export const App: React.FC = () => {
     switch (typeTodos) {
       case TypeTodos.Active:
         return todos.filter(todo => !todo.completed);
+
       case TypeTodos.Completed:
         return todos.filter(todo => todo.completed);
+
       default:
         return todos;
     }

@@ -41,6 +41,9 @@ export const Header:React.FC<Props> = ({
         setNewTitle('');
       } else {
         setErrorMessage(ErrorType.Empty);
+        setTimeout(() => {
+          setErrorMessage(ErrorType.None);
+        }, 3000);
       }
     }
   };
