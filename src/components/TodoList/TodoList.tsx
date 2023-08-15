@@ -15,7 +15,7 @@ export const TodoList: React.FC<Props> = ({
   setTodos,
   setErrorMessage,
 }) => {
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number>();
   const [editingTitle, setEditingTitle] = useState<string>('');
 
   const handleChecked = async (id: number | undefined) => {
@@ -58,7 +58,7 @@ export const TodoList: React.FC<Props> = ({
       return;
     }
 
-    if (id !== null) {
+    if (id) {
       try {
         const updatedTodo
           = { ...todos.find(todo => todo.id === id), title: editingTitle };
@@ -72,7 +72,7 @@ export const TodoList: React.FC<Props> = ({
       } catch (error) {
         setErrorMessage('Unable to update todo');
       } finally {
-        setEditingId(null);
+        setEditingId(NaN);
         setEditingTitle('');
       }
     }
@@ -104,7 +104,7 @@ export const TodoList: React.FC<Props> = ({
                       handleSaveEdit(id);
                     }
                   }}
-                  onBlur={() => setEditingId(null)}
+                  onBlur={() => setEditingId(NaN)}
                   // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                 />
