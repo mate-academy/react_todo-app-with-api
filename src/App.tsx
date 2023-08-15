@@ -26,7 +26,7 @@ export const App: React.FC = () => {
         // eslint-disable-next-line no-console
         console.error('An error occurred:', error);
       });
-  }, []);
+  }, [setAllTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -41,14 +41,18 @@ export const App: React.FC = () => {
         <TodoApp
           setTodos={setTodos}
           todos={todos}
+          allTodos={allTodos}
           setErrorMessage={setErrorMessage}
+          setAllTodos={setAllTodos}
         />
 
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <TodosFilter
+              setErrorMessage={setErrorMessage}
               todos={todos}
               setTodos={setTodos}
+              setAllTodos={setAllTodos}
               allTodos={allTodos}
             />
           </footer>

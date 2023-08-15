@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Todo } from '../types/Todo';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -16,7 +17,7 @@ type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 function request<T>(
   url: string,
   method: RequestMethod = 'GET',
-  data?: Todo, // we can send any data to the server
+  data?: Todo | Todo[], // we can send any data to the server
 ): Promise<T> {
   const options: RequestInit = { method };
 
@@ -43,6 +44,6 @@ function request<T>(
 export const client = {
   get: <T>(url: string) => request<T>(url),
   post: <T>(url: string, data: Todo) => request<T>(url, 'POST', data),
-  patch: <T>(url: string, data: Todo) => request<T>(url, 'PATCH', data),
+  patch: <T>(url: string, data: Todo | Todo[]) => request<T>(url, 'PATCH', data),
   delete: (url: string) => request(url, 'DELETE'),
 };

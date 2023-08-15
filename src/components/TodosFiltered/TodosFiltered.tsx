@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
+import { client } from '../../utils/fetchClient';
 
 type Props = {
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
+  setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>
+  setErrorMessage: (a: string) => void;
   allTodos: Todo[];
 };
 
-export const TodosFilter: React.FC<Props> = ({ todos, setTodos, allTodos }) => {
+export const TodosFilter: React.FC<Props> = ({
+  todos,
+  setTodos,
+  setAllTodos,
+  allTodos,
+  setErrorMessage,
+}) => {
   enum Status {
     ALL = 'all',
     ACTIVE = 'active',
@@ -37,6 +46,26 @@ export const TodosFilter: React.FC<Props> = ({ todos, setTodos, allTodos }) => {
 
     setTodos(filteredTodos);
   };
+
+  const handleRemoveAllCompleted = async () => {
+    try {
+      const completedTodos = allTodos.filter(todo => todo.completed);
+
+      await Promise.all(completedTodos.map(todo => client.delete(`/todos/${todo.id}`)));
+
+      setAllTodos(prevTodos => prevTodos.filter(
+        todo => !completedTodos.includes(todo),
+      ));
+    } catch (error) {
+      setErrorMessage('Unable to remove completed todos');
+      // eslint-disable-next-line no-console
+      console.error('An error occurred:', error);
+    }
+  };
+
+  useEffect(() => {
+    setTodos(allTodos);
+  }, [allTodos]);
 
   const handleSetFilteredTodos
     = (filter: Status) => {
@@ -71,7 +100,13 @@ export const TodosFilter: React.FC<Props> = ({ todos, setTodos, allTodos }) => {
         <a
           href="#/completed"
           className="filter__link"
-          onClick={() => handleSetFilteredTodos(Status.COMPLETED)}
+          onClick={() => {
+            if (completedTodoLength > 0) {
+              handleSetFilteredTodos(Status.COMPLETED);
+            } else {
+              handleSetFilteredTodos(Status.ALL);
+            }
+          }}
         >
           Completed
         </a>
@@ -79,7 +114,13 @@ export const TodosFilter: React.FC<Props> = ({ todos, setTodos, allTodos }) => {
         <a
           href="#/active"
           className="filter__link"
-          onClick={() => handleSetFilteredTodos(Status.ACTIVE)}
+          onClick={() => {
+            if (uncompletedTodos > 0) {
+              handleSetFilteredTodos(Status.ACTIVE);
+            } else {
+              handleSetFilteredTodos(Status.ALL);
+            }
+          }}
         >
           Active
         </a>
@@ -89,12 +130,12 @@ export const TodosFilter: React.FC<Props> = ({ todos, setTodos, allTodos }) => {
             <button
               type="button"
               className="clear-completed"
+              onClick={handleRemoveAllCompleted}
             >
               Clear completed
             </button>
           )
         }
       </>
-    ) : null
-  );
+    ) : null);
 };

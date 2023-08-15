@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -17,6 +17,10 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   const [editingId, setEditingId] = useState<number>();
   const [editingTitle, setEditingTitle] = useState<string>('');
+
+  useEffect(() => {
+    setTodos(todos);
+  }, [todos]);
 
   const handleChecked = async (id: number | undefined) => {
     const updatedTodos = todos.map(todo => {
@@ -93,22 +97,20 @@ export const TodoList: React.FC<Props> = ({
             key={id}
           >
             {isBeingEdited ? (
-              <>
-                <input
-                  className="todo__edit-todo"
-                  type="text"
-                  value={editingTitle}
-                  onChange={event => setEditingTitle(event.target.value)}
-                  onKeyDown={event => {
-                    if (event.key === 'Enter') {
-                      handleSaveEdit(id);
-                    }
-                  }}
-                  onBlur={() => setEditingId(NaN)}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
-                />
-              </>
+              <input
+                className="todo__edit-todo"
+                type="text"
+                value={editingTitle}
+                onChange={event => setEditingTitle(event.target.value)}
+                onKeyDown={event => {
+                  if (event.key === 'Enter') {
+                    handleSaveEdit(id);
+                  }
+                }}
+                onBlur={() => setEditingId(NaN)}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+              />
             ) : (
               <>
                 <label className="todo__status-label" htmlFor={`toggle-view-${id}`}>
