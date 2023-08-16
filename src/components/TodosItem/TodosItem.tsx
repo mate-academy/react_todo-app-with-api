@@ -166,7 +166,7 @@ export const TodosItem: React.FC<Props> = ({ todo }) => {
             value={updatingInputValue}
             onChange={handleUpdatingInputChange}
             onBlur={handleUpdatingInputBlur}
-            onKeyUp={handleUpdatingInputPressEnter}
+            onKeyDown={handleUpdatingInputPressEnter}
           />
         </form>
       )}
