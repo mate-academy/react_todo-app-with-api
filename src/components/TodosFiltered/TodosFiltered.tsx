@@ -7,6 +7,7 @@ import { client } from '../../utils/fetchClient';
 type Props = {
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
+  setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setErrorMessage: (a: string) => void;
   allTodos: Todo[];
 };
@@ -14,6 +15,7 @@ type Props = {
 export const TodosFilter: React.FC<Props> = ({
   todos,
   setTodos,
+  setAllTodos,
   allTodos,
   setErrorMessage,
 }) => {
@@ -22,8 +24,7 @@ export const TodosFilter: React.FC<Props> = ({
     ACTIVE = 'active',
     COMPLETED = 'completed',
   }
-
-  const [filterBy, setFilterBy] = useState<Status>(Status.ALL);
+  const [filterBy, setFilterBy] = useState<Status>();
 
   const getFilteredTodos = (filter: Status) => {
     let filteredTodos: Todo[] = [];
@@ -39,6 +40,7 @@ export const TodosFilter: React.FC<Props> = ({
         filteredTodos = allTodos.filter(todo => todo.completed);
         break;
       default:
+        filteredTodos = allTodos;
         break;
     }
 
@@ -51,7 +53,7 @@ export const TodosFilter: React.FC<Props> = ({
 
       await Promise.all(completedTodos.map(todo => client.delete(`/todos/${todo.id}`)));
 
-      setTodos(prevTodos => prevTodos.filter(
+      setAllTodos(prevTodos => prevTodos.filter(
         todo => !completedTodos.includes(todo),
       ));
     } catch (error) {
@@ -113,17 +115,15 @@ export const TodosFilter: React.FC<Props> = ({
           Active
         </a>
 
-        {
-          completedTodoLength && (
-            <button
-              type="button"
-              className="clear-completed"
-              onClick={handleRemoveAllCompleted}
-            >
-              Clear completed
-            </button>
-          )
-        }
+        <button
+          type="button"
+          className="clear-completed"
+          onClick={handleRemoveAllCompleted}
+          disabled={!completedTodoLength}
+        >
+          Clear completed
+        </button>
+
       </>
     ) : null);
 };

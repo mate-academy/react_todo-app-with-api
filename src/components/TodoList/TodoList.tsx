@@ -23,8 +23,8 @@ export const TodoList: React.FC<Props> = ({
   const [editingTitle, setEditingTitle] = useState<string>('');
 
   useEffect(() => {
-    setTodos(todos);
-  }, []);
+    setTodos(allTodos);
+  }, [allTodos]);
 
   const handleChecked = async (id: number | undefined) => {
     const updatedTodos = allTodos.map(todo => {
@@ -51,7 +51,10 @@ export const TodoList: React.FC<Props> = ({
   const handleRemoveTodo = async (id: number | undefined) => {
     try {
       await client.delete(`/todos/${id}`);
-      setTodos((prevTodos: Todo[]) => prevTodos.filter(todo => todo.id !== id));
+
+      setAllTodos((prevTodos: Todo[]) => prevTodos.filter(
+        todo => todo.id !== id,
+      ));
     } catch (error) {
       setErrorMessage('Unable to delete todos');
     }

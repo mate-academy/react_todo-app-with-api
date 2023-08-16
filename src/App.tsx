@@ -56,6 +56,7 @@ export const App: React.FC = () => {
               setErrorMessage={setErrorMessage}
               todos={todos}
               setTodos={setTodos}
+              setAllTodos={setAllTodos}
               allTodos={allTodos}
             />
           </footer>

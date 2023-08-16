@@ -42,11 +42,10 @@ export const TodoApp: React.FC<Props> = ({
         title: value,
         completed: false,
         userId: USER_ID,
-        id: 0,
       };
       const addedTodo = await client.post<Todo>(URL, newTodoData);
 
-      setTodos((prevTodos: Todo[]) => [...prevTodos, addedTodo]);
+      setAllTodos((prevTodos: Todo[]) => [...prevTodos, addedTodo]);
       setValue('');
     } catch (error) {
       setErrorMessage('Unable to add todo');
