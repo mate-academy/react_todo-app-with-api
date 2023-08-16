@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -7,7 +7,6 @@ import { client } from '../../utils/fetchClient';
 type Props = {
   todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
-  setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setErrorMessage: (a: string) => void;
   allTodos: Todo[];
 };
@@ -15,7 +14,6 @@ type Props = {
 export const TodosFilter: React.FC<Props> = ({
   todos,
   setTodos,
-  setAllTodos,
   allTodos,
   setErrorMessage,
 }) => {
@@ -35,7 +33,7 @@ export const TodosFilter: React.FC<Props> = ({
         filteredTodos = allTodos;
         break;
       case Status.ACTIVE:
-        filteredTodos = allTodos.filter(todo => !todo.completed);
+        filteredTodos = allTodos.filter(todo => todo.completed === false);
         break;
       case Status.COMPLETED:
         filteredTodos = allTodos.filter(todo => todo.completed);
@@ -53,7 +51,7 @@ export const TodosFilter: React.FC<Props> = ({
 
       await Promise.all(completedTodos.map(todo => client.delete(`/todos/${todo.id}`)));
 
-      setAllTodos(prevTodos => prevTodos.filter(
+      setTodos(prevTodos => prevTodos.filter(
         todo => !completedTodos.includes(todo),
       ));
     } catch (error) {
@@ -63,10 +61,6 @@ export const TodosFilter: React.FC<Props> = ({
     }
   };
 
-  useEffect(() => {
-    setTodos(allTodos);
-  }, [allTodos]);
-
   const handleSetFilteredTodos
     = (filter: Status) => {
       setFilterBy(filter);
@@ -74,12 +68,12 @@ export const TodosFilter: React.FC<Props> = ({
     };
 
   const completedTodoLength
-    = useMemo(() => todos.filter(todo => todo.completed).length, [todos]);
+    = useMemo(() => allTodos.filter(todo => todo.completed).length, [todos]);
 
   const uncompletedTodos
-    = useMemo(() => todos.filter(todo => !todo.completed).length, [todos]);
+    = useMemo(() => allTodos.filter(todo => !todo.completed).length, [todos]);
 
-  const todoLength = useMemo(() => todos.length, [todos]);
+  const todoLength = useMemo(() => allTodos.length, [todos]);
 
   return (
     (todoLength > 0) ? (
@@ -114,13 +108,7 @@ export const TodosFilter: React.FC<Props> = ({
         <a
           href="#/active"
           className="filter__link"
-          onClick={() => {
-            if (uncompletedTodos > 0) {
-              handleSetFilteredTodos(Status.ACTIVE);
-            } else {
-              handleSetFilteredTodos(Status.ALL);
-            }
-          }}
+          onClick={() => handleSetFilteredTodos(Status.ACTIVE)}
         >
           Active
         </a>

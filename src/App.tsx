@@ -14,7 +14,7 @@ export const App: React.FC = () => {
 
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  useEffect(() => {
+  const getData = () => {
     client.get(URL).then(data => {
       const todosData = data as Todo[];
 
@@ -26,7 +26,11 @@ export const App: React.FC = () => {
         // eslint-disable-next-line no-console
         console.error('An error occurred:', error);
       });
-  }, [allTodos]);
+  };
+
+  useEffect(() => {
+    getData();
+  }, [setTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -46,13 +50,12 @@ export const App: React.FC = () => {
           setAllTodos={setAllTodos}
         />
 
-        {todos.length > 0 && (
+        {allTodos.length > 0 && (
           <footer className="todoapp__footer">
             <TodosFilter
               setErrorMessage={setErrorMessage}
               todos={todos}
               setTodos={setTodos}
-              setAllTodos={setAllTodos}
               allTodos={allTodos}
             />
           </footer>

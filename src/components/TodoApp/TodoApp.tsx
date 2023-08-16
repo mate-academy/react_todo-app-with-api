@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 
 import { client } from '../../utils/fetchClient';
@@ -25,10 +25,6 @@ export const TodoApp: React.FC<Props> = ({
   const [value, setValue] = useState<string>('');
   const [isToggle, setIsToggle] = useState<boolean>(false);
 
-  useEffect(() => {
-    setTodos(allTodos);
-  }, [allTodos]);
-
   const handleAddTodo = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     const newValue: string = event.target.value;
@@ -46,12 +42,11 @@ export const TodoApp: React.FC<Props> = ({
         title: value,
         completed: false,
         userId: USER_ID,
-        id: +(new Date()),
+        id: 0,
       };
       const addedTodo = await client.post<Todo>(URL, newTodoData);
 
       setTodos((prevTodos: Todo[]) => [...prevTodos, addedTodo]);
-      setIsToggle(false);
       setValue('');
     } catch (error) {
       setErrorMessage('Unable to add todo');
@@ -64,6 +59,7 @@ export const TodoApp: React.FC<Props> = ({
     event.preventDefault();
 
     addNewTodo();
+    setIsToggle(false);
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -135,7 +131,9 @@ export const TodoApp: React.FC<Props> = ({
       <section className="todoapp__main">
         <TodoList
           todos={todos}
+          allTodos={allTodos}
           setTodos={setTodos}
+          setAllTodos={setAllTodos}
           setErrorMessage={setErrorMessage}
         />
       </section>

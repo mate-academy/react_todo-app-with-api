@@ -6,13 +6,17 @@ import { client } from '../../utils/fetchClient';
 
 type Props = {
   todos: Todo[];
+  allTodos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
+  setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setErrorMessage: (a: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
+  allTodos,
   setTodos,
+  setAllTodos,
   setErrorMessage,
 }) => {
   const [editingId, setEditingId] = useState<number>();
@@ -20,10 +24,10 @@ export const TodoList: React.FC<Props> = ({
 
   useEffect(() => {
     setTodos(todos);
-  }, [todos]);
+  }, []);
 
   const handleChecked = async (id: number | undefined) => {
-    const updatedTodos = todos.map(todo => {
+    const updatedTodos = allTodos.map(todo => {
       if (todo.id === id) {
         const updatedTodo = { ...todo, completed: !todo.completed };
 
@@ -41,6 +45,7 @@ export const TodoList: React.FC<Props> = ({
     });
 
     setTodos(updatedTodos);
+    setAllTodos(updatedTodos);
   };
 
   const handleRemoveTodo = async (id: number | undefined) => {
@@ -119,7 +124,7 @@ export const TodoList: React.FC<Props> = ({
                     className="todo__status"
                     id={`toggle-view-${id}`}
                     checked={completed}
-                    onClick={() => handleChecked(id)}
+                    onChange={() => handleChecked(id)}
                   />
                 </label>
 
