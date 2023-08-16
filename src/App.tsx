@@ -1,24 +1,81 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, { useEffect, useState } from 'react';
 
-const USER_ID = 0;
+import { UserWarning } from './UserWarning';
+import { TodosFilter } from './components/TodosFiltered/TodosFiltered';
+import { Todo } from './types/Todo';
+import { client } from './utils/fetchClient';
+import { URL, USER_ID } from './utils/Url';
+import { TodoApp } from './components/TodoApp/TodoApp';
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [allTodos, setAllTodos] = useState<Todo[]>([]);
+
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const getData = () => {
+    client.get(URL).then(data => {
+      const todosData = data as Todo[];
+
+      setTodos(todosData);
+      setAllTodos(todosData);
+    })
+      .catch(error => {
+        setErrorMessage('Unable to load todos');
+        // eslint-disable-next-line no-console
+        console.error('An error occurred:', error);
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+
+        <TodoApp
+          setTodos={setTodos}
+          todos={todos}
+          allTodos={allTodos}
+          setErrorMessage={setErrorMessage}
+          setAllTodos={setAllTodos}
+        />
+
+        {allTodos.length > 0 && (
+          <footer className="todoapp__footer">
+            <TodosFilter
+              setErrorMessage={setErrorMessage}
+              setTodos={setTodos}
+              setAllTodos={setAllTodos}
+              allTodos={allTodos}
+            />
+          </footer>
+        )}
+      </div>
+
+      {errorMessage
+        && (
+          <div
+            className="notification is-danger is-light has-text-weight-normal"
+          >
+            <button
+              type="button"
+              className="delete"
+              onClick={() => setErrorMessage('')}
+            />
+
+            {errorMessage}
+          </div>
+        )}
+    </div>
   );
 };
