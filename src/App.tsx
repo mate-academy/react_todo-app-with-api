@@ -30,7 +30,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getData();
-  }, [setTodos]);
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -54,7 +54,6 @@ export const App: React.FC = () => {
           <footer className="todoapp__footer">
             <TodosFilter
               setErrorMessage={setErrorMessage}
-              todos={todos}
               setTodos={setTodos}
               setAllTodos={setAllTodos}
               allTodos={allTodos}

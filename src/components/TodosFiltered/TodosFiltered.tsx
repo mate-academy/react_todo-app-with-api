@@ -5,7 +5,6 @@ import { Todo } from '../../types/Todo';
 import { client } from '../../utils/fetchClient';
 
 type Props = {
-  todos: Todo[],
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setAllTodos: React.Dispatch<React.SetStateAction<Todo[]>>
   setErrorMessage: (a: string) => void;
@@ -13,7 +12,6 @@ type Props = {
 };
 
 export const TodosFilter: React.FC<Props> = ({
-  todos,
   setTodos,
   setAllTodos,
   allTodos,
@@ -24,7 +22,7 @@ export const TodosFilter: React.FC<Props> = ({
     ACTIVE = 'active',
     COMPLETED = 'completed',
   }
-  const [filterBy, setFilterBy] = useState<Status>();
+  const [filterBy, setFilterBy] = useState<Status>(Status.ALL);
 
   const getFilteredTodos = (filter: Status) => {
     let filteredTodos: Todo[] = [];
@@ -70,12 +68,13 @@ export const TodosFilter: React.FC<Props> = ({
     };
 
   const completedTodoLength
-    = useMemo(() => allTodos.filter(todo => todo.completed).length, [todos]);
+    = useMemo(() => allTodos.filter(todo => todo.completed).length, [allTodos]);
 
-  const uncompletedTodos
-    = useMemo(() => allTodos.filter(todo => !todo.completed).length, [todos]);
+  const uncompletedTodos = useMemo(
+    () => allTodos.filter(todo => !todo.completed).length, [allTodos],
+  );
 
-  const todoLength = useMemo(() => allTodos.length, [todos]);
+  const todoLength = useMemo(() => allTodos.length, [allTodos]);
 
   return (
     (todoLength > 0) ? (
