@@ -24,6 +24,10 @@ export const TodosFooter: React.FC<Props> = (
     return todos.some(todo => todo.completed);
   }, [todos]);
 
+  const countText = useMemo(() => {
+    return todosCount > 1 ? 'items' : 'item';
+  }, [todosCount]);
+
   const handleDeleteAllCompleted = () => {
     const completedTodosId = todos
       .filter(todo => todo.completed)
@@ -45,7 +49,7 @@ export const TodosFooter: React.FC<Props> = (
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${todosCount} items left`}
+        {`${todosCount} ${countText} left`}
       </span>
 
       <nav className="filter">
