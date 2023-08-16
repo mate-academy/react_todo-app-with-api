@@ -26,7 +26,7 @@ export const App: React.FC = () => {
         // eslint-disable-next-line no-console
         console.error('An error occurred:', error);
       });
-  }, [setAllTodos]);
+  }, [allTodos]);
 
   if (!USER_ID) {
     return <UserWarning />;

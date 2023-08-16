@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -74,12 +74,12 @@ export const TodosFilter: React.FC<Props> = ({
     };
 
   const completedTodoLength
-    = todos.filter(todo => todo.completed).length;
+    = useMemo(() => todos.filter(todo => todo.completed).length, [todos]);
 
   const uncompletedTodos
-    = todos.filter(todo => !todo.completed).length;
+    = useMemo(() => todos.filter(todo => !todo.completed).length, [todos]);
 
-  const todoLength = todos.length;
+  const todoLength = useMemo(() => todos.length, [todos]);
 
   return (
     (todoLength > 0) ? (

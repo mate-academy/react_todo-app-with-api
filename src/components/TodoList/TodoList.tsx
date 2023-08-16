@@ -76,7 +76,7 @@ export const TodoList: React.FC<Props> = ({
       } catch (error) {
         setErrorMessage('Unable to update todo');
       } finally {
-        setEditingId(NaN);
+        setEditingId(undefined);
         setEditingTitle('');
       }
     }
@@ -107,7 +107,7 @@ export const TodoList: React.FC<Props> = ({
                     handleSaveEdit(id);
                   }
                 }}
-                onBlur={() => setEditingId(NaN)}
+                onBlur={() => setEditingId(undefined)}
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
