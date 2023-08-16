@@ -1,4 +1,9 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -25,7 +30,7 @@ export const TodoItem: React.FC<Props> = ({
   const [isEdit, setIsEdit] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
 
-  const focusTitle = useRef(null);
+  const focusTitle = useRef<HTMLInputElement | null>(null);
 
   const handleCheked = useCallback(() => {
     updateTask({
@@ -35,6 +40,14 @@ export const TodoItem: React.FC<Props> = ({
       completed: !completed,
     });
   }, [loadingTodoIds]);
+
+  useEffect(() => {
+    if (isEdit) {
+      if (focusTitle.current) {
+        focusTitle.current?.focus();
+      }
+    }
+  }, [isEdit, focusTitle]);
 
   const handleDoubleCheked = useCallback(() => {
     setIsEdit(true);
