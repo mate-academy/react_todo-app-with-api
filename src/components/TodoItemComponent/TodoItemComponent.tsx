@@ -16,6 +16,7 @@ import {
   toggleTodoCompletedAction,
 } from '../../services/actions/todoActions';
 import { setErrorMessageAction } from '../../services/actions/errorActions';
+import { ErrorMessages } from '../../enums/ErrorMessages';
 
 type Props = {
   todo: Todo;
@@ -40,7 +41,7 @@ export const TodoItemComponent:React.FC<Props> = ({ todo }) => {
       })
       .catch(() => {
         dispatch(removeUpdatedTodoIdAction(todo.id));
-        dispatch(setErrorMessageAction('Can\'t update a todo'));
+        dispatch(setErrorMessageAction(ErrorMessages.CantUpdateTodo));
       });
   }, []);
 
@@ -53,7 +54,7 @@ export const TodoItemComponent:React.FC<Props> = ({ todo }) => {
           dispatch(deleteTodoAction(todo.id));
         })
         .catch(() => {
-          dispatch(setErrorMessageAction('Can\'t delete a todo'));
+          dispatch(setErrorMessageAction(ErrorMessages.CantDeleteTodo));
         })
         .finally(() => {
           dispatch(removeUpdatedTodoIdAction(todo.id));
@@ -91,7 +92,7 @@ export const TodoItemComponent:React.FC<Props> = ({ todo }) => {
           dispatch(deleteTodoAction(todo.id));
         })
         .catch(() => {
-          dispatch(setErrorMessageAction('Can\'t update a todo'));
+          dispatch(setErrorMessageAction(ErrorMessages.CantUpdateTodo));
         })
         .finally(() => {
           dispatch(removeUpdatedTodoIdAction(todo.id));
@@ -105,7 +106,7 @@ export const TodoItemComponent:React.FC<Props> = ({ todo }) => {
         dispatch(editTodoAction(todoToEdit));
       })
       .catch(() => {
-        dispatch(setErrorMessageAction('Can\'t update a todo'));
+        dispatch(setErrorMessageAction(ErrorMessages.CantUpdateTodo));
       })
       .finally(() => {
         dispatch(removeUpdatedTodoIdAction(todoToEdit.id));

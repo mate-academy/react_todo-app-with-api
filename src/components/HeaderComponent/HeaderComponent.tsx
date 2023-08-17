@@ -19,6 +19,7 @@ import {
   removeUpdatedTodoIdAction,
   setUpdatedTodoIdAction,
 } from '../../services/actions/updatedTodoIdActions';
+import { ErrorMessages } from '../../enums/ErrorMessages';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const HeaderComponent:React.FC = () => {
@@ -44,7 +45,7 @@ export const HeaderComponent:React.FC = () => {
 
     if (!newTitle) {
       setTitle('');
-      dispatch(setErrorMessageAction('Title can\'t be empty'));
+      dispatch(setErrorMessageAction(ErrorMessages.NoEmptyTitle));
 
       return;
     }
@@ -76,7 +77,7 @@ export const HeaderComponent:React.FC = () => {
 
       dispatch(removeUpdatedTodoIdAction(tempId));
 
-      dispatch(setErrorMessageAction('Unable to add a todo'));
+      dispatch(setErrorMessageAction(ErrorMessages.CantAddTodo));
     })
       .finally(() => {
         if (inputRef.current) {
@@ -98,7 +99,7 @@ export const HeaderComponent:React.FC = () => {
           dispatch(removeUpdatedTodoIdAction(todo.id));
         }).catch(() => {
           if (!state.errorMessage) {
-            dispatch(setErrorMessageAction('Can\'t update a todo'));
+            dispatch(setErrorMessageAction(ErrorMessages.CantUpdateTodo));
           }
 
           dispatch(removeUpdatedTodoIdAction(todo.id));

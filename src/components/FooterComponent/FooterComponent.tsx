@@ -11,6 +11,7 @@ import { deleteTodoAction } from '../../services/actions/todoActions';
 import { setErrorMessageAction } from '../../services/actions/errorActions';
 import { Statuses } from '../../enums/Statuses';
 import { Types } from '../../enums/Types';
+import { ErrorMessages } from '../../enums/ErrorMessages';
 
 export const FooterComponent:React.FC = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -47,7 +48,7 @@ export const FooterComponent:React.FC = () => {
         })
         .catch(() => {
           if (!state.errorMessage) {
-            dispatch(setErrorMessageAction('Can\'t delete a todo'));
+            dispatch(setErrorMessageAction(ErrorMessages.CantDeleteTodo));
           }
         })
         .finally(() => {
