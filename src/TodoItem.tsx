@@ -17,6 +17,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [titleText, setTitleText] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [originalTitle, setOriginalTitle] = useState(todo.title);
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -27,6 +28,8 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDoubleClick = () => {
     setIsOpen(true);
+    setTitleText(todo.title);
+    setOriginalTitle(todo.title);
   };
 
   const handleDelete = () => {
@@ -63,9 +66,8 @@ export const TodoItem: React.FC<Props> = ({
 
   const onEscape = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
-      setTitleText(titleText);
+      setTitleText(originalTitle);
       setIsOpen(false);
-      saveChanges();
     }
   };
 
@@ -105,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Edit todo..."
             value={titleText}
             onChange={handleEditTitle}
-            onKeyDown={onEscape}
+            onKeyUp={onEscape}
             ref={titleField}
           />
         </form>

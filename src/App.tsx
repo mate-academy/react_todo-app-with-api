@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
-import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import {
   getTodos,
@@ -11,8 +10,8 @@ import {
 import { Todo, TodoForChange } from './types/Todo';
 import { Todolist } from './TodoList';
 import { Filters } from './types/Filters';
-import { Filter } from './Filter';
-import { TodoForm } from './TodoForm';
+import { TodoFooter } from './TodoFooter';
+import { TodoHeader } from './TodoHeader';
 
 const USER_ID = 10925;
 
@@ -88,6 +87,22 @@ export const App: React.FC = () => {
   const completedTodos = todos.filter((todo) => todo.completed);
   const activeTodos = todos.filter((todo) => !todo.completed);
 
+  const isVisibleToggleAllActive = todos.length > 0;
+
+  const isActiveToggleAllActive = completedTodos.length === todos.length;
+
+  const handleToggleCompletedToActive = () => {
+    const areAllCompleted = todos.every((todo) => todo.completed);
+
+    todos.forEach((todo) => {
+      if (areAllCompleted) {
+        updateTodoInfo(todo.id, { completed: false });
+      } else if (!todo.completed) {
+        updateTodoInfo(todo.id, { completed: true });
+      }
+    });
+  };
+
   const visibletodos = useMemo(() => {
     switch (filter) {
       case Filters.COMPLETED:
@@ -102,7 +117,6 @@ export const App: React.FC = () => {
   if (!USER_ID) {
     return <UserWarning />;
   }
-
 
   const handleClearCompleted = () => {
     try {
@@ -119,17 +133,14 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
-          <button type="button" className="todoapp__toggle-all active" />
-
-          {/* Add a todo on form submit */}
-          <TodoForm
-            tempTodo={tempTodo}
-            addTodo={addTodo}
-            setErrorText={setErrorText}
-          />
-        </header>
+        <TodoHeader
+          tempTodo={tempTodo}
+          addTodo={addTodo}
+          setErrorText={setErrorText}
+          isVisibleToggleAllActive={isVisibleToggleAllActive}
+          isActiveToggleAllActive={isActiveToggleAllActive}
+          handleToggleCompletedToActive={handleToggleCompletedToActive}
+        />
 
         <Todolist
           todos={visibletodos}
@@ -138,44 +149,15 @@ export const App: React.FC = () => {
           updateTodoInfo={updateTodoInfo}
         />
 
-        {/* Hide the footer if there are no todos */}
-        <footer className="todoapp__footer">
-          <span className="todo-count">
-            {`${visibletodos.length} items left`}
-          </span>
-
-          {/* Active filter should have a 'selected' class */}
-          <Filter filter={filter} setFilter={setFilter} />
-
-          {/* don't show this button if there are no completed todos */}
-          {completedTodos.length > 0 && (
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              onClick={handleClearCompleted}
-            >
-              Clear completed
-            </button>
-          )}
-        </footer>
-      </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      <div className={cn(
-        'notification',
-        'is-danger',
-        'is-light',
-        'has-text-weight-normal',
-        { hidden: !errorText },
-      )}
-      >
-        <button
-          type="button"
-          className="delete"
-          onClick={() => setErrorText('')}
+        <TodoFooter
+          visibletodos={visibletodos}
+          completedTodos={completedTodos}
+          filter={filter}
+          setFilter={setFilter}
+          handleClearCompleted={handleClearCompleted}
+          errorText={errorText}
+          setErrorText={setErrorText}
         />
-        {errorText}
       </div>
     </div>
   );
