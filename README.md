@@ -1,4 +1,4 @@
-# MVC Todo Application
+# Todo Application
 
 [DEMO LINK](https://olehmahera.github.io/react_todo-app-with-api/)
 
