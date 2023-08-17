@@ -1,44 +1,43 @@
-# React Todo App with API (complete)
+# MVC Todo Application
 
-It is the third part of the React Todo App with API.
+[DEMO LINK](https://olehmahera.github.io/react_todo-app-with-ap/)
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+This is a simple Todo Application built using React, React Router, TypeScript, and Sass (SCSS). It allows users to manage their tasks by adding, removing, and editing todos. The application is integrated with the Mate Academy API to store and retrieve todo data.
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
 
-## Toggling a todo status
+## Features
 
-Toggle the `completed` status on `TodoStatus` change:
+- Add new todos with a title.
+- Remove existing todos.
+- Edit and update todo title.
+- Mark todos as completed or pending.
 
-- covered the todo with a loader overlay while wating for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+## Getting Started
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+To run this application locally, follow these steps:
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the oppsite one, and set it to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+1. Clone this repository to your local machine.
+2. Navigate to the project directory: `cd mvc-todo-application`.
+3. Install the dependencies: `npm install`.
+4. Start the development server: `npm start`.
+5. Open your web browser and visit `http://localhost:3000` to view the application.
 
-## Renaming a todo
+## API Integration
 
-Implement the ability to edit a todo title on double click:
+This application is integrated with the Mate Academy API to manage todo data. The API endpoints used are as follows:
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+- `GET /todos`: Fetches the list of todos.
+- `POST /todos`: Adds a new todo.
+- `PUT /todos/:id`: Updates an existing todo.
+- `DELETE /todos/:id`: Deletes a todo.
 
-## Instructions
+## Tech Stack
 
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://olehmahera.github.io/react_todo-app-with-api/) and add it to the PR description.
+- [TypeScript](https://www.typescriptlang.org/)
+- [React](https://react.dev/)
+- [React Router](https://reactrouter.com/)
+- [Sass (SCSS)](https://sass-lang.com/)
+
+## License
+
+This project is licensed under the [GNU GENERAL PUBLIC LICENSE](LICENSE).
