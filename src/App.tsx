@@ -146,10 +146,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const clearCompletedTodos = () => {
-    todos.forEach(todo => todo.completed && deleteSelectedTodo(todo.id));
-  };
-
   const activeTodosCounter = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
@@ -157,6 +153,10 @@ export const App: React.FC = () => {
   const completedTodosCounter = useMemo(() => {
     return todos.filter(todo => todo.completed).length;
   }, [todos]);
+
+  const clearCompletedTodos = () => {
+    todos.forEach(todo => todo.completed && deleteSelectedTodo(todo.id));
+  };
 
   const handleDeleteErrorMessage = () => {
     setErrorMessage(ErrorMessage.DEFAULT);

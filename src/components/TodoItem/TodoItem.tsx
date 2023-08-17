@@ -58,6 +58,16 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
       });
   };
 
+  const checkTodo = (todoId: number): void => {
+    const todoToUpdate = todos.find(item => item.id === todoId);
+
+    if (todoToUpdate) {
+      updateSelectedTodo({
+        ...todoToUpdate, completed: !todoToUpdate.completed,
+      });
+    }
+  };
+
   const deleteSelectedTodo = (todoId: number): void => {
     setIsProcessing(currentIds => [...currentIds, todoId]);
 
@@ -71,16 +81,6 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
         throw error;
       })
       .finally(() => setIsProcessing([]));
-  };
-
-  const checkTodo = (todoId: number): void => {
-    const todoToUpdate = todos.find(item => item.id === todoId);
-
-    if (todoToUpdate) {
-      updateSelectedTodo({
-        ...todoToUpdate, completed: !todoToUpdate.completed,
-      });
-    }
   };
 
   const handleDoubleClick = useCallback(() => {
