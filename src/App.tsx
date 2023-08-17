@@ -103,7 +103,7 @@ export const App: React.FC = () => {
       .then(todo => {
         setTodos(currentTodos => {
           const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(post => post.id === updatedTodo.id);
+          const index = newTodos.findIndex(item => item.id === updatedTodo.id);
 
           newTodos.splice(index, 1, todo);
 

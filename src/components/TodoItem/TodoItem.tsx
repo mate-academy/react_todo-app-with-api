@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useTodo } from '../../hooks/useTodo';
 import { ErrorMessage } from '../../types/ErrorMessage';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodo } from '../../api/todos';
 
 type Props = {
   todo: Todo;
@@ -34,20 +34,39 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
     }
   }, [focus]);
 
-  const checkTodo = (todoId: number): void => {
-    const updatedTodos = todos.map(item => (
-      item.id === todoId
-        ? { ...item, completed: !item.completed }
-        : item));
+  const updateSelectedTodo = (updatedTodo: Todo): void => {
+    setIsProcessing(currentIds => [...currentIds, updatedTodo.id]);
 
-    setTodos(updatedTodos);
-    setIsChecked(updatedTodos.every(item => item.completed));
+    updateTodo(updatedTodo)
+      .then(newTodo => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(item => item.id === updatedTodo.id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch((error) => {
+        setErrorMessage(ErrorMessage.UPDATE_ERROR);
+        throw error;
+      })
+      .finally(() => {
+        setIsProcessing([]);
+        setIsChecked(todos.every(item => item.completed));
+      });
   };
 
-  const handleDoubleClick = useCallback(() => {
-    setIsEditing(true);
-    setFocus(true);
-  }, [isEditing]);
+  const checkTodo = (todoId: number): void => {
+    const todoToUpdate = todos.find(item => item.id === todoId);
+
+    if (todoToUpdate) {
+      updateSelectedTodo({
+        ...todoToUpdate, completed: !todoToUpdate.completed,
+      });
+    }
+  };
 
   const deleteSelectedTodo = (todoId: number): void => {
     setIsProcessing(currentIds => [...currentIds, todoId]);
@@ -63,6 +82,11 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
       })
       .finally(() => setIsProcessing([]));
   };
+
+  const handleDoubleClick = useCallback(() => {
+    setIsEditing(true);
+    setFocus(true);
+  }, [isEditing]);
 
   const handleBlur = () => {
     const newTitle = title.trim();
