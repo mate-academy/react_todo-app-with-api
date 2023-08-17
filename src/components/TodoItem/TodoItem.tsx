@@ -6,23 +6,41 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
+  index: number;
   hasLoader: boolean;
   onDeleteTodo: (id: number) => void;
   onToggleTodo: (id: number, completed: boolean) => void;
   onChangeTodo: (id: number, title: string) => Promise<void>;
+  onDragStart: (index: number) => void;
+  onDragEnd: () => void;
+  onDragEnter: (index: number) => void;
+  onDragDrop: (index: number) => void;
+  draggableIndex: number;
+  dragTargetIndex: number;
+  isTempSortedItem: boolean;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
+  index,
   hasLoader,
   onDeleteTodo,
   onToggleTodo,
   onChangeTodo,
+  onDragStart,
+  onDragEnd,
+  onDragEnter,
+  onDragDrop,
+  draggableIndex,
+  dragTargetIndex,
+  isTempSortedItem,
 }) => {
   const { id, title, completed } = todo;
   const [value, setValue] = useState<string>(title);
   const [isEditingTodo, setIsEditingTodo] = useState<boolean>(false);
   const editingTodoField = useRef<HTMLInputElement | null>(null);
+
+  const todoItem = useRef<HTMLDivElement | null>(null);
 
   const changeTodoTitle = async (idTodo: number, titleTodo: string) => {
     try {
@@ -76,6 +94,15 @@ export const TodoItem: React.FC<Props> = ({
     changeTodoTitle(id, newTitle);
   };
 
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+  };
+
+  const handleDragDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    onDragDrop(index);
+  };
+
   useEffect(() => {
     if (isEditingTodo) {
       editingTodoField.current?.focus();
@@ -83,7 +110,22 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditingTodo]);
 
   return (
-    <div className={cn('todo', { completed })}>
+    <div
+      className={cn(
+        'todo',
+        { completed },
+        { 'todo-active-drag': draggableIndex === index },
+        { 'todo-target-drag': dragTargetIndex === index },
+        { 'todo-sorted-temp': isTempSortedItem },
+      )}
+      ref={todoItem}
+      draggable
+      onDragStart={() => onDragStart(index)}
+      onDragEnd={onDragEnd}
+      onDragEnter={() => onDragEnter(index)}
+      onDragOver={handleDragOver}
+      onDrop={handleDragDrop}
+    >
       <label className="todo__status-label">
         <input
           type="checkbox"

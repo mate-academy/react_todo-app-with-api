@@ -21,7 +21,11 @@ import {
 } from './api/todos';
 import * as utils from './utils/utils';
 
-const USER_ID = 11246;
+if (!process.env.REACT_APP_USER_ID) {
+  throw new Error('API key is not defined');
+}
+
+const USER_ID: number = +process.env.REACT_APP_USER_ID;
 const DELAY_ERROR = 3000;
 
 export const App: React.FC = () => {
@@ -176,6 +180,12 @@ export const App: React.FC = () => {
     completedTodos.forEach(completedTodo => deleteTodo(completedTodo));
   };
 
+  const onChangeOrder = async (
+    todosList: Todo[],
+  ) => {
+    setTodos(todosList);
+  };
+
   const todosToRender = todos.filter(todo => {
     switch (filterBy) {
       case FilterBy.active:
@@ -234,6 +244,7 @@ export const App: React.FC = () => {
                 onDeleteTodo={deleteTodo}
                 onToggleTodo={toggleTodo}
                 onChangeTodo={changeTodo}
+                onChangeOrder={onChangeOrder}
               />
             </section>
             <TodoFooter
