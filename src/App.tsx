@@ -1,24 +1,164 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
+import {
+  getTodos,
+  addTodos,
+  deleteTodos,
+  updateTodo,
+} from './api/todos';
+import { Todo, TodoForChange } from './types/Todo';
+import { Todolist } from './TodoList';
+import { Filters } from './types/Filters';
+import { TodoFooter } from './TodoFooter';
+import { TodoHeader } from './TodoHeader';
 
-const USER_ID = 0;
+const USER_ID = 10925;
 
 export const App: React.FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState(Filters.ALL);
+  const [errorText, setErrorText] = useState('');
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loadingTodos, setLoadingTodos] = useState([0]);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then((fetchedTodos: Todo[]) => {
+        setTodos(fetchedTodos);
+      })
+      .catch((error: Error) => {
+        setErrorText(error.message);
+        throw new Error(error.message);
+      });
+  }, []);
+
+  const addTodo = async (title: string) => {
+    try {
+      const newTodo = {
+        title,
+        userId: USER_ID,
+        completed: false,
+      };
+
+      setTempTodo({ id: 0, ...newTodo });
+
+      const createdTodo = await addTodos(newTodo);
+
+      setTodos([...todos, createdTodo]);
+    } catch {
+      setErrorText('Unable to add a todo');
+    } finally {
+      setTempTodo(null);
+    }
+  };
+
+  const removeTodo = async (todoId: number) => {
+    try {
+      setLoadingTodos(prevIds => [todoId, ...prevIds]);
+      await deleteTodos(todoId);
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+    } catch {
+      setErrorText('Unable to delete a todo');
+    } finally {
+      setLoadingTodos(prevIds => prevIds.filter(id => id !== todoId));
+    }
+  };
+
+  const updateTodoInfo = async (todoId: number, newInfo: TodoForChange) => {
+    try {
+      setLoadingTodos(prevIds => [todoId, ...prevIds]);
+      const updatedTodo = await updateTodo(todoId, newInfo);
+
+      setTodos(prevTodos => prevTodos.map(todo => {
+        if (todoId !== todo.id) {
+          return todo;
+        }
+
+        return updatedTodo;
+      }) as Todo[]);
+    } catch {
+      setErrorText('Unable to update a todo');
+    } finally {
+      setLoadingTodos(prevIds => prevIds.filter(id => id !== todoId));
+    }
+  };
+
+  const completedTodos = todos.filter((todo) => todo.completed);
+  const activeTodos = todos.filter((todo) => !todo.completed);
+
+  const isVisibleToggleAllActive = todos.length > 0;
+
+  const isActiveToggleAllActive = completedTodos.length === todos.length;
+
+  const handleToggleCompletedToActive = () => {
+    const areAllCompleted = todos.every((todo) => todo.completed);
+
+    todos.forEach((todo) => {
+      if (areAllCompleted) {
+        updateTodoInfo(todo.id, { completed: false });
+      } else if (!todo.completed) {
+        updateTodoInfo(todo.id, { completed: true });
+      }
+    });
+  };
+
+  const visibletodos = useMemo(() => {
+    switch (filter) {
+      case Filters.COMPLETED:
+        return completedTodos;
+      case Filters.ACTIVE:
+        return activeTodos;
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+  const handleClearCompleted = () => {
+    try {
+      completedTodos.forEach(async (todo) => {
+        await removeTodo(todo.id);
+      });
+    } catch {
+      setErrorText('Unable to delete todos');
+    }
+  };
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+  return (
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <TodoHeader
+          tempTodo={tempTodo}
+          addTodo={addTodo}
+          setErrorText={setErrorText}
+          isVisibleToggleAllActive={isVisibleToggleAllActive}
+          isActiveToggleAllActive={isActiveToggleAllActive}
+          handleToggleCompletedToActive={handleToggleCompletedToActive}
+        />
+
+        <Todolist
+          todos={visibletodos}
+          removeTodo={removeTodo}
+          loadingTodos={loadingTodos}
+          updateTodoInfo={updateTodoInfo}
+        />
+
+        <TodoFooter
+          visibletodos={visibletodos}
+          completedTodos={completedTodos}
+          filter={filter}
+          setFilter={setFilter}
+          handleClearCompleted={handleClearCompleted}
+          errorText={errorText}
+          setErrorText={setErrorText}
+        />
+      </div>
+    </div>
   );
 };
