@@ -96,6 +96,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
   };
 
   const handleDragDrop = (event: React.DragEvent<HTMLDivElement>) => {

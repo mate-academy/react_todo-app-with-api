@@ -156,7 +156,7 @@ export const TodoList: React.FC<Props> = ({
               onDeleteTodo={onDeleteTodo}
               onToggleTodo={onToggleTodo}
               onChangeTodo={onChangeTodo}
-              onDragStart={onDragStart}
+              onDragStart={() => onDragStart(index)}
               onDragEnd={onDragEnd}
               onDragEnter={onDragEnter}
               onDragDrop={onDragDrop}

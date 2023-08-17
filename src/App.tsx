@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 import { UserWarning } from './UserWarning';
 import { TodoHeader } from './components/TodoHeader';
@@ -29,7 +30,7 @@ const USER_ID: number = +process.env.REACT_APP_USER_ID;
 const DELAY_ERROR = 3000;
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todoLoaderIds, setTodoLoaderIds] = useState<number[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.all);
@@ -204,7 +205,18 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodosFromServer(USER_ID)
-      .then(setTodos)
+      .then(todosServer => {
+        if (!todos) {
+          setTodos(todosServer);
+        }
+
+        const resultOfCompare
+          = utils.compareLocalAndServerTodos(todos, todosServer);
+
+        if (!resultOfCompare) {
+          setTodos(todosServer);
+        }
+      })
       .catch(() => setError(Errors.load));
   }, []);
 
