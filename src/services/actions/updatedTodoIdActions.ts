@@ -1,4 +1,5 @@
-import { Types, UpdatedTodoIdActions } from '../../reducer';
+import { Types } from '../../enums/Types';
+import { UpdatedTodoIdActions } from '../../types/UpdatedTodoIdActionsType';
 
 export const setUpdatedTodoIdAction = (id: number): UpdatedTodoIdActions => {
   return {

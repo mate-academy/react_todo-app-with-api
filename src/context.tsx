@@ -1,19 +1,19 @@
-/* eslint-disable no-console */
 /* eslint-disable no-prototype-builtins */
 import React, { createContext, useReducer } from 'react';
 
+import { InitialStateType } from './types/InitialStateType';
+import { Todo } from './types/Todo';
+import { Statuses } from './enums/Statuses';
+import { TodoActions } from './types/TodoActionsType';
+import { FiltertActions } from './types/FilterActionsType';
+import { UpdatedTodoIdActions } from './types/UpdatedTodoIdActionsType';
+import { ErrorMessageActions } from './types/ErrorMessageActionsType';
 import {
-  ErrorMessageActions,
-  FiltertActions,
-  TodoActions,
-  UpdatedTodoIdActions,
   errorMessageReducer,
   filterReducer,
   todoReducer,
   updatedTodoIdReducer,
 } from './reducer';
-import { InitialStateType } from './types/InitialStateType';
-import { Todo } from './types/Todo';
 
 const initialTodos: Todo[] | [] = [];
 
@@ -21,20 +21,20 @@ const initialState: InitialStateType = {
   todos: initialTodos,
   itemsLeft() {
     if (this.todos.length) {
-      return this.todos.filter(todo => todo.completed === false).length;
+      return this.todos.filter(todo => !todo.completed).length;
     }
 
     return 0;
   },
-  filter: 'all',
+  filter: Statuses.All,
   getVisibleTodos():Todo[] | [] {
     switch (this.filter) {
-      case 'all':
+      case Statuses.All:
         return [...this.todos];
-      case 'completed':
-        return this.todos.filter(todo => todo.completed === true);
-      case 'active':
-        return this.todos.filter(todo => todo.completed === false);
+      case Statuses.Completed:
+        return this.todos.filter(todo => todo.completed);
+      case Statuses.Active:
+        return this.todos.filter(todo => !todo.completed);
       default:
         return [...this.todos];
     }

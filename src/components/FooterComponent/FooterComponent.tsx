@@ -2,7 +2,6 @@ import classNames from 'classnames';
 
 import { useContext } from 'react';
 import { AppContext } from '../../context';
-import { Types } from '../../reducer';
 import { deleteTodo } from '../../api/todos';
 import {
   removeUpdatedTodoIdAction,
@@ -10,6 +9,8 @@ import {
 } from '../../services/actions/updatedTodoIdActions';
 import { deleteTodoAction } from '../../services/actions/todoActions';
 import { setErrorMessageAction } from '../../services/actions/errorActions';
+import { Statuses } from '../../enums/Statuses';
+import { Types } from '../../enums/Types';
 
 export const FooterComponent:React.FC = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -21,11 +22,14 @@ export const FooterComponent:React.FC = () => {
 
   const filterBy = (
     e:React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-    filterByType: Types.FilterAll | Types.FilterActive | Types.FilterCompleted,
+    filterByStatus: Statuses,
   ) => {
     e.preventDefault();
     dispatch({
-      type: filterByType,
+      type: Types.FilterBy,
+      payload: {
+        filterBy: filterByStatus,
+      },
     });
   };
 
@@ -64,9 +68,9 @@ export const FooterComponent:React.FC = () => {
           href="#/"
           className={classNames(
             'filter__link',
-            { selected: filter === 'all' },
+            { selected: filter === Statuses.All },
           )}
-          onClick={(e) => filterBy(e, Types.FilterAll)}
+          onClick={(e) => filterBy(e, Statuses.All)}
         >
           All
         </a>
@@ -75,9 +79,9 @@ export const FooterComponent:React.FC = () => {
           href="#/active"
           className={classNames(
             'filter__link',
-            { selected: filter === 'active' },
+            { selected: filter === Statuses.Active },
           )}
-          onClick={(e) => filterBy(e, Types.FilterActive)}
+          onClick={(e) => filterBy(e, Statuses.Active)}
         >
           Active
         </a>
@@ -86,9 +90,9 @@ export const FooterComponent:React.FC = () => {
           href="#/completed"
           className={classNames(
             'filter__link',
-            { selected: filter === 'completed' },
+            { selected: filter === Statuses.Completed },
           )}
-          onClick={(e) => filterBy(e, Types.FilterCompleted)}
+          onClick={(e) => filterBy(e, Statuses.Completed)}
         >
           Completed
         </a>

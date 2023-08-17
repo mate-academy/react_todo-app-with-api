@@ -1,5 +1,6 @@
-import { TodoActions, Types } from '../../reducer';
+import { Types } from '../../enums/Types';
 import { Todo } from '../../types/Todo';
+import { TodoActions } from '../../types/TodoActionsType';
 import { USER_ID } from '../../utils/const';
 
 export const setTodosToStateAction = (todos: Todo[]):TodoActions => {
@@ -13,7 +14,7 @@ export const setTodosToStateAction = (todos: Todo[]):TodoActions => {
 
 export const createTodoAction = (id: number, title:string): TodoActions => {
   return {
-    type: Types.Create,
+    type: Types.CreateTodo,
     payload: {
       id,
       userId: USER_ID,
@@ -25,7 +26,7 @@ export const createTodoAction = (id: number, title:string): TodoActions => {
 
 export const editTodoAction = (todoToEdit:Todo, id?:number):TodoActions => {
   const action:TodoActions = {
-    type: Types.Edit,
+    type: Types.EditTodo,
     payload: {
       todoToEdit,
       id,
@@ -41,7 +42,7 @@ export const editTodoAction = (todoToEdit:Todo, id?:number):TodoActions => {
 
 export const deleteTodoAction = (id: number): TodoActions => {
   return {
-    type: Types.Delete,
+    type: Types.DeleteTodo,
     payload: {
       id,
     },
@@ -50,7 +51,7 @@ export const deleteTodoAction = (id: number): TodoActions => {
 
 export const toggleTodoCompletedAction = (id: number): TodoActions => {
   return {
-    type: Types.ToggleCompleted,
+    type: Types.ToggleCompletedTodo,
     payload: {
       id,
     },
