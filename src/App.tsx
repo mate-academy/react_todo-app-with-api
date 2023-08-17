@@ -50,7 +50,7 @@ export const App: React.FC = () => {
           setLoadingIds={setLoadingIds}
         />
 
-        {todos && (
+        {todos.length > 0 && (
           <TodoList
             todos={preparedTodos}
             tempTodo={tempTodo}
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {todos && (
+        {todos.length > 0 && (
           <TodoFooter
             filterType={filterType}
             setFilterType={setFilterType}
