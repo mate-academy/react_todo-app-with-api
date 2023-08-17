@@ -1,6 +1,6 @@
 # MVC Todo Application
 
-[DEMO LINK](https://olehmahera.github.io/react_todo-app-with-ap/)
+[DEMO LINK](https://olehmahera.github.io/react_todo-app-with-api/)
 
 This is a simple Todo Application built using React, React Router, TypeScript, and Sass (SCSS). It allows users to manage their tasks by adding, removing, and editing todos. The application is integrated with the Mate Academy API to store and retrieve todo data.
 
