@@ -22,11 +22,7 @@ export const TodoItem: React.FC<Props> = ({
   const titleField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (todosIdInLoading.includes(id)) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
+    setLoading(todosIdInLoading.includes(id));
   }, [todosIdInLoading]);
 
   useEffect(() => {
@@ -121,9 +117,7 @@ export const TodoItem: React.FC<Props> = ({
       )}
       >
         <div className="modal-background has-background-white-ter" />
-        <div className="Loader">
-          <div className="Loader__content" />
-        </div>
+        <div className="loader" />
       </div>
     </div>
   );

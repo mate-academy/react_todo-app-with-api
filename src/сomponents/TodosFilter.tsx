@@ -3,8 +3,8 @@ import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  status: Filter;
-  onChangeStatus: (filterStatus: Filter) => void;
+  status: string;
+  onChangeStatus: (filterStatus: string) => void;
   todos: Todo[];
   deleteTodo: (id: number) => void;
 };
@@ -31,31 +31,16 @@ export const TodosFilter: React.FC<Props> = ({
       </span>
 
       <nav className="filter">
-        <a
-          href="#/"
-          className={cn('filter__link', { selected: status === Filter.all })}
-          onClick={() => onChangeStatus(Filter.all)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', { selected: status === Filter.active })}
-          onClick={() => onChangeStatus(Filter.active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={
-            cn('filter__link', { selected: status === Filter.completed })
-          }
-          onClick={() => onChangeStatus(Filter.completed)}
-        >
-          Completed
-        </a>
+        {Object.values(Filter).map(item => (
+          <a
+            key={item}
+            href={item !== Filter.all ? `#/${item.toLowerCase()}` : '#/'}
+            className={cn('filter__link', { selected: status === item })}
+            onClick={() => onChangeStatus(item)}
+          >
+            {item}
+          </a>
+        ))}
       </nav>
 
       <button

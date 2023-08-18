@@ -14,12 +14,14 @@ export const App: React.FC = () => {
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterStatus, setFilterStatus] = useState<Filter>(Filter.all);
+  const [filterStatus, setFilterStatus] = useState<string>(Filter.all);
   const [todosIdInLoading, setTodosIdInLoading] = useState<number[]>([]);
 
   const showError = (message: string) => {
     setErrorMessage(message);
-    setTimeout(() => setErrorMessage(''), 3000);
+    const timeoutID = setTimeout(() => setErrorMessage(''), 3000);
+
+    return () => clearTimeout(timeoutID);
   };
 
   useEffect(() => {
