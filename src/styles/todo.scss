@@ -1,14 +1,48 @@
+$transition-duration: 300ms;
+
 .todo {
   position: relative;
-
   display: grid;
   grid-template-columns: 45px 1fr;
   justify-items: stretch;
-
   font-size: 24px;
   line-height: 1.4em;
   border-bottom: 1px solid #ededed;
-  
+  transition: all $transition-duration ease-in-out;
+
+  &-enter,
+  &-temp-enter,
+  &-appear {
+    max-height: 0;
+  }
+
+  &-enter-active,
+  &-temp-enter-active,
+  &-appear-active {
+    overflow: hidden;
+    max-height: 58px;
+    transition: max-height $transition-duration ease-in-out;
+  }
+
+  &-exit,
+  &-temp-exit {
+    max-height: 58px;
+  }
+
+  &-exit-active {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height $transition-duration ease-in-out;
+  }
+
+  &-temp-exit-active {
+    transform: translateY(-58px);
+    max-height: 0;
+    opacity: 0;
+    transition: $transition-duration ease-in-out;
+    transition-property: opacity, max-height, transform;
+  }
+
   &:last-child {
     border-bottom: 0;
   }
@@ -30,7 +64,7 @@
 
   &__title {
     padding: 12px 15px;
-  
+
     word-break: break-all;
     transition: color 0.4s;
   }
@@ -56,7 +90,7 @@
     border: 0;
     background: none;
     cursor: pointer;
-  
+
     transform: translateY(-2px);
     opacity: 0;
     transition: color 0.2s ease-out;
@@ -65,7 +99,7 @@
       color: #af5b5e;
     }
   }
-  
+
   &:hover &__remove {
     opacity: 1;
   }
@@ -73,13 +107,13 @@
   &__title-field {
     width: 100%;
     padding: 11px 14px;
-  
+
     font-size: inherit;
     line-height: inherit;
     font-family: inherit;
     font-weight: inherit;
     color: inherit;
-  
+
     border: 1px solid #999;
     box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
 
@@ -96,7 +130,33 @@
     right: 0;
     bottom: 0;
     top: 0;
-
     opacity: 0.5;
   }
+
+  &-active-drag {
+    box-shadow: 1px 3px 5px rgba(173, 173, 173, 0.33);
+  }
+
+  &-target-drag {
+    box-shadow: 1px 3px 5px rgba(173, 173, 173, 0.95);
+  }
+
+  &-list-temp {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    z-index: 100;
+  }
+
+  &-sorted-temp {
+    transition: all 0s ease-in-out;
+  }
+}
+
+.has-error .todo-temp-exit-active {
+  transform: translateY(0);
+  overflow: hidden;
 }

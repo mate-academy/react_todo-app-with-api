@@ -16,7 +16,6 @@ Toggle the `completed` status on `TodoStatus` change:
 - show the `Unable to update a todo` notification in case of API error.
 
 Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
-
 - `toggleAll` button should have `active` class only if all the todos are completed;
 - `toggleAll` click changes its status to the oppsite one, and sets this new status to all the todos;
 - it should work the same as several individual updates of the todos which statuses were actually changed;
@@ -41,4 +40,4 @@ Implement the ability to edit a todo title on double click:
 
 - Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
 - Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://<your_account>.github.io/react_todo-app-with-api/) and add it to the PR description.
+- Replace `<your_account>` with your Github username in the [DEMO LINK](https://vintwp.github.io/react_todo-app-with-api/) and add it to the PR description.
