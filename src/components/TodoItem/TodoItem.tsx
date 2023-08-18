@@ -58,14 +58,13 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
       });
   };
 
-  const checkTodo = (todoId: number): void => {
-    const todoToUpdate = todos.find(item => item.id === todoId);
+  const checkTodo = (selectedTodo: Todo): void => {
+    const updatedTodo = {
+      ...selectedTodo,
+      completed: !selectedTodo.completed,
+    };
 
-    if (todoToUpdate) {
-      updateSelectedTodo({
-        ...todoToUpdate, completed: !todoToUpdate.completed,
-      });
-    }
+    updateSelectedTodo(updatedTodo);
   };
 
   const deleteSelectedTodo = (todoId: number): void => {
@@ -105,13 +104,12 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
       return;
     }
 
-    const todoToUpdate = todos.find(item => item.id === todo.id);
+    const updatedTodo = {
+      ...todo,
+      title: newTitle,
+    };
 
-    if (todoToUpdate) {
-      updateSelectedTodo({
-        ...todoToUpdate, title: newTitle,
-      });
-    }
+    updateSelectedTodo(updatedTodo);
 
     setTitle(newTitle);
     setIsEditing(false);
@@ -141,7 +139,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loading }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => checkTodo(todo.id as number)}
+          onChange={() => checkTodo(todo)}
         />
       </label>
 
