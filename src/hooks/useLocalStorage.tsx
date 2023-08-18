@@ -1,8 +1,14 @@
+/* eslint-disable max-len */
 import { useState } from 'react';
 
-// eslint-disable-next-line max-len
-export function useLocalStorage<T>(key: string, startValue: T): [T, (V: T) => void] {
-  const [value, setValue] = useState(() => {
+// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+const isFunction = (value: any): value is Function => typeof value === 'function';
+
+export function useLocalStorage<T>(
+  key: string,
+  startValue: T,
+): [T, (V: T | ((K: T) => T)) => void] {
+  const [value, setValue] = useState<T>(() => {
     const data = localStorage.getItem(key);
 
     if (data === null) {
@@ -18,9 +24,17 @@ export function useLocalStorage<T>(key: string, startValue: T): [T, (V: T) => vo
     }
   });
 
-  const save = (newValue: T) => {
-    localStorage.setItem(key, JSON.stringify(newValue));
-    setValue(newValue);
+  const save = (newValue: T | ((prevValue: T) => T)) => {
+    if (isFunction(newValue)) {
+      setValue(prev => {
+        localStorage.setItem(key, JSON.stringify(newValue(prev)));
+
+        return newValue(prev);
+      });
+    } else {
+      setValue(newValue);
+      localStorage.setItem(key, JSON.stringify(newValue));
+    }
   };
 
   return [value, save];
