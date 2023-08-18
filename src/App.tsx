@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { AddTodo } from './сomponents/AddTodo';
 import { TodosFilter } from './сomponents/TodosFilter';
@@ -86,7 +86,7 @@ export const App: React.FC = () => {
       ));
   };
 
-  useMemo(() => {
+  useEffect(() => {
     switch (filterStatus) {
       case Filter.active:
         setFilteredTodos(todos.filter(todo => todo.completed === false));

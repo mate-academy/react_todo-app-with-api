@@ -26,7 +26,7 @@ export const AddTodo: React.FC<Props> = ({
     const newTitle = title.trim();
 
     if (!newTitle) {
-      setError('Title can\'t be empty');
+      setError("Title can't be empty");
       setDisableInput(false);
       setTitle('');
 
