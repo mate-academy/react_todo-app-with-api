@@ -7,6 +7,8 @@ import * as todoService from './api/todos';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 
+const USER_ID = 11337;
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
@@ -21,22 +23,24 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    todoService.getTodos()
+    todoService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => showError('Unable to load a todos'));
   }, []);
 
   const createTodo = (newTitle: string) => {
+    const tempTodoId = 0;
+
     setTempTodo({
-      id: 0,
-      userId: 11337,
+      id: tempTodoId,
+      userId: USER_ID,
       title: newTitle,
       completed: false,
     });
 
-    setTodosIdInLoading(current => [...current, 0]);
+    setTodosIdInLoading(current => [...current, tempTodoId]);
 
-    return todoService.addTodo(newTitle)
+    return todoService.addTodo(USER_ID, newTitle)
       .then(newTodo => {
         setTodos(curentTodos => [...curentTodos, newTodo]);
       })
