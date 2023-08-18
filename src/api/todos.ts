@@ -9,11 +9,9 @@ export const addTodo = ({ userId, title, completed }: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', { title, userId, completed });
 };
 
-export const updateTodo = ({
-  id,
-  title,
-  completed,
-}: Todo) => {
+export const updateTodo = (
+  { id, title, completed }: Todo,
+) => {
   return client.patch<Todo>(`/todos/${id}`, { title, completed });
 };
 
