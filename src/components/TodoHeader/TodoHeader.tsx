@@ -27,7 +27,7 @@ export const TodoHeader: React.FC<Props> = ({
 
   const todoFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-   if (!todoInput.trim()) {
+    if (!todoInput.trim()) {
       setIsLoading(false);
 
       return setError(ResponseError.EMPTY);
