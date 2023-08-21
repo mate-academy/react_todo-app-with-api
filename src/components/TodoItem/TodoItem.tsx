@@ -92,8 +92,6 @@ export const TodoItem:FC<Props> = ({
     if (editedTitle !== title) {
       saveChanges();
     }
-
-    setIsEditing(false);
   };
 
   const handleTitleChange = (event: EventType) => {
@@ -103,6 +101,7 @@ export const TodoItem:FC<Props> = ({
   const onKeyDown = (key: string) => {
     if (key === 'Enter') {
       saveChanges();
+      setIsEditing(false);
     } else if (key === 'Escape') {
       setEditedTitle(title);
       setIsEditing(false);
