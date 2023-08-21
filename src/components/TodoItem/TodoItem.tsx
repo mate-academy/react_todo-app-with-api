@@ -25,20 +25,20 @@ export const TodoItem:FC<Props> = ({
     todosLoader,
   } = useTodosContext();
 
+  const todoTitleRef = useRef<HTMLInputElement>(null);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const shouldShowLoader = todosLoader
   || isLoading
   || (isLoadingCompleted && completed);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
+    todoTitleRef.current?.focus();
+  }, [isEditing]);
+
   const handleCheckboxClick = async () => {
     setIsLoading(true);
 
@@ -125,6 +125,7 @@ export const TodoItem:FC<Props> = ({
             </label>
             <form>
               <input
+                ref={todoTitleRef}
                 type="text"
                 className="todo__title-field"
                 placeholder="Empty todo will be deleted"
@@ -134,7 +135,6 @@ export const TodoItem:FC<Props> = ({
                 onKeyDown={event => {
                   onKeyDown(event.key);
                 }}
-                ref={inputRef}
               />
             </form>
           </>

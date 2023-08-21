@@ -77,8 +77,8 @@ export const TodoForm:FC = () => {
 
   return (
     <>
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label=" "
         type="button"
         className={classNames(
           'todoapp__toggle-all',
