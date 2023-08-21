@@ -1,4 +1,4 @@
-React Todo App with API
+## React Todo App with API
 
 ## Technologies Used
 
@@ -40,5 +40,3 @@ npm start
 ```
 
 2. Access the application in your web browser at `http://localhost:3000/`.
-
-## License
