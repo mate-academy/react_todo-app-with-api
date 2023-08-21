@@ -7,12 +7,15 @@ type Props = {
   todo: Todo;
   deleteTodo: (arg: number) => Promise<void>;
   updateTodo: (arg: number, obj: Partial<Todo>) => void;
+  todoblank: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, deleteTodo, updateTodo }) => {
+export const TodoItem: React.FC<Props> = ({
+  todo, deleteTodo, updateTodo, todoblank,
+}) => {
   const { id, title, completed } = todo;
   const [isUpdate, setIsUpdate] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(todoblank);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const editHandler = (e: React.FocusEvent<HTMLInputElement, Element>) => {

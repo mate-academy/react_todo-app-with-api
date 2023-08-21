@@ -25,8 +25,6 @@ const user: UserData = {
   website: null,
 };
 
-let isUncomplete = 0;
-
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isShowFooter, setIsShowFooter] = useState<boolean>(true);
@@ -35,6 +33,7 @@ export const App: React.FC = () => {
   const [isToggleActiveTodos, setIsToggleActiveTodos] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [creatingTodoTitle, setCreatingTodoTitle] = useState('');
+  const [isUncompleteTodos, setIsUncompleteTodos] = useState(0);
 
   const toggleTodosActive = () => {
     const promiseList = todos.map((todo) => {
@@ -59,12 +58,15 @@ export const App: React.FC = () => {
   };
 
   const checkCompletedTodo = (arr: Todo[]) => {
-    isUncomplete = 0;
+    let uncomplete = 0;
+
     for (let i = 0; i < arr.length; i += 1) {
       if (!arr[i].completed) {
-        isUncomplete += 1;
+        uncomplete += 1;
       }
     }
+
+    setIsUncompleteTodos(uncomplete);
   };
 
   const deleteTodo = (id: number) => {
@@ -174,6 +176,7 @@ export const App: React.FC = () => {
                   key={todoObj.id}
                   deleteTodo={deleteTodo}
                   updateTodo={updateTodo}
+                  todoblank={false}
                 />
               </CSSTransition>
             ))}
@@ -188,6 +191,7 @@ export const App: React.FC = () => {
                   }}
                   deleteTodo={deleteTodo}
                   updateTodo={updateTodo}
+                  todoblank
                 />
               </CSSTransition>
             )}
@@ -196,7 +200,7 @@ export const App: React.FC = () => {
 
         {isShowFooter && (
           <Footer
-            isUncomplete={isUncomplete}
+            isUncomplete={isUncompleteTodos}
             sortTodosBy={sortTodosBy}
             setSortTodosBy={setSortTodosBy}
             todos={todos}
