@@ -1,44 +1,44 @@
-# React Todo App with API (complete)
+React Todo App with API
 
-It is the third part of the React Todo App with API.
+## Technologies Used
 
-Take your code implemented for [Add and Delete](https://github.com/mate-academy/react_todo-app-add-and-delete)
-and implement the ability to toggle and rename todos.
+- [TypeScript](https://www.typescriptlang.org/)
+- [React](https://reactjs.org/)
+- [React Context](https://reactjs.org/docs/context.html)
+- [Sass (SCSS)](https://sass-lang.com/)
 
-> Here is [the working example](https://mate-academy.github.io/react_todo-app-with-api/)
+## Installation
 
-## Toggling a todo status
+Follow these steps to set up the React Todo App with API on your local machine:
 
-Toggle the `completed` status on `TodoStatus` change:
+1. Clone the repository:
 
-- covered the todo with a loader overlay while waiting for API response;
-- the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+```bash
+git clone https://github.com/dimoshen/react_todo-app-with-api
+```
 
-Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
+2. Navigate to the project directory:
 
-- `toggleAll` button should have `active` class only if all the todos are completed;
-- `toggleAll` click changes its status to the opposite one, and set it to all the todos;
-- it should work the same as several individual updates of the todos which statuses were actually changed;
-- do send requests for the todos that were not changed;
+```bash
+cd react_todo-app-with-api
+```
 
-## Renaming a todo
+3. Install dependencies for the frontend:
 
-``Implement the ability to edit a todo title on double click:
+```bash
+npm install
+```
 
-- show the edit form instead of the title and remove button;
-- saves changes on the form submit (just press `Enter`);
-- save changes when the field loses focus (`onBlur`);
-- if new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
-- if the new title is empty delete the todo the same way the `x` button does it;
-- if the title was changed show the loader while waiting for the API response;
-- update the todo title on success;``
-- show `Unable to update a todo` in case of API error;
-- or the deletion error message if we tried to delete the todo.
+## Usage
 
-## Instructions
+To start the application, follow these instructions:
 
-- Implement a solution following the [React task guideline](https://github.com/mate-academy/react_task-guideline#react-tasks-guideline).
-- Use the [React TypeScript cheat sheet](https://mate-academy.github.io/fe-program/js/extra/react-typescript).
-- Replace `<your_account>` with your Github username in the [DEMO LINK](https://dimoshen.github.io/react_todo-app-with-api/) and add it to the PR description.
+1. Start the frontend development server:
+
+```bash
+npm start
+```
+
+2. Access the application in your web browser at `http://localhost:3000/`.
+
+## License
