@@ -38,13 +38,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
 
-    if (!updateField) {
+    const normalizeField = updateField.trim();
+
+    if (!normalizeField) {
       onDeleteTodo(todo.id);
 
       return;
     }
 
-    updateTodo(updateField, todo.id);
+    setIsEditing(false);
+
+    updateTodo(normalizeField, todo.id);
   };
 
   return (
@@ -66,7 +70,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="text"
             className="todo__title-field"
             onKeyUp={handleKeyUp}
-            onBlur={() => handleSubmit}
+            onBlur={() => handleSubmit()}
           />
         </form>
       ) : (

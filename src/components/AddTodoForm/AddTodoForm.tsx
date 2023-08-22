@@ -10,13 +10,15 @@ export const AddTodoForm: React.FC = () => {
   const onHandleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!titleField) {
+    const normilizedField = titleField.trim();
+
+    if (!normilizedField) {
       updateError(ERRORS.EMPTY);
 
       return;
     }
 
-    onAddTodo(titleField);
+    onAddTodo(normilizedField);
     setTitleField('');
   };
 
