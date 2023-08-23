@@ -1,34 +1,36 @@
-import React from 'react';
+import { useState } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[],
+  onDeleteTodo: (todoId: number) => void,
   tempTodo: Todo | null,
-  loadingTodoId: number | null,
-  onDelete: (todoId: number) => void,
-  onToggleTodoStatus: (tododId: number, completed: boolean) => void,
-  onEditTodoTitle: (tododId: number, newTitle: string) => void,
+  loadingTodoId: number[],
+  onToggleTodoStatus: (todoId: number, completed: boolean) => void,
+  onChangeTodoTitle: (todoId: number, newTitle: string) => void,
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
+  onDeleteTodo,
   tempTodo,
   loadingTodoId,
-  onDelete,
   onToggleTodoStatus,
-  onEditTodoTitle,
+  onChangeTodoTitle,
 }) => {
+  const [loading] = useState(true);
+
   return (
     <ul className="todoapp__main">
       {todos.map(todo => (
         <TodoItem
-          key={todo.id}
           todo={todo}
-          onDelete={onDelete}
-          loading={loadingTodoId === todo.id}
+          key={todo.id}
+          onDeleteTodo={onDeleteTodo}
+          loading={loadingTodoId.includes(todo.id)}
           onToggleTodoStatus={onToggleTodoStatus}
-          onEditTodoTitle={onEditTodoTitle}
+          onChangeTodoTitle={onChangeTodoTitle}
 
         />
       ))}
@@ -36,10 +38,10 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           key={tempTodo.id}
           todo={tempTodo}
-          onDelete={onDelete}
-          loading={loadingTodoId === tempTodo.id}
+          onDeleteTodo={onDeleteTodo}
+          loading={loading}
           onToggleTodoStatus={onToggleTodoStatus}
-          onEditTodoTitle={onEditTodoTitle}
+          onChangeTodoTitle={onChangeTodoTitle}
         />
       )}
     </ul>

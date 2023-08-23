@@ -3,51 +3,51 @@ import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 
 type Props = {
-  todo: Todo;
-  onDelete: (todoId: number) => void,
+  todo: Todo,
   loading: boolean,
-  onToggleTodoStatus: (tododId: number, completed: boolean) => void,
-  onEditTodoTitle: (tododId: number, newTitle: string) => void,
+  onDeleteTodo: (todoId: number) => void,
+  onToggleTodoStatus: (todoId: number, completed: boolean) => void,
+  onChangeTodoTitle: (todoId: number, newTitle: string) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDelete,
   loading,
+  onDeleteTodo,
   onToggleTodoStatus,
-  onEditTodoTitle,
+  onChangeTodoTitle,
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
-  const titleInputField = useRef<HTMLInputElement>(null);
+  const titleField = useRef<HTMLInputElement>(null);
 
   const handleDeleteClick = () => {
-    onDelete(todo.id);
+    onDeleteTodo(todo.id);
   };
 
-  const handleToggleTodoStatus = () => {
+  const handleTodoStatusChange = () => {
     onToggleTodoStatus(todo.id, !todo.completed);
   };
 
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const titleChanger = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(event.target.value);
   };
 
-  const handleTitleEdit = () => {
+  const handleEditTitle = () => {
     setEditingTitle(true);
     if (!editedTitle) {
-      onDelete(todo.id);
+      onDeleteTodo(todo.id);
     } else if (editedTitle === todo.title) {
       setEditingTitle(false);
     }
 
-    onEditTodoTitle(todo.id, todo.title);
+    onChangeTodoTitle(todo.id, editedTitle);
     setEditingTitle(false);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      handleTitleEdit();
+      handleEditTitle();
     } else if (event.key === 'Escape') {
       setEditedTitle(todo.title);
       setEditingTitle(false);
@@ -56,9 +56,9 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     if (editingTitle) {
-      titleInputField.current?.focus();
+      titleField.current?.focus();
     }
-  }, [editedTitle, todo.id]);
+  }, [editingTitle, todo.id]);
 
   return (
     <li
@@ -72,8 +72,8 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          ref={titleInputField}
-          onChange={handleToggleTodoStatus}
+          ref={titleField}
+          onChange={handleTodoStatusChange}
           disabled={loading}
         />
       </label>
@@ -101,10 +101,10 @@ export const TodoItem: React.FC<Props> = ({
           type="text"
           className="todo__title"
           value={editedTitle}
-          ref={titleInputField}
+          ref={titleField}
           onKeyUp={handleKeyUp}
-          onBlur={handleTitleEdit}
-          onChange={handleTitleChange}
+          onBlur={handleEditTitle}
+          onChange={titleChanger}
         />
       )}
 

@@ -5,51 +5,55 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[],
-  status: Status,
-  setStatus: (status: Status) => void;
-  clearCompletedTodos: () => void,
+  status: Status
+  setStatus: (sortBy: Status) => void,
+  clearCompletedTodos: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
   status,
+  todos,
   setStatus,
   clearCompletedTodos,
 }) => {
-  const completedTodosCount = todos.filter(todo => todo.completed).length;
   const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const completedTodosCount = todos.filter(todo => todo.completed).length;
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
         {activeTodosCount === 1 ? `${activeTodosCount} item left` : `${activeTodosCount} items left`}
       </span>
+
       <nav className="filter">
         <a
           href="#/"
-          className={classNames('filter__link', {
-            selected: status === Status.All,
-          })}
+          className={classNames(
+            'filter__link',
+            { selected: status === Status.All },
+          )}
           onClick={() => setStatus(Status.All)}
         >
           All
         </a>
 
         <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: status === Status.Active,
-          })}
+          href="#/"
+          className={classNames(
+            'filter__link',
+            { selected: status === Status.Active },
+          )}
           onClick={() => setStatus(Status.Active)}
         >
           Active
         </a>
 
         <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: status === Status.Completed,
-          })}
+          href="#/"
+          className={classNames(
+            'filter__link',
+            { selected: status === Status.Completed },
+          )}
           onClick={() => setStatus(Status.Completed)}
         >
           Completed
