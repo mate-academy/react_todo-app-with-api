@@ -6,13 +6,17 @@ import React, {
 } from 'react';
 import cn from 'classnames';
 
-import { Todo } from '../../types/Todo';
 import { TodosContext } from '../../utils/TodosContext';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { ErrorContext } from '../../utils/ErrorContextProvider';
 import { Errors } from '../../types/Errors';
 
-type Props = Todo & { isLoading: boolean };
+type Props = {
+  isLoading: boolean,
+  title: string,
+  completed: boolean,
+  id: number,
+};
 
 export const TodoItem: React.FC<Props> = React.memo(({
   title,
@@ -21,11 +25,11 @@ export const TodoItem: React.FC<Props> = React.memo(({
   id,
 }) => {
   const [currentTitle, setCurrentTitle] = useState(title);
-  const [showModal, setShowModal] = useState(isLoading);
   const [isEditing, setIsEditing] = useState(false);
 
   const { setTodos } = useContext(TodosContext);
   const { showError } = useContext(ErrorContext);
+  const { setProcessingTodos } = useContext(TodosContext);
 
   const todoInput = useRef<HTMLInputElement | null>(null);
 
@@ -35,11 +39,9 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
   }, [isEditing]);
 
-  useEffect(() => setShowModal(isLoading), [isLoading]);
-
   const deleteHandler = () => {
     setIsEditing(false);
-    setShowModal(true);
+    setProcessingTodos([id]);
 
     deleteTodo(id)
       .then(() => setTodos((todos) => todos.filter(todo => todo.id !== id)))
@@ -47,7 +49,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
   };
 
   const checkHandler = () => {
-    setShowModal(true);
+    setProcessingTodos([id]);
 
     updateTodo(id, { completed: !completed })
       .then(() => setTodos((todos) => {
@@ -60,12 +62,12 @@ export const TodoItem: React.FC<Props> = React.memo(({
         });
       }))
       .catch(() => showError(Errors.Update))
-      .finally(() => setShowModal(false));
+      .finally(() => setProcessingTodos([]));
   };
 
   const changeTitleHandler = () => {
     setIsEditing(false);
-    setShowModal(true);
+    setProcessingTodos([id]);
 
     if (currentTitle.length === 0) {
       deleteHandler();
@@ -82,7 +84,18 @@ export const TodoItem: React.FC<Props> = React.memo(({
         });
       }))
       .catch(() => showError(Errors.Update))
-      .finally(() => setShowModal(false));
+      .finally(() => setProcessingTodos([]));
+  };
+
+  const editingSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    changeTitleHandler();
+  };
+
+  const escapeHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -97,11 +110,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       </label>
 
       {isEditing ? (
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          changeTitleHandler();
-        }}
-        >
+        <form onSubmit={editingSubmitHandler}>
           <input
             type="text"
             className="todo__title-field"
@@ -109,11 +118,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
             value={currentTitle}
             onChange={(e) => setCurrentTitle(e.target.value)}
             onBlur={changeTitleHandler}
-            onKeyUp={(e) => {
-              if (e.key === 'Escape') {
-                setIsEditing(false);
-              }
-            }}
+            onKeyUp={escapeHandler}
             ref={todoInput}
           />
         </form>
@@ -135,7 +140,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         </>
       )}
 
-      <div className={cn('modal overlay', { 'is-active': showModal })}>
+      <div className={cn('modal overlay', { 'is-active': isLoading })}>
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

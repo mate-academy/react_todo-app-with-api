@@ -132,7 +132,13 @@ export const App: React.FC = () => {
   }
 
   return (
-    <TodosContext.Provider value={{ todos, setTodos }}>
+    <TodosContext.Provider value={{
+      todos,
+      setTodos,
+      processingTodos,
+      setProcessingTodos,
+    }}
+    >
       <div className="todoapp">
         <h1 className="todoapp__title">todos</h1>
 
@@ -146,16 +152,13 @@ export const App: React.FC = () => {
           <Main
             todos={visibleTodos}
             tempTodo={tempTodo}
-            processingTodos={processingTodos}
           />
 
           {!!todos.length && (
             <Footer
               filter={filter}
-              onFilter={(value) => setFilter(value)}
-              onClear={() => {
-                deleteAllHandler();
-              }}
+              onFilter={setFilter}
+              onClear={deleteAllHandler}
             />
           )}
         </div>

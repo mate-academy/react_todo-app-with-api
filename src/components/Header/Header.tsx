@@ -30,8 +30,9 @@ export const Header: React.FC<Props> = ({
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!title.length) {
+    if (!title.trim().length) {
       showError(Errors.Empty);
+      setTitle('');
 
       return;
     }

@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { TodosContext } from '../../utils/TodosContext';
 
 interface Props {
   todos: Todo[];
   tempTodo: Todo | null;
-  processingTodos: number[];
 }
 
-export const Main: React.FC<Props> = ({ todos, tempTodo, processingTodos }) => {
+export const Main: React.FC<Props> = ({ todos, tempTodo }) => {
+  const { processingTodos } = useContext(TodosContext);
+
   return (
     <section className="todoapp__main">
       <TransitionGroup>
@@ -21,7 +23,9 @@ export const Main: React.FC<Props> = ({ todos, tempTodo, processingTodos }) => {
             classNames="item"
           >
             <TodoItem
-              {...todo}
+              title={todo.title}
+              completed={todo.completed}
+              id={todo.id}
               isLoading={processingTodos.includes(todo.id)}
             />
           </CSSTransition>
@@ -34,7 +38,9 @@ export const Main: React.FC<Props> = ({ todos, tempTodo, processingTodos }) => {
             classNames="temp-item"
           >
             <TodoItem
-              {...tempTodo}
+              title={tempTodo.title}
+              completed={tempTodo.completed}
+              id={tempTodo.id}
               isLoading
             />
           </CSSTransition>
