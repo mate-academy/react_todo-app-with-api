@@ -14,6 +14,7 @@ import { Footer } from './components/Footer';
 import { ErrorMessage } from './components/ErrorMessage';
 import { Error } from './types/Error';
 import { Status } from './types/Status';
+import { getVisibleTodos } from './GetVisibleTodos/GetVisibleTodos';
 
 const USER_ID = 11335;
 
@@ -169,18 +170,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const visibleTodos = useMemo(() => todos.filter((todo) => {
-    switch (status) {
-      case Status.All:
-        return todo;
-      case Status.Active:
-        return !todo.completed;
-      case Status.Completed:
-        return todo.completed;
-      default:
-        return true;
-    }
-  }), [todos, status]);
+  const visibleTodos = useMemo(() => {
+    return getVisibleTodos(todos, status);
+  }, [todos, status]);
 
   if (!USER_ID) {
     return <UserWarning />;
