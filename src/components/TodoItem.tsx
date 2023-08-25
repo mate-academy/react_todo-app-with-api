@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
 
 type Props = {
@@ -26,6 +27,31 @@ export const TodoItem: React.FC<Props> = ({
   isInProcces,
   todo,
 }) => {
+  const doubleClickHendler = () => {
+    setIsEditing(todo.id);
+    setEditingTitle(todo.title);
+  };
+
+  const handleEditingTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingTitle(event.target.value);
+  };
+
+  const saveEditHandler = () => {
+    editingHandler(todo.id);
+  };
+
+  const handleDeleteTodo = () => {
+    deleteTodo(todo.id);
+  };
+
+  const editor = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingTitle) {
+      editor.current?.focus();
+    }
+  }, [editingTitle, todo.id]);
+
   return (
     <div
       className={classNames('todo', {
@@ -44,15 +70,16 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEditing === todo.id
         ? (
-          <form onSubmit={() => editingHandler(todo.id)}>
+          <form onSubmit={saveEditHandler}>
             <input
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={editingTitle}
-              onChange={(event) => setEditingTitle(event.target.value)}
-              onBlur={() => editingHandler(todo.id)}
+              onChange={handleEditingTitle}
+              onBlur={saveEditHandler}
               onKeyUp={cancelEdit}
+              ref={editor}
             />
           </form>
         )
@@ -60,10 +87,7 @@ export const TodoItem: React.FC<Props> = ({
           <>
             <span
               className="todo__title"
-              onDoubleClick={() => {
-                setIsEditing(todo.id);
-                setEditingTitle(todo.title);
-              }}
+              onDoubleClick={doubleClickHendler}
             >
               {todo.title}
             </span>
@@ -71,7 +95,7 @@ export const TodoItem: React.FC<Props> = ({
             <button
               type="button"
               className="todo__remove"
-              onClick={() => deleteTodo(todo.id)}
+              onClick={handleDeleteTodo}
             >
               ×
             </button>

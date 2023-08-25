@@ -20,7 +20,9 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${itemsLeft.length} items left`}
+        {itemsLeft.length === 1
+          ? `${itemsLeft.length} item left`
+          : `${itemsLeft.length} items left`}
       </span>
 
       <TodoFilter setStatus={setStatus} status={status} />
