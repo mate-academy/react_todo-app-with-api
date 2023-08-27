@@ -127,35 +127,43 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const editRef = useRef<HTMLInputElement>(null);
-  let editTimerId = 0;
+  const editTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (tempTodo) {
       setIsTodoLoading(true);
     }
+  }, []);
 
+  useEffect(() => {
     if (toBeCleared.includes(todo.id)) {
       handleDelete(todo.id, Error.Clear);
     }
+  }, [toBeCleared]);
 
+  useEffect(() => {
     if (toBeToggled.includes(todo.id)) {
       handleComplete(todo, Error.Toggle);
     }
+  }, [toBeToggled]);
+
+  useEffect(() => {
+    if (editTimerRef.current) {
+      window.clearTimeout(editTimerRef.current);
+    }
 
     if (isEditable) {
-      if (editTimerId) {
-        window.clearTimeout(editTimerId);
-      }
-
-      editTimerId = window.setTimeout(() => {
+      editTimerRef.current = window.setTimeout(() => {
         editRef.current?.focus();
       }, 0);
     }
 
     return () => {
-      window.clearTimeout(editTimerId);
+      if (editTimerRef.current) {
+        window.clearTimeout(editTimerRef.current);
+      }
     };
-  }, [toBeCleared, toBeToggled, isEditable]);
+  }, [isEditable]);
 
   return (
     <li

@@ -18,18 +18,16 @@ export const TodoForm: React.FC = () => {
     setIsSubmitting(true);
 
     if (newTitle.trim()) {
-      setTempTodo({
-        id: 0,
-        userId: USER_ID,
-        title: newTitle,
-        completed: false,
-      });
-
       const todoToAdd = {
         userId: USER_ID,
         title: newTitle,
         completed: false,
       };
+
+      setTempTodo({
+        ...todoToAdd,
+        id: Math.random(),
+      });
 
       todoService.addTodo(todoToAdd)
         .then(newTodo => {

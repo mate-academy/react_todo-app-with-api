@@ -40,12 +40,9 @@ export const App: React.FC = () => {
   }, []);
 
   const [completed, active]: number[] = useMemo(() => {
-    const complete = todos.filter(todo => todo.completed).length;
-
-    return [
-      complete,
-      todos.length - complete,
-    ];
+    return todos.reduce((acc, todo) => {
+      return todo.completed ? [acc[0] + 1, acc[1]] : [acc[0], acc[1] + 1];
+    }, [0, 0]);
   }, [todos]);
 
   const handleClear = () => {
@@ -56,9 +53,7 @@ export const App: React.FC = () => {
 
   const handleToggle = () => {
     setToBeToggled(todos
-      .filter(todo => {
-        return active ? !todo.completed : true;
-      })
+      .filter(todo => (active ? !todo.completed : true))
       .map(todo => todo.id));
   };
 
@@ -85,7 +80,7 @@ export const App: React.FC = () => {
 
         </header>
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <section className="todoapp__main">
               <TodoList />
@@ -113,7 +108,7 @@ export const App: React.FC = () => {
       </div>
 
       <TransitionGroup>
-        {!!errorMessage && (
+        {errorMessage !== Error.Absent && (
           <CSSTransition
             timeout={500}
             classNames="error"

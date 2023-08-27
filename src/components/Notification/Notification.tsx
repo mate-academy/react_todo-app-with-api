@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import cn from 'classnames';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 
 import { TodosContext } from '../../TodosContext';
 
@@ -8,32 +7,37 @@ import { Error } from '../../types/Error';
 
 export const Notification: React.FC = () => {
   const { errorMessage, setErrorMessage } = useContext(TodosContext);
-  let timeoutId: number;
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (timeoutId) {
-      window.clearTimeout(timeoutId);
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
     }
 
     if (errorMessage !== Error.Absent) {
-      timeoutId = window.setTimeout(() => setErrorMessage(Error.Absent), 3000);
+      timeoutRef.current = window.setTimeout(
+        () => setErrorMessage(Error.Absent), 3000,
+      );
     }
 
     return () => {
-      window.clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
     };
-  }, [errorMessage]);
+  }, [errorMessage, setErrorMessage]);
 
   return (
     <div
-      className={cn('notification is-danger is-light has-text-weight-normal')}
+      className="notification is-danger is-light has-text-weight-normal"
     >
       <button
         type="button"
         className="delete"
         onClick={() => setErrorMessage(Error.Absent)}
       />
-      {errorMessage}
+
+      {errorMessage !== Error.Absent && errorMessage}
     </div>
   );
 };
