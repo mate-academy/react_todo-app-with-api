@@ -3,6 +3,7 @@
 import React, {
   useState, useEffect, useMemo, useRef,
 } from 'react';
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
 import { Main } from './components/Main';
@@ -35,9 +36,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then((myTodos) => {
-        setTodos(myTodos);
-      })
+      .then(setTodos)
       .catch(() => {
         setErrorMassege('unable to load todos');
         hideError();
@@ -81,15 +80,9 @@ export const App: React.FC = () => {
 
   const removeTodoFromList = (todoId: number) => {
     setTodos(currentTodos => {
-      const deletedTodo = currentTodos.find(todo => todo.id === todoId);
-      let index: number;
+      const updatedListTodos = currentTodos.filter(todo => todo.id !== todoId);
 
-      if (deletedTodo) {
-        index = currentTodos.indexOf(deletedTodo);
-        currentTodos.splice(index, 1);
-      }
-
-      return [...currentTodos];
+      return [...updatedListTodos];
     });
   };
 
@@ -106,9 +99,9 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           setErrorMassege={setErrorMassege}
-          hideError={() => hideError()}
+          hideError={hideError}
           userId={USER_ID}
-          addTodo={(newTodo) => addNewTodoToList(newTodo)}
+          addTodo={addNewTodoToList}
           spinnerStatus={setIsSpinner}
           changeDate={setDate}
           changeCurrentId={setCurrentId}
@@ -119,9 +112,9 @@ export const App: React.FC = () => {
         />
         <Main
           todos={filterTodos(query)}
-          removeTodo={(todoId: number) => removeTodoFromList(todoId)}
+          removeTodo={removeTodoFromList}
           setErrorMassege={setErrorMassege}
-          hideError={() => hideError()}
+          hideError={hideError}
           spinner={isSpinner}
           spinnerStatus={setIsSpinner}
           cuurentId={cuurentId}
@@ -147,10 +140,7 @@ export const App: React.FC = () => {
 
       {errorMassege && (
         <div
-          className={`notification is-danger
-                   is-light
-                   has-text-weight-normal
-                   ${!errorMassege && 'hidden'}`}
+          className={classNames('notification is-danger is-light has-text-weight-normal', { hidden: !errorMassege })}
         >
           <button
             onClick={() => setErrorMassege('')}

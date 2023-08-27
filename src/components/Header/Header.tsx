@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
@@ -31,6 +31,15 @@ export const Header: React.FC<Props> = ({
 }) => {
   const [titleTodo, setTitleTodo] = useState('');
   const [isblockedInput, setIsblockedInput] = useState(false);
+  const [returnFocus, setReturnFocus] = useState(false);
+
+  const inputAddFocus = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (returnFocus) {
+      inputAddFocus.current?.focus();
+    }
+  }, [returnFocus]);
 
   const handleChangeTitleTodo = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -57,6 +66,7 @@ export const Header: React.FC<Props> = ({
       completed: false,
     };
 
+    setReturnFocus(false);
     changeCurrentId(0);
     spinnerStatus(true);
     addTodo(tempTodo);
@@ -72,7 +82,10 @@ export const Header: React.FC<Props> = ({
         hideError();
         setTodos(todos);
       })
-      .finally(() => setIsblockedInput(false));
+      .finally(() => {
+        setIsblockedInput(false);
+        setReturnFocus(true);
+      });
   };
 
   const handleClickCompletedAllTodos = () => {
@@ -132,6 +145,7 @@ export const Header: React.FC<Props> = ({
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmitTodo}>
         <input
+          ref={inputAddFocus}
           value={titleTodo}
           onChange={handleChangeTitleTodo}
           disabled={isblockedInput}
