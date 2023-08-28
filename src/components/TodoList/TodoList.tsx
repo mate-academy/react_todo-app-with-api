@@ -1,8 +1,6 @@
 import { useContext } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-
 import { TodosContext } from '../../TodosContext';
-
 import { TodoItem } from '../TodoItem';
 
 export const TodoList: React.FC = () => {

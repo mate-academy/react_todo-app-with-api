@@ -5,11 +5,8 @@ import React, {
   useState,
 } from 'react';
 import cn from 'classnames';
-
 import * as todoService from '../../api/todos';
-
 import { TodosContext } from '../../TodosContext';
-
 import { Todo } from '../../types/Todo';
 import { Error } from '../../types/Error';
 

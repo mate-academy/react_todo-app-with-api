@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-
 import { Error } from './types/Error';
 import { Filter } from './types/Filter';
 import { Todo } from './types/Todo';

@@ -1,8 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext, useEffect, useRef } from 'react';
-
 import { TodosContext } from '../../TodosContext';
-
 import { Error } from '../../types/Error';
 
 export const Notification: React.FC = () => {

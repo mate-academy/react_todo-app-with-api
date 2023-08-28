@@ -6,19 +6,14 @@ import React, {
 } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import cn from 'classnames';
-
 import * as todoService from './api/todos';
-
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodosFilter } from './components/TodosFilter';
 import { Notification } from './components/Notification';
 import { UserWarning } from './UserWarning';
-
 import { TodosContext } from './TodosContext';
-
 import { USER_ID } from './utils/constants';
-
 import { Error } from './types/Error';
 
 export const App: React.FC = () => {
@@ -64,10 +59,8 @@ export const App: React.FC = () => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
-
       <div className="todoapp__content">
         <header className="todoapp__header">
-
           <button
             type="button"
             className={cn('todoapp__toggle-all', {
@@ -77,7 +70,6 @@ export const App: React.FC = () => {
           />
 
           <TodoForm />
-
         </header>
 
         {!!todos.length && (

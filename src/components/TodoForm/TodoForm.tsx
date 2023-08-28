@@ -1,11 +1,7 @@
 import React, { useContext, useState } from 'react';
-
 import * as todoService from '../../api/todos';
-
 import { TodosContext } from '../../TodosContext';
-
 import { Error } from '../../types/Error';
-
 import { USER_ID } from '../../utils/constants';
 
 export const TodoForm: React.FC = () => {
