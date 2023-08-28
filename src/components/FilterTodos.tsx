@@ -6,6 +6,7 @@ type Props = {
   completTodos: boolean;
   selected: Selected;
   setSelected: (select: Selected) => void;
+  clearCompleted: () => void;
 };
 
 const filtersSelected = [
@@ -15,7 +16,7 @@ const filtersSelected = [
 ];
 
 export const FilterTodos: React.FC<Props> = ({
-  amountActive, completTodos, selected, setSelected,
+  amountActive, completTodos, selected, setSelected, clearCompleted,
 }) => {
   return (
     <footer className="todoapp__footer">
@@ -41,15 +42,14 @@ export const FilterTodos: React.FC<Props> = ({
         ))}
       </nav>
 
-      {completTodos && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={() => setSelected(Selected.ACTIVE)}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        className="todoapp__clear-completed"
+        style={{ visibility: completTodos ? 'visible' : 'hidden' }}
+        type="button"
+        onClick={clearCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

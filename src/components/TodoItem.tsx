@@ -5,7 +5,7 @@ import { Todo } from '../types/Todo';
 type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
-  isLoadingId: boolean;
+  isLoadingId: number | null;
   updateTodo: (updatedTodo: Todo) => Promise<void>;
 };
 
@@ -47,6 +47,13 @@ export const TodoItem: React.FC<Props> = ({
     handleSubmitNewTodos();
   };
 
+  const handlerPressedKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmitNewTodos();
+    }
+  };
+
   return (
     <>
       <label className="todo__status-label">
@@ -55,7 +62,6 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           checked
           onClick={handleCheckbox}
-
         />
       </label>
       {doubleClick
@@ -71,6 +77,7 @@ export const TodoItem: React.FC<Props> = ({
               value={newTitle}
               onChange={handleTitleChange}
               onBlur={handleFocusChange}
+              onKeyDown={handlerPressedKey}
             />
           </form>
         )
@@ -87,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         onClick={() => onDelete(todo.id)}
-        disabled={isLoadingId}
+        disabled={isLoadingId === todo.id}
       >
         ×
       </button>
@@ -95,7 +102,7 @@ export const TodoItem: React.FC<Props> = ({
       {/* overlay will cover the todo while it is being updated  modal */}
       <div className={classNames(
         'modal overlay',
-        { 'is-active': isLoadingId },
+        { 'is-active': isLoadingId === todo.id },
       )}
       >
         <div className="modal-background has-background-white-ter" />

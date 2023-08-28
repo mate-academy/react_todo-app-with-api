@@ -5,6 +5,7 @@ import { ErrorMessages } from '../types/ErrorMessages';
 import { Todo } from '../types/Todo';
 
 type Props = {
+  amountTodos: number;
   userId: number;
   setErrorMessage: (error: ErrorMessages) => void;
   onSubmit: ({
@@ -15,7 +16,8 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  userId, setErrorMessage, onSubmit, amountActive, handleToggleTodosAll,
+  amountTodos, userId, setErrorMessage,
+  onSubmit, amountActive, handleToggleTodosAll,
 }) => {
   const [title, setTitle] = useState('');
   const [isCreat, setIsCreat] = useState(false);
@@ -51,14 +53,15 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={classNames('todoapp__toggle-all', {
-          active: amountActive === 0,
-        })}
-        onClick={handleToggleTodosAll}
-      />
-
+      {amountTodos !== 0 && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: amountActive === 0,
+          })}
+          onClick={handleToggleTodosAll}
+        />
+      )}
       <form
         method="POST"
         onSubmit={handleSubmit}

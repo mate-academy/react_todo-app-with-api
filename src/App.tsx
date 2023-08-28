@@ -1,5 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect, useMemo, useState,
+} from 'react';
 import * as todosService from './api/todosService';
 import { Todo } from './types/Todo';
 import { Selected } from './types/Selected';
@@ -36,7 +39,7 @@ export const App: React.FC = () => {
   const [selected, setSelected]
   = useState<Selected>(Selected.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isDeleteTodoId, setIsDeleteTodoId] = useState<number | null>(null);
+  const [isLoadingId, setIsLoadingId] = useState<number | null>(null);
 
   useEffect(() => {
     setisLoading(true);
@@ -58,6 +61,7 @@ export const App: React.FC = () => {
     () => getPreparedTodos(todos, selected),
     [todos, selected],
   );
+  const amountTodos = visibleTodos.length;
   const completedTodos = useMemo(
     () => visibleTodos.some(todo => todo.completed), [visibleTodos],
   );
@@ -66,7 +70,7 @@ export const App: React.FC = () => {
   );
   const amountActive = activeTodos.length;
   const deleteTodo = (todoId: number) => {
-    setIsDeleteTodoId(todoId);
+    setIsLoadingId(todoId);
 
     return todosService.deleteTodo(todoId)
       .then(() => setTodos(currentTodos => currentTodos
@@ -76,13 +80,13 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessages.DELETE);
         throw error;
       })
-      .finally(() => setIsDeleteTodoId(null));
+      .finally(() => setIsLoadingId(null));
   };
 
   const addTodo = ({
     title, completed, userId,
   }: Todo) => {
-    setIsDeleteTodoId(0);
+    setIsLoadingId(0);
     setTempTodo({
       id: 0,
       userId,
@@ -99,12 +103,13 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTempTodo(null);
-        setIsDeleteTodoId(null);
+        setIsLoadingId(null);
       });
   };
 
   const updateTodo = (updatedTodo: Todo) => {
     setErrorMessage(ErrorMessages.EMPTY);
+    setIsLoadingId(updatedTodo.id);
 
     return todosService.updateTodo(updatedTodo)
       .then(todo => {
@@ -120,8 +125,15 @@ export const App: React.FC = () => {
       .catch((error) => {
         setErrorMessage(ErrorMessages.UPDATE);
         throw error;
-      });
+      })
+      .finally(() => setIsLoadingId(null));
   };
+
+  const clearCompleted = useCallback(() => {
+    const todosCompleted = todos.filter(todo => todo.completed);
+
+    todosCompleted.forEach(todo => deleteTodo(todo.id));
+  }, [todos]);
 
   const handleToggleTodosAll = () => (
     amountActive > 0
@@ -141,6 +153,7 @@ export const App: React.FC = () => {
       {!isLoading && (
         <div className="todoapp__content">
           <Header
+            amountTodos={amountTodos}
             userId={USER_ID}
             setErrorMessage={setErrorMessage}
             onSubmit={addTodo}
@@ -153,7 +166,7 @@ export const App: React.FC = () => {
                 todos={visibleTodos}
                 onDelete={deleteTodo}
                 tempTodo={tempTodo}
-                isDeleteTodoId={isDeleteTodoId}
+                isLoadingId={isLoadingId}
                 updateTodo={updateTodo}
               />
               <FilterTodos
@@ -161,6 +174,7 @@ export const App: React.FC = () => {
                 completTodos={completedTodos}
                 selected={selected}
                 setSelected={setSelected}
+                clearCompleted={clearCompleted}
               />
             </>
           )}
