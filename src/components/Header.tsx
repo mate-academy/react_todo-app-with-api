@@ -59,7 +59,7 @@ export const Header = () => {
           className={classNames('todoapp__toggle-all',
             { active: areAllTodosCompleted })}
           aria-label="Toggle All"
-          onClick={() => toggleAllTodos()}
+          onClick={toggleAllTodos}
         />
       )}
 

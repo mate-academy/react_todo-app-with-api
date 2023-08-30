@@ -18,3 +18,7 @@ export const patchTodo = ({
 }: Todo) => {
   return client.patch<Todo>(`/${id}`, { title, userId, completed });
 };
+
+export const getUser = (id: number) => {
+  return client.get<Todo[]>(`?userId=${id}`);
+};

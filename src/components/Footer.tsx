@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import cn from 'classnames';
 import { GlobalContext } from '../context/GlobalContext';
 import { FilterType } from '../types/FilterTypes';
@@ -13,7 +13,7 @@ export const Footer: React.FC<Props> = ({ status, setStatus }) => {
 
   const handleFilter = (filterType: FilterType) => () => setStatus(filterType);
 
-  const includesCompletedTodo = useCallback(() => {
+  const includesCompletedTodo = useMemo(() => {
     return todos.some((todo) => todo.completed);
   }, [todos]);
 
@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = ({ status, setStatus }) => {
         className="todoapp__clear-completed"
         onClick={onClearCompletedButton}
         disabled={!includesCompletedTodo}
-        style={!includesCompletedTodo() ? { visibility: 'hidden' } : {}}
+        style={!includesCompletedTodo ? { visibility: 'hidden' } : {}}
       >
         Clear completed
       </button>

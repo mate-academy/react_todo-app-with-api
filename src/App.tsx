@@ -8,8 +8,8 @@ import { FilterType } from './types/FilterTypes';
 import { Todo } from './types/Todo';
 import { ErrorNotification } from './components/ErrorNotification';
 import { ErrorEnum } from './types/ErrorEnum';
-import { client } from './utils/fetchClient';
 import { Header } from './components/Header';
+import { getUser } from './api/todos';
 
 export const USER_ID = 11325;
 
@@ -33,9 +33,8 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState(FilterType.ALL);
 
   useEffect(() => {
-    client
-      .get<Todo[]>(`?userId=${USER_ID}`)
-      .then((res) => setTodos(res))
+    getUser(USER_ID)
+      .then(setTodos)
       .catch((err) => {
         setErrorAndClear(ErrorEnum.LOAD, 3000);
         throw new Error(err);
