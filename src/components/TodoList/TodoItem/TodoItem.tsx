@@ -79,12 +79,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       return;
     }
 
-    if (editedTitle.trim()) {
-      const edited = {
-        ...editedTodo,
-        title: editedTitle,
-      };
-
+    const updateEditedTodo = (edited: Todo) => {
       setIsTodoLoading(true);
 
       todoService.updateTodo(todo.id, edited)
@@ -92,8 +87,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           setIsEditable(false);
           setTodos(currTodos => {
             const updatedTodos = [...currTodos];
-            const index = updatedTodos
-              .findIndex(currTodo => currTodo.id === updatedTodo.id);
+            const index = updatedTodos.findIndex(
+              currTodo => currTodo.id === updatedTodo.id,
+            );
 
             updatedTodos.splice(index, 1, updatedTodo);
 
@@ -105,6 +101,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           setEditedTitle(editedTodo.title);
         })
         .finally(() => setIsTodoLoading(false));
+    };
+
+    if (editedTitle.trim()) {
+      const edited = {
+        ...editedTodo,
+        title: editedTitle,
+      };
+
+      updateEditedTodo(edited);
     } else {
       handleDelete(editedTodo.id);
     }

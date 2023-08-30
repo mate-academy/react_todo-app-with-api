@@ -6,10 +6,8 @@ type Props = {
 
 export const TodoCounter: React.FC<Props> = ({ active }) => {
   return (
-    <>
-      <span className="todo-count">
-        {`${active} ${active <= 1 ? 'item' : 'items'} left`}
-      </span>
-    </>
+    <span className="todo-count">
+      {`${active} ${active <= 1 ? 'item' : 'items'} left`}
+    </span>
   );
 };
