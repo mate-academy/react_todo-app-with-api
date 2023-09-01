@@ -6,6 +6,7 @@ type Props = {
   processingIds: number[];
   onDelete: (id: number) => void;
   onUpdate: (todo: Todo) => void;
+  tempTodo: Todo | null;
 };
 
 export const TodoList: React.FC<Props> = (
@@ -14,12 +15,15 @@ export const TodoList: React.FC<Props> = (
     processingIds,
     onDelete,
     onUpdate,
+    tempTodo,
   },
 ) => {
+  const allTodos = tempTodo ? [...todos, tempTodo] : todos;
+
   return (
     <section className="todoapp__main">
       {
-        todos.map(todo => (
+        allTodos.map(todo => (
           <TodoItem
             key={todo.id}
             todo={todo}

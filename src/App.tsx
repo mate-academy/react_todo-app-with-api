@@ -186,23 +186,13 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {tempTodo
-          ? (
-            <TodoList
-              todos={[...filteredTodos, tempTodo]}
-              onDelete={handleDeleteTodo}
-              onUpdate={handleUpdateTodo}
-              processingIds={processingIds}
-            />
-          )
-          : (
-            <TodoList
-              todos={filteredTodos}
-              onDelete={handleDeleteTodo}
-              onUpdate={handleUpdateTodo}
-              processingIds={processingIds}
-            />
-          )}
+        <TodoList
+          todos={filteredTodos}
+          onDelete={handleDeleteTodo}
+          onUpdate={handleUpdateTodo}
+          processingIds={processingIds}
+          tempTodo={tempTodo}
+        />
 
         {
           todos.length > 0 && (
