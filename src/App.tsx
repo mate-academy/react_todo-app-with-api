@@ -47,6 +47,9 @@ export const App: React.FC = () => {
   const isAllCompleted
     = todos.filter(todo => todo.completed).length === todos.length;
 
+  const isAllUncompleted
+    = todos.filter(todo => !todo.completed).length === todos.length;
+
   const resetField = (): void => {
     setTodoTitle('');
     setIsError(false);
@@ -96,10 +99,17 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    todos.map(todo => handleUpdateTodo({
-      ...todo,
-      completed: !todo.completed,
-    }));
+    if (isAllCompleted || isAllUncompleted) {
+      todos.map(todo => handleUpdateTodo({
+        ...todo,
+        completed: !todo.completed,
+      }));
+    } else {
+      todos.map(todo => !todo.completed && handleUpdateTodo({
+        ...todo,
+        completed: !todo.completed,
+      }));
+    }
   };
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
@@ -160,20 +170,21 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            aria-label="button"
-            onClick={handleToggleAll}
-            className={
-              cn(
-                'todoapp__toggle-all',
-                {
-                  active: isAllCompleted,
-                },
-              )
-            }
-          />
-
+          {todos.length > 0 && (
+            <button
+              type="button"
+              aria-label="button"
+              onClick={handleToggleAll}
+              className={
+                cn(
+                  'todoapp__toggle-all',
+                  {
+                    active: isAllCompleted,
+                  },
+                )
+              }
+            />
+          )}
           <form onSubmit={handleAddTodo}>
             <input
               type="text"
