@@ -1,4 +1,3 @@
-// import { deleteTodo } from '../api/todos';
 import { SortBy, Todo } from '../types';
 
 type Props = {
@@ -23,7 +22,7 @@ export const Footer: React.FC<Props> = ({
   const deleteCompletedtodo = () => {
     try {
       todos.forEach(async todo => {
-        if (todo.completed === true) {
+        if (todo.completed) {
           handleSelectedTodo([...selectedTodo, todo.id]);
         }
       });
@@ -32,7 +31,7 @@ export const Footer: React.FC<Props> = ({
     }
 
     todos.forEach(todo => {
-      if (todo.completed === true) {
+      if (todo.completed) {
         handleDeleteTodo(todo.id);
       }
     });
@@ -47,7 +46,7 @@ export const Footer: React.FC<Props> = ({
       <nav className="filter">
         <a
           href="#/"
-          className={sortBy === 'all'
+          className={sortBy === SortBy.all
             ? 'filter__link selected'
             : 'filter__link'}
           onClick={() => handleSetSortBy(SortBy.all)}

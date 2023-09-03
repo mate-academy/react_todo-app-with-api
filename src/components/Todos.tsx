@@ -136,7 +136,7 @@ export const Todos: React.FC<Props> = ({
                   <input
                     type="text"
                     ref={inputRef}
-                    className="todoapp__new-todo"
+                    className="todo__title-field"
                     value={inputValue}
                     onChange={(e) => {
                       setInputValue(e.target.value);
