@@ -28,10 +28,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setToToggle,
   } = useContext(TodosContext);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(false);
   const editInput = useRef<HTMLInputElement>(null);
-  const [newTitle, setNewTitle] = useState(title);
+  const [newTitle, setNewTitle] = useState<string>(title);
 
   useEffect(() => {
     if (editing) {

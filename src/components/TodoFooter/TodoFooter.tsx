@@ -11,6 +11,10 @@ export const TodoFooter: React.FC = () => {
       .map(todo => todo.id));
   };
 
+  const checkCompleted = () => {
+    return todos.some(todo => todo.completed);
+  };
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count" data-cy="todosCounter">
@@ -21,7 +25,7 @@ export const TodoFooter: React.FC = () => {
 
       <TodoFilter />
 
-      {todos.some(todo => todo.completed) && (
+      {checkCompleted() && (
         <button
           type="button"
           className="todoapp__clear-completed"

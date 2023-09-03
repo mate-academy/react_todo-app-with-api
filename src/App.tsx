@@ -49,7 +49,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader />
         <TodoList />
-        {todos.length > 0 && <TodoFooter />}
+        {todos.length && <TodoFooter />}
         {errorMessage && <ErrorMessage />}
       </div>
     </div>

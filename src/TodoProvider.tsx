@@ -41,7 +41,7 @@ export const USER_ID = 11373;
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterType, setFilterType] = useState<Filter>(Filter.ALL);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [toDelete, setToDelete] = useState<number[]>([]);
   const [toToggle, setToToggle] = useState<number[]>([]);
