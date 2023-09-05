@@ -202,7 +202,7 @@ export const App: React.FC = () => {
   }
 
   const visibleTodos = sortTodo(todos, sortType);
-  const isActiveButton = todos.every(todo => todo.completed);
+  const nrOfTodos = todos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -210,7 +210,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          isActiveButton={isActiveButton}
+          nrOfTodos={nrOfTodos}
           lengthTodos={todos.length}
           formSummit={handleFormSubmit}
           todoTitle={todoTitle}

@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 interface Props {
-  isActiveButton: boolean,
+  nrOfTodos: boolean,
   lengthTodos: number,
   formSummit: (event: React.FormEvent) => void,
   todoTitle: string,
@@ -12,16 +12,12 @@ interface Props {
   tempTodo: Todo | null,
 }
 
-// function checkButton(todos: Todo[]): boolean {
-//   return todos.every(todo => todo.completed);
-// }
-
 function creatPatchTodo(key: string, value: string | boolean) {
   return { [key]: value };
 }
 
 export const Header: React.FC<Props> = ({
-  isActiveButton,
+  nrOfTodos,
   lengthTodos,
   formSummit,
   todoTitle,
@@ -30,8 +26,8 @@ export const Header: React.FC<Props> = ({
   tempTodo,
 }) => {
   const activeButton = useMemo(() => {
-    return isActiveButton;
-  }, [isActiveButton]);
+    return nrOfTodos;
+  }, [nrOfTodos]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoTitle(event.target.value);
