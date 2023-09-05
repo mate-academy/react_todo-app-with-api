@@ -24,18 +24,16 @@ function creatTempTodo(userId: number, title: string): Todo {
 }
 
 function sortTodo(todos: Todo[], sortType: SortType) {
-  const newTodos = [...todos];
-
   switch (sortType) {
     case SortType.ACTIVE:
-      return newTodos.filter(todo => !todo.completed);
+      return todos.filter(todo => !todo.completed);
 
     case SortType.COMPLETED:
-      return newTodos.filter(todo => todo.completed);
+      return todos.filter(todo => todo.completed);
 
     case SortType.ALL:
     default:
-      return newTodos;
+      return todos;
   }
 }
 
@@ -204,6 +202,7 @@ export const App: React.FC = () => {
   }
 
   const visibleTodos = sortTodo(todos, sortType);
+  const isActiveButton = todos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
@@ -211,7 +210,8 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={todos}
+          isActiveButton={isActiveButton}
+          lengthTodos={todos.length}
           formSummit={handleFormSubmit}
           todoTitle={todoTitle}
           setTodoTitle={setTodoTitle}

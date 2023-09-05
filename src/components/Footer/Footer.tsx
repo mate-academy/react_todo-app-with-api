@@ -20,13 +20,14 @@ export const Footer: React.FC<Props> = ({
   clearCompletedTodos,
 }) => {
   const isVisible = todos.some(todo => todo.completed);
+  const countItems = todos.filter(todo => !todo.completed);
 
   return (
     <>
       {todos.length !== 0 && (
         <footer className="todoapp__footer">
           <span className="todo-count">
-            {`${todos.length} items left`}
+            {`${countItems.length} items left`}
           </span>
 
           <nav className="filter">
