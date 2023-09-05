@@ -1,172 +1,123 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useRef, useState } from 'react';
+/* eslint-disable react/no-unused-prop-types */
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { Error } from '../types/Error';
 
 type Props = {
+  onDelete: (id: number) => void;
+  setTodos: (value: Todo[]) => void;
   todos: Todo[];
-  onDelete: (todoId: number) => void;
-  onUpdate: (todoId: number, updatedTodo: Todo) => void;
-  setError: (error: Error) => void;
 };
 
-export const TodoList: React.FC<Props> = React.memo(
-  ({
-    todos, onDelete, onUpdate, setError,
-  }) => {
-    const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
-    const [newTitle, setNewTitle] = useState('');
-    const [loadingStates, setLoadingStates] = useState<boolean[]>(
-      todos.map(() => false),
-    );
+export const TodoList: React.FC<Props> = ({ onDelete, todos, setTodos }) => {
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState('');
 
-    const inputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    const savedTodos = JSON.parse(localStorage.getItem('todos') || '[]');
 
-    const handleStartEditing = (todoId: number, title: string) => {
-      setEditingTodoId(todoId);
-      setNewTitle(title);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    };
+    setTodos(savedTodos);
+  }, []);
 
-    const findTodoById = (todoId: number): Todo | undefined => {
-      return todos.find((todo) => todo.id === todoId);
-    };
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
-    const updateTodoTitle = async (todoId: number, title: string) => {
-      try {
-        const todoToUpdate = findTodoById(todoId);
+  const handleStartEditing = (todoId: number, title: string) => {
+    setEditingTodoId(todoId);
+    setNewTitle(title);
+  };
 
-        if (todoToUpdate) {
-          setLoadingStates((prevStates) => {
-            const updatedStates = [...prevStates];
-
-            updatedStates[todoId] = true;
-
-            return updatedStates;
-          });
-
-          await onUpdate(todoId, { ...todoToUpdate, title });
-          setError(Error.NONE);
+  const handleSaveEditing = (todoId: number, title: string) => {
+    if (!title.trim()) {
+      onDelete(todoId);
+    } else {
+      const updatedTodos = todos.map((todo) => {
+        if (todo.id === todoId) {
+          return { ...todo, title };
+          // eslint-disable-next-line no-else-return
+        } else {
+          return todo;
         }
-      } catch (error) {
-        setError(Error.UPDATE);
-      } finally {
-        setLoadingStates((prevStates) => {
-          const updatedStates = [...prevStates];
+      });
 
-          updatedStates[todoId] = false;
+      setTodos(updatedTodos);
+      setEditingTodoId(null);
+      setNewTitle('');
+    }
+  };
 
-          return updatedStates;
-        });
-      }
-    };
+  return (
+    <section className="todoapp__main">
+      {todos.map(({ id, completed, title }) => {
+        const isEditing = editingTodoId === id;
 
-    const handleSaveEditing = async (todoId: number, title: string) => {
-      if (!title.trim()) {
-        onDelete(todoId);
-      } else {
-        await updateTodoTitle(todoId, title);
-        setEditingTodoId(null);
-        setNewTitle('');
-      }
-    };
+        return (
+          <div
+            key={id}
+            className={classNames('todo', { completed, editing: isEditing })}
+          >
+            <label className="todo__status-label">
+              <input
+                type="checkbox"
+                className="todo__status"
+                checked={completed}
+                onChange={() => {
+                  const updatedTodos = todos.map((todo) => {
+                    if (todo.id === id) {
+                      return { ...todo, completed: !completed };
+                    // eslint-disable-next-line no-else-return
+                    } else {
+                      return todo;
+                    }
+                  });
 
-    const handleKeyDown = (
-      e: React.KeyboardEvent<HTMLInputElement>,
-      todoId: number,
-    ) => {
-      if (e.key === 'Enter') {
-        handleSaveEditing(todoId, newTitle);
-      }
-    };
+                  setTodos(updatedTodos);
+                }}
+              />
+            </label>
 
-    const toggleTodoStatus = (todoId: number, completed: boolean) => {
-      const todoToUpdate = findTodoById(todoId);
-
-      if (todoToUpdate) {
-        onUpdate(todoId, { ...todoToUpdate, completed: !completed });
-      }
-    };
-
-    return (
-      <section className="todoapp__main">
-        {todos.map(({ id, completed, title }) => {
-          const isEditing = editingTodoId === id;
-          const isLoading = loadingStates[id] && isEditing;
-
-          return (
-            <div
-              key={id}
-              className={classNames('todo', { completed, editing: isEditing })}
-            >
-              <label className="todo__status-label">
+            {isEditing ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSaveEditing(id, newTitle);
+                }}
+              >
                 <input
-                  type="checkbox"
-                  className="todo__status"
-                  checked={completed}
-                  onChange={() => toggleTodoStatus(id, completed)}
+                  type="text"
+                  className={classNames('todo__edit-input', {
+                    'todo__edit-input--full-width': isEditing,
+                  })}
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onBlur={() => handleSaveEditing(id, newTitle)}
                 />
-              </label>
-
-              {isEditing ? (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSaveEditing(id, newTitle);
-                  }}
-                >
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    className={classNames('todo__edit-input', {
-                      'todo__edit-input--full-width': isEditing,
-                    })}
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    onBlur={() => handleSaveEditing(id, newTitle)}
-                    onKeyDown={(e) => handleKeyDown(e, id)}
-                  />
-                  <button type="submit" className="todo__remove">
-                    ×
-                  </button>
-                </form>
-              ) : (
-                <span
-                  className="todo__title"
-                  onDoubleClick={() => handleStartEditing(id, title)}
-                >
-                  {title}
-                </span>
-              )}
-
-              {!isEditing && (
-                <button
-                  type="button"
-                  className="todo__remove"
-                  onClick={() => onDelete(id)}
-                >
+                <button type="submit" className="todo__remove">
                   ×
                 </button>
-              )}
+              </form>
+            ) : (
+              <span
+                className="todo__title"
+                onDoubleClick={() => handleStartEditing(id, title)}
+              >
+                {title}
+              </span>
+            )}
 
-              <div className="loader-overlay">
-                <div
-                  className={classNames('modal overlay', {
-                    'is-active': isLoading,
-                  })}
-                >
-                  <div className="modal-background has-background-white-ter" />
-                  <div className="loader" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
-    );
-  },
-);
+            {!isEditing && (
+              <button
+                type="button"
+                className="todo__remove"
+                onClick={() => onDelete(id)}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </section>
+  );
+};

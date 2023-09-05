@@ -1,77 +1,40 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
-import { UserWarning } from './UserWarning';
-import { TodoList } from './Components/ToDoList';
-import { Notification } from './Components/errorNotification';
-import { client } from './utils/fetchClient';
-import { Error } from './types/Error';
+import React, { useMemo, useState } from 'react';
 
-import { FilterType, Todo } from './types/Todo';
-
-import { getTodos, deleteTodo } from './api/todos';
-
+import { TodoList } from './Components/TodoList';
 import { Footer } from './Components/Footer';
 
-const USER_ID = 6340;
+import { useLocalStorage } from './utils/useLocalStorage';
+
+import { FilterType } from './types/FilterType';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.ALL);
-  const [error, setError] = useState<Error>(Error.NONE);
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const loadTodosData = async () => {
-    try {
-      setError(Error.NONE);
-      const todosFromServer = await getTodos(USER_ID);
-
-      setTodos(todosFromServer);
-    } catch {
-      setError(Error.DOWNLOADING);
-    }
-  };
-
-  useEffect(() => {
-    loadTodosData();
-  }, []);
+  const [todos, setTodos] = useLocalStorage('todos', []);
 
   const addNewTodo = async () => {
     if (!inputQuery.trim()) {
-      setError(Error.NONE);
-
       return;
     }
 
     try {
-      setError(Error.NONE);
       setIsLoading(true);
 
       const newTodo = {
-        userId: USER_ID,
+        id: +new Date(),
         title: inputQuery.trim(),
         completed: false,
       };
 
-      const response = await client.post<Todo>('/todos', newTodo);
+      const updatedTodos = [...todos, newTodo];
 
-      setTodos([...todos, response]);
+      setTodos(updatedTodos);
+
       setInputQuery('');
-    } catch {
-      setError(Error.ADD);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const deleteTodoItem = async (todoId: number) => {
-    try {
-      setError(Error.NONE);
-      await deleteTodo(todoId);
-
-      setTodos(todos.filter(todo => todo.id !== todoId));
-    } catch {
-      setError(Error.DELETE);
     }
   };
 
@@ -81,7 +44,9 @@ export const App: React.FC = () => {
   };
 
   const handleTodoDelete = (todoId: number) => {
-    deleteTodoItem(todoId);
+    const updatedTodos = todos.filter((todo) => todo.id !== todoId);
+
+    setTodos(updatedTodos);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,35 +75,10 @@ export const App: React.FC = () => {
     }
   }, [filterBy, todos]);
 
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
-
-  const updateTodoItem = async (todoId: number, updatedTodo: Todo) => {
-    try {
-      setError(Error.NONE);
-      await client.patch<Todo>(`/todos/${todoId}`, updatedTodo);
-
-      setTodos(prevTodos => prevTodos.map(
-        todo => (todo.id === todoId ? updatedTodo : todo),
-      ));
-    } catch {
-      setError(Error.UPDATE);
-    }
-  };
-
   const deleteAllCompletedTodos = () => {
-    const completedTodos = todos.filter((todo) => todo.completed);
+    const updatedTodos = todos.filter((todo) => !todo.completed);
 
-    const deletePromises = completedTodos.map((todo) => deleteTodo(todo.id));
-
-    Promise.all(deletePromises)
-      .then(() => {
-        setTodos((prevTodos) => prevTodos.filter((todo) => !todo.completed));
-      })
-      .catch(() => {
-        setError(Error.DELETE);
-      });
+    setTodos(updatedTodos);
   };
 
   return (
@@ -168,8 +108,7 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               onDelete={handleTodoDelete}
-              onUpdate={updateTodoItem}
-              setError={setError}
+              setTodos={setTodos}
             />
 
             <Footer
@@ -188,12 +127,6 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {error && (
-        <Notification
-          error={error}
-          onErrorChange={setError}
-        />
-      )}
     </div>
   );
 };
