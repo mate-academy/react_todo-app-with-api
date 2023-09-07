@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Status } from '../services/Status';
 // eslint-disable-next-line import/no-cycle
 import { TodosContext } from './TodosContext';
@@ -10,26 +10,25 @@ export const Footer: React.FC = () => {
     setFilter,
     filter,
   } = useContext(TodosContext);
-  const [count, setCount] = useState(0);
 
-  const updateCount = () => {
-    const counts = todos.filter(todo => !todo.completed).length;
-
-    setCount(counts);
-  };
+  const count = todos.filter(todo => !todo.completed).length;
 
   const hasCompleted = todos.some(todo => todo.completed);
 
-  // Performed when you change the task list (Toodos)
-  useEffect(() => {
-    updateCount();
-  }, [todos]);
+  const handleFilterClick = (newFilter: Status) => {
+    setFilter(newFilter);
+  };
 
   return (
     <>
       {todos.length > 0 && (
         <footer className="todoapp__footer">
-          <span className="todo-count">{`${count} ${count === 1 ? 'item' : 'items'} left`}</span>
+          <span className="todo-count">
+            {`${count} ${
+              count === 1 ? 'item' : 'items'
+            } left`}
+
+          </span>
 
           <nav className="filter">
             <a
@@ -37,9 +36,9 @@ export const Footer: React.FC = () => {
               className={`filter__link ${
                 filter === Status.ALL ? 'selected' : ''
               }`}
-              onClick={() => setFilter(Status.ALL)}
+              onClick={() => handleFilterClick(Status.ALL)}
             >
-              All
+              All9
             </a>
 
             <a
@@ -47,7 +46,7 @@ export const Footer: React.FC = () => {
               className={`filter__link ${
                 filter === Status.ACTIVE ? 'selected' : ''
               }`}
-              onClick={() => setFilter(Status.ACTIVE)}
+              onClick={() => handleFilterClick(Status.ACTIVE)}
             >
               Active
             </a>
@@ -57,7 +56,7 @@ export const Footer: React.FC = () => {
               className={`filter__link ${
                 filter === Status.COMPLETED ? 'selected' : ''
               }`}
-              onClick={() => setFilter(Status.COMPLETED)}
+              onClick={() => handleFilterClick(Status.COMPLETED)}
             >
               Completed
             </a>
