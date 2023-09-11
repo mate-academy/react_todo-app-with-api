@@ -18,7 +18,7 @@ export const TodoApp: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader />
 
-        {(todos.length > 0 || tempoTodo) && (
+        {(!!todos.length || tempoTodo) && (
           <>
             <TodoList
               todos={todos}

@@ -64,7 +64,7 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {todosCompleted.length > 0 && (
+      {!!todosCompleted && (
         <button
           type="button"
           className="todoapp__clear-completed"

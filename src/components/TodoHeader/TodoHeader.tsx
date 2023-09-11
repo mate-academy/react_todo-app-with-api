@@ -60,11 +60,11 @@ export const TodoHeader: React.FC = () => {
     if (inputOnFocus && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos]);
+  }, [todos, inputOnFocus, inputRef.current]);
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={classNames(

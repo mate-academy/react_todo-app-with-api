@@ -33,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
       {updatedTodos.map(todo => (
         <TodoItem todo={todo} key={todo.id} />
       ))}
-      {tempoTodo !== null && (
+      {!!tempoTodo && (
         <TempoTodoItem tempoTodo={tempoTodo} key={tempoTodo.id} />
       )}
     </section>

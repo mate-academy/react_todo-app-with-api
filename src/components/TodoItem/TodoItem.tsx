@@ -26,7 +26,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isEditing]);
+  }, [isEditing, inputRef.current]);
 
   useEffect(() => {
     if (isCompliteDeleting && todo.completed) {
@@ -62,10 +62,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleUpdateOrDelete = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    !updatedTitle.trim()
-      ? deleteTodo(todo)
-      : updateTodo(updatedTitle, todo);
+    if (!updatedTitle.trim()) {
+      deleteTodo(todo);
+    } else {
+      updateTodo(updatedTitle, todo);
+    }
   };
 
   const handleTodoUpdate = (e: React.FormEvent<HTMLFormElement>) => {
