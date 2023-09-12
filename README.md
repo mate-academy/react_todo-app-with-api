@@ -11,7 +11,7 @@ This project is a simple web application for managing a to-do list. It allows us
 - **Real-Time Updates**: Changes to the task list are visible in real-time without the need for page reloading, thanks to the use of WebSocket or similar technologies.
 - **REST API**: The application utilizes REST requests to interact with the server. Please refer to the API documentation below for detailed information on available requests and responses.
 
-## Steck
+## Stack
 
 - **React**
 - **TypeScript**
