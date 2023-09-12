@@ -151,7 +151,7 @@ export const App: React.FC = () => {
         <button
           type="button"
           className="delete"
-          onClick={() => handleError(Errors.noEroor)}
+          onClick={() => handleError(Errors.noError)}
         />
 
         {errorMessage}

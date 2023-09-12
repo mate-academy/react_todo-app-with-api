@@ -5,7 +5,7 @@ import { Errors, Todo } from './types';
 export const useGetTodos = (USER_ID: number, makeAnyChange: boolean) => {
   const [isLoading, setIsLoading] = useState(true);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState<Errors>(Errors.noEroor);
+  const [errorMessage, setErrorMessage] = useState<Errors>(Errors.noError);
 
   useEffect(() => {
     async function fetchTodos() {
@@ -26,7 +26,7 @@ export const useGetTodos = (USER_ID: number, makeAnyChange: boolean) => {
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage(Errors.noEroor);
+        setErrorMessage(Errors.noError);
       }, 3000);
     }
   }, [errorMessage]);

@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = ({
 
         <a
           href="#/active"
-          className={sortBy === 'active'
+          className={sortBy === SortBy.active
             ? 'filter__link selected'
             : 'filter__link'}
           onClick={() => handleSetSortBy(SortBy.active)}
@@ -66,7 +66,7 @@ export const Footer: React.FC<Props> = ({
 
         <a
           href="#/completed"
-          className={sortBy === 'completed'
+          className={sortBy === SortBy.completed
             ? 'filter__link selected'
             : 'filter__link'}
           onClick={() => handleSetSortBy(SortBy.completed)}

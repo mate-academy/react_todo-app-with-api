@@ -1,5 +1,5 @@
 export enum Errors {
-  noEroor = '',
+  noError = '',
   emptyTitle = "Title can't be empty",
   delete = 'Unable to delete a todo',
   add = 'Unable to add a todo',
