@@ -45,7 +45,7 @@ export const TodoList: React.FC<Props> = ({
         <button type="button" className="todo__remove">×</button>
 
         <div className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
+          <div className="modal-background" />
           <div className="loader" />
         </div>
       </li>

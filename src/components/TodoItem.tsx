@@ -128,7 +128,7 @@ export const TodoItem: React.FC<Props> = ({
           'is-active': isLoading || loadingTodoIds.includes(todo.id),
         })}
       >
-        <div className="modal-background has-background-white-ter" />
+        <div className="modal-background" />
         <div className="loader" />
       </div>
     </li>
