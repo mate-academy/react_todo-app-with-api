@@ -9,7 +9,7 @@ type Props = {
   clearError: () => void,
 };
 
-export const NotificationError: React.FC<Props> = ({
+export const ErrorNotification: React.FC<Props> = ({
   errorMessage,
   clearError,
 }) => {
@@ -17,14 +17,15 @@ export const NotificationError: React.FC<Props> = ({
 
   const handleDeleteClick = () => {
     setIsHidden(true);
-    wait(1000).then(() => clearError());
+    clearError();
   };
 
   useEffect(() => {
     setIsHidden(false);
     wait(3000)
       .then(() => setIsHidden(true))
-      .then(() => wait(1000).then(() => clearError()));
+      .then(() => wait(1000))
+      .then(() => clearError());
   }, []);
 
   return (

@@ -1,26 +1,24 @@
 import React, { useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../constants';
-import { addTodoToServer } from '../api/todos';
-import { TodoError } from '../types/TodoError';
 
 type Props = {
-  addTodo: (newTodo: Todo) => void,
+  addTodo: (newTodo: Todo) => Promise<Todo>,
   setTempTodo: (newTodo: Todo | null) => void,
-  setErrorMessage: (newError: TodoError) => void,
+  onEmptyTitle: () => void,
 };
 
 export const TodoForm: React.FC<Props> = ({
   addTodo,
   setTempTodo,
-  setErrorMessage,
+  onEmptyTitle,
 }) => {
   const [title, setTitle] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const setInputFocus = () => {
+  const focusInput = () => {
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -32,13 +30,13 @@ export const TodoForm: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title.trim()) {
-      setErrorMessage(TodoError.EmptyTitle);
-      setInputFocus();
+      onEmptyTitle();
+      focusInput();
 
       return;
     }
 
-    const tempTodo: Todo = {
+    const newTodo: Todo = {
       id: 0,
       title,
       completed: false,
@@ -46,16 +44,14 @@ export const TodoForm: React.FC<Props> = ({
     };
 
     setIsDisabled(true);
-    setTempTodo(tempTodo);
+    setTempTodo(newTodo);
 
-    addTodoToServer(tempTodo)
-      .then(todoFromServer => addTodo(todoFromServer))
+    addTodo(newTodo)
       .then(() => setTitle(''))
-      .catch(() => setErrorMessage(TodoError.Add))
       .finally(() => {
         setIsDisabled(false);
         setTempTodo(null);
-        setInputFocus();
+        focusInput();
       });
   };
 

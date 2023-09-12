@@ -2,24 +2,21 @@ import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
-import { TodoError } from '../types/TodoError';
 
 type Props = {
   todos: Todo[],
   tempTodo: Todo | null,
-  deleteTodo: (todoId: number) => void,
-  setErrorMessage: (newError: TodoError) => void,
-  updateTodo: (updatedTodo: Todo) => void,
-  loadingTodos: number[],
+  deleteTodo: (todoId: number) => Promise<number>,
+  updateTodo: (updatedTodo: Todo) => Promise<Todo>,
+  loadingTodoIds: number[],
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
   tempTodo,
   deleteTodo,
-  setErrorMessage,
   updateTodo,
-  loadingTodos,
+  loadingTodoIds,
 }) => (
   <ul className="todo-list">
     {todos.map(todo => (
@@ -27,9 +24,8 @@ export const TodoList: React.FC<Props> = ({
         key={todo.id}
         todo={todo}
         deleteTodo={deleteTodo}
-        setErrorMessage={setErrorMessage}
         updateTodo={updateTodo}
-        loadingTodos={loadingTodos}
+        loadingTodoIds={loadingTodoIds}
       />
     ))}
 

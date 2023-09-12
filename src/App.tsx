@@ -2,27 +2,26 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
-import { Todo } from './types/Todo';
-import { Completion } from './types/Completion';
-import { TodoError } from './types/TodoError';
 import { USER_ID } from './constants';
+import { Completion, Todo, TodoError } from './types';
+
 import {
-  deleteTodoFromServer,
   getTodosFromServer,
+  addTodoToServer,
+  deleteTodoFromServer,
   updateTodoOnServer,
 } from './api/todos';
 
-import { TodoForm } from './components/TodoForm';
-import { TodoList } from './components/TodoList';
-import { TodoFilter } from './components/TodoFilter';
-import { NotificationError } from './components/NotificationError';
+import {
+  ErrorNotification, TodoFilter, TodoForm, TodoList,
+} from './components';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState(TodoError.NoError);
   const [completionFilter, setCompletionFilter] = useState(Completion.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodosFromServer(USER_ID)
@@ -49,31 +48,59 @@ export const App: React.FC = () => {
     }
   }, [todos, completionFilter]);
 
-  const addTodo = (newTodo: Todo) => {
-    setTodos(currentTodos => [...currentTodos, newTodo]);
+  const addTodo = async (newTodo: Todo) => {
+    return addTodoToServer(newTodo)
+      .then(todoFromServer => {
+        setTodos(currentTodos => [...currentTodos, todoFromServer]);
+
+        return todoFromServer;
+      })
+      .catch(error => {
+        setErrorMessage(TodoError.Add);
+        throw error;
+      });
   };
 
   const deleteTodo = (todoId: number) => {
-    setTodos(currentTodos => (
-      currentTodos.filter(todo => todo.id !== todoId)
-    ));
+    return deleteTodoFromServer(todoId)
+      .then(() => {
+        setTodos(currentTodos => (
+          currentTodos.filter(todo => todo.id !== todoId)
+        ));
+
+        return todoId;
+      })
+      .catch(error => {
+        setErrorMessage(TodoError.Delete);
+        throw error;
+      });
   };
 
-  const updateTodo = (updatedTodo: Todo) => {
-    setTodos(currentTodos => currentTodos.map(todo => (
-      todo.id === updatedTodo.id ? updatedTodo : todo
-    )));
+  const updateTodo = async (updatedTodo: Todo) => {
+    return updateTodoOnServer(updatedTodo)
+      .then(todoFromServer => {
+        setTodos(currentTodos => currentTodos.map(todo => (
+          todo.id === todoFromServer.id
+            ? todoFromServer
+            : todo
+        )));
+
+        return todoFromServer;
+      })
+      .catch(error => {
+        setErrorMessage(TodoError.Update);
+        throw error;
+      });
   };
 
   const deleteCompletedTodos = () => {
-    setLoadingTodos(completedTodos.map(todo => todo.id));
+    setLoadingTodoIds(completedTodos.map(todo => todo.id));
 
     Promise.all(completedTodos.map(completedTodo => (
-      deleteTodoFromServer(completedTodo.id)
-        .then(() => deleteTodo(completedTodo.id))
+      deleteTodo(completedTodo.id)
     )))
       .catch(() => setErrorMessage(TodoError.Delete))
-      .finally(() => setLoadingTodos([]));
+      .finally(() => setLoadingTodoIds([]));
   };
 
   const isEverythingCompleted = todos.length === completedTodos.length;
@@ -81,19 +108,18 @@ export const App: React.FC = () => {
   const toggleAll = () => {
     const todosToToggle = isEverythingCompleted ? todos : activeTodos;
 
-    setLoadingTodos(todosToToggle.map(todo => todo.id));
+    setLoadingTodoIds(todosToToggle.map(todo => todo.id));
 
     Promise.all(todosToToggle.map(todo => {
-      const updatedTodo: Todo = {
+      const toggledTodo: Todo = {
         ...todo,
         completed: !todo.completed,
       };
 
-      return updateTodoOnServer(updatedTodo)
-        .then(todoFromServer => updateTodo(todoFromServer));
+      return updateTodo(toggledTodo);
     }))
       .catch(() => setErrorMessage(TodoError.Update))
-      .finally(() => setLoadingTodos([]));
+      .finally(() => setLoadingTodoIds([]));
   };
 
   return (
@@ -114,7 +140,7 @@ export const App: React.FC = () => {
 
           <TodoForm
             addTodo={addTodo}
-            setErrorMessage={setErrorMessage}
+            onEmptyTitle={() => setErrorMessage(TodoError.EmptyTitle)}
             setTempTodo={setTempTodo}
           />
         </header>
@@ -124,9 +150,8 @@ export const App: React.FC = () => {
             todos={visibleTodos}
             tempTodo={tempTodo}
             deleteTodo={deleteTodo}
-            setErrorMessage={setErrorMessage}
             updateTodo={updateTodo}
-            loadingTodos={loadingTodos}
+            loadingTodoIds={loadingTodoIds}
           />
         </section>
 
@@ -154,7 +179,7 @@ export const App: React.FC = () => {
       </div>
 
       {errorMessage && (
-        <NotificationError
+        <ErrorNotification
           errorMessage={errorMessage}
           clearError={() => setErrorMessage(TodoError.NoError)}
         />

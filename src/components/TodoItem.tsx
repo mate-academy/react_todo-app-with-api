@@ -1,64 +1,41 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { deleteTodoFromServer, updateTodoOnServer } from '../api/todos';
-import { TodoError } from '../types/TodoError';
 
 type Props = {
   todo: Todo,
-  deleteTodo: (todoId: number) => void,
-  setErrorMessage: (newError: TodoError) => void,
-  updateTodo: (updatedTodo: Todo) => void,
-  loadingTodos: number[],
+  deleteTodo: (todoId: number) => Promise<number>,
+  updateTodo: (updatedTodo: Todo) => Promise<Todo>,
+  loadingTodoIds: number[],
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   deleteTodo,
-  setErrorMessage,
   updateTodo,
-  loadingTodos,
+  loadingTodoIds,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(todo.title);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const setInputFocus = () => {
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 0);
-  };
-
   const handleRemoveClick = () => {
     setIsLoading(true);
 
-    deleteTodoFromServer(todo.id)
-      .then(() => deleteTodo(todo.id))
-      .catch(() => setErrorMessage(TodoError.Delete))
+    deleteTodo(todo.id)
       .finally(() => setIsLoading(false));
   };
 
-  const handleCheckboxChange = () => {
+  const handleToggle = () => {
     setIsLoading(true);
 
-    const updatedTodo: Todo = {
+    const toggledTodo: Todo = {
       ...todo,
       completed: !todo.completed,
     };
 
-    updateTodoOnServer(updatedTodo)
-      .then(todoFromServer => updateTodo(todoFromServer))
-      .catch(() => setErrorMessage(TodoError.Update))
+    updateTodo(toggledTodo)
       .finally(() => setIsLoading(false));
-  };
-
-  const handleDoubleClick = () => {
-    setIsEditing(true);
-    setInputFocus();
   };
 
   const handleSubmit = () => {
@@ -66,10 +43,8 @@ export const TodoItem: React.FC<Props> = ({
     setIsLoading(true);
 
     if (!title) {
-      deleteTodoFromServer(todo.id)
-        .then(() => deleteTodo(todo.id))
+      deleteTodo(todo.id)
         .catch(() => {
-          setErrorMessage(TodoError.Delete);
           setTitle(todo.title);
         })
         .finally(() => setIsLoading(false));
@@ -88,10 +63,8 @@ export const TodoItem: React.FC<Props> = ({
       title,
     };
 
-    updateTodoOnServer(updatedTodo)
-      .then(todoFromServer => updateTodo(todoFromServer))
+    updateTodo(updatedTodo)
       .catch(() => {
-        setErrorMessage(TodoError.Update);
         setTitle(todo.title);
       })
       .finally(() => setIsLoading(false));
@@ -114,14 +87,13 @@ export const TodoItem: React.FC<Props> = ({
         <input
           type="checkbox"
           className="todo__status"
-          onChange={handleCheckboxChange}
+          onChange={handleToggle}
         />
       </label>
 
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
-            ref={inputRef}
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
@@ -129,13 +101,15 @@ export const TodoItem: React.FC<Props> = ({
             onChange={event => setTitle(event.target.value)}
             onKeyDown={handleEsc}
             onBlur={handleSubmit}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           />
         </form>
       ) : (
         <>
           <span
             className="todo__title"
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={() => setIsEditing(true)}
           >
             {title}
           </span>
@@ -151,7 +125,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         className={classNames('modal overlay', {
-          'is-active': isLoading || loadingTodos.includes(todo.id),
+          'is-active': isLoading || loadingTodoIds.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />
