@@ -27,21 +27,15 @@ export const Errors: React.FC<Props> = ({ error, onClearErrors }) => {
         onClick={() => onClearErrors(Error.without)}
       />
 
-      {error === Error.add && (
-        <> Unable to add a todo </>
-      )}
+      {error === Error.load && 'Unable to load todos'}
 
-      {error === Error.delete && (
-        <> Unable to delete a todo </>
-      )}
+      {error === Error.add && 'Unable to add a todo'}
 
-      {error === Error.update && (
-        <> Unable to update a todo </>
-      )}
+      {error === Error.delete && 'Unable to delete a todo'}
 
-      {error === Error.empty && (
-        <> Title can&apos;t be empty </>
-      )}
+      {error === Error.update && 'Unable to update a todo'}
+
+      {error === Error.empty && 'Title can\'t be empty'}
     </div>
   );
 };

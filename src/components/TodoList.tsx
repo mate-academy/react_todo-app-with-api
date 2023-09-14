@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 /* eslint-disable quote-props */
-// import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoRow } from './TodoRow';
 

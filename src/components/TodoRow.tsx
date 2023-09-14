@@ -69,7 +69,10 @@ export const TodoRow: React.FC<Props> = ({
         <>
           <span
             className="todo__title"
-            onDoubleClick={() => setEditing(true)}
+            onDoubleClick={() => {
+              setEditing(true);
+              setTitle(todo.title);
+            }}
           >
             {todo.title}
           </span>

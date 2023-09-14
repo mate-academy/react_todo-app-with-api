@@ -33,7 +33,7 @@ export const TodoHeader: React.FC<Props> = ({
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle === '') {
+    if (todoTitle.trim().length === 0) {
       setError(Error.empty);
 
       return;
@@ -51,7 +51,8 @@ export const TodoHeader: React.FC<Props> = ({
     addTodos(userId, newTodo)
       .then(() => {
         return getTodos(userId)
-          .then(setTodos);
+          .then(setTodos)
+          .catch(() => setError(Error.load));
       })
       .catch(() => setError(Error.add))
       .finally(() => {

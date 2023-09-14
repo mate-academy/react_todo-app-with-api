@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoList } from './components/TodoList';
@@ -28,24 +28,26 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(setTodos);
+      .then(setTodos)
+      .catch(() => setError(Error.load));
   }, []);
 
-  const toggleTodo = (todo: Todo) => {
-    const changedStatus = {
-      completed: !todo.completed,
-    };
+  const toggleTodo = useCallback((todo: Todo) => {
+    const changedStatus = { completed: !todo.completed };
+
+    setDeletingIds((ids) => [...ids, todo.id]);
 
     updateTodos(todo.id, changedStatus)
       .then(() => {
         return getTodos(USER_ID)
-          .then(setTodos);
+          .then(setTodos)
+          .catch(() => setError(Error.load));
       })
       .catch(() => setError(Error.update))
       .finally(() => {
         setDeletingIds((ids) => ids.filter(id => id !== todo.id));
       });
-  };
+  }, [todos]);
 
   const toggleAll = () => {
     if (areAllCompleted) {
@@ -59,19 +61,34 @@ export const App: React.FC = () => {
       .forEach(todo => toggleTodo(todo));
   };
 
-  const renameTodo = (todoId: number, newTitle: string) => {
+  const renameTodo = useCallback((todoId: number, newTitle: string) => {
+    if (newTitle.trim().length === 0) {
+      setError(Error.update);
+
+      return;
+    }
+
     const newData = { title: newTitle };
+
+    setDeletingIds((ids) => [...ids, todoId]);
 
     updateTodos(todoId, newData)
       .then(() => {
         return getTodos(USER_ID)
-          .then(setTodos);
+          .then(setTodos)
+          .catch(() => setError(Error.load));
       })
-      .catch(() => setError(Error.update));
-  };
+      .catch(() => {
+        setError(Error.update);
+      })
+      .finally(() => {
+        setDeletingIds((ids) => ids.filter(id => id !== todoId));
+      });
+  }, [todos]);
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = useCallback((todoId: number) => {
     setDeletingIds((ids) => [...ids, todoId]);
+
     deleteTodos(todoId)
       .then(() => setTodos(
         currentTodos => currentTodos.filter(todo => todo.id !== todoId),
@@ -80,7 +97,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setDeletingIds((ids) => ids.filter(id => id !== todoId));
       });
-  };
+  }, [todos]);
 
   const visibleTodos = useMemo(() => {
     if (todos) {
