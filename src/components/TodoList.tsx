@@ -13,14 +13,26 @@ export const TodoList: React.FC<Props> = ({ list }) => {
     <section className="todoapp__main">
       <TransitionGroup>
         {list.map(todo =>
-          <CSSTransition
+          (<CSSTransition
             key={todo.id}
             timeout={300}
             classNames="item"
           >
             <TodoItem todo={todo} />
           </CSSTransition>
-        )}
+        ))}
+        {/* {creating && (
+      <CSSTransition
+        key={0}
+        timeout={300}
+        classNames="temp-item"
+      >
+        <TodoItem
+          todo={}
+          // isProcessed
+        />
+      </CSSTransition>
+    )} */}
       </TransitionGroup>
     </section>
   )

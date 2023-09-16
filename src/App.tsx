@@ -91,7 +91,7 @@ export const App: React.FC = () => {
               />
             </label>
 
-            {/* <span className="todo__title">{newTodo.title}</span> */}
+            {/* <span classN ame="todo__title">{newTodo.title}</span> */}
             <Loader />
             {/* Remove button appears only on hover */}
             <button
