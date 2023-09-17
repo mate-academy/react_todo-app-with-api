@@ -9,7 +9,12 @@ import {
 } from './components/TodoContext';
 import { TodoList } from './components/TodoList';
 import { FILTER, ACTIONS } from './utils/enums';
-import { addTodo, deleteTodo, getTodos } from './api/todos';
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+} from './api/todos';
 import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
@@ -58,13 +63,52 @@ export const App: React.FC = () => {
     }
   }
 
+  function toggleAll() {
+    dispatch({ type: ACTIONS.TOGGLE_ALL, payload: true });
+    if (state.list.some(todo => !todo.completed)) {
+      state.list.forEach(todo => {
+        if (!todo.completed) {
+          updateTodo({
+            ...todo,
+            completed: true,
+          })
+            .then(() => {
+              getTodos(11384)
+                .then(res => {
+                  dispatch({ type: ACTIONS.SET_LIST, payload: res });
+                  dispatch({ type: ACTIONS.TOGGLE_ALL, payload: false });
+                });
+            });
+        }
+      });
+    }
+
+    if (state.list.every(todo => todo.completed)) {
+      state.list.forEach(todo => updateTodo({
+        ...todo,
+        completed: false,
+      })
+        .then(() => {
+          getTodos(11384)
+            .then(res => {
+              dispatch({ type: ACTIONS.SET_LIST, payload: res });
+              dispatch({ type: ACTIONS.TOGGLE_ALL, payload: false });
+            });
+        }));
+    }
+  }
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button type="button" className="todoapp__toggle-all active" />
+          <button
+            type="button"
+            className="todoapp__toggle-all active"
+            onClick={toggleAll}
+          />
 
           <form>
             <input

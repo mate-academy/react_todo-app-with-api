@@ -21,18 +21,6 @@ export const TodoList: React.FC<Props> = ({ list }) => {
             <TodoItem todo={todo} />
           </CSSTransition>
         ))}
-        {/* {creating && (
-      <CSSTransition
-        key={0}
-        timeout={300}
-        classNames="temp-item"
-      >
-        <TodoItem
-          todo={}
-          // isProcessed
-        />
-      </CSSTransition>
-    )} */}
       </TransitionGroup>
     </section>
   )

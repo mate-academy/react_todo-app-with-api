@@ -110,12 +110,30 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {isLoading || (state.isLoading && todo.completed) && (
+      {isLoading && (
 
         <div className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>
+      )}
+      { (state.isLoading && todo.completed) && (
+        <div className="modal overlay is-active">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+      )}
+      { (state.toggleAll && todo.completed) && (
+        <div className="modal overlay is-active">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+      )}
+      { (state.toggleAll && !todo.completed) && (
+        <div className="modal overlay is-active">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
       )}
       {isEditing ? (
         <form>

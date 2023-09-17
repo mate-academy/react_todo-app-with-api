@@ -5,7 +5,9 @@ import React, {
   useReducer,
 } from "react";
 import { Todo } from "../types/Todo";
-import { getTodos } from '../api/todos';
+import { getTodos,
+  // updateTodo
+} from '../api/todos';
 import { FILTER, ACTIONS } from '.././utils/enums';
 
 const USER_ID = 11384;
@@ -14,6 +16,7 @@ type Action = { type: ACTIONS.SORT, payload: string }
   | { type: ACTIONS.SET_LIST, payload: Todo[] }
   | { type: ACTIONS.SET_ERROR, payload: string }
   | { type: ACTIONS.SET_LOADING, payload: boolean }
+  | { type: ACTIONS.TOGGLE_ALL, payload: boolean }
 
 interface Data {
   list: Todo[],
@@ -21,7 +24,28 @@ interface Data {
   totalLength: number,
   error: string,
   isLoading: boolean,
+  toggleAll: boolean,
 };
+
+// function toggleAllHelper(elem: Todo, trigger: boolean) {
+//   if (!trigger) {
+//     updateTodo({
+//       id: elem.id,
+//       title: elem.title,
+//       userId: elem.userId,
+//       completed: false,
+//     })
+//   } else {
+//     updateTodo({
+//       id: elem.id,
+//       title: elem.title,
+//       userId: elem.userId,
+//       completed: true,
+//     })
+//   }
+
+//   return elem;
+// }
 
 function reducer(state: Data, action: Action): Data {
   switch (action.type) {
@@ -46,6 +70,11 @@ function reducer(state: Data, action: Action): Data {
           ...state,
           isLoading: action.payload,
         };
+    case ACTIONS.TOGGLE_ALL:
+      return {
+          ...state,
+          toggleAll: action.payload,
+        };
     default:
       return state;
   }
@@ -63,6 +92,7 @@ const initialState: State = {
     totalLength: 0,
     error: '',
     isLoading: false,
+    toggleAll: false,
   },
   dispatch: () => { },
 };
