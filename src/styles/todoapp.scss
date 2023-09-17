@@ -10,15 +10,6 @@
     background: #fff;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
       0 25px 50px 0 rgba(0, 0, 0, 0.1);
-
-      // opacity: 0;
-    //   transform: translateY(-20px);
-    //   transition: opacity 0.5s ease, transform 0.5s ease;
-
-    //   &.visible {
-    //   opacity: 1;
-    //   transform: translateY(0);
-    // }
   }
 
   &__title {
@@ -146,11 +137,11 @@
 
 .todo-list {
   opacity: 0;
-      transform: translateY(-20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
 
-      &.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
