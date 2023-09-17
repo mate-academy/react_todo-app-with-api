@@ -20,10 +20,12 @@ export const App: React.FC = () => {
   function deleteAll() {
     state.list.forEach(todo => {
       if (todo.completed) {
+        dispatch({ type: ACTIONS.SET_LOADING, payload: true });
         deleteTodo(todo.id)
           .then(() => getTodos(11384)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
+              dispatch({ type: ACTIONS.SET_LOADING, payload: false });
             }));
       }
     });

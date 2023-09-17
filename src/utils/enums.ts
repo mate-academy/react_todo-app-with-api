@@ -5,6 +5,7 @@ export enum ACTIONS {
   SET_ERROR,
   DELETE,
   ADD,
+  SET_LOADING,
 }
 
 export enum FILTER {

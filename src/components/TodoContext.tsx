@@ -13,12 +13,14 @@ const USER_ID = 11384;
 type Action = { type: ACTIONS.SORT, payload: string }
   | { type: ACTIONS.SET_LIST, payload: Todo[] }
   | { type: ACTIONS.SET_ERROR, payload: string }
+  | { type: ACTIONS.SET_LOADING, payload: boolean }
 
 interface Data {
   list: Todo[],
   sortBy: string,
   totalLength: number,
   error: string,
+  isLoading: boolean,
 };
 
 function reducer(state: Data, action: Action): Data {
@@ -39,6 +41,11 @@ function reducer(state: Data, action: Action): Data {
           ...state,
           error: action.payload,
         };
+    case ACTIONS.SET_LOADING:
+      return {
+          ...state,
+          isLoading: action.payload,
+        };
     default:
       return state;
   }
@@ -55,6 +62,7 @@ const initialState: State = {
     sortBy: 'All',
     totalLength: 0,
     error: '',
+    isLoading: false,
   },
   dispatch: () => { },
 };
