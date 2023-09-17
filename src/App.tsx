@@ -11,7 +11,6 @@ import { TodoList } from './components/TodoList';
 import { FILTER, ACTIONS } from './utils/enums';
 import { addTodo, deleteTodo, getTodos } from './api/todos';
 import { Todo } from './types/Todo';
-import { Loader } from './components/loader/Loader';
 
 export const App: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -59,7 +58,6 @@ export const App: React.FC = () => {
 
   return (
     <div className="todoapp">
-      {/* <Loader /> */}
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
@@ -90,15 +88,16 @@ export const App: React.FC = () => {
                 className="todo__status"
               />
             </label>
-
-            {/* <span classN ame="todo__title">{newTodo.title}</span> */}
-            <Loader />
+            <div className="modal overlay is-active">
+              <div className="modal-background has-background-white-ter" />
+              <div className="loader" />
+            </div>
+            <span className="todo__title">{newTodo.title}</span>
             {/* Remove button appears only on hover */}
             <button
               type="button"
               className="todo__remove"
             >
-
               ×
             </button>
 

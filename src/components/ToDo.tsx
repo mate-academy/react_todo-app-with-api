@@ -10,6 +10,7 @@ import {
 } from "react";
 import { updateTodo } from '../api/todos';
 
+
 type Props = {
   todo: Todo,
 }
@@ -46,14 +47,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       title: todo.title,
       userId: todo.userId,
     })
-    .then(() => {
-      getTodos(11384)
-        .then(res => {
-          dispatch({ type: ACTIONS.SET_LIST, payload: res })
-          setIsLoading(false);
-        })
-    })
-    .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to toggle a todo' }))
+      .then(() => {
+        getTodos(11384)
+          .then(res => {
+            dispatch({ type: ACTIONS.SET_LIST, payload: res })
+            setIsLoading(false);
+          })
+      })
+      .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to toggle a todo' }))
   }
   console.log(isLoading);
 
@@ -70,20 +71,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {isLoading ? (
+      {isLoading && (
 
-        <div className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-      ) : (
-        <span
+        <div className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
+       <span
           className="todo__title"
           onDoubleClick={(e) => handleDoubleClickEdit(e)}
         >
           {todo.title}
         </span>
-      )}
 
       {/* Remove button appears only on hover */}
       <button
@@ -93,6 +93,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       >
         ×
       </button>
+
+      {/* overlay will cover the todo while it is being updated */}
+      <div className="modal overlay">
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   )
 }
