@@ -56,10 +56,10 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (editedTitle) {
+    if (isEditing) {
       titleField.current?.focus();
     }
-  }, [editedTitle, id]);
+  }, [isEditing, id]);
 
   return (
     <>

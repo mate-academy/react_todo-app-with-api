@@ -16,8 +16,6 @@ export const TodoList: React.FC<Props> = ({
   todos, tempoTodo, loadingTodoId,
   uptadeTodoStatus, deleteTodo, onChangeTodoTitle,
 }) => {
-  // const [loading] = useState(true);
-
   return (
     <section className="todoapp__main">
       {todos.map(todo => (
