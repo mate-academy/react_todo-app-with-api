@@ -123,13 +123,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         <div className="loader" />
       </div>
       )}
-      { (state.toggleAll && todo.completed) && (
+      { (state.toggleAll === 'completed' && todo.completed) && (
         <div className="modal overlay is-active">
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
       )}
-      { (state.toggleAll && !todo.completed) && (
+      { (state.toggleAll === 'active' && !todo.completed) && (
         <div className="modal overlay is-active">
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

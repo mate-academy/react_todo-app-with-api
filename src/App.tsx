@@ -64,8 +64,8 @@ export const App: React.FC = () => {
   }
 
   function toggleAll() {
-    dispatch({ type: ACTIONS.TOGGLE_ALL, payload: true });
     if (state.list.some(todo => !todo.completed)) {
+      dispatch({ type: ACTIONS.TOGGLE_ALL, payload: 'active' });
       state.list.forEach(todo => {
         if (!todo.completed) {
           updateTodo({
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
               getTodos(11384)
                 .then(res => {
                   dispatch({ type: ACTIONS.SET_LIST, payload: res });
-                  dispatch({ type: ACTIONS.TOGGLE_ALL, payload: false });
+                  dispatch({ type: ACTIONS.TOGGLE_ALL, payload: '' });
                 });
             });
         }
@@ -84,6 +84,7 @@ export const App: React.FC = () => {
     }
 
     if (state.list.every(todo => todo.completed)) {
+      dispatch({ type: ACTIONS.TOGGLE_ALL, payload: 'completed' });
       state.list.forEach(todo => updateTodo({
         ...todo,
         completed: false,
@@ -92,7 +93,7 @@ export const App: React.FC = () => {
           getTodos(11384)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
-              dispatch({ type: ACTIONS.TOGGLE_ALL, payload: false });
+              dispatch({ type: ACTIONS.TOGGLE_ALL, payload: '' });
             });
         }));
     }

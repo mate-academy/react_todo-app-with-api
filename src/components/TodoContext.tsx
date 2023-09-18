@@ -16,7 +16,7 @@ type Action = { type: ACTIONS.SORT, payload: string }
   | { type: ACTIONS.SET_LIST, payload: Todo[] }
   | { type: ACTIONS.SET_ERROR, payload: string }
   | { type: ACTIONS.SET_LOADING, payload: boolean }
-  | { type: ACTIONS.TOGGLE_ALL, payload: boolean }
+  | { type: ACTIONS.TOGGLE_ALL, payload: string }
 
 interface Data {
   list: Todo[],
@@ -24,7 +24,7 @@ interface Data {
   totalLength: number,
   error: string,
   isLoading: boolean,
-  toggleAll: boolean,
+  toggleAll: string,
 };
 
 // function toggleAllHelper(elem: Todo, trigger: boolean) {
@@ -92,7 +92,7 @@ const initialState: State = {
     totalLength: 0,
     error: '',
     isLoading: false,
-    toggleAll: false,
+    toggleAll: '',
   },
   dispatch: () => { },
 };
