@@ -1,7 +1,6 @@
 import { TodoItem } from '../TodoItem/TodoItem';
 import { Todo } from '../../types/Todo';
 import { TempoTodoItem } from '../TempoTodoItem/TempoTodoItem';
-// import { useState } from 'react';
 
 type Props = {
   todos: Todo[],

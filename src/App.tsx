@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
+import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
 import * as todoService from './api/todos';
 import { USER_ID } from './api/Personal_Id';
@@ -185,6 +186,12 @@ export const App: React.FC = () => {
     }, 1000);
   }, []);
 
+  if (!USER_ID) {
+    return (
+      <UserWarning />
+    );
+  }
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -278,7 +285,7 @@ export const App: React.FC = () => {
                 className={classNames('todoapp__clear-completed', {
                   'todoapp__clear-completed--hidden': completedTodosCount === 0,
                 })}
-                onClick={() => handleClearCompletedTodos()}
+                onClick={handleClearCompletedTodos}
               >
                 Clear completed
               </button>
@@ -288,9 +295,15 @@ export const App: React.FC = () => {
       </div>
 
       <div
-        className={errorMessage
-          ? 'notification is-danger is-light has-text-weight-normal'
-          : 'notification is-danger is-light has-text-weight-normal hidden'}
+        className={classNames(
+          'notification',
+          'is-danger',
+          'is-light',
+          'has-text-weight-normal',
+          {
+            hidden: !errorMessage,
+          },
+        )}
       >
         <button
           type="button"
