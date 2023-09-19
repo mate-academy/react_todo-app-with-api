@@ -5,12 +5,9 @@ import React, {
   useReducer,
 } from "react";
 import { Todo } from "../types/Todo";
-import { getTodos,
-  // updateTodo
-} from '../api/todos';
+import { getTodos } from '../api/todos';
 import { FILTER, ACTIONS } from '.././utils/enums';
-
-const USER_ID = 11384;
+import { USER_ID } from '../utils/enums';
 
 type Action = { type: ACTIONS.SORT, payload: string }
   | { type: ACTIONS.SET_LIST, payload: Todo[] }
@@ -27,26 +24,6 @@ interface Data {
   toggleAll: string,
 };
 
-// function toggleAllHelper(elem: Todo, trigger: boolean) {
-//   if (!trigger) {
-//     updateTodo({
-//       id: elem.id,
-//       title: elem.title,
-//       userId: elem.userId,
-//       completed: false,
-//     })
-//   } else {
-//     updateTodo({
-//       id: elem.id,
-//       title: elem.title,
-//       userId: elem.userId,
-//       completed: true,
-//     })
-//   }
-
-//   return elem;
-// }
-
 function reducer(state: Data, action: Action): Data {
   switch (action.type) {
     case ACTIONS.SORT:
@@ -58,7 +35,6 @@ function reducer(state: Data, action: Action): Data {
       return {
           ...state,
           list: action.payload,
-          totalLength: action.payload.length,
         };
     case ACTIONS.SET_ERROR:
       return {
@@ -146,8 +122,4 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       {children}
     </StateContext.Provider>
   )
-
 }
-
-
-

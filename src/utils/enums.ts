@@ -14,3 +14,5 @@ export enum FILTER {
   ACTIVE = 'Active',
   COMPLETED = 'Completed',
 }
+
+export const USER_ID = 11384;

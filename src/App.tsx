@@ -8,7 +8,11 @@ import {
   StateContext,
 } from './components/TodoContext';
 import { TodoList } from './components/TodoList';
-import { FILTER, ACTIONS } from './utils/enums';
+import {
+  FILTER,
+  ACTIONS,
+  USER_ID,
+} from './utils/enums';
 import {
   addTodo,
   deleteTodo,
@@ -27,7 +31,7 @@ export const App: React.FC = () => {
       if (todo.completed) {
         dispatch({ type: ACTIONS.SET_LOADING, payload: true });
         deleteTodo(todo.id)
-          .then(() => getTodos(11384)
+          .then(() => getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
               dispatch({ type: ACTIONS.SET_LOADING, payload: false });
@@ -43,7 +47,7 @@ export const App: React.FC = () => {
   const initialTodo = {
     id: 0,
     title: query,
-    userId: 11384,
+    userId: USER_ID,
     completed: false,
   };
 
@@ -53,7 +57,7 @@ export const App: React.FC = () => {
       if (e.target.value.trim()) {
         setNewTodo(initialTodo);
         addTodo(initialTodo)
-          .then(() => getTodos(11384)
+          .then(() => getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
               setNewTodo(null);
@@ -73,7 +77,7 @@ export const App: React.FC = () => {
             completed: true,
           })
             .then(() => {
-              getTodos(11384)
+              getTodos(USER_ID)
                 .then(res => {
                   dispatch({ type: ACTIONS.SET_LIST, payload: res });
                   dispatch({ type: ACTIONS.TOGGLE_ALL, payload: '' });
@@ -90,7 +94,7 @@ export const App: React.FC = () => {
         completed: false,
       })
         .then(() => {
-          getTodos(11384)
+          getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
               dispatch({ type: ACTIONS.TOGGLE_ALL, payload: '' });
@@ -140,7 +144,6 @@ export const App: React.FC = () => {
               <div className="loader" />
             </div>
             <span className="todo__title">{newTodo.title}</span>
-            {/* Remove button appears only on hover */}
             <button
               type="button"
               className="todo__remove"
@@ -148,14 +151,14 @@ export const App: React.FC = () => {
               ×
             </button>
 
-            {/* overlay will cover the todo while it is being updated */}
             <div className="modal overlay">
               <div className="modal-background has-background-white-ter" />
               <div className="loader" />
             </div>
           </div>
         )}
-        {(state.totalLength > 0 || newTodo) && (
+        {(state.list.length > 0
+          || newTodo || state.sortBy === FILTER.ACTIVE) && (
           <footer className="todoapp__footer">
             <span className="todo-count">
               {state.totalLength}

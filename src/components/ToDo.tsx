@@ -12,6 +12,7 @@ import {
   useState
 } from "react";
 import { updateTodo } from '../api/todos';
+import { USER_ID } from "../utils/enums";
 
 
 type Props = {
@@ -25,7 +26,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [editingtoDoData, setEditingToDoData] = useState(todo.title);
 
   function refreshLIst() {
-    getTodos(11384)
+    getTodos(USER_ID)
       .then(res => {
         dispatch({ type: ACTIONS.SET_LIST, payload: res })
         setIsLoading(false);
@@ -52,7 +53,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(true);
     setEditingToDoData(todo.title);
   }
-  console.log(handleDoubleClickEdit);
 
   function handleClick() {
     setIsLoading(true);
@@ -79,19 +79,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to update a todo' }))
   }
 
-  let result = false
+  let result = false;
 
   useMemo(() => {
      result = true;
     return result;
   }, [editingtoDoData]);
 
-  console.log(result, '???');
-
   function handleChanges() {
-
     if (result){
-
       if (editingtoDoData === '') {
         deleteItem(todo.id);
       }
@@ -101,9 +97,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setIsEditing(false);
       }
     }
-    // setIsLoading(true);
     setIsEditing(false);
-
   }
 
   function handleEnter(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -113,10 +107,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     } else if (e.nativeEvent.code === 'Enter') {
       handleChanges();
     }
-
   }
+
   return (
-    <div className={classNames('todo', {
+    <div
+      className={classNames('todo', {
       'completed': todo.completed,
       editing: isEditing,
     })}>
@@ -170,14 +165,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       ) : (
         <span
           className="todo__title"
-          onDoubleClick={(e) => handleDoubleClickEdit(e)}
+          onDoubleClick={handleDoubleClickEdit}
         >
           {todo.title}
         </span>
       )}
 
-
-      {/* Remove button appears only on hover */}
       <button
         type="button"
         className="todo__remove"
@@ -185,12 +178,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       >
         ×
       </button>
-
-      {/* overlay will cover the todo while it is being updated */}
-      <div className="modal overlay">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
     </div>
   )
 }
