@@ -29,12 +29,10 @@ export const App: React.FC = () => {
   function deleteAll() {
     state.list.forEach(todo => {
       if (todo.completed) {
-        dispatch({ type: ACTIONS.SET_LOADING, payload: true });
         deleteTodo(todo.id)
           .then(() => getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
-              dispatch({ type: ACTIONS.SET_LOADING, payload: false });
             }));
       }
     });
@@ -55,11 +53,13 @@ export const App: React.FC = () => {
     if (e.nativeEvent.code === 'Enter') {
       e.preventDefault();
       if (e.target.value.trim()) {
+        dispatch({ type: ACTIONS.SET_LOADING, payload: true });
         setNewTodo(initialTodo);
         addTodo(initialTodo)
           .then(() => getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
+              dispatch({ type: ACTIONS.SET_LOADING, payload: false });
               setNewTodo(null);
             }));
         setQuery('');
@@ -127,37 +127,10 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList list={state.list} />
-        {newTodo && (
-          <div className={classNames('todo', {
-            completed: newTodo.completed,
-          })}
-          >
-            <label className="todo__status-label">
-              <input
-                type="checkbox"
-                className="todo__status"
-              />
-            </label>
-            <div className="modal overlay is-active">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-            <span className="todo__title">{newTodo.title}</span>
-            <button
-              type="button"
-              className="todo__remove"
-            >
-              ×
-            </button>
+        <TodoList list={state.list} newTodo={newTodo} />
 
-            <div className="modal overlay">
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        )}
         {(state.list.length > 0
+          || newTodo || state.sortBy === FILTER.COMPLETED
           || newTodo || state.sortBy === FILTER.ACTIVE) && (
           <footer className="todoapp__footer">
             <span className="todo-count">
