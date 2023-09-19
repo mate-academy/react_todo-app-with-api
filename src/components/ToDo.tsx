@@ -36,9 +36,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   function deleteItem(id: number) {
     setIsLoading(true);
     deleteTodo(id)
-      .then(() => {
-        refreshLIst();
-      })
+      .then(() => refreshLIst)
       .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to delete a todo' }))
   }
 
@@ -109,6 +107,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }
 
+  let showLoader = isLoading || (state.isLoading && todo.completed)
+    || (state.toggleAll === 'completed' && todo.completed)
+      || (state.toggleAll === 'active' && !todo.completed);
+
   return (
     <div
       className={classNames('todo', {
@@ -124,31 +126,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {isLoading && (
+      {showLoader && (
 
         <div className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>
       )}
-      { (state.isLoading && todo.completed) && (
-        <div className="modal overlay is-active">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-      )}
-      { (state.toggleAll === 'completed' && todo.completed) && (
-        <div className="modal overlay is-active">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-      )}
-      { (state.toggleAll === 'active' && !todo.completed) && (
-        <div className="modal overlay is-active">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
-      )}
+
       {isEditing ? (
         <form>
           <input
