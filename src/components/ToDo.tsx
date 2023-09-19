@@ -7,6 +7,7 @@ import { StateContext } from "./TodoContext";
 import {
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from "react";
@@ -67,24 +68,42 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to toggle a todo' }))
   }
 
-  function handleChanges() {
-    console.log(editingtoDoData, 'data');
+  function sendUpdateRequest() {
+    updateTodo({
+      id: todo.id,
+      completed: todo.completed,
+      userId: todo.userId,
+      title: editingtoDoData,
+    })
+      .then(() => refreshLIst())
+      .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to update a todo' }))
+  }
 
-    if (editingtoDoData === '') {
-      deleteItem(todo.id);
+  let result = false
+
+  useMemo(() => {
+     result = true;
+    return result;
+  }, [editingtoDoData]);
+
+  console.log(result, '???');
+
+  function handleChanges() {
+
+    if (result){
+
+      if (editingtoDoData === '') {
+        deleteItem(todo.id);
+      }
+      else {
+        setIsLoading(true);
+        sendUpdateRequest();
+        setIsEditing(false);
+      }
     }
-    else {
-      setIsLoading(true);
-      updateTodo({
-        id: todo.id,
-        completed: todo.completed,
-        userId: todo.userId,
-        title: editingtoDoData,
-      })
-        .then(() => refreshLIst())
-        .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to update a todo' }))
-      setIsEditing(false);
-    }
+    // setIsLoading(true);
+    setIsEditing(false);
+
   }
 
   function handleEnter(e: React.KeyboardEvent<HTMLInputElement>) {

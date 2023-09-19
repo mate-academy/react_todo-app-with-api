@@ -127,11 +127,19 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     }
   }
 
+  function setTotalLenth() {
+    if (state.sortBy === FILTER.ALL) {
+      return state.list.filter(todo => !todo.completed).length;
+    }
+    return filteredTodos().length;
+  }
+
   return (
     <StateContext.Provider value={{
       state: {
         ...state,
         list: filteredTodos(),
+        totalLength: setTotalLenth(),
       },
       dispatch,
     }}>
