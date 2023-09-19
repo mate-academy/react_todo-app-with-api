@@ -28,7 +28,6 @@ export const TodoFooter: React.FC<Props> = ({
         )}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter">
         <a
           href="#/"
@@ -64,15 +63,15 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {todosCompleted && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          onClick={deleteCompletedTodo}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className={classNames('todoapp__clear-completed', {
+          hidden: !todosCompleted,
+        })}
+        onClick={deleteCompletedTodo}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
