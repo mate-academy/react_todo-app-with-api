@@ -19,12 +19,13 @@ export const TodoHeader: React.FC = () => {
 
   const handleTodoAdd = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inputValue.trim()) {
-      setIsError(true);
-      setErrorMessage('Unable to add a todo');
-    } else {
-      addTodo(inputValue);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    !inputValue.trim()
+      ? (
+        setIsError(true),
+        setErrorMessage('Unable to add a todo')
+      )
+      : addTodo(inputValue);
 
     setTimeout(() => {
       setInputValue('');

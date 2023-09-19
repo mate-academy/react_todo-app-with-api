@@ -57,11 +57,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
 
     setTimeout(() => {
-      if (!updatedTitle.trim()) {
-        deleteTodo(todo.id);
-      } else {
-        updateTodo(updatedTitle, todo.id);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      !updatedTitle.trim()
+        ? deleteTodo(todo.id) : updateTodo(updatedTitle, todo.id);
 
       setIsLoading(false);
     }, 500);
@@ -72,11 +70,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsEditing(false);
 
     setTimeout(() => {
-      if (!updatedTitle.trim()) {
-        deleteTodo(todo.id);
-      } else {
-        updateTodo(updatedTitle, todo.id);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      !updatedTitle.trim()
+        ? deleteTodo(todo.id) : updateTodo(updatedTitle, todo.id);
 
       setIsLoading(false);
     }, 500);

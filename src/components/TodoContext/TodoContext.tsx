@@ -79,7 +79,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const toogleAll = () => {
-    const allCompleted = todos.every(todo => todo.completed === true);
+    const allCompleted = todos.every(todo => todo.completed);
 
     const updatedTodos = todos.map(todo => ({
       ...todo,
