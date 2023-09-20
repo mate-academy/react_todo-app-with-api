@@ -76,6 +76,10 @@
       font-weight: 300;
       color: #e6e6e6;
     }
+
+    &--edit-title {
+      padding-left: 16px;
+    }
   }
 
   &__main {
@@ -128,6 +132,10 @@
 
     &:active {
       text-decoration: none;
+    }
+
+    &--hidden {
+      visibility: hidden;
     }
   }
 }
