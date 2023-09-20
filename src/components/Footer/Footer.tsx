@@ -9,6 +9,7 @@ export const Footer = () => {
     deleteCompleted,
     todos,
     allTodosAreActive,
+    filterTodos,
   } = useTodo();
 
   const addFilterType = (filterType: FilterType) => {
@@ -24,7 +25,8 @@ export const Footer = () => {
       <nav className="filter">
         <a
           href="#/"
-          className="filter__link selected"
+          className={filterTodos === 'all'
+            ? 'filter__link selected' : 'filter__link'}
           onClick={() => addFilterType('all')}
         >
           All
@@ -32,7 +34,8 @@ export const Footer = () => {
 
         <a
           href="#/active"
-          className="filter__link"
+          className={filterTodos === 'active'
+            ? 'filter__link selected' : 'filter__link'}
           onClick={() => addFilterType('active')}
         >
           Active
@@ -40,7 +43,8 @@ export const Footer = () => {
 
         <a
           href="#/completed"
-          className="filter__link"
+          className={filterTodos === 'completed'
+            ? 'filter__link selected' : 'filter__link'}
           onClick={() => addFilterType('completed')}
         >
           Completed
