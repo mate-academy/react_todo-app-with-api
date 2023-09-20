@@ -117,7 +117,7 @@ export const App: React.FC = () => {
   }
 
   const handleToggleAll = () => {
-    const uncompletedTodos = todos.filter(todo => todo.completed === false);
+    const uncompletedTodos = todos.filter(todo => !todo.completed);
     const uncompletedTodosIds = uncompletedTodos.map(todo => todo.id);
 
     if (uncompletedTodos.length === 0) {
@@ -220,7 +220,6 @@ export const App: React.FC = () => {
                 setTodos={setTodos}
                 setLoadingIds={setLoadingIds}
                 todos={visibleTodos}
-
               />
             )}
 

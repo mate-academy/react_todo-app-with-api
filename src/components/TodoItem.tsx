@@ -27,11 +27,12 @@ export const TodoItem: React.FC<Props> = ({
   const [, setErrorMessage] = useState(Error.None);
   const [doubleClicked, setDoubleClicked] = useState(false);
   const [editingTitle, setEditingTitle] = useState(todo.title);
+  const { id, title, completed } = todo;
 
   const handleCheckedTodo = (todoId: number) => {
     setLoadingIds(currentIds => [...currentIds, todoId]);
 
-    postService.updateTodo(todoId, { completed: !todo.completed })
+    postService.updateTodo(todoId, { completed: !completed })
       .then(() => {
         postService.getTodos(USER_ID)
           .then((todos) => {
@@ -88,7 +89,7 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (currentTodo?.title !== todo.title) {
+    if (currentTodo?.title !== title) {
       setLoadingIds(currentIds => [...currentIds, todoId]);
 
       postService.updateTodo(todoId, { title: editingTitle })
@@ -125,29 +126,26 @@ export const TodoItem: React.FC<Props> = ({
   const handleKeyUp = (key: string) => {
     if (key === 'Escape') {
       setDoubleClicked(false);
-      setEditingTitle(todo.title);
+      setEditingTitle(title);
     }
   };
 
   return (
     <>
-      <div className={className('todo', {
-        completed: todo.completed,
-      })}
-      >
+      <div className={className('todo', { completed })}>
         <label className="todo__status-label">
           <input
             type="checkbox"
             className="todo__status"
-            checked={todo.completed}
-            onChange={() => handleCheckedTodo(todo.id)}
+            checked={completed}
+            onChange={() => handleCheckedTodo(id)}
           />
         </label>
 
         {doubleClicked ? (
           <form
-            onSubmit={(event) => handleClickedFormSubmit(event, todo.id)}
-            onBlur={(event) => handleClickedFormSubmit(event, todo.id)}
+            onSubmit={(event) => handleClickedFormSubmit(event, id)}
+            onBlur={(event) => handleClickedFormSubmit(event, id)}
           >
             <input
               type="text"
@@ -166,12 +164,12 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={handleDoubleClick}
             >
-              {todo.title}
+              {title}
             </span>
             <button
               type="button"
               className="todo__remove"
-              onClick={() => onDeleteTodo(todo.id)}
+              onClick={() => onDeleteTodo(id)}
             >
               x
             </button>
@@ -179,7 +177,7 @@ export const TodoItem: React.FC<Props> = ({
         )}
 
         <div className={className('modal overlay', {
-          'is-active': loadingIds.includes(todo.id),
+          'is-active': loadingIds.includes(id),
         })}
         >
           <div className="modal-background has-background-white-ter" />
