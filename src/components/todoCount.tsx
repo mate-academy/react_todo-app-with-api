@@ -6,7 +6,8 @@ interface Props {
 }
 
 export const TodoCount: React.FC<Props> = ({ todos }) => {
-  const todosLeftCount = todos.filter((todo) => !todo.completed).length;
+  const todosLeftCount = todos.filter((todo) => !todo.completed
+  && !todo.removed).length;
 
   return (
     <span className="todo-count">
