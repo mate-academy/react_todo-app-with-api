@@ -61,7 +61,7 @@ export const App: React.FC = () => {
           onGlobalLoaderChange={setGlobalLoader}
         />
 
-        {!!todos.length && (
+        {(!!todos.length || tempTodo) && (
           <>
             <TodoList
               todos={filtredTodos}

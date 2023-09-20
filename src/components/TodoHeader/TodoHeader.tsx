@@ -88,12 +88,13 @@ export const TodoHeader: React.FC<Props> = (props) => {
         .catch(() => setError('Unable to add a todo'))
         .finally(() => {
           onTempTodoAdd(null);
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 0);
         });
     }
   }, [tempTodo]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [todos.length]);
 
   return (
     <header className="todoapp__header">
