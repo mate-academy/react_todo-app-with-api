@@ -32,7 +32,8 @@ export const Task = ({ todo }: Props) => {
       </button>
 
       {((temptTodo && temptTodo.id === todo.id)
-      || (editedTodo && todo.completed))
+      || (editedTodo && todo.completed)
+          || todo.isEdited)
         && (
           <div className="modal overlay is-active">
             <div className="modal-background has-background-white-ter" />

@@ -107,15 +107,32 @@ export const ToDoProvider = ({ children }: Props) => {
   };
 
   const allTodosAreActive = todos.every(t => !t.completed);
-
   const toggleActiveTodo = (tasks: Todo[]) => {
+    const updatedTodos = todos.map(x => {
+      if (!x.completed) {
+        return { ...x, isEdited: true };
+      }
+
+      return x;
+    });
+
+    setTodos(() => updatedTodos);
+
     tasks.forEach((t) => {
-      if (todos.every(v => v.completed)) {
+      if (todos.every((v) => v.completed)) {
+        const allTodosCompleted = todos.map((x) => {
+          if (x.completed) {
+            return { ...x, isEdited: true };
+          }
+
+          return x;
+        });
+
+        setTodos(() => allTodosCompleted);
         editTodo(t.id, { completed: false })
-          .then(() => handleGetTodos())
+          .then(handleGetTodos)
           .catch(() => handleShowError(Errors.Update))
           .finally(() => {
-            setTempTodo(null);
           });
       }
 
