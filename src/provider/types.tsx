@@ -10,6 +10,7 @@ export interface TodoContextType {
   temptTodo: Todo | null;
   editedTodo: boolean;
   temptTodos: Todo[];
+  allTodosAreActive: boolean;
   setNewTodoName: React.Dispatch<React.SetStateAction<string>>;
   handleShowError: (err: Errors) => void;
   handleSetFilterTodos: (filterType: FilterType) => void;

@@ -9,7 +9,7 @@ import { deleteTodo, getTodos, postTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
 import { FilterType } from '../types/FilterType';
 
-const TodoContext = createContext<TodoContextType | undefined>(undefined); // Zmiana na TodoContext
+const TodoContext = createContext<TodoContextType | undefined>(undefined);
 const USER_ID = 11433;
 
 export const ToDoProvider = ({ children }: Props) => {
@@ -103,6 +103,8 @@ export const ToDoProvider = ({ children }: Props) => {
     });
   };
 
+  const allTodosAreActive = todos.some(t => !t.completed);
+
   return (
     <TodoContext.Provider value={{
       todos,
@@ -112,6 +114,7 @@ export const ToDoProvider = ({ children }: Props) => {
       temptTodo,
       editedTodo,
       temptTodos,
+      allTodosAreActive,
       setNewTodoName,
       handleShowError,
       handleSetFilterTodos,

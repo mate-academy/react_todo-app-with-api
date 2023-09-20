@@ -4,7 +4,12 @@ import { FilterType } from '../../types/FilterType';
 import { TodoCount } from '../TodoCount';
 
 export const Footer = () => {
-  const { handleSetFilterTodos, deleteCompleted, todos } = useTodo();
+  const {
+    handleSetFilterTodos,
+    deleteCompleted,
+    todos,
+    allTodosAreActive,
+  } = useTodo();
 
   const addFilterType = (filterType: FilterType) => {
     handleSetFilterTodos(filterType);
@@ -47,6 +52,7 @@ export const Footer = () => {
         type="button"
         className="todoapp__clear-completed"
         onClick={() => deleteCompleted(completedTodos)}
+        disabled={allTodosAreActive}
       >
         Clear completed
       </button>

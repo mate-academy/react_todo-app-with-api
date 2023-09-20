@@ -3,14 +3,19 @@
 import { useTodo } from '../../provider/todoProvider';
 
 export const Input = () => {
-  const { addNewTodo, newTodoName, setNewTodoName } = useTodo();
+  const {
+    addNewTodo, newTodoName,
+    setNewTodoName,
+    allTodosAreActive,
+  } = useTodo();
 
   return (
     <header className="todoapp__header">
       {/* this button is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={allTodosAreActive
+          ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
       />
 
       {/* Add a todo on form submit */}
