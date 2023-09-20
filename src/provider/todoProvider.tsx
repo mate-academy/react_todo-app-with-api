@@ -131,20 +131,24 @@ export const ToDoProvider = ({ children }: Props) => {
         setTodos(() => allTodosCompleted);
         editTodo(t.id, { completed: false })
           .then(handleGetTodos)
-          .catch(() => handleShowError(Errors.Update))
-          .finally(() => {
-          });
+          .catch(() => handleShowError(Errors.Update));
       }
 
       if (!t.completed) {
         editTodo(t.id, { completed: true })
           .then(() => handleGetTodos())
-          .catch(() => handleShowError(Errors.Update))
-          .finally(() => {
-            setTempTodo(null);
-          });
+          .catch(() => handleShowError(Errors.Update));
       }
     });
+  };
+
+  const toggleCopletedTodos = (task: Todo) => {
+    setTempTodo(task);
+
+    editTodo(task.id, { completed: !task.completed })
+      .then(handleGetTodos)
+      .catch(() => handleShowError(Errors.Update))
+      .finally(() => setTempTodo(null));
   };
 
   return (
@@ -165,6 +169,7 @@ export const ToDoProvider = ({ children }: Props) => {
       removeTask,
       deleteCompleted,
       toggleActiveTodo,
+      toggleCopletedTodos,
     }}
     >
       {children}

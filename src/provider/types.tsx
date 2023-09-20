@@ -19,6 +19,7 @@ export interface TodoContextType {
   removeTask: (task: Todo) => void;
   deleteCompleted: (tasks: Todo[]) => void;
   toggleActiveTodo: (tasks: Todo[]) => void;
+  toggleCopletedTodos: (task: Todo) => void;
 }
 
 export enum Errors {

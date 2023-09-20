@@ -7,11 +7,24 @@ type Props = {
 };
 
 export const Task = ({ todo }: Props) => {
-  const { temptTodo, removeTask, editedTodo } = useTodo();
+  const {
+    temptTodo,
+    removeTask, editedTodo,
+    toggleCopletedTodos,
+
+  } = useTodo();
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       className={todo.completed ? 'todo completed' : 'todo'}
+      onClick={() => toggleCopletedTodos(todo)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          toggleCopletedTodos(todo);
+        }
+      }}
     >
       <label className="todo__status-label">
         <input
