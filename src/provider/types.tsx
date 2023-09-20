@@ -18,6 +18,7 @@ export interface TodoContextType {
   addNewTodo: (event: FormEvent<HTMLFormElement>) => void;
   removeTask: (task: Todo) => void;
   deleteCompleted: (tasks: Todo[]) => void;
+  toggleActiveTodo: (tasks: Todo[]) => void;
 }
 
 export enum Errors {

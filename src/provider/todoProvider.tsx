@@ -5,7 +5,9 @@ import {
 import {
   Errors, Props, TodoContextType,
 } from './types';
-import { deleteTodo, getTodos, postTodo } from '../api/todos';
+import {
+  deleteTodo, editTodo, getTodos, postTodo,
+} from '../api/todos';
 import { Todo } from '../types/Todo';
 import { FilterType } from '../types/FilterType';
 
@@ -99,11 +101,34 @@ export const ToDoProvider = ({ children }: Props) => {
       return deleteTodo(t.id)
         .then(() => handleGetTodos())
         .catch(() => handleShowError(Errors.Delete))
-        .finally(() => setTempTodo(null));
+        .finally(() => setTempTodo(null))
+        .then(() => setEditedTodo(false));
     });
   };
 
-  const allTodosAreActive = todos.some(t => !t.completed);
+  const allTodosAreActive = todos.every(t => !t.completed);
+
+  const toggleActiveTodo = (tasks: Todo[]) => {
+    tasks.forEach((t) => {
+      if (todos.every(v => v.completed)) {
+        editTodo(t.id, { completed: false })
+          .then(() => handleGetTodos())
+          .catch(() => handleShowError(Errors.Update))
+          .finally(() => {
+            setTempTodo(null);
+          });
+      }
+
+      if (!t.completed) {
+        editTodo(t.id, { completed: true })
+          .then(() => handleGetTodos())
+          .catch(() => handleShowError(Errors.Update))
+          .finally(() => {
+            setTempTodo(null);
+          });
+      }
+    });
+  };
 
   return (
     <TodoContext.Provider value={{
@@ -122,6 +147,7 @@ export const ToDoProvider = ({ children }: Props) => {
       addNewTodo,
       removeTask,
       deleteCompleted,
+      toggleActiveTodo,
     }}
     >
       {children}

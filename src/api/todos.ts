@@ -12,4 +12,6 @@ export const postTodo = (newTodo: Omit<Todo, 'id'>) => {
 export const deleteTodo = (taskId: number) => {
   return client.delete(`/todos/${taskId}`);
 };
-// Add more methods here
+export const editTodo = (taskId: number, editedTodo: Partial<Todo>) => {
+  return client.patch(`/todos/${taskId}`, editedTodo);
+};

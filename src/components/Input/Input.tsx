@@ -7,6 +7,8 @@ export const Input = () => {
     addNewTodo, newTodoName,
     setNewTodoName,
     allTodosAreActive,
+    toggleActiveTodo,
+    todos,
   } = useTodo();
 
   return (
@@ -16,6 +18,7 @@ export const Input = () => {
         type="button"
         className={allTodosAreActive
           ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
+        onClick={() => toggleActiveTodo(todos)}
       />
 
       {/* Add a todo on form submit */}
