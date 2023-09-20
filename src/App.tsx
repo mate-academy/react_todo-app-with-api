@@ -27,13 +27,17 @@ export const App: React.FC = () => {
   const [newTodo, setNewTodo] = useState<null | Todo>(null);
 
   function deleteAll() {
+    dispatch({ type: ACTIONS.SET_LOADING, payload: true });
     state.list.forEach(todo => {
       if (todo.completed) {
         deleteTodo(todo.id)
           .then(() => getTodos(USER_ID)
             .then(res => {
               dispatch({ type: ACTIONS.SET_LIST, payload: res });
-            }));
+            }))
+          .finally(() => dispatch(
+            { type: ACTIONS.SET_LOADING, payload: false },
+          ));
       }
     });
   }

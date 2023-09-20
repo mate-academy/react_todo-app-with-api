@@ -29,15 +29,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     getTodos(USER_ID)
       .then(res => {
         dispatch({ type: ACTIONS.SET_LIST, payload: res })
-        setIsLoading(false);
       })
+      .finally(() =>setIsLoading(false))
   }
 
   function deleteItem(id: number) {
     setIsLoading(true);
     deleteTodo(id)
-      .then(() => refreshLIst)
-      .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to delete a todo' }))
+    .then(() => getTodos(USER_ID)
+      .then(res => {
+        dispatch({ type: ACTIONS.SET_LIST, payload: res });
+      }));
   }
 
   useEffect(() => {
@@ -60,21 +62,21 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       title: todo.title,
       userId: todo.userId,
     })
-      .then(() => {
-        refreshLIst();
-      })
+      .then(refreshLIst)
       .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to toggle a todo' }))
   }
 
   function sendUpdateRequest() {
+    setIsLoading(true);
     updateTodo({
       id: todo.id,
       completed: todo.completed,
       userId: todo.userId,
       title: editingtoDoData,
     })
-      .then(() => refreshLIst())
+      .then(refreshLIst)
       .catch(() => dispatch({ type: ACTIONS.SET_ERROR, payload: 'Unable to update a todo' }))
+      .finally(() => setIsLoading(false))
   }
 
   let result = false;
@@ -90,7 +92,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         deleteItem(todo.id);
       }
       else {
-        setIsLoading(true);
         sendUpdateRequest();
         setIsEditing(false);
       }
@@ -107,10 +108,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }
 
+
   let showLoader = isLoading || (state.isLoading && todo.completed)
     || (state.toggleAll === 'completed' && todo.completed)
       || (state.toggleAll === 'active' && !todo.completed);
-
+      console.log(showLoader);
   return (
     <div
       className={classNames('todo', {
