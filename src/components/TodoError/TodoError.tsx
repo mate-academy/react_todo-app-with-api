@@ -17,8 +17,6 @@ export const TodoError: React.FC = () => {
         },
       )}
     >
-      {/* Notification is shown in case of any error */ }
-      {/* Add the 'hidden' class to hide the message smoothly */ }
       <button
         aria-label="delete-error-button"
         type="button"
@@ -27,12 +25,6 @@ export const TodoError: React.FC = () => {
       />
 
       {error}
-
-      {/* Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
     </div>
   );
 };

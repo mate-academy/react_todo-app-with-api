@@ -45,7 +45,7 @@ export const App: React.FC = () => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setError('Unable to download todos');
+        setError('Unable to load todos');
       });
   }, []);
 
