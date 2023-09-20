@@ -1,13 +1,19 @@
-import { useContext, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { deleteTodo } from '../../api/todos';
+import { deleteTodo, updateTodo } from '../../api/todos';
 import { TodoContext } from '../TodoContext';
 import { ErrorContext } from '../ErrorContext';
+import { GlobalLoader } from '../../types/GlobalLoader';
 
 type Props = {
   todo: Todo;
-  loader: boolean;
+  loader: GlobalLoader;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
@@ -20,8 +26,16 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
   const { setError } = useContext(ErrorContext);
   const { setTodos } = useContext(TodoContext);
   const [isLoading, setIsLoading] = useState(false);
+  const [editing, setEditing] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const focusInput = useRef<HTMLInputElement | null>(null);
 
-  const handleDeleteClick = () => {
+  const disableEditing = () => {
+    setEditing('');
+    setIsEditing(false);
+  };
+
+  const deleteTodoById = () => {
     setIsLoading(true);
 
     deleteTodo(id)
@@ -32,6 +46,91 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
       .catch(() => setError('Unable to delete a todo'))
       .finally(() => setIsLoading(false));
   };
+
+  const updateTodoById = (data: Partial<Todo>) => {
+    setIsLoading(true);
+    updateTodo(id, data)
+      .then((updatedTodo) => setTodos(prevState => {
+        return prevState
+          .map(prevTodo => (prevTodo.id !== id ? prevTodo : updatedTodo));
+      }))
+      .catch(() => setError('Unable to update a todo'))
+      .finally(() => setIsLoading(false));
+  };
+
+  const saveChanges = () => {
+    if (editing === title) {
+      disableEditing();
+
+      return;
+    }
+
+    if (!editing) {
+      deleteTodoById();
+      disableEditing();
+
+      return;
+    }
+
+    updateTodoById({ title: editing });
+    disableEditing();
+  };
+
+  const handleDeleteClick = () => {
+    deleteTodoById();
+  };
+
+  const handleCheckBoxChange = () => {
+    updateTodoById({ completed: !completed });
+  };
+
+  const handleTitleDoubleClick = () => {
+    setEditing(title);
+    setIsEditing(true);
+  };
+
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveChanges();
+  };
+
+  const handleInputBlur = () => {
+    saveChanges();
+  };
+
+  const handleEscUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      disableEditing();
+    }
+  };
+
+  useEffect(() => {
+    switch (loader) {
+      case GlobalLoader.All:
+        setIsLoading(true);
+        break;
+      case GlobalLoader.Active:
+        if (!completed) {
+          setIsLoading(true);
+        }
+
+        break;
+      case GlobalLoader.Completed:
+        if (completed) {
+          setIsLoading(true);
+        }
+
+        break;
+      default:
+        setIsLoading(false);
+    }
+  }, [loader]);
+
+  useEffect(() => {
+    if (isEditing && focusInput.current) {
+      focusInput.current.focus();
+    }
+  }, [isEditing]);
 
   return (
     <>
@@ -45,23 +144,46 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
             type="checkbox"
             className="todo__status"
             checked={completed}
+            onChange={handleCheckBoxChange}
           />
         </label>
 
-        <span className="todo__title">
-          {title}
-        </span>
+        {isEditing ? (
+          <form
+            onSubmit={handleFormSubmit}
+          >
+            <input
+              ref={focusInput}
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editing}
+              onChange={(event) => setEditing(event.target.value)}
+              onBlur={handleInputBlur}
+              onKeyUp={handleEscUp}
+            />
+          </form>
+        ) : (
+          <>
+            <span
+              className="todo__title"
+              onDoubleClick={handleTitleDoubleClick}
+            >
+              {title}
+            </span>
 
-        <button
-          type="button"
-          className="todo__remove"
-          onClick={handleDeleteClick}
-        >
-          ×
-        </button>
+            <button
+              type="button"
+              className="todo__remove"
+              onClick={handleDeleteClick}
+            >
+              ×
+            </button>
+          </>
+        )}
 
         <div className={classNames('modal', 'overlay', {
-          'is-active': isLoading || loader,
+          'is-active': isLoading,
         })}
         >
           <div className="modal-background has-background-white-ter" />
@@ -71,18 +193,3 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
     </>
   );
 };
-/* This todo is in loadind state */
-/* <div className="todo">
-      <label className="todo__status-label">
-        <input type="checkbox" className="todo__status" />
-      </label>
-
-      <span className="todo__title">Todo is being saved now</span>
-      <button type="button" className="todo__remove">×</button> */
-
-/* 'is-active' class puts this modal on top of the todo */
-/* <div className="modal overlay is-active">
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div> */
-/* </div> */

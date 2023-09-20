@@ -4,11 +4,12 @@ import { Status } from '../../types/Status';
 import { TodoContext } from '../TodoContext';
 import { deleteTodo } from '../../api/todos';
 import { ErrorContext } from '../ErrorContext';
+import { GlobalLoader } from '../../types/GlobalLoader';
 
 type Props = {
   status: Status;
   onStatusChange: (status: Status) => void;
-  onGlobalLoaderChange: (globalLoader: boolean) => void;
+  onGlobalLoaderChange: (globalLoader: GlobalLoader) => void;
 };
 
 export const TodoFooter: React.FC<Props> = (props) => {
@@ -25,7 +26,7 @@ export const TodoFooter: React.FC<Props> = (props) => {
     .filter(({ completed }) => !completed), [todos]);
 
   const handleComplDelete = () => {
-    onGlobalLoaderChange(true);
+    onGlobalLoaderChange(GlobalLoader.Completed);
 
     const deletedTodos: Promise<number>[] = [];
 
@@ -45,7 +46,7 @@ export const TodoFooter: React.FC<Props> = (props) => {
           .filter(todo => !res.includes(todo.id)));
       })
       .catch(() => setError('Unable to delete a todo'))
-      .finally(() => onGlobalLoaderChange(false));
+      .finally(() => onGlobalLoaderChange(GlobalLoader.Non));
   };
 
   return (

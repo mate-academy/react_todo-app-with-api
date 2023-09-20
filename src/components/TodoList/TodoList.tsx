@@ -1,10 +1,11 @@
 import { Todo } from '../../types/Todo';
+import { GlobalLoader } from '../../types/GlobalLoader';
 import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  globalLoader: boolean,
+  globalLoader: GlobalLoader,
 };
 
 export const TodoList: React.FC<Props> = (props) => {
@@ -16,10 +17,10 @@ export const TodoList: React.FC<Props> = (props) => {
         <TodoItem
           todo={todo}
           key={todo.id}
-          loader={globalLoader ? todo.completed : false}
+          loader={globalLoader}
         />
       ))}
-      {tempTodo && <TodoItem todo={tempTodo} loader />}
+      {tempTodo && <TodoItem todo={tempTodo} loader={GlobalLoader.All} />}
     </section>
   );
 };

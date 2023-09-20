@@ -10,5 +10,9 @@ export const addTodo = (userId: number, todo: Todo) => {
 };
 
 export const deleteTodo = (id: number) => {
-  return client.delete<Todo>(`/todos/${id}`);
+  return client.delete(`/todos/${id}`);
+};
+
+export const updateTodo = (id: number, todo: Partial<Todo>) => {
+  return client.patch<Todo>(`/todos/${id}`, todo);
 };

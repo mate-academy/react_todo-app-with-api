@@ -1,24 +1,36 @@
-import { useContext, useEffect, useState } from 'react';
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../utils/userId';
-import { addTodo } from '../../api/todos';
+import { addTodo, updateTodo } from '../../api/todos';
 import { TodoContext } from '../TodoContext';
 import { ErrorContext } from '../ErrorContext';
+import { GlobalLoader } from '../../types/GlobalLoader';
 
 type Props = {
   onTempTodoAdd: (todo: Todo | null) => void;
   tempTodo: Todo | null;
+  onGlobalLoaderChange: (globalLoader: GlobalLoader) => void;
 };
 
 export const TodoHeader: React.FC<Props> = (props) => {
   const {
     onTempTodoAdd,
     tempTodo,
+    onGlobalLoaderChange,
   } = props;
 
   const { setError } = useContext(ErrorContext);
-  const { setTodos } = useContext(TodoContext);
+  const { todos, setTodos } = useContext(TodoContext);
   const [title, setTitle] = useState('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const isAllCompleted = todos.every(todo => todo.completed);
 
   const handleSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,6 +49,35 @@ export const TodoHeader: React.FC<Props> = (props) => {
     });
   };
 
+  const handleToggleAll = () => {
+    const updatedTodos: Promise<Todo>[] = [];
+
+    if (isAllCompleted) {
+      onGlobalLoaderChange(GlobalLoader.Completed);
+      todos.forEach(todo => {
+        updatedTodos.push(updateTodo(todo.id, { completed: false })
+          .then(updatedTodo => updatedTodo)
+          .catch((error) => {
+            throw error;
+          }));
+      });
+    } else {
+      onGlobalLoaderChange(GlobalLoader.Active);
+      todos.forEach(todo => {
+        updatedTodos.push(updateTodo(todo.id, { completed: true })
+          .then(updatedTodo => updatedTodo)
+          .catch((error) => {
+            throw error;
+          }));
+      });
+    }
+
+    Promise.all(updatedTodos)
+      .then(setTodos)
+      .catch(() => setError('Unable to update a todo'))
+      .finally(() => onGlobalLoaderChange(GlobalLoader.Non));
+  };
+
   useEffect(() => {
     if (tempTodo) {
       addTodo(USER_ID, tempTodo)
@@ -45,23 +86,32 @@ export const TodoHeader: React.FC<Props> = (props) => {
           setTitle('');
         })
         .catch(() => setError('Unable to add a todo'))
-        .finally(() => onTempTodoAdd(null));
+        .finally(() => {
+          onTempTodoAdd(null);
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 0);
+        });
     }
   }, [tempTodo]);
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className="todoapp__toggle-all active"
-        aria-label="button_toggle_active"
-      />
-
+      {!!todos.length && (
+        <button
+          type="button"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllCompleted,
+          })}
+          aria-label="button_toggle_all"
+          onClick={handleToggleAll}
+        />
+      )}
       <form
         onSubmit={handleSubmitForm}
       >
         <input
+          ref={inputRef}
           disabled={!!tempTodo}
           type="text"
           className="todoapp__new-todo"
