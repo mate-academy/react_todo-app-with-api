@@ -49,8 +49,8 @@ export const App: React.FC = () => {
       visibleTodos = todos;
   }
 
-  const areThereCompleted = completedTodos.length !== 0;
-  const areAllCompleted = completedTodos.length === todos.length && todos.length !== 0;
+  const completedExist = !!completedTodos.length;
+  const areAllCompleted = completedTodos.length === todos.length && !!todos.length;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -87,7 +87,7 @@ export const App: React.FC = () => {
 
     window.clearTimeout(errorTimeoutID.current);
 
-    if (inputValue.trim() === '') {
+    if (!inputValue.trim()) {
       handleError("Title can't be empty");
 
       return;
@@ -241,7 +241,7 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classNames('todoapp__clear-completed', {
-                'todoapp__clear-completed--hidden': !areThereCompleted,
+                'todoapp__clear-completed--hidden': !completedExist,
               })}
               onClick={deleteAllCompleted}
             >
