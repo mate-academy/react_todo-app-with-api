@@ -1,4 +1,4 @@
-import { FormEvent } from 'react';
+import React, { FormEvent } from 'react';
 import { FilterType } from '../types/FilterType';
 import { Todo } from '../types/Todo';
 
@@ -11,6 +11,8 @@ export interface TodoContextType {
   editedTodo: boolean;
   temptTodos: Todo[];
   allTodosAreActive: boolean;
+  newTitle: string;
+  titleEdition: boolean;
   setNewTodoName: React.Dispatch<React.SetStateAction<string>>;
   handleShowError: (err: Errors) => void;
   handleSetFilterTodos: (filterType: FilterType) => void;
@@ -19,11 +21,14 @@ export interface TodoContextType {
   removeTask: (task: Todo) => void;
   deleteCompleted: (tasks: Todo[]) => void;
   toggleActiveTodo: (tasks: Todo[]) => void;
-  toggleCopletedTodos: (task: Todo) => void;
+  toggleCompletedTodos: (task: Todo) => void;
+  todoTitleEdition: (task: Todo, newTitle: string, tasks: Todo[]) => void;
+  onTitleEdition: (tasks: Todo[], taskId: number) => void;
+  setNewTitle: React.Dispatch<React.SetStateAction<string>>;
+  setTitleEdition: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export enum Errors {
-  Add = 'Unable to add a todo',
   Delete = 'Unable to delete a todo',
   Update = 'Unable to update a todo',
   Title = 'Title can\'t be empty',

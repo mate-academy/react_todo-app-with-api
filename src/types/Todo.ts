@@ -3,5 +3,6 @@ export interface Todo {
   userId: number;
   title: string;
   completed: boolean;
-  isEdited?: boolean;
+  loaderAfterEditing?: boolean;
+  isOnTitleEdition?: boolean;
 }

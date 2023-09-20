@@ -23,6 +23,8 @@ export const ToDoProvider = ({ children }: Props) => {
   const [temptTodo, setTempTodo] = useState<Todo | null>(null);
   const [temptTodos, setTempTodos] = useState<Todo[]>([]);
   const [editedTodo, setEditedTodo] = useState<boolean>(false);
+  const [titleEdition, setTitleEdition] = useState<boolean>(false);
+  const [newTitle, setNewTitle] = useState<string>('null');
 
   const handleShowError = (err: Errors) => {
     setError(err);
@@ -122,7 +124,7 @@ export const ToDoProvider = ({ children }: Props) => {
       if (todos.every((v) => v.completed)) {
         const allTodosCompleted = todos.map((x) => {
           if (x.completed) {
-            return { ...x, isEdited: true };
+            return { ...x, loaderAfterEditing: true };
           }
 
           return x;
@@ -142,13 +144,68 @@ export const ToDoProvider = ({ children }: Props) => {
     });
   };
 
-  const toggleCopletedTodos = (task: Todo) => {
+  const toggleCompletedTodos = (task: Todo) => {
     setTempTodo(task);
 
     editTodo(task.id, { completed: !task.completed })
       .then(handleGetTodos)
       .catch(() => handleShowError(Errors.Update))
       .finally(() => setTempTodo(null));
+  };
+
+  const onTitleEdition = (tasks: Todo[], taskId: number) => {
+    setTitleEdition(true);
+    setTodos(
+      tasks.map((t) => {
+        if (t.id === taskId) {
+          setNewTitle(t.title);
+
+          return {
+            ...t,
+            isOnTitleEdition: true,
+          };
+        }
+
+        return t;
+      }),
+    );
+  };
+
+  const todoTitleEdition = (
+    task: Todo,
+    updatedTitle: string,
+    tasks: Todo[],
+  ) => {
+    if (updatedTitle === task.title) {
+      setTitleEdition(false);
+    } else if (updatedTitle === '') {
+      setTitleEdition(false);
+      removeTask(task);
+    } else {
+      setTodos(
+        tasks.map((t) => {
+          if (t.id === task.id) {
+            return {
+              ...t,
+              title: updatedTitle,
+              loaderAfterEditing: true,
+            };
+          }
+
+          return t;
+        }),
+      );
+      editTodo(task.id, { title: updatedTitle })
+        .then(() => {
+          handleGetTodos();
+        })
+        .catch(() => {
+          handleShowError(Errors.Update);
+        })
+        .finally(() => {
+          setTitleEdition(false);
+        });
+    }
   };
 
   return (
@@ -160,7 +217,9 @@ export const ToDoProvider = ({ children }: Props) => {
       temptTodo,
       editedTodo,
       temptTodos,
+      newTitle,
       allTodosAreActive,
+      titleEdition,
       setNewTodoName,
       handleShowError,
       handleSetFilterTodos,
@@ -169,7 +228,11 @@ export const ToDoProvider = ({ children }: Props) => {
       removeTask,
       deleteCompleted,
       toggleActiveTodo,
-      toggleCopletedTodos,
+      toggleCompletedTodos,
+      todoTitleEdition,
+      onTitleEdition,
+      setNewTitle,
+      setTitleEdition,
     }}
     >
       {children}
