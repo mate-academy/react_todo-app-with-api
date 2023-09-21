@@ -8,9 +8,11 @@ type Props = {
   globalLoader: GlobalLoader,
 };
 
-export const TodoList: React.FC<Props> = (props) => {
-  const { todos, tempTodo, globalLoader } = props;
-
+export const TodoList: React.FC<Props> = ({
+  todos,
+  tempTodo,
+  globalLoader,
+}) => {
   return (
     <section className="todoapp__main">
       {todos.map(todo => (

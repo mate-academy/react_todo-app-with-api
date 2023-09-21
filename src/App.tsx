@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [
     globalLoader,
     setGlobalLoader,
-  ] = useState<GlobalLoader>(GlobalLoader.Non);
+  ] = useState<GlobalLoader>(GlobalLoader.None);
 
   const filtredTodos = useMemo(() => todos.filter(({ completed }) => {
     switch (status) {
@@ -39,6 +39,11 @@ export const App: React.FC = () => {
         return true;
     }
   }), [status, todos]);
+
+  const isListActive = useMemo(
+    () => !!todos.length || tempTodo,
+    [todos.length, tempTodo],
+  );
 
   useEffect(() => {
     setError('');
@@ -54,14 +59,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-
         <TodoHeader
           onTempTodoAdd={setTempTodo}
           tempTodo={tempTodo}
           onGlobalLoaderChange={setGlobalLoader}
         />
 
-        {(!!todos.length || tempTodo) && (
+        {isListActive && (
           <>
             <TodoList
               todos={filtredTodos}
@@ -78,7 +82,6 @@ export const App: React.FC = () => {
       </div>
 
       <TodoError />
-
     </div>
   );
 };

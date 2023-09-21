@@ -25,6 +25,11 @@ export const TodoFooter: React.FC<Props> = (props) => {
   const uncomplitedTodos = useMemo(() => todos
     .filter(({ completed }) => !completed), [todos]);
 
+  const isS = useMemo(
+    () => (uncomplitedTodos.length === 1 ? '' : 's'),
+    [uncomplitedTodos.length],
+  );
+
   const handleComplDelete = () => {
     onGlobalLoaderChange(GlobalLoader.Completed);
 
@@ -46,19 +51,17 @@ export const TodoFooter: React.FC<Props> = (props) => {
           .filter(todo => !res.includes(todo.id)));
       })
       .catch(() => setError('Unable to delete a todo'))
-      .finally(() => onGlobalLoaderChange(GlobalLoader.Non));
+      .finally(() => onGlobalLoaderChange(GlobalLoader.None));
   };
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${uncomplitedTodos.length} item${uncomplitedTodos.length === 1 ? '' : 's'} left`}
+        {`${uncomplitedTodos.length} item${isS} left`}
       </span>
 
       <nav className="filter">
-        {Object.keys(Status).map((key) => {
-          const value = Status[key as keyof typeof Status];
-
+        {Object.entries(Status).map(([key, value]) => {
           return (
             <a
               key={key}

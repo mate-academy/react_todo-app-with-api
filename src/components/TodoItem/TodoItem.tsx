@@ -149,9 +149,7 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
         </label>
 
         {isEditing ? (
-          <form
-            onSubmit={handleFormSubmit}
-          >
+          <form onSubmit={handleFormSubmit}>
             <input
               ref={focusInput}
               type="text"

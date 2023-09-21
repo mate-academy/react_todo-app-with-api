@@ -52,30 +52,21 @@ export const TodoHeader: React.FC<Props> = (props) => {
   const handleToggleAll = () => {
     const updatedTodos: Promise<Todo>[] = [];
 
-    if (isAllCompleted) {
-      onGlobalLoaderChange(GlobalLoader.Completed);
-      todos.forEach(todo => {
-        updatedTodos.push(updateTodo(todo.id, { completed: false })
-          .then(updatedTodo => updatedTodo)
-          .catch((error) => {
-            throw error;
-          }));
-      });
-    } else {
-      onGlobalLoaderChange(GlobalLoader.Active);
-      todos.forEach(todo => {
-        updatedTodos.push(updateTodo(todo.id, { completed: true })
-          .then(updatedTodo => updatedTodo)
-          .catch((error) => {
-            throw error;
-          }));
-      });
-    }
+    onGlobalLoaderChange(isAllCompleted
+      ? GlobalLoader.Completed
+      : GlobalLoader.Active);
+    todos.forEach(todo => {
+      updatedTodos.push(updateTodo(todo.id, { completed: !isAllCompleted })
+        .then(updatedTodo => updatedTodo)
+        .catch((error) => {
+          throw error;
+        }));
+    });
 
     Promise.all(updatedTodos)
       .then(setTodos)
       .catch(() => setError('Unable to update a todo'))
-      .finally(() => onGlobalLoaderChange(GlobalLoader.Non));
+      .finally(() => onGlobalLoaderChange(GlobalLoader.None));
   };
 
   useEffect(() => {
@@ -108,9 +99,7 @@ export const TodoHeader: React.FC<Props> = (props) => {
           onClick={handleToggleAll}
         />
       )}
-      <form
-        onSubmit={handleSubmitForm}
-      >
+      <form onSubmit={handleSubmitForm}>
         <input
           ref={inputRef}
           disabled={!!tempTodo}

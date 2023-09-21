@@ -1,5 +1,5 @@
 export enum GlobalLoader {
-  Non = '',
+  None = '',
   Active = 'active',
   Completed = 'completed',
   All = 'all',
