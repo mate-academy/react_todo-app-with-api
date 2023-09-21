@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { useTodos } from '../Contexts/TodosContext';
 import { useLoadingTodos } from '../Contexts/LoadingTodosContext';
@@ -20,10 +20,22 @@ export const TodoTask: React.FC<Props> = ({
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoadingTodos(prev => [...prev, { todoId: todo.id, isLoading: true }]);
+  const inputFieldRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    if (inputFieldRef.current) {
+      inputFieldRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleChangeTodoTitle = async () => {
+    if (editingTodoTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    setLoadingTodos(prev => [...prev, { todoId: todo.id, isLoading: true }]);
     if (editingTodoTitle) {
       const updatedTodo = await updateTodo(todo.id,
         { title: editingTodoTitle });
@@ -71,6 +83,11 @@ export const TodoTask: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleChangeTodoTitle();
+  };
+
   const onComplete = async (todoId: number,
     event: React.ChangeEvent<HTMLInputElement>) => {
     setLoadingTodos(prev => [...prev, { todoId, isLoading: true }]);
@@ -115,6 +132,12 @@ export const TodoTask: React.FC<Props> = ({
       currentTodo.todoId !== todoId)));
   };
 
+  const handlePressEsc = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
   return (
     <div
       className={classNames('todo', {
@@ -132,11 +155,14 @@ export const TodoTask: React.FC<Props> = ({
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           <input
+            ref={inputFieldRef}
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingTodoTitle}
+            onKeyUp={handlePressEsc}
             onChange={(event) => setEditingTodoTitle(event.target.value)}
+            onBlur={handleChangeTodoTitle}
           />
         </form>
       ) : (
