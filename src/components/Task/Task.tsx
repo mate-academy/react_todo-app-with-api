@@ -27,6 +27,17 @@ export const Task = ({ todo }: Props) => {
     }
   }, [titleEdition, todo.isOnTitleEdition]);
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      todoTitleEdition(todo, newTitle, todos);
+    }
+
+    if (e.key === 'Escape') {
+      setTitleEdition(false);
+    }
+  };
+
   return (
     <div
       className={
@@ -52,15 +63,7 @@ export const Task = ({ todo }: Props) => {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onBlur={() => todoTitleEdition(todo, newTitle, todos)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  todoTitleEdition(todo, newTitle, todos);
-                }
-
-                if (e.key === 'Escape') {
-                  setTitleEdition(false);
-                }
-              }}
+              onKeyDown={handleKeyDown}
               ref={inputRef}
             />
           </form>
