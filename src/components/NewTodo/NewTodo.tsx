@@ -40,7 +40,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
     const newTodo = await addTodo(USER_ID, {
       id: 0,
       completed: false,
-      title: newTitle,
+      title: newTitle.trim(),
       userId: USER_ID,
     });
 
