@@ -8,6 +8,7 @@ import { client } from './utils/fetchClient';
 import { TodoItem } from './components/TodoItem';
 import { Status } from './types/Status';
 import { Filter } from './components/TodoFilter';
+import { addTodos, getTodos } from './api/todos';
 
 const USER_ID = 11498;
 
@@ -27,13 +28,7 @@ export const App: React.FC = () => {
   const activeTodos: Todo[] = [];
   let visibleTodos: Todo[] = [];
 
-  todos.forEach(todo => {
-    if (todo.completed) {
-      completedTodos.push({ ...todo });
-    } else {
-      activeTodos.push({ ...todo });
-    }
-  });
+  todos.forEach(todo => (todo.completed ? completedTodos.push({ ...todo }) : activeTodos.push({ ...todo })));
 
   switch (activeFilter) {
     case Status.Active:
@@ -69,7 +64,7 @@ export const App: React.FC = () => {
       setHasError(false);
     }
 
-    client.get<Todo[]>(`/todos?userId=${USER_ID}`)
+    getTodos(USER_ID)
       .then(setTodos)
       .catch(() => handleError('Unable to load todos'));
 
@@ -103,7 +98,7 @@ export const App: React.FC = () => {
     setWasThereAdding(false);
     setIsLoading(true);
 
-    client.post<Todo>('/todos', data)
+    addTodos(data)
       .then(response => {
         setTodos([...todos, response]);
         setInputValue('');
@@ -167,7 +162,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           <button
             type="button"
             className={classNames('todoapp__toggle-all', {
@@ -176,7 +170,6 @@ export const App: React.FC = () => {
             onClick={toggleAll}
           />
 
-          {/* Add a todo on form submit */}
           <form
             onSubmit={addTodo}
           >
@@ -206,7 +199,6 @@ export const App: React.FC = () => {
             />
           ))}
 
-          {/* This todo is in loadind state */}
           {tempTodo && (
             <div className="todo">
               <label className="todo__status-label">
@@ -216,7 +208,6 @@ export const App: React.FC = () => {
               <span className="todo__title">{tempTodo.title}</span>
               <button type="button" className="todo__remove">×</button>
 
-              {/* 'is-active' class puts this modal on top of the todo */}
               <div className="modal overlay is-active">
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
@@ -225,7 +216,6 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
@@ -237,7 +227,6 @@ export const App: React.FC = () => {
               setActiveFilter={setActiveFilter}
             />
 
-            {/* don't show this button if there are no completed todos */}
             <button
               type="button"
               className={classNames('todoapp__clear-completed', {
@@ -251,8 +240,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         className={classNames(
           'notification is-danger is-light has-text-weight-normal',

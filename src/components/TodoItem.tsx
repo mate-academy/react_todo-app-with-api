@@ -102,7 +102,6 @@ export const TodoItem: React.FC<Props> = ({
         completed: todo.completed,
       })}
     >
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         className={classNames('modal overlay', {
           'is-active': showLoader,
@@ -122,7 +121,6 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        /* This form is shown instead of the title and remove button */
         <form
           onSubmit={handleEditingFormSubmit}
         >
@@ -146,7 +144,6 @@ export const TodoItem: React.FC<Props> = ({
             {todo.title}
           </span>
 
-          {/* Remove button appears only on hover */}
           <button
             type="button"
             className="todo__remove"
