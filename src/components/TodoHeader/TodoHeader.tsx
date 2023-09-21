@@ -35,9 +35,7 @@ export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
 
   const toggleAll = () => {
     setTodos(currentTodos => {
-      const todosCopy = [...currentTodos];
-
-      return todosCopy.map(todo => ({
+      return currentTodos.map(todo => ({
         ...todo,
         completed: !todo.completed,
       }));

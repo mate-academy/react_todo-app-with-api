@@ -18,16 +18,6 @@ type Props = {
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
 
-  // useEffect(() => {
-  //   const todosStorage = localStorage.getItem('todos');
-
-  //   setTodos(JSON.parse(todosStorage || '[]') as Todo[]);
-  // }, []);
-
-  // useEffect(() => {
-  //   localStorage.setItem('todos', JSON.stringify(todos));
-  // }, [todos]);
-
   const value = useMemo(() => ({
     todos,
     setTodos,

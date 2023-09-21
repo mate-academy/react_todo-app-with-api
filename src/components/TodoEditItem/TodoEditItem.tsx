@@ -30,8 +30,10 @@ export const TodoEditItem: React.FC<Props> = ({
 
   const [newTitle, setNewTitle] = useState(todo.title);
 
-  const handleEditTodo = () => {
-    if (newTitle === '') {
+  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!newTitle) {
       onDelete(todo.id);
 
       return;

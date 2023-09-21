@@ -16,15 +16,15 @@ export const TodoFooter = () => {
   }, [todos]);
 
   const clearCompleted = () => {
-    todos
-      .filter(({ completed }) => completed)
-      .forEach(({ id }) => {
+    todos.forEach(({ id, completed }) => {
+      if (completed) {
         deleteTodo(id)
           .then(() => {
             setTodos(prevState => prevState.filter(todo => todo.id !== id));
           })
           .catch(() => setErrorMessage('Unable to delete a todo'));
-      });
+      }
+    });
   };
 
   return (

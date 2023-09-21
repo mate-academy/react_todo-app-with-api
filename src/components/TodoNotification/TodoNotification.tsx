@@ -10,7 +10,7 @@ export const TodoNotification: React.FC = () => {
   } = useContext(ErrorContext);
 
   useEffect(() => {
-    if (errorMessage.length !== 0) {
+    if (errorMessage.length) {
       setIsErrorHidden(false);
     }
 
