@@ -168,6 +168,19 @@ export const App: React.FC = () => {
       });
   };
 
+  function getItemsLeftCountMessage() {
+    switch (activeTodos.length) {
+      case 1:
+        return '1 item left';
+
+      case 0:
+        return 'Everything is done';
+
+      default:
+        return `${activeTodos.length} items left`;
+    }
+  }
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -224,7 +237,7 @@ export const App: React.FC = () => {
 
             <footer className="todoapp__footer">
               <span className="todo-count">
-                {`${activeTodos.length} items left`}
+                {getItemsLeftCountMessage()}
               </span>
 
               <TodoStatus
