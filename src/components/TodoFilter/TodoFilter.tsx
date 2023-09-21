@@ -17,7 +17,8 @@ export const TodoFilter: React.FC<Props> = ({
   onFilterChange,
   clearCompleted,
 }) => {
-  const itemsLeft = `${countTodos(todos, false).length} item${countTodos(todos, false).length === 1 ? '' : 's'} left`;
+  const uncompletedTodosCount = countTodos(todos, false).length;
+  const itemsLeft = `${uncompletedTodosCount} item${uncompletedTodosCount === 1 ? '' : 's'} left`;
 
   return (
     <footer className="todoapp__footer">
@@ -30,7 +31,7 @@ export const TodoFilter: React.FC<Props> = ({
           .map((value) => {
             const hrefValue = value === 'all'
               ? '#/'
-              : `#/${value[0].toLowerCase() + value.slice(1)}`;
+              : `#/${value.toLowerCase()}`;
 
             return (
               <a

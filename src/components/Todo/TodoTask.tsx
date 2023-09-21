@@ -15,7 +15,7 @@ export const TodoTask: React.FC<Props> = ({
 }) => {
   const { setTodos } = useTodos();
   const { loadingTodos, setLoadingTodos } = useLoadingTodos();
-  const { setErrorMessage, setIsErrorHidden } = useErrorMessage();
+  const { handleShowError } = useErrorMessage();
 
   const [editingTodoTitle, setEditingTodoTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
@@ -35,12 +35,12 @@ export const TodoTask: React.FC<Props> = ({
       return;
     }
 
-    setLoadingTodos(prev => [...prev, { todoId: todo.id, isLoading: true }]);
+    setLoadingTodos(prev => [...prev, todo.id]);
     if (editingTodoTitle) {
-      const updatedTodo = await updateTodo(todo.id,
-        { title: editingTodoTitle });
-
       try {
+        const updatedTodo = await updateTodo(todo.id,
+          { title: editingTodoTitle });
+
         setTodos(prev => prev.map((currentTodo) => {
           if (currentTodo.id === updatedTodo.id) {
             return updatedTodo;
@@ -49,36 +49,21 @@ export const TodoTask: React.FC<Props> = ({
           return currentTodo;
         }));
       } catch (error) {
-        setErrorMessage('Encounted error while trying to update Todo');
-        setIsErrorHidden(false);
-
-        setTimeout(() => {
-          setIsErrorHidden(true);
-        }, 3000);
+        handleShowError('Encounted error while trying to update Todo');
       }
     }
 
     if (!editingTodoTitle) {
-      await deleteTodo(todo.id);
       try {
+        await deleteTodo(todo.id);
         setTodos(prev => prev.filter(({ id }) => id !== todo.id));
       } catch {
-        setErrorMessage('Encounted error while trying to delete Todo');
-        setIsErrorHidden(false);
-
-        setTimeout(() => {
-          setIsErrorHidden(true);
-        }, 3000);
+        handleShowError('Encounted error while trying to delete Todo');
       }
-
-      setLoadingTodos(prev => prev.filter(newTodo => (
-        newTodo.todoId !== todo.id)));
-
-      setIsEditing(false);
     }
 
-    setLoadingTodos(prev => prev.filter(newTodo => (
-      newTodo.todoId !== todo.id)));
+    setLoadingTodos(prev => prev.filter(id => (
+      id !== todo.id)));
 
     setIsEditing(false);
   };
@@ -88,13 +73,13 @@ export const TodoTask: React.FC<Props> = ({
     handleChangeTodoTitle();
   };
 
-  const onComplete = async (todoId: number,
+  const handleComplete = async (todoId: number,
     event: React.ChangeEvent<HTMLInputElement>) => {
-    setLoadingTodos(prev => [...prev, { todoId, isLoading: true }]);
-    const updatedTodo = await updateTodo(todoId,
-      { completed: event.target.checked });
-
+    setLoadingTodos(prev => [...prev, todo.id]);
     try {
+      const updatedTodo = await updateTodo(todoId,
+        { completed: event.target.checked });
+
       setTodos(prev => prev.map(currentTodo => {
         if (currentTodo.id === todoId) {
           return updatedTodo;
@@ -103,33 +88,25 @@ export const TodoTask: React.FC<Props> = ({
         return currentTodo;
       }));
     } catch {
-      setErrorMessage('There is an error when completing todo');
-      setIsErrorHidden(false);
-      setTimeout(() => {
-        setIsErrorHidden(true);
-      }, 3000);
+      handleShowError('There is an error when completing todo');
     }
 
-    setLoadingTodos(prev => prev.filter(currentTodo => (
-      currentTodo.todoId !== todoId)));
+    setLoadingTodos(prev => prev.filter(id => (
+      id !== todo.id)));
   };
 
   const onDelete = async (todoId: number) => {
-    setLoadingTodos(prev => [...prev, { todoId, isLoading: true }]);
-    await deleteTodo(todoId);
-
+    setLoadingTodos(prev => [...prev, todo.id]);
     try {
+      await deleteTodo(todoId);
+
       setTodos(prev => prev.filter(({ id }) => id !== todoId));
     } catch {
-      setErrorMessage('There is an error when deleting todo');
-      setIsErrorHidden(false);
-      setTimeout(() => {
-        setIsErrorHidden(true);
-      }, 3000);
+      handleShowError('There is an error when deleting todo');
     }
 
-    setLoadingTodos(prev => prev.filter(currentTodo => (
-      currentTodo.todoId !== todoId)));
+    setLoadingTodos(prev => prev.filter(id => (
+      id !== todo.id)));
   };
 
   const handlePressEsc = (event: React.KeyboardEvent) => {
@@ -149,7 +126,7 @@ export const TodoTask: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={(event) => onComplete(todo.id, event)}
+          onChange={(event) => handleComplete(todo.id, event)}
         />
       </label>
       {isEditing ? (
@@ -184,8 +161,8 @@ export const TodoTask: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': loadingTodos.find(({ todoId }) => (
-          todoId === todo.id))?.isLoading,
+        'is-active': loadingTodos.some((id) => (
+          id === todo.id)),
       })}
       >
         <div className="modal-background has-background-white-ter" />

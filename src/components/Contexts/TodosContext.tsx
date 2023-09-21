@@ -27,8 +27,4 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-export const useTodos = () => {
-  const todos = useContext(TodosContext);
-
-  return todos;
-};
+export const useTodos = () => useContext(TodosContext);

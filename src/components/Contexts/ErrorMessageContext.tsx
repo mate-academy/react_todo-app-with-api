@@ -25,10 +25,9 @@ export const ErrorMessageContextProvider: React.FC<Props> = ({ children }) => {
     setIsErrorHidden,
     handleShowError(error: string) {
       setErrorMessage(error);
-      setIsErrorHidden(false);
 
       setTimeout(() => {
-        setIsErrorHidden(true);
+        setErrorMessage('');
       }, 3000);
     },
   };
@@ -40,8 +39,4 @@ export const ErrorMessageContextProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-export const useErrorMessage = () => {
-  const errorMessage = useContext(ErrorMessageContext);
-
-  return errorMessage;
-};
+export const useErrorMessage = () => useContext(ErrorMessageContext);

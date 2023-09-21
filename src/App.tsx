@@ -35,20 +35,22 @@ export const App: React.FC = () => {
 
   const [filterParam, setFilterParam] = useState(Filters.All);
 
-  const clearCompletedTodos = () => {
-    const completedTodos = countTodos(todos, true);
+  const clearCompletedTodos = async () => {
+    const completedTodos = countTodos(todos, true).map(({ id }) => (
+      deleteTodo(id)));
 
-    completedTodos.forEach(async ({ id }) => {
-      setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-      await deleteTodo(id);
-      try {
-        setTodos(prev => prev.filter((todo) => id !== todo.id));
-      } catch {
-        handleShowError('Unable to delete todo');
-      }
-
-      setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
+    countTodos(todos, true).forEach(({ id }) => {
+      setLoadingTodos(prev => [...prev, id]);
     });
+
+    try {
+      await Promise.all(completedTodos);
+      setTodos(prev => prev.filter(({ completed }) => !completed));
+    } catch {
+      handleShowError('Unable to delete todo');
+    }
+
+    setLoadingTodos([]);
   };
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export const App: React.FC = () => {
           <TodoFilter
             todos={todos}
             filterParam={filterParam}
-            onFilterChange={(newFilter) => setFilterParam(newFilter)}
+            onFilterChange={setFilterParam}
             clearCompleted={clearCompletedTodos}
           />
         )}

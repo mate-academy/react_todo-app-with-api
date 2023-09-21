@@ -1,9 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { LoadingTodo } from '../../types/LoadingTodo';
 
 interface LoadingTodosContextType {
-  loadingTodos: LoadingTodo[],
-  setLoadingTodos: React.Dispatch<React.SetStateAction<LoadingTodo[]>>
+  loadingTodos: number[],
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
 }
 
 export const LoadingTodosContext = React.createContext(
@@ -15,7 +14,7 @@ type Props = {
 };
 
 export const LoadingTodosContextProvider: React.FC<Props> = ({ children }) => {
-  const [loadingTodos, setLoadingTodos] = useState<LoadingTodo[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const value = {
     loadingTodos,
@@ -29,8 +28,4 @@ export const LoadingTodosContextProvider: React.FC<Props> = ({ children }) => {
   );
 };
 
-export const useLoadingTodos = () => {
-  const loadingTodos = useContext(LoadingTodosContext);
-
-  return loadingTodos;
-};
+export const useLoadingTodos = () => useContext(LoadingTodosContext);

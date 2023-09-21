@@ -37,47 +37,53 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
     });
 
     setIsAdding(true);
-    const newTodo = await addTodo(USER_ID, {
-      id: 0,
-      completed: false,
-      title: newTitle.trim(),
-      userId: USER_ID,
-    });
-
     try {
+      const newTodo = await addTodo(USER_ID, {
+        id: 0,
+        completed: false,
+        title: newTitle.trim(),
+        userId: USER_ID,
+      });
+
       setTodos(prev => [...prev, newTodo]);
+      setNewTitle('');
     } catch {
       handleShowError('Unable to add todo');
     }
 
     onWaiting(null);
-    setNewTitle('');
     setIsAdding(false);
   };
 
-  const completeAll = () => {
+  const completeAll = async () => {
     const changingTodos = countTodos(todos, false).length
       ? countTodos(todos, false)
       : todos;
 
-    changingTodos.forEach(async ({ id, completed }) => {
-      setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-      const updatedTodo = await updateTodo(id, { completed: !completed });
+    const todosPromises = changingTodos.map(async ({ id, completed }) => {
+      return updateTodo(id, { completed: !completed });
+    });
 
-      try {
+    try {
+      changingTodos.forEach(({ id }) => {
+        setLoadingTodos(prev => [...prev, id]);
+      });
+      const updatedTodos = await Promise.all(todosPromises);
+
+      updatedTodos.forEach((updatedTodo) => {
         setTodos(prev => prev.map((currentTodo) => {
-          if (currentTodo.id === id) {
+          if (currentTodo.id === updatedTodo.id) {
             return updatedTodo;
           }
 
           return currentTodo;
         }));
-      } catch {
-        handleShowError('Something went wrong');
-      }
-
-      setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
-    });
+        setLoadingTodos(prevLoads => prevLoads
+          .filter(id => id !== updatedTodo.id));
+      });
+    } catch {
+      handleShowError('Something went wrong');
+    }
   };
 
   return (

@@ -1,7 +1,13 @@
 import { Todo } from '../types/Todo';
-import { UpdateCompleted } from '../types/UpdateCompleted';
-import { UpdateTitle } from '../types/UpdateTitle';
 import { client } from '../utils/fetchClient';
+
+interface UpdateCompleted {
+  completed: boolean,
+}
+
+interface UpdateTitle {
+  title: string
+}
 
 export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
