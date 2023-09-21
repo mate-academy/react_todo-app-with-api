@@ -5,7 +5,7 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterTypes';
-import { Error } from './types/Error';
+import { Error } from './utils/errorUtils';
 import { getTodos } from './api/todos';
 import * as postService from './api/todos';
 import { UserWarning } from './UserWarning';

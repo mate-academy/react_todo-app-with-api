@@ -3,7 +3,7 @@ import className from 'classnames';
 import { FormEvent, useState } from 'react';
 import { Todo } from '../types/Todo';
 import * as postService from '../api/todos';
-import { Error } from '../types/Error';
+import { Error, getErrorMessage } from '../utils/errorUtils';
 
 type Props = {
   todo: Todo,
@@ -24,9 +24,8 @@ export const TodoItem: React.FC<Props> = ({
   setLoadingIds,
   todos,
 }) => {
-  const [, setErrorMessage] = useState(Error.None);
-  const [doubleClicked, setDoubleClicked] = useState(false);
-  const [editingTitle, setEditingTitle] = useState(todo.title);
+  const [doubleClicked, setDoubleClicked] = useState<boolean>(false);
+  const [editingTitle, setEditingTitle] = useState<string>(todo.title);
   const { id, title, completed } = todo;
 
   const handleCheckedTodo = (todoId: number) => {
@@ -39,14 +38,14 @@ export const TodoItem: React.FC<Props> = ({
             setTodos(todos);
           })
           .catch(() => {
-            setErrorMessage(Error.Load);
+            getErrorMessage(Error.Load);
           })
           .finally(() => {
             setLoadingIds(currentIds => currentIds.filter(id => id !== todoId));
           });
       })
       .catch(() => {
-        setErrorMessage(Error.Update);
+        getErrorMessage(Error.Update);
       });
   };
 
@@ -75,14 +74,14 @@ export const TodoItem: React.FC<Props> = ({
               setTodos(todos);
             })
             .catch(() => {
-              setErrorMessage(Error.Load);
+              getErrorMessage(Error.Load);
               setLoadingIds(currentIds => currentIds.filter(
                 id => id !== todoId,
               ));
             });
         })
         .catch(() => {
-          setErrorMessage(Error.Delete);
+          getErrorMessage(Error.Delete);
           setLoadingIds(currentIds => currentIds.filter(id => id !== todoId));
         });
 
@@ -103,14 +102,14 @@ export const TodoItem: React.FC<Props> = ({
               ));
             })
             .catch(() => {
-              setErrorMessage(Error.Load);
+              getErrorMessage(Error.Load);
               setLoadingIds(currentIds => currentIds.filter(
                 id => id !== todoId,
               ));
             });
         })
         .catch(() => {
-          setErrorMessage(Error.Update);
+          getErrorMessage(Error.Update);
           setDoubleClicked(false);
           setLoadingIds(currentIds => currentIds.filter(
             id => id !== todoId,
