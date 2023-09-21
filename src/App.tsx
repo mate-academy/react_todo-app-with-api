@@ -92,14 +92,10 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <NewTodo
-          onWaiting={setTempTodo}
-        />
+        <NewTodo onWaiting={setTempTodo} />
 
         <section className="todoapp__main">
-          <TodoList
-            todos={visibleTodos}
-          />
+          <TodoList todos={visibleTodos} />
 
           {tempTodo && (
             <div className="todo">
