@@ -1,24 +1,87 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { getTodos } from './api/todos';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { Status } from './types/Status';
+import { GlobalLoader } from './types/GlobalLoader';
+
+import { TodoList } from './components/TodoList';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoFooter } from './components/TodoFooter';
+import { TodoError } from './components/TodoError';
+
+import { USER_ID } from './utils/userId';
+import { TodoContext } from './components/TodoContext';
+import { ErrorContext } from './components/ErrorContext';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const { todos, setTodos } = useContext(TodoContext);
+  const { setError } = useContext(ErrorContext);
+  const [status, setStatus] = useState(Status.All);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [
+    globalLoader,
+    setGlobalLoader,
+  ] = useState<GlobalLoader>(GlobalLoader.None);
+
+  const filtredTodos = useMemo(() => todos.filter(({ completed }) => {
+    switch (status) {
+      case Status.Active:
+        return !completed;
+      case Status.Completed:
+        return completed;
+      default:
+        return true;
+    }
+  }), [status, todos]);
+
+  const isListActive = useMemo(
+    () => !!todos.length || tempTodo,
+    [todos.length, tempTodo],
+  );
+
+  useEffect(() => {
+    setError('');
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => {
+        setError('Unable to load todos');
+      });
+  }, []);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoHeader
+          onTempTodoAdd={setTempTodo}
+          tempTodo={tempTodo}
+          onGlobalLoaderChange={setGlobalLoader}
+        />
+
+        {isListActive && (
+          <>
+            <TodoList
+              todos={filtredTodos}
+              tempTodo={tempTodo}
+              globalLoader={globalLoader}
+            />
+            <TodoFooter
+              status={status}
+              onStatusChange={setStatus}
+              onGlobalLoaderChange={setGlobalLoader}
+            />
+          </>
+        )}
+      </div>
+
+      <TodoError />
+    </div>
   );
 };
