@@ -160,7 +160,6 @@ export const App: React.FC = () => {
         getTodos(USER_ID)
           .then((value) => {
             setTodos(value);
-            setTodos(value);
           })
           .catch(() => {
             setErrorMessage(Error.Load);
@@ -188,7 +187,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all', {
                 active: completedTodoCount !== 0,
               })}
-              onClick={() => handleToggleAll()}
+              onClick={handleToggleAll}
             />
           )}
           <form onSubmit={(event) => handleSubmit(event)}>
