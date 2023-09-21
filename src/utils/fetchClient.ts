@@ -11,11 +11,13 @@ function wait(delay: number) {
 // To have autocompletion and avoid mistypes
 type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
-function request<T>(
+async function request<T>(
   url: string,
   method: RequestMethod = 'GET',
   data: any = null, // we can send any data to the server
 ): Promise<T> {
+  await wait(300);
+
   const options: RequestInit = { method };
 
   if (data) {
@@ -27,17 +29,17 @@ function request<T>(
   }
 
   // we wait for testing purpose to see loaders
-  return wait(300)
-    .then(() => fetch(BASE_URL + url, options))
-    .then(response => {
-      if (!response.ok) {
-        return response.text().then(error => {
-          throw new Error(error);
-        });
-      }
+  const response = await fetch(BASE_URL + url, options);
 
-      return response.json();
-    });
+  if (!response.ok) {
+    const error = await response.text();
+
+    throw new Error(error);
+  }
+
+  const resp = await response.json();
+
+  return resp;
 }
 
 export const client = {

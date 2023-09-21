@@ -19,7 +19,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   const { setErrorMessage, setIsErrorHidden } = useErrorMessage();
   const [newTitle, setNewTitle] = useState('');
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newTitle) {
       setErrorMessage('Title can\'t be empty');
@@ -39,84 +39,81 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
       userId: USER_ID,
     });
 
-    addTodo(USER_ID, {
+    const newTodo = await addTodo(USER_ID, {
       id: 0,
       completed: false,
       title: newTitle,
       userId: USER_ID,
-    })
-      .then(newTodo => {
-        setTodos(prev => [...prev, newTodo]);
-      })
-      .catch((error) => {
-        setErrorMessage(JSON.parse(error.message).error);
-        setIsErrorHidden(false);
+    });
 
-        setTimeout(() => {
-          setIsErrorHidden(true);
-        }, 3000);
-      })
-      .finally(() => {
-        onWaiting(null);
-        setNewTitle('');
-      });
+    try {
+      setTodos(prev => [...prev, newTodo]);
+    } catch {
+      setErrorMessage('Unable to add todo');
+      setIsErrorHidden(false);
+
+      setTimeout(() => {
+        setIsErrorHidden(true);
+      }, 3000);
+    }
+
+    onWaiting(null);
+    setNewTitle('');
   };
 
   const completeAll = () => {
     const uncompletedTodos = countTodos(todos, false);
 
     if (!uncompletedTodos.length) {
-      todos.forEach(({ id, completed }) => {
+      todos.forEach(async ({ id, completed }) => {
         setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-        updateTodo(id, { completed: !completed })
-          .then((todo) => {
-            setTodos(prev => prev.map((currentTodo) => {
-              if (currentTodo.id === id) {
-                return todo;
-              }
+        const updatedTodo = await updateTodo(id, { completed: !completed });
 
-              return currentTodo;
-            }));
-          })
-          .catch((error) => {
-            setErrorMessage(JSON.parse(error.message).error);
-            setIsErrorHidden(false);
-
-            setTimeout(() => {
-              setIsErrorHidden(true);
-            }, 3000);
-          })
-          .finally(() => {
-            setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
-          });
-      });
-
-      return;
-    }
-
-    uncompletedTodos.forEach(({ id, completed }) => {
-      setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-      updateTodo(id, { completed: !completed })
-        .then((todo) => {
+        try {
           setTodos(prev => prev.map((currentTodo) => {
             if (currentTodo.id === id) {
-              return todo;
+              return updatedTodo;
             }
 
             return currentTodo;
           }));
-        })
-        .catch((error) => {
-          setErrorMessage(JSON.parse(error.message).error);
+        } catch {
+          setErrorMessage('Something went wrong');
           setIsErrorHidden(false);
 
           setTimeout(() => {
             setIsErrorHidden(true);
           }, 3000);
-        })
-        .finally(() => {
-          setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
-        });
+        }
+
+        setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
+      });
+
+      return;
+    }
+
+    uncompletedTodos.forEach(async ({ id, completed }) => {
+      setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
+      const updatedTodo = await updateTodo(id, { completed: !completed });
+
+      try {
+        setTodos(prev => prev.map((currentTodo) => {
+          if (currentTodo.id === id) {
+            return updatedTodo;
+          }
+
+          return currentTodo;
+        }));
+      } catch {
+        setErrorMessage('Something went wrong');
+        setIsErrorHidden(false);
+
+        setTimeout(() => {
+          setIsErrorHidden(true);
+        }, 3000);
+      }
+
+      setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
     });
   };
 
