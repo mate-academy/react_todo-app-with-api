@@ -6,12 +6,7 @@ import { TodoList } from './components/TodoList';
 import { TodosFilter } from './components/TodosFilter';
 import { ErrorMessage } from './types/ErrorMessage';
 import { Filter } from './types/Filter';
-import {
-  createTodo,
-  deleteTodo,
-  getTodos,
-  updateTodo,
-} from './api/todos';
+import { createTodo, deleteTodo, getTodos } from './api/todos';
 
 const USER_ID = 11451;
 
@@ -44,12 +39,6 @@ export const App: React.FC = () => {
     }
   }, [filterBy, todos]);
 
-  const isAllCompleted
-    = todos.filter(todo => todo.completed).length === todos.length;
-
-  const isAllUncompleted
-    = todos.filter(todo => !todo.completed).length === todos.length;
-
   const resetField = (): void => {
     setTodoTitle('');
     setIsError(false);
@@ -68,25 +57,6 @@ export const App: React.FC = () => {
       .finally(() => setProcessingIds([]));
   };
 
-  const handleUpdateTodo = (todo: Todo) => {
-    setProcessingIds(current => [...current, todo.id]);
-    const currentTodo = todos.filter(toDo => toDo.id === todo.id)[0];
-    const indexOfTodo = todos.indexOf(currentTodo);
-
-    updateTodo(todo)
-      .then(() => setTodos(
-        currentTodos => [
-          ...currentTodos.slice(0, indexOfTodo),
-          todo,
-          ...currentTodos.slice(indexOfTodo + 1),
-        ],
-      ))
-      .catch(() => {
-        showError(ErrorMessage.updateError);
-      })
-      .finally(() => setProcessingIds([]));
-  };
-
   const clearCompleted = () => {
     todos.map(todo => {
       if (todo.completed) {
@@ -96,20 +66,6 @@ export const App: React.FC = () => {
 
       return todo;
     });
-  };
-
-  const handleToggleAll = () => {
-    if (isAllCompleted || isAllUncompleted) {
-      todos.map(todo => handleUpdateTodo({
-        ...todo,
-        completed: !todo.completed,
-      }));
-    } else {
-      todos.map(todo => !todo.completed && handleUpdateTodo({
-        ...todo,
-        completed: !todo.completed,
-      }));
-    }
   };
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
@@ -170,21 +126,27 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          <button
+            data-cy="ToggleAllButton"
+            aria-label="toggle-button"
+            type="button"
+            className="todoapp__toggle-all"
+          />
+          {!todos.find(todo => todo.completed === false) && (
             <button
               type="button"
               aria-label="button"
-              onClick={handleToggleAll}
               className={
                 cn(
                   'todoapp__toggle-all',
                   {
-                    active: isAllCompleted,
+                    active: !!todos.length,
                   },
                 )
               }
             />
           )}
+
           <form onSubmit={handleAddTodo}>
             <input
               type="text"
@@ -197,13 +159,21 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        <TodoList
-          todos={filteredTodos}
-          onDelete={handleDeleteTodo}
-          onUpdate={handleUpdateTodo}
-          processingIds={processingIds}
-          tempTodo={tempTodo}
-        />
+        {tempTodo
+          ? (
+            <TodoList
+              todos={[...filteredTodos, tempTodo]}
+              onDelete={handleDeleteTodo}
+              processingIds={processingIds}
+            />
+          )
+          : (
+            <TodoList
+              todos={filteredTodos}
+              onDelete={handleDeleteTodo}
+              processingIds={processingIds}
+            />
+          )}
 
         {
           todos.length > 0 && (
