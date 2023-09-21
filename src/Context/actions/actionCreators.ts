@@ -16,12 +16,22 @@ export const deleteTodoAction = (data: number): Actions => ({
   payload: data,
 });
 
-export const setIsDeletingAction = (data: number): Actions => ({
-  type: 'IS_DELETING',
+export const patchTodoAction = (data: Todo) : Actions => ({
+  type: 'PATCH',
   payload: data,
 });
 
-export const removeIsDeletingAction = (data: number): Actions => ({
-  type: 'REMOVE_IS_DELETING',
+export const allCompletedAction = () : Actions => ({
+  type: 'ALL_ACTIVE',
+  payload: null,
+});
+
+export const setIsSpinningAction = (data: number): Actions => ({
+  type: 'IS_SPINNING',
+  payload: data,
+});
+
+export const removeIsSpinningAction = (data: number): Actions => ({
+  type: 'REMOVE_SPINNING',
   payload: data,
 });

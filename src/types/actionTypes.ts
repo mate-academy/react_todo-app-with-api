@@ -13,9 +13,12 @@ export type Actions = {
   type: 'PATCH',
   payload: Todo,
 } | {
-  type: 'IS_DELETING',
+  type: 'ALL_ACTIVE',
+  payload: null,
+} | {
+  type: 'IS_SPINNING',
   payload: number,
 } | {
-  type: 'REMOVE_IS_DELETING',
+  type: 'REMOVE_SPINNING',
   payload: number,
 };

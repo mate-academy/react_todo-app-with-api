@@ -3,7 +3,7 @@ export interface Todo {
   userId: number;
   title: string;
   completed: boolean;
-  isDeleting?: boolean;
+  isSpinned?: boolean;
 }
 
 export type TodosListType = Todo[];

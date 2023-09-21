@@ -9,9 +9,15 @@ import cn from 'classnames';
 import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
 import { Form } from '../Form';
 import USER_ID from '../../helpers/USER_ID';
-import { addTodo } from '../../api/todos';
-import { postTodoAction } from '../../Context/actions/actionCreators';
+import { addTodo, patchTodo } from '../../api/todos';
+import {
+  postTodoAction,
+  removeIsSpinningAction,
+  patchTodoAction,
+  setIsSpinningAction,
+} from '../../Context/actions/actionCreators';
 import { emptyInputError } from '../../types/apiErrorsType';
+import { getActiveTodos } from '../../helpers/getTodos';
 
 // Component
 export const Header: React.FC = () => {
@@ -29,6 +35,8 @@ export const Header: React.FC = () => {
       ref.current.focus();
     }
   }, [ref, isFocused]);
+
+  // handlers
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -75,6 +83,36 @@ export const Header: React.FC = () => {
       });
   };
 
+  const handleAllToggle = () => {
+    const todosForToggle = isToggleActive
+      ? todos
+      : getActiveTodos(todos);
+
+    todosForToggle.forEach(({ id }) => {
+      const isSpinningAction = setIsSpinningAction(id);
+      const data = { completed: !isToggleActive };
+
+      dispatch(isSpinningAction);
+
+      patchTodo(id, data)
+        .then((patchedTodo) => {
+          const patchAction = patchTodoAction(patchedTodo);
+
+          dispatch(patchAction);
+        })
+        .catch((error) => {
+          setApiError(error);
+        })
+        .finally(() => {
+          const removeAction = removeIsSpinningAction(id);
+
+          dispatch(removeAction);
+        });
+    });
+  };
+
+  // render
+
   return (
     <header className="todoapp__header">
       {/* eslint-disable jsx-a11y/control-has-associated-label */}
@@ -85,6 +123,7 @@ export const Header: React.FC = () => {
             active: isToggleActive,
           })}
           data-cy="ToggleAllButton"
+          onClick={handleAllToggle}
         />
       )}
 
@@ -92,6 +131,7 @@ export const Header: React.FC = () => {
         forCypress="NewTodoField"
         ref={ref}
         placeholder="What needs to be done?"
+        className="todoapp__new-todo"
         onInputChange={handleInputChange}
         value={inputValue}
         onSubmit={handleSubmit}

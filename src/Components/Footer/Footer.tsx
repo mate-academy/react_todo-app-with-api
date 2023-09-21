@@ -6,8 +6,8 @@ import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
 import { deleteTodo } from '../../api/todos';
 import {
   deleteTodoAction,
-  setIsDeletingAction,
-  removeIsDeletingAction,
+  setIsSpinningAction,
+  removeIsSpinningAction,
 } from '../../Context/actions/actionCreators';
 
 import { getActiveTodos, getCompletedTodos } from '../../helpers/getTodos';
@@ -30,9 +30,9 @@ export const Footer: React.FC = () => {
     setIsFocused(false);
 
     completedTodos.forEach(({ id }) => {
-      const isDeletingAction = setIsDeletingAction(id);
+      const isSpinningAction = setIsSpinningAction(id);
 
-      dispatch(isDeletingAction);
+      dispatch(isSpinningAction);
       deleteTodo(id)
         .then(() => {
           const deleteAction = deleteTodoAction(id);
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
           dispatch(deleteAction);
         })
         .catch((error) => {
-          const removeAction = removeIsDeletingAction(id);
+          const removeAction = removeIsSpinningAction(id);
 
           dispatch(removeAction);
           setApiError(error);

@@ -21,12 +21,36 @@ export const todosReducer
         return filtered;
       }
 
-      case 'IS_DELETING': {
+      case 'PATCH': {
+        const maped = todos.map((todo) => {
+          if (todo.id === payload.id) {
+            return payload;
+          }
+
+          return todo;
+        });
+
+        return maped;
+      }
+
+      case 'ALL_ACTIVE': {
+        const maped = todos.map((todo) => {
+          const copyTodo = { ...todo };
+
+          copyTodo.completed = false;
+
+          return copyTodo;
+        });
+
+        return maped;
+      }
+
+      case 'IS_SPINNING': {
         const maped = todos.map((todo) => {
           if (todo.id === payload) {
             const copyTodo = { ...todo };
 
-            copyTodo.isDeleting = true;
+            copyTodo.isSpinned = true;
 
             return copyTodo;
           }
@@ -37,12 +61,12 @@ export const todosReducer
         return maped;
       }
 
-      case 'REMOVE_IS_DELETING': {
+      case 'REMOVE_SPINNING': {
         const maped = todos.map((todo) => {
           if (todo.id === payload) {
             const copyTodo = { ...todo };
 
-            delete copyTodo.isDeleting;
+            delete copyTodo.isSpinned;
 
             return copyTodo;
           }

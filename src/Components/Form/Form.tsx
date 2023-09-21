@@ -6,6 +6,9 @@ type Props = {
   value: string,
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void,
   forCypress: string,
+  className: string,
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void,
+  onKeyUp?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 type Ref = HTMLInputElement | null;
@@ -16,16 +19,21 @@ export const Form = React.forwardRef<Ref, Props>(({
   value,
   onSubmit,
   forCypress,
+  className,
+  onBlur = () => {},
+  onKeyUp = () => {},
 }, ref) => (
   <form onSubmit={onSubmit}>
     <input
       data-cy={forCypress}
       type="text"
-      className="todoapp__new-todo"
+      className={className}
       placeholder={placeholder}
       onChange={onInputChange}
       ref={ref}
       value={value}
+      onBlur={onBlur}
+      onKeyUp={onKeyUp}
     />
   </form>
 ));

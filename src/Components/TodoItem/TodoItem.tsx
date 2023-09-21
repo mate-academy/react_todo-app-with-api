@@ -1,33 +1,57 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/todosTypes';
 import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
-import { deleteTodo } from '../../api/todos';
-import { deleteTodoAction } from '../../Context/actions/actionCreators';
+import { deleteTodo, patchTodo } from '../../api/todos';
+import { deleteTodoAction, patchTodoAction }
+  from '../../Context/actions/actionCreators';
+import { Form } from '../Form';
 
 type Props = {
   todo: Todo,
 };
 
+// Component
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { setIsFocused } = useContext(FormFocusContext);
   const {
     id,
     title,
     completed,
+    isSpinned,
   } = todo;
-  const isTodoEdited = todo.isDeleting;
-  const [isDeleting, setIsDeleting] = useState(isTodoEdited || false);
+  const [isTodoSpinned, setIsTodoSpinned] = useState(isSpinned || false);
+  const [isCompleted, setIsCompleted] = useState(completed);
+  const [isEdited, setIsEdited] = useState(false);
   const { dispatch } = useContext(TodosContext);
   const { setApiError } = useContext(ApiErrorContext);
+  const [inputValue, setInputValue] = useState(title);
+  const ref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setIsDeleting(isTodoEdited || false);
-  }, [isTodoEdited]);
+    setIsTodoSpinned(isSpinned || false);
+  }, [isSpinned]);
+
+  useEffect(() => {
+    setIsCompleted(completed);
+  }, [completed]);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, [isEdited]);
+
+  // handlers
 
   const handleDeleteClick = () => {
-    setIsDeleting(true);
+    setIsTodoSpinned(true);
     setIsFocused(false);
 
     deleteTodo(id)
@@ -38,17 +62,92 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       })
       .catch((error) => {
         setApiError(error);
+        setInputValue(title);
       })
       .finally(() => {
-        setIsDeleting(false);
+        setIsTodoSpinned(false);
         setIsFocused(true);
+        setIsEdited(false);
       });
   };
+
+  const handleCompletedToggle = () => {
+    setIsTodoSpinned(true);
+    const data = { completed: !isCompleted };
+
+    patchTodo(id, data)
+      .then((patchedTodo) => {
+        const patchAction = patchTodoAction(patchedTodo);
+
+        setIsCompleted(prev => !prev);
+        dispatch(patchAction);
+      })
+      .catch((error) => {
+        setApiError(error);
+      })
+      .finally(() => {
+        setIsTodoSpinned(false);
+      });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.code === 'Escape') {
+      setIsEdited(false);
+      setInputValue(title);
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>
+  | React.FocusEvent<HTMLInputElement>) => {
+    event.preventDefault();
+
+    const preparedInputValue = inputValue.trim();
+    const data = { title: preparedInputValue };
+
+    if (preparedInputValue === title) {
+      setIsEdited(false);
+
+      return;
+    }
+
+    if (!preparedInputValue.length) {
+      handleDeleteClick();
+
+      return;
+    }
+
+    setIsTodoSpinned(true);
+    setIsEdited(false);
+
+    patchTodo(id, data)
+      .then((patchedTodo) => {
+        const patchAction = patchTodoAction(patchedTodo);
+
+        dispatch(patchAction);
+        setInputValue(patchedTodo.title);
+      })
+      .catch(error => {
+        setApiError(error);
+        setInputValue(title);
+      })
+      .finally(() => {
+        setIsTodoSpinned(false);
+        if (ref.current) {
+          ref.current.disabled = false;
+        }
+      });
+  };
+
+  // render
 
   return (
     <div
       className={cn('todo', {
-        completed,
+        completed: isCompleted,
       })}
       data-cy="Todo"
     >
@@ -57,17 +156,41 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={completed}
+          checked={isCompleted}
+          onChange={handleCompletedToggle}
         />
       </label>
 
-      <span className="todo__title" data-cy="TodoTitle">
-        {title}
-      </span>
+      {isEdited ? (
+        <Form
+          forCypress="TodoTitleField"
+          ref={ref}
+          className="todo__title-field"
+          placeholder="Empty todo will be deleted"
+          value={inputValue}
+          onInputChange={handleInputChange}
+          onSubmit={handleSubmit}
+          onBlur={handleSubmit}
+          onKeyUp={handleKeyUp}
+        />
+
+      ) : (
+        <span
+          className="todo__title"
+          data-cy="TodoTitle"
+          onDoubleClick={() => {
+            setIsEdited(true);
+          }}
+        >
+          {title}
+        </span>
+      )}
 
       <button
         type="button"
-        className="todo__remove"
+        className={cn('todo__remove', {
+          'is-hidden': isEdited,
+        })}
         onClick={handleDeleteClick}
         data-cy="TodoDelete"
       >
@@ -76,7 +199,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       <div
         className={cn('modal overlay', {
-          'is-active': id === 0 || isDeleting,
+          'is-active': id === 0 || isTodoSpinned,
         })}
         data-cy="TodoLoader"
       >
@@ -137,15 +260,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 //   </label>
 
 //   {/* This form is shown instead of the title and remove button */}
-//   <form>
-//     <input
-//       data-cy="TodoTitleField"
-//       type="text"
-//       className="todo__title-field"
-//       placeholder="Empty todo will be deleted"
-//       value="Todo is being edited now"
-//     />
-//   </form>
 
 //   <div className="modal overlay">
 //     <div className="modal-background has-background-white-ter" />
