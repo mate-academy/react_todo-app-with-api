@@ -109,10 +109,10 @@ export const ToDoProvider = ({ children }: Props) => {
   };
 
   const allTodosAreActive = todos.every(t => !t.completed);
-  const toggleActiveTodo = (tasks: Todo[]) => {
+  const toggleActiveTodo = () => {
     const updatedTodos = todos.map(x => {
       if (!x.completed) {
-        return { ...x, isEdited: true };
+        return { ...x, loaderAfterEditing: true };
       }
 
       return x;
@@ -120,7 +120,7 @@ export const ToDoProvider = ({ children }: Props) => {
 
     setTodos(() => updatedTodos);
 
-    tasks.forEach((t) => {
+    todos.forEach(t => {
       if (todos.every((v) => v.completed)) {
         const allTodosCompleted = todos.map((x) => {
           if (x.completed) {

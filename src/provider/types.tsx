@@ -20,7 +20,7 @@ export interface TodoContextType {
   addNewTodo: (event: FormEvent<HTMLFormElement>) => void;
   removeTask: (task: Todo) => void;
   deleteCompleted: (tasks: Todo[]) => void;
-  toggleActiveTodo: (tasks: Todo[]) => void;
+  toggleActiveTodo: () => void;
   toggleCompletedTodos: (task: Todo) => void;
   todoTitleEdition: (task: Todo, newTitle: string, tasks: Todo[]) => void;
   onTitleEdition: (tasks: Todo[], taskId: number) => void;
