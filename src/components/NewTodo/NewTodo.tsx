@@ -16,18 +16,13 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   const { todos, setTodos } = useTodos();
   const { setLoadingTodos } = useLoadingTodos();
 
-  const { setErrorMessage, setIsErrorHidden } = useErrorMessage();
+  const { handleShowError } = useErrorMessage();
   const [newTitle, setNewTitle] = useState('');
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newTitle) {
-      setErrorMessage('Title can\'t be empty');
-      setIsErrorHidden(false);
-
-      setTimeout(() => {
-        setIsErrorHidden(true);
-      }, 3000);
+      handleShowError('Title can\'t be empty');
 
       return;
     }
@@ -49,12 +44,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
     try {
       setTodos(prev => [...prev, newTodo]);
     } catch {
-      setErrorMessage('Unable to add todo');
-      setIsErrorHidden(false);
-
-      setTimeout(() => {
-        setIsErrorHidden(true);
-      }, 3000);
+      handleShowError('Unable to add todo');
     }
 
     onWaiting(null);
@@ -62,37 +52,11 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   };
 
   const completeAll = () => {
-    const uncompletedTodos = countTodos(todos, false);
+    const changingTodos = countTodos(todos, false).length
+      ? countTodos(todos, false)
+      : todos;
 
-    if (!uncompletedTodos.length) {
-      todos.forEach(async ({ id, completed }) => {
-        setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-        const updatedTodo = await updateTodo(id, { completed: !completed });
-
-        try {
-          setTodos(prev => prev.map((currentTodo) => {
-            if (currentTodo.id === id) {
-              return updatedTodo;
-            }
-
-            return currentTodo;
-          }));
-        } catch {
-          setErrorMessage('Something went wrong');
-          setIsErrorHidden(false);
-
-          setTimeout(() => {
-            setIsErrorHidden(true);
-          }, 3000);
-        }
-
-        setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
-      });
-
-      return;
-    }
-
-    uncompletedTodos.forEach(async ({ id, completed }) => {
+    changingTodos.forEach(async ({ id, completed }) => {
       setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
       const updatedTodo = await updateTodo(id, { completed: !completed });
 
@@ -105,12 +69,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
           return currentTodo;
         }));
       } catch {
-        setErrorMessage('Something went wrong');
-        setIsErrorHidden(false);
-
-        setTimeout(() => {
-          setIsErrorHidden(true);
-        }, 3000);
+        handleShowError('Something went wrong');
       }
 
       setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));

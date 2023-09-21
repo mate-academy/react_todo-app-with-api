@@ -7,7 +7,7 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todos: Todo[],
   filterParam: string,
-  onFilterChange: (newFilter:Filters) => void,
+  onFilterChange: (newFilter: Filters) => void,
   clearCompleted: () => void,
 };
 
@@ -17,29 +17,36 @@ export const TodoFilter: React.FC<Props> = ({
   onFilterChange,
   clearCompleted,
 }) => {
+  const itemsLeft = `${countTodos(todos, false).length} item${countTodos(todos, false).length === 1 ? '' : 's'} left`;
+
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${countTodos(todos, false).length} items left`}
+        {itemsLeft}
       </span>
 
       <nav className="filter">
-        {(Object.keys(Filters) as Array<keyof typeof Filters>)
-          .map((key) => (
-            <a
-              href={key === 'All'
-                ? '#/'
-                : `#/${Filters[key][0].toLowerCase() + Filters[key].slice(1)}`}
-              className={classNames(
-                'filter__link',
-                { selected: filterParam === Filters[key] },
-              )}
-              key={key}
-              onClick={() => onFilterChange(Filters[key])}
-            >
-              {Filters[key]}
-            </a>
-          ))}
+        {(Object.values(Filters))
+          .map((value) => {
+            const hrefValue = value === 'all'
+              ? '#/'
+              : `#/${value[0].toLowerCase() + value.slice(1)}`;
+
+            return (
+              <a
+                href={hrefValue}
+                className={classNames(
+                  'filter__link',
+                  'is-capitalized',
+                  { selected: filterParam === value },
+                )}
+                key={value}
+                onClick={() => onFilterChange(value)}
+              >
+                {value}
+              </a>
+            );
+          })}
       </nav>
 
       <button

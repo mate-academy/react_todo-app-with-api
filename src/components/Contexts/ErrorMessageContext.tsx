@@ -5,6 +5,7 @@ interface ErrorContextType {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
   isErrorHidden: boolean,
   setIsErrorHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  handleShowError: (error: string) => void,
 }
 
 export const ErrorMessageContext = React.createContext({} as ErrorContextType);
@@ -22,6 +23,14 @@ export const ErrorMessageContextProvider: React.FC<Props> = ({ children }) => {
     setErrorMessage,
     isErrorHidden,
     setIsErrorHidden,
+    handleShowError(error: string) {
+      setErrorMessage(error);
+      setIsErrorHidden(false);
+
+      setTimeout(() => {
+        setIsErrorHidden(true);
+      }, 3000);
+    },
   };
 
   return (

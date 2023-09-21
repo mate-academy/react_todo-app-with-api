@@ -77,9 +77,6 @@ export const TodoTask: React.FC<Props> = ({
     const updatedTodo = await updateTodo(todoId,
       { completed: event.target.checked });
 
-    // eslint-disable-next-line no-console
-    console.log(todoId);
-
     try {
       setTodos(prev => prev.map(currentTodo => {
         if (currentTodo.id === todoId) {

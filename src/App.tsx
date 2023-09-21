@@ -28,9 +28,9 @@ export const App: React.FC = () => {
   const { setLoadingTodos } = useLoadingTodos();
   const {
     errorMessage,
-    setErrorMessage,
     isErrorHidden,
     setIsErrorHidden,
+    handleShowError,
   } = useErrorMessage();
 
   const [filterParam, setFilterParam] = useState(Filters.All);
@@ -38,36 +38,24 @@ export const App: React.FC = () => {
   const clearCompletedTodos = () => {
     const completedTodos = countTodos(todos, true);
 
-    completedTodos.forEach(({ id }) => {
+    completedTodos.forEach(async ({ id }) => {
       setLoadingTodos(prev => [...prev, { todoId: id, isLoading: true }]);
-      deleteTodo(id)
-        .then(() => {
-          setTodos(prev => prev.filter((todo) => id !== todo.id));
-        })
-        .catch((error) => {
-          setErrorMessage(JSON.parse(error.message).error);
-          setIsErrorHidden(false);
+      await deleteTodo(id);
+      try {
+        setTodos(prev => prev.filter((todo) => id !== todo.id));
+      } catch {
+        handleShowError('Unable to delete todo');
+      }
 
-          setTimeout(() => {
-            setIsErrorHidden(true);
-          }, 3000);
-        })
-        .finally(() => {
-          setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
-        });
+      setLoadingTodos(prev => prev.filter(todo => todo.todoId !== id));
     });
   };
 
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch((error) => {
-        setErrorMessage(JSON.parse(error.message).error);
-        setIsErrorHidden(false);
-
-        setTimeout(() => {
-          setIsErrorHidden(true);
-        }, 3000);
+      .catch(() => {
+        handleShowError('Unable to load todos');
       });
   }, []);
 
