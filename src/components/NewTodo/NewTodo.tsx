@@ -16,6 +16,8 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   const { todos, setTodos } = useTodos();
   const { setLoadingTodos } = useLoadingTodos();
 
+  const [isAdding, setIsAdding] = useState(false);
+
   const { handleShowError } = useErrorMessage();
   const [newTitle, setNewTitle] = useState('');
 
@@ -34,6 +36,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
       userId: USER_ID,
     });
 
+    setIsAdding(true);
     const newTodo = await addTodo(USER_ID, {
       id: 0,
       completed: false,
@@ -49,6 +52,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
 
     onWaiting(null);
     setNewTitle('');
+    setIsAdding(false);
   };
 
   const completeAll = () => {
@@ -94,6 +98,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
           placeholder="What needs to be done?"
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
+          disabled={isAdding}
         />
       </form>
     </header>
