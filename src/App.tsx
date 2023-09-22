@@ -140,7 +140,7 @@ export const App: React.FC = () => {
   const handleTodoToggle = async (todoId: number, completed: boolean) => {
     setIsLoading({ ...isLoading, [todoId]: true });
 
-    const originalTodos = [...todos];
+    const originalTodo = todos.find(todo => todo.id === todoId);
 
     setTodos(prevTodos => prevTodos.map(todo => (todo.id === todoId
       ? { ...todo, completed }
@@ -149,8 +149,13 @@ export const App: React.FC = () => {
     try {
       await updateTodo(todoId, { completed });
     } catch (error) {
-      setTodos(originalTodos);
-      handleErrorMessage(setErrorMessage, 'Unable to toggle a todo');
+      if (originalTodo) {
+        setTodos(prevTodos => prevTodos.map(todo => (todo.id === todoId
+          ? originalTodo
+          : todo)));
+      }
+
+      handleErrorMessage(setErrorMessage, 'Unable to update a todo');
     } finally {
       setIsLoading({ ...isLoading, [todoId]: false });
     }
@@ -211,7 +216,7 @@ export const App: React.FC = () => {
 
   const filteredTodos = filterTodos(todos, currentFilter);
   const uncompletedCount = todos.filter((todo: Todo) => !todo.completed).length;
-  const allTodosAreActive = todos.every((todo: Todo) => !todo.completed);
+  const allTodosAreActive = todos.every((todo: Todo) => todo.completed);
   const shouldShowFooter = todos.length > 0;
   // && (
   //   currentFilter === FilterType.All
@@ -273,11 +278,11 @@ export const App: React.FC = () => {
                     ref={titleEditRef}
                     onKeyDown={async (event) => {
                       if (event.key === 'Enter') {
-                        const newTitle = event.currentTarget.value; // Assuming you're using controlled components
+                        const newTitle = event.currentTarget.value;
 
                         if (newTitle.trim() === '') {
                           try {
-                            await deleteTodo(todo.id); // Call your API delete function here
+                            await deleteTodo(todo.id);
                             setTodos(currentTodos => currentTodos
                               .filter(currentTodo => currentTodo.id
                                 !== todo.id));
@@ -288,7 +293,7 @@ export const App: React.FC = () => {
                         } else {
                           try {
                             const updatedTodo = await updateTodo(todo.id, {
-                              title: newTitle
+                              title: newTitle,
                             });
 
                             setTodos(currentTodos => currentTodos
@@ -429,7 +434,7 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => setErrorMessage(null)}
+          onClick={() => setErrorMessage('')}
           aria-label="Hide error"
         />
         {errorMessage}
