@@ -20,10 +20,10 @@ import {
 import {
   useErrorMessage,
 } from './components/Contexts/ErrorMessageContext';
+import { TempTodo } from './components/TempTodo/TempTodo';
 
 export const App: React.FC = () => {
   const { todos, setTodos } = useTodos();
-
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const { setLoadingTodos } = useLoadingTodos();
   const {
@@ -32,8 +32,29 @@ export const App: React.FC = () => {
     setIsErrorHidden,
     handleShowError,
   } = useErrorMessage();
-
   const [filterParam, setFilterParam] = useState(Filters.All);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => {
+        handleShowError('Unable to load todos');
+      });
+  }, []);
+
+  const visibleTodos = useMemo(() => {
+    switch (filterParam) {
+      case Filters.Active:
+        return todos.filter(({ completed }) => !completed);
+
+      case Filters.Completed:
+        return todos.filter(({ completed }) => completed);
+
+      case Filters.All:
+      default:
+        return todos;
+    }
+  }, [filterParam, todos]);
 
   const clearCompletedTodos = async () => {
     const completedTodos = countTodos(todos, true).map(({ id }) => (
@@ -53,30 +74,6 @@ export const App: React.FC = () => {
     setLoadingTodos([]);
   };
 
-  useEffect(() => {
-    getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => {
-        handleShowError('Unable to load todos');
-      });
-  }, []);
-
-  const visibleTodos = useMemo(() => {
-    switch (filterParam) {
-      case Filters.Active:
-        return todos.filter(({ completed }) => !completed);
-
-      case Filters.Completed:
-        return todos.filter(({ completed }) => completed);
-
-      case Filters.All:
-        return todos;
-
-      default:
-        return todos;
-    }
-  }, [filterParam, todos]);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -88,21 +85,7 @@ export const App: React.FC = () => {
           <TodoList todos={visibleTodos} />
 
           {tempTodo && (
-            <div className="todo">
-              <label className="todo__status-label">
-                <input type="checkbox" className="todo__status" />
-              </label>
-
-              <span className="todo__title">{tempTodo.title}</span>
-              <button type="button" className="todo__remove">×</button>
-
-              <div className="modal overlay is-active">
-                <div className={'modal-background'
-                  + ' has-background-white-ter'}
-                />
-                <div className="loader" />
-              </div>
-            </div>
+            <TempTodo title={tempTodo.title} />
           )}
         </section>
 
@@ -127,7 +110,6 @@ export const App: React.FC = () => {
           onClick={() => setIsErrorHidden(true)}
           aria-label="Delete Button"
         />
-
         {errorMessage}
         <br />
       </div>

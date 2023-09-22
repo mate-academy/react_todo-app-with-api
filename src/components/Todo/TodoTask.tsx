@@ -29,14 +29,16 @@ export const TodoTask: React.FC<Props> = ({
   }, [isEditing]);
 
   const handleChangeTodoTitle = async () => {
-    if (editingTodoTitle === todo.title) {
+    const normalizedTitle = editingTodoTitle.trim();
+
+    if (normalizedTitle === todo.title.trim()) {
       setIsEditing(false);
 
       return;
     }
 
     setLoadingTodos(prev => [...prev, todo.id]);
-    if (editingTodoTitle) {
+    if (normalizedTitle) {
       try {
         const updatedTodo = await updateTodo(todo.id,
           { title: editingTodoTitle });
@@ -53,7 +55,7 @@ export const TodoTask: React.FC<Props> = ({
       }
     }
 
-    if (!editingTodoTitle) {
+    if (!normalizedTitle) {
       try {
         await deleteTodo(todo.id);
         setTodos(prev => prev.filter(({ id }) => id !== todo.id));
@@ -62,8 +64,7 @@ export const TodoTask: React.FC<Props> = ({
       }
     }
 
-    setLoadingTodos(prev => prev.filter(id => (
-      id !== todo.id)));
+    setLoadingTodos(prev => prev.filter(id => id !== todo.id));
 
     setIsEditing(false);
   };
@@ -91,8 +92,7 @@ export const TodoTask: React.FC<Props> = ({
       handleShowError('There is an error when completing todo');
     }
 
-    setLoadingTodos(prev => prev.filter(id => (
-      id !== todo.id)));
+    setLoadingTodos(prev => prev.filter(id => id !== todo.id));
   };
 
   const onDelete = async (todoId: number) => {
@@ -105,8 +105,7 @@ export const TodoTask: React.FC<Props> = ({
       handleShowError('There is an error when deleting todo');
     }
 
-    setLoadingTodos(prev => prev.filter(id => (
-      id !== todo.id)));
+    setLoadingTodos(prev => prev.filter(id => id !== todo.id));
   };
 
   const handlePressEsc = (event: React.KeyboardEvent) => {
@@ -114,6 +113,9 @@ export const TodoTask: React.FC<Props> = ({
       setIsEditing(false);
     }
   };
+
+  const isTodoLoading = loadingTodos.some((id) => (
+    id === todo.id));
 
   return (
     <div
@@ -161,8 +163,7 @@ export const TodoTask: React.FC<Props> = ({
       )}
 
       <div className={classNames('modal overlay', {
-        'is-active': loadingTodos.some((id) => (
-          id === todo.id)),
+        'is-active': isTodoLoading,
       })}
       >
         <div className="modal-background has-background-white-ter" />

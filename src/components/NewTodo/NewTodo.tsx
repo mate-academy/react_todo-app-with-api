@@ -21,29 +21,28 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   const { handleShowError } = useErrorMessage();
   const [newTitle, setNewTitle] = useState('');
 
+  const uncompletedTodos = countTodos(todos, false);
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!newTitle) {
+    if (!newTitle.trim()) {
       handleShowError('Title can\'t be empty');
 
       return;
     }
 
-    onWaiting({
+    const tempTodo = {
       id: 0,
       completed: false,
-      title: newTitle,
+      title: newTitle.trim(),
       userId: USER_ID,
-    });
+    };
+
+    onWaiting(tempTodo);
 
     setIsAdding(true);
     try {
-      const newTodo = await addTodo(USER_ID, {
-        id: 0,
-        completed: false,
-        title: newTitle.trim(),
-        userId: USER_ID,
-      });
+      const newTodo = await addTodo(USER_ID, tempTodo);
 
       setTodos(prev => [...prev, newTodo]);
       setNewTitle('');
@@ -56,8 +55,8 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
   };
 
   const completeAll = async () => {
-    const changingTodos = countTodos(todos, false).length
-      ? countTodos(todos, false)
+    const changingTodos = uncompletedTodos.length
+      ? uncompletedTodos
       : todos;
 
     const todosPromises = changingTodos.map(async ({ id, completed }) => {
@@ -78,8 +77,8 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
 
           return currentTodo;
         }));
-        setLoadingTodos(prevLoads => prevLoads
-          .filter(id => id !== updatedTodo.id));
+        setLoadingTodos(prevLoads => (
+          prevLoads.filter(id => id !== updatedTodo.id)));
       });
     } catch {
       handleShowError('Something went wrong');
@@ -91,7 +90,7 @@ export const NewTodo: React.FC<Props> = ({ onWaiting }) => {
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: !countTodos(todos, false).length,
+          active: !uncompletedTodos.length,
         })}
         aria-label="NewTodo"
         onClick={completeAll}
