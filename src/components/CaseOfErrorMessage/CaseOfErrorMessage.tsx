@@ -7,6 +7,7 @@ export const CaseOfErrorMessage = () => {
 
   return (
     <div
+      data-cy="ErrorNotification"
       className="notification is-danger is-light has-text-weight-normal"
     >
       <button

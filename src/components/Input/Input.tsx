@@ -20,10 +20,12 @@ export const Input = () => {
               className={allTodosAreActive
                 ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
               onClick={() => toggleActiveTodo()}
+              data-cy="ToggleAllButton"
             />
           )}
       <form onSubmit={addNewTodo}>
         <input
+          data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"

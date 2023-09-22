@@ -19,10 +19,17 @@ export const Footer = () => {
   const completedTodos = todos.filter(t => t.completed);
 
   return (
-    <footer className="todoapp__footer">
+    <footer
+      data-cy="Footer"
+      className="todoapp__footer"
+    >
       <TodoCount />
-      <nav className="filter">
+      <nav
+        data-cy="Filter"
+        className="filter"
+      >
         <a
+          data-cy="FilterLinkAll"
           href="#/"
           className={filterTodos === 'all'
             ? 'filter__link selected' : 'filter__link'}
@@ -32,6 +39,7 @@ export const Footer = () => {
         </a>
 
         <a
+          data-cy="FilterLinkActive"
           href="#/active"
           className={filterTodos === 'active'
             ? 'filter__link selected' : 'filter__link'}
@@ -41,6 +49,7 @@ export const Footer = () => {
         </a>
 
         <a
+          data-cy="FilterLinkCompleted"
           href="#/completed"
           className={filterTodos === 'completed'
             ? 'filter__link selected' : 'filter__link'}
@@ -51,6 +60,7 @@ export const Footer = () => {
       </nav>
 
       <button
+        data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
         onClick={() => deleteCompleted(completedTodos)}

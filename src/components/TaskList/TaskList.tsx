@@ -17,7 +17,10 @@ export const TaskList = () => {
   };
 
   return (
-    <section className="todoapp__main">
+    <section
+      className="todoapp__main"
+      data-cy="TodoList"
+    >
       {visibleTodos().map(todo => (
         <Task key={todo.id} todo={todo} />
       ))}

@@ -44,9 +44,11 @@ export const Task = ({ todo }: Props) => {
         todo.completed ? 'todo completed' : 'todo'
       }
       onDoubleClick={() => onTitleEdition(todos, todo.id)}
+      data-cy="Todo"
     >
       <label className="todo__status-label">
         <input
+          data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
           onClick={() => toggleCompletedTodos(todo)}
@@ -57,6 +59,7 @@ export const Task = ({ todo }: Props) => {
         ? (
           <form>
             <input
+              data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
@@ -69,9 +72,15 @@ export const Task = ({ todo }: Props) => {
           </form>
         ) : (
           <>
-            <span className="todo__title">{todo.title}</span>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+            >
+              {todo.title}
+            </span>
 
             <button
+              data-cy="TodoDelete"
               type="button"
               className="todo__remove"
               onClick={() => removeTask(todo)}
@@ -86,7 +95,10 @@ export const Task = ({ todo }: Props) => {
       || (editedTodo && todo.completed)
           || todo.loaderAfterEditing)
         && (
-          <div className="modal overlay is-active">
+          <div
+            data-cy="TodoLoader"
+            className="modal overlay is-active"
+          >
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
