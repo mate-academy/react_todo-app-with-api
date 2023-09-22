@@ -8,17 +8,20 @@ export const Input = () => {
     setNewTodoName,
     allTodosAreActive,
     toggleActiveTodo,
+    todos,
   } = useTodo();
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={allTodosAreActive
-          ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
-        onClick={() => toggleActiveTodo()}
-      />
-
+      {todos.length !== 0
+          && (
+            <button
+              type="button"
+              className={allTodosAreActive
+                ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
+              onClick={() => toggleActiveTodo()}
+            />
+          )}
       <form onSubmit={addNewTodo}>
         <input
           type="text"
