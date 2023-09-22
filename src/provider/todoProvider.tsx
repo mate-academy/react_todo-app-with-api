@@ -23,7 +23,6 @@ export const ToDoProvider = ({ children }: Props) => {
   const [temptTodo, setTempTodo] = useState<Todo | null>(null);
   const [temptTodos, setTempTodos] = useState<Todo[]>([]);
   const [editedTodo, setEditedTodo] = useState<boolean>(false);
-  const [titleEdition, setTitleEdition] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>('null');
 
   const handleShowError = (err: Errors) => {
@@ -154,7 +153,6 @@ export const ToDoProvider = ({ children }: Props) => {
   };
 
   const onTitleEdition = (tasks: Todo[], taskId: number) => {
-    setTitleEdition(true);
     setTodos(
       tasks.map((t) => {
         if (t.id === taskId) {
@@ -171,15 +169,27 @@ export const ToDoProvider = ({ children }: Props) => {
     );
   };
 
+  const closeTitleEdition = (tasks: Todo[], taskId: number) => {
+    setTodos(
+      tasks.map((t) => {
+        if (t.id === taskId) {
+          return {
+            ...t,
+            isOnTitleEdition: false,
+          };
+        }
+
+        return t;
+      }),
+    );
+  };
+
   const todoTitleEdition = (
     task: Todo,
     updatedTitle: string,
     tasks: Todo[],
   ) => {
-    if (updatedTitle === task.title) {
-      setTitleEdition(false);
-    } else if (updatedTitle === '') {
-      setTitleEdition(false);
+    if (updatedTitle === '') {
       removeTask(task);
     } else {
       setTodos(
@@ -201,9 +211,6 @@ export const ToDoProvider = ({ children }: Props) => {
         })
         .catch(() => {
           handleShowError(Errors.Update);
-        })
-        .finally(() => {
-          setTitleEdition(false);
         });
     }
   };
@@ -219,7 +226,6 @@ export const ToDoProvider = ({ children }: Props) => {
       temptTodos,
       newTitle,
       allTodosAreActive,
-      titleEdition,
       setNewTodoName,
       handleShowError,
       handleSetFilterTodos,
@@ -231,8 +237,8 @@ export const ToDoProvider = ({ children }: Props) => {
       toggleCompletedTodos,
       todoTitleEdition,
       onTitleEdition,
+      closeTitleEdition,
       setNewTitle,
-      setTitleEdition,
     }}
     >
       {children}

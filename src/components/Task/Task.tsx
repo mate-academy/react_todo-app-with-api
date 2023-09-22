@@ -9,23 +9,23 @@ type Props = {
 export const Task = ({ todo }: Props) => {
   const {
     temptTodo,
-    removeTask, editedTodo,
-    toggleCompletedTodos,
-    titleEdition,
-    onTitleEdition,
+    editedTodo,
     todos,
+    newTitle,
+    removeTask,
+    toggleCompletedTodos,
+    onTitleEdition,
+    closeTitleEdition,
     setNewTitle,
     todoTitleEdition,
-    newTitle,
-    setTitleEdition,
   } = useTodo();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleEdition && todo.isOnTitleEdition) {
-      inputRef.current!.focus();
+    if (todo.isOnTitleEdition) {
+      inputRef.current?.focus();
     }
-  }, [titleEdition, todo.isOnTitleEdition]);
+  }, [todo.isOnTitleEdition]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -34,7 +34,7 @@ export const Task = ({ todo }: Props) => {
     }
 
     if (e.key === 'Escape') {
-      setTitleEdition(false);
+      closeTitleEdition(todos, todo.id);
     }
   };
 
@@ -53,7 +53,7 @@ export const Task = ({ todo }: Props) => {
         />
       </label>
 
-      {titleEdition && todo.isOnTitleEdition
+      {todo.isOnTitleEdition
         ? (
           <form>
             <input

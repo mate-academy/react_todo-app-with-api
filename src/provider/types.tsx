@@ -12,7 +12,6 @@ export interface TodoContextType {
   temptTodos: Todo[];
   allTodosAreActive: boolean;
   newTitle: string;
-  titleEdition: boolean;
   setNewTodoName: React.Dispatch<React.SetStateAction<string>>;
   handleShowError: (err: Errors) => void;
   handleSetFilterTodos: (filterType: FilterType) => void;
@@ -24,8 +23,8 @@ export interface TodoContextType {
   toggleCompletedTodos: (task: Todo) => void;
   todoTitleEdition: (task: Todo, newTitle: string, tasks: Todo[]) => void;
   onTitleEdition: (tasks: Todo[], taskId: number) => void;
+  closeTitleEdition: (tasks: Todo[], taskId: number) => void;
   setNewTitle: React.Dispatch<React.SetStateAction<string>>;
-  setTitleEdition: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export enum Errors {
