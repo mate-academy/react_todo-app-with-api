@@ -53,6 +53,7 @@ export const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState<Record<number, boolean>>({});
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(true);
+  const [editingTitle, setEditingTitle] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const titleEditRef = useRef<HTMLInputElement>(null);
 
@@ -232,16 +233,16 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {(todos.length > 0
-          // && (currentFilter !== FilterType.Active || todos.some(todo => !todo.completed)))
-          && (
-            <button
-              type="button"
-              className={`todoapp__toggle-all ${allTodosAreActive ? 'active' : ''}`}
-              data-cy="ToggleAllButton"
-              aria-label="Toggle All"
-              onClick={toggleAllTodos}
-            />
-          ))}
+            // && (currentFilter !== FilterType.Active || todos.some(todo => !todo.completed)))
+            && (
+              <button
+                type="button"
+                className={`todoapp__toggle-all ${allTodosAreActive ? 'active' : ''}`}
+                data-cy="ToggleAllButton"
+                aria-label="Toggle All"
+                onClick={toggleAllTodos}
+              />
+            ))}
           <form onSubmit={handleNewTodoSubmit}>
             <input
               data-cy="NewTodoField"
@@ -274,7 +275,8 @@ export const App: React.FC = () => {
                     type="text"
                     className="todo__title-field"
                     placeholder="Empty todo will be deleted"
-                    value={todo.title}
+                    value={editingTitle}
+                    onChange={event => setEditingTitle(event.target.value)}
                     ref={titleEditRef}
                     onKeyDown={async (event) => {
                       if (event.key === 'Enter') {
@@ -311,17 +313,16 @@ export const App: React.FC = () => {
                         toggleEditing(todo.id); // Exit editing mode without saving
                       }
                     }}
+                    onFocus={() => setEditingTitle(todo.title)}
                   />
                 ) : (
                   <span
                     data-cy="TodoTitle"
                     className="todo__title"
-                    onDoubleClick={() => toggleEditing(todo.id)}
-                  // onKeyDown={(event) => {
-                  //   if (event.key === 'Enter') {
-                  //     toggleEditing(todo.id);
-                  //   }
-                  // }}
+                    onDoubleClick={() => {
+                      setEditingTitle(todo.title);
+                      toggleEditing(todo.id);
+                    }}
                   >
                     {todo.title}
                   </span>
