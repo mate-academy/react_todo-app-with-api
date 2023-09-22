@@ -12,7 +12,6 @@ export const Input = () => {
 
   return (
     <header className="todoapp__header">
-      {/* this button is active only if there are some active todos */}
       <button
         type="button"
         className={allTodosAreActive
@@ -20,7 +19,6 @@ export const Input = () => {
         onClick={() => toggleActiveTodo()}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={addNewTodo}>
         <input
           type="text"

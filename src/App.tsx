@@ -22,7 +22,6 @@ export const App: React.FC = () => {
         <Input />
         {todos && <TaskList />}
 
-        {/* Hide the footer if there are no todos */}
         {todos.length !== 0
           && (
             <Footer />

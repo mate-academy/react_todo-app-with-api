@@ -2,9 +2,6 @@
 
 import { useTodo } from '../../provider/todoProvider';
 
-/* Notification is shown in case of any error */
-/* Add the 'hidden' class to hide the message smoothly */
-
 export const CaseOfErrorMessage = () => {
   const { error, closeErrorMessage } = useTodo();
 
