@@ -1,4 +1,4 @@
-export enum GlobalLoader {
+export enum TodoLoader {
   None = '',
   Active = 'active',
   Completed = 'completed',

@@ -8,7 +8,7 @@ import { getTodos } from './api/todos';
 
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
-import { GlobalLoader } from './types/GlobalLoader';
+import { TodoLoader } from './types/TodoLoader';
 
 import { TodoList } from './components/TodoList';
 import { TodoHeader } from './components/TodoHeader';
@@ -25,9 +25,9 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState(Status.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [
-    globalLoader,
-    setGlobalLoader,
-  ] = useState<GlobalLoader>(GlobalLoader.None);
+    todoLoader,
+    setTodoLoader,
+  ] = useState<TodoLoader>(TodoLoader.None);
 
   const filtredTodos = useMemo(() => todos.filter(({ completed }) => {
     switch (status) {
@@ -62,7 +62,7 @@ export const App: React.FC = () => {
         <TodoHeader
           onTempTodoAdd={setTempTodo}
           tempTodo={tempTodo}
-          onGlobalLoaderChange={setGlobalLoader}
+          onGlobalLoaderChange={setTodoLoader}
         />
 
         {isListActive && (
@@ -70,12 +70,12 @@ export const App: React.FC = () => {
             <TodoList
               todos={filtredTodos}
               tempTodo={tempTodo}
-              globalLoader={globalLoader}
+              globalLoader={todoLoader}
             />
             <TodoFooter
               status={status}
               onStatusChange={setStatus}
-              onGlobalLoaderChange={setGlobalLoader}
+              onGlobalLoaderChange={setTodoLoader}
             />
           </>
         )}

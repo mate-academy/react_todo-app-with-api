@@ -9,11 +9,11 @@ import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { TodoContext } from '../TodoContext';
 import { ErrorContext } from '../ErrorContext';
-import { GlobalLoader } from '../../types/GlobalLoader';
+import { TodoLoader } from '../../types/TodoLoader';
 
 type Props = {
   todo: Todo;
-  loader: GlobalLoader;
+  loader: TodoLoader;
 };
 
 export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
@@ -59,20 +59,22 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
   };
 
   const saveChanges = () => {
-    if (editing === title) {
+    const tempEditing = editing.trim();
+
+    if (tempEditing === title) {
       disableEditing();
 
       return;
     }
 
-    if (!editing) {
+    if (!tempEditing) {
       deleteTodoById();
       disableEditing();
 
       return;
     }
 
-    updateTodoById({ title: editing });
+    updateTodoById({ title: tempEditing });
     disableEditing();
   };
 
@@ -106,16 +108,16 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
 
   useEffect(() => {
     switch (loader) {
-      case GlobalLoader.All:
+      case TodoLoader.All:
         setIsLoading(true);
         break;
-      case GlobalLoader.Active:
+      case TodoLoader.Active:
         if (!completed) {
           setIsLoading(true);
         }
 
         break;
-      case GlobalLoader.Completed:
+      case TodoLoader.Completed:
         if (completed) {
           setIsLoading(true);
         }
@@ -180,9 +182,13 @@ export const TodoItem: React.FC<Props> = ({ todo, loader }) => {
           </>
         )}
 
-        <div className={classNames('modal', 'overlay', {
-          'is-active': isLoading,
-        })}
+        <div className={classNames(
+          'modal',
+          'overlay',
+          {
+            'is-active': isLoading,
+          },
+        )}
         >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />

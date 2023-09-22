@@ -10,12 +10,12 @@ import { USER_ID } from '../../utils/userId';
 import { addTodo, updateTodo } from '../../api/todos';
 import { TodoContext } from '../TodoContext';
 import { ErrorContext } from '../ErrorContext';
-import { GlobalLoader } from '../../types/GlobalLoader';
+import { TodoLoader } from '../../types/TodoLoader';
 
 type Props = {
   onTempTodoAdd: (todo: Todo | null) => void;
   tempTodo: Todo | null;
-  onGlobalLoaderChange: (globalLoader: GlobalLoader) => void;
+  onGlobalLoaderChange: (globalLoader: TodoLoader) => void;
 };
 
 export const TodoHeader: React.FC<Props> = (props) => {
@@ -35,8 +35,11 @@ export const TodoHeader: React.FC<Props> = (props) => {
   const handleSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!title) {
+    const tempTitle = title.trim();
+
+    if (!tempTitle) {
       setError('Title can\'t be empty');
+      setTitle('');
 
       return;
     }
@@ -44,7 +47,7 @@ export const TodoHeader: React.FC<Props> = (props) => {
     onTempTodoAdd({
       id: 0,
       userId: USER_ID,
-      title,
+      title: tempTitle,
       completed: false,
     });
   };
@@ -53,8 +56,8 @@ export const TodoHeader: React.FC<Props> = (props) => {
     const updatedTodos: Promise<Todo>[] = [];
 
     onGlobalLoaderChange(isAllCompleted
-      ? GlobalLoader.Completed
-      : GlobalLoader.Active);
+      ? TodoLoader.Completed
+      : TodoLoader.Active);
     todos.forEach(todo => {
       updatedTodos.push(updateTodo(todo.id, { completed: !isAllCompleted })
         .then(updatedTodo => updatedTodo)
@@ -66,7 +69,7 @@ export const TodoHeader: React.FC<Props> = (props) => {
     Promise.all(updatedTodos)
       .then(setTodos)
       .catch(() => setError('Unable to update a todo'))
-      .finally(() => onGlobalLoaderChange(GlobalLoader.None));
+      .finally(() => onGlobalLoaderChange(TodoLoader.None));
   };
 
   useEffect(() => {

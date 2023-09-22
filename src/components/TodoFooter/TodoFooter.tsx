@@ -4,12 +4,12 @@ import { Status } from '../../types/Status';
 import { TodoContext } from '../TodoContext';
 import { deleteTodo } from '../../api/todos';
 import { ErrorContext } from '../ErrorContext';
-import { GlobalLoader } from '../../types/GlobalLoader';
+import { TodoLoader } from '../../types/TodoLoader';
 
 type Props = {
   status: Status;
   onStatusChange: (status: Status) => void;
-  onGlobalLoaderChange: (globalLoader: GlobalLoader) => void;
+  onGlobalLoaderChange: (globalLoader: TodoLoader) => void;
 };
 
 export const TodoFooter: React.FC<Props> = (props) => {
@@ -22,16 +22,17 @@ export const TodoFooter: React.FC<Props> = (props) => {
   const { todos, setTodos } = useContext(TodoContext);
   const { setError } = useContext(ErrorContext);
 
-  const uncomplitedTodos = useMemo(() => todos
-    .filter(({ completed }) => !completed), [todos]);
+  const uncomplitedTodos = useMemo(() => (
+    todos.filter(({ completed }) => !completed)
+  ), [todos]);
 
-  const isS = useMemo(
+  const addSToItem = useMemo(
     () => (uncomplitedTodos.length === 1 ? '' : 's'),
     [uncomplitedTodos.length],
   );
 
   const handleComplDelete = () => {
-    onGlobalLoaderChange(GlobalLoader.Completed);
+    onGlobalLoaderChange(TodoLoader.Completed);
 
     const deletedTodos: Promise<number>[] = [];
 
@@ -51,13 +52,13 @@ export const TodoFooter: React.FC<Props> = (props) => {
           .filter(todo => !res.includes(todo.id)));
       })
       .catch(() => setError('Unable to delete a todo'))
-      .finally(() => onGlobalLoaderChange(GlobalLoader.None));
+      .finally(() => onGlobalLoaderChange(TodoLoader.None));
   };
 
   return (
     <footer className="todoapp__footer">
       <span className="todo-count">
-        {`${uncomplitedTodos.length} item${isS} left`}
+        {`${uncomplitedTodos.length} item${addSToItem} left`}
       </span>
 
       <nav className="filter">

@@ -23,7 +23,6 @@ export const TodoError: React.FC = () => {
         className="delete"
         onClick={() => setError('')}
       />
-
       {error}
     </div>
   );

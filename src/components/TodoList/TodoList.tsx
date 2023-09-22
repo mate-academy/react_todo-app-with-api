@@ -1,11 +1,11 @@
 import { Todo } from '../../types/Todo';
-import { GlobalLoader } from '../../types/GlobalLoader';
+import { TodoLoader } from '../../types/TodoLoader';
 import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  globalLoader: GlobalLoader,
+  globalLoader: TodoLoader,
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -22,7 +22,7 @@ export const TodoList: React.FC<Props> = ({
           loader={globalLoader}
         />
       ))}
-      {tempTodo && <TodoItem todo={tempTodo} loader={GlobalLoader.All} />}
+      {tempTodo && <TodoItem todo={tempTodo} loader={TodoLoader.All} />}
     </section>
   );
 };
