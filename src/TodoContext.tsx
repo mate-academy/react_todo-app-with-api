@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { TodoType } from './types/TodoType';
 import { Filter } from './types/Filter';

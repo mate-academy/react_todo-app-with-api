@@ -57,7 +57,6 @@ export const Footer = () => {
             {`${activeTodos.length} items left`}
           </span>
 
-          {/* Active filter should have a 'selected' class */}
           <nav className="filter">
             <a
               href="#/"

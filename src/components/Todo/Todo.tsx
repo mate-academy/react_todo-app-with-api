@@ -24,10 +24,15 @@ export const Todo: React.FC<Props> = ({ todo }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>(title);
+  const [isSelectedDeleting, setIsSelectedDeleting] = useState<boolean>(false);
 
   const selectedAreDeleting = () => {
     return selectedTodos.some(item => item.id === id);
   };
+
+  useEffect(() => {
+    setIsSelectedDeleting(selectedAreDeleting());
+  }, [selectedTodos, id]);
 
   const handleSingleDelete = async () => {
     setIsLoading(true);
@@ -48,29 +53,24 @@ export const Todo: React.FC<Props> = ({ todo }) => {
   };
 
   const handleSingleUpdate = async (updatedTitle: string) => {
-    let updatedTodo: TodoType;
-
-    if (updatedTitle) {
-      updatedTodo = { ...todo, title: updatedTitle };
-    } else {
-      updatedTodo = { ...todo, completed: !completed };
-    }
+    const updatedTodo = updatedTitle
+      ? { ...todo, title: updatedTitle }
+      : { ...todo, completed: !completed };
 
     setIsLoading(true);
     try {
       await patchTodos(updatedTodo);
       setTodos(currentTodos => {
-        const newTodos = [...currentTodos];
-        const index = newTodos.findIndex(item => item.id === updatedTodo.id);
+        return currentTodos.map(item => {
+          if (item.id === updatedTodo.id) {
+            return updatedTodo;
+          }
 
-        newTodos.splice(index, 1, updatedTodo);
-
-        return newTodos;
+          return item;
+        });
       });
-      setIsLoading(false);
       setIsEditMode(false);
     } catch {
-      setIsLoading(false);
       setErrorMessage(ErrorsType.Update);
       setTimeout(() => {
         setErrorMessage('');
@@ -168,7 +168,7 @@ export const Todo: React.FC<Props> = ({ todo }) => {
       )}
 
       <div className={cn('modal overlay', {
-        'is-active': isLoading || selectedAreDeleting(),
+        'is-active': isLoading || isSelectedDeleting,
       })}
       >
         <div className="modal-background has-background-white-ter" />

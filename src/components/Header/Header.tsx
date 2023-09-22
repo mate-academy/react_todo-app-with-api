@@ -71,11 +71,13 @@ export const Header = () => {
     let preparedList: TodoType[] = [];
 
     if (isAnySelected) {
-      const sortAllInSelect = todos.filter(({ completed }) => !completed);
+      preparedList = todos.reduce((acc: TodoType[], item) => {
+        if (!item.completed) {
+          acc.push({ ...item, completed: true });
+        }
 
-      preparedList = sortAllInSelect.map(item => {
-        return { ...item, completed: true };
-      });
+        return acc;
+      }, []);
     }
 
     if (isAllCompleted) {
