@@ -205,6 +205,11 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         return todo;
       });
     });
+
+    if (changedTodos.length !== todosToChange.length) {
+      setError(UNABLE_UPDATE_ERROR_MESSAGE);
+    }
+
     setTodosIdsUpdating([]);
   };
 
