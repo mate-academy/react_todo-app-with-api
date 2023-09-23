@@ -77,17 +77,15 @@ export const TodoFooter = () => {
         </a>
       </nav>
 
-      {hasCompletedTodo && (
-        <button
-          data-cy="ClearCompletedButton"
-          type="button"
-          className="todoapp__clear-completed"
-          disabled={!hasCompletedTodo}
-          onClick={clearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        data-cy="ClearCompletedButton"
+        type="button"
+        className="todoapp__clear-completed"
+        disabled={!hasCompletedTodo}
+        onClick={clearCompleted}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

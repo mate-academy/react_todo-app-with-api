@@ -1,20 +1,23 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { TodoContext } from '../../context/TodoContext';
 
 type Props = {
   todo: Todo;
-  onDelete: (value: number) => void;
-  isLoading: boolean;
+  onDelete: (value: Todo) => void;
   onEditedId: (value: number | null) => void;
+  isDeleteActive: boolean;
+  onDeleteActive?: (value: boolean) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, onDelete, isLoading, onEditedId,
+  todo, onDelete, onEditedId, isDeleteActive,
 }) => {
   const { setTodos } = useContext(TodoContext);
   const { id, title, completed } = todo;
+
+  const [deletedTodoId, setDeletedTodoId] = useState<number | null>(null);
 
   const handleComplete = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -60,7 +63,10 @@ export const TodoItem: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => onDelete(id)}
+        onClick={() => {
+          setDeletedTodoId(id);
+          onDelete(todo);
+        }}
       >
         ×
       </button>
@@ -69,7 +75,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classnames(
           'modal overlay', {
-            'is-active': isLoading,
+            'is-active': isDeleteActive && id === deletedTodoId,
           },
         )}
       >

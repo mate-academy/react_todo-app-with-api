@@ -34,12 +34,23 @@ export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
   }, [todos, errorMessage]);
 
   const toggleAll = () => {
-    setTodos(currentTodos => {
-      return currentTodos.map(todo => ({
-        ...todo,
-        completed: !todo.completed,
-      }));
-    });
+    const allCompleted = todos.every(({ completed }) => completed);
+
+    if (allCompleted) {
+      setTodos(currentTodos => {
+        return currentTodos.map(todo => ({
+          ...todo,
+          completed: false,
+        }));
+      });
+    } else {
+      setTodos(currentTodos => {
+        return currentTodos.map(todo => ({
+          ...todo,
+          completed: true,
+        }));
+      });
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

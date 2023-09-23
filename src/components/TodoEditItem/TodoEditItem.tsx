@@ -10,7 +10,7 @@ import { updateTodo } from '../../api/todos';
 type Props = {
   todo: Todo;
   onEditedId: () => void;
-  onDelete: (value: number) => void;
+  onDelete: (value: Todo) => void;
   isLoading: boolean;
   onLoad: (value: boolean) => void;
 };
@@ -30,11 +30,9 @@ export const TodoEditItem: React.FC<Props> = ({
 
   const [newTitle, setNewTitle] = useState(todo.title);
 
-  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!newTitle) {
-      onDelete(todo.id);
+  const updateNewTodo = () => {
+    if (!newTitle.trim()) {
+      onDelete(todo);
 
       return;
     }
@@ -57,6 +55,12 @@ export const TodoEditItem: React.FC<Props> = ({
         onLoad(false);
         onEditedId();
       });
+  };
+
+  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    updateNewTodo();
   };
 
   const handlePressEscape = (
@@ -87,7 +91,7 @@ export const TodoEditItem: React.FC<Props> = ({
           placeholder="Empty todo will be deleted"
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
-          onBlur={onEditedId}
+          onBlur={updateNewTodo}
           onKeyUp={handlePressEscape}
         />
       </form>

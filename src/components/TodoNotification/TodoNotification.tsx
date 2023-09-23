@@ -36,7 +36,6 @@ export const TodoNotification: React.FC = () => {
         aria-label="Delete"
         onClick={() => setIsErrorHidden(true)}
       />
-
       {errorMessage}
     </div>
   );

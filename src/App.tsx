@@ -27,14 +27,14 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoHeader
-          onHandleActive={(value) => setIsActive(value)}
-        />
+        <TodoHeader onHandleActive={(value) => setIsActive(value)} />
 
         <TodoList
           isActive={isActive}
+          onHandleActive={(value) => setIsActive(value)}
         />
-        {!!todos.length && (
+
+        {Boolean(todos.length) && (
           <TodoFooter />
         )}
       </div>

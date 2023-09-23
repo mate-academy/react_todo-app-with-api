@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import classnames from 'classnames';
 
 import { getFilteredTodos } from '../../utils/utils';
 import { TodoItem } from '../TodoItem';
@@ -9,9 +8,12 @@ import { TodoTempContext } from '../../context/TodoTempContext';
 import { deleteTodo } from '../../api/todos';
 import { ErrorContext } from '../../context/ErrorContext';
 import { TodoEditItem } from '../TodoEditItem';
+import { TodoTempItem } from '../TodoTempItem';
+import { Todo } from '../../types/Todo';
 
 type Props = {
   isActive: boolean;
+  onHandleActive?: (value: boolean) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -28,15 +30,23 @@ export const TodoList: React.FC<Props> = ({
 
   const [editedId, setEditedId] = useState<number | null>(null);
 
-  const handleDeleteTodo = (todoId: number) => {
-    setIsLoading(true);
+  const [isDeleteActive, setIsDeleteActive] = useState(false);
 
-    deleteTodo(todoId)
+  const handleDeleteTodo = (todo: Todo) => {
+    setIsLoading(true);
+    setIsDeleteActive(true);
+
+    deleteTodo(todo.id)
       .then(() => {
-        setTodos(todos.filter(({ id }) => id !== todoId));
+        setTodos(todos.filter(({ id }) => id !== todo.id));
       })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => setIsLoading(false));
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setIsDeleteActive(false);
+      });
   };
 
   return (
@@ -56,42 +66,15 @@ export const TodoList: React.FC<Props> = ({
             key={todo.id}
             todo={todo}
             onDelete={handleDeleteTodo}
-            isLoading={isLoading}
             onEditedId={setEditedId}
+            isDeleteActive={isDeleteActive}
+            onDeleteActive={(value) => setIsDeleteActive(value)}
           />
         )
       ))}
 
       {todoTemp && (
-        <div data-cy="Todo" className="todo">
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {todoTemp?.title}
-          </span>
-
-          <button type="button" className="todo__remove" data-cy="TodoDelete">
-            ×
-          </button>
-
-          <div
-            data-cy="TodoLoader"
-            className={classnames(
-              'modal overlay', {
-                'is-active': isActive,
-              },
-            )}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
+        <TodoTempItem isActive={isActive} />
       )}
     </section>
   );
