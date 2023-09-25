@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { TodosContext } from '../../Context';
+import { useTodosContext } from '../../hooks/getContextHooks';
 import { TodoItem } from '../TodoItem';
 
 import getFilteredTodos from '../../helpers/getFilteredTodos';
 
 export const TodosList: React.FC = () => {
-  const { todos, filter, tempTodo } = useContext(TodosContext);
+  const { todos, filter, tempTodo } = useTodosContext();
 
   const filteredTodos = getFilteredTodos(todos, filter);
 

@@ -20,11 +20,6 @@ interface Patch {
   payload: Todo,
 }
 
-interface AllActive {
-  type: 'ALL_ACTIVE',
-  payload: Todo[],
-}
-
 interface IsSpinning {
   type: 'IS_SPINNING',
   payload: number,
@@ -36,4 +31,4 @@ interface RemoveSpinning {
 }
 
 export type Actions = Load | Post | Delete
-| Patch | AllActive | IsSpinning | RemoveSpinning;
+| Patch | IsSpinning | RemoveSpinning;

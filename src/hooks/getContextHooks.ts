@@ -1,33 +1,12 @@
 import { useContext } from 'react';
-import { patchTodo } from '../api/todos';
-import { patchTodoAction } from '../Context/actions/actionCreators';
-import { TodosContext, ApiErrorContext } from '../Context';
 
-type UsePatchTodoType = {
-  id: number,
-  data: object,
-  setIsTodoSpinned: React.Dispatch<React.SetStateAction<boolean>>
-};
+import { TodosContext } from '../Context/TodosContext/TodosProvider';
+import { ApiErrorContext } from '../Context/ApiErrorProvider/ApiErrorProvider';
+import { FormFocusContext }
+  from '../Context/FormFocusProvider/FormFocusProvider';
 
-export const usePatchTodo = (args: UsePatchTodoType) => {
-  const { dispatch } = useContext(TodosContext);
-  const { setApiError } = useContext(ApiErrorContext);
-  const {
-    id,
-    data,
-    setIsTodoSpinned,
-  } = args;
+export const useTodosContext = () => useContext(TodosContext);
 
-  return patchTodo(id, data)
-    .then((patchedTodo) => {
-      const patchAction = patchTodoAction(patchedTodo);
+export const useApiErrorContext = () => useContext(ApiErrorContext);
 
-      dispatch(patchAction);
-    })
-    .catch((error) => {
-      setApiError(error);
-    })
-    .finally(() => {
-      setIsTodoSpinned(false);
-    });
-};
+export const useFormFocusContext = () => useContext(FormFocusContext);

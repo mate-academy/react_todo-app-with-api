@@ -1,12 +1,12 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import cn from 'classnames';
 
-import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
+import { useApiErrorContext, useFormFocusContext, useTodosContext }
+  from '../../hooks/getContextHooks';
 import { Form } from '../Form';
 import USER_ID from '../../helpers/USER_ID';
 import { addTodo, patchTodo } from '../../api/todos';
@@ -20,9 +20,9 @@ import { emptyInputError } from '../../types/apiErrorsType';
 import { getActiveTodos } from '../../helpers/getFilteredTodos';
 
 export const Header: React.FC = () => {
-  const { todos, setTempTodo, dispatch } = useContext(TodosContext);
-  const { isFocused } = useContext(FormFocusContext);
-  const { setApiError } = useContext(ApiErrorContext);
+  const { todos, setTempTodo, dispatch } = useTodosContext();
+  const { isFocused } = useFormFocusContext();
+  const { setApiError } = useApiErrorContext();
   const ref = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
 

@@ -1,5 +1,4 @@
 import React, {
-  useContext,
   useEffect,
   useState,
   useRef,
@@ -7,7 +6,8 @@ import React, {
 import cn from 'classnames';
 
 import { Todo } from '../../types/todosTypes';
-import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
+import { useApiErrorContext, useFormFocusContext, useTodosContext }
+  from '../../hooks/getContextHooks';
 import { deleteTodo, patchTodo } from '../../api/todos';
 import { deleteTodoAction, patchTodoAction }
   from '../../Context/actions/actionCreators';
@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { setIsFocused } = useContext(FormFocusContext);
+  const { setIsFocused } = useFormFocusContext();
   const {
     id,
     title,
@@ -28,8 +28,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [isTodoSpinned, setIsTodoSpinned] = useState(isSpinned || false);
   const [isCompleted, setIsCompleted] = useState(completed);
   const [isEdited, setIsEdited] = useState(false);
-  const { dispatch } = useContext(TodosContext);
-  const { setApiError } = useContext(ApiErrorContext);
+  const { dispatch } = useTodosContext();
+  const { setApiError } = useApiErrorContext();
   const [inputValue, setInputValue] = useState(title);
   const ref = useRef<HTMLInputElement>(null);
 

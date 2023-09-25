@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 
-import { ApiErrorContext } from '../../Context';
+import { useApiErrorContext } from '../../hooks/getContextHooks';
 import { RequestMethod } from '../../types/requestMethod';
 import { EmptyInputErrorType } from '../../types/apiErrorsType';
 
@@ -19,7 +19,7 @@ const responseErrors: ResponseErrors = {
 };
 
 export const ApiError: React.FC = () => {
-  const { apiError } = useContext(ApiErrorContext);
+  const { apiError } = useApiErrorContext();
   const [addClassName, setAddClassName] = useState(true);
 
   useEffect(() => {

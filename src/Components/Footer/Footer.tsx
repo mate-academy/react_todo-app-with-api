@@ -1,8 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import cn from 'classnames';
 
 import { FiltersType } from '../../types/filterTypes';
-import { TodosContext, ApiErrorContext, FormFocusContext } from '../../Context';
+import { useApiErrorContext, useFormFocusContext, useTodosContext }
+  from '../../hooks/getContextHooks';
 import { deleteTodo } from '../../api/todos';
 import {
   deleteTodoAction,
@@ -14,14 +15,14 @@ import { getActiveTodos, getCompletedTodos }
   from '../../helpers/getFilteredTodos';
 
 export const Footer: React.FC = () => {
-  const { setIsFocused } = useContext(FormFocusContext);
+  const { setIsFocused } = useFormFocusContext();
   const {
     todos,
     filter,
     setFilter,
     dispatch,
-  } = useContext(TodosContext);
-  const { setApiError } = useContext(ApiErrorContext);
+  } = useTodosContext();
+  const { setApiError } = useApiErrorContext();
 
   const activeTodosNumber = getActiveTodos(todos).length;
   const completedTodos = getCompletedTodos(todos);
