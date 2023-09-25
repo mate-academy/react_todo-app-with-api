@@ -19,7 +19,7 @@ interface Context {
   isLoading: { [key: number]: boolean },
   setLoading: (key: number, value: boolean) => void,
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>
-  setFilterType: (value: SortType) => void,
+  setFilterType: (value: FilterType) => void,
   tempTodo: Todo | null,
   setTempTodo: (todo: Todo | null) => void,
   errorMessage: string,
@@ -55,7 +55,7 @@ interface Props {
 
 export const USER_ID = 11537;
 
-export enum SortType {
+export enum FilterType {
   All = 'all',
   Active = 'active',
   Completed = 'completed',
@@ -65,7 +65,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [filterType, setFilterType] = useState(SortType.All);
+  const [filterType, setFilterType] = useState(FilterType.All);
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
@@ -208,10 +208,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const visibleTodos = useMemo(() => {
     switch (filterType) {
-      case SortType.Active:
+      case FilterType.Active:
         return todos.filter(({ completed }) => !completed);
 
-      case SortType.Completed:
+      case FilterType.Completed:
         return todos.filter(({ completed }) => completed);
 
       default:
