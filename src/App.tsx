@@ -121,7 +121,6 @@ export const App: React.FC = () => {
     } catch (error) {
       // eslint-disable-next-line no-console
       setErrorMessage(CurrentError.UpdateError);
-      throw error;
     }
   };
 
@@ -156,7 +155,6 @@ export const App: React.FC = () => {
     } catch (error) {
       // eslint-disable-next-line no-console
       setErrorMessage(CurrentError.UpdateError);
-      throw error;
     }
   };
 
@@ -189,7 +187,6 @@ export const App: React.FC = () => {
           setToggleType={setToggleType}
         />
 
-        {/* Hide the footer if there are no todos */}
         {!!todos.length && (
           <Footer
             filter={todoFilter}
@@ -201,8 +198,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification errorMessage={errorMessage} hideErros={hideErros} />
     </div>
   );

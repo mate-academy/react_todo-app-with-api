@@ -38,13 +38,16 @@ export const TodoItem: React.FC<Props> = ({
   const [editingTitle, setEditingTitle] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
-  const saveChange = () => {
+  const saveChange = async () => {
+    setIsLoading(true);
+
     if (!editingTitle.trim()) {
-      onDeleteTodo(id);
+      await onDeleteTodo(id);
     } else if (editingTitle !== title) {
-      onChangeTitle(id, editingTitle);
+      await onChangeTitle(id, editingTitle);
     }
 
+    setIsLoading(false);
     setIsEdit(false);
   };
 
@@ -53,9 +56,11 @@ export const TodoItem: React.FC<Props> = ({
     event.preventDefault();
     setIsLoading(true);
 
-    await onChangeStatus(todo.id, !todo.completed);
-
-    setIsLoading(false);
+    try {
+      await onChangeStatus(todo.id, !todo.completed);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -69,24 +74,22 @@ export const TodoItem: React.FC<Props> = ({
   const handleToggleAll = async () => {
     setIsLoading(true);
 
-    if (!completed && toggleType === ToggleType.ToggleOn) {
-      await onChangeStatus(id, true);
-    } else if (completed && toggleType === ToggleType.ToggleOff) {
-      await onChangeStatus(id, false);
+    try {
+      if (!completed && toggleType === ToggleType.ToggleOn) {
+        await onChangeStatus(id, true);
+      } else if (completed && toggleType === ToggleType.ToggleOff) {
+        await onChangeStatus(id, false);
+      }
+    } finally {
+      setIsLoading(false);
+      setToggleType(ToggleType.None);
     }
-
-    setIsLoading(false);
-    setToggleType(ToggleType.None);
   };
 
   const handleEditingKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEdit(false);
       setEditingTitle(title);
-    }
-
-    if (event.key === 'Enter') {
-      saveChange();
     }
   };
 
@@ -137,9 +140,10 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEdit ? (
         <form
-          onSubmit={
-            (event: React.FormEvent<HTMLFormElement>) => event.preventDefault()
-          }
+          onSubmit={(event) => {
+            event.preventDefault();
+            saveChange();
+          }}
         >
           <input
             type="text"

@@ -22,7 +22,7 @@ export const TodoHeader: React.FC<Props> = ({
   const titleField = useRef<HTMLInputElement>(null);
   const [isDisabled, setIsDisabled] = useState(false);
 
-  const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const activeTodosCount = todos.filter(({ completed }) => !completed).length;
 
   useEffect(() => {
     if (titleField.current) {
@@ -72,8 +72,7 @@ export const TodoHeader: React.FC<Props> = ({
           className={classNames(
             'todoapp__toggle-all',
             {
-              // eslint-disable-next-line quote-props
-              'active': !activeTodosCount,
+              active: !activeTodosCount,
             },
           )}
           data-cy="ToggleAllButton"
