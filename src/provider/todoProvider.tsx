@@ -76,23 +76,20 @@ export const ToDoProvider = ({ children }: Props) => {
           const addedTodo = response;
 
           setTodos((prevTodos) => [...prevTodos, addedTodo]);
-          setTempTodo(addedTodo);
-          setNewTodoName('');
         })
-        .catch(() => handleShowError(Errors.Title))
+        .then(() => setNewTodoName(''))
+        .catch(() => handleShowError(Errors.Add))
         .finally(() => setTempTodo(null))
         .then(() => setTempTodos([]));
-
-      setNewTodoName('');
     }
   };
 
   const removeTask = (task: Todo) => {
     setTempTodo(task);
     deleteTodo(task.id)
-      .then(() => handleGetTodos())
-      .catch(() => handleShowError(Errors.Delete))
-      .finally(() => setTempTodo(null));
+      .then(() => setTodos((todos.filter(t => t.id !== task.id))))
+      .then(() => setTempTodo(null))
+      .catch(() => handleShowError(Errors.Delete));
   };
 
   const deleteCompleted = (tasks: Todo[]) => {

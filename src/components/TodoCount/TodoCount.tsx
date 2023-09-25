@@ -8,9 +8,7 @@ export const TodoCount = () => {
     <span data-cy="TodosCounter" className="todo-count">
       {todosLeft.length}
       {' '}
-      {todosLeft.length === 1 ? 'item' : 'items'}
-      {' '}
-      left
+      items left
     </span>
 
   );

@@ -56,7 +56,8 @@ export const Task = ({ todo }: Props) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onClick={() => toggleCompletedTodos(todo)}
+          onChange={() => toggleCompletedTodos(todo)}
+          checked={!!todo.completed}
         />
       </label>
 

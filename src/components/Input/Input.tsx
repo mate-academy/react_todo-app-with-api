@@ -10,6 +10,7 @@ export const Input = () => {
     allTodosAreActive,
     toggleActiveTodo,
     todos,
+    temptTodo,
   } = useTodo();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -18,7 +19,7 @@ export const Input = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [todos]);
 
   return (
     <header className="todoapp__header">
@@ -41,6 +42,7 @@ export const Input = () => {
           placeholder="What needs to be done?"
           value={newTodoName?.trimStart() || ''}
           onChange={(e) => setNewTodoName(e.target.value)}
+          disabled={!!temptTodo}
         />
       </form>
     </header>
