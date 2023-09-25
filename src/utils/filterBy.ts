@@ -5,11 +5,11 @@ export const filterBy = (todos: Todo[], type: FilterType) => {
   return todos.filter(({ completed }) => {
     switch (type) {
       case FilterType.Active: {
-        return completed === false;
+        return !completed;
       }
 
       case FilterType.Completed: {
-        return completed === true;
+        return completed;
       }
 
       case FilterType.All:

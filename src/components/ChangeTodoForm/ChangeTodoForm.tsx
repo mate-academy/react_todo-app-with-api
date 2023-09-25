@@ -8,18 +8,18 @@ import { TodosContext } from '../../contexts/TodosContext';
 
 interface Props {
   todoId: number;
-  title: string;
-  setIsUpdaiting: (state: boolean) => void
+  prevTitle: string;
+  setIsUpdating: (state: boolean) => void
 }
 
 export const ChangeTodoForm: React.FC<Props> = (
   {
     todoId,
-    title,
-    setIsUpdaiting,
+    prevTitle,
+    setIsUpdating,
   },
 ) => {
-  const [inputValue, setInputValue] = useState(title);
+  const [inputValue, setInputValue] = useState(prevTitle);
   const { handleDeleteTodo, handleChangeTodo } = useContext(TodosContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,30 +34,53 @@ export const ChangeTodoForm: React.FC<Props> = (
     setInputValue(event.target.value);
   };
 
-  const handleSumbit = (event?: React.FormEvent<HTMLFormElement>) => {
-    if (event) {
-      event.preventDefault();
+  const handleError = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
+  };
 
-    if (!inputValue) {
-      handleDeleteTodo(todoId);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedTitle = inputValue.trim();
+
+    if (trimmedTitle === prevTitle) {
+      setIsUpdating(false);
 
       return;
     }
 
-    handleChangeTodo(todoId, { title: inputValue });
-    setIsUpdaiting(false);
+    if (!trimmedTitle) {
+      try {
+        await handleDeleteTodo(todoId);
+      } catch {
+        handleError();
+      }
+
+      return;
+    }
+
+    try {
+      await handleChangeTodo(todoId, { title: trimmedTitle });
+      setIsUpdating(false);
+    } catch {
+      handleError();
+    }
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Esc') {
-      setInputValue(title);
-      setIsUpdaiting(false);
+    if (event.key === 'Escape') {
+      setInputValue(prevTitle);
+      setIsUpdating(false);
     }
   };
 
   return (
-    <form onSubmit={handleSumbit}>
+    <form
+      onSubmit={handleSubmit}
+      onBlur={handleSubmit}
+    >
       <input
         ref={inputRef}
         data-cy="TodoTitleField"
@@ -66,7 +89,6 @@ export const ChangeTodoForm: React.FC<Props> = (
         placeholder="Empty todo will be deleted"
         value={inputValue}
         onChange={handleInputChange}
-        onBlur={() => handleSumbit()}
         onKeyUp={handleKeyUp}
       />
     </form>

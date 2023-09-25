@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({ todos }) => {
   const [isLoading, setIsLoading] = useState(false);
   const {
     handleAddTodo,
-    errorMessage,
+    isInputFocused,
     handleToogleTodo,
   } = useContext(TodosContext);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,13 +31,14 @@ export const Header: React.FC<Props> = ({ todos }) => {
   };
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && isInputFocused) {
       inputRef.current.focus();
     }
-  }, [todos.length, errorMessage, isLoading]);
+  });
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     setIsLoading(true);
     const response = await handleAddTodo(todoTitle);
 

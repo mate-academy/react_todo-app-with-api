@@ -38,8 +38,8 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
       {isChanging ? (
         <ChangeTodoForm
           todoId={id}
-          title={title}
-          setIsUpdaiting={setIsChanging}
+          prevTitle={title}
+          setIsUpdating={setIsChanging}
         />
       ) : (
         <>

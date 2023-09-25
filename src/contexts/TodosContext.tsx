@@ -26,19 +26,16 @@ import { TodoUpdateData } from '../types/TodoUpdateData';
 
 interface TodosContextType {
   todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
 
   filterType: FilterType;
-  setFilterType: (filterType: FilterType) => void;
 
   tempTodo: Todo | null;
-  setTempTodo: (todo: Todo | null) => void;
 
   todosIdsUpdating: number[];
-  setTodosIdsUpdating: (ids: number[]) => void;
 
   errorMessage: ErrorType | null;
-  setErrorMessage: (error: ErrorType) => void;
+
+  isInputFocused: boolean;
 
   visibleTodos: Todo[];
 
@@ -54,15 +51,11 @@ interface TodosContextType {
 
 const initialTodosState: TodosContextType = {
   todos: [],
-  setTodos: () => {},
   filterType: FilterType.All,
-  setFilterType: () => {},
   tempTodo: null,
-  setTempTodo: () => {},
   todosIdsUpdating: [],
-  setTodosIdsUpdating: () => {},
   errorMessage: null,
-  setErrorMessage: () => {},
+  isInputFocused: true,
   visibleTodos: [],
   handleFilterChange: () => {},
   handleAddTodo: () => Promise.resolve(false),
@@ -84,15 +77,24 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [filterType, setFilterType] = useState<FilterType>(FilterType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<ErrorType | null>(null);
+  const [isInputFocused, setIsInputFocused] = useState<boolean>(true);
 
   const setError = (message: string) => {
     setErrorMessage({ message });
   };
 
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(setTodos)
-      .catch(() => setError(UNABLE_DOWNLOAD_ERROR_MESSAGE));
+    const getTodosFromServer = async () => {
+      try {
+        const response = await getTodos(USER_ID);
+
+        setTodos(response);
+      } catch {
+        setError(UNABLE_DOWNLOAD_ERROR_MESSAGE);
+      }
+    };
+
+    getTodosFromServer();
   }, []);
 
   const visibleTodos = useMemo(() => {
@@ -140,6 +142,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       return false;
     } finally {
+      setIsInputFocused(true);
       setTempTodo(null);
       setTodosIdsUpdating([]);
     }
@@ -149,38 +152,27 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setErrorMessage(null);
     setTodosIdsUpdating([id]);
 
-    const originalTodo = todos.find(todo => todo.id === id) as Todo;
-
-    setTodos(currentTodos => {
-      const index = currentTodos.findIndex(todo => todo.id === id);
-      const updatedTodos = [...currentTodos];
-
-      const updatedTodo = { ...originalTodo, ...data };
-
-      updatedTodos.splice(index, 1, updatedTodo);
-
-      return updatedTodos;
-    });
-
     try {
-      await updateTodo(id, data);
-    } catch {
+      const updatedTodo = await updateTodo(id, data);
+
       setTodos(currentTodos => {
         const index = currentTodos.findIndex(todo => todo.id === id);
-        const revertedTodos = [...currentTodos];
+        const updatedTodos = [...currentTodos];
 
-        revertedTodos.splice(index, 1, originalTodo);
+        updatedTodos.splice(index, 1, updatedTodo);
 
-        return revertedTodos;
+        return updatedTodos;
       });
-
+    } catch {
       setError(UNABLE_UPDATE_ERROR_MESSAGE);
+      throw new Error();
     } finally {
+      setIsInputFocused(false);
       setTodosIdsUpdating([]);
     }
   };
 
-  const handleToogleTodo = async () => {
+  const handleToggleTodo = async () => {
     const todosToChange = todos.some(todo => !todo.completed)
       ? filterBy(todos, FilterType.Active)
       : todos;
@@ -189,14 +181,30 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setTodosIdsUpdating(todosId);
 
     const changePromises = todosToChange
-      .map((todo) => updateTodo(todo.id, { completed: !todo.completed }));
+      .map(async (todo) => {
+        try {
+          return await updateTodo(todo.id, { completed: !todo.completed });
+        } catch {
+          return null;
+        }
+      });
 
     const changedTodos = await Promise.all(changePromises);
+
+    if (changedTodos.includes(null)) {
+      setError(UNABLE_UPDATE_ERROR_MESSAGE);
+    }
 
     setTodos((prevState) => {
       return prevState.map((todo) => {
         const changed = changedTodos
-          .find(changedTodo => changedTodo.id === todo.id);
+          .find((changedTodo) => {
+            if (!changedTodo) {
+              return false;
+            }
+
+            return changedTodo.id === todo.id;
+          });
 
         if (changed) {
           return changed;
@@ -206,10 +214,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
     });
 
-    if (changedTodos.length !== todosToChange.length) {
-      setError(UNABLE_UPDATE_ERROR_MESSAGE);
-    }
-
+    setIsInputFocused(false);
     setTodosIdsUpdating([]);
   };
 
@@ -246,10 +251,15 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     const deletedIds = await Promise.all(deletePromises);
 
+    if (deletedIds.includes(null)) {
+      setError(UNABLE_DELETE_ERROR_MESSAGE);
+    }
+
     setTodos(
       prevState => prevState.filter(todo => !deletedIds.includes(todo.id)),
     );
 
+    setIsInputFocused(true);
     setTodosIdsUpdating([]);
   };
 
@@ -257,22 +267,18 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     <TodosContext.Provider
       value={{
         todos,
-        setTodos,
         filterType,
-        setFilterType,
         tempTodo,
-        setTempTodo,
         todosIdsUpdating,
-        setTodosIdsUpdating,
         errorMessage,
-        setErrorMessage,
         visibleTodos,
         handleFilterChange,
         handleAddTodo,
         handleChangeTodo,
         handleDeleteTodo,
         handleDeleteCompletedTodo,
-        handleToogleTodo,
+        handleToogleTodo: handleToggleTodo,
+        isInputFocused,
       }}
     >
       {children}

@@ -15,17 +15,15 @@ export const TodoFooter: React.FC<Props> = ({ todos }) => {
     handleFilterChange,
     handleDeleteCompletedTodo,
   } = useContext(TodosContext);
-  const activeTodosId: number = getActiveTodoQuantity(todos);
+  const activeTodoQuantity: number = getActiveTodoQuantity(todos);
+  const message = activeTodoQuantity > 1 ? `${activeTodoQuantity} items left` : `${activeTodoQuantity} item left`;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {
-          `${activeTodosId} items left`
-        }
+        {message}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         {Object.values(FilterType)
           .map(type => (
@@ -50,7 +48,7 @@ export const TodoFooter: React.FC<Props> = ({ todos }) => {
         data-cy="ClearCompletedButton"
         type="button"
         className="todoapp__clear-completed"
-        disabled={activeTodosId === todos.length}
+        disabled={activeTodoQuantity === todos.length}
         onClick={() => handleDeleteCompletedTodo()}
       >
         Clear completed
