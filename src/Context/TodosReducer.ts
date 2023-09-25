@@ -33,18 +33,6 @@ export const todosReducer
         return maped;
       }
 
-      case 'ALL_ACTIVE': {
-        const maped = todos.map((todo) => {
-          const copyTodo = { ...todo };
-
-          copyTodo.completed = false;
-
-          return copyTodo;
-        });
-
-        return maped;
-      }
-
       case 'IS_SPINNING': {
         const maped = todos.map((todo) => {
           if (todo.id === payload) {

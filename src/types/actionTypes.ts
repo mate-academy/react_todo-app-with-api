@@ -22,7 +22,7 @@ interface Patch {
 
 interface AllActive {
   type: 'ALL_ACTIVE',
-  payload: null,
+  payload: Todo[],
 }
 
 interface IsSpinning {

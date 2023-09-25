@@ -74,7 +74,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .then((patchedTodo) => {
         const patchAction = patchTodoAction(patchedTodo);
 
-        setIsCompleted(prev => !prev);
         dispatch(patchAction);
       })
       .catch((error) => {

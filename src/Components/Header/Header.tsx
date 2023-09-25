@@ -13,11 +13,11 @@ import { addTodo, patchTodo } from '../../api/todos';
 import {
   postTodoAction,
   removeIsSpinningAction,
-  patchTodoAction,
   setIsSpinningAction,
+  patchTodoAction,
 } from '../../Context/actions/actionCreators';
 import { emptyInputError } from '../../types/apiErrorsType';
-import { getActiveTodos } from '../../helpers/getTodos';
+import { getActiveTodos } from '../../helpers/getFilteredTodos';
 
 export const Header: React.FC = () => {
   const { todos, setTempTodo, dispatch } = useContext(TodosContext);
@@ -85,27 +85,44 @@ export const Header: React.FC = () => {
       ? todos
       : getActiveTodos(todos);
 
-    todosForToggle.forEach(({ id }) => {
+    const toggledTodos = todosForToggle.map(({ id }) => {
       const isSpinningAction = setIsSpinningAction(id);
       const data = { completed: !isToggleActive };
 
       dispatch(isSpinningAction);
 
-      patchTodo(id, data)
-        .then((patchedTodo) => {
-          const patchAction = patchTodoAction(patchedTodo);
+      return patchTodo(id, data);
+    });
 
-          dispatch(patchAction);
-        })
-        .catch((error) => {
-          setApiError(error);
-        })
-        .finally(() => {
-          const removeAction = removeIsSpinningAction(id);
+    Promise.allSettled(toggledTodos);
+
+    Promise.allSettled(toggledTodos)
+      .then((data: any) => {
+        const fulfilled = data.filter((promise: any) => promise?.value);
+        const rejected = data.filter((promise: any) => promise?.reason);
+
+        fulfilled.forEach((promise: any) => {
+          const todo = promise.value;
+          const patchAction = patchTodoAction(todo);
+          const removeAction = removeIsSpinningAction(todo.id);
 
           dispatch(removeAction);
+          dispatch(patchAction);
         });
-    });
+
+        if (rejected.length > 0) {
+          setApiError(rejected[0].reason);
+
+          todosForToggle.forEach(({ id }) => {
+            const removeAction = removeIsSpinningAction(id);
+
+            dispatch(removeAction);
+          });
+        }
+      })
+      .catch((error) => {
+        setApiError(error);
+      });
   };
 
   return (

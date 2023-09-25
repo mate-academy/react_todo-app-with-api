@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { TodosContext } from '../../Context';
 import { TodoItem } from '../TodoItem';
 
-import getFilteredTodos from '../../helpers/getTodos';
+import getFilteredTodos from '../../helpers/getFilteredTodos';
 
 export const TodosList: React.FC = () => {
   const { todos, filter, tempTodo } = useContext(TodosContext);

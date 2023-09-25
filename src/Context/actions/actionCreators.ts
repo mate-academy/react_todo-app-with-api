@@ -21,11 +21,6 @@ export const patchTodoAction = (data: Todo) : Actions => ({
   payload: data,
 });
 
-export const allCompletedAction = () : Actions => ({
-  type: 'ALL_ACTIVE',
-  payload: null,
-});
-
 export const setIsSpinningAction = (data: number): Actions => ({
   type: 'IS_SPINNING',
   payload: data,

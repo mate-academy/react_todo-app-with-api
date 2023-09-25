@@ -10,7 +10,8 @@ import {
   removeIsSpinningAction,
 } from '../../Context/actions/actionCreators';
 
-import { getActiveTodos, getCompletedTodos } from '../../helpers/getTodos';
+import { getActiveTodos, getCompletedTodos }
+  from '../../helpers/getFilteredTodos';
 
 export const Footer: React.FC = () => {
   const { setIsFocused } = useContext(FormFocusContext);
@@ -29,11 +30,12 @@ export const Footer: React.FC = () => {
   const handleClearCompletedClick = () => {
     setIsFocused(false);
 
-    completedTodos.forEach(({ id }) => {
+    const deletedTodos = completedTodos.map(({ id }) => {
       const isSpinningAction = setIsSpinningAction(id);
 
       dispatch(isSpinningAction);
-      deleteTodo(id)
+
+      return deleteTodo(id)
         .then(() => {
           const deleteAction = deleteTodoAction(id);
 
@@ -49,6 +51,8 @@ export const Footer: React.FC = () => {
           setIsFocused(true);
         });
     });
+
+    return deletedTodos;
   };
 
   return (
