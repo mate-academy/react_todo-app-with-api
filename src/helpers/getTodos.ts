@@ -11,6 +11,7 @@ const getFilteredTodos
   = (todos: TodosListType, filter: FiltersType): TodosListType => {
     switch (filter) {
       case FiltersType.ALL:
+      default:
         return todos;
 
       case FiltersType.ACTIVE:
@@ -18,9 +19,6 @@ const getFilteredTodos
 
       case FiltersType.COMPLETED:
         return getCompletedTodos(todos);
-
-      default:
-        return todos;
     }
   };
 

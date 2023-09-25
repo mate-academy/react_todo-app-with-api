@@ -16,24 +16,18 @@ type Ref = HTMLInputElement | null;
 export const Form = React.forwardRef<Ref, Props>(({
   placeholder,
   onInputChange,
-  value,
   onSubmit,
   forCypress,
-  className,
-  onBlur = () => {},
-  onKeyUp = () => {},
+  ...props
 }, ref) => (
   <form onSubmit={onSubmit}>
     <input
       data-cy={forCypress}
       type="text"
-      className={className}
       placeholder={placeholder}
       onChange={onInputChange}
       ref={ref}
-      value={value}
-      onBlur={onBlur}
-      onKeyUp={onKeyUp}
+      {...props}
     />
   </form>
 ));

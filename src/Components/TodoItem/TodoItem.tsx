@@ -17,7 +17,6 @@ type Props = {
   todo: Todo,
 };
 
-// Component
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { setIsFocused } = useContext(FormFocusContext);
   const {
@@ -47,8 +46,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       ref.current.focus();
     }
   }, [isEdited]);
-
-  // handlers
 
   const handleDeleteClick = () => {
     setIsTodoSpinned(true);
@@ -142,8 +139,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       });
   };
 
-  // render
-
   return (
     <div
       className={cn('todo', {
@@ -162,6 +157,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       </label>
 
       {isEdited ? (
+
         <Form
           forCypress="TodoTitleField"
           ref={ref}
@@ -173,29 +169,28 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           onBlur={handleSubmit}
           onKeyUp={handleKeyUp}
         />
-
       ) : (
-        <span
-          className="todo__title"
-          data-cy="TodoTitle"
-          onDoubleClick={() => {
-            setIsEdited(true);
-          }}
-        >
-          {title}
-        </span>
-      )}
+        <>
+          <span
+            className="todo__title"
+            data-cy="TodoTitle"
+            onDoubleClick={() => {
+              setIsEdited(true);
+            }}
+          >
+            {title}
+          </span>
 
-      <button
-        type="button"
-        className={cn('todo__remove', {
-          'is-hidden': isEdited,
-        })}
-        onClick={handleDeleteClick}
-        data-cy="TodoDelete"
-      >
-        ×
-      </button>
+          <button
+            type="button"
+            className={cn('todo__remove')}
+            onClick={handleDeleteClick}
+            data-cy="TodoDelete"
+          >
+            ×
+          </button>
+        </>
+      )}
 
       <div
         className={cn('modal overlay', {
@@ -209,76 +204,3 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     </div>
   );
 };
-
-// {/* This is a completed todo */}
-// <div className="todo completed">
-//   <label className="todo__status-label">
-//     <input
-//       type="checkbox"
-//       className="todo__status"
-//       checked
-//     />
-//   </label>
-
-//   <span className="todo__title">Completed Todo</span>
-
-//   {/* Remove button appears only on hover */}
-//   <button type="button" className="todo__remove">×</button>
-
-//   {/* overlay will cover the todo while it is being updated */}
-//   <div className="modal overlay">
-//     <div className="modal-background has-background-white-ter" />
-//     <div className="loader" />
-//   </div>
-// </div>
-
-// {/* This todo is not completed */}
-// <div className="todo">
-//   <label className="todo__status-label">
-//     <input
-//       type="checkbox"
-//       className="todo__status"
-//     />
-//   </label>
-
-//   <span className="todo__title">Not Completed Todo</span>
-//   <button type="button" className="todo__remove">×</button>
-
-//   <div className="modal overlay">
-//     <div className="modal-background has-background-white-ter" />
-//     <div className="loader" />
-//   </div>
-// </div>
-
-// {/* This todo is being edited */}
-// <div className="todo">
-//   <label className="todo__status-label">
-//     <input
-//       type="checkbox"
-//       className="todo__status"
-//     />
-//   </label>
-
-//   {/* This form is shown instead of the title and remove button */}
-
-//   <div className="modal overlay">
-//     <div className="modal-background has-background-white-ter" />
-//     <div className="loader" />
-//   </div>
-// </div>
-
-// {/* This todo is in loadind state */}
-// <div className="todo">
-//   <label className="todo__status-label">
-//     <input type="checkbox" className="todo__status" />
-//   </label>
-
-//   <span className="todo__title">Todo is being saved now</span>
-//   <button type="button" className="todo__remove">×</button>
-
-//   {/* 'is-active' class puts this modal on top of the todo */}
-//   <div className="modal overlay is-active">
-//     <div className="modal-background has-background-white-ter" />
-//     <div className="loader" />
-//   </div>
-// </div>

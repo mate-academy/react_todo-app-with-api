@@ -19,7 +19,6 @@ import {
 import { emptyInputError } from '../../types/apiErrorsType';
 import { getActiveTodos } from '../../helpers/getTodos';
 
-// Component
 export const Header: React.FC = () => {
   const { todos, setTempTodo, dispatch } = useContext(TodosContext);
   const { isFocused } = useContext(FormFocusContext);
@@ -35,8 +34,6 @@ export const Header: React.FC = () => {
       ref.current.focus();
     }
   }, [ref, isFocused]);
-
-  // handlers
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -110,8 +107,6 @@ export const Header: React.FC = () => {
         });
     });
   };
-
-  // render
 
   return (
     <header className="todoapp__header">
