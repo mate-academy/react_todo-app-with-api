@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useContext,
+} from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { LoadingTodosContext } from '../../context/TodosContexts';
 
 type Props = {
   todo: Todo;
-  todosIdToDelete: number[];
-  todosIdToUpdate: number[];
   onDeleteTodo: (todoId: number) => void;
   onChangeTitle: (todoId: number, newTitle: string) => void;
   onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
@@ -13,12 +18,14 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  todosIdToDelete,
-  todosIdToUpdate,
   onDeleteTodo,
   onChangeTitle,
   onChangeCompletedStatus,
 }) => {
+  const {
+    todosIdToDelete,
+    todosIdToUpdate,
+  } = useContext(LoadingTodosContext);
   const { title, completed, id } = todo;
 
   const editInput = useRef<HTMLInputElement>(null);
@@ -31,6 +38,12 @@ export const TodoItem: React.FC<Props> = ({
       editInput.current.focus();
     }
   }, [isEdit]);
+
+  const isActiveLoader = useMemo(() => {
+    return id === 0
+      || todosIdToDelete.includes(id)
+      || todosIdToUpdate.includes(id);
+  }, [todosIdToDelete, todosIdToUpdate]);
 
   const handleEditing = () => {
     setIsEdit(true);
@@ -126,9 +139,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classnames('modal', 'overlay', {
-          'is-active': id === 0
-            || todosIdToDelete.includes(id)
-            || todosIdToUpdate.includes(id),
+          'is-active': isActiveLoader,
         })}
       >
         <div className="modal-background has-background-white-ter" />

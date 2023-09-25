@@ -1,33 +1,30 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   TransitionGroup,
   CSSTransition,
 } from 'react-transition-group';
-import { TodoItem } from '../TodoItem/TodoItem';
+import { TodoItem } from '../TodoItem';
 import { StatusEnum } from '../../types/StatusEnum';
 import { Todo } from '../../types/Todo';
+import { FilterTodosContext } from '../../context/TodosContexts';
 
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  todosIdToDelete: number[];
-  todosIdToUpdate: number[];
   onDeleteTodo: (todoId: number) => void;
   onChangeTitle: (todoId: number, newTitle: string) => void;
   onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
-  filter: StatusEnum;
 };
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  filter,
   onChangeCompletedStatus,
   onChangeTitle,
   onDeleteTodo,
   tempTodo,
-  todosIdToDelete,
-  todosIdToUpdate,
 }) => {
+  const { filter } = useContext(FilterTodosContext);
+
   return (
     <section data-cy="TodoList" className="todoapp__main">
       <TransitionGroup>
@@ -49,8 +46,6 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={todo}
-              todosIdToDelete={todosIdToDelete}
-              todosIdToUpdate={todosIdToUpdate}
               onDeleteTodo={onDeleteTodo}
               onChangeTitle={onChangeTitle}
               onChangeCompletedStatus={onChangeCompletedStatus}
@@ -65,8 +60,6 @@ export const TodoList: React.FC<Props> = ({
           >
             <TodoItem
               todo={tempTodo}
-              todosIdToDelete={todosIdToDelete}
-              todosIdToUpdate={todosIdToUpdate}
               onDeleteTodo={onDeleteTodo}
               onChangeTitle={onChangeTitle}
               onChangeCompletedStatus={onChangeCompletedStatus}
