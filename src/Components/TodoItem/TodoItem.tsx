@@ -126,7 +126,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
         setIsEdited(false);
         dispatch(patchAction);
-        setInputValue(patchedTodo.title);
       })
       .catch(error => {
         setApiError(error);
@@ -136,6 +135,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setIsTodoSpinned(false);
         if (ref.current) {
           ref.current.disabled = false;
+          ref.current.focus();
         }
       });
   };
