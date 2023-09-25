@@ -19,11 +19,12 @@ export const ToDoProvider = ({ children }: Props) => {
   const [error, setError] = useState<Errors | null>(null);
   const [filterTodos, setFilterTodos]
     = useState<FilterType>('all');
-  const [newTodoName, setNewTodoName] = useState<string>('');
+  const [newTodo, setNewTodo] = useState<string>('');
   const [temptTodo, setTempTodo] = useState<Todo | null>(null);
   const [temptTodos, setTempTodos] = useState<Todo[]>([]);
   const [editedTodo, setEditedTodo] = useState<boolean>(false);
-  const [newTitle, setNewTitle] = useState<string>('null');
+  const [newTitle, setNewTitle] = useState<string>('');
+  const [isFocusedOnTask, setIsFocusedOnTask] = useState<boolean>(false);
 
   const handleShowError = (err: Errors) => {
     setError(err);
@@ -55,13 +56,13 @@ export const ToDoProvider = ({ children }: Props) => {
 
   const addNewTodo: FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    if (newTodoName.trim() === '') {
+    if (newTodo.trim() === '') {
       handleShowError(Errors.Title);
     } else {
       const todoToAdd: Todo = {
         id: +(new Date()),
         userId: 11433,
-        title: newTodoName.trim(),
+        title: newTodo.trim(),
         completed: false,
       };
 
@@ -69,7 +70,7 @@ export const ToDoProvider = ({ children }: Props) => {
       setTempTodo(todoToAdd);
       postTodo({
         userId: 11433,
-        title: newTodoName.trim(),
+        title: newTodo.trim(),
         completed: false,
       })
         .then((response) => {
@@ -77,7 +78,7 @@ export const ToDoProvider = ({ children }: Props) => {
 
           setTodos((prevTodos) => [...prevTodos, addedTodo]);
         })
-        .then(() => setNewTodoName(''))
+        .then(() => setNewTodo(''))
         .catch(() => handleShowError(Errors.Add))
         .finally(() => setTempTodo(null))
         .then(() => setTempTodos([]));
@@ -92,8 +93,8 @@ export const ToDoProvider = ({ children }: Props) => {
           return prevState.filter(t => t.id !== task.id);
         });
       })
-      .then(() => setTempTodo(null))
-      .catch(() => handleShowError(Errors.Delete));
+      .catch(() => handleShowError(Errors.Delete))
+      .finally(() => setTempTodo(null));
   };
 
   const deleteCompleted = (tasks: Todo[]) => {
@@ -165,6 +166,7 @@ export const ToDoProvider = ({ children }: Props) => {
   };
 
   const onTitleEdition = (tasks: Todo[], taskId: number) => {
+    setIsFocusedOnTask(true);
     setTodos(
       tasks.map((t) => {
         if (t.id === taskId) {
@@ -182,6 +184,7 @@ export const ToDoProvider = ({ children }: Props) => {
   };
 
   const closeTitleEdition = (tasks: Todo[], taskId: number) => {
+    setIsFocusedOnTask(false);
     setTodos(
       tasks.map((t) => {
         if (t.id === taskId) {
@@ -204,26 +207,30 @@ export const ToDoProvider = ({ children }: Props) => {
     if (updatedTitle === '') {
       removeTask(task);
     } else {
-      setTodos(
-        tasks.map((t) => {
-          if (t.id === task.id) {
-            return {
-              ...t,
-              title: updatedTitle,
-              loaderAfterEditing: true,
-            };
-          }
+      const updatedTodos = tasks.map((t) => {
+        if (t.id === task.id) {
+          setTempTodo(t);
 
-          return t;
-        }),
-      );
+          return {
+            ...t,
+            title: updatedTitle.trim(),
+          };
+        }
+
+        return t;
+      });
+
       editTodo(task.id, { title: updatedTitle })
         .then(() => {
-          handleGetTodos();
+          setTodos(updatedTodos);
+        })
+        .then(() => {
+          closeTitleEdition(updatedTodos, task.id);
         })
         .catch(() => {
           handleShowError(Errors.Update);
-        });
+        })
+        .finally(() => setTempTodo(null));
     }
   };
 
@@ -232,14 +239,15 @@ export const ToDoProvider = ({ children }: Props) => {
       todos,
       error,
       filterTodos,
-      newTodoName,
+      newTodo,
       temptTodo,
       editedTodo,
       temptTodos,
       newTitle,
       allTodosAreActive,
       allTodosCompleted,
-      setNewTodoName,
+      isFocusedOnTask,
+      setNewTodo,
       handleShowError,
       handleSetFilterTodos,
       closeErrorMessage,

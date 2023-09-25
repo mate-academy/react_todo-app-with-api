@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import { useTodo } from '../../provider/todoProvider';
 import { Todo } from '../../types/Todo';
 
@@ -12,6 +11,7 @@ export const Task = ({ todo }: Props) => {
     editedTodo,
     todos,
     newTitle,
+    isFocusedOnTask,
     removeTask,
     toggleCompletedTodos,
     onTitleEdition,
@@ -19,27 +19,33 @@ export const Task = ({ todo }: Props) => {
     setNewTitle,
     todoTitleEdition,
   } = useTodo();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const loaderCases
   = ((temptTodo && temptTodo.id === todo.id)
   || (editedTodo && todo.completed)
   || todo.hasLoader) as boolean;
 
-  useEffect(() => {
-    if (todo.isOnTitleEdition) {
-      inputRef.current?.focus();
-    }
-  }, [todo.isOnTitleEdition]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      todoTitleEdition(todo, newTitle, todos);
+      if (newTitle.trim() === todo.title) {
+        closeTitleEdition(todos, todo.id);
+      } else {
+        todoTitleEdition(todo, newTitle, todos);
+      }
     }
 
     if (e.key === 'Escape') {
       closeTitleEdition(todos, todo.id);
+    }
+  };
+
+  const handleOnBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (newTitle.trim() === todo.title) {
+      closeTitleEdition(todos, todo.id);
+    } else {
+      todoTitleEdition(todo, newTitle, todos);
     }
   };
 
@@ -70,10 +76,10 @@ export const Task = ({ todo }: Props) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onBlur={() => todoTitleEdition(todo, newTitle, todos)}
+              onChange={(e) => setNewTitle(e.target.value.trimStart())}
+              onBlur={handleOnBlur}
               onKeyDown={handleKeyDown}
-              ref={inputRef}
+              ref={input => isFocusedOnTask && input && input.focus()}
             />
           </form>
         ) : (

@@ -1,26 +1,18 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
-import { useEffect, useRef } from 'react';
 import { useTodo } from '../../provider/todoProvider';
 
 export const Input = () => {
   const {
-    addNewTodo, newTodoName,
-    setNewTodoName,
+    addNewTodo,
+    newTodo,
+    setNewTodo,
     allTodosCompleted,
     toggleActiveTodo,
     todos,
     temptTodo,
-    error,
+    isFocusedOnTask,
   } = useTodo();
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [todos, error]);
 
   return (
     <header className="todoapp__header">
@@ -37,12 +29,12 @@ export const Input = () => {
       <form onSubmit={addNewTodo}>
         <input
           data-cy="NewTodoField"
-          ref={inputRef}
+          ref={input => !isFocusedOnTask && input && input.focus()}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          value={newTodoName?.trimStart() || ''}
-          onChange={(e) => setNewTodoName(e.target.value)}
+          value={newTodo?.trimStart() || ''}
+          onChange={(e) => setNewTodo(e.target.value)}
           disabled={!!temptTodo}
         />
       </form>

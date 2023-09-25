@@ -6,14 +6,15 @@ export interface TodoContextType {
   todos: Todo[],
   error: Errors | null;
   filterTodos: FilterType;
-  newTodoName: string;
+  newTodo: string;
   temptTodo: Todo | null;
   editedTodo: boolean;
   temptTodos: Todo[];
   allTodosAreActive: boolean,
   allTodosCompleted: boolean;
   newTitle: string;
-  setNewTodoName: React.Dispatch<React.SetStateAction<string>>;
+  isFocusedOnTask: boolean;
+  setNewTodo: React.Dispatch<React.SetStateAction<string>>;
   handleShowError: (err: Errors) => void;
   handleSetFilterTodos: (filterType: FilterType) => void;
   closeErrorMessage: () => void,
