@@ -5,7 +5,7 @@ export const TodoCount = () => {
   const todosLeft = todos.filter(todo => !todo.completed);
 
   return (
-    <span className="todo-count">
+    <span data-cy="TodosCounter" className="todo-count">
       {todosLeft.length}
       {' '}
       {todosLeft.length === 1 ? 'item' : 'items'}
