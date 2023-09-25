@@ -1,13 +1,10 @@
-import React from 'react';
 import classNames from 'classnames';
 
 import { UseTodosContext } from '../../utils/TodosContext';
 
 import { TodoForm } from '../TodoForm';
 
-type Props = {};
-
-export const TodoHeader: React.FC<Props> = () => {
+export const TodoHeader = () => {
   const context = UseTodosContext();
   const {
     todos,
@@ -30,11 +27,11 @@ export const TodoHeader: React.FC<Props> = () => {
   return (
     <header className="todoapp__header">
       {Boolean(todos.length) && (
-        // eslint-disable-next-line
         <button
           data-cy="ToggleAllButton"
           onClick={changeAllTodosStatus}
           type="button"
+          aria-label="change todo status"
           className={classNames('todoapp__toggle-all', {
             active: currentCompletionStatus,
           })}

@@ -1,13 +1,10 @@
-import React from 'react';
 import classNames from 'classnames';
 
 import { FilterParams } from '../../types/FilterParams';
 
 import { UseTodosContext } from '../../utils/TodosContext';
 
-type Props = {};
-
-export const TodoFooter: React.FC<Props> = () => {
+export const TodoFooter = () => {
   const context = UseTodosContext();
 
   const {
@@ -26,7 +23,6 @@ export const TodoFooter: React.FC<Props> = () => {
         {`${itemsLeft} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav data-cy="Filter" className="filter">
         {Object.values(FilterParams).map(value => (
           <a

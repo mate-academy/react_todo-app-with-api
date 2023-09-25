@@ -7,6 +7,7 @@ import { ErrorMessages } from '../types/ErrorMessages';
 import { Todo } from '../types/Todo';
 import { USER_ID } from './user';
 import { TempTodo } from '../types/TempTodo';
+import { getFilteredTodos } from './TodosFilter';
 
 interface TodosContextInterface {
   todos: Todo[],
@@ -51,16 +52,6 @@ export const TodosContext = React.createContext<TodosContextInterface>({
   isCompletedTodosCleared: false,
   setIsCompletedTodosCleared: () => {},
 });
-
-const getFilteredTodos = (todos: Todo[], completionStatus: FilterParams) => {
-  if (completionStatus === 'All') {
-    return [...todos];
-  }
-
-  const isCompleted = completionStatus === FilterParams.Completed;
-
-  return todos.filter(({ completed }) => completed === isCompleted);
-};
 
 type Props = {
   children: React.ReactNode,

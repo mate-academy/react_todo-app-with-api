@@ -1,13 +1,12 @@
 import classNames from 'classnames';
-import React from 'react';
+
+import { useEffect } from 'react';
 import { UseTodosContext } from '../../utils/TodosContext';
 import { ErrorMessages } from '../../types/ErrorMessages';
 
 const ERROR_MESSAGE_DISSAPEAR_DELAY = 3000;
 
-type Props = {};
-
-export const TodoErrorMessage: React.FC<Props> = () => {
+export const TodoErrorMessage = () => {
   const context = UseTodosContext();
 
   const {
@@ -17,9 +16,11 @@ export const TodoErrorMessage: React.FC<Props> = () => {
 
   const removeErrorMessage = () => setErrorMessage(ErrorMessages.Default);
 
-  if (errorMessage) {
-    setTimeout(removeErrorMessage, ERROR_MESSAGE_DISSAPEAR_DELAY);
-  }
+  useEffect(() => {
+    if (errorMessage) {
+      setTimeout(removeErrorMessage, ERROR_MESSAGE_DISSAPEAR_DELAY);
+    }
+  }, [errorMessage]);
 
   return (
     <div
@@ -34,12 +35,12 @@ export const TodoErrorMessage: React.FC<Props> = () => {
         },
       )}
     >
-      {/* eslint-disable-next-line */}
       <button
         data-cy="HideErrorButton"
         onClick={removeErrorMessage}
         type="button"
         className="delete"
+        aria-label="hide error message"
       />
       {errorMessage}
     </div>

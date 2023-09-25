@@ -5,6 +5,7 @@ import { Todo } from '../../types/Todo';
 import { deleteTodo, changeTodo } from '../../api/todos';
 import { ErrorMessages } from '../../types/ErrorMessages';
 import { UseTodosContext } from '../../utils/TodosContext';
+import { TodoUpdates } from '../../types/TodoUpdates';
 
 type Props = { todo: Todo };
 
@@ -16,7 +17,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isAllCompleted,
     setIsAllCompleted,
     isCompletedTodosCleared,
-    setIsCompletedTodosCleared,
   } = context;
 
   const { title, completed, id } = todo;
@@ -42,22 +42,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   // updating todo
   const updateTodo = (updatedTodo: Todo) => {
     setTodos(prevState => {
-      const stateCopy = [...prevState];
-      const updatedTodoIndex = stateCopy
-        .findIndex(task => task.id === updatedTodo.id);
+      return prevState.map(todoItem => {
+        if (todoItem.id === updatedTodo.id) {
+          return updatedTodo;
+        }
 
-      stateCopy[updatedTodoIndex] = updatedTodo;
-
-      return stateCopy;
+        return todoItem;
+      });
     });
   };
 
-  // eslint-disable-next-line
-  const handleTodoUpdate = (updates: any) => {
+  const handleTodoUpdate = (updates: TodoUpdates) => {
     const normalisedTodoTitle = editedTodoTitle.trim();
 
     if (!normalisedTodoTitle.length) {
-      return removeTodo();
+      removeTodo();
+
+      return;
     }
 
     setIsLoading(true);
@@ -101,7 +102,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setEditedTodoTitle(title);
     }
   };
-  //
 
   useEffect(() => {
     if (isAllCompleted !== null && completed !== isAllCompleted) {
@@ -113,8 +113,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     if (completed && isCompletedTodosCleared) {
       removeTodo();
     }
-
-    setIsCompletedTodosCleared(false);
   }, [isCompletedTodosCleared]);
 
   return (

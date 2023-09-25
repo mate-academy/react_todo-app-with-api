@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { addTodo } from '../../api/todos';
 import { USER_ID } from '../../utils/user';
 import { Todo } from '../../types/Todo';
@@ -6,9 +7,7 @@ import { ErrorMessages } from '../../types/ErrorMessages';
 import { UseTodosContext } from '../../utils/TodosContext';
 import { TempTodo } from '../../types/TempTodo';
 
-type Props = {};
-
-export const TodoForm: React.FC<Props> = () => {
+export const TodoForm = () => {
   const context = UseTodosContext();
   const {
     todos,

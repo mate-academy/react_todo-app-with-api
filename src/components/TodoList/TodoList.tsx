@@ -1,23 +1,28 @@
-import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import './TodoListAnimations.scss';
 
+import { useEffect } from 'react';
 import { TodoItem } from '../TodoItem';
 import { TodoLoadingItem } from '../TodoLoadingItem';
 
 import { UseTodosContext } from '../../utils/TodosContext';
 
-type Props = {
-};
-
-export const TodoList: React.FC<Props> = () => {
+export const TodoList = () => {
   const context = UseTodosContext();
 
   const {
     filteredTodos,
     tempTodo,
+    isCompletedTodosCleared,
+    setIsCompletedTodosCleared,
   } = context;
+
+  useEffect(() => {
+    if (isCompletedTodosCleared) {
+      setIsCompletedTodosCleared(false);
+    }
+  });
 
   return (
     <section data-cy="TodoList" className="todoapp__main">
