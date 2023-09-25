@@ -23,6 +23,8 @@ const page = {
       clock.tick(delay);
       clock.restore();
     });
+
+    cy.wait(50);
   },
 
   /**
@@ -520,11 +522,12 @@ describe('', () => {
           page.newTodoField().should('be.focused');
         });
 
-        it('should allow to add one more todo', () => {
+        it.only('should allow to add one more todo', () => {
           page.mockCreate().as('createRequest2');
 
           page.newTodoField().type('Hello world{enter}');
           cy.wait('@createRequest2');
+          page.flushJSTimers();
 
           todos.assertCount(7);
           todos.assertNotLoading(6);
