@@ -96,6 +96,7 @@ export const Header: React.FC = () => {
 
     Promise.allSettled(toggledTodos);
 
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     Promise.allSettled(toggledTodos)
       .then((data: any) => {
         const fulfilled = data.filter((promise: any) => promise?.value);
