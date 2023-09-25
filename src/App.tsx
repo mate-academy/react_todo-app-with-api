@@ -9,7 +9,7 @@ import { useTodo } from './provider/todoProvider';
 const USER_ID = 11433;
 
 export const App: React.FC = () => {
-  const { todos, error } = useTodo();
+  const { todos } = useTodo();
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -27,9 +27,7 @@ export const App: React.FC = () => {
             <Footer />
           )}
       </div>
-      {error && (
-        <CaseOfErrorMessage />
-      )}
+      <CaseOfErrorMessage />
     </div>
   );
 };

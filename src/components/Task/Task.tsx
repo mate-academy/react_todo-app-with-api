@@ -21,6 +21,11 @@ export const Task = ({ todo }: Props) => {
   } = useTodo();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const loaderCases
+  = ((temptTodo && temptTodo.id === todo.id)
+  || (editedTodo && todo.completed)
+  || todo.loaderAfterEditing) as boolean;
+
   useEffect(() => {
     if (todo.isOnTitleEdition) {
       inputRef.current?.focus();
@@ -91,18 +96,14 @@ export const Task = ({ todo }: Props) => {
           </>
         )}
 
-      {((temptTodo && temptTodo.id === todo.id)
-      || (editedTodo && todo.completed)
-          || todo.loaderAfterEditing)
-        && (
-          <div
-            data-cy="TodoLoader"
-            className="modal overlay is-active"
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        )}
+      <div
+        data-cy="TodoLoader"
+        className={loaderCases ? 'modal overlay is-active' : 'modal overlay'}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
+
     </div>
   );
 };

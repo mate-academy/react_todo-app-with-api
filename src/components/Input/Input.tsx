@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import { useEffect, useRef } from 'react';
 import { useTodo } from '../../provider/todoProvider';
 
 export const Input = () => {
@@ -10,6 +11,14 @@ export const Input = () => {
     toggleActiveTodo,
     todos,
   } = useTodo();
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   return (
     <header className="todoapp__header">
@@ -26,6 +35,7 @@ export const Input = () => {
       <form onSubmit={addNewTodo}>
         <input
           data-cy="NewTodoField"
+          ref={inputRef}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"

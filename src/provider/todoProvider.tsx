@@ -41,7 +41,7 @@ export const ToDoProvider = ({ children }: Props) => {
   useEffect(() => {
     handleGetTodos()
       .catch(() => {
-        handleShowError(Errors.Update);
+        handleShowError(Errors.Download);
       });
   }, []);
 

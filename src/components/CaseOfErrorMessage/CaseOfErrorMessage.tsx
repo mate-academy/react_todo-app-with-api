@@ -8,9 +8,12 @@ export const CaseOfErrorMessage = () => {
   return (
     <div
       data-cy="ErrorNotification"
-      className="notification is-danger is-light has-text-weight-normal"
+      className={error
+        ? 'notification is-danger is-light has-text-weight-normal'
+        : 'notification is-danger is-light has-text-weight-normal hidden'}
     >
       <button
+        data-cy="HideErrorButton"
         type="button"
         className="delete"
         onClick={closeErrorMessage}
