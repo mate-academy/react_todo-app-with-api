@@ -24,7 +24,7 @@ export const Task = ({ todo }: Props) => {
   const loaderCases
   = ((temptTodo && temptTodo.id === todo.id)
   || (editedTodo && todo.completed)
-  || todo.loaderAfterEditing) as boolean;
+  || todo.hasLoader) as boolean;
 
   useEffect(() => {
     if (todo.isOnTitleEdition) {

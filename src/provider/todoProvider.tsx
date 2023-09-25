@@ -87,66 +87,81 @@ export const ToDoProvider = ({ children }: Props) => {
   const removeTask = (task: Todo) => {
     setTempTodo(task);
     deleteTodo(task.id)
-      .then(() => setTodos((todos.filter(t => t.id !== task.id))))
+      .then(() => {
+        setTodos((prevState) => {
+          return prevState.filter(t => t.id !== task.id);
+        });
+      })
       .then(() => setTempTodo(null))
       .catch(() => handleShowError(Errors.Delete));
   };
 
   const deleteCompleted = (tasks: Todo[]) => {
-    tasks.forEach((t) => {
-      setEditedTodo(true);
+    setEditedTodo(true);
 
-      return deleteTodo(t.id)
-        .then(() => handleGetTodos())
-        .catch(() => handleShowError(Errors.Delete))
-        .finally(() => setTempTodo(null))
-        .then(() => setEditedTodo(false));
-    });
+    tasks.forEach(task => (
+      removeTask(task)));
   };
 
   const allTodosAreActive = todos.every(t => !t.completed);
-  const toggleActiveTodo = () => {
-    const updatedTodos = todos.map(x => {
-      if (!x.completed) {
-        return { ...x, loaderAfterEditing: true };
-      }
 
-      return x;
-    });
-
-    setTodos(() => updatedTodos);
-
-    todos.forEach(t => {
-      if (todos.every((v) => v.completed)) {
-        const allTodosCompleted = todos.map((x) => {
-          if (x.completed) {
-            return { ...x, loaderAfterEditing: true };
-          }
-
-          return x;
-        });
-
-        setTodos(() => allTodosCompleted);
-        editTodo(t.id, { completed: false })
-          .then(handleGetTodos)
-          .catch(() => handleShowError(Errors.Update));
-      }
-
-      if (!t.completed) {
-        editTodo(t.id, { completed: true })
-          .then(() => handleGetTodos())
-          .catch(() => handleShowError(Errors.Update));
-      }
-    });
-  };
+  const allTodosCompleted = todos.every(t => t.completed);
 
   const toggleCompletedTodos = (task: Todo) => {
-    setTempTodo(task);
+    setTodos(prevState => prevState.map(t => {
+      if (t.id === task.id) {
+        return {
+          ...t,
+          hasLoader: true,
+        };
+      }
+
+      return t;
+    }));
 
     editTodo(task.id, { completed: !task.completed })
-      .then(handleGetTodos)
+      .then(() => {
+        setTodos(prevState => prevState.map(t => {
+          if (t.id === task.id) {
+            return {
+              ...t,
+              completed: !task.completed,
+              hasLoader: false,
+            };
+          }
+
+          return t;
+        }));
+      })
       .catch(() => handleShowError(Errors.Update))
-      .finally(() => setTempTodo(null));
+      .then(() => {
+        setTodos(prevState => prevState.map(t => {
+          if (t.id === task.id) {
+            return {
+              ...t,
+              hasLoader: false,
+            };
+          }
+
+          return t;
+        }));
+      });
+  };
+
+  const toggleActiveTodo = (tasks: Todo[]) => {
+    if (allTodosAreActive) {
+      tasks.forEach(t => toggleCompletedTodos(t));
+    }
+
+    if (allTodosCompleted) {
+      tasks.forEach(t => toggleCompletedTodos(t));
+    }
+
+    tasks.forEach(t => {
+      if (!t.completed) {
+        toggleCompletedTodos(t);
+      }
+    });
   };
 
   const onTitleEdition = (tasks: Todo[], taskId: number) => {
@@ -223,6 +238,7 @@ export const ToDoProvider = ({ children }: Props) => {
       temptTodos,
       newTitle,
       allTodosAreActive,
+      allTodosCompleted,
       setNewTodoName,
       handleShowError,
       handleSetFilterTodos,

@@ -7,10 +7,11 @@ export const Input = () => {
   const {
     addNewTodo, newTodoName,
     setNewTodoName,
-    allTodosAreActive,
+    allTodosCompleted,
     toggleActiveTodo,
     todos,
     temptTodo,
+    error,
   } = useTodo();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,7 +20,7 @@ export const Input = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos]);
+  }, [todos, error]);
 
   return (
     <header className="todoapp__header">
@@ -27,9 +28,9 @@ export const Input = () => {
           && (
             <button
               type="button"
-              className={allTodosAreActive
+              className={allTodosCompleted
                 ? 'todoapp__toggle-all active' : 'todoapp__toggle-all'}
-              onClick={() => toggleActiveTodo()}
+              onClick={() => toggleActiveTodo(todos)}
               data-cy="ToggleAllButton"
             />
           )}

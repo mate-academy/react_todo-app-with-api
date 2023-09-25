@@ -10,7 +10,8 @@ export interface TodoContextType {
   temptTodo: Todo | null;
   editedTodo: boolean;
   temptTodos: Todo[];
-  allTodosAreActive: boolean;
+  allTodosAreActive: boolean,
+  allTodosCompleted: boolean;
   newTitle: string;
   setNewTodoName: React.Dispatch<React.SetStateAction<string>>;
   handleShowError: (err: Errors) => void;
@@ -19,7 +20,7 @@ export interface TodoContextType {
   addNewTodo: (event: FormEvent<HTMLFormElement>) => void;
   removeTask: (task: Todo) => void;
   deleteCompleted: (tasks: Todo[]) => void;
-  toggleActiveTodo: () => void;
+  toggleActiveTodo: (tasks: Todo[]) => void;
   toggleCompletedTodos: (task: Todo) => void;
   todoTitleEdition: (task: Todo, newTitle: string, tasks: Todo[]) => void;
   onTitleEdition: (tasks: Todo[], taskId: number) => void;

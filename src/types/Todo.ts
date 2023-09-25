@@ -3,6 +3,6 @@ export interface Todo {
   userId: number;
   title: string;
   completed: boolean;
-  loaderAfterEditing?: boolean;
   isOnTitleEdition?: boolean;
+  hasLoader?: boolean;
 }
