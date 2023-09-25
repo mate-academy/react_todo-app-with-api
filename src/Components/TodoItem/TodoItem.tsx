@@ -56,15 +56,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         const deleteAction = deleteTodoAction(id);
 
         dispatch(deleteAction);
+        setIsFocused(true);
       })
       .catch((error) => {
         setApiError(error);
-        setInputValue(title);
       })
       .finally(() => {
         setIsTodoSpinned(false);
-        setIsFocused(true);
-        setIsEdited(false);
       });
   };
 
@@ -114,6 +112,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (!preparedInputValue.length) {
       handleDeleteClick();
+      setIsEdited(true);
+      setInputValue(preparedInputValue);
 
       return;
     }
@@ -124,15 +124,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .then((patchedTodo) => {
         const patchAction = patchTodoAction(patchedTodo);
 
+        setIsEdited(false);
         dispatch(patchAction);
         setInputValue(patchedTodo.title);
       })
       .catch(error => {
         setApiError(error);
-        setInputValue(title);
+        setIsEdited(true);
       })
       .finally(() => {
-        setIsEdited(false);
         setIsTodoSpinned(false);
         if (ref.current) {
           ref.current.disabled = false;
