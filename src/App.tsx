@@ -143,6 +143,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+        throw new Error();
       })
       .finally(() => {
         setTodosIdToDelete(prevState => prevState.filter(id => id !== todoId));
@@ -155,7 +156,7 @@ export const App: React.FC = () => {
   ) => {
     setTodosIdToUpdate(prevState => [...prevState, todoId]);
 
-    updateTodoById(todoId, { completed: !isCompleted })
+    return updateTodoById(todoId, { completed: !isCompleted })
       .then((currentTodo: Todo) => {
         setTodos(prevState => getUpdatedTodos(
           prevState,
@@ -165,6 +166,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
+        throw new Error();
       })
       .finally(() => {
         setTodosIdToUpdate(prevState => prevState
@@ -188,6 +190,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
+        throw new Error();
       })
       .finally(() => {
         setTodosIdToUpdate(prevState => prevState
@@ -200,9 +203,14 @@ export const App: React.FC = () => {
       .filter(({ completed }) => completed)
       .map(({ id }) => id);
 
-    await Promise
-      .all([...completedTodosId
-        .map(id => handelDeleteTodoById(id))]);
+    try {
+      await Promise
+        .all([...completedTodosId
+          .map(id => handelDeleteTodoById(id))]);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   const handleChangeAllCompletedStatus = async () => {
@@ -216,9 +224,14 @@ export const App: React.FC = () => {
       })
       .map(({ id }) => id);
 
-    await Promise
-      .all([...todosId
-        .map(id => handleChangeCompletedStatus(id, isCompletedAll))]);
+    try {
+      await Promise
+        .all([...todosId
+          .map(id => handleChangeCompletedStatus(id, isCompletedAll))]);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   if (!USER_ID) {

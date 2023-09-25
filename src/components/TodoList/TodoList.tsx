@@ -13,7 +13,10 @@ type Props = {
   tempTodo: Todo | null;
   onDeleteTodo: (todoId: number) => Promise<void>;
   onChangeTitle: (todoId: number, newTitle: string) => Promise<void>;
-  onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
+  onChangeCompletedStatus: (
+    todoId: number,
+    isCompleted: boolean,
+  ) => Promise<void>;
 };
 
 export const TodoList: React.FC<Props> = ({

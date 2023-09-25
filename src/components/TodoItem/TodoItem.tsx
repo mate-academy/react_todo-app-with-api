@@ -13,7 +13,10 @@ type Props = {
   todo: Todo;
   onDeleteTodo: (todoId: number) => Promise<void>;
   onChangeTitle: (todoId: number, newTitle: string) => Promise<void>;
-  onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
+  onChangeCompletedStatus: (
+    todoId: number,
+    isCompleted: boolean,
+  ) => Promise<void>;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -53,14 +56,38 @@ export const TodoItem: React.FC<Props> = ({
     setEditingTitle(event.target.value);
   };
 
-  const saveChange = async () => {
-    if (!editingTitle.trim()) {
-      await onDeleteTodo(id);
-    } else if (editingTitle !== title) {
-      await onChangeTitle(id, editingTitle.trim());
+  const handleChangeCompletedStatus = async () => {
+    try {
+      await onChangeCompletedStatus(id, completed);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
+  };
 
-    setIsEdit(false);
+  const handleDeleteTodo = async () => {
+    try {
+      await onDeleteTodo(id);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const saveChange = async () => {
+    try {
+      if (!editingTitle.trim()) {
+        await onDeleteTodo(id);
+      } else if (editingTitle.trim() !== title) {
+        await onChangeTitle(id, editingTitle.trim());
+      }
+
+      setEditingTitle(prevState => prevState.trim());
+      setIsEdit(false);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   const handleEditingKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -93,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => onChangeCompletedStatus(id, completed)}
+          onChange={() => handleChangeCompletedStatus()}
           checked={completed}
         />
       </label>
@@ -130,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoDelete"
             type="button"
             className="todo__remove"
-            onClick={() => onDeleteTodo(id)}
+            onClick={() => handleDeleteTodo()}
           >
             ×
           </button>
