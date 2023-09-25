@@ -55,7 +55,7 @@ export const Header: React.FC = () => {
       completed: false,
     };
 
-    setTempTodo({ ...data, id: 0 });
+    setTempTodo({ ...data, isSpinned: true, id: 0 });
 
     if (ref.current) {
       ref.current.blur();

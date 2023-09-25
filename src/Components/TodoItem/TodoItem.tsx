@@ -107,6 +107,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (preparedInputValue === title) {
       setIsEdited(false);
+      setInputValue(preparedInputValue);
 
       return;
     }
@@ -118,7 +119,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     setIsTodoSpinned(true);
-    setIsEdited(false);
 
     patchTodo(id, data)
       .then((patchedTodo) => {
@@ -132,6 +132,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setInputValue(title);
       })
       .finally(() => {
+        setIsEdited(false);
         setIsTodoSpinned(false);
         if (ref.current) {
           ref.current.disabled = false;
@@ -178,7 +179,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               setIsEdited(true);
             }}
           >
-            {title}
+            {inputValue}
           </span>
 
           <button
@@ -194,7 +195,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       <div
         className={cn('modal overlay', {
-          'is-active': id === 0 || isTodoSpinned,
+          'is-active': isTodoSpinned,
         })}
         data-cy="TodoLoader"
       >
