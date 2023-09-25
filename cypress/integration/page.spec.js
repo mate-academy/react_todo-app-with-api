@@ -522,7 +522,7 @@ describe('', () => {
           page.newTodoField().should('be.focused');
         });
 
-        it.only('should allow to add one more todo', () => {
+        it('should allow to add one more todo', () => {
           page.mockCreate().as('createRequest2');
 
           page.newTodoField().type('Hello world{enter}');
