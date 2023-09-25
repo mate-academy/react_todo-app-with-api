@@ -14,14 +14,13 @@ export const TodoError = () => {
         })
       }
     >
-      {/* eslint-disable */}
       <button
         data-cy="HideErrorButton"
         type="button"
         className="delete"
         onClick={() => setHasError(false)}
+        aria-label="close the error"
       />
-      {/* eslint-enable */}
       {errorMessage}
     </div>
   );

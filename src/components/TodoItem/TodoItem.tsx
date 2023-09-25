@@ -34,11 +34,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isBeingEdited]);
 
   const handleTodoDelete = () => {
-    setTodoIdsWithLoader(prevTodoIds => {
-      const newTodoIds = [...prevTodoIds, id];
-
-      return newTodoIds;
-    });
+    setTodoIdsWithLoader(prevTodoIds => [...prevTodoIds, id]);
     deleteTodo(id)
       .then(() => {
         setTodos(prevTodos => prevTodos
