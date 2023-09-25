@@ -11,8 +11,8 @@ import { FilterTodosContext } from '../../context/TodosContexts';
 type Props = {
   todos: Todo[];
   tempTodo: Todo | null;
-  onDeleteTodo: (todoId: number) => void;
-  onChangeTitle: (todoId: number, newTitle: string) => void;
+  onDeleteTodo: (todoId: number) => Promise<void>;
+  onChangeTitle: (todoId: number, newTitle: string) => Promise<void>;
   onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
 };
 

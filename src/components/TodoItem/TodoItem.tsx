@@ -11,8 +11,8 @@ import { LoadingTodosContext } from '../../context/TodosContexts';
 
 type Props = {
   todo: Todo;
-  onDeleteTodo: (todoId: number) => void;
-  onChangeTitle: (todoId: number, newTitle: string) => void;
+  onDeleteTodo: (todoId: number) => Promise<void>;
+  onChangeTitle: (todoId: number, newTitle: string) => Promise<void>;
   onChangeCompletedStatus: (todoId: number, isCompleted: boolean) => void;
 };
 
@@ -53,11 +53,11 @@ export const TodoItem: React.FC<Props> = ({
     setEditingTitle(event.target.value);
   };
 
-  const saveChange = () => {
+  const saveChange = async () => {
     if (!editingTitle.trim()) {
-      onDeleteTodo(id);
+      await onDeleteTodo(id);
     } else if (editingTitle !== title) {
-      onChangeTitle(id, editingTitle);
+      await onChangeTitle(id, editingTitle.trim());
     }
 
     setIsEdit(false);
@@ -105,6 +105,7 @@ export const TodoItem: React.FC<Props> = ({
           }
         >
           <input
+            data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"

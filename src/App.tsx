@@ -137,7 +137,7 @@ export const App: React.FC = () => {
   const handelDeleteTodoById = (todoId: number) => {
     setTodosIdToDelete(prevState => [...prevState, todoId]);
 
-    deleteTodoById(todoId)
+    return deleteTodoById(todoId)
       .then(() => {
         setTodos(prevState => prevState.filter(todo => todo.id !== todoId));
       })
@@ -178,7 +178,7 @@ export const App: React.FC = () => {
   ) => {
     setTodosIdToUpdate(prevState => [...prevState, todoId]);
 
-    updateTodoById(todoId, { title: newTitle })
+    return updateTodoById(todoId, { title: newTitle })
       .then((currentTodo) => {
         setTodos(prevState => getUpdatedTodos(
           prevState,
