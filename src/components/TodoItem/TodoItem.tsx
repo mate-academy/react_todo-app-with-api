@@ -1,7 +1,7 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { TodoContext } from '../../context/TodoContext';
+import { useTodo } from '../../context/TodoContext';
 
 type Props = {
   todo: Todo;
@@ -14,7 +14,7 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo, onDelete, onEditedId, isDeleteActive,
 }) => {
-  const { setTodos } = useContext(TodoContext);
+  const { setTodos } = useTodo();
   const { id, title, completed } = todo;
 
   const [deletedTodoId, setDeletedTodoId] = useState<number | null>(null);

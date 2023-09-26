@@ -2,29 +2,31 @@ import { useContext, useMemo } from 'react';
 import classnames from 'classnames';
 import { Status } from '../../types/Status';
 import { FilterContext } from '../../context/FilterContext';
-import { TodoContext } from '../../context/TodoContext';
+import { useTodo } from '../../context/TodoContext';
 import { deleteTodo } from '../../api/todos';
-import { ErrorContext } from '../../context/ErrorContext';
+import { useError } from '../../context/ErrorContext';
 
 export const TodoFooter = () => {
-  const { todos, setTodos } = useContext(TodoContext);
   const { selectedFilter, setSelectedFilter } = useContext(FilterContext);
-  const { setErrorMessage } = useContext(ErrorContext);
+  const { todos, setTodos } = useTodo();
+  const { setErrorMessage } = useError();
 
   const hasCompletedTodo = useMemo(() => {
     return todos.some(todo => todo.completed);
   }, [todos]);
 
   const clearCompleted = () => {
-    todos.forEach(({ id, completed }) => {
-      if (completed) {
-        deleteTodo(id)
-          .then(() => {
-            setTodos(prevState => prevState.filter(todo => todo.id !== id));
-          })
-          .catch(() => setErrorMessage('Unable to delete a todo'));
-      }
-    });
+    const deletePromises = todos
+      .filter((todo) => todo.completed)
+      .map(({ id }) => deleteTodo(id));
+
+    Promise.all(deletePromises)
+      .then(() => {
+        setTodos((prevState) => prevState.filter((todo) => !todo.completed));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      });
   };
 
   return (

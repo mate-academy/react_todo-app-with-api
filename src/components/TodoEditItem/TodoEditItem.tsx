@@ -1,10 +1,10 @@
 import {
-  useContext, useEffect, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { TodoContext } from '../../context/TodoContext';
-import { ErrorContext } from '../../context/ErrorContext';
+import { useTodo } from '../../context/TodoContext';
+import { useError } from '../../context/ErrorContext';
 import { updateTodo } from '../../api/todos';
 
 type Props = {
@@ -19,8 +19,9 @@ export const TodoEditItem: React.FC<Props> = ({
   todo, onEditedId, onDelete, isLoading, onLoad,
 }) => {
   const { id, completed } = todo;
-  const { todos, setTodos } = useContext(TodoContext);
-  const { setErrorMessage } = useContext(ErrorContext);
+
+  const { todos, setTodos } = useTodo();
+  const { setErrorMessage } = useError();
 
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,24 +38,32 @@ export const TodoEditItem: React.FC<Props> = ({
       return;
     }
 
-    const todosCopy = [...todos];
-    const index = todos.findIndex(({ id: currentId }) => currentId === id);
-    const updatedTodo = {
-      ...todosCopy[index],
-      title: newTitle,
-    };
+    const updatedTodos = todos.map((currentTodo) => {
+      if (currentTodo.id === id) {
+        return {
+          ...currentTodo,
+          title: newTitle,
+        };
+      }
 
-    todosCopy.splice(index, 1, updatedTodo);
+      return currentTodo;
+    });
+
+    const updatedTodo = updatedTodos.find(({ id: updatedId }) => {
+      return updatedId === id;
+    });
 
     onLoad(true);
 
-    updateTodo(todo.id, updatedTodo)
-      .then(() => setTodos(todosCopy))
-      .catch(() => setErrorMessage('Unable to update a todo'))
-      .finally(() => {
-        onLoad(false);
-        onEditedId();
-      });
+    if (updatedTodo) {
+      updateTodo(todo.id, updatedTodo)
+        .then(() => setTodos(updatedTodos))
+        .catch(() => setErrorMessage('Unable to update a todo'))
+        .finally(() => {
+          onLoad(false);
+          onEditedId();
+        });
+    }
   };
 
   const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {

@@ -6,11 +6,11 @@ import {
 } from 'react';
 import classnames from 'classnames';
 
-import { TodoContext } from '../../context/TodoContext';
-import { ErrorContext } from '../../context/ErrorContext';
+import { useTodo } from '../../context/TodoContext';
+import { useError } from '../../context/ErrorContext';
 import { TodoTempContext } from '../../context/TodoTempContext';
 import { USER_ID } from '../../utils/variables';
-import { createTodo } from '../../api/todos';
+import { createTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -18,38 +18,55 @@ type Props = {
 };
 
 export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
-  const { todos, setTodos } = useContext(TodoContext);
   const { setTodoTemp } = useContext(TodoTempContext);
-  const { errorMessage, setErrorMessage } = useContext(ErrorContext);
+  const { todos, setTodos } = useTodo();
+  const { errorMessage, setErrorMessage } = useError();
 
   const [title, setTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isActiveItemsLeft = todos.filter(({ completed }) => !completed).length;
+  const isActiveItemsLeft = todos.some(({ completed }) => !completed);
 
   useEffect(() => {
     inputRef?.current?.focus();
   }, [todos, errorMessage]);
 
-  const toggleAll = () => {
+  const toggleAll = async () => {
     const allCompleted = todos.every(({ completed }) => completed);
 
+    const updatePromises: Promise<Todo>[] = [];
+
     if (allCompleted) {
-      setTodos(currentTodos => {
-        return currentTodos.map(todo => ({
-          ...todo,
-          completed: false,
-        }));
+      todos.forEach(todo => {
+        if (todo.completed) {
+          const updatedTodo = { ...todo, completed: false };
+
+          updatePromises.push(updateTodo(todo.id, updatedTodo));
+        }
       });
     } else {
+      todos.forEach(todo => {
+        if (!todo.completed) {
+          const updatedTodo = { ...todo, completed: true };
+
+          updatePromises.push(updateTodo(todo.id, updatedTodo));
+        }
+      });
+    }
+
+    try {
+      await Promise.all(updatePromises);
+
       setTodos(currentTodos => {
         return currentTodos.map(todo => ({
           ...todo,
-          completed: true,
+          completed: !allCompleted,
         }));
       });
+    } catch (error) {
+      setErrorMessage(`Error updating todos:, ${error}`);
     }
   };
 

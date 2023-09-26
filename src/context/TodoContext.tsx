@@ -1,12 +1,14 @@
 import {
-  useState, createContext, useMemo,
+  useState, createContext, useContext,
 } from 'react';
 import { Todo } from '../types/Todo';
 
-export const TodoContext = createContext<{
+interface TodoContextType {
   todos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-}>({
+}
+
+export const TodoContext = createContext<TodoContextType>({
   todos: [],
   setTodos: () => {},
 });
@@ -18,14 +20,18 @@ type Props = {
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
 
-  const value = useMemo(() => ({
+  const value = {
     todos,
     setTodos,
-  }), [todos]);
+  };
 
   return (
     <TodoContext.Provider value={value}>
       {children}
     </TodoContext.Provider>
   );
+};
+
+export const useTodo = (): TodoContextType => {
+  return useContext(TodoContext);
 };

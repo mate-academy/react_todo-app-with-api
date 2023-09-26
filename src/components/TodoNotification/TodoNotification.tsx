@@ -1,13 +1,13 @@
 import classnames from 'classnames';
-import { useContext, useEffect } from 'react';
-import { ErrorContext } from '../../context/ErrorContext';
+import { useEffect } from 'react';
+import { useError } from '../../context/ErrorContext';
 
 export const TodoNotification: React.FC = () => {
   const {
     errorMessage,
     isErrorHidden,
     setIsErrorHidden,
-  } = useContext(ErrorContext);
+  } = useError();
 
   useEffect(() => {
     if (errorMessage.length) {

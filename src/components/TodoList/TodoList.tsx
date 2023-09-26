@@ -2,11 +2,11 @@ import { useContext, useState } from 'react';
 
 import { getFilteredTodos } from '../../utils/utils';
 import { TodoItem } from '../TodoItem';
-import { TodoContext } from '../../context/TodoContext';
+import { useTodo } from '../../context/TodoContext';
 import { FilterContext } from '../../context/FilterContext';
 import { TodoTempContext } from '../../context/TodoTempContext';
 import { deleteTodo } from '../../api/todos';
-import { ErrorContext } from '../../context/ErrorContext';
+import { useError } from '../../context/ErrorContext';
 import { TodoEditItem } from '../TodoEditItem';
 import { TodoTempItem } from '../TodoTempItem';
 import { Todo } from '../../types/Todo';
@@ -19,10 +19,10 @@ type Props = {
 export const TodoList: React.FC<Props> = ({
   isActive,
 }) => {
-  const { todos, setTodos } = useContext(TodoContext);
+  const { todos, setTodos } = useTodo();
   const { selectedFilter } = useContext(FilterContext);
   const { todoTemp } = useContext(TodoTempContext);
-  const { setErrorMessage } = useContext(ErrorContext);
+  const { setErrorMessage } = useError();
 
   const filteredTodos = getFilteredTodos(todos, selectedFilter);
 
@@ -59,7 +59,7 @@ export const TodoList: React.FC<Props> = ({
             onEditedId={() => setEditedId(null)}
             onDelete={handleDeleteTodo}
             isLoading={isLoading}
-            onLoad={(value) => setIsLoading(value)}
+            onLoad={setIsLoading}
           />
         ) : (
           <TodoItem
@@ -68,7 +68,7 @@ export const TodoList: React.FC<Props> = ({
             onDelete={handleDeleteTodo}
             onEditedId={setEditedId}
             isDeleteActive={isDeleteActive}
-            onDeleteActive={(value) => setIsDeleteActive(value)}
+            onDeleteActive={setIsDeleteActive}
           />
         )
       ))}

@@ -1,5 +1,5 @@
 import {
-  useState, createContext, useMemo,
+  useState, createContext,
 } from 'react';
 import { Todo } from '../types/Todo';
 
@@ -18,10 +18,10 @@ type Props = {
 export const TodoTempProvider: React.FC<Props> = ({ children }) => {
   const [todoTemp, setTodoTemp] = useState<Todo | null>(null);
 
-  const value = useMemo(() => ({
+  const value = {
     todoTemp,
     setTodoTemp,
-  }), [todoTemp]);
+  };
 
   return (
     <TodoTempContext.Provider value={value}>

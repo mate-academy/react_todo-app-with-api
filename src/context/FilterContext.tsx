@@ -1,4 +1,4 @@
-import { useState, createContext, useMemo } from 'react';
+import { useState, createContext } from 'react';
 import { Status } from '../types/Status';
 
 export const FilterContext = createContext<{
@@ -16,10 +16,10 @@ type Props = {
 export const FilterProvider: React.FC<Props> = ({ children }) => {
   const [selectedFilter, setSelectedFilter] = useState<Status>(Status.All);
 
-  const value = useMemo(() => ({
+  const value = {
     selectedFilter,
     setSelectedFilter,
-  }), [selectedFilter]);
+  };
 
   return (
     <FilterContext.Provider value={value}>
