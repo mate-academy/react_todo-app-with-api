@@ -45,7 +45,7 @@ export const TodoItem: React.FC<Props> = (
     event.preventDefault();
     setIsItemLoading(true);
 
-    if (todoTitle !== todo.title) {
+    if (todoTitle !== todo.title && todoTitle !== '') {
       await updateTodoHandler(todo, { title: todoTitle });
     } else if (todoTitle === todo.title) {
       setIsEditing(false);

@@ -11,7 +11,7 @@ import { USER_ID } from '../utils/constants';
 
 interface TodoContextProps {
   todos: Todo[];
-  addTodoHandler: (todo: Omit<Todo, 'id'>, onSuccess: () => void) => void;
+  addTodoHandler: (todo: Omit<Todo, 'id'>) => Promise<void>;
   deleteTodoHandler: (todoId: number) => Promise<void>;
   updateTodoHandler: (todo: Todo, property: Partial<Todo>) => Promise<void>;
   errorMessage: string;
@@ -21,7 +21,7 @@ interface TodoContextProps {
 
 export const TodoContext = createContext<TodoContextProps>({
   todos: [],
-  addTodoHandler: () => { },
+  addTodoHandler: async () => { },
   deleteTodoHandler: async () => { },
   updateTodoHandler: async () => { },
   errorMessage: '',
@@ -40,15 +40,15 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     = useState<{ [key: number]: boolean } | {}>({});
 
   const addTodoHandler = async (
-    newTodo: Omit<Todo, 'id'>, onSuccess: () => void,
+    newTodo: Omit<Todo, 'id'>,
   ) => {
     try {
       const createdTodo = await addTodo(newTodo);
 
       setTodos((currentTodos) => [...currentTodos, createdTodo]);
-      onSuccess();
     } catch (error) {
-      setErrorMessage('Unable to add todo');
+      setErrorMessage('Unable to add a todo');
+      throw new Error();
     }
   };
 
@@ -84,7 +84,6 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
       setTodos(currentTodos => currentTodos.filter(({ id }) => id !== todoId));
     } catch {
       setErrorMessage('Unable to delete a todo');
-      // throw new Error();
     }
 
     setIsLoadingMap(prevLoadingMap => ({

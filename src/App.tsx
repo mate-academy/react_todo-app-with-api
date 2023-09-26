@@ -123,7 +123,6 @@ export const App: React.FC = () => {
           onClick={() => setErrorMessage('')}
         />
         {errorMessage}
-        {/* Unable to update a todo */}
       </div>
     </div>
   );
