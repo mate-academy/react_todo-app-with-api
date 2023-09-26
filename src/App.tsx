@@ -1,16 +1,15 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
 import * as todosService from './api/todos';
+import { TodoItem } from './components/TodoItem';
 
 const USER_ID = 11468;
 
@@ -48,19 +47,43 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isInputFieldDisabled, setIsInputFieldDisabled] = useState(false);
 
-  function showError(message: string) {
-    setErrorMessage(message);
+  const timerId = useRef<number>(0);
 
-    setTimeout(() => {
+  useEffect(() => {
+    if (timerId.current) {
+      window.clearTimeout(timerId.current);
+    }
+
+    timerId.current = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
-  }
+  }, [errorMessage]);
+
+  const updateTodo = async (todo: Todo) => {
+    todosService.updateTodo({
+      id: todo.id,
+      title: todo.title,
+      userId: todo.userId,
+      completed: todo.completed,
+    })
+      .then(updatedTodo => {
+        setTodos(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+        setLoadingTodosIds([]);
+      });
+  };
 
   const handleCompletedChange = (todoId: number) => {
     const foundTodo = todos.find(todo => todo.id === todoId);
 
     if (foundTodo) {
-      foundTodo.completed = !foundTodo.completed;
+      updateTodo({ ...foundTodo, completed: !foundTodo.completed });
     }
 
     setTodos([...todos]);
@@ -76,12 +99,13 @@ export const App: React.FC = () => {
         setLoadingTodos(false);
       })
       .catch(() => {
-        showError('Unable to load todos');
+        setErrorMessage('Unable to load todos');
         setLoadingTodos(false);
       });
   }, []);
 
   const visibleTodos = filterTodos(todos, selectedOption);
+
   const handleChangeSelect = (newOption: TodoStatus) => {
     setSelectedOption(newOption);
   };
@@ -91,11 +115,12 @@ export const App: React.FC = () => {
 
     todosService.deleteTodo(todoId)
       .then(() => {
-        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+        setTodos(currentTodos => currentTodos
+          .filter(todo => todo.id !== todoId));
         setLoadingTodosIds([]);
       })
       .catch(() => {
-        showError('Unable to delete a todo');
+        setErrorMessage('Unable to delete a todo');
         setLoadingTodosIds([]);
       })
       .finally(() => setLoadingTodosIds([todoId]));
@@ -121,7 +146,7 @@ export const App: React.FC = () => {
         });
 
         if (wasFailed) {
-          showError('Unable to delete a todo');
+          setErrorMessage('Unable to delete a todo');
         }
 
         setLoadingTodosIds([]);
@@ -136,7 +161,7 @@ export const App: React.FC = () => {
     const maxTodoId = Math.max(...todoIds);
 
     if (!newTitle?.trim()?.length) {
-      showError('Title should not be empty');
+      setErrorMessage('Title should not be empty');
     } else {
       setInputValue(newTitle);
       const newTodo = {
@@ -162,7 +187,7 @@ export const App: React.FC = () => {
           setLoadingTodosIds([]);
           setTodos([...todos
             .filter((current) => current.id !== 0)]);
-          showError('Unable to add a todo');
+          setErrorMessage('Unable to add a todo');
         });
 
       if (tempTodo === null) {
@@ -175,7 +200,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleChangellCompleted = () => {
+  const handleChangeAllCompleted = () => {
     const isNoCompleted = todos.find(todo => todo.completed === false);
 
     if (isNoCompleted) {
@@ -185,6 +210,15 @@ export const App: React.FC = () => {
       setTodos(todos
         .map(currentTodo => ({ ...currentTodo, completed: false })));
     }
+  };
+
+  const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
+    updateTodo({
+      id: todo.id,
+      title: newTodoTitle,
+      userId: todo.userId,
+      completed: todo.completed,
+    });
   };
 
   return (
@@ -201,16 +235,27 @@ export const App: React.FC = () => {
               inputValue={inputValue}
               setInputValue={setInputValue}
               isInputFieldDisabled={isInputFieldDisabled}
-              onHandleChangellCompleted={handleChangellCompleted}
+              onHandleChangeCompleted={handleChangeAllCompleted}
             />
 
             {!loadingTodos && (
-              <TodoList
-                todos={visibleTodos}
-                onCompletedChange={handleCompletedChange}
-                onDeleteTodo={handleDeleteTodo}
-                loadingTodosIds={loadingTodosIds}
-              />
+              <section
+                className="todoapp__main"
+                data-cy="TodoList"
+              >
+                {visibleTodos.map(todo => (
+                  <TodoItem
+                    onDeleteTodo={handleDeleteTodo}
+                    todo={todo}
+                    key={todo.id}
+                    onCompletedChange={handleCompletedChange}
+                    isLoading={loadingTodosIds.includes(todo.id)}
+                    onUpdateTodo={
+                      (todoTitle: string) => handleUpdateTodo(todo, todoTitle)
+                    }
+                  />
+                ))}
+              </section>
             )}
 
             {todos.length !== 0 && (
@@ -239,7 +284,6 @@ export const App: React.FC = () => {
             />
             {errorMessage}
 
-            {/* Unable to update a todo */}
           </div>
         </div>
       </p>

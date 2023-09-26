@@ -21,7 +21,7 @@ export const addTodo = ({ title, userId, completed }: Todo) => {
 
 export const updateTodo = ({
   id, title, userId, completed,
-}: Todo) => {
+}: Todo): Promise<Todo> => {
   return client.patch(`/todos/${id}`, {
     title,
     userId,

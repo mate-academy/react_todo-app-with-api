@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable max-len */
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
@@ -10,7 +9,7 @@ type Props = {
   inputValue: string,
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
   isInputFieldDisabled: boolean,
-  onHandleChangellCompleted: () => void,
+  onHandleChangeCompleted: () => void,
 };
 
 export const Header: React.FC<Props> = ({
@@ -19,7 +18,7 @@ export const Header: React.FC<Props> = ({
   inputValue,
   setInputValue,
   isInputFieldDisabled,
-  onHandleChangellCompleted,
+  onHandleChangeCompleted,
 }) => {
   const noCompletedTodos = todos?.length
     ? todos.every((todo) => todo.completed)
@@ -50,7 +49,7 @@ export const Header: React.FC<Props> = ({
   };
 
   const handleChangeAllCompleted = () => {
-    onHandleChangellCompleted();
+    onHandleChangeCompleted();
   };
 
   return (

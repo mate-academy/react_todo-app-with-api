@@ -1,6 +1,4 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -9,6 +7,7 @@ type Props = {
   onCompletedChange?: (todoId: number) => void,
   onDeleteTodo: (todoId: number) => void,
   isLoading: boolean,
+  onUpdateTodo: (todoTitle: string) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -16,8 +15,12 @@ export const TodoItem: React.FC<Props> = ({
   onCompletedChange = () => {},
   onDeleteTodo,
   isLoading,
+  onUpdateTodo,
 }) => {
   const { title, id } = todo;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [todoTitle, setTodoTitle] = useState(title);
 
   const checkHandler = (event: React.FormEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -26,6 +29,26 @@ export const TodoItem: React.FC<Props> = ({
 
   const onDeleteClick = () => {
     onDeleteTodo(id);
+  };
+
+  const handleTodoDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (todoTitle) {
+      onUpdateTodo(todoTitle);
+    } else {
+      onDeleteTodo(id);
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleTodoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
   };
 
   return (
@@ -46,20 +69,41 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      <span
-        data-cy="TodoTitle"
-        className="todo__title"
-      >
-        {title}
-      </span>
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={onDeleteClick}
-      >
-        ×
-      </button>
+      {isEditing
+        ? (
+          <form
+            onSubmit={handleTodoSave}
+            onBlur={handleTodoSave}
+          >
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={todoTitle}
+              onChange={handleTodoChange}
+            />
+          </form>
+        )
+        : (
+          <>
+            <span
+              onDoubleClick={handleTodoDoubleClick}
+              data-cy="TodoTitle"
+              className="todo__title"
+            >
+              {title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={onDeleteClick}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       <div
         data-cy="TodoLoader"
