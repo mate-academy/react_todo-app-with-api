@@ -1,0 +1,19 @@
+import { useTodo } from '../../provider/todoProvider';
+import { ToggleButton } from './ToggleButton';
+import { Input } from './Input';
+
+export const Header = () => {
+  const {
+    todos,
+  } = useTodo();
+
+  return (
+    <header className="todoapp__header">
+      {todos.length !== 0
+        && (
+          <ToggleButton />
+        )}
+      <Input />
+    </header>
+  );
+};

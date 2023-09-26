@@ -1,73 +1,15 @@
-import { useTodo } from '../../provider/todoProvider';
-import { FilterType } from '../../types/FilterType';
+import { Filters } from './Filters';
+import { FooterButton } from './FooterButton';
 
-import { TodoCount } from '../TodoCount';
+import { TodoCount } from './TodoCount';
 
-export const Footer = () => {
-  const {
-    handleSetFilterTodos,
-    deleteCompleted,
-    todos,
-    allTodosAreActive,
-    filterTodos,
-  } = useTodo();
-
-  const addFilterType = (filterType: FilterType) => {
-    handleSetFilterTodos(filterType);
-  };
-
-  const completedTodos = todos.filter(t => t.completed);
-
-  return (
-    <footer
-      data-cy="Footer"
-      className="todoapp__footer"
-    >
-      <TodoCount />
-      <nav
-        data-cy="Filter"
-        className="filter"
-      >
-        <a
-          data-cy="FilterLinkAll"
-          href="#/"
-          className={filterTodos === 'all'
-            ? 'filter__link selected' : 'filter__link'}
-          onClick={() => addFilterType('all')}
-        >
-          All
-        </a>
-
-        <a
-          data-cy="FilterLinkActive"
-          href="#/active"
-          className={filterTodos === 'active'
-            ? 'filter__link selected' : 'filter__link'}
-          onClick={() => addFilterType('active')}
-        >
-          Active
-        </a>
-
-        <a
-          data-cy="FilterLinkCompleted"
-          href="#/completed"
-          className={filterTodos === 'completed'
-            ? 'filter__link selected' : 'filter__link'}
-          onClick={() => addFilterType('completed')}
-        >
-          Completed
-        </a>
-      </nav>
-
-      <button
-        data-cy="ClearCompletedButton"
-        type="button"
-        className="todoapp__clear-completed"
-        onClick={() => deleteCompleted(completedTodos)}
-        disabled={allTodosAreActive}
-      >
-        Clear completed
-      </button>
-    </footer>
-  );
-};
+export const Footer = () => (
+  <footer
+    data-cy="Footer"
+    className="todoapp__footer"
+  >
+    <TodoCount />
+    <Filters />
+    <FooterButton />
+  </footer>
+);
