@@ -4,6 +4,7 @@ import React, {
   useState,
   useMemo,
   useContext,
+  useRef,
 } from 'react';
 import classNames from 'classnames';
 
@@ -35,12 +36,16 @@ export const App: React.FC = () => {
       });
   }, []);
 
+  const timerId = useRef<number>(0);
+
   useEffect(() => {
-    if (error) {
-      setTimeout(() => {
-        setError(CurrentError.Default);
-      }, 3000);
+    if (timerId.current) {
+      window.clearTimeout(timerId.current);
     }
+
+    timerId.current = window.setTimeout(() => {
+      setError(CurrentError.Default);
+    }, 3000);
   }, [error]);
 
   const filteredTodos = useMemo(() => {

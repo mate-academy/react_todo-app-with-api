@@ -15,7 +15,7 @@ type Props = {};
 export const TodoHeader: React.FC<Props> = () => {
   const {
     setError,
-    addTodoHandler,
+    handleTodoAdd,
     setTempTodo,
     activeTodos,
     completedTodos,
@@ -50,7 +50,7 @@ export const TodoHeader: React.FC<Props> = () => {
     };
 
     setTempTodo({ id: 0, ...newTodo });
-    addTodoHandler(newTodo)
+    handleTodoAdd(newTodo)
       .then(() => {
         setTitle('');
       })
@@ -83,9 +83,7 @@ export const TodoHeader: React.FC<Props> = () => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={(event) => {
-            handleTitleChange(event);
-          }}
+          onChange={handleTitleChange}
           disabled={isLoading}
         />
       </form>

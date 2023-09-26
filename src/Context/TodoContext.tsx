@@ -22,8 +22,9 @@ interface TodoContextInterface {
   setIsLoading: (isLoading: boolean) => void;
   error: CurrentError,
   setError: (error: CurrentError) => void;
-  deleteTodoHandler: (id: number) => void;
-  addTodoHandler: (newTodo: Omit<Todo, 'id'>) => Promise<void>
+  handleTodoDelete: (id: number) => void;
+  handleTodoAdd: (newTodo: Omit<Todo, 'id'>) => Promise<void>
+  handleTodoUpdate: (todo: Todo, newTodoTitle: string) => Promise<void>,
   completedTodos: Todo[];
   activeTodos: Todo[];
   clearCompleted: () => void;
@@ -40,8 +41,9 @@ const initalContext: TodoContextInterface = {
   setIsLoading: () => {},
   error: CurrentError.Default,
   setError: () => {},
-  deleteTodoHandler: () => {},
-  addTodoHandler: async () => {},
+  handleTodoDelete: () => {},
+  handleTodoAdd: async () => {},
+  handleTodoUpdate: async () => {},
   completedTodos: [],
   activeTodos: [],
   clearCompleted: () => {},
@@ -61,7 +63,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const completedTodos = getCompletedTodos(todos);
   const activeTodos = getActiveTodos(todos);
 
-  const deleteTodoHandler = (todoId: number) => {
+  const handleTodoDelete = (todoId: number) => {
     setIsLoading(true);
     setTodosIdToDelete(prevState => [...prevState, todoId]);
     todoService.deleteTodo(todoId)
@@ -74,7 +76,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       .finally(() => setIsLoading(false));
   };
 
-  const addTodoHandler = (newTodo: Omit<Todo, 'id'>) => {
+  const handleTodoAdd = (newTodo: Omit<Todo, 'id'>) => {
     setIsLoading(true);
 
     return todoService.addTodo(newTodo)
@@ -91,8 +93,25 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       });
   };
 
+  const handleTodoUpdate = (todo: Todo, newTodoTitle: string) => {
+    return todoService
+      .updateTodo({
+        id: todo.id,
+        title: newTodoTitle,
+        userId: todo.userId,
+        completed: todo.completed,
+      })
+      .then(updatedTodo => {
+        setTodos(prevState => prevState.map(currTodo => {
+          return currTodo.id !== updatedTodo.id
+            ? currTodo
+            : updatedTodo;
+        }));
+      });
+  };
+
   const clearCompleted = () => {
-    completedTodos.forEach(({ id }) => deleteTodoHandler(id));
+    completedTodos.forEach(({ id }) => handleTodoDelete(id));
   };
 
   const value = useMemo(() => ({
@@ -104,8 +123,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setIsLoading,
     error,
     setError,
-    deleteTodoHandler,
-    addTodoHandler,
+    handleTodoDelete,
+    handleTodoAdd,
+    handleTodoUpdate,
     completedTodos,
     activeTodos,
     clearCompleted,
