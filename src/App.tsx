@@ -2,7 +2,6 @@
 import React, {
   useState, useEffect, useMemo, useCallback, useRef,
 } from 'react';
-import classNames from 'classnames';
 import {
   getTodos, deleteTodo, addTodo, updateTodo,
 } from './api/todos';
@@ -10,6 +9,8 @@ import { Todo } from './types/Todo';
 import { FilterType } from './types/FilterType';
 import { TodoItem } from './components/TodoItem';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { ErrorMessage } from './components/ErrorMessage';
 
 function filterTodos(todos: Todo[], filterField: FilterType) {
   let filteredTodos = todos;
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
   }, [todos, filterField]);
 
   const handleDeleteTodo = useCallback((todoId: number) => {
+    setErrorMessage('');
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todoId]);
 
     return deleteTodo(todoId)
@@ -96,6 +98,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleAddTodo = useCallback((newTodoTitle: string) => {
+    setErrorMessage('');
     setTempTodo({
       id: 0,
       title: newTodoTitle,
@@ -117,6 +120,7 @@ export const App: React.FC = () => {
   }, []);
 
   const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
+    setErrorMessage('');
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
 
     updateTodo({
@@ -252,85 +256,21 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
         {todos.length !== 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${activeTodosCounter} items left`}
-            </span>
-
-            {/* Active filter should have a 'selected' class */}
-            <nav className="filter" data-cy="Filter">
-              <a
-                href="#/"
-                className={classNames('filter__link', {
-                  selected: filterField === FilterType.All,
-                })}
-                data-cy="FilterLinkAll"
-                onClick={() => setFilterField(FilterType.All)}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={classNames('filter__link', {
-                  selected: filterField === FilterType.Active,
-                })}
-                data-cy="FilterLinkActive"
-                onClick={() => setFilterField(FilterType.Active)}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={classNames('filter__link', {
-                  selected: filterField === FilterType.Completed,
-                })}
-                data-cy="FilterLinkCompleted"
-                onClick={() => setFilterField(FilterType.Completed)}
-              >
-                Completed
-              </a>
-            </nav>
-
-            {/* don't show this button if there are no completed todos */}
-
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              disabled={!completedTodosCounter}
-              onClick={handleClearCompleted}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            activeTodosCounter={activeTodosCounter}
+            completedTodosCounter={completedTodosCounter}
+            onFilterFieldChange={setFilterField}
+            filterField={filterField}
+            onClearCompleted={handleClearCompleted}
+          />
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !errorMessage },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage('')}
-        />
-        {/* show only one message at a time */}
-        {errorMessage}
-      </div>
+      <ErrorMessage
+        errorMessage={errorMessage}
+        onErrorMessageChange={setErrorMessage}
+      />
     </div>
   );
 };
