@@ -25,15 +25,13 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [temporaryTodo, setTemporaryTodo] = useState<Todo | null>(null);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
-
+  const [counter, setCounter] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (mess: ErrorMess) => {
     setError(mess);
     setTimeout(() => setError(null), 3000);
   };
-
-  const counter = todos.filter(todo => todo.completed === false).length;
 
   useEffect(() => {
     if (!isSubmiting) {
@@ -44,8 +42,11 @@ export const App: React.FC = () => {
   const fetchData = async () => {
     try {
       const todoss = getTodos(USER_ID);
+      const count = (await todoss).filter(todo => todo.completed === false)
+        .length;
 
       setTodos(await todoss);
+      setCounter(count);
     } catch (e) {
       handleError('Unable to load todos');
     }
@@ -56,6 +57,10 @@ export const App: React.FC = () => {
       completed: !todo.completed,
     }).then(() => {
       todo.completed = !todo.completed;
+      const count = todos.filter(toDo => toDo.completed === false)
+        .length;
+
+      setCounter(count);
     }).catch(() => {
       handleError('Unable to update a todo');
     }).finally(() => callback());
@@ -69,6 +74,10 @@ export const App: React.FC = () => {
         handleError('Unable to update a todo');
       }).finally(() => {
         fetchData();
+        const count = todos.filter(toDo => toDo.completed === false)
+          .length;
+
+        setCounter(count);
       });
     });
   };
@@ -77,6 +86,7 @@ export const App: React.FC = () => {
     deleteTodo(todo.id).then(() => {
       setTodos(prevTodo => prevTodo.filter(toDo => toDo !== todo));
       inputRef.current?.focus();
+      setCounter(oldCount => oldCount - 1);
     }).catch(() => {
       handleError('Unable to delete todo');
       if (callback) {
@@ -101,6 +111,8 @@ export const App: React.FC = () => {
     }).finally(() => {
       setTemporaryTodo(null);
       setIsSubmiting(false);
+
+      setCounter(oldCount => oldCount + 1);
     });
   };
 
