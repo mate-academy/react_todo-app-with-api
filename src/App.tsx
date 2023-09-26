@@ -7,6 +7,8 @@ import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 import { Header } from './components/Header/Header';
 import { TodosContext } from './contexts/TodosContext';
 
+import './App.scss'
+
 export const App: React.FC = () => {
   const { todos } = useContext(TodosContext);
 
