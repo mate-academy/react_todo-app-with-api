@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/no-autofocus */
 /* eslint-disable no-useless-return */
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -23,6 +25,7 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [temporaryTodo, setTemporaryTodo] = useState<Todo | null>(null);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
+  const [incompleteTodoCount, setIncompleteTodoCount] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,6 +45,9 @@ export const App: React.FC = () => {
       const todoss = getTodos(USER_ID);
 
       setTodos(await todoss);
+      const counter = todos.filter(todo => todo.completed === false).length;
+
+      setIncompleteTodoCount(counter);
     } catch (e) {
       handleError('Unable to load todos');
     }
@@ -51,7 +57,10 @@ export const App: React.FC = () => {
     updateTodo(todo.id, {
       completed: !todo.completed,
     }).then(() => {
-      fetchData();
+      todo.completed = !todo.completed;
+      const newIncompleteCount = todos.filter(t => !t.completed).length;
+
+      setIncompleteTodoCount(newIncompleteCount);
     }).catch(() => {
       handleError('Unable to update a todo');
     }).finally(() => callback());
@@ -95,6 +104,9 @@ export const App: React.FC = () => {
     }).catch(() => {
       handleError('Unable to add a todo');
     }).finally(() => {
+      const newIncompleteCount = todos.filter(t => !t.completed).length;
+
+      setIncompleteTodoCount(newIncompleteCount);
       setTemporaryTodo(null);
       setIsSubmiting(false);
     });
@@ -180,7 +192,7 @@ export const App: React.FC = () => {
         {(todos.length > 0 || temporaryTodo) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {`${todos.filter(todo => todo.completed === false).length} items left`}
+              {`${incompleteTodoCount} items left`}
             </span>
 
             {/* Active filter should have a 'selected' class */}
