@@ -54,11 +54,11 @@ export const App: React.FC = () => {
 
   const [isLoadingAddTodo, setIsLoadingAddTodo] = useState(false);
 
-  const formInput = useRef<HTMLInputElement>(null);
+  const formInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!todosIdToDelete.length && !isLoadingAddTodo && formInput.current) {
-      formInput.current.focus();
+    if (!todosIdToDelete.length && !isLoadingAddTodo && formInputRef.current) {
+      formInputRef.current.focus();
     }
   }, [isLoadingAddTodo, todosIdToDelete]);
 
@@ -72,11 +72,11 @@ export const App: React.FC = () => {
     return todos.some(todo => todo.completed);
   }, [todos]);
 
-  const notCompletedTodosLength = useMemo(() => {
+  const activeTodosLength = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const isCompletedAll = useMemo(() => {
+  const isAllTodoCompleted = useMemo(() => {
     return todos.every(todo => todo.completed);
   }, [todos]);
 
@@ -143,7 +143,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        throw new Error();
+        throw new Error('Unable to delete a todo');
       })
       .finally(() => {
         setTodosIdToDelete(prevState => prevState.filter(id => id !== todoId));
@@ -166,7 +166,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        throw new Error();
+        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setTodosIdToUpdate(prevState => prevState
@@ -190,7 +190,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        throw new Error();
+        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setTodosIdToUpdate(prevState => prevState
@@ -200,8 +200,13 @@ export const App: React.FC = () => {
 
   const handelDeleteCompletedTodos = async () => {
     const completedTodosId = todos
-      .filter(({ completed }) => completed)
-      .map(({ id }) => id);
+      .reduce((acc: number[], todo) => {
+        if (todo.completed) {
+          acc.push(todo.id);
+        }
+
+        return acc;
+      }, []);
 
     try {
       await Promise
@@ -216,7 +221,7 @@ export const App: React.FC = () => {
   const handleChangeAllCompletedStatus = async () => {
     const todosId = todos
       .filter(({ completed }) => {
-        if (!isCompletedAll) {
+        if (!isAllTodoCompleted) {
           return !completed;
         }
 
@@ -227,7 +232,7 @@ export const App: React.FC = () => {
     try {
       await Promise
         .all([...todosId
-          .map(id => handleChangeCompletedStatus(id, isCompletedAll))]);
+          .map(id => handleChangeCompletedStatus(id, isAllTodoCompleted))]);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -245,13 +250,13 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           isTodos={!!todos.length}
-          isCompletedAll={isCompletedAll}
+          isAllTodoCompleted={isAllTodoCompleted}
           onChangeAllCompletedStatus={handleChangeAllCompletedStatus}
           handelSubmit={handelSubmit}
           newTodoTitle={newTodoTitle}
           onChangeNewTodoTitle={handleChangeNewTodoTitle}
           isLoadingAddTodo={isLoadingAddTodo}
-          formInput={formInput}
+          formInputRef={formInputRef}
         />
 
         {isLoadingTodos ? (
@@ -268,7 +273,7 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            notCompletedTodosLength={notCompletedTodosLength}
+            activeTodosLength={activeTodosLength}
             hasCompletedTodo={hasCompletedTodo}
             onDeleteCompletedTodos={handelDeleteCompletedTodos}
           />

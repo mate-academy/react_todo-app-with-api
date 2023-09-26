@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
   TransitionGroup,
   CSSTransition,
@@ -28,20 +28,24 @@ export const TodoList: React.FC<Props> = ({
 }) => {
   const { filter } = useContext(FilterTodosContext);
 
+  const visibleTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filter) {
+        case StatusEnum.Active:
+          return !todo.completed;
+        case StatusEnum.Completed:
+          return todo.completed;
+        case StatusEnum.All:
+        default:
+          return todo;
+      }
+    });
+  }, [todos, filter]);
+
   return (
     <section data-cy="TodoList" className="todoapp__main">
       <TransitionGroup>
-        {todos.filter(todo => {
-          switch (filter) {
-            case StatusEnum.Active:
-              return !todo.completed;
-            case StatusEnum.Completed:
-              return todo.completed;
-            case StatusEnum.All:
-            default:
-              return todo;
-          }
-        }).map(todo => (
+        {visibleTodos.map(todo => (
           <CSSTransition
             key={todo.id}
             timeout={300}

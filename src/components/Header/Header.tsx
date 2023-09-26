@@ -1,27 +1,26 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { LegacyRef } from 'react';
 import classNames from 'classnames';
 
 type Props = {
   isTodos: boolean;
-  isCompletedAll: boolean;
+  isAllTodoCompleted: boolean;
   onChangeAllCompletedStatus: () => Promise<void>;
   handelSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   newTodoTitle: string;
   onChangeNewTodoTitle: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isLoadingAddTodo: boolean;
-  formInput: LegacyRef<HTMLInputElement>;
+  formInputRef: LegacyRef<HTMLInputElement>;
 };
 
 export const Header: React.FC<Props> = ({
   isTodos,
-  isCompletedAll,
+  isAllTodoCompleted,
   onChangeAllCompletedStatus,
   handelSubmit,
   newTodoTitle,
   onChangeNewTodoTitle,
   isLoadingAddTodo,
-  formInput,
+  formInputRef,
 }) => {
   return (
     <header className="todoapp__header">
@@ -29,10 +28,11 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: isCompletedAll,
+            active: isAllTodoCompleted,
           })}
           data-cy="ToggleAllButton"
           onClick={onChangeAllCompletedStatus}
+          aria-label="Toggle All Button"
         />
       )}
 
@@ -45,7 +45,7 @@ export const Header: React.FC<Props> = ({
           value={newTodoTitle}
           onChange={onChangeNewTodoTitle}
           disabled={isLoadingAddTodo}
-          ref={formInput}
+          ref={formInputRef}
         />
       </form>
     </header>

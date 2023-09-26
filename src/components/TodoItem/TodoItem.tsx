@@ -31,14 +31,14 @@ export const TodoItem: React.FC<Props> = ({
   } = useContext(LoadingTodosContext);
   const { title, completed, id } = todo;
 
-  const editInput = useRef<HTMLInputElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   const [editingTitle, setEditingTitle] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    if (editInput.current) {
-      editInput.current.focus();
+    if (editInputRef.current) {
+      editInputRef.current.focus();
     }
   }, [isEdit]);
 
@@ -74,12 +74,16 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
-  const saveChange = async () => {
+  const saveChanges = async () => {
     try {
-      if (!editingTitle.trim()) {
+      const preparedTitle = editingTitle.trim();
+
+      if (!preparedTitle) {
         await onDeleteTodo(id);
-      } else if (editingTitle.trim() !== title) {
-        await onChangeTitle(id, editingTitle.trim());
+      }
+
+      if (preparedTitle !== title) {
+        await onChangeTitle(id, preparedTitle);
       }
 
       setEditingTitle(prevState => prevState.trim());
@@ -97,13 +101,13 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (event.key === 'Enter') {
-      saveChange();
+      saveChanges();
     }
   };
 
   const handleEditingBlur = () => {
     if (isEdit) {
-      saveChange();
+      saveChanges();
     }
   };
 
@@ -120,7 +124,7 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onChange={() => handleChangeCompletedStatus()}
+          onChange={handleChangeCompletedStatus}
           checked={completed}
         />
       </label>
@@ -140,7 +144,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={handleChangeTitle}
             onKeyUp={handleEditingKeyUp}
             onBlur={handleEditingBlur}
-            ref={editInput}
+            ref={editInputRef}
           />
         </form>
       ) : (
@@ -157,7 +161,7 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoDelete"
             type="button"
             className="todo__remove"
-            onClick={() => handleDeleteTodo()}
+            onClick={handleDeleteTodo}
           >
             ×
           </button>

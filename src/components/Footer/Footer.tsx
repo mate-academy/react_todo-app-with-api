@@ -2,20 +2,20 @@ import React from 'react';
 import { TodosFilter } from '../TodosFilter';
 
 type Props = {
-  notCompletedTodosLength: number;
+  activeTodosLength: number;
   hasCompletedTodo: boolean;
   onDeleteCompletedTodos: () => Promise<void>
 };
 
 export const Footer :React.FC<Props> = ({
-  notCompletedTodosLength,
+  activeTodosLength,
   hasCompletedTodo,
   onDeleteCompletedTodos,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${notCompletedTodosLength} items left`}
+        {`${activeTodosLength} ${activeTodosLength === 1 ? 'item' : 'items'} left`}
       </span>
 
       <TodosFilter />

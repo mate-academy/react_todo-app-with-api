@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 
@@ -13,11 +11,11 @@ export const Notification: React.FC<Props> = ({
   onCloseErrorMessage,
 }) => {
   useEffect(() => {
-    if (errorMessage) {
-      setTimeout(() => {
-        onCloseErrorMessage('');
-      }, 3000);
-    }
+    const timerId = setTimeout(() => {
+      onCloseErrorMessage('');
+    }, 3000);
+
+    return () => clearTimeout(timerId);
   }, [errorMessage]);
 
   return (
@@ -39,6 +37,7 @@ export const Notification: React.FC<Props> = ({
         type="button"
         className="delete"
         onClick={() => onCloseErrorMessage('')}
+        aria-label="Hide Error Button"
       />
 
       {errorMessage}
