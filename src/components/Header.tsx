@@ -64,9 +64,9 @@ export const Header: React.FC<Props> = ({
       });
   };
 
-  const noCompletedTodos = todos.filter(todo => !todo.completed);
-
   const handleToggleAll = () => {
+    const noCompletedTodos = todos.filter(todo => !todo.completed);
+
     if (noCompletedTodos.length) {
       noCompletedTodos.forEach(todo => onToggleChange(todo));
     } else {
