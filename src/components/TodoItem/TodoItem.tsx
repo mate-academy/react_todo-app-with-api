@@ -12,6 +12,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     tempTodos,
     handleUpdateTodo,
     handleDeleteTodo,
+    handlerTitleFieldFocused,
   } = useTodos();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -36,12 +37,21 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleSaveEdit = async () => {
+    handlerTitleFieldFocused(false);
     if (trimmedNewTitle === '') {
       await handleDeleteTodo(todo);
     } else if (trimmedNewTitle !== todo.title) {
-      setNewTitle(trimmedNewTitle);
-      handleUpdateTodo({ ...todo, title: trimmedNewTitle });
-      setIsEditing(false);
+      const response: boolean = await handleUpdateTodo({
+        ...todo,
+        title: trimmedNewTitle,
+      });
+
+      if (response) {
+        // console.log(response);
+        handlerTitleFieldFocused(true);
+        setNewTitle(trimmedNewTitle);
+        setIsEditing(false);
+      }
     } else {
       setIsEditing(false);
     }

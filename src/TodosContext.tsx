@@ -27,11 +27,13 @@ interface TodosContextType {
   loadTodos: () => void;
   tempTodos: Todo[];
   setTempTodos: (todos: Todo[]) => void;
+  handlerTitleFieldFocused: (status: boolean) => void;
   handleToggleAllTodos: () => void;
   handleAddTodo: (title: string) => Promise<boolean | undefined>;
-  handleUpdateTodo: (todo: Todo) => void;
+  handleUpdateTodo: (todo: Todo) => Promise<boolean>;
   handleDeleteTodo: (todo: Todo) => void;
   isAllTodosCompleted: boolean;
+  isTitleFieldFocused: boolean;
 }
 
 type Props = {
@@ -46,6 +48,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [tempTodos, setTempTodos] = useState<Todo[]>([] as Todo[]);
+  const [isTitleFieldFocused, setIsTitleFieldFocused] = useState(true);
   const [error, setError] = useState('');
 
   const isAllTodosCompleted = todos.every(todo => todo.completed);
@@ -88,6 +91,10 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     loadTodos();
   }, []);
 
+  const handlerTitleFieldFocused = (status: boolean) => {
+    setIsTitleFieldFocused(status);
+  };
+
   const handleToggleAllTodos = async () => {
     const updatedTodos = [...todos];
     const newStatus = { completed: false };
@@ -96,11 +103,15 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       newStatus.completed = true;
     }
 
+    const todosToRequest = !isAllTodosCompleted
+      ? updatedTodos.filter(todo => !todo.completed)
+      : updatedTodos;
+
     try {
       setError('');
       setTempTodos(todos);
 
-      await Promise.all(todos.map(async (todo) => {
+      await Promise.all(todosToRequest.map(async (todo) => {
         const updatedTodo = await updateTodo(todo.id, newStatus) as Todo;
         const indexOfUpdatedTodo = updatedTodos
           .findIndex(({ id }) => id === updatedTodo.id);
@@ -137,7 +148,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       setTodos(prevTodos => [...prevTodos].concat(addedTodo));
 
       return true;
-    } catch (err) {
+    } catch (e) {
       setError('Unable to add a todo');
 
       return false;
@@ -168,8 +179,12 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       newTodos[indexOfUpdatedTodo] = preperedUpdatedTodo;
 
       setTodos(newTodos);
+
+      return true;
     } catch (e) {
       setError('Unable to update a todo');
+
+      return false;
     } finally {
       setTempTodos([]);
     }
@@ -201,6 +216,8 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     tempTodos,
     setTempTodos,
     isAllTodosCompleted,
+    isTitleFieldFocused,
+    handlerTitleFieldFocused,
     handleToggleAllTodos,
     handleAddTodo,
     handleUpdateTodo,

@@ -10,7 +10,11 @@ export const TodoHeader: React.FC = () => {
   const trimmedTitle = title.trim();
   const {
     todos,
+    tempTodos,
+    filter,
     isAllTodosCompleted,
+    isTitleFieldFocused,
+    handlerTitleFieldFocused,
     handleToggleAllTodos,
     handleAddTodo,
   } = useTodos();
@@ -18,15 +22,17 @@ export const TodoHeader: React.FC = () => {
   const todoInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (todoInputRef.current) {
+    if (todoInputRef.current && isTitleFieldFocused) {
       todoInputRef.current.focus();
     }
-  });
+  }, [tempTodos, filter, isAllTodosCompleted]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setIsLoading(true);
+    if (trimmedTitle) {
+      setIsLoading(true);
+    }
 
     const response = await handleAddTodo(trimmedTitle);
 
@@ -35,6 +41,7 @@ export const TodoHeader: React.FC = () => {
     }
 
     setIsLoading(false);
+    handlerTitleFieldFocused(true);
   };
 
   return (
