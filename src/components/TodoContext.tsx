@@ -26,6 +26,7 @@ export interface TContext {
   isToggledAll: boolean,
   setIsToggledAll: React.Dispatch<SetStateAction<boolean>>,
   titleInputRef: MutableRefObject<HTMLInputElement | null>,
+  editedRef: MutableRefObject<HTMLInputElement | null>,
   isGroupDeleting: boolean,
   setIsGroupDeleting: React.Dispatch<SetStateAction<boolean>>,
 }
@@ -50,6 +51,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [isToggledAll, setIsToggledAll] = useState<boolean>(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const [isGroupDeleting, setIsGroupDeleting] = useState<boolean>(false);
+  const editedRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (error: string) => {
     setHasError(error);
@@ -115,6 +117,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       completed: !todo.completed,
     }));
 
+    setTodos(updatedTodos);
+
     // Przeslij zaktualizowane zadania na serwer
     Promise.all(updatedTodos.map((todo) => editTodo(todo.id, todo)))
       .then((updatedTodosFromServer) => {
@@ -153,6 +157,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     titleInputRef,
     isGroupDeleting,
     setIsGroupDeleting,
+    editedRef,
   };
 
   return (

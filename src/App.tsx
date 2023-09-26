@@ -23,7 +23,7 @@ export const App: React.FC = () => {
     handleToggleAllStatus,
     // isToggledAll,
     setIsToggledAll,
-    isGroupDeleting,
+    // isGroupDeleting,
     setIsGroupDeleting,
     titleInputRef,
   } = useTodoContext() as TContext;
@@ -67,7 +67,7 @@ export const App: React.FC = () => {
     // Natychmiast usuń zakończone zadania lokalnie
     setTodos((prevTodos) => prevTodos
       .filter((todo) => !completedIds.includes(todo.id)));
-    titleInputRef.current?.focus(); // to mozliwe ze redundantne
+    // titleInputRef.current?.focus(); // to mozliwe ze redundantne
 
     // Usuń zakończone zadania na serwerze i obsłuż ewentualne błędy
     Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
@@ -76,6 +76,7 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsGroupDeleting(false);
+        titleInputRef.current?.focus(); // to mozliwe ze redundantne
 
         // Jeśli potrzebujesz, pobierz wszystkie zadania ponownie
         getTodos(USER_ID)
@@ -136,17 +137,17 @@ export const App: React.FC = () => {
             <TodoFilter sortType={sortType} handleSort={handleSorting} />
 
             {/* don't show this button if there are no completed todos */}
-            {(todos.some(todo => todo.completed === true)
-            || (isGroupDeleting)) && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                data-cy="ClearCompletedButton"
-                onClick={deleteCompleted}
-              >
-                Clear completed
-              </button>
-            )}
+
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={deleteCompleted}
+              disabled={!(todos.some(todo => todo.completed === true))}
+            >
+              Clear completed
+            </button>
+
           </footer>
         )}
       </div>

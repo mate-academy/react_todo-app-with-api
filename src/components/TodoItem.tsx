@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TContext, useTodoContext } from './TodoContext';
 import { Todo } from '../types/Todo';
@@ -27,7 +27,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isToggledAll,
     titleInputRef,
     isGroupDeleting,
+    editedRef,
   } = useTodoContext() as TContext;
+
+  useEffect(() => {
+    if (isEditing) {
+      editedRef.current?.focus();
+    }
+  }, [isEditing]);
 
   const USER_ID = 11550;
 
@@ -128,6 +135,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .finally(() => {
           setIsEditing(false);
           setIsLoading(false);
+          titleInputRef.current?.focus();
         });
     }
   };
@@ -155,12 +163,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
+              defaultValue={todo.title}
+              ref={editedRef}
               onChange={(e) => setNewTitle(e.target.value)}
               onBlur={() => {
                 handleSaveChanges(todo.id);
               }}
               onKeyUp={(e) => {
                 if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSaveChanges(todo.id);
+                }
+
+                if (e.key === 'Escape') {
                   e.preventDefault();
                   handleSaveChanges(todo.id);
                 }
