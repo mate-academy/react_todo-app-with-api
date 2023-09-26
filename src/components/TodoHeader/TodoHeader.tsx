@@ -3,25 +3,44 @@ import classNames from 'classnames';
 import { UseTodosContext } from '../../utils/TodosContext';
 
 import { TodoForm } from '../TodoForm';
+import { changeTodo } from '../../api/todos';
+import { ErrorMessages } from '../../types/ErrorMessages';
 
 export const TodoHeader = () => {
   const context = UseTodosContext();
   const {
     todos,
-    isAllCompleted,
-    setIsAllCompleted,
+    setTodos,
+    setLoadingTodos,
+    setErrorMessage,
   } = context;
 
   const currentCompletionStatus = todos.every(({ completed }) => completed);
 
-  const changeAllTodosStatus = () => {
-    if (isAllCompleted || currentCompletionStatus) {
-      setIsAllCompleted(false);
+  const handleToggleAll = async () => {
+    const todosToBeChanged = todos
+      .filter(({ completed }) => completed === currentCompletionStatus)
+      .map(({ id }) => id);
+    const requests = todosToBeChanged
+      .map(id => changeTodo(id, { completed: !currentCompletionStatus }));
 
-      return;
+    try {
+      setLoadingTodos(todosToBeChanged);
+      await Promise.all(requests);
+
+      setTodos(prevState => {
+        return prevState.map((todo) => {
+          return ({
+            ...todo,
+            completed: !currentCompletionStatus,
+          });
+        });
+      });
+    } catch (error) {
+      setErrorMessage(ErrorMessages.CannotUpdate);
     }
 
-    setIsAllCompleted(true);
+    setLoadingTodos([]);
   };
 
   return (
@@ -29,7 +48,7 @@ export const TodoHeader = () => {
       {Boolean(todos.length) && (
         <button
           data-cy="ToggleAllButton"
-          onClick={changeAllTodosStatus}
+          onClick={handleToggleAll}
           type="button"
           aria-label="change todo status"
           className={classNames('todoapp__toggle-all', {

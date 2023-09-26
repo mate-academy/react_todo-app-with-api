@@ -5,7 +5,6 @@ import { USER_ID } from '../../utils/user';
 import { Todo } from '../../types/Todo';
 import { ErrorMessages } from '../../types/ErrorMessages';
 import { UseTodosContext } from '../../utils/TodosContext';
-import { TempTodo } from '../../types/TempTodo';
 
 export const TodoForm = () => {
   const context = UseTodosContext();
@@ -14,7 +13,6 @@ export const TodoForm = () => {
     setTodos,
     setErrorMessage,
     setTempTodo,
-    setIsAllCompleted,
   } = context;
 
   const titleField = useRef<HTMLInputElement>(null);
@@ -40,7 +38,6 @@ export const TodoForm = () => {
   const finishAddingNewTodo = () => {
     setTempTodo(null);
     setIsDisabled(false);
-    setIsAllCompleted(null);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -53,10 +50,11 @@ export const TodoForm = () => {
       return;
     }
 
-    const tempTodoData: TempTodo = {
+    const tempTodoData: Todo = {
       completed: false,
       id: 0,
       title: normalisedTitle,
+      userId: USER_ID,
     };
 
     setIsDisabled(true);

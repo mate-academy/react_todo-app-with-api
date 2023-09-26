@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -7,6 +7,8 @@ import { ErrorMessages } from '../../types/ErrorMessages';
 import { UseTodosContext } from '../../utils/TodosContext';
 import { TodoUpdates } from '../../types/TodoUpdates';
 
+const DEFAULT_ID = 0;
+
 type Props = { todo: Todo };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
@@ -14,16 +16,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     setTodos,
     setErrorMessage,
-    isAllCompleted,
-    setIsAllCompleted,
-    isCompletedTodosCleared,
+    loadingTodos,
   } = context;
 
   const { title, completed, id } = todo;
 
   const [isEdited, setIsEdited] = useState(false);
   const [editedTodoTitle, setEditedTodoTitle] = useState(title);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const isLoadingComponent = id === DEFAULT_ID;
+  const [isLoading, setIsLoading] = useState(isLoadingComponent);
+
+  const isGloballyTogling = loadingTodos.includes(id);
 
   // deleting todo
   const handleTodoDelete = (todoId: number) => {
@@ -75,7 +79,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   };
 
   const handleCompletionStatusChange = () => {
-    setIsAllCompleted(null);
     handleTodoUpdate({ completed: !completed });
   };
 
@@ -102,18 +105,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setEditedTodoTitle(title);
     }
   };
-
-  useEffect(() => {
-    if (isAllCompleted !== null && completed !== isAllCompleted) {
-      handleTodoUpdate({ completed: isAllCompleted });
-    }
-  }, [isAllCompleted]);
-
-  useEffect(() => {
-    if (completed && isCompletedTodosCleared) {
-      removeTodo();
-    }
-  }, [isCompletedTodosCleared]);
 
   return (
     <div
@@ -177,7 +168,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           'modal',
           'overlay',
           {
-            'is-active': isLoading,
+            'is-active': isLoading || isGloballyTogling,
           },
         )}
       >

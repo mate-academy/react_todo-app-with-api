@@ -6,7 +6,6 @@ import { FilterParams } from '../types/FilterParams';
 import { ErrorMessages } from '../types/ErrorMessages';
 import { Todo } from '../types/Todo';
 import { USER_ID } from './user';
-import { TempTodo } from '../types/TempTodo';
 import { getFilteredTodos } from './TodosFilter';
 
 interface TodosContextInterface {
@@ -18,17 +17,17 @@ interface TodosContextInterface {
   errorMessage: ErrorMessages,
   setErrorMessage: React.Dispatch<React.SetStateAction<ErrorMessages>>,
 
-  tempTodo: TempTodo | null,
-  setTempTodo: React.Dispatch<React.SetStateAction<TempTodo | null>>,
-
-  isAllCompleted: boolean | null,
-  setIsAllCompleted: React.Dispatch<React.SetStateAction<boolean | null>>,
+  tempTodo: Todo | null,
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
 
   filterParam: FilterParams,
   setFilterParam: React.Dispatch<React.SetStateAction<FilterParams>>,
 
   isCompletedTodosCleared: boolean,
   setIsCompletedTodosCleared: React.Dispatch<React.SetStateAction<boolean>>,
+
+  loadingTodos: number[],
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>,
 }
 
 export const TodosContext = React.createContext<TodosContextInterface>({
@@ -43,14 +42,14 @@ export const TodosContext = React.createContext<TodosContextInterface>({
   tempTodo: null,
   setTempTodo: () => {},
 
-  isAllCompleted: null,
-  setIsAllCompleted: () => {},
-
   filterParam: FilterParams.All,
   setFilterParam: () => {},
 
   isCompletedTodosCleared: false,
   setIsCompletedTodosCleared: () => {},
+
+  loadingTodos: [],
+  setLoadingTodos: () => {},
 });
 
 type Props = {
@@ -62,9 +61,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   = useState<ErrorMessages>(ErrorMessages.Default);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<TempTodo | null>(null);
-  const [isAllCompleted, setIsAllCompleted]
-  = useState<null | boolean>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const [filterParam, setFilterParam]
   = useState<FilterParams>(FilterParams.All);
@@ -91,14 +89,14 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     tempTodo,
     setTempTodo,
 
-    isAllCompleted,
-    setIsAllCompleted,
-
     filterParam,
     setFilterParam,
 
     isCompletedTodosCleared,
     setIsCompletedTodosCleared,
+
+    loadingTodos,
+    setLoadingTodos,
   };
 
   return (

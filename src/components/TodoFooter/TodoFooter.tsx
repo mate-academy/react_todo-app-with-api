@@ -1,6 +1,8 @@
 import classNames from 'classnames';
 
+import { deleteTodo } from '../../api/todos';
 import { FilterParams } from '../../types/FilterParams';
+import { ErrorMessages } from '../../types/ErrorMessages';
 
 import { UseTodosContext } from '../../utils/TodosContext';
 
@@ -9,13 +11,32 @@ export const TodoFooter = () => {
 
   const {
     todos,
+    setTodos,
     filterParam,
     setFilterParam,
-    setIsCompletedTodosCleared,
+    setLoadingTodos,
+    setErrorMessage,
   } = context;
 
   const itemsLeft = todos.filter(({ completed }) => !completed).length;
   const isSomeTodoCompleted = todos.some(({ completed }) => completed);
+
+  const handleCompletedTodosClear = async () => {
+    const todosToBeChanged = todos
+      .filter(({ completed }) => completed)
+      .map(({ id }) => id);
+    const requests = todosToBeChanged
+      .map(id => deleteTodo(id));
+
+    try {
+      setLoadingTodos(todosToBeChanged);
+      await Promise.all(requests);
+
+      setTodos(prevState => prevState.filter(({ completed }) => !completed));
+    } catch (error) {
+      setErrorMessage(ErrorMessages.CannotUpdate);
+    }
+  };
 
   return (
     <footer data-cy="Footer" className="todoapp__footer">
@@ -44,7 +65,7 @@ export const TodoFooter = () => {
         type="button"
         className="todoapp__clear-completed"
         disabled={!isSomeTodoCompleted}
-        onClick={() => setIsCompletedTodosCleared(true)}
+        onClick={handleCompletedTodosClear}
       >
         Clear completed
       </button>

@@ -4,7 +4,6 @@ import './TodoListAnimations.scss';
 
 import { useEffect } from 'react';
 import { TodoItem } from '../TodoItem';
-import { TodoLoadingItem } from '../TodoLoadingItem';
 
 import { UseTodosContext } from '../../utils/TodosContext';
 
@@ -47,7 +46,7 @@ export const TodoList = () => {
             timeout={300}
             classNames="temp-item"
           >
-            <TodoLoadingItem key={tempTodo.id} tempTodo={tempTodo} />
+            <TodoItem key={tempTodo.id} todo={tempTodo} />
           </CSSTransition>
         )}
       </TransitionGroup>
