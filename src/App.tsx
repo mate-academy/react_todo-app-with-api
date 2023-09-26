@@ -12,11 +12,11 @@ import { TodoHeader } from './components/TodoHeader';
 
 export const App: React.FC = () => {
   const context = UseTodosContext();
-
   const {
     todos,
     tempTodo,
   } = context;
+  const isSomeTodoPresent = (Boolean(todos.length) || tempTodo);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -30,7 +30,7 @@ export const App: React.FC = () => {
 
         <TodoHeader />
 
-        {(Boolean(todos.length) || tempTodo) && (
+        {isSomeTodoPresent && (
           <>
             <TodoList />
 
