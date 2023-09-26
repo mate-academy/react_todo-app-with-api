@@ -8,13 +8,15 @@ type Props = {
   isActive?: boolean,
   handleStatusUpdate: (todo: Todo) => void,
   handleTitleUpdate: (todo: Todo, newTitile: string) => void,
+  isProcessing: boolean
 };
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  isActive = false,
+  // isActive = false,
   handleStatusUpdate,
   handleTitleUpdate,
+  isProcessing,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
@@ -105,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames('modal',
           'overlay',
-          { 'is-active': isActive })}
+          { 'is-active': isProcessing })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

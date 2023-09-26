@@ -51,7 +51,8 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  const [activeTodoId, setActiveTodoId] = useState(0);
+  // const [activeTodoId, setActiveTodoId] = useState(0);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([0]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -141,6 +142,7 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
+    setProcessingTodoIds(prevState => [...prevState, todoId]);
     todoService.deleteTodo(todoId)
       .then(() => {
         setTodos((prevState) => {
@@ -149,12 +151,17 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError(ErrorType.Delete);
-        setActiveTodoId(0);
+        // setActiveTodoId(0);
+      })
+      .finally(() => {
+        return setProcessingTodoIds(prevState => prevState
+          .filter(id => id !== todoId));
       });
-    setActiveTodoId(todoId);
+    // setActiveTodoId(todoId);
   };
 
   const handleStatusUpdate = (todo: Todo) => {
+    setProcessingTodoIds(prevState => [...prevState, todo.id]);
     todoService.updateTodo({
       id: todo.id,
       title: todo.title,
@@ -162,7 +169,7 @@ export const App: React.FC = () => {
       completed: !todo.completed,
     })
       .then(updatedTodo => {
-        setActiveTodoId(0);
+        // setActiveTodoId(0);
         setTodos(prevState => {
           return prevState.map(currentTodo => {
             return currentTodo.id !== updatedTodo.id
@@ -173,12 +180,17 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError(ErrorType.Update);
-        setActiveTodoId(0);
+        // setActiveTodoId(0);
+      })
+      .finally(() => {
+        return setProcessingTodoIds(prevState => prevState
+          .filter(id => id !== todo.id));
       });
-    setActiveTodoId(todo.id);
+    // setActiveTodoId(todo.id);
   };
 
   const handleTitleUpdate = (todo: Todo, updatedTitle: string) => {
+    setProcessingTodoIds(prevState => [...prevState, todo.id]);
     todoService.updateTodo({
       id: todo.id,
       title: updatedTitle,
@@ -186,7 +198,7 @@ export const App: React.FC = () => {
       completed: todo.completed,
     })
       .then(updatedTodo => {
-        setActiveTodoId(0);
+        // setActiveTodoId(0);
         setTodos(prevState => {
           return prevState.map(currentTodo => {
             return currentTodo.id !== updatedTodo.id
@@ -197,9 +209,13 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError(ErrorType.Update);
-        setActiveTodoId(0);
+        // setActiveTodoId(0);
+      })
+      .finally(() => {
+        return setProcessingTodoIds(prevState => prevState
+          .filter(id => id !== todo.id));
       });
-    setActiveTodoId(todo.id);
+    // setActiveTodoId(todo.id);
   };
 
   const handleClearCompleted = () => {
@@ -216,6 +232,20 @@ export const App: React.FC = () => {
     setNewTodoTitle(event.target.value);
   };
 
+  const handleToggleClick = () => {
+    if (countCompletedTodos !== todos.length) {
+      const notCompletedTodos = todos.filter(todo => !todo.completed);
+
+      notCompletedTodos.forEach(todo => {
+        handleStatusUpdate(todo);
+      });
+    } else {
+      todos.forEach(todo => {
+        handleStatusUpdate(todo);
+      });
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -229,6 +259,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all',
                 { active: !countActiveTodos })}
               data-cy="ToggleAllButton"
+              onClick={handleToggleClick}
             />
           )}
 
@@ -251,17 +282,19 @@ export const App: React.FC = () => {
             <TodoList
               todos={visibleTodos}
               handleDeleteTodo={handleDeleteTodo}
-              activeTodoId={activeTodoId}
+              // activeTodoId={activeTodoId}
               handleStatusUpdate={handleStatusUpdate}
               handleTitleUpdate={handleTitleUpdate}
+              processingTodoIds={processingTodoIds}
             />
             {tempTodo && (
               <TodoItem
                 todo={tempTodo}
-                isActive={isRequesting}
+                // isActive={isRequesting}
                 handleDeleteTodo={handleDeleteTodo}
                 handleStatusUpdate={handleStatusUpdate}
                 handleTitleUpdate={handleTitleUpdate}
+                isProcessing={processingTodoIds.includes(tempTodo.id)}
               />
             )}
             {!!todos.length && (
