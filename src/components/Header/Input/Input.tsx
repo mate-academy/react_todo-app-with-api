@@ -2,11 +2,11 @@ import { useTodo } from '../../../provider/todoProvider';
 
 export const Input = () => {
   const {
-    addNewTodo,
     newTodo,
     setNewTodo,
     temptTodo,
     isFocusedOnTask,
+    addNewTodo,
   } = useTodo();
 
   return (

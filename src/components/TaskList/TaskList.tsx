@@ -1,8 +1,12 @@
-import { Task } from '../Task';
+import { Task } from './Task';
 import { useTodo } from '../../provider/todoProvider';
 
 export const TaskList = () => {
-  const { todos, filterTodos, temptTodos } = useTodo();
+  const {
+    todos,
+    filterTodos,
+    temptTodos,
+  } = useTodo();
 
   const visibleTodos = () => {
     if (filterTodos === 'active') {
