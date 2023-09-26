@@ -25,7 +25,6 @@ export const App: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [temporaryTodo, setTemporaryTodo] = useState<Todo | null>(null);
   const [isSubmiting, setIsSubmiting] = useState<boolean>(false);
-  const [incompleteTodoCount, setIncompleteTodoCount] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -33,6 +32,8 @@ export const App: React.FC = () => {
     setError(mess);
     setTimeout(() => setError(null), 3000);
   };
+
+  const counter = todos.filter(todo => todo.completed === false).length;
 
   useEffect(() => {
     if (!isSubmiting) {
@@ -45,9 +46,6 @@ export const App: React.FC = () => {
       const todoss = getTodos(USER_ID);
 
       setTodos(await todoss);
-      const counter = todos.filter(todo => todo.completed === false).length;
-
-      setIncompleteTodoCount(counter);
     } catch (e) {
       handleError('Unable to load todos');
     }
@@ -58,9 +56,6 @@ export const App: React.FC = () => {
       completed: !todo.completed,
     }).then(() => {
       todo.completed = !todo.completed;
-      const newIncompleteCount = todos.filter(t => !t.completed).length;
-
-      setIncompleteTodoCount(newIncompleteCount);
     }).catch(() => {
       handleError('Unable to update a todo');
     }).finally(() => callback());
@@ -104,9 +99,6 @@ export const App: React.FC = () => {
     }).catch(() => {
       handleError('Unable to add a todo');
     }).finally(() => {
-      const newIncompleteCount = todos.filter(t => !t.completed).length;
-
-      setIncompleteTodoCount(newIncompleteCount);
       setTemporaryTodo(null);
       setIsSubmiting(false);
     });
@@ -192,7 +184,7 @@ export const App: React.FC = () => {
         {(todos.length > 0 || temporaryTodo) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {`${incompleteTodoCount} items left`}
+              {`${counter} items left`}
             </span>
 
             {/* Active filter should have a 'selected' class */}
