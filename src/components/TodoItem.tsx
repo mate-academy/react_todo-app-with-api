@@ -31,22 +31,48 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const USER_ID = 11550;
 
+  // testuje czy ta wersja usuwanie nie bedzie szybsza wzgledem testów
   const handleDelete = (todoId: number) => {
     setIsDeleting(true);
 
-    return deleteTodo(todoId)
-      .then(() => getTodos(USER_ID))
-      .then((res) => {
-        setTodos(res);
-        setIsDeleting(false);
+    // Najpierw usuń todo
+    deleteTodo(todoId)
+      .then(() => {
+        // Zaktualizuj stan todos po usunięciu
+        setTodos((prevTodos) => prevTodos.filter((el) => el.id !== todoId));
       })
       .catch(() => {
         handleError('Unable to delete a todo');
       })
       .finally(() => {
+        setIsDeleting(false);
         titleInputRef.current?.focus();
       });
+
+    // Jeśli potrzebujesz, pobierz todos po operacji deleteTodo
+    getTodos(USER_ID)
+      .then((res) => {
+        // Zaktualizuj stan todos po pobraniu
+        setTodos(res);
+      });
   };
+
+  // const handleDelete = (todoId: number) => {
+  //   setIsDeleting(true);
+
+  //   return deleteTodo(todoId)
+  //     .then(() => getTodos(USER_ID))
+  //     .then((res) => {
+  //       setTodos(res);
+  //       setIsDeleting(false);
+  //     })
+  //     .catch(() => {
+  //       handleError('Unable to delete a todo');
+  //     })
+  //     .finally(() => {
+  //       titleInputRef.current?.focus();
+  //     });
+  // };
 
   const handleStatusChange = (todoId: number) => {
     handleToggleStatus(todoId);
