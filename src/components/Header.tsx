@@ -2,6 +2,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { ErrorMessages } from '../types/ErrorMessage';
 
 type Props = {
   onToddoAdd: (todoTitle: string) => Promise<void>;
@@ -39,7 +40,7 @@ export const Header: React.FC<Props> = ({
     const normalizedTitle = todoTitle.trim();
 
     if (!normalizedTitle.length) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(ErrorMessages.EmptyTitleError);
 
       return;
     }
@@ -55,7 +56,7 @@ export const Header: React.FC<Props> = ({
     onToddoAdd(todoTitle)
       .then(() => setTodoTitle(''))
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(ErrorMessages.AddError);
       })
       .finally(() => {
         setIsDisabled(false);
@@ -74,11 +75,9 @@ export const Header: React.FC<Props> = ({
   };
 
   const isAllCompleted = todos.every(todo => todo.completed);
-  // const activeTodosCount = todos.filter(todo => !todo.completed).length;
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
           type="button"
@@ -91,7 +90,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onFormSubmit}>
         <input
           data-cy="NewTodoField"

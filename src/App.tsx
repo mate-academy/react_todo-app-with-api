@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-// import { UserWarning } from './UserWarning';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { TodoItem } from './components/TodoItem';
 import * as TodoSevise from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
+import { ErrorMessages } from './types/ErrorMessage';
 
 const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
   return todos.filter((todo: Todo) => {
@@ -45,7 +45,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     TodoSevise.getTodos()
       .then(setTodos)
-      .catch(() => setErrorMessage('Unable to load todos'));
+      .catch(() => setErrorMessage(ErrorMessages.LoadError));
   }, []);
 
   const timerId: React.MutableRefObject<number> = useRef<number>(0);
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
         setIsDisabled(false);
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
+        setErrorMessage(ErrorMessages.AddError);
         setTempTodo(null);
         throw new Error();
       });
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos
           .filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .catch(() => setErrorMessage(ErrorMessages.DeleteError))
       .finally(() => {
         setIsDisabled(false);
         setIsLoading([]);
@@ -113,7 +113,7 @@ export const App: React.FC = () => {
               : updatedTodo
           )));
       })
-      .catch(() => setErrorMessage('Unable to update a todo'))
+      .catch(() => setErrorMessage(ErrorMessages.UpdateError))
       .finally(() => setIsLoading([]));
   };
 
@@ -150,15 +150,7 @@ export const App: React.FC = () => {
         setIsLoading([]);
         setIsDisabled(false);
       });
-
-    /*     allCompleatedTodos.forEach(({ id }) => (
-          handleDeleteTodo(id)
-        )); */
   };
-
-  /* if (!USER_ID) {
-    return <UserWarning />;
-  } */
 
   return (
     <div className="todoapp">
@@ -202,7 +194,7 @@ export const App: React.FC = () => {
             />
           )}
         </section>
-        {/* Hide the footer if there are no todos */}
+
         {Boolean(todos.length)
           && (
             <Footer
@@ -214,9 +206,6 @@ export const App: React.FC = () => {
             />
           )}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
 
       <div
         data-cy="ErrorNotification"
@@ -235,16 +224,6 @@ export const App: React.FC = () => {
           onClick={() => setErrorMessage('')}
         />
         {errorMessage}
-        {/* show only one message at a time */}
-        {/* Unable to load todos
-        <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </div>
   );
