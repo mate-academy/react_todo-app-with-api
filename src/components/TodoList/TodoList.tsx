@@ -1,4 +1,3 @@
-import { CurrentError } from '../../types/CurrentError';
 import { Todo } from '../../types/Todo';
 import { ToggleType } from '../../types/ToggleType';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -12,7 +11,6 @@ type Props = {
   onChangeStatus: (todoId: number, todoStatus: boolean) => void,
   onChangeTitle: (todoId: number, todoTitle: string) => void,
   onDeleteTodo: (todoId: number) => void,
-  onSetErrorMessage: (error: CurrentError) => void,
   setIsClearCompleted: (isClearCompleted: boolean) => void,
   setToggleType: (toggleType: ToggleType) => void,
 };
@@ -25,7 +23,6 @@ export const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   onChangeStatus,
   onChangeTitle,
-  onSetErrorMessage,
   setIsClearCompleted,
   setToggleType,
 }) => {
@@ -40,7 +37,6 @@ export const TodoList: React.FC<Props> = ({
           onDeleteTodo={onDeleteTodo}
           onChangeStatus={onChangeStatus}
           onChangeTitle={onChangeTitle}
-          onSetErrorMessage={onSetErrorMessage}
           setIsClearCompleted={setIsClearCompleted}
           setToggleType={setToggleType}
         />

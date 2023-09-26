@@ -1,14 +1,13 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
-import { CurrentError } from '../../types/CurrentError';
+import { ErrorMessages } from '../../types/ErrorMessages';
 import { Todo } from '../../types/Todo';
 import { ToggleType } from '../../types/ToggleType';
 
 type Props = {
   todos: Todo[],
   onAddNewTodo: (todoTitle: string) => Promise<boolean>,
-  onSetErrorMessage: (error: CurrentError) => void,
+  onSetErrorMessage: (error: ErrorMessages) => void,
   setToggleType: (toggleType: ToggleType) => void,
 };
 
@@ -19,14 +18,14 @@ export const TodoHeader: React.FC<Props> = ({
   setToggleType,
 }) => {
   const [title, setTitle] = useState('');
-  const titleField = useRef<HTMLInputElement>(null);
+  const titleFieldRef = useRef<HTMLInputElement>(null);
   const [isDisabled, setIsDisabled] = useState(false);
 
-  const activeTodosCount = todos.filter(({ completed }) => !completed).length;
+  const activeTodosAmount = todos.filter(({ completed }) => !completed).length;
 
   useEffect(() => {
-    if (titleField.current) {
-      titleField.current.focus();
+    if (titleFieldRef.current) {
+      titleFieldRef.current.focus();
     }
   }, [todos, isDisabled]);
 
@@ -34,7 +33,7 @@ export const TodoHeader: React.FC<Props> = ({
     event.preventDefault();
 
     if (!title.trim()) {
-      onSetErrorMessage(CurrentError.EmptyTitleError);
+      onSetErrorMessage(ErrorMessages.EmptyTitleReceived);
 
       return;
     }
@@ -49,7 +48,7 @@ export const TodoHeader: React.FC<Props> = ({
       }
 
       setIsDisabled(false);
-      titleField.current?.focus();
+      titleFieldRef.current?.focus();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
@@ -57,22 +56,21 @@ export const TodoHeader: React.FC<Props> = ({
   };
 
   const handleSetTodoFilter = () => {
-    if (activeTodosCount === 0) {
-      setToggleType(ToggleType.ToggleOff);
-    } else {
-      setToggleType(ToggleType.ToggleOn);
-    }
+    setToggleType(activeTodosAmount
+      ? ToggleType.ToggleOn
+      : ToggleType.ToggleOff);
   };
 
   return (
     <header className="todoapp__header">
-      {todos.length > 0 && (
+      {!!todos && (
         <button
           type="button"
+          aria-label="Toggle All Todos"
           className={classNames(
             'todoapp__toggle-all',
             {
-              active: !activeTodosCount,
+              active: !activeTodosAmount,
             },
           )}
           data-cy="ToggleAllButton"
@@ -80,7 +78,6 @@ export const TodoHeader: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmitForm}>
         <input
           data-cy="NewTodoField"
@@ -88,7 +85,7 @@ export const TodoHeader: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          ref={titleField}
+          ref={titleFieldRef}
           disabled={isDisabled}
           onChange={(event) => setTitle(event.target.value)}
           // eslint-disable-next-line jsx-a11y/no-autofocus

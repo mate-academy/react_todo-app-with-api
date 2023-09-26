@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { CurrentError } from '../../types/CurrentError';
 import { ToggleType } from '../../types/ToggleType';
 
 type Props = {
@@ -11,7 +10,6 @@ type Props = {
   onDeleteTodo: (todoId: number) => void,
   onChangeStatus: (todoId: number, todoStatus: boolean) => void,
   onChangeTitle: (todoId: number, todoTitle: string) => void,
-  onSetErrorMessage: (error: CurrentError) => void,
   setIsClearCompleted: (isClearCompleted: boolean) => void,
   setToggleType: (toggleType: ToggleType) => void,
 };
@@ -33,22 +31,29 @@ export const TodoItem: React.FC<Props> = ({
   } = todo;
   const [isLoading, setIsLoading] = useState(false);
 
-  const editInput = useRef<HTMLInputElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   const [editingTitle, setEditingTitle] = useState(title);
   const [isEdit, setIsEdit] = useState(false);
 
-  const saveChange = async () => {
+  const saveChanges = async () => {
     setIsLoading(true);
 
     if (!editingTitle.trim()) {
       await onDeleteTodo(id);
-    } else if (editingTitle !== title) {
+    }
+
+    if (editingTitle !== title) {
       await onChangeTitle(id, editingTitle);
     }
 
     setIsLoading(false);
     setIsEdit(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    saveChanges();
   };
 
   const handleChangeStatus
@@ -65,10 +70,11 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleDelete = async () => {
     setIsLoading(true);
-
-    await onDeleteTodo(id);
-
-    setIsLoading(false);
+    try {
+      await onDeleteTodo(id);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleToggleAll = async () => {
@@ -77,7 +83,9 @@ export const TodoItem: React.FC<Props> = ({
     try {
       if (!completed && toggleType === ToggleType.ToggleOn) {
         await onChangeStatus(id, true);
-      } else if (completed && toggleType === ToggleType.ToggleOff) {
+      }
+
+      if (completed && toggleType === ToggleType.ToggleOff) {
         await onChangeStatus(id, false);
       }
     } finally {
@@ -95,7 +103,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleBlur = () => {
     if (isEdit) {
-      saveChange();
+      saveChanges();
     }
   };
 
@@ -112,8 +120,8 @@ export const TodoItem: React.FC<Props> = ({
   }, [toggleType]);
 
   useEffect(() => {
-    if (editInput.current) {
-      editInput.current.focus();
+    if (editInputRef.current) {
+      editInputRef.current.focus();
     }
   }, [isEdit]);
 
@@ -140,10 +148,7 @@ export const TodoItem: React.FC<Props> = ({
 
       {isEdit ? (
         <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            saveChange();
-          }}
+          onSubmit={handleSubmit}
         >
           <input
             type="text"
@@ -153,7 +158,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(event) => setEditingTitle(event.target.value)}
             onKeyUp={handleEditingKeyUp}
             onBlur={handleBlur}
-            ref={editInput}
+            ref={editInputRef}
           />
         </form>
       ) : (

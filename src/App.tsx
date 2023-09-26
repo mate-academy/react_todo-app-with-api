@@ -1,10 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { Todo } from './types/Todo';
 import {
   deleteTodo, getTodos, postTodos, updateTodo,
 } from './api/todos';
-import { CurrentError } from './types/CurrentError';
+import { ErrorMessages } from './types/ErrorMessages';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
@@ -21,7 +20,7 @@ export const App: React.FC = () => {
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [todoFilter, setTodoFilter] = useState<TodoFilter>(TodoFilter.All);
-  const [errorMessage, setErrorMessage] = useState(CurrentError.Default);
+  const [errorMessage, setErrorMessage] = useState(ErrorMessages.None);
   const [isClearCompleted, setIsClearCompleted] = useState(false);
   const [toggleType, setToggleType] = useState<ToggleType>(ToggleType.None);
 
@@ -32,14 +31,14 @@ export const App: React.FC = () => {
     getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage(CurrentError.LoadingError);
+        setErrorMessage(ErrorMessages.UnableLoadTodo);
       });
   }, []);
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage(CurrentError.Default);
+        setErrorMessage(ErrorMessages.None);
       }, 3000);
     }
   }, [errorMessage]);
@@ -51,7 +50,6 @@ export const App: React.FC = () => {
   }, [todos, todoFilter]);
 
   const handleSetTodoFilter = (filter: TodoFilter) => (
-
     setTodoFilter(filter)
   );
 
@@ -66,15 +64,14 @@ export const App: React.FC = () => {
     setTempTodo(newTodo);
     try {
       const responseTodo = await postTodos(newTodo);
-      const updatedTodos = [...todos, responseTodo];
 
       setTempTodo(null);
-      setTodos(updatedTodos);
+      setTodos(prevTodos => [...prevTodos, responseTodo]);
 
       return true;
-    } catch (error) {
+    } catch {
       setTempTodo(null);
-      setErrorMessage(CurrentError.AddError);
+      setErrorMessage(ErrorMessages.UnableAddTodo);
 
       return false;
     }
@@ -85,8 +82,8 @@ export const App: React.FC = () => {
       await deleteTodo(todoId);
 
       setTodos((prevState) => prevState.filter(todo => todo.id !== todoId));
-    } catch (error) {
-      setErrorMessage(CurrentError.DeleteError);
+    } catch {
+      setErrorMessage(ErrorMessages.UnableDeleteTodo);
     }
   };
 
@@ -118,9 +115,8 @@ export const App: React.FC = () => {
 
         return updatedTodos;
       });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      setErrorMessage(CurrentError.UpdateError);
+    } catch {
+      setErrorMessage(ErrorMessages.UnableUpdateTodo);
     }
   };
 
@@ -152,14 +148,13 @@ export const App: React.FC = () => {
 
         return updatedTodos;
       });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      setErrorMessage(CurrentError.UpdateError);
+    } catch {
+      setErrorMessage(ErrorMessages.UnableUpdateTodo);
     }
   };
 
-  const hideErros = () => {
-    setErrorMessage(CurrentError.Default);
+  const hideErrors = () => {
+    setErrorMessage(ErrorMessages.None);
   };
 
   return (
@@ -182,7 +177,6 @@ export const App: React.FC = () => {
           onChangeStatus={handleChangeStatus}
           onDeleteTodo={handleDeleteTodo}
           onChangeTitle={handleChangeTitle}
-          onSetErrorMessage={setErrorMessage}
           setIsClearCompleted={setIsClearCompleted}
           setToggleType={setToggleType}
         />
@@ -198,7 +192,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <ErrorNotification errorMessage={errorMessage} hideErros={hideErros} />
+      <ErrorNotification errorMessage={errorMessage} hideErrors={hideErrors} />
     </div>
   );
 };

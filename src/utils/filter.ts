@@ -1,3 +1,4 @@
+import { ErrorMessages } from '../types/ErrorMessages';
 import { Todo } from '../types/Todo';
 import { TodoFilter } from '../types/TodoFilter';
 
@@ -16,7 +17,7 @@ export const filterTodos = (
     case TodoFilter.Completed:
       tempTodos = tempTodos.filter(todo => todo.completed);
       break;
-    default: throw new Error('Unknow filter type');
+    default: throw new Error(ErrorMessages.UnknowFilterType);
   }
 
   return tempTodos;

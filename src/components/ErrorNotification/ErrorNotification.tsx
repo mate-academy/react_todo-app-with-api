@@ -1,15 +1,14 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import { CurrentError } from '../../types/CurrentError';
+import { ErrorMessages } from '../../types/ErrorMessages';
 
 type Props = {
-  errorMessage: CurrentError,
-  hideErros: () => void
+  errorMessage: ErrorMessages,
+  hideErrors: () => void
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   errorMessage,
-  hideErros,
+  hideErrors,
 }) => {
   return (
     <div
@@ -23,10 +22,11 @@ export const ErrorNotification: React.FC<Props> = ({
       )}
     >
       <button
+        aria-label="Hide Errors"
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={hideErros}
+        onClick={hideErrors}
       />
       {errorMessage}
     </div>
