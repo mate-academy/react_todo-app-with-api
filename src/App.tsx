@@ -225,7 +225,8 @@ export const App: React.FC = () => {
                   handleDelete(todo);
                 }
               })}
-              hidden={!todos.some(todo => todo.completed === true)}
+              // hidden={!todos.some(todo => todo.completed === true)}
+              disabled={!todos.some(todo => todo.completed === true)}
             >
               Clear completed
             </button>
