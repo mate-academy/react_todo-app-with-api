@@ -104,15 +104,13 @@ export const App: React.FC = () => {
       completed: false,
     }).then((response) => {
       setTitle('');
-
+      setCounter(oldCount => oldCount + 1);
       setTodos((prevTodos) => [...prevTodos, response] as Todo[]);
     }).catch(() => {
       handleError('Unable to add a todo');
     }).finally(() => {
       setTemporaryTodo(null);
       setIsSubmiting(false);
-
-      setCounter(oldCount => oldCount + 1);
     });
   };
 
