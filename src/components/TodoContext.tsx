@@ -25,7 +25,9 @@ export interface TContext {
   handleToggleAllStatus:() => void,
   isToggledAll: boolean,
   setIsToggledAll: React.Dispatch<SetStateAction<boolean>>,
-  titleInputRef: MutableRefObject<HTMLInputElement | null>
+  titleInputRef: MutableRefObject<HTMLInputElement | null>,
+  isGroupDeleting: boolean,
+  setIsGroupDeleting: React.Dispatch<SetStateAction<boolean>>,
 }
 
 // Tworzymy kontekst
@@ -47,6 +49,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [isToggled, setIsToggled] = useState<boolean>(false);
   const [isToggledAll, setIsToggledAll] = useState<boolean>(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
+  const [isGroupDeleting, setIsGroupDeleting] = useState<boolean>(false);
 
   const handleError = (error: string) => {
     setHasError(error);
@@ -148,6 +151,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     isToggledAll,
     setIsToggledAll,
     titleInputRef,
+    isGroupDeleting,
+    setIsGroupDeleting,
   };
 
   return (

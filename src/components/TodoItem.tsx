@@ -26,6 +26,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isToggled,
     isToggledAll,
     titleInputRef,
+    isGroupDeleting,
   } = useTodoContext() as TContext;
 
   const USER_ID = 11550;
@@ -62,6 +63,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       // Anuluj edycję
       setIsEditing(false);
       setIsLoading(false);
+      titleInputRef.current?.focus();
 
       return;
     }
@@ -170,7 +172,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           {
             'is-active': (isDeleting === true)
           || (todo.id === 0) || (isToggled && todo.id === toggledId)
-          || (isToggledAll) || (isLoading),
+          || (isToggledAll) || (isLoading) || (isGroupDeleting),
           })}
       >
         <div className="modal-background has-background-white-ter" />

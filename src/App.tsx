@@ -7,22 +7,23 @@ import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { TContext, useTodoContext } from './components/TodoContext';
 import { SortTypes, Todo } from './types/Todo';
+import { deleteTodo, getTodos } from './api/todos';
 
 const USER_ID = 11550;
 
 export const App: React.FC = () => {
-  // const [isDeleting, setIsDeleting] = useState<boolean>(false);
-
   const {
     todos,
-    // addTodo,
+    setTodos,
     hasError,
     setHasError,
+    handleError,
     sortType,
     setSortType,
     handleToggleAllStatus,
     // isToggledAll,
     setIsToggledAll,
+    setIsGroupDeleting,
   } = useTodoContext() as TContext;
 
   const handleSorting = (type: string) => setSortType(type as SortTypes);
@@ -52,20 +53,23 @@ export const App: React.FC = () => {
     }
   };
 
-  // const deleteCompleted = (todoIds: number[]) => {
-  //   setIsDeleting(true);
+  const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
 
-  //   return todoIds.map((todoId) => deleteTodo(todoId)
-  //     .then(() => getTodos(USER_ID))
-  //     .then((res) => {
-  //       setTodos(res);
-  //       setIsDeleting(false);
-  //     })
-  //     .catch(() => {
-  //       handleError('Unable to delete a todo');
-  //     });
-  //   )
-  // };
+  const deleteCompleted = () => {
+    setIsGroupDeleting(true);
+
+    return Promise.all(arrayCompleted.map((todo) => deleteTodo(todo.id)))
+      .then(() => getTodos(USER_ID))
+      .then((res) => {
+        setTodos(res);
+      })
+      .catch(() => {
+        handleError('Unable to delete a todo');
+      })
+      .finally(() => {
+        setIsGroupDeleting(false);
+      });
+  };
 
   return (
     <div className="todoapp">
@@ -108,7 +112,7 @@ export const App: React.FC = () => {
                 type="button"
                 className="todoapp__clear-completed"
                 data-cy="ClearCompletedButton"
-                // onClick={deleteCompleted((todos.filter(todo.id => todo.completed === true))}
+                onClick={deleteCompleted}
               >
                 Clear completed
               </button>
