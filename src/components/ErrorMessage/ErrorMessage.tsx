@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from '../../contexts/TodosContext';
-import { DELAY_TO_HIDE_ERROR } from '../../utils/constants';
+import { HIDE_DELAY_ERROR } from '../../utils/constants';
 
 export const ErrorMessage: React.FC = () => {
   const [isErrorHidden, setIsErrorHidden] = useState(true);
@@ -12,7 +12,7 @@ export const ErrorMessage: React.FC = () => {
 
     if (errorMessage) {
       setIsErrorHidden(false);
-      timer = setTimeout(() => setIsErrorHidden(true), DELAY_TO_HIDE_ERROR);
+      timer = setTimeout(() => setIsErrorHidden(true), HIDE_DELAY_ERROR);
     } else {
       setIsErrorHidden(true);
     }

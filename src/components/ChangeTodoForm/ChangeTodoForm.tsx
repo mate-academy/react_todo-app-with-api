@@ -24,20 +24,18 @@ export const ChangeTodoForm: React.FC<Props> = (
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const focusInput = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
+  };
+
+  useEffect(() => {
+    focusInput();
   }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-  };
-
-  const handleError = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +53,7 @@ export const ChangeTodoForm: React.FC<Props> = (
       try {
         await handleDeleteTodo(todoId);
       } catch {
-        handleError();
+        focusInput();
       }
 
       return;
@@ -65,7 +63,7 @@ export const ChangeTodoForm: React.FC<Props> = (
       await handleChangeTodo(todoId, { title: trimmedTitle });
       setIsUpdating(false);
     } catch {
-      handleError();
+      focusInput();
     }
   };
 

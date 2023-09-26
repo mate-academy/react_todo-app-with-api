@@ -22,7 +22,7 @@ export const Header: React.FC<Props> = ({ todos }) => {
   const {
     handleAddTodo,
     isInputFocused,
-    handleToogleTodo,
+    handleToggleAllTodo,
   } = useContext(TodosContext);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,7 +61,7 @@ export const Header: React.FC<Props> = ({ todos }) => {
           id="button-togle"
           data-cy="ToggleAllButton"
           aria-label="Toogle All"
-          onClick={() => handleToogleTodo()}
+          onClick={handleToggleAllTodo}
         />
       )}
 

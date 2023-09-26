@@ -16,7 +16,8 @@ export const TodoFooter: React.FC<Props> = ({ todos }) => {
     handleDeleteCompletedTodo,
   } = useContext(TodosContext);
   const activeTodoQuantity: number = getActiveTodoQuantity(todos);
-  const message = activeTodoQuantity > 1 ? `${activeTodoQuantity} items left` : `${activeTodoQuantity} item left`;
+  const itemForm = activeTodoQuantity === 1 ? 'item' : 'items';
+  const message = `${activeTodoQuantity} ${itemForm} left`;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -49,7 +50,7 @@ export const TodoFooter: React.FC<Props> = ({ todos }) => {
         type="button"
         className="todoapp__clear-completed"
         disabled={activeTodoQuantity === todos.length}
-        onClick={() => handleDeleteCompletedTodo()}
+        onClick={handleDeleteCompletedTodo}
       >
         Clear completed
       </button>

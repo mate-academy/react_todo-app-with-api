@@ -9,10 +9,10 @@ import { FilterType } from '../types/TodoStatus';
 import { filterBy } from '../utils/filterBy';
 import {
   INVALID_TITLE_ERROR_MESSAGE,
-  UNABLE_ADD_ERROR_MESSAGE,
-  UNABLE_DELETE_ERROR_MESSAGE,
-  UNABLE_DOWNLOAD_ERROR_MESSAGE,
-  UNABLE_UPDATE_ERROR_MESSAGE,
+  DOWNLOAD_ERROR_MESSAGE,
+  ADD_TODO_ERROR_MESSAGE,
+  DELETE_TODO_ERROR_MESSAGE,
+  UPDATE_TODO_ERROR_MESSAGE,
   USER_ID,
 } from '../utils/constants';
 import {
@@ -46,7 +46,7 @@ interface TodosContextType {
   handleChangeTodo: (todoId: number, data: TodoUpdateData) => void;
   handleDeleteTodo: (...ids: number[]) => void;
   handleDeleteCompletedTodo: () => void;
-  handleToogleTodo: () => void,
+  handleToggleAllTodo: () => void,
 }
 
 const initialTodosState: TodosContextType = {
@@ -62,7 +62,7 @@ const initialTodosState: TodosContextType = {
   handleChangeTodo: () => {},
   handleDeleteTodo: () => {},
   handleDeleteCompletedTodo: () => {},
-  handleToogleTodo: () => {},
+  handleToggleAllTodo: () => {},
 };
 
 export const TodosContext = createContext<TodosContextType>(initialTodosState);
@@ -90,7 +90,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
         setTodos(response);
       } catch {
-        setError(UNABLE_DOWNLOAD_ERROR_MESSAGE);
+        setError(DOWNLOAD_ERROR_MESSAGE);
       }
     };
 
@@ -129,7 +129,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
     try {
       setTempTodo(tempTodoData);
-      setTodosIdsUpdating([tempTodoData.id]);
+      setTodosIdsUpdating(prevState => [...prevState, tempTodoData.id]);
 
       const response = await addTodoPromise;
       const updatedTodo = { ...tempTodoData, id: response.id };
@@ -138,19 +138,21 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       return true;
     } catch {
-      setError(UNABLE_ADD_ERROR_MESSAGE);
+      setError(ADD_TODO_ERROR_MESSAGE);
 
       return false;
     } finally {
       setIsInputFocused(true);
       setTempTodo(null);
-      setTodosIdsUpdating([]);
+      setTodosIdsUpdating(
+        prevState => prevState.filter(id => id !== tempTodoData.id),
+      );
     }
   };
 
   const handleChangeTodo = async (id: number, data: TodoUpdateData) => {
     setErrorMessage(null);
-    setTodosIdsUpdating([id]);
+    setTodosIdsUpdating(prevState => [...prevState, id]);
 
     try {
       const updatedTodo = await updateTodo(id, data);
@@ -164,103 +166,56 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         return updatedTodos;
       });
     } catch {
-      setError(UNABLE_UPDATE_ERROR_MESSAGE);
-      throw new Error();
+      setError(UPDATE_TODO_ERROR_MESSAGE);
+      throw new Error(UPDATE_TODO_ERROR_MESSAGE);
     } finally {
       setIsInputFocused(false);
-      setTodosIdsUpdating([]);
+      setTodosIdsUpdating(
+        prevState => prevState.filter(idLoading => idLoading !== id),
+      );
     }
   };
 
-  const handleToggleTodo = async () => {
+  const handleToggleAllTodo = () => {
     const todosToChange = todos.some(todo => !todo.completed)
       ? filterBy(todos, FilterType.Active)
       : todos;
-    const todosId = todosToChange.map(todo => todo.id);
 
-    setTodosIdsUpdating(todosId);
+    todosToChange.forEach(todo => {
+      const { id, completed } = todo;
 
-    const changePromises = todosToChange
-      .map(async (todo) => {
-        try {
-          return await updateTodo(todo.id, { completed: !todo.completed });
-        } catch {
-          return null;
-        }
-      });
-
-    const changedTodos = await Promise.all(changePromises);
-
-    if (changedTodos.includes(null)) {
-      setError(UNABLE_UPDATE_ERROR_MESSAGE);
-    }
-
-    setTodos((prevState) => {
-      return prevState.map((todo) => {
-        const changed = changedTodos
-          .find((changedTodo) => {
-            if (!changedTodo) {
-              return false;
-            }
-
-            return changedTodo.id === todo.id;
-          });
-
-        if (changed) {
-          return changed;
-        }
-
-        return todo;
-      });
+      handleChangeTodo(id, { completed: !completed });
     });
-
-    setIsInputFocused(false);
-    setTodosIdsUpdating([]);
   };
 
   const handleDeleteTodo = async (id: number) => {
-    setTodosIdsUpdating([id]);
+    setErrorMessage(null);
+    setTodosIdsUpdating((prevState) => [...prevState, id]);
 
     try {
       await deleteTodo(id);
       setTodos((prevState) => prevState.filter((todo) => todo.id !== id));
     } catch {
-      setError(UNABLE_DELETE_ERROR_MESSAGE);
+      setError(DELETE_TODO_ERROR_MESSAGE);
     } finally {
-      setTodosIdsUpdating([]);
+      setTodosIdsUpdating(
+        (prevState) => prevState.filter(loadingId => loadingId !== id),
+      );
     }
   };
 
   const handleDeleteCompletedTodo = async () => {
-    setErrorMessage(null);
-    const completedTodosId = todos
-      .filter(todo => todo.completed)
-      .map(todo => todo.id);
-
-    setTodosIdsUpdating(completedTodosId);
-
-    const deletePromises = completedTodosId.map(async (id) => {
-      try {
-        await deleteTodo(id);
-
-        return id;
-      } catch {
-        return null;
+    const completedTodosId = todos.reduce((acc: number[], todo) => {
+      if (todo.completed) {
+        acc.push(todo.id);
       }
+
+      return acc;
+    }, []);
+
+    completedTodosId.forEach(id => {
+      handleDeleteTodo(id);
     });
-
-    const deletedIds = await Promise.all(deletePromises);
-
-    if (deletedIds.includes(null)) {
-      setError(UNABLE_DELETE_ERROR_MESSAGE);
-    }
-
-    setTodos(
-      prevState => prevState.filter(todo => !deletedIds.includes(todo.id)),
-    );
-
-    setIsInputFocused(true);
-    setTodosIdsUpdating([]);
   };
 
   return (
@@ -277,7 +232,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         handleChangeTodo,
         handleDeleteTodo,
         handleDeleteCompletedTodo,
-        handleToogleTodo: handleToggleTodo,
+        handleToggleAllTodo,
         isInputFocused,
       }}
     >
