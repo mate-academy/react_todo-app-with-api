@@ -41,7 +41,7 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const submit = async () => {
-    if (editedTitle.trim() !== '') {
+    if (editedTitle.trim()) {
       await handleEditTodo({
         id, title: editedTitle, userId, completed,
       });
@@ -74,9 +74,9 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       data-cy="Todo"
+      aria-hidden="true"
       className={classNames('todo', {
         completed,
       })}

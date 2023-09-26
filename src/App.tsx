@@ -44,10 +44,11 @@ export const App: React.FC = () => {
   const allTodosId = todoList.map(({ id }) => id);
 
   const completedTodosId = todoList
-    .filter(({ completed }) => completed === true)
-    .map(({ id }) => id);
+    .reduce((total: number[], current) => (current.completed
+      ? [...total, current.id]
+      : total), []);
 
-  const hasCompletedTodosCount = completedTodosId.length !== 0;
+  const hasCompletedTodosCount = !!completedTodosId.length;
 
   const activeTodosCount = todoList
     .filter(({ completed }) => completed === false).length;
@@ -201,26 +202,24 @@ export const App: React.FC = () => {
         />
 
         <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos && (
-            filteredTodos.map(todo => (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                loadingId={loadingId}
-                isLoaderActive={isLoaderActive}
-                handleComplete={handleComplete}
-                handleEditTodo={handleEditTodo}
-                handleDeleteTodo={handleDeleteTodo}
-              />
-            ))
-          )}
+          {filteredTodos?.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              loadingId={loadingId}
+              isLoaderActive={isLoaderActive}
+              handleComplete={handleComplete}
+              handleEditTodo={handleEditTodo}
+              handleDeleteTodo={handleDeleteTodo}
+            />
+          ))}
         </section>
 
-        {tempTodo !== null && (
+        {tempTodo && (
           <TempTodo tempTodo={tempTodo} />
         )}
 
-        {todoList.length !== 0 && (
+        {!!todoList.length && (
           <TodoFilter
             filterBy={filterBy}
             onFilterChange={setFilterBy}

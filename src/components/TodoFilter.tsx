@@ -17,13 +17,16 @@ export const TodoFilter: React.FC<Props> = ({
   hasCompletedTodosCount,
   handleClearCompleted,
 }) => {
+  const itemsLeftMessage = activeTodosCount === 1
+    ? `${activeTodosCount} item left`
+    : `${activeTodosCount} items left`;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosCount} items left`}
+        {itemsLeftMessage}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -59,7 +62,6 @@ export const TodoFilter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         data-cy="ClearCompletedButton"

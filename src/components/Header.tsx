@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type Props = {
   handleSubmit: (event: React.FormEvent) => void,
@@ -21,13 +21,13 @@ export const Header: React.FC<Props> = ({
   activeTodosCount,
 
 }) => {
-  const inputRef = React.useRef<any>();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  });
+  }, []);
 
   return (
     <header className="todoapp__header">
@@ -36,7 +36,7 @@ export const Header: React.FC<Props> = ({
         aria-label="button"
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: activeTodosCount === 0,
+          active: !activeTodosCount,
         })}
         onClick={handleToggleAll}
       />
@@ -48,7 +48,7 @@ export const Header: React.FC<Props> = ({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={loadingId.length > 0 || isLoaderActive}
+          disabled={!!loadingId.length || isLoaderActive}
           value={title}
           onChange={(event) => onTitleChange(event.target.value)}
         />
