@@ -41,11 +41,13 @@ export const TodoItem: React.FC<Props> = ({
 
     if (!editingTitle.trim()) {
       await onDeleteTodo(id);
-    }
-
-    if (editingTitle !== title) {
+    } else if (editingTitle !== title) {
       await onChangeTitle(id, editingTitle);
     }
+
+    // if (editingTitle !== title) {
+    //   await onChangeTitle(id, editingTitle);
+    // }
 
     setIsLoading(false);
     setIsEdit(false);
