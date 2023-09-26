@@ -15,11 +15,10 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
 
   const {
-    isLoading,
-    setIsLoading,
     deleteTodo,
     handleTodoUpdate,
     handleStatusChange,
@@ -38,15 +37,15 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleStatusToggle = () => {
-    setIsLoading(true);
+    setIsEditing(true);
     const toggledStatus = !completed;
 
     handleStatusChange(todo, toggledStatus);
-    setIsLoading(false);
+    setIsEditing(false);
   };
 
   const handleTodoDoubleClick = () => {
-    setIsLoading(true);
+    setIsEditing(true);
   };
 
   const handleTodoTitleChange = (
@@ -62,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (trimmedTodoTitle === title) {
       setTodoTitle(trimmedTodoTitle);
-      setIsLoading(false);
+      setIsEditing(false);
 
       return;
     }
@@ -73,24 +72,24 @@ export const TodoItem: React.FC<Props> = ({
       handleTodoDelete();
     }
 
-    setIsLoading(false);
+    setIsEditing(false);
   };
 
   const handleKeyUp = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
-      setIsLoading(false);
+      setIsEditing(false);
     }
   };
 
   const inputEdit = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isEditing) {
       inputEdit.current?.focus();
     }
-  }, [isLoading]);
+  }, [isEditing]);
 
   return (
     <div
@@ -107,7 +106,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {isLoading
+      {isEditing
         ? (
           <form
             onSubmit={handleTodoSave}

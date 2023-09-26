@@ -7,8 +7,6 @@ import { pickCompletedTodos } from './utils/pickUncompletedTodos';
 interface TodoContextType {
   todoItems: Todo[];
   setTodoItems: React.Dispatch<React.SetStateAction<Todo[]>>;
-  isLoading: boolean,
-  setIsLoading: (isLoading: boolean) => void,
   tempTodo: Todo | null;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   processingTodoIds: number[],
@@ -27,8 +25,6 @@ interface TodoContextType {
 const todoContext: TodoContextType = {
   todoItems: [],
   setTodoItems: () => {},
-  isLoading: false,
-  setIsLoading: () => {},
   tempTodo: null,
   setTempTodo: () => {},
   processingTodoIds: [],
@@ -53,7 +49,6 @@ type Props = {
 export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [todoItems, setTodoItems] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
@@ -151,8 +146,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const value = useMemo(() => ({
     todoItems,
     setTodoItems,
-    isLoading,
-    setIsLoading,
     tempTodo,
     setTempTodo,
     processingTodoIds,
@@ -166,13 +159,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     handleTodoUpdate,
     handleStatusChange,
     setStatusForAll,
-  }), [
-    todoItems,
-    errorMessage,
-    isLoading,
-    tempTodo,
-    processingTodoIds,
-  ]);
+  }), [todoItems, errorMessage, tempTodo, processingTodoIds]);
 
   return (
     <TodoContext.Provider value={value}>

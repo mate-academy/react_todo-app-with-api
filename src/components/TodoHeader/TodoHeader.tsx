@@ -15,12 +15,12 @@ type Props = {
 
 export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const inputLine = useRef<HTMLInputElement>(null);
 
   const {
     todoItems,
-    isLoading,
-    setIsLoading,
     setErrorMessage,
     setStatusForAll,
     uncompletedTodosLength,
