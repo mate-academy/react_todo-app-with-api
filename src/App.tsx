@@ -55,21 +55,47 @@ export const App: React.FC = () => {
 
   const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
 
+  // testujemy tutaj szybsze lokalne usuwanie grupowe completed
   const deleteCompleted = () => {
     setIsGroupDeleting(true);
 
-    return Promise.all(arrayCompleted.map((todo) => deleteTodo(todo.id)))
-      .then(() => getTodos(USER_ID))
-      .then((res) => {
-        setTodos(res);
-      })
+    // Pobierz identyfikatory zakończonych zadań
+    const completedIds = arrayCompleted.map((todo) => todo.id);
+
+    // Natychmiast usuń zakończone zadania lokalnie
+    setTodos((prevTodos) => prevTodos
+      .filter((todo) => !completedIds.includes(todo.id)));
+
+    // Usuń zakończone zadania na serwerze i obsłuż ewentualne błędy
+    Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
       .catch(() => {
         handleError('Unable to delete a todo');
       })
       .finally(() => {
         setIsGroupDeleting(false);
+
+        // Jeśli potrzebujesz, pobierz wszystkie zadania ponownie
+        getTodos(USER_ID)
+          .then((res) => {
+            setTodos(res);
+          });
       });
   };
+  // const deleteCompleted = () => {
+  //   setIsGroupDeleting(true);
+
+  //   return Promise.all(arrayCompleted.map((todo) => deleteTodo(todo.id)))
+  //     .then(() => getTodos(USER_ID))
+  //     .then((res) => {
+  //       setTodos(res);
+  //     })
+  //     .catch(() => {
+  //       handleError('Unable to delete a todo');
+  //     })
+  //     .finally(() => {
+  //       setIsGroupDeleting(false);
+  //     });
+  // };
 
   return (
     <div className="todoapp">
