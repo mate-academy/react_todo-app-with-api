@@ -30,7 +30,7 @@ Implement the ability to edit a todo title on double click:
 + saves changes on the form submit (just press `Enter`);
 + save changes when the field loses focus (`onBlur`);
 + if the new title is the same as the old one just cancel editing;
-- cancel editing on `Esс` key `keyup` event;
++ cancel editing on `Esс` key `keyup` event;
 + if the new title is empty delete the todo the same way the `x` button does it;
 + if the title was changed show the loader while waiting for the API response;
 + update the todo title on success;

@@ -63,11 +63,18 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
     setTodoTitle(event.target.value);
   };
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const handleOnKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTodoTitle(title);
+    }
+  };
+
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
-      titleInput.current.focus();
+    if (isEditing && titleInputRef.current) {
+      titleInputRef.current.focus();
     }
   }, [isEditing]);
 
@@ -99,13 +106,16 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
             onBlur={handleTodoChange}
           >
             <input
-              ref={titleInput}
+              ref={titleInputRef}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={todoTitle}
               onChange={handleTodoTitleChange}
+              onKeyUp={(event) => {
+                handleOnKeyUp(event);
+              }}
             />
           </form>
         )
