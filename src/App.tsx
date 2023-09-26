@@ -71,7 +71,7 @@ export const App: React.FC = () => {
 
   const handleDelete = (todo: Todo, callback?: () => void) => {
     deleteTodo(todo.id).then(() => {
-      fetchData();
+      setTodos(prevTodo => prevTodo.filter(toDo => toDo !== todo));
       inputRef.current?.focus();
     }).catch(() => {
       handleError('Unable to delete todo');
@@ -225,6 +225,7 @@ export const App: React.FC = () => {
                   handleDelete(todo);
                 }
               })}
+              hidden={!todos.some(todo => todo.completed === true)}
             >
               Clear completed
             </button>
