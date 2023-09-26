@@ -22,6 +22,7 @@ interface TodoContextInterface {
   setIsLoading: (isLoading: boolean) => void;
   error: CurrentError,
   setError: (error: CurrentError) => void;
+  handleToggleChange: (todo: Todo) => void;
   handleTodoDelete: (id: number) => void;
   handleTodoAdd: (newTodo: Omit<Todo, 'id'>) => Promise<void>
   handleTodoRename: (todo: Todo, newTodoTitle: string) => Promise<void>,
@@ -41,6 +42,7 @@ const initalContext: TodoContextInterface = {
   setIsLoading: () => {},
   error: CurrentError.Default,
   setError: () => {},
+  handleToggleChange: () => {},
   handleTodoDelete: () => {},
   handleTodoAdd: async () => {},
   handleTodoRename: async () => {},
@@ -113,10 +115,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     // eslint-disable-next-line consistent-return
     return todoService
       .updateTodo({
-        id: todo.id,
+        ...todo,
         title: newTodoTitle,
-        userId: todo.userId,
-        completed: todo.completed,
       })
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currTodo => {
@@ -124,6 +124,38 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
             ? currTodo
             : updatedTodo;
         }));
+      })
+      .catch(() => {
+        setError(CurrentError.UpdateError);
+        throw new Error(CurrentError.UpdateError);
+      })
+      .finally(() => {
+        setProcessingTodoIds(
+          (prevState) => prevState.filter(id => id !== todo.id),
+        );
+        setIsLoading(false);
+      });
+  };
+
+  const handleToggleChange = (todo: Todo) => {
+    setIsLoading(true);
+    setProcessingTodoIds(prevState => [...prevState, todo.id]);
+
+    todoService.updateTodo({
+      ...todo,
+      completed: !todo.completed,
+    })
+      .then((updatedTodo) => {
+        setTodos(prevState => prevState
+          .map(currTodo => (
+            currTodo.id === updatedTodo.id
+              ? updatedTodo
+              : currTodo
+          )));
+      })
+      .catch(() => {
+        setError(CurrentError.UpdateError);
+        throw new Error(CurrentError.UpdateError);
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -146,6 +178,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setIsLoading,
     error,
     setError,
+    handleToggleChange,
     handleTodoDelete,
     handleTodoAdd,
     handleTodoRename,

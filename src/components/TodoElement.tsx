@@ -20,9 +20,9 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
     processingTodoIds,
     handleTodoRename,
     setError,
+    handleToggleChange,
   } = useContext(TodoContext);
 
-  const [isChecked, setIsChecked] = useState(completed);
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
   const shouldDisplayLoader = id === 0 || processingTodoIds.includes(id);
@@ -84,7 +84,7 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
       data-cy="Todo"
       className={classNames(
         'todo',
-        { completed: isChecked },
+        { completed },
       )}
     >
       <label className="todo__status-label">
@@ -92,9 +92,9 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={isChecked}
-          onChange={(event) => {
-            setIsChecked(event.target.checked);
+          checked={completed}
+          onChange={() => {
+            handleToggleChange(todo);
           }}
         />
       </label>
