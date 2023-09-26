@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  // const [isModalVisible, setIsModalVisible] = useState(false);
   const [request, setRequest] = useState(true);
   const [loadingId, setLoadingId] = useState<number[]>([]);
   const [isLoaderActive, setIsLoaderActive] = useState(false);
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
   function handleDelete(todoId: number) {
     setLoadingId([todoId]);
     setIsLoaderActive(true);
-    setIsModalVisible(true);
+    // setIsModalVisible(true);
     deleteTodos(todoId)
       .then(() => {
         setTodo(prevTodos => prevTodos.filter(todo => todo.id !== todoId));

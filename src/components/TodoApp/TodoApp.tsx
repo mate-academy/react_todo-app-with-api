@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -44,13 +44,20 @@ export const TodoApp: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
-  // const titleInput = useRef<HTMLInputElement | null>(null);
+  const handleOnKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTodoTitle(title);
+    }
+  };
 
-  // useEffect(() => {
-  //   if (isEditing && titleInput.current) {
-  //     titleInput.current.focus();
-  //   }
-  // }, [isEditing]);
+  const titleInput = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing && titleInput.current) {
+      titleInput.current.focus();
+    }
+  }, [isEditing]);
 
   return (
     <div
@@ -77,12 +84,15 @@ export const TodoApp: React.FC<Props> = ({
           >
             <input
               data-cy="TodoTitleField"
-              // ref={titleInput}
+              ref={titleInput}
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={todosTitle}
               onChange={handleTodoTitleChange}
+              onKeyUp={(event) => {
+                handleOnKeyup(event);
+              }}
             />
           </form>
         )
