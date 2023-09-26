@@ -1,4 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../Context/TodoContext';
@@ -24,7 +29,9 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
     setIsEditing(true);
   };
 
-  const handleTodoChange = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoChange = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     if (todoTitle) {
@@ -41,6 +48,14 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
   ) => {
     setTodoTitle(event.target.value);
   };
+
+  const titleInput = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing && titleInput.current) {
+      titleInput.current.focus();
+    }
+  }, [isEditing]);
 
   return (
     <div
@@ -70,6 +85,7 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
             onBlur={handleTodoChange}
           >
             <input
+              ref={titleInput}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
