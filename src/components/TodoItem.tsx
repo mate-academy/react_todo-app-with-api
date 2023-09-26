@@ -11,7 +11,7 @@ import { ErrorMess } from '../types/Error';
 
 type Props = {
   todo: Todo;
-  handleDelete: (todo: Todo) => void;
+  handleDelete: (todo: Todo, callback: () => void) => void;
   handleComplete: (todo: Todo, callback: () => void) => void;
   handleError: (err: ErrorMess) => void;
 };
@@ -50,7 +50,7 @@ export const TodoItem = ({
 
     if (editedTodoTitle === '') {
       setIsLoading(true);
-      handleDelete(todo);
+      handleDelete(todo, () => setIsLoading(false));
 
       return;
     }
@@ -110,7 +110,7 @@ export const TodoItem = ({
             data-cy="TodoDelete"
             onClick={() => {
               setIsLoading(true);
-              handleDelete(todo);
+              handleDelete(todo, () => setIsLoading(false));
             }}
           >
             ×

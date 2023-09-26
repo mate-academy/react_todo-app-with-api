@@ -69,11 +69,13 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleDelete = (todo: Todo) => {
-    deleteTodo(todo.id).catch(() => {
-      handleError('Unable to delete todo');
-    }).then(() => {
+  const handleDelete = (todo: Todo, callback: () => void) => {
+    deleteTodo(todo.id).then(() => {
       fetchData();
+      inputRef.current?.focus();
+    }).catch(() => {
+      handleError('Unable to delete todo');
+      callback();
     });
   };
 

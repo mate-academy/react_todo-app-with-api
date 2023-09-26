@@ -8,7 +8,7 @@ type Props = {
   todos: Todo[];
   filter: Filter;
   temporaryTodo: Todo | null;
-  handleDelete: (todo:Todo) => void;
+  handleDelete: (todo:Todo, callback: () => void) => void;
   handleComplete: (todo: Todo, callback: () => void) => void;
   handleError: (err: ErrorMess) => void;
 };
