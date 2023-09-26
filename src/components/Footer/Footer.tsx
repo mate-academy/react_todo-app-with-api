@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTodos } from '../../TodosContext';
 import { Status } from '../../types/Status';
 
@@ -16,14 +16,10 @@ export const Footer: React.FC = () => {
     setSelectedStatus(status);
   };
 
-  const areCompletedTodos = useMemo(() => {
-    return todos.some(todo => todo.completed);
-  }, [todos]);
-
   return (
     <footer
       className={classNames('todoapp__footer', {
-        hidden: todos.length === 0,
+        hidden: !todos.length,
       })}
       data-cy="Footer"
     >
@@ -31,7 +27,11 @@ export const Footer: React.FC = () => {
         className="todo-count"
         data-cy="TodosCounter"
       >
-        {`${notCompletedTodos} items left`}
+        {notCompletedTodos.length === 1 ? (
+          '1 item left'
+        ) : (
+          `${notCompletedTodos.length} items left`
+        )}
       </span>
 
       <nav
@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={clearCompleted}
-        disabled={!areCompletedTodos}
+        disabled={!notCompletedTodos.length}
       >
         Clear completed
       </button>

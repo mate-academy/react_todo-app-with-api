@@ -89,7 +89,6 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
 
   return (
     <div
-      data-cy="Todo"
       className={classNames('todo', {
         completed,
       })}
@@ -97,7 +96,6 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
       <label className="todo__status-label">
         <input
           type="checkbox"
-          data-cy="TodoStatus"
           className="todo__status"
           checked={completed}
           onChange={handleToggleTodo}
@@ -121,7 +119,6 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
         <>
           <span
             className="todo__title"
-            data-cy="TodoTitle"
             onDoubleClick={() => setEditing(true)}
           >
             {title}
@@ -129,7 +126,6 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
           <button
             type="button"
             className="todo__remove"
-            data-cy="TodoDelete"
             onClick={handleDeleteTodo}
           >
             ×
@@ -141,7 +137,6 @@ export const TodoListItem: React.FC<Props> = ({ todo }) => {
         className={classNames('modal overlay', {
           'is-active': isModalActive,
         })}
-        data-cy="TodoLoader"
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

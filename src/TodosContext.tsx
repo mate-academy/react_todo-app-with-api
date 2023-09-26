@@ -18,27 +18,27 @@ type Props = {
 
 export const TodosContext = React.createContext<TodosContextType>({
   todos: [],
-  setTodos: () => { },
-  addTodo: () => { },
-  toggleTodo: () => { },
-  toggleAll: () => { },
-  clearCompleted: () => { },
-  updateTodoTitle: () => { },
+  setTodos: () => {},
+  addTodo: () => {},
+  toggleTodo: () => {},
+  toggleAll: () => {},
+  clearCompleted: () => {},
+  updateTodoTitle: () => {},
   selectedStatus: Status.All,
-  setSelectedStatus: () => { },
+  setSelectedStatus: () => {},
   errorMessage: '',
-  setErrorMessage: () => { },
-  removeErrorIn3sec: () => { },
-  notCompletedTodos: 0,
+  setErrorMessage: () => {},
+  removeError: () => {},
+  notCompletedTodos: [],
   tempTodo: null,
   isSubmiting: false,
-  setIsSubmiting: () => { },
+  setIsSubmiting: () => {},
   title: '',
-  setTitle: () => { },
+  setTitle: () => {},
   completedTodosIds: [],
   deletingIds: [],
-  setDeletingIds: () => { },
-  deleteTodo: () => { },
+  setDeletingIds: () => {},
+  deleteTodo: () => {},
   editingIds: [],
   areAllTodosCompleted: false,
 });
@@ -53,10 +53,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
   const [editingIds, setEditingIds] = useState<number[]>([]);
 
-  const removeErrorIn3sec = () => {
+  const removeError = (time = 3000) => {
     setTimeout(() => {
       setErrorMessage('');
-    }, 3000);
+    }, time);
   };
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .catch(() => {
         setErrorMessage(Errors.loading);
 
-        removeErrorIn3sec();
+        removeError();
       });
   }, []);
 
@@ -91,7 +91,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage(Errors.adding);
-        removeErrorIn3sec();
+        removeError();
       })
       .finally(() => {
         setTempTodo(null);
@@ -116,21 +116,29 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage(Errors.updating);
-        removeErrorIn3sec();
+        removeError();
       })
       .finally(() => {
         setEditingIds((ids) => ids.filter(item => item !== id));
       });
   };
 
-  const areAllTodosCompleted = todos.every(todo => todo.completed);
+  const areAllTodosCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
+  }, [todos]);
 
-  const completedTodos = todos.filter(todo => todo.completed);
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
 
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const notCompletedTodos = useMemo(() => {
+    return todos.filter(item => !item.completed);
+  }, [todos]);
 
   const toggleAll = () => {
-    const promiseArray = (areAllTodosCompleted ? completedTodos : activeTodos);
+    const promiseArray = (areAllTodosCompleted
+      ? completedTodos
+      : notCompletedTodos);
 
     promiseArray.forEach(todo => {
       setEditingIds(ids => [...ids, todo.id]);
@@ -140,7 +148,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
             { ...elem, completed: !areAllTodosCompleted }
           )));
         })
-        .catch(() => setErrorMessage(Errors.updating))
+        .catch(() => {
+          setErrorMessage(Errors.updating);
+          removeError();
+        })
         .finally(() => {
           setEditingIds(ids => ids.filter(item => item !== todo.id));
         });
@@ -167,7 +178,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .then(() => {})
       .catch(() => {
         setErrorMessage(Errors.updating);
-        removeErrorIn3sec();
+        removeError();
       })
       .finally(() => {
         setEditingIds((ids) => ids.filter(item => item !== id));
@@ -186,7 +197,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage(Errors.deleting);
-        removeErrorIn3sec();
+        removeError();
       })
       .finally(() => {
         setDeletingIds((ids) => ids.filter(id => id !== todoId));
@@ -205,10 +216,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     });
   };
 
-  const notCompletedTodos = useMemo(() => {
-    return todos.filter(item => !item.completed).length;
-  }, [todos]);
-
   return (
     <TodosContext.Provider
       value={{
@@ -223,7 +230,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setSelectedStatus,
         errorMessage,
         setErrorMessage,
-        removeErrorIn3sec,
+        removeError,
         notCompletedTodos,
         tempTodo,
         isSubmiting,

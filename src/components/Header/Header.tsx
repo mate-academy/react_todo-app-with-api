@@ -10,7 +10,7 @@ export const Header: React.FC = () => {
     toggleAll,
     errorMessage,
     setErrorMessage,
-    removeErrorIn3sec,
+    removeError,
     title,
     setTitle,
     tempTodo,
@@ -33,7 +33,7 @@ export const Header: React.FC = () => {
 
     if (!title.trim()) {
       setErrorMessage(Errors.emptyTitle);
-      removeErrorIn3sec();
+      removeError();
 
       return;
     }

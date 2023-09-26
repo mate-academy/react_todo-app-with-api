@@ -13,8 +13,8 @@ export type TodosContextType = {
   setSelectedStatus: React.Dispatch<React.SetStateAction<Status>>
   errorMessage: string,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-  removeErrorIn3sec: () => void,
-  notCompletedTodos: number,
+  removeError: (time?: number) => void,
+  notCompletedTodos: Todo[],
   tempTodo: Todo | null,
   isSubmiting: boolean,
   setIsSubmiting: React.Dispatch<React.SetStateAction<boolean>>,
