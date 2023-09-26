@@ -51,11 +51,11 @@ export const TodoItem: React.FC<Props> = ({
     onToggleChange(todo);
   };
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEdiding && titleInput.current) {
-      titleInput.current?.focus();
+    if (isEdiding && titleInputRef.current) {
+      titleInputRef.current?.focus();
     }
   }, [isEdiding]);
 
@@ -93,7 +93,7 @@ export const TodoItem: React.FC<Props> = ({
               onBlur={handleTodoSave}
             >
               <input
-                ref={titleInput}
+                ref={titleInputRef}
                 data-cy="TodoTitleField"
                 type="text"
                 className="todo__title-field"
