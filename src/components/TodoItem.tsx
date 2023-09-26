@@ -1,37 +1,65 @@
 import classNames from 'classnames';
 
-import { useState } from 'react';
-import { Action, Todo } from '../types';
-import { deleteTodo } from '../api';
-import { useError, useTodos } from '../providers';
-import { ERRORS } from '../utils';
+import { useEffect, useRef, useState } from 'react';
+import { Todo } from '../types';
 
 type Props = {
   todo: Todo;
-  loading?: boolean;
+  onDelete?: (id: number) => void;
+  onToggle?: (todo: Todo) => void;
+  onUpdate?: (todo: Todo, title: string) => Promise<void>;
+  processing?: boolean;
 };
 
-export const TodoItem:React.FC<Props> = ({ todo, loading = false }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { dispatch } = useTodos();
-  const { setError } = useError();
+export const TodoItem:React.FC<Props> = ({
+  todo,
+  onDelete = () => {},
+  onToggle = () => {},
+  onUpdate = () => new Promise(() => {}),
+  processing = false,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleDeleteClick = () => {
-    setIsLoading(true);
+  const focusInput = () => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
-    deleteTodo(todo.id)
+  useEffect(() => {
+    focusInput();
+  }, [isEditing]);
+
+  const submitEdit = () => {
+    const title = inputValue.trim();
+
+    if (title === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    onUpdate(todo, title)
       .then(() => {
-        dispatch({
-          type: Action.Remove,
-          payload: todo.id,
-        });
+        setIsEditing(false);
       })
       .catch(() => {
-        setError(ERRORS.DELETE_TODO);
-      })
-      .finally(() => {
-        setIsLoading(false);
+        focusInput();
       });
+  };
+
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    submitEdit();
+  };
+
+  const handleEditKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -46,13 +74,18 @@ export const TodoItem:React.FC<Props> = ({ todo, loading = false }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          checked={todo.completed}
+          onChange={() => onToggle(todo)}
         />
       </label>
 
-      {true ? (
+      {!isEditing ? (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={() => setIsEditing(true)}
+          >
             {todo.title}
           </span>
 
@@ -60,19 +93,23 @@ export const TodoItem:React.FC<Props> = ({ todo, loading = false }) => {
             type="button"
             data-cy="TodoDelete"
             className="todo__remove"
-            onClick={handleDeleteClick}
+            onClick={() => onDelete(todo.id)}
           >
             ×
           </button>
         </>
       ) : (
-        <form>
+        <form onSubmit={handleFormSubmit}>
           <input
-            data-cy="TodoTitleField"
             type="text"
+            data-cy="TodoTitleField"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
+            ref={inputRef}
+            value={inputValue}
+            onChange={event => setInputValue(event.target.value)}
+            onBlur={submitEdit}
+            onKeyUp={handleEditKeyUp}
           />
         </form>
       )}
@@ -80,7 +117,7 @@ export const TodoItem:React.FC<Props> = ({ todo, loading = false }) => {
       <div
         data-cy="TodoLoader"
         className={classNames('modal', 'overlay', {
-          'is-active': isLoading || loading,
+          'is-active': processing,
         })}
       >
         <div className="modal-background has-background-white-ter" />

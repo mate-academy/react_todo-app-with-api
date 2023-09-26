@@ -18,3 +18,15 @@ export const createTodo = (title: string, userId: number = USER_ID) => {
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const toggleTodo = (todoId: number, completed: boolean) => {
+  return client.patch<Todo>(`/todos/${todoId}`, {
+    completed: !completed,
+  });
+};
+
+export const updateTodo = (todoId: number, title: string) => {
+  return client.patch<Todo>(`/todos/${todoId}`, {
+    title,
+  });
+};

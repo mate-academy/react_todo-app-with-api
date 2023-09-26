@@ -1,25 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Action, Todo } from '../types';
-import { createTodo } from '../api';
-import { useError, useTodos } from '../providers';
-import { ERRORS } from '../utils';
+import { ErrorMessage } from '../types';
 
 type Props = {
-  onCreate: (todo: Todo | null) => void;
+  onAdd: (title: string) => Promise<void>;
+  onError: (message: ErrorMessage) => void;
+  refocus?: number;
 };
 
-export const NewTodo: React.FC<Props> = ({ onCreate }) => {
-  const { dispatch } = useTodos();
-  const { setError } = useError();
+export const NewTodo: React.FC<Props> = ({ onAdd, onError, refocus = 0 }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (!isProcessing && inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [isProcessing, refocus]);
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,43 +25,20 @@ export const NewTodo: React.FC<Props> = ({ onCreate }) => {
     const title = inputValue.trim();
 
     if (!title) {
-      setError(ERRORS.EMPTY_TITLE);
+      onError(ErrorMessage.EmptyTitle);
 
       return;
     }
 
-    if (inputRef.current) {
-      inputRef.current.disabled = true;
-    }
+    setIsProcessing(true);
 
-    onCreate({
-      id: 0,
-      userId: 0,
-      title,
-      completed: false,
-    });
-
-    setError(ERRORS.NONE);
-
-    createTodo(title)
-      .then(todo => {
-        dispatch({
-          type: Action.Add,
-          payload: todo,
-        });
-
+    onAdd(title)
+      .then(() => {
         setInputValue('');
       })
-      .catch(() => {
-        setError(ERRORS.ADD_TODO);
-      })
+      .catch(() => {})
       .finally(() => {
-        onCreate(null);
-
-        if (inputRef.current) {
-          inputRef.current.disabled = false;
-          inputRef.current.focus();
-        }
+        setIsProcessing(false);
       });
   };
 
@@ -75,6 +50,7 @@ export const NewTodo: React.FC<Props> = ({ onCreate }) => {
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         ref={inputRef}
+        disabled={isProcessing}
         value={inputValue}
         onChange={event => setInputValue(event.target.value)}
       />
