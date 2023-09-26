@@ -1,29 +1,23 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
-// import { deleteTodo } from '../../api/todos';
 
 interface Props {
   todo: Todo;
-  // key: number;
-  onTodoDelete: (todoId: number) => void;
-  onTodoUpdate: (title: string) => void;
-  // isLoading: boolean;
-  loadingTodoIds: number[];
-  // setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  // setError: React.Dispatch<React.SetStateAction<string>>;
-  // newTodoField: React.RefObject<HTMLInputElement>;
+  onTodoDelete?: (todoId: number) => void;
+  onTodoUpdate?: (title: string) => void;
+  loadingTodoIds?: number[];
+  onToggleTodo?: (todo: Todo) => void;
+  isLoading?: boolean;
 }
 
-export const TodoList: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = ({
   todo,
-  // setTodos,
-  // setError,
-  // newTodoField,
-  onTodoDelete,
-  onTodoUpdate,
-  // isLoading,
+  onTodoDelete = () => {},
+  onTodoUpdate = () => {},
   loadingTodoIds,
+  onToggleTodo = () => {},
+  isLoading,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
@@ -32,39 +26,23 @@ export const TodoList: React.FC<Props> = ({
     setIsEditing(true);
   };
 
-  const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (todoTitle) {
-      onTodoUpdate(todoTitle);
+      await onTodoUpdate(todoTitle);
     } else {
-      onTodoDelete(todoId);
+      await onTodoDelete(todo.id);
     }
 
     setIsEditing(false);
   };
 
-  const handleTodoTitleChange
-    = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTodoTitle(event.target.value);
-    };
-  // const deleteTodoHandler = (todoId: number) => {
-  //   deleteTodo(todoId)
-  //     .then(() => {
-  //       setTodos(prevState => (
-  //         prevState.filter(todo => todo.id !== todoId)
-  //       ));
-
-  //       newTodoField.current?.focus();
-  //     })
-  //     .catch(() => {
-  //       setError('Unable to delete a todo');
-
-  //       setTimeout(() => {
-  //         setError('');
-  //       }, 3000);
-  //     });
-  // };
+  const handleTodoTitleChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTodoTitle(event.target.value);
+  };
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -80,14 +58,12 @@ export const TodoList: React.FC<Props> = ({
             type="checkbox"
             className="todo__status"
             checked={todo.completed}
+            onClick={() => onToggleTodo(todo)}
           />
         </label>
 
         {isEditing ? (
-          <form
-            onSubmit={handleTodoSave}
-            onBlur={handleTodoSave}
-          >
+          <form onSubmit={handleTodoSave} onBlur={handleTodoSave}>
             <input
               data-cy="TodoTitleField"
               type="text"
@@ -118,12 +94,14 @@ export const TodoList: React.FC<Props> = ({
           </>
         )}
 
-        {/* overlay will cover the todo while it is being updated */}
         <div
           data-cy="TodoLoader"
-          className={classNames('modal', 'overlay', {
-            'is-active': loadingTodoIds.includes(todo.id),
-          })}
+          className={classNames(
+            'modal',
+            'overlay', {
+              'is-active': loadingTodoIds?.includes(todo.id) || isLoading,
+            },
+          )}
         >
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
