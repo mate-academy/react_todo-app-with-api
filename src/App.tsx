@@ -23,7 +23,9 @@ export const App: React.FC = () => {
     handleToggleAllStatus,
     // isToggledAll,
     setIsToggledAll,
+    isGroupDeleting,
     setIsGroupDeleting,
+    titleInputRef,
   } = useTodoContext() as TContext;
 
   const handleSorting = (type: string) => setSortType(type as SortTypes);
@@ -65,6 +67,7 @@ export const App: React.FC = () => {
     // Natychmiast usuń zakończone zadania lokalnie
     setTodos((prevTodos) => prevTodos
       .filter((todo) => !completedIds.includes(todo.id)));
+    titleInputRef.current?.focus(); // to mozliwe ze redundantne
 
     // Usuń zakończone zadania na serwerze i obsłuż ewentualne błędy
     Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
@@ -133,7 +136,8 @@ export const App: React.FC = () => {
             <TodoFilter sortType={sortType} handleSort={handleSorting} />
 
             {/* don't show this button if there are no completed todos */}
-            {(todos.some(todo => todo.completed === true)) && (
+            {(todos.some(todo => todo.completed === true)
+            || (isGroupDeleting)) && (
               <button
                 type="button"
                 className="todoapp__clear-completed"
