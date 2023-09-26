@@ -7,6 +7,7 @@ import React, {
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../Context/TodoContext';
+import { CurrentError } from '../types/CurrentError';
 
 type Props = {
   todo: Todo,
@@ -16,14 +17,15 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
   const { completed, title, id } = todo;
   const {
     handleTodoDelete,
-    todosIdToDelete,
-    handleTodoUpdate,
+    processingTodoIds,
+    handleTodoRename,
+    setError,
   } = useContext(TodoContext);
 
   const [isChecked, setIsChecked] = useState(completed);
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
-  const shouldDisplayLoader = id === 0 || todosIdToDelete.includes(id);
+  const shouldDisplayLoader = id === 0 || processingTodoIds.includes(id);
 
   const handleTodoDoubleClick = () => {
     setIsEditing(true);
@@ -34,13 +36,25 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
   ) => {
     event.preventDefault();
 
-    if (todoTitle) {
-      await handleTodoUpdate(todo, todoTitle);
-    } else {
-      await handleTodoDelete(id);
-    }
+    try {
+      if (todoTitle) {
+        await handleTodoRename(todo, todoTitle);
+      } else {
+        await handleTodoDelete(id);
+      }
 
-    setIsEditing(false);
+      setIsEditing(false);
+    } catch (error) {
+      if (error === CurrentError.UpdateError) {
+        setError(CurrentError.UpdateError);
+        throw new Error();
+      }
+
+      if (error === CurrentError.DeleteError) {
+        setError(CurrentError.DeleteError);
+        throw new Error();
+      }
+    }
   };
 
   const handleTodoTitleChange = (

@@ -15,7 +15,7 @@ export const TodoFooter: React.FC<Props> = ({
   const {
     activeTodos,
     completedTodos,
-    clearCompleted,
+    handleClearCompleted,
   } = useContext(TodoContext);
 
   const activeTodosCount = activeTodos.length;
@@ -49,7 +49,7 @@ export const TodoFooter: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         disabled={completedTodosCount === 0}
         style={{ visibility: completedTodos.length ? 'visible' : 'hidden' }}
-        onClick={clearCompleted}
+        onClick={handleClearCompleted}
       >
         Clear completed
       </button>

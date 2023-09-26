@@ -8,7 +8,6 @@ import {
 import classNames from 'classnames';
 import { CurrentError } from '../types/CurrentError';
 import { TodoContext } from '../Context/TodoContext';
-import { USER_ID } from '../utils/constants';
 
 type Props = {};
 
@@ -44,7 +43,7 @@ export const TodoHeader: React.FC<Props> = () => {
     }
 
     const newTodo = {
-      userId: USER_ID,
+      userId: 0,
       title: title.trim(),
       completed: false,
     };
@@ -56,6 +55,7 @@ export const TodoHeader: React.FC<Props> = () => {
       })
       .catch(() => {
         setError(CurrentError.AddError);
+        throw new Error();
       });
   };
 

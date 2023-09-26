@@ -20,7 +20,6 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
       ))}
       {tempTodo && (
         <TodoElement
-          key={tempTodo.id}
           todo={tempTodo}
         />
       )}

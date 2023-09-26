@@ -24,12 +24,12 @@ interface TodoContextInterface {
   setError: (error: CurrentError) => void;
   handleTodoDelete: (id: number) => void;
   handleTodoAdd: (newTodo: Omit<Todo, 'id'>) => Promise<void>
-  handleTodoUpdate: (todo: Todo, newTodoTitle: string) => Promise<void>,
+  handleTodoRename: (todo: Todo, newTodoTitle: string) => Promise<void>,
   completedTodos: Todo[];
   activeTodos: Todo[];
-  clearCompleted: () => void;
-  todosIdToDelete: number[];
-  setTodosIdToDelete: (todoIdsToDelete: number[]) => void;
+  handleClearCompleted: () => void;
+  processingTodoIds: number[];
+  setProcessingTodoIds: (todoIdsToDelete: number[]) => void;
 }
 
 const initalContext: TodoContextInterface = {
@@ -43,12 +43,12 @@ const initalContext: TodoContextInterface = {
   setError: () => {},
   handleTodoDelete: () => {},
   handleTodoAdd: async () => {},
-  handleTodoUpdate: async () => {},
+  handleTodoRename: async () => {},
   completedTodos: [],
   activeTodos: [],
-  clearCompleted: () => {},
-  todosIdToDelete: [],
-  setTodosIdToDelete: () => {},
+  handleClearCompleted: () => {},
+  processingTodoIds: [],
+  setProcessingTodoIds: () => {},
 };
 
 export const TodoContext = createContext(initalContext);
@@ -58,22 +58,31 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState(CurrentError.Default);
   const [isLoading, setIsLoading] = useState(false);
-  const [todosIdToDelete, setTodosIdToDelete] = useState<number[]>([]);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   const completedTodos = getCompletedTodos(todos);
   const activeTodos = getActiveTodos(todos);
 
   const handleTodoDelete = (todoId: number) => {
     setIsLoading(true);
-    setTodosIdToDelete(prevState => [...prevState, todoId]);
+    setProcessingTodoIds(prevState => [...prevState, todoId]);
+
     todoService.deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => {
           return prevTodos.filter(todo => todo.id !== todoId);
         });
       })
-      .catch(() => setError(CurrentError.DeleteError))
-      .finally(() => setIsLoading(false));
+      .catch(() => {
+        setError(CurrentError.DeleteError);
+        throw new Error();
+      })
+      .finally(() => {
+        setProcessingTodoIds(
+          (prevState) => prevState.filter(id => id !== todoId),
+        );
+        setIsLoading(false);
+      });
   };
 
   const handleTodoAdd = (newTodo: Omit<Todo, 'id'>) => {
@@ -93,7 +102,15 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       });
   };
 
-  const handleTodoUpdate = (todo: Todo, newTodoTitle: string) => {
+  const handleTodoRename = (todo: Todo, newTodoTitle: string) => {
+    if (todo.title === newTodoTitle) {
+      return Promise.resolve();
+    }
+
+    setIsLoading(true);
+    setProcessingTodoIds(prevState => [...prevState, todo.id]);
+
+    // eslint-disable-next-line consistent-return
     return todoService
       .updateTodo({
         id: todo.id,
@@ -107,10 +124,16 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
             ? currTodo
             : updatedTodo;
         }));
+      })
+      .finally(() => {
+        setProcessingTodoIds(
+          (prevState) => prevState.filter(id => id !== todo.id),
+        );
+        setIsLoading(false);
       });
   };
 
-  const clearCompleted = () => {
+  const handleClearCompleted = () => {
     completedTodos.forEach(({ id }) => handleTodoDelete(id));
   };
 
@@ -125,12 +148,12 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setError,
     handleTodoDelete,
     handleTodoAdd,
-    handleTodoUpdate,
+    handleTodoRename,
     completedTodos,
     activeTodos,
-    clearCompleted,
-    todosIdToDelete,
-    setTodosIdToDelete,
+    handleClearCompleted,
+    processingTodoIds,
+    setProcessingTodoIds,
   }), [todos, error, isLoading, tempTodo]);
 
   return (

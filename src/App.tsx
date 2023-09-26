@@ -33,6 +33,7 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setError(CurrentError.LoadingError);
+        throw new Error();
       });
   }, []);
 
