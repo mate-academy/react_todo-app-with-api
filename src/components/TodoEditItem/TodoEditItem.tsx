@@ -6,6 +6,7 @@ import { Todo } from '../../types/Todo';
 import { useTodo } from '../../context/TodoContext';
 import { useError } from '../../context/ErrorContext';
 import { updateTodo } from '../../api/todos';
+// import { useTitle } from '../../context/TitleContext';
 
 type Props = {
   todo: Todo;
@@ -66,18 +67,24 @@ export const TodoEditItem: React.FC<Props> = ({
     }
   };
 
-  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    updateNewTodo();
-  };
-
   const handlePressEscape = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === 'Escape') {
       onEditedId();
     }
+  };
+
+  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (todo.title === newTitle) {
+      onEditedId();
+
+      return;
+    }
+
+    updateNewTodo();
   };
 
   return (

@@ -19,10 +19,10 @@ type Props = {
 
 export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
   const { setTodoTemp } = useContext(TodoTempContext);
+  const [title, setTitle] = useState('');
   const { todos, setTodos } = useTodo();
   const { errorMessage, setErrorMessage } = useError();
 
-  const [title, setTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);

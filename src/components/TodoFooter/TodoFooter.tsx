@@ -11,6 +11,9 @@ export const TodoFooter = () => {
   const { todos, setTodos } = useTodo();
   const { setErrorMessage } = useError();
 
+  const isActiveItemsLeft = todos
+    .filter(({ completed }) => !completed).length;
+
   const hasCompletedTodo = useMemo(() => {
     return todos.some(todo => todo.completed);
   }, [todos]);
@@ -32,7 +35,9 @@ export const TodoFooter = () => {
   return (
     <footer data-cy="Footer" className="todoapp__footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(({ completed }) => !completed).length} items left`}
+        {isActiveItemsLeft > 1
+          ? `${isActiveItemsLeft} items left`
+          : '1 item left'}
       </span>
 
       <nav data-cy="Filter" className="filter">
