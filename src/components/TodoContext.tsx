@@ -1,5 +1,8 @@
 import React, {
-  ReactNode, SetStateAction, createContext, useContext, useEffect, useState,
+  MutableRefObject,
+  ReactNode,
+  SetStateAction,
+  createContext, useContext, useEffect, useRef, useState,
 } from 'react';
 import { editTodo, getTodos } from '../api/todos';
 import { SortTypes, Todo } from '../types/Todo';
@@ -22,6 +25,7 @@ export interface TContext {
   handleToggleAllStatus:() => void,
   isToggledAll: boolean,
   setIsToggledAll: React.Dispatch<SetStateAction<boolean>>,
+  titleInputRef: MutableRefObject<HTMLInputElement | null>
 }
 
 // Tworzymy kontekst
@@ -42,6 +46,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [idNew, setIdNew] = useState<number | null>(null);
   const [isToggled, setIsToggled] = useState<boolean>(false);
   const [isToggledAll, setIsToggledAll] = useState<boolean>(false);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (error: string) => {
     setHasError(error);
@@ -93,6 +98,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         })
         .finally(() => {
           setIsToggled(false);
+          titleInputRef.current?.focus();
         });
     }
   };
@@ -119,6 +125,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       })
       .finally(() => {
         setIsToggled(false);
+        titleInputRef.current?.focus();
       });
   };
 
@@ -140,6 +147,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     handleToggleAllStatus,
     isToggledAll,
     setIsToggledAll,
+    titleInputRef,
   };
 
   return (

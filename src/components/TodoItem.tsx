@@ -25,6 +25,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     handleToggleStatus,
     isToggled,
     isToggledAll,
+    titleInputRef,
   } = useTodoContext() as TContext;
 
   const USER_ID = 11550;
@@ -40,6 +41,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       })
       .catch(() => {
         handleError('Unable to delete a todo');
+      })
+      .finally(() => {
+        titleInputRef.current?.focus();
       });
   };
 

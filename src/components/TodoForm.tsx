@@ -1,5 +1,5 @@
 import React, {
-  FormEvent, useEffect, useMemo, useRef, useState,
+  FormEvent, useEffect, useMemo, useState,
 } from 'react';
 import { addTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
@@ -8,12 +8,12 @@ import { TContext, useTodoContext } from './TodoContext';
 export const TodoForm: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const titleInputRef = useRef<HTMLInputElement | null>(null);
   const {
     todos,
     setTodos,
     handleError,
     setTempTodos,
+    titleInputRef,
   } = useTodoContext() as TContext;
 
   const counter = useMemo(() => {
