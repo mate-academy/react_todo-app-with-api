@@ -8,7 +8,7 @@ export const TodoList = () => {
     temptTodos,
   } = useTodo();
 
-  const visibleTodos = () => {
+  const getVisibleTodos = () => {
     if (filterTodos === 'active') {
       return todos.filter(todo => !todo.completed);
     }
@@ -20,12 +20,14 @@ export const TodoList = () => {
     return todos;
   };
 
+  const visibleTodos = getVisibleTodos();
+
   return (
     <section
       className="todoapp__main"
       data-cy="TodoList"
     >
-      {visibleTodos().map(todo => (
+      {visibleTodos.map(todo => (
         <Task key={todo.id} todo={todo} />
       ))}
       {temptTodos.length > 0

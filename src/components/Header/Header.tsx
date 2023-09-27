@@ -9,7 +9,7 @@ export const Header = () => {
 
   return (
     <header className="todoapp__header">
-      {todos.length !== 0
+      {todos.length
         && (
           <ToggleButton />
         )}

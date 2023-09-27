@@ -14,7 +14,7 @@ export const Loader = ({ todo }: Props) => {
   const loaderCases
     = ((temptTodo && temptTodo.id === todo.id)
       || (editedTodo && todo.completed)
-      || todo.hasLoader) as boolean;
+      || todo.hasLoader);
 
   return (
     <div

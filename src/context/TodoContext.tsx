@@ -89,9 +89,7 @@ export const ToDoProvider = ({ children }: Props) => {
     setTempTodo(task);
     deleteTodo(task.id)
       .then(() => {
-        setTodos((prevState) => {
-          return prevState.filter(t => t.id !== task.id);
-        });
+        setTodos(prevState => prevState.filter(t => t.id !== task.id));
       })
       .catch(() => handleShowError(Errors.Delete))
       .finally(() => setTempTodo(null));
