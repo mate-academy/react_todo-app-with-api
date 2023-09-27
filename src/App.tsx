@@ -1,5 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
@@ -269,7 +273,13 @@ export const App: React.FC = () => {
                 data-cy="ClearCompletedButton"
                 type="button"
                 className="todoapp__clear-completed"
-                disabled={!completedTodosCount.length}
+                disabled={!completedTodosCount}
+                style={{
+                  visibility:
+                  completedTodosCount.length
+                    ? 'visible'
+                    : 'hidden',
+                }}
                 onClick={onDeleteCompleted}
               >
                 Clear completed
