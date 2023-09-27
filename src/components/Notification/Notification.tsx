@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../../TodoContext';
 
@@ -9,16 +9,12 @@ export const Notification: React.FC = () => {
     setErrorMessage,
   } = useContext(TodoContext);
 
-  const timerId = useRef<number>(0);
-
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
+
+    return () => window.clearTimeout(timerId);
   }, [errorMessage]);
 
   return (

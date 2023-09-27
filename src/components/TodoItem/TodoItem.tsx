@@ -1,11 +1,10 @@
-import {
-  useContext,
+import React, {
   useState,
   useEffect,
   useRef,
 } from 'react';
 import classNames from 'classnames';
-import { TodoContext } from '../../TodoContext';
+import { useTodoContext } from '../../TodoContext';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -23,7 +22,7 @@ export const TodoItem: React.FC<Props> = ({
     handleTodoUpdate,
     handleStatusChange,
     processingTodoIds,
-  } = useContext(TodoContext);
+  } = useTodoContext();
   const {
     id,
     title,
@@ -38,9 +37,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleStatusToggle = () => {
     setIsEditing(true);
-    const toggledStatus = !completed;
-
-    handleStatusChange(todo, toggledStatus);
+    handleStatusChange(todo);
     setIsEditing(false);
   };
 
@@ -80,6 +77,7 @@ export const TodoItem: React.FC<Props> = ({
   ) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setTodoTitle(title);
     }
   };
 

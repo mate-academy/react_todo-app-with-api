@@ -4,19 +4,19 @@ export function getFilteredTodos(
   category: TodoStatus,
   todoItems: Todo[],
 ) {
-  let preparedItems: Todo[] = todoItems;
-
   if (category !== TodoStatus.All) {
-    preparedItems = preparedItems
+    return todoItems
       .filter(({ completed }) => {
         switch (category) {
           case TodoStatus.Active:
             return !completed;
-          default:
+          case TodoStatus.Completed:
             return completed;
+          default:
+            return true;
         }
       });
   }
 
-  return preparedItems;
+  return todoItems;
 }

@@ -2,19 +2,23 @@
 import React, {
   useState,
   useEffect,
-  useContext,
   useRef,
 } from 'react';
 import classNames from 'classnames';
-import { TITLE_ERROR } from '../../utils/constants';
-import { TodoContext } from '../../TodoContext';
+import { ERRORS } from '../../utils/constants';
+import { useTodoContext } from '../../TodoContext';
 
 type Props = {
-  addTodo: (newTodoTitle: string) => Promise<void>;
+  addTodo: (newTodoTitle: string) => void;
+  newTodoTitle: string;
+  setNewTodoTitle: (newTodoTitle: string) => void;
 };
 
-export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
-  const [newTodoTitle, setNewTodoTitle] = useState('');
+export const TodoHeader: React.FC<Props> = ({
+  addTodo,
+  newTodoTitle,
+  setNewTodoTitle,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const inputLine = useRef<HTMLInputElement>(null);
@@ -22,13 +26,13 @@ export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
   const {
     todoItems,
     setErrorMessage,
-    setStatusForAll,
+    setSingleStatusForAll,
     uncompletedTodosLength,
-  } = useContext(TodoContext);
+  } = useTodoContext();
 
   const handleSetStatusForAll = () => {
     setIsLoading(true);
-    setStatusForAll();
+    setSingleStatusForAll();
     setIsLoading(false);
   };
 
@@ -42,15 +46,14 @@ export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
     const trimmedNewTodoTitle = newTodoTitle.trim();
 
     if (!trimmedNewTodoTitle) {
-      setErrorMessage(TITLE_ERROR);
+      setErrorMessage(ERRORS.TITLE_ERROR);
 
       return;
     }
 
     setIsLoading(true);
-    addTodo(trimmedNewTodoTitle)
-      .then(() => setNewTodoTitle(''))
-      .finally(() => setIsLoading(false));
+    addTodo(trimmedNewTodoTitle);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -61,7 +64,6 @@ export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
 
   return (
     <header className="todoapp__header">
-      {/* this button is active only if there are some active todos */}
       <button
         type="button"
         className={classNames(
@@ -74,7 +76,6 @@ export const TodoHeader: React.FC<Props> = ({ addTodo }) => {
         onClick={handleSetStatusForAll}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onFormSubmit}>
         <input
           data-cy="NewTodoField"

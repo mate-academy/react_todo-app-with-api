@@ -2,37 +2,36 @@ import React, {
   useState,
   useMemo,
   useEffect,
-  useContext,
 } from 'react';
-import { TodoHeader } from './components/TodoHeader/TodoHeader';
-import { TodoList } from './components/TodoList/TodoList';
-import { TodoFilter } from './components/TodoFilter/TodoFilter';
-import { Notification } from './components/Notification/Notification';
+import { TodoList } from './components/TodoList';
+import { TodoHeader } from './components/TodoHeader';
+import { TodoFilter } from './components/TodoFilter';
+import { Notification } from './components/Notification';
 import { getFilteredTodos } from './utils/getFilteredTodos';
-import { TodoContext } from './TodoContext';
+import { useTodoContext } from './TodoContext';
 import * as todoService from './api/todos';
 import { TodoStatus } from './types';
 import {
   USER_ID,
-  DOWNLOAD_ERROR,
-  POST_ERROR,
+  ERRORS,
 } from './utils/constants';
 
 export const App: React.FC = () => {
   const [filterByStatus, setFilterByStatus] = useState(TodoStatus.All);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const {
     todoItems,
     setTodoItems,
     setTempTodo,
     setErrorMessage,
-  } = useContext(TodoContext);
+  } = useTodoContext();
 
   const visibleTodos = useMemo(() => getFilteredTodos(
     filterByStatus, todoItems,
   ), [filterByStatus, todoItems]);
 
-  const addTodo = async (newTodoTitle: string) => {
+  const addTodo = async () => {
     const newTodo = {
       userId: USER_ID,
       title: newTodoTitle,
@@ -45,9 +44,9 @@ export const App: React.FC = () => {
       const createdTodo = await todoService.createTodo(newTodo);
 
       setTodoItems(prevTodos => [...prevTodos, createdTodo]);
+      setNewTodoTitle('');
     } catch (error) {
-      setErrorMessage(POST_ERROR);
-      throw error;
+      setErrorMessage(ERRORS.POST_ERROR);
     } finally {
       setTempTodo(null);
     }
@@ -57,7 +56,7 @@ export const App: React.FC = () => {
     todoService.getTodos(USER_ID)
       .then(setTodoItems)
       .catch(() => {
-        setErrorMessage(DOWNLOAD_ERROR);
+        setErrorMessage(ERRORS.DOWNLOAD_ERROR);
       });
   }, []);
 
@@ -66,7 +65,11 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoHeader addTodo={addTodo} />
+        <TodoHeader
+          addTodo={addTodo}
+          newTodoTitle={newTodoTitle}
+          setNewTodoTitle={setNewTodoTitle}
+        />
 
         {!!visibleTodos.length && (
           <TodoList

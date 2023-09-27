@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import * as todoService from './api/todos';
 import { Todo } from './types';
-import { DELETE_ERROR, UPDATE_ERROR, USER_ID } from './utils/constants';
+import { ERRORS, USER_ID } from './utils/constants';
 import { pickCompletedTodos } from './utils/pickUncompletedTodos';
 
 interface TodoContextType {
@@ -18,8 +18,8 @@ interface TodoContextType {
   clearAllCompleted: () => void;
   uncompletedTodosLength: number;
   handleTodoUpdate: (todo: Todo, todoTitle: string) => void;
-  handleStatusChange: (todo: Todo, status: boolean) => void;
-  setStatusForAll: () => void;
+  handleStatusChange: (todo: Todo) => void;
+  setSingleStatusForAll: () => void;
 }
 
 const todoContext: TodoContextType = {
@@ -37,7 +37,7 @@ const todoContext: TodoContextType = {
   uncompletedTodosLength: 0,
   handleTodoUpdate: () => {},
   handleStatusChange: () => {},
-  setStatusForAll: () => {},
+  setSingleStatusForAll: () => {},
 };
 
 export const TodoContext = React.createContext(todoContext);
@@ -57,9 +57,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     todoService.deleteTodo(todoId)
       .then(() => setTodoItems(currentTodos => currentTodos
         .filter(todo => todo.id !== todoId)))
-      .catch((error) => {
-        setErrorMessage(DELETE_ERROR);
-        throw error;
+      .catch(() => {
+        setErrorMessage(ERRORS.DELETE_ERROR);
       })
       .finally(() => {
         setProcessingTodoIds(currentTodoIds => currentTodoIds
@@ -69,18 +68,19 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   const completedTodos = pickCompletedTodos(todoItems);
 
-  const clearAllCompleted = () => {
-    completedTodos.forEach(({ id }) => deleteTodo(id));
-  };
+  const clearAllCompleted = () => Promise.all(
+    completedTodos.map(({ id }) => deleteTodo(id)),
+  );
 
   const uncompletedTodosLength = todoItems.length
   - completedTodos.length;
 
-  const handleStatusChange = async (todo: Todo, status: boolean) => {
+  const handleStatusChange = async (todo: Todo) => {
     const {
       id,
       title,
       userId,
+      completed,
     } = todo;
 
     setProcessingTodoIds(prevTodoIds => [...prevTodoIds, id]);
@@ -90,7 +90,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
         id,
         title,
         userId,
-        completed: status,
+        completed: !completed,
       });
 
       setTodoItems(prevTodos => prevTodos.map(prevTodo => (
@@ -99,7 +99,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           : updatedTodo
       )));
     } catch (error) {
-      setErrorMessage(UPDATE_ERROR);
+      setErrorMessage(ERRORS.UPDATE_ERROR);
       throw error;
     } finally {
       setProcessingTodoIds(currentTodoIds => currentTodoIds
@@ -107,10 +107,14 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const setStatusForAll = () => {
-    const commonStatus = !!uncompletedTodosLength;
+  const setSingleStatusForAll = () => {
+    const uncompletedTodos = todoItems.filter(todo => !todo.completed);
 
-    todoItems.forEach((todo) => handleStatusChange(todo, commonStatus));
+    if (!uncompletedTodosLength) {
+      Promise.all(todoItems.map(handleStatusChange));
+    } else {
+      Promise.all(uncompletedTodos.map(handleStatusChange));
+    }
   };
 
   const handleTodoUpdate = async (todo: Todo, todoTitle: string) => {
@@ -135,7 +139,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
           : updatedTodo
       )));
     } catch (error) {
-      setErrorMessage(UPDATE_ERROR);
+      setErrorMessage(ERRORS.UPDATE_ERROR);
+      // setTodoTitle(title);
       throw error;
     } finally {
       setProcessingTodoIds(currentTodoIds => currentTodoIds
@@ -158,7 +163,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     uncompletedTodosLength,
     handleTodoUpdate,
     handleStatusChange,
-    setStatusForAll,
+    setSingleStatusForAll,
   }), [todoItems, errorMessage, tempTodo, processingTodoIds]);
 
   return (
@@ -166,4 +171,8 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       {children}
     </TodoContext.Provider>
   );
+};
+
+export const useTodoContext = () => {
+  return useContext(TodoContext);
 };

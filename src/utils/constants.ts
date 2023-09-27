@@ -1,9 +1,9 @@
 export const USER_ID = 11493;
 
-export const DOWNLOAD_ERROR = 'Unable to load todos';
-export const POST_ERROR = 'Unable to add a todo';
-export const TITLE_ERROR = 'Title should not be empty';
-export const DELETE_ERROR = 'Unable to delete a todo';
-export const UPDATE_ERROR = 'Unable to update a todo';
-
-export const URL = `https://mate.academy/students-api/todos?userId=${USER_ID}`;
+export const ERRORS = {
+  DOWNLOAD_ERROR: 'Unable to load todos',
+  POST_ERROR: 'Unable to add a todo',
+  TITLE_ERROR: 'Title should not be empty',
+  DELETE_ERROR: 'Unable to delete a todo',
+  UPDATE_ERROR: 'Unable to update a todo',
+};

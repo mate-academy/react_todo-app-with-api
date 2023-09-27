@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Todo } from '../../types';
-import { TodoItem } from '../TodoItem/TodoItem';
-import { TodoContext } from '../../TodoContext';
+import { TodoItem } from '../TodoItem';
+import { useTodoContext } from '../../TodoContext';
 
 type Props = {
   todos: Todo[];
@@ -12,7 +12,7 @@ export const TodoList: React.FC<Props> = React.memo(({
 }) => {
   const {
     tempTodo,
-  } = useContext(TodoContext);
+  } = useTodoContext();
 
   return (
     <section

@@ -1,7 +1,7 @@
+import React from 'react';
 import classNames from 'classnames';
-import { useContext } from 'react';
 import { TodoStatus } from '../../types';
-import { TodoContext } from '../../TodoContext';
+import { useTodoContext } from '../../TodoContext';
 
 type Props = {
   selectStatus: (status: TodoStatus) => void;
@@ -16,15 +16,18 @@ export const TodoFilter: React.FC<Props> = ({
     completedTodos,
     clearAllCompleted,
     uncompletedTodosLength,
-  } = useContext(TodoContext);
+  } = useTodoContext();
+
+  const singularityCheck = uncompletedTodosLength !== 1
+    ? 's'
+    : '';
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${uncompletedTodosLength} items left`}
+        {`${uncompletedTodosLength} item${singularityCheck} left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         {Object.entries(TodoStatus).map(([key, value]) => (
           <a
@@ -43,7 +46,6 @@ export const TodoFilter: React.FC<Props> = ({
         ))}
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"
