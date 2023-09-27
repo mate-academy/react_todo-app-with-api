@@ -43,7 +43,7 @@ export const App: React.FC = () => {
   }
 
   const isAllCompleted = todos.every((todo) => todo.completed === true);
-  const isAllNotCompleted = todos.every((todo) => todo.completed === false);
+  // const isAllNotCompleted = todos.every((todo) => todo.completed === false);
 
   const toggleAll = () => {
     if (isAllCompleted) {
@@ -52,11 +52,11 @@ export const App: React.FC = () => {
       setTimeout(() => setIsToggledAll(false), 500);
     }
 
-    if (isAllNotCompleted) {
-      handleToggleAllStatus();
-      setIsToggledAll(true);
-      setTimeout(() => setIsToggledAll(false), 500);
-    }
+    // if (isAllNotCompleted) {
+    //   handleToggleAllStatus();
+    //   setIsToggledAll(true);
+    //   setTimeout(() => setIsToggledAll(false), 500);
+    // }
   };
 
   const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
