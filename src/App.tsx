@@ -1,14 +1,11 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useState,
   useMemo,
   useContext,
 } from 'react';
-// import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
 import { getTodos } from './api/todos';
-// import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { ErrorMessage } from './types/ErrorMessage';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
@@ -58,7 +55,6 @@ export const App: React.FC = () => {
 
         <TodoList todos={renderedTodos} />
 
-        {/* Hide the footer if there are no todos */}
         {!!todos.length && (
           <TodoFooter
             filter={filter}
@@ -67,8 +63,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorNotification
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}

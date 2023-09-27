@@ -10,8 +10,6 @@ import { TodoContext } from '../../context/TodoContext';
 import { ErrorMessage } from '../../types/ErrorMessage';
 import { USER_ID } from '../../utils/constants';
 
-// interface Props {}
-
 export const TodoHeader: React.FC = () => {
   const {
     setErrorMessage,

@@ -51,12 +51,12 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
     } catch (error) {
       if (error === ErrorMessage.UpdateError) {
         setErrorMessage(ErrorMessage.UpdateError);
-        throw new Error();
+        throw new Error(ErrorMessage.UpdateError);
       }
 
       if (error === ErrorMessage.DeleteError) {
         setErrorMessage(ErrorMessage.DeleteError);
-        throw new Error();
+        throw new Error(ErrorMessage.DeleteError);
       }
     }
   };

@@ -24,7 +24,7 @@ export const TodoFooter: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosCount} items left`}
+        {`${activeTodosCount} item${activeTodosCount === 1 ? '' : 's'} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -44,10 +44,12 @@ export const TodoFooter: React.FC<Props> = ({
 
       <button
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames('todoapp__clear-completed', {
+          visible: completedTodos.length,
+          hidden: !completedTodos.length,
+        })}
         data-cy="ClearCompletedButton"
-        disabled={completedTodosCount === 0}
-        style={{ visibility: completedTodos.length ? 'visible' : 'hidden' }}
+        disabled={!completedTodosCount}
         onClick={clearCompleted}
       >
         Clear completed
