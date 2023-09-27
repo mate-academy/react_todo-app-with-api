@@ -1,4 +1,4 @@
-import { useTodo } from '../../../provider/todoProvider';
+import { useTodo } from '../../../context/TodoContext';
 
 export const Input = () => {
   const {

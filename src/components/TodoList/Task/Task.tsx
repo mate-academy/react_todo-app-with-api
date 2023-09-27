@@ -1,4 +1,4 @@
-import { useTodo } from '../../../provider/todoProvider';
+import { useTodo } from '../../../context/TodoContext';
 import { Todo } from '../../../types/Todo';
 import { EditInput } from './EditInput';
 import { Loader } from './Loader';

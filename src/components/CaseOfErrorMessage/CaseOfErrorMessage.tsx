@@ -1,4 +1,4 @@
-import { useTodo } from '../../provider/todoProvider';
+import { useTodo } from '../../context/TodoContext';
 import { Button } from './Button';
 
 export const CaseOfErrorMessage = () => {

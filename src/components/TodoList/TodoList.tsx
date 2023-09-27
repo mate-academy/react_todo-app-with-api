@@ -1,7 +1,7 @@
 import { Task } from './Task';
-import { useTodo } from '../../provider/todoProvider';
+import { useTodo } from '../../context/TodoContext';
 
-export const TaskList = () => {
+export const TodoList = () => {
   const {
     todos,
     filterTodos,

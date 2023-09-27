@@ -1,4 +1,4 @@
-import { useTodo } from '../../../provider/todoProvider';
+import { useTodo } from '../../../context/TodoContext';
 import { FilterType } from '../../../types/FilterType';
 
 export const Filters = () => {
