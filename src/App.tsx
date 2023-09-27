@@ -59,15 +59,17 @@ export const App: React.FC = () => {
     // }
   };
 
-  // const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
-  // const completedIds = arrayCompleted.map((todo) => todo.id);
+  const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
 
   const deleteCompleted = () => {
     setIsGroupDeleting(true);
-    // setTodos((prevTodos) => prevTodos
-    // .filter((todo) => !completedIds.includes(todo.id)));
-    // setTodos(prevTodos => prevTodos.filter)
-    Promise.all(todos.filter(el => el.completed).map(el => deleteTodo(el.id)))
+
+    const completedIds = arrayCompleted.map((todo) => todo.id);
+
+    setTodos((prevTodos) => prevTodos
+      .filter((todo) => !completedIds.includes(todo.id)));
+
+    Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
       .catch(() => {
         handleError('Unable to delete a todo');
       })
