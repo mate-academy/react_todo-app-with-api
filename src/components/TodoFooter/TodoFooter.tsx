@@ -12,7 +12,7 @@ export const TodoFooter: React.FC = () => {
   } = useTodos();
 
   const numberOfActiveTodos = todos.filter(todo => !todo.completed).length;
-  const hasCompleted = todos.some(todo => todo.completed);
+  const hasCompletedTodos = todos.some(todo => todo.completed);
 
   return todos.length
     ? (
@@ -41,13 +41,13 @@ export const TodoFooter: React.FC = () => {
           })}
         </nav>
 
-        {hasCompleted
+        {hasCompletedTodos
           && (
             <button
               type="button"
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
-              disabled={!hasCompleted}
+              disabled={!hasCompletedTodos}
               onClick={handleClearComplete}
             >
               Clear completed

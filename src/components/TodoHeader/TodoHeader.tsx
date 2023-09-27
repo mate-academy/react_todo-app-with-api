@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useTodos } from '../../TodosContext';
@@ -56,6 +55,7 @@ export const TodoHeader: React.FC = () => {
             )}
             data-cy="ToggleAllButton"
             onClick={handleToggleAllTodos}
+            aria-label="Toggle All Todos"
           />
         )}
 

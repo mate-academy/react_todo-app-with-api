@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import { useTodos } from '../../TodosContext';
 
@@ -21,6 +20,7 @@ export const Error = () => {
         type="button"
         className="delete"
         onClick={handleClearError}
+        aria-label="Hide Error"
       />
       {error}
     </div>

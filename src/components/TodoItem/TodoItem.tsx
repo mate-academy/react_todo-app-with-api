@@ -38,9 +38,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleSaveEdit = async () => {
     handlerTitleFieldFocused(false);
+
     if (trimmedNewTitle === '') {
       await handleDeleteTodo(todo);
-    } else if (trimmedNewTitle !== todo.title) {
+    }
+
+    if (trimmedNewTitle !== todo.title) {
       const response: boolean = await handleUpdateTodo({
         ...todo,
         title: trimmedNewTitle,
