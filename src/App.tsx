@@ -10,32 +10,8 @@ import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
 import * as todosService from './api/todos';
 import { TodoItem } from './components/TodoItem';
-
-const USER_ID = 11468;
-
-function filterBySelect(
-  todo: Todo,
-  selectedOption: string,
-) : boolean {
-  switch (selectedOption) {
-    case TodoStatus.Active:
-      return !todo.completed;
-    case TodoStatus.Completed:
-      return todo.completed;
-    default:
-      return true;
-  }
-}
-
-function filterTodos(todos: Todo[], selectedOption: string) {
-  if (!selectedOption) {
-    return todos;
-  }
-
-  return todos.filter((todo) => (
-    filterBySelect(todo, selectedOption)
-  ));
-}
+import { USER_ID } from './api/todos';
+import * as filterService from './utils/filterService';
 
 export const App: React.FC = () => {
   const [loadingTodos, setLoadingTodos] = useState(false);
@@ -60,12 +36,7 @@ export const App: React.FC = () => {
   }, [errorMessage]);
 
   const updateTodo = async (todo: Todo) => {
-    todosService.updateTodo({
-      id: todo.id,
-      title: todo.title,
-      userId: todo.userId,
-      completed: todo.completed,
-    })
+    todosService.updateTodo(todo)
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currentTodo => (
           currentTodo.id !== updatedTodo.id
@@ -104,7 +75,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const visibleTodos = filterTodos(todos, selectedOption);
+  const visibleTodos = filterService.filterTodos(todos, selectedOption);
 
   const handleChangeSelect = (newOption: TodoStatus) => {
     setSelectedOption(newOption);
