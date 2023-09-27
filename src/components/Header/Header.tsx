@@ -9,10 +9,9 @@ export const Header = () => {
 
   return (
     <header className="todoapp__header">
-      {todos.length
-        && (
-          <ToggleButton />
-        )}
+      {!!todos.length && (
+        <ToggleButton />
+      )}
       <Input />
     </header>
   );
