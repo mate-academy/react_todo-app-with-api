@@ -162,16 +162,17 @@ export const App: React.FC = () => {
     return getFilteredTodos(todos, selectFilter);
   }, [todos, selectFilter]);
 
-  const handleClearCopmpletedTodo = () => {
-    setTodos((prevState) => {
-      prevState.forEach(todo => {
-        if (todo.completed) {
-          handleDeleteTodo(todo.id);
-        }
-      });
+  const handleClearCopmpletedTodo = async () => {
+    const todoToDelete = preparedTodos.filter(todo => todo.completed);
+    const deletePromises = todoToDelete.map(todo => handleDeleteTodo(todo.id));
 
-      return prevState.filter(todo => !todo.completed);
-    });
+    try {
+      await Promise.all(deletePromises);
+      setTodos((prevState) => prevState
+        .filter((todo) => !todo.completed));
+    } catch (error) {
+      setErrorMessage(ERROR_MESSAGES.unableToDeleteTodo);
+    }
   };
 
   const handleChangeTodoStatus = (todo: Todo) => {
