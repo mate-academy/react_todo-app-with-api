@@ -2,7 +2,7 @@ import React, { createContext, useMemo, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../utils/constants';
 import * as todoService from '../api/todos';
-import { getCompletedTodos, getUncompletedTodos} from '../utils/countTodos';
+import { getCompletedTodos, getUncompletedTodos } from '../utils/countTodos';
 
 interface TodoContextTypes {
   todos: Todo[];

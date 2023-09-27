@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoContext } from '../Context/TodoContext';
