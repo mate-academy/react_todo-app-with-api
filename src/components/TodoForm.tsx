@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { addTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
-import { TContext, useTodoContext } from './TodoContext';
+import { TContext, useTodoContext } from '../context/TodoContext';
 
 export const TodoForm: React.FC = () => {
   const [title, setTitle] = useState<string>('');

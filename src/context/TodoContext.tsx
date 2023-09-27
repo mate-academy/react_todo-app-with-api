@@ -17,8 +17,6 @@ export interface TContext {
   setHasError: React.Dispatch<SetStateAction<string | null>>;
   tempTodos: Todo | null;
   setTempTodos: React.Dispatch<SetStateAction<Todo | null>>;
-  idNew: number | null;
-  setIdNew: React.Dispatch<SetStateAction<number | null>>;
   handleToggleStatus: (todoId: number) => void ;
   isToggled: boolean,
   setIsToggled: React.Dispatch<SetStateAction<boolean>>,
@@ -44,7 +42,6 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [hasError, setHasError] = useState<string | null>(null);
   const [sortType, setSortType] = useState<SortTypes>('all');
   const [tempTodos, setTempTodos] = useState<Todo | null>(null);
-  const [idNew, setIdNew] = useState<number | null>(null);
   const [isToggled, setIsToggled] = useState<boolean>(false);
   const [isToggledAll, setIsToggledAll] = useState<boolean>(false);
   const titleInputRef = useRef<HTMLInputElement | null>(null);
@@ -132,8 +129,6 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     setSortType,
     tempTodos,
     setTempTodos,
-    idNew,
-    setIdNew,
     handleToggleStatus,
     isToggled,
     setIsToggled,

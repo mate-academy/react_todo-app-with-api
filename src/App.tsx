@@ -5,7 +5,7 @@ import { UserWarning } from './UserWarning';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
-import { TContext, useTodoContext } from './components/TodoContext';
+import { TContext, useTodoContext } from './context/TodoContext';
 import { SortTypes, Todo } from './types/Todo';
 import { deleteTodo, getTodos } from './api/todos';
 

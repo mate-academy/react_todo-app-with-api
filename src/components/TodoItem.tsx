@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import cn from 'classnames';
-import { TContext, useTodoContext } from './TodoContext';
+import { TContext, useTodoContext } from '../context/TodoContext';
 import { Todo } from '../types/Todo';
 import { deleteTodo, editTodo, getTodos } from '../api/todos';
 
@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isToggled,
     isToggledAll,
     titleInputRef,
-    // isGroupDeleting,
+    isGroupDeleting,
     editedRef,
   } = useTodoContext() as TContext;
 
@@ -183,7 +183,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           {
             'is-active': (isDeleting === true)
           || (todo.id === 0) || (isToggled && todo.id === toggledId)
-          || (isToggledAll) || (isLoading),
+          || (isToggledAll) || (isLoading)
+          || ((todo.completed === true) && isGroupDeleting),
           })}
       >
         <div className="modal-background has-background-white-ter" />
