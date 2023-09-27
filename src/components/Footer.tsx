@@ -16,19 +16,9 @@ export const Footer: React.FC<Props> = ({
   selectedOption,
   onHandleDeleteAll,
 }) => {
-  function countCompletedTodos() {
-    let counterCompletedTodos = 0;
+  const counterNotCompletedTodos = todos
+    .filter((todo) => !todo.completed).length;
 
-    todos.forEach((todo) => {
-      if (!todo.completed && todo.id) {
-        counterCompletedTodos += 1;
-      }
-    }, 0);
-
-    return counterCompletedTodos;
-  }
-
-  const counterNotCompletedTodos = countCompletedTodos();
   const existsCompleted = !!todos.find((todo) => todo.completed);
 
   return (
