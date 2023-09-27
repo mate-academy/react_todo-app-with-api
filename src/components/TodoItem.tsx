@@ -20,8 +20,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     todos,
     setTodos,
     handleError,
-    // tempTodos,
-    // idTemp,
     handleToggleStatus,
     isToggled,
     isToggledAll,
@@ -38,14 +36,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const USER_ID = 11550;
 
-  // testuje czy ta wersja usuwanie nie bedzie szybsza wzgledem testów
   const handleDelete = (todoId: number) => {
     setIsDeleting(true);
 
-    // Najpierw usuń todo
     deleteTodo(todoId)
       .then(() => {
-        // Zaktualizuj stan todos po usunięciu
         setTodos((prevTodos) => prevTodos.filter((el) => el.id !== todoId));
       })
       .catch(() => {
@@ -56,30 +51,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         titleInputRef.current?.focus();
       });
 
-    // Jeśli potrzebujesz, pobierz todos po operacji deleteTodo
     getTodos(USER_ID)
       .then((res) => {
-        // Zaktualizuj stan todos po pobraniu
         setTodos(res);
       });
   };
-
-  // const handleDelete = (todoId: number) => {
-  //   setIsDeleting(true);
-
-  //   return deleteTodo(todoId)
-  //     .then(() => getTodos(USER_ID))
-  //     .then((res) => {
-  //       setTodos(res);
-  //       setIsDeleting(false);
-  //     })
-  //     .catch(() => {
-  //       handleError('Unable to delete a todo');
-  //     })
-  //     .finally(() => {
-  //       titleInputRef.current?.focus();
-  //     });
-  // };
 
   const handleStatusChange = (todoId: number) => {
     handleToggleStatus(todoId);
@@ -93,7 +69,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleSaveChanges = async (todoId: number) => {
     if (newTitle === todo.title) {
-      // Anuluj edycję
       setIsEditing(false);
       setIsLoading(false);
       titleInputRef.current?.focus();
@@ -102,27 +77,22 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (newTitle.trim() === '') {
-      // Usuń zadanie
       await handleDelete(todo.id);
 
       return;
     }
 
     setIsLoading(true);
-    // Wyślij żądanie do API w celu zapisania zmiany tytułu
     const updatedTodoWithNewTitle = { ...todo, title: newTitle };
 
     const updatedTodoIndex = todos
       .findIndex((editedtodo) => editedtodo.id === todoId);
 
-    // Obsłuż sukces lub błąd
     if (editedTodo !== null) {
       editTodo(todoId, updatedTodoWithNewTitle)
         .then((res) => {
-        // Skopiuj tablicę todos
           const updatedTodos = [...todos];
 
-          // Zaktualizuj tylko jeden element w tablicy
           updatedTodos[updatedTodoIndex] = res;
 
           setTodos(updatedTodos);
@@ -176,8 +146,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
                 }
 
                 if (e.key === 'Escape') {
-                  e.preventDefault();
-                  handleSaveChanges(todo.id);
+                  setIsEditing(false);
+                  titleInputRef.current?.focus();
                 }
               }}
             />

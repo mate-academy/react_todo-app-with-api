@@ -31,10 +31,8 @@ export interface TContext {
   setIsGroupDeleting: React.Dispatch<SetStateAction<boolean>>,
 }
 
-// Tworzymy kontekst
 const TodoContext = createContext<TContext | null>(null);
 
-// Tworzymy funkcje dostarczające kontekst do komponentów
 export function useTodoContext() {
   return useContext(TodoContext);
 }
@@ -59,7 +57,6 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // GET TODOS
     getTodos(USER_ID)
       .then((res) => {
         setTodos(res);
@@ -69,16 +66,10 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
-  // const addTodo = (title: string) => {
-  //   // Dodaj zadanie do stanu zadań
-  //   setTodos([...todos: any, { title, completed: false }]);
-  // };
-
   const handleToggleStatus = (todoId: number) => {
     const updatedTodoIndex = todos
       .findIndex((toggledtodo) => toggledtodo.id === todoId);
 
-    // test czy znalazł
     if (updatedTodoIndex !== -1) {
       const updatedTodo = todos[updatedTodoIndex];
       // eslint-disable-next-line max-len
@@ -88,10 +79,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
       editTodo(todoId, updatedTodoWithNewStatus)
         .then((res) => {
-          // Skopiuj tablicę todos
           const updatedTodos = [...todos];
 
-          // Zaktualizuj tylko jeden element w tablicy
           updatedTodos[updatedTodoIndex] = res;
 
           setTodos(updatedTodos);
@@ -111,7 +100,6 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const handleToggleAllStatus = () => {
     setIsToggled(true);
 
-    // Przygotuj tablicę zaktualizowanych zadań
     const updatedTodos = todos.map((todo) => ({
       ...todo,
       completed: !todo.completed,
@@ -119,10 +107,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
     setTodos(updatedTodos);
 
-    // Przeslij zaktualizowane zadania na serwer
     Promise.all(updatedTodos.map((todo) => editTodo(todo.id, todo)))
       .then((updatedTodosFromServer) => {
-        // Po udanym zaktualizowaniu na serwerze, zaktualizuj lokalny stan
         setTodos(updatedTodosFromServer);
       })
       .catch((error) => {

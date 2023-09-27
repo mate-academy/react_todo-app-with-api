@@ -1,5 +1,5 @@
 import React, {
-  FormEvent, useEffect, useMemo, useState,
+  FormEvent, useEffect, useState,
 } from 'react';
 import { addTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
@@ -16,22 +16,20 @@ export const TodoForm: React.FC = () => {
     titleInputRef,
   } = useTodoContext() as TContext;
 
-  const counter = useMemo(() => {
-    return Math.max(...todos.map(todo => todo.id)) + 1;
-  }, [todos]);
+  let counter: number;
 
   useEffect(() => {
     if (!isSubmitting) {
-      titleInputRef.current?.focus(); // ustaw fokus na input po dodaniu
+      titleInputRef.current?.focus();
     }
-  }, [!isSubmitting]);
+  }, [isSubmitting]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const newTodo: Todo = {
       userId: 11550,
-      id: counter,
+      id: 123 + counter,
       title: title.trim(),
       completed: false,
     };
@@ -55,6 +53,7 @@ export const TodoForm: React.FC = () => {
         .finally(() => {
           setIsSubmitting(false);
           setTempTodos(null);
+          counter += 1;
         });
     }
   };
@@ -70,7 +69,7 @@ export const TodoForm: React.FC = () => {
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         disabled={isSubmitting}
-        ref={titleInputRef} // Przypisanie Ref do pola tekstowego
+        ref={titleInputRef}
       />
     </form>
   );
