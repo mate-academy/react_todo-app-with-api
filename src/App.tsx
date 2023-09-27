@@ -87,6 +87,7 @@ export const App: React.FC = () => {
       }))
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+        throw new Error();
       })
       .finally(() => {
         setInputDisabled(false);
@@ -96,7 +97,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleRenameTodo = (todo: Todo, newTodoTitle: string) => {
+  const handleRenameTodo = async (todo: Todo, newTodoTitle: string) => {
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
 
     return todoService.updateTodo({
@@ -114,6 +115,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
+        throw new Error();
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -145,7 +147,7 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setErrorMessage('Unable to toggle a todo');
+        setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -183,8 +185,12 @@ export const App: React.FC = () => {
             <TodoItem
               key={todo.id}
               todo={todo}
-              onTodoDelete={() => handleDeleteTodo(todo.id)}
-              onRenameTodo={(todoTitle) => handleRenameTodo(todo, todoTitle)}
+              onTodoDelete={async () => {
+                return handleDeleteTodo(todo.id);
+              }}
+              onRenameTodo={async (todoTitle) => {
+                return handleRenameTodo(todo, todoTitle);
+              }}
               onTodoToggle={() => handleToggleTodo(todo)}
               isProcessing={processingTodoIds.includes(todo.id)}
             />
