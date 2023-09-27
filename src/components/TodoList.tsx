@@ -3,6 +3,7 @@ import { Filter } from '../types/Filter';
 import { Todo } from '../types/Todo';
 import { SingleTodo } from './SingleTodo';
 import { TempTodo } from './TempTodo';
+import { Errors } from '../types/Errors';
 
 type TodoListProps = {
   filter: Filter;
@@ -13,11 +14,13 @@ type TodoListProps = {
   deletedTodosId: number[];
   isAddingTodo: boolean;
   handleToggleCompleted: (id: number) => void,
+  setError: (err: Errors | null) => void,
+  onSubmit: () => void;
 };
 
 export const TodoList: React.FC<TodoListProps>
 = ({
-  filter, todos, handleRemove,
+  filter, todos, handleRemove, setError, onSubmit,
   tempTodo, deletedTodoId, isAddingTodo, handleToggleCompleted, deletedTodosId,
 }) => {
   const visibleTodos = () => {
@@ -42,6 +45,8 @@ export const TodoList: React.FC<TodoListProps>
             handleRemove={handleRemove}
             deletedTodosId={deletedTodosId}
             handleToggleCompleted={handleToggleCompleted}
+            setError={setError}
+            onSubmit={onSubmit}
           />
         );
       })}

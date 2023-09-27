@@ -216,6 +216,8 @@ export const App: React.FC = () => {
           deletedTodosId={deletedTodosId}
           isAddingTodo={isAddingTodo}
           handleToggleCompleted={handleToggleCompleted}
+          setError={setError}
+          onSubmit={onSubmit}
         />
 )}
 

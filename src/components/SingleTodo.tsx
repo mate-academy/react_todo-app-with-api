@@ -1,18 +1,57 @@
 /* eslint-disable no-console */
 import classNames from 'classnames';
+import { useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
+import { editTodo } from '../api/todos';
+import { Errors } from '../types/Errors';
 
 type SingleTodoProps = {
   todo: Todo,
   handleRemove: (todoId: number) => void,
   deletedTodosId: number[],
   handleToggleCompleted: (id: number) => void,
+  setError: (err: Errors | null) => void,
+  onSubmit: () => void,
 };
 
 export const SingleTodo
 = ({
-  todo, handleRemove, deletedTodosId, handleToggleCompleted,
+  todo, handleRemove, deletedTodosId, onSubmit,
+  handleToggleCompleted, setError,
 }: SingleTodoProps) => {
+  const [isEdited, setIsEdited] = useState<boolean>(false);
+  const [editedTitle, setEditedTitle] = useState<string>('');
+
+  const saveTodo = (editedTodo: Todo) => {
+    setIsEdited(false);
+
+    return editTodo(editedTodo);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEdited(false);
+    setEditedTitle(todo.title);
+  };
+
+  useEffect(() => {
+    setEditedTitle(todo.title);
+  }, [todo.title]);
+
+  const handleEnter = async () => {
+    setIsEdited(false);
+
+    try {
+      await saveTodo({ ...todo, title: editedTitle });
+    } catch {
+      setError(Errors.update);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
     <div
       className={todo.completed ? 'todo completed' : 'todo'}
@@ -27,16 +66,52 @@ export const SingleTodo
           onChange={() => handleToggleCompleted(todo.id)}
         />
       </label>
-      <span className="todo__title" data-cy="TodoTitle">{todo.title}</span>
-      <button
-        type="button"
-        data-cy="TodoDelete"
-        className="todo__remove"
-        onClick={() => handleRemove(todo.id)}
-      >
-        ×
-      </button>
+      {isEdited && (
+        <form
+          onSubmit={handleSubmit}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedTitle}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleEnter();
+              }
 
+              if (e.key === 'Escape') {
+                handleCancelEdit();
+              }
+            }}
+          />
+        </form>
+      )}
+      {!isEdited
+      && (
+        <>
+          <span
+            className="todo__title"
+            data-cy="TodoTitle"
+            onDoubleClick={() => {
+              setIsEdited(true);
+              setEditedTitle(todo.title);
+            }}
+          >
+            {editedTitle || todo.title}
+          </span>
+          <button
+            type="button"
+            data-cy="TodoDelete"
+            className="todo__remove"
+            onClick={() => handleRemove(todo.id)}
+          >
+            ×
+          </button>
+        </>
+      )}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
