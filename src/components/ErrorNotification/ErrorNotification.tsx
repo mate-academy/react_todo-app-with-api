@@ -40,8 +40,6 @@ export const ErrorNotification: React.FC<Props> = () => {
         className="delete"
         onClick={() => setAlarm(ErrorMessage.Default)}
       />
-
-      {/* show only one message at a time */}
       {alarm}
     </div>
   );

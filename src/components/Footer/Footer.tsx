@@ -96,7 +96,6 @@ export const Footer: React.FC<Props> = () => {
         })}
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         data-cy="ClearCompletedButton"
         type="button"

@@ -83,8 +83,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         })
         .catch(() => {
           setAlarm(ErrorMessage.isUnableUpdateTodo);
-          // setIsUpdating(true);
-          // editedFormInput.current?.focus();
+          editedFormInput.current?.focus();
         })
         .finally(() => {
           setChangingItems([]);
