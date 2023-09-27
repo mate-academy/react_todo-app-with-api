@@ -45,7 +45,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     TodoSevise.getTodos()
       .then(setTodos)
-      .catch(() => setErrorMessage(ErrorMessages.LoadError));
+      .catch(() => setErrorMessage(ErrorMessages.UnableLoadTodo));
   }, []);
 
   const timerId: React.MutableRefObject<number> = useRef<number>(0);
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
         setIsDisabled(false);
       })
       .catch(() => {
-        setErrorMessage(ErrorMessages.AddError);
+        setErrorMessage(ErrorMessages.UnableAddTodo);
         setTempTodo(null);
         throw new Error();
       });
@@ -91,7 +91,7 @@ export const App: React.FC = () => {
         setTodos(prevTodos => prevTodos
           .filter(todo => todo.id !== todoId));
       })
-      .catch(() => setErrorMessage(ErrorMessages.DeleteError))
+      .catch(() => setErrorMessage(ErrorMessages.UnableDeleteToso))
       .finally(() => {
         setIsDisabled(false);
         setIsLoading([]);
@@ -113,7 +113,7 @@ export const App: React.FC = () => {
               : updatedTodo
           )));
       })
-      .catch(() => setErrorMessage(ErrorMessages.UpdateError))
+      .catch(() => setErrorMessage(ErrorMessages.UnableUpdateTodo))
       .finally(() => setIsLoading([]));
   };
 

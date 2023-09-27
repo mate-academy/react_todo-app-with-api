@@ -27,8 +27,10 @@ export const Footer: React.FC<Props> = ({
         {(Object.keys(Status) as Array<keyof typeof Status>)
           .map((key) => (
             <a
-              href="#/completed"
-              data-cy="FilterLinkCompleted"
+              href={`#/${key === 'All'
+                ? ''
+                : key}`}
+              data-cy={`FilterLink${key}`}
               className={classNames('filter__link', {
                 selected: todosFilterStatus === Status[key],
               })}

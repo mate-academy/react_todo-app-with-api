@@ -40,7 +40,7 @@ export const Header: React.FC<Props> = ({
     const normalizedTitle = todoTitle.trim();
 
     if (!normalizedTitle.length) {
-      setErrorMessage(ErrorMessages.EmptyTitleError);
+      setErrorMessage(ErrorMessages.EmptyTitle);
 
       return;
     }
@@ -56,7 +56,7 @@ export const Header: React.FC<Props> = ({
     onToddoAdd(todoTitle)
       .then(() => setTodoTitle(''))
       .catch(() => {
-        setErrorMessage(ErrorMessages.AddError);
+        setErrorMessage(ErrorMessages.UnableAddTodo);
       })
       .finally(() => {
         setIsDisabled(false);
