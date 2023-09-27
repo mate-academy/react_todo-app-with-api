@@ -14,13 +14,10 @@ export function createTodo({ title, completed, userId }: Omit<Todo, 'id'>) {
   return client.post<Todo>('/todos', { title, completed, userId });
 }
 
-export function updateTodo(
-  {
-    id,
-    title,
-    completed,
-    userId,
-  }: Todo,
-) {
-  return client.patch<Todo>(`/todos/${id}`, { title, completed, userId });
-}
+export const updateTodo = ({
+  id, title, completed, userId,
+}: Todo): Promise<Todo> => {
+  return client.patch(`/todos/${id}`, {
+    title, completed, userId,
+  });
+};

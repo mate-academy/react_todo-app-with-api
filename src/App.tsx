@@ -146,6 +146,43 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleToggleTodo = async (todo: Todo) => {
+    setLoadingTodosIds((prevTodoId) => [...prevTodoId, todo.id]);
+
+    try {
+      try {
+        const updatedTodo = await todoService.updateTodo({
+          ...todo,
+          completed: !todo.completed,
+        });
+
+        setTodos(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      } catch {
+        setError('Unable to toggle a todo');
+        throw new Error();
+      }
+    } finally {
+      setLoadingTodosIds((prevTodoId_1) => prevTodoId_1
+        .filter(id => id !== todo.id));
+    }
+  };
+
+  const isAllCompleted = todos.every(todo => todo.completed);
+
+  const handleToggleAll = () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    if (isAllCompleted) {
+      todos.forEach(handleToggleTodo);
+    } else {
+      activeTodos.forEach(handleToggleTodo);
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -162,12 +199,15 @@ export const App: React.FC = () => {
           setTitle={setTitle}
           title={title}
           setLoadingTodosIds={setLoadingTodosIds}
+          onTogle={handleToggleAll}
+          isAllCompleted={isAllCompleted}
         />
 
         <TodoList
           todos={filterTodos}
           onDelete={deleteTodo}
           onUpdate={updateTodo}
+          onTogleTodo={handleToggleTodo}
           loadingTodosIds={loadingTodosIds}
           isLoaderActive={isLoaderActive}
         />
@@ -177,6 +217,7 @@ export const App: React.FC = () => {
             loadingTodosIds={loadingTodosIds}
             onDelete={deleteTodo}
             isLoaderActive={isLoaderActive}
+            onTodoToggle={() => handleToggleTodo(tempTodo)}
           />
         )}
 

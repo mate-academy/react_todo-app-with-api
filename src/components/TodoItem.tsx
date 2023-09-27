@@ -6,7 +6,7 @@ type Props = {
   todo: Todo,
   onDelete?: (id: number) => void;
   onUpdate?: (todoTitle: string) => void;
-
+  onTodoToggle: () => Promise<void>
   loadingTodosIds: number[],
   isLoaderActive: boolean,
 };
@@ -15,6 +15,7 @@ export const TodoItem: React.FC<Props> = React.memo((({
   todo,
   onDelete = () => { },
   onUpdate = () => { },
+  onTodoToggle = () => { },
   loadingTodosIds,
   isLoaderActive,
 }) => {
@@ -28,19 +29,23 @@ export const TodoItem: React.FC<Props> = React.memo((({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todosTitle) {
-      await onUpdate(todosTitle);
-    } else {
-      await onDelete(todo.id);
+    if (todo.title === todosTitle) {
+      setIsEditing(false);
+
+      return;
     }
 
-    setIsEditing(false);
-  };
+    try {
+      if (todosTitle) {
+        await onUpdate(todosTitle);
+      } else {
+        await onDelete(todo.id);
+      }
 
-  const handleTodoTitleChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setTodoTitle(event.target.value);
+      setIsEditing(false);
+    // eslint-disable-next-line no-empty
+    } catch (error) {
+    }
   };
 
   const handleOnKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -48,6 +53,12 @@ export const TodoItem: React.FC<Props> = React.memo((({
       setIsEditing(false);
       setTodoTitle(todo.title.trim());
     }
+  };
+
+  const handleTodoTitleChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setTodoTitle(event.target.value);
   };
 
   const titleInput = useRef<HTMLInputElement | null>(null);
@@ -71,7 +82,7 @@ export const TodoItem: React.FC<Props> = React.memo((({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-        // onClick={handleToggleCompleted}
+          onClick={onTodoToggle}
         />
       </label>
 

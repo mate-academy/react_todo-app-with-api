@@ -6,6 +6,7 @@ type Props = {
   todos: Todo[],
   onDelete?: (id: number) => void;
   onUpdate?: (todo: Todo, todosTitle: string) => void;
+  onTogleTodo?: (todo: Todo) => void;
   loadingTodosIds: number[],
   isLoaderActive: boolean,
 };
@@ -14,6 +15,7 @@ export const TodoList: React.FC<Props> = React.memo((({
   todos,
   onDelete = () => { },
   onUpdate = () => { },
+  onTogleTodo = () => { },
   loadingTodosIds,
   isLoaderActive,
 }) => {
@@ -26,6 +28,7 @@ export const TodoList: React.FC<Props> = React.memo((({
           onUpdate={(todosTitle) => {
             onUpdate(todo, todosTitle);
           }}
+          onTodoToggle={async () => onTogleTodo(todo)}
           loadingTodosIds={loadingTodosIds}
           key={todo.id}
           isLoaderActive={isLoaderActive}

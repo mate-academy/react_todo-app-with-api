@@ -13,6 +13,8 @@ type Props = {
   setTitle: (title: string) => void
   title: string
   setLoadingTodosIds: (tempTodoIds: number[]) => void
+  onTogle: () => void;
+  isAllCompleted: boolean
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -26,6 +28,8 @@ export const TodoHeader: React.FC<Props> = ({
   setError,
   setTitle,
   setLoadingTodosIds,
+  isAllCompleted,
+  onTogle,
 }) => {
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -66,10 +70,13 @@ export const TodoHeader: React.FC<Props> = ({
       {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
-          data-cy="ToggleAllButton"
           type="button"
-          className="todoapp__toggle-all active"
-          aria-label="toogle all button"
+          aria-label="text"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllCompleted,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={onTogle}
         />
       )}
 
