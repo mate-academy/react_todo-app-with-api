@@ -13,6 +13,7 @@ export const App: React.FC = () => {
   const { setErrorMessage } = useError();
 
   const [isActive, setIsActive] = useState(false);
+  const [isToggleActive, setIsToggleActive] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -27,11 +28,15 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <TodoHeader onHandleActive={setIsActive} />
+        <TodoHeader
+          onHandleActive={setIsActive}
+          onToggleActive={setIsToggleActive}
+        />
 
         <TodoList
           isActive={isActive}
           onHandleActive={setIsActive}
+          isToggleActive={isToggleActive}
         />
 
         {Boolean(todos.length) && (

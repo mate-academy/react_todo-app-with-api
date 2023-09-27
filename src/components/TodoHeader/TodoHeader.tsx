@@ -1,5 +1,4 @@
 import {
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -8,17 +7,20 @@ import classnames from 'classnames';
 
 import { useTodo } from '../../context/TodoContext';
 import { useError } from '../../context/ErrorContext';
-import { TodoTempContext } from '../../context/TodoTempContext';
+import { useTodoTemp } from '../../context/TodoTempContext';
 import { USER_ID } from '../../utils/variables';
 import { createTodo, updateTodo } from '../../api/todos';
 import { Todo } from '../../types/Todo';
 
 type Props = {
   onHandleActive: (value: boolean) => void;
+  onToggleActive: (value: number[]) => void;
 };
 
-export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
-  const { setTodoTemp } = useContext(TodoTempContext);
+export const TodoHeader: React.FC<Props> = ({
+  onHandleActive, onToggleActive,
+}) => {
+  const { setTodoTemp } = useTodoTemp();
   const [title, setTitle] = useState('');
   const { todos, setTodos } = useTodo();
   const { errorMessage, setErrorMessage } = useError();
@@ -34,27 +36,27 @@ export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
   }, [todos, errorMessage]);
 
   const toggleAll = async () => {
-    const allCompleted = todos.every(({ completed }) => completed);
+    const isAllCompleted = todos.every(({ completed }) => completed);
 
-    const updatePromises: Promise<Todo>[] = [];
+    if (isAllCompleted) {
+      const allCompleted = todos
+        .filter(({ completed }) => completed)
+        .map(({ id }) => id);
 
-    if (allCompleted) {
-      todos.forEach(todo => {
-        if (todo.completed) {
-          const updatedTodo = { ...todo, completed: false };
-
-          updatePromises.push(updateTodo(todo.id, updatedTodo));
-        }
-      });
+      onToggleActive(allCompleted);
     } else {
-      todos.forEach(todo => {
-        if (!todo.completed) {
-          const updatedTodo = { ...todo, completed: true };
+      const allActive = todos
+        .filter(({ completed }) => !completed)
+        .map(({ id }) => id);
 
-          updatePromises.push(updateTodo(todo.id, updatedTodo));
-        }
-      });
+      onToggleActive(allActive);
     }
+
+    const updatePromises = todos.map(todo => {
+      const updatedTodo = { ...todo, completed: !todo.completed };
+
+      return updateTodo(todo.id, updatedTodo);
+    });
 
     try {
       await Promise.all(updatePromises);
@@ -62,11 +64,13 @@ export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
       setTodos(currentTodos => {
         return currentTodos.map(todo => ({
           ...todo,
-          completed: !allCompleted,
+          completed: !isAllCompleted,
         }));
       });
+
+      onToggleActive([]);
     } catch (error) {
-      setErrorMessage(`Error updating todos:, ${error}`);
+      setErrorMessage(`Error updating todos: ${error}`);
     }
   };
 
@@ -80,42 +84,36 @@ export const TodoHeader: React.FC<Props> = ({ onHandleActive }) => {
       return;
     }
 
-    setTodoTemp({
-      id: 0,
+    const newTodo = {
       userId: USER_ID,
       title: title.trim(),
       completed: false,
+    };
+
+    setTodoTemp({
+      ...newTodo,
+      id: 0,
     });
 
     setIsInputDisabled(true);
     onHandleActive(true);
-    createTodo({
-      userId: USER_ID,
-      title: title.trim(),
-      completed: false,
-    })
-      .then((newTodo) => {
-        setTodos((prevTodos: Todo[]) => [...prevTodos, newTodo]);
+
+    createTodo(newTodo)
+      .then((response) => {
+        setTodos((prevTodos: Todo[]) => [...prevTodos, response]);
         setIsInputDisabled(false);
         setTitle('');
-
-        setTimeout(() => {
-          onHandleActive(false);
-        }, 3000);
       })
       .catch(() => {
         setIsInputDisabled(false);
         setErrorMessage('Unable to add a todo');
         inputRef?.current?.focus();
-        onHandleActive(true);
       })
       .finally(() => {
         setTodoTemp(null);
         inputRef?.current?.focus();
         onHandleActive(false);
       });
-
-    onHandleActive(true);
   };
 
   return (

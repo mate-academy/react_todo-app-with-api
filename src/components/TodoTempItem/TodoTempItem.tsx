@@ -1,13 +1,12 @@
-import { useContext } from 'react';
 import classnames from 'classnames';
-import { TodoTempContext } from '../../context/TodoTempContext';
+import { useTodoTemp } from '../../context/TodoTempContext';
 
 type Props = {
   isActive: boolean;
 };
 
 export const TodoTempItem: React.FC<Props> = ({ isActive }) => {
-  const { todoTemp } = useContext(TodoTempContext);
+  const { todoTemp } = useTodoTemp();
 
   return (
     <div data-cy="Todo" className="todo">

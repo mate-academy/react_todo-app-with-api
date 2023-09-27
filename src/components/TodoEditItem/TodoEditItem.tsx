@@ -6,7 +6,6 @@ import { Todo } from '../../types/Todo';
 import { useTodo } from '../../context/TodoContext';
 import { useError } from '../../context/ErrorContext';
 import { updateTodo } from '../../api/todos';
-// import { useTitle } from '../../context/TitleContext';
 
 type Props = {
   todo: Todo;

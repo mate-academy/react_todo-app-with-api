@@ -1,12 +1,14 @@
 import {
-  useState, createContext,
+  useState, createContext, useContext,
 } from 'react';
 import { Todo } from '../types/Todo';
 
-export const TodoTempContext = createContext<{
+interface TodoTempContextType {
   todoTemp: Todo | null;
   setTodoTemp: React.Dispatch<React.SetStateAction<Todo | null>>;
-}>({
+}
+
+export const TodoTempContext = createContext<TodoTempContextType>({
   todoTemp: null,
   setTodoTemp: () => {},
 });
@@ -28,4 +30,8 @@ export const TodoTempProvider: React.FC<Props> = ({ children }) => {
       {children}
     </TodoTempContext.Provider>
   );
+};
+
+export const useTodoTemp = (): TodoTempContextType => {
+  return useContext(TodoTempContext);
 };

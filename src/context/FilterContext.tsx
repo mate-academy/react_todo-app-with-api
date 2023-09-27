@@ -1,10 +1,12 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { Status } from '../types/Status';
 
-export const FilterContext = createContext<{
+interface FilterContextType {
   selectedFilter: Status;
   setSelectedFilter: React.Dispatch<React.SetStateAction<Status>>;
-}>({
+}
+
+export const FilterContext = createContext<FilterContextType>({
   selectedFilter: Status.All,
   setSelectedFilter: () => {},
 });
@@ -26,4 +28,8 @@ export const FilterProvider: React.FC<Props> = ({ children }) => {
       {children}
     </FilterContext.Provider>
   );
+};
+
+export const useFilter = (): FilterContextType => {
+  return useContext(FilterContext);
 };

@@ -1,10 +1,10 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
 import { getFilteredTodos } from '../../utils/utils';
 import { TodoItem } from '../TodoItem';
 import { useTodo } from '../../context/TodoContext';
-import { FilterContext } from '../../context/FilterContext';
-import { TodoTempContext } from '../../context/TodoTempContext';
+import { useFilter } from '../../context/FilterContext';
+import { useTodoTemp } from '../../context/TodoTempContext';
 import { deleteTodo } from '../../api/todos';
 import { useError } from '../../context/ErrorContext';
 import { TodoEditItem } from '../TodoEditItem';
@@ -14,22 +14,21 @@ import { Todo } from '../../types/Todo';
 type Props = {
   isActive: boolean;
   onHandleActive?: (value: boolean) => void;
+  isToggleActive: number[];
 };
 
 export const TodoList: React.FC<Props> = ({
-  isActive,
+  isActive, isToggleActive,
 }) => {
   const { todos, setTodos } = useTodo();
-  const { selectedFilter } = useContext(FilterContext);
-  const { todoTemp } = useContext(TodoTempContext);
+  const { selectedFilter } = useFilter();
+  const { todoTemp } = useTodoTemp();
   const { setErrorMessage } = useError();
 
   const filteredTodos = getFilteredTodos(todos, selectedFilter);
 
   const [isLoading, setIsLoading] = useState(false);
-
   const [editedId, setEditedId] = useState<number | null>(null);
-
   const [isDeleteActive, setIsDeleteActive] = useState(false);
 
   const handleDeleteTodo = (todo: Todo) => {
@@ -69,6 +68,7 @@ export const TodoList: React.FC<Props> = ({
             onEditedId={setEditedId}
             isDeleteActive={isDeleteActive}
             onDeleteActive={setIsDeleteActive}
+            isToggleActive={isToggleActive}
           />
         )
       ))}

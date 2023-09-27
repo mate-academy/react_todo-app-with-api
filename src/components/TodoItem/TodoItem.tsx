@@ -2,6 +2,8 @@ import { useState } from 'react';
 import classnames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useTodo } from '../../context/TodoContext';
+import { updateTodo } from '../../api/todos';
+import { useError } from '../../context/ErrorContext';
 
 type Props = {
   todo: Todo;
@@ -9,26 +11,35 @@ type Props = {
   onEditedId: (value: number | null) => void;
   isDeleteActive: boolean;
   onDeleteActive?: (value: boolean) => void;
+  isToggleActive: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, onDelete, onEditedId, isDeleteActive,
+  todo, onDelete, onEditedId, isDeleteActive, isToggleActive,
 }) => {
   const { setTodos } = useTodo();
+  const { setErrorMessage } = useError();
   const { id, title, completed } = todo;
 
   const [deletedTodoId, setDeletedTodoId] = useState<number | null>(null);
 
+  const [isCompleteActive, setIsCompleteActive] = useState(false);
+
   const handleComplete = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setTodos(prev => prev.map(currentTodo => {
-      if (currentTodo.id === todo.id) {
-        return { ...currentTodo, completed: event.target.checked };
-      }
+    const updatedTodo = { ...todo, completed: event.target.checked };
 
-      return currentTodo;
-    }));
+    setIsCompleteActive(true);
+
+    updateTodo(todo.id, updatedTodo)
+      .then(() => {
+        setTodos((prevTodo) => prevTodo.map((currentTodo) => {
+          return currentTodo.id === todo.id ? updatedTodo : currentTodo;
+        }));
+      })
+      .catch(() => setErrorMessage('Unable to update todo'))
+      .finally(() => setIsCompleteActive(false));
   };
 
   return (
@@ -75,7 +86,8 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classnames(
           'modal overlay', {
-            'is-active': isDeleteActive && id === deletedTodoId,
+            'is-active': (isDeleteActive && id === deletedTodoId)
+              || isToggleActive.includes(id) || isCompleteActive,
           },
         )}
       >

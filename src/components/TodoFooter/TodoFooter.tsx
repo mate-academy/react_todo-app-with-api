@@ -1,13 +1,13 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import classnames from 'classnames';
 import { Status } from '../../types/Status';
-import { FilterContext } from '../../context/FilterContext';
+import { useFilter } from '../../context/FilterContext';
 import { useTodo } from '../../context/TodoContext';
 import { deleteTodo } from '../../api/todos';
 import { useError } from '../../context/ErrorContext';
 
 export const TodoFooter = () => {
-  const { selectedFilter, setSelectedFilter } = useContext(FilterContext);
+  const { selectedFilter, setSelectedFilter } = useFilter();
   const { todos, setTodos } = useTodo();
   const { setErrorMessage } = useError();
 
@@ -37,7 +37,7 @@ export const TodoFooter = () => {
       <span className="todo-count" data-cy="TodosCounter">
         {isActiveItemsLeft > 1
           ? `${isActiveItemsLeft} items left`
-          : '1 item left'}
+          : `${isActiveItemsLeft} item left`}
       </span>
 
       <nav data-cy="Filter" className="filter">
