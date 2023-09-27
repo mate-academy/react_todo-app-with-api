@@ -120,6 +120,7 @@ export const TodoItem = ({
       {isTodoEdited && (
         <form onSubmit={handleSubmit}>
           <input
+            data-cy="TodoTitleField"
             onBlur={handleSubmit}
             ref={editInputRef}
             className="todo__title-field"
