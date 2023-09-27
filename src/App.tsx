@@ -44,13 +44,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isTodoAdding, setIsTodoAdding] = useState(false);
 
-  const activeTodosCounter = todos.filter(
-    todo => todo.completed !== true,
-  ).length;
-
-  const completedTodosCounter = todos.filter(
-    todo => todo.completed === true,
-  ).length;
+  const activeTodosCounter = todos.filter(todo => !todo.completed).length;
+  const completedTodosCounter = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
     getTodos()
@@ -148,7 +143,7 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompleted = () => {
-    const compeletedTodos = todos.filter(todo => todo.completed === true);
+    const compeletedTodos = todos.filter(todo => todo.completed);
 
     compeletedTodos.forEach(todo => {
       handleDeleteTodo(todo.id);
@@ -203,11 +198,10 @@ export const App: React.FC = () => {
   };
 
   const handleToggleAll = () => {
-    const activeTodos = todos.filter(todo => todo.completed === false);
-    const completedTodos = todos.filter(todo => todo.completed === true);
+    const activeTodos = todos.filter(todo => !todo.completed);
 
-    if (activeTodos.length === todos.length
-      || completedTodos.length === todos.length
+    if (activeTodosCounter === todos.length
+      || completedTodosCounter === todos.length
     ) {
       todos.forEach(todo => {
         handleToggleTodo(todo);
