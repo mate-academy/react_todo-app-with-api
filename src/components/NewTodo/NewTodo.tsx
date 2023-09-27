@@ -1,55 +1,78 @@
-import { useContext } from 'react';
-import { CSSTransition } from 'react-transition-group';
+import { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
-import { NewTodoContext }
-  from '../../providers/NewTodoProvider/NewTodoProvider';
-import { TodosContext } from '../../providers/TodosProvider/TodosProvider';
+import { useNewTodo } from '../../CustomHooks/useNewTodo';
+import { useTodosContext } from '../../providers/TodosProvider/TodosProvider';
+import { useErrorsContext }
+  from '../../providers/ErrorsProvider/ErrorsProvider';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const NewTodo = () => {
-  const newTodoContext = useContext(NewTodoContext);
-  const todosContext = useContext(TodosContext);
+  const [todoTitle, setTodoTitle] = useState<string>('');
 
-  if (!newTodoContext) {
-    return null;
-  }
+  const { addTodo } = useNewTodo();
+  const {
+    todos, uploading, clearInput, editTodo,
+  } = useTodosContext();
+  const { addError } = useErrorsContext();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { handleSubmit, handleInput, todoInput } = newTodoContext;
+  useEffect(() => {
+    if (clearInput) {
+      setTodoTitle('');
+    }
+  }, [clearInput]);
 
-  if (!todosContext) {
-    return null;
-  }
-
-  const { todos } = todosContext;
+  useEffect(() => {
+    if (uploading.length === 0 && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [uploading, todoTitle]);
 
   return (
-    <CSSTransition
-      key={0}
-      timeout={300}
-      classNames="temp-item"
-    >
-      <header className="todoapp__header">
-        {/* this buttons is active only if there are some active todos */}
+    <header className="todoapp__header">
+      {/* this buttons is active only if there are some active todos */}
+      {todos.length > 0 && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
             active: todos.every(todo => todo.completed === true),
           })}
           data-cy="ToggleAllButton"
+          onClick={() => (todos.some(todo => todo.completed === false)
+            ? todos.filter(todo => todo.completed === false)
+              .forEach(todo => editTodo({ ...todo, completed: true }))
+            : todos.forEach(todo => editTodo({ ...todo, completed: false })))}
         />
+      )}
 
-        {/* Add a todo on form submit */}
-        <form onSubmit={(e) => handleSubmit(e, todoInput)}>
-          <input
-            data-cy="NewTodoField"
-            type="text"
-            className="todoapp__new-todo"
-            placeholder="What needs to be done?"
-            value={todoInput}
-            onChange={handleInput}
-          />
-        </form>
-      </header>
-    </CSSTransition>
+      {/* Add a todo on form submit */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        if (!todoTitle) {
+          return addError('errorEmptyTitle');
+        }
+
+        return (
+          addTodo({
+            title: todoTitle.trim(),
+            completed: false,
+          })
+        );
+      }}
+      >
+        <input
+          ref={inputRef}
+          data-cy="NewTodoField"
+          type="text"
+          className="todoapp__new-todo"
+          placeholder="What needs to be done?"
+          value={todoTitle}
+          onChange={e => setTodoTitle(e.target.value.trimStart())}
+          disabled={uploading.length !== 0}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+        />
+      </form>
+    </header>
   );
 };

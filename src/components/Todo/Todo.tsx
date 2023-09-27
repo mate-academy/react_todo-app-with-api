@@ -1,18 +1,67 @@
 import cn from 'classnames';
 // import { useState } from 'react';
+import {
+  useEffect, useRef, useState,
+} from 'react';
 import { TodoType } from '../../types/Todo';
+import { useTodosContext } from '../../providers/TodosProvider/TodosProvider';
+// import { useErrorsContext }
+//   from '../../providers/ErrorsProvider/ErrorsProvider';
 
 type TodoProps = {
   todo: TodoType,
-  handleDel: (t: TodoType) => void,
 };
 
-export const Todo = ({ todo, handleDel }: TodoProps) => {
-  // const [isChecked, setIsChecked] = useState<boolean>(false);
+export const Todo = ({ todo }: TodoProps) => {
+  const [editedTodo, setEditedTodo] = useState<TodoType | null>(null);
+  const [editedInput, setEditedInput] = useState<string>('');
+  const {
+    editTodo,
+    delTodo,
+    uploading,
+  } = useTodosContext();
 
-  // const todosContext = useContext(TodosContext);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // const { handleChecked } = todosContext;
+  useEffect(() => {
+    if (editedTodo?.id === todo.id && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editedTodo, todo.id]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (editedInput.trim().length === 0) {
+      return delTodo(todo);
+    }
+
+    if (editedInput.trim() === todo.title) {
+      return setEditedTodo(null);
+    }
+
+    return editTodo({
+      ...todo,
+      title: editedInput.trim(),
+    });
+  };
+
+  const handleBlur = () => {
+    if (editedInput.trim().length === 0) {
+      return delTodo(todo);
+    }
+
+    if (editedInput.trim() === todo.title) {
+      return setEditedTodo(null);
+    }
+
+    return editTodo({
+      ...todo,
+      title: editedInput.trim(),
+    }).then(() => {
+      setEditedInput('');
+      setEditedTodo(null);
+    });
+  };
 
   return (
     <div
@@ -27,26 +76,66 @@ export const Todo = ({ todo, handleDel }: TodoProps) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          // onChange={() => setIsChecked(!todo.completed)}
+          onChange={() => editTodo({
+            ...todo,
+            completed: !todo.completed,
+          })}
         />
       </label>
+      {editedTodo?.id === todo.id
+        && (
+          <form onSubmit={(e) => handleSubmit(e)}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editedInput}
+              onChange={(e) => setEditedInput(e.target.value)}
+              ref={inputRef}
+              onKeyUp={(e) => {
+                if (e.key === 'Escape') {
+                  setEditedTodo(null);
+                }
+              }}
+              onBlur={() => handleBlur()}
+            />
+          </form>
+        )}
+      {editedTodo?.id !== todo.id
+        && (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setEditedTodo(todo);
+                setEditedInput(todo.title);
+              }}
+            >
+              {editedInput || todo.title}
+            </span>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleDel(todo)}
-      >
-        ×
-      </button>
+            {/* Remove button appears only on hover */}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => delTodo(todo)}
+              hidden={uploading.includes(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )}
 
       {/* overlay will cover the todo while it is being updated */}
-      <div data-cy="TodoLoader" className="modal overlay">
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal overlay', {
+          'is-active': uploading.includes(todo.id),
+        })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
