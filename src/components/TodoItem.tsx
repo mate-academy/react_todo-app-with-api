@@ -38,6 +38,12 @@ export const TodoItem: React.FC<Props> = ({
   const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (todo.title === todoTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
     if (todoTitle) {
       onUpdateTodo(todoTitle);
     } else {
