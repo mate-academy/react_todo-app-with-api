@@ -35,6 +35,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEditing]);
 
   const USER_ID = 11550;
+  // const oldTitle = todo.title;
 
   const handleDelete = (todoId: number) => {
     setIsDeleting(true);
@@ -133,7 +134,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
-              defaultValue={todo.title}
+              // defaultValue={todo.title}
               ref={editedRef}
               onChange={(e) => setNewTitle(e.target.value)}
               onBlur={() => {
@@ -146,8 +147,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
                 }
 
                 if (e.key === 'Escape') {
+                  e.preventDefault();
                   setIsEditing(false);
-                  titleInputRef.current?.focus();
+                  setNewTitle(todo.title);
                 }
               }}
             />
