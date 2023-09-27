@@ -13,7 +13,7 @@ export const Loader: React.FC<Props> = ({ isProcessing, todoId }) => {
         'modal',
         'overlay',
         {
-          'is-active': isProcessing || todoId === 0,
+          'is-active': isProcessing || !todoId,
         },
       )}
     >

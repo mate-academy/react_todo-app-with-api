@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
@@ -35,6 +34,7 @@ export const App: React.FC = () => {
   const [todosSortBy, setTodosSortBy] = useState(TodosSortType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+  const [isTitleDisabled, setIsTitleDisabled] = useState(false);
 
   const trimmedTitle = todoTitle.trim();
 
@@ -48,31 +48,32 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch((error) => {
         setErrorMessage(TodosError.DOWNLOAD_ERROR_MESSAGE);
-        throw error;
+        throw Error(error.message);
       });
   }, []);
 
-  const timerId = useRef<number>(0);
+  const timerIdRef = useRef<number>(0);
 
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
+    timerIdRef.current = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
+
+    return () => clearTimeout(timerIdRef.current);
   }, [errorMessage]);
 
   const handleAddTodo = (inputTitle: string) => {
+    setIsTitleDisabled(true);
+
     return todoService
       .addTodo(inputTitle)
       .then((newTodo) => {
         setTodos((prevTodos) => [...prevTodos, newTodo]);
+        setIsTitleDisabled(false);
       })
       .catch((error) => {
         setErrorMessage(TodosError.ADD_ERROR_MESSAGE);
-        throw error;
+        throw Error(error.message);
       })
       .finally(() => {
         setTempTodo(null);
@@ -82,7 +83,7 @@ export const App: React.FC = () => {
   const handleDeleteTodo = (todoId: number) => {
     setProcessingTodoIds(prev => [...prev, todoId]);
 
-    todoService
+    return todoService
       .deleteTodo(todoId)
       .then((() => {
         setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== todoId));
@@ -90,7 +91,7 @@ export const App: React.FC = () => {
       }))
       .catch((error) => {
         setErrorMessage(TodosError.DELETE_ERROR_MESSAGE);
-        throw error;
+        throw Error(error.message);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todoId));
@@ -116,7 +117,7 @@ export const App: React.FC = () => {
       })
       .catch((error) => {
         setErrorMessage(TodosError.UPDATE_ERROR_MESSAGE);
-        throw error;
+        throw Error(error.message);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todo.id));
@@ -124,16 +125,20 @@ export const App: React.FC = () => {
   };
 
   const updateTodoStatus = (todo: Todo) => {
-    todoService.updateTodo({ ...todo, completed: !todo.completed }).then(updatedTodo => {
-      setTodos(prevState => prevState.map(currentTodo => (
-        currentTodo.id !== updatedTodo.id
-          ? currentTodo
-          : updatedTodo
-      )));
-    })
+    setProcessingTodoIds(prev => [...prev, todo.id]);
+
+    return todoService
+      .updateTodo({ ...todo, completed: !todo.completed })
+      .then(updatedTodo => {
+        setTodos(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
       .catch((error) => {
         setErrorMessage(TodosError.UPDATE_ERROR_MESSAGE);
-        throw error;
+        throw Error(error.message);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todo.id));
@@ -174,16 +179,30 @@ export const App: React.FC = () => {
     completedTodos.forEach(({ id }) => handleDeleteTodo(id));
   };
 
+  const isAllCompleted = visibleTodos.every(todo => todo.completed);
+
+  const handleToggleAllTodos = () => {
+    const activeTodos = visibleTodos.filter(todo => !todo.completed);
+
+    if (isAllCompleted) {
+      Promise.all(visibleTodos.map(updateTodoStatus));
+    } else {
+      Promise.all(activeTodos.map(updateTodoStatus));
+    }
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-
         <Header
           todoTitle={todoTitle}
           onTodoTitle={handleTodoTitle}
           onSubmit={handleSubmit}
+          isAllCompleted={isAllCompleted}
+          onToggleAll={handleToggleAllTodos}
+          isTitleDisabled={isTitleDisabled}
         />
 
         <section className="todoapp__main" data-cy="TodoList">
@@ -197,7 +216,7 @@ export const App: React.FC = () => {
                 (newTodoTitle) => handleUpdateTodo(todo, newTodoTitle)
               }
               isProcessing={processingTodoIds.includes(todo.id)}
-              updateTodoStatus={updateTodoStatus}
+              updateTodoStatus={() => updateTodoStatus(todo)}
             />
           ))}
           {tempTodo && (
@@ -208,14 +227,15 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
-        <Footer
-          onSortByField={setTodosSortBy}
-          todosSortBy={todosSortBy}
-          completedTodosLength={completedTodos.length}
-          clearAllCompleted={clearAllCompleted}
-          todosLength={visibleTodos.length}
-        />
+        {!!todos.length && (
+          <Footer
+            onSortByField={setTodosSortBy}
+            todosSortBy={todosSortBy}
+            completedTodosLength={completedTodos.length}
+            clearAllCompleted={clearAllCompleted}
+            todosLength={visibleTodos.length}
+          />
+        )}
       </div>
 
       <ErrorNotification

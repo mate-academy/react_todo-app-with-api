@@ -1,36 +1,43 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
+import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
 type Props = {
   todoTitle: string,
   onTodoTitle: (event: React.ChangeEvent<HTMLInputElement>) => void,
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
+  onToggleAll: () => void,
+  isAllCompleted: boolean,
+  isTitleDisabled: boolean,
 };
 
 export const Header: React.FC<Props> = ({
   todoTitle,
   onTodoTitle,
   onSubmit,
-
+  isAllCompleted,
+  onToggleAll,
+  isTitleDisabled,
 }) => {
-  const focusedInput = useRef<HTMLInputElement>(null);
+  const focusedInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (focusedInput.current) {
-      focusedInput.current.focus();
+    if (focusedInputRef.current) {
+      focusedInputRef.current.focus();
     }
   }, []);
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: isAllCompleted,
+        })}
         data-cy="ToggleAllButton"
+        onClick={onToggleAll}
       />
-      {/* Add a todo on form submit */}
       <form onSubmit={onSubmit}>
         <input
           data-cy="NewTodoField"
@@ -39,7 +46,8 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={todoTitle}
           onChange={onTodoTitle}
-          ref={focusedInput}
+          ref={focusedInputRef}
+          disabled={isTitleDisabled}
         />
       </form>
     </header>
