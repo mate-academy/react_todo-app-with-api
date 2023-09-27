@@ -52,15 +52,19 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleCount = () => {
+    const count = todos.filter(toDo => toDo.completed === false)
+      .length;
+
+    setCounter(count);
+  };
+
   const handleComplete = (todo: Todo, callback: () => void) => {
     updateTodo(todo.id, {
       completed: !todo.completed,
     }).then(() => {
       todo.completed = !todo.completed;
-      const count = todos.filter(toDo => toDo.completed === false)
-        .length;
-
-      setCounter(count);
+      handleCount();
     }).catch(() => {
       handleError('Unable to update a todo');
     }).finally(() => callback());
@@ -75,10 +79,7 @@ export const App: React.FC = () => {
           handleError('Unable to update a todo');
         }).finally(() => {
           fetchData();
-          const count = todos.filter(toDo => toDo.completed === false)
-            .length;
-
-          setCounter(count);
+          handleCount();
         });
       } else if (data === false) {
         updateTodo(todo.id, {
@@ -87,10 +88,7 @@ export const App: React.FC = () => {
           handleError('Unable to update a todo');
         }).finally(() => {
           fetchData();
-          const count = todos.filter(toDo => toDo.completed === false)
-            .length;
-
-          setCounter(count);
+          handleCount();
         });
       }
     });
@@ -100,7 +98,7 @@ export const App: React.FC = () => {
     deleteTodo(todo.id).then(() => {
       setTodos(prevTodo => prevTodo.filter(toDo => toDo !== todo));
       inputRef.current?.focus();
-      setCounter(oldCount => oldCount - 1);
+      handleCount();
     }).catch(() => {
       handleError('Unable to delete todo');
       if (callback) {
