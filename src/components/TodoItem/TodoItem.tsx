@@ -9,13 +9,14 @@ import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
 import { TodosContext } from '../TodosContextProvider/TodosContextProvider';
 import { ErrorContext } from '../ErrorContextProvider/ErrorContextProvider';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   todo: Todo,
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const { onNewError } = useContext(ErrorContext);
+  const { onNewError, setErrorMessage } = useContext(ErrorContext);
   const {
     todos,
     setTodos,
@@ -25,23 +26,24 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { title, completed, id } = todo;
   const [isBeingEdited, setIsBeingEdited] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
-  const editedInput = useRef<HTMLInputElement | null>(null);
+  const editedInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (editedInput.current) {
-      editedInput.current.focus();
+    if (editedInputRef.current) {
+      editedInputRef.current.focus();
     }
   }, [isBeingEdited]);
 
   const handleTodoDelete = () => {
     setTodoIdsWithLoader(prevTodoIds => [...prevTodoIds, id]);
+    setErrorMessage(ErrorMessage.None);
     deleteTodo(id)
       .then(() => {
         setTodos(prevTodos => prevTodos
           .filter(({ id: todoId }) => id !== todoId));
         setIsBeingEdited(false);
       })
-      .catch(() => onNewError('Unable to delete a todo'))
+      .catch(() => onNewError(ErrorMessage.UnableDelete))
       .finally(() => setTodoIdsWithLoader(
         prevTodoIds => prevTodoIds.filter((todoId) => todoId !== id),
       ));
@@ -53,7 +55,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setNewTitle(event.target.value);
   });
 
-  const handleNewTitleSubmit = (event?: React.FormEvent<HTMLFormElement>) => {
+  const handleNewTitleSubmit = (
+    event?: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
     event?.preventDefault();
     const trimmedTitle = newTitle.trim();
 
@@ -70,6 +75,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     setTodoIdsWithLoader(prevTodoIds => [...prevTodoIds, id]);
+    setErrorMessage(ErrorMessage.None);
 
     updateTodo(id, { title: trimmedTitle })
       .then(() => {
@@ -83,7 +89,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setTodos(todosCopy);
         setIsBeingEdited(false);
       })
-      .catch(() => onNewError('Unable to update a todo'))
+      .catch(() => onNewError(ErrorMessage.UnableUpdate))
       .finally(() => {
         setTodoIdsWithLoader(
           prevTodoIds => prevTodoIds.filter((todoId) => todoId !== id),
@@ -100,6 +106,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleTodoToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTodoIdsWithLoader(prevTodoIds => [...prevTodoIds, id]);
+    setErrorMessage(ErrorMessage.None);
     updateTodo(id, { completed: !completed })
       .then(() => {
         const todosCopy = [...todos];
@@ -111,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
         setTodos(todosCopy);
       })
-      .catch(() => onNewError('Unable to update a todo'))
+      .catch(() => onNewError(ErrorMessage.UnableUpdate))
       .finally(() => setTodoIdsWithLoader(
         prevTodoIds => prevTodoIds.filter((todoId) => todoId !== id),
       ));
@@ -146,10 +153,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
-              ref={editedInput}
+              ref={editedInputRef}
               onChange={handleChangeOfTitle}
               onKeyUp={handleKeyUp}
-              onBlur={() => handleNewTitleSubmit()}
+              onBlur={handleNewTitleSubmit}
             />
           </form>
         ) : (
@@ -174,8 +181,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', {
-          'is-active': todo.id === 0 || todoIdsWithLoader.includes(id),
+        className={classNames('modal', 'overlay', {
+          'is-active': !todo.id || todoIdsWithLoader.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

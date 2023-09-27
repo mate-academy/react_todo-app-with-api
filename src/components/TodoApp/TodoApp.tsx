@@ -17,6 +17,7 @@ import { FilterKey } from '../../types/FilterKey';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../utils/UserId';
 import { ErrorContext } from '../ErrorContextProvider/ErrorContextProvider';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 function getFilteredTodos(key: FilterKey, todos: Todo[]) {
   switch (key) {
@@ -32,12 +33,12 @@ function getFilteredTodos(key: FilterKey, todos: Todo[]) {
 }
 
 export const TodoApp = () => {
-  const { onNewError } = useContext(ErrorContext);
+  const { onNewError, setErrorMessage } = useContext(ErrorContext);
   const { todos, setTodos, setTodoIdsWithLoader } = useContext(TodosContext);
   const [filterKey, setFilterKey] = useState<FilterKey>(FilterKey.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const areAllTodosCompleted = todos.every(({ completed }) => completed);
+  const isAllTodosCompleted = todos.every(({ completed }) => completed);
   const visibleTodos = useMemo(
     () => getFilteredTodos(filterKey, todos),
     [todos, filterKey],
@@ -48,17 +49,18 @@ export const TodoApp = () => {
   useEffect(() => {
     getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => onNewError('Unable to load todos'));
+      .catch(() => onNewError(ErrorMessage.UnableLoad));
   }, []);
 
   const handleAllTodosToggle = () => {
     const todosToUpdate = todos.filter(
-      ({ completed }) => completed === areAllTodosCompleted,
+      ({ completed }) => completed === isAllTodosCompleted,
     );
 
     setTodoIdsWithLoader(
       prevTodoIds => [...prevTodoIds, ...todosToUpdate.map(({ id }) => id)],
     );
+    setErrorMessage(ErrorMessage.None);
 
     todosToUpdate.forEach(todo => {
       updateTodo(todo.id, { completed: !todo.completed })
@@ -72,7 +74,7 @@ export const TodoApp = () => {
 
           setTodos(todosCopy);
         })
-        .catch(() => onNewError('Unable to update a todo'))
+        .catch(() => onNewError(ErrorMessage.UnableUpdate))
         .finally(() => setTodoIdsWithLoader(
           prevTodoIds => prevTodoIds.filter((todoId) => todoId !== todo.id),
         ));
@@ -85,13 +87,14 @@ export const TodoApp = () => {
     setTodoIdsWithLoader(prevTodoIds => {
       return [...prevTodoIds, ...completedTodos.map(({ id }) => id)];
     });
+    setErrorMessage(ErrorMessage.None);
 
     completedTodos.forEach(todo => {
       deleteTodo(todo.id)
         .then(() => {
           setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todo.id));
         })
-        .catch(() => onNewError('Unable to delete a todo'))
+        .catch(() => onNewError(ErrorMessage.UnableDelete))
         .finally(() => setTodoIdsWithLoader(
           prevTodoIds => prevTodoIds.filter((id) => todo.id !== id),
         ));
@@ -108,7 +111,7 @@ export const TodoApp = () => {
               type="button"
               data-cy="ToggleAllButton"
               className={classNames('todoapp__toggle-all', {
-                active: areAllTodosCompleted,
+                active: isAllTodosCompleted,
               })}
               aria-label="toggle_all_todos"
               onClick={handleAllTodosToggle}
@@ -129,7 +132,9 @@ export const TodoApp = () => {
         {!!todos.length && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {`${activeTodos.length} items left`}
+              {activeTodos.length === 1
+                ? '1 item left'
+                : `${activeTodos.length} items left`}
             </span>
             <Filter
               filterKey={filterKey}

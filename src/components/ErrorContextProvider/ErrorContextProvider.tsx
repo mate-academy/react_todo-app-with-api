@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 export const ErrorContext = React.createContext({
-  errorMessage: '',
+  errorMessage: ErrorMessage.None,
   setErrorMessage: () => {},
-  hasError: false,
-  setHasError: () => {},
   onNewError: () => {},
 } as ErrorContextProps);
 
 type ErrorContextProps = {
-  errorMessage: string,
-  setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
-  hasError: boolean,
-  setHasError: React.Dispatch<React.SetStateAction<boolean>>,
-  onNewError: (error: string) => void,
+  errorMessage: ErrorMessage,
+  setErrorMessage: React.Dispatch<React.SetStateAction<ErrorMessage>>,
+  onNewError: (error: ErrorMessage) => void,
 };
 
 type Props = {
@@ -21,23 +18,21 @@ type Props = {
 };
 
 export const ErrorContextProvider: React.FC<Props> = ({ children }) => {
-  const [errorMessage, setErrorMessage] = useState('');
-  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage>(
+    ErrorMessage.None,
+  );
 
-  const onNewError = (error: string) => {
+  const onNewError = (error: ErrorMessage) => {
     setErrorMessage(error);
-    setHasError(true);
 
     setTimeout(() => {
-      setHasError(false);
+      setErrorMessage(ErrorMessage.None);
     }, 3000);
   };
 
   const initialValue = {
     errorMessage,
     setErrorMessage,
-    hasError,
-    setHasError,
     onNewError,
   };
 

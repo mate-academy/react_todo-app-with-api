@@ -9,6 +9,7 @@ import { postTodo } from '../../api/todos';
 import { TodosContext } from '../TodosContextProvider/TodosContextProvider';
 import { USER_ID } from '../../utils/UserId';
 import { ErrorContext } from '../ErrorContextProvider/ErrorContextProvider';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   setTempTodo: (todo: Todo | null) => void,
@@ -18,7 +19,7 @@ type Props = {
 export const NewTodo: React.FC<Props> = ({
   setTempTodo, tempTodo,
 }) => {
-  const { onNewError } = useContext(ErrorContext);
+  const { onNewError, setErrorMessage } = useContext(ErrorContext);
   const { setTodos, todos } = useContext(TodosContext);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const titleInput = useRef<HTMLInputElement | null>(null);
@@ -33,7 +34,7 @@ export const NewTodo: React.FC<Props> = ({
     event.preventDefault();
 
     if (!newTodoTitle.trim()) {
-      onNewError('Title should not be empty');
+      onNewError(ErrorMessage.EmptyTitleRecieved);
 
       return;
     }
@@ -44,12 +45,14 @@ export const NewTodo: React.FC<Props> = ({
       completed: false,
     };
 
+    setErrorMessage(ErrorMessage.None);
+
     postTodo(newTodo)
       .then((response) => {
         setNewTodoTitle('');
         setTodos((prevTodos) => [...prevTodos, response]);
       })
-      .catch(() => onNewError('Unable to add a todo'))
+      .catch(() => onNewError(ErrorMessage.UnableAdd))
       .finally(() => setTempTodo(null));
 
     setTempTodo({
@@ -67,7 +70,7 @@ export const NewTodo: React.FC<Props> = ({
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={newTodoTitle}
-        onChange={(event) => setNewTodoTitle(event.target.value)}
+        onChange={({ target }) => setNewTodoTitle(target.value)}
         disabled={!!tempTodo}
       />
     </form>
