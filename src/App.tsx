@@ -20,17 +20,34 @@ import { client } from './utils/fetchClient';
 
 const USER_ID = 11521;
 
+function getUpdatedTodos(
+  todos: Todo[],
+  updatedTodo: Todo,
+  updatedField: keyof Todo,
+) {
+  return todos.map(todo => {
+    if (todo.id === updatedTodo.id) {
+      return {
+        ...todo,
+        [updatedField]: updatedTodo[updatedField],
+      };
+    }
+
+    return todo;
+  });
+}
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [status, setStatus] = useState<Status>(Status.All);
   const [errorMessage, setErrorMessage] = useState(Error.None);
   const [value, setValue] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [areSubmiting, setAreSubmiting] = useState(false);
+  const [wasEdited, setWasEdited] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
-  const [areSubmiting, setAreSubmiting] = useState(false);
   const [togglingId, setTogglingId] = useState<number | null>(null);
-  const [wasEdited, setWasEdited] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -93,9 +110,7 @@ export const App: React.FC = () => {
       setIsSubmitted(false);
     } else {
       addTodo(newTodo)
-        .then(() => {
-          setValue('');
-        })
+        .then(() => setValue(''))
         .finally(() => {
           setTempTodo(null);
           setIsSubmitted(false);
@@ -125,24 +140,26 @@ export const App: React.FC = () => {
     });
   };
 
-  const onToggle = (todoId: number) => {
-    const todoToToggle = todos.find((todo) => todo.id === todoId);
+  const handleChangeCompletedStatus = (
+    todoId: number,
+    isCompleted: boolean,
+  ) => {
+    setProcessingIds(prevState => [...prevState, todoId]);
 
-    setIsSubmitted(true);
-    setTogglingId(todoId);
-
-    if (!todoToToggle) {
-      return;
-    }
-
-    const todoUpdateData = { completed: !todoToToggle.completed };
-
-    updateTodo(todoId, todoUpdateData)
-      .then(() => setErrorMessage(Error.None))
-      .catch(() => setErrorMessage(Error.Toggle))
+    return updateTodo(todoId, { completed: !isCompleted })
+      .then((currentTodo: Todo) => {
+        setTodos(prevState => getUpdatedTodos(
+          prevState,
+          currentTodo,
+          'completed',
+        ));
+      })
+      .catch(() => {
+        setErrorMessage(Error.Update);
+      })
       .finally(() => {
-        setTogglingId(null);
-        setIsSubmitted(false);
+        setProcessingIds(prevState => prevState
+          .filter(id => id !== todoId));
       });
   };
 
@@ -227,7 +244,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDelete={onDelete}
               processingIds={processingIds}
-              onToggle={onToggle}
+              onToggle={handleChangeCompletedStatus}
               togglingId={togglingId}
               onUpdate={updateTodos}
               isSubmitted={isSubmitted}
