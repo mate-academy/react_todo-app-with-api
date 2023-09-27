@@ -5,17 +5,16 @@ import { Todo } from '../types/Todo';
 interface Props {
   setNewTodo: (newTodo: string) => void;
   newTodo: string;
-  addTodo: (title: string) => void; // Updated the return type to void
+  addTodo: (title: string) => void;
   todos: Todo[];
   setTodos: (todos: Todo[]) => void;
 }
 
-// eslint-disable-next-line max-len
 export const InputOfTodos: React.FC<Props> = ({
   setNewTodo, newTodo, addTodo, todos, setTodos,
 }) => {
   const handleAddNewTodo = () => {
-    if (newTodo) { // Removed the unnecessary check
+    if (newTodo) {
       addTodo(newTodo);
       setNewTodo('');
     }
@@ -25,10 +24,10 @@ export const InputOfTodos: React.FC<Props> = ({
     setNewTodo(event.target.value);
   };
 
-  // eslint-disable-next-line max-len
-  const handleInputKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyPress
+  = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission on Enter key press
+      event.preventDefault();
       handleAddNewTodo();
     }
   };
@@ -53,7 +52,8 @@ export const InputOfTodos: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length !== 0 && (
+      {/* i can not write it as {todos.lenght && as when its value is 0 it will display  '0' on the screen  */}
+      {todos.length > 0 && (
         <button
           type="button"
           className={`todoapp__toggle-all ${todos.every((t) => t.completed) ? 'active' : ''}`}

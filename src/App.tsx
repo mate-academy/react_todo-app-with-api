@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from './types/Todo';
 import { Errors } from './types/Errors';
 import { FilterOption } from './types/filterOption';
@@ -8,28 +8,10 @@ import { InputOfTodos } from './components/inputOfTodos';
 import { Footer } from './components/footer';
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([
-    // Initialize with some example todos
-
-    {
-      id: 1,
-      title: 'Example Todo 1',
-      completed: false,
-      removed: false,
-      editing: false,
-    },
-
-    {
-      id: 2,
-      title: 'Example Todo 2',
-      completed: true,
-      removed: false,
-      editing: false,
-    },
-  ]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Errors | null>(null);
   const [filterTodos, setFilterTodos] = useState<FilterOption>('All');
-  const [newTodo, setNewTodo] = useState<string>(''); // State for new todo input
+  const [newTodo, setNewTodo] = useState<string>('');
 
   const handleSetFilter = (newFilter: FilterOption) => {
     setFilterTodos(newFilter);
@@ -50,20 +32,15 @@ export const App: React.FC = () => {
       };
 
       setTodos([...todos, newTodoItem]);
-      setNewTodo(''); // Clear the input field
+      setNewTodo('');
     }
   };
-
-  useEffect(() => {
-    // You can perform any additional actions here when the todos state changes.
-  }, [todos]);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        {/* Input for adding new todos */}
         <InputOfTodos
           setNewTodo={setNewTodo}
           newTodo={newTodo}
@@ -72,7 +49,6 @@ export const App: React.FC = () => {
           setTodos={setTodos}
         />
 
-        {/* Pass the filtered todos to TodoList */}
         {todos && (
           <TodoList
             todos={todos}
@@ -81,7 +57,6 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <Footer
             handleSetFilter={handleSetFilter}
@@ -91,9 +66,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      {error !== null && (
+      {error && (
         <InCaseOfError error={error} closeError={closeError} />
       )}
     </div>

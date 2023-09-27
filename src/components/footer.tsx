@@ -9,8 +9,11 @@ interface Props {
   setTodos: (todos: Todo[]) => void;
 }
 
-// eslint-disable-next-line max-len
-export const Footer: React.FC<Props> = ({ handleSetFilter, todos, setTodos }) => {
+export const Footer: React.FC<Props> = ({
+  handleSetFilter,
+  todos,
+  setTodos,
+}) => {
   const handleRemoveComplited = () => {
     setTodos(todos.filter((todo) => todo.completed !== true));
   };

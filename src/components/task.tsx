@@ -54,8 +54,8 @@ export const Task: React.FC<Props> = ({ todo, setTodos, todos }) => {
     setInputValue('');
   };
 
-  // eslint-disable-next-line max-len
-  const handleInputKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyPress
+  = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       event.preventDefault();
       cancelEditing();

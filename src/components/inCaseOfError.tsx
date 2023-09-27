@@ -8,12 +8,10 @@ interface Props {
 
 export const InCaseOfError: React.FC<Props> = ({ error, closeError }) => {
   useEffect(() => {
-    // Set a timeout to call closeError after 3 seconds
     const timeoutId = setTimeout(() => {
       closeError();
     }, 3000);
 
-    // Clean up the timeout when the component unmounts
     return () => {
       clearTimeout(timeoutId);
     };
