@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
-// import { addTodo, deleteTodo, getTodos } from './api/todos';
 import { ErrorType } from './types/ErrorType';
 import { StatusFilter } from './types/StatusFilter';
 import { TodoList } from './components/TodoList';
@@ -27,13 +26,11 @@ const getFilterTodos = (
 
     case StatusFilter.Active: {
       filteredTodos = todos.filter(todo => todo.completed === false);
-
       break;
     }
 
     case StatusFilter.Completed: {
       filteredTodos = todos.filter(todo => todo.completed === true);
-
       break;
     }
 
@@ -51,7 +48,6 @@ export const App: React.FC = () => {
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  // const [activeTodoId, setActiveTodoId] = useState(0);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([0]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -95,7 +91,7 @@ export const App: React.FC = () => {
     .filter(todo => todo.completed === false)
     .length;
   const countCompletedTodos = todos
-    .filter(todo => todo.completed === true)
+    .filter(todo => todo.completed)
     .length;
 
   const handleStatusChange = (filteredKey: StatusFilter) => {
@@ -191,14 +187,14 @@ export const App: React.FC = () => {
 
   const handleTitleUpdate = (todo: Todo, updatedTitle: string) => {
     setProcessingTodoIds(prevState => [...prevState, todo.id]);
-    todoService.updateTodo({
+
+    return todoService.updateTodo({
       id: todo.id,
       title: updatedTitle,
       userId: USER_ID,
       completed: todo.completed,
     })
       .then(updatedTodo => {
-        // setActiveTodoId(0);
         setTodos(prevState => {
           return prevState.map(currentTodo => {
             return currentTodo.id !== updatedTodo.id
@@ -207,9 +203,9 @@ export const App: React.FC = () => {
           });
         });
       })
-      .catch(() => {
+      .catch((error) => {
         showError(ErrorType.Update);
-        // setActiveTodoId(0);
+        throw error;
       })
       .finally(() => {
         return setProcessingTodoIds(prevState => prevState
@@ -232,17 +228,13 @@ export const App: React.FC = () => {
     setNewTodoTitle(event.target.value);
   };
 
-  const handleToggleClick = () => {
+  const handleToggleTodo = () => {
     if (countCompletedTodos !== todos.length) {
-      const notCompletedTodos = todos.filter(todo => !todo.completed);
+      const activeTodos = todos.filter(todo => !todo.completed);
 
-      notCompletedTodos.forEach(todo => {
-        handleStatusUpdate(todo);
-      });
+      activeTodos.forEach(handleStatusUpdate);
     } else {
-      todos.forEach(todo => {
-        handleStatusUpdate(todo);
-      });
+      todos.forEach(handleStatusUpdate);
     }
   };
 
@@ -259,7 +251,7 @@ export const App: React.FC = () => {
               className={classNames('todoapp__toggle-all',
                 { active: !countActiveTodos })}
               data-cy="ToggleAllButton"
-              onClick={handleToggleClick}
+              onClick={handleToggleTodo}
             />
           )}
 
@@ -277,12 +269,12 @@ export const App: React.FC = () => {
             />
           </form>
         </header>
+
         {!isLoadig && (
           <>
             <TodoList
               todos={visibleTodos}
               handleDeleteTodo={handleDeleteTodo}
-              // activeTodoId={activeTodoId}
               handleStatusUpdate={handleStatusUpdate}
               handleTitleUpdate={handleTitleUpdate}
               processingTodoIds={processingTodoIds}
@@ -290,7 +282,6 @@ export const App: React.FC = () => {
             {tempTodo && (
               <TodoItem
                 todo={tempTodo}
-                // isActive={isRequesting}
                 handleDeleteTodo={handleDeleteTodo}
                 handleStatusUpdate={handleStatusUpdate}
                 handleTitleUpdate={handleTitleUpdate}

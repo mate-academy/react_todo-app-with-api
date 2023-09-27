@@ -4,11 +4,11 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo,
-  handleDeleteTodo: (id: number) => void,
   isActive?: boolean,
+  isProcessing: boolean,
+  handleDeleteTodo: (id: number) => void,
   handleStatusUpdate: (todo: Todo) => void,
-  handleTitleUpdate: (todo: Todo, newTitile: string) => void,
-  isProcessing: boolean
+  handleTitleUpdate: (todo: Todo, newTitile: string) => Promise<void>,
 };
 export const TodoItem: React.FC<Props> = ({
   todo,
@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({
   const inputUpdateRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (inputUpdateRef.current) {
+    if (inputUpdateRef.current) { // isEditing &&
       inputUpdateRef.current.focus();
     }
   }, [isEditing]);
@@ -34,8 +34,7 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(todo.title);
   };
 
-  const handleFormSubmit = () => {
-    setIsEditing(false);
+  const handleFormSubmit = () => { //
     if (newTitle === todo.title) {
       return;
     }
@@ -43,7 +42,9 @@ export const TodoItem: React.FC<Props> = ({
     if (newTitle === '') {
       handleDeleteTodo(todo.id);
     } else {
-      handleTitleUpdate(todo, newTitle);
+      handleTitleUpdate(todo, newTitle)
+        .then(() => setIsEditing(false));
+      // .catch(() => setNewTitle(todo.title));
     }
   };
 
