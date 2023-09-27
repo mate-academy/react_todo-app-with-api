@@ -54,6 +54,11 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
         setError(CurrentError.DeleteError);
         throw new Error();
       }
+
+      if (error === CurrentError.EmptyTitleError) {
+        setError(CurrentError.EmptyTitleError);
+        throw new Error();
+      }
     }
   };
 

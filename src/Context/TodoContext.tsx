@@ -109,6 +109,12 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       return Promise.resolve();
     }
 
+    if (!newTodoTitle.trim()) {
+      setError(CurrentError.EmptyTitleError);
+
+      return Promise.reject();
+    }
+
     setIsLoading(true);
     setProcessingTodoIds(prevState => [...prevState, todo.id]);
 
