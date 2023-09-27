@@ -137,7 +137,7 @@ export const App: React.FC = () => {
         });
 
         if (wasFailed) {
-          setErrorMessage('Unable to delete a todo');
+          setErrorMessage('Unable to update a todo');
         }
 
         setLoadingTodosIds([]);
