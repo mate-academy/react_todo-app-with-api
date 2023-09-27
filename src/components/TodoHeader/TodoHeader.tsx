@@ -22,7 +22,7 @@ export const TodoHeader: React.FC = () => {
   const activeTodosCount = activeTodos.length;
   const completedTodosCount = completedTodos.length;
 
-  const formInput = useRef<HTMLInputElement>(null);
+  const formInputRef = useRef<HTMLInputElement>(null);
 
   const [value, setValue] = useState('');
 
@@ -46,9 +46,6 @@ export const TodoHeader: React.FC = () => {
       title: value.trim(),
       completed: false,
     };
-    /* eslint-disable no-console */
-
-    console.log(newTodo);
 
     addTodoHandler(newTodo)
       .then(() => {
@@ -60,20 +57,19 @@ export const TodoHeader: React.FC = () => {
   };
 
   useEffect(() => {
-    if (formInput.current) {
-      formInput.current.focus();
+    if (formInputRef.current) {
+      formInputRef.current.focus();
     }
   }, []);
 
   useEffect(() => {
     if (!isLoading) {
-      formInput.current?.focus();
+      formInputRef.current?.focus();
     }
   }, [isLoading]);
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!activeTodosCount && (
         <button
           type="button"
@@ -85,14 +81,13 @@ export const TodoHeader: React.FC = () => {
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleFormSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          ref={formInput}
+          ref={formInputRef}
           value={value}
           onChange={(event) => handleInputChange(event)}
           disabled={isLoading}

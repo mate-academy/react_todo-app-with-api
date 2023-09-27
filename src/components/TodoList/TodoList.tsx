@@ -8,7 +8,6 @@ interface Props {
 export const TodoList: React.FC<Props> = ({ todos }) => {
   return (
     <section className="todoapp__main">
-      {/* This is a completed todo */}
       {todos.map((todo) => (
         <TodoElement todo={todo} key={todo.id} />
       ))}
