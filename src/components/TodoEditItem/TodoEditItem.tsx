@@ -74,7 +74,10 @@ export const TodoEditItem: React.FC<Props> = ({
     }
   };
 
-  const handleEditTodo = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEditTodo = (
+    event: React.FormEvent<HTMLFormElement>
+    | React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
     event.preventDefault();
 
     if (todo.title === newTitle) {
@@ -106,7 +109,7 @@ export const TodoEditItem: React.FC<Props> = ({
           placeholder="Empty todo will be deleted"
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
-          onBlur={updateNewTodo}
+          onBlur={handleEditTodo}
           onKeyUp={handlePressEscape}
         />
       </form>

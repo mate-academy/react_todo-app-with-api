@@ -52,11 +52,21 @@ export const TodoHeader: React.FC<Props> = ({
       onToggleActive(allActive);
     }
 
-    const updatePromises = todos.map(todo => {
-      const updatedTodo = { ...todo, completed: !todo.completed };
+    const updatePromises: Promise<Todo>[] = [];
 
-      return updateTodo(todo.id, updatedTodo);
-    });
+    if (isAllCompleted) {
+      todos.map(todo => {
+        const updatedTodo = { ...todo, completed: false };
+
+        return updatePromises.push(updateTodo(todo.id, updatedTodo));
+      });
+    } else {
+      todos.map(todo => {
+        const updatedTodo = { ...todo, completed: true };
+
+        return updatePromises.push(updateTodo(todo.id, updatedTodo));
+      });
+    }
 
     try {
       await Promise.all(updatePromises);

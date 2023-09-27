@@ -42,6 +42,14 @@ export const TodoItem: React.FC<Props> = ({
       .finally(() => setIsCompleteActive(false));
   };
 
+  const handleDelete = () => {
+    setDeletedTodoId(id);
+    onDelete(todo);
+  };
+
+  const isActive = (isDeleteActive && id === deletedTodoId)
+  || isToggleActive.includes(id) || isCompleteActive;
+
   return (
     <div
       data-cy="Todo"
@@ -74,10 +82,7 @@ export const TodoItem: React.FC<Props> = ({
         type="button"
         className="todo__remove"
         data-cy="TodoDelete"
-        onClick={() => {
-          setDeletedTodoId(id);
-          onDelete(todo);
-        }}
+        onClick={handleDelete}
       >
         ×
       </button>
@@ -86,8 +91,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classnames(
           'modal overlay', {
-            'is-active': (isDeleteActive && id === deletedTodoId)
-              || isToggleActive.includes(id) || isCompleteActive,
+            'is-active': isActive,
           },
         )}
       >
