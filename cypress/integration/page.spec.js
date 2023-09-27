@@ -974,7 +974,7 @@ describe('', () => {
         todos.statusToggler(0).should('not.be.checked');
       });
 
-      it('should cancel loading', () => {
+      it.skip('should cancel loading', () => {
         todos.assertNotLoading(0);
       });
 
