@@ -96,7 +96,7 @@ export const App: React.FC = () => {
     clearErrorMessage();
     startProcessingTodo(todo);
 
-    return todoService.deleteTodo(todo.id)
+    todoService.deleteTodo(todo.id)
       .then(() => removeTodoFromState(todo))
       .catch(() => setErrorMessage(ErrorMessage.DeleteTodo))
       .finally(() => stopProcessingTodo(todo));
@@ -135,7 +135,14 @@ export const App: React.FC = () => {
     startProcessingTodo(todo);
 
     if (!title) {
-      return handleDeleteTodo(todo);
+      return todoService.deleteTodo(todo.id)
+        .then(() => removeTodoFromState(todo))
+        .catch(() => {
+          setErrorMessage(ErrorMessage.DeleteTodo);
+
+          throw new Error(ErrorMessage.DeleteTodo);
+        })
+        .finally(() => stopProcessingTodo(todo));
     }
 
     return todoService.editTodo(todo.id, title)
