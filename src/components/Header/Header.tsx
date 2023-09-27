@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
 import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
@@ -36,6 +34,7 @@ export const Header: React.FC<Props> = ({
           active: isAllCompleted,
         })}
         data-cy="ToggleAllButton"
+        aria-label="ToggleAll"
         onClick={onToggleAll}
       />
       <form onSubmit={onSubmit}>
