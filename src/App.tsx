@@ -101,7 +101,7 @@ export const App: React.FC = () => {
 
     return todoService.updateTodo({
       id: todo.id,
-      title: newTodoTitle,
+      title: newTodoTitle.trim(),
       userId: todo.userId,
       completed: todo.completed,
     })
@@ -113,7 +113,7 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setErrorMessage('Unable to ubdate a todo');
+        setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setProcessingTodoIds(

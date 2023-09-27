@@ -105,7 +105,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={handleTodoDoubleClick}
             >
-              {title}
+              {title.trim()}
             </span>
 
             <button
