@@ -1,5 +1,6 @@
 import { useTodo } from '../../../context/TodoContext';
 import { FilterType } from '../../../types/FilterType';
+import { FilterButton } from './FilterButton';
 
 export const Filters = () => {
   const {
@@ -16,35 +17,30 @@ export const Filters = () => {
       data-cy="Filter"
       className="filter"
     >
-      <a
-        data-cy="FilterLinkAll"
+      <FilterButton
+        name="All"
+        data_cy="FilterLinkAll"
         href="#/"
-        className={filterTodos === 'all'
+        filter={filterTodos === 'all'
           ? 'filter__link selected' : 'filter__link'}
         onClick={() => addFilterType('all')}
-      >
-        All
-      </a>
-
-      <a
-        data-cy="FilterLinkActive"
+      />
+      <FilterButton
+        name="Active"
+        data_cy="FilterLinkActive"
         href="#/active"
-        className={filterTodos === 'active'
+        filter={filterTodos === 'active'
           ? 'filter__link selected' : 'filter__link'}
         onClick={() => addFilterType('active')}
-      >
-        Active
-      </a>
-
-      <a
-        data-cy="FilterLinkCompleted"
+      />
+      <FilterButton
+        name="Completed"
+        data_cy="FilterLinkCompleted"
         href="#/completed"
-        className={filterTodos === 'completed'
+        filter={filterTodos === 'completed'
           ? 'filter__link selected' : 'filter__link'}
         onClick={() => addFilterType('completed')}
-      >
-        Completed
-      </a>
+      />
     </nav>
   );
 };
