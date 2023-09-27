@@ -8,6 +8,7 @@ import {
   getTodos,
   deleteTodo,
   createTodo,
+  updateTodo,
 } from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
@@ -134,8 +135,10 @@ export const App: React.FC = () => {
       return;
     }
 
-    client
-      .patch(`/todos/${todoId}`, { completed: !todoToToggle.completed })
+    const todoUpdateData = { completed: !todoToToggle.completed };
+
+    updateTodo(todoId, todoUpdateData)
+      .then(() => setErrorMessage(Error.None))
       .catch(() => setErrorMessage(Error.Toggle))
       .finally(() => {
         setTogglingId(null);
@@ -164,10 +167,14 @@ export const App: React.FC = () => {
   };
 
   const updateTodos = (todoId: number, data: Todo) => {
-    return client
-      .patch<Todo>(`/todos/${todoId}`, data)
-      .then(receivedTodo => {
-        setTodos(todos.map(todo => (todo.id === todoId ? receivedTodo : todo)));
+    setIsSubmitted(true);
+    setTogglingId(todoId);
+
+    updateTodo(todoId, data)
+      .then((receivedTodo) => {
+        setTodos((prevTodos) => prevTodos
+          .map((todo) => (todo.id === todoId ? receivedTodo : todo)));
+        setErrorMessage(Error.None);
       })
       .catch(() => setErrorMessage(Error.Update))
       .finally(() => {

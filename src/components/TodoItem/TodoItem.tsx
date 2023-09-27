@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
+// import { client } from '../../utils/fetchClient';
+import { updateTodo } from '../../api/todos';
 
 type Props = {
   todo: Todo,
@@ -48,11 +49,12 @@ export const TodoItem: React.FC<Props> = ({
       onDelete(todo.id);
     } else {
       setIsEditing(true);
-      client
-        .patch(`/todos/${todo.id}`, { title: newTodoTitle })
-        .then(() => {
+      const todoUpdateData = { title: newTodoTitle };
+
+      updateTodo(todo.id, todoUpdateData)
+        .then((updatedTodo) => {
           setIsEditing(false);
-          onUpdate(todo.id, { ...todo, title: newTodoTitle });
+          onUpdate(updatedTodo.id, updatedTodo);
         })
         .catch(() => {
           setIsEditing(false);

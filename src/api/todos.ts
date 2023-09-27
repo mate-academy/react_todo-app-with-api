@@ -1,4 +1,5 @@
 import { Todo } from '../types/Todo';
+import { TodoUpdateData } from '../types/TodoUpdateData';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -11,4 +12,11 @@ export const createTodo = ({ title, completed, userId }: Omit<Todo, 'id'>) => {
 
 export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
+};
+
+export const updateTodo = (
+  todoId: number,
+  data: TodoUpdateData,
+): Promise<Todo> => {
+  return client.patch(`/todos/${todoId}`, data);
 };
