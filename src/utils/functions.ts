@@ -40,3 +40,20 @@ export function getItemsLeftCountMessage(activeTodos: Todo[]) {
       return `${activeTodos.length} items left`;
   }
 }
+
+export function getUpdatedTodos(
+  todos: Todo[],
+  updatedTodo: Todo,
+  updatedField: keyof Todo,
+) {
+  return todos.map(todo => {
+    if (todo.id === updatedTodo.id) {
+      return {
+        ...todo,
+        [updatedField]: updatedTodo[updatedField],
+      };
+    }
+
+    return todo;
+  });
+}

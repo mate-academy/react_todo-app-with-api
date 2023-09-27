@@ -19,27 +19,14 @@ import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { UserWarning } from './UserWarning';
 import { TodoError } from './components/TodoError/TodoError';
 import { TodoLoadingItem } from './components/TodoLoadingItem/TodoLoadingItem';
-import { filterTodos, getItemsLeftCountMessage } from './utils/functions';
+import {
+  filterTodos,
+  getItemsLeftCountMessage,
+  getUpdatedTodos,
+} from './utils/functions';
 import { client } from './utils/fetchClient';
 
 const USER_ID = 11521;
-
-function getUpdatedTodos(
-  todos: Todo[],
-  updatedTodo: Todo,
-  updatedField: keyof Todo,
-) {
-  return todos.map(todo => {
-    if (todo.id === updatedTodo.id) {
-      return {
-        ...todo,
-        [updatedField]: updatedTodo[updatedField],
-      };
-    }
-
-    return todo;
-  });
-}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
