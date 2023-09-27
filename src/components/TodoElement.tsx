@@ -26,6 +26,7 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
   const shouldDisplayLoader = id === 0 || processingTodoIds.includes(id);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleTodoDoubleClick = () => {
     setIsEditing(true);
@@ -45,6 +46,8 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
 
       setIsEditing(false);
     } catch (error) {
+      titleInputRef.current?.focus();
+
       if (error === CurrentError.UpdateError) {
         setError(CurrentError.UpdateError);
         throw new Error();
@@ -74,8 +77,6 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
       setTodoTitle(title);
     }
   };
-
-  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isEditing && titleInputRef.current) {
