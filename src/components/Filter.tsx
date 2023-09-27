@@ -12,9 +12,10 @@ export const Filter: React.FC<Props> = ({
   selectedOption,
 }) => {
   function addActiveSelectedClass(option: string) {
-    return selectedOption === option
-      ? classNames('filter__link selected')
-      : classNames('filter__link');
+    return classNames(
+      'filter__link',
+      { selected: selectedOption === option },
+    );
   }
 
   return (
