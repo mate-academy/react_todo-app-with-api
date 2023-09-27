@@ -57,6 +57,12 @@ export const TodoItem: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
+  const onKeyUpHandle = (event: React.KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
   return (
     <div
       className={classNames('todo',
@@ -82,6 +88,7 @@ export const TodoItem: React.FC<Props> = ({
             onBlur={handleTodoSave}
           >
             <input
+              onKeyUp={onKeyUpHandle}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
