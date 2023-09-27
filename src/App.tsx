@@ -257,12 +257,17 @@ export const App: React.FC = () => {
       >
         {error
         && (
-          <button
-            data-cy="HideErrorButton"
-            type="button"
-            className="delete"
-            onClick={() => setError(null)}
-          />
+          <div
+            className="notification is-danger is-light has-text-weight-normal"
+          >
+            <button
+              data-cy="HideErrorButton"
+              type="button"
+              className="delete"
+              onClick={() => setError(null)}
+            />
+          </div>
+
         )}
         {/* show only one message at a time */}
         {error}

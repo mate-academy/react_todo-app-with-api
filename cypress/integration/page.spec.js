@@ -639,7 +639,7 @@ describe('', () => {
 
         cy.wait('@createRequest2');
         page.flushJSTimers();
-
+        cy.wait(300);
         todos.assertCount(6);
         todos.assertNotLoading(5);
         todos.assertNotCompleted(5);

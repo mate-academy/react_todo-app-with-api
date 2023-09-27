@@ -56,14 +56,14 @@ export const TodoItem = ({
     }
 
     updateTodo(todo.id, {
-      title: editedTodoTitle,
+      title: editedTodoTitle.trim(),
     }).then(() => {
-      todo.title = editedTodoTitle;
+      todo.title = editedTodoTitle.trim();
+      setIsTodoEdited(false);
     }).catch(() => {
       handleError('Unable to update a todo');
     }).finally(() => {
       setIsLoading(false);
-      setIsTodoEdited(false);
     });
   };
 
