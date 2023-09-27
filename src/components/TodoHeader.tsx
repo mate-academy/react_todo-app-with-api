@@ -10,6 +10,7 @@ type Props = {
   onTodosChangeStatus: () => void;
   todos: Todo[];
   isTodosHere: boolean;
+  setErrorMessage: (text: string) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const TodoHeader: React.FC<Props> = ({
   onTodosChangeStatus,
   todos,
   isTodosHere,
+  setErrorMessage,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -42,6 +44,9 @@ export const TodoHeader: React.FC<Props> = ({
     onTodoAdd(trimedTodoTitle)
       .then(() => {
         setTodoTitle('');
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setIsAdding(false);
