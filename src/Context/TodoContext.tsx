@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useContext,
   useMemo,
   useState,
 } from 'react';
@@ -25,7 +26,7 @@ interface TodoContextInterface {
   handleToggleChange: (todo: Todo) => void;
   handleTodoDelete: (id: number) => void;
   handleTodoAdd: (newTodo: Omit<Todo, 'id'>) => Promise<void>
-  handleTodoRename: (todo: Todo, newTodoTitle: string) => Promise<void>,
+  handleTodoRename: (todo: Todo, newTodoTitle: string) => Promise<void> | void,
   completedTodos: Todo[];
   activeTodos: Todo[];
   handleClearCompleted: () => void;
@@ -77,7 +78,6 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setError(CurrentError.DeleteError);
-        throw new Error();
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -106,13 +106,13 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
   const handleTodoRename = (todo: Todo, newTodoTitle: string) => {
     if (todo.title === newTodoTitle) {
-      return Promise.resolve();
+      return;
     }
 
     if (!newTodoTitle.trim()) {
       setError(CurrentError.EmptyTitleError);
 
-      return Promise.reject();
+      return;
     }
 
     setIsLoading(true);
@@ -203,3 +203,5 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     </TodoContext.Provider>
   );
 };
+
+export const useTodo = () => useContext(TodoContext);

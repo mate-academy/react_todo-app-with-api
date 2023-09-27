@@ -5,10 +5,8 @@ export const getFilteredTodos = (
   todos: Todo[],
   selectedFilter: string,
 ) => {
-  let preparedTodos = [...todos];
-
   if (selectedFilter !== TodoFilter.All) {
-    preparedTodos = preparedTodos.filter(({ completed }) => {
+    return todos.filter(({ completed }) => {
       switch (selectedFilter) {
         case TodoFilter.Active:
           return !completed;
@@ -22,5 +20,5 @@ export const getFilteredTodos = (
     });
   }
 
-  return preparedTodos;
+  return todos;
 };

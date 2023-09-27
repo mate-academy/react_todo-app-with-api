@@ -1,13 +1,11 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { TodoContext } from '../Context/TodoContext';
-import { CurrentError } from '../types/CurrentError';
+import { useTodo } from '../Context/TodoContext';
 
 type Props = {
   todo: Todo,
@@ -19,9 +17,8 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
     handleTodoDelete,
     processingTodoIds,
     handleTodoRename,
-    setError,
     handleToggleChange,
-  } = useContext(TodoContext);
+  } = useTodo();
 
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
@@ -47,21 +44,6 @@ export const TodoElement: React.FC<Props> = ({ todo }) => {
       setIsEditing(false);
     } catch (error) {
       titleInputRef.current?.focus();
-
-      if (error === CurrentError.UpdateError) {
-        setError(CurrentError.UpdateError);
-        throw new Error();
-      }
-
-      if (error === CurrentError.DeleteError) {
-        setError(CurrentError.DeleteError);
-        throw new Error();
-      }
-
-      if (error === CurrentError.EmptyTitleError) {
-        setError(CurrentError.EmptyTitleError);
-        throw new Error();
-      }
     }
   };
 

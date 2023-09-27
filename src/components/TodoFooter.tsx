@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { TodoFilter } from '../types/TodoFilter';
-import { TodoContext } from '../Context/TodoContext';
+import { useTodo } from '../Context/TodoContext';
 
 type Props = {
   filter: TodoFilter;
@@ -16,7 +16,7 @@ export const TodoFooter: React.FC<Props> = ({
     activeTodos,
     completedTodos,
     handleClearCompleted,
-  } = useContext(TodoContext);
+  } = useTodo();
 
   const activeTodosCount = activeTodos.length;
   const completedTodosCount = completedTodos.length;

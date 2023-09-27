@@ -1,20 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { TodoElement } from './TodoElement';
-import { TodoContext } from '../Context/TodoContext';
+import { useTodo } from '../Context/TodoContext';
 
 type Props = {
   todos: Todo[],
 };
 
 export const TodoList: React.FC<Props> = ({ todos }) => {
-  const { tempTodo } = useContext(TodoContext);
+  const { tempTodo } = useTodo();
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
-        {todos?.map(todo => (
+        {todos.map(todo => (
           <CSSTransition
             key={todo.id}
             timeout={300}

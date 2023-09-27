@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import {
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -8,7 +7,7 @@ import {
 } from 'react';
 import classNames from 'classnames';
 import { CurrentError } from '../types/CurrentError';
-import { TodoContext } from '../Context/TodoContext';
+import { useTodo } from '../Context/TodoContext';
 import { USER_ID } from '../utils/constants';
 
 type Props = {};
@@ -23,14 +22,14 @@ export const TodoHeader: React.FC<Props> = () => {
     completedTodos,
     isLoading,
     handleToggleChange,
-  } = useContext(TodoContext);
+  } = useTodo();
   const [title, setTitle] = useState('');
 
   const activeTodosCount = activeTodos.length;
   const inputField = useRef<HTMLInputElement>(null);
 
   const isAllCompleted = useMemo(() => (
-    todos.every(el => el.completed)
+    todos.every(todo => todo.completed)
   ), [todos]);
 
   useEffect(() => {

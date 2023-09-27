@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useState,
   useMemo,
-  useContext,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -14,7 +13,7 @@ import { TodoHeader } from './components/TodoHeader';
 import { TodoFooter } from './components/TodoFooter';
 import { getFilteredTodos } from './utils/getFilteredTodos';
 import { CurrentError } from './types/CurrentError';
-import { TodoContext } from './Context/TodoContext';
+import { useTodo } from './Context/TodoContext';
 import { USER_ID } from './utils/constants';
 import * as todoService from './api/todos';
 
@@ -26,14 +25,13 @@ export const App: React.FC = () => {
     setTodos,
     error,
     setError,
-  } = useContext(TodoContext);
+  } = useTodo();
 
   useEffect(() => {
     todoService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
         setError(CurrentError.LoadingError);
-        throw new Error();
       });
   }, []);
 
