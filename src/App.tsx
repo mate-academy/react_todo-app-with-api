@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useState,
-  useMemo,
   useRef,
 } from 'react';
 import { Todo } from './types/Todo';
@@ -10,7 +9,7 @@ import * as todoService from './api/todos';
 import { ErrorNotification } from './components/ErrorNotification';
 import { TodoItem } from './components/TodoItem';
 import { TodoHeader } from './components/TodoHeader';
-import { TodosFilter } from './components/TodosFilter';
+import { TodoFooter } from './components/TodoFooter';
 import {
   UNABLE_ADD_TODO,
   UNABLE_DELETE_TODO,
@@ -20,13 +19,13 @@ import {
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterTodo, setFilterTodo] = useState(StatusState.All);
+  const [statusTodo, setStatusTodo] = useState(StatusState.All);
 
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const handleChangeFilter = (newElement: StatusState) => {
-    setFilterTodo(newElement);
+    setStatusTodo(newElement);
   };
 
   useEffect(() => {
@@ -64,7 +63,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(UNABLE_ADD_TODO);
-        throw new Error();
+        throw new Error(UNABLE_ADD_TODO);
       })
       .finally(() => {
         setTempTodo(null);
@@ -87,12 +86,10 @@ export const App: React.FC = () => {
       });
   };
 
-  const incompleteTodosCount = useMemo(() => {
-    return todos.filter(todo => !todo.completed).length;
-  }, [todos]);
+  const CompletedTodosCount = todos.filter(({ completed }) => completed).length;
 
   const filteredTodos = todos.filter(todo => {
-    switch (filterTodo) {
+    switch (statusTodo) {
       case StatusState.Active:
         return !todo.completed;
       case StatusState.Completed:
@@ -180,6 +177,7 @@ export const App: React.FC = () => {
           onTodoAddError={setErrorMessage}
           isAllCompleted={isAllCompleted}
           onToogleAll={handleToogleAllTodos}
+          setErrorMessage={setErrorMessage}
         />
 
         <section className="todoapp__main" data-cy="TodoList">
@@ -202,24 +200,13 @@ export const App: React.FC = () => {
         </section>
 
         { !!todos.length && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${incompleteTodosCount} items left`}
-            </span>
-            <TodosFilter
-              filterTodo={filterTodo}
-              onChangeFilter={handleChangeFilter}
-            />
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              disabled = {!incompleteTodosCount }
-              data-cy="ClearCompletedButton"
-              onClick={handleClearComletedTodo}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <TodoFooter
+            todos={todos}
+            CompletedTodosCount={CompletedTodosCount}
+            statusTodo={statusTodo}
+            handleClearComletedTodo={handleClearComletedTodo}
+            handleChangeFilter={handleChangeFilter}
+          />
         )}
       </div>
 

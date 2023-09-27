@@ -6,7 +6,7 @@ type Props = {
   onChangeFilter: (newFilter: StatusState) => void;
 };
 
-export const TodosFilter: React.FC<Props> = ({
+export const TodoFilter: React.FC<Props> = ({
   filterTodo,
   onChangeFilter,
 }) => (

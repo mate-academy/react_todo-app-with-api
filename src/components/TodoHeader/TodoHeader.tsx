@@ -2,6 +2,7 @@
 import classNames from 'classnames';
 import React, { useState, useRef, useEffect } from 'react';
 import { Todo } from '../../types/Todo';
+import { UNABLE_UPDATE_TODO } from '../../utils/constans';
 
 type Props = {
   todos: Todo[];
@@ -9,6 +10,7 @@ type Props = {
   onTodoAddError: (errorMessage:string) => void;
   isAllCompleted: boolean;
   onToogleAll: () => void;
+  setErrorMessage: (text: string) => void,
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -17,6 +19,7 @@ export const TodoHeader: React.FC<Props> = ({
   onTodoAddError,
   isAllCompleted,
   onToogleAll,
+  setErrorMessage,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -43,6 +46,9 @@ export const TodoHeader: React.FC<Props> = ({
       .then(() => {
         setTodoTitle('');
       })
+      .catch(() => {
+        setErrorMessage(UNABLE_UPDATE_TODO);
+      })
       .finally(() => {
         setIsAdding(false);
       });
@@ -67,7 +73,9 @@ export const TodoHeader: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={onFormSubmit}>
+      <form
+        onSubmit={onFormSubmit}
+      >
         <input
           ref={inputRef}
           data-cy="NewTodoField"
