@@ -5,32 +5,20 @@ import {
   useState,
 } from 'react';
 import classNames from 'classnames';
-import { Filter } from '../Filter/Filter';
 import { NewTodo } from '../NewTodo/NewTodo';
 import { TodoList } from '../TodoList/TodoList';
 import {
   TodosContext,
 } from '../TodosContextProvider/TodosContextProvider';
 import { TodoError } from '../TodoError/TodoError';
-import { deleteTodo, getTodos, updateTodo } from '../../api/todos';
+import { getTodos, updateTodo } from '../../api/todos';
 import { FilterKey } from '../../types/FilterKey';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../utils/UserId';
 import { ErrorContext } from '../ErrorContextProvider/ErrorContextProvider';
 import { ErrorMessage } from '../../types/ErrorMessage';
-
-function getFilteredTodos(key: FilterKey, todos: Todo[]) {
-  switch (key) {
-    case FilterKey.All:
-      return todos;
-    case FilterKey.Active:
-      return todos.filter(({ completed }) => !completed);
-    case FilterKey.Completed:
-      return todos.filter(({ completed }) => completed);
-    default:
-      return todos;
-  }
-}
+import { getFilteredTodos } from '../../utils/getFilteredTodos';
+import { Footer } from '../Footer/Footer';
 
 export const TodoApp = () => {
   const { onNewError, setErrorMessage } = useContext(ErrorContext);
@@ -43,8 +31,6 @@ export const TodoApp = () => {
     () => getFilteredTodos(filterKey, todos),
     [todos, filterKey],
   );
-  const activeTodos = todos.filter(({ completed }) => !completed);
-  const hasCompletedTodo = todos.some(({ completed }) => completed);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -62,8 +48,8 @@ export const TodoApp = () => {
     );
     setErrorMessage(ErrorMessage.None);
 
-    todosToUpdate.forEach(todo => {
-      updateTodo(todo.id, { completed: !todo.completed })
+    Promise.all(todosToUpdate.map(todo => {
+      return updateTodo(todo.id, { completed: !todo.completed })
         .then(() => {
           const todosCopy = [...todos];
           const searchedTodo = todos.find(
@@ -78,27 +64,7 @@ export const TodoApp = () => {
         .finally(() => setTodoIdsWithLoader(
           prevTodoIds => prevTodoIds.filter((todoId) => todoId !== todo.id),
         ));
-    });
-  };
-
-  const handleCompletedTodosDelete = () => {
-    const completedTodos = todos.filter(({ completed }) => completed);
-
-    setTodoIdsWithLoader(prevTodoIds => {
-      return [...prevTodoIds, ...completedTodos.map(({ id }) => id)];
-    });
-    setErrorMessage(ErrorMessage.None);
-
-    completedTodos.forEach(todo => {
-      deleteTodo(todo.id)
-        .then(() => {
-          setTodos(prevTodos => prevTodos.filter(({ id }) => id !== todo.id));
-        })
-        .catch(() => onNewError(ErrorMessage.UnableDelete))
-        .finally(() => setTodoIdsWithLoader(
-          prevTodoIds => prevTodoIds.filter((id) => todo.id !== id),
-        ));
-    });
+    }));
   };
 
   return (
@@ -130,28 +96,7 @@ export const TodoApp = () => {
         />
 
         {!!todos.length && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {activeTodos.length === 1
-                ? '1 item left'
-                : `${activeTodos.length} items left`}
-            </span>
-            <Filter
-              filterKey={filterKey}
-              onClick={setFilterKey}
-            />
-            <button
-              type="button"
-              data-cy="ClearCompletedButton"
-              className={classNames('todoapp__clear-completed', {
-                'is-invisible': !hasCompletedTodo,
-              })}
-              onClick={handleCompletedTodosDelete}
-              disabled={!hasCompletedTodo}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer filterKey={filterKey} setFilterKey={setFilterKey} />
         )}
 
         <TodoError />

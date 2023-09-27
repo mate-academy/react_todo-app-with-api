@@ -132,9 +132,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         editing: isBeingEdited,
       })}
     >
-      <label
-        className="todo__status-label"
-      >
+      <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
