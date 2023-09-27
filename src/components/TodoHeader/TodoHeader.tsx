@@ -14,6 +14,8 @@ type Props = {
   setErrorMessage: (errorMessage: string) => void,
   title: string;
   setTitle: (title: string) => void,
+  isAllCompleted: boolean;
+  onToggleAll: () => void;
 };
 
 export const TodoHeader: React.FC<Props> = ({
@@ -27,6 +29,8 @@ export const TodoHeader: React.FC<Props> = ({
   request,
   title,
   setTitle,
+  isAllCompleted,
+  onToggleAll,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -65,14 +69,25 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {activeTodosCount > 0 && (
+      {/* {activeTodosCount > 0 && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all', {
+            active: isAllCompleted,
+          })}
           data-cy="ToggleAllButton"
         />
-      )}
+      )} */}
+      <button
+        type="button"
+        aria-label="text"
+        className={classNames('todoapp__toggle-all', {
+          active: isAllCompleted,
+        })}
+        data-cy="ToggleAllButton"
+        onClick={onToggleAll}
+      />
 
       <form
         onSubmit={handleSubmit}

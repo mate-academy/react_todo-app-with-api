@@ -9,14 +9,16 @@ type Props = {
   loadingId: number[],
   isLoaderActive: boolean,
   onTodoUpdate: (todoTitle: string) => void
+  onTodoToggle: () => Promise<void>
 };
 
 export const TodoApp: React.FC<Props> = ({
   todo,
-  onDelete = () => { },
+  onDelete = () => {},
   loadingId,
   isLoaderActive,
   onTodoUpdate,
+  onTodoToggle = () => {},
 }) => {
   const { id, completed, title } = todo;
   const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +49,7 @@ export const TodoApp: React.FC<Props> = ({
   const handleOnKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
-      setTodoTitle(title);
+      setTodoTitle(title.trim());
     }
   };
 
@@ -72,7 +74,7 @@ export const TodoApp: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-        // onClick={handleToggleCompleted}
+          onClick={onTodoToggle}
         />
       </label>
 

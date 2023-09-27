@@ -30,7 +30,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  // const [isModalVisible, setIsModalVisible] = useState(false);
   const [request, setRequest] = useState(true);
   const [loadingId, setLoadingId] = useState<number[]>([]);
   const [isLoaderActive, setIsLoaderActive] = useState(false);
@@ -93,7 +92,6 @@ export const App: React.FC = () => {
   function handleDelete(todoId: number) {
     setLoadingId([todoId]);
     setIsLoaderActive(true);
-    // setIsModalVisible(true);
     deleteTodos(todoId)
       .then(() => {
         setTodo(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
@@ -128,6 +126,8 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteUpdate = (todo: Todo, newTodoTitle: string) => {
+    // setLoadingId([todo.id]);
+    // setIsLoaderActive(true);
     updateTodo({
       id: todo.id,
       title: newTodoTitle,
@@ -140,7 +140,46 @@ export const App: React.FC = () => {
             ? currentTodo
             : updatedTodo
         )));
+      })
+      .finally(() => {
+        setLoadingId([]);
+        setIsLoaderActive(false);
       });
+  };
+
+  const handleToggleTodo = (todo: Todo) => {
+    setLoadingId((prevTodoId) => [...prevTodoId, todo.id]);
+
+    return updateTodo({
+      ...todo,
+      completed: !todo.completed,
+    })
+      .then(updatedTodo => {
+        setTodo(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to toggle a todo');
+        throw new Error();
+      })
+      .finally(() => {
+        setLoadingId((prevTodoId) => prevTodoId.filter(id => id !== todo.id));
+      });
+  };
+
+  const isAllCompleted = todos.every(todo => todo.completed);
+
+  const handleToggleAll = () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    if (isAllCompleted) {
+      todos.forEach(handleToggleTodo);
+    } else {
+      activeTodos.forEach(handleToggleTodo);
+    }
   };
 
   const filteredTodos = useMemo((
@@ -168,10 +207,11 @@ export const App: React.FC = () => {
           request={request}
           title={todoTitle}
           setTitle={setTitle}
+          isAllCompleted={isAllCompleted}
+          onToggleAll={handleToggleAll}
         />
 
         <section className="todoapp__main" data-cy="TodoList">
-          {/* This is a completed todo */}
           {filteredTodos.length > 0 ? (
             filteredTodos.map((todo) => (
               <TodoApp
@@ -179,12 +219,12 @@ export const App: React.FC = () => {
                 key={todo.id}
                 // eslint-disable-next-line react/jsx-no-bind
                 onDelete={handleDelete}
-                // isModalVisible={isModalVisible}
                 loadingId={loadingId}
                 isLoaderActive={isLoaderActive}
                 onTodoUpdate={(todosTitle) => {
                   handleDeleteUpdate(todo, todosTitle);
                 }}
+                onTodoToggle={() => handleToggleTodo(todo)}
               />
             ))
           ) : (
