@@ -96,7 +96,7 @@ export const App: React.FC = () => {
               className={cn('todoapp__toggle-all',
                 {
                 // eslint-disable-next-line quote-props
-                  'active': (isAllCompleted || isAllNotCompleted),
+                  'active': (isAllCompleted),
                 })}
               onClick={toggleAll}
               data-cy="ToggleAllButton"
