@@ -35,7 +35,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEditing]);
 
   const USER_ID = 11550;
-  // const oldTitle = todo.title;
 
   const handleDelete = (todoId: number) => {
     setIsDeleting(true);
