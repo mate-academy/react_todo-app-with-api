@@ -24,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isToggled,
     isToggledAll,
     titleInputRef,
-    isGroupDeleting,
+    // isGroupDeleting,
     editedRef,
   } = useTodoContext() as TContext;
 
@@ -183,7 +183,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           {
             'is-active': (isDeleting === true)
           || (todo.id === 0) || (isToggled && todo.id === toggledId)
-          || (isToggledAll) || (isLoading) || (isGroupDeleting),
+          || (isToggledAll) || (isLoading),
           })}
       >
         <div className="modal-background has-background-white-ter" />

@@ -26,7 +26,7 @@ export const App: React.FC = () => {
     titleInputRef,
   } = useTodoContext() as TContext;
 
-  const handleSorting = (type: string) => setSortType(type as SortTypes);
+  const handleSorting = (type: SortTypes) => setSortType(type);
 
   const sortedTodos: {
     all: Todo[];
