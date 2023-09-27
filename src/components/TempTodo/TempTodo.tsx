@@ -17,6 +17,7 @@ const TempTodo: React.FC<Props> = ({ todo }) => {
     >
       <label className="todo__status-label">
         <input
+          disabled
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"

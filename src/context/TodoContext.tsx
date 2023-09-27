@@ -98,6 +98,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       completed: false,
       userId: USER_ID,
     });
+    setLoading(true);
     addTodo(value.trim(), USER_ID)
       .then((data: Todo) => {
         setTodos((prev) => [...prev, data]);
@@ -140,32 +141,36 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   };
 
   const updateTodoAction = (newTitle: string, id: number) => {
-    setLoadingItems((prev) => [...prev, id]);
-    updateTodo(title, id)
-      .then(() => {
-        setTodos((prev) => prev.map((item) => {
-          if (item.id === id) {
-            return {
-              ...item,
-              title: newTitle,
-            };
-          }
+    if (newTitle.trim()) {
+      setLoadingItems((prev) => [...prev, id]);
+      updateTodo(title, id)
+        .then(() => {
+          setTodos((prev) => prev.map((item) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                title: newTitle,
+              };
+            }
 
-          return item;
-        }));
-      })
-      .catch(() => {
-        setError(ErrorEnum.updateError);
-      })
-      .finally(() => {
-        setLoadingItems((prev) => prev.filter((itemId) => itemId !== id));
-      });
+            return item;
+          }));
+        })
+        .catch(() => {
+          setError(ErrorEnum.updateError);
+        })
+        .finally(() => {
+          setLoadingItems((prev) => prev.filter((itemId) => itemId !== id));
+        });
+    } else {
+      deleteTodoAction(id);
+    }
   };
 
   const toggleAllStatus = () => {
     const isActive = visibleTodos.some((item) => !item.completed);
 
-    visibleTodos.forEach((todo: Todo) => {
+    todos.forEach((todo: Todo) => {
       if (todo.completed !== isActive) {
         changeTodoStatusAction(todo);
       }

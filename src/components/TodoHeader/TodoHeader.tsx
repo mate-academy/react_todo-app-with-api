@@ -8,7 +8,7 @@ import { ErrorEnum } from '../../types/Error';
 /* eslint-disable jsx-a11y/control-has-associated-label */
 export const TodoHeader: React.FC = () => {
   const {
-    visibleTodos,
+    todos,
     activeTodosAmount,
     setError,
     title,
@@ -41,7 +41,7 @@ export const TodoHeader: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {visibleTodos.length > 0 && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
