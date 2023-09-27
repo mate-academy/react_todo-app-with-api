@@ -1,21 +1,26 @@
+import {
+  memo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 import classNames from 'classnames';
 
-import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types';
 
 type Props = {
   todo: Todo;
-  onDelete?: (id: number) => void;
+  onDelete?: (todo: Todo) => void;
   onToggle?: (todo: Todo) => void;
-  onUpdate?: (todo: Todo, title: string) => Promise<void>;
+  onEdit?: (todo: Todo, title: string) => Promise<void>;
   processing?: boolean;
 };
 
-export const TodoItem:React.FC<Props> = ({
+export const TodoItem:React.FC<Props> = memo(({
   todo,
   onDelete = () => {},
   onToggle = () => {},
-  onUpdate = () => new Promise(() => {}),
+  onEdit = () => new Promise(() => {}),
   processing = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -41,13 +46,9 @@ export const TodoItem:React.FC<Props> = ({
       return;
     }
 
-    onUpdate(todo, title)
-      .then(() => {
-        setIsEditing(false);
-      })
-      .catch(() => {
-        focusInput();
-      });
+    onEdit(todo, title)
+      .then(() => setIsEditing(false))
+      .catch(() => focusInput());
   };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -59,6 +60,7 @@ export const TodoItem:React.FC<Props> = ({
   const handleEditKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setInputValue(todo.title);
     }
   };
 
@@ -93,7 +95,7 @@ export const TodoItem:React.FC<Props> = ({
             type="button"
             data-cy="TodoDelete"
             className="todo__remove"
-            onClick={() => onDelete(todo.id)}
+            onClick={() => onDelete(todo)}
           >
             ×
           </button>
@@ -125,4 +127,4 @@ export const TodoItem:React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

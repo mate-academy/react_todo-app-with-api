@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 
 import { ErrorMessage, Status, Todo } from './types';
 import * as todoService from './api';
@@ -16,10 +21,10 @@ import {
 } from './components';
 
 export const App: React.FC = () => {
-  const [errorMessage, setErrorMessage] = useState(ErrorMessage.None);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterValue, setFilterValue] = useState(Status.All);
+  const [errorMessage, setErrorMessage] = useState(ErrorMessage.None);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const clearErrorMessage = () => {
@@ -29,9 +34,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     todoService.getTodos()
       .then(setTodos)
-      .catch(() => {
-        setErrorMessage(ErrorMessage.LoadTodos);
-      });
+      .catch(() => setErrorMessage(ErrorMessage.LoadTodos));
   }, []);
 
   useEffect(() => {
@@ -39,12 +42,38 @@ export const App: React.FC = () => {
       clearErrorMessage();
     }, 3000);
 
-    return () => {
-      window.clearTimeout(timerId);
-    };
+    return () => window.clearTimeout(timerId);
   }, [errorMessage]);
 
-  const handleAddTodo = (title: string) => {
+  const startProcessingTodo = (todo: Todo) => {
+    setProcessingIds(currentIds => [...currentIds, todo.id]);
+  };
+
+  const stopProcessingTodo = (todo: Todo) => {
+    setProcessingIds(currentIds => currentIds.filter(id => id !== todo.id));
+  };
+
+  const addTodoToState = (newTodo: Todo) => {
+    setTodos(currentTodos => [...currentTodos, newTodo]);
+  };
+
+  const replaceTodoInState = (updatedTodo: Todo) => {
+    setTodos(currentTodos => {
+      return currentTodos.map(currentTodo => (
+        updatedTodo.id === currentTodo.id
+          ? updatedTodo
+          : currentTodo
+      ));
+    });
+  };
+
+  const removeTodoFromState = (todo: Todo) => {
+    setTodos(currentTodos => {
+      return currentTodos.filter(({ id }) => id !== todo.id);
+    });
+  };
+
+  const handleAddTodo = useCallback((title: string) => {
     clearErrorMessage();
     setTempTodo({
       id: 0,
@@ -54,70 +83,42 @@ export const App: React.FC = () => {
     });
 
     return todoService.createTodo(title)
-      .then(todo => {
-        setTodos(currentTodos => [...currentTodos, todo]);
-      })
+      .then(addTodoToState)
       .catch(() => {
         setErrorMessage(ErrorMessage.AddTodo);
 
         throw new Error(ErrorMessage.AddTodo);
       })
-      .finally(() => {
-        setTempTodo(null);
-      });
-  };
+      .finally(() => setTempTodo(null));
+  }, []);
 
-  const handleDeleteTodo = (todoId: number) => {
+  const handleDeleteTodo = useCallback((todo: Todo) => {
     clearErrorMessage();
-    setProcessingIds(currentIds => [...currentIds, todoId]);
+    startProcessingTodo(todo);
 
-    todoService.deleteTodo(todoId)
-      .then(() => {
-        setTodos(currentTodos => {
-          return currentTodos.filter(({ id }) => id !== todoId);
-        });
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.DeleteTodo);
-      })
-      .finally(() => {
-        setProcessingIds(currentIds => {
-          return currentIds.filter(id => id !== todoId);
-        });
-      });
-  };
+    return todoService.deleteTodo(todo.id)
+      .then(() => removeTodoFromState(todo))
+      .catch(() => setErrorMessage(ErrorMessage.DeleteTodo))
+      .finally(() => stopProcessingTodo(todo));
+  }, []);
 
-  const handleClearCompletedTodos = () => {
-    const completedTodos = todos.filter(({ completed }) => completed);
+  const handleClearCompletedTodos = useCallback(() => {
+    todos
+      .filter(({ completed }) => completed)
+      .forEach(handleDeleteTodo);
+  }, [todos]);
 
-    completedTodos.forEach(({ id }) => handleDeleteTodo(id));
-  };
-
-  const handleToggleTodo = (todo: Todo) => {
+  const handleToggleTodo = useCallback((todo: Todo) => {
     clearErrorMessage();
-    setProcessingIds(currentIds => [...currentIds, todo.id]);
+    startProcessingTodo(todo);
 
     todoService.toggleTodo(todo.id, todo.completed)
-      .then((updatedTodo) => {
-        setTodos(currentTodos => {
-          return currentTodos.map(currentTodo => (
-            updatedTodo.id === currentTodo.id
-              ? updatedTodo
-              : currentTodo
-          ));
-        });
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.UpdateTodo);
-      })
-      .finally(() => {
-        setProcessingIds(currentIds => {
-          return currentIds.filter(id => id !== todo.id);
-        });
-      });
-  };
+      .then(replaceTodoInState)
+      .catch(() => setErrorMessage(ErrorMessage.UpdateTodo))
+      .finally(() => stopProcessingTodo(todo));
+  }, []);
 
-  const handleToggleAllTodos = () => {
+  const handleToggleAllTodos = useCallback(() => {
     const hasActive = todos.some(({ completed }) => !completed);
 
     todos.forEach(todo => {
@@ -127,54 +128,27 @@ export const App: React.FC = () => {
 
       handleToggleTodo(todo);
     });
-  };
+  }, [todos]);
 
-  const handleUpdateTodo = (todo: Todo, title: string) => {
+  const handleEditTodo = useCallback((todo: Todo, title: string) => {
     clearErrorMessage();
-    setProcessingIds(currentIds => [...currentIds, todo.id]);
+    startProcessingTodo(todo);
 
     if (!title) {
-      return todoService.deleteTodo(todo.id)
-        .then(() => {
-          setTodos(currentTodos => {
-            return currentTodos.filter(({ id }) => id !== todo.id);
-          });
-        })
-        .catch(() => {
-          setErrorMessage(ErrorMessage.DeleteTodo);
-
-          throw new Error(ErrorMessage.DeleteTodo);
-        })
-        .finally(() => {
-          setProcessingIds(currentIds => {
-            return currentIds.filter(id => id !== todo.id);
-          });
-        });
+      return handleDeleteTodo(todo);
     }
 
-    return todoService.updateTodo(todo.id, title)
-      .then((updatedTodo) => {
-        setTodos(currentTodos => {
-          return currentTodos.map(currentTodo => (
-            updatedTodo.id === currentTodo.id
-              ? updatedTodo
-              : currentTodo
-          ));
-        });
-      })
+    return todoService.editTodo(todo.id, title)
+      .then(replaceTodoInState)
       .catch(() => {
         setErrorMessage(ErrorMessage.UpdateTodo);
 
         throw new Error(ErrorMessage.UpdateTodo);
       })
-      .finally(() => {
-        setProcessingIds(currentIds => {
-          return currentIds.filter(id => id !== todo.id);
-        });
-      });
-  };
+      .finally(() => stopProcessingTodo(todo));
+  }, []);
 
-  const hasTodos = todos.length > 0 || tempTodo;
+  const hasTodos = todos.length > 0 || !!tempTodo;
   const hasCompletedTodos = todos.some(({ completed }) => completed);
   const isAllCompleted = todos.every(({ completed }) => completed);
   const activeTodosCount = todos.filter(({ completed }) => !completed).length;
@@ -223,7 +197,7 @@ export const App: React.FC = () => {
                   todo={todo}
                   onDelete={handleDeleteTodo}
                   onToggle={handleToggleTodo}
-                  onUpdate={handleUpdateTodo}
+                  onEdit={handleEditTodo}
                   processing={processingIds.includes(todo.id)}
                 />
               ))}

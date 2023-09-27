@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import classNames from 'classnames';
 
 import { Status } from '../types';
@@ -7,7 +8,7 @@ type Props = {
   onValueChange: (value: Status) => void;
 };
 
-export const TodoFilter: React.FC<Props> = ({ value, onValueChange }) => (
+export const TodoFilter: React.FC<Props> = memo(({ value, onValueChange }) => (
   <nav className="filter" data-cy="Filter">
     <a
       href="#/"
@@ -42,4 +43,4 @@ export const TodoFilter: React.FC<Props> = ({ value, onValueChange }) => (
       {Status.Completed}
     </a>
   </nav>
-);
+));

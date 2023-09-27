@@ -1,9 +1,14 @@
+import { memo } from 'react';
+
 type Props = {
   active: boolean;
   onClear: () => void;
 };
 
-export const ClearCompletedButton: React.FC<Props> = ({ active, onClear }) => (
+export const ClearCompletedButton: React.FC<Props> = memo(({
+  active,
+  onClear,
+}) => (
   <button
     type="button"
     data-cy="ClearCompletedButton"
@@ -13,4 +18,4 @@ export const ClearCompletedButton: React.FC<Props> = ({ active, onClear }) => (
   >
     Clear completed
   </button>
-);
+));

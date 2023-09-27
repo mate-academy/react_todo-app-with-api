@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import classNames from 'classnames';
 
 type Props = {
@@ -5,7 +6,10 @@ type Props = {
   onToggleAll: () => void;
 };
 
-export const ToggleAllButton: React.FC<Props> = ({ active, onToggleAll }) => (
+export const ToggleAllButton: React.FC<Props> = memo(({
+  active,
+  onToggleAll,
+}) => (
   <button
     type="button"
     aria-label="Toggle All"
@@ -13,4 +17,4 @@ export const ToggleAllButton: React.FC<Props> = ({ active, onToggleAll }) => (
     className={classNames('todoapp__toggle-all', { active })}
     onClick={onToggleAll}
   />
-);
+));

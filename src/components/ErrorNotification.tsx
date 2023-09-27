@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import classNames from 'classnames';
 
 import { ErrorMessage } from '../types';
@@ -7,7 +8,10 @@ type Props = {
   onHide: () => void;
 };
 
-export const ErrorNotification: React.FC<Props> = ({ message, onHide }) => (
+export const ErrorNotification: React.FC<Props> = memo(({
+  message,
+  onHide,
+}) => (
   <div
     data-cy="ErrorNotification"
     className={classNames(
@@ -27,4 +31,4 @@ export const ErrorNotification: React.FC<Props> = ({ message, onHide }) => (
     />
     {message}
   </div>
-);
+));

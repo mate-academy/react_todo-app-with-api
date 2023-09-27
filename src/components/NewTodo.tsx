@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 
 import { ErrorMessage } from '../types';
 
@@ -8,7 +13,11 @@ type Props = {
   refocus?: number;
 };
 
-export const NewTodo: React.FC<Props> = ({ onAdd, onError, refocus = 0 }) => {
+export const NewTodo: React.FC<Props> = memo(({
+  onAdd,
+  onError,
+  refocus = 0,
+}) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -33,13 +42,9 @@ export const NewTodo: React.FC<Props> = ({ onAdd, onError, refocus = 0 }) => {
     setIsProcessing(true);
 
     onAdd(title)
-      .then(() => {
-        setInputValue('');
-      })
+      .then(() => setInputValue(''))
       .catch(() => {})
-      .finally(() => {
-        setIsProcessing(false);
-      });
+      .finally(() => setIsProcessing(false));
   };
 
   return (
@@ -56,4 +61,4 @@ export const NewTodo: React.FC<Props> = ({ onAdd, onError, refocus = 0 }) => {
       />
     </form>
   );
-};
+});
