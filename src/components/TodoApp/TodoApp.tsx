@@ -31,13 +31,23 @@ export const TodoApp: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todosTitle) {
-      await onTodoUpdate(todosTitle);
-    } else {
-      await onDelete(todo.id);
+    if (todo.title === todosTitle) {
+      setIsEditing(false);
+
+      return;
     }
 
-    setIsEditing(false);
+    try {
+      if (todosTitle) {
+        await onTodoUpdate(todosTitle);
+      } else {
+        await onDelete(todo.id);
+      }
+
+      setIsEditing(false);
+    // eslint-disable-next-line no-empty
+    } catch (error) {
+    }
   };
 
   const handleTodoTitleChange = (

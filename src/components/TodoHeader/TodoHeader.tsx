@@ -7,7 +7,6 @@ type Props = {
   onSubmit: (todo: Todo) => void,
   todo?: Todo | null,
   userId: number,
-  // tempTodo: Todo | null,
   isLoading: boolean,
   errorMessage: string,
   request: boolean;
@@ -69,16 +68,7 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* {activeTodosCount > 0 && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
-        <button
-          type="button"
-          className={classNames('todoapp__toggle-all', {
-            active: isAllCompleted,
-          })}
-          data-cy="ToggleAllButton"
-        />
-      )} */}
+      {/* {Boolean(todos.lenght) && ( */}
       <button
         type="button"
         aria-label="text"
@@ -88,6 +78,7 @@ export const TodoHeader: React.FC<Props> = ({
         data-cy="ToggleAllButton"
         onClick={onToggleAll}
       />
+      {/* )} */}
 
       <form
         onSubmit={handleSubmit}
