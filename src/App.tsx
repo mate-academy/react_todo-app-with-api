@@ -100,21 +100,15 @@ export const App: React.FC = () => {
 
     return todoService.deleteTodos(todoId)
       .then(() => {
-        // eslint-disable-next-line no-console
-        console.log('then');
         setTodos(prevState => {
           return prevState.filter(({ id }) => id !== todoId);
         });
       })
       .catch(() => {
-        // eslint-disable-next-line no-console
-        console.log('catch');
         setErrorMessage(ERROR_MESSAGES.unableToDeleteTodo);
         throw new Error(ERROR_MESSAGES.unableToDeleteTodo);
       })
       .finally(() => {
-        // eslint-disable-next-line no-console
-        console.log('finally');
         setIsProsessingTodoIds((prevState) => {
           return prevState.filter(id => id !== todoId);
         });
@@ -205,77 +199,50 @@ export const App: React.FC = () => {
       });
   };
 
-  // const handleToogleAllButton = (allTodos: Todo[]) => {
-  //   const isAllTodosCompleted = allTodos.every(todoItem => todoItem.completed);
-  //
-  //   if (isAllTodosCompleted) {
-  //     allTodos.forEach(todo => {
-  //       setIsProsessingTodoIds(prevState => {
-  //         return [...prevState, todo.id];
-  //       });
-  //
-  //       return todoService.updateTodo({
-  //         ...todo,
-  //         completed: false,
-  //       })
-  //         .then(() => {
-  //           setTodos(prevState => {
-  //             return prevState.map(todoItem => {
-  //               return {
-  //                 ...todoItem,
-  //                 completed: false,
-  //               };
-  //             });
-  //           });
-  //         })
-  //         .catch(() => setErrorMessage(ERROR_MESSAGES.unableToUpdateTodo))
-  //         .finally(() => {
-  //           setIsProsessingTodoIds(prevState => {
-  //             return prevState.filter(id => id !== todo.id);
-  //           });
-  //         });
-  //     });
-  //   } else {
-  //     allTodos.forEach(todoItem => {
-  //       let preparedTodo = {
-  //         ...todoItem,
-  //         completed: todoItem.completed,
-  //       };
-  //
-  //       if (!todoItem.completed) {
-  //         setIsProsessingTodoIds(prevState => {
-  //           return [...prevState, todoItem.id];
-  //         });
-  //         preparedTodo = {
-  //           ...todoItem,
-  //           completed: !todoItem.completed,
-  //         };
-  //       }
-  //
-  //       return todoService.updateTodo(preparedTodo)
-  //         .then(() => {
-  //           return setTodos(prevState => {
-  //             return prevState.map(todo => {
-  //               if (!todo.completed) {
-  //                 return {
-  //                   ...todo,
-  //                   completed: !todo.completed,
-  //                 };
-  //               }
-  //
-  //               return todo;
-  //             });
-  //           });
-  //         })
-  //         .catch(() => setErrorMessage(ERROR_MESSAGES.unableToUpdateTodo))
-  //         .finally(() => {
-  //           return setIsProsessingTodoIds(prevState => {
-  //             return prevState.filter(id => id !== todoItem.id);
-  //           });
-  //         });
-  //     });
-  //   }
-  // };
+  const handleToogleAllButton = async (allTodos: Todo[]) => {
+    const isAllTodosTrueOrFalse
+      = allTodos.every(todo => todo.completed)
+    || allTodos.every(todo => !todo.completed);
+
+    const unCompletedTodos = allTodos.filter(todo => !todo.completed);
+
+    const changeAllPromises = isAllTodosTrueOrFalse
+      ? allTodos.map(todo => {
+        const updateTodo = {
+          ...todo,
+          completed: !todo.completed,
+        };
+
+        return todoService.updateTodo(updateTodo);
+      })
+      : unCompletedTodos.map(todo => {
+        const updateTodo = {
+          ...todo,
+          completed: true,
+        };
+
+        return todoService.updateTodo(updateTodo);
+      });
+
+    try {
+      const serverTodos = await Promise.all(changeAllPromises);
+
+      setTodos(prevState => {
+        return prevState.map(todo => {
+          if (serverTodos.some(({ id }) => id === todo.id)) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
+
+          return todo;
+        });
+      });
+    } catch (error) {
+      setErrorMessage(ERROR_MESSAGES.unableToDeleteTodo);
+    }
+  };
 
   return (
     <div className="todoapp">
@@ -287,7 +254,7 @@ export const App: React.FC = () => {
           textInputRef={textInputRef}
           setErrorMessage={setErrorMessage}
           onTodoAdd={handleAddTodo}
-          // handleTogleAllButton={handleToogleAllButton}
+          handleToogleAllButton={handleToogleAllButton}
         />
         {loadingTodos
           ? (<Loader />)

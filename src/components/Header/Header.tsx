@@ -8,7 +8,7 @@ type Props = {
   setErrorMessage: (title: string) => void,
   textInputRef: React.RefObject<HTMLInputElement>,
   todos: Todo[],
-  // handleToogleAllButton: (todos: Todo[]) => void;
+  handleToogleAllButton: (todos: Todo[]) => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -16,7 +16,7 @@ export const Header: React.FC<Props> = ({
   setErrorMessage,
   textInputRef,
   todos,
-  // handleToogleAllButton,
+  handleToogleAllButton,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
 
@@ -64,7 +64,7 @@ export const Header: React.FC<Props> = ({
       {!!hasTodos && (
         // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
-          // onClick={() => handleToogleAllButton(todos)}
+          onClick={() => handleToogleAllButton(todos)}
           type="button"
           className={cn('todoapp__toggle-all', { active: isAllTodosCompleted })}
           data-cy="ToggleAllButton"
