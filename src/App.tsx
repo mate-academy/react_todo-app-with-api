@@ -22,9 +22,12 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isInputFieldDisabled, setIsInputFieldDisabled] = useState(false);
 
-  const updateTodo = async (todo: Todo) => {
+  const updateTodo = (todo: Todo) => {
+    setLoadingTodosIds([todo.id]);
+
     todosService.updateTodo(todo)
       .then(updatedTodo => {
+        setLoadingTodosIds([]);
         setTodos(prevState => prevState.map(currentTodo => (
           currentTodo.id !== updatedTodo.id
             ? currentTodo
@@ -112,6 +115,43 @@ export const App: React.FC = () => {
       });
   };
 
+  const handleChangeAllCompleted = () => {
+    const isNewCompleted = !!todos.find(todo => todo.completed === false);
+
+    const todosToChange = todos
+      .filter(currentTodo => isNewCompleted !== currentTodo.completed)
+      .map(currentTodo => ({ ...currentTodo, completed: isNewCompleted }));
+
+    setLoadingTodosIds(todosToChange.map((current) => current.id));
+    Promise.allSettled(todosToChange
+      .map(todo => todosService.updateTodo(todo)))
+      .then((rezult) => {
+        // rezult: {status: 'fulfilled'|'rejected'}[];
+        let wasFailed = false;
+
+        rezult.forEach((response, i) => {
+          if (response.status === 'rejected') {
+            todosToChange[i].completed = !todosToChange[i].completed;
+            wasFailed = true;
+          }
+        });
+
+        if (wasFailed) {
+          setErrorMessage('Unable to delete a todo');
+        }
+
+        setLoadingTodosIds([]);
+        const newTodos = todos.map(todoItem => {
+          const changedTodo = todosToChange
+            .find(todoFind => todoFind.id === todoItem.id);
+
+          return changedTodo ?? todoItem;
+        });
+
+        setTodos(newTodos);
+      });
+  };
+
   const handleAddTodo = (newTitle: string) => {
     const todoIds = todos.map(({ id }) => id);
     const maxTodoId = Math.max(...todoIds);
@@ -153,18 +193,6 @@ export const App: React.FC = () => {
         setLoadingTodosIds([fakeTodo.id]);
         setTodos((prevTodos) => [...prevTodos, fakeTodo]);
       }
-    }
-  };
-
-  const handleChangeAllCompleted = () => {
-    const isNoCompleted = todos.find(todo => todo.completed === false);
-
-    if (isNoCompleted) {
-      setTodos(todos
-        .map(currentTodo => ({ ...currentTodo, completed: true })));
-    } else {
-      setTodos(todos
-        .map(currentTodo => ({ ...currentTodo, completed: false })));
     }
   };
 
