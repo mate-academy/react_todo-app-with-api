@@ -5,8 +5,6 @@ import {
 } from 'react';
 import { TodoType } from '../../types/Todo';
 import { useTodosContext } from '../../providers/TodosProvider/TodosProvider';
-// import { useErrorsContext }
-//   from '../../providers/ErrorsProvider/ErrorsProvider';
 
 type TodoProps = {
   todo: TodoType,
@@ -43,9 +41,13 @@ export const Todo = ({ todo }: TodoProps) => {
       ...todo,
       title: editedInput.trim(),
     });
+    // .then(() => {
+    //   setEditedTodo(null);
+    //   setEditedInput('');
+    // });
   };
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     if (editedInput.trim().length === 0) {
       return delTodo(todo);
     }
@@ -57,11 +59,15 @@ export const Todo = ({ todo }: TodoProps) => {
     return editTodo({
       ...todo,
       title: editedInput.trim(),
-    }).then(() => {
-      setEditedInput('');
-      setEditedTodo(null);
     });
   };
+
+  useEffect(() => {
+    if (uploading.length === 0) {
+      setEditedInput('');
+      setEditedTodo(null);
+    }
+  }, [uploading]);
 
   return (
     <div
@@ -91,10 +97,11 @@ export const Todo = ({ todo }: TodoProps) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={editedInput}
-              onChange={(e) => setEditedInput(e.target.value)}
+              onChange={(e) => setEditedInput(e.target.value.trimStart())}
               ref={inputRef}
               onKeyUp={(e) => {
                 if (e.key === 'Escape') {
+                  setEditedInput('');
                   setEditedTodo(null);
                 }
               }}

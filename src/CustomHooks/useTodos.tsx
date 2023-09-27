@@ -38,7 +38,7 @@ export const useTodos = (userId: number) => {
       title: todo.title,
     });
 
-    postTodo({
+    return postTodo({
       completed: todo.completed,
       title: todo.title,
       userId,
@@ -68,7 +68,10 @@ export const useTodos = (userId: number) => {
           return t;
         }));
       })
-      .catch(() => addError('errorUpdateTodo'))
+      .catch(() => {
+        addError('errorUpdateTodo');
+        setUploading([]);
+      })
       .finally(() => {
         setUploading([]);
       });
@@ -77,9 +80,11 @@ export const useTodos = (userId: number) => {
   const delTodo = (todo: TodoType) => {
     setUploading(prev => prev.concat(todo.id));
 
-    deleteTodo(todo)
+    return deleteTodo(todo)
       .then(() => setTodos(prev => prev.filter(t => t.id !== todo.id)))
-      .catch(() => addError('errorUnableToDeleteTodo'))
+      .catch(() => {
+        addError('errorUnableToDeleteTodo');
+      })
       .finally(() => {
         setUploading([]);
       });
