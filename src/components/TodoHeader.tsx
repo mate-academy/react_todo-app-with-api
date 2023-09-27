@@ -27,7 +27,6 @@ export const TodoHeader: React.FC<Props> = () => {
   const [title, setTitle] = useState('');
 
   const activeTodosCount = activeTodos.length;
-
   const inputField = useRef<HTMLInputElement>(null);
 
   const isAllCompleted = useMemo(() => (

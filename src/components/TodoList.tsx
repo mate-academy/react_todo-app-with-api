@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../types/Todo';
 import { TodoElement } from './TodoElement';
 import { TodoContext } from '../Context/TodoContext';
@@ -12,17 +13,32 @@ export const TodoList: React.FC<Props> = ({ todos }) => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos?.map(todo => (
-        <TodoElement
-          todo={todo}
-          key={todo.id}
-        />
-      ))}
-      {tempTodo && (
-        <TodoElement
-          todo={tempTodo}
-        />
-      )}
+      <TransitionGroup>
+        {todos?.map(todo => (
+          <CSSTransition
+            key={todo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoElement
+              todo={todo}
+              key={todo.id}
+            />
+          </CSSTransition>
+
+        ))}
+        {tempTodo && (
+          <CSSTransition
+            key={tempTodo.id}
+            timeout={300}
+            classNames="item"
+          >
+            <TodoElement
+              todo={tempTodo}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </section>
   );
 };

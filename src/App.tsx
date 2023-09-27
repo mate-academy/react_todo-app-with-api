@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from 'react';
 import classNames from 'classnames';
-
+import './styles/App.scss';
 import { TodoFilter } from './types/TodoFilter';
 import { TodoList } from './components/TodoList';
 import { TodoHeader } from './components/TodoHeader';
