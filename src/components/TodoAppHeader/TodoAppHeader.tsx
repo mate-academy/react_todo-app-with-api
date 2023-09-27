@@ -46,16 +46,14 @@ export const TodoAppHeader: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    console.log('inputtest')
     if (inputFocus.current) {
       inputFocus.current.focus();
     }
-  }, [todos]);
+  }, [todos.length]);
 
   return (
     <header className="todoapp__header">
-      {Boolean(todos.length) && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
+      {!!todos.length && (
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
@@ -63,6 +61,7 @@ export const TodoAppHeader: React.FC<Props> = ({
           })}
           data-cy="ToggleAllButton"
           onClick={() => onToggleClick()}
+          aria-label="toggle_all_todos"
         />
       )}
 

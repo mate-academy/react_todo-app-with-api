@@ -156,13 +156,11 @@ export const App: React.FC = () => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const todosCounterCompleted = useMemo(() => {
-    return todos.filter(todo => todo.completed).length;
+  const isAllCompleted = useMemo(() => {
+    return todos.every(todo => todo.completed);
   }, [todos]);
 
-  const isAllCompleted = useMemo(() => {
-    return visibleTodos.every(todo => todo.completed);
-  }, [visibleTodos]);
+  const hasCompletedTodo = todos.some(({ completed }) => completed);
 
   const handleToggleButton = () => {
     if (!isAllCompleted) {
@@ -192,7 +190,7 @@ export const App: React.FC = () => {
           isAllCompleted={isAllCompleted}
         />
 
-        {Boolean(todos.length) && (
+        {!!todos.length && (
           <>
             <section className="todoapp__main" data-cy="TodoList">
               {visibleTodos.map((todo: Todo) => (
@@ -218,7 +216,7 @@ export const App: React.FC = () => {
               selectedFilter={selectedFilter}
               setSelectedFilter={setSelectedFilter}
               todosCounter={todosCounter}
-              completedSum={todosCounterCompleted}
+              hasCompletedTodo={hasCompletedTodo}
               deleteAllComleted={handleDeleteAllCompletedTodos}
             />
           </>

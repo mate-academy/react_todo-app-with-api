@@ -9,15 +9,8 @@ export enum FilterLink {
 export function preparedTodos(
   arr: Todo[],
   option: string,
-  // query: string,
 ) {
   const todos = [...arr];
-
-  // if (query) {
-  //   todos = todos.filter(todo => todo.title
-  //     .toLowerCase()
-  //     .includes(query.toLowerCase()));
-  // }
 
   if (option) {
     switch (option) {

@@ -3,11 +3,11 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todo: Todo,
-  onTodoDelete: (todoId: number) => void,
-  onTodoUpdate: (todoTitle: string) => Promise<void>,
-  isLoading: boolean,
-  onChangeBox: (todo: Todo) => void,
+  todo: Todo;
+  onTodoDelete: (todoId: number) => void;
+  onTodoUpdate: (todoTitle: string) => Promise<void>;
+  isLoading: boolean;
+  onChangeBox: (todo: Todo) => void;
 };
 
 export const TodoAppRow: React.FC<Props> = ({
@@ -17,22 +17,23 @@ export const TodoAppRow: React.FC<Props> = ({
   isLoading,
   onChangeBox,
 }) => {
-  const {
-    title,
-    completed,
-  } = todo;
+  const { title, completed } = todo;
   const [todoTitle, setTodoTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
   const titleInput = useRef<HTMLInputElement | null>(null);
-  const [isFocused, setIsFocused] = useState(false);
 
-  const SavwTodo = async () => {
+  const updateTodo = async () => {
+    if (todoTitle === title) {
+      setIsEditing(false);
+      setTodoTitle(title);
+    }
+
     if (todoTitle !== title) {
       try {
         await onTodoUpdate(todoTitle);
         setIsEditing(false);
-      } catch (error) {
-        console.error(error);
+      } catch (er) {
+        console.error('catch error');
       }
     }
 
@@ -41,21 +42,9 @@ export const TodoAppRow: React.FC<Props> = ({
     }
   };
 
-  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(true);
-  };
-
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false);
-      SavwTodo();
-  };
-
   const handleFormSubmit = (event: React.FormEvent) => {
-    event.stopPropagation();
     event.preventDefault();
-    titleInput.current?.focus();
-    SavwTodo();
-    console.log('renfer');
+    updateTodo();
   };
 
   const handleTodoDoubleClick = () => {
@@ -78,7 +67,7 @@ export const TodoAppRow: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
+    if (titleInput.current) {
       titleInput.current.focus();
     }
   }, [isEditing]);
@@ -101,17 +90,16 @@ export const TodoAppRow: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form
-          onSubmit={handleFormSubmit}
-        >
+        <form onSubmit={handleFormSubmit}>
           <input
-            onBlur={handleBlur}
+            key={todo.id}
             ref={titleInput}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={todoTitle}
+            onBlur={updateTodo}
             onChange={handleTodoTitleChange}
             onKeyUp={handleEditingCancel}
           />
@@ -133,14 +121,12 @@ export const TodoAppRow: React.FC<Props> = ({
             onClick={() => {
               onTodoDelete(todo.id);
             }}
-
           >
             ×
           </button>
         </>
       )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {

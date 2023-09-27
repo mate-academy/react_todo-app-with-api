@@ -6,15 +6,15 @@ type Props = {
   setSelectedFilter: (value: FilterLink) => void;
   selectedFilter: FilterLink;
   todosCounter: number;
-  completedSum: number;
+  hasCompletedTodo: boolean;
   deleteAllComleted: () => void;
 };
 
 export const TodoAppFooter: React.FC<Props> = ({
   selectedFilter,
   setSelectedFilter,
+  hasCompletedTodo,
   todosCounter,
-  completedSum,
   deleteAllComleted,
 }) => (
   <footer className="todoapp__footer" data-cy="Footer">
@@ -42,9 +42,11 @@ export const TodoAppFooter: React.FC<Props> = ({
     {/* don't show this button if there are no completed todos */}
     <button
       type="button"
-      className="todoapp__clear-completed"
+      className={cn('todoapp__clear-completed', {
+        'is-invisible': !hasCompletedTodo,
+      })}
       data-cy="ClearCompletedButton"
-      disabled={completedSum === 0}
+      disabled={!hasCompletedTodo}
       onClick={deleteAllComleted}
     >
       Clear completed
