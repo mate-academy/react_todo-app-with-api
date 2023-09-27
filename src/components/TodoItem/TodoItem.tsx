@@ -47,7 +47,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       });
 
       if (response) {
-        // console.log(response);
         handlerTitleFieldFocused(true);
         setNewTitle(trimmedNewTitle);
         setIsEditing(false);
@@ -68,7 +67,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       handleCancelEdit();
-    } else if (e.key === 'Enter') {
+    }
+
+    if (e.key === 'Enter') {
       handleSaveEdit();
     }
   };
@@ -99,7 +100,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             data-cy="TodoTitleField"
             className="todo__title-field"
             value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            onChange={({ target }) => setNewTitle(target.value)}
             onBlur={handleBlur}
             onKeyUp={handleKeyUp}
           />
@@ -126,7 +127,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         )}
 
       <div
-        className={classNames('modal overlay', {
+        className={classNames('modal', 'overlay', {
           'is-active': tempTodos.some(item => item.id === todo.id),
         })}
         data-cy="TodoLoader"

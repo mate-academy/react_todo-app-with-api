@@ -3,13 +3,16 @@ import classNames from 'classnames';
 import { useTodos } from '../../TodosContext';
 
 export const Error = () => {
-  const { error, setError } = useTodos();
+  const { error, handleClearError } = useTodos();
 
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
         { hidden: !error },
       )}
     >
@@ -17,7 +20,7 @@ export const Error = () => {
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setError('')}
+        onClick={handleClearError}
       />
       {error}
     </div>
