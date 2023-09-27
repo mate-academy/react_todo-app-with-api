@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -8,8 +7,9 @@ import { Footer } from './components/Footer';
 import { Todo } from './types/Todo';
 import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
-import * as todosService from './api/todos';
+import { ErrorNotification } from './components/ErrorNotification';
 import { TodoItem } from './components/TodoItem';
+import * as todosService from './api/todos';
 import { USER_ID } from './api/todos';
 import * as filterService from './utils/filterService';
 
@@ -22,18 +22,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [isInputFieldDisabled, setIsInputFieldDisabled] = useState(false);
-
-  const timerId = useRef<number>(0);
-
-  useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  }, [errorMessage]);
 
   const updateTodo = async (todo: Todo) => {
     todosService.updateTodo(todo)
@@ -237,23 +225,10 @@ export const App: React.FC = () => {
             )}
           </div>
 
-          <div
-            data-cy="ErrorNotification"
-            className={classNames(
-              'notification is-danger is-light has-text-weight-normal',
-              { hidden: !errorMessage },
-            )}
-
-          >
-            <button
-              data-cy="HideErrorButton"
-              type="button"
-              onClick={() => (setErrorMessage(''))}
-              className="delete"
-            />
-            {errorMessage}
-
-          </div>
+          <ErrorNotification
+            errorMessage={errorMessage}
+            setErrorMessage={setErrorMessage}
+          />
         </div>
       </p>
     </section>
