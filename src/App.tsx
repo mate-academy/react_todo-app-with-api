@@ -1,8 +1,6 @@
-/* eslint-disable no-plusplus */
-/* eslint-disable no-param-reassign */
-/* eslint-disable jsx-a11y/no-autofocus */
-/* eslint-disable no-useless-return */
 /* eslint-disable jsx-a11y/control-has-associated-label */
+/* eslint-disable no-param-reassign */
+
 import React, {
   FormEventHandler, useEffect, useRef, useState,
 } from 'react';
@@ -15,6 +13,8 @@ import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { ErrorMess } from './types/Error';
 import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { NewTodoInput } from './components/NewTodoInput';
 
 const USER_ID = 10521;
 
@@ -178,19 +178,13 @@ export const App: React.FC = () => {
           )}
 
           {/* Add a todo on form submit */}
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              autoFocus
-              disabled={isSubmiting}
-              ref={inputRef}
-            />
-          </form>
+          <NewTodoInput
+            handleSubmit={handleSubmit}
+            title={title}
+            isSubmiting={isSubmiting}
+            setTitle={(e) => setTitle(e)}
+            inputRef={inputRef}
+          />
         </header>
 
         {(todos.length > 0 || temporaryTodo) && (
@@ -205,61 +199,16 @@ export const App: React.FC = () => {
         )}
 
         {/* Hide the footer if there are no todos */}
-        {(todos.length > 0 || temporaryTodo) && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${counter} items left`}
-            </span>
-
-            {/* Active filter should have a 'selected' class */}
-            <nav className="filter" data-cy="Filter">
-              <a
-                href="#/"
-                className={cn('filter__link', { selected: filter === 'All' })}
-                data-cy="FilterLinkAll"
-                onClick={() => setFilter('All')}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={cn('filter__link',
-                  { selected: filter === 'Active' })}
-                data-cy="FilterLinkActive"
-                onClick={() => setFilter('Active')}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={cn('filter__link',
-                  { selected: filter === 'Completed' })}
-                data-cy="FilterLinkCompleted"
-                onClick={() => setFilter('Completed')}
-              >
-                Completed
-              </a>
-            </nav>
-
-            {/* don't show this button if there are no completed todos */}
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              onClick={() => todos.forEach(todo => {
-                if (todo.completed) {
-                  handleDelete(todo);
-                }
-              })}
-              // hidden={!todos.some(todo => todo.completed === true)}
-              disabled={!todos.some(todo => todo.completed === true)}
-            >
-              Clear completed
-            </button>
-          </footer>
-        )}
+        {(todos.length > 0 || temporaryTodo)
+          && (
+            <Footer
+              counter={counter}
+              filter={filter}
+              setFilter={(f) => setFilter(f)}
+              todos={todos}
+              handleDelete={handleDelete}
+            />
+          )}
       </div>
 
       {/* Notification is shown in case of any error */}

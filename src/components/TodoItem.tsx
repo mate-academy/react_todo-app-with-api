@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
+
 import cn from 'classnames';
 import {
   FormEventHandler, useEffect, useRef, useState,

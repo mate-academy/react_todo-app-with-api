@@ -32,20 +32,20 @@ const filterTodos = (todos: Todo[], filter: Filter) => {
 
 export const TodoList = ({
   todos, filter, temporaryTodo, handleDelete, handleComplete, handleError,
-} : Props) => {
-  return (
-    <section className="todoapp__main" data-cy="TodoList">
-      {filterTodos(todos, filter).map(todo => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          handleDelete={handleDelete}
-          handleComplete={handleComplete}
-          handleError={handleError}
-        />
+} : Props) => (
 
-      ))}
-      {temporaryTodo && <TempTodo temporaryTodo={temporaryTodo} />}
-    </section>
-  );
-};
+  <section className="todoapp__main" data-cy="TodoList">
+    {filterTodos(todos, filter).map(todo => (
+      <TodoItem
+        key={todo.id}
+        todo={todo}
+        handleDelete={handleDelete}
+        handleComplete={handleComplete}
+        handleError={handleError}
+      />
+
+    ))}
+    {temporaryTodo && <TempTodo temporaryTodo={temporaryTodo} />}
+  </section>
+
+);
