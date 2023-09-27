@@ -1,5 +1,19 @@
 import { Task } from './Task';
 import { useTodo } from '../../context/TodoContext';
+import { Todo } from '../../types/Todo';
+import { FilterType } from '../../types/FilterType';
+
+const filterTodosByType = (todos: Todo[], filterType: FilterType) => {
+  if (filterType === 'active') {
+    return todos.filter(todo => !todo.completed);
+  }
+
+  if (filterType === 'completed') {
+    return todos.filter(todo => todo.completed);
+  }
+
+  return todos;
+};
 
 export const TodoList = () => {
   const {
@@ -8,19 +22,7 @@ export const TodoList = () => {
     temptTodos,
   } = useTodo();
 
-  const getVisibleTodos = () => {
-    if (filterTodos === 'active') {
-      return todos.filter(todo => !todo.completed);
-    }
-
-    if (filterTodos === 'completed') {
-      return todos.filter(todo => todo.completed);
-    }
-
-    return todos;
-  };
-
-  const visibleTodos = getVisibleTodos();
+  const visibleTodos = filterTodosByType(todos, filterTodos);
 
   return (
     <section
