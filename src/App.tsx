@@ -90,16 +90,18 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all',
-              {
+          {(todos.length > 0) && (
+            <button
+              type="button"
+              className={cn('todoapp__toggle-all',
+                {
                 // eslint-disable-next-line quote-props
-                'active': (isAllCompleted || isAllNotCompleted),
-              })}
-            onClick={toggleAll}
-            data-cy="ToggleAllButton"
-          />
+                  'active': (isAllCompleted || isAllNotCompleted),
+                })}
+              onClick={toggleAll}
+              data-cy="ToggleAllButton"
+            />
+          )}
           <TodoForm />
         </header>
 
