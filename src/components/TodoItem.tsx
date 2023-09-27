@@ -13,7 +13,6 @@ type Props = {
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
-  // isActive = false,
   handleStatusUpdate,
   handleTitleUpdate,
   isProcessing,
@@ -24,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   const inputUpdateRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (inputUpdateRef.current) { // isEditing &&
+    if (inputUpdateRef.current) {
       inputUpdateRef.current.focus();
     }
   }, [isEditing]);
@@ -34,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(todo.title);
   };
 
-  const handleFormSubmit = () => { //
+  const handleFormSubmit = () => {
     if (newTitle === todo.title) {
       return;
     }
@@ -44,7 +43,6 @@ export const TodoItem: React.FC<Props> = ({
     } else {
       handleTitleUpdate(todo, newTitle)
         .then(() => setIsEditing(false));
-      // .catch(() => setNewTitle(todo.title));
     }
   };
 

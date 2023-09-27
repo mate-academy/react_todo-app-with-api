@@ -147,13 +147,11 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         showError(ErrorType.Delete);
-        // setActiveTodoId(0);
       })
       .finally(() => {
         return setProcessingTodoIds(prevState => prevState
           .filter(id => id !== todoId));
       });
-    // setActiveTodoId(todoId);
   };
 
   const handleStatusUpdate = (todo: Todo) => {
@@ -164,25 +162,20 @@ export const App: React.FC = () => {
       userId: USER_ID,
       completed: !todo.completed,
     })
-      .then(updatedTodo => {
-        // setActiveTodoId(0);
-        setTodos(prevState => {
-          return prevState.map(currentTodo => {
-            return currentTodo.id !== updatedTodo.id
-              ? currentTodo
-              : updatedTodo;
-          });
+      .then(updatedTodo => setTodos(prevState => {
+        return prevState.map(currentTodo => {
+          return currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo;
         });
-      })
+      }))
       .catch(() => {
         showError(ErrorType.Update);
-        // setActiveTodoId(0);
       })
       .finally(() => {
-        return setProcessingTodoIds(prevState => prevState
+        setProcessingTodoIds(prevState => prevState
           .filter(id => id !== todo.id));
       });
-    // setActiveTodoId(todo.id);
   };
 
   const handleTitleUpdate = (todo: Todo, updatedTitle: string) => {
@@ -211,7 +204,6 @@ export const App: React.FC = () => {
         return setProcessingTodoIds(prevState => prevState
           .filter(id => id !== todo.id));
       });
-    // setActiveTodoId(todo.id);
   };
 
   const handleClearCompleted = () => {
@@ -302,8 +294,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={classNames(
