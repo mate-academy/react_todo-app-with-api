@@ -157,7 +157,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       </label>
 
       {isEdited ? (
-
         <Form
           forCypress="TodoTitleField"
           ref={ref}
@@ -174,9 +173,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <span
             className="todo__title"
             data-cy="TodoTitle"
-            onDoubleClick={() => {
-              setIsEdited(true);
-            }}
+            onDoubleClick={() => setIsEdited(true)}
           >
             {inputValue}
           </span>
@@ -193,7 +190,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       )}
 
       <div
-        className={cn('modal overlay', {
+        className={cn('modal', 'overlay', {
           'is-active': isTodoSpinned,
         })}
         data-cy="TodoLoader"

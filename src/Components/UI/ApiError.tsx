@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import cn from 'classnames';
 
@@ -43,17 +42,17 @@ export const ApiError: React.FC = () => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: addClassName,
-      })}
+      className={cn('notification', 'is-danger', 'is-light',
+        ' has-text-weight-normal', {
+          hidden: addClassName,
+        })}
     >
       <button
         data-cy="HideErrorButton"
+        aria-label="Close error window"
         type="button"
         className="delete"
-        onClick={() => {
-          setAddClassName(true);
-        }}
+        onClick={() => setAddClassName(true)}
       />
       {responseErrors[errorMessage]}
     </div>

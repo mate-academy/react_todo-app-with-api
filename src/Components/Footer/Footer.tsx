@@ -24,9 +24,9 @@ export const Footer: React.FC = () => {
   } = useTodosContext();
   const { setApiError } = useApiErrorContext();
 
-  const activeTodosNumber = getActiveTodos(todos).length;
+  const activeTodoNumber = getActiveTodos(todos).length;
   const completedTodos = getCompletedTodos(todos);
-  const isClearCompletedInvisible = completedTodos.length === 0;
+  const isClearCompletedInvisible = !completedTodos.length;
 
   const handleClearCompletedClick = () => {
     setIsFocused(false);
@@ -59,15 +59,13 @@ export const Footer: React.FC = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosNumber} items left`}
+        {`${activeTodoNumber} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
         {(Object.entries(FiltersType))
           .map(([key, value]) => {
-            const url = value === FiltersType.ALL
-              ? ''
-              : value.toLowerCase();
+            const url = value.toLowerCase();
 
             return (
               <a
@@ -79,7 +77,7 @@ export const Footer: React.FC = () => {
                 })}
                 onClick={() => setFilter(value)}
               >
-                {value}
+                {value || 'All'}
               </a>
             );
           })}

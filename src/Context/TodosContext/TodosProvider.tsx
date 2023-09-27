@@ -5,10 +5,7 @@ import React, {
 import { TodosListType, Todo } from '../../types/todosTypes';
 import { FiltersType } from '../../types/filterTypes';
 import { Actions } from '../../types/actionTypes';
-import { todosReducer } from '../TodosReducer';
-// import USER_ID from '../../helpers/USER_ID';
-// import { getTodos } from '../../api/todos';
-// import { loadTodosAction } from '../actions/actionCreators';
+import { todosReducer } from './TodosReducer';
 
 type TodosContextType = {
   todos: TodosListType,
@@ -39,16 +36,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   );
   const [filter, setFilter] = useState<FiltersType>(FiltersType.ALL);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-
-  // useEffect(() => {
-  //   getTodos(USER_ID)
-  //     .then((data) => {
-  //       const action = loadTodosAction(data);
-
-  //       dispatch(action);
-  //     })
-  //     .catch(e => setApiError(e));
-  // }, []);
 
   const todosContextValue = {
     todos,

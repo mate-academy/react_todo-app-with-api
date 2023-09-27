@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
   const ref = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
 
-  const isToggleVisible = todos.length > 0;
+  const isToggleVisible = !!todos.length;
   const isToggleActive = todos.every(todo => todo.completed);
 
   useEffect(() => {
@@ -94,8 +94,6 @@ export const Header: React.FC = () => {
       return patchTodo(id, data);
     });
 
-    Promise.allSettled(toggledTodos);
-
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     Promise.allSettled(toggledTodos)
       .then((data: any) => {
@@ -111,7 +109,7 @@ export const Header: React.FC = () => {
           dispatch(patchAction);
         });
 
-        if (rejected.length > 0) {
+        if (rejected.length) {
           setApiError(rejected[0].reason);
 
           todosForToggle.forEach(({ id }) => {
@@ -128,10 +126,10 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {/* eslint-disable jsx-a11y/control-has-associated-label */}
       {isToggleVisible && (
         <button
           type="button"
+          aria-label="Toggle all todos, make them completed or uncompleted"
           className={cn('todoapp__toggle-all', {
             active: isToggleActive,
           })}

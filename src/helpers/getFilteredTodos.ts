@@ -10,15 +10,14 @@ export const getActiveTodos
 const getFilteredTodos
   = (todos: TodosListType, filter: FiltersType): TodosListType => {
     switch (filter) {
-      case FiltersType.ALL:
-      default:
-        return todos;
-
       case FiltersType.ACTIVE:
         return getActiveTodos(todos);
 
       case FiltersType.COMPLETED:
         return getCompletedTodos(todos);
+
+      default:
+        return todos;
     }
   };
 

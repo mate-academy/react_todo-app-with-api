@@ -1,5 +1,5 @@
-import { TodosListType } from '../types/todosTypes';
-import { Actions } from '../types/actionTypes';
+import { TodosListType } from '../../types/todosTypes';
+import { Actions } from '../../types/actionTypes';
 
 export const todosReducer
   = (todos: TodosListType, action: Actions): TodosListType => {
