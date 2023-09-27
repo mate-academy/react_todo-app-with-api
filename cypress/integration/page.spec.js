@@ -735,7 +735,7 @@ describe('', () => {
 
         todos.deleteButton(0).click();
         cy.wait('@deleteRequest');
-
+        cy.wait(500);
         errorMessage.assertVisible();
         errorMessage.assertText('Unable to delete a todo');
       });
@@ -870,6 +870,7 @@ describe('', () => {
         });
 
         it('should show an error message if any of the group deletions fails', () => {
+          cy.wait(500);
           errorMessage.assertVisible();
           errorMessage.assertText('Unable to delete a todo');
         });
@@ -1179,6 +1180,7 @@ describe('', () => {
         });
 
         it('should make all todos active', () => {
+          cy.wait(500);
           todos.assertNotCompleted(0);
           todos.assertNotCompleted(1);
           todos.assertNotCompleted(2);
@@ -1187,6 +1189,7 @@ describe('', () => {
         });
 
         it('should become not active', () => {
+          cy.wait(500);
           page.toggleAllButton().should('not.have.class', 'active');
         });
       });
@@ -1238,6 +1241,7 @@ describe('', () => {
         });
 
         it('should make all todos completed', () => {
+          cy.wait(500);
           todos.assertCompleted(0);
           todos.assertCompleted(1);
           todos.assertCompleted(2);
@@ -1246,6 +1250,7 @@ describe('', () => {
         });
 
         it('should become active', () => {
+          cy.wait(500);
           page.toggleAllButton().should('have.class', 'active');
         });
       });
@@ -1294,12 +1299,14 @@ describe('', () => {
         });
 
         it('should send requests only for not completed todos', () => {
+          cy.wait(500);
           cy.get('@update4').should('not.be.called');
           cy.get('@update5').should('not.be.called');
           cy.get('@update6').should('not.be.called');
         });
 
         it('should make all todos completed', () => {
+          cy.wait(500);
           todos.assertCompleted(0);
           todos.assertCompleted(1);
           todos.assertCompleted(2);
@@ -1308,6 +1315,7 @@ describe('', () => {
         });
 
         it('should become active', () => {
+          cy.wait(500);
           page.toggleAllButton().should('have.class', 'active');
         });
       });
@@ -1465,7 +1473,7 @@ describe('', () => {
         it('should cancel loading', () => {
           todos.titleField(0).type('123{enter}');
           cy.wait('@renameRequest');
-
+          cy.wait(500);
           todos.assertNotLoading(0);
         });
 
@@ -1480,14 +1488,14 @@ describe('', () => {
         it('should show the updated title', () => {
           todos.titleField(0).type('Something{enter}');
           cy.wait('@renameRequest')
-
+          cy.wait(500);
           todos.assertTitle(0, 'Something');
         });
 
         it('should show trim the new title', () => {
           todos.titleField(0).type('   Some new title      {enter}');
           cy.wait('@renameRequest')
-
+          cy.wait(500);
           todos.assertTitle(0, 'Some new title');
         });
       });
@@ -1607,7 +1615,7 @@ describe('', () => {
 
           todos.titleField(0).type('{enter}');
           cy.wait('@deleteRequest');
-
+          cy.wait(500);
           errorMessage.assertVisible();
           errorMessage.assertText('Unable to delete a todo')
         });
@@ -1652,7 +1660,7 @@ describe('', () => {
           todos.titleField(0).type('New title');
           todos.titleField(0).blur();
           cy.wait('@renameRequest')
-
+          cy.wait(500)
           todos.assertTitle(0, 'New title');
         });
 

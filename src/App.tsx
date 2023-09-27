@@ -68,17 +68,31 @@ export const App: React.FC = () => {
 
   const handleCompleteALL = (toDos: Todo[], data: boolean) => {
     toDos.forEach(todo => {
-      updateTodo(todo.id, {
-        completed: data,
-      }).catch(() => {
-        handleError('Unable to update a todo');
-      }).finally(() => {
-        fetchData();
-        const count = todos.filter(toDo => toDo.completed === false)
-          .length;
+      if (data === true && todo.completed === false) {
+        updateTodo(todo.id, {
+          completed: data,
+        }).catch(() => {
+          handleError('Unable to update a todo');
+        }).finally(() => {
+          fetchData();
+          const count = todos.filter(toDo => toDo.completed === false)
+            .length;
 
-        setCounter(count);
-      });
+          setCounter(count);
+        });
+      } else if (data === false) {
+        updateTodo(todo.id, {
+          completed: data,
+        }).catch(() => {
+          handleError('Unable to update a todo');
+        }).finally(() => {
+          fetchData();
+          const count = todos.filter(toDo => toDo.completed === false)
+            .length;
+
+          setCounter(count);
+        });
+      }
     });
   };
 
