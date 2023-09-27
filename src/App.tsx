@@ -56,8 +56,6 @@ export const App: React.FC = () => {
     if (foundTodo) {
       updateTodo({ ...foundTodo, completed: !foundTodo.completed });
     }
-
-    setTodos([...todos]);
   };
 
   useEffect(() => {
