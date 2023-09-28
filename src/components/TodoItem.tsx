@@ -1,26 +1,62 @@
 import React, { useEffect, useState, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { updateTodo } from '../api/todos';
+import { PrevTodos, PrevProcessingTodoIds } from '../types/PrevState';
 
 type Props = {
   todo: Todo;
-  onDeleteTodo?: (todoId: number) => void;
-  onTodoUpdate?: (todoTitle: string) => void;
+  onTodosChange?: (todos: Todo[] | PrevTodos) => void;
   isProcessing: boolean;
   onToggleTodo?: (todo: Todo) => void;
+  onDeleteTodo?: (todoId: number) => void;
+  onErrorMessageChange?: (error: string) => void;
+  onProcessingTodoIdsChange?: (
+    todoIds: number[] | PrevProcessingTodoIds
+  ) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onDeleteTodo = () => {},
-  onTodoUpdate = () => {},
   isProcessing,
   onToggleTodo = () => {},
+  onDeleteTodo = () => {},
+  onTodosChange = () => {},
+  onErrorMessageChange = () => {},
+  onProcessingTodoIdsChange = () => {},
 }) => {
   const { title, id, completed } = todo;
 
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
+
+  const handleUpdateTodo = (newTodoTitle: string) => {
+    onErrorMessageChange('');
+    onProcessingTodoIdsChange((prevTodoIds) => [...prevTodoIds, todo.id]);
+
+    updateTodo({
+      id: todo.id,
+      title: newTodoTitle,
+      userId: todo.userId,
+      completed: todo.completed,
+    })
+      .then(updatedTodo => {
+        onTodosChange(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
+      .catch((error) => {
+        onErrorMessageChange('Unable to update a todo');
+        throw error;
+      })
+      .finally(() => {
+        onProcessingTodoIdsChange(
+          (prevTodoIds) => prevTodoIds.filter(todoId => todoId !== todo.id),
+        );
+      });
+  };
 
   const handleTodoDoubleClick = () => {
     setIsEditing(true);
@@ -30,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({
     event.preventDefault();
 
     if (todoTitle) {
-      await onTodoUpdate(todoTitle);
+      await handleUpdateTodo(todoTitle);
     } else {
       await onDeleteTodo(id);
     }
@@ -114,7 +150,6 @@ export const TodoItem: React.FC<Props> = ({
         </>
       )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {

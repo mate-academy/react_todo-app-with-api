@@ -1,27 +1,96 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useRef, useEffect } from 'react';
+import React, {
+  useRef, useEffect, useCallback, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { addTodo } from '../api/todos';
+import { PrevTodos } from '../types/PrevState';
 
 type Props = {
   todos: Todo[];
-  todoTitle: string;
-  onTodoTitleChange: (title: string) => void;
-  onFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  isTodoAdding: boolean;
+  handleToggleTodo: (todo: Todo) => void;
   activeTodosCounter: number;
-  onToggleAll: () => void;
+  completedTodosCounter: number;
+  onTempTodoChange: (tempTodo: Todo | null) => void;
+  onErrorMessageChange: (error: string) => void;
+  onTodosChange: (todos: Todo[] | PrevTodos) => void;
 };
 
 export const Header: React.FC<Props> = ({
   todos,
-  todoTitle,
-  onTodoTitleChange,
-  onFormSubmit,
-  isTodoAdding,
+  handleToggleTodo,
   activeTodosCounter,
-  onToggleAll,
+  completedTodosCounter,
+  onTempTodoChange,
+  onErrorMessageChange,
+  onTodosChange,
 }) => {
+  const [todoTitle, setTodoTitle] = useState('');
+  const [isTodoAdding, setIsTodoAdding] = useState(false);
+
+  const handleAddTodo = useCallback((newTodoTitle: string) => {
+    onErrorMessageChange('');
+    onTempTodoChange({
+      id: 0,
+      title: newTodoTitle,
+      userId: 0,
+      completed: false,
+    });
+
+    return addTodo(newTodoTitle.trim())
+      .then((newTodo) => {
+        onTodosChange((prevTodos) => [...prevTodos, newTodo]);
+      })
+      .catch((error) => {
+        onErrorMessageChange('Unable to add a todo');
+        throw error;
+      })
+      .finally(() => {
+        onTempTodoChange(null);
+      });
+  }, []);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!todoTitle.trim()) {
+      onErrorMessageChange('Title should not be empty');
+
+      return;
+    }
+
+    setIsTodoAdding(true);
+    handleAddTodo(todoTitle)
+      .then(() => {
+        setTodoTitle('');
+      })
+      .catch((error) => {
+        onErrorMessageChange('Unable to add a todo');
+        throw error;
+      })
+      .finally(() => {
+        setIsTodoAdding(false);
+      });
+  };
+
+  const handleToggleAll = () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    const todosToToggle = activeTodosCounter === todos.length
+      || completedTodosCounter === todos.length
+      ? todos
+      : activeTodos;
+
+    const togglePromises = todosToToggle.map(todo => handleToggleTodo(todo));
+
+    Promise.all(togglePromises)
+      .catch(error => {
+        onErrorMessageChange('Unable to toggle all todos');
+        throw error;
+      });
+  };
+
   const titleInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -36,14 +105,14 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: !activeTodosCounter,
+            active: activeTodosCounter === 0,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => onToggleAll()}
+          onClick={() => handleToggleAll()}
         />
       )}
 
-      <form onSubmit={onFormSubmit}>
+      <form onSubmit={handleSubmit}>
         <input
           ref={titleInput}
           data-cy="NewTodoField"
@@ -51,7 +120,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={todoTitle}
-          onChange={(event) => onTodoTitleChange(event.target.value)}
+          onChange={(event) => setTodoTitle(event.target.value)}
           disabled={isTodoAdding}
         />
       </form>
