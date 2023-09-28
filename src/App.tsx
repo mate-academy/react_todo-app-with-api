@@ -1,14 +1,15 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   USER_ID, addTodo, deleteTodo, getTodos, updateTodo,
 } from './api/todos';
-import { Todo, ErrorMessage, Filter } from './types/Todo';
+import { Todo } from './types/Todo';
 import { Header } from './components/Header/Header';
 import { List } from './components/List/List';
 import { Footer } from './components/Footer/Footer';
 import { handleError } from './handleError';
+import { ErrorMessage } from './types/ErrorMessage';
+import { Filter } from './types/Filter';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -151,6 +152,7 @@ export const App: React.FC = () => {
             tempTodo={tempTodo}
             handleDelete={handleDelete}
             onStatusChange={handleStatusChange}
+            setTodos={setTodos}
           />
         )}
         {todos.length > 0 && (
@@ -164,8 +166,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={`notification is-danger is-light has-text-weight-normal ${
@@ -177,15 +177,10 @@ export const App: React.FC = () => {
           type="button"
           className="delete"
           onClick={() => setErrorMessage('')}
+          aria-label="Close error notification"
         />
-        {/* show only one message at a time */}
         {errorMessage}
         <br />
-        {/* Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
     </div>
   );

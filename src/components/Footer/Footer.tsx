@@ -1,5 +1,6 @@
 import cn from 'classnames';
-import { Filter, Todo } from '../../types/Todo';
+import { Todo } from '../../types/Todo';
+import { Filter } from '../../types/Filter';
 
 type FooterProps = {
   counter: number;
@@ -19,7 +20,6 @@ export const Footer: React.FC<FooterProps> = (
       <span className="todo-count" data-cy="TodosCounter">
         {`${counter} items left`}
       </span>
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -48,8 +48,6 @@ export const Footer: React.FC<FooterProps> = (
           Completed
         </a>
       </nav>
-
-      {/* don't show this button if there are no completed todos */}
       {todos.some(todo => todo.completed) && (
         <button
           type="button"

@@ -1,15 +1,62 @@
-/* eslint-disable max-len */
+import React, { useState, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
+import { updateTodo } from '../../api/todos';
+import { handleError } from '../../handleError';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type TodoItemProps = {
   todo: Todo;
   handleDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
+  onTodoUpdate: () => void;
 };
 
-export const TodoItem: React.FC<TodoItemProps> = ({ todo, handleDelete, onStatusChange }) => {
+export const TodoItem: React.FC<TodoItemProps> = ({
+  todo, handleDelete, onStatusChange, onTodoUpdate,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const editRef = useRef<HTMLInputElement>(null);
   const isLoading = todo.id === 0;
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newTitle.trim() === '') {
+      handleDelete(todo.id);
+    } else if (newTitle !== todo.title) {
+      setIsUpdating(true);
+      try {
+        await updateTodo(todo.id, {
+          title: newTitle.trim(),
+        });
+        onTodoUpdate();
+        setIsEditing(false);
+        setIsUpdating(false);
+      } catch {
+        handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
+        setIsUpdating(false);
+      }
+    } else {
+      setIsEditing(false);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
 
   return (
     <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
@@ -23,11 +70,31 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, handleDelete, onStatus
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-
-      {/* Remove button appears only on hover */}
+      {isEditing ? (
+        <form onSubmit={handleSubmit}>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            onBlur={handleBlur}
+            onKeyUp={handleKeyUp}
+            ref={editRef}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+          />
+        </form>
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={handleDoubleClick}
+        >
+          {todo.title}
+        </span>
+      )}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <button
         type="button"
         className="todo__remove"
@@ -36,8 +103,12 @@ export const TodoItem: React.FC<TodoItemProps> = ({ todo, handleDelete, onStatus
       >
         ×
       </button>
-      {/* overlay will cover the todo while it is being updated */}
-      <div data-cy="TodoLoader" className={cn('modal', 'overlay', { 'is-active': isLoading })}>
+      <div
+        data-cy="TodoLoader"
+        className={cn(
+          'modal', 'overlay', { 'is-active': isLoading || isUpdating },
+        )}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

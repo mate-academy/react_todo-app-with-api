@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -22,17 +21,16 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="todoapp__header">
-      {todos.length && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={cn('todoapp__toggle-all',
             { active: todos.every(todo => todo.completed) })}
           data-cy="ToggleAllButton"
           onClick={onToggleAll}
+          aria-label="toggle-all button"
         />
       )}
-
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
