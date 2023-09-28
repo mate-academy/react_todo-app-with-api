@@ -36,6 +36,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const USER_ID = 11550;
 
+  const isActiveConditions = (isDeleting === true)
+  || (todo.id === 0) || (isToggled && todo.id === toggledId)
+  || (isToggledAll) || (isLoading)
+  || ((todo.completed) && isGroupDeleting);
+
   const handleDelete = (todoId: number) => {
     setIsDeleting(true);
 
@@ -133,7 +138,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={newTitle}
-              // defaultValue={todo.title}
               ref={editedRef}
               onChange={(e) => setNewTitle(e.target.value)}
               onBlur={() => {
@@ -182,10 +186,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         data-cy="TodoLoader"
         className={cn('modal overlay',
           {
-            'is-active': (isDeleting === true)
-          || (todo.id === 0) || (isToggled && todo.id === toggledId)
-          || (isToggledAll) || (isLoading)
-          || ((todo.completed === true) && isGroupDeleting),
+            'is-active': isActiveConditions,
           })}
       >
         <div className="modal-background has-background-white-ter" />

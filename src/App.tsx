@@ -42,8 +42,8 @@ export const App: React.FC = () => {
     return <UserWarning />;
   }
 
-  const isAllCompleted = todos.every((todo) => todo.completed === true);
-  // const isAllNotCompleted = todos.every((todo) => todo.completed === false);
+  const isAllCompleted = todos.every((todo) => todo.completed);
+  const isAllNotCompleted = todos.every((todo) => todo.completed === false);
 
   const toggleAll = () => {
     if (isAllCompleted) {
@@ -52,19 +52,19 @@ export const App: React.FC = () => {
       setTimeout(() => setIsToggledAll(false), 500);
     }
 
-    // if (isAllNotCompleted) {
-    //   handleToggleAllStatus();
-    //   setIsToggledAll(true);
-    //   setTimeout(() => setIsToggledAll(false), 500);
-    // }
+    if (isAllNotCompleted) {
+      handleToggleAllStatus();
+      setIsToggledAll(true);
+      setTimeout(() => setIsToggledAll(false), 500);
+    }
   };
 
-  const arrayCompleted = [...todos].filter((todo) => todo.completed === true);
+  // const arrayCompleted = [...todos].filter((todo) => todo.completed);
 
   const deleteCompleted = () => {
     setIsGroupDeleting(true);
 
-    const completedIds = arrayCompleted.map((todo) => todo.id);
+    const completedIds = sortedTodos.completed.map((todo) => todo.id);
 
     setTodos((prevTodos) => prevTodos
       .filter((todo) => !completedIds.includes(todo.id)));
@@ -95,8 +95,7 @@ export const App: React.FC = () => {
               type="button"
               className={cn('todoapp__toggle-all',
                 {
-                // eslint-disable-next-line quote-props
-                  'active': (isAllCompleted),
+                  active: (isAllCompleted || isAllNotCompleted),
                 })}
               onClick={toggleAll}
               data-cy="ToggleAllButton"
@@ -119,7 +118,7 @@ export const App: React.FC = () => {
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"
               onClick={deleteCompleted}
-              disabled={!(todos.some(todo => todo.completed === true))}
+              disabled={!(todos.some(todo => todo.completed))}
             >
               Clear completed
             </button>

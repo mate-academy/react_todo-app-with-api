@@ -5,16 +5,16 @@ import React, {
   createContext, useContext, useEffect, useRef, useState,
 } from 'react';
 import { editTodo, getTodos } from '../api/todos';
-import { SortTypes, Todo } from '../types/Todo';
+import { ErrorTypes, SortTypes, Todo } from '../types/Todo';
 
 export interface TContext {
   todos: Todo[];
   setTodos: React.Dispatch<SetStateAction<Todo[]>>;
-  hasError: null | string;
-  handleError: (error: string) => void;
+  hasError: null | ErrorTypes;
+  handleError: (error: ErrorTypes) => void;
   sortType: SortTypes;
   setSortType: React.Dispatch<SetStateAction<SortTypes>>;
-  setHasError: React.Dispatch<SetStateAction<string | null>>;
+  setHasError: React.Dispatch<SetStateAction<ErrorTypes | null>>;
   tempTodos: Todo | null;
   setTempTodos: React.Dispatch<SetStateAction<Todo | null>>;
   handleToggleStatus: (todoId: number) => void ;
@@ -39,7 +39,7 @@ const USER_ID = 11550;
 
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [hasError, setHasError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState<ErrorTypes | null>(null);
   const [sortType, setSortType] = useState<SortTypes>('all');
   const [tempTodos, setTempTodos] = useState<Todo | null>(null);
   const [isToggled, setIsToggled] = useState<boolean>(false);
@@ -48,7 +48,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const [isGroupDeleting, setIsGroupDeleting] = useState<boolean>(false);
   const editedRef = useRef<HTMLInputElement | null>(null);
 
-  const handleError = (error: string) => {
+  const handleError = (error: ErrorTypes) => {
     setHasError(error);
     setTimeout(() => setHasError(null), 3000);
   };
@@ -69,8 +69,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
     if (updatedTodoIndex !== -1) {
       const updatedTodo = todos[updatedTodoIndex];
-      // eslint-disable-next-line max-len
-      const updatedTodoWithNewStatus = { ...updatedTodo, completed: !updatedTodo.completed };
+      const updatedTodoWithNewStatus
+      = { ...updatedTodo, completed: !updatedTodo.completed };
 
       setIsToggled(true);
 
@@ -109,7 +109,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         setTodos(updatedTodosFromServer);
       })
       .catch((error) => {
-        handleError('Unable to update todos');
+        handleError('Unable to update a todo');
         // eslint-disable-next-line no-console
         console.error(error);
       })
