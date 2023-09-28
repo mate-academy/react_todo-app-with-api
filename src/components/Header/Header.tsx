@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -8,9 +9,10 @@ type Props = {
   todos: Todo[];
   setErrorMessage: (message: string) => void;
   userId: number;
-  isLoading: boolean;
+  isFocused: boolean;
   newTitle: string;
   setNewTitle: (title: string) => void;
+  toggleAll: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -18,18 +20,20 @@ export const Header: React.FC<Props> = ({
   onSubmit,
   setErrorMessage = () => { },
   userId,
-  isLoading,
+  isFocused,
   newTitle,
   setNewTitle = () => { },
+  toggleAll = () => { },
 }) => {
   // #region state
   const inputReference = useRef<HTMLInputElement | null>(null);
+  const amountCompletedTodo = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
-    if (inputReference.current && !isLoading) {
+    if (inputReference.current && isFocused) {
       inputReference.current.focus();
     }
-  }, [isLoading]);
+  }, [isFocused]);
   // #endregion
 
   // #region handlers
@@ -56,8 +60,11 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       {todos.length > 0 && (
         <button
+          onClick={() => toggleAll()}
           type="button"
-          className="todoapp__toggle-all"
+          className={classNames('todoapp__toggle-all', {
+            active: amountCompletedTodo === todos.length,
+          })}
           data-cy="ToggleAllButton"
         />
       )}
@@ -66,7 +73,7 @@ export const Header: React.FC<Props> = ({
         onSubmit={handleSubmit}
       >
         <input
-          disabled={isLoading}
+          disabled={!isFocused}
           ref={inputReference}
           onChange={handleTitleChange}
           value={newTitle}

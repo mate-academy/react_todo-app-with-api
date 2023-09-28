@@ -30,10 +30,11 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [status, setStatus] = useState(Status.ALL);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number[] | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const visibleTodos = getVisibleTodos(todos, status);
+  const [isFocused, setIsFocused] = useState(true);
 
   const completedTodos = todos.filter(todo => todo.completed);
   const idsOfCompletedTodos = completedTodos.map(todo => todo.id);
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
   // #region add, delete, update
   const addTodo = ({ userId, title, completed }: Todo) => {
     setIsLoading(true);
+    setIsFocused(false);
 
     const promise = todoService.createTodo({
       userId, title: title.trim(), completed,
@@ -79,6 +81,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
         setTempTodo(null);
+        setIsFocused(true);
       });
 
     setTempTodo({
@@ -90,7 +93,8 @@ export const App: React.FC = () => {
 
   const deleteTodo = (id: number) => {
     setIsLoading(true);
-    setSelectedId(id);
+    setSelectedId([id]);
+    setIsFocused(false);
 
     return todoService.deleteTodo(id)
       .then(() => {
@@ -102,11 +106,14 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
         setSelectedId(null);
+        setIsFocused(true);
       });
   };
 
   const deleteCompleted = () => {
     setIsLoading(true);
+    setIsFocused(false);
+    setSelectedId(idsOfCompletedTodos);
 
     return Promise.all(
       idsOfCompletedTodos.map(id => todoService.deleteTodo(id)),
@@ -120,6 +127,84 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setSelectedId(null);
+        setIsFocused(true);
+      });
+  };
+
+  const toggleStatus = (todo: Todo) => {
+    const {
+      id, userId, title, completed,
+    } = todo;
+
+    setSelectedId([id]);
+    setIsLoading(true);
+
+    return todoService.updateTodo({
+      id, userId, title, completed: !completed,
+    })
+      .then((newTodo) => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(item => item.id === id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setSelectedId(null);
+        setIsLoading(false);
+      });
+  };
+
+  const toggleAll = () => {
+    setIsLoading(true);
+    const activeTodo = todos.filter(todo => !todo.completed);
+
+    let updatingTodo = [...todos];
+
+    if (activeTodo.length > 0) {
+      updatingTodo = activeTodo;
+    }
+
+    const arrOfUpdatingIds = updatingTodo.map(i => i.id);
+
+    setSelectedId(arrOfUpdatingIds);
+
+    return Promise.all(
+      updatingTodo.map(todo => {
+        const {
+          id, userId, title, completed,
+        } = todo;
+
+        return todoService.updateTodo({
+          id, userId, title, completed: !completed,
+        });
+      }),
+    )
+      .then((newTodos) => {
+        setTodos((currentTodos) => {
+          const updatedTodos = [...currentTodos];
+
+          newTodos.forEach(item => {
+            const index = updatedTodos.findIndex(i => i.id === item.id);
+
+            updatedTodos.splice(index, 1, item);
+          });
+
+          return updatedTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setIsLoading(false);
@@ -141,11 +226,12 @@ export const App: React.FC = () => {
         <Header
           newTitle={newTitle}
           setNewTitle={setNewTitle}
-          isLoading={isLoading}
+          isFocused={isFocused}
           userId={USER_ID}
           todos={todos}
           onSubmit={addTodo}
           setErrorMessage={setErrorMessage}
+          toggleAll={toggleAll}
         />
 
         {visibleTodos && (
@@ -155,6 +241,7 @@ export const App: React.FC = () => {
             onDelete={deleteTodo}
             selectedId={selectedId}
             isLoading={isLoading}
+            toggleStatus={toggleStatus}
           />
         )}
 

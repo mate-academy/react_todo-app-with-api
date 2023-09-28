@@ -8,9 +8,10 @@ import { Todo } from '../../types/Todo';
 type Props = {
   visibleTodos: Todo[];
   onDelete?: (id: number) => void;
-  selectedId: number | null;
+  selectedId: number[] | null;
   isLoading: boolean;
   tempTodo: Todo | null;
+  toggleStatus: (todo: Todo) => void;
 };
 
 export const Section: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const Section: React.FC<Props> = ({
   selectedId,
   isLoading,
   tempTodo,
+  toggleStatus = () => {},
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -43,6 +45,7 @@ export const Section: React.FC<Props> = ({
                   type="checkbox"
                   className="todo__status"
                   checked={todo.completed}
+                  onChange={() => toggleStatus(todo)}
                 />
               </label>
 
@@ -64,10 +67,7 @@ export const Section: React.FC<Props> = ({
               <div
                 data-cy="TodoLoader"
                 className={classNames('modal overlay', {
-                  'is-active': (selectedId === todo.id && isLoading)
-                    || (
-                      todo.completed && isLoading && !tempTodo && !selectedId
-                    ),
+                  'is-active': (selectedId?.includes(todo.id) && isLoading),
                 })}
               >
                 <div className="modal-background has-background-white-ter" />
