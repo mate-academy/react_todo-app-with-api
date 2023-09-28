@@ -44,6 +44,7 @@ export const TodoList: React.FC<TodoListProps>
             todo={todo}
             handleRemove={handleRemove}
             deletedTodosId={deletedTodosId}
+            deletedTodoId={deletedTodoId}
             handleToggleCompleted={handleToggleCompleted}
             setError={setError}
             onSubmit={onSubmit}

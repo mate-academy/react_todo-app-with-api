@@ -9,7 +9,7 @@ import { TodoList } from './components/TodoList';
 import { FooterFilter } from './components/FooterFilter';
 import { Filter } from './types/Filter';
 import {
- getTodos, deleteTodo, addTodos,
+ getTodos, deleteTodo, addTodos, updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { Errors } from './types/Errors';
@@ -47,9 +47,10 @@ export const App: React.FC = () => {
 
   const handleRemove = useCallback(async (todoId: number) => {
     try {
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       setDeletedTodoId(todoId);
       await deleteTodo(todoId);
+
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
     } catch {
       setError(Errors.delete);
     }
@@ -118,16 +119,31 @@ export const App: React.FC = () => {
 
   const handleToggleCompleted = (id: number) => {
     const selectedTodo = todos.find(todo => todo.id === id);
-    let updatedTodos;
 
     if (selectedTodo) {
-      updatedTodos = todos.map(todo => (
-        todo === selectedTodo
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      ));
+      updateTodo(id, {
+        completed: !selectedTodo.completed,
+      })
+        .then(() => {
+          const updatedTodos = todos.map(todo => {
+            if (todo.id === id) {
+              return {
+                ...todo,
+                completed: !selectedTodo.completed,
+              };
+            }
 
-      setTodos(updatedTodos);
+            return todo;
+          });
+
+          setTodos(updatedTodos);
+        })
+        .catch(() => {
+          setError(Errors.update);
+          setTimeout(() => {
+            setError(null);
+          }, 3000);
+        });
     }
   };
 
@@ -181,7 +197,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.filter(todo => !todo.completed).length !== 0
+          {todos.length > 0
             && (
               <button
                 type="button"

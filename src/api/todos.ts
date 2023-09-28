@@ -23,3 +23,7 @@ export const editTodo
 
   return client.patch<Todo>(`/todos/${id}`, rest);
 };
+
+export const updateTodo = (todoId: number, data: object) => {
+  return client.patch(`/todos/${todoId}`, data);
+};

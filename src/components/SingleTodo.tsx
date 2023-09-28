@@ -8,6 +8,7 @@ import { Errors } from '../types/Errors';
 type SingleTodoProps = {
   todo: Todo,
   handleRemove: (todoId: number) => void,
+  deletedTodoId: number | null,
   deletedTodosId: number[],
   handleToggleCompleted: (id: number) => void,
   setError: (err: Errors | null) => void,
@@ -17,7 +18,7 @@ type SingleTodoProps = {
 export const SingleTodo
 = ({
   todo, handleRemove, deletedTodosId, onSubmit,
-  handleToggleCompleted, setError,
+  handleToggleCompleted, setError, deletedTodoId,
 }: SingleTodoProps) => {
   const [isEdited, setIsEdited] = useState<boolean>(false);
   const [editedTitle, setEditedTitle] = useState<string>('');
@@ -38,8 +39,6 @@ export const SingleTodo
   }, [todo.title]);
 
   const handleEnter = async () => {
-    setIsEdited(false);
-
     try {
       await saveTodo({ ...todo, title: editedTitle });
     } catch {
@@ -77,12 +76,18 @@ export const SingleTodo
             placeholder="Empty todo will be deleted"
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
+            onBlur={() => {
+              handleEnter();
+              handleCancelEdit();
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
+                e.preventDefault();
                 handleEnter();
               }
 
               if (e.key === 'Escape') {
+                e.preventDefault();
                 handleCancelEdit();
               }
             }}
@@ -115,7 +120,8 @@ export const SingleTodo
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': deletedTodosId.includes(todo.id),
+          'is-active': deletedTodosId.includes(todo.id)
+          || deletedTodoId === todo.id,
         })}
       >
         <div className="modal-background has-background-white-ter" />
