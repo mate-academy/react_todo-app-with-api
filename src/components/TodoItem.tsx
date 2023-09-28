@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TContext, useTodoContext } from '../context/TodoContext';
 import { Todo } from '../types/Todo';
-import { deleteTodo, editTodo, getTodos } from '../api/todos';
+import { deleteTodo, editTodo } from '../api/todos';
 
 type Props = {
   todo: Todo,
@@ -34,8 +34,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  const USER_ID = 11550;
-
+  // All "Flags Condition" for cases we need to to see loader 'modal overlay is-active'
+  // f.ex.deleting, tempTodo with id:0, toggling, group-toggling, loading,group-deleting etc.
   const isActiveConditions = (isDeleting === true)
   || (todo.id === 0) || (isToggled && todo.id === toggledId)
   || (isToggledAll) || (isLoading)
@@ -54,11 +54,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .finally(() => {
         setIsDeleting(false);
         titleInputRef.current?.focus();
-      });
-
-    getTodos(USER_ID)
-      .then((res) => {
-        setTodos(res);
       });
   };
 

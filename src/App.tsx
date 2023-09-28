@@ -7,7 +7,7 @@ import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { TContext, useTodoContext } from './context/TodoContext';
 import { SortTypes, Todo } from './types/Todo';
-import { deleteTodo, getTodos } from './api/todos';
+import { deleteTodo } from './api/todos';
 
 const USER_ID = 11550;
 
@@ -43,7 +43,6 @@ export const App: React.FC = () => {
   }
 
   const isAllCompleted = todos.every((todo) => todo.completed);
-  const isAllNotCompleted = todos.every((todo) => todo.completed === false);
 
   const toggleAll = () => {
     if (isAllCompleted) {
@@ -51,23 +50,12 @@ export const App: React.FC = () => {
       setIsToggledAll(true);
       setTimeout(() => setIsToggledAll(false), 500);
     }
-
-    if (isAllNotCompleted) {
-      handleToggleAllStatus();
-      setIsToggledAll(true);
-      setTimeout(() => setIsToggledAll(false), 500);
-    }
   };
-
-  // const arrayCompleted = [...todos].filter((todo) => todo.completed);
 
   const deleteCompleted = () => {
     setIsGroupDeleting(true);
 
     const completedIds = sortedTodos.completed.map((todo) => todo.id);
-
-    setTodos((prevTodos) => prevTodos
-      .filter((todo) => !completedIds.includes(todo.id)));
 
     Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
       .catch(() => {
@@ -76,11 +64,8 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsGroupDeleting(false);
         titleInputRef.current?.focus();
-
-        getTodos(USER_ID)
-          .then((res) => {
-            setTodos(res);
-          });
+        setTodos((prevTodos) => prevTodos
+          .filter((todo) => !completedIds.includes(todo.id)));
       });
   };
 
@@ -95,7 +80,7 @@ export const App: React.FC = () => {
               type="button"
               className={cn('todoapp__toggle-all',
                 {
-                  active: (isAllCompleted || isAllNotCompleted),
+                  active: (isAllCompleted),
                 })}
               onClick={toggleAll}
               data-cy="ToggleAllButton"
