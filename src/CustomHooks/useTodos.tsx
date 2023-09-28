@@ -70,7 +70,6 @@ export const useTodos = (userId: number) => {
       })
       .catch(() => {
         addError('errorUpdateTodo');
-        setUploading([]);
       })
       .finally(() => {
         setUploading([]);
