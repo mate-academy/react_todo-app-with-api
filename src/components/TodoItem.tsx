@@ -1,14 +1,13 @@
-/* eslint-disable */
-import React, { useEffect, useRef, useState } from "react";
-import { Todo } from "../types/Todo";
-import { updateTodo } from "../api/todos";
+import React, { useEffect, useRef, useState } from 'react';
+import { ErrorType, Todo } from '../types/Todo';
+import { updateTodo } from '../api/todos';
 
 type TodoItemProps = {
   todo: Todo;
   handleDeleteTodo: (todo: Todo) => void;
   handleToggleComplete: (todo: Todo) => void;
   isLoading: boolean;
-  handleErrorMessage: (message: string | null) => void;
+  handleErrorMessage: (message: ErrorType | null) => void;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -20,6 +19,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
+  const [isEditingLoading, setIsEditingLoading] = useState(false);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleDoubleClick = () => {
@@ -31,27 +32,32 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   };
 
   const handleBlur = async () => {
-    if (editedTitle.trim() === "") {
+    if (!editedTitle.trim()) {
       handleDeleteTodo(todo);
     } else if (editedTitle !== todo.title) {
       try {
+        setIsEditingLoading(true);
         const trimmedTitle = editedTitle.trim();
-        await updateTodo(todo.id, { title: trimmedTitle });
 
+        await updateTodo(todo.id, { title: trimmedTitle });
+        // eslint-disable-next-line no-param-reassign
         todo.title = trimmedTitle;
       } catch (error) {
-        handleErrorMessage("Unable to update a todo");
+        handleErrorMessage(ErrorType.UnableToUpdateTodo);
+
         return;
       }
     }
+
     setIsEditing(false);
+    setIsEditingLoading(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleBlur();
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       setIsEditing(false);
       setEditedTitle(todo.title);
     }
@@ -66,7 +72,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   return (
     <div
       data-cy="Todo"
-      className={`todo ${todo.completed ? "completed" : ""}`}
+      className={`todo ${todo.completed ? 'completed' : ''}`}
       key={todo.id}
     >
       <label className="todo__status-label">
@@ -116,9 +122,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       <div
         data-cy="TodoLoader"
         className={`modal overlay ${
-          isLoading || (isEditing && editedTitle !== todo.title)
-            ? "is-active"
-            : ""
+          isLoading || isEditingLoading ? 'is-active' : ''
         }`}
       >
         <div className="modal-background has-background-white-ter" />

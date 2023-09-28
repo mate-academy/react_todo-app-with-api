@@ -1,16 +1,15 @@
-/* eslint-disable */
-import React from "react";
-import { Todo } from "../types/Todo";
-import { TodoItem } from "./TodoItem";
+import React from 'react';
+import { ErrorType, Todo } from '../types/Todo';
+import { TodoItem } from './TodoItem';
 
 type TodoListProps = {
   todos: Todo[];
-  filterType: "All" | "Active" | "Completed";
+  filterType: 'All' | 'Active' | 'Completed';
   handleDeleteTodo: (todo: Todo) => void;
   handleToggleComplete: (todo: Todo) => void;
   todoItem: Todo | null;
   currentTodoLoading: number | null;
-  handleErrorMessage: (message: string | null) => void;
+  handleErrorMessage: (message: ErrorType | null) => void;
 };
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -24,11 +23,11 @@ export const TodoList: React.FC<TodoListProps> = ({
 }) => {
   const filterTodos = (todosArray: Todo[]) => {
     return todosArray.filter((todo) => {
-      if (filterType === "All") {
+      if (filterType === 'All') {
         return true;
       }
 
-      if (filterType === "Active") {
+      if (filterType === 'Active') {
         return !todo.completed;
       }
 
