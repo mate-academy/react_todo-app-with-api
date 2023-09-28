@@ -7,15 +7,21 @@ import { useError } from '../../context/ErrorContext';
 
 type Props = {
   todo: Todo;
-  onDelete: (value: Todo) => void;
-  onEditedId: (value: number | null) => void;
-  isDeleteActive: boolean;
+  onDelete?: (value: Todo) => void;
+  onEditedId?: (value: number | null) => void;
+  isDeleteActive?: boolean;
   onDeleteActive?: (value: boolean) => void;
-  isToggleActive: number[];
+  isLoading?: boolean;
+  isToggleActive?: number[];
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, onDelete, onEditedId, isDeleteActive, isToggleActive,
+  todo,
+  onDelete = () => {},
+  onEditedId = () => {},
+  isDeleteActive,
+  isLoading,
+  isToggleActive,
 }) => {
   const { setTodos } = useTodo();
   const { setErrorMessage } = useError();
@@ -43,12 +49,12 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleDelete = () => {
-    setDeletedTodoId(id);
+    setDeletedTodoId(todo.id);
     onDelete(todo);
   };
 
-  const isActive = (isDeleteActive && id === deletedTodoId)
-  || isToggleActive.includes(id) || isCompleteActive;
+  const isActiveLoader = (isDeleteActive && id === deletedTodoId)
+  || isToggleActive?.includes(id) || isCompleteActive || isLoading;
 
   return (
     <div
@@ -91,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classnames(
           'modal overlay', {
-            'is-active': isActive,
+            'is-active': isActiveLoader,
           },
         )}
       >

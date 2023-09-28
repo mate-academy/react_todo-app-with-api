@@ -37,36 +37,15 @@ export const TodoHeader: React.FC<Props> = ({
 
   const toggleAll = async () => {
     const isAllCompleted = todos.every(({ completed }) => completed);
+    const todosForUpdate = isAllCompleted
+      ? todos
+      : todos.filter(({ completed }) => !completed);
+    const todosIds = todosForUpdate.map(({ id }) => id);
+    const updatePromises = todos.map(todo => (
+      updateTodo(todo.id, { ...todo, completed: !isAllCompleted })
+    ));
 
-    if (isAllCompleted) {
-      const allCompleted = todos
-        .filter(({ completed }) => completed)
-        .map(({ id }) => id);
-
-      onToggleActive(allCompleted);
-    } else {
-      const allActive = todos
-        .filter(({ completed }) => !completed)
-        .map(({ id }) => id);
-
-      onToggleActive(allActive);
-    }
-
-    const updatePromises: Promise<Todo>[] = [];
-
-    if (isAllCompleted) {
-      todos.map(todo => {
-        const updatedTodo = { ...todo, completed: false };
-
-        return updatePromises.push(updateTodo(todo.id, updatedTodo));
-      });
-    } else {
-      todos.map(todo => {
-        const updatedTodo = { ...todo, completed: true };
-
-        return updatePromises.push(updateTodo(todo.id, updatedTodo));
-      });
-    }
+    onToggleActive(todosIds);
 
     try {
       await Promise.all(updatePromises);
@@ -117,7 +96,6 @@ export const TodoHeader: React.FC<Props> = ({
       .catch(() => {
         setIsInputDisabled(false);
         setErrorMessage('Unable to add a todo');
-        inputRef?.current?.focus();
       })
       .finally(() => {
         setTodoTemp(null);

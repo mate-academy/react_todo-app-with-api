@@ -8,7 +8,6 @@ import { useTodoTemp } from '../../context/TodoTempContext';
 import { deleteTodo } from '../../api/todos';
 import { useError } from '../../context/ErrorContext';
 import { TodoEditItem } from '../TodoEditItem';
-import { TodoTempItem } from '../TodoTempItem';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -69,12 +68,13 @@ export const TodoList: React.FC<Props> = ({
             isDeleteActive={isDeleteActive}
             onDeleteActive={setIsDeleteActive}
             isToggleActive={isToggleActive}
+            isLoading={isLoading}
           />
         )
       ))}
 
       {todoTemp && (
-        <TodoTempItem isActive={isActive} />
+        <TodoItem isLoading={isActive} todo={todoTemp} />
       )}
     </section>
   );
