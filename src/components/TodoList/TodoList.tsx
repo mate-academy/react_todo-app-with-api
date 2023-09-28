@@ -5,7 +5,10 @@ type Props = {
   todos: Todo[],
   onDelete: (todoId: number) => void,
   processingIds: number[],
-  onToggle: (todoId: number) => void,
+  onToggle: (
+    todoId: number,
+    isCompleted: boolean,
+  ) => Promise<void>;
   togglingId: number | null,
   onUpdate: (todoId: number, data: Todo) => void,
   isSubmitted: boolean,

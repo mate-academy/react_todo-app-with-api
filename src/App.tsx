@@ -5,7 +5,9 @@ import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { Error } from './types/Error';
-import { getTodos, deleteTodo, createTodo } from './api/todos';
+import {
+  getTodos, deleteTodo, createTodo, updateTodo,
+} from './api/todos';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { UserWarning } from './UserWarning';
@@ -15,6 +17,23 @@ import { filterTodos, getItemsLeftCountMessage } from './utils/functions';
 import { client } from './utils/fetchClient';
 
 const USER_ID = 11534;
+
+function getUpdatedTodos(
+  todos: Todo[],
+  updatedTodo: Todo,
+  updatedField: keyof Todo,
+) {
+  return todos.map(todo => {
+    if (todo.id === updatedTodo.id) {
+      return {
+        ...todo,
+        [updatedField]: updatedTodo[updatedField],
+      };
+    }
+
+    return todo;
+  });
+}
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -121,22 +140,26 @@ export const App: React.FC = () => {
     });
   };
 
-  const onToggle = (todoId: number) => {
-    const todoToToggle = todos.find((todo) => todo.id === todoId);
+  const handleChangeCompletedStatus = (
+    todoId: number,
+    isCompleted: boolean,
+  ) => {
+    setProcessingIds(prevState => [...prevState, todoId]);
 
-    setIsSubmitted(true);
-    setTogglingId(todoId);
-
-    if (!todoToToggle) {
-      return;
-    }
-
-    client
-      .patch(`/todos/${todoId}`, { completed: !todoToToggle.completed })
-      .catch(() => setErrorMessage(Error.Toggle))
+    return updateTodo(todoId, { completed: !isCompleted })
+      .then((currentTodo: Todo) => {
+        setTodos(prevState => getUpdatedTodos(
+          prevState,
+          currentTodo,
+          'completed',
+        ));
+      })
+      .catch(() => {
+        setErrorMessage(Error.Update);
+      })
       .finally(() => {
-        setTogglingId(null);
-        setIsSubmitted(false);
+        setProcessingIds(prevState => prevState
+          .filter(id => id !== todoId));
       });
   };
 
@@ -161,10 +184,14 @@ export const App: React.FC = () => {
   };
 
   const updateTodos = (todoId: number, data: Todo) => {
-    return client
-      .patch<Todo>(`/todos/${todoId}`, data)
-      .then(receivedTodo => {
-        setTodos(todos.map(todo => (todo.id === todoId ? receivedTodo : todo)));
+    setIsSubmitted(true);
+    setTogglingId(todoId);
+
+    updateTodo(todoId, data)
+      .then((receivedTodo) => {
+        setTodos((prevTodos) => prevTodos
+          .map((todo) => (todo.id === todoId ? receivedTodo : todo)));
+        setErrorMessage(Error.None);
       })
       .catch(() => setErrorMessage(Error.Update))
       .finally(() => {
@@ -217,7 +244,7 @@ export const App: React.FC = () => {
               todos={visibleTodos}
               onDelete={onDelete}
               processingIds={processingIds}
-              onToggle={onToggle}
+              onToggle={handleChangeCompletedStatus}
               togglingId={togglingId}
               onUpdate={updateTodos}
               isSubmitted={isSubmitted}
