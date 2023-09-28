@@ -16,12 +16,13 @@ const USER_ID = 11572;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [refreshTodos, setRefreshTodos] = useState<boolean>(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState<string>('');
   const [filter, setFilter] = useState<Filter>('All');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [idCompleatedArr, setIdCompleatedArr] = useState<number[]>([0]);
+  const [editTodo, setEditTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -31,7 +32,10 @@ export const App: React.FC = () => {
       .catch(() => {
         handleError(setErrorMessage, ErrorMessageEnum.noTodos);
       })
-      .finally(() => setTempTodo(null));
+      .finally(() => {
+        setTempTodo(null);
+        setEditTodo(null);
+      });
   }, [USER_ID, refreshTodos]);
 
   if (!USER_ID) {
@@ -64,14 +68,14 @@ export const App: React.FC = () => {
     patchTodo(chosenTodo.id, updatedData)
       .then(() => {
         // setTodos((current) => current.map((todo) => (todo.id === chosenTodo.id ? chosenTodo : todo)));
+        setRefreshTodos(prev => !prev);
       })
       .catch(() => {
         handleError(setErrorMessage, ErrorMessageEnum.noUpdateTodo);
       })
       .finally(() => {
-        // setEditIsLoading(false);
         setIdCompleatedArr(idCompleatedArr.filter((todoId) => todoId !== chosenTodo.id));
-        setRefreshTodos(prev => !prev);
+        // setEditIsLoading(false);
       });
   };
 
@@ -83,13 +87,13 @@ export const App: React.FC = () => {
             .then(() => {
               // setTodos((current) => current.map((ctodo) => ({ ...ctodo, completed: true })));
               // setEditIsLoading(true);
+              setRefreshTodos(prev => !prev);
             })
             .catch(() => {
               handleError(setErrorMessage, ErrorMessageEnum.noUpdateTodo);
             })
             .finally(() => {
               // setEditIsLoading(false);
-              setRefreshTodos(prev => !prev);
             });
         },
       );
@@ -99,13 +103,18 @@ export const App: React.FC = () => {
   };
 
   const handleDelete = (chosenTodo: Todo) => {
+    setIdCompleatedArr((prev) => [...prev, chosenTodo.id]);
+
     deleteTodo(chosenTodo.id).then(() => {
       // setTodos((current) => current.map((ctodo) => (ctodo.id === chosenTodo.id ? chosenTodo : ctodo)));
+      setRefreshTodos(prev => !prev);
     })
       .catch(() => {
         handleError(setErrorMessage, ErrorMessageEnum.noDeleteTodo);
       })
-      .finally(() => setRefreshTodos(prev => !prev));
+      .finally(() => {
+        setIdCompleatedArr(idCompleatedArr.filter((todoId) => todoId !== chosenTodo.id));
+      });
   };
 
   const handleNewTodoSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -144,8 +153,6 @@ export const App: React.FC = () => {
       .catch(() => {
         handleError(setErrorMessage, ErrorMessageEnum.noPostTodo);
       })
-      .then(() => {
-      })
       .finally(() => {
         // setTempTodo(null);
       });
@@ -158,22 +165,23 @@ export const App: React.FC = () => {
     const updatedData = { title: trimmedTitle };
 
     // setEditIsLoading(true);
+    setIdCompleatedArr((prev) => [...prev, chosenTodo.id]);
 
     if (!trimmedTitle) {
       handleDelete(chosenTodo);
+    } else if (trimmedTitle !== chosenTodo.title) {
+      patchTodo(chosenTodo.id, updatedData)
+        .then(() => {
+          setRefreshTodos(prev => !prev);
+        })
+        .catch(() => {
+          handleError(setErrorMessage, ErrorMessageEnum.noUpdateTodo);
+        })
+        .finally(() => {
+          setIdCompleatedArr(idCompleatedArr.filter((todoId) => todoId !== chosenTodo.id));
+          // setEditIsLoading(false);
+        });
     }
-    // hehkahksl
-
-    patchTodo(chosenTodo.id, updatedData)
-      .then(() => {
-      })
-      .catch(() => {
-        handleError(setErrorMessage, ErrorMessageEnum.noUpdateTodo);
-      })
-      .finally(() => {
-        setRefreshTodos(prev => !prev);
-        // setEditIsLoading(false);
-      });
   };
 
   const handleClearCompleted = () => {
@@ -203,6 +211,8 @@ export const App: React.FC = () => {
             handleFormSubmitEdited={handleFormSubmitEdited}
             handleDelete={handleDelete}
             idCompleatedArr={idCompleatedArr}
+            setEditTodo={setEditTodo}
+            editTodo={editTodo}
           />
         )}
 
