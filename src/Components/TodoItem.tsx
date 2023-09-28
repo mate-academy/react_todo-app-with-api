@@ -58,7 +58,7 @@ export const TodoItem: React.FC<Props> = ({
     if (isEditing && titleInput.current) {
       titleInput.current.focus();
     }
-  }, [isEditing]);
+  }, [isEditing, isProcessing]);
 
   const onKeyUpHandle = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
