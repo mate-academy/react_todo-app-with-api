@@ -1,20 +1,15 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useMemo, useState,
+  useMemo,
+  useState,
 } from 'react';
-import classNames from 'classnames';
-
 import { TodoList } from './components/TodoList';
-import { TodoContext } from './components/TodoProvider';
-import { Form } from './components/Form';
+import { Header } from './components/Header';
 import { Todo } from './types/Todo';
 import { Footer } from './components/Footer';
-
-enum FilterOption {
-  All = 'All',
-  Active = 'Active',
-  Completed = 'Completed',
-}
+import { ErrorNotification } from './components/ErrorNotification';
+import { FilterOption } from './types/FilterOptions';
+import { useTodo } from './hooks/useTodo';
 
 export const App: React.FC = () => {
   const [filter, setFilter] = useState<string>(FilterOption.All);
@@ -24,8 +19,7 @@ export const App: React.FC = () => {
     todos,
     setErrorMessage,
     errorMessage,
-    updateTodoHandler,
-  } = useContext(TodoContext);
+  } = useTodo();
 
   const filteredTodos = useMemo(() => {
     return todos.filter(({ completed }) => {
@@ -45,55 +39,16 @@ export const App: React.FC = () => {
     return todos.filter(({ completed }) => !completed);
   }, [todos]);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-
-    if (errorMessage) {
-      timer = setTimeout(() => {
-        setErrorMessage('');
-      }, 3000);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [errorMessage]);
-
-  const onToggleAll = async () => {
-    if (activeTodos.length) {
-      activeTodos.forEach(
-        currentTodo => updateTodoHandler(currentTodo, { completed: true }),
-      );
-    } else {
-      todos.forEach(
-        currentTodo => updateTodoHandler(currentTodo, { completed: false }),
-      );
-    }
-  };
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {!!todos.length
-            && (
-              <button
-                type="button"
-                className={classNames(
-                  'todoapp__toggle-all',
-                  { active: !activeTodos.length },
-                )}
-                data-cy="ToggleAllButton"
-                onClick={onToggleAll}
-              />
-            )}
 
-          <Form setTempTodo={setTempTodo} />
-        </header>
+        <Header
+          activeTodos={activeTodos}
+          setTempTodo={setTempTodo}
+        />
 
         {!!filteredTodos.length
           && <TodoList todos={filteredTodos} tempTodo={tempTodo} />}
@@ -103,27 +58,14 @@ export const App: React.FC = () => {
             <Footer
               activeTodos={activeTodos}
               filter={filter}
-              FilterOption={FilterOption}
               setFilter={setFilter}
             />
           )}
       </div>
-
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification is-danger is-light has-text-weight-normal',
-          { hidden: !errorMessage },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage('')}
-        />
-        {errorMessage}
-      </div>
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };

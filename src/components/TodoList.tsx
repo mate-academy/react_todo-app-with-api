@@ -18,8 +18,9 @@ export const TodoList: React.FC<Props> = ({ todos, tempTodo }) => {
         );
       })}
 
-      {tempTodo
-        && <TodoItem todo={tempTodo} />}
+      {tempTodo && (
+        <TodoItem todo={tempTodo} />
+      )}
     </section>
   );
 };

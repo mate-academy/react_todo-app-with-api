@@ -16,7 +16,7 @@ interface TodoContextProps {
   updateTodoHandler: (todo: Todo, property: Partial<Todo>) => Promise<void>;
   errorMessage: string;
   setErrorMessage: (str: string) => void;
-  isLoadingMap: {};
+  isLoadingTodoIds: number[];
 }
 
 export const TodoContext = createContext<TodoContextProps>({
@@ -26,7 +26,7 @@ export const TodoContext = createContext<TodoContextProps>({
   updateTodoHandler: async () => { },
   errorMessage: '',
   setErrorMessage: () => { },
-  isLoadingMap: {},
+  isLoadingTodoIds: [],
 });
 
 type TodoProviderProps = {
@@ -36,8 +36,7 @@ type TodoProviderProps = {
 export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isLoadingMap, setIsLoadingMap]
-    = useState<{ [key: number]: boolean } | {}>({});
+  const [isLoadingTodoIds, setIsLoadingTodoIds] = useState<number[]>([]);
 
   const addTodoHandler = async (
     newTodo: Omit<Todo, 'id'>,
@@ -56,6 +55,10 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     todo: Todo,
     propertiesToUpdate: Partial<Todo>,
   ) => {
+    setIsLoadingTodoIds(prevLoadingTodoIds => ([
+      ...prevLoadingTodoIds,
+      todo.id,
+    ]));
     try {
       const updatedTodo = await updateTodo(todo.id, {
         ...todo,
@@ -69,15 +72,18 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
       });
     } catch (error) {
       setErrorMessage('Unable to update todo');
-      // throw new Error();
     }
+
+    setIsLoadingTodoIds(prevLoadingTodos => prevLoadingTodos.filter(
+      id => todo.id !== id,
+    ));
   };
 
   const deleteTodoHandler = async (todoId: number) => {
-    setIsLoadingMap(prevLoadingMap => ({
-      ...prevLoadingMap,
-      [todoId]: true,
-    }));
+    setIsLoadingTodoIds(prevLoadingTodoIds => ([
+      ...prevLoadingTodoIds,
+      todoId,
+    ]));
 
     try {
       await deleteTodo(todoId);
@@ -86,10 +92,9 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
       setErrorMessage('Unable to delete a todo');
     }
 
-    setIsLoadingMap(prevLoadingMap => ({
-      ...prevLoadingMap,
-      [todoId]: false,
-    }));
+    setIsLoadingTodoIds(prevLoadingTodos => prevLoadingTodos.filter(
+      id => todoId !== id,
+    ));
   };
 
   useEffect(() => {
@@ -107,7 +112,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
         updateTodoHandler,
         setErrorMessage,
         errorMessage,
-        isLoadingMap,
+        isLoadingTodoIds,
       }}
     >
       {children}

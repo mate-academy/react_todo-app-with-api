@@ -1,29 +1,26 @@
 import classNames from 'classnames';
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { Todo } from '../types/Todo';
-import { TodoContext } from './TodoProvider';
+import { useTodo } from '../hooks/useTodo';
 
 type Props = {
   todo: Todo,
 };
 
-export const TodoItem: React.FC<Props> = (
-  { todo }: Props,
-) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [isItemLoading, setIsItemLoading] = useState(todo.id === 0);
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
   const todoTitleField = useRef<HTMLInputElement>(null);
   const {
-    isLoadingMap,
+    isLoadingTodoIds,
     deleteTodoHandler,
     updateTodoHandler,
-  } = useContext(TodoContext);
+  } = useTodo();
 
   const handleCheckboxChange = async () => {
     setIsItemLoading(true);
@@ -45,12 +42,15 @@ export const TodoItem: React.FC<Props> = (
     event.preventDefault();
     setIsItemLoading(true);
 
-    if (todoTitle !== todo.title && todoTitle !== '') {
-      await updateTodoHandler(todo, { title: todoTitle });
-    } else if (todoTitle === todo.title) {
+    if (todoTitle === todo.title) {
       setIsEditing(false);
+      setIsItemLoading(false);
 
       return;
+    }
+
+    if (todoTitle) {
+      await updateTodoHandler(todo, { title: todoTitle });
     } else {
       await deleteTodoHandler(todo.id);
     }
@@ -134,7 +134,7 @@ export const TodoItem: React.FC<Props> = (
         className={classNames(
           'modal overlay',
           {
-            'is-active': (isLoadingMap as { [key: number]: boolean })[todo.id]
+            'is-active': (isLoadingTodoIds.includes(todo.id))
               || isItemLoading,
           },
         )}
