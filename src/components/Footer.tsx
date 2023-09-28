@@ -80,8 +80,6 @@ export const Footer = () => {
                     return false;
                   }
 
-                  // handleError(ErrorType.Delete);
-
                   return true;
                 },
               ))}

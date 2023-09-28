@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../context/TodoContext';
 import { ErrorType } from '../types/Errors';
-// import { editTodo } from '../api/todos';
 
 export const Header = () => {
   const {
@@ -15,9 +14,6 @@ export const Header = () => {
     disabledInput,
     setDisabledInput,
     activeTodos,
-    // completedTodos,
-    // setTodos,
-    // saveEditedTodo,
     handleToggleAll,
     deleteTodo,
   } = useContext(TodosContext);
@@ -51,24 +47,6 @@ export const Header = () => {
 
     addTodo(newTodo);
   };
-
-  // const handleToggleAll = () => {
-  //   if (todos.every(todo => todo.completed)) {
-  //     // const updatedTodo = todos.map(todo => ({
-  //     //   ...todo,
-  //     //   completed: false,
-  //     // }));
-
-  //     saveEditedTodo(todos.map(todo => ({ ...todo, completed: false })));
-
-  //     // editTodo(updatedTodo).then(setTodos(updatedTodo));
-  //   } else {
-  //     const updatedTodos = todos.map(todo => ({ ...todo, completed: true }));
-
-  //     saveEditedTodo(updatedTodos);
-  //     // editTodo(updatedTodos).then(setTodos(updatedTodos));
-  //   }
-  // };
 
   return (
     <header className="todoapp__header">

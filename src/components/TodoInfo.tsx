@@ -39,7 +39,7 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
-      }, 300);
+      }, 100);
     }
 
     prevCompleted.current = todo.completed;
@@ -75,26 +75,6 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
             if (inputRef.current) {
               inputRef.current.blur();
             }
-            // if (editedTitle.length === 0) {
-            //   setIsLoading(true);
-            //   handleDelete();
-            //   setIsLoading(false);
-            // }
-
-            // if (editedTitle === todo.title) {
-            //   setIsEdited(false);
-            //   setIsInputActive(false);
-            // }
-
-            // if (editedTitle.length > 0) {
-            //   setIsLoading(true);
-            //   saveEditedTodo({ ...todo, title: editedTitle.trim() })
-            //     .then(() => {
-            //       setIsLoading(false);
-            //       setIsEdited(false);
-            //       setEditedTitle('');
-            //     });
-            // }
           }}
         >
           <input
