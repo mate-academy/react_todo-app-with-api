@@ -98,7 +98,7 @@ export const App: React.FC = () => {
     deleteTodo(todo.id).then(() => {
       setTodos(prevTodo => prevTodo.filter(toDo => toDo !== todo));
       inputRef.current?.focus();
-      handleCount();
+      fetchData();
     }).catch(() => {
       handleError('Unable to delete todo');
       if (callback) {
