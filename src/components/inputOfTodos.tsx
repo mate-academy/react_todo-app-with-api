@@ -20,6 +20,8 @@ export const InputOfTodos: React.FC<Props> = ({
     }
   };
 
+  const allComplited = (todos.every((t) => t.completed));
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodo(event.target.value);
   };
@@ -35,7 +37,7 @@ export const InputOfTodos: React.FC<Props> = ({
   const handleTaggleAll = () => {
     let updatedTodos = todos;
 
-    if (todos.some((t) => !t.completed)) {
+    if (!allComplited) {
       updatedTodos = todos.map((t) => ({
         ...t,
         completed: true,
@@ -55,7 +57,7 @@ export const InputOfTodos: React.FC<Props> = ({
       {todos.length > 0 && (
         <button
           type="button"
-          className={`todoapp__toggle-all ${todos.every((t) => t.completed) ? 'active' : ''}`}
+          className={`todoapp__toggle-all ${allComplited ? 'active' : ''}`}
           onClick={handleTaggleAll}
         />
       )}
