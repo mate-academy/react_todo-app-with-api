@@ -8,7 +8,7 @@ type Props = {
   onTodoDelete?: (todoId: number) => void;
   onTodoRename?: (todoTitle: string) => void;
   isProcessing: number[];
-  onTodoToggle: () => Promise<void>;
+  onTodoToggle: () => Promise<void>
 };
 
 export const Main: React.FC<Props> = ({

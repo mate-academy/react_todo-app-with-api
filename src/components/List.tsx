@@ -32,14 +32,6 @@ export const List: React.FC<Props> = ({
           onTodoToggle={async () => onToggleTodo(todo)}
         />
       ))}
-
-      {tempTodo && !isProcessing && (
-        <Main
-          todo={tempTodo}
-          tempTodo={null}
-          isProcessing={isProcessing}
-        />
-      )}
     </section>
   );
 };

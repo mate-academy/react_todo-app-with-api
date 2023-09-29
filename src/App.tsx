@@ -12,6 +12,7 @@ import { FilterTodos } from './types/FilterTodos';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import * as todoService from './api/todos';
+import { Main } from './components/Main';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -198,6 +199,15 @@ export const App: React.FC = () => {
           isProcessing={processingTodoId}
           onToggleTodo={handleToggleTodo}
         />
+
+        {tempTodo && (
+          <Main
+            todo={tempTodo}
+            tempTodo={null}
+            isProcessing={processingTodoId}
+            onTodoToggle={async () => handleToggleTodo(tempTodo)}
+          />
+        )}
 
         {isOneTodoCompleted && (
           <Footer
