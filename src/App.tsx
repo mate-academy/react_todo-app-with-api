@@ -197,7 +197,6 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           isProcessing={processingTodoId}
           onToggleTodo={handleToggleTodo}
-          onTodoToggle={() => handleToggleTodo(tempTodo)}
         />
 
         {isOneTodoCompleted && (

@@ -38,7 +38,6 @@ export const List: React.FC<Props> = ({
           todo={tempTodo}
           tempTodo={null}
           isProcessing={isProcessing}
-          onTodoToggle={async () => onToggleTodo(todo)}
         />
       )}
     </section>
