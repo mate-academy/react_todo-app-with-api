@@ -9,14 +9,8 @@ import { ErrorMessage, Status, Todo } from './types';
 import * as todoService from './api';
 import {
   Header,
-  ToggleAllButton,
-  NewTodo,
   TodoList,
-  TodoItem,
   Footer,
-  TodoCounter,
-  TodoFilter,
-  ClearCompletedButton,
   ErrorNotification,
 } from './components';
 import { filterTodos } from './utils';
@@ -132,7 +126,7 @@ export const App: React.FC = () => {
       .finally(() => stopProcessingTodo(todo));
   }, []);
 
-  const hasTodos = todos.length > 0 || !!tempTodo;
+  const hasTodos = !!todos.length || !!tempTodo;
   const hasCompletedTodos = todos.some(({ completed }) => completed);
   const isAllCompleted = todos.every(({ completed }) => completed);
   const activeTodosCount = todos.filter(({ completed }) => !completed).length;
@@ -148,54 +142,34 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <Header>
-          {hasTodos && (
-            <ToggleAllButton
-              active={isAllCompleted}
-              onToggleAll={handleToggleAllTodos}
-            />
-          )}
-
-          <NewTodo
-            refocus={totalTodoCount}
-            onAdd={handleAddTodo}
-            onError={setErrorMessage}
-          />
-        </Header>
+        <Header
+          hasTodos={hasTodos}
+          totalCount={totalTodoCount}
+          allCompleted={isAllCompleted}
+          onAdd={handleAddTodo}
+          onError={setErrorMessage}
+          onToggleAll={handleToggleAllTodos}
+        />
 
         {hasTodos && (
           <>
-            <TodoList>
-              {filteredTodos.map(todo => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={handleToggleTodo}
-                  onDelete={handleDeleteTodo}
-                  onEdit={handleEditTodo}
-                  onError={setErrorMessage}
-                  processing={processingIds.includes(todo.id)}
-                />
-              ))}
+            <TodoList
+              todos={filteredTodos}
+              tempTodo={tempTodo}
+              processingIds={processingIds}
+              onToggle={handleToggleTodo}
+              onDelete={handleDeleteTodo}
+              onEdit={handleEditTodo}
+              onError={setErrorMessage}
+            />
 
-              {tempTodo && (
-                <TodoItem todo={tempTodo} processing />
-              )}
-            </TodoList>
-
-            <Footer>
-              <TodoCounter value={activeTodosCount} />
-
-              <TodoFilter
-                value={filterValue}
-                onValueChange={setFilterValue}
-              />
-
-              <ClearCompletedButton
-                active={hasCompletedTodos}
-                onClear={handleClearCompletedTodos}
-              />
-            </Footer>
+            <Footer
+              activeCount={activeTodosCount}
+              hasCompleted={hasCompletedTodos}
+              filterValue={filterValue}
+              onFilterValueChange={setFilterValue}
+              onClearCompleted={handleClearCompletedTodos}
+            />
           </>
         )}
       </div>

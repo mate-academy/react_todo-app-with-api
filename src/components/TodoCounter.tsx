@@ -6,6 +6,6 @@ type Props = {
 
 export const TodoCounter:React.FC<Props> = memo(({ value }) => (
   <span className="todo-count" data-cy="TodosCounter">
-    {`${value} items left`}
+    {`${value} ${value === 1 ? 'item' : 'items'} left`}
   </span>
 ));

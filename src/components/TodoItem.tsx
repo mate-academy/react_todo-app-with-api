@@ -19,9 +19,9 @@ type Props = {
 
 export const TodoItem:React.FC<Props> = memo(({
   todo,
-  onToggle = () => new Promise(() => {}),
-  onDelete = () => new Promise(() => {}),
-  onEdit = () => new Promise(() => {}),
+  onToggle = () => new Promise<void>(() => {}),
+  onDelete = () => new Promise<void>(() => {}),
+  onEdit = () => new Promise<void>(() => {}),
   onError = () => {},
   processing = false,
 }) => {
