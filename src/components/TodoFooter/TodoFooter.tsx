@@ -6,7 +6,7 @@ export const TodoFooter = () => {
   const {
     todos,
     filter,
-    handleFilter,
+    setFilter,
     handleClearComplete,
   } = useTodos();
 
@@ -31,7 +31,7 @@ export const TodoFooter = () => {
               className={classNames('filter__link', {
                 selected: value === filter,
               })}
-              onClick={() => handleFilter(value)}
+              onClick={() => setFilter(value)}
             >
               {key}
             </a>

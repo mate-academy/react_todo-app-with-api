@@ -31,7 +31,7 @@ interface TodosContextType {
   handleUpdateTodo: (todo: Todo) => Promise<boolean>;
   handleDeleteTodo: (todo: Todo) => void;
   handleClearComplete: () => void;
-  handleFilter: (value: Filter) => void;
+  setFilter: (value: Filter) => void;
   handleClearError: () => void;
 }
 
@@ -55,7 +55,7 @@ export const TodosContext = createContext({} as TodosContextType);
 export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [tempTodos, setTempTodos] = useState<Todo[]>([] as Todo[]);
+  const [tempTodos, setTempTodos] = useState<Todo[]>([]);
   const [isTitleFieldFocused, setIsTitleFieldFocused] = useState(true);
   const [error, setError] = useState('');
 
@@ -103,10 +103,6 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     setIsTitleFieldFocused(status);
   };
 
-  const handleFilter = (value: Filter) => {
-    setFilter(value);
-  };
-
   const handleClearError = () => {
     setError(ErrorsMessages.None);
   };
@@ -115,11 +111,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
 
   const handleToggleAllTodos = async () => {
     const updatedTodos = [...todos];
-    const newStatus = { completed: false };
-
-    if (!isAllTodosCompleted) {
-      newStatus.completed = true;
-    }
+    const newStatus = { completed: !isAllTodosCompleted };
 
     const todosToRequest = isAllTodosCompleted
       ? updatedTodos
@@ -130,19 +122,22 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       setTempTodos(todosToRequest);
 
       const updatedTodosResults = await Promise.all(
-        todosToRequest.map(async todo => {
-          return await updateTodo(todo.id, newStatus) as Todo;
+        todosToRequest.map(todo => {
+          return updateTodo(todo.id, newStatus);
         }),
       );
 
-      updatedTodosResults.forEach((updatedTodo) => {
-        const indexOfUpdatedTodo = updatedTodos
-          .findIndex(({ id }) => id === updatedTodo.id);
+      setTodos((prevTodos) => prevTodos
+        .map((todo) => {
+          const updatedTodo = updatedTodosResults
+            .find(({ id }) => id === todo.id);
 
-        updatedTodos[indexOfUpdatedTodo].completed = updatedTodo.completed;
-      });
+          if (updatedTodo) {
+            return { ...todo, completed: updatedTodo.completed };
+          }
 
-      setTodos(updatedTodos);
+          return todo;
+        }));
     } catch {
       setError(ErrorsMessages.Update);
     } finally {
@@ -249,7 +244,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     isAllTodosCompleted,
     isTitleFieldFocused,
     loadTodos,
-    handleFilter,
+    setFilter,
     handlerTitleFieldFocused,
     handleToggleAllTodos,
     handleAddTodo,

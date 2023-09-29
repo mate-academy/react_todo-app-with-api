@@ -46,7 +46,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (trimmedNewTitle !== todo.title) {
-      const response: boolean = await handleUpdateTodo({
+      const response = await handleUpdateTodo({
         ...todo,
         title: trimmedNewTitle,
       });
