@@ -51,7 +51,7 @@ export const Header: React.FC<Props> = ({
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.UpdateError);
-        throw new Error();
+        throw new Error(ErrorMessages.UpdateError);
       })
       .finally(() => {
         setLoadingId((prevIdis: number[]) => prevIdis
@@ -91,7 +91,7 @@ export const Header: React.FC<Props> = ({
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.AddError);
-        throw new Error();
+        throw new Error(ErrorMessages.AddError);
       })
       .finally(() => {
         setTempTodo(null);
@@ -104,7 +104,7 @@ export const Header: React.FC<Props> = ({
 
     if (!title.trim()) {
       setErrorMessage(ErrorMessages.EmptyTitleError);
-      throw new Error();
+      throw new Error(ErrorMessages.EmptyTitleError);
 
       return;
     }

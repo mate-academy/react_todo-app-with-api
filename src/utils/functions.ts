@@ -2,18 +2,13 @@ import { Status } from '../types/Status';
 import { Todo } from '../types/Todo';
 
 export function getFilteredTodos(todosList: Todo[], filterBy: Status) {
-  const filteredTodos = todosList.filter((todo: Todo) => {
-    switch (filterBy) {
-      case Status.Active:
-        return todo.completed === false;
+  if (filterBy === Status.Active) {
+    return todosList.filter((todo: Todo) => !todo.completed);
+  }
 
-      case Status.Completed:
-        return todo.completed === true;
+  if (filterBy === Status.Completed) {
+    return todosList.filter((todo: Todo) => todo.completed);
+  }
 
-      default:
-        return todo;
-    }
-  });
-
-  return filteredTodos;
+  return todosList;
 }

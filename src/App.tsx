@@ -26,7 +26,7 @@ export const App: React.FC = () => {
       .then(setTodoList)
       .catch(() => {
         setErrorMessage(ErrorMessages.LoadError);
-        throw new Error();
+        throw new Error(ErrorMessages.LoadError);
       });
   }, []);
 
@@ -50,7 +50,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.DeleteError);
-        throw new Error();
+        throw new Error(ErrorMessages.DeleteError);
       })
       .finally(() => {
         setLoadingId([]);
@@ -64,7 +64,7 @@ export const App: React.FC = () => {
       }))
       .catch(() => {
         setErrorMessage(ErrorMessages.DeleteError);
-        throw new Error();
+        throw new Error(ErrorMessages.DeleteError);
       });
   };
 
@@ -83,7 +83,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.UpdateError);
-        throw new Error();
+        throw new Error(ErrorMessages.UpdateError);
       })
       .finally(() => {
         setLoadingId([]);

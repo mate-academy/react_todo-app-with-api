@@ -66,14 +66,14 @@ export const TodoItem: React.FC<Props> = ({
         });
       } catch {
         setErrorMessage(ErrorMessages.UpdateError);
-        throw new Error();
+        throw new Error(ErrorMessages.UpdateError);
       }
     } else {
       try {
         await handleDeleteTodo(id);
       } catch {
         setErrorMessage(ErrorMessages.DeleteError);
-        throw new Error();
+        throw new Error(ErrorMessages.DeleteError);
       }
     }
 
