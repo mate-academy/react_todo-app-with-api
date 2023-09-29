@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useRef,
@@ -24,7 +23,6 @@ import {
   getItemsLeftCountMessage,
   getUpdatedTodos,
 } from './utils/functions';
-import { client } from './utils/fetchClient';
 
 const USER_ID = 11521;
 
@@ -34,7 +32,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(Error.None);
   const [value, setValue] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [areSubmiting, setAreSubmiting] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const [wasEdited, setWasEdited] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingIds, setProcessingIds] = useState<number[]>([]);
@@ -157,12 +155,18 @@ export const App: React.FC = () => {
   const toggleAll = () => {
     const allTodosAreCompleted = todos.length === completedTodosCount.length;
 
-    const promiseArray = (
-      allTodosAreCompleted
-        ? completedTodosCount
-        : activeTodosCount).map((todo: { id: number; completed: boolean; }) => client.patch(`/todos/${todo.id}`, { completed: !todo.completed }));
+    const todosToUpdate = allTodosAreCompleted
+      ? completedTodosCount
+      : activeTodosCount;
 
-    setAreSubmiting(true);
+    const promiseArray = todosToUpdate.map((todo) => {
+      const { id, completed } = todo;
+      const updatedCompletedStatus = !completed;
+
+      return updateTodo(id, { completed: updatedCompletedStatus });
+    });
+
+    setIsSubmiting(true);
 
     Promise.all(promiseArray)
       .then(() => {
@@ -171,7 +175,7 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => setErrorMessage(Error.Toggle))
-      .finally(() => setAreSubmiting(false));
+      .finally(() => setIsSubmiting(false));
   };
 
   const updateTodos = (todoId: number, data: Todo) => {
@@ -201,7 +205,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length !== 0 && (
+          {!!todos.length && (
             <button
               type="button"
               data-cy="ToggleAllButton"
@@ -209,6 +213,7 @@ export const App: React.FC = () => {
                 active: todos.every(todo => todo.completed),
               })}
               onClick={toggleAll}
+              aria-label="Toggle All"
             />
           )}
 
@@ -239,7 +244,7 @@ export const App: React.FC = () => {
               togglingId={togglingId}
               onUpdate={updateTodos}
               isSubmitted={isSubmitted}
-              areSubmiting={areSubmiting}
+              isSubmiting={isSubmiting}
             />
 
             {tempTodo && (
@@ -274,7 +279,6 @@ export const App: React.FC = () => {
             </footer>
           </>
         )}
-
       </div>
 
       <TodoError

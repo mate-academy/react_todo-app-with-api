@@ -13,7 +13,7 @@ type Props = {
   ) => Promise<void>;
   togglingId: number | null,
   onUpdate: (todoId: number, data: Todo) => void,
-  areSubmiting: boolean,
+  isSubmiting: boolean,
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -23,7 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   onToggle,
   togglingId,
   onUpdate,
-  areSubmiting,
+  isSubmiting,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState(todo.title);
@@ -47,7 +47,7 @@ export const TodoItem: React.FC<Props> = ({
 
     if (newTodoTitle === currentTodoTitle) {
       setIsEditing(false);
-    } else if (newTodoTitle.trim() === '') {
+    } else if (!newTodoTitle.trim()) {
       onDelete(todo.id);
     } else {
       setIsEditing(true);
@@ -66,19 +66,18 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleChangeCompletedStatus = () => {
-    onToggle(todo.id, todo.completed)
-      .then(() => {
-      })
-      .catch((error) => {
-      // eslint-disable-next-line no-console
-        console.error(error);
-      });
+    onToggle(todo.id, todo.completed);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
     }
+  };
+
+  const isActive = () => {
+    return processingIds.includes(todo.id)
+      || togglingId === todo.id || isSubmiting;
   };
 
   return (
@@ -102,10 +101,10 @@ export const TodoItem: React.FC<Props> = ({
       {isEditing ? (
         <form onSubmit={handleFormSubmit}>
           <input
-            data-cy="NewTodoField"
+            data-cy="TodoTitleField"
             type="text"
-            className="todoapp__new-todo"
-            placeholder="What needs to be done?"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
             value={newTodoTitle}
             ref={inputRef}
             onChange={(event) => setNewTodoTitle(event.target.value)}
@@ -130,9 +129,7 @@ export const TodoItem: React.FC<Props> = ({
         className="todo__remove"
         data-cy="TodoDelete"
         onClick={() => onDelete(todo.id)}
-        disabled={processingIds.includes(todo.id)
-          || togglingId === todo.id
-          || areSubmiting}
+        disabled={isActive()}
       >
         ×
       </button>
@@ -141,9 +138,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames(
           'modal overlay', {
-            'is-active': processingIds.includes(todo.id)
-              || togglingId === todo.id
-              || areSubmiting,
+            'is-active': isActive(),
           },
         )}
       >

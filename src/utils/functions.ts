@@ -31,7 +31,7 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
 export function getItemsLeftCountMessage(activeTodos: Todo[]) {
   switch (activeTodos.length) {
     case 1:
-      return '1 items left';
+      return '1 item left';
 
     case 0:
       return 'Everything is done';
