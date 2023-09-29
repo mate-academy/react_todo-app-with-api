@@ -11,7 +11,7 @@ export function getFilteredTodos(todosList: Todo[], filterBy: Status) {
         return todo.completed === true;
 
       default:
-        return todosList;
+        return todo;
     }
   });
 

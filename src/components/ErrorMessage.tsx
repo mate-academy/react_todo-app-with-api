@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { ErrorMessages } from '../utils/ErrorMessages';
 
@@ -11,6 +11,16 @@ export const ErrorMessage: React.FC<Props> = ({
   errorMessage,
   onErrorMessageChange,
 }) => {
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      onErrorMessageChange(ErrorMessages.NoError);
+    }, 3000);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [errorMessage]);
+
   return (
     <div
       data-cy="ErrorNotification"

@@ -1,23 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { ErrorMessages } from '../utils/ErrorMessages';
 
 type Props = {
   todo: Todo,
-  loadingId: number[],
-  isLoaderActive: boolean,
-  handleComplete: (arg: Todo) => void,
-  handleEditTodo: (updatedTodo: Todo) => Promise<void>,
-  handleDeleteTodo: (id: number) => Promise<void>,
+  updateTodo?: (arg: Todo) => Promise<Todo | void>,
+  loadingId?: number[],
+  setLoadingId?: (arg: number[] | []) => void,
+  handleDeleteTodo?: (id: number) => Promise<void>,
+  setErrorMessage?: (error: ErrorMessages) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  loadingId,
-  isLoaderActive,
-  handleComplete,
-  handleEditTodo,
-  handleDeleteTodo,
+  updateTodo = () => {},
+  loadingId = [0],
+  setLoadingId = () => {},
+  handleDeleteTodo = () => {},
+  setErrorMessage = () => {},
 }) => {
   const {
     id, completed, title, userId,
@@ -40,13 +41,40 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleComplete = (updatedTodo: Todo) => {
+    setErrorMessage(ErrorMessages.NoError);
+    setLoadingId([updatedTodo.id]);
+
+    const foundTodo = { ...updatedTodo };
+
+    foundTodo.completed = !foundTodo.completed;
+
+    updateTodo(foundTodo);
+  };
+
+  const handleEditTodo = (updatedTodo: Todo) => {
+    setLoadingId([updatedTodo.id]);
+
+    return updateTodo(updatedTodo);
+  };
+
   const submit = async () => {
     if (editedTitle.trim()) {
-      await handleEditTodo({
-        id, title: editedTitle, userId, completed,
-      });
+      try {
+        await handleEditTodo({
+          id, title: editedTitle, userId, completed,
+        });
+      } catch {
+        setErrorMessage(ErrorMessages.UpdateError);
+        throw new Error();
+      }
     } else {
-      await handleDeleteTodo(id);
+      try {
+        await handleDeleteTodo(id);
+      } catch {
+        setErrorMessage(ErrorMessages.DeleteError);
+        throw new Error();
+      }
     }
 
     setIsUpdateFormActive(false);
@@ -104,7 +132,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(event) => setEditedTitle(event.target.value)}
             onBlur={handleOnBlur}
             onKeyUp={handleCancelEdit}
-            disabled={isLoaderActive}
+            disabled={!!loadingId.length}
           />
         </form>
       ) : (
@@ -127,7 +155,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal', 'overlay', {
-          'is-active': loadingId.includes(id) && isLoaderActive,
+          'is-active': loadingId.includes(id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

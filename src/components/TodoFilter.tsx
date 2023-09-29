@@ -17,9 +17,7 @@ export const TodoFilter: React.FC<Props> = ({
   hasCompletedTodosCount,
   handleClearCompleted,
 }) => {
-  const itemsLeftMessage = activeTodosCount === 1
-    ? `${activeTodosCount} item left`
-    : `${activeTodosCount} items left`;
+  const itemsLeftMessage = `${activeTodosCount} ${activeTodosCount === 1 ? 'item' : 'items'} left`;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
