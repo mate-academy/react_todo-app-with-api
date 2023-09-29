@@ -182,12 +182,9 @@ export const App: React.FC = () => {
 
   const handleToggleAllTodos = () => {
     const activeTodos = visibleTodos.filter(todo => !todo.completed);
+    const todosForUpdate = isAllCompleted ? visibleTodos : activeTodos;
 
-    if (isAllCompleted) {
-      Promise.all(visibleTodos.map(updateTodoStatus));
-    } else {
-      Promise.all(activeTodos.map(updateTodoStatus));
-    }
+    Promise.all(todosForUpdate.map(updateTodoStatus));
   };
 
   return (
@@ -203,9 +200,7 @@ export const App: React.FC = () => {
           onToggleAll={handleToggleAllTodos}
           isTitleDisabled={isTitleDisabled}
         />
-
         <section className="todoapp__main" data-cy="TodoList">
-
           {visibleTodos.map(todo => (
             <TodoItem
               todo={todo}
