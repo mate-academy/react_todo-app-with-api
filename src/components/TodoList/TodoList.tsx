@@ -1,11 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { TodoItem } from '../TodoItem';
 import { TodosContext } from '../TodosContext';
 
-type Props = {};
-
-export const TodoList: React.FC<Props> = () => {
+export const TodoList = () => {
   const {
     filteredTodos,
     tempTodo,

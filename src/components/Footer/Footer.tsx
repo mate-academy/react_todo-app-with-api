@@ -1,41 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
-import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodosContext';
+import { FilterOption, OPTIONS, filterTodos } from '../../utils/variables';
 
-enum FilterOption {
-  Default = '',
-  All = 'All',
-  Active = 'Active',
-  Completed = 'Completed',
-}
-
-type Props = {};
-
-function filterTodos(option: FilterOption, todos: Todo[]) {
-  const filteredTodos = todos.filter(todo => {
-    switch (option) {
-      case FilterOption.Active: {
-        return todo.completed === false;
-      }
-
-      case FilterOption.Completed: {
-        return todo.completed === true;
-      }
-
-      default: {
-        return todo;
-      }
-    }
-  });
-
-  return filteredTodos;
-}
-
-const OPTIONS = [FilterOption.All, FilterOption.Completed, FilterOption.Active];
-
-export const Footer: React.FC<Props> = () => {
+export const Footer = () => {
   const {
     todos,
     setFilteredTodos,
@@ -56,7 +25,6 @@ export const Footer: React.FC<Props> = () => {
   }, [selectedOption, isTodoChange, changingItems]);
 
   const handleFilterTodos = (option: FilterOption) => {
-    setFilteredTodos(filterTodos(option, todos));
     setSelectedOption(option);
   };
 

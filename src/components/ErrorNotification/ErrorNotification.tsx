@@ -1,11 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import cn from 'classnames';
-import { ErrorMessage, TodosContext } from '../TodosContext';
+import { TodosContext } from '../TodosContext';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
-type Props = {};
-
-export const ErrorNotification: React.FC<Props> = () => {
+export const ErrorNotification = () => {
   const {
     alarm,
     setAlarm,

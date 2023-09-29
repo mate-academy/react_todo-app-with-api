@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { UserWarning } from './UserWarning';
 import { Footer } from './components/Footer';
@@ -9,9 +9,10 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { getTodos } from './api/todos';
 import { USER_ID } from './utils/variables';
 import { TodoList } from './components/TodoList';
-import { ErrorMessage, TodosContext } from './components/TodosContext';
+import { TodosContext } from './components/TodosContext';
+import { ErrorMessage } from './types/ErrorMessage';
 
-export const App: React.FC = () => {
+export const App = () => {
   const {
     todos,
     setTodos,

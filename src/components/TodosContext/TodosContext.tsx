@@ -2,15 +2,7 @@
 import React, { useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { removeTodo } from '../../api/todos';
-
-export enum ErrorMessage {
-  Default = '',
-  isLoadTodoError = 'Unable to load todos',
-  isTitleEmpty = 'Title should not be empty',
-  isUnableAddTodo = 'Unable to add a todo',
-  isUnableDeleteTodo = 'Unable to delete a todo',
-  isUnableUpdateTodo = 'Unable to update a todo',
-}
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 interface InterfaceTodosContext {
   todos: Todo[];

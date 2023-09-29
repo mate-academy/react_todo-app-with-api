@@ -11,11 +11,10 @@ import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { createTodo, updateTodo } from '../../api/todos';
 import { USER_ID } from '../../utils/variables';
-import { ErrorMessage, TodosContext } from '../TodosContext';
+import { TodosContext } from '../TodosContext';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
-type Props = {};
-
-export const Header: React.FC<Props> = () => {
+export const Header = () => {
   const {
     todos,
     setTodos,
@@ -69,13 +68,18 @@ export const Header: React.FC<Props> = () => {
 
     setChangingItems(current => [...current, 0]);
     setIsTodoChange(true);
-    setTempTodo({
-      id: 0,
+
+    const newTodo = {
       title: trimmedInputValue,
       userId: USER_ID,
       completed: false,
+    };
+
+    setTempTodo({
+      ...newTodo,
+      id: 0,
     });
-    addTodo({ title: trimmedInputValue, userId: USER_ID, completed: false });
+    addTodo(newTodo);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

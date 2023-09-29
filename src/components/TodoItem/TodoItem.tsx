@@ -5,11 +5,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
-import { ErrorMessage, TodosContext } from '../TodosContext';
+import { TodosContext } from '../TodosContext';
 import { updateTodo } from '../../api/todos';
+import { ErrorMessage } from '../../types/ErrorMessage';
 
 type Props = {
   todo: Todo,
@@ -31,8 +33,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setTodos,
   } = useContext(TodosContext);
 
-  const [isCompleted, setIsCompleted] = useState(completed);
-  const [isLoading, setIsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [editedInput, setEditedInput] = useState(title);
 
@@ -44,26 +44,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isUpdating]);
 
-  useEffect(() => {
-    setIsCompleted(completed);
-  }, [completed]);
-
-  const handleUpdateTodo = (val: boolean | string) => {
-    let newTodo = todo;
-
-    if (typeof val === 'boolean') {
-      newTodo = {
-        ...todo,
-        completed: val,
-      };
-    }
-
-    if (typeof val === 'string' && val.trim() !== '') {
-      newTodo = {
-        ...todo,
-        title: val,
-      };
-    }
+  const handleUpdateTodo = (updateFields: Partial<Todo>) => {
+    const newTodo = {
+      ...todo,
+      ...updateFields,
+    };
 
     if (newTodo) {
       setIsTodoChange(true);
@@ -78,8 +63,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
                 ? currTodo
                 : newTodo;
             }));
-
-          setIsCompleted(newTodo.completed);
         })
         .catch(() => {
           setAlarm(ErrorMessage.isUnableUpdateTodo);
@@ -98,6 +81,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (!trimmedInputValue) {
       handleRemoveTodo(todo);
+
+      return;
     }
 
     if (trimmedInputValue === title) {
@@ -107,7 +92,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     setIsTodoChange(true);
-    handleUpdateTodo(trimmedInputValue);
+    handleUpdateTodo({ title: trimmedInputValue });
   };
 
   const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,16 +101,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  useEffect(() => {
-    setIsLoading(changingItems.includes(id));
-  }, [changingItems]);
+  const isLoading = changingItems.includes(id);
 
   return (
     <div
       data-cy="Todo"
       className={cn(
         'todo',
-        { completed: isCompleted },
+        { completed: todo.completed },
       )}
       onDoubleClick={() => setIsUpdating(true)}
     >
@@ -135,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleUpdateTodo(!isCompleted)}
+          onChange={() => handleUpdateTodo({ completed: !completed })}
         />
       </label>
 
