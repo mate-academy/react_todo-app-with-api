@@ -36,13 +36,12 @@ interface TodosContextType {
 }
 
 enum ErrorsMessages {
-  Clear = '',
+  None = '',
   Load = 'Unable to load todos',
   Add = 'Unable to add a todo',
   Update = 'Unable to update a todo',
   Empty = 'Title should not be empty',
   Delete = 'Unable to delete a todo',
-
 }
 
 type Props = {
@@ -79,7 +78,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     }
 
     timerIdRef.current = window.setTimeout(() => {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
     }, 3000);
 
     return () => clearTimeout(timerIdRef.current);
@@ -87,7 +86,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
 
   const loadTodos = async () => {
     try {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
       const fetchedTodos = await getTodos(USER_ID);
 
       setTodos(fetchedTodos);
@@ -109,7 +108,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
   };
 
   const handleClearError = () => {
-    setError(ErrorsMessages.Clear);
+    setError(ErrorsMessages.None);
   };
 
   const isAllTodosCompleted = todos.every(todo => todo.completed);
@@ -122,22 +121,28 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
       newStatus.completed = true;
     }
 
-    const todosToRequest = !isAllTodosCompleted
-      ? updatedTodos.filter(todo => !todo.completed)
-      : updatedTodos;
+    const todosToRequest = isAllTodosCompleted
+      ? updatedTodos
+      : updatedTodos.filter((todo) => !todo.completed);
 
     try {
-      setError(ErrorsMessages.Clear);
-      setTempTodos(todos);
+      setError(ErrorsMessages.None);
+      setTempTodos(todosToRequest);
 
-      await Promise.all(todosToRequest.map(async (todo) => {
-        const updatedTodo = await updateTodo(todo.id, newStatus) as Todo;
+      const updatedTodosResults = await Promise.all(
+        todosToRequest.map(async todo => {
+          return await updateTodo(todo.id, newStatus) as Todo;
+        }),
+      );
+
+      updatedTodosResults.forEach((updatedTodo) => {
         const indexOfUpdatedTodo = updatedTodos
           .findIndex(({ id }) => id === updatedTodo.id);
 
         updatedTodos[indexOfUpdatedTodo].completed = updatedTodo.completed;
-        setTodos(updatedTodos);
-      }));
+      });
+
+      setTodos(updatedTodos);
     } catch {
       setError(ErrorsMessages.Update);
     } finally {
@@ -160,10 +165,9 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     };
 
     try {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
       setTempTodos([newTodo]);
-      const responseAddedTodo = await addTodo(newTodo);
-      const addedTodo = responseAddedTodo as Todo;
+      const addedTodo = await addTodo(newTodo);
 
       setTodos(prevTodos => [...prevTodos, addedTodo]);
 
@@ -179,24 +183,18 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
 
   const handleUpdateTodo = async (todo: Todo) => {
     try {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
       setTempTodos([todo]);
-      const newTodo = {
+
+      const updatedTodoResponse = await updateTodo(todo.id, {
         title: todo.title,
         completed: todo.completed,
-      };
-      const updatedTodoResponse = await updateTodo(todo.id, newTodo);
-      const updatedTodo = updatedTodoResponse as Todo;
-      const preperedUpdatedTodo = {
-        id: updatedTodo.id,
-        userId: updatedTodo.userId,
-        title: updatedTodo.title,
-        completed: updatedTodo.completed,
-      };
-      const indexOfUpdatedTodo = todos.findIndex(item => item.id === todo.id);
-      const newTodos = [...todos];
+      });
 
-      newTodos[indexOfUpdatedTodo] = preperedUpdatedTodo;
+      const updatedTodo = updatedTodoResponse as Todo;
+
+      const newTodos = todos
+        .map(item => (item.id === todo.id ? updatedTodo : item));
 
       setTodos(newTodos);
 
@@ -212,7 +210,7 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
 
   const handleDeleteTodo = async (todo: Todo) => {
     try {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
       setTempTodos([todo]);
       await deleteTodo(todo.id);
       setTodos(prevTodos => prevTodos.filter(item => item.id !== todo.id));
@@ -223,11 +221,11 @@ export const TodosContextProvider: React.FC<Props> = ({ children }) => {
     }
   };
 
-  const completedTodos = todos.filter(({ completed }) => completed === true);
+  const completedTodos = todos.filter(({ completed }) => completed);
 
   const handleClearComplete = async () => {
     try {
-      setError(ErrorsMessages.Clear);
+      setError(ErrorsMessages.None);
       setTempTodos(completedTodos);
       await Promise.all(completedTodos.map(async (todo) => {
         await deleteTodo(todo.id);

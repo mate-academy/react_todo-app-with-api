@@ -41,6 +41,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     if (trimmedNewTitle === '') {
       await handleDeleteTodo(todo);
+
+      return;
     }
 
     if (trimmedNewTitle !== todo.title) {
