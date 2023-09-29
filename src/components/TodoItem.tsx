@@ -9,7 +9,6 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-// const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [toggledId, setToggledId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
@@ -38,13 +37,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  // All "Flags Condition" for cases we need to to see loader 'modal overlay is-active'
-  // f.ex.deleting,
-  // tempTodo with id:0,
-  // toggling,
-  // group-toggling,
-  // loading,
-  // group-deleting etc.
   const isActiveConditions
   = (isDeleting && (deletedId === todo.id))
   || (todo.id === 0)
@@ -78,7 +70,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (newTitle.trim() === '') {
+      setDeletedId(todo.id);
       await doHandleDelete(todo.id);
+      setTimeout(() => setDeletedId(null), 500);
 
       return;
     }
@@ -90,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .findIndex((editedtodo) => editedtodo.id === todoId);
 
     if (editedTodo !== null) {
-      editTodo(todoId, updatedTodoWithNewTitle)
+      editTodo(todoId, { title: updatedTodoWithNewTitle.title })
         .then((res) => {
           const updatedTodos = [...todos];
 

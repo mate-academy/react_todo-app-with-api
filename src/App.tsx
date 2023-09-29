@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -7,7 +6,6 @@ import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { TContext, useTodoContext } from './context/TodoContext';
 import { SortTypes, Todo } from './types/Todo';
-// import { deleteTodo } from './api/todos';
 
 const USER_ID = 11550;
 
@@ -74,6 +72,7 @@ export const App: React.FC = () => {
                 })}
               onClick={toggleAll}
               data-cy="ToggleAllButton"
+              aria-label="togglingAllButton"
             />
           )}
           <TodoForm />
@@ -111,6 +110,7 @@ export const App: React.FC = () => {
           type="button"
           className="delete"
           onClick={() => setHasError(null)}
+          aria-label="closingErrorButton"
         />
         {hasError}
 

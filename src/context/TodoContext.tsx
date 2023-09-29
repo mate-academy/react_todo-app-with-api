@@ -107,7 +107,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
     setTodos(updatedTodos);
 
-    Promise.all(updatedTodos.map((todo) => editTodo(todo.id, todo)))
+    Promise.all(updatedTodos
+      .map((todo) => editTodo(todo.id, { completed: todo.completed })))
       .then((updatedTodosFromServer) => {
         setTodos(updatedTodosFromServer);
       })

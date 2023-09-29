@@ -40,8 +40,6 @@ export const TodoForm: React.FC = () => {
       addTodo(newTodo)
         .then((res) => {
           setTodos([...todos, res]);
-          // eslint-disable-next-line no-console
-          console.log(res);
           setTitle('');
         })
         .catch((error) => {
