@@ -31,14 +31,22 @@ export const TodoItem: React.FC<Props> = ({
   const [todoTitle, setTodoTitle] = useState(title);
 
   const handleUpdateTodo = (newTodoTitle: string) => {
+    if (newTodoTitle.trim() === title) {
+      return;
+    }
+
+    if (!newTodoTitle.trim()) {
+      onDeleteTodo(id);
+
+      return;
+    }
+
     onErrorMessageChange('');
     onProcessingTodoIdsChange((prevTodoIds) => [...prevTodoIds, todo.id]);
 
     updateTodo({
-      id: todo.id,
+      ...todo,
       title: newTodoTitle,
-      userId: todo.userId,
-      completed: todo.completed,
     })
       .then(updatedTodo => {
         onTodosChange(prevState => prevState.map(currentTodo => (
@@ -47,9 +55,8 @@ export const TodoItem: React.FC<Props> = ({
             : updatedTodo
         )));
       })
-      .catch((error) => {
+      .catch(() => {
         onErrorMessageChange('Unable to update a todo');
-        throw error;
       })
       .finally(() => {
         onProcessingTodoIdsChange(
@@ -71,6 +78,7 @@ export const TodoItem: React.FC<Props> = ({
       await onDeleteTodo(id);
     }
 
+    setTodoTitle(title);
     setIsEditing(false);
   };
 
@@ -101,7 +109,7 @@ export const TodoItem: React.FC<Props> = ({
       key={id}
       data-cy="Todo"
       className={classNames('todo', {
-        completed: completed === true,
+        completed,
       })}
       onKeyUp={handleKeyUp}
     >

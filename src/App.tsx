@@ -106,7 +106,7 @@ export const App: React.FC = () => {
           setProcessingTodoIds={setProcessingTodoIds}
         />
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <Footer
             todos={todos}
             activeTodosCounter={activeTodosCounter}

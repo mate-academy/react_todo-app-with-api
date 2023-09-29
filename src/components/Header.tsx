@@ -85,9 +85,8 @@ export const Header: React.FC<Props> = ({
     const togglePromises = todosToToggle.map(todo => handleToggleTodo(todo));
 
     Promise.all(togglePromises)
-      .catch(error => {
+      .catch(() => {
         onErrorMessageChange('Unable to toggle all todos');
-        throw error;
       });
   };
 
@@ -101,14 +100,14 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {todos.length !== 0 && (
+      {!!todos.length && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: activeTodosCounter === 0,
+            active: !activeTodosCounter,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => handleToggleAll()}
+          onClick={handleToggleAll}
         />
       )}
 
