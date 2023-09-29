@@ -78,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({
       await onDeleteTodo(id);
     }
 
-    setTodoTitle(title);
+    setTodoTitle(todoTitle.trim());
     setIsEditing(false);
   };
 
