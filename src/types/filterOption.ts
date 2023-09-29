@@ -1,1 +1,5 @@
-export type FilterOption = 'All' | 'Active' | 'Completed';
+export const enum FilterOption {
+  ALL = 'all',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+}

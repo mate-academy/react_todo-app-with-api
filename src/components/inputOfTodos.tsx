@@ -52,7 +52,6 @@ export const InputOfTodos: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* i can not write it as {todos.lenght && as when its value is 0 it will display  '0' on the screen  */}
       {todos.length > 0 && (
         <button
           type="button"
@@ -61,7 +60,6 @@ export const InputOfTodos: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form>
         <input
           type="text"

@@ -25,7 +25,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/"
           className="filter__link selected"
-          onClick={() => handleSetFilter('All')}
+          onClick={() => handleSetFilter(FilterOption.ALL)}
         >
           All
         </a>
@@ -33,7 +33,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/active"
           className="filter__link"
-          onClick={() => handleSetFilter('Active')}
+          onClick={() => handleSetFilter(FilterOption.ACTIVE)}
         >
           Active
         </a>
@@ -41,7 +41,7 @@ export const Footer: React.FC<Props> = ({
         <a
           href="#/completed"
           className="filter__link"
-          onClick={() => handleSetFilter('Completed')}
+          onClick={() => handleSetFilter(FilterOption.COMPLETED)}
         >
           Completed
         </a>

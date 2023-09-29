@@ -56,14 +56,17 @@ export const Task: React.FC<Props> = ({ todo, setTodos, todos }) => {
 
   const handleInputKeyPress
   = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      cancelEditing();
-    }
-
     if (event.key === 'Enter') {
       event.preventDefault();
       saveChanges();
+    }
+  };
+
+  const handleInputEscPress
+  = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelEditing();
     }
   };
 
@@ -107,6 +110,7 @@ export const Task: React.FC<Props> = ({ todo, setTodos, todos }) => {
           onChange={handleInputChange}
           onKeyPress={handleInputKeyPress}
           onBlur={handleInputBlur}
+          onKeyUp={handleInputEscPress}
         />
       )}
     </div>

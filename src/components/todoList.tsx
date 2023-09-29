@@ -13,9 +13,9 @@ export const TodoList: React.FC<Props> = ({ todos, filterTodos, setTodos }) => {
   const visibleTodos = (() => {
     let filteredTodos = todos;
 
-    if (filterTodos === 'Active') {
+    if (filterTodos === FilterOption.ACTIVE) {
       filteredTodos = filteredTodos.filter((todo) => !todo.completed);
-    } else if (filterTodos === 'Completed') {
+    } else if (filterTodos === FilterOption.COMPLETED) {
       filteredTodos = filteredTodos.filter((todo) => todo.completed);
     }
 

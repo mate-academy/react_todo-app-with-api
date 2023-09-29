@@ -10,7 +10,8 @@ import { Footer } from './components/footer';
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<Errors | null>(null);
-  const [filterTodos, setFilterTodos] = useState<FilterOption>('All');
+  const [filterTodos, setFilterTodos]
+  = useState<FilterOption>(FilterOption.ALL);
   const [newTodo, setNewTodo] = useState<string>('');
 
   const handleSetFilter = (newFilter: FilterOption) => {
