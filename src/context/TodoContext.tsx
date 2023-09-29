@@ -17,7 +17,7 @@ type TodoContext = {
   selectedFilter: SelectedFilter;
   handleError: (errorName: ErrorType) => void;
   addTodo: (todo: Omit<Todo, 'id'>) => void;
-  USER_ID: number;
+  userId: number;
   deleteTodo: (todoId: number) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
@@ -28,6 +28,8 @@ type TodoContext = {
   editTodoLocally: (todo: Todo) => void;
   saveEditedTodo: (todo: Todo) => Promise<void>;
   handleToggleAll: () => void;
+  setIsHeaderFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  isHeaderFocused: boolean;
 };
 
 export const TodosContext = React.createContext<TodoContext>({
@@ -42,7 +44,7 @@ export const TodosContext = React.createContext<TodoContext>({
   handleSelectFilter: () => { },
   selectedFilter: 'all',
   addTodo: () => { },
-  USER_ID: 0,
+  userId: 0,
   deleteTodo: () => { },
   tempTodo: {
     id: 0, userId: 0, title: '', completed: false,
@@ -55,6 +57,8 @@ export const TodosContext = React.createContext<TodoContext>({
   editTodoLocally: () => [],
   saveEditedTodo: async () => {},
   handleToggleAll: () => {},
+  setIsHeaderFocused: () => { },
+  isHeaderFocused: false,
 });
 
 export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -66,7 +70,8 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   const [selectedFilter, setSelectedFilter] = useState<SelectedFilter>('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [disabledInput, setDisabledInput] = useState(false);
-  const USER_ID = 11526;
+  const [isHeaderFocused, setIsHeaderFocused] = useState(false);
+  const userId = 11526;
   const activeTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
@@ -79,7 +84,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    getTodos(USER_ID)
+    getTodos(userId)
       .then(setTodos)
       .catch(() => handleError(ErrorType.Load));
   }, []);
@@ -166,7 +171,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       selectedFilter,
       handleError,
       addTodo,
-      USER_ID,
+      userId,
       deleteTodo,
       tempTodo,
       setTempTodo,
@@ -178,6 +183,8 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
       editTodoLocally,
       saveEditedTodo,
       handleToggleAll,
+      setIsHeaderFocused,
+      isHeaderFocused,
     }}
     >
       {children}

@@ -26,10 +26,8 @@ export const TodoList = () => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos.map(todo => {
-        return <TodoInfo todo={todo} key={todo.id} />;
-      })}
-      {tempTodo !== null && <TodoItem />}
+      {visibleTodos.map(todo => <TodoInfo todo={todo} key={todo.id} />)}
+      {tempTodo && <TodoItem />}
     </section>
   );
 };

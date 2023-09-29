@@ -16,6 +16,7 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
     deleteTodo: deleteTodoLocaly,
     handleError,
     saveEditedTodo,
+    setIsHeaderFocused,
   } = useContext(TodosContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isEdited, setIsEdited] = useState(false);
@@ -25,7 +26,10 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
   const handleDelete = () => {
     setIsLoading(true);
     deleteTodo(todo.id)
-      .then(() => deleteTodoLocaly(todo.id))
+      .then(() => {
+        deleteTodoLocaly(todo.id);
+        setIsHeaderFocused(true);
+      })
       .catch(() => handleError(ErrorType.Delete))
       .finally(() => setIsLoading(false));
   };
@@ -37,13 +41,58 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
   useEffect(() => {
     if (todo.completed !== prevCompleted.current) {
       setIsLoading(true);
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setIsLoading(false);
-      }, 100);
+      }, 0);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
 
     prevCompleted.current = todo.completed;
+
+    return () => { };
   }, [todo.completed]);
+
+  const handleDoubleClick = () => {
+    setIsEdited(true);
+    setEditedTitle(todo.title);
+    setIsInputActive(true);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 0);
+  };
+
+  const handleSavingEditedTodo = () => {
+    setIsLoading(true);
+    if (editedTitle.length === 0) {
+      handleDelete();
+
+      return;
+    }
+
+    if (editedTitle === todo.title) {
+      setIsEdited(false);
+      setIsInputActive(false);
+      setIsLoading(false);
+
+      return;
+    }
+
+    saveEditedTodo({ ...todo, title: editedTitle.trim() })
+      .then(() => {
+        setIsLoading(false);
+        setIsEdited(false);
+        setEditedTitle('');
+      })
+      .catch(() => {
+        setIsLoading(false);
+        setIsEdited(false);
+      });
+  };
 
   return (
     <div
@@ -87,30 +136,7 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
             onChange={(event) => setEditedTitle(event.target.value)}
             onFocus={() => setIsInputActive(true)}
             onBlur={(event) => {
-              setIsLoading(true);
-              if (editedTitle.length === 0) {
-                handleDelete();
-
-                return;
-              }
-
-              if (editedTitle === todo.title) {
-                setIsEdited(false);
-                setIsInputActive(false);
-
-                return;
-              }
-
-              saveEditedTodo({ ...todo, title: editedTitle.trim() })
-                .then(() => {
-                  setIsLoading(false);
-                  setIsEdited(false);
-                  setEditedTitle('');
-                })
-                .catch(() => {
-                  setIsLoading(false);
-                  setIsEdited(false);
-                });
+              handleSavingEditedTodo();
               setEditedTitle(event.target.value);
             }}
             onKeyUp={(event) => {
@@ -130,16 +156,7 @@ export const TodoInfo = ({ todo }: TodoInfoProps) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              setIsEdited(true);
-              setEditedTitle(todo.title);
-              setIsInputActive(true);
-              setTimeout(() => {
-                if (inputRef.current) {
-                  inputRef.current.focus();
-                }
-              }, 0);
-            }}
+            onDoubleClick={handleDoubleClick}
           >
             {editedTitle || todo.title}
           </span>

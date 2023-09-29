@@ -10,12 +10,12 @@ export const Header = () => {
     newTodoTitle,
     handleError,
     addTodo,
-    USER_ID,
+    userId,
     disabledInput,
     setDisabledInput,
     activeTodos,
     handleToggleAll,
-    deleteTodo,
+    isHeaderFocused,
   } = useContext(TodosContext);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -24,7 +24,7 @@ export const Header = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [disabledInput, deleteTodo]);
+  }, [disabledInput, isHeaderFocused]);
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,7 +42,7 @@ export const Header = () => {
     const newTodo = {
       title: newTodoTitle,
       completed: false,
-      userId: USER_ID,
+      userId,
     };
 
     addTodo(newTodo);

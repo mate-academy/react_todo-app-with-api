@@ -11,9 +11,13 @@ export const Error = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setError(ErrorType.None);
     }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [error, setError]);
 
   return (

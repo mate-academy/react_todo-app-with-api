@@ -13,12 +13,11 @@ export const Footer = () => {
     activeTodos,
     completedTodos,
     handleError,
-  }
-    = useContext(TodosContext);
+  } = useContext(TodosContext);
 
   return (
     <div>
-      {todos.length !== 0
+      {!!todos.length
         && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
@@ -66,23 +65,16 @@ export const Footer = () => {
               className={cn({
                 'todoapp__clear-completed': true,
                 'todoapp__clear-completed--disabled':
-                completedTodos.length === 0,
+                  completedTodos.length === 0,
               })}
               data-cy="ClearCompletedButton"
               disabled={completedTodos.length === 0}
-              onClick={() => setTodos(todos.filter(
-                (todo) => {
-                  if (todo.completed === true) {
-                    deleteTodo(todo.id).catch(
-                      () => handleError(ErrorType.Delete),
-                    );
-
-                    return false;
-                  }
-
-                  return true;
-                },
-              ))}
+              onClick={() => setTodos(todos.filter((todo) => {
+                return (todo.completed)
+                  ? (deleteTodo(todo.id)
+                    .catch(() => handleError(ErrorType.Delete)), false)
+                  : true;
+              }))}
             >
               Clear completed
             </button>
