@@ -42,11 +42,10 @@ export const App: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const allTodos = getTodos(USER_ID);
-      const count = (await allTodos).filter(todo => todo.completed === false)
-        .length;
+      const allTodos = await getTodos(USER_ID);
+      const count = (allTodos).filter(todo => !todo.completed).length;
 
-      setTodos(await allTodos);
+      setTodos(allTodos);
       setCounter(count);
     } catch (e) {
       handleError(Errors.loading);
@@ -98,16 +97,20 @@ export const App: React.FC = () => {
   };
 
   const handleDelete = (todo: Todo, callback?: () => void) => {
-    deleteTodo(todo.id).then(() => {
-      setTodos(prevTodo => prevTodo.filter(item => item !== todo));
-      inputRef.current?.focus();
-      handleCount();
-    }).catch(() => {
-      handleError(Errors.deleting);
-      if (callback) {
-        callback();
-      }
-    });
+    deleteTodo(todo.id)
+      .then(() => {
+        setTodos((prevTodos) => prevTodos.filter(item => item !== todo));
+        handleCount();
+        if (todos.length === 1) {
+          inputRef.current?.focus();
+        }
+      })
+      .catch(() => {
+        handleError(Errors.deleting);
+        if (callback) {
+          callback();
+        }
+      });
   };
 
   const handleAdd = () => {
@@ -135,7 +138,7 @@ export const App: React.FC = () => {
 
   const handleSubmit: FormEventHandler = (e) => {
     e.preventDefault();
-    if (title.trim() === '') {
+    if (!title.trim()) {
       handleError(Errors.requiredTitle);
 
       return;

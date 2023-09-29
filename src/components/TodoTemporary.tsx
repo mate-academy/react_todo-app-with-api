@@ -6,7 +6,7 @@ type Props = {
 };
 
 export const TodoTemporary = ({ temporaryTodo }: Props) => {
-  if (temporaryTodo !== null) {
+  if (temporaryTodo) {
     return (
       <div
         data-cy="Todo"
@@ -33,6 +33,7 @@ export const TodoTemporary = ({ temporaryTodo }: Props) => {
         >
           ×
         </button>
+
 
         <div data-cy="TodoLoader" className="modal overlay is-active">
           <div className="modal-background has-background-white-ter" />

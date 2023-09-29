@@ -9,31 +9,38 @@ type TodoFooterProps = {
   todos: Todo[];
   handleDelete: (todo: Todo) => void;
 };
+
 export const TodoFooter: React.FC<TodoFooterProps> = ({
   counter,
   filter,
   setFilter,
   todos,
   handleDelete,
-}) => (
-  <footer className="todoapp__footer" data-cy="Footer">
-    <span className="todo-count" data-cy="TodosCounter">
-      {counter === 1 ? '1 item left' : `${counter} items left`}
-    </span>
-    <TodoFilter filter={filter} setFilter={setFilter} />
+}) => {
+  const handleClearCompleted = () => {
+    todos.forEach((todo) => {
+      if (todo.completed) {
+        handleDelete(todo);
+      }
+    });
+  };
 
-    <button
-      type="button"
-      className="todoapp__clear-completed"
-      data-cy="ClearCompletedButton"
-      onClick={() => todos.forEach(todo => {
-        if (todo.completed) {
-          handleDelete(todo);
-        }
-      })}
-      disabled={!todos.some(todo => todo.completed === true)}
-    >
-      Clear completed
-    </button>
-  </footer>
-);
+  return (
+    <footer className="todoapp__footer" data-cy="Footer">
+      <span className="todo-count" data-cy="TodosCounter">
+        {counter === 1 ? '1 item left' : `${counter} items left`}
+      </span>
+      <TodoFilter filter={filter} setFilter={setFilter} />
+
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearCompleted}
+        disabled={!todos.some((todo) => todo.completed === true)}
+      >
+        Clear completed
+      </button>
+    </footer>
+  );
+};

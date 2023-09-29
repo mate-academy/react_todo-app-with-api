@@ -8,8 +8,7 @@ type TodoFilterProps = {
 
 export const TodoFilter: React.FC<TodoFilterProps> = (
   { filter, setFilter },
-) => {
-  return (
+) => (
     <nav className="filter" data-cy="Filter">
       <a
         href="#/"
@@ -41,4 +40,3 @@ export const TodoFilter: React.FC<TodoFilterProps> = (
       </a>
     </nav>
   );
-};
