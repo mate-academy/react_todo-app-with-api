@@ -22,7 +22,6 @@ export const TodoHeader: React.FC<Props> = ({
   onSubmit,
   todo,
   userId,
-  // tempTodo,
   errorMessage,
   setErrorMessage,
   request,
@@ -68,7 +67,6 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* {Boolean(todos.lenght) && ( */}
       <button
         type="button"
         aria-label="text"
@@ -78,11 +76,8 @@ export const TodoHeader: React.FC<Props> = ({
         data-cy="ToggleAllButton"
         onClick={onToggleAll}
       />
-      {/* )} */}
 
-      <form
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
           data-cy="NewTodoField"

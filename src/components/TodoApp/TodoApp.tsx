@@ -5,7 +5,6 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo;
   onDelete: (id: number) => void;
-  // isModalVisible: boolean;
   loadingId: number[],
   isLoaderActive: boolean,
   onTodoUpdate: (todoTitle: string) => void
@@ -102,9 +101,7 @@ export const TodoApp: React.FC<Props> = ({
               placeholder="Empty todo will be deleted"
               value={todosTitle}
               onChange={handleTodoTitleChange}
-              onKeyUp={(event) => {
-                handleOnKeyup(event);
-              }}
+              onKeyUp={(event) => handleOnKeyup(event)}
             />
           </form>
         )
@@ -130,23 +127,6 @@ export const TodoApp: React.FC<Props> = ({
 
         )}
 
-      {/* <span
-        data-cy="TodoTitle"
-        className="todo__title"
-        onDoubleClick={ }
-      >
-        {title}
-      </span>
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => onDelete(todo.id)}
-      >
-        ×
-      </button> */}
-
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
@@ -156,18 +136,6 @@ export const TodoApp: React.FC<Props> = ({
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-
-      {/* {false && (
-        <form>
-          <input
-            data-cy="TodoTitleField"
-            type="text"
-            className="todo__title-field"
-            placeholder="Empty todo will be deleted"
-            value="Todo is being edited now."
-          />
-        </form>
-      )} */}
     </div>
   );
 };

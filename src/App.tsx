@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useMemo,
@@ -53,19 +51,19 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const idTimer = useRef<number>(0);
+  const idTimerRef = useRef<number>(0);
 
   useEffect(() => {
-    if (idTimer.current) {
-      window.clearTimeout(idTimer.current);
+    if (idTimerRef.current) {
+      window.clearTimeout(idTimerRef.current);
     }
 
-    idTimer.current = window.setTimeout(() => {
+    idTimerRef.current = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
   }, [setErrorMessage]);
 
-  function handleAddTodos(newTodo: Omit<Todo, 'id'>) {
+  const handleAddTodos = (newTodo: Omit<Todo, 'id'>) => {
     setLoadingId([0]);
     setIsLoading(true);
     setRequest(true);
@@ -87,9 +85,9 @@ export const App: React.FC = () => {
     const temp: Todo = Object.assign(newTodo, { id: 0 });
 
     setTempTodo(temp);
-  }
+  };
 
-  function handleDelete(todoId: number) {
+  const handleDelete = (todoId: number) => {
     setLoadingId([todoId]);
     setIsLoaderActive(true);
     deleteTodos(todoId)
@@ -105,7 +103,7 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setIsLoaderActive(false);
       });
-  }
+  };
 
   const handleClearCompleted = () => {
     const deletePromises = todos
@@ -126,8 +124,6 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteUpdate = (todo: Todo, newTodoTitle: string) => {
-    // setLoadingId([todo.id]);
-    // setIsLoaderActive(true);
     updateTodo({
       id: todo.id,
       title: newTodoTitle,
@@ -196,11 +192,9 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           activeTodosCount={activeTodosCount}
-          // eslint-disable-next-line react/jsx-no-bind
           onSubmit={handleAddTodos}
-          todo={filteredTodos.length > 0 ? filteredTodos[0] : null}
+          todo={filteredTodos.length ? filteredTodos[0] : null}
           userId={USER_ID}
-          // tempTodo={tempTodo}
           isLoading={isLoading}
           errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
@@ -212,12 +206,11 @@ export const App: React.FC = () => {
         />
 
         <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos.length > 0 ? (
+          {filteredTodos.length && (
             filteredTodos.map((todo) => (
               <TodoApp
                 todo={todo}
                 key={todo.id}
-                // eslint-disable-next-line react/jsx-no-bind
                 onDelete={handleDelete}
                 loadingId={loadingId}
                 isLoaderActive={isLoaderActive}
@@ -227,8 +220,6 @@ export const App: React.FC = () => {
                 onTodoToggle={() => handleToggleTodo(todo)}
               />
             ))
-          ) : (
-            <p>No todos to display.</p>
           )}
         </section>
 
@@ -236,7 +227,7 @@ export const App: React.FC = () => {
           <TempTodo tempTodo={tempTodo} />
         )}
 
-        {todos.length !== 0 && (
+        {!!todos.length && (
           <TodoFilter
             filter={filter}
             setFilter={setFilter}
@@ -247,8 +238,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <ErrorMessage
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
