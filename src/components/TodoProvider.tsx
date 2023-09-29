@@ -11,9 +11,9 @@ import { USER_ID } from '../utils/constants';
 
 interface TodoContextProps {
   todos: Todo[];
-  addTodoHandler: (todo: Omit<Todo, 'id'>) => Promise<void>;
-  deleteTodoHandler: (todoId: number) => Promise<void>;
-  updateTodoHandler: (todo: Todo, property: Partial<Todo>) => Promise<void>;
+  handleAddTodo: (todo: Omit<Todo, 'id'>) => Promise<void>;
+  handleDeleteTodo: (todoId: number) => Promise<void>;
+  handleUpdateTodo: (todo: Todo, property: Partial<Todo>) => Promise<void>;
   errorMessage: string;
   setErrorMessage: (str: string) => void;
   isLoadingTodoIds: number[];
@@ -21,9 +21,9 @@ interface TodoContextProps {
 
 export const TodoContext = createContext<TodoContextProps>({
   todos: [],
-  addTodoHandler: async () => { },
-  deleteTodoHandler: async () => { },
-  updateTodoHandler: async () => { },
+  handleAddTodo: async () => { },
+  handleDeleteTodo: async () => { },
+  handleUpdateTodo: async () => { },
   errorMessage: '',
   setErrorMessage: () => { },
   isLoadingTodoIds: [],
@@ -38,7 +38,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoadingTodoIds, setIsLoadingTodoIds] = useState<number[]>([]);
 
-  const addTodoHandler = async (
+  const handleAddTodo = async (
     newTodo: Omit<Todo, 'id'>,
   ) => {
     try {
@@ -51,7 +51,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     }
   };
 
-  const updateTodoHandler = async (
+  const handleUpdateTodo = async (
     todo: Todo,
     propertiesToUpdate: Partial<Todo>,
   ) => {
@@ -67,7 +67,9 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
 
       setTodos((currentTodos: Todo[]) => {
         return currentTodos.map((currentTodo) => {
-          return currentTodo.id === updatedTodo.id ? updatedTodo : currentTodo;
+          return currentTodo.id === updatedTodo.id
+            ? updatedTodo
+            : currentTodo;
         }) as Todo[];
       });
     } catch (error) {
@@ -79,7 +81,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     ));
   };
 
-  const deleteTodoHandler = async (todoId: number) => {
+  const handleDeleteTodo = async (todoId: number) => {
     setIsLoadingTodoIds(prevLoadingTodoIds => ([
       ...prevLoadingTodoIds,
       todoId,
@@ -107,9 +109,9 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     <TodoContext.Provider
       value={{
         todos,
-        addTodoHandler,
-        deleteTodoHandler,
-        updateTodoHandler,
+        handleAddTodo,
+        handleDeleteTodo,
+        handleUpdateTodo,
         setErrorMessage,
         errorMessage,
         isLoadingTodoIds,

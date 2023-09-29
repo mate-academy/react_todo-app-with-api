@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { Todo } from '../types/Todo';
 import { FilterOption } from '../types/FilterOptions';
@@ -16,25 +16,21 @@ export const Footer: React.FC<Props> = ({
   filter,
   setFilter,
 }) => {
-  const { todos, deleteTodoHandler } = useTodo();
+  const { todos, handleDeleteTodo } = useTodo();
 
-  const completedTodos = useMemo(() => {
-    return todos.filter(({ completed }) => completed === true);
-  }, [todos]);
+  const completedTodos = todos.filter(({ completed }) => completed);
 
-  const handleDeleteCompletedTodos = () => {
-    Promise.all(completedTodos
-      .map(({ id }) => deleteTodoHandler(id)));
+  const onDeleteCompletedTodos = async () => {
+    await Promise.all(completedTodos
+      .map(({ id }) => handleDeleteTodo(id)));
   };
-
-  const isClearButtonInvisible = completedTodos.length === 0;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {activeTodos.length > 1
-          ? `${activeTodos.length} items left`
-          : '1 item left'}
+        {activeTodos.length === 1
+          ? '1 item left'
+          : `${activeTodos.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -57,11 +53,11 @@ export const Footer: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__clear-completed', {
-          'is-invisible': isClearButtonInvisible,
+          'is-invisible': !completedTodos.length,
         })}
         data-cy="ClearCompletedButton"
-        onClick={handleDeleteCompletedTodos}
-        disabled={isClearButtonInvisible}
+        onClick={onDeleteCompletedTodos}
+        disabled={!completedTodos.length}
       >
         Clear completed
       </button>

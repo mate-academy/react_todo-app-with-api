@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 import { FilterOption } from './types/FilterOptions';
 import { useTodo } from './hooks/useTodo';
+import { getFilteredTodos } from './helpers/getFilteredTodos';
 
 export const App: React.FC = () => {
   const [filter, setFilter] = useState<string>(FilterOption.All);
@@ -21,19 +22,9 @@ export const App: React.FC = () => {
     errorMessage,
   } = useTodo();
 
-  const filteredTodos = useMemo(() => {
-    return todos.filter(({ completed }) => {
-      switch (filter) {
-        case FilterOption.Active:
-          return !completed;
-        case FilterOption.Completed:
-          return completed;
-        case FilterOption.All:
-        default:
-          return true;
-      }
-    });
-  }, [filter, todos]);
+  const filteredTodos = useMemo(
+    () => getFilteredTodos(todos, filter), [filter, todos],
+  );
 
   const activeTodos = useMemo(() => {
     return todos.filter(({ completed }) => !completed);
@@ -50,18 +41,19 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
         />
 
-        {!!filteredTodos.length
-          && <TodoList todos={filteredTodos} tempTodo={tempTodo} />}
+        {!!filteredTodos.length && (
+          <TodoList todos={filteredTodos} tempTodo={tempTodo} />
+        )}
 
-        {!!todos.length
-          && (
-            <Footer
-              activeTodos={activeTodos}
-              filter={filter}
-              setFilter={setFilter}
-            />
-          )}
+        {!!todos.length && (
+          <Footer
+            activeTodos={activeTodos}
+            filter={filter}
+            setFilter={setFilter}
+          />
+        )}
       </div>
+
       <ErrorNotification
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}

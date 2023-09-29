@@ -21,8 +21,8 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
   const {
     todos,
     setErrorMessage,
-    addTodoHandler,
-    updateTodoHandler,
+    handleAddTodo,
+    handleUpdateTodo,
   } = useTodo();
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
     }
   });
 
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event?.target.value);
 
     if (titleError) {
@@ -39,7 +39,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmiting(true);
     const newTitle = title.trim();
@@ -60,7 +60,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
     setTempTodo({ id: 0, ...newTodo });
 
     try {
-      await addTodoHandler(newTodo);
+      await handleAddTodo(newTodo);
 
       setIsSubmiting(false);
 
@@ -73,19 +73,14 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
   };
 
   const onToggleAll = async () => {
-    if (activeTodos.length) {
-      Promise.all(activeTodos
-        .map(currentTodo => updateTodoHandler(
-          currentTodo,
-          { completed: true },
-        )));
-    } else {
-      Promise.all(todos
-        .map(currentTodo => updateTodoHandler(
-          currentTodo,
-          { completed: false },
-        )));
-    }
+    const completed = activeTodos.length > 0;
+
+    const updatePromises = todos.map(currentTodo => handleUpdateTodo(
+      currentTodo,
+      { completed },
+    ));
+
+    await Promise.all(updatePromises);
   };
 
   return (
@@ -102,7 +97,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
             onClick={onToggleAll}
           />
         )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onSubmit}>
         <input
           ref={todoTitleField}
           data-cy="NewTodoField"
@@ -110,7 +105,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={title}
-          onChange={handleTitleChange}
+          onChange={onTitleChange}
           disabled={isSubmiting}
         />
       </form>

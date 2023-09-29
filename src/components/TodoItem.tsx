@@ -18,41 +18,42 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const todoTitleField = useRef<HTMLInputElement>(null);
   const {
     isLoadingTodoIds,
-    deleteTodoHandler,
-    updateTodoHandler,
+    handleDeleteTodo,
+    handleUpdateTodo,
   } = useTodo();
 
-  const handleCheckboxChange = async () => {
+  const onCheckboxChange = async () => {
     setIsItemLoading(true);
-    await updateTodoHandler(todo, { completed: !todo.completed });
+    await handleUpdateTodo(todo, { completed: !todo.completed });
     setIsItemLoading(false);
   };
 
-  const handleTodoTitleChange = (
+  const onTodoTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setTodoTitle(event.target.value);
   };
 
-  const handleTodoDoubleClick = () => {
+  const onTodoDoubleClick = () => {
     setIsEditing(true);
   };
 
-  const handleTodoSave = async (event: React.ChangeEvent<HTMLFormElement>) => {
+  const onTodoSave = async (event: React.ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsItemLoading(true);
+    const title = todoTitle.trim();
 
-    if (todoTitle === todo.title) {
+    if (title === todo.title) {
       setIsEditing(false);
       setIsItemLoading(false);
 
       return;
     }
 
-    if (todoTitle) {
-      await updateTodoHandler(todo, { title: todoTitle });
+    if (title) {
+      await handleUpdateTodo(todo, { title });
     } else {
-      await deleteTodoHandler(todo.id);
+      await handleDeleteTodo(todo.id);
     }
 
     setIsEditing(false);
@@ -61,7 +62,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const onTodoDelete = async () => {
     setIsItemLoading(true);
-    await deleteTodoHandler(todo.id);
+    await handleDeleteTodo(todo.id);
     setIsItemLoading(false);
   };
 
@@ -77,6 +78,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   });
 
+  const isLoaderActive = (isLoadingTodoIds.includes(todo.id))
+    || isItemLoading;
+
   return (
     <div
       data-cy="Todo"
@@ -89,15 +93,15 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={handleCheckboxChange}
+          onChange={onCheckboxChange}
         />
       </label>
 
       {isEditing
         ? (
           <form
-            onSubmit={handleTodoSave}
-            onBlur={handleTodoSave}
+            onSubmit={onTodoSave}
+            onBlur={onTodoSave}
           >
             <input
               ref={todoTitleField}
@@ -106,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty title will be deleted"
               value={todoTitle}
-              onChange={handleTodoTitleChange}
+              onChange={onTodoTitleChange}
             />
           </form>
         ) : (
@@ -114,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             <span
               className="todo__title"
               data-cy="TodoTitle"
-              onDoubleClick={handleTodoDoubleClick}
+              onDoubleClick={onTodoDoubleClick}
             >
               {todo.title}
             </span>
@@ -134,8 +138,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         className={classNames(
           'modal overlay',
           {
-            'is-active': (isLoadingTodoIds.includes(todo.id))
-              || isItemLoading,
+            'is-active': isLoaderActive,
           },
         )}
       >

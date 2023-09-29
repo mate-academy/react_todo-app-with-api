@@ -4,9 +4,9 @@ import { TodoContext } from '../components/TodoProvider';
 export const useTodo = () => {
   const {
     todos,
-    addTodoHandler,
-    deleteTodoHandler,
-    updateTodoHandler,
+    handleAddTodo,
+    handleDeleteTodo,
+    handleUpdateTodo,
     errorMessage,
     setErrorMessage,
     isLoadingTodoIds,
@@ -14,9 +14,9 @@ export const useTodo = () => {
 
   return {
     todos,
-    addTodoHandler,
-    deleteTodoHandler,
-    updateTodoHandler,
+    handleAddTodo,
+    handleDeleteTodo,
+    handleUpdateTodo,
     errorMessage,
     setErrorMessage,
     isLoadingTodoIds,
