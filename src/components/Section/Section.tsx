@@ -3,6 +3,7 @@ import {
   CSSTransition,
   TransitionGroup,
 } from 'react-transition-group';
+import { useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -12,6 +13,12 @@ type Props = {
   isLoading: boolean;
   tempTodo: Todo | null;
   toggleStatus: (todo: Todo) => void;
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  onSubmit: (todo: Todo) => Promise<void>;
+  updatedTitle: string;
+  setUpdatedTitle: (title: string) => void;
+  setSelectedId: (id: number[] | null) => void;
 };
 
 export const Section: React.FC<Props> = ({
@@ -20,8 +27,66 @@ export const Section: React.FC<Props> = ({
   selectedId,
   isLoading,
   tempTodo,
-  toggleStatus = () => {},
+  toggleStatus = () => { },
+  isEditing,
+  setIsEditing = () => { },
+  onSubmit,
+  updatedTitle,
+  setUpdatedTitle = () => { },
+  setSelectedId = () => { },
 }) => {
+  const inputReference = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputReference.current && isEditing) {
+      inputReference.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleSubmit = (event: React.FormEvent, todo: Todo) => {
+    event.preventDefault();
+
+    if (todo.title === updatedTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    onSubmit(todo);
+  };
+
+  const handleBlur = (todo: Todo) => {
+    if (todo.title === updatedTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    onSubmit(todo);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdatedTitle(event.target.value);
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
+  };
+
+  let placeholder = '';
+
+  if (!updatedTitle) {
+    placeholder = 'Empty todo will be deleted';
+  }
+
+  const handleDoubleClick = (todo: Todo) => {
+    setIsEditing(true);
+    setSelectedId([todo.id]);
+    setUpdatedTitle(todo.title);
+  };
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
       <TransitionGroup>
@@ -49,20 +114,42 @@ export const Section: React.FC<Props> = ({
                 />
               </label>
 
-              <span
-                data-cy="TodoTitle"
-                className="todo__title"
-              >
-                {todo.title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => onDelete(todo.id)}
-              >
-                ×
-              </button>
+              {isEditing && selectedId?.includes(todo.id)
+                ? (
+                  <form
+                    onSubmit={(event) => handleSubmit(event, todo)}
+                  >
+                    <input
+                      onBlur={() => handleBlur(todo)}
+                      ref={inputReference}
+                      onChange={handleTitleChange}
+                      value={updatedTitle}
+                      data-cy="TodoTitleField"
+                      type="text"
+                      className="todo__title-field"
+                      placeholder={placeholder}
+                      onKeyUp={handleKeyUp}
+                    />
+                  </form>
+                ) : (
+                  <>
+                    <span
+                      data-cy="TodoTitle"
+                      className="todo__title"
+                      onDoubleClick={() => handleDoubleClick(todo)}
+                    >
+                      {todo.title}
+                    </span>
+                    <button
+                      type="button"
+                      className="todo__remove"
+                      data-cy="TodoDelete"
+                      onClick={() => onDelete(todo.id)}
+                    >
+                      ×
+                    </button>
+                  </>
+                )}
 
               <div
                 data-cy="TodoLoader"

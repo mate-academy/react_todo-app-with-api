@@ -35,6 +35,8 @@ export const App: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const visibleTodos = getVisibleTodos(todos, status);
   const [isFocused, setIsFocused] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState('');
 
   const completedTodos = todos.filter(todo => todo.completed);
   const idsOfCompletedTodos = completedTodos.map(todo => todo.id);
@@ -212,6 +214,41 @@ export const App: React.FC = () => {
       });
   };
 
+  const updateTodo = (todo: Todo) => {
+    const {
+      id, userId, completed,
+    } = todo;
+
+    if (!updatedTitle) {
+      return deleteTodo(id);
+    }
+
+    setSelectedId([id]);
+    setIsLoading(true);
+
+    return todoService.updateTodo({
+      id, userId, title: updatedTitle.trim(), completed,
+    })
+      .then((newTodo) => {
+        setTodos(currentTodos => {
+          const newTodos = [...currentTodos];
+          const index = newTodos.findIndex(item => item.id === id);
+
+          newTodos.splice(index, 1, newTodo);
+
+          return newTodos;
+        });
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setSelectedId(null);
+        setIsLoading(false);
+        setIsEditing(false);
+      });
+  };
+
   // #endregion
   if (!USER_ID) {
     return <UserWarning />;
@@ -242,6 +279,12 @@ export const App: React.FC = () => {
             selectedId={selectedId}
             isLoading={isLoading}
             toggleStatus={toggleStatus}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            onSubmit={updateTodo}
+            updatedTitle={updatedTitle}
+            setUpdatedTitle={setUpdatedTitle}
+            setSelectedId={setSelectedId}
           />
         )}
 
