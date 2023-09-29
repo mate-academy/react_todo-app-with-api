@@ -8,8 +8,10 @@ const getVisibleTodos = (todos: ITodo[], filter: StatusType) => {
   switch (filter) {
     case StatusType.Active:
       return todos.filter((todo) => !todo.completed);
+
     case StatusType.Completed:
       return todos.filter((todo) => todo.completed);
+
     default:
       return todos;
   }
@@ -17,7 +19,10 @@ const getVisibleTodos = (todos: ITodo[], filter: StatusType) => {
 
 export const TodoList: React.FC = () => {
   const {
-    todos, filter, tempTodo, loading,
+    todos,
+    filter,
+    tempTodo,
+    loading,
   } = useContext(StateContext);
 
   const visibleTodos = useMemo(

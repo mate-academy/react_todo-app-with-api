@@ -5,12 +5,10 @@ type Props = {
   children: React.ReactNode;
 };
 
-export const Section: React.FC<Props> = (
-  {
-    title = '',
-    children,
-  },
-) => {
+export const Section: React.FC<Props> = ({
+  title = '',
+  children,
+}) => {
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">

@@ -21,6 +21,9 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
     const { loading } = useContext(StateContext);
     const dispatch = useContext(DispatchContext);
 
+    const placeholderText = ref ? 'Empty todo will be deleted'
+      : 'What needs to be done?';
+
     const handleAddTodoSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -69,13 +72,8 @@ export const Form = React.forwardRef<HTMLInputElement, Props>(
               'todoapp__new-todo': !ref,
               'todo__title-field': ref,
             })
-
           }
-          placeholder={
-            ref
-              ? 'Empty todo will be deleted'
-              : 'What needs to be done?'
-          }
+          placeholder={placeholderText}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           disabled={loading}

@@ -1,5 +1,7 @@
 import {
-  createContext, useEffect, useReducer,
+  createContext,
+  useEffect,
+  useReducer,
 } from 'react';
 import { ITodo, StatusType } from '../../types';
 import * as todoService from '../todos';
