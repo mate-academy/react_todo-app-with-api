@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { UserWarning } from './UserWarning';
@@ -10,18 +8,20 @@ import { FilterStatus } from './types/FilterStatus';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
 import { getFilteredTodos } from './utils/filterTodos';
 import { TodoHeader } from './components/TodoHeader/TodoHeder';
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { ErrorNotification } from
+  './components/ErrorNotification/ErrorNotification';
 
 const USER_ID = 11509;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMesssage, setErrorMesssage] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<FilterStatus>(FilterStatus.All);
+  const [selectedFilter, setSelectedFilter]
+  = useState<FilterStatus>(FilterStatus.All);
 
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [isDisable, setIsDisable] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
     setErrorMesssage('');
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    setIsDisable(true);
+    setIsDisabled(true);
 
     addTodo({
       userId: USER_ID,
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
         setErrorMesssage('Unable to add a todo');
       })
       .finally(() => {
-        setIsDisable(false);
+        setIsDisabled(false);
         setTempTodo(null);
       });
   };
@@ -98,7 +98,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <TodoHeader
-          isDisable={isDisable}
+          isDisabled={isDisabled}
           onHandleSubmit={handleSubmit}
           title={title}
           onTitleChange={setTitle}
@@ -107,7 +107,7 @@ export const App: React.FC = () => {
           onErrorMesssageChange={setErrorMesssage}
         />
 
-        {filteredTodos.length > 0 && (
+        {!!filteredTodos.length && (
           <TodoList
             todos={filteredTodos}
             tempTodo={tempTodo}
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {todos.length > 0 && (
+        {!!todos.length && (
           <TodoFilter
             todos={todos}
             clearCompletedTodos={clearCompletedTodos}
@@ -124,7 +124,6 @@ export const App: React.FC = () => {
             onSelectedFilter={setSelectedFilter}
           />
         )}
-
       </div>
 
       <ErrorNotification

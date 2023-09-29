@@ -31,7 +31,7 @@ export const ErrorNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onErrorMesssageChange('')}
+        onClick={removeErrorMessage}
       />
       {errorMesssage}
     </div>

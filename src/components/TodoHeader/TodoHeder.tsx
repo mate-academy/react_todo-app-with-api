@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 
@@ -6,7 +5,7 @@ import { Todo } from '../../types/Todo';
 import { updateTodo } from '../../api/todos';
 
 type Props = {
-  isDisable: boolean,
+  isDisabled: boolean,
   onHandleSubmit: (event: React.FormEvent<HTMLFormElement>) => void,
   title: string,
   onTitleChange: (title: string) => void,
@@ -16,7 +15,7 @@ type Props = {
 };
 
 export const TodoHeader: React.FC<Props> = ({
-  isDisable,
+  isDisabled,
   onHandleSubmit,
   title,
   onTitleChange,
@@ -30,7 +29,7 @@ export const TodoHeader: React.FC<Props> = ({
     if (inputField.current) {
       inputField.current.focus();
     }
-  }, [todos.length, isDisable]);
+  }, [todos.length, isDisabled]);
 
   const isAllTodosCopmleted = todos.every(({ completed }) => completed);
 
@@ -73,6 +72,7 @@ export const TodoHeader: React.FC<Props> = ({
     <header className="todoapp__header">
       {!!todos.length && (
         <button
+          aria-label="toggle"
           type="button"
           className={classNames(
             'todoapp__toggle-all',
@@ -85,7 +85,7 @@ export const TodoHeader: React.FC<Props> = ({
 
       <form onSubmit={onHandleSubmit}>
         <input
-          disabled={isDisable}
+          disabled={isDisabled}
           ref={inputField}
           data-cy="NewTodoField"
           type="text"

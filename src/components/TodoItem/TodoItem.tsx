@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import classNames from 'classnames';
 import { useState } from 'react';
 
@@ -20,7 +19,8 @@ export const TodoItem: React.FC<Props> = ({
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleTodoTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTodoTitleChange
+  = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(event.target.value);
   };
 
@@ -59,19 +59,21 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const updateTitle = () => {
-    if (editedTitle.trim() === todo.title) {
+    const normalizedTitle = editedTitle.trim();
+
+    if (normalizedTitle === todo.title) {
       setIsEditing(false);
 
       return;
     }
 
-    if (!editedTitle.trim().length) {
+    if (!normalizedTitle.length) {
       removeTodo(todo.id);
 
       return;
     }
 
-    handleUpdate({ title: editedTitle.trim() });
+    handleUpdate({ title: normalizedTitle });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -92,7 +94,7 @@ export const TodoItem: React.FC<Props> = ({
       data-cy="Todo"
       key={todo.id}
       className={classNames('todo', {
-        completed: todo.completed === true,
+        completed: todo.completed,
       })}
     >
       <label className="todo__status-label">
