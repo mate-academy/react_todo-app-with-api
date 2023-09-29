@@ -39,6 +39,7 @@ export const App: React.FC = () => {
   const [updatedTitle, setUpdatedTitle] = useState('');
 
   const completedTodos = todos.filter(todo => todo.completed);
+  const activeTodos = todos.filter(todo => !todo.completed);
   const idsOfCompletedTodos = completedTodos.map(todo => todo.id);
 
   const clearError = () => {
@@ -129,6 +130,11 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
+        setTodos(
+          currentTodos => currentTodos.filter(
+            todo => !idsOfCompletedTodos.includes(todo.id),
+          ),
+        );
       })
       .finally(() => {
         setIsLoading(false);
@@ -238,14 +244,15 @@ export const App: React.FC = () => {
 
           return newTodos;
         });
+        setSelectedId(null);
+        setIsEditing(false);
       })
       .catch(() => {
+        setIsLoading(false);
         setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
-        setSelectedId(null);
         setIsLoading(false);
-        setIsEditing(false);
       });
   };
 
@@ -290,10 +297,11 @@ export const App: React.FC = () => {
 
         {(todos.length > 0 || tempTodo) && (
           <Footer
-            todos={todos}
             setStatus={setStatus}
             currentStatus={status}
             onClearCompleted={deleteCompleted}
+            completedTodos={completedTodos}
+            activeTodos={activeTodos}
           />
         )}
 

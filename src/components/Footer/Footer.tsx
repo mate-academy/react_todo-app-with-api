@@ -2,10 +2,11 @@ import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  todos: Todo[],
   setStatus: (newStatus: Status) => void,
   onClearCompleted: () => void;
   currentStatus: Status,
+  activeTodos: Todo[],
+  completedTodos: Todo[],
 };
 
 export enum Status {
@@ -15,14 +16,12 @@ export enum Status {
 }
 
 export const Footer: React.FC<Props> = ({
-  todos,
   currentStatus,
-  setStatus = () => {},
-  onClearCompleted = () => {},
+  activeTodos,
+  completedTodos,
+  setStatus = () => { },
+  onClearCompleted = () => { },
 }) => {
-  const completedTodos = todos.filter(todo => todo.completed);
-  const activeTodos = todos.filter(todo => !todo.completed);
-
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const newStatus = event.currentTarget.textContent as Status;
 
@@ -70,25 +69,16 @@ export const Footer: React.FC<Props> = ({
         </a>
       </nav>
 
-      {completedTodos.length > 0 ? (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={onClearCompleted}
-        >
-          Clear completed
-        </button>
-      ) : (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          disabled
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={onClearCompleted}
+        disabled={completedTodos.length === 0}
+      >
+        Clear completed
+      </button>
+
     </footer>
   );
 };
