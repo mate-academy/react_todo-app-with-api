@@ -209,7 +209,6 @@ export const App: React.FC = () => {
             handleClearCompletedTodos={handleClearCompletedTodos}
           />
         )}
-
       </div>
 
       <div
