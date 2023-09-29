@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useContext } from 'react';
 import { TodoItem } from '../TodoItem';
 import { TodosContext } from '../TodosContext';
@@ -23,7 +22,6 @@ export const TodoList = () => {
           todo={tempTodo}
         />
       )}
-
     </>
   );
 };

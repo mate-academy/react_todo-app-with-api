@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../TodosContext';
@@ -37,10 +36,14 @@ export const Footer = () => {
 
   const counterTodos = todos.filter(todo => !todo.completed).length;
 
+  const item = counterTodos === 1
+    ? 'item'
+    : 'items';
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${counterTodos} items left`}
+        {`${counterTodos} ${item} left`}
       </span>
 
       <nav className="filter" data-cy="Filter">

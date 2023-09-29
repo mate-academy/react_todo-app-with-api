@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../TodosContext';
 import { ErrorMessage } from '../../types/ErrorMessage';
@@ -10,16 +9,12 @@ export const ErrorNotification = () => {
     setAlarm,
   } = useContext(TodosContext);
 
-  const timerId = useRef<number>(0);
-
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
+    const timerIdRef = setTimeout(() => {
       setAlarm(ErrorMessage.Default);
     }, 3000);
+
+    return () => clearTimeout(timerIdRef);
   }, [alarm]);
 
   return (
@@ -38,7 +33,9 @@ export const ErrorNotification = () => {
         type="button"
         className="delete"
         onClick={() => setAlarm(ErrorMessage.Default)}
-      />
+      >
+        {' '}
+      </button>
       {alarm}
     </div>
   );

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useContext,
   useEffect,
@@ -25,17 +24,17 @@ export const Header = () => {
     setChangingItems,
   } = useContext(TodosContext);
 
-  const titleInput = useRef<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (titleInput.current) {
-      titleInput.current.focus();
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
     }
   }, [isTodoChange]);
 
   const [inputValue, setInputValue] = useState('');
 
-  const isAllCompletedTodos = todos.every(todo => todo.completed);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
 
   const addTodo = ({ title, userId, completed }: Omit<Todo, 'id'>) => {
     createTodo({ title, userId, completed })
@@ -114,7 +113,7 @@ export const Header = () => {
   const handleAllCompletedTodos = () => {
     const notCompletedTodos = todos.filter(todo => !todo.completed);
 
-    if (notCompletedTodos.length > 0) {
+    if (notCompletedTodos.length) {
       notCompletedTodos.forEach(todo => updateToggleTodoCompleted(todo, true));
     } else {
       todos.forEach(todo => updateToggleTodoCompleted(todo, false));
@@ -123,23 +122,25 @@ export const Header = () => {
 
   return (
     <header className="todoapp__header">
-      { !!todos.length && (
+      {!!todos.length && (
         <button
           type="button"
           data-cy="ToggleAllButton"
           className={cn(
             'todoapp__toggle-all',
-            { active: isAllCompletedTodos },
+            { active: isAllTodosCompleted },
           )}
           onClick={handleAllCompletedTodos}
-        />
+        >
+          {' '}
+        </button>
       )}
 
       <form onSubmit={handleSubmitForm}>
         <input
           data-cy="NewTodoField"
           value={inputValue}
-          ref={titleInput}
+          ref={titleInputRef}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
