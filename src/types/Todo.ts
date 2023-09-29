@@ -5,6 +5,9 @@ export interface Todo {
   completed: boolean;
 }
 
+export type TodoEdit = Partial<Todo>;
+export type TodoAdd = Omit<Todo, 'id'>;
+
 export type SortTypes = 'all' | 'completed' | 'active';
 
 export type ErrorTypes

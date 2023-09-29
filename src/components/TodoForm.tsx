@@ -2,7 +2,7 @@ import React, {
   FormEvent, useEffect, useState,
 } from 'react';
 import { addTodo } from '../api/todos';
-import { Todo } from '../types/Todo';
+import { TodoAdd } from '../types/Todo';
 import { TContext, useTodoContext } from '../context/TodoContext';
 
 export const TodoForm: React.FC = () => {
@@ -16,8 +16,6 @@ export const TodoForm: React.FC = () => {
     titleInputRef,
   } = useTodoContext() as TContext;
 
-  let counter: number;
-
   useEffect(() => {
     if (!isSubmitting) {
       titleInputRef.current?.focus();
@@ -27,9 +25,8 @@ export const TodoForm: React.FC = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newTodo: Todo = {
+    const newTodo: TodoAdd = {
       userId: 11550,
-      id: 123 + counter,
       title: title.trim(),
       completed: false,
     };
@@ -43,6 +40,8 @@ export const TodoForm: React.FC = () => {
       addTodo(newTodo)
         .then((res) => {
           setTodos([...todos, res]);
+          // eslint-disable-next-line no-console
+          console.log(res);
           setTitle('');
         })
         .catch((error) => {
@@ -53,7 +52,6 @@ export const TodoForm: React.FC = () => {
         .finally(() => {
           setIsSubmitting(false);
           setTempTodos(null);
-          counter += 1;
         });
     }
   };

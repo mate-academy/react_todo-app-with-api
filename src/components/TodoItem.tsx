@@ -2,19 +2,20 @@ import { FormEvent, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { TContext, useTodoContext } from '../context/TodoContext';
 import { Todo } from '../types/Todo';
-import { deleteTodo, editTodo } from '../api/todos';
+import { editTodo } from '../api/todos';
 
 type Props = {
   todo: Todo,
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+// const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [toggledId, setToggledId] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [isLoading, setIsLoading] = useState(false);
   const [editedTodo, setIsEditedTodo] = useState<Todo | null>(null);
+  const [deletedId, setDeletedId] = useState<number | null>(null);
 
   const {
     todos,
@@ -26,6 +27,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     titleInputRef,
     isGroupDeleting,
     editedRef,
+    isDeleting,
+    handleDelete,
+
   } = useTodoContext() as TContext;
 
   useEffect(() => {
@@ -35,26 +39,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [isEditing]);
 
   // All "Flags Condition" for cases we need to to see loader 'modal overlay is-active'
-  // f.ex.deleting, tempTodo with id:0, toggling, group-toggling, loading,group-deleting etc.
-  const isActiveConditions = (isDeleting === true)
-  || (todo.id === 0) || (isToggled && todo.id === toggledId)
-  || (isToggledAll) || (isLoading)
+  // f.ex.deleting,
+  // tempTodo with id:0,
+  // toggling,
+  // group-toggling,
+  // loading,
+  // group-deleting etc.
+  const isActiveConditions
+  = (isDeleting && (deletedId === todo.id))
+  || (todo.id === 0)
+  || (isToggled && todo.id === toggledId)
+  || (isToggledAll)
+  || (isLoading)
   || ((todo.completed) && isGroupDeleting);
 
-  const handleDelete = (todoId: number) => {
-    setIsDeleting(true);
-
-    deleteTodo(todoId)
-      .then(() => {
-        setTodos((prevTodos) => prevTodos.filter((el) => el.id !== todoId));
-      })
-      .catch(() => {
-        handleError('Unable to delete a todo');
-      })
-      .finally(() => {
-        setIsDeleting(false);
-        titleInputRef.current?.focus();
-      });
+  const doHandleDelete = (todoId: number) => {
+    handleDelete(todoId);
+    setTimeout(() => setDeletedId(null), 500);
   };
 
   const handleStatusChange = (todoId: number) => {
@@ -77,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (newTitle.trim() === '') {
-      await handleDelete(todo.id);
+      await doHandleDelete(todo.id);
 
       return;
     }
@@ -170,7 +171,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => handleDelete(todo?.id)}
+            onClick={() => {
+              setDeletedId(todo?.id);
+              doHandleDelete(todo?.id);
+            }}
           >
             ×
           </button>

@@ -7,23 +7,21 @@ import { TodoList } from './components/TodoList';
 import { TodoForm } from './components/TodoForm';
 import { TContext, useTodoContext } from './context/TodoContext';
 import { SortTypes, Todo } from './types/Todo';
-import { deleteTodo } from './api/todos';
+// import { deleteTodo } from './api/todos';
 
 const USER_ID = 11550;
 
 export const App: React.FC = () => {
   const {
     todos,
-    setTodos,
     hasError,
     setHasError,
-    handleError,
     sortType,
     setSortType,
     handleToggleAllStatus,
     setIsToggledAll,
     setIsGroupDeleting,
-    titleInputRef,
+    handleDelete,
   } = useTodoContext() as TContext;
 
   const handleSorting = (type: SortTypes) => setSortType(type);
@@ -57,16 +55,8 @@ export const App: React.FC = () => {
 
     const completedIds = sortedTodos.completed.map((todo) => todo.id);
 
-    Promise.all(completedIds.map((todoId) => deleteTodo(todoId)))
-      .catch(() => {
-        handleError('Unable to delete a todo');
-      })
-      .finally(() => {
-        setIsGroupDeleting(false);
-        titleInputRef.current?.focus();
-        setTodos((prevTodos) => prevTodos
-          .filter((todo) => !completedIds.includes(todo.id)));
-      });
+    Promise.allSettled(completedIds.map((todoId) => handleDelete(todoId)));
+    setTimeout(() => setIsGroupDeleting(false), 500);
   };
 
   return (

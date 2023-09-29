@@ -4,7 +4,7 @@ import React, {
   SetStateAction,
   createContext, useContext, useEffect, useRef, useState,
 } from 'react';
-import { editTodo, getTodos } from '../api/todos';
+import { deleteTodo, editTodo, getTodos } from '../api/todos';
 import { ErrorTypes, SortTypes, Todo } from '../types/Todo';
 
 export interface TContext {
@@ -27,6 +27,9 @@ export interface TContext {
   editedRef: MutableRefObject<HTMLInputElement | null>,
   isGroupDeleting: boolean,
   setIsGroupDeleting: React.Dispatch<SetStateAction<boolean>>,
+  isDeleting: boolean,
+  setIsDeleting: React.Dispatch<SetStateAction<boolean>>,
+  handleDelete: (todoId: number) => void ;
 }
 
 const TodoContext = createContext<TContext | null>(null);
@@ -47,6 +50,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   const titleInputRef = useRef<HTMLInputElement | null>(null);
   const [isGroupDeleting, setIsGroupDeleting] = useState<boolean>(false);
   const editedRef = useRef<HTMLInputElement | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleError = (error: ErrorTypes) => {
     setHasError(error);
@@ -69,12 +73,11 @@ export function TodoProvider({ children }: { children: ReactNode }) {
 
     if (updatedTodoIndex !== -1) {
       const updatedTodo = todos[updatedTodoIndex];
-      const updatedTodoWithNewStatus
-      = { ...updatedTodo, completed: !updatedTodo.completed };
+      const newStatus = !updatedTodo.completed;
 
       setIsToggled(true);
 
-      editTodo(todoId, updatedTodoWithNewStatus)
+      editTodo(todoId, { completed: newStatus })
         .then((res) => {
           const updatedTodos = [...todos];
 
@@ -119,6 +122,22 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       });
   };
 
+  const handleDelete = (todoId: number) => {
+    setIsDeleting(true);
+
+    deleteTodo(todoId)
+      .then(() => {
+        setTodos((prevTodos) => prevTodos.filter((el) => el.id !== todoId));
+      })
+      .catch(() => {
+        handleError('Unable to delete a todo');
+      })
+      .finally(() => {
+        setIsDeleting(false);
+        titleInputRef.current?.focus();
+      });
+  };
+
   const contextValues: TContext = {
     todos,
     setTodos,
@@ -139,6 +158,9 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     isGroupDeleting,
     setIsGroupDeleting,
     editedRef,
+    isDeleting,
+    setIsDeleting,
+    handleDelete,
   };
 
   return (
