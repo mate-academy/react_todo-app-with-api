@@ -6,21 +6,23 @@ import {
 } from 'react';
 import classNames from 'classnames';
 
-import { Todo } from '../types';
+import { ErrorMessage, Todo } from '../types';
 
 type Props = {
   todo: Todo;
-  onDelete?: (todo: Todo) => void;
-  onToggle?: (todo: Todo) => void;
+  onToggle?: (todo: Todo) => Promise<void>;
+  onDelete?: (todo: Todo) => Promise<void>;
   onEdit?: (todo: Todo, title: string) => Promise<void>;
+  onError?: (message: ErrorMessage) => void;
   processing?: boolean;
 };
 
 export const TodoItem:React.FC<Props> = memo(({
   todo,
-  onDelete = () => {},
-  onToggle = () => {},
+  onToggle = () => new Promise(() => {}),
+  onDelete = () => new Promise(() => {}),
   onEdit = () => new Promise(() => {}),
+  onError = () => {},
   processing = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -37,6 +39,16 @@ export const TodoItem:React.FC<Props> = memo(({
     focusInput();
   }, [isEditing]);
 
+  const handleToggleClick = () => {
+    onToggle(todo)
+      .catch(() => onError(ErrorMessage.UpdateTodo));
+  };
+
+  const handleDeleteClick = () => {
+    onDelete(todo)
+      .catch(() => onError(ErrorMessage.DeleteTodo));
+  };
+
   const submitEdit = () => {
     const title = inputValue.trim();
 
@@ -46,9 +58,21 @@ export const TodoItem:React.FC<Props> = memo(({
       return;
     }
 
-    onEdit(todo, title)
-      .then(() => setIsEditing(false))
-      .catch(() => focusInput());
+    if (!title) {
+      onDelete(todo)
+        .then(() => setIsEditing(false))
+        .catch(() => {
+          onError(ErrorMessage.DeleteTodo);
+          focusInput();
+        });
+    } else {
+      onEdit(todo, title)
+        .then(() => setIsEditing(false))
+        .catch(() => {
+          onError(ErrorMessage.UpdateTodo);
+          focusInput();
+        });
+    }
   };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +101,7 @@ export const TodoItem:React.FC<Props> = memo(({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => onToggle(todo)}
+          onChange={handleToggleClick}
         />
       </label>
 
@@ -95,7 +119,7 @@ export const TodoItem:React.FC<Props> = memo(({
             type="button"
             data-cy="TodoDelete"
             className="todo__remove"
-            onClick={() => onDelete(todo)}
+            onClick={handleDeleteClick}
           >
             ×
           </button>

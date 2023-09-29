@@ -5,12 +5,12 @@ import { ErrorMessage } from '../types';
 
 type Props = {
   message: ErrorMessage;
-  onHide: () => void;
+  onClose: () => void;
 };
 
 export const ErrorNotification: React.FC<Props> = memo(({
   message,
-  onHide,
+  onClose,
 }) => (
   <div
     data-cy="ErrorNotification"
@@ -27,7 +27,7 @@ export const ErrorNotification: React.FC<Props> = memo(({
       className="delete"
       aria-label="Hide Error"
       data-cy="HideErrorButton"
-      onClick={() => onHide()}
+      onClick={onClose}
     />
     {message}
   </div>

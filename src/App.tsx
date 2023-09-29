@@ -19,6 +19,7 @@ import {
   ClearCompletedButton,
   ErrorNotification,
 } from './components';
+import { filterTodos } from './utils';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -84,11 +85,6 @@ export const App: React.FC = () => {
 
     return todoService.createTodo(title)
       .then(addTodoToState)
-      .catch(() => {
-        setErrorMessage(ErrorMessage.AddTodo);
-
-        throw new Error(ErrorMessage.AddTodo);
-      })
       .finally(() => setTempTodo(null));
   }, []);
 
@@ -96,62 +92,43 @@ export const App: React.FC = () => {
     clearErrorMessage();
     startProcessingTodo(todo);
 
-    todoService.deleteTodo(todo.id)
+    return todoService.deleteTodo(todo.id)
       .then(() => removeTodoFromState(todo))
-      .catch(() => setErrorMessage(ErrorMessage.DeleteTodo))
       .finally(() => stopProcessingTodo(todo));
   }, []);
 
   const handleClearCompletedTodos = useCallback(() => {
-    todos
-      .filter(({ completed }) => completed)
-      .forEach(handleDeleteTodo);
+    const completedTodos = todos.filter(({ completed }) => completed);
+
+    Promise
+      .all(completedTodos.map(handleDeleteTodo))
+      .catch(() => setErrorMessage(ErrorMessage.DeleteTodo));
   }, [todos]);
 
   const handleToggleTodo = useCallback((todo: Todo) => {
     clearErrorMessage();
     startProcessingTodo(todo);
 
-    todoService.toggleTodo(todo.id, todo.completed)
+    return todoService.toggleTodo(todo.id, todo.completed)
       .then(replaceTodoInState)
-      .catch(() => setErrorMessage(ErrorMessage.UpdateTodo))
       .finally(() => stopProcessingTodo(todo));
   }, []);
 
   const handleToggleAllTodos = useCallback(() => {
-    const hasActive = todos.some(({ completed }) => !completed);
+    const activeTodos = todos.filter(({ completed }) => !completed);
+    const todosToToggle = activeTodos.length ? activeTodos : todos;
 
-    todos.forEach(todo => {
-      if (hasActive && todo.completed) {
-        return;
-      }
-
-      handleToggleTodo(todo);
-    });
+    Promise
+      .all(todosToToggle.map(handleToggleTodo))
+      .catch(() => setErrorMessage(ErrorMessage.UpdateTodo));
   }, [todos]);
 
   const handleEditTodo = useCallback((todo: Todo, title: string) => {
     clearErrorMessage();
     startProcessingTodo(todo);
 
-    if (!title) {
-      return todoService.deleteTodo(todo.id)
-        .then(() => removeTodoFromState(todo))
-        .catch(() => {
-          setErrorMessage(ErrorMessage.DeleteTodo);
-
-          throw new Error(ErrorMessage.DeleteTodo);
-        })
-        .finally(() => stopProcessingTodo(todo));
-    }
-
     return todoService.editTodo(todo.id, title)
       .then(replaceTodoInState)
-      .catch(() => {
-        setErrorMessage(ErrorMessage.UpdateTodo);
-
-        throw new Error(ErrorMessage.UpdateTodo);
-      })
       .finally(() => stopProcessingTodo(todo));
   }, []);
 
@@ -161,19 +138,10 @@ export const App: React.FC = () => {
   const activeTodosCount = todos.filter(({ completed }) => !completed).length;
   const totalTodoCount = todos.length;
 
-  const filteredTodos = useMemo(() => todos.filter(({ completed }) => {
-    switch (filterValue) {
-      case Status.Active:
-        return !completed;
-
-      case Status.Completed:
-        return completed;
-
-      case Status.All:
-      default:
-        return true;
-    }
-  }), [todos, filterValue]);
+  const filteredTodos = useMemo(
+    () => filterTodos(todos, filterValue),
+    [todos, filterValue],
+  );
 
   return (
     <div className="todoapp">
@@ -202,9 +170,10 @@ export const App: React.FC = () => {
                 <TodoItem
                   key={todo.id}
                   todo={todo}
-                  onDelete={handleDeleteTodo}
                   onToggle={handleToggleTodo}
+                  onDelete={handleDeleteTodo}
                   onEdit={handleEditTodo}
+                  onError={setErrorMessage}
                   processing={processingIds.includes(todo.id)}
                 />
               ))}
@@ -233,7 +202,7 @@ export const App: React.FC = () => {
 
       <ErrorNotification
         message={errorMessage}
-        onHide={clearErrorMessage}
+        onClose={clearErrorMessage}
       />
     </div>
   );

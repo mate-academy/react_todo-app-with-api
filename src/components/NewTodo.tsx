@@ -43,7 +43,7 @@ export const NewTodo: React.FC<Props> = memo(({
 
     onAdd(title)
       .then(() => setInputValue(''))
-      .catch(() => {})
+      .catch(() => onError(ErrorMessage.AddTodo))
       .finally(() => setIsProcessing(false));
   };
 
