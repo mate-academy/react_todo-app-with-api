@@ -26,7 +26,7 @@ export const TodoFilter: React.FC = () => {
   const numberOfActiveTodos = todos.filter((todo) => !todo.completed).length;
   const hasCompletedTodos = todos.some((todo) => todo.completed);
 
-  const setFilter = (newFilter: StatusType) => {
+  const onFilterChange = (newFilter: StatusType) => () => {
     dispatch({ type: 'SET_FILTER', payload: newFilter });
   };
 
@@ -43,19 +43,21 @@ export const TodoFilter: React.FC = () => {
     });
 
     try {
-      dispatch({ type: 'SET_TODOS', payload: activeTodos });
+      if (completedTodos.length > 0) {
+        dispatch({ type: 'SET_TODOS', payload: activeTodos });
 
-      const deletedTodos = completedTodoIds.map((todoId) => (
-        todoService.deleteTodo(
-          todoId,
-        )
-      ));
+        const deletedTodos = completedTodoIds.map(
+          (todoId) => todoService.deleteTodo(todoId),
+        );
 
-      await Promise.all(deletedTodos);
+        await Promise.all(deletedTodos);
+      }
     } catch (error) {
-      dispatch(
-        { type: 'SET_ERROR', payload: 'Unable to clear completed todos' },
-      );
+      dispatch({
+        type: 'SET_ERROR',
+        payload:
+          'Unable to clear completed todos',
+      });
       dispatch({ type: 'SET_TODOS', payload: todos });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -79,7 +81,7 @@ export const TodoFilter: React.FC = () => {
               classNames('filter__link',
                 { selected: filter === label })
             }
-            onClick={() => setFilter(label)}
+            onClick={onFilterChange(label)}
           >
             {label}
           </a>
