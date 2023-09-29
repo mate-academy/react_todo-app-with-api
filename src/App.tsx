@@ -5,7 +5,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import classNames from 'classnames';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
 import { TodoRow } from './Components/TodoRow';
@@ -13,14 +12,13 @@ import { TodoHeader } from './Components/TodoHeader';
 import { TodoFooter } from './Components/TodoFooter';
 import { getFilteredTodo } from './utils/GetFilteredTodo';
 import { TodoStatus } from './types/TodoStatus';
+import { ErrorMessage } from './Components/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [activeTodosCount, setActiveTodosCount] = useState<number>(0);
-  const [isAnyTodoCompleted, setIsAnyTodoCompleted] = useState(false);
   const [
     selectedStatus,
     setSelectedStatus,
@@ -37,11 +35,16 @@ export const App: React.FC = () => {
   }, []);
 
   const timerId = useRef<number>(0);
+  const activeTodosCount = todos.filter(todo => todo.completed !== true).length;
+  const isAnyTodoCompleted = todos.some(todo => todo.completed === true);
 
-  useEffect(() => {
-    setActiveTodosCount(todos.filter(todo => todo.completed !== true).length);
-    setIsAnyTodoCompleted(todos.some(todo => todo.completed === true));
-  }, [todos]);
+  const updateTodoInArray = (prevState: Todo[], updatedTodo: Todo) => (
+    prevState.map((currentTodo: Todo) => (
+      currentTodo.id !== updatedTodo.id
+        ? currentTodo
+        : updatedTodo
+    ))
+  );
 
   useEffect(() => {
     if (timerId.current) {
@@ -106,17 +109,11 @@ export const App: React.FC = () => {
 
     return todoService
       .updateTodo({
-        id: todo.id,
+        ...todo,
         title: newTodoTitle,
-        userId: todo.userId,
-        completed: todo.completed,
       })
       .then(updatedTodo => {
-        setTodos(prevState => prevState.map(currentTodo => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
+        setTodos(prevState => updateTodoInArray(prevState, updatedTodo));
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
@@ -136,11 +133,7 @@ export const App: React.FC = () => {
         completed: !todo.completed,
       })
       .then(updatedTodo => {
-        setTodos(prevState => prevState.map(currentTodo => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
+        setTodos(prevState => updateTodoInArray(prevState, updatedTodo));
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
@@ -203,8 +196,7 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
-        {(todos.length !== 0) && (
+        {!!todos.length && (
           <TodoFooter
             todoStatus={selectedStatus}
             onStatusSelect={handleSelectedStatus}
@@ -215,31 +207,10 @@ export const App: React.FC = () => {
         )}
 
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            hidden: !errorMessage,
-          },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => {
-            setErrorMessage('');
-          }}
-        />
-        {errorMessage}
-      </div>
+      <ErrorMessage
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
     </div>
   );
 };

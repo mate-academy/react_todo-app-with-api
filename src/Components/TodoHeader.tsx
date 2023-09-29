@@ -56,7 +56,6 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {Boolean(todosLength) && (
         <button
           type="button"
@@ -68,7 +67,6 @@ export const TodoHeader: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={onFormSubmit}>
         <input
           ref={todoInput}
