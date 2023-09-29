@@ -11,13 +11,7 @@ export const TodoList = () => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
 
-      {visTodo.map(todo => {
-        return (
-
-          <Todo key={todo.id} todo={todo} />
-
-        );
-      })}
+      {visTodo.map(todo => (<Todo key={todo.id} todo={todo} />))}
 
       {tempTodo && <Todo key={0} todo={tempTodo} />}
 

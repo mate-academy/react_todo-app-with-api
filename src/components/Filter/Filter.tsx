@@ -6,12 +6,11 @@ export const Filter = () => {
   const {
     todos, handleFilter, filter, delTodo, uploading,
   } = useTodosContext();
-  const [counter, setCounter]
-
-  = useState<number>(todos.filter(todo => todo.completed === false).length);
+  const [counter, setCounter] = useState<number>(
+    todos.filter(todo => todo.completed === false).length,
+  );
 
   useEffect(() => {
-    // Only update the counter when there's no ongoing upload operation.
     if (uploading.length === 0) {
       setCounter(todos.filter(todo => !todo.completed).length);
     }
@@ -26,8 +25,6 @@ export const Filter = () => {
       <span className="todo-count" data-cy="TodosCounter">
         {`${counter} items left`}
       </span>
-
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -62,8 +59,6 @@ export const Filter = () => {
           Completed
         </a>
       </nav>
-
-      {/* don't show this button if there are no completed todos */}
 
       <button
         type="button"

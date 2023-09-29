@@ -1,5 +1,4 @@
 import cn from 'classnames';
-// import { useState } from 'react';
 import {
   useEffect, useRef, useState,
 } from 'react';
@@ -41,10 +40,6 @@ export const Todo = ({ todo }: TodoProps) => {
       ...todo,
       title: editedInput.trim(),
     });
-    // .then(() => {
-    //   setEditedTodo(null);
-    //   setEditedInput('');
-    // });
   };
 
   const handleBlur = async () => {
@@ -68,6 +63,13 @@ export const Todo = ({ todo }: TodoProps) => {
       setEditedTodo(null);
     }
   }, [uploading]);
+
+  const onEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setEditedInput('');
+      setEditedTodo(null);
+    }
+  };
 
   return (
     <div
@@ -99,12 +101,7 @@ export const Todo = ({ todo }: TodoProps) => {
               value={editedInput}
               onChange={(e) => setEditedInput(e.target.value.trimStart())}
               ref={inputRef}
-              onKeyUp={(e) => {
-                if (e.key === 'Escape') {
-                  setEditedInput('');
-                  setEditedTodo(null);
-                }
-              }}
+              onKeyUp={(e) => onEscape(e)}
               onBlur={() => handleBlur()}
             />
           </form>
@@ -123,7 +120,6 @@ export const Todo = ({ todo }: TodoProps) => {
               {editedInput || todo.title}
             </span>
 
-            {/* Remove button appears only on hover */}
             <button
               type="button"
               className="todo__remove"
@@ -136,7 +132,6 @@ export const Todo = ({ todo }: TodoProps) => {
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {

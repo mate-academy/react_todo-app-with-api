@@ -28,9 +28,27 @@ export const NewTodo = () => {
     }
   }, [uploading, todoTitle]);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!todoTitle) {
+      return addError('errorEmptyTitle');
+    }
+
+    return (
+      addTodo({
+        title: todoTitle.trim(),
+        completed: false,
+      })
+    );
+  };
+
+  const clearCompleted = () => (todos.some(todo => todo.completed === false)
+    ? todos.filter(todo => todo.completed === false)
+      .forEach(todo => editTodo({ ...todo, completed: true }))
+    : todos.forEach(todo => editTodo({ ...todo, completed: false })));
+
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {todos.length > 0 && (
         <button
           type="button"
@@ -38,28 +56,10 @@ export const NewTodo = () => {
             active: todos.every(todo => todo.completed === true),
           })}
           data-cy="ToggleAllButton"
-          onClick={() => (todos.some(todo => todo.completed === false)
-            ? todos.filter(todo => todo.completed === false)
-              .forEach(todo => editTodo({ ...todo, completed: true }))
-            : todos.forEach(todo => editTodo({ ...todo, completed: false })))}
+          onClick={() => clearCompleted()}
         />
       )}
-
-      {/* Add a todo on form submit */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        if (!todoTitle) {
-          return addError('errorEmptyTitle');
-        }
-
-        return (
-          addTodo({
-            title: todoTitle.trim(),
-            completed: false,
-          })
-        );
-      }}
-      >
+      <form onSubmit={(e) => handleSubmit(e)}>
         <input
           ref={inputRef}
           data-cy="NewTodoField"
