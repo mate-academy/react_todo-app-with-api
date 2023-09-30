@@ -15,7 +15,7 @@ export const Footer: React.FC<Props> = ({
   todos,
   onDeleteCompleted,
 }) => {
-  const hundleFiltering = (filter: FilterType) => {
+  const handleFiltering = (filter: FilterType) => {
     setFilterType(filter);
   };
 
@@ -33,7 +33,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.All,
           })}
-          onClick={() => hundleFiltering(FilterType.All)}
+          onClick={() => handleFiltering(FilterType.All)}
           data-cy="FilterLinkAll"
         >
           All
@@ -44,7 +44,7 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.Active,
           })}
-          onClick={() => hundleFiltering(FilterType.Active)}
+          onClick={() => handleFiltering(FilterType.Active)}
           data-cy="FilterLinkActive"
         >
           Active
@@ -55,14 +55,13 @@ export const Footer: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: filterType === FilterType.Completed,
           })}
-          onClick={() => hundleFiltering(FilterType.Completed)}
+          onClick={() => handleFiltering(FilterType.Completed)}
           data-cy="FilterLinkCompleted"
         >
           Completed
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"

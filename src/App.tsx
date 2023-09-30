@@ -26,9 +26,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     todoService.getTodos()
-      .then((response) => {
-        setTodos(response);
-      })
+      .then(setTodos)
       .catch(() => setErrorMessage(Error.Load));
   }, []);
 
