@@ -116,7 +116,7 @@ export const App: React.FC = () => {
   };
 
   const handleChangeAllCompleted = () => {
-    const isNewCompleted = !!todos.find(todo => todo.completed === false);
+    const isNewCompleted = todos.some(todo => todo.completed === false);
 
     const todosToChange = todos
       .filter(currentTodo => isNewCompleted !== currentTodo.completed)
