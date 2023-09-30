@@ -47,11 +47,19 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     if (errorMessage) {
-      setTimeout(() => {
+      timer = setTimeout(() => {
         setErrorMessage(Error.None);
       }, 3000);
     }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [errorMessage]);
 
   useEffect(() => {
@@ -264,14 +272,10 @@ export const App: React.FC = () => {
               <button
                 data-cy="ClearCompletedButton"
                 type="button"
-                className="todoapp__clear-completed"
+                className={classNames('todoapp__clear-completed', {
+                  hidden: !completedTodosCount.length,
+                })}
                 disabled={!completedTodosCount}
-                style={{
-                  visibility:
-                  completedTodosCount.length
-                    ? 'visible'
-                    : 'hidden',
-                }}
                 onClick={onDeleteCompleted}
               >
                 Clear completed

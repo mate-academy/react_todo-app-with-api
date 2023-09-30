@@ -5,11 +5,6 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
   let filteredTodos: Todo[] = [];
 
   switch (filterStatus) {
-    case Status.All: {
-      filteredTodos = todos;
-      break;
-    }
-
     case Status.Active: {
       filteredTodos = todos.filter(todo => todo.completed === false);
 
@@ -22,7 +17,9 @@ export const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
       break;
     }
 
-    default: filteredTodos = todos;
+    case Status.All:
+    default:
+      filteredTodos = todos;
   }
 
   return filteredTodos;
