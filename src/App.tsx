@@ -126,7 +126,6 @@ export const App: React.FC = () => {
     Promise.allSettled(todosToChange
       .map(todo => todosService.updateTodo(todo)))
       .then((rezult) => {
-        // rezult: {status: 'fulfilled'|'rejected'}[];
         let wasFailed = false;
 
         rezult.forEach((response, i) => {
