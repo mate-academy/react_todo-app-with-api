@@ -13,7 +13,7 @@ import { USER_ID } from './api/todos';
 import * as filterService from './utils/filterService';
 
 export const App: React.FC = () => {
-  const [loadingTodos, setLoadingTodos] = useState(false);
+  const [isLoadingTodos, setIsLoadingTodos] = useState(false);
   const [loadingTodosIds, setLoadingTodosIds] = useState<number[]>([]);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -49,17 +49,17 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    setLoadingTodos(true);
+    setIsLoadingTodos(true);
 
     todosService
       .getTodos()
       .then((todosFromSrever) => {
         setTodos(todosFromSrever);
-        setLoadingTodos(false);
+        setIsLoadingTodos(false);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
-        setLoadingTodos(false);
+        setIsLoadingTodos(false);
       });
   }, []);
 
@@ -92,7 +92,6 @@ export const App: React.FC = () => {
     Promise.allSettled(filteredTodos
       .map(todo => todosService.deleteTodo(todo.id)))
       .then((rezult) => {
-        // rezult: {status: 'fulfilled'|'rejected'}[];
         const fulfilledTodoIds: number[] = [];
         let wasFailed = false;
 
@@ -221,7 +220,7 @@ export const App: React.FC = () => {
               onHandleChangeCompleted={handleChangeAllCompleted}
             />
 
-            {!loadingTodos && (
+            {!isLoadingTodos && (
               <section
                 className="todoapp__main"
                 data-cy="TodoList"
