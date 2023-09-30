@@ -13,38 +13,22 @@ const USER_ID = 11396;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
   const [activeFilter, setActiveFilter] = useState(Status.All);
+
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [wasThereAdding, setWasThereAdding] = useState(false);
   const [areAllCompletedDeleting, setAreAllCompletedDeleting] = useState(false);
   const [areAllToggling, setAreAllToggling] = useState(false);
 
-  const completedTodos: Todo[] = [];
-  const activeTodos: Todo[] = [];
-  let visibleTodos: Todo[] = [];
-
-  todos.forEach(todo => (todo.completed ? completedTodos.push({ ...todo }) : activeTodos.push({ ...todo })));
-
-  switch (activeFilter) {
-    case Status.Active:
-      visibleTodos = activeTodos;
-      break;
-
-    case Status.Completed:
-      visibleTodos = completedTodos;
-      break;
-
-    case Status.All:
-    default:
-      visibleTodos = todos;
-  }
-
-  const completedExist = !!completedTodos.length;
-  const areAllCompleted = completedTodos.length === todos.length && !!todos.length;
+  const completedExist = !!todos.filter(todo => !todo.completed).length;
+  const areAllCompleted = todos.filter(todo => !todo.completed).length === 0;
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -64,17 +48,34 @@ export const App: React.FC = () => {
     }
 
     getTodos(USER_ID)
-      .then(setTodos)
+      .then(data => {
+        setTodos(data);
+      })
       .catch(() => handleError('Unable to load todos'));
 
     return () => window.clearTimeout(errorTimeoutID.current);
-  }, [activeFilter]);
+  }, [activeFilter, todos]);
 
   useEffect(() => {
     if (wasThereAdding) {
       inputRef.current?.focus();
     }
   }, [wasThereAdding]);
+
+  useEffect(() => {
+    switch (activeFilter) {
+      case Status.Active:
+        setVisibleTodos(todos.filter(todo => !todo.completed));
+        break;
+
+      case Status.Completed:
+        setVisibleTodos(todos.filter(todo => todo.completed));
+        break;
+
+      default:
+        setVisibleTodos(todos);
+    }
+  }, [activeFilter, todos]);
 
   const addTodo = (event: React.FormEvent) => {
     event.preventDefault();
@@ -119,8 +120,8 @@ export const App: React.FC = () => {
   const deleteAllCompleted = () => {
     setAreAllCompletedDeleting(true);
 
-    Promise.all(completedTodos.map(todo => client.delete(`/todos/${todo.id}`)))
-      .then(() => setTodos(activeTodos))
+    Promise.all(todos.filter(todo => todo.completed).map(todo => client.delete(`/todos/${todo.id}`)))
+      .then(() => setTodos(todos.filter(todo => !todo.completed)))
       .catch(() => handleError('Unable to delete todos'))
       .finally(() => setAreAllCompletedDeleting(false));
   };
@@ -136,7 +137,7 @@ export const App: React.FC = () => {
   };
 
   const toggleAll = () => {
-    const promiseArray = (areAllCompleted ? completedTodos : activeTodos)
+    const promiseArray = (areAllCompleted ? todos.filter(todo => todo.completed) : todos.filter(todo => !todo.completed))
       .map(todo => client.patch(`/todos/${todo.id}`, { completed: !todo.completed }));
 
     setAreAllToggling(true);
@@ -214,7 +215,7 @@ export const App: React.FC = () => {
         {todos.length > 0 && (
           <footer className="todoapp__footer">
             <span className="todo-count">
-              {`${activeTodos.length} items left`}
+              {`${todos.filter(todo => !todo.completed).length} items left`}
             </span>
 
             <Filter
