@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useState, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -10,17 +11,21 @@ type TodoItemProps = {
   handleDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
   onTodoUpdate: () => void;
+  isLoading: boolean;
+  isDeleting: boolean;
+  isToggling: boolean;
+  isTogglingAll: boolean;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
-  todo, handleDelete, onStatusChange, onTodoUpdate,
+  todo, handleDelete, onStatusChange, onTodoUpdate, isLoading, isDeleting, isToggling, isTogglingAll,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [errorMessage, setErrorMessage] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
-  const isLoading = todo.id === 0;
+  const loading = todo.id === 0;
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -106,7 +111,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       <div
         data-cy="TodoLoader"
         className={cn(
-          'modal', 'overlay', { 'is-active': isLoading || isUpdating },
+          'modal', 'overlay', { 'is-active': loading || isLoading || isUpdating || isDeleting || isToggling || isTogglingAll },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -8,11 +8,16 @@ type ListProps = {
   handleDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  isLoading: boolean;
+  isDeleting: boolean;
+  isToggling: boolean;
+  isTogglingAll: boolean;
 };
 
 export const List: React.FC<ListProps> = (
   {
-    todos, tempTodo, handleDelete, onStatusChange, setTodos,
+    todos, tempTodo, handleDelete,
+    onStatusChange, setTodos, isLoading, isDeleting, isToggling, isTogglingAll,
   },
 ) => {
   const reloadTodos = async () => {
@@ -31,6 +36,10 @@ export const List: React.FC<ListProps> = (
             handleDelete={handleDelete}
             onStatusChange={onStatusChange}
             onTodoUpdate={reloadTodos}
+            isLoading={isLoading}
+            isDeleting={isDeleting}
+            isToggling={isToggling}
+            isTogglingAll={isTogglingAll}
           />
         );
       })}
@@ -40,6 +49,10 @@ export const List: React.FC<ListProps> = (
           handleDelete={handleDelete}
           onStatusChange={onStatusChange}
           onTodoUpdate={reloadTodos}
+          isLoading={isLoading}
+          isDeleting={isDeleting}
+          isToggling={isToggling}
+          isTogglingAll={isTogglingAll}
         />
       )}
     </section>

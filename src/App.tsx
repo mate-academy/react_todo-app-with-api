@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
@@ -18,6 +19,9 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<Filter>('All');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isToggling, setIsToggling] = useState<boolean>(false);
+  const [isTogglingAll, setIsTogglingAll] = useState<boolean>(false);
 
   const counter = () => {
     return todos.filter(todo => !todo.completed).length;
@@ -69,10 +73,13 @@ export const App: React.FC = () => {
   };
 
   const handleDelete = (todoId: number) => {
+    setIsDeleting(true);
     deleteTodo(todoId).then(() => {
       setTodos((oldTodos) => oldTodos.filter(todo => todo.id !== todoId));
     }).catch(() => {
       handleError(setErrorMessage, ErrorMessage.noDeleteTodo);
+    }).finally(() => {
+      setIsDeleting(false);
     });
   };
 
@@ -83,11 +90,21 @@ export const App: React.FC = () => {
       completed: !areAllCompleted,
     }));
 
-    setTodos(updatedTodos);
+    setIsTogglingAll(true);
+    Promise.all(updatedTodos.map(todo => updateTodo(todo.id, { completed: todo.completed })))
+      .then(() => {
+        setTodos(updatedTodos);
+      })
+      .catch(() => {
+        handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
+      })
+      .finally(() => {
+        setIsTogglingAll(false);
+      });
   };
 
   const handleStatusChange = (todoId: number, completed: boolean) => {
-    setIsLoading(true);
+    setIsToggling(true);
     updateTodo(todoId, { completed })
       .then(updatedTodo => {
         setTodos(
@@ -99,7 +116,7 @@ export const App: React.FC = () => {
         handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsToggling(false);
       });
   };
 
@@ -153,6 +170,10 @@ export const App: React.FC = () => {
             handleDelete={handleDelete}
             onStatusChange={handleStatusChange}
             setTodos={setTodos}
+            isLoading={isLoading}
+            isDeleting={isDeleting}
+            isToggling={isToggling}
+            isTogglingAll={isTogglingAll}
           />
         )}
         {todos.length > 0 && (
