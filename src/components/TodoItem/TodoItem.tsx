@@ -96,6 +96,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleEscape = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
+      setEditedInput(title);
       setIsUpdating(false);
     }
   };
