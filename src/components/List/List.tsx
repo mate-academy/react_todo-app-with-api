@@ -28,21 +28,19 @@ export const List: React.FC<ListProps> = (
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map((todo) => {
-        return (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            handleDelete={handleDelete}
-            onStatusChange={onStatusChange}
-            onTodoUpdate={reloadTodos}
-            isLoading={isLoading}
-            isDeleting={isDeleting}
-            isToggling={isToggling}
-            isTogglingAll={isTogglingAll}
-          />
-        );
-      })}
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          handleDelete={handleDelete}
+          onStatusChange={onStatusChange}
+          onTodoUpdate={reloadTodos}
+          isLoading={isLoading}
+          isDeleting={isDeleting}
+          isToggling={isToggling}
+          isTogglingAll={isTogglingAll}
+        />
+      ))}
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
