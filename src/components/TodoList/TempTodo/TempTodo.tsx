@@ -22,7 +22,6 @@ export const TempTodo: React.FC = () => {
         ×
       </button>
 
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         data-cy="TodoLoader"
         className="modal overlay is-active"
