@@ -27,7 +27,7 @@ export const TodoList: React.FC<Props> = ({
           onChangeTodoTitle={onChangeTodoTitle}
         />
       ))}
-      {tempoTodo !== null && (
+      {tempoTodo && (
         <TempoTodoItem tempoTodo={tempoTodo} key={tempoTodo.id} />
       )}
     </section>

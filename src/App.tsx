@@ -10,8 +10,8 @@ import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList/TodoList';
 import * as todoService from './api/todos';
 import { Status } from './types/Status';
-import { USER_ID } from './api/userId';
 import { UserWarning } from './UserWarning';
+import { USER_ID } from './utils/constants';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -60,38 +60,42 @@ export const App: React.FC = () => {
     completed: false,
   });
 
-  const handleSubmit = (todoTitle: string) => {
-    const trimmedTitle = todoTitle.trim();
-    const tempTodo = createTempTodo();
+  const handleSubmit = useCallback(
+    (todoTitle: string) => {
+      const trimmedTitle = todoTitle.trim();
+      const tempTodo = createTempTodo();
 
-    setTempoTodo(tempTodo);
+      setTempoTodo(tempTodo);
+      setDisableInput(true);
 
-    setDisableInput(true);
+      if (!trimmedTitle) {
+        setErrorMessage("Title can't be empty");
 
-    if (!trimmedTitle) {
-      setErrorMessage("Title can't be empty");
+        return;
+      }
 
-      return;
-    }
+      setTimeout(() => {
+        todoService
+          .addTodos(tempTodo)
+          .then((newTodo) => setTodos([...todos, newTodo]))
+          .catch(() => setErrorMessage('Unable to add a todo'))
+          .finally(() => resetAddTodoState());
+      }, 500);
+    },
+    [todos, createTempTodo, setTempoTodo, setDisableInput, setErrorMessage, setTodos, resetAddTodoState, todoService],
+  );
 
-    setTimeout(() => {
+  const deleteTodo = useCallback(
+    (todoId: number) => {
+      setLoadingTodoId([todoId]);
+
       todoService
-        .addTodos(tempTodo)
-        .then((newTodo) => setTodos([...todos, newTodo]))
-        .catch(() => setErrorMessage('Unable to add a todo'))
-        .finally(() => resetAddTodoState());
-    }, 500);
-  };
-
-  const deleteTodo = (todoId: number) => {
-    setLoadingTodoId([todoId]);
-
-    todoService.deletePost(todoId)
-      .then(() => setTodos([
-        ...todos.filter(todo => todo.id !== todoId),
-      ]))
-      .catch(() => setErrorMessage('Unable to delete the todo'));
-  };
+        .deletePost(todoId)
+        .then(() => setTodos([...todos.filter((todo) => todo.id !== todoId)]))
+        .catch(() => setErrorMessage('Unable to delete the todo'));
+    },
+    [todos, setLoadingTodoId, setTodos, setErrorMessage, todoService],
+  );
 
   const handleClearCompletedTodos = useCallback(() => {
     const completedTodos = todos.filter(todo => todo.completed);
@@ -215,7 +219,7 @@ export const App: React.FC = () => {
         })}
       >
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               type="button"
               className={`todoapp__toggle-all ${hasCompleted ? 'active' : ''} `}
