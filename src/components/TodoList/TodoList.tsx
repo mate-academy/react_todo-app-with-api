@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Todo } from '../../types/Todo';
-import { TodoItem } from '../TodoItem/TodoItem';
-import { TodosContext } from '../TodosContext/TodosContext';
+import { TodoItem } from '../TodoItem';
+import { useTodosContext } from '../TodosContext';
 
 interface Props {
   todos: Todo[]
 }
 
 export const TodoList: React.FC<Props> = ({ todos }) => {
-  const { tempTodo } = useContext(TodosContext);
+  const { tempTodo } = useTodosContext();
 
   return (
     <section className="todoapp__main" data-cy="TodoList">

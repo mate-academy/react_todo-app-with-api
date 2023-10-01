@@ -1,15 +1,16 @@
 import cn from 'classnames';
-import { useContext, useMemo, useState } from 'react';
-import { SortType, TodosContext } from '../TodosContext/TodosContext';
+import { useMemo, useState } from 'react';
+import { useTodosContext } from '../TodosContext';
+import { FilterType } from '../../types/EnumFilterType';
 
 export const Footer = () => {
   const {
     todos,
     setFilterType,
     deleteComplitedTodos,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
-  const [selectedFilter, setSelectedFilter] = useState(SortType.All);
+  const [selectedFilter, setSelectedFilter] = useState(FilterType.All);
 
   const completedTodos = todos.filter(({ completed }) => completed);
   const uncomplitedTodo = useMemo(() => {
@@ -22,17 +23,16 @@ export const Footer = () => {
         {`${uncomplitedTodo.length} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
           className={cn('filter__link', {
-            selected: selectedFilter === SortType.All,
+            selected: selectedFilter === FilterType.All,
           })}
           data-cy="FilterLinkAll"
           onClick={() => {
-            setFilterType(SortType.All);
-            setSelectedFilter(SortType.All);
+            setFilterType(FilterType.All);
+            setSelectedFilter(FilterType.All);
           }}
         >
           All
@@ -41,12 +41,12 @@ export const Footer = () => {
         <a
           href="#/active"
           className={cn('filter__link', {
-            selected: selectedFilter === SortType.Active,
+            selected: selectedFilter === FilterType.Active,
           })}
           data-cy="FilterLinkActive"
           onClick={() => {
-            setFilterType(SortType.Active);
-            setSelectedFilter(SortType.Active);
+            setFilterType(FilterType.Active);
+            setSelectedFilter(FilterType.Active);
           }}
         >
           Active
@@ -55,12 +55,12 @@ export const Footer = () => {
         <a
           href="#/completed"
           className={cn('filter__link', {
-            selected: selectedFilter === SortType.Completed,
+            selected: selectedFilter === FilterType.Completed,
           })}
           data-cy="FilterLinkCompleted"
           onClick={() => {
-            setFilterType(SortType.Completed);
-            setSelectedFilter(SortType.Completed);
+            setFilterType(FilterType.Completed);
+            setSelectedFilter(FilterType.Completed);
           }}
         >
           Completed
@@ -70,10 +70,11 @@ export const Footer = () => {
       <button
         data-cy="ClearCompletedButton"
         type="button"
-        className="todoapp__clear-completed"
+        className={cn('todoapp__clear-completed', {
+          hidden: !completedTodos.length,
+        })}
         onClick={() => deleteComplitedTodos()}
         disabled={uncomplitedTodo.length === todos.length}
-        style={{ opacity: completedTodos.length ? 1 : 0 }}
       >
         Clear completed
       </button>

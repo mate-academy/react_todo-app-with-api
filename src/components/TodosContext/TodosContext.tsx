@@ -1,5 +1,6 @@
 import React, {
   ReactNode,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -12,6 +13,9 @@ import {
   getTodos,
   updateTodo,
 } from '../../api/todos';
+import { FilterType } from '../../types/EnumFilterType';
+
+export const USER_ID = 11537;
 
 interface Context {
   todos: Todo[],
@@ -53,14 +57,6 @@ interface Props {
   children: ReactNode;
 }
 
-export const USER_ID = 11537;
-
-export enum FilterType {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
-}
-
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -70,8 +66,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const timerErrorMessage = useRef<number>(0);
-  const completedTodos = todos.filter(({ completed }) => completed);
-  const incompleteTodos = todos.some(todo => !todo.completed)
+  const incompleteTodos = todos.some(({ completed }) => completed)
     ? todos.filter(({ completed }) => !completed)
     : todos;
 
@@ -120,21 +115,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const updateAllCheckbox = () => {
-    incompleteTodos.forEach(todo => {
+    const updatePromises = incompleteTodos.map(todo => {
       setLoading(todo.id, true);
 
-      updateTodo({
+      return updateTodo({
         id: todo.id,
         title: todo.title,
         userId: USER_ID,
         completed: !todo.completed,
       })
         .then(updtTodo => {
-          setTodos((prevTodos) => prevTodos.map(currentTodo => (
-            currentTodo.id !== updtTodo.id
-              ? currentTodo
-              : updtTodo
-          )));
+          return updtTodo;
         })
         .catch(() => {
           setErrorMessage('Unable to update a todo ');
@@ -143,6 +134,16 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           setLoading(todo.id, false);
         });
     });
+
+    Promise.all(updatePromises)
+      .then(updatedTodos => {
+        setTodos((prevTodos) => prevTodos.map(todo => (
+          updatedTodos.find(upgradeTodo => upgradeTodo?.id === todo.id) || todo
+        )));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo ');
+      });
   };
 
   const updateInputCheckbox = (todo: Todo) => {
@@ -171,7 +172,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     try {
       setLoading(userId, true);
       await deleteTodo(userId);
-      setTodos((prevTodos) => prevTodos.filter(item => item.id !== userId));
+      setTodos((prevTodos) => prevTodos.filter(({ id }) => id !== userId));
     } catch {
       setErrorMessage('Unable to delete a todo');
     }
@@ -179,27 +180,18 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const deleteComplitedTodos = async () => {
     try {
-      const deletedTodos: number[] = [];
+      const deleteRequests = todos
+        .filter(({ completed }) => completed)
+        .map(({ id }) => {
+          setLoading(id, true);
 
-      completedTodos.forEach(({ id }) => {
-        setLoading(id, true);
-      });
+          return deleteTodo(id);
+        });
 
-      await Promise.all(
-        todos.map(async ({ id, completed }) => {
-          if (completed) {
-            try {
-              await deleteTodo(id);
-              deletedTodos.push(id);
-            } catch (error) {
-              setErrorMessage('Unable to delete a todo');
-            }
-          }
-        }),
-      );
+      await Promise.all(deleteRequests);
 
       setTodos((prevState) => (
-        prevState.filter(({ id }) => !deletedTodos.includes(id))
+        prevState.filter(({ completed }) => !completed)
       ));
     } catch {
       setErrorMessage('Unable to delete todos');
@@ -244,4 +236,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       {children}
     </TodosContext.Provider>
   );
+};
+
+export const useTodosContext = () => {
+  return useContext(TodosContext);
 };

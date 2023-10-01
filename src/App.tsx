@@ -1,14 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext } from 'react';
-import { Header } from './components/Header/Header';
-import { TodoList } from './components/TodoList/TodoList';
-// eslint-disable-next-line max-len
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
-import { Footer } from './components/Footer/Footer';
-import { TodosContext } from './components/TodosContext/TodosContext';
+import React from 'react';
+import { ErrorNotification } from './components/ErrorNotification';
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { useTodosContext } from './components/TodosContext';
+import { Footer } from './components/Footer';
 
 export const App: React.FC = () => {
-  const { todos, visibleTodos } = useContext(TodosContext);
+  const { todos, visibleTodos } = useTodosContext();
 
   return (
     <div className="todoapp">
@@ -19,17 +18,10 @@ export const App: React.FC = () => {
 
         <TodoList todos={visibleTodos} />
 
-        {!!todos.length && (
-          <Footer />
-        )}
-
-        {/* Hide the footer if there are no todos */}
-
+        {!!todos.length && <Footer />}
       </div>
-      <ErrorNotification />
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
 
+      <ErrorNotification />
     </div>
   );
 };

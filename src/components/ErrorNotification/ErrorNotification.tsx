@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext } from 'react';
+import React from 'react';
 import cn from 'classnames';
-import { TodosContext } from '../TodosContext/TodosContext';
+import { useTodosContext } from '../TodosContext';
 
 export const ErrorNotification: React.FC = () => {
   const {
     setErrorMessage,
     errorMessage,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
   return (
     <div
@@ -29,14 +29,6 @@ export const ErrorNotification: React.FC = () => {
         onClick={() => setErrorMessage('')}
       />
       {errorMessage}
-      {/* <br />
-              Title should not be empty
-              <br />
-              Unable to add a todo
-              <br />
-              Unable to delete a todo
-              <br />
-              Unable to update a todo */}
     </div>
   );
 };

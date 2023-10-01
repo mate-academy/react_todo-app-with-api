@@ -1,5 +1,4 @@
 import React, {
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -7,7 +6,7 @@ import React, {
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
-import { TodosContext, USER_ID } from '../TodosContext/TodosContext';
+import { USER_ID, useTodosContext } from '../TodosContext';
 
 interface Props {
   todo: Todo
@@ -25,7 +24,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isLoading,
     hangleDeleteTodo,
     updateInputCheckbox,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
   const titleInput = useRef<HTMLInputElement | null>(null);
 
@@ -45,45 +44,35 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     event.preventDefault();
     const preparedTodoTitle = todoTitle.trim();
 
-    if (!preparedTodoTitle) {
-      setLoading(todo.id, true);
+    try {
+      if (!preparedTodoTitle) {
+        setLoading(todo.id, true);
 
-      await deleteTodo(todo.id)
-        .then(() => {
-          setTodos((prevTodos) => (
-            prevTodos.filter(item => item.id !== todo.id)
-          ));
-        })
-        .catch(() => {
-          setErrorMessage('Unable to delete a todo');
-          setLoading(todo.id, false);
-          titleInput.current?.focus();
-          throw new Error();
-        });
-    } else if (todo.title !== preparedTodoTitle) {
-      setLoading(todo.id, true);
+        await deleteTodo(todo.id);
+        setTodos((prevTodos) => (
+          prevTodos.filter(prevTodo => prevTodo.id !== todo.id)
+        ));
+      } else if (todo.title !== preparedTodoTitle) {
+        setLoading(todo.id, true);
 
-      await updateTodo({
-        id: todo.id,
-        title: preparedTodoTitle,
-        userId: USER_ID,
-        completed: false,
-      })
-        .then(updtTodo => {
-          setTodos((prevTodos) => prevTodos.map(currentTodo => (
-            currentTodo.id !== updtTodo.id
-              ? currentTodo
-              : updtTodo
-          )));
-        })
-        .catch(() => {
-          setErrorMessage('Unable to update a todo');
-          titleInput.current?.focus();
-          throw new Error();
-        })
-        .finally(() => {
-          setLoading(todo.id, false);
+        const getUpdateTodo = await updateTodo({
+          id: todo.id,
+          title: preparedTodoTitle,
+          userId: USER_ID,
+          completed: false,
         });
+
+        setTodos((prevTodos) => prevTodos.map(currentTodo => (
+          currentTodo.id !== getUpdateTodo.id
+            ? currentTodo
+            : getUpdateTodo
+        )));
+      }
+    } catch {
+      setErrorMessage('Unable to update a todo');
+      titleInput.current?.focus();
+    } finally {
+      setLoading(todo.id, false);
     }
 
     setIsEditing(false);

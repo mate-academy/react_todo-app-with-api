@@ -1,13 +1,12 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
-  useContext,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import cn from 'classnames';
-import { TodosContext, USER_ID } from '../TodosContext/TodosContext';
+import { USER_ID, useTodosContext } from '../TodosContext';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const Header = () => {
   const [title, setTitle] = useState('');
   const [disabledInput, setDisabledInput] = useState(false);
@@ -18,7 +17,7 @@ export const Header = () => {
     setErrorMessage,
     updateAllCheckbox,
     addTodo,
-  } = useContext(TodosContext);
+  } = useTodosContext();
 
   const isAllActiveTodos = todos.every(({ completed }) => completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
