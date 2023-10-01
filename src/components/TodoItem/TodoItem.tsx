@@ -38,6 +38,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setEditTodo(null);
+        setEditTitle('');
       }
     };
 
