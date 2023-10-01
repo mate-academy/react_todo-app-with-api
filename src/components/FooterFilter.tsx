@@ -56,7 +56,7 @@ export const FooterFilter: React.FC<FilterProps>
         </nav>
 
         {/* don't show this button if there are no completed todos */}
-        {todos.filter(todo => todo.completed).length !== 0
+        {todos.filter(todo => todo.completed).length
         && (
           <button
             type="button"

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
@@ -28,9 +27,9 @@ export const App: React.FC = () => {
 
   const fetchData = useMemo(() => async () => {
     try {
-      const todoss = await getTodos(USER_ID);
+      const fetchTodos = await getTodos(USER_ID);
 
-      setTodos(todoss);
+      setTodos(fetchTodos);
     } catch (e) {
       setError(Errors.load);
       setTimeout(() => setError(null), 3000);
@@ -61,7 +60,6 @@ export const App: React.FC = () => {
       setIsAddingTodo(true);
 
       if (!title.trim()) {
-        console.log('Title is empty. Showing error.');
         setError(Errors.noTitle);
         setTimeout(() => {
           setError(null);
@@ -79,8 +77,6 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      console.log('Setting temporary todo:', temporaryTodo);
-
       setTempTodo(temporaryTodo);
 
       const response = await addTodos({
@@ -88,8 +84,6 @@ export const App: React.FC = () => {
         userId: USER_ID,
         completed: false,
       });
-
-      console.log('Response from server:', response);
 
       setTitle('');
       setTempTodo(null);
@@ -101,7 +95,6 @@ export const App: React.FC = () => {
 
       setIsAddingTodo(false);
     } catch {
-      console.error('Error during todo submission:', error);
       setError(Errors.add);
       setTimeout(() => {
         setError(null);

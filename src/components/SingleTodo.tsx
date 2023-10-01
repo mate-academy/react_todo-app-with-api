@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
@@ -40,9 +39,16 @@ export const SingleTodo
 
   const handleEnter = async () => {
     try {
-      await saveTodo({ ...todo, title: editedTitle });
+      if (editedTitle.trim() === '') {
+        handleRemove(todo.id);
+      } else {
+        await saveTodo({ ...todo, title: editedTitle });
+      }
     } catch {
       setError(Errors.update);
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
     }
   };
 
@@ -75,6 +81,7 @@ export const SingleTodo
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editedTitle}
+            ref={input => input && input.focus()}
             onChange={(e) => setEditedTitle(e.target.value)}
             onBlur={() => {
               handleEnter();
