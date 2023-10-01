@@ -39,10 +39,12 @@ export const SingleTodo
 
   const handleEnter = async () => {
     try {
-      if (editedTitle.trim() === '') {
+      const trimmedTitle = editedTitle.trim();
+
+      if (trimmedTitle === '') {
         handleRemove(todo.id);
       } else {
-        await saveTodo({ ...todo, title: editedTitle });
+        await saveTodo({ ...todo, title: trimmedTitle });
       }
     } catch {
       setError(Errors.update);
