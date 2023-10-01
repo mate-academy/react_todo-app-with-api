@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   const [areAllCompletedDeleting, setAreAllCompletedDeleting] = useState(false);
   const [areAllToggling, setAreAllToggling] = useState(false);
 
-  const completedExist = !!todos.filter(todo => !todo.completed).length;
+  const completedExist = !!todos.filter(todo => todo.completed).length;
   const areAllCompleted = todos.filter(todo => !todo.completed).length === 0;
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -225,9 +225,8 @@ export const App: React.FC = () => {
 
             <button
               type="button"
-              className={classNames('todoapp__clear-completed', {
-                'todoapp__clear-completed--hidden': !completedExist,
-              })}
+              className="todoapp__clear-completed"
+              disabled={!completedExist}
               onClick={deleteAllCompleted}
             >
               Clear completed
