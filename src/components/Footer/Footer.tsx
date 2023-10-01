@@ -1,5 +1,6 @@
 import cn from 'classnames';
-import { Filter, Todo } from '../../types/Todo';
+import { Todo } from '../../types/Todo';
+import { Filter } from '../../types/Filter';
 
 type FooterProps = {
   todos: Todo[];

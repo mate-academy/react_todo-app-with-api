@@ -2,12 +2,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState } from 'react';
 import { UserWarning } from './UserWarning';
-import { Filter } from './types/Todo';
 import { Header } from './components/Header/Header';
 import { TodoList } from './components/TodoList/TodoList';
 import { Footer } from './components/Footer/Footer';
 import { ErrorBin } from './components/ErrorBin/ErrorBin';
 import { useTodos } from './hooks/useTodos';
+import { Filter } from './types/Filter';
 
 const USER_ID = 11572;
 

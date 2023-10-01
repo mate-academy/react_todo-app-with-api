@@ -3,7 +3,8 @@ import {
   addTodo, deleteTodo, getTodos, patchTodo,
 } from '../api/todos';
 import { handleError } from '../components/ErrorBin/handleError';
-import { ErrorMessageEnum, Todo } from '../types/Todo';
+import { Todo } from '../types/Todo';
+import { ErrorMessageEnum } from '../types/ErrorMessageEnum';
 
 export const useTodos = (userId: number) => {
   const [todos, setTodos] = useState<Todo[]>([]);
