@@ -25,13 +25,12 @@ export const Header: React.FC<HeaderProps> = ({
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current?.focus();
     }
   }, [tempTodo]);
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       { todos.length > 0 && (
         <button
           type="button"
@@ -45,7 +44,6 @@ export const Header: React.FC<HeaderProps> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleNewTodoSubmit}>
         <input
           data-cy="NewTodoField"
@@ -55,7 +53,6 @@ export const Header: React.FC<HeaderProps> = ({
           value={newTodoTitle}
           onChange={(event) => setNewTodoTitle(event.target.value)}
           ref={inputRef}
-          autoFocus
           disabled={!!tempTodo}
         />
       </form>

@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type TodoItemProps = {
@@ -7,12 +7,13 @@ type TodoItemProps = {
   handleCompletedStatus: (todo: Todo) => void;
   handleDelete: (todo: Todo) => void;
   handleFormSubmitEdited: (
-    event: React.FormEvent<HTMLFormElement>,
-    editTodo: Todo) => void;
-  idCompleatedArr: number[];
+    editTodo: Todo,
+    editTitle: string,
+    event?: React.FormEvent<HTMLFormElement>,
+  ) => void;
+  isLoadingArr: number[];
   setEditTodo: (todo: Todo | null) => void;
   editTodo: Todo | null;
-
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -20,11 +21,32 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   handleCompletedStatus,
   handleDelete,
   handleFormSubmitEdited,
-  idCompleatedArr,
+  isLoadingArr,
   setEditTodo,
   editTodo,
 }) => {
   const [editTitle, setEditTitle] = useState<string>('');
+  const inputEdit = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputEdit.current) {
+      inputEdit.current?.focus();
+    }
+  }, [editTodo]);
+
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setEditTodo(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, []);
 
   const handleDoubleClick = (chosenTodo: Todo) => {
     setEditTodo(chosenTodo);
@@ -34,6 +56,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const handleEditTodo: React.ChangeEventHandler<HTMLInputElement>
   = (event) => {
     setEditTitle(event.target.value);
+  };
+
+  const handleBlur = () => {
+    if (editTodo) {
+      handleFormSubmitEdited(
+        editTodo, editTitle,
+      );
+    }
   };
 
   return (
@@ -59,7 +89,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           <form
             onSubmit={(event) => {
               handleFormSubmitEdited(
-                event, { ...editTodo, title: editTitle },
+                editTodo, editTitle, event,
               );
             }}
 
@@ -73,7 +103,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               onChange={
                 (event) => handleEditTodo(event)
               }
-              ref={(input) => input && input.focus()}
+              ref={inputEdit}
+              onBlur={() => {
+                if (inputEdit) {
+                  handleBlur();
+                }
+              }}
+              disabled={isLoadingArr.includes(todo.id)}
             />
           </form>
         )
@@ -82,39 +118,35 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => handleDoubleClick(todo)}
+              onDoubleClick={() => {
+                handleDoubleClick(todo);
+              }}
             >
               {editTitle || todo.title}
             </span>
 
-            {!editTodo && (
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => handleDelete(todo)}
-              >
-                ×
-              </button>
-            )}
-
-            <div
-              data-cy="TodoLoader"
-              className={cn('modal', 'overlay', {
-                'is-active': idCompleatedArr.includes(todo.id),
-              })}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => handleDelete(todo)}
             >
-              <div
-                className="modal-background has-background-white-ter"
-              />
-              <div className="loader" />
-            </div>
+              ×
+            </button>
           </>
-
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
-
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal', 'overlay', {
+          'is-active': isLoadingArr.includes(todo.id),
+        })}
+      >
+        <div
+          className="modal-background has-background-white-ter"
+        />
+        <div className="loader" />
+      </div>
     </div>
   );
 };

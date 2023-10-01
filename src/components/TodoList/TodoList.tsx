@@ -7,20 +7,22 @@ type TodoListProps = {
   handleCompletedStatus: (todo: Todo) => void;
   handleDelete: (todo: Todo) => void;
   handleFormSubmitEdited: (
-    event: React.FormEvent<HTMLFormElement>,
-    editTodo: Todo) => void;
-  idCompleatedArr: number[];
+    editTodo: Todo,
+    editTitle: string,
+    event?: React.FormEvent<HTMLFormElement>,
+  ) => void;
+  isLoadingArr: number[];
   setEditTodo: (todo: Todo | null) => void;
   editTodo: Todo | null;
 };
 
 export const TodoList : React.FC<TodoListProps> = ({
-  displayedTodos,
   tempTodo,
+  displayedTodos,
   handleCompletedStatus,
   handleDelete,
   handleFormSubmitEdited,
-  idCompleatedArr,
+  isLoadingArr,
   setEditTodo,
   editTodo,
 }) => {
@@ -35,7 +37,7 @@ export const TodoList : React.FC<TodoListProps> = ({
             handleCompletedStatus={handleCompletedStatus}
             handleDelete={handleDelete}
             handleFormSubmitEdited={handleFormSubmitEdited}
-            idCompleatedArr={idCompleatedArr}
+            isLoadingArr={isLoadingArr}
             setEditTodo={setEditTodo}
             editTodo={editTodo}
           />
@@ -48,13 +50,11 @@ export const TodoList : React.FC<TodoListProps> = ({
           handleCompletedStatus={handleCompletedStatus}
           handleDelete={handleDelete}
           handleFormSubmitEdited={handleFormSubmitEdited}
-          idCompleatedArr={idCompleatedArr}
+          isLoadingArr={isLoadingArr}
           setEditTodo={setEditTodo}
           editTodo={editTodo}
         />
       )}
-
-      {/* temptodow propsach i todoitem -> map */}
     </section>
   );
 };
