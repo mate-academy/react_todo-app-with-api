@@ -5,7 +5,9 @@ import { UserWarning } from './UserWarning';
 import { TodoAddForm } from './components/TodoAddForm';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList';
-import { getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  getTodos, addTodo, deleteTodo, editTodo,
+} from './api/todos';
 import { ErrorMessage, Filter, Todo } from './types/Todo';
 import { TodoError } from './components/TodoError';
 // import { TodoLoader } from './components/TodoLoader';
@@ -35,11 +37,6 @@ export const App: React.FC = () => {
         setTodos(data);
       })
       .catch(() => {
-        // setError(ErrorMessage.noTodos);
-        // setTimeout(() => {
-        //   setError('');
-        // }, 3000);
-
         handleError(ErrorMessage.noTodos);
       })
       .finally(() => {
@@ -116,6 +113,54 @@ export const App: React.FC = () => {
       });
   };
 
+  // const handleToggleStatus = () => {
+  //   setIsLoading(true);
+
+  //   const newTodos = todos.map(todo => {
+  //     editTodo({ ...todo, completed: !todo.completed })
+  //       .then(response => {
+  //         return response;
+  //       })
+  //       .catch(() => {
+  //         handleError(ErrorMessage.noUpdateTodo);
+
+  //         return todo;
+  //       });
+
+  //     return todo;
+  //   });
+
+  //   setTodos(newTodos);
+  //   setIsLoading(false);
+  // };
+
+  const handleToggleStatus = () => {
+    setIsLoading(true);
+
+    const updatedTodos = todos.map(async (todo) => {
+      try {
+        const response = await editTodo(
+          { ...todo, completed: !todo.completed },
+        );
+
+        return response;
+      } catch (er) {
+        handleError(ErrorMessage.noUpdateTodo);
+
+        return todo;
+      }
+    });
+
+    Promise.all(updatedTodos)
+      .then((newTodos) => {
+        setTodos(newTodos);
+      })
+      .catch(() => {
+        handleError(ErrorMessage.noUpdateTodo);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -131,6 +176,7 @@ export const App: React.FC = () => {
             type="button"
             className="todoapp__toggle-all active"
             data-cy="ToggleAllButton"
+            onClick={handleToggleStatus}
           />
 
           {/* Add a todo on form submit */}
