@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
@@ -60,6 +59,7 @@ export const Header: React.FC<Props> = ({
       {Boolean(hasTodos) && (
         <button
           type="button"
+          aria-label="Toggle All"
           className={cn('todoapp__toggle-all', {
             active: isAllCompleted,
           })}

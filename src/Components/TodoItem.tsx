@@ -28,14 +28,24 @@ export const TodoItem: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      if (todo.title === todoTitle) {
+      const trimmedTitle = todoTitle.trim();
+
+      if (!trimmedTitle) {
+        setIsEditing(false);
+        await onTodoDelete();
+
+        return;
+      }
+
+      if (todo.title === trimmedTitle) {
         setIsEditing(false);
 
         return;
       }
 
-      if (todoTitle) {
+      if (trimmedTitle) {
         await onRenameTodo(todoTitle);
+        setIsEditing(false);
       } else {
         await onTodoDelete();
       }
@@ -52,11 +62,11 @@ export const TodoItem: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
-      titleInput.current.focus();
+    if (isEditing && titleInputRef.current) {
+      titleInputRef.current?.focus();
     }
   }, [isEditing, isProcessing]);
 
@@ -93,7 +103,7 @@ export const TodoItem: React.FC<Props> = ({
           >
             <input
               onKeyUp={onKeyUpHandle}
-              ref={titleInput}
+              ref={titleInputRef}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"

@@ -1,8 +1,8 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from 'react';
 
 import { Todo } from './types/Todo';
@@ -20,12 +20,23 @@ export const App: React.FC = () => {
   const [inputDisabled, setInputDisabled] = useState(false);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorTimer, setErrorTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const hasTodos = todos.length > 0;
+  useEffect(() => {
+    if (errorTimer) {
+      clearTimeout(errorTimer);
+    }
+
+    setErrorTimer(setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000));
+  }, [errorMessage, errorTimer]);
+
+  const hasTodos = !!todos.length;
 
   const isAllCompleted = todos.every(todo => todo.completed);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setErrorMessage(null);
       const todosFetch = await todoService.getTodos();
@@ -34,35 +45,35 @@ export const App: React.FC = () => {
     } catch (err) {
       setErrorMessage('Unable to load todos');
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const hadleAddTodo = (title: string) => {
-    setInputDisabled(true);
+  const hadleAddTodo = async (title: string) => {
+    try {
+      setInputDisabled(true);
 
-    setTempTodo({
-      id: 0,
-      userId: 0,
-      title: title.trim(),
-      completed: false,
-    });
+      const newTodo = {
+        id: 0,
+        userId: 0,
+        title: title.trim(),
+        completed: false,
+      };
 
-    return todoService
-      .addTodo(title)
-      .then((newTodo) => {
-        setTodos((prevTodos) => [...prevTodos, newTodo]);
-      })
-      .catch((error) => {
-        setErrorMessage('Unable to add a todo');
-        throw error;
-      })
-      .finally(() => {
-        setInputDisabled(false);
-        setTempTodo(null);
-      });
+      setTempTodo(newTodo);
+
+      const addedTodo = await todoService.addTodo(title);
+
+      setTodos((prevTodos) => [...prevTodos, addedTodo]);
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      throw error;
+    } finally {
+      setInputDisabled(false);
+      setTempTodo(null);
+    }
   };
 
   const filteredTodos = useMemo(() => todos.filter(({ completed }) => {
@@ -87,7 +98,7 @@ export const App: React.FC = () => {
       }))
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        throw new Error();
+        throw new Error('Unable to delete a todo');
       })
       .finally(() => {
         setInputDisabled(false);
@@ -115,7 +126,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        throw new Error();
+        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -125,35 +136,34 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    todos
-      .filter(todo => todo.completed)
-      .forEach(todo => {
+    todos.forEach(todo => {
+      if (todo.completed) {
         handleDeleteTodo(todo.id);
-      });
+      }
+    });
   };
 
-  const handleToggleTodo = (todo: Todo) => {
-    setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
+  const handleToggleTodo = async (todo: Todo) => {
+    try {
+      setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
 
-    return todoService.updateTodo({
-      ...todo,
-      completed: !todo.completed,
-    })
-      .then(updatedTodo => {
-        setTodos(prevState => prevState.map(currentTodo => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
-      })
-      .catch(() => {
-        setErrorMessage('Unable to update a todo');
-      })
-      .finally(() => {
-        setProcessingTodoIds(
-          (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
-        );
+      const updatedTodo = await todoService.updateTodo({
+        ...todo,
+        completed: !todo.completed,
       });
+
+      setTodos(prevState => prevState.map(currentTodo => (
+        currentTodo.id !== updatedTodo.id
+          ? currentTodo
+          : updatedTodo
+      )));
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setProcessingTodoIds(
+        (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
+      );
+    }
   };
 
   const handleToggleAllTodos = () => {
@@ -164,6 +174,14 @@ export const App: React.FC = () => {
     } else {
       activeTodos.forEach(handleToggleTodo);
     }
+  };
+
+  const handleDelete = async (todoId: number) => {
+    return handleDeleteTodo(todoId);
+  };
+
+  const handleRename = async (todo: Todo, todoTitle: string) => {
+    await handleRenameTodo(todo, todoTitle);
   };
 
   return (
@@ -185,12 +203,8 @@ export const App: React.FC = () => {
             <TodoItem
               key={todo.id}
               todo={todo}
-              onTodoDelete={async () => {
-                return handleDeleteTodo(todo.id);
-              }}
-              onRenameTodo={async (todoTitle) => {
-                return handleRenameTodo(todo, todoTitle);
-              }}
+              onTodoDelete={() => handleDelete(todo.id)}
+              onRenameTodo={(todoTitle) => handleRename(todo, todoTitle)}
               onTodoToggle={() => handleToggleTodo(todo)}
               isProcessing={processingTodoIds.includes(todo.id)}
             />
@@ -217,6 +231,8 @@ export const App: React.FC = () => {
       <ErrorNotification
         setErrorMessage={setErrorMessage}
         errorMessage={errorMessage}
+        errorTimer={errorTimer}
+        setErrorTimer={setErrorTimer}
       />
     </div>
   );

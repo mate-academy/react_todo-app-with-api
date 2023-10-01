@@ -1,27 +1,36 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
 
 type Props = {
   setErrorMessage: (errorMessage: string | null) => void;
   errorMessage: string | null;
+  errorTimer: NodeJS.Timeout | null;
+  setErrorTimer: React.Dispatch<React.SetStateAction<NodeJS.Timeout | null>>;
 };
 
 export const ErrorNotification: React.FC<Props> = ({
   setErrorMessage,
   errorMessage,
+  errorTimer,
+  setErrorTimer,
 }) => {
-  const timerId = useRef<number>(0);
-
   useEffect(() => {
-    if (timerId.current) {
-      window.clearInterval(timerId.current);
+    if (errorTimer) {
+      clearTimeout(errorTimer);
     }
 
-    timerId.current = window.setTimeout(() => {
-      setErrorMessage('');
+    const newTimer = setTimeout(() => {
+      setErrorMessage(null);
     }, 3000);
-  }, [errorMessage]);
+
+    setErrorTimer(newTimer);
+
+    return () => {
+      if (newTimer) {
+        clearTimeout(newTimer);
+      }
+    };
+  }, [errorMessage, setErrorTimer]);
 
   return (
     <div
@@ -38,6 +47,7 @@ export const ErrorNotification: React.FC<Props> = ({
     >
 
       <button
+        aria-label="HideErrorButton"
         data-cy="HideErrorButton"
         type="button"
         className="delete"
@@ -45,7 +55,6 @@ export const ErrorNotification: React.FC<Props> = ({
       />
 
       {errorMessage}
-
     </div>
   );
 };
