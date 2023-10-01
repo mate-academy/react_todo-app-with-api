@@ -104,23 +104,24 @@ export const TodoItem: React.FC<Props> = ({
               />
             </form>
           ) : (
-            <span
-              className="todo__title"
-              data-cy="TodoTitle"
-              onDoubleClick={handleTodoDoubleClick}
-            >
-              {title}
-            </span>
+            <>
+              <span
+                className="todo__title"
+                data-cy="TodoTitle"
+                onDoubleClick={handleTodoDoubleClick}
+              >
+                {title}
+              </span>
+              <button
+                type="button"
+                className="todo__remove"
+                data-cy="TodoDelete"
+                onClick={() => (onTodoDelete(id))}
+              >
+                ×
+              </button>
+            </>
           )}
-
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          onClick={() => (onTodoDelete(id))}
-        >
-          ×
-        </button>
         <div
           data-cy="TodoLoader"
           className={classNames(
