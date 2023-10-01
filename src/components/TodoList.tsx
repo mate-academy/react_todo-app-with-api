@@ -35,9 +35,11 @@ export const TodoList: React.FC<TodoListProps>
     return todos;
   };
 
+  const todosToShow = visibleTodos();
+
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {visibleTodos().map(todo => {
+      {todosToShow.map(todo => {
         return (
           <SingleTodo
             key={todo.id}
