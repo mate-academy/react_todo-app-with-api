@@ -30,14 +30,21 @@ export const TodoItem: React.FC<Props> = ({
   const handleTodoSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (todo.title !== todoTitle.trim()) {
-      handleLoading([todo.id]);
+    const trimmedTodoTitle = todoTitle.trim();
 
-      if (todoTitle) {
-        await onTodoUpdate(todo, todoTitle.trim());
-      } else {
-        await onTodoDelete(todo.id);
-      }
+    if (trimmedTodoTitle === todo.title) {
+      setTodoTitle(trimmedTodoTitle);
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (trimmedTodoTitle) {
+      handleLoading([todo.id]);
+      onTodoUpdate(todo, trimmedTodoTitle);
+      setTodoTitle(trimmedTodoTitle);
+    } else {
+      onTodoDelete(todo.id);
     }
 
     setIsEditing(false);
