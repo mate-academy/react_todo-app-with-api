@@ -2,7 +2,6 @@
 import React, {
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -12,10 +11,9 @@ import { ErrorNotification } from './components/ErrorNotification';
 
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
-import { FilterLink, preparedTodos } from './utils/TodoFilter';
+import { FilterLink } from './utils/TodoFilter';
 import { ErrorMessage } from './utils/errorMessages';
-import { TodoAppRow } from './components/TodoAppRow/TodoAppRow';
-import { TempTodo } from './components/TodoAppRow';
+import { TodoList } from './components/TodoList';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -32,18 +30,6 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.Load);
       });
   }, []);
-
-  const timerId = useRef<number>(0);
-
-  useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
-      setErrorMessage(ErrorMessage.Default);
-    }, 3000);
-  }, [errorMessage]);
 
   const handleAddTodo = (todoTitle: string): Promise<void> => {
     setTempTodo({
@@ -88,42 +74,12 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleUpdateTodo = async (todo: Todo, newTodoTitle: string) => {
-    setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
-
-    return todoService
-      .updateTodo({
-        id: todo.id,
-        title: newTodoTitle,
-        userId: todo.userId,
-        completed: todo.completed,
-      })
-      .then(updatedTodo => {
-        setTodos(prevState => prevState.map(currentTodo => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessage.Update);
-        throw new Error();
-      })
-      .finally(() => {
-        setProcessingTodoIds(
-          (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
-        );
-      });
-  };
-
-  const handleCompletedChange = (todo:Todo) => {
+  const handleCompletedChange = (todo: Todo) => {
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
 
     todoService
       .updateTodo({
-        id: todo.id,
-        title: todo.title,
-        userId: todo.userId,
+        ...todo,
         completed: !todo.completed,
       })
       .then(updatedTodo => {
@@ -150,7 +106,31 @@ export const App: React.FC = () => {
       .forEach((todo) => handleDeleteTodo(todo.id));
   };
 
-  const visibleTodos = preparedTodos(todos, selectedFilter);
+  const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
+    setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
+
+    return todoService
+      .updateTodo({
+        ...todo,
+        title: newTodoTitle,
+      })
+      .then(updatedTodo => {
+        setTodos(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.Update);
+        throw new Error();
+      })
+      .finally(() => {
+        setProcessingTodoIds(
+          (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
+        );
+      });
+  };
 
   const todosCounter = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
@@ -183,7 +163,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoAppHeader
           onToggleClick={handleToggleButton}
-          todos={visibleTodos}
+          todos={todos}
           onTodoAdd={handleAddTodo}
           setErrorMessage={setErrorMessage}
           isRequesting={isRequesting}
@@ -192,25 +172,15 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <>
-            <section className="todoapp__main" data-cy="TodoList">
-              {visibleTodos.map((todo: Todo) => (
-                <TodoAppRow
-                  todo={todo}
-                  key={todo.id}
-                  isLoading={processingTodoIds.includes(todo.id)}
-                  onTodoDelete={handleDeleteTodo}
-                  onChangeBox={() => (
-                    handleCompletedChange(todo))}
-                  onTodoUpdate={(todoTitle) => (
-                    handleUpdateTodo(todo, todoTitle)
-                  )}
-                />
-              ))}
-
-              {tempTodo && (
-                <TempTodo todo={tempTodo} />
-              )}
-            </section>
+            <TodoList
+              todos={todos}
+              selectedFilter={selectedFilter}
+              processingTodoIds={processingTodoIds}
+              handleDeleteTodo={handleDeleteTodo}
+              handleUpdateTodo={handleUpdateTodo}
+              handleCompletedChange={handleCompletedChange}
+              tempTodo={tempTodo}
+            />
 
             <TodoAppFooter
               selectedFilter={selectedFilter}

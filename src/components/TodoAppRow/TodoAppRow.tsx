@@ -28,12 +28,12 @@ export const TodoAppRow: React.FC<Props> = ({
       setTodoTitle(title);
     }
 
-    if (todoTitle !== title) {
+    if (todoTitle.trim() !== title) {
       try {
-        await onTodoUpdate(todoTitle);
+        await onTodoUpdate(todoTitle.trim());
         setIsEditing(false);
       } catch (er) {
-        console.error('catch error');
+        // console.error('catch error');
       }
     }
 
@@ -67,7 +67,7 @@ export const TodoAppRow: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (titleInput.current) {
+    if (isEditing && titleInput.current) {
       titleInput.current.focus();
     }
   }, [isEditing]);

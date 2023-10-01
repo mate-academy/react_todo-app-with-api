@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { ErrorMessage } from '../../utils/errorMessages';
 
@@ -12,6 +12,18 @@ export const ErrorNotification: React.FC<Props> = ({
   setErrorMessage,
   errorMessage,
 }) => {
+  const timerId = useRef<number>(0);
+
+  useEffect(() => {
+    if (timerId.current) {
+      window.clearTimeout(timerId.current);
+    }
+
+    timerId.current = window.setTimeout(() => {
+      setErrorMessage(ErrorMessage.Default);
+    }, 3000);
+  }, [errorMessage]);
+
   return (
     <div
       data-cy="ErrorNotification"

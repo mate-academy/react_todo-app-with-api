@@ -49,7 +49,7 @@ export const TodoAppHeader: React.FC<Props> = ({
     if (inputFocus.current) {
       inputFocus.current.focus();
     }
-  }, [todos.length]);
+  }, [todos]);
 
   return (
     <header className="todoapp__header">
