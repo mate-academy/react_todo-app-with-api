@@ -10,7 +10,7 @@ interface Props {
 
 export const ErrorMessage: React.FC<Props> = ({
   errorMessage,
-  setErrorMessage = () => { },
+  setErrorMessage = () => {},
 }) => {
   const [isHidden, setIsHidden] = useState<boolean>(false);
 

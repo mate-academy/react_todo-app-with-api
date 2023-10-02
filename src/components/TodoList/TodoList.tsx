@@ -17,9 +17,9 @@ interface Props {
 export const TodoList: React.FC<Props> = ({
   todos,
   allTodos,
-  setTodos = () => { },
-  setAllTodos = () => { },
-  setErrorMessage = () => { },
+  setTodos = () => {},
+  setAllTodos = () => {},
+  setErrorMessage = () => {},
   tempTodo,
 }) => {
   const [loader, seLoader] = useState<boolean>(false);
@@ -29,7 +29,6 @@ export const TodoList: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleCheckComplete = async (id: number) => {
-    // loader ?
     const newTodos = [...allTodos].map(todo => {
       if (todo.id === id) {
         const newTodo = { ...todo, completed: !todo.completed };
@@ -47,7 +46,7 @@ export const TodoList: React.FC<Props> = ({
     });
 
     setAllTodos(newTodos);
-    setTodos(newTodos); // ??
+    setTodos(newTodos);
   };
 
   const handleDeleteTodo = async (id: number) => {

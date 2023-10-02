@@ -16,10 +16,10 @@ interface Props {
 
 export const Footer: React.FC<Props> = ({
   allTodos,
-  setAllTodos = () => { },
-  setTodos = () => { },
-  setErrorMessage = () => { },
-  setQuery = () => { },
+  setAllTodos = () => {},
+  setTodos = () => {},
+  setErrorMessage = () => {},
+  setQuery = () => {},
 }) => {
   const [selected, setSelected] = useState<Query>(QueryEnum.All);
 
@@ -37,7 +37,6 @@ export const Footer: React.FC<Props> = ({
   const deleteCompletedTodos = async () => {
     try {
       await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
-      // completedTodos.forEach(async todo => await deleteTodo(todo.id));
 
       setTodos(prevTodos => prevTodos
         .filter(todo => !todo.completed));

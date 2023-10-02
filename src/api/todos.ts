@@ -23,9 +23,3 @@ export const updateTodo = (editTodo: Todo) => {
 export const postTodo = ({ title, userId, completed }: Omit<Todo, 'id'>) => {
   return client.post<Todo>('/todos', { title, userId, completed });
 };
-
-// export const postTodo = (newTodo: Todo) => {
-//   return client.post('/todos', newTodo);
-// };
-
-// Add more methods here

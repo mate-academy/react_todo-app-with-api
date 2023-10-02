@@ -18,9 +18,9 @@ interface Props {
 export const TodoApp: React.FC<Props> = ({
   todos,
   allTodos,
-  setTodos = () => { },
-  setAllTodos = () => { },
-  setErrorMessage = () => { },
+  setTodos = () => {},
+  setAllTodos = () => {},
+  setErrorMessage = () => {},
 }) => {
   const [value, setValue] = useState<string>('');
   const [disabledInput, setDisabledInput] = useState<boolean>(false);
