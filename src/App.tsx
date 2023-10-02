@@ -115,7 +115,7 @@ export const App: React.FC = () => {
   };
 
   const handleChangeAllCompleted = () => {
-    const isNewCompleted = todos.some(todo => todo.completed === false);
+    const isNewCompleted = todos.some(todo => !todo.completed);
 
     const todosToChange = todos
       .filter(currentTodo => isNewCompleted !== currentTodo.completed)
@@ -124,10 +124,10 @@ export const App: React.FC = () => {
     setLoadingTodosIds(todosToChange.map((current) => current.id));
     Promise.allSettled(todosToChange
       .map(todo => todosService.updateTodo(todo)))
-      .then((rezult) => {
+      .then((result) => {
         let wasFailed = false;
 
-        rezult.forEach((response, i) => {
+        result.forEach((response, i) => {
           if (response.status === 'rejected') {
             todosToChange[i].completed = !todosToChange[i].completed;
             wasFailed = true;
