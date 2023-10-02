@@ -184,7 +184,7 @@ export const App: React.FC = () => {
           setErrorMessage('Unable to add a todo');
         });
 
-      if (tempTodo === null) {
+      if (!tempTodo) {
         const fakeTodo = { ...newTodo, id: 0 };
 
         setTempTodo(fakeTodo);
