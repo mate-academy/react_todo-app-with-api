@@ -10,18 +10,14 @@ export const ErrorNotification: React.FC<Props> = ({
   errorMessage,
   setErrorMessage,
 }) => {
-  const timerIdRef = useRef<number>(0);
+  const timerIdRef = useRef<string>(errorMessage);
+
+  timerIdRef.current = errorMessage;
 
   useEffect(() => {
-    if (timerIdRef.current) {
-      window.clearTimeout(timerIdRef.current);
-    }
-
-    timerIdRef.current = window.setTimeout(() => {
-      setErrorMessage('');
+    setTimeout(() => {
+      setErrorMessage(timerIdRef.current);
     }, 3000);
-
-    // return () => clearTimeout(timerIdRef);
   }, [errorMessage]);
 
   return (
