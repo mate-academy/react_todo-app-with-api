@@ -8,7 +8,7 @@ import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
 import * as todosService from './api/todos';
-import { USER_ID } from './api/todos';
+import { USER_ID } from './constants/userId';
 import * as filterService from './utils/filterService';
 import { TodoList } from './components/TodoList';
 
