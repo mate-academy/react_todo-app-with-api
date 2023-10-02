@@ -77,13 +77,11 @@ export const App: React.FC = () => {
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(todo => todo.id !== todoId));
-        setLoadingTodosIds([]);
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        setLoadingTodosIds([]);
       })
-      .finally(() => setLoadingTodosIds([todoId]));
+      .finally(() => setLoadingTodosIds([]));
   };
 
   const handleDeleteAll = () => {
