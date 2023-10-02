@@ -34,30 +34,24 @@ export const TodoRow: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
-  const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (todoTitle.trim()) {
       if (todoTitle.trim() !== todo.title) {
-        await onTodoRename(todoTitle.trim());
+        onTodoRename(todoTitle.trim());
       }
     } else {
-      await onTodoDelete();
+      onTodoDelete();
     }
 
     setIsEditing(false);
   };
 
-  const handleEscPressed = async (
+  const handleEscPressed = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.keyCode === 27) {
-      if (todoTitle.trim()) {
-        await onTodoRename(todoTitle.trim());
-      } else {
-        await onTodoDelete();
-      }
-
       setIsEditing(false);
     }
   };
