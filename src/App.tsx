@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const [areSubmiting, setAreSubmiting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
+  // eslint-disable-next-line
+  const [togglingId, setTogglingId] = useState<number | null>(null);
   const [wasEdited, setWasEdited] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
