@@ -8,7 +8,7 @@ import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
 import * as todosService from './api/todos';
-import { USER_ID } from './constants/userId';
+import * as constants from './constants/constants';
 import * as filterService from './utils/filterService';
 import { TodoList } from './components/TodoList';
 
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
         let wasFailed = false;
 
         result.forEach((response, i) => {
-          if (response.status === 'fulfilled') {
+          if (response.status === constants.RESPONSE_OK) {
             fulfilledTodoIds.push(filteredTodos[i].id);
           } else {
             wasFailed = true;
@@ -163,7 +163,7 @@ export const App: React.FC = () => {
     setInputValue(newTitle);
     const newTodo = {
       id: 0,
-      userId: USER_ID,
+      userId: constants.USER_ID,
       title: newTitle.trim(),
       completed: false,
     };
