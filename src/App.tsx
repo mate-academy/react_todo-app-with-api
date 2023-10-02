@@ -168,19 +168,19 @@ export const App: React.FC = () => {
     todosService
       .addTodo(newTodo)
       .then((createdTodo) => {
-        setLoadingTodosIds([]);
         setTempTodo(null);
         setTodos([...todos
           .filter((current) => current.id !== 0), createdTodo]);
         setInputValue('');
-        setIsInputDisabled(false);
       })
       .catch(() => {
-        setIsInputDisabled(false);
-        setLoadingTodosIds([]);
         setTodos([...todos
           .filter((current) => current.id !== 0)]);
         setErrorMessage('Unable to add a todo');
+      })
+      .finally(() => {
+        setIsInputDisabled(false);
+        setLoadingTodosIds([]);
       });
 
     if (!tempTodo) {
