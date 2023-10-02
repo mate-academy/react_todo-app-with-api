@@ -21,7 +21,7 @@ export const Footer: React.FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodos} item${activeTodos !== 1 ? 's ' : ''} left`}
+        {`${activeTodos} item${activeTodos !== 1 ? 's' : ''} left`}
       </span>
       <NavMenu condition={condition} setCondition={setCondition} />
       <button
