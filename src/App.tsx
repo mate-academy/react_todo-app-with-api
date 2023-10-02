@@ -7,10 +7,10 @@ import { Todo } from './types/Todo';
 import { TodoStatus } from './types/TodoStatus';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
-import { TodoItem } from './components/TodoItem';
 import * as todosService from './api/todos';
 import { USER_ID } from './api/todos';
 import * as filterService from './utils/filterService';
+import { TodoList } from './components/TodoList';
 
 export const App: React.FC = () => {
   const [isLoadingTodos, setIsLoadingTodos] = useState(false);
@@ -221,23 +221,13 @@ export const App: React.FC = () => {
             />
 
             {!isLoadingTodos && (
-              <section
-                className="todoapp__main"
-                data-cy="TodoList"
-              >
-                {visibleTodos.map(todo => (
-                  <TodoItem
-                    onDeleteTodo={handleDeleteTodo}
-                    todo={todo}
-                    key={todo.id}
-                    onCompletedChange={handleCompletedChange}
-                    isLoading={loadingTodosIds.includes(todo.id)}
-                    onUpdateTodo={
-                      (todoTitle: string) => handleUpdateTodo(todo, todoTitle)
-                    }
-                  />
-                ))}
-              </section>
+              <TodoList
+                todos={visibleTodos}
+                loadingTodosIds={loadingTodosIds}
+                onDeleteTodo={handleDeleteTodo}
+                onCompletedChange={handleCompletedChange}
+                handleUpdateTodo={handleUpdateTodo}
+              />
             )}
 
             {!!todos.length && (
