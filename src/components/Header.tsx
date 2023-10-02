@@ -27,11 +27,11 @@ export const Header: React.FC<Props> = ({
     setInputValue(event.target.value);
   };
 
-  const inputReference = useRef(null);
+  const inputRef = useRef(null);
 
   const setInputFocus = () => {
-    if (!isInputFieldDisabled && inputReference?.current) {
-      const input: HTMLInputElement = inputReference.current;
+    if (!isInputFieldDisabled && inputRef?.current) {
+      const input: HTMLInputElement = inputRef.current;
 
       input.focus();
     }
@@ -70,7 +70,7 @@ export const Header: React.FC<Props> = ({
         onSubmit={handleFormSubmit}
       >
         <input
-          ref={inputReference}
+          ref={inputRef}
           disabled={isInputFieldDisabled}
           value={inputValue}
           onChange={handleTitleChange}
