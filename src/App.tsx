@@ -150,9 +150,6 @@ export const App: React.FC = () => {
   };
 
   const handleAddTodo = (newTitle: string) => {
-    const todoIds = todos.map(({ id }) => id);
-    const maxTodoId = Math.max(...todoIds);
-
     if (!newTitle?.trim()?.length) {
       setErrorMessage('Title should not be empty');
 
@@ -161,7 +158,7 @@ export const App: React.FC = () => {
 
     setInputValue(newTitle);
     const newTodo = {
-      id: maxTodoId + 1,
+      id: 0,
       userId: USER_ID,
       title: newTitle.trim(),
       completed: false,
