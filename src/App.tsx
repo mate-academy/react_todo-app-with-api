@@ -22,6 +22,10 @@ export const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
+  function isTitleValid(title: string): boolean {
+    return !!title?.trim()?.length;
+  }
+
   const updateTodo = (todo: Todo) => {
     setLoadingTodosIds([todo.id]);
 
@@ -150,7 +154,7 @@ export const App: React.FC = () => {
   };
 
   const handleAddTodo = (newTitle: string) => {
-    if (!newTitle?.trim()?.length) {
+    if (isTitleValid(newTitle)) {
       setErrorMessage('Title should not be empty');
 
       return;
@@ -193,6 +197,12 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
+    if (isTitleValid(newTodoTitle)) {
+      todosService.deleteTodo(todo.id);
+
+      return;
+    }
+
     updateTodo({
       id: todo.id,
       title: newTodoTitle,
