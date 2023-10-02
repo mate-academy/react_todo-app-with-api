@@ -240,7 +240,7 @@ export const App: React.FC = () => {
               </section>
             )}
 
-            {todos.length !== 0 && (
+            {!!todos.length && (
               <Footer
                 onChangeSelect={handleChangeSelect}
                 selectedOption={selectedOption}
