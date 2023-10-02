@@ -42,7 +42,7 @@ export const App: React.FC = () => {
       });
     const timerId = setTimeout(() => {
       setError('');
-    }, 4000);
+    }, 3000);
 
     return () => {
       clearInterval(timerId);
@@ -107,6 +107,11 @@ export const App: React.FC = () => {
             : updatedTodo
         )));
       })
+      .catch(() => {
+        setError('Unable to update a todo');
+        setLoadingTodosIds([]);
+        setIsLoaderActive(false);
+      })
       .finally(() => {
         setLoadingTodosIds([todo.id]);
         setIsLoaderActive(false);
@@ -148,6 +153,8 @@ export const App: React.FC = () => {
 
   const handleToggleTodo = async (todo: Todo) => {
     setLoadingTodosIds((prevTodoId) => [...prevTodoId, todo.id]);
+    setLoadingTodosIds([todo.id]);
+    setIsLoaderActive(true);
 
     try {
       try {
@@ -161,13 +168,17 @@ export const App: React.FC = () => {
             ? currentTodo
             : updatedTodo
         )));
-      } catch {
+      } catch (errorMessage) {
         setError('Unable to toggle a todo');
-        throw new Error();
+        setLoadingTodosIds([]);
+        setIsLoaderActive(false);
+        throw errorMessage;
       }
     } finally {
       setLoadingTodosIds((prevTodoId_1) => prevTodoId_1
         .filter(id => id !== todo.id));
+      setLoadingTodosIds([]);
+      setIsLoaderActive(false);
     }
   };
 
@@ -190,7 +201,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           onSubmit={addTodo}
-          todo={filterTodos.length > 0 ? filterTodos[0] : null}
+          todo={filterTodos[0] || null}
           userId={USER_ID}
           todos={filterTodos}
           error={error}
@@ -210,6 +221,8 @@ export const App: React.FC = () => {
           onTogleTodo={handleToggleTodo}
           loadingTodosIds={loadingTodosIds}
           isLoaderActive={isLoaderActive}
+          setLoadingTodosIds={setLoadingTodosIds}
+          setIsLoaderActive={setIsLoaderActive}
         />
         {tempTodo && (
           <TodoItem
@@ -222,7 +235,7 @@ export const App: React.FC = () => {
         )}
 
         {/* Hide the footer if there are no todos */}
-        {todos.length && (
+        {todos.length > 0 && (
           <TodoFooter
             todos={todos}
             isOneTodoCompleted={isOneTodoCompleted}

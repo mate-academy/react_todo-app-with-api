@@ -7,6 +7,8 @@ type Props = {
   onDelete?: (id: number) => void;
   onUpdate?: (todo: Todo, todosTitle: string) => void;
   onTogleTodo?: (todo: Todo) => void;
+  setLoadingTodosIds: (id: number[]) => void;
+  setIsLoaderActive: (value: boolean) => void;
   loadingTodosIds: number[],
   isLoaderActive: boolean,
 };
