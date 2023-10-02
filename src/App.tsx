@@ -148,9 +148,7 @@ export const App: React.FC = () => {
     try {
       const allCompleted = todos.every((todo) => todo.completed);
 
-      const todosToUpdate = todos.filter((todo) => !todo.completed);
-
-      const updatedTodos = todosToUpdate.map((todo) => ({
+      const updatedTodos = todos.map((todo) => ({
         ...todo,
         completed: !allCompleted,
       }));
@@ -161,15 +159,7 @@ export const App: React.FC = () => {
         }),
       );
 
-      const newTodos = todos.map((todo) => {
-        const updatedTodo = updatedTodos.find(
-          (updated) => updated.id === todo.id,
-        );
-
-        return updatedTodo || todo;
-      });
-
-      setTodos(newTodos);
+      setTodos(updatedTodos);
     } catch (err) {
       handleErrorMessage(ErrorType.UnableToUpdateTodo);
     } finally {
@@ -196,17 +186,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.some((todo) => !todo.completed) && (
-            // eslint-disable-next-line jsx-a11y/control-has-associated-label
-            <button
-              type="button"
-              data-cy="ToggleAllButton"
-              className={`todoapp__toggle-all ${
-                todos.every((todo) => todo.completed) ? 'active' : ''
-              }`}
-              onClick={() => toggleAll()}
-            />
-          )}
+          <button
+            type="button"
+            data-cy="ToggleAllButton"
+            className={`todoapp__toggle-all ${
+              todos.every((todo) => todo.completed) ? 'active' : ''
+            }`}
+            onClick={() => toggleAll()}
+          />
 
           <form
             onSubmit={(e) => {
