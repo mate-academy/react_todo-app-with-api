@@ -96,17 +96,17 @@ export const App: React.FC = () => {
       .map(todo => todosService.deleteTodo(todo.id)))
       .then((result) => {
         const fulfilledTodoIds: number[] = [];
-        let wasFailed = false;
+        let existsFailedDelete = false;
 
         result.forEach((response, i) => {
           if (response.status === constants.RESPONSE_OK) {
             fulfilledTodoIds.push(filteredTodos[i].id);
           } else {
-            wasFailed = true;
+            existsFailedDelete = true;
           }
         });
 
-        if (wasFailed) {
+        if (existsFailedDelete) {
           setErrorMessage('Unable to delete a todo');
         }
 
