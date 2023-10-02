@@ -136,7 +136,7 @@ export const App: React.FC = () => {
         let existsFailedUpdate = false;
 
         result.forEach((response, i) => {
-          if (response.status === 'rejected') {
+          if (response.status === constants.RESPONSE_FAILED) {
             todosToChange[i].completed = !todosToChange[i].completed;
             existsFailedUpdate = true;
           }
