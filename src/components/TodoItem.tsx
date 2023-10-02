@@ -120,7 +120,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay',
+        className={classNames('modal', 'overlay',
           { 'is-active': isLoading })}
       >
         <div
