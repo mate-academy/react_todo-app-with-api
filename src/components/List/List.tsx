@@ -8,16 +8,12 @@ type ListProps = {
   handleDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
-  isLoading: boolean;
-  isDeleting: boolean;
-  isToggling: boolean;
-  isTogglingAll: boolean;
 };
 
 export const List: React.FC<ListProps> = (
   {
     todos, tempTodo, handleDelete,
-    onStatusChange, setTodos, isLoading, isDeleting, isToggling, isTogglingAll,
+    onStatusChange, setTodos,
   },
 ) => {
   const reloadTodos = async () => {
@@ -28,31 +24,21 @@ export const List: React.FC<ListProps> = (
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map((todo) => {
-        return (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            handleDelete={handleDelete}
-            onStatusChange={onStatusChange}
-            onTodoUpdate={reloadTodos}
-            isLoading={isLoading}
-            isDeleting={isDeleting}
-            isToggling={isToggling}
-            isTogglingAll={isTogglingAll}
-          />
-        );
-      })}
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          handleDelete={handleDelete}
+          onStatusChange={onStatusChange}
+          onTodoUpdate={reloadTodos}
+        />
+      ))}
       {tempTodo && (
         <TodoItem
           todo={tempTodo}
           handleDelete={handleDelete}
           onStatusChange={onStatusChange}
           onTodoUpdate={reloadTodos}
-          isLoading={isLoading}
-          isDeleting={isDeleting}
-          isToggling={isToggling}
-          isTogglingAll={isTogglingAll}
         />
       )}
     </section>
