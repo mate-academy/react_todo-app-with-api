@@ -11,9 +11,9 @@ import { ErrorMessage } from '../../types/Error';
 import { useTodoList } from './useTodoList';
 
 export const useTodoRow = (
-  useTodo: Todo,
-  isEdited: boolean,
-  editTodo: (todoId:number | null) => void,
+  useTodo?: Todo,
+  isEdited?: boolean,
+  editTodo?: (todoId:number | null) => void,
 ) => {
   const {
     onEditTodo,
@@ -50,6 +50,9 @@ export const useTodoRow = (
 
   const handleEdit = (event:FormEvent) => {
     event.preventDefault();
+    if (!useTodo || !editTodo) {
+      return;
+    }
 
     if (editedTitle.trim() === useTodo.title) {
       editTodo(null);
