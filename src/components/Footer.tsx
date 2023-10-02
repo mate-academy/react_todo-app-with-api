@@ -19,7 +19,7 @@ export const Footer: React.FC<Props> = ({
   const activeTodosAmoun = todos
     .filter((todo) => !todo.completed).length;
 
-  const isCompleted = !!todos.some((todo) => todo.completed);
+  const isCompletedTodo = !!todos.some((todo) => todo.completed);
 
   return (
     <footer
@@ -40,7 +40,7 @@ export const Footer: React.FC<Props> = ({
 
       <button
         type="button"
-        disabled={!isCompleted}
+        disabled={!isCompletedTodo}
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={onHandleDeleteAll}
