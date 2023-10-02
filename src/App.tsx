@@ -55,10 +55,11 @@ export const App: React.FC = () => {
       .getTodos()
       .then((todosFromSrever) => {
         setTodos(todosFromSrever);
-        setIsLoadingTodos(false);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
+      })
+      .finally(() => {
         setIsLoadingTodos(false);
       });
   }, []);
