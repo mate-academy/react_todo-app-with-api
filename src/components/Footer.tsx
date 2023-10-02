@@ -16,7 +16,7 @@ export const Footer: React.FC<Props> = ({
   selectedOption,
   onHandleDeleteAll,
 }) => {
-  const counterNotCompletedTodos = todos
+  const activeTodosAmoun = todos
     .filter((todo) => !todo.completed).length;
 
   const isCompleted = !!todos.some((todo) => todo.completed);
@@ -30,7 +30,7 @@ export const Footer: React.FC<Props> = ({
         className="todo-count"
         data-cy="TodosCounter"
       >
-        {`${counterNotCompletedTodos} items left`}
+        {`${activeTodosAmoun} items left`}
       </span>
 
       <Filter
