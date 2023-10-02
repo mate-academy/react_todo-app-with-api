@@ -155,41 +155,43 @@ export const App: React.FC = () => {
 
     if (!newTitle?.trim()?.length) {
       setErrorMessage('Title should not be empty');
-    } else {
-      setInputValue(newTitle);
-      const newTodo = {
-        id: maxTodoId + 1,
-        userId: USER_ID,
-        title: newTitle.trim(),
-        completed: false,
-      };
 
-      setIsInputDisabled(true);
-      todosService
-        .addTodo(newTodo)
-        .then((createdTodo) => {
-          setLoadingTodosIds([]);
-          setTempTodo(null);
-          setTodos([...todos
-            .filter((current) => current.id !== 0), createdTodo]);
-          setInputValue('');
-          setIsInputDisabled(false);
-        })
-        .catch(() => {
-          setIsInputDisabled(false);
-          setLoadingTodosIds([]);
-          setTodos([...todos
-            .filter((current) => current.id !== 0)]);
-          setErrorMessage('Unable to add a todo');
-        });
+      return;
+    }
 
-      if (!tempTodo) {
-        const fakeTodo = { ...newTodo, id: 0 };
+    setInputValue(newTitle);
+    const newTodo = {
+      id: maxTodoId + 1,
+      userId: USER_ID,
+      title: newTitle.trim(),
+      completed: false,
+    };
 
-        setTempTodo(fakeTodo);
-        setLoadingTodosIds([fakeTodo.id]);
-        setTodos((prevTodos) => [...prevTodos, fakeTodo]);
-      }
+    setIsInputDisabled(true);
+    todosService
+      .addTodo(newTodo)
+      .then((createdTodo) => {
+        setLoadingTodosIds([]);
+        setTempTodo(null);
+        setTodos([...todos
+          .filter((current) => current.id !== 0), createdTodo]);
+        setInputValue('');
+        setIsInputDisabled(false);
+      })
+      .catch(() => {
+        setIsInputDisabled(false);
+        setLoadingTodosIds([]);
+        setTodos([...todos
+          .filter((current) => current.id !== 0)]);
+        setErrorMessage('Unable to add a todo');
+      });
+
+    if (!tempTodo) {
+      const fakeTodo = { ...newTodo, id: 0 };
+
+      setTempTodo(fakeTodo);
+      setLoadingTodosIds([fakeTodo.id]);
+      setTodos((prevTodos) => [...prevTodos, fakeTodo]);
     }
   };
 
