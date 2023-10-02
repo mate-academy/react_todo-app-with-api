@@ -27,8 +27,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsEditing(false); // Zakończ edycję
-    onStatusChange(todo.id, todo.completed); // Ustawienie editing na true
+    setIsEditing(false);
+    onStatusChange(todo.id, todo.completed);
     if (newTitle.trim() === '') {
       handleDelete(todo.id);
     } else if (newTitle !== todo.title) {
@@ -36,7 +36,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         await updateTodo(todo.id, {
           title: newTitle.trim(),
         });
-        onStatusChange(todo.id, todo.completed); // Resetowanie editing na false
+        onStatusChange(todo.id, todo.completed);
         onTodoUpdate();
       } catch {
         handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
