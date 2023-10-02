@@ -19,7 +19,7 @@ export const Header: React.FC<Props> = ({
   isInputFieldDisabled,
   onHandleChangeCompleted,
 }) => {
-  const activeTodos = todos?.length
+  const isAllTodosActive = todos?.length
     ? todos.every((todo) => todo.completed)
     : false;
 
@@ -59,7 +59,7 @@ export const Header: React.FC<Props> = ({
           type="button"
           className={classNames(
             'todoapp__toggle-all',
-            { active: activeTodos },
+            { active: isAllTodosActive },
           )}
           data-cy="ToggleAllButton"
           onClick={handleChangeAllCompleted}
