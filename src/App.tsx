@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState(TodoStatus.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [inputValue, setInputValue] = useState('');
-  const [isInputFieldDisabled, setIsInputFieldDisabled] = useState(false);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const updateTodo = (todo: Todo) => {
     setLoadingTodosIds([todo.id]);
@@ -165,7 +165,7 @@ export const App: React.FC = () => {
         completed: false,
       };
 
-      setIsInputFieldDisabled(true);
+      setIsInputDisabled(true);
       todosService
         .addTodo(newTodo)
         .then((createdTodo) => {
@@ -174,10 +174,10 @@ export const App: React.FC = () => {
           setTodos([...todos
             .filter((current) => current.id !== 0), createdTodo]);
           setInputValue('');
-          setIsInputFieldDisabled(false);
+          setIsInputDisabled(false);
         })
         .catch(() => {
-          setIsInputFieldDisabled(false);
+          setIsInputDisabled(false);
           setLoadingTodosIds([]);
           setTodos([...todos
             .filter((current) => current.id !== 0)]);
@@ -216,7 +216,7 @@ export const App: React.FC = () => {
               onInputChange={handleAddTodo}
               inputValue={inputValue}
               setInputValue={setInputValue}
-              isInputFieldDisabled={isInputFieldDisabled}
+              isInputFieldDisabled={isInputDisabled}
               onHandleChangeCompleted={handleChangeAllCompleted}
             />
 
