@@ -22,6 +22,8 @@ const page = {
       clock.tick(delay);
       clock.restore();
     });
+
+    cy.wait(50);
   },
 
   /**
@@ -534,8 +536,10 @@ describe("", () => {
         it("should allow to add one more todo", () => {
           page.mockCreate().as("createRequest2");
 
-          page.newTodoField().type("Hello world{enter}");
-          cy.wait("@createRequest2");
+
+          page.newTodoField().type('Hello world{enter}');
+          cy.wait('@createRequest2');
+          page.flushJSTimers();
 
           todos.assertCount(7);
           todos.assertNotLoading(6);
