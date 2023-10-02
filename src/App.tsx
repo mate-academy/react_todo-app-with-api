@@ -91,11 +91,11 @@ export const App: React.FC = () => {
     setLoadingTodosIds(filteredTodos.map((current) => current.id));
     Promise.allSettled(filteredTodos
       .map(todo => todosService.deleteTodo(todo.id)))
-      .then((rezult) => {
+      .then((result) => {
         const fulfilledTodoIds: number[] = [];
         let wasFailed = false;
 
-        rezult.forEach((response, i) => {
+        result.forEach((response, i) => {
           if (response.status === 'fulfilled') {
             fulfilledTodoIds.push(filteredTodos[i].id);
           } else {
