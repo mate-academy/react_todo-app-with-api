@@ -53,7 +53,7 @@ export const App: React.FC = () => {
       userId: USER_ID,
       title: title.trim(),
       completed: false,
-      editing: true, // Dodaj to
+      editing: true,
     };
 
     setTempTodo(newTodo);
