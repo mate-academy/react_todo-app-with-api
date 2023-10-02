@@ -20,13 +20,15 @@ export const ErrorNotification: React.FC<Props> = ({
     timerIdRef.current = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
+
+    // return () => clearTimeout(timerIdRef);
   }, [errorMessage]);
 
   return (
     <div
       data-cy="ErrorNotification"
       className={classNames(
-        'notification is-danger is-light has-text-weight-normal',
+        'notification', 'is-danger', 'is-light', 'has-text-weight-normal',
         { hidden: !errorMessage },
       )}
 
