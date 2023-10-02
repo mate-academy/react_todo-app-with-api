@@ -133,16 +133,16 @@ export const App: React.FC = () => {
     Promise.allSettled(todosToChange
       .map(todo => todosService.updateTodo(todo)))
       .then((result) => {
-        let wasFailed = false;
+        let existsFailedUpdate = false;
 
         result.forEach((response, i) => {
           if (response.status === 'rejected') {
             todosToChange[i].completed = !todosToChange[i].completed;
-            wasFailed = true;
+            existsFailedUpdate = true;
           }
         });
 
-        if (wasFailed) {
+        if (existsFailedUpdate) {
           setErrorMessage('Unable to update a todo');
         }
 
