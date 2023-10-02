@@ -1,17 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import {
-  getTodos, addTodo, deleteTodo, updateTodo,
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateTodo,
 } from './api/todos';
 import { Todo } from './types/Todo';
+// import { TodoHeaderProps } from "./types/TodoHeader";
+import { FilterType } from './types/TodoFooter';
+// import { TodoHeader } from "./components/TodoHeader";
+// import { TodoList } from "./components/TodoList";
+// import { TodoFooter } from "./components/TodoFooter";
+// import { ErrorNotification } from "./components/ErrorNotification";
 
 const USER_ID = 11548;
 
-enum FilterType {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
-}
+// enum FilterType {
+//   All = 'all',
+//   Active = 'active',
+//   Completed = 'completed',
+// }
 
 const filterTodos = (todos: Todo[], filter: FilterType) => {
   return todos.filter(todo => {
