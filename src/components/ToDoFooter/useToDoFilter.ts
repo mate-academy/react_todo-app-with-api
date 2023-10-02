@@ -1,26 +1,24 @@
+import { useEffect, useState } from 'react';
 import { useToDoContext } from '../../context/ToDo.context';
-import { Todo } from '../../types/Todo';
-import { useTodoEdit } from '../ToDoList/useTodoEdit';
 import { Filter } from './types';
+import { useTodoRow } from '../ToDoList/useTodoRow';
 
 export const useTodoFilter = () => {
-  const { todos, setTodoFilter, todoFilter } = useToDoContext();
-  const { deleteTodo } = useTodoEdit();
+  const { todos, filter, setTodoFilter } = useToDoContext();
+  const [buttonIsDisabled, setButtonIsDisabled] = useState<boolean>(
+    todos.completed.length === 0,
+  );
 
-  const changeFilter = (type:Filter) => setTodoFilter(type);
+  useEffect(() => setButtonIsDisabled(todos.completed.length === 0), [todos]);
 
-  const clearCompleted = () => todos
-    .filter(({ completed }:Todo) => completed).forEach(deleteTodo);
-
-  const active = todos.filter(({ completed }:Todo) => !completed).length;
-
-  // eslint-disable-next-line no-console
-  console.log('Wynik todos:', todos);
+  const { deleteTodo } = useTodoRow();
 
   return {
-    changeFilter,
-    active,
-    activeFilter: todoFilter,
-    clearCompleted,
+    onChangeFilter: (type:Filter) => setTodoFilter(type),
+    active: todos.active.length,
+    activeFilter: filter,
+    clearCompleted: () => todos.completed.forEach(deleteTodo),
+    buttonIsDisabled,
+    showFooter: todos.all.length > 0,
   };
 };

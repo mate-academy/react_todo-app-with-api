@@ -11,14 +11,12 @@ export const ErrorNotification:React.FC = () => {
       return;
     }
 
-    const timeout:NodeJS.Timeout = setTimeout(
-      () => showError(ErrorMessage.none), 3000,
+    const timeout: NodeJS.Timeout = setTimeout(
+      () => showError(ErrorMessage.none), 2500,
     );
 
     // eslint-disable-next-line consistent-return
-    return () => {
-      clearTimeout(timeout);
-    };
+    return () => clearTimeout(timeout);
   }, [errorMessage]);
 
   return (

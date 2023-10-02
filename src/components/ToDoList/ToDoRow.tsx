@@ -1,12 +1,6 @@
 import cn from 'classnames';
-import {
-  FormEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
 import { Todo } from '../../types/Todo';
-import { useTodoEdit } from './useTodoEdit';
+import { useTodoRow } from './useTodoRow';
 
 type ToDoRowProps = {
   todo: Todo;
@@ -18,45 +12,18 @@ type ToDoRowProps = {
 export const ToDoRow = ({
   todo,
   isDisabled,
-  isEdited,
+  isEdited = false,
   editTodo = () => {},
 }: ToDoRowProps) => {
   const {
     isLoading,
     saveTodo,
     deleteTodo,
-  } = useTodoEdit();
-  const [editedTitle, setEditedTitle] = useState('');
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isEdited]);
-
-  const handleEdit = (event:FormEvent) => {
-    event.preventDefault();
-
-    if (editedTitle.trim() === todo.title) {
-      editTodo(null);
-
-      return;
-    }
-
-    if (!editedTitle.trim()) {
-      deleteTodo(todo).then(() => editTodo(null));
-
-      return;
-    }
-
-    saveTodo({ ...todo, title: editedTitle.trim() })
-      .then(() => {
-        setEditedTitle('');
-        editTodo(null);
-      });
-  };
+    editedTitle,
+    setEditedTitle,
+    handleEdit,
+    inputRef,
+  } = useTodoRow(todo, isEdited, editTodo);
 
   return (
     <div

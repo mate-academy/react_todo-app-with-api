@@ -7,11 +7,10 @@ import { ErrorMessage } from '../types/Error';
 type TemporaryTodo = Omit<Todo, 'id'> | null;
 type TodoContextValues = Omit<ReturnType<typeof useTodos>, 'isLoading'> & {
   userId: number;
-  temporaryTodo: TemporaryTodo
-  errorMessage: string;
+  temporaryTodo: TemporaryTodo;
+  errorMessage: ErrorMessage;
   setTemporaryTodo: (todo: Omit<Todo, 'id'> | null) => void;
   showError: (message:ErrorMessage) => void;
-  todoFilter: Filter;
   setTodoFilter: (filter:Filter) => void;
 };
 
@@ -26,14 +25,11 @@ type TodosProviderProps = {
 
 export const TodosProvider = ({ children, userId }: TodosProviderProps) => {
   const [errorMessage, showError] = useState<ErrorMessage>(ErrorMessage.none);
-  const { ...rest } = useTodos(userId, () => {
-    showError(ErrorMessage.load);
-  });
+  const { ...rest } = useTodos(userId, () => showError(ErrorMessage.load));
 
   const [temporaryTodo, setTemporaryTodo] = useState<TemporaryTodo>(
     null,
   );
-  const [todoFilter, setTodoFilter] = useState<Filter>(Filter.All);
 
   return (
     <TodoContext.Provider value={{
@@ -43,8 +39,6 @@ export const TodosProvider = ({ children, userId }: TodosProviderProps) => {
       setTemporaryTodo,
       errorMessage,
       showError,
-      todoFilter,
-      setTodoFilter,
     }}
     >
       {children}

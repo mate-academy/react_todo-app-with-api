@@ -1,23 +1,67 @@
+import {
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { TodoService } from '../../api/todos';
 import { useToDoContext } from '../../context/ToDo.context';
 import { Todo } from '../../types/Todo';
+import { ErrorMessage } from '../../types/Error';
 
 export const useAddTodo = () => {
+  const [title, setTitle] = useState<string>('');
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const {
-    addTodo: addTodoLocally,
+    todos,
+    addTodo,
     userId,
     setTemporaryTodo,
+    showError,
   } = useToDoContext();
 
-  const addTodo = (toDo: Omit<Todo, 'id' | 'userId'>) => {
-    const todoToSave = { ...toDo, userId, title: toDo.title.trim() };
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [title, isDisabled, todos]);
 
-    setTemporaryTodo(todoToSave);
+  const onAddTodo = (form: FormEvent) => {
+    form.preventDefault();
+    if (!title.trim()) {
+      showError(ErrorMessage.title);
 
-    return TodoService.addTodo(todoToSave)
-      .then(addTodoLocally)
-      .finally(() => setTemporaryTodo(null));
+      return;
+    }
+
+    setIsDisabled(true);
+    const tempTodo = {
+      userId,
+      completed: false,
+      title: title.trim(),
+    } as Todo;
+
+    setTemporaryTodo(tempTodo);
+
+    TodoService.addTodo(tempTodo)
+      .then((newTodo) => {
+        addTodo(newTodo);
+        setTitle('');
+      })
+      .catch(() => showError(ErrorMessage.add))
+      .finally(() => {
+        setTemporaryTodo(null);
+        setIsDisabled(false);
+      });
   };
 
-  return { addTodo };
+  return {
+    addTodo,
+    title,
+    isDisabled,
+    onChangeTitle: (value: string) => setTitle(value),
+    onAddTodo,
+    inputRef,
+  };
 };

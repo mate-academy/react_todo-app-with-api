@@ -1,36 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { TodoService } from '../api/todos';
+import { Filter } from '../components/ToDoFooter/types';
 
 export const useTodos = (userId: number, onError: () => void) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [list, setList] = useState<Todo[]>([]);
+  const [todoFilter, setTodoFilter] = useState<Filter>(Filter.All);
 
   const addTodo = (todo: Todo) => {
-    setTodos((current) => [...current, todo]);
+    setList((current) => [...current, todo]);
 
     return todo;
   };
 
-  const editTodo = (todo: Todo) => {
-    setTodos((current) => current.map((v) => (v.id === todo.id ? todo : v)));
+  const onEditTodo = (todo: Todo) => {
+    setList((current) => current.map((v) => (v.id === todo.id ? todo : v)));
 
     return todo;
   };
 
   const removeTodo = (toDoId: number) => {
-    setTodos((current) => current.filter((v) => v.id !== toDoId));
+    setList((current) => current.filter((v) => v.id !== toDoId));
   };
 
   useEffect(() => {
     TodoService.getTodos(userId)
-      .then(setTodos)
+      .then(setList)
       .catch(onError);
   }, [userId]);
 
   return {
-    todos,
+    filter: todoFilter,
+    todos: useMemo(() => ({
+      all: list,
+      active: list.filter(({ completed }) => !completed),
+      completed: list.filter(({ completed }) => completed),
+      selected: todoFilter === Filter.All ? list : list
+        .filter(todo => (todo.completed && todoFilter === Filter.Completed)
+        || (!todo.completed && todoFilter === Filter.Active)),
+    }), [list, todoFilter]),
     addTodo,
-    editTodo,
+    onEditTodo,
     removeTodo,
+    setTodoFilter: (state:Filter) => setTodoFilter(state),
   };
 };
