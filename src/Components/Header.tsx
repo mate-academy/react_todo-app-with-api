@@ -68,9 +68,7 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      <form
-        onSubmit={onFormSubmit}
-      >
+      <form onSubmit={onFormSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

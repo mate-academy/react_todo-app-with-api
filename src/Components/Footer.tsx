@@ -16,12 +16,12 @@ export const Footer: React.FC<Props> = ({
   setCondition,
   handleClearCompletedTodos,
 }) => {
-  const todosNoComleted = todos.filter(todo => !todo.completed).length;
+  const activeTodos = todos.filter(todo => !todo.completed).length;
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${todosNoComleted} item${todosNoComleted !== 1 ? 's' : ''} left`}
+        {`${activeTodos} item${activeTodos !== 1 ? 's ' : ''} left`}
       </span>
       <NavMenu condition={condition} setCondition={setCondition} />
       <button
