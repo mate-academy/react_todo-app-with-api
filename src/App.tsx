@@ -1,19 +1,17 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { Error } from './types/Error';
 import { getTodos } from './api/todos';
-import * as postService from './api/todos';
+import * as todosApi from './api/todos';
 import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
 import { TodoItem } from './components/TodoItem';
 import { TodoStatus } from './components/TodoStatus';
 import { TodoError } from './components/TodoError';
 import { USER_ID } from './api/userId';
-import { client } from './utils/fetchClient';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -24,7 +22,6 @@ export const App: React.FC = () => {
   const [areSubmiting, setAreSubmiting] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletingIds, setDeletingIds] = useState<number[]>([]);
-  const [togglingId, setTogglingId] = useState<number | null>(null);
   const [wasEdited, setWasEdited] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +59,7 @@ export const App: React.FC = () => {
     setErrorMessage(Error.None);
     setWasEdited(false);
 
-    return postService.createTodo({ userId, title, completed })
+    return todosApi.createTodo({ userId, title, completed })
       .then((newTodo: Todo) => {
         setTodos(currentTodos => [...currentTodos, newTodo]);
       })
@@ -102,7 +99,7 @@ export const App: React.FC = () => {
 
   const onDelete = (todoId: number) => {
     setDeletingIds((ids) => [...ids, todoId]);
-    postService.deleteTodo(todoId)
+    todosApi.deleteTodo(todoId)
       .then(() => setTodos(
         currentTodos => currentTodos.filter(
           todo => todo.id !== todoId,
@@ -128,8 +125,7 @@ export const App: React.FC = () => {
       return;
     }
 
-    client
-      .patch(`/todos/${todoId}`, { completed: !todoToToggle.completed })
+    todosApi.updateTodo(todoId, { completed: !todoToToggle.completed })
       .catch(() => setErrorMessage(Error.Toggle))
       .finally(() => {
         setTogglingId(null);
@@ -140,8 +136,11 @@ export const App: React.FC = () => {
   const toggleAll = () => {
     const allTodosAreCompleted = todos.length === completedTodos.length;
 
-    const promiseArray = (allTodosAreCompleted ? completedTodos : activeTodos)
-      .map((todo: { id: number; completed: boolean; }) => client.patch(`/todos/${todo.id}`, { completed: !todo.completed }));
+    const promiseArray = (allTodosAreCompleted
+      ? completedTodos
+      : activeTodos).map((todo: { id: number; completed: boolean; }) => {
+      return todosApi.updateTodo(todo.id, { completed: !todo.completed });
+    });
 
     setAreSubmiting(true);
 
@@ -156,8 +155,7 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (todoId: number, data: Todo) => {
-    return client
-      .patch<Todo>(`/todos/${todoId}`, data)
+    return todosApi.updateTodo(todoId, data)
       .then(receivedTodo => {
         setTodos(todos.map(todo => (todo.id === todoId ? receivedTodo : todo)));
       })
@@ -191,7 +189,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-
           {todos.length !== 0 && (
             <button
               type="button"
@@ -222,7 +219,6 @@ export const App: React.FC = () => {
               onDelete={onDelete}
               deletingIds={deletingIds}
               onToggle={onToggle}
-              togglingId={togglingId}
               onUpdate={updateTodo}
               isSubmiting={isSubmiting}
               areSubmiting={areSubmiting}
@@ -268,3 +264,5 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
+export default App;
