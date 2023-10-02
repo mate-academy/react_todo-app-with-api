@@ -113,6 +113,19 @@ export const App: React.FC = () => {
     completedTodoIds.forEach((id) => removeTodo(id));
   };
 
+  const handleToggleAll = () => {
+    const areAllTodosCompleted = todos.every((todo) => todo.completed);
+    const updatedTodos = todos.map((todo) => ({
+      ...todo,
+      completed: !areAllTodosCompleted,
+    }));
+
+    setTodos(updatedTodos);
+    updatedTodos.forEach((updatedTodo) => {
+      updateTodos(updatedTodo).catch(() => setErrorMesssage(Errors.update));
+    });
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -124,6 +137,7 @@ export const App: React.FC = () => {
           title={title}
           setTitle={setTitle}
           todos={todos}
+          handleToggleAll={handleToggleAll}
         />
 
         {filteredTodos.length > 0 && (

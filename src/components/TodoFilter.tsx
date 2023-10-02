@@ -21,7 +21,6 @@ export const TodoFilter: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-
         {Object.values(Filters).map((filterType:Filters) => (
           <a
             key={`filter_${filterType}`}

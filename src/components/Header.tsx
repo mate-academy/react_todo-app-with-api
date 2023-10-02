@@ -7,6 +7,7 @@ type Props = {
   title: string,
   setTitle: (title: string) => void,
   todos: Todo[]
+  handleToggleAll: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const Header: React.FC<Props> = ({
   title,
   setTitle,
   todos,
+  handleToggleAll,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +34,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__toggle-all active"
           aria-label="toggle all active"
           data-cy="ToggleAllButton"
-          disabled={isDisable}
+          onClick={handleToggleAll}
         />
       )}
 

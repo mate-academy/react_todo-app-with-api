@@ -76,7 +76,7 @@ export const TodoItem: React.FC<Props> = ({
           <input
             data-cy="TodoEditInput"
             type="text"
-            className="todo__edit-title"
+            className="todo__title-field"
             value={editedTitle}
             onChange={handleInputChange}
             onBlur={handleEditSubmit}
