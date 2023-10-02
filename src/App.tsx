@@ -121,8 +121,13 @@ export const App: React.FC = () => {
     const isNewCompleted = todos.some(todo => !todo.completed);
 
     const todosToChange = todos
-      .filter(currentTodo => isNewCompleted !== currentTodo.completed)
-      .map(currentTodo => ({ ...currentTodo, completed: isNewCompleted }));
+      .reduce((acc: Todo[], currentTodo: Todo) => {
+        if (isNewCompleted !== currentTodo.completed) {
+          acc.push({ ...currentTodo, completed: isNewCompleted });
+        }
+
+        return acc;
+      }, []);
 
     setLoadingTodosIds(todosToChange.map((current) => current.id));
     Promise.allSettled(todosToChange
