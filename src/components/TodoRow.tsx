@@ -1,19 +1,69 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo,
-  key: number,
+  onTodoDelete?: () => void,
+  onTodoRename?: (todoTitle: string) => void,
+  onTodoToggle?: () => void,
+  isProcessing?: boolean,
 };
 
 export const TodoRow: React.FC<Props> = ({
   todo,
-  key,
+  onTodoDelete = () => { },
+  onTodoRename = () => { },
+  onTodoToggle = () => { },
+  isProcessing = false,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [todoTitle, setTodoTitle] = useState(todo.title);
+  const titleInput = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing && titleInput.current) {
+      titleInput.current.focus();
+    }
+  }, [isEditing]);
+  const handleTodoDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
+  };
+
+  const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (todoTitle.trim()) {
+      if (todoTitle.trim() !== todo.title) {
+        await onTodoRename(todoTitle.trim());
+      }
+    } else {
+      await onTodoDelete();
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleEscPressed = async (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.keyCode === 27) {
+      if (todoTitle.trim()) {
+        await onTodoRename(todoTitle.trim());
+      } else {
+        await onTodoDelete();
+      }
+
+      setIsEditing(false);
+    }
+  };
+
   return (
     <div
-      key={key}
       data-cy="Todo"
       className={cn(
         'todo',
@@ -25,29 +75,53 @@ export const TodoRow: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          defaultChecked={todo.completed}
+          checked={todo.completed}
+          onClick={onTodoToggle}
         />
       </label>
+      {isEditing ? (
+        <form
+          onSubmit={handleTodoSave}
+          onBlur={handleTodoSave}
+        >
+          <input
+            ref={titleInput}
+            onKeyUp={handleEscPressed}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={todoTitle}
+            onChange={onTitleChange}
+          />
+        </form>
+      ) : (
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleTodoDoubleClick}
+          >
+            {todo.title}
+          </span>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-      >
-        ×
-      </button>
-
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={onTodoDelete}
+          >
+            ×
+          </button>
+        </>
+      )}
       {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn(
           'modal',
           'overlay',
-          { 'is-active': false },
+          { 'is-active': isProcessing },
         )}
       >
         <div className="modal-background has-background-white-ter" />
