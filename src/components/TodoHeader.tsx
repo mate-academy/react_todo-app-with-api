@@ -18,6 +18,7 @@ export const TodoHeader: React.FC<Props> = ({
   const [todoTitle, setTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const titleInput = useRef<HTMLInputElement | null>(null);
+
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsAdding(true);

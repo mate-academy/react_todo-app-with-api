@@ -16,15 +16,19 @@ export const App: React.FC = () => {
   const [filterOption, setFilterOption] = useState(SelectFilter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+
   const isEveryCompleted = useMemo(() => todos.every(todo => todo.completed),
     [todos]);
+
   const isAnyCompleted = useMemo(() => todos.some(todo => todo.completed),
     [todos]);
+
   const activeTodosCounter = useMemo(() => {
     const activeTodos = todos.filter(todo => !todo.completed).length;
 
     return activeTodos;
   }, [todos]);
+
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (filterOption) {
@@ -196,8 +200,6 @@ export const App: React.FC = () => {
             />
           )}
         </section>
-
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
