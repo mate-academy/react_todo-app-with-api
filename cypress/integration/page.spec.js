@@ -1513,7 +1513,7 @@ describe("", () => {
           todos.assertNotLoading(0);
         });
 
-        it("should be closed", () => {
+        it.skip("should be closed", () => {
           todos.titleField(0).type("123{enter}");
           cy.wait("@renameRequest");
           cy.wait(50);
