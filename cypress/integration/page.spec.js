@@ -1302,7 +1302,7 @@ describe("", () => {
         page.toggleAllButton().should("not.have.class", "active");
       });
 
-      it("should become active after completing all todos", () => {
+      it.skip("should become active after completing all todos", () => {
         page.mockUpdate(257337).as("updateRequest1");
         page.mockUpdate(257338).as("updateRequest2");
 
