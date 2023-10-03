@@ -1013,7 +1013,7 @@ describe("", () => {
         todos.assertNotLoading(0);
       });
 
-      it.skip"should update the counter", () => {
+      it.skip("should update the counter", () => {
         page.todosCounter().should("have.text", "3 items left");
       });
 
