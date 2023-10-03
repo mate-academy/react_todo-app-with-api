@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Todo } from '../types/Todo';
 import { updateTodos } from '../api/todos';
 import { Errors } from '../types/Errors';
@@ -13,18 +13,16 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, removeTodo, isLoading, onTodoClick,
+  todo,
+  removeTodo,
+  isLoading,
+  onTodoClick,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleDoubleClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleEditSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+  const handleEditSubmit = () => {
     if (!editedTitle.trim()) {
       removeTodo(todo.id);
     } else if (editedTitle !== todo.title) {
@@ -32,23 +30,47 @@ export const TodoItem: React.FC<Props> = ({
 
       setEditedTitle(updatedTodo.title);
       setIsEditing(false);
+
       updateTodos(updatedTodo)
-        .catch(() => setErrorMessage(Errors.update));
+        .then(() => {
+          setErrorMessage('');
+        })
+        .catch(() => {
+          setErrorMessage(Errors.update);
+        });
     } else {
       setIsEditing(false);
     }
   };
 
-  const handleEscapeKey = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      setEditedTitle(todo.title);
-      setIsEditing(false);
-    }
+  const handleTitleDoubleClick = () => {
+    setIsEditing(true);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedTitle(event.target.value);
+  const handleTitleBlur = () => {
+    handleEditSubmit();
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleEditSubmit();
+      } else if (event.key === 'Escape') {
+        setEditedTitle(todo.title);
+        setIsEditing(false);
+      }
+    };
+
+    if (isEditing) {
+      window.addEventListener('keydown', handleKeyPress);
+    } else {
+      window.removeEventListener('keydown', handleKeyPress);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isEditing, editedTitle, todo]);
 
   return (
     <div
@@ -72,15 +94,17 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleEditSubmit}>
+        <form onSubmit={(e) => {
+          e.preventDefault(); handleEditSubmit();
+        }}
+        >
           <input
             data-cy="TodoEditInput"
             type="text"
             className="todo__title-field"
             value={editedTitle}
-            onChange={handleInputChange}
-            onBlur={handleEditSubmit}
-            onKeyUp={handleEscapeKey}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            onBlur={handleTitleBlur}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
@@ -90,9 +114,9 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={handleTitleDoubleClick}
           >
-            {todo.title}
+            {editedTitle}
           </span>
 
           <button
@@ -103,14 +127,6 @@ export const TodoItem: React.FC<Props> = ({
           >
             ×
           </button>
-
-          <div
-            data-cy="TodoLoader"
-            className={`modal overlay ${isLoading ? 'is-active' : ''}`}
-          >
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
 
           {errorMessage && (
             // eslint-disable-next-line max-len
