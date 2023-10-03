@@ -109,7 +109,6 @@ export const TodoRow: React.FC<Props> = ({
           </button>
         </>
       )}
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn(
