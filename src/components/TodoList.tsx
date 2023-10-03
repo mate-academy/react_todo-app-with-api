@@ -6,6 +6,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   filteredTodos,
   handleTodoDelete,
   handleTodoToggle,
+  handleTodoUpdate,
   isLoading,
   tempTodo,
 }) => {
@@ -18,6 +19,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           isLoading={isLoading[todo.id]}
           handleTodoDelete={handleTodoDelete}
           handleTodoToggle={handleTodoToggle}
+          handleTodoUpdate={handleTodoUpdate}
         />
       ))}
       {tempTodo && (
@@ -25,6 +27,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           todo={tempTodo}
           handleTodoToggle={handleTodoToggle}
           handleTodoDelete={handleTodoDelete}
+          handleTodoUpdate={handleTodoUpdate}
           isLoading={isLoading[tempTodo.id]}
         />
       )}

@@ -52,6 +52,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<Record<number, boolean>>({
     0: true,
   });
+
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(true);
   const [currentFilter, setCurrentFilter] = useState<FilterType>(
@@ -140,19 +141,34 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleTodoUpdate = async (todoId: number, newTitle: string) => {
+    const originalTodos = [...todos];
+
+    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
+      ? { ...todo, title: newTitle }
+      : todo)));
+    try {
+      await updateTodo(todoId, { title: newTitle });
+      // setErrorMessage("Przykładowy błąd");
+    } catch (error) {
+      setTodos(originalTodos);
+      handleErrorMessage(setErrorMessage, 'Unable to update a todo');
+    }
+  };
+
   const handleTodoDelete = async (todoId: number) => {
     setIsLoading({ ...isLoading, [todoId]: true });
     try {
       await deleteTodo(todoId);
       setTodos((currentTodos) => currentTodos
         .filter((todo) => todo.id !== todoId));
+
+      setIsLoading({ ...isLoading, [todoId]: false });
     } catch (error) {
       handleErrorMessage(setErrorMessage, 'Unable to delete a todo');
     } finally {
       setIsInputFocused(true);
     }
-
-    setIsLoading({ ...isLoading, [todoId]: false });
   };
 
   const toggleAllTodos = () => {
@@ -213,6 +229,7 @@ export const App: React.FC = () => {
             filteredTodos={filteredTodos}
             handleTodoDelete={handleTodoDelete}
             handleTodoToggle={handleTodoToggle}
+            handleTodoUpdate={handleTodoUpdate}
             isLoading={isLoading}
             tempTodo={tempTodo}
           />
