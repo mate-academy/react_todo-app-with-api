@@ -2,7 +2,6 @@
 import React, {
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Todo } from './types/Todo';
@@ -16,6 +15,7 @@ import { ErrorMessage } from './components/ErrorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -26,15 +26,20 @@ export const App: React.FC = () => {
   const [inputFocus, setInputFocus] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+
     todoService
       .getTodos()
-      .then(setTodos)
+      .then((data) => {
+        setTodos(data);
+        setLoading(false);
+      })
       .catch(() => {
         setErrorMessage('Unable to load todos');
+        setLoading(false);
       });
   }, []);
 
-  const timerId = useRef<number>(0);
   const activeTodosCount = todos.filter(({ completed }) => !completed).length;
   const isAnyTodoCompleted = todos.some(({ completed }) => completed);
 
@@ -47,13 +52,13 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
+    const timeoutId = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [errorMessage]);
 
   const filteredTodos = useMemo(() => {
@@ -176,17 +181,21 @@ export const App: React.FC = () => {
           inputFocus={inputFocus}
         />
         <section className="todoapp__main" data-cy="TodoList">
-          {filteredTodos.map(todo => (
-            <TodoRow
-              todo={todo}
-              key={todo.id}
-              onTodoDelete={() => handleDeleteTodo(todo.id)}
-              onTodoRename={(todoTitle) => handleRenameTodo(todo, todoTitle)}
-              isProcessing={processingTodoIds.includes(todo.id)}
-              toggleTodo={() => handleToggleTodo(todo)}
-              onTodoRenameError={setErrorMessage}
-            />
-          ))}
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            filteredTodos.map((todo) => (
+              <TodoRow
+                todo={todo}
+                key={todo.id}
+                onTodoDelete={() => handleDeleteTodo(todo.id)}
+                onTodoRename={(todoTitle) => handleRenameTodo(todo, todoTitle)}
+                isProcessing={processingTodoIds.includes(todo.id)}
+                toggleTodo={() => handleToggleTodo(todo)}
+                onTodoRenameError={setErrorMessage}
+              />
+            ))
+          )}
 
           {tempTodo && (
             <TodoRow
