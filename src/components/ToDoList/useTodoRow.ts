@@ -49,13 +49,16 @@ export const useTodoRow = (
   });
 
   const handleEdit = (event:FormEvent) => {
+    const title = editedTitle.trim();
+
     event.preventDefault();
     if (!useTodo || !editTodo) {
       return;
     }
 
-    if (editedTitle.trim() === useTodo.title) {
+    if (title === useTodo.title) {
       editTodo(null);
+      setEditedTitle('');
 
       return;
     }
@@ -66,7 +69,7 @@ export const useTodoRow = (
       return;
     }
 
-    saveTodo({ ...useTodo, title: editedTitle.trim() })
+    saveTodo({ ...useTodo, title })
       .then(() => {
         setEditedTitle('');
         editTodo(null);
