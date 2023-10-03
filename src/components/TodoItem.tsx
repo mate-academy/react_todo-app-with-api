@@ -1,34 +1,42 @@
-import className from 'classnames';
-import { Todo } from '../types/Todo';
+import { useEffect } from 'react';
+import classNames from 'classnames';
+import { Error } from '../types/Error';
 
 type Props = {
-  tempTodo: Todo | null,
-  isSubmiting: boolean,
+  error: Error,
+  onErrorChange: (error: Error) => void,
 };
 
-export const TodoItem: React.FC<Props> = ({
-  tempTodo,
-  isSubmiting,
-}) => {
+export const TodoError: React.FC<Props> = ({ error, onErrorChange }) => {
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (error) {
+      timeoutId = setTimeout(() => {
+        onErrorChange(Error.None);
+      }, 3000);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [error, onErrorChange]);
+
   return (
-    <>
-      <div className="todo">
-        <label className="todo__status-label">
-          <input
-            type="checkbox"
-            className="todo__status"
-            checked
-          />
-        </label>
-        <span className="todo__title">{tempTodo?.title}</span>
-        <div className={className('modal overlay', {
-          'is-active': isSubmiting,
-        })}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      </div>
-    </>
+    <div className={classNames('notification',
+      'is-danger is-light has-text-weight-normal', {
+        hidden: error === Error.None,
+      })}
+    >
+      <button
+        type="button"
+        className="delete"
+        onClick={() => onErrorChange(Error.None)}
+        aria-label="close the error window"
+      />
+      {error}
+    </div>
   );
 };
