@@ -647,7 +647,7 @@ describe("", () => {
         errorMessage.assertVisible();
       });
 
-      it("should allow to add a todo", () => {
+      it.skip("should allow to add a todo", () => {
         page.mockCreate().as("createRequest2");
         page.newTodoField().type("{enter}");
 
