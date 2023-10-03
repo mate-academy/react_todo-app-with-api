@@ -59,14 +59,6 @@ export const Todos: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main">
-      {tempTodo && (
-        <div
-          className={classNames('todo', 'loading')}
-          key={tempTodo.id}
-        >
-          <span className="loader" />
-        </div>
-      )}
       {todos.map((todo) => (
         <div
           className={classNames('todo', {
@@ -81,7 +73,11 @@ export const Todos: React.FC<Props> = ({
                 className="edit"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                onBlur={() => handleEditBlur(todo.id)}
+                onBlur={(e) => {
+                  if (e.relatedTarget === null) {
+                    handleEditBlur(todo.id);
+                  }
+                }}
                 onKeyUp={(e) => handleEditKey(e, todo.id)}
               />
             </form>
@@ -121,6 +117,14 @@ export const Todos: React.FC<Props> = ({
           </div>
         </div>
       ))}
+      {tempTodo && (
+        <div
+          className={classNames('todo', 'loading')}
+          key={tempTodo.id}
+        >
+          <span className="loader" />
+        </div>
+      )}
     </section>
   );
 };

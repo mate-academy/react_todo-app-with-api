@@ -13,7 +13,7 @@ Toggle the `completed` status on `TodoStatus` change:
 
 - covered the todo with a loader overlay while wating for API response;
 - the status should be changed on success;
-- show the `Unable to update a todo` notification in case of API error.
+- show the `Unable to update a todo` notification in case of API error.z
 
 Add the ability to toggle the completed status of all the todos with the `toggleAll` checkbox:
 

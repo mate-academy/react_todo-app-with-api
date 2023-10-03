@@ -50,10 +50,10 @@ export const App: React.FC = () => {
   }), [filter, todos]);
 
   function deleteTodo(todoId: number) {
-    setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
-
     return deleteTodos(todoId)
-      .then(() => { })
+      .then(() => {
+        setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
+      })
       .catch((Error) => {
         showError(ErrorType.Delete);
         throw Error;
@@ -89,20 +89,41 @@ export const App: React.FC = () => {
 
   function todoStatusAll() {
     const updatedIsAllCompleted = !isAllCompleted;
-    const updatedTodos = todos.map((todo) => ({
-      ...todo,
-      completed: updatedIsAllCompleted,
-    }));
+    let updatedTodos = [];
 
-    setTodos(updatedTodos);
-    setIsAllCompleted(updatedIsAllCompleted);
-
-    updatedTodos.map(todo => updateTodo(todo)
-      .then(() => { })
-      .catch((Error) => {
-        showError(ErrorType.Update);
-        throw Error;
+    if (isAllCompleted === false) {
+      updatedTodos = todos.map((todo) => ({
+        ...todo,
+        completed: updatedIsAllCompleted,
       }));
+
+      setTodos(updatedTodos);
+      setIsAllCompleted(updatedIsAllCompleted);
+
+      updatedTodos.map(todo => updateTodo(todo)
+        .then(() => { })
+        .catch((Error) => {
+          showError(ErrorType.Update);
+          throw Error;
+        }));
+    }
+
+    if (isAllCompleted === true) {
+      updatedTodos = todos.map((todo) => ({
+        ...todo,
+        completed: updatedIsAllCompleted,
+      }));
+
+      setTodos(updatedTodos);
+      setIsAllCompleted(updatedIsAllCompleted);
+
+      updatedTodos.map(todo => updateTodo(todo)
+        .then(() => { })
+        .catch((Error) => {
+          showError(ErrorType.Update);
+          throw Error;
+        }));
+    }
   }
 
   function clearCompleted() {
@@ -156,7 +177,9 @@ export const App: React.FC = () => {
 
     if (todoToUpdateOnServer) {
       return updateTodo(todoToUpdateOnServer)
-        .then(() => { })
+        .then(() => {
+          setTodos(todos);
+        })
         .catch((Error) => {
           showError(ErrorType.Update);
           throw Error;
