@@ -5,6 +5,8 @@ export interface Todo {
   completed: boolean;
 }
 
+export type FilterType = 'All' | 'Active' | 'Completed';
+
 export enum ErrorType {
   EmptyTitle = 'Title should not be empty',
   UnableToAddTodo = 'Unable to add a todo',

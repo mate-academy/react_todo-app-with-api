@@ -1,10 +1,10 @@
 import React from 'react';
-import { Todo } from '../types/Todo';
+import { Todo, FilterType } from '../types/Todo';
 
 type FooterProps = {
   todos: Todo[];
-  filterType: 'All' | 'Active' | 'Completed';
-  changeFilterStatus: (type: 'All' | 'Active' | 'Completed') => void;
+  filterType: FilterType;
+  changeFilterStatus: (type: FilterType) => void;
   handleClearCompleted: () => void;
 };
 

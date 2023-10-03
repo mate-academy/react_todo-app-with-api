@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ErrorType, Todo } from '../types/Todo';
-import { updateTodo } from '../api/todos';
 
 type TodoItemProps = {
   todo: Todo;
@@ -8,6 +7,7 @@ type TodoItemProps = {
   handleToggleComplete: (todo: Todo) => void;
   isLoading: boolean;
   handleErrorMessage: (message: ErrorType | null) => void;
+  handleTitleUpdate: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -16,6 +16,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   handleToggleComplete,
   isLoading,
   handleErrorMessage,
+  handleTitleUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -39,9 +40,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         setIsEditingLoading(true);
         const trimmedTitle = editedTitle.trim();
 
-        await updateTodo(todo.id, { title: trimmedTitle });
-        // eslint-disable-next-line no-param-reassign
-        todo.title = trimmedTitle;
+        handleTitleUpdate(todo.id, trimmedTitle);
       } catch (error) {
         handleErrorMessage(ErrorType.UnableToUpdateTodo);
 

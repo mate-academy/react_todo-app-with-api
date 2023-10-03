@@ -1,8 +1,9 @@
 import classNames from 'classnames';
+import { ErrorType } from '../types/Todo';
 
 type ErrorPopupProps = {
   error: string | null;
-  setError: (error: string | null) => void;
+  setError: (error: ErrorType | null) => void;
 };
 export const ErrorPopup: React.FC<ErrorPopupProps> = ({ error, setError }) => {
   return (

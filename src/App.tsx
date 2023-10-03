@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ErrorType, Todo } from './types/Todo';
+import { ErrorType, FilterType, Todo } from './types/Todo';
 import {
   getTodos,
   postTodo,
@@ -14,13 +14,13 @@ const USER_ID = 11546;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<'All' | 'Active' | 'Completed'>(
+  const [error, setError] = useState<ErrorType | null>(null);
+  const [filterType, setFilterType] = useState<FilterType>(
     'All',
   );
   const [newTitle, setNewTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [TodoItem, setTodoItem] = useState<Todo | null>(null);
+  const [todoItem, setTodoItem] = useState<Todo | null>(null);
   const [currentTodoLoading, setCurrentTodoLoading] = useState<number | null>(
     null,
   );
@@ -56,14 +56,13 @@ export const App: React.FC = () => {
       userId: USER_ID,
     };
 
-    setTodoItem({ ...newTodo, id: 0 });
-
     if (!trimmedTitle) {
       handleErrorMessage(ErrorType.EmptyTitle);
 
       return;
     }
 
+    setTodoItem({ ...newTodo, id: 0 });
     setIsLoading(true);
 
     try {
@@ -138,7 +137,12 @@ export const App: React.FC = () => {
     }
   };
 
-  const changeFilterStatus = (type: 'All' | 'Active' | 'Completed') => {
+  const handleTitleUpdate = (todoId: number, newTodoTitle: string) => {
+    setTodos((prevTodos) => prevTodos.map((item) => (item.id === todoId
+      ? { ...item, title: newTodoTitle } : item)));
+  };
+
+  const changeFilterStatus = (type: FilterType) => {
     setFilterType(type);
   };
 
@@ -179,15 +183,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setError(null);
-    if (USER_ID) {
-      getTodos(USER_ID)
-        .then((data) => {
-          setTodos(data);
-        })
-        .catch(() => {
-          handleErrorMessage(ErrorType.UnableToLoadTodos);
-        });
-    }
+    getTodos(USER_ID)
+      .then((data) => {
+        setTodos(data);
+      })
+      .catch(() => {
+        handleErrorMessage(ErrorType.UnableToLoadTodos);
+      });
   }, []);
 
   return (
@@ -233,9 +235,10 @@ export const App: React.FC = () => {
               filterType={filterType}
               handleDeleteTodo={handleDeleteTodo}
               handleToggleComplete={handleToggleComplete}
-              todoItem={TodoItem}
+              todoItem={todoItem}
               currentTodoLoading={currentTodoLoading}
               handleErrorMessage={handleErrorMessage}
+              handleTitleUpdate={handleTitleUpdate}
             />
 
             <Footer

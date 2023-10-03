@@ -1,15 +1,17 @@
 import React from 'react';
-import { ErrorType, Todo } from '../types/Todo';
+import { ErrorType, Todo, FilterType } from '../types/Todo';
 import { TodoItem } from './TodoItem';
+import { TempTodoItem } from './TempTodoItem';
 
 type TodoListProps = {
   todos: Todo[];
-  filterType: 'All' | 'Active' | 'Completed';
+  filterType: FilterType;
   handleDeleteTodo: (todo: Todo) => void;
   handleToggleComplete: (todo: Todo) => void;
   todoItem: Todo | null;
   currentTodoLoading: number | null;
   handleErrorMessage: (message: ErrorType | null) => void;
+  handleTitleUpdate: (todoId: number, newTitle: string) => void;
 };
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -20,6 +22,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   todoItem,
   currentTodoLoading,
   handleErrorMessage,
+  handleTitleUpdate,
 }) => {
   const filterTodos = (todosArray: Todo[]) => {
     return todosArray.filter((todo) => {
@@ -45,18 +48,15 @@ export const TodoList: React.FC<TodoListProps> = ({
           handleToggleComplete={handleToggleComplete}
           isLoading={currentTodoLoading === todo.id}
           handleErrorMessage={handleErrorMessage}
+          handleTitleUpdate={handleTitleUpdate}
         />
       ))}
-      {todoItem && (
-        <TodoItem
-          key={todoItem.id}
-          todo={todoItem}
-          handleDeleteTodo={handleDeleteTodo}
-          handleToggleComplete={handleToggleComplete}
-          isLoading
-          handleErrorMessage={handleErrorMessage}
-        />
-      )}
+      {todoItem
+        && (
+          <TempTodoItem
+            todoItem={todoItem}
+          />
+        )}
     </section>
   );
 };
