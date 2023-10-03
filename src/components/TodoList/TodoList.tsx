@@ -53,20 +53,18 @@ export const TodoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map((todo) => {
-        return (
-          <TodoElement
-            key={todo.id}
-            todo={todo}
-            handleTodoStatusChange={handleTodoStatusChange}
-            setErrorMessage={setErrorMessage}
-            removeTodo={removeTodo}
-            setLoadingItems={setLoadingItems}
-            loadingItems={loadingItems}
-            updateTodos={updateTodos}
-          />
-        );
-      })}
+      {todos.map((todo) => (
+        <TodoElement
+          key={todo.id}
+          todo={todo}
+          handleTodoStatusChange={handleTodoStatusChange}
+          setErrorMessage={setErrorMessage}
+          removeTodo={removeTodo}
+          setLoadingItems={setLoadingItems}
+          loadingItems={loadingItems}
+          updateTodos={updateTodos}
+        />
+      ))}
       {tempTodo !== null && (
         <TodoElement
           todo={tempTodo}

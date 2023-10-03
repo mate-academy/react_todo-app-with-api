@@ -93,8 +93,7 @@ export const App: React.FC = () => {
           loadingItems={loadingItems}
         />
 
-        {/* Hide the footer if there are no todos */}
-        {todos.length !== 0 && (
+        {todos.length && (
           <Footer
             todos={todos}
             setTodos={setTodos}
@@ -107,7 +106,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
       <ErrorMessage
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}

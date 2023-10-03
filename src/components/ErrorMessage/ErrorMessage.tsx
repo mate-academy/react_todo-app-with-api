@@ -24,7 +24,7 @@ export const ErrorMessage: React.FC<Props> = ({
       className={
         classNames(
           ['notification is-danger is-light has-text-weight-normal'],
-          { hidden: errorMessage === '' },
+          { hidden: !errorMessage },
         )
       }
     >

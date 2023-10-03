@@ -63,7 +63,7 @@ export const TodoElement: React.FC<Props> = ({
       return;
     }
 
-    if (editedTitle === '') {
+    if (editedTitle) {
       handleDelete(todo.id);
 
       return;
@@ -161,7 +161,6 @@ export const TodoElement: React.FC<Props> = ({
         </>
       )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={
