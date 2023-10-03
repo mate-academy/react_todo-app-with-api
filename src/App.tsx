@@ -129,15 +129,36 @@ export const App: React.FC = () => {
   };
 
   const handleTodoToggle = async (todoId: number, completed: boolean) => {
-    const originalTodos = [...todos];
+    setIsLoading({ ...isLoading, [todoId]: true });
 
-    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
-      ? { ...todo, completed }
-      : todo)));
+    const originalTodos = [...todos];
+    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, completed } : todo)));
+
     try {
       await updateTodo(todoId, { completed });
     } catch (error) {
+      handleErrorMessage(setErrorMessage, 'Unable to update a todo');
       setTodos(originalTodos);
+    } finally {
+      setIsLoading({ ...isLoading, [todoId]: false });
+    }
+  };
+
+  const toggleAllTodos = async () => {
+    const allCompleted = todos.every((todo) => todo.completed);
+    const newStatus = !allCompleted;
+
+    const updatePromises = todos.map((todo) => {
+      if (todo.completed !== newStatus) {
+        return handleTodoToggle(todo.id, newStatus);
+      }
+      return Promise.resolve();
+    });
+
+    try {
+      await Promise.all(updatePromises);
+    } catch (error) {
+      handleErrorMessage(setErrorMessage, 'Unable to update all todos');
     }
   };
 
@@ -171,15 +192,15 @@ export const App: React.FC = () => {
     }
   };
 
-  const toggleAllTodos = () => {
-    const allCompleted = todos.every((todo) => todo.completed);
-    const toggledTodos = todos.map((todo) => ({
-      ...todo,
-      completed: !allCompleted,
-    }));
+  // const toggleAllTodos = () => {
+  //   const allCompleted = todos.every((todo) => todo.completed);
+  //   const toggledTodos = todos.map((todo) => ({
+  //     ...todo,
+  //     completed: !allCompleted,
+  //   }));
 
-    setTodos(toggledTodos);
-  };
+  //   setTodos(toggledTodos);
+  // };
 
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter((todo) => todo.completed);

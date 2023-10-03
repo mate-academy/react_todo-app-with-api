@@ -15,11 +15,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       const trimmedText = editableText.trim();
+
       if (!trimmedText) {
         handleTodoDelete(todo.id);
       } else {
         handleTodoUpdate(todo.id, trimmedText);
       }
+
       setIsEditing(false);
     } else if (event.key === 'Escape') {
       setEditableText(todo.title);
@@ -28,7 +30,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   };
 
   const handleBlur = () => {
-    setEditableText(todo.title);
+    const trimmedText = editableText.trim();
+
+    if (!trimmedText) {
+      handleTodoDelete(todo.id);
+    } else {
+      handleTodoUpdate(todo.id, trimmedText);
+    }
+
     setIsEditing(false);
   };
 

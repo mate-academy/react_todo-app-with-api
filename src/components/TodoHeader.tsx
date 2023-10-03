@@ -15,7 +15,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
       {filteredTodos.length > 0 && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={`todoapp__toggle-all ${filteredTodos.every((todo) => todo.completed) ? 'active' : ''}`}
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
           onClick={toggleAllTodos}
