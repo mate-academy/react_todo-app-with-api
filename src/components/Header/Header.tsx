@@ -1,30 +1,23 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
+import { TodoContext } from '../../utils/TodoContext';
+import { postTodo } from '../../api/todos';
 
-type Props = {
-  USER_ID: number;
-  todos: Todo[];
-  setErrorMessage: (message: string) => void
-  setTempTodo: (data: Todo | null) => void
-  updateTodos: (newTodo: Todo) => void
-  setLoadingItems: (id: (prevState: number[]) => number[]) => void
-  addTodo: (todo: Todo) => void
-};
-
-export const Header: React.FC<Props> = ({
-  USER_ID,
-  todos,
-  setErrorMessage,
-  setTempTodo,
-  updateTodos,
-  setLoadingItems,
-  addTodo,
-}) => {
+export const Header: React.FC = () => {
   const [value, setValue] = useState<string>('');
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
+
+  const {
+    setErrorMessage,
+    setTempTodo,
+    addTodo,
+    setLoadingItems,
+    USER_ID,
+    handlePatch,
+    todos,
+    setIsVisibleErrorMessage,
+  } = useContext(TodoContext);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -46,18 +39,15 @@ export const Header: React.FC<Props> = ({
       id: 0,
     });
 
-    setLoadingItems((prevState) => {
-      return [...prevState, 0];
-    });
-
-    client
-      .post<Todo>('/todos', data)
+    setLoadingItems((prevState) => [...prevState, 0]);
+    postTodo(data)
       .then((response) => {
         addTodo(response);
         setValue('');
       })
       .catch(() => {
         setErrorMessage('Unable to add a todo');
+        setIsVisibleErrorMessage(true);
       })
       .finally(() => {
         setLoadingItems((prevState) => {
@@ -84,31 +74,17 @@ export const Header: React.FC<Props> = ({
     }
 
     todosToChange.forEach((todo) => {
-      setLoadingItems((prevState) => [...prevState, todo.id]);
-
       const data = {
         ...todo,
         completed: !todo.completed,
       };
 
-      client
-        .patch<Todo>(`/todos/${todo.id}`, data)
-        .then(() => {
-          updateTodos(data);
-        })
-        .catch(() => {
-          setErrorMessage('Unable to update a todo');
-        })
-        .finally(() => {
-          setLoadingItems((prevState) => prevState
-            .filter((stateId) => todo.id !== stateId));
-        });
+      handlePatch(todo, data);
     });
   };
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
@@ -118,7 +94,6 @@ export const Header: React.FC<Props> = ({
         onClick={handleChangeStatusOfAllTodos}
       />
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"

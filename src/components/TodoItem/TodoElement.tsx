@@ -1,49 +1,35 @@
-import React, { FormEvent, useState } from 'react';
+import React, {
+  FormEvent, useContext, useRef, useState,
+} from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
-import { client } from '../../utils/fetchClient';
+import { TodoContext } from '../../utils/TodoContext';
 
 type Props = {
   todo: Todo
-  updateTodos: (todo: Todo) => void
-  handleTodoStatusChange: (todo: Todo) => void
-  setErrorMessage?: (message: string) => void
-  removeTodo?: (id: number) => void
-  loadingItems: number[]
-  setLoadingItems: (id: (prevState: number[]) => number[]) => void
 };
 
 export const TodoElement: React.FC<Props> = ({
   todo,
-  updateTodos,
-  handleTodoStatusChange,
-  setErrorMessage,
-  removeTodo,
-  loadingItems,
-  setLoadingItems,
 }) => {
   const [isEdited, setIsEdited] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
 
-  const handleDelete = (id: number) => {
-    setLoadingItems((prevState) => [...prevState, id]);
-    client.delete(`/todos/${id}`)
-      .then(() => {
-        if (removeTodo === undefined) {
-          return;
-        }
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-        removeTodo(id);
-      })
-      .catch(() => {
-        if (setErrorMessage === undefined) {
-          return;
-        }
+  const {
+    handlePatch,
+    handleDelete,
+    loadingItems,
+  } = useContext(TodoContext);
 
-        setErrorMessage('Unable to delete a todo');
-      })
-      .finally(() => setLoadingItems((prevState) => prevState
-        .filter((stateId) => id !== stateId)));
+  const handleTodoStatusChange = (newTodo: Todo) => {
+    const data = {
+      ...newTodo,
+      completed: !newTodo.completed,
+    };
+
+    handlePatch(newTodo, data);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -63,7 +49,7 @@ export const TodoElement: React.FC<Props> = ({
       return;
     }
 
-    if (editedTitle) {
+    if (editedTitle === '') {
       handleDelete(todo.id);
 
       return;
@@ -74,24 +60,8 @@ export const TodoElement: React.FC<Props> = ({
       title: editedTitle,
     };
 
-    setLoadingItems((prevState) => [...prevState, todo.id]);
-    client
-      .patch<Todo>(`/todos/${todo.id}`, data)
-      .then(() => {
-        updateTodos(data);
-        setEditedTitle('');
-        setIsEdited(false);
-      })
-      .catch(() => {
-        if (setErrorMessage === undefined) {
-          return;
-        }
-
-        setErrorMessage('Unable to update a todo');
-      })
+    handlePatch(todo, data)
       .finally(() => {
-        setLoadingItems((prevState) => prevState
-          .filter((stateId) => todo.id !== stateId));
         setEditedTitle('');
         setIsEdited(false);
       });
@@ -133,6 +103,7 @@ export const TodoElement: React.FC<Props> = ({
             value={editedTitle}
             onChange={(event) => setEditedTitle(event.target.value)}
             onKeyUp={(event) => handleKeyUp(event)}
+            ref={inputRef}
           />
         </form>
       )}
@@ -145,6 +116,13 @@ export const TodoElement: React.FC<Props> = ({
             onDoubleClick={() => {
               setIsEdited(true);
               setEditedTitle(todo.title);
+              setTimeout(() => {
+                if (inputRef.current === null) {
+                  return;
+                }
+
+                inputRef.current.focus();
+              }, 0);
             }}
           >
             {editedTitle || todo.title}

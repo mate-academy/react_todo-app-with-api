@@ -1,57 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
 import { Navigation } from '../Navigation';
 import { Filters } from '../../types/Filters';
-import { client } from '../../utils/fetchClient';
+import { TodoContext } from '../../utils/TodoContext';
 
 type Props = {
-  todos: Todo[]
-  setTodos: (callback: (todos: Todo[]) => Todo[]) => void
   filterTodos: Filters
   setFilterTodos: (option: Filters) => void
-  setErrorMessage: (message: string) => void
-  completedTodoCount: boolean
-  setLoadingItems: (id: (prevState: number[]) => number[]) => void
 };
 
 export const Footer: React.FC<Props> = ({
-  todos,
-  setTodos,
   filterTodos,
   setFilterTodos,
-  setErrorMessage,
-  completedTodoCount,
-  setLoadingItems,
 }) => {
+  const { todos, handleDelete } = useContext(TodoContext);
+
+  const completedTodoCount = todos.some(todo => todo.completed);
+
   const itemsLeft = (): number => {
     const activeTasks = todos.filter((task) => !task.completed);
 
     return activeTasks.length;
   };
 
-  const handleDelete = () => {
+  const deleteTodo = () => {
     const todosToDelete = todos.filter(
       (todo) => todo.completed,
     );
 
     todosToDelete.forEach((todo) => {
-      setLoadingItems((prevState) => {
-        return [...prevState, todo.id];
-      });
-      client.delete(`/todos/${todo.id}`)
-        .then(() => {
-          setTodos((prevState: Todo[]) => {
-            return prevState
-              .filter((toDelete: Todo) => toDelete.id !== todo.id);
-          });
-        })
-        .catch(() => {
-          setErrorMessage('Unable to delete a todo');
-        })
-        .finally(() => setLoadingItems((prevState) => {
-          return prevState.filter((id) => id !== todo.id);
-        }));
+      handleDelete(todo.id);
     });
   };
 
@@ -63,14 +41,13 @@ export const Footer: React.FC<Props> = ({
 
       <Navigation filterTodos={filterTodos} setFilterTodos={setFilterTodos} />
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className={classNames('todoapp__clear-completed', {
           'notification hidden': !completedTodoCount,
         })}
         data-cy="ClearCompletedButton"
-        onClick={handleDelete}
+        onClick={deleteTodo}
       >
         Clear completed
       </button>

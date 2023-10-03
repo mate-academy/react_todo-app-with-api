@@ -1,22 +1,33 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
-import React, { useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { TodoContext } from '../../utils/TodoContext';
 
-type Props = {
-  errorMessage: string;
-  setErrorMessage: (message: string) => void
-};
+export const ErrorMessage: React.FC = () => {
+  const {
+    errorMessage,
+    setErrorMessage,
+    setIsVisibleErrorMessage,
+  } = useContext(TodoContext);
 
-export const ErrorMessage: React.FC<Props> = ({
-  errorMessage,
-  setErrorMessage,
-}) => {
   const message = useRef(errorMessage);
 
   if (errorMessage) {
     message.current = errorMessage;
-    setTimeout(() => setErrorMessage(''), 3000);
   }
+
+  useEffect(() => {
+    function onTimeout() {
+      setErrorMessage('');
+      setTimeout(() => setIsVisibleErrorMessage(false), 1000);
+    }
+
+    const timeoutId = setTimeout(onTimeout, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [errorMessage]);
 
   return (
     <div
@@ -32,7 +43,10 @@ export const ErrorMessage: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => setErrorMessage('')}
+        onClick={() => {
+          setErrorMessage('');
+          setIsVisibleErrorMessage(false);
+        }}
       />
       {message.current}
     </div>
