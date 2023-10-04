@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-autofocus */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 import React, { useState, useRef } from 'react';
 import { TodoItemProps } from '../types/TodoItem';
 
