@@ -1,16 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import classNames from 'classnames';
+import { useTodos } from '../../TodoContext';
 
-type Props = {
-  errorMessage: string;
-  setErrorMessage: (newMessage: string) => void;
-};
+export const Error: React.FC = () => {
+  const { errorMessage, setErrorMessage } = useTodos();
 
-export const Error: React.FC<Props> = ({
-  errorMessage,
-  setErrorMessage = () => { },
-}) => {
   return (
     <div
       data-cy="ErrorNotification"

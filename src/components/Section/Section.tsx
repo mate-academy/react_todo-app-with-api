@@ -5,36 +5,34 @@ import {
 } from 'react-transition-group';
 import { useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
+import { useTodos } from '../../TodoContext';
 
 type Props = {
   visibleTodos: Todo[];
   onDelete?: (id: number) => void;
-  selectedId: number[] | null;
   isLoading: boolean;
   tempTodo: Todo | null;
   toggleStatus: (todo: Todo) => void;
-  isEditing: boolean;
-  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: (todo: Todo) => Promise<void>;
-  updatedTitle: string;
-  setUpdatedTitle: (title: string) => void;
-  setSelectedId: (id: number[] | null) => void;
 };
 
 export const Section: React.FC<Props> = ({
   visibleTodos,
   onDelete = () => { },
-  selectedId,
   isLoading,
   tempTodo,
   toggleStatus = () => { },
-  isEditing,
-  setIsEditing = () => { },
   onSubmit,
-  updatedTitle,
-  setUpdatedTitle = () => { },
-  setSelectedId = () => { },
 }) => {
+  const {
+    selectedId,
+    setSelectedId,
+    isEditing,
+    setIsEditing,
+    updatedTitle,
+    setUpdatedTitle,
+  } = useTodos();
+
   const inputReference = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {

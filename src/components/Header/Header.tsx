@@ -3,28 +3,27 @@
 import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { useTodos } from '../../TodoContext';
 
 type Props = {
   onSubmit: (todo: Todo) => Promise<void>;
-  todos: Todo[];
-  setErrorMessage: (message: string) => void;
   userId: number;
   isFocused: boolean;
-  newTitle: string;
-  setNewTitle: (title: string) => void;
   toggleAll: () => void;
 };
 
 export const Header: React.FC<Props> = ({
-  todos,
   onSubmit,
-  setErrorMessage = () => { },
   userId,
   isFocused,
-  newTitle,
-  setNewTitle = () => { },
   toggleAll = () => { },
 }) => {
+  const {
+    todos,
+    setErrorMessage,
+    newTitle,
+    setNewTitle,
+  } = useTodos();
   // #region state
   const inputReference = useRef<HTMLInputElement | null>(null);
   const amountCompletedTodo = todos.filter(todo => todo.completed).length;
