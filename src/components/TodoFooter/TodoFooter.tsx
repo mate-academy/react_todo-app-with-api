@@ -18,7 +18,7 @@ export const TodoFooter = () => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosAmount} ${activeTodosAmount === 1 ? 'item' : 'item'} left`}
+        {`${activeTodosAmount} ${activeTodosAmount === 1 ? 'item' : 'items'} left`}
       </span>
       <nav className="filter" data-cy="Filter">
         <a

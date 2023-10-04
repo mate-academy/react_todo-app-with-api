@@ -143,7 +143,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const updateTodoAction = (newTitle: string, id: number) => {
     if (newTitle.trim()) {
       setLoadingItems((prev) => [...prev, id]);
-      updateTodo(title, id)
+      updateTodo(newTitle, id)
         .then(() => {
           setTodos((prev) => prev.map((item) => {
             if (item.id === id) {

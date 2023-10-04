@@ -49,20 +49,29 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
     setIsInEdit(false);
   };
 
+  const resetChange = () => {
+    setIsInEdit(false);
+    setValue(todo.title);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       saveChange();
     }
 
     if (e.key === 'Escape') {
-      setValue(value);
       setIsInEdit(false);
+      resetChange();
     }
   };
 
   const handleBlur = () => {
-    if (isInEdit) {
+    if (isInEdit && value !== todo.title) {
       saveChange();
+    }
+
+    if (value === todo.title) {
+      resetChange();
     }
   };
 
