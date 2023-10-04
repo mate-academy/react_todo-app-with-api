@@ -26,6 +26,7 @@ export const App: React.FC = () => {
     handleEdit,
     editTodo,
     setEditTodo,
+    activeTodosId,
   } = useTodos(USER_ID);
 
   const counter = () => {
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
             handleEdit={handleEdit}
             editTodo={editTodo}
             setEditTodo={setEditTodo}
+            activeTodosId={activeTodosId}
           />
         )}
         {todos.length > 0 && (
@@ -83,6 +85,7 @@ export const App: React.FC = () => {
             filter={filter}
             setFilter={setFilter}
             handleClearCompleted={handleClearCompleted}
+            todos={visibleTodos()}
           />
         )}
       </div>

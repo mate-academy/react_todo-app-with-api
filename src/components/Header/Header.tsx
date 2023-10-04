@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import cn from 'classnames';
 
+import { useEffect, useRef } from 'react';
 import { Todo } from '../../types/Todo';
 
 type HeaderProps = {
@@ -20,6 +21,14 @@ export const Header: React.FC<HeaderProps> = ({
   isLoading,
   handleToggleButton,
 }) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading]);
+
   return (
     <header className="todoapp__header">
       {!!todos.length && (
@@ -31,7 +40,6 @@ export const Header: React.FC<HeaderProps> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
@@ -43,9 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
             setTitle(event.target.value);
           }}
           disabled={isLoading}
-          ref={(input) => input && input.focus()}
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
+          ref={inputRef}
         />
       </form>
     </header>

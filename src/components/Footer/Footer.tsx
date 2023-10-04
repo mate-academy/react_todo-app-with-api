@@ -1,16 +1,17 @@
 import cn from 'classnames';
-import { Filter } from '../../types/Todo';
+import { Filter, Todo } from '../../types/Todo';
 
 type FooterProps = {
   counter: number;
   filter: Filter;
   setFilter: (filter: Filter) => void;
   handleClearCompleted: () => void;
+  todos: Todo[];
 };
 
 export const Footer: React.FC<FooterProps> = (
   {
-    counter, filter, setFilter, handleClearCompleted,
+    counter, filter, setFilter, handleClearCompleted, todos,
   },
 ) => {
   return (
@@ -18,7 +19,6 @@ export const Footer: React.FC<FooterProps> = (
       <span className="todo-count" data-cy="TodosCounter">
         {`${counter} items left`}
       </span>
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -48,15 +48,16 @@ export const Footer: React.FC<FooterProps> = (
         </a>
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={() => handleClearCompleted()}
+        disabled={!todos.some(todo => todo.completed)}
       >
         Clear completed
       </button>
+
     </footer>
   );
 };

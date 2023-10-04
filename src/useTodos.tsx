@@ -12,6 +12,7 @@ export const useTodos = (USER_ID: number) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [editTodo, setEditTodo] = useState<Todo | null>(null);
+  const [activeTodosId, setActiveTodosId] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -56,20 +57,24 @@ export const useTodos = (USER_ID: number) => {
   };
 
   const handleDelete = (todoId: number) => {
+    setActiveTodosId(prev => [...prev, todoId]);
     deleteTodo(todoId).then(() => {
       setTodos((oldTodos) => oldTodos.filter(todo => todo.id !== todoId));
     }).catch(() => {
       handleError(setErrorMessage, ErrorMessage.noDeleteTodo);
-    });
+    }).finally(() => setActiveTodosId(activeTodosId
+      .filter(id => todoId !== id)));
   };
 
   const handleClearCompleted = () => {
     todos.filter(todo => todo.completed).forEach(todo => handleDelete(todo.id));
   };
 
-  const handleEdit = (e: React.FormEvent<HTMLFormElement>,
-    editedTodo: Todo, editedTitle: string) => {
-    e.preventDefault();
+  const handleEdit = (
+    editedTodo: Todo, editedTitle: string,
+    e?: React.FormEvent<HTMLFormElement>,
+  ) => {
+    e?.preventDefault();
     const trimTitle = editedTitle.trim();
     const newTodo = { ...editedTodo, title: trimTitle };
 
@@ -81,13 +86,14 @@ export const useTodos = (USER_ID: number) => {
     }
 
     if (trimTitle !== editedTodo.title) {
+      setActiveTodosId(prev => [...prev, editedTodo.id]);
       patchTodo(newTodo).then(() => {
         setTodos((oldTodos) => oldTodos
           .map(oldTodo => (oldTodo.id === newTodo.id ? newTodo : oldTodo)));
       }).catch(() => {
         handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
-      }).finally(() => {
-      });
+      }).finally(() => setActiveTodosId(activeTodosId
+        .filter(id => editedTodo.id !== id)));
     }
 
     setEditTodo(null);
@@ -96,13 +102,14 @@ export const useTodos = (USER_ID: number) => {
   const handleToggle = (todo: Todo) => {
     const newTodo: Todo = { ...todo, completed: !todo.completed };
 
+    setActiveTodosId(prev => [...prev, todo.id]);
     patchTodo(newTodo).then(() => {
       setTodos((oldTodos) => oldTodos
         .map(oldTodo => (oldTodo.id === newTodo.id ? newTodo : oldTodo)));
     }).catch(() => {
       handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
-    }).finally(() => {
-    });
+    }).finally(() => setActiveTodosId(activeTodosId
+      .filter(id => todo.id !== id)));
   };
 
   const handleToggleButton = () => {
@@ -131,5 +138,6 @@ export const useTodos = (USER_ID: number) => {
     handleEdit,
     editTodo,
     setEditTodo,
+    activeTodosId,
   };
 };
