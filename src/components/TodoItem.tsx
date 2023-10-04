@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Todo } from '../types/Todo';
 import { updateTodos } from '../api/todos';
 import { Errors } from '../types/Errors';
@@ -21,23 +21,35 @@ export const TodoItem: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleEditSubmit = () => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const handleEditSubmit = async () => {
     if (!editedTitle.trim()) {
       removeTodo(todo.id);
     } else if (editedTitle !== todo.title) {
+      setIsSaving(true);
+
       const updatedTodo = { ...todo, title: editedTitle };
 
       setEditedTitle(updatedTodo.title);
       setIsEditing(false);
 
-      updateTodos(updatedTodo)
-        .then(() => {
-          setErrorMessage('');
-        })
-        .catch(() => {
-          setErrorMessage(Errors.update);
-        });
+      try {
+        await updateTodos(updatedTodo);
+        setErrorMessage('');
+      } catch (error) {
+        setErrorMessage(Errors.update);
+      } finally {
+        setIsSaving(false);
+      }
     } else {
       setIsEditing(false);
     }
@@ -73,14 +85,15 @@ export const TodoItem: React.FC<Props> = ({
   }, [isEditing, editedTitle, todo]);
 
   return (
-    <div
-      data-cy="Todo"
-      className={`todo ${todo.completed ? 'completed' : ''}`}
-    >
-      <label
-        data-cy="TodoStatus"
-        className="todo__status-label"
-      >
+    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+      {(isLoading || isSaving) && (
+        <div className="modal overlay is-active">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
+
+      <label data-cy="TodoStatus" className="todo__status-label">
         <input
           type="checkbox"
           className="todo__status"
@@ -94,9 +107,11 @@ export const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={(e) => {
-          e.preventDefault(); handleEditSubmit();
-        }}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleEditSubmit();
+          }}
         >
           <input
             data-cy="TodoEditInput"
@@ -105,8 +120,7 @@ export const TodoItem: React.FC<Props> = ({
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
             onBlur={handleTitleBlur}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+            ref={inputRef}
           />
         </form>
       ) : (
@@ -123,7 +137,7 @@ export const TodoItem: React.FC<Props> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => !isLoading && removeTodo(todo.id)}
+            onClick={() => !(isLoading || isSaving) && removeTodo(todo.id)}
           >
             ×
           </button>

@@ -20,11 +20,11 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isDisable, setIsDisable] = useState<boolean>(false);
   const [loadingItems, setLoadingItems] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const setErrorMesssage = (message: string) => {
     if (message) {
       setErrorMesssageState(message);
-      setTimeout(() => setErrorMesssageState(''), 3000);
     } else {
       setErrorMesssageState('');
     }
@@ -51,8 +51,15 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    getTodos(USER_ID).then(setTodos)
-      .catch(() => setErrorMesssage(Errors.load));
+    setIsLoading(true);
+    getTodos(USER_ID)
+      .then((fetchedTodos) => {
+        setTodos(fetchedTodos);
+      })
+      .catch(() => setErrorMesssage(Errors.load))
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const filteredTodos = useMemo(() => [...todos].filter(({ completed }) => {
@@ -66,14 +73,18 @@ export const App: React.FC = () => {
   }), [todos, filter]);
 
   const removeTodo = (todoId: number) => {
+    setIsLoading(true);
     setLoadingItems(current => [...current, todoId]);
 
     deleteTodo(todoId)
       .then(() => setTodos(current => current
         .filter(todo => todo.id !== todoId)))
       .catch(() => setErrorMesssage(Errors.delete))
-      .finally(() => setLoadingItems(current => current
-        .filter((id:number) => id !== todoId)));
+      .finally(() => {
+        setIsLoading(false);
+        // eslint-disable-next-line max-len
+        setLoadingItems(current => current.filter((id: number) => id !== todoId));
+      });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -132,7 +143,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          isDisable={isDisable}
+          isDisable={isDisable || isLoading}
           onHandleSubmit={handleSubmit}
           title={title}
           setTitle={setTitle}
