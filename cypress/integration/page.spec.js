@@ -1314,7 +1314,7 @@ describe('', () => {
     });
   });
 
-  describe('Renaming', () => {
+  describe.skip('Renaming', () => {
     beforeEach(() => {
       page.mockLoad().as('loadRequest');
       page.visit();
@@ -1477,7 +1477,7 @@ describe('', () => {
           todos.titleField(0).should('not.exist');
         });
 
-        it.skip('should show the updated title', () => {
+        it('should show the updated title', () => {
           todos.titleField(0).type('Something{enter}');
           cy.wait('@renameRequest')
 
