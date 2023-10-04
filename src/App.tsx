@@ -163,6 +163,7 @@ export const App: React.FC = () => {
   };
 
   const handleTodoUpdate = async (todoId: number, newTitle: string) => {
+    setIsLoading({ ...isLoading, [todoId]: true });  // Set loading to true
     const originalTodos = [...todos];
 
     setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
@@ -170,24 +171,25 @@ export const App: React.FC = () => {
       : todo)));
     try {
       await updateTodo(todoId, { title: newTitle });
-      // setErrorMessage("Przykładowy błąd");
     } catch (error) {
       setTodos(originalTodos);
       handleErrorMessage(setErrorMessage, 'Unable to update a todo');
+    } finally {
+      setIsLoading({ ...isLoading, [todoId]: false });  // Set loading to false
     }
   };
 
   const handleTodoDelete = async (todoId: number) => {
-    setIsLoading({ ...isLoading, [todoId]: true });
+    setIsLoading((prevLoading) => ({ ...prevLoading, [todoId]: true }));
+
     try {
       await deleteTodo(todoId);
       setTodos((currentTodos) => currentTodos
         .filter((todo) => todo.id !== todoId));
-
-      setIsLoading({ ...isLoading, [todoId]: false });
     } catch (error) {
       handleErrorMessage(setErrorMessage, 'Unable to delete a todo');
     } finally {
+      setIsLoading((prevLoading) => ({ ...prevLoading, [todoId]: false }));
       setIsInputFocused(true);
     }
   };
@@ -223,12 +225,11 @@ export const App: React.FC = () => {
   const allTodosAreActive = todos.every((todo: Todo) => !todo.completed);
 
   const shouldShowFooter
-    = todos.length > 0
-    && (currentFilter === FilterType.All
-      || (currentFilter === FilterType.Active && uncompletedCount > 0)
-      || (currentFilter === FilterType.Completed
-        && uncompletedCount < todos.length)
-      || allTodosAreActive);
+  = todos.length > 0
+  && (currentFilter === FilterType.All
+    || currentFilter === FilterType.Active
+    || (currentFilter === FilterType.Completed)
+    || allTodosAreActive);
 
   if (!USER_ID) {
     return <UserWarning />;
