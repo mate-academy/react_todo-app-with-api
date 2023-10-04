@@ -17,6 +17,7 @@ export const TodoHeader: React.FC = () => {
     activeTodos,
     completedTodos,
     isLoading,
+    setTempTodo,
   } = useContext(TodoContext);
 
   const activeTodosCount = activeTodos.length;
@@ -46,6 +47,8 @@ export const TodoHeader: React.FC = () => {
       title: value.trim(),
       completed: false,
     };
+
+    setTempTodo({ id: 0, ...newTodo });
 
     addTodoHandler(newTodo)
       .then(() => {

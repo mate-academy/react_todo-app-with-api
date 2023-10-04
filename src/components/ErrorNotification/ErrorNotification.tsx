@@ -1,7 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import { ErrorMessage } from '../../types/ErrorMessage';
-/* eslint-disable jsx-a11y/control-has-associated-label */
 
 interface Props {
   errorMessage: ErrorMessage,
@@ -27,6 +26,7 @@ export const ErrorNotification: React.FC<Props> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
+        aria-label="delete"
         onClick={() => setErrorMessage(ErrorMessage.Default)}
       />
       {errorMessage}
