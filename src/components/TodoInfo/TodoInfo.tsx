@@ -142,7 +142,6 @@ export const TodoInfo: React.FC<Props> = ({ todo }) => {
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames(

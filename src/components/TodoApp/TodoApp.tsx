@@ -23,10 +23,10 @@ export const TodoApp: React.FC<Props> = ({ userID }) => {
   const visibleTodos = useMemo(() => {
     switch (filter) {
       case Filter.ACTIVE:
-        return todos.filter(todo => todo.completed === false);
+        return todos.filter(todo => !todo.completed);
 
       case Filter.COMPLETED:
-        return todos.filter(todo => todo.completed === true);
+        return todos.filter(todo => todo.completed);
 
       default:
         return todos;
@@ -53,8 +53,6 @@ export const TodoApp: React.FC<Props> = ({ userID }) => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <Error />
     </div>
   );

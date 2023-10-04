@@ -13,7 +13,7 @@ type Props = {
 export const Footer: React.FC<Props> = ({ filter, setFilter }) => {
   const {
     todos,
-    deletingTodoHandler
+    deletingTodoHandler,
   } = useContext(TodosContext);
   const notCompletedTodos: Todo[] = useMemo(() => {
     return todos.filter(todo => todo.completed === false);

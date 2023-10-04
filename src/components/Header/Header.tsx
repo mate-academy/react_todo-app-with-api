@@ -16,7 +16,7 @@ export const Header: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   const completedTodos = useMemo(() => (
-    todos.filter(todo => todo.completed === true)), [todos]);
+    todos.filter(todo => todo.completed)), [todos]);
 
   const inputField = useRef<HTMLInputElement>(null);
 
