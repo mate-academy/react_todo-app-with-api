@@ -1,8 +1,8 @@
 import React, {
   useEffect,
-  useMemo,
   useState,
   useCallback,
+  useMemo,
 } from 'react';
 
 import { Todo } from './types/Todo';
@@ -12,6 +12,7 @@ import { TodoItem } from './Components/TodoItem';
 import { Footer } from './Components/Footer';
 import { Header } from './Components/Header';
 import { ErrorNotification } from './Components/ErrorNotification';
+import { filterTodos } from './Components/helper';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -21,6 +22,9 @@ export const App: React.FC = () => {
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorTimer, setErrorTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const filteredTodos = useMemo(() => filterTodos(todos, condition),
+    [condition, todos]);
 
   useEffect(() => {
     if (errorTimer) {
@@ -76,17 +80,6 @@ export const App: React.FC = () => {
     }
   };
 
-  const filteredTodos = useMemo(() => todos.filter(({ completed }) => {
-    switch (condition) {
-      case ForComletedTodo.Active:
-        return !completed;
-      case ForComletedTodo.Completed:
-        return completed;
-      default:
-        return 1;
-    }
-  }), [condition, todos]);
-
   const handleDeleteTodo = (todoId: number) => {
     setInputDisabled(true);
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todoId]);
@@ -98,7 +91,6 @@ export const App: React.FC = () => {
       }))
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        throw new Error('Unable to delete a todo');
       })
       .finally(() => {
         setInputDisabled(false);
@@ -112,10 +104,8 @@ export const App: React.FC = () => {
     setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
 
     return todoService.updateTodo({
-      id: todo.id,
+      ...todo,
       title: newTodoTitle.trim(),
-      userId: todo.userId,
-      completed: todo.completed,
     })
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currentTodo => (
@@ -126,7 +116,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
-        throw new Error('Unable to update a todo');
       })
       .finally(() => {
         setProcessingTodoIds(

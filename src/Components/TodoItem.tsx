@@ -52,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({
 
       setIsEditing(false);
     } catch {
-      throw new Error();
+      //
     }
   };
 
