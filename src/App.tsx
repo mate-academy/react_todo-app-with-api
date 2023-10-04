@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useContext } from 'react';
 import { UserWarning } from './components/UserWarning/UserWarning';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
@@ -22,9 +21,7 @@ export const App: React.FC = () => {
         <TodoHeader />
         <TodoList />
         {!!todos.length && (
-          <>
-            <TodoFooter />
-          </>
+          <TodoFooter />
         )}
       </div>
       <ErrorMessage />

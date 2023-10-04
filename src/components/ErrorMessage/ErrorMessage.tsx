@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import { useContext, useEffect } from 'react';
 import { TodoContext } from '../../context/TodoContext';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const ErrorMessage: React.FC = () => {
   const { error, setError } = useContext(TodoContext);
 
@@ -28,6 +27,7 @@ export const ErrorMessage: React.FC = () => {
       )}
     >
       <button
+        aria-label="delete"
         data-cy="HideErrorButton"
         type="button"
         className="delete"
