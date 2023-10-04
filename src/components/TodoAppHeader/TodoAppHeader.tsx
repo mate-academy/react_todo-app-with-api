@@ -39,9 +39,6 @@ export const TodoAppHeader: React.FC<Props> = ({
     onTodoAdd(todoTitle.trim())
       .then(() => {
         setTodoTitle('');
-      })
-      .catch(() => {
-
       });
   };
 

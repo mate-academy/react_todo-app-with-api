@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { FilterLink } from '../../utils/TodoFilter';
+import { FilterLink } from '../../types/FilterLinkTypes';
 
 type Props = {
   setSelectedFilter: (value: FilterLink) => void;
@@ -22,7 +22,6 @@ export const TodoAppFooter: React.FC<Props> = ({
       {`${todosCounter} items left`}
     </span>
 
-    {/* Active filter should have a 'selected' class */}
     <nav className="filter" data-cy="Filter">
       {Object.entries(FilterLink).map(([key, value]) => (
         <a
@@ -39,7 +38,6 @@ export const TodoAppFooter: React.FC<Props> = ({
       ))}
     </nav>
 
-    {/* don't show this button if there are no completed todos */}
     <button
       type="button"
       className={cn('todoapp__clear-completed', {

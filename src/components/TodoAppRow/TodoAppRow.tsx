@@ -33,7 +33,8 @@ export const TodoAppRow: React.FC<Props> = ({
         await onTodoUpdate(todoTitle.trim());
         setIsEditing(false);
       } catch (er) {
-        // console.error('catch error');
+        // eslint-disable-next-line no-console
+        console.error('catch error');
       }
     }
 

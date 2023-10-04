@@ -1,7 +1,8 @@
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
-import { FilterLink, preparedTodos } from '../../utils/TodoFilter';
+import { preparedTodos } from '../../utils/TodoFilter';
 import { TodoAppRow } from '../TodoAppRow';
+import { FilterLink } from '../../types/FilterLinkTypes';
 
 type Props = {
   todos: Todo[],

@@ -1,10 +1,5 @@
+import { FilterLink } from '../types/FilterLinkTypes';
 import { Todo } from '../types/Todo';
-
-export enum FilterLink {
-  All = '',
-  Active = 'active',
-  Completed = 'completed',
-}
 
 export function preparedTodos(
   arr: Todo[],

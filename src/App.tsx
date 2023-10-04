@@ -8,12 +8,11 @@ import React, {
 import { TodoAppHeader } from './components/TodoAppHeader';
 import { TodoAppFooter } from './components/TodoAppFooter';
 import { ErrorNotification } from './components/ErrorNotification';
-
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
-import { FilterLink } from './utils/TodoFilter';
 import { ErrorMessage } from './utils/errorMessages';
 import { TodoList } from './components/TodoList';
+import { FilterLink } from './types/FilterLinkTypes';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -46,9 +45,8 @@ export const App: React.FC = () => {
       .then((newTodo) => {
         setTodos((prevTodos) => [...prevTodos, newTodo]);
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(ErrorMessage.Add);
-        throw error;
       })
       .finally(() => {
         setIsRequesting(false);
@@ -89,9 +87,8 @@ export const App: React.FC = () => {
             : updatedTodo
         )));
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(ErrorMessage.Update);
-        throw error;
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -123,7 +120,6 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.Update);
-        throw new Error();
       })
       .finally(() => {
         setProcessingTodoIds(
@@ -143,17 +139,9 @@ export const App: React.FC = () => {
   const hasCompletedTodo = todos.some(({ completed }) => completed);
 
   const handleToggleButton = () => {
-    if (!isAllCompleted) {
-      todos
-        .filter((todo) => !todo.completed)
-        .forEach((todo) => handleCompletedChange(todo));
-    }
-
-    if (isAllCompleted) {
-      todos
-        .filter((todo) => todo.completed)
-        .forEach((todo) => handleCompletedChange(todo));
-    }
+    todos
+      .filter((todo) => todo.completed === isAllCompleted)
+      .forEach((todo) => handleCompletedChange(todo));
   };
 
   return (
