@@ -29,15 +29,17 @@ export const TodoItem: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todo.title === todoTitle) {
+    const trimmedTitle = todoTitle.trim();
+
+    if (title === trimmedTitle) {
       setIsEditing(false);
 
       return;
     }
 
     try {
-      if (todoTitle) {
-        await onTodoUpdate(todoTitle);
+      if (trimmedTitle) {
+        await onTodoUpdate(trimmedTitle);
       } else {
         await onDeleteTodo();
       }
@@ -108,7 +110,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__title"
               onDoubleClick={handleTodoDoubleClick}
             >
-              {todoTitle}
+              {title}
             </span>
 
             <button

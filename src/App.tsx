@@ -47,7 +47,7 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch((error) => {
         setErrorMessage(TodosError.DOWNLOAD_ERROR_MESSAGE);
-        throw Error(error.message);
+        throw Error(error);
       });
   }, []);
 
@@ -72,7 +72,7 @@ export const App: React.FC = () => {
       })
       .catch((error) => {
         setErrorMessage(TodosError.ADD_ERROR_MESSAGE);
-        throw Error(error.message);
+        throw Error(error);
       })
       .finally(() => {
         setTempTodo(null);
@@ -90,7 +90,7 @@ export const App: React.FC = () => {
       }))
       .catch((error) => {
         setErrorMessage(TodosError.DELETE_ERROR_MESSAGE);
-        throw Error(error.message);
+        throw Error(error);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todoId));
@@ -116,7 +116,7 @@ export const App: React.FC = () => {
       })
       .catch((error) => {
         setErrorMessage(TodosError.UPDATE_ERROR_MESSAGE);
-        throw Error(error.message);
+        throw Error(error);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todo.id));
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
       })
       .catch((error) => {
         setErrorMessage(TodosError.UPDATE_ERROR_MESSAGE);
-        throw Error(error.message);
+        throw Error(error);
       })
       .finally(() => {
         setProcessingTodoIds(prev => prev.filter(id => id !== todo.id));
@@ -167,7 +167,9 @@ export const App: React.FC = () => {
       .then(() => {
         setTodoTitle('');
       })
-      .catch();
+      .catch((error) => {
+        throw Error(error);
+      });
     setTempTodo({ ...newTodo, id: 0 });
   };
 
