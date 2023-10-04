@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TodoHeaderProps } from '../types/TodoHeader';
 
 export const TodoHeader: React.FC<TodoHeaderProps> = ({
+  todos,
   filteredTodos,
   toggleAllTodos,
   handleNewTodoSubmit,
@@ -12,7 +13,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
 
   return (
     <header className="todoapp__header">
-      {filteredTodos.length > 0 && (
+      {todos.length > 0 && (
         <button
           type="button"
           className={`todoapp__toggle-all ${filteredTodos.every((todo) => todo.completed) ? 'active' : ''}`}

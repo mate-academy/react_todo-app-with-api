@@ -70,7 +70,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           autoFocus
         />
       ) : (
-        <span
+        <div
           data-cy="TodoTitle"
           className="todo__title"
           onDoubleClick={() => setIsEditing(true)}
@@ -81,7 +81,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           }}
         >
           {todo.title}
-        </span>
+        </div>
       )}
       {!isEditing && (
         <button

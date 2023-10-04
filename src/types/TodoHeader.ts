@@ -1,6 +1,7 @@
 import { Todo } from './Todo';
 
 export interface TodoHeaderProps {
+  todos: Todo[];
   filteredTodos: Todo[];
   handleNewTodoSubmit: (
     newTitle: string,

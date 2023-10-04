@@ -132,7 +132,10 @@ export const App: React.FC = () => {
     setIsLoading({ ...isLoading, [todoId]: true });
 
     const originalTodos = [...todos];
-    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId ? { ...todo, completed } : todo)));
+
+    setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
+      ? { ...todo, completed }
+      : todo)));
 
     try {
       await updateTodo(todoId, { completed });
@@ -152,6 +155,7 @@ export const App: React.FC = () => {
       if (todo.completed !== newStatus) {
         return handleTodoToggle(todo.id, newStatus);
       }
+
       return Promise.resolve();
     });
 
@@ -163,7 +167,7 @@ export const App: React.FC = () => {
   };
 
   const handleTodoUpdate = async (todoId: number, newTitle: string) => {
-    setIsLoading({ ...isLoading, [todoId]: true });  // Set loading to true
+    setIsLoading({ ...isLoading, [todoId]: true });
     const originalTodos = [...todos];
 
     setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === todoId
@@ -175,7 +179,7 @@ export const App: React.FC = () => {
       setTodos(originalTodos);
       handleErrorMessage(setErrorMessage, 'Unable to update a todo');
     } finally {
-      setIsLoading({ ...isLoading, [todoId]: false });  // Set loading to false
+      setIsLoading({ ...isLoading, [todoId]: false });
     }
   };
 
@@ -193,16 +197,6 @@ export const App: React.FC = () => {
       setIsInputFocused(true);
     }
   };
-
-  // const toggleAllTodos = () => {
-  //   const allCompleted = todos.every((todo) => todo.completed);
-  //   const toggledTodos = todos.map((todo) => ({
-  //     ...todo,
-  //     completed: !allCompleted,
-  //   }));
-
-  //   setTodos(toggledTodos);
-  // };
 
   const handleClearCompleted = async () => {
     const completedTodos = todos.filter((todo) => todo.completed);
@@ -240,6 +234,7 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <TodoHeader
+          todos={todos}
           filteredTodos={filteredTodos}
           toggleAllTodos={toggleAllTodos}
           handleNewTodoSubmit={handleNewTodoSubmit}
