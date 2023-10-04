@@ -9,6 +9,11 @@ import { TodoRow } from '../TodoRow/TodoRow';
    tempTodo: Todo | null,
    deleteTodoHandler: (userId: number) => void
    isLoading: number[]
+   displayTodos: Todo[]
+   updateStatusHandler: (todo: Todo) => void
+   setTodos: (todos: Todo[]) => void
+   toggleToCompleted: () => void
+   setError: (error: string) => void
 
  };
 
@@ -21,11 +26,11 @@ export const TodoList: React.FC<Props> = (
     updateStatusHandler,
     setTodos,
     todos,
+    toggleToCompleted,
+    setError,
 
   },
 ) => {
-  // const [todosUpdated, setTodosUpdated] = useState(0);
-
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {displayTodos.map(todo => (
@@ -36,6 +41,8 @@ export const TodoList: React.FC<Props> = (
           isLoading={isLoading}
           setTodos={setTodos}
           todos={todos}
+          toggleToCompleted={toggleToCompleted}
+          setError={setError}
         />
       ))}
 
