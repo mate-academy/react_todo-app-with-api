@@ -1,30 +1,22 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
+// import classNames from 'classnames';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { TodoItem } from './components/TodoItem';
 import * as TodoSevise from './api/todos';
 import { Todo } from './types/Todo';
 import { Status } from './types/Status';
 import { ErrorMessages } from './types/ErrorMessage';
-
-const filterTodos = (todos: Todo[], filterStatus: Status): Todo[] => {
-  return todos.filter((todo: Todo) => {
-    switch (filterStatus) {
-      case Status.Completed:
-        return todo.completed;
-      case Status.Active:
-        return !todo.completed;
-      default:
-        return true;
-    }
-  });
-};
+import { filterTodos } from './utils/FilterTodos';
+import { TodoList } from './components/TodoList';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [
+    errorMessage,
+    setErrorMessage,
+  ] = useState<ErrorMessages>(ErrorMessages.None);
   const [status, setStatus] = useState<Status>(Status.All);
   const [isLoading, setIsLoading] = useState<number[]>([]);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -48,7 +40,7 @@ export const App: React.FC = () => {
       .catch(() => setErrorMessage(ErrorMessages.UnableLoadTodo));
   }, []);
 
-  const timerId: React.MutableRefObject<number> = useRef<number>(0);
+  /*   const timerId: React.MutableRefObject<number> = useRef<number>(0);
 
   useEffect(() => {
     if (timerId.current) {
@@ -58,7 +50,7 @@ export const App: React.FC = () => {
     timerId.current = window.setTimeout(() => {
       setErrorMessage('');
     }, 3000);
-  }, [errorMessage]);
+  }, [errorMessage]); */
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -78,7 +70,7 @@ export const App: React.FC = () => {
       .catch(() => {
         setErrorMessage(ErrorMessages.UnableAddTodo);
         setTempTodo(null);
-        throw new Error();
+        // throw new Error();
       });
   };
 
@@ -100,10 +92,8 @@ export const App: React.FC = () => {
 
   const handleUpdateTodo = (todo: Todo, newTitle: string) => {
     TodoSevise.updateTodo({
-      id: todo.id,
+      ...todo,
       title: newTitle,
-      userId: todo.userId,
-      completed: todo.completed,
     })
       .then((updatedTodo) => {
         setTodos(prevState => prevState
@@ -119,9 +109,7 @@ export const App: React.FC = () => {
 
   const handleToggleChange = (todo: Todo) => {
     TodoSevise.updateTodo({
-      id: todo.id,
-      title: todo.title,
-      userId: todo.userId,
+      ...todo,
       completed: !todo.completed,
     })
       .then((updatedTodo) => {
@@ -131,7 +119,8 @@ export const App: React.FC = () => {
               ? currentTodo
               : updatedTodo
           )));
-      });
+      })
+      .catch(() => setErrorMessage(ErrorMessages.UnableUpdateTodo));
   };
 
   const handelClearComplited = () => {
@@ -144,7 +133,7 @@ export const App: React.FC = () => {
     Promise.all(allCompleatedTodos.map(todo => TodoSevise.deleteTodo(todo.id)))
       .then(() => setTodos(todos.filter(todo => !todo.completed)))
       .catch(() => (
-        setErrorMessage('Unable to delete a todo')
+        setErrorMessage(ErrorMessages.UnableDeleteToso)
       ))
       .finally(() => {
         setIsLoading([]);
@@ -169,7 +158,16 @@ export const App: React.FC = () => {
           setTodoTitle={setTodoTitle}
           isDisabled={isDisabled}
         />
-        <section className="todoapp__main" data-cy="TodoList">
+        <TodoList
+          handleDeleteTodo={handleDeleteTodo}
+          visibleTodos={visibleTodos}
+          tempTodo={tempTodo}
+          isLoading={isLoading}
+          handleLoading={handleLoading}
+          handleUpdateTodo={handleUpdateTodo}
+          handleToggleChange={handleToggleChange}
+        />
+        {/* <section className="todoapp__main" data-cy="TodoList">
           {visibleTodos.map(todo => (
             <TodoItem
               todo={todo}
@@ -193,7 +191,7 @@ export const App: React.FC = () => {
               key={tempTodo.id}
             />
           )}
-        </section>
+        </section> */}
 
         {Boolean(todos.length)
           && (
@@ -207,7 +205,12 @@ export const App: React.FC = () => {
           )}
       </div>
 
-      <div
+      <ErrorNotification
+        setErrorMessage={setErrorMessage}
+        errorMessage={errorMessage}
+      />
+
+      {/* <div
         data-cy="ErrorNotification"
         className={classNames(
           'notification',
@@ -224,7 +227,7 @@ export const App: React.FC = () => {
           onClick={() => setErrorMessage('')}
         />
         {errorMessage}
-      </div>
+      </div> */}
     </div>
   );
 };

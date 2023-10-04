@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
 import { ErrorMessages } from '../types/ErrorMessage';
+import { USER_ID } from '../utils/Constants';
 
 type Props = {
   onToddoAdd: (todoTitle: string) => Promise<void>;
@@ -12,12 +13,10 @@ type Props = {
   setTempTodo: (value: Todo | null) => void;
   isDisabled: boolean;
   setIsDisabled: (value: boolean) => void;
-  setErrorMessage: (value: string) => void;
+  setErrorMessage: (value: ErrorMessages) => void;
   todoTitle: string;
   setTodoTitle: (value: string) => void;
 };
-
-const USER_ID = 11516;
 
 export const Header: React.FC<Props> = ({
   onToddoAdd,
