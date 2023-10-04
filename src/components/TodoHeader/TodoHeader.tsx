@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { TodoContext } from '../../context/TodoContext';
 import { ErrorEnum } from '../../types/Error';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
 export const TodoHeader: React.FC = () => {
   const {
     todos,
@@ -43,9 +42,10 @@ export const TodoHeader: React.FC = () => {
     <header className="todoapp__header">
       {todos.length > 0 && (
         <button
+          aria-label="toggle-all-button"
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: activeTodosAmount === 0,
+            active: !activeTodosAmount,
           })}
           data-cy="ToggleAllButton"
           onClick={toggleAllStatus}

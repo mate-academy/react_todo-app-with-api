@@ -21,7 +21,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader />
         <TodoList />
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoFooter />
           </>
