@@ -32,10 +32,11 @@ export const App: React.FC = () => {
       .getTodos()
       .then((data) => {
         setTodos(data);
-        setLoading(false);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -52,7 +53,7 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setErrorMessage('');
     }, 3000);
 
