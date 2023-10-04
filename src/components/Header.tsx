@@ -7,7 +7,7 @@ type Props = {
   onInputChange: (newTitle: string) => void,
   inputValue: string,
   setInputValue: React.Dispatch<React.SetStateAction<string>>,
-  isInputFieldDisabled: boolean,
+  isInputDisabled: boolean,
   onHandleChangeCompleted: () => void,
 };
 
@@ -16,12 +16,10 @@ export const Header: React.FC<Props> = ({
   onInputChange,
   inputValue,
   setInputValue,
-  isInputFieldDisabled,
+  isInputDisabled: isInputFieldDisabled,
   onHandleChangeCompleted,
 }) => {
-  const isAllTodosActive = todos?.length
-    ? todos.every((todo) => todo.completed)
-    : false;
+  const isAllTodosActive = todos?.every((todo) => todo.completed);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);

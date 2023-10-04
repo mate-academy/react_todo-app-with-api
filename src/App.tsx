@@ -159,7 +159,7 @@ export const App: React.FC = () => {
   };
 
   const handleAddTodo = (newTitle: string) => {
-    if (isTitleValid(newTitle)) {
+    if (!isTitleValid(newTitle)) {
       setErrorMessage('Title should not be empty');
 
       return;
@@ -202,8 +202,8 @@ export const App: React.FC = () => {
   };
 
   const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
-    if (isTitleValid(newTodoTitle)) {
-      todosService.deleteTodo(todo.id);
+    if (!isTitleValid(newTodoTitle)) {
+      handleDeleteTodo(todo.id);
 
       return;
     }
@@ -229,7 +229,7 @@ export const App: React.FC = () => {
               onInputChange={handleAddTodo}
               inputValue={inputValue}
               setInputValue={setInputValue}
-              isInputFieldDisabled={isInputDisabled}
+              isInputDisabled={isInputDisabled}
               onHandleChangeCompleted={handleChangeAllCompleted}
             />
 
