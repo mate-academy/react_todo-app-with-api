@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
 import { ErrorMessage } from '../../utils/errorMessages';
 
@@ -11,16 +11,12 @@ export const ErrorNotification: React.FC<Props> = ({
   setErrorMessage,
   errorMessage,
 }) => {
-  const timerId = useRef<number>(0);
-
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       setErrorMessage(ErrorMessage.Default);
     }, 3000);
+
+    return () => window.clearTimeout(timerId);
   }, [errorMessage]);
 
   return (

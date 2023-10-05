@@ -2,11 +2,9 @@ import { FilterLink } from '../types/FilterLinkTypes';
 import { Todo } from '../types/Todo';
 
 export function preparedTodos(
-  arr: Todo[],
+  todos: Todo[],
   option: string,
 ) {
-  const todos = [...arr];
-
   if (option) {
     switch (option) {
       case FilterLink.Active: {

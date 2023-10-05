@@ -19,7 +19,17 @@ export const TodoAppFooter: React.FC<Props> = ({
 }) => (
   <footer className="todoapp__footer" data-cy="Footer">
     <span className="todo-count" data-cy="TodosCounter">
-      {`${todosCounter} items left`}
+      {todosCounter === 1 && (
+        'One item left'
+      )}
+
+      {todosCounter > 1 && (
+        `${todosCounter} items left`
+      )}
+
+      {!todosCounter && (
+        'No active todos'
+      )}
     </span>
 
     <nav className="filter" data-cy="Filter">

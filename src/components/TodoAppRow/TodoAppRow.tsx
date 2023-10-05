@@ -29,13 +29,8 @@ export const TodoAppRow: React.FC<Props> = ({
     }
 
     if (todoTitle.trim() !== title) {
-      try {
-        await onTodoUpdate(todoTitle.trim());
-        setIsEditing(false);
-      } catch (er) {
-        // eslint-disable-next-line no-console
-        console.error('catch error');
-      }
+      await onTodoUpdate(todoTitle.trim());
+      setIsEditing(false);
     }
 
     if (!todoTitle.trim()) {

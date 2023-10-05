@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useMemo,
@@ -98,9 +97,11 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteAllCompletedTodos = () => {
-    todos
-      .filter((todo) => todo.completed)
-      .forEach((todo) => handleDeleteTodo(todo.id));
+    todos.forEach((todo) => {
+      if (todo.completed) {
+        handleDeleteTodo(todo.id);
+      }
+    });
   };
 
   const handleUpdateTodo = (todo: Todo, newTodoTitle: string) => {
@@ -132,16 +133,18 @@ export const App: React.FC = () => {
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
-  const isAllCompleted = useMemo(() => {
+  const isAllTodosCompleted = useMemo(() => {
     return todos.every(todo => todo.completed);
   }, [todos]);
 
   const hasCompletedTodo = todos.some(({ completed }) => completed);
 
   const handleToggleButton = () => {
-    todos
-      .filter((todo) => todo.completed === isAllCompleted)
-      .forEach((todo) => handleCompletedChange(todo));
+    todos.forEach((todo) => {
+      if (todo.completed === isAllTodosCompleted) {
+        handleCompletedChange(todo);
+      }
+    });
   };
 
   return (
@@ -155,7 +158,7 @@ export const App: React.FC = () => {
           onTodoAdd={handleAddTodo}
           setErrorMessage={setErrorMessage}
           isRequesting={isRequesting}
-          isAllCompleted={isAllCompleted}
+          isAllCompleted={isAllTodosCompleted}
         />
 
         {!!todos.length && (

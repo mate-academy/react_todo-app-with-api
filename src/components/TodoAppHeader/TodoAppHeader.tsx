@@ -30,7 +30,7 @@ export const TodoAppHeader: React.FC<Props> = ({
   const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle.trim().length === 0) {
+    if (!todoTitle.trim().length) {
       setErrorMessage(ErrorMessage.Title);
 
       return;
@@ -57,14 +57,12 @@ export const TodoAppHeader: React.FC<Props> = ({
             active: isAllCompleted,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => onToggleClick()}
+          onClick={onToggleClick}
           aria-label="toggle_all_todos"
         />
       )}
 
-      <form
-        onSubmit={onFormSubmit}
-      >
+      <form onSubmit={onFormSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
