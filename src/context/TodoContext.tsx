@@ -77,7 +77,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.AddError);
-        throw new Error();
+        throw new Error(ErrorMessage.AddError);
       })
       .finally(() => {
         setIsLoading(false);

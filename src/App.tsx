@@ -34,14 +34,6 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  useEffect(() => {
-    if (errorMessage) {
-      setTimeout(() => {
-        setErrorMessage(ErrorMessage.Default);
-      }, 3000);
-    }
-  }, [errorMessage]);
-
   const renderedTodos = useMemo(() => {
     return getFilteredTodos(todos, filter);
   }, [todos, filter]);

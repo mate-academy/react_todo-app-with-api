@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useRef,
   useEffect,
@@ -95,6 +94,7 @@ export const TodoHeader: React.FC = () => {
             'todoapp__toggle-all',
             { active: isAllCompleted },
           )}
+          aria-label="toggleAllButton"
           onClick={handleToggleAll}
         />
       )}
