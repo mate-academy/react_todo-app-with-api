@@ -7,4 +7,4 @@ export const addTodo = (todo: Todo) => client.post<Todo>('/todos', todo);
 
 export const deleteTodo = (todoId: number) => client.delete(`/todos/${todoId}`);
 
-export const updateTodos = (data: Todo) => client.patch<Todo>(`/todos/${data.id}`, data);
+export const updateTodos = (data: Partial<Todo>) => client.patch<Partial<Todo>>(`/todos/${data.id}`, data);

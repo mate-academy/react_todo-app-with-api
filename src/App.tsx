@@ -43,10 +43,13 @@ export const App: React.FC = () => {
     });
 
     setTodos(updatedTodos);
-    const clickedTodo = todos.find((todo) => todo.id === todoId);
+    const clickedTodo = updatedTodos.find((todo) => todo.id === todoId);
 
     if (clickedTodo) {
-      updateTodos(clickedTodo);
+      updateTodos({
+        id: todoId,
+        completed: !clickedTodo.completed,
+      }).catch(() => setErrorMesssage(Errors.update));
     }
   };
 
