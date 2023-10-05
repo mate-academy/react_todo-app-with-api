@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Todo } from '../../types/Todo';
@@ -35,23 +34,7 @@ interface Context {
   deleteComplitedTodos: () => void,
 }
 
-export const TodosContext = React.createContext<Context>({
-  todos: [],
-  setTodos: () => { },
-  visibleTodos: [],
-  isLoading: {},
-  setLoading: () => { },
-  setFilterType: () => { },
-  tempTodo: null,
-  setTempTodo: () => { },
-  errorMessage: '',
-  setErrorMessage: () => { },
-  addTodo: () => Promise.resolve({} as Todo),
-  updateAllCheckbox: () => { },
-  hangleDeleteTodo: () => { },
-  updateInputCheckbox: () => { },
-  deleteComplitedTodos: () => { },
-});
+export const TodosContext = React.createContext({} as Context);
 
 interface Props {
   children: ReactNode;
@@ -65,19 +48,16 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const timerErrorMessage = useRef<number>(0);
   const incompleteTodos = todos.some(({ completed }) => completed)
     ? todos.filter(({ completed }) => !completed)
     : todos;
 
   useEffect(() => {
-    if (timerErrorMessage.current) {
-      window.clearTimeout(timerErrorMessage.current);
-    }
-
-    timerErrorMessage.current = window.setTimeout(() => {
+    const timerErrorMessage = setTimeout(() => {
       setErrorMessage('');
     }, 3000);
+
+    return () => clearTimeout(timerErrorMessage);
   }, [errorMessage]);
 
   useEffect(() => {
@@ -109,8 +89,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         return newPost;
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
-        throw new Error();
+        throw new Error('Unable to add a todo');
       });
   };
 
@@ -180,13 +159,17 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const deleteComplitedTodos = async () => {
     try {
-      const deleteRequests = todos
-        .filter(({ completed }) => completed)
-        .map(({ id }) => {
-          setLoading(id, true);
+      const deleteRequests = todos.reduce(
+        (requests: Promise<unknown>[], { id, completed }) => {
+          if (completed) {
+            setLoading(id, true);
 
-          return deleteTodo(id);
-        });
+            requests.push(deleteTodo(id));
+          }
+
+          return requests;
+        }, [],
+      );
 
       await Promise.all(deleteRequests);
 

@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import cn from 'classnames';
 import { useTodosContext } from '../TodosContext';
@@ -24,6 +23,7 @@ export const ErrorNotification: React.FC = () => {
     >
       <button
         data-cy="HideErrorButton"
+        aria-label="Hidden error button"
         type="button"
         className="delete"
         onClick={() => setErrorMessage('')}

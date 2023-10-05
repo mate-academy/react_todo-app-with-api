@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import {
   useEffect,
   useRef,
@@ -19,7 +18,7 @@ export const Header = () => {
     addTodo,
   } = useTodosContext();
 
-  const isAllActiveTodos = todos.every(({ completed }) => completed);
+  const isAllTodosActive = todos.every(({ completed }) => completed);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -50,6 +49,9 @@ export const Header = () => {
       .then(() => {
         setTitle('');
       })
+      .catch((error) => {
+        setErrorMessage(error);
+      })
       .finally(() => {
         setDisabledInput(false);
         setTempTodo(null);
@@ -62,15 +64,14 @@ export const Header = () => {
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: isAllActiveTodos,
+            active: isAllTodosActive,
           })}
           data-cy="ToggleAllButton"
-          onClick={() => updateAllCheckbox()}
+          onClick={updateAllCheckbox}
+          aria-label="Toggle all button"
         />
       )}
-      <form
-        onSubmit={handleOnSubmit}
-      >
+      <form onSubmit={handleOnSubmit}>
         <input
           ref={inputRef}
           data-cy="NewTodoField"

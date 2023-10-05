@@ -26,7 +26,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateInputCheckbox,
   } = useTodosContext();
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (tempTodo && tempTodo.id === todo.id) {
@@ -35,8 +35,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [tempTodo, todo.id]);
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
-      titleInput.current.focus();
+    if (isEditing && titleInputRef.current) {
+      titleInputRef.current.focus();
     }
   }, [isEditing]);
 
@@ -52,7 +52,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         setTodos((prevTodos) => (
           prevTodos.filter(prevTodo => prevTodo.id !== todo.id)
         ));
-      } else if (todo.title !== preparedTodoTitle) {
+      }
+
+      if (todo.title !== preparedTodoTitle) {
         setLoading(todo.id, true);
 
         const getUpdateTodo = await updateTodo({
@@ -70,7 +72,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       }
     } catch {
       setErrorMessage('Unable to update a todo');
-      titleInput.current?.focus();
+      titleInputRef.current?.focus();
     } finally {
       setLoading(todo.id, false);
     }
@@ -109,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             onBlur={handleOnTodoSave}
           >
             <input
-              ref={titleInput}
+              ref={titleInputRef}
               data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
@@ -144,7 +146,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', {

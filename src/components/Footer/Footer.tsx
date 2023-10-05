@@ -2,6 +2,7 @@ import cn from 'classnames';
 import { useMemo, useState } from 'react';
 import { useTodosContext } from '../TodosContext';
 import { FilterType } from '../../types/EnumFilterType';
+import { COUNT_TODO } from '../../utils/variablesHelpers';
 
 export const Footer = () => {
   const {
@@ -13,14 +14,16 @@ export const Footer = () => {
   const [selectedFilter, setSelectedFilter] = useState(FilterType.All);
 
   const completedTodos = todos.filter(({ completed }) => completed);
-  const uncomplitedTodo = useMemo(() => {
+  const activeTodo = useMemo(() => {
     return todos.filter(({ completed }) => !completed);
   }, [todos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${uncomplitedTodo.length} items left`}
+        {activeTodo.length > COUNT_TODO
+          ? `${activeTodo.length} items left`
+          : `${activeTodo.length} item left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -73,8 +76,8 @@ export const Footer = () => {
         className={cn('todoapp__clear-completed', {
           hidden: !completedTodos.length,
         })}
-        onClick={() => deleteComplitedTodos()}
-        disabled={uncomplitedTodo.length === todos.length}
+        onClick={deleteComplitedTodos}
+        disabled={activeTodo.length === todos.length}
       >
         Clear completed
       </button>
