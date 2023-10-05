@@ -29,6 +29,9 @@ interface TodoContextInterface {
 
   toggleChangeHandler: (todo: Todo) => void,
   renameTodoHandler: (todo: Todo, newTodoTitle: string) => Promise<void>,
+
+  tempTodo: Todo | null,
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>,
 }
 
 const initalContext: TodoContextInterface = {
@@ -48,6 +51,9 @@ const initalContext: TodoContextInterface = {
 
   toggleChangeHandler: async () => {},
   renameTodoHandler: async () => {},
+
+  tempTodo: null,
+  setTempTodo: () => {},
 };
 
 export const TodoContext = createContext(initalContext);
@@ -57,6 +63,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState(ErrorMessage.Default);
   const [isLoading, setIsLoading] = useState(false);
   const [todosIdToDelete, setTodosIdToDelete] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const completedTodos = getCompletedTodos(todos);
   const activeTodos = getActiveTodos(todos);
@@ -74,6 +81,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setIsLoading(false);
+        setTempTodo(null);
       });
   };
 
@@ -172,7 +180,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     setTodosIdToDelete,
     renameTodoHandler,
     toggleChangeHandler,
-  }), [todos, errorMessage, isLoading]);
+    tempTodo,
+    setTempTodo,
+  }), [todos, errorMessage, isLoading, tempTodo]);
 
   return (
     <TodoContext.Provider
