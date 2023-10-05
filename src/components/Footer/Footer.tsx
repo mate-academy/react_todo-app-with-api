@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { useTodos } from '../../TodoContext';
 
 type Props = {
   setStatus: (newStatus: Status) => void,
@@ -22,6 +23,8 @@ export const Footer: React.FC<Props> = ({
   setStatus = () => { },
   onClearCompleted = () => { },
 }) => {
+  const { isLoading } = useTodos();
+
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const newStatus = event.currentTarget.textContent as Status;
 
@@ -74,7 +77,7 @@ export const Footer: React.FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={onClearCompleted}
-        disabled={!completedTodos.length}
+        disabled={!completedTodos.length && !isLoading}
       >
         Clear completed
       </button>

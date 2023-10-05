@@ -10,16 +10,14 @@ import { useTodos } from '../../TodoContext';
 type Props = {
   visibleTodos: Todo[];
   onDelete?: (id: number) => void;
-  isLoading: boolean;
   tempTodo: Todo | null;
   toggleStatus: (todo: Todo) => void;
-  onSubmit: (todo: Todo) => Promise<void>;
+  onSubmit: (todo: Todo) => void;
 };
 
 export const Section: React.FC<Props> = ({
   visibleTodos,
   onDelete = () => { },
-  isLoading,
   tempTodo,
   toggleStatus = () => { },
   onSubmit,
@@ -31,6 +29,7 @@ export const Section: React.FC<Props> = ({
     setIsEditing,
     updatedTitle,
     setUpdatedTitle,
+    isLoading,
   } = useTodos();
 
   const inputReference = useRef<HTMLInputElement | null>(null);

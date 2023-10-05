@@ -36,10 +36,11 @@ export const TodoApp: React.FC = () => {
     setSelectedId,
     setIsEditing,
     updatedTitle,
+    setIsLoading,
+    isLoading,
   } = useTodos();
 
   const [status, setStatus] = useState(Status.ALL);
-  const [isLoading, setIsLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const visibleTodos = getVisibleTodos(todos, status);
   const [isFocused, setIsFocused] = useState(true);
@@ -100,12 +101,33 @@ export const TodoApp: React.FC = () => {
     return promise;
   };
 
+  const deleteWithEmptyTitle = (id: number) => {
+    setIsLoading(true);
+    setSelectedId([id]);
+    setIsFocused(false);
+
+    const promise = todoService.deleteTodo(id)
+      .then(() => {
+        setTodos(todos.filter(todo => todo.id !== id));
+        setSelectedId(null);
+        setIsFocused(false);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+
+    return promise;
+  };
+
   const deleteTodo = (id: number) => {
     setIsLoading(true);
     setSelectedId([id]);
     setIsFocused(false);
 
-    return todoService.deleteTodo(id)
+    const promise = todoService.deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(todo => todo.id !== id));
       })
@@ -117,6 +139,8 @@ export const TodoApp: React.FC = () => {
         setSelectedId(null);
         setIsFocused(true);
       });
+
+    return promise;
   };
 
   const deleteCompleted = () => {
@@ -124,15 +148,29 @@ export const TodoApp: React.FC = () => {
     setIsFocused(false);
     setSelectedId(idsOfCompletedTodos);
 
-    return Promise.all(
+    return Promise.allSettled(
       idsOfCompletedTodos.map(id => todoService.deleteTodo(id)),
     )
-      .then(() => {
-        setTodos(todos.filter(todo => !idsOfCompletedTodos.includes(todo.id)));
+      .then((response) => {
+        const arrDeleted: number[] = [];
+
+        idsOfCompletedTodos.forEach((id, index) => {
+          if (response[index].status === 'fulfilled') {
+            arrDeleted.push(id);
+          }
+
+          if (response[index].status === 'rejected') {
+            setErrorMessage('Unable to delete a todo');
+          }
+
+          const updatedTodos
+            = todos.filter(todo => !arrDeleted.includes(todo.id));
+
+          setTodos(updatedTodos);
+        });
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
-        setTodos(todos.filter(todo => !idsOfCompletedTodos.includes(todo.id)));
       })
       .finally(() => {
         setIsLoading(false);
@@ -218,14 +256,20 @@ export const TodoApp: React.FC = () => {
       id, userId, completed,
     } = todo;
 
-    if (!updatedTitle) {
-      return deleteTodo(id);
+    if (!updatedTitle.trim()) {
+      if (isLoading) {
+        return;
+      }
+
+      deleteWithEmptyTitle(id);
+
+      return;
     }
 
     setSelectedId([id]);
     setIsLoading(true);
 
-    return todoService.updateTodo({
+    todoService.updateTodo({
       id, userId, title: updatedTitle.trim(), completed,
     })
       .then((newTodo) => {
@@ -241,6 +285,7 @@ export const TodoApp: React.FC = () => {
       .catch(() => {
         setIsLoading(false);
         setErrorMessage('Unable to update a todo');
+        setIsLoading(false);
       })
       .finally(() => {
         setIsLoading(false);
@@ -270,7 +315,6 @@ export const TodoApp: React.FC = () => {
             tempTodo={tempTodo}
             visibleTodos={visibleTodos}
             onDelete={deleteTodo}
-            isLoading={isLoading}
             toggleStatus={toggleStatus}
             onSubmit={updateTodo}
           />
