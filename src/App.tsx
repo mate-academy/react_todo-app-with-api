@@ -50,13 +50,22 @@ export const App: React.FC = () => {
   }), [filter, todos]);
 
   function deleteTodo(todoId: number) {
+    let deletedTodo: Todo | null = null;
+    const todoToDelete = todos.find((todo) => todo.id === todoId);
+
+    if (todoToDelete) {
+      deletedTodo = { ...todoToDelete };
+      setTodos((currentTodo) => currentTodo.filter(todo => todo.id !== todoId));
+    }
+
     return deleteTodos(todoId)
-      .then(() => {
-        setTodos(currentTodo => currentTodo.filter(todo => todo.id !== todoId));
-      })
-      .catch((Error) => {
+      .then()
+      .catch(() => {
         showError(ErrorType.Delete);
-        throw Error;
+
+        if (deletedTodo) {
+          setTodos([...todos]);
+        }
       });
   }
 
@@ -89,41 +98,25 @@ export const App: React.FC = () => {
 
   function todoStatusAll() {
     const updatedIsAllCompleted = !isAllCompleted;
-    let updatedTodos = [];
+    const changedTodos = todos.filter((todo) => todo.completed
+    !== updatedIsAllCompleted);
 
-    if (isAllCompleted === false) {
-      updatedTodos = todos.map((todo) => ({
-        ...todo,
-        completed: updatedIsAllCompleted,
-      }));
-
-      setTodos(updatedTodos);
-      setIsAllCompleted(updatedIsAllCompleted);
-
-      updatedTodos.map(todo => updateTodo(todo)
-        .then(() => { })
-        .catch((Error) => {
+    const updatePromises = changedTodos
+      .map((changedTodo) => updateTodo(changedTodo)
+        .then(() => {
+          setTodos((prevTodos) => prevTodos
+            .map((todo) => (todo.id === changedTodo.id
+              ? { ...todo, completed: updatedIsAllCompleted }
+              : todo)));
+        })
+        .catch((error) => {
           showError(ErrorType.Update);
-          throw Error;
+          throw error;
         }));
-    }
 
-    if (isAllCompleted === true) {
-      updatedTodos = todos.map((todo) => ({
-        ...todo,
-        completed: updatedIsAllCompleted,
-      }));
+    setIsAllCompleted(updatedIsAllCompleted);
 
-      setTodos(updatedTodos);
-      setIsAllCompleted(updatedIsAllCompleted);
-
-      updatedTodos.map(todo => updateTodo(todo)
-        .then(() => { })
-        .catch((Error) => {
-          showError(ErrorType.Update);
-          throw Error;
-        }));
-    }
+    return Promise.all(updatePromises);
   }
 
   function clearCompleted() {
@@ -177,9 +170,7 @@ export const App: React.FC = () => {
 
     if (todoToUpdateOnServer) {
       return updateTodo(todoToUpdateOnServer)
-        .then(() => {
-          setTodos(todos);
-        })
+        .then()
         .catch((Error) => {
           showError(ErrorType.Update);
           throw Error;

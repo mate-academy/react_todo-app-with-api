@@ -67,20 +67,32 @@ export const Todos: React.FC<Props> = ({
           key={todo.id}
         >
           {editingTodo === todo.id ? (
-            <form onSubmit={(event) => handleEditSubmit(event, todo.id)}>
-              <input
-                type="text"
-                className="edit"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onBlur={(e) => {
-                  if (e.relatedTarget === null) {
-                    handleEditBlur(todo.id);
-                  }
-                }}
-                onKeyUp={(e) => handleEditKey(e, todo.id)}
-              />
-            </form>
+            <>
+              <label
+                className="todo__status-label"
+              >
+                <input
+                  type="checkbox"
+                  className="todo__status"
+                  checked={todo.completed}
+                  onChange={() => todoStatus(todo.id)}
+                />
+              </label>
+              <form onSubmit={(event) => handleEditSubmit(event, todo.id)}>
+                <input
+                  type="text"
+                  className="todo__title-field"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  onBlur={(e) => {
+                    if (e.relatedTarget === null) {
+                      handleEditBlur(todo.id);
+                    }
+                  }}
+                  onKeyUp={(e) => handleEditKey(e, todo.id)}
+                />
+              </form>
+            </>
           ) : (
             <>
               <label
@@ -119,10 +131,10 @@ export const Todos: React.FC<Props> = ({
       ))}
       {tempTodo && (
         <div
-          className={classNames('todo', 'loading')}
+          className={classNames('todo', 'loading', 'modal', 'is-active')}
           key={tempTodo.id}
         >
-          <span className="loader" />
+          <div className="loader" />
         </div>
       )}
     </section>
