@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useContext,
+  useMemo,
 } from 'react';
 import classNames from 'classnames';
 import { TodoContext } from '../../context/TodoContext';
@@ -14,18 +15,31 @@ export const TodoHeader: React.FC = () => {
   const {
     setErrorMessage,
     addTodoHandler,
+    todos,
     activeTodos,
     completedTodos,
     isLoading,
     setTempTodo,
+    toggleChangeHandler,
   } = useContext(TodoContext);
 
   const activeTodosCount = activeTodos.length;
-  const completedTodosCount = completedTodos.length;
 
   const formInputRef = useRef<HTMLInputElement>(null);
 
+  const isAllCompleted = useMemo(() => (
+    todos.every(todo => todo.completed)
+  ), [todos]);
+
   const [value, setValue] = useState('');
+
+  const handleToggleAll = () => {
+    if (activeTodosCount) {
+      activeTodos.forEach(todo => toggleChangeHandler(todo));
+    } else {
+      completedTodos.forEach(todo => toggleChangeHandler(todo));
+    }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value.trimStart();
@@ -73,14 +87,15 @@ export const TodoHeader: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {!!activeTodosCount && (
+      {!!todos.length && (
         <button
           type="button"
           data-cy="ToggleAllButton"
           className={classNames(
             'todoapp__toggle-all',
-            { active: completedTodosCount },
+            { active: isAllCompleted },
           )}
+          onClick={handleToggleAll}
         />
       )}
 
