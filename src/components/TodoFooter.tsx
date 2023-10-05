@@ -6,7 +6,7 @@ import { Status } from '../types/Status';
 
 type Props = {
   todos: Todo[],
-  CompletedTodosCount: number,
+  completedTodosCount: number,
   status: Status,
   handleClearCompletedTodos: () => void,
   handleFilterStatus: (status: Status) => void,
@@ -14,7 +14,7 @@ type Props = {
 
 export const TodoFooter: React.FC<Props> = ({
   todos,
-  CompletedTodosCount,
+  completedTodosCount: CompletedTodosCount,
   status,
   handleClearCompletedTodos,
   handleFilterStatus,

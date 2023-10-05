@@ -12,19 +12,7 @@ import { TodoHeader } from './components/TodoHeader';
 import { Status } from './types/Status';
 import { TodoFooter } from './components/TodoFooter';
 import { ErrorMessage } from './components/ErrorMessage';
-
-const getFilteredTodos = (todos: Todo[], isCompleted: Status): Todo[] => {
-  return todos.filter((todo: Todo) => {
-    switch (isCompleted) {
-      case Status.Completed:
-        return todo.completed;
-      case Status.Active:
-        return !todo.completed;
-      default:
-        return true;
-    }
-  });
-};
+import { getFilteredTodos } from './utils/functions';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -101,6 +89,10 @@ export const App: React.FC = () => {
       });
   };
 
+  const currentOrUpdeted = (current: Todo, updated: Todo) => {
+    return current.id !== updated.id ? current : updated;
+  };
+
   const handleRenameTodo = (todo: Todo, newTodoTitle: string) => {
     setNewIds(todo.id);
 
@@ -111,9 +103,7 @@ export const App: React.FC = () => {
       })
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currentTodo => {
-          return currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo;
+          return currentOrUpdeted(currentTodo, updatedTodo);
         }));
       })
       .catch(() => {
@@ -134,7 +124,7 @@ export const App: React.FC = () => {
       })
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currentTodo => {
-          return currentTodo.id !== updatedTodo.id ? currentTodo : updatedTodo;
+          return currentOrUpdeted(currentTodo, updatedTodo);
         }));
       })
       .catch(() => {
@@ -146,11 +136,12 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    todos
-      .filter(todo => todo.completed)
-      .forEach(todo => {
-        handleDeleteTodo(todo.id);
-      });
+    const filteredTodos = todos
+      .filter(todo => todo.completed);
+
+    Promise.all(filteredTodos.map(todo => {
+      return handleDeleteTodo(todo.id);
+    }));
   };
 
   const visibleTodos = useMemo(() => {
@@ -161,22 +152,19 @@ export const App: React.FC = () => {
     setStatus(todosFilter));
 
   const allTodosCount = todos.length;
-  const CompletedTodosCount = todos.filter(({ completed }) => completed).length;
-  const isAllTodosCompleted = allTodosCount === CompletedTodosCount;
+  const completedTodosCount = todos.filter(({ completed }) => completed).length;
+  const isAllTodosCompleted = allTodosCount === completedTodosCount;
 
   const handleChangeStatusTodos = () => {
+    let filteredTodos = todos;
+
     if (isAllTodosCompleted) {
-      todos
-        .forEach(todo => {
-          handleChangeStatusTodo(todo);
-        });
-    } else {
-      todos
-        .filter(({ completed }) => !completed)
-        .forEach(todo => {
-          handleChangeStatusTodo(todo);
-        });
+      filteredTodos = todos.filter(({ completed }) => !completed);
     }
+
+    Promise.all(filteredTodos.map(todo => {
+      return handleChangeStatusTodo(todo);
+    }));
   };
 
   return (
@@ -218,7 +206,7 @@ export const App: React.FC = () => {
         {Boolean(todos.length) && (
           <TodoFooter
             todos={todos}
-            CompletedTodosCount={CompletedTodosCount}
+            completedTodosCount={completedTodosCount}
             status={status}
             handleClearCompletedTodos={handleClearCompletedTodos}
             handleFilterStatus={handleFilterStatus}

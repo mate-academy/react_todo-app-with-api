@@ -27,6 +27,20 @@ export const TodoRow: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const trimmedTitle = todoTitle.trim();
+
+    if (!trimmedTitle) {
+      onTodoDelete();
+
+      return;
+    }
+
+    if (trimmedTitle === todo.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
     if (todoTitle) {
       await onTodoRename(todoTitle);
     } else {
