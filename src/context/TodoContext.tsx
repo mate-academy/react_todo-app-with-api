@@ -116,6 +116,12 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       return Promise.resolve();
     }
 
+    if (!newTodoTitle.trim()) {
+      setErrorMessage(ErrorMessage.EmptyTitleError);
+
+      return Promise.resolve();
+    }
+
     setIsLoading(true);
 
     // eslint-disable-next-line consistent-return
