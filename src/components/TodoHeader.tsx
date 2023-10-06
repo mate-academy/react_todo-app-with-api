@@ -1,9 +1,8 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 type Props = {
-  onTodoAdd: (title: string) => Promise<void> | undefined,
+  onTodoAdd: (title: string) => Promise<void> | null,
   onToggleAllClick: () => void,
   isAnyTodos: boolean,
   isToggleActive: boolean,
@@ -28,10 +27,13 @@ export const TodoHeader: React.FC<Props> = ({
         .then(() => {
           setTodoTitle('');
         })
-        .finally(() => {
-          setIsAdding(false);
+        .catch(e => {
+          // eslint-disable-next-line no-console
+          console.log(e);
         });
     }
+
+    setIsAdding(false);
   };
 
   const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +51,7 @@ export const TodoHeader: React.FC<Props> = ({
       {isAnyTodos && (
         <button
           type="button"
+          aria-label="toddle"
           className={
             cn(
               'todoapp__toggle-all',

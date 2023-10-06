@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
@@ -58,7 +56,7 @@ export const App: React.FC = () => {
     if (!newTodoTitle.trim()) {
       setErrorMessage(ErrorMessage.EmptyTitle);
 
-      return;
+      return null;
     }
 
     setTempTodo({
@@ -68,8 +66,7 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    // eslint-disable-next-line consistent-return
-    return ApiServices
+    const response = ApiServices
       .addTodo(newTodoTitle.trim())
       .then((newTodo: Todo) => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
@@ -79,6 +76,8 @@ export const App: React.FC = () => {
       }).finally(() => {
         setTempTodo(null);
       });
+
+    return response;
   };
 
   const handleTodoDelete = (todoId: number) => {
@@ -96,7 +95,9 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessage.UnableDelete);
       })
       .finally(() => {
-        setProcessingTodoIds(prevState => prevState.filter(id => id !== todoId));
+        setProcessingTodoIds(prevState => (
+          prevState.filter(id => id !== todoId)
+        ));
       });
   };
 
@@ -122,7 +123,9 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setProcessingTodoIds(prevState => prevState.filter(id => id !== todo.id));
+        setProcessingTodoIds(prevState => (
+          prevState.filter(id => id !== todo.id)
+        ));
       });
   };
 
@@ -146,24 +149,24 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setProcessingTodoIds(prevState => prevState.filter(id => id !== todo.id));
+        setProcessingTodoIds(prevState => (
+          prevState.filter(id => id !== todo.id)
+        ));
       });
   };
 
   const handleClearCompletedTodos = () => {
     todos
-      .filter(todo => todo.completed)
-      .forEach(todo => handleTodoDelete(todo.id));
+      .forEach(todo => todo.completed && handleTodoDelete(todo.id));
   };
 
   const handleToggleAll = () => {
     if (isEveryCompleted) {
-      todos.forEach(handleTodoToggle);
-    } else {
-      todos
-        .filter(todo => !todo.completed)
-        .forEach(handleTodoToggle);
+      return todos.forEach(handleTodoToggle);
     }
+
+    return todos
+      .forEach(todo => !todo.completed && handleTodoToggle(todo));
   };
 
   return (
@@ -184,7 +187,9 @@ export const App: React.FC = () => {
               key={todo.id}
               todo={todo}
               onTodoDelete={() => handleTodoDelete(todo.id)}
-              onTodoRename={(todoTitle: string) => handleTodoRename(todo, todoTitle)}
+              onTodoRename={(todoTitle: string) => (
+                handleTodoRename(todo, todoTitle)
+              )}
               onTodoToggle={() => handleTodoToggle(todo)}
               isProcessing={processingTodoIds.includes(todo.id)}
             />
@@ -197,11 +202,10 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
-        {todos.length > 0 && (
+        {!!todos.length && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
-              {`${activeTodosCounter} items left`}
+              {`${activeTodosCounter} ${activeTodosCounter === 1 ? 'item' : 'items'} left`}
             </span>
 
             <nav className="filter" data-cy="Filter">
@@ -269,6 +273,7 @@ export const App: React.FC = () => {
       >
         <button
           data-cy="HideErrorButton"
+          aria-label="delete"
           type="button"
           className="delete"
           onClick={() => setErrorMessage('')}

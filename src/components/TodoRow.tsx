@@ -36,10 +36,11 @@ export const TodoRow: React.FC<Props> = ({
 
   const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const normalizesTodoTitle = todoTitle.trim();
 
-    if (todoTitle.trim()) {
-      if (todoTitle.trim() !== todo.title) {
-        onTodoRename(todoTitle.trim());
+    if (normalizesTodoTitle) {
+      if (normalizesTodoTitle !== todo.title) {
+        onTodoRename(normalizesTodoTitle);
       }
     } else {
       onTodoDelete();
@@ -53,6 +54,7 @@ export const TodoRow: React.FC<Props> = ({
   ) => {
     if (event.keyCode === 27) {
       setIsEditing(false);
+      setTodoTitle(todo.title);
     }
   };
 
@@ -109,7 +111,6 @@ export const TodoRow: React.FC<Props> = ({
           </button>
         </>
       )}
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn(
