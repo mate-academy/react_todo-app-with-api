@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
-// import classNames from 'classnames';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import * as TodoSevise from './api/todos';
@@ -39,18 +38,6 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => setErrorMessage(ErrorMessages.UnableLoadTodo));
   }, []);
-
-  /*   const timerId: React.MutableRefObject<number> = useRef<number>(0);
-
-  useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
-    }
-
-    timerId.current = window.setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-  }, [errorMessage]); */
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -108,6 +95,7 @@ export const App: React.FC = () => {
   };
 
   const handleToggleChange = (todo: Todo) => {
+    setIsLoading(prevArray => [...prevArray, todo.id]);
     TodoSevise.updateTodo({
       ...todo,
       completed: !todo.completed,
@@ -120,7 +108,8 @@ export const App: React.FC = () => {
               : updatedTodo
           )));
       })
-      .catch(() => setErrorMessage(ErrorMessages.UnableUpdateTodo));
+      .catch(() => setErrorMessage(ErrorMessages.UnableUpdateTodo))
+      .finally(() => setIsLoading([]));
   };
 
   const handelClearComplited = () => {
@@ -209,25 +198,6 @@ export const App: React.FC = () => {
         setErrorMessage={setErrorMessage}
         errorMessage={errorMessage}
       />
-
-      {/* <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !errorMessage.length },
-        )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setErrorMessage('')}
-        />
-        {errorMessage}
-      </div> */}
     </div>
   );
 };

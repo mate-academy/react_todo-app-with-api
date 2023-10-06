@@ -74,74 +74,71 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   return (
-    <>
+    <div
+      data-cy="Todo"
+      className={classNames(
+        'todo',
+        { completed },
+      )}
+    >
+
+      <label className="todo__status-label">
+        <input
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={completed}
+          onChange={handleToggleChange}
+        />
+      </label>
+
+      {isEdiding
+        ? (
+          <form
+            onSubmit={handleTodoSave}
+            onBlur={handleTodoSave}
+          >
+            <input
+              ref={titleInputRef}
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={todoTitle}
+              onChange={handleTodoTitleChange}
+              onKeyUp={handleEditingKeyUp}
+            />
+          </form>
+        ) : (
+          <>
+            <span
+              className="todo__title"
+              data-cy="TodoTitle"
+              onDoubleClick={handleTodoDoubleClick}
+            >
+              {title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => (onTodoDelete(id))}
+            >
+              ×
+            </button>
+          </>
+        )}
       <div
-        data-cy="Todo"
+        data-cy="TodoLoader"
         className={classNames(
-          'todo',
-          { completed },
+          'modal',
+          'overlay',
+          { 'is-active': (isLoading.includes(todo.id) || id === 0) },
         )}
       >
-
-        <label className="todo__status-label">
-          <input
-            data-cy="TodoStatus"
-            type="checkbox"
-            className="todo__status"
-            checked={completed}
-            onChange={handleToggleChange}
-          />
-        </label>
-
-        {isEdiding
-          ? (
-            <form
-              onSubmit={handleTodoSave}
-              onBlur={handleTodoSave}
-            >
-              <input
-                ref={titleInputRef}
-                data-cy="TodoTitleField"
-                type="text"
-                className="todo__title-field"
-                placeholder="Empty todo will be deleted"
-                value={todoTitle}
-                onChange={handleTodoTitleChange}
-                onKeyUp={handleEditingKeyUp}
-              />
-            </form>
-          ) : (
-            <>
-              <span
-                className="todo__title"
-                data-cy="TodoTitle"
-                onDoubleClick={handleTodoDoubleClick}
-              >
-                {title}
-              </span>
-              <button
-                type="button"
-                className="todo__remove"
-                data-cy="TodoDelete"
-                onClick={() => (onTodoDelete(id))}
-              >
-                ×
-              </button>
-            </>
-          )}
-        <div
-          data-cy="TodoLoader"
-          className={classNames(
-            'modal',
-            'overlay',
-            { 'is-active': (isLoading.includes(todo.id) || id === 0) },
-          )}
-        >
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
       </div>
-    </>
+    </div>
   );
 };
