@@ -9,7 +9,7 @@ import {
 } from '../api/todos';
 import { USER_ID } from '../utils/constants';
 
-interface TodoContextProps {
+export interface TodoContextProps {
   todos: Todo[];
   handleAddTodo: (todo: Omit<Todo, 'id'>) => Promise<void>;
   handleDeleteTodo: (todoId: number) => Promise<void>;
@@ -59,6 +59,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
       ...prevLoadingTodoIds,
       todo.id,
     ]));
+
     try {
       const updatedTodo = await updateTodo(todo.id, {
         ...todo,

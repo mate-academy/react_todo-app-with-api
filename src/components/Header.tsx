@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect, useRef, useState,
 } from 'react';
@@ -29,7 +28,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
     if (todoTitleField.current) {
       todoTitleField.current.focus();
     }
-  });
+  }, [todos.length]);
 
   const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event?.target.value);
@@ -41,6 +40,7 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     setIsSubmiting(true);
     const newTitle = title.trim();
 
@@ -73,14 +73,21 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
   };
 
   const onToggleAll = async () => {
-    const completed = activeTodos.length > 0;
+    if (activeTodos.length) {
+      const updatePromises = activeTodos.map(currentTodo => handleUpdateTodo(
+        currentTodo,
+        { completed: true },
+      ));
 
-    const updatePromises = todos.map(currentTodo => handleUpdateTodo(
-      currentTodo,
-      { completed },
-    ));
+      await Promise.all(updatePromises);
+    } else {
+      const updatePromises = todos.map(currentTodo => handleUpdateTodo(
+        currentTodo,
+        { completed: false },
+      ));
 
-    await Promise.all(updatePromises);
+      await Promise.all(updatePromises);
+    }
   };
 
   return (
@@ -95,7 +102,9 @@ export const Header: React.FC<Props> = ({ activeTodos, setTempTodo }) => {
             )}
             data-cy="ToggleAllButton"
             onClick={onToggleAll}
-          />
+          >
+            {' '}
+          </button>
         )}
       <form onSubmit={onSubmit}>
         <input

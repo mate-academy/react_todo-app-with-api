@@ -28,18 +28,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsItemLoading(false);
   };
 
-  const onTodoTitleChange = (
+  const handleTodoTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setTodoTitle(event.target.value);
   };
 
-  const onTodoDoubleClick = () => {
+  const handleTodoDoubleClick = () => {
     setIsEditing(true);
   };
 
-  const onTodoSave = async (event: React.ChangeEvent<HTMLFormElement>) => {
+  const handleTodoSave = async (event: React.ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     setIsItemLoading(true);
     const title = todoTitle.trim();
 
@@ -60,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     setIsItemLoading(false);
   };
 
-  const onTodoDelete = async () => {
+  const handleTodoDelete = async () => {
     setIsItemLoading(true);
     await handleDeleteTodo(todo.id);
     setIsItemLoading(false);
@@ -72,11 +73,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [isEditing]);
 
-  document.addEventListener('keyup', (e) => {
+  const handleKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setIsEditing(false);
+      setTodoTitle(todo.title);
     }
-  });
+  };
 
   const isLoaderActive = (isLoadingTodoIds.includes(todo.id))
     || isItemLoading;
@@ -100,8 +102,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       {isEditing
         ? (
           <form
-            onSubmit={onTodoSave}
-            onBlur={onTodoSave}
+            onSubmit={handleTodoSave}
+            onBlur={handleTodoSave}
           >
             <input
               ref={todoTitleField}
@@ -110,7 +112,8 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               className="todo__title-field"
               placeholder="Empty title will be deleted"
               value={todoTitle}
-              onChange={onTodoTitleChange}
+              onChange={handleTodoTitleChange}
+              onKeyUp={handleKeyUp}
             />
           </form>
         ) : (
@@ -118,7 +121,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             <span
               className="todo__title"
               data-cy="TodoTitle"
-              onDoubleClick={onTodoDoubleClick}
+              onDoubleClick={handleTodoDoubleClick}
             >
               {todo.title}
             </span>
@@ -126,7 +129,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={onTodoDelete}
+              onClick={handleTodoDelete}
             >
               ×
             </button>
