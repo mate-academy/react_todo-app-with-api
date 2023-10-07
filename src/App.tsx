@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
@@ -9,40 +8,13 @@ import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoItem } from './components/TodoItem';
 import * as todoService from './api/todos';
+import { getFilterTodos } from './utils/getFilterTodos';
 
 const USER_ID = 11465;
 
-const getFilterTodos = (
-  todos: Todo[],
-  statusFilter: StatusFilter,
-): Todo[] => {
-  let filteredTodos: Todo[] = [];
-
-  switch (statusFilter) {
-    case StatusFilter.All: {
-      filteredTodos = todos;
-      break;
-    }
-
-    case StatusFilter.Active: {
-      filteredTodos = todos.filter(todo => todo.completed === false);
-      break;
-    }
-
-    case StatusFilter.Completed: {
-      filteredTodos = todos.filter(todo => todo.completed === true);
-      break;
-    }
-
-    default: filteredTodos = todos;
-  }
-
-  return filteredTodos;
-};
-
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLoadig, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>(StatusFilter.All);
   const [todoError, setTodoError] = useState<ErrorType | null>(null);
   const [newTodoTitle, setNewTodoTitle] = useState('');
@@ -74,7 +46,7 @@ export const App: React.FC = () => {
     }, 3000);
 
     return () => clearTimeout(timeoutId);
-  });
+  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -236,7 +208,6 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {/* this buttons is active only if there are some active todos */}
           {!!todos.length && (
             <button
               type="button"
@@ -244,10 +215,10 @@ export const App: React.FC = () => {
                 { active: !countActiveTodos })}
               data-cy="ToggleAllButton"
               onClick={handleToggleTodo}
+              aria-label="ToggleAllButton"
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"
@@ -262,7 +233,7 @@ export const App: React.FC = () => {
           </form>
         </header>
 
-        {!isLoadig && (
+        {!isLoading && (
           <>
             <TodoList
               todos={visibleTodos}
@@ -289,7 +260,6 @@ export const App: React.FC = () => {
                 handleClearCompleted={handleClearCompleted}
               />
             )}
-
           </>
         )}
       </div>
@@ -304,11 +274,13 @@ export const App: React.FC = () => {
           { hidden: !todoError },
         )}
       >
+
         <button
           data-cy="HideErrorButton"
           type="button"
           className="delete"
           onClick={() => setTodoError(null)}
+          aria-label="HideErrorButton"
         />
         {todoError}
       </div>

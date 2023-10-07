@@ -33,7 +33,10 @@ export const TodoItem: React.FC<Props> = ({
     setNewTitle(todo.title);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (event:
+  | React.FocusEvent<HTMLInputElement>
+  | React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (newTitle === todo.title) {
       return;
     }
