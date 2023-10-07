@@ -153,31 +153,37 @@ export const App: React.FC = () => {
   };
 
   function changeTodoTitle(todoId: number, newTitleTodo: string) {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === todoId) {
-        return {
-          ...todo,
-          title: newTitleTodo,
-        };
+    const changedtodo = todos.find(todo => todo.id === todoId);
+
+    if (changedtodo?.title !== newTitleTodo) {
+      const updatedTodos = todos.map((todo) => {
+        if (todo.id === todoId) {
+          return {
+            ...todo,
+            title: newTitleTodo,
+          };
+        }
+
+        return todo;
+      });
+
+      setTodos(updatedTodos);
+
+      const todoToUpdateOnServer = updatedTodos.find((td) => td.id === todoId);
+
+      if (todoToUpdateOnServer) {
+        return updateTodo(todoToUpdateOnServer)
+          .then()
+          .catch((Error) => {
+            showError(ErrorType.Update);
+            throw Error;
+          });
       }
 
-      return todo;
-    });
-
-    setTodos(updatedTodos);
-
-    const todoToUpdateOnServer = updatedTodos.find((tod) => tod.id === todoId);
-
-    if (todoToUpdateOnServer) {
-      return updateTodo(todoToUpdateOnServer)
-        .then()
-        .catch((Error) => {
-          showError(ErrorType.Update);
-          throw Error;
-        });
+      return Promise.resolve();
     }
 
-    return Promise.resolve();
+    return undefined;
   }
 
   return (

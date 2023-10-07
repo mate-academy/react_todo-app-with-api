@@ -19,10 +19,12 @@ export const Todos: React.FC<Props> = ({
 }) => {
   const [editingTodo, setEditingTodo] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
+  const [doubleClicked, setDoubleClicked] = useState(false);
 
   function setNewTodoTitle(todoId: number, currentTitle: string) {
     setEditingTodo(todoId);
     setNewTitle(currentTitle);
+    setDoubleClicked(true);
   }
 
   function handleEditSubmit(event: React.FormEvent, todoId: number) {
@@ -44,6 +46,7 @@ export const Todos: React.FC<Props> = ({
     }
 
     setEditingTodo(null);
+    setDoubleClicked(false);
   }
 
   function handleEditKey(event: React.KeyboardEvent, todoId: number) {
@@ -89,6 +92,8 @@ export const Todos: React.FC<Props> = ({
                       handleEditBlur(todo.id);
                     }
                   }}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={doubleClicked}
                   onKeyUp={(e) => handleEditKey(e, todo.id)}
                 />
               </form>
