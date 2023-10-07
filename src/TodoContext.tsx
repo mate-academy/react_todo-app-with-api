@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Todo } from './types/Todo';
+import { useLocalStorage } from './hooks/UseLocalStorege';
+import { User } from './types/User';
 
 interface ITodosContext {
   todos: Todo[],
@@ -16,9 +18,27 @@ interface ITodosContext {
   setUpdatedTitle: (newTitle: string) => void,
   isLoading: boolean,
   setIsLoading: (status: boolean) => void,
-  USER_ID: number,
-  setUserId: (id: number) => void,
+  user: User,
+  setUser: (user: User) => void,
 }
+
+const defaultUser: User = {
+  id: 0,
+  name: 'dafaultName',
+  username: 'defaultUserName',
+  email: 'defaultEmail',
+  phone: 'dafaultPhone',
+};
+// const defaultUser: User = {
+//   createdAt: '',
+//   email: '',
+//   id: 0,
+//   name: '',
+//   phone: null,
+//   updatedAt: '',
+//   username: null,
+//   website: null,
+// };
 
 export const TodosContext = React.createContext<ITodosContext>({
   todos: [],
@@ -35,8 +55,8 @@ export const TodosContext = React.createContext<ITodosContext>({
   setUpdatedTitle: () => {},
   isLoading: false,
   setIsLoading: () => {},
-  USER_ID: 0,
-  setUserId: () => {},
+  user: defaultUser,
+  setUser: () => {},
 });
 
 export const useTodos = (): ITodosContext => React.useContext(TodosContext);
@@ -53,7 +73,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [USER_ID, setUserId] = useState(0);
+  const [user, setUser] = useLocalStorage<User>('user', defaultUser);
 
   const value = useMemo(() => ({
     todos,
@@ -70,8 +90,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setUpdatedTitle,
     isLoading,
     setIsLoading,
-    USER_ID,
-    setUserId,
+    user,
+    setUser,
   }), [
     todos,
     errorMessage,
@@ -80,7 +100,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     isEditing,
     updatedTitle,
     isLoading,
-    USER_ID,
+    user,
   ]);
 
   return (

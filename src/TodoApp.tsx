@@ -11,8 +11,6 @@ import * as todoService from './api/todos';
 import { useTodos } from './TodoContext';
 import { LoginPage } from './components/LoginPage/LoginPage';
 // #endregion
-// const USER_ID = 11449;
-// const USER_ID = 0;
 
 function getVisibleTodos(todos: Todo[], newStatus: Status) {
   switch (newStatus) {
@@ -40,7 +38,7 @@ export const TodoApp: React.FC = () => {
     updatedTitle,
     setIsLoading,
     isLoading,
-    USER_ID,
+    user,
   } = useTodos();
 
   const [status, setStatus] = useState(Status.ALL);
@@ -63,7 +61,7 @@ export const TodoApp: React.FC = () => {
   useEffect(clearError, [errorMessage]);
 
   function loadTodos() {
-    todoService.getTodos(USER_ID)
+    todoService.getTodos(user.id)
       .then(response => {
         setTodos(response);
       })
@@ -72,7 +70,7 @@ export const TodoApp: React.FC = () => {
       });
   }
 
-  useEffect(loadTodos, [USER_ID]);
+  useEffect(loadTodos, [user]);
   // #endregion
 
   // #region add, delete, update
@@ -98,7 +96,7 @@ export const TodoApp: React.FC = () => {
       });
 
     setTempTodo({
-      id: 0, userId: USER_ID, title, completed,
+      id: 0, userId: user.id, title, completed,
     });
 
     return promise;
@@ -296,7 +294,7 @@ export const TodoApp: React.FC = () => {
   };
 
   // #endregion
-  if (!USER_ID) {
+  if (!user.id) {
     // return <UserWarning />;
     return <LoginPage />;
   }
@@ -309,7 +307,7 @@ export const TodoApp: React.FC = () => {
 
         <Header
           isFocused={isFocused}
-          userId={USER_ID}
+          userId={user.id}
           onSubmit={addTodo}
           toggleAll={toggleAll}
         />
