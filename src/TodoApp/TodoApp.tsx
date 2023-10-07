@@ -38,7 +38,7 @@ export const TodoApp: React.FC = () => {
     if (inputTitle.current !== null) {
       inputTitle.current.focus();
     }
-  }, []);
+  }, [inputTitle]);
 
   const handlerFilterChange = (newFilter: string) => {
     setFilter(newFilter);
@@ -149,6 +149,7 @@ export const TodoApp: React.FC = () => {
           .finally(() => setToggleCompletedArray([]));
       }
     });
+
     if (todos.some(todo => todo.completed === false)) {
       const updatedTodos = todos.map((todo) => ({
         ...todo,

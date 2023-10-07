@@ -142,10 +142,6 @@ export const TodoItem: React.FC<Props> = ({
                 }, 3000);
               }
 
-              if (editInput.current !== null) {
-                editInput.current.focus();
-              }
-
               setNewTitle('');
               setTodos(todos);
             })
