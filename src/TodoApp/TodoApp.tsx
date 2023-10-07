@@ -187,7 +187,12 @@ export const TodoApp: React.FC = () => {
             }, 3000);
           }
         })
-        .finally(() => setIsDeleteCompleted(false));
+        .finally(() => {
+          setIsDeleteCompleted(false);
+          if (inputTitle.current !== null) {
+            inputTitle.current.focus();
+          }
+        });
     });
   };
 

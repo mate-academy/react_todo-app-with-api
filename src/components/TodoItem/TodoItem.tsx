@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { Todo } from '../../types/Todo';
 import { deleteTodo, updateTodo } from '../../api/todos';
@@ -26,6 +26,12 @@ export const TodoItem: React.FC<Props> = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const editInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && editInput.current) {
+      editInput.current.focus();
+    }
+  }, [isEditing]);
 
   const handlerCompleteTodo = () => {
     const updatedTodos = [...todos];
@@ -70,6 +76,13 @@ export const TodoItem: React.FC<Props> = ({
       .then(() => {
         setTodos((currentTodos: Todo[]) => currentTodos
           .filter(elem => elem.id !== todo.id));
+        if (isEditing) {
+          setIsEditing(false);
+        }
+
+        if (inputTitle.current !== null) {
+          inputTitle.current.focus();
+        }
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
@@ -83,7 +96,9 @@ export const TodoItem: React.FC<Props> = ({
           }, 3000);
         }
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handlerEditTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +108,7 @@ export const TodoItem: React.FC<Props> = ({
   const handlerEndEditTodoOnBlur = () => {
     if (isEditing) {
       if (newTitle.trim() !== '') {
-        if (newTitle.trim() !== todo.title) {
+        if (newTitle.trim() !== todo.title.trim()) {
           const updatedTodos = [...todos];
           const currentTodoIndex = updatedTodos
             .findIndex((elem: Todo) => elem.id === todo.id);
@@ -129,26 +144,24 @@ export const TodoItem: React.FC<Props> = ({
                 editInput.current.focus();
               }
 
+              setNewTitle('');
               setTodos(todos);
             })
-            .finally(() => setIsLoading(false));
+            .finally(() => {
+              setIsLoading(false);
+            });
         } else {
           setIsEditing(false);
-          setNewTitle('');
         }
       } else {
         handlerDeleteTodo();
-        if (inputTitle.current !== null) {
-          inputTitle.current.focus();
-        }
-
-        setIsEditing(false);
       }
     }
   };
 
   const handlerKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape' && isEditing) {
+      setNewTitle('');
       setIsEditing(false);
     } else if (event.key === 'Enter' && isEditing) {
       handlerEndEditTodoOnBlur();
@@ -158,12 +171,6 @@ export const TodoItem: React.FC<Props> = ({
   const handlerEditTodo = () => {
     setNewTitle(todo.title);
     setIsEditing(true);
-
-    setTimeout(() => {
-      if (editInput.current !== null) {
-        editInput.current.focus();
-      }
-    }, 0);
   };
 
   const handlerSaveEditTodo = (event: React.ChangeEvent<HTMLFormElement>) => {
@@ -235,33 +242,5 @@ export const TodoItem: React.FC<Props> = ({
         <div className="loader" />
       </div>
     </div>
-    // )
   );
 };
-
-//   {/* This todo is being edited */ }
-//   < div data-cy="Todo" className = "todo" >
-//     <label className="todo__status-label">
-//       <input
-//         data-cy="TodoStatus"
-//         type="checkbox"
-//         className="todo__status"
-//       />
-//     </label>
-
-// {/* This form is shown instead of the title and remove button */ }
-//         <form>
-//           <input
-//             data-cy="TodoTitleField"
-//             type="text"
-//             className="todo__title-field"
-//             placeholder="Empty todo will be deleted"
-//             value="Todo is being edited now"
-//           />
-//         </form>
-
-//         <div data-cy="TodoLoader" className="modal overlay">
-//           <div className="modal-background has-background-white-ter" />
-//           <div className="loader" />
-//         </div>
-//       </div >
