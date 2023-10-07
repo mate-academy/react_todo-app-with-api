@@ -16,6 +16,8 @@ interface ITodosContext {
   setUpdatedTitle: (newTitle: string) => void,
   isLoading: boolean,
   setIsLoading: (status: boolean) => void,
+  USER_ID: number,
+  setUserId: (id: number) => void,
 }
 
 export const TodosContext = React.createContext<ITodosContext>({
@@ -33,6 +35,8 @@ export const TodosContext = React.createContext<ITodosContext>({
   setUpdatedTitle: () => {},
   isLoading: false,
   setIsLoading: () => {},
+  USER_ID: 0,
+  setUserId: () => {},
 });
 
 export const useTodos = (): ITodosContext => React.useContext(TodosContext);
@@ -49,6 +53,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [USER_ID, setUserId] = useState(0);
 
   const value = useMemo(() => ({
     todos,
@@ -65,6 +70,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     setUpdatedTitle,
     isLoading,
     setIsLoading,
+    USER_ID,
+    setUserId,
   }), [
     todos,
     errorMessage,
@@ -73,6 +80,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     isEditing,
     updatedTitle,
     isLoading,
+    USER_ID,
   ]);
 
   return (

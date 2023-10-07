@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 // #region import
 import React, { useEffect, useState } from 'react';
-import { UserWarning } from './UserWarning';
+// import { UserWarning } from './UserWarning';
 import { Footer, Status } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { Section } from './components/Section/Section';
@@ -9,8 +9,10 @@ import { Error } from './components/Error/Error';
 import { Todo } from './types/Todo';
 import * as todoService from './api/todos';
 import { useTodos } from './TodoContext';
+import { LoginPage } from './components/LoginPage/LoginPage';
 // #endregion
-const USER_ID = 11449;
+// const USER_ID = 11449;
+// const USER_ID = 0;
 
 function getVisibleTodos(todos: Todo[], newStatus: Status) {
   switch (newStatus) {
@@ -38,6 +40,7 @@ export const TodoApp: React.FC = () => {
     updatedTitle,
     setIsLoading,
     isLoading,
+    USER_ID,
   } = useTodos();
 
   const [status, setStatus] = useState(Status.ALL);
@@ -69,7 +72,7 @@ export const TodoApp: React.FC = () => {
       });
   }
 
-  useEffect(loadTodos, []);
+  useEffect(loadTodos, [USER_ID]);
   // #endregion
 
   // #region add, delete, update
@@ -294,7 +297,8 @@ export const TodoApp: React.FC = () => {
 
   // #endregion
   if (!USER_ID) {
-    return <UserWarning />;
+    // return <UserWarning />;
+    return <LoginPage />;
   }
 
   return (

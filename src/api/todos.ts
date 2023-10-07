@@ -1,4 +1,6 @@
 import { Todo } from '../types/Todo';
+import { User } from '../types/User';
+import { UserData } from '../types/UserData';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -17,4 +19,16 @@ export const updateTodo = ({
   id, userId, title, completed,
 }: Todo) => {
   return client.patch<Todo>(`/todos/${id}`, { userId, title, completed });
+};
+
+export const getAllUsers = () => {
+  return client.get<User[]>('/users');
+};
+
+export const createUser = ({
+  name, username, email, phone,
+} : UserData) => {
+  return client.post<User>('/users', {
+    name, username, email, phone,
+  });
 };
