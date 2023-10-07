@@ -41,10 +41,10 @@ export const TodoItem: React.FC<Props> = ({
       return;
     }
 
-    if (newTitle === '') {
+    if (newTitle.trim() === '') {
       handleDeleteTodo(todo.id);
     } else {
-      handleTitleUpdate(todo, newTitle)
+      handleTitleUpdate(todo, newTitle.trim())
         .then(() => setIsEditing(false));
     }
   };
