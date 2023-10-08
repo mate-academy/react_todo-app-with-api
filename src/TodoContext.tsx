@@ -18,27 +18,9 @@ interface ITodosContext {
   setUpdatedTitle: (newTitle: string) => void,
   isLoading: boolean,
   setIsLoading: (status: boolean) => void,
-  user: User,
+  user: User | null,
   setUser: (user: User) => void,
 }
-
-const defaultUser: User = {
-  id: 0,
-  name: 'dafaultName',
-  username: 'defaultUserName',
-  email: 'defaultEmail',
-  phone: 'dafaultPhone',
-};
-// const defaultUser: User = {
-//   createdAt: '',
-//   email: '',
-//   id: 0,
-//   name: '',
-//   phone: null,
-//   updatedAt: '',
-//   username: null,
-//   website: null,
-// };
 
 export const TodosContext = React.createContext<ITodosContext>({
   todos: [],
@@ -55,7 +37,7 @@ export const TodosContext = React.createContext<ITodosContext>({
   setUpdatedTitle: () => {},
   isLoading: false,
   setIsLoading: () => {},
-  user: defaultUser,
+  user: null,
   setUser: () => {},
 });
 
@@ -73,7 +55,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useLocalStorage<User>('user', defaultUser);
+  const [user, setUser] = useLocalStorage<User | null>('user', null);
 
   const value = useMemo(() => ({
     todos,

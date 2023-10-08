@@ -10,7 +10,6 @@ export const LoginPage = () => {
     setUser,
     setErrorMessage,
     setIsLoading,
-    // user,
   } = useTodos();
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName] = useState('');
@@ -24,20 +23,35 @@ export const LoginPage = () => {
     setUserName(event.target.value);
   };
 
-  // console.log(user.id);
-
-  const handleSubmit = () => {
-
-  };
-
-  const getUser = (event: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
 
+    if (userNotRegistred) {
+      return todoService.createUser({
+        name: userName,
+        username: '',
+        email: userEmail,
+        phone: '',
+      })
+        .then((response) => {
+          setUser(response);
+          setUserNotRegistred(false);
+        })
+        .catch(() => setErrorMessage('Unable to load todos'))
+        .finally(() => setIsLoading(false));
+    }
+
     return todoService.getUser(userEmail)
-      .then((response) => setUser(response))
+      .then((response) => {
+        if (response[0]) {
+          setUser(response[0]);
+        } else {
+          setUserNotRegistred(true);
+        }
+      })
       .catch(() => {
-        setUserNotRegistred(true);
+        setErrorMessage('Unable to load todo');
       })
       .finally(() => setIsLoading(false));
   };
@@ -76,7 +90,6 @@ export const LoginPage = () => {
               className={classNames('button is-primary', {
                 'is-loading': isLoading,
               })}
-              onClick={handleSubmit}
             >
               Login
             </button>
@@ -108,7 +121,6 @@ export const LoginPage = () => {
                 className={classNames('button is-primary', {
                   'is-loading': isLoading,
                 })}
-                onClick={handleSubmit}
               >
                 Register
               </button>

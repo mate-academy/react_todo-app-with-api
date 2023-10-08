@@ -180,6 +180,7 @@ export const Section: React.FC<Props> = ({
                   type="checkbox"
                   className="todo__status"
                   checked={tempTodo.completed}
+                  readOnly
                 />
               </label>
 

@@ -1,6 +1,5 @@
 import { Todo } from '../types/Todo';
 import { User } from '../types/User';
-// import { UserData } from '../types/UserData';
 import { client } from '../utils/fetchClient';
 
 export const getTodos = (userId: number) => {
@@ -22,5 +21,13 @@ export const updateTodo = ({
 };
 
 export const getUser = (email: string) => {
-  return client.get<User>(`/users?email=${email}`);
+  return client.get<User[]>(`/users?email=${email}`);
+};
+
+export const createUser = ({
+  name, username, email, phone,
+}: Omit<User, 'id'>) => {
+  return client.post<User>('/users', {
+    name, username, email, phone,
+  });
 };

@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 // #region import
 import React, { useEffect, useState } from 'react';
-// import { UserWarning } from './UserWarning';
 import { Footer, Status } from './components/Footer/Footer';
 import { Header } from './components/Header/Header';
 import { Section } from './components/Section/Section';
@@ -61,13 +60,15 @@ export const TodoApp: React.FC = () => {
   useEffect(clearError, [errorMessage]);
 
   function loadTodos() {
-    todoService.getTodos(user.id)
-      .then(response => {
-        setTodos(response);
-      })
-      .catch(() => {
-        setErrorMessage('Unable to load todos');
-      });
+    if (user) {
+      todoService.getTodos(user.id)
+        .then(response => {
+          setTodos(response);
+        })
+        .catch(() => {
+          setErrorMessage('Unable to load todos');
+        });
+    }
   }
 
   useEffect(loadTodos, [user]);
@@ -95,9 +96,11 @@ export const TodoApp: React.FC = () => {
         setIsFocused(true);
       });
 
-    setTempTodo({
-      id: 0, userId: user.id, title, completed,
-    });
+    if (user) {
+      setTempTodo({
+        id: 0, userId: user.id, title, completed,
+      });
+    }
 
     return promise;
   };
@@ -294,8 +297,7 @@ export const TodoApp: React.FC = () => {
   };
 
   // #endregion
-  if (!user.id) {
-    // return <UserWarning />;
+  if (!user) {
     return <LoginPage />;
   }
 
