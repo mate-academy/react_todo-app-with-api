@@ -26,20 +26,35 @@ export const TodoItem: React.FC<Props> = ({
   } = useContext(TodoContext);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [dbClicked, setDbClicked] = useState(false);
+  const [newTitle, setNewTitle] = useState(todo.title);
+  const [isXButtonVisible, setisXButtonVisible] = useState(true);
+
+  const editingRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingRef.current && dbClicked) {
+      editingRef.current.focus();
+    }
+  }, [dbClicked]);
 
   useEffect(() => {
     setIsLoading(changingId.includes(todo.id));
   }, [changingId]);
 
-  const [dbClicked, setDbClicked] = useState(false);
-  const [newTitle, setNewTitle] = useState(todo.title);
-
   const handleUpdateTodo = () => {
-    setDbClicked(false);
+    setDbClicked(true);
     setIsLoading(true);
+    setisXButtonVisible(false);
 
     if (!newTitle.trim()) {
       handleDelete(todo);
+
+      return;
+    }
+
+    if (newTitle === todo.title) {
+      setIsLoading(false);
 
       return;
     }
@@ -49,28 +64,38 @@ export const TodoItem: React.FC<Props> = ({
       title: newTitle,
     };
 
+    setTodos(
+      todos.map(currentTodo => (
+        currentTodo.id === updatedTodo.id
+          ? { ...currentTodo, title: newTitle }
+          : currentTodo
+      )),
+    );
+
     PostService.updateTodo(updatedTodo)
       .then(() => {
-        setTodos(
-          todos.map(currentTodo => {
-            return currentTodo.id === updatedTodo.id
-              ? { ...currentTodo, title: newTitle }
-              : currentTodo;
-          }),
-        );
+        setisXButtonVisible(true);
+        setIsLoading(false);
+        setDbClicked(false);
       })
       .catch(() => {
+        setNewTitle(newTitle);
         setErrorOccured(ErrorMessage.noUpdateTodo);
         setTimeout(() => {
           setErrorOccured('');
         }, 3000);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setDbClicked(false);
+        setisXButtonVisible(true);
+      });
   };
 
   const saveChanges = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       handleUpdateTodo();
+      setDbClicked(false);
     }
 
     if (event.key === 'Escape') {
@@ -80,7 +105,9 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handleChecked = () => {
+    setDbClicked(false);
     setIsLoading(true);
+    setisXButtonVisible(true);
 
     const newTodo = {
       ...todo,
@@ -94,6 +121,7 @@ export const TodoItem: React.FC<Props> = ({
             ? { ...currentTodo, completed: !currentTodo.completed }
             : currentTodo
         )));
+        setisXButtonVisible(false);
       })
       .catch(() => {
         setErrorOccured(ErrorMessage.noUpdateTodo);
@@ -101,22 +129,17 @@ export const TodoItem: React.FC<Props> = ({
           setErrorOccured('');
         }, 3000);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        setDbClicked(false);
+        setisXButtonVisible(true);
+      });
   };
-
-  const editingRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (editingRef.current && dbClicked) {
-      editingRef.current.focus();
-    }
-  }, [dbClicked]);
 
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed: todo.completed })}
-      onDoubleClick={() => setDbClicked(true)}
     >
       <label
         className="todo__status-label"
@@ -132,25 +155,31 @@ export const TodoItem: React.FC<Props> = ({
 
       {!dbClicked && (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            onDoubleClick={() => setDbClicked(true)}
+            data-cy="TodoTitle"
+            className="todo__title"
+          >
             {todo.title}
           </span>
 
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            onClick={() => handleDelete(todo)}
-          >
-            ×
-          </button>
+          {isXButtonVisible && (
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => handleDelete(todo)}
+            >
+              ×
+            </button>
+          )}
         </>
       )}
 
       {dbClicked && (
         <form
-          onBlur={handleUpdateTodo}
           onSubmit={handleUpdateTodo}
+          onBlur={handleUpdateTodo}
         >
           <label className="todo__status-label">
             <input

@@ -3,8 +3,8 @@ import { Todo } from '../../types/Todo';
 import { Status } from '../../types/FilterEnum';
 
 type Props = {
-  preparedTodos: Todo[];
   todos: Todo[];
+  preparedTodos: Todo[];
   setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   filterBy: string;
   setFilterBy: (item: Status) => void;
@@ -22,20 +22,20 @@ type Props = {
 };
 
 export const TodoContext = React.createContext<Props>({
-  preparedTodos: [],
   todos: [],
+  preparedTodos: [],
   setTodos: () => { },
   filterBy: '',
   setFilterBy: () => { },
   errorOccured: '',
-  setErrorOccured: () => {},
+  setErrorOccured: () => { },
   USER_ID: 11589,
   title: '',
-  setTitle: () => {},
-  handleSubmit: () => {},
-  handleDelete: () => {},
+  setTitle: () => { },
+  handleSubmit: () => { },
+  handleDelete: () => { },
   currentLoading: false,
   changingId: [],
-  setCurrentLoading: () => {},
-  setChangingId: () => {},
+  setCurrentLoading: () => { },
+  setChangingId: () => { },
 });

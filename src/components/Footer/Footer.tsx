@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
     setChangingId,
   } = useContext(TodoContext);
 
-  const clearButton = todos.find(todo => todo.completed);
+  const clearButton = todos.some(todo => todo.completed);
 
   const handleClearButton = () => {
     const clearCompletedTodos = todos
@@ -100,16 +100,15 @@ export const Footer: React.FC = () => {
         </nav>
 
         {/* don't show this button if there are no completed todos */}
-        {clearButton && (
-          <button
-            type="button"
-            className="todoapp__clear-completed"
-            data-cy="ClearCompletedButton"
-            onClick={handleClearButton}
-          >
-            Clear completed
-          </button>
-        )}
+        <button
+          type="button"
+          className="todoapp__clear-completed"
+          data-cy="ClearCompletedButton"
+          onClick={handleClearButton}
+          disabled={!clearButton}
+        >
+          Clear completed
+        </button>
       </footer>
     </>
   );

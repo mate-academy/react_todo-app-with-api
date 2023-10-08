@@ -6,11 +6,11 @@ import {
 import classNames from 'classnames';
 import { TodoContext } from '../TodoContext';
 import * as PostService from '../../api/todos';
+import { ErrorMessage } from '../../types/ErrorMessageEnum';
 
 export const Header = () => {
   const {
     todos,
-    preparedTodos,
     title,
     setTitle,
     setTodos,
@@ -18,6 +18,8 @@ export const Header = () => {
     currentLoading,
     setChangingId,
     setCurrentLoading,
+    setErrorOccured,
+    changingId,
   } = useContext(TodoContext);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,30 +28,32 @@ export const Header = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [todos.length, currentLoading]);
+  }, [todos.length, currentLoading, changingId]);
 
   const updateToggleTodos = () => {
-    const allCompleted = preparedTodos.every(
+    const allCompleted = todos.every(
       currentTodo => currentTodo.completed,
     );
 
-    const updatedTodosPromises = todos.map(currentTodo => {
-      const newTodo = {
-        ...currentTodo,
-        completed: !allCompleted,
-      };
+    const updatedTodosPromises = todos
+      .filter(currentTodo => currentTodo.completed === allCompleted)
+      .map(currentTodo => {
+        const newTodo = {
+          ...currentTodo,
+          completed: !allCompleted,
+        };
 
-      if (allCompleted) {
-        setChangingId(current => [...current, currentTodo.id]);
-      } else {
-        setChangingId(current => [...current, currentTodo.completed
-          ? 1
-          : currentTodo.id,
-        ]);
-      }
+        if (allCompleted) {
+          setChangingId(current => [...current, currentTodo.id]);
+        } else {
+          setChangingId(current => [...current, currentTodo.completed
+            ? 1
+            : currentTodo.id,
+          ]);
+        }
 
-      return PostService.updateTodo(newTodo);
-    });
+        return PostService.updateTodo(newTodo);
+      });
 
     Promise.all(updatedTodosPromises)
       .then(() => {
@@ -59,6 +63,12 @@ export const Header = () => {
             return { ...currentTodo, completed: !allCompleted };
           }),
         );
+      })
+      .catch(() => {
+        setErrorOccured(ErrorMessage.noUpdateTodo);
+        setTimeout(() => {
+          setErrorOccured('');
+        }, 3000);
       })
       .finally(() => setChangingId([]));
   };
