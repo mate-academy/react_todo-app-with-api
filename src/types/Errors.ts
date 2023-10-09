@@ -1,4 +1,4 @@
-export enum Errors {
+export const enum Errors {
   title = 'Title should not be empty',
   add = 'Unable to add a todo',
   delete = 'Unable to delete a todo',

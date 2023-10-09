@@ -134,9 +134,16 @@ export const App: React.FC = () => {
       completed: !areAllTodosCompleted,
     }));
 
-    setTodos(updatedTodos);
-    updatedTodos.forEach((updatedTodo) => {
-      updateTodos(updatedTodo).catch(() => setErrorMesssage(Errors.update));
+    setTodos((prevTodos) => {
+      updatedTodos.forEach((updatedTodo) => {
+        if (updatedTodo.completed !== prevTodos.find((t) => t.id
+        === updatedTodo.id)?.completed) {
+          updateTodos(updatedTodo)
+            .catch(() => setErrorMesssage(Errors.update));
+        }
+      });
+
+      return updatedTodos;
     });
   };
 
