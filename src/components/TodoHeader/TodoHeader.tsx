@@ -4,7 +4,7 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   activeTodos: Todo[];
-  newTodoField: React.RefObject<HTMLInputElement>;
+  newTodoFieldRef: React.RefObject<HTMLInputElement>;
   error: string;
   onTodoAdd: (title: string) => Promise<void>;
   setError: React.Dispatch<React.SetStateAction<string>>;
@@ -14,7 +14,7 @@ interface Props {
 
 export const TodoHeader: React.FC<Props> = ({
   activeTodos,
-  newTodoField,
+  newTodoFieldRef,
   error,
   setError,
   onTodoAdd,
@@ -63,7 +63,7 @@ export const TodoHeader: React.FC<Props> = ({
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
-          ref={newTodoField}
+          ref={newTodoFieldRef}
           placeholder="What needs to be done?"
           value={title}
           onChange={handleChange}

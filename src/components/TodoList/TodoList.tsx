@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 interface Props {
@@ -21,8 +21,10 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
+  const inputFocus = useRef<HTMLInputElement>(null);
 
   const handleTodoDoubleClick = () => {
+    inputFocus.current?.focus();
     setIsEditing(true);
   };
 
@@ -67,6 +69,7 @@ export const TodoItem: React.FC<Props> = ({
             <input
               data-cy="TodoTitleField"
               type="text"
+              ref={inputFocus}
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
               value={todoTitle}

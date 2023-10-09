@@ -10,6 +10,13 @@ import { FilterCase } from './types/FilterCase';
 import { TodoItem } from './components/TodoList/TodoList';
 import { TodoHeader } from './components/TodoHeader/TodoHeader';
 
+const errorMessages = {
+  load_todos: 'Unable to load todos',
+  add_todo: 'Unable to add a todo',
+  delete_todo: 'Unable to delete a todo',
+  update_todo: 'Unable to update a todo',
+};
+
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterCase, setFilterCase] = useState(FilterCase.all);
@@ -18,11 +25,11 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
-  const newTodoField = useRef<HTMLInputElement>(null);
+  const newTodoFieldRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (newTodoField.current) {
-      newTodoField.current.focus();
+    if (newTodoFieldRef.current) {
+      newTodoFieldRef.current.focus();
     }
   }, [isLoading]);
 
@@ -32,18 +39,18 @@ export const App: React.FC = () => {
     getTodos()
       .then(setTodos)
       .catch(() => {
-        setError('Unable to load todos');
+        setError(errorMessages.load_todos);
       });
   }, []);
 
-  const timerId = useRef<number>(0);
+  const timerIdRef = useRef<number>(0);
 
   useEffect(() => {
-    if (timerId.current) {
-      window.clearTimeout(timerId.current);
+    if (timerIdRef.current) {
+      window.clearTimeout(timerIdRef.current);
     }
 
-    timerId.current = window.setTimeout(() => {
+    timerIdRef.current = window.setTimeout(() => {
       setError('');
     }, 3000);
   }, [error]);
@@ -62,11 +69,11 @@ export const App: React.FC = () => {
       .then((newTodo) => {
         setTodos((prevTodos) => [...prevTodos, newTodo]);
 
-        newTodoField.current?.focus();
+        newTodoFieldRef.current?.focus();
       })
       .catch(() => {
-        setError('Unable to add a todo');
-        throw new Error();
+        setError(errorMessages.add_todo);
+        throw new Error(errorMessages.add_todo);
       })
       .finally(() => {
         setTempTodo(null);
@@ -75,17 +82,17 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteTodo = (todoId: number) => {
-    setLoadingTodoIds((prevLoadingTodoIds) => [...prevLoadingTodoIds, todoId]);
+    setLoadingTodoIds((prevTodoIds) => [...prevTodoIds, todoId]);
     setIsLoading(true);
 
     deleteTodo(todoId)
       .then(() => {
         setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
 
-        newTodoField.current?.focus();
+        newTodoFieldRef.current?.focus();
       })
       .catch(() => {
-        setError('Unable to delete a todo');
+        setError(errorMessages.delete_todo);
       })
       .finally(() => {
         setLoadingTodoIds((prevTodoIds) => prevTodoIds
@@ -94,14 +101,12 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleRenameTodo = (todo: Todo, newTodoTitle: string) => {
+  const handleUpdateTodo = (todo: Todo, updatedProperties: Partial<Todo>) => {
     setLoadingTodoIds((prevLoadingTodoIds) => [...prevLoadingTodoIds, todo.id]);
 
     updateTodo({
-      id: todo.id,
-      title: newTodoTitle,
-      userId: todo.userId,
-      completed: todo.completed,
+      ...todo,
+      ...updatedProperties,
     })
       .then((updatedTodo) => {
         setTodos((prevTodos) => prevTodos.map((currentTodo) => (
@@ -109,28 +114,9 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setError('Unable to update a todo');
-      })
-      .finally(() => {
-        setLoadingTodoIds((prevTodoIds) => prevTodoIds
-          .filter((id) => id !== todo.id));
-        setIsLoading(false);
-      });
-  };
-
-  const toggleTodo = (todo: Todo) => {
-    setLoadingTodoIds((prevLoadingTodoIds) => [...prevLoadingTodoIds, todo.id]);
-
-    updateTodo({
-      id: todo.id,
-      title: todo.title,
-      userId: todo.userId,
-      completed: !todo.completed,
-    })
-      .then((updatedTodo) => {
-        setTodos((prevTodos) => prevTodos.map((currentTodo) => (
-          currentTodo.id !== updatedTodo.id ? currentTodo : updatedTodo
-        )));
+        if (updatedProperties.title) {
+          setError(errorMessages.update_todo);
+        }
       })
       .finally(() => {
         setLoadingTodoIds((prevTodoIds) => prevTodoIds
@@ -160,7 +146,7 @@ export const App: React.FC = () => {
 
       setTodos(updatedTodos);
     } catch {
-      setError('Unable to update a todo');
+      setError(errorMessages.update_todo);
     } finally {
       setLoadingTodoIds([]);
       setIsLoading(false);
@@ -196,7 +182,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader
           activeTodos={activeTodos}
-          newTodoField={newTodoField}
+          newTodoFieldRef={newTodoFieldRef}
           error={error}
           setError={setError}
           onTodoAdd={handleAddTodo}
@@ -210,10 +196,13 @@ export const App: React.FC = () => {
             key={todo.id}
             onTodoDelete={handleDeleteTodo}
             onTodoUpdate={
-              (todoTitle: string) => handleRenameTodo(todo, todoTitle)
+              (todoTitle:
+              string) => handleUpdateTodo(todo, { title: todoTitle })
             }
             loadingTodoIds={loadingTodoIds}
-            onToggleTodo={toggleTodo}
+            onToggleTodo={
+              () => handleUpdateTodo(todo, { completed: !todo.completed })
+            }
           />
         ))}
 
