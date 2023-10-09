@@ -40,9 +40,9 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={classNames('todoapp__toggle-all', {
-            active: todos.every((todo) => todo.completed === true),
+            active: todos.every((todo) => todo.completed),
           })}
-          onClick={() => todoStatusAll()}
+          onClick={todoStatusAll}
         />
       )}
       <form onSubmit={handleSubmit}>

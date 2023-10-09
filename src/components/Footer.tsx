@@ -59,10 +59,11 @@ export const Footer: React.FC<Props> = ({
 
       <button
         type="button"
-        className="todoapp__clear-completed"
+        className={classNames('todoapp__clear-completed', {
+          disabled: isButtonDisabled,
+        })}
         onClick={onClear}
-        disabled={isButtonDisabled}
-        style={{ color: isButtonDisabled ? 'white' : '#777' }}
+        style={{ visibility: isButtonDisabled ? 'hidden' : 'visible' }}
       >
         Clear completed
       </button>

@@ -137,8 +137,10 @@ export const Todos: React.FC<Props> = ({
       {tempTodo && (
         <div
           className={classNames('todo', 'loading', 'modal', 'is-active')}
+          style={{ padding: '12px 15px' }}
           key={tempTodo.id}
         >
+          <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>
       )}
