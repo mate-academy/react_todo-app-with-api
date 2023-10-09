@@ -1052,7 +1052,7 @@ describe('', () => {
       });
 
       it('should not hide a todo on fail', () => {
-        page.mockUpdate(257334).as('updateRequest');
+        page.mockUpdate(257334, { statusCode: 503 }).as('updateRequest');
 
         todos.statusToggler(0).click();
         cy.wait('@updateRequest');
