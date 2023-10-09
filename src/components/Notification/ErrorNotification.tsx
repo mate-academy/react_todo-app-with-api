@@ -27,14 +27,19 @@ export const ErrorNotification: React.FC<Props> = ({
         clearTimeout(timer);
       }
     };
-  }, [errorMessage, setErrorMessage]);
+  }, [errorMessage]);
 
   return (
     <div
-      // eslint-disable-next-line
-      className={classNames('notification is-danger is-light has-text-weight-normal', {
-        hidden: !isVisible,
-      })}
+      className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        {
+          hidden: !isVisible,
+        },
+      )}
     >
       <button
         type="button"
