@@ -38,6 +38,18 @@ export const Footer: React.FC<Props> = (
 
       {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
+        {/*{Object.values(SortType).map((sortType) => (*/}
+        {/*  <a*/}
+        {/*    onClick={() => changeSelectFilter(sortType)}*/}
+        {/*    href="#/"*/}
+        {/*    className={cn('filter__link',*/}
+        {/*      { selected: selectFilter === sortType })}*/}
+        {/*    data-cy="FilterLinkAll"*/}
+        {/*  >*/}
+        {/*    {sortType}*/}
+        {/*  </a>*/}
+        {/*))}*/}
+
         <a
           onClick={() => changeSelectFilter(SortType.All)}
           href="#/"

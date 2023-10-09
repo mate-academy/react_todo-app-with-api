@@ -225,11 +225,15 @@ export const App: React.FC = () => {
       });
 
     try {
-      const serverTodos = await Promise.all(changeAllPromises);
+      await Promise.all(changeAllPromises);
 
       setTodos(prevState => {
         return prevState.map(todo => {
-          if (serverTodos.some(({ id }) => id === todo.id)) {
+          if (isProsessingTodoIds.includes(todo.id)) {
+            setIsProsessingTodoIds((prev) => {
+              return prev.filter(id => id !== todo.id);
+            });
+
             return {
               ...todo,
               completed: !todo.completed,
