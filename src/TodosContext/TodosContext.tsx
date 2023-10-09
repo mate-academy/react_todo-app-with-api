@@ -7,9 +7,9 @@ import { SortType } from '../types/SortType';
 
 export const TodosContext = React.createContext<TodosContextType>({
   todos: [],
-  setTodos: () => { },
+  setTodos: () => {},
   errorMessage: '',
-  setErrorMessage: () => { },
+  setErrorMessage: () => {},
   preparedTodos: [],
   sortQuery: '',
   setSortQuery: () => {},
@@ -20,6 +20,9 @@ export const TodosContext = React.createContext<TodosContextType>({
     completed: false,
   },
   setTempTodo: () => {},
+  todosInProcess: [],
+  setTodosInProcess: () => {},
+  completedTodos: [],
 });
 
 type Props = {
@@ -31,6 +34,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [sortQuery, setSortQuery] = useState(SortType.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [todosInProcess, setTodosInProcess] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -61,6 +65,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     }
   }) || todos;
 
+  const completedTodos = todos?.filter(todo => (
+    todo.completed !== false
+  ));
+
   return (
     <TodosContext.Provider
       value={{
@@ -73,6 +81,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setSortQuery,
         tempTodo,
         setTempTodo,
+        todosInProcess,
+        setTodosInProcess,
+        completedTodos,
       }}
     >
       {children}

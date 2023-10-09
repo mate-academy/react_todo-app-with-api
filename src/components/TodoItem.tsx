@@ -11,11 +11,15 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
-  const { setTodos, setErrorMessage } = useTodos();
+  const {
+    setTodos,
+    setErrorMessage,
+    todosInProcess,
+    setTodosInProcess,
+  } = useTodos();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [isLoading, setIsLoading] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -26,7 +30,7 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
   }, [isEditing]);
 
   const updateTitle = (todoId: number, data: { title: string }) => {
-    setIsLoading(true);
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todoId]);
 
     return postService.updateTodoTitle(todoId, data)
       .then(updatedTodo => {
@@ -44,12 +48,47 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           return null;
         });
       })
-      .catch(() => setErrorMessage('Unable to update todo'))
-      .finally(() => setIsLoading(false));
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => {
+        setTodosInProcess(prevTodosIds => (
+          prevTodosIds.filter(id => todoId !== id)
+        ));
+
+        setIsEditing(false);
+      });
+  };
+
+  const updateCompleted = (todoId: number, data: { completed: boolean }) => {
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todoId]);
+
+    return postService.updateTodoCompleted(todoId, data)
+      .then(updatedTodo => {
+        setTodos(prevTodos => {
+          if (prevTodos) {
+            return prevTodos.map(currentTodo => {
+              if (currentTodo.id === todo.id) {
+                return updatedTodo;
+              }
+
+              return currentTodo;
+            });
+          }
+
+          return null;
+        });
+      })
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => {
+        setTodosInProcess(prevTodosIds => (
+          prevTodosIds.filter(id => todoId !== id)
+        ));
+
+        setIsEditing(false);
+      });
   };
 
   const deleteTodo = (todoId: number) => {
-    setIsLoading(true);
+    setTodosInProcess(prevTodosIds => [...prevTodosIds, todoId]);
 
     return postService.removeTodo(todoId)
       .then(() => {
@@ -61,8 +100,14 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           return null;
         });
       })
-      .catch(() => setErrorMessage('Unable to remove todo'))
-      .finally(() => setIsLoading(false));
+      .catch(() => setErrorMessage('Unable to delete a todo'))
+      .finally(() => {
+        setTodosInProcess(prevTodosIds => (
+          prevTodosIds.filter(id => todoId !== id)
+        ));
+
+        setIsEditing(false);
+      });
   };
 
   const reset = () => {
@@ -78,6 +123,29 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (todo.title === newTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    if (!newTitle.length) {
+      deleteTodo(todo.id)
+        .finally(() => setIsEditing(false));
+    }
+
+    if (newTitle.length) {
+      updateTitle(todo.id, { title: newTitle });
+    }
+  };
+
+  const handleOnBlur = () => {
+    if (todo.title === newTitle) {
+      setIsEditing(false);
+
+      return;
+    }
 
     if (!newTitle.length) {
       deleteTodo(todo.id)
@@ -106,6 +174,9 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
+          onClick={() => {
+            updateCompleted(todo.id, { completed: !todo.completed });
+          }}
         />
       </label>
 
@@ -114,9 +185,12 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={() => {
+              setNewTitle(newTitle.trim());
+              setIsEditing(true);
+            }}
           >
-            {isEditing ? (
+            {isEditing || !newTitle.length ? (
               todo.title
             ) : (
               newTitle
@@ -144,7 +218,7 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}
-            onBlur={() => updateTitle(todo.id, { title: newTitle })}
+            onBlur={() => handleOnBlur()}
             onKeyDown={onEsc}
           />
         </form>
@@ -156,7 +230,7 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           'modal',
           'overlay',
           {
-            'is-active': isLoading || active,
+            'is-active': todosInProcess.includes(todo.id) || active,
           },
         )}
       >

@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useRef, useState } from 'react';
+import cn from 'classnames';
 import { useTodos } from '../hooks/useTodos';
 import * as postService from '../api/todos';
 import { USER_ID } from '../utils/USER_ID';
@@ -15,18 +16,80 @@ export const Header: React.FC = () => {
     setTodos,
     setErrorMessage,
     setTempTodo,
+    todosInProcess,
+    setTodosInProcess,
   } = useTodos();
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isInputDisabled, !todos?.length]);
+  }, [isInputDisabled, !todos?.length, todosInProcess]);
+
+  const activeTodos = todos?.filter(todo => (
+    !todo.completed
+  ));
 
   const handletTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMessage('');
 
     setTitle(event.target.value.trimStart());
+  };
+
+  const toggleAllTodos = () => {
+    if (activeTodos?.length === 0) {
+      todos?.forEach((todo) => {
+        setTodosInProcess(prevTodosIds => ([...prevTodosIds, todo.id]));
+
+        postService.updateTodoCompleted(todo.id, { completed: false })
+          .then((updatedTodo) => {
+            setTodos(prevTodos => {
+              if (prevTodos) {
+                return prevTodos.map(currentTodo => {
+                  if (currentTodo.id === todo.id) {
+                    return updatedTodo;
+                  }
+
+                  return currentTodo;
+                });
+              }
+
+              return null;
+            });
+          })
+          .catch(() => setErrorMessage('Unable to update a todo'))
+          .finally(() => setTodosInProcess(prevTodosIds => (
+            prevTodosIds.filter(id => todo.id !== id)
+          )));
+      });
+    }
+
+    if (activeTodos) {
+      activeTodos.forEach((todo) => {
+        setTodosInProcess(prevTodosIds => ([...prevTodosIds, todo.id]));
+
+        postService.updateTodoCompleted(todo.id, { completed: true })
+          .then((updatedTodo) => {
+            setTodos(prevTodos => {
+              if (prevTodos) {
+                return prevTodos.map(currentTodo => {
+                  if (currentTodo.id === todo.id) {
+                    return updatedTodo;
+                  }
+
+                  return currentTodo;
+                });
+              }
+
+              return null;
+            });
+          })
+          .catch(() => setErrorMessage('Unable to update a todo'))
+          .finally(() => setTodosInProcess(prevTodosIds => (
+            prevTodosIds.filter(id => todo.id !== id)
+          )));
+      });
+    }
   };
 
   const addTodo = (event: React.FormEvent) => {
@@ -76,8 +139,14 @@ export const Header: React.FC = () => {
       {!!todos?.length && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn(
+            'todoapp__toggle-all',
+            {
+              active: !activeTodos?.length,
+            },
+          )}
           data-cy="ToggleAllButton"
+          onClick={() => toggleAllTodos()}
         />
       )}
 

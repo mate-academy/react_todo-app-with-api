@@ -1,14 +1,49 @@
 import React from 'react';
 import cn from 'classnames';
+import * as postService from '../api/todos';
 import { useTodos } from '../hooks/useTodos';
 import { SortType } from '../types/SortType';
 
 export const Footer: React.FC = () => {
-  const { todos, setSortQuery, sortQuery } = useTodos();
+  const {
+    todos,
+    setTodos,
+    setSortQuery,
+    sortQuery,
+    setTodosInProcess,
+    setErrorMessage,
+  } = useTodos();
 
   const notCompletedTodosLength = todos?.filter(todo => (
     todo.completed === false
   )).length;
+
+  const completedTodos = todos?.filter(todo => (
+    todo.completed !== false
+  ));
+
+  const clearCompleted = () => {
+    completedTodos?.forEach(todo => {
+      setTodosInProcess(prevTodosIds => [...prevTodosIds, todo.id]);
+
+      postService.removeTodo(todo.id)
+        .then(() => {
+          setTodos(prevTodos => {
+            if (prevTodos) {
+              return prevTodos.filter(currentTodo => (
+                currentTodo.id !== todo.id
+              ));
+            }
+
+            return null;
+          });
+        })
+        .catch(() => setErrorMessage('Unable to delete a todo'))
+        .finally(() => setTodosInProcess(prevTodosIds => (
+          prevTodosIds.filter(id => todo.id !== id)
+        )));
+    });
+  };
 
   return (
     <>
@@ -68,6 +103,8 @@ export const Footer: React.FC = () => {
             type="button"
             className="todoapp__clear-completed"
             data-cy="ClearCompletedButton"
+            onClick={() => clearCompleted()}
+            disabled={!completedTodos?.length}
           >
             Clear completed
           </button>

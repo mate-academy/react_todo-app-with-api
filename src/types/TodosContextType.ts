@@ -11,5 +11,8 @@ export interface TodosContextType {
   sortQuery: string,
   setSortQuery: Dispatch<SetStateAction<SortType>>
   tempTodo: Todo | null,
-  setTempTodo: Dispatch<SetStateAction<Todo | null>>
+  setTempTodo: Dispatch<SetStateAction<Todo | null>>,
+  todosInProcess: number[],
+  setTodosInProcess: Dispatch<SetStateAction<number[]>>,
+  completedTodos: Todo[] | undefined
 }
