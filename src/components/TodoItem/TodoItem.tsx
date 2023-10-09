@@ -40,7 +40,7 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     setIsLoading(changingId.includes(todo.id));
-  }, [changingId]);
+  }, [changingId, todo.id]);
 
   const handleUpdateTodo = () => {
     setDbClicked(true);
