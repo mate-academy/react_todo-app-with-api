@@ -13,11 +13,11 @@ type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   changedTodos: number[],
-  setEditFlag: Dispatch<SetStateAction<boolean>>,
+  setIsEditing: Dispatch<SetStateAction<boolean>>,
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, todos, setTodos, setErrorMessage, changedTodos, setEditFlag,
+  todo, todos, setTodos, setErrorMessage, changedTodos, setIsEditing,
 }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [todoValue, setTodoValue] = useState(todo.title);
@@ -67,7 +67,7 @@ export const TodoItem: React.FC<Props> = ({
           setTodos(newTodos);
         }
 
-        setEditFlag(false);
+        setIsEditing(false);
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
@@ -85,7 +85,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleDoubleClick = () => {
     setShouldHandleBlur(true);
     setIsEdit(true);
-    setEditFlag(true);
+    setIsEditing(true);
 
     if (inputRef.current) {
       inputRef.current.focus();
@@ -118,7 +118,7 @@ export const TodoItem: React.FC<Props> = ({
         });
 
         setIsEdit(false);
-        setEditFlag(false);
+        setIsEditing(false);
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');

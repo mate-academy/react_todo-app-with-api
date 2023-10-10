@@ -11,11 +11,11 @@ type Props = {
   setTodos: Dispatch<SetStateAction<Todo[]>>,
   setErrorMessage: Dispatch<SetStateAction<string>>,
   changedTodos: number[],
-  setEditFlag: Dispatch<SetStateAction<boolean>>,
+  setIsEditing: Dispatch<SetStateAction<boolean>>,
 };
 
 export const TodoList: React.FC<Props> = ({
-  todos, status, setTodos, setErrorMessage, changedTodos, setEditFlag,
+  todos, status, setTodos, setErrorMessage, changedTodos, setIsEditing,
 }) => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
 
@@ -49,7 +49,7 @@ export const TodoList: React.FC<Props> = ({
           setTodos={setTodos}
           setErrorMessage={setErrorMessage}
           changedTodos={changedTodos}
-          setEditFlag={setEditFlag}
+          setIsEditing={setIsEditing}
         />
       ))}
     </div>

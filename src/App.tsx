@@ -18,7 +18,7 @@ export const App: React.FC = () => {
   const [value, setValue] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [changedTodos, setChangedTodos] = useState<number[]>([]);
-  const [editFlag, setEditFlag] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const isAllCompleted = todos.every((todo: Todo) => todo.completed);
 
@@ -31,10 +31,10 @@ export const App: React.FC = () => {
   }, [todos.length]);
 
   useEffect(() => {
-    if (errorMessage && !editFlag && inputRef.current) {
+    if (errorMessage && !isEditing && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [errorMessage]);
+  }, [errorMessage, isEditing]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -169,7 +169,7 @@ export const App: React.FC = () => {
             setTodos={setTodos}
             setErrorMessage={setErrorMessage}
             changedTodos={changedTodos}
-            setEditFlag={setEditFlag}
+            setIsEditing={setIsEditing}
           />
           {tempTodo && (
             <div

@@ -21,6 +21,8 @@ export const TodosFilter: React.FC<Props> = ({
   setErrorMessage,
   setChangedTodos,
 }) => {
+  const handleStatus = (filter: Status) => () => setStatus(filter);
+
   const todosNotCompleted = todos.filter(todo => !todo.completed);
 
   const hasCompleted = todos.some(todo => todo.completed);
@@ -69,9 +71,7 @@ export const TodosFilter: React.FC<Props> = ({
       data-cy="Footer"
     >
       <span className="todo-count" data-cy="TodosCounter">
-        {todosNotCompleted.length}
-        {' '}
-        items left
+        {`${todosNotCompleted.length} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
@@ -82,7 +82,7 @@ export const TodosFilter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: status === Status.all,
           })}
-          onClick={() => setStatus(Status.all)}
+          onClick={handleStatus(Status.all)}
         >
           {Status.all}
         </a>
@@ -93,7 +93,7 @@ export const TodosFilter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: status === Status.active,
           })}
-          onClick={() => setStatus(Status.active)}
+          onClick={handleStatus(Status.active)}
         >
           {Status.active}
         </a>
@@ -104,7 +104,7 @@ export const TodosFilter: React.FC<Props> = ({
           className={classNames('filter__link', {
             selected: status === Status.completed,
           })}
-          onClick={() => setStatus(Status.completed)}
+          onClick={handleStatus(Status.completed)}
         >
           {Status.completed}
         </a>
