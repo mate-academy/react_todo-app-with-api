@@ -6,7 +6,6 @@ type Props = {
   quantity: number;
   setFilterBy: (par: Filter) => void;
   hasCompleted: boolean;
-  deleteCompletedTodos: () => void;
   makeClearCompleted: () => void;
 };
 
@@ -14,7 +13,6 @@ export const Footer: FC<Props> = ({
   quantity,
   setFilterBy,
   hasCompleted,
-  deleteCompletedTodos,
   makeClearCompleted,
 }) => {
   const [chosenFilter, setChosenFilter] = useState('all');
