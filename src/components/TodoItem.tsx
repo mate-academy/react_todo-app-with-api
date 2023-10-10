@@ -3,8 +3,6 @@ import { FormEventHandler, KeyboardEventHandler } from 'react';
 import { Todo } from '../types/Todo';
 import { Loader } from './Loader';
 import { useTodo } from '../providers/AppProvider';
-import { updateTodos } from '../api/todos';
-import { getError } from '../utils/error';
 
 type Props = {
   todo: Todo;
@@ -16,8 +14,7 @@ export const TodoItem = ({ todo }: Props) => {
     setEditedTodo,
     editedTodo,
     updateTodoContext,
-    setError,
-    setTodos,
+    editedTitleTodo,
   } = useTodo();
 
   const handleDoubleClick = (): void => {
@@ -26,27 +23,11 @@ export const TodoItem = ({ todo }: Props) => {
 
   const handleEditSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-
-    setTodos(prev => {
-      const copyTodos = [...prev];
-      const currentTodo = copyTodos.find(v => v.id === editedTodo?.id);
-
-      if (!currentTodo || !editedTodo) {
-        return [];
-      }
-
-      currentTodo.title = editedTodo.title.trim();
-
-      return copyTodos;
-    });
-
     if (!editedTodo) {
       return;
     }
 
-    updateTodos(editedTodo)
-      .catch(() => setError(getError('updateError')))
-      .finally(() => setEditedTodo(null));
+    editedTitleTodo(editedTodo);
   };
 
   const handleEdit: KeyboardEventHandler<HTMLInputElement> = (event) => {
@@ -58,11 +39,25 @@ export const TodoItem = ({ todo }: Props) => {
 
     if (event.key === 'Enter') {
       if (editedTodo?.title.trim() === '') {
-        setEditedTodo(null);
-        setError('Title should not be empty');
+        removeTodoContext(todo.id);
       }
     }
   };
+
+  const handleBlur = () => {
+    if (editedTodo?.title.trim() === '') {
+      removeTodoContext(todo.id);
+    } else if (editedTodo?.title.trim() === todo.title) {
+      setEditedTodo(null);
+      return;
+    } else {
+      if (!editedTodo) {
+        return;
+      }
+
+      editedTitleTodo(editedTodo);
+    }
+  }
 
   return (
     <>
@@ -91,11 +86,13 @@ export const TodoItem = ({ todo }: Props) => {
                 data-cy="TodoTitleField"
                 type="text"
                 className="todo__title-field"
+                placeholder='Empty todo will be deleted'
                 value={editedTodo.title}
                 onChange={(e) => {
                   setEditedTodo({ ...todo, title: e.target.value });
                 }}
                 onKeyDown={handleEdit}
+                onBlur={handleBlur}
               />
             </form>
           ) : (

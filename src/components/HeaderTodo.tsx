@@ -24,7 +24,7 @@ export const HeaderTodo = () => {
     if (inputEdit.current) {
       inputEdit.current.focus();
     }
-  }, [isLoading]);
+  }, [isLoading, todos.length]);
 
   const completeAllTodos = (todosHeader: Todo[]) => {
     const allCompleted = todos.every(todo => todo.completed);

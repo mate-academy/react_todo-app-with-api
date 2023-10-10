@@ -165,26 +165,26 @@ export const AppProvider = ({ children }: Props) => {
     }
 
     setIsLoading(true);
+    setTodos(prev => {
+      const copyTodos = [...prev];
+      const currentTodo = copyTodos.find(v => v.id === todo?.id);
+
+      if (!currentTodo) {
+        return [];
+      }
+
+      currentTodo.title = todo.title.trim();
+
+      return copyTodos;
+    });
+
     updateTodos(todo)
-      .then(() => {
-        setTodos(prev => {
-          const copyTodos = [...prev];
-          const currentTodo = copyTodos.find(v => v.id === todo.id);
-
-          if (!currentTodo) {
-            return [];
-          }
-
-          currentTodo.title = title;
-
-          return copyTodos;
-        });
-      })
       .catch(() => setError(getError('updateError')))
       .finally(() => {
         setIsLoading(false);
-        setEditedTodo(null);
+        setEditedTodo(null)
       });
+  
   }, []);
 
   return (
