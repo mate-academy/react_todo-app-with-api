@@ -158,6 +158,11 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
     }
   };
 
+  const onDoubleClick = () => {
+    setNewTitle(newTitle.trim());
+    setIsEditing(true);
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -185,10 +190,7 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => {
-              setNewTitle(newTitle.trim());
-              setIsEditing(true);
-            }}
+            onDoubleClick={() => onDoubleClick()}
           >
             {isEditing || !newTitle.length ? (
               todo.title
@@ -218,7 +220,7 @@ export const TodoItem: React.FC<Props> = ({ todo, active = false }) => {
             placeholder="Empty todo will be deleted"
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}
-            onBlur={() => handleOnBlur()}
+            onBlur={handleOnBlur}
             onKeyDown={onEsc}
           />
         </form>

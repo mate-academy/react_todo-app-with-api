@@ -33,18 +33,9 @@ export const ErrorsNotifications: React.FC = () => {
         className="delete"
         onClick={() => setIsHidden(false)}
       />
-      {/* show only one message at a time */}
-      {/* Unable to load todos
-          <br />
-          Title should not be empty
-          <br /> */}
       {
         errorMessage
       }
-      {/* <br />
-          Unable to delete a todo
-          <br />
-          Unable to update a todo */}
     </div>
   );
 };

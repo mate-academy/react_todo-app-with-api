@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
   };
 
   const toggleAllTodos = () => {
-    if (activeTodos?.length === 0) {
+    if (activeTodos?.length) {
       todos?.forEach((todo) => {
         setTodosInProcess(prevTodosIds => ([...prevTodosIds, todo.id]));
 

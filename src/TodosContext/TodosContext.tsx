@@ -55,10 +55,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const preparedTodos = todos?.filter(todo => {
     switch (sortQuery as SortType) {
       case SortType.Active:
-        return todo.completed === false;
+        return !todo.completed;
 
       case SortType.Completed:
-        return todo.completed === true;
+        return todo.completed;
 
       default:
         return true;
@@ -66,7 +66,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }) || todos;
 
   const completedTodos = todos?.filter(todo => (
-    todo.completed !== false
+    todo.completed
   ));
 
   return (

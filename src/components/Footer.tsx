@@ -15,11 +15,11 @@ export const Footer: React.FC = () => {
   } = useTodos();
 
   const notCompletedTodosLength = todos?.filter(todo => (
-    todo.completed === false
+    !todo.completed
   )).length;
 
   const completedTodos = todos?.filter(todo => (
-    todo.completed !== false
+    todo.completed
   ));
 
   const clearCompleted = () => {
