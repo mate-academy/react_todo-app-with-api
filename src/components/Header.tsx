@@ -20,11 +20,13 @@ export const Header: React.FC = () => {
     setTodosInProcess,
   } = useTodos();
 
+  const todosInProcessCopy = todosInProcess;
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isInputDisabled, !todos?.length, todosInProcess]);
+  }, [isInputDisabled, !todos?.length, todosInProcessCopy]);
 
   const activeTodos = todos?.filter(todo => (
     !todo.completed
@@ -37,7 +39,7 @@ export const Header: React.FC = () => {
   };
 
   const toggleAllTodos = () => {
-    if (activeTodos?.length) {
+    if (!activeTodos?.length) {
       todos?.forEach((todo) => {
         setTodosInProcess(prevTodosIds => ([...prevTodosIds, todo.id]));
 
@@ -146,13 +148,12 @@ export const Header: React.FC = () => {
             },
           )}
           data-cy="ToggleAllButton"
-          onClick={() => toggleAllTodos()}
+          onClick={toggleAllTodos}
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form
-        onSubmit={(event) => addTodo(event)}
+        onSubmit={addTodo}
       >
         <input
           disabled={isInputDisabled}

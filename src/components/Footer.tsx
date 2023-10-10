@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
 
   const notCompletedTodosLength = todos?.filter(todo => (
     !todo.completed
-  )).length;
+  )).length || 0;
 
   const completedTodos = todos?.filter(todo => (
     todo.completed
@@ -50,7 +50,13 @@ export const Footer: React.FC = () => {
       {!!todos?.length && (
         <footer className="todoapp__footer" data-cy="Footer">
           <span className="todo-count" data-cy="TodosCounter">
-            {`${notCompletedTodosLength} items left`}
+            {notCompletedTodosLength}
+            {
+              notCompletedTodosLength <= 1
+                ? ' item '
+                : ' items '
+            }
+            left
           </span>
 
           {/* Active filter should have a 'selected' class */}
@@ -98,12 +104,11 @@ export const Footer: React.FC = () => {
             </a>
           </nav>
 
-          {/* don't show this button if there are no completed todos */}
           <button
             type="button"
             className="todoapp__clear-completed"
             data-cy="ClearCompletedButton"
-            onClick={() => clearCompleted()}
+            onClick={clearCompleted}
             disabled={!completedTodos?.length}
           >
             Clear completed
