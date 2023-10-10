@@ -71,7 +71,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={onFormSubmit}
       >

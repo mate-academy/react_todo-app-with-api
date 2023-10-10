@@ -30,7 +30,6 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch(() => {
         setErrorMessage(ERROR_MESSAGES.unableToLoadTodos);
-        // throw new Error(ERROR_MESSAGES.unableToLoadTodos);
       })
       .finally(() => {
         setLoadingTodos(false);
@@ -181,11 +180,9 @@ export const App: React.FC = () => {
       .then(todoWithUpdateStatus => {
         setTodos(prevState => {
           return prevState.map(todoItem => {
-            if (todoItem.id !== todoWithUpdateStatus.id) {
-              return todoItem;
-            }
-
-            return todoWithUpdateStatus;
+            return todoItem.id !== todoWithUpdateStatus.id
+              ? todoItem
+              : todoWithUpdateStatus;
           });
         });
       })
@@ -201,8 +198,8 @@ export const App: React.FC = () => {
 
   const handleToogleAllButton = async (allTodos: Todo[]) => {
     const isAllTodosTrueOrFalse
-      = allTodos.every(todo => todo.completed)
-    || allTodos.every(todo => !todo.completed);
+      = allTodos.every(todo => todo.completed);
+      // || allTodos.every(todo => !todo.completed);
 
     const unCompletedTodos = allTodos.filter(todo => !todo.completed);
 
@@ -225,15 +222,11 @@ export const App: React.FC = () => {
       });
 
     try {
-      await Promise.all(changeAllPromises);
+      const serverTodos = await Promise.all(changeAllPromises);
 
       setTodos(prevState => {
         return prevState.map(todo => {
-          if (isProsessingTodoIds.includes(todo.id)) {
-            setIsProsessingTodoIds((prev) => {
-              return prev.filter(id => id !== todo.id);
-            });
-
+          if (serverTodos.some(({ id }) => id === todo.id)) {
             return {
               ...todo,
               completed: !todo.completed,

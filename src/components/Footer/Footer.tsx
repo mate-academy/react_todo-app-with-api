@@ -5,7 +5,7 @@ import { SortType } from '../../types/SortType';
 
 type Props = {
   todos: Todo[],
-  changeSelectFilter: (sortType: string) => void,
+  changeSelectFilter: (sortType: SortType) => void,
   selectFilter: string,
   handleClearCopmpletedTodo: () => void,
 };
@@ -33,7 +33,9 @@ export const Footer: React.FC<Props> = (
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${itemsLeftCounter} items left`}
+        {itemsLeftCounter <= 1
+          ? `${itemsLeftCounter} item left`
+          : `${itemsLeftCounter} items left`}
       </span>
       <nav className="filter" data-cy="Filter">
         {Object.values(SortType).map((sortType) => (
