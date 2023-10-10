@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
-import { Filter, Todo } from './types/Todo';
+import { Filter, MakeTodosCompleted, Todo } from './types/Todo';
 import * as todosService from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
@@ -25,6 +25,10 @@ export const App: React.FC = () => {
   const [hideNotification, setHideNotification] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isFocused, setIsFocused] = useState(true);
+  const [allTodosCompleted, setAllTodosCompleted] = useState(false);
+  const [makeTodosComplete, setMakeTodosComplete]
+  = useState(MakeTodosCompleted.begin);
+  const [clearCompleted, setClearCompleted] = useState(false);
 
   useEffect(() => {
     const filteredTodos = todos.filter((todo) => todo.completed);
@@ -34,11 +38,10 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setErrorMessage('');
+
     todosService
       .getTodos(USER_ID)
-      .then((data) => {
-        setTodos(data);
-      })
+      .then(setTodos)
       .catch(() => {
         setErrorMessage('Unable to load todos');
       });
@@ -123,30 +126,6 @@ export const App: React.FC = () => {
     setHasCompleted(hasCompletedTodos);
   };
 
-  const deleteCompletedTodos = () => {
-    setErrorMessage('');
-    if (hasCompleted) {
-      setIsFocused(false);
-      const arrWithId = todos
-        .filter((todo) => todo.completed)
-        .map((id) => id.id);
-
-      arrWithId.map(async (id) => {
-        return todosService.deleteTodo(id)
-          .catch((e) => {
-            setErrorMessage('Unable to delete a todo');
-            throw e;
-          })
-          .then(() => {
-            setTodos(todos.filter((todo) => !todo.completed));
-          })
-          .finally(() => setIsFocused(true));
-      });
-    }
-
-    return 0;
-  };
-
   useEffect(() => {
     const hasCompletedTodos = filteredTodos.some((todo) => todo.completed);
 
@@ -156,6 +135,26 @@ export const App: React.FC = () => {
   useEffect(() => {
     setHideNotification(!errorMessage.length);
   }, [errorMessage]);
+
+  useEffect(() => {
+    const hasAllCompleted = filteredTodos.every(todo => todo.completed);
+
+    setAllTodosCompleted(hasAllCompleted);
+  }, [filteredTodos, allTodosCompleted]);
+
+  const makeCompleteFn = () => {
+    if (allTodosCompleted) {
+      setMakeTodosComplete(MakeTodosCompleted.not);
+    } else {
+      setMakeTodosComplete(MakeTodosCompleted.do);
+    }
+  };
+
+  const makeClearCompleted = () => {
+    if (hasCompleted) {
+      setClearCompleted(true);
+    }
+  };
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -176,6 +175,9 @@ export const App: React.FC = () => {
           isFocused={isFocused}
           setIsFocused={setIsFocused}
           todos={todos}
+          allTodosCompleted={allTodosCompleted}
+          makeCompleteFn={makeCompleteFn}
+          setMakeTodosComplete={setMakeTodosComplete}
         />
 
         {!!todos.length && (
@@ -184,6 +186,10 @@ export const App: React.FC = () => {
             deleteTodo={deleteTodo}
             todos={filteredTodos}
             searchCompletedTodos={searchCompletedTodos}
+            makeTodosComplete={makeTodosComplete}
+            clearCompleted={clearCompleted}
+            setClearCompleted={setClearCompleted}
+            setMakeTodosComplete={setMakeTodosComplete}
           />
         )}
         {!!tempTodo && <TempTodo tempTodo={tempTodo} />}
@@ -193,7 +199,7 @@ export const App: React.FC = () => {
             setFilterBy={setFilterBy}
             hasCompleted={hasCompleted}
             quantity={quantity}
-            deleteCompletedTodos={deleteCompletedTodos}
+            makeClearCompleted={makeClearCompleted}
           />
         )}
       </div>

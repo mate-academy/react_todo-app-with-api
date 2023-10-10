@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Todo } from '../types/Todo';
+import { MakeTodosCompleted, Todo } from '../types/Todo';
 import { TodoItem } from './TodoItem';
 
 type Props = {
@@ -7,6 +7,10 @@ type Props = {
   deleteTodo: (par: number) => Promise<void>;
   updateTodo: (par: Todo) => Promise<void>;
   searchCompletedTodos: () => void;
+  makeTodosComplete: MakeTodosCompleted;
+  clearCompleted: boolean;
+  setClearCompleted: (par: boolean) => void;
+  setMakeTodosComplete: (par: MakeTodosCompleted) => void;
 };
 
 export const TodoList: FC<Props> = ({
@@ -14,6 +18,10 @@ export const TodoList: FC<Props> = ({
   deleteTodo,
   updateTodo,
   searchCompletedTodos,
+  makeTodosComplete,
+  clearCompleted,
+  setClearCompleted,
+  setMakeTodosComplete,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -24,6 +32,10 @@ export const TodoList: FC<Props> = ({
           deleteTodo={deleteTodo}
           todo={todo}
           searchCompletedTodos={searchCompletedTodos}
+          makeTodosComplete={makeTodosComplete}
+          clearCompleted={clearCompleted}
+          setClearCompleted={setClearCompleted}
+          setMakeTodosComplete={setMakeTodosComplete}
         />
       ))}
     </section>

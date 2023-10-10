@@ -7,6 +7,7 @@ type Props = {
   setFilterBy: (par: Filter) => void;
   hasCompleted: boolean;
   deleteCompletedTodos: () => void;
+  makeClearCompleted: () => void;
 };
 
 export const Footer: FC<Props> = ({
@@ -14,6 +15,7 @@ export const Footer: FC<Props> = ({
   setFilterBy,
   hasCompleted,
   deleteCompletedTodos,
+  makeClearCompleted,
 }) => {
   const [chosenFilter, setChosenFilter] = useState('all');
 
@@ -73,7 +75,7 @@ export const Footer: FC<Props> = ({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!hasCompleted}
-        onClick={deleteCompletedTodos}
+        onClick={makeClearCompleted}
       >
         Clear completed
       </button>

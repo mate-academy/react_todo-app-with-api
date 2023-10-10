@@ -6,13 +6,17 @@ import {
   useState,
 } from 'react';
 import cn from 'classnames';
-import { Todo } from '../types/Todo';
+import { MakeTodosCompleted, Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo;
   deleteTodo: (par: number) => Promise<void>;
   updateTodo: (par: Todo) => Promise<void>;
   searchCompletedTodos: () => void;
+  makeTodosComplete: MakeTodosCompleted;
+  clearCompleted: boolean;
+  setClearCompleted: (par: boolean) => void;
+  setMakeTodosComplete: (par: MakeTodosCompleted) => void;
 };
 
 export const TodoItem: FC<Props> = ({
@@ -20,6 +24,10 @@ export const TodoItem: FC<Props> = ({
   deleteTodo,
   updateTodo,
   searchCompletedTodos,
+  makeTodosComplete,
+  clearCompleted,
+  setClearCompleted,
+  setMakeTodosComplete,
 }) => {
   const [checked, setChecked] = useState(todo.completed);
   const [isClicked, setIsClicked] = useState(false);
@@ -86,6 +94,36 @@ export const TodoItem: FC<Props> = ({
     }
   }, [isDoubleClicked]);
 
+  // eslint-disable-next-line
+  useEffect(() => {
+    if (makeTodosComplete === MakeTodosCompleted.do && !checked) {
+      setIsClicked(true);
+      setChecked(true);
+      updateTodo({ ...todo, completed: true })
+        .then(() => setIsClicked(false))
+        .finally(() => setMakeTodosComplete(MakeTodosCompleted.begin));
+    }
+
+    if (makeTodosComplete === MakeTodosCompleted.not && checked) {
+      setIsClicked(true);
+      setChecked(false);
+      updateTodo({ ...todo, completed: false })
+        .then(() => setIsClicked(false))
+        .finally(() => setMakeTodosComplete(MakeTodosCompleted.begin));
+    }
+  }, [makeTodosComplete]);
+
+  useEffect(() => {
+    if (checked && clearCompleted) {
+      setIsClicked(true);
+      deleteTodo(todo.id)
+        .finally(() => {
+          setIsClicked(false);
+          setClearCompleted(false);
+        });
+    }
+  }, [clearCompleted, checked, deleteTodo, setClearCompleted, todo.id]);
+
   return (
     <>
       <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
@@ -112,6 +150,7 @@ export const TodoItem: FC<Props> = ({
               onKeyDown={e => {
                 if (e.key === 'Escape') {
                   setIsDoubleClicked(false);
+                  setChangedTitle(todo.title);
                 }
               }}
               ref={inputRef}

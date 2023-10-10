@@ -10,3 +10,9 @@ export enum Filter {
   active = 'active',
   completed = 'completed',
 }
+
+export enum MakeTodosCompleted {
+  do = 'do',
+  not = 'not',
+  begin = 'begin',
+}

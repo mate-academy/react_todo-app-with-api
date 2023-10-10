@@ -4,7 +4,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Todo } from '../types/Todo';
+import cn from 'classnames';
+import { MakeTodosCompleted, Todo } from '../types/Todo';
 
 type Props = {
   title: string;
@@ -15,6 +16,9 @@ type Props = {
   isFocused: boolean;
   setIsFocused: (par: boolean) => void;
   todos: Todo[];
+  allTodosCompleted: boolean;
+  makeCompleteFn: () => void;
+  setMakeTodosComplete: (par: MakeTodosCompleted) => void;
 };
 
 export const Header: FC<Props> = ({
@@ -26,6 +30,9 @@ export const Header: FC<Props> = ({
   isFocused,
   setIsFocused,
   todos,
+  allTodosCompleted,
+  makeCompleteFn,
+  setMakeTodosComplete,
 }) => {
   const reset = () => setTitle('');
   const myInputRef = useRef<HTMLInputElement>(null);
@@ -43,9 +50,10 @@ export const Header: FC<Props> = ({
       {!!todos.length && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={cn('todoapp__toggle-all', { active: allTodosCompleted })}
           data-cy="ToggleAllButton"
           aria-label="close"
+          onClick={makeCompleteFn}
         />
       )}
 
@@ -53,6 +61,7 @@ export const Header: FC<Props> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          setMakeTodosComplete(MakeTodosCompleted.begin);
           setIsFocused(false);
           const trimedTitle = title.trim();
 
