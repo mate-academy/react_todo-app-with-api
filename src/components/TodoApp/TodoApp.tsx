@@ -8,6 +8,7 @@ type Props = {
   loadingId: number[],
   isLoaderActive: boolean,
   onTodoUpdate: (todoTitle: string) => void
+  setErrorMessage: (error: string) => void
   onTodoToggle: () => Promise<void>
 };
 
@@ -17,6 +18,7 @@ export const TodoApp: React.FC<Props> = ({
   loadingId,
   isLoaderActive,
   onTodoUpdate,
+  setErrorMessage,
   onTodoToggle = () => {},
 }) => {
   const { id, completed, title } = todo;
@@ -44,8 +46,8 @@ export const TodoApp: React.FC<Props> = ({
       }
 
       setIsEditing(false);
-    // eslint-disable-next-line no-empty
     } catch (error) {
+      setErrorMessage('Unable to update todo');
     }
   };
 
@@ -62,11 +64,11 @@ export const TodoApp: React.FC<Props> = ({
     }
   };
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
-      titleInput.current.focus();
+    if (isEditing && titleInputRef.current) {
+      titleInputRef.current.focus();
     }
   }, [isEditing]);
 
@@ -95,7 +97,7 @@ export const TodoApp: React.FC<Props> = ({
           >
             <input
               data-cy="TodoTitleField"
-              ref={titleInput}
+              ref={titleInputRef}
               type="text"
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
@@ -129,7 +131,7 @@ export const TodoApp: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', {
+        className={classNames('modal', 'overlay', {
           'is-active': loadingId.includes(id) && isLoaderActive,
         })}
       >

@@ -1,7 +1,6 @@
 import React, {
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
@@ -36,7 +35,7 @@ export const App: React.FC = () => {
   const activeTodosCount = todos
     .filter(({ completed }) => completed === false).length;
 
-  let completedTodosCount = todos
+  let isSomeTodosCompleted = todos
     .some(({ completed }) => completed === true);
 
   useEffect(() => {
@@ -49,19 +48,15 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to load todos');
         setRequest(false);
       });
-  }, []);
 
-  const idTimerRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (idTimerRef.current) {
-      window.clearTimeout(idTimerRef.current);
-    }
-
-    idTimerRef.current = window.setTimeout(() => {
+    const timerId = setTimeout(() => {
       setErrorMessage('');
     }, 3000);
-  }, [setErrorMessage]);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, []);
 
   const handleAddTodos = (newTodo: Omit<Todo, 'id'>) => {
     setLoadingId([0]);
@@ -118,7 +113,7 @@ export const App: React.FC = () => {
         setTodo(updatedTodos);
       })
       .catch(() => {
-        completedTodosCount = false;
+        isSomeTodosCompleted = false;
         setErrorMessage('Unable to delete a todo');
       });
   };
@@ -158,8 +153,10 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        setErrorMessage('Unable to toggle a todo');
-        throw new Error();
+        const errorMessag = 'Unable to toggle a todo';
+
+        setErrorMessage(errorMessag);
+        throw new Error(errorMessage);
       })
       .finally(() => {
         setLoadingId((prevTodoId) => prevTodoId.filter(id => id !== todo.id));
@@ -171,11 +168,9 @@ export const App: React.FC = () => {
   const handleToggleAll = () => {
     const activeTodos = todos.filter(todo => !todo.completed);
 
-    if (isAllCompleted) {
-      todos.forEach(handleToggleTodo);
-    } else {
-      activeTodos.forEach(handleToggleTodo);
-    }
+    const todosForUpdate = isAllCompleted ? todos : activeTodos;
+
+    todosForUpdate.forEach(handleToggleTodo);
   };
 
   const filteredTodos = useMemo((
@@ -193,7 +188,7 @@ export const App: React.FC = () => {
         <TodoHeader
           activeTodosCount={activeTodosCount}
           onSubmit={handleAddTodos}
-          todo={filteredTodos.length ? filteredTodos[0] : null}
+          todo={filteredTodos[0] || null}
           userId={USER_ID}
           isLoading={isLoading}
           errorMessage={errorMessage}
@@ -214,6 +209,7 @@ export const App: React.FC = () => {
                 onDelete={handleDelete}
                 loadingId={loadingId}
                 isLoaderActive={isLoaderActive}
+                setErrorMessage={setErrorMessage}
                 onTodoUpdate={(todosTitle) => {
                   handleDeleteUpdate(todo, todosTitle);
                 }}
@@ -232,7 +228,7 @@ export const App: React.FC = () => {
             filter={filter}
             setFilter={setFilter}
             activeTodosCount={activeTodosCount}
-            completedTodosCount={completedTodosCount}
+            isSomeTodosCompleted={isSomeTodosCompleted}
             handleClearCompleted={handleClearCompleted}
           />
         )}
@@ -241,7 +237,6 @@ export const App: React.FC = () => {
       <ErrorMessage
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
-
       />
     </div>
   );

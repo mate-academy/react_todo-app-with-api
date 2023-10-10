@@ -92,7 +92,6 @@ export const TodoHeader: React.FC<Props> = ({
           value={title}
           disabled={request}
         />
-
       </form>
     </header>
   );
