@@ -5,7 +5,7 @@ import { SortType } from '../../types/SortType';
 
 type Props = {
   todos: Todo[],
-  changeSelectFilter: (sortType: SortType) => void,
+  changeSelectFilter: (sortType: string) => void,
   selectFilter: string,
   handleClearCopmpletedTodo: () => void,
 };
@@ -35,38 +35,19 @@ export const Footer: React.FC<Props> = (
       <span className="todo-count" data-cy="TodosCounter">
         {`${itemsLeftCounter} items left`}
       </span>
-
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          onClick={() => changeSelectFilter(SortType.All)}
-          href="#/"
-          className={cn('filter__link',
-            { selected: selectFilter === SortType.All })}
-          data-cy="FilterLinkAll"
-        >
-          All
-        </a>
-
-        <a
-          onClick={() => changeSelectFilter(SortType.Active)}
-          href="#/active"
-          className={cn('filter__link',
-            { selected: selectFilter === SortType.Active })}
-          data-cy="FilterLinkActive"
-        >
-          Active
-        </a>
-
-        <a
-          onClick={() => changeSelectFilter(SortType.Completed)}
-          href="#/completed"
-          className={cn('filter__link',
-            { selected: selectFilter === SortType.Completed })}
-          data-cy="FilterLinkCompleted"
-        >
-          Completed
-        </a>
+        {Object.values(SortType).map((sortType) => (
+          <a
+            key={sortType}
+            onClick={() => changeSelectFilter(sortType)}
+            href="#/"
+            className={cn('filter__link',
+              { selected: selectFilter === sortType })}
+            data-cy="FilterLinkAll"
+          >
+            {sortType}
+          </a>
+        ))}
       </nav>
 
       <button
