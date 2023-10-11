@@ -3,7 +3,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
@@ -190,40 +189,26 @@ export const App: React.FC = () => {
         </header>
 
         <section className="todoapp__main" data-cy="TodoList">
-          <TransitionGroup>
-            {visibleTodos.map(todo => (
-              <CSSTransition
-                key={todo.id}
-                timeout={300}
-                classNames="item"
-              >
-                <TodoItem
-                  todo={todo}
-                  isProcessed={processings.includes(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                  onUpdate={updateTodo}
-                />
-              </CSSTransition>
-            ))}
+          {visibleTodos.map(todo => (
+            <TodoItem
+              todo={todo}
+              isProcessed={processings.includes(todo.id)}
+              onDelete={() => deleteTodo(todo.id)}
+              onUpdate={updateTodo}
+            />
+          ))}
 
-            {creating && (
-              <CSSTransition
-                key={0}
-                timeout={300}
-                classNames="temp-item"
-              >
-                <TodoItem
-                  todo={{
-                    id: Math.random(),
-                    title,
-                    completed: false,
-                    userId: user.id,
-                  }}
-                  isProcessed
-                />
-              </CSSTransition>
-            )}
-          </TransitionGroup>
+          {creating && (
+            <TodoItem
+              todo={{
+                id: Math.random(),
+                title,
+                completed: false,
+                userId: user.id,
+              }}
+              isProcessed
+            />
+          )}
         </section>
 
         {(todos.length > 0 || creating) && (
