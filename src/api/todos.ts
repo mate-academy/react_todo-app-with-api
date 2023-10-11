@@ -13,12 +13,9 @@ export const addTodo = ({ userId, title, completed }: Omit<TodoType, 'id'>) => {
   return client.post<TodoType>('/todos', { userId, title, completed });
 };
 
-export const toggleTodoCompleteState = (todoId: number, completed: boolean) => {
-  return client.patch<TodoType>(`/todos/${todoId}`, { completed });
-};
-
-export const updateTodoTitle = (todoId: number, title: string) => {
-  return client.patch<TodoType>(`/todos/${todoId}`, { title });
+export const updateTodo = (todoId: number, data:
+{ title?: string, completed?: boolean }) => {
+  return client.patch<TodoType>(`/todos/${todoId}`, data);
 };
 
 // Add more methods here

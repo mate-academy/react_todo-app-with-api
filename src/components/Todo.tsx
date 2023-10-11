@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { TodoType } from '../types/TodoType';
-import { deleteTodo, updateTodoTitle } from '../api/todos';
+import { deleteTodo, updateTodo } from '../api/todos';
 
 interface TodoProps {
   todo: TodoType;
@@ -51,7 +51,7 @@ const Todo = (
       setIsEditing(false);
       setTodoLoading(todo.id, false);
     } else {
-      updateTodoTitle(todo.id, editedTitle.trim())
+      updateTodo(todo.id, { title: editedTitle.trim() })
         .then(updatedTodo => {
           handleNewTitle(todo.id, updatedTodo.title.trim());
           setIsEditing(false);

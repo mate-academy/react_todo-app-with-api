@@ -5,7 +5,7 @@ import {
   getTodos,
   deleteTodo,
   addTodo,
-  toggleTodoCompleteState,
+  updateTodo,
 } from '../api/todos';
 import { TodoType } from '../types/TodoType';
 import Filter from './Filter';
@@ -79,6 +79,10 @@ export const TodoApp: React.FC = () => {
         return todo;
       });
     });
+
+    if (newTitle !== undefined) {
+      updateTodo(id, { title: newTitle });
+    }
   };
 
   const activeTodos = todos.filter(todo => !todo.completed);
@@ -189,7 +193,7 @@ export const TodoApp: React.FC = () => {
       setTodoLoading(id, true);
       const newCompletedStatus = !todoToUpdate.completed;
 
-      toggleTodoCompleteState(id, newCompletedStatus)
+      updateTodo(id, { completed: newCompletedStatus })
         .then(updatedTodo => {
           // eslint-disable-next-line no-console
           console.log('updatedTodo', updatedTodo);
@@ -229,7 +233,7 @@ export const TodoApp: React.FC = () => {
 
     if (allCompleted) {
       Promise.all(todos.map(
-        todo => toggleTodoCompleteState(todo.id, !todo.completed),
+        todo => updateTodo(todo.id, { completed: !todo.completed }),
       ))
         .then(() => {
           setTodos(updatedTodos);
@@ -240,7 +244,7 @@ export const TodoApp: React.FC = () => {
         });
     } else {
       Promise.all(notCompletedTodos.map(
-        todo => toggleTodoCompleteState(todo.id, !todo.completed),
+        todo => updateTodo(todo.id, { completed: !todo.completed }),
       ))
         .then(() => {
           setTodos(updatedTodos);
