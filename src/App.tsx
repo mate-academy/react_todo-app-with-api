@@ -15,7 +15,7 @@ import { Todo } from './types/Todo';
 const USER_ID = 11569;
 
 export const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[] >([]);
+  const [todos, setTodos] = useState<Todo[] | [] >([]);
   const [isLoading, setIsLoading] = useState<number[] | []>([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos(USER_ID)
       .then((data) => {
-        const todosData = data as Todo[];
+        const todosData = data;
 
         setTodos(todosData);
         setTodos(data);
@@ -124,7 +124,7 @@ export const App: React.FC = () => {
     }).catch(() => {
       setError('Unable to delete a todo');
     }).finally(() => {
-      setIsLoading(todos.filter(todo => todo.id !== todoId) as number[] | []);
+      setIsLoading(isLoading.filter(id => id !== todoId));
     });
   };
 
