@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { TodoType } from '../types/TodoType';
 import { deleteTodo, updateTodoTitle } from '../api/todos';
 
@@ -8,7 +9,7 @@ interface TodoProps {
   onDelete: (id: number) => void;
   handleNewTitle: (id: number, newTitle?: string) => void;
   loading: boolean
-  setTodoLoading: (id:number, boolean: boolean) => void
+  setTodoLoading: (id: number, boolean: boolean) => void
   handleRequestError: (arg0: string) => void;
 }
 
@@ -35,7 +36,6 @@ const Todo = (
     const trimmedTitle = editedTitle.trim();
 
     if (trimmedTitle === '') {
-      // Delete the todo if the trimmed title is empty
       deleteTodo(todo.id)
         .then(() => {
           onDelete(todo.id);
@@ -80,10 +80,6 @@ const Todo = (
     }
   };
 
-  // const handleBlur = () => {
-  //   handleSaveClick();
-  // };
-
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -91,7 +87,11 @@ const Todo = (
   }, [isEditing]);
 
   return (
-    <div key={todo.id} data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      key={todo.id}
+      data-cy="Todo"
+      className={classNames('todo', { completed: todo.completed })}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -136,7 +136,10 @@ const Todo = (
         </>
       )}
 
-      <div data-cy="TodoLoader" className={`modal overlay ${loading ? 'is-active' : ''}`}>
+      <div
+        data-cy="TodoLoader"
+        className={classNames('modal', 'overlay', { 'is-active': loading })}
+      >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>

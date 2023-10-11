@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import {
   getTodos,
   deleteTodo,
@@ -105,16 +106,24 @@ export const TodoApp: React.FC = () => {
   const handleClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
+    const todosToDelete = completedTodos.map(todo => todo.id);
+
+    setLoading([...loading, ...todosToDelete]);
+
     const deletedTodos: TodoType[] = [];
 
     Promise.all(completedTodos.map(todo => deleteTodo(todo.id)
       .then(() => {
         deletedTodos.push(todo);
+        setLoading(prevLoadingTodos => prevLoadingTodos
+          .filter(id => id !== todo.id));
       })
       .catch(error => {
         handleRequestError('Unable to delete a todo');
         // eslint-disable-next-line no-console
         console.error('Error deleting todo:', error);
+        setLoading(prevLoadingTodos => prevLoadingTodos
+          .filter(id => id !== todo.id));
       })))
       .then(() => {
         const updatedTodos = todos.filter(todo => !deletedTodos.includes(todo));
@@ -187,7 +196,6 @@ export const TodoApp: React.FC = () => {
           const updatedTodos = todos.map(todo => {
             if (todo.id === updatedTodo?.id) {
               const newTog = { ...todo };
-              // return updatedTodo;
 
               newTog.completed = newCompletedStatus;
 
@@ -279,13 +287,13 @@ export const TodoApp: React.FC = () => {
           {todos.length > 0 && (
             <button
               type="button"
-              className={`todoapp__toggle-all ${toggleAll ? 'active' : ' '}`}
+              className={classNames('todoapp__toggle-all',
+                { active: toggleAll })}
               data-cy="ToggleAllButton"
               onClick={toggleAllTodosCompleteState}
             />
           )}
 
-          {/* Add a todo on form submit */}
           <form onSubmit={handleFormSubmit}>
             <input
               data-cy="NewTodoField"
@@ -371,11 +379,15 @@ export const TodoApp: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${errorMessage !== '' ? '' : 'hidden'}`}
+        className={classNames(
+          'notification',
+          'is-danger',
+          'is-light',
+          'has-text-weight-normal',
+          { hidden: errorMessage === '' },
+        )}
       >
         <button
           data-cy="HideErrorButton"
