@@ -62,8 +62,8 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {!!hasTodos && (
-        // eslint-disable-next-line jsx-a11y/control-has-associated-label
         <button
+          aria-label="Toggle-All-Button"
           onClick={() => handleToogleAllButton(todos)}
           type="button"
           className={cn('todoapp__toggle-all', { active: isAllTodosCompleted })}
@@ -71,9 +71,7 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      <form
-        onSubmit={onFormSubmit}
-      >
+      <form onSubmit={onFormSubmit}>
         <input
           disabled
           ref={textInputRef}

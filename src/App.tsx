@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect, useState, useMemo, useRef,
 } from 'react';
@@ -14,13 +13,13 @@ import { Loader } from './components/Loader';
 import * as todoService from './api/todos';
 import { ERROR_MESSAGES } from './utils/constants/ERROR_MESSAGES';
 import { getFilteredTodos } from './utils/helpers/getFilteredTodos';
-import { SortType } from './types/SortType';
+import { FilterType } from './types/FilterType';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loadingTodos, setLoadingTodos] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectFilter, setSelectFilter] = useState(SortType.All);
+  const [selectFilter, setSelectFilter] = useState(FilterType.All);
   const textInputRef = useRef<HTMLInputElement | null>(null);
   const [isProsessingTodoIds, setIsProsessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -62,6 +61,13 @@ export const App: React.FC = () => {
     }
   }, [todos]);
 
+  function enableAndFocusInput() {
+    textInputRef.current?.removeAttribute('disabled');
+    if (textInputRef.current) {
+      textInputRef.current.focus();
+    }
+  }
+
   const handleAddTodo = (todoTitle: string) => {
     setErrorMessage('');
     setTempTodo({
@@ -84,10 +90,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setTempTodo(null);
 
-        textInputRef.current?.removeAttribute('disabled');
-        if (textInputRef.current) {
-          textInputRef.current.focus();
-        }
+        enableAndFocusInput();
       });
   };
 
@@ -112,10 +115,7 @@ export const App: React.FC = () => {
           return prevState.filter(id => id !== todoId);
         });
 
-        textInputRef.current?.removeAttribute('disabled');
-        if (textInputRef.current) {
-          textInputRef.current.focus();
-        }
+        enableAndFocusInput();
       });
   };
 
@@ -127,7 +127,7 @@ export const App: React.FC = () => {
 
     return todoService.updateTodo({
       id: todo.id,
-      title: newTodoTitle,
+      title: newTodoTitle.trim(),
       userId: todo.userId,
       completed: todo.completed,
     })
@@ -199,7 +199,6 @@ export const App: React.FC = () => {
   const handleToogleAllButton = async (allTodos: Todo[]) => {
     const isAllTodosTrueOrFalse
       = allTodos.every(todo => todo.completed);
-      // || allTodos.every(todo => !todo.completed);
 
     const unCompletedTodos = allTodos.filter(todo => !todo.completed);
 
@@ -237,7 +236,7 @@ export const App: React.FC = () => {
         });
       });
     } catch (error) {
-      setErrorMessage(ERROR_MESSAGES.unableToDeleteTodo);
+      setErrorMessage(ERROR_MESSAGES.unableToUpdateTodo);
     }
   };
 

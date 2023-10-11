@@ -1,11 +1,11 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { SortType } from '../../types/SortType';
+import { FilterType } from '../../types/FilterType';
 
 type Props = {
   todos: Todo[],
-  changeSelectFilter: (sortType: SortType) => void,
+  changeSelectFilter: (sortType: FilterType) => void,
   selectFilter: string,
   handleClearCopmpletedTodo: () => void,
 };
@@ -38,11 +38,11 @@ export const Footer: React.FC<Props> = (
           : `${itemsLeftCounter} items left`}
       </span>
       <nav className="filter" data-cy="Filter">
-        {Object.values(SortType).map((sortType) => (
+        {Object.values(FilterType).map((sortType) => (
           <a
             key={sortType}
             onClick={() => changeSelectFilter(sortType)}
-            href="#/"
+            href={`#/${selectFilter === 'All' ? '' : sortType}`}
             className={cn('filter__link',
               { selected: selectFilter === sortType })}
             data-cy="FilterLinkAll"
@@ -56,7 +56,7 @@ export const Footer: React.FC<Props> = (
         onClick={handleClearCopmpletedTodo}
         disabled={!clearCompleteStatusButton}
         type="button"
-        className={cn('todoapp__clear-completed', {})}
+        className={cn('todoapp__clear-completed')}
         data-cy="ClearCompletedButton"
       >
         Clear completed

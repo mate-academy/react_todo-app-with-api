@@ -1,13 +1,13 @@
 import { Todo } from '../../types/Todo';
-import { SortType } from '../../types/SortType';
+import { FilterType } from '../../types/FilterType';
 
 export const getFilteredTodos = (allTodos: Todo[], sortField: string) => {
   switch (sortField) {
-    case SortType.Active:
+    case FilterType.Active:
       return allTodos.filter((todo) => !todo.completed);
-    case SortType.Completed:
+    case FilterType.Completed:
       return allTodos.filter((todo) => todo.completed);
-    case SortType.All:
+    case FilterType.All:
     default:
       return allTodos;
   }

@@ -56,11 +56,11 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   };
 
-  const titleInput = useRef<HTMLInputElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (isEditing && titleInput.current) {
-      titleInput.current.focus();
+    if (isEditing && titleInputRef.current) {
+      titleInputRef.current.focus();
     }
   }, [isEditing]);
 
@@ -68,8 +68,8 @@ export const TodoItem: React.FC<Props> = ({
     <div
       key={todo.id}
       data-cy="Todo"
-      className={cn('todo',
-        { completed: todo.completed, 'item-enter-done': true })}
+      className={cn('todo', 'item-enter-done',
+        { completed: todo.completed })}
     >
       <label className="todo__status-label">
         <input
@@ -87,7 +87,7 @@ export const TodoItem: React.FC<Props> = ({
           onBlur={handleTodoSave}
         >
           <input
-            ref={titleInput}
+            ref={titleInputRef}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
@@ -123,14 +123,13 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn(
-          'modal overlay',
+          'modal', 'overlay',
           { 'is-active': isProcessing },
         )}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
       </div>
-
     </div>
   );
 };

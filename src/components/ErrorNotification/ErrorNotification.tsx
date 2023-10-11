@@ -16,8 +16,8 @@ export const ErrorNotification: React.FC<Props> = ({
       className={cn('notification is-danger is-light has-text-weight-normal',
         { hidden: !errorMessage })}
     >
-      {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
       <button
+        aria-label="delete-todo-button"
         onClick={() => setErrorMessage('')}
         data-cy="HideErrorButton"
         type="button"
