@@ -11,7 +11,9 @@ export const TodoList = () => {
           key={todo.id}
           todo={todo}
         />
+
       ))}
+
     </section>
   );
 };

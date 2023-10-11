@@ -113,6 +113,8 @@ export const AppProvider = ({ children }: Props) => {
       setError(getError('updateError'));
     }
 
+    setIsLoading(true);
+    setEditedTodo(todo);
     updateTodos(todo)
       .then(() => {
         setTodos(prev => {
@@ -130,6 +132,7 @@ export const AppProvider = ({ children }: Props) => {
       })
       .catch(() => setError(getError('updateError')))
       .finally(() => {
+        setIsLoading(false);
         setEditedTodo(null);
       });
   }, []);
@@ -140,15 +143,13 @@ export const AppProvider = ({ children }: Props) => {
     }
 
     setIsLoading(true);
+    setEditedTodo(todo);
     updateTodos(todo)
-      .then(() => {
+      .then((data) => {
         setTodos(
           (prev: Todo[]) => {
-            if (prev.some(v => !v.completed)) {
-              return prev.map(v => ({ ...v, completed: true }));
-            }
-
-            return prev.map(v => ({ ...v, completed: false }));
+            return [...prev.filter(v => v.id !== data.id),
+              { ...data, completed: data.completed }];
           },
         );
       })
@@ -165,26 +166,28 @@ export const AppProvider = ({ children }: Props) => {
     }
 
     setIsLoading(true);
-    setTodos(prev => {
-      const copyTodos = [...prev];
-      const currentTodo = copyTodos.find(v => v.id === todo?.id);
+    setEditedTodo(todo);
+    updateTodos(todo).then(() => {
+      setTodos(prev => {
+        const copyTodos = [...prev];
+        const currentTodo = copyTodos.find(v => v.id === todo?.id);
 
-      if (!currentTodo) {
-        return [];
-      }
+        if (!currentTodo) {
+          return [];
+        }
 
-      currentTodo.title = todo.title.trim();
+        currentTodo.title = todo.title.trim();
 
-      return copyTodos;
-    });
-
-    updateTodos(todo)
-      .catch(() => setError(getError('updateError')))
+        return copyTodos;
+      });
+    })
+      .catch(() => {
+        setError(getError('updateError'));
+      })
       .finally(() => {
         setIsLoading(false);
-        setEditedTodo(null)
+        setEditedTodo(null);
       });
-  
   }, []);
 
   return (

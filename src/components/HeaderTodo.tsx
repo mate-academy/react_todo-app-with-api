@@ -12,7 +12,6 @@ export const HeaderTodo = () => {
     addTodoContext,
     setError,
     isDisabled,
-    setEditedTodo,
     completeAllTodosContext,
     isLoading,
 
@@ -27,10 +26,16 @@ export const HeaderTodo = () => {
   }, [isLoading, todos.length]);
 
   const completeAllTodos = (todosHeader: Todo[]) => {
-    const allCompleted = todos.every(todo => todo.completed);
+    const haveNotCompleted = todosHeader.some(todo => !todo.completed);
 
-    todosHeader.map(todo => {
-      return completeAllTodosContext({ ...todo, completed: !allCompleted });
+    todosHeader.forEach(todo => {
+      if (haveNotCompleted && !todo.completed) {
+        completeAllTodosContext({ ...todo, completed: true });
+      }
+
+      if (!haveNotCompleted && todo.completed) {
+        completeAllTodosContext({ ...todo, completed: false });
+      }
     });
   };
 
@@ -53,7 +58,6 @@ export const HeaderTodo = () => {
         return;
       }
 
-      setEditedTodo(newTodo);
       addTodoContext(newTodo);
     }
   };

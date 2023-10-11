@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FormEventHandler, KeyboardEventHandler } from 'react';
+import { FormEventHandler, KeyboardEventHandler, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { Loader } from './Loader';
 import { useTodo } from '../providers/AppProvider';
@@ -16,9 +16,11 @@ export const TodoItem = ({ todo }: Props) => {
     updateTodoContext,
     editedTitleTodo,
   } = useTodo();
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleDoubleClick = (): void => {
     setEditedTodo(todo);
+    setIsEditing(true);
   };
 
   const handleEditSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -34,6 +36,8 @@ export const TodoItem = ({ todo }: Props) => {
     if (event.key === 'Escape') {
       setEditedTodo(null);
 
+      setIsEditing(false);
+
       return;
     }
 
@@ -41,6 +45,8 @@ export const TodoItem = ({ todo }: Props) => {
       if (editedTodo?.title.trim() === '') {
         removeTodoContext(todo.id);
       }
+
+      setIsEditing(false);
     }
   };
 
@@ -49,7 +55,6 @@ export const TodoItem = ({ todo }: Props) => {
       removeTodoContext(todo.id);
     } else if (editedTodo?.title.trim() === todo.title) {
       setEditedTodo(null);
-      return;
     } else {
       if (!editedTodo) {
         return;
@@ -57,7 +62,9 @@ export const TodoItem = ({ todo }: Props) => {
 
       editedTitleTodo(editedTodo);
     }
-  }
+
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -79,33 +86,41 @@ export const TodoItem = ({ todo }: Props) => {
 
           />
         </label>
-        {editedTodo?.id === todo.id
+        {isEditing
           ? (
             <form onSubmit={handleEditSubmit}>
               <input
                 data-cy="TodoTitleField"
                 type="text"
                 className="todo__title-field"
-                placeholder='Empty todo will be deleted'
-                value={editedTodo.title}
+                placeholder="Empty todo will be deleted"
+                value={editedTodo?.title}
                 onChange={(e) => {
                   setEditedTodo({ ...todo, title: e.target.value });
                 }}
                 onKeyDown={handleEdit}
                 onBlur={handleBlur}
+                /* eslint-disable-next-line */
+                autoFocus
               />
             </form>
           ) : (
+            /* eslint-disable-next-line */
             <span
               data-cy="TodoTitle"
               className="todo__title"
               onDoubleClick={handleDoubleClick}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  setIsEditing(!isEditing);
+                }
+              }}
             >
               {todo.title}
             </span>
           )}
 
-        {!editedTodo
+        {!isEditing
         && (
           <button
             type="button"
@@ -120,7 +135,7 @@ export const TodoItem = ({ todo }: Props) => {
           </button>
         )}
 
-        <Loader />
+        <Loader todoId={todo.id} />
       </div>
     </>
   );
