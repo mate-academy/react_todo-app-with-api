@@ -1004,6 +1004,7 @@ describe('', () => {
       });
 
       it('should cancel loading', () => {
+        page.flushJSTimers();
         todos.assertNotLoading(0);
       });
 
@@ -1516,13 +1517,15 @@ describe('', () => {
         it('should show the updated title', () => {
           todos.titleField(0).type('Something{enter}');
           cy.wait('@renameRequest')
+          page.flushJSTimers();
 
           todos.assertTitle(0, 'Something');
         });
 
         it('should show trim the new title', () => {
           todos.titleField(0).type('   Some new title      {enter}');
-          cy.wait('@renameRequest')
+          cy.wait('@renameRequest');
+          page.flushJSTimers();
 
           todos.assertTitle(0, 'Some new title');
         });
