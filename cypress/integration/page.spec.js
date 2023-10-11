@@ -1084,7 +1084,7 @@ describe('', () => {
         todos.assertTitle(0, 'HTML');
       });
 
-      it.only('should not hide a todo on fail', () => {
+      it('should not hide a todo on fail', () => {
         // to prevent Cypress from failing the test on uncaught exception
         cy.once('uncaught:exception', () => false);
 
