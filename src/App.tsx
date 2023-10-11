@@ -31,25 +31,25 @@ export const App: React.FC = () => {
   };
 
   const handleTodoClick = (todoId: number) => {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === todoId) {
-        return {
-          ...todo,
-          completed: !todo.completed,
-        };
-      }
-
-      return todo;
-    });
-
-    setTodos(updatedTodos);
-    const clickedTodo = updatedTodos.find((todo) => todo.id === todoId);
+    const clickedTodo = todos.find((todo) => todo.id === todoId);
 
     if (clickedTodo) {
       updateTodos({
         id: todoId,
         completed: !clickedTodo.completed,
-      }).catch(() => setErrorMesssage(Errors.update));
+      })
+        .then((response) => {
+          setTodos(prevTodos => {
+            return prevTodos.map((todo) => {
+              if (todo.id === response.id) {
+                return response as Todo;
+              }
+
+              return todo;
+            });
+          });
+        })
+        .catch(() => setErrorMesssage(Errors.update));
     }
   };
 

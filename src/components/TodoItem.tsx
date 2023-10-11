@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useState, useEffect, useRef } from 'react';
+import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { updateTodos } from '../api/todos';
 import { Errors } from '../types/Errors';
@@ -86,15 +87,19 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
-      {(isLoading || isSaving) && (
-        <div className="modal overlay is-active">
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      )}
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal overlay', {
+          'is-active': isLoading || isSaving,
+        })}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
 
-      <label data-cy="TodoStatus" className="todo__status-label">
+      <label className="todo__status-label">
         <input
+          data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
