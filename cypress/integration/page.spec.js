@@ -1085,7 +1085,11 @@ describe('', () => {
       });
 
       it('should not hide a todo on fail', () => {
-        page.mockUpdate(257334).as('updateRequest');
+        // to prevent Cypress from failing the test on uncaught exception
+        cy.once('uncaught:exception', () => false);
+
+        page.mockUpdate(257334, { statusCode: 503, body: 'Service Unavailable' })
+          .as('updateRequest');
 
         todos.statusToggler(0).click();
         cy.wait('@updateRequest');
