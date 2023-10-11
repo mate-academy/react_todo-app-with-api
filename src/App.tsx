@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 
@@ -9,6 +7,7 @@ import { ErrorMessage } from './utils/ErrorMessages';
 import * as ApiServices from './api/todos';
 import { TodoHeader } from './components/TodoHeader';
 import { TodoRow } from './components/TodoRow';
+import FilterBar from './components/FilterBar';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -17,25 +16,25 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
-  const isEveryCompleted = useMemo(() => todos.every(todo => todo.completed),
-    [todos]);
+  const isEveryCompleted = useMemo(() => todos.every(todo => todo.completed), [todos]);
 
-  const isAnyCompleted = useMemo(() => todos.some(todo => todo.completed),
-    [todos]);
+  const isAnyCompleted = useMemo(() => todos.some(todo => todo.completed), [todos]);
 
   const activeTodosCounter = useMemo(() => {
     const activeTodos = todos.filter(todo => !todo.completed).length;
-
     return activeTodos;
   }, [todos]);
 
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (filterOption) {
-        case SelectFilter.Active: return !todo.completed;
-        case SelectFilter.Completed: return todo.completed;
+        case SelectFilter.Active:
+          return !todo.completed;
+        case SelectFilter.Completed:
+          return todo.completed;
         case SelectFilter.All:
-        default: return true;
+        default:
+          return true;
       }
     });
   }, [todos, filterOption]);
@@ -53,7 +52,6 @@ export const App: React.FC = () => {
       .then(setTodos)
       .catch((error: Error) => {
         setErrorMessage(ErrorMessage.UnableLoad);
-        // eslint-disable-next-line no-console
         console.log(error.message);
       });
   }, []);
@@ -61,7 +59,6 @@ export const App: React.FC = () => {
   const handleTodoAdd = (newTodoTitle: string) => {
     if (!newTodoTitle.trim()) {
       setErrorMessage(ErrorMessage.EmptyTitle);
-
       return;
     }
 
@@ -72,15 +69,15 @@ export const App: React.FC = () => {
       completed: false,
     });
 
-    // eslint-disable-next-line consistent-return
-    return ApiServices
-      .addTodo(newTodoTitle.trim())
+    ApiServices.addTodo(newTodoTitle.trim())
       .then((newTodo: Todo) => {
         setTodos(prevTodos => [...prevTodos, newTodo]);
-      }).catch(error => {
+      })
+      .catch(error => {
         setErrorMessage(ErrorMessage.UnableAdd);
         throw error;
-      }).finally(() => {
+      })
+      .finally(() => {
         setTempTodo(null);
       });
   };
@@ -88,13 +85,10 @@ export const App: React.FC = () => {
   const handleTodoDelete = (todoId: number) => {
     setProcessingTodoIds(prevState => [...prevState, todoId]);
 
-    return ApiServices
-      .deleteTodo(todoId)
+    ApiServices.deleteTodo(todoId)
       .then(() => {
         setErrorMessage('');
-        setTodos((prevTodos: Todo[]) => (
-          prevTodos.filter(todo => todo.id !== todoId)
-        ));
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
       })
       .catch(() => {
         setErrorMessage(ErrorMessage.UnableDelete);
@@ -107,19 +101,18 @@ export const App: React.FC = () => {
   const handleTodoRename = (todo: Todo, newTodoTitle: string) => {
     setProcessingTodoIds(prevState => [...prevState, todo.id]);
 
-    ApiServices
-      .updateTodo({
-        id: todo.id,
-        title: newTodoTitle,
-        userId: todo.userId,
-        completed: todo.completed,
-      })
+    ApiServices.updateTodo({
+      id: todo.id,
+      title: newTodoTitle,
+      userId: todo.userId,
+      completed: todo.completed,
+    })
       .then(updatedTodo => {
-        setTodos(prevState => prevState.map((currentTodo: Todo) => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
+        setTodos(prevState =>
+          prevState.map(currentTodo =>
+            currentTodo.id !== updatedTodo.id ? currentTodo : updatedTodo
+          )
+        );
       })
       .catch(error => {
         setErrorMessage(ErrorMessage.UnableUpdate);
@@ -133,17 +126,16 @@ export const App: React.FC = () => {
   const handleTodoToggle = (todo: Todo) => {
     setProcessingTodoIds(prevState => [...prevState, todo.id]);
 
-    ApiServices
-      .updateTodo({
-        ...todo,
-        completed: !todo.completed,
-      })
+    ApiServices.updateTodo({
+      ...todo,
+      completed: !todo.completed,
+    })
       .then(updatedTodo => {
-        setTodos(prevState => prevState.map((currentTodo: Todo) => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
+        setTodos(prevState =>
+          prevState.map(currentTodo =>
+            currentTodo.id !== updatedTodo.id ? currentTodo : updatedTodo
+          )
+        );
       })
       .catch(error => {
         setErrorMessage(ErrorMessage.UnableUpdate);
@@ -155,19 +147,16 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompletedTodos = () => {
-    todos
-      .filter(todo => todo.completed)
-      .forEach(todo => handleTodoDelete(todo.id));
+    const todosToDelete = todos.filter(todo => todo.completed);
+    todosToDelete.forEach(todo => handleTodoDelete(todo.id));
   };
 
   const handleToggleAll = () => {
-    if (isEveryCompleted) {
-      todos.forEach(handleTodoToggle);
-    } else {
-      todos
-        .filter(todo => !todo.completed)
-        .forEach(handleTodoToggle);
-    }
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !isEveryCompleted,
+    }));
+    setTodos(updatedTodos);
   };
 
   return (
@@ -188,16 +177,13 @@ export const App: React.FC = () => {
               key={todo.id}
               todo={todo}
               onTodoDelete={() => handleTodoDelete(todo.id)}
-              onTodoRename={(todoTitle: string) => handleTodoRename(todo, todoTitle)}
+              onTodoRename={todoTitle => handleTodoRename(todo, todoTitle)}
               onTodoToggle={() => handleTodoToggle(todo)}
               isProcessing={processingTodoIds.includes(todo.id)}
             />
           ))}
           {tempTodo && (
-            <TodoRow
-              todo={tempTodo}
-              isProcessing
-            />
+            <TodoRow todo={tempTodo} isProcessing />
           )}
         </section>
         {todos.length > 0 && (
@@ -206,45 +192,7 @@ export const App: React.FC = () => {
               {`${activeTodosCounter} items left`}
             </span>
 
-            <nav className="filter" data-cy="Filter">
-              <a
-                href="#/"
-                className={cn(
-                  'filter__link',
-                  { selected: filterOption === SelectFilter.All },
-                )}
-                data-cy="FilterLinkAll"
-                onClick={() => {
-                  setFilterOption(SelectFilter.All);
-                }}
-              >
-                All
-              </a>
-
-              <a
-                href="#/active"
-                className={cn(
-                  'filter__link',
-                  { selected: filterOption === SelectFilter.Active },
-                )}
-                data-cy="FilterLinkActive"
-                onClick={() => setFilterOption(SelectFilter.Active)}
-              >
-                Active
-              </a>
-
-              <a
-                href="#/completed"
-                className={cn(
-                  'filter__link',
-                  { selected: filterOption === SelectFilter.Completed },
-                )}
-                data-cy="FilterLinkCompleted"
-                onClick={() => setFilterOption(SelectFilter.Completed)}
-              >
-                Completed
-              </a>
-            </nav>
+            <FilterBar filterOption={filterOption} onFilterChange={setFilterOption} />
 
             <button
               type="button"
