@@ -3,19 +3,17 @@ import cn from 'classnames';
 
 type Props = {
   error: string;
-  hideNotification: boolean;
-  setHideNotification: (par: boolean) => void;
+  setError: (par: string) => void;
 };
 
 export const Notification: FC<Props> = ({
   error,
-  hideNotification,
-  setHideNotification,
+  setError,
 }) => {
   useEffect(() => {
-    if (!hideNotification) {
+    if (error) {
       setTimeout(() => {
-        setHideNotification(true);
+        setError('');
       }, 3000);
     }
   });
@@ -26,7 +24,7 @@ export const Notification: FC<Props> = ({
     <div
       data-cy="ErrorNotification"
       className={cn('notification is-danger is-light has-text-weight-normal', {
-        hidden: hideNotification,
+        hidden: !error,
       })}
     >
       <button
@@ -34,7 +32,7 @@ export const Notification: FC<Props> = ({
         type="button"
         className="delete"
         aria-label="close"
-        onClick={() => setHideNotification(true)}
+        onClick={() => setError('')}
       />
       {/* show only one message at a time
       Unable to load todos

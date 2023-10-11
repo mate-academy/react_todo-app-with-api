@@ -1,9 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Filter, MakeTodosCompleted, Todo } from './types/Todo';
 import * as todosService from './api/todos';
@@ -22,18 +18,16 @@ export const App: React.FC = () => {
   const [filterBy, setFilterBy] = useState<Filter>(Filter.all);
   const [hasCompleted, setHasCompleted] = useState(false);
   const [quantity, setQuantity] = useState(0);
-  const [hideNotification, setHideNotification] = useState(true);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isFocused, setIsFocused] = useState(true);
   const [allTodosCompleted, setAllTodosCompleted] = useState(false);
-  const [makeTodosComplete, setMakeTodosComplete]
-  = useState(MakeTodosCompleted.begin);
+  const [makeTodosComplete, setMakeTodosComplete] = useState(
+    MakeTodosCompleted.begin,
+  );
   const [clearCompleted, setClearCompleted] = useState(false);
 
   useEffect(() => {
-    const filteredTodos = todos.filter((todo) => todo.completed);
-
-    setQuantity(todos.length - filteredTodos.length);
+    setQuantity(todos.filter((todo) => !todo.completed).length);
   }, [todos]);
 
   useEffect(() => {
@@ -48,76 +42,73 @@ export const App: React.FC = () => {
   }, []);
 
   const filteredTodos = useMemo(() => {
-    const filteredByTodos = todos.length
-      ? todos.filter((todo) => {
-        switch (filterBy) {
-          case Filter.active:
-            return !todo.completed;
-          case Filter.completed:
-            return todo.completed;
-          default:
-            return true;
-        }
-      })
-      : [];
+    const filteredByTodos = todos?.filter((todo) => {
+      switch (filterBy) {
+        case Filter.active:
+          return !todo.completed;
+        case Filter.completed:
+          return todo.completed;
+        default:
+          return true;
+      }
+    })
+      ?? [];
 
     return filteredByTodos;
   }, [filterBy, todos]);
 
-  const deleteTodo = (todoId: number) => {
+  const deleteTodo = async (todoId: number) => {
     setErrorMessage('');
     setIsFocused(false);
 
-    return todosService
-      .deleteTodo(todoId)
-      .then(() => {
-        setTodos((currentTodos) => currentTodos
-          .filter((todo) => todo.id !== todoId));
-      })
-      .catch((error) => {
-        setErrorMessage('Unable to delete a todo');
-        throw error;
-      })
-      .finally(() => {
-        setIsFocused(true);
-      });
+    try {
+      await todosService.deleteTodo(todoId);
+      const updatedTodos = (currentTodos: Todo[]) => currentTodos
+        .filter((todo: Todo) => todo.id !== todoId);
+
+      setTodos(updatedTodos);
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
+      throw error;
+    } finally {
+      setIsFocused(true);
+    }
   };
 
-  const createNewTodo = ({ title, completed, userId }: Omit<Todo, 'id'>) => {
+  const createNewTodo = async ({
+    title,
+    completed,
+    userId,
+  }: Omit<Todo, 'id'>) => {
     setErrorMessage('');
+    try {
+      const newTodo = await todosService.addTodo({ title, completed, userId });
 
-    return todosService
-      .addTodo({ title, completed, userId })
-      .then((newTodo: Todo) => {
-        setTodos((currentTodos) => [...currentTodos, newTodo]);
-      })
-      .catch((error) => {
-        setErrorMessage('Unable to add a todo');
-        throw error;
-      });
+      setTodos((currentTodos: Todo[]) => [...currentTodos, newTodo]);
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      throw error;
+    }
   };
 
-  const updateTodo = (updatedTodo: Todo) => {
+  const updateTodo = async (updatedTodo: Todo) => {
     setErrorMessage('');
 
-    return todosService
-      .updateTodo(updatedTodo)
-      .then((todo) => {
-        setTodos((currentTodos) => {
-          const newTodos = [...currentTodos];
-          const index = newTodos.findIndex(
-            (post) => post.id === updatedTodo.id,
-          );
+    try {
+      const todo = await todosService.updateTodo(updatedTodo);
 
-          newTodos.splice(index, 1, todo);
+      setTodos((currentTodos: Todo[]) => {
+        const newTodos = [...currentTodos];
+        const index = newTodos.findIndex(post => post.id === updatedTodo.id);
 
-          return newTodos;
-        });
-      })
-      .catch((error) => {
-        setErrorMessage('Unable to update a todo');
-        throw error;
+        newTodos.splice(index, 1, todo);
+
+        return newTodos;
       });
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+      throw error;
+    }
   };
 
   const searchCompletedTodos = () => {
@@ -133,11 +124,7 @@ export const App: React.FC = () => {
   }, [filteredTodos, hasCompleted]);
 
   useEffect(() => {
-    setHideNotification(!errorMessage.length);
-  }, [errorMessage]);
-
-  useEffect(() => {
-    const hasAllCompleted = filteredTodos.every(todo => todo.completed);
+    const hasAllCompleted = filteredTodos.every((todo) => todo.completed);
 
     setAllTodosCompleted(hasAllCompleted);
   }, [filteredTodos, allTodosCompleted]);
@@ -161,9 +148,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div
-      className="todoapp"
-    >
+    <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
         <Header
@@ -196,8 +181,8 @@ export const App: React.FC = () => {
 
         {!!todos.length && (
           <Footer
-            setFilterBy={setFilterBy}
             hasCompleted={hasCompleted}
+            setFilterBy={setFilterBy}
             quantity={quantity}
             makeClearCompleted={makeClearCompleted}
           />
@@ -205,9 +190,8 @@ export const App: React.FC = () => {
       </div>
 
       <Notification
-        hideNotification={hideNotification}
-        setHideNotification={setHideNotification}
         error={errorMessage}
+        setError={setErrorMessage}
       />
     </div>
   );

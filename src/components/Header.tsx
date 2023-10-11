@@ -1,5 +1,6 @@
 import {
   FC,
+  FormEvent,
   useEffect,
   useRef,
   useState,
@@ -44,6 +45,36 @@ export const Header: FC<Props> = ({
     }
   }, [isFocused, setIsFocused]);
 
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setMakeTodosComplete(MakeTodosCompleted.begin);
+    setIsFocused(false);
+    const trimedTitle = title.trim();
+
+    if (!trimedTitle.length) {
+      setErrorMessage('Title should not be empty');
+    } else {
+      setIsSubmitting(true);
+      setTempTodo({
+        title: trimedTitle,
+        completed: false,
+        userId: 11641,
+        id: 0,
+      });
+      try {
+        await addTodo({ title: trimedTitle, completed: false, userId: 11641 });
+
+        reset();
+      } catch {
+        setErrorMessage('Unable to add a todo');
+      } finally {
+        setIsSubmitting(false);
+        setTempTodo(null);
+        setIsFocused(true);
+      }
+    }
+  };
+
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
@@ -59,34 +90,7 @@ export const Header: FC<Props> = ({
 
       {/* Add a todo on form submit */}
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setMakeTodosComplete(MakeTodosCompleted.begin);
-          setIsFocused(false);
-          const trimedTitle = title.trim();
-
-          if (!trimedTitle.length) {
-            setErrorMessage('Title should not be empty');
-          } else {
-            setIsSubmitting(true);
-            setTempTodo({
-              title: trimedTitle,
-              completed: false,
-              userId: 11641,
-              id: 0,
-            });
-            addTodo({ title: trimedTitle, completed: false, userId: 11641 })
-              .then(() => {
-                reset();
-              })
-              .catch(() => setErrorMessage('Unable to add a todo'))
-              .finally(() => {
-                setIsSubmitting(false);
-                setTempTodo(null);
-                setIsFocused(true);
-              });
-          }
-        }}
+        onSubmit={handleSubmit}
       >
         <input
           data-cy="NewTodoField"
