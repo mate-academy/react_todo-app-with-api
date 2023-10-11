@@ -14,7 +14,7 @@ const USER_ID = 11558;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMesssage, setErrorMesssageState] = useState<string>('');
+  const [errorMesssage, setErrorMesssage] = useState<string>('');
   const [filter, setFilter] = useState<Filters>(Filters.All);
   const [title, setTitle] = useState<string>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -22,18 +22,13 @@ export const App: React.FC = () => {
   const [loadingItems, setLoadingItems] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const setErrorMesssage = (message: string) => {
-    if (message) {
-      setErrorMesssageState(message);
-    } else {
-      setErrorMesssageState('');
-    }
-  };
-
   const handleTodoClick = (todoId: number) => {
     const clickedTodo = todos.find((todo) => todo.id === todoId);
 
     if (clickedTodo) {
+      setLoadingItems(prev => {
+        return [...prev, todoId];
+      });
       updateTodos({
         id: todoId,
         completed: !clickedTodo.completed,
@@ -49,7 +44,12 @@ export const App: React.FC = () => {
             });
           });
         })
-        .catch(() => setErrorMesssage(Errors.update));
+        .catch(() => setErrorMesssage(Errors.update))
+        .finally(() => {
+          setLoadingItems(current => current.filter((
+            id: number,
+          ) => id !== todoId));
+        });
     }
   };
 
@@ -85,9 +85,28 @@ export const App: React.FC = () => {
       .catch(() => setErrorMesssage(Errors.delete))
       .finally(() => {
         setIsLoading(false);
-        // eslint-disable-next-line max-len
-        setLoadingItems(current => current.filter((id: number) => id !== todoId));
+        setLoadingItems(current => current.filter((
+          id: number,
+        ) => id !== todoId));
       });
+  };
+
+  const handleEdit = async (todo: Todo) => {
+    setLoadingItems(current => [...current, todo.id]);
+    try {
+      const actualTodo = await updateTodos(todo);
+
+      setTodos((prev) => prev.map((e) => (todo.id === e.id
+        ? actualTodo as Todo
+        : e
+      )));
+    } catch (error) {
+      setErrorMesssage(Errors.update);
+    } finally {
+      setLoadingItems(current => current.filter((
+        id: number,
+      ) => id !== todo.id));
+    }
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -168,6 +187,7 @@ export const App: React.FC = () => {
             removeTodo={removeTodo}
             loadingItems={loadingItems}
             handleTodoClick={handleTodoClick}
+            handleEdit={handleEdit}
           />
         )}
 

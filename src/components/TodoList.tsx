@@ -8,6 +8,7 @@ type Props = {
   removeTodo: (id: number) => void,
   loadingItems: number[],
   handleTodoClick: (id: number) => void;
+  handleEdit: (todo: Todo) => void
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const TodoList: React.FC<Props> = ({
   removeTodo,
   loadingItems,
   handleTodoClick,
+  handleEdit,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -26,6 +28,7 @@ export const TodoList: React.FC<Props> = ({
           removeTodo={removeTodo}
           isLoading={loadingItems.includes(todo.id)}
           onTodoClick={handleTodoClick}
+          handleEdit={handleEdit}
         />
       ))}
 
@@ -35,6 +38,7 @@ export const TodoList: React.FC<Props> = ({
           removeTodo={removeTodo}
           isLoading
           onTodoClick={handleTodoClick}
+          handleEdit={handleEdit}
         />
       )}
     </section>

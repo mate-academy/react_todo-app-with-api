@@ -3,14 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
-import { updateTodos } from '../api/todos';
-import { Errors } from '../types/Errors';
 
 type Props = {
   todo: Todo;
   removeTodo: (id: number) => void;
   isLoading: boolean;
   onTodoClick: (id: number, completed: boolean) => void;
+  handleEdit: (todo: Todo) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -18,11 +17,10 @@ export const TodoItem: React.FC<Props> = ({
   removeTodo,
   isLoading,
   onTodoClick,
+  handleEdit,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -36,21 +34,11 @@ export const TodoItem: React.FC<Props> = ({
     if (!editedTitle.trim()) {
       removeTodo(todo.id);
     } else if (editedTitle !== todo.title) {
-      setIsSaving(true);
-
       const updatedTodo = { ...todo, title: editedTitle };
 
       setEditedTitle(updatedTodo.title);
       setIsEditing(false);
-
-      try {
-        await updateTodos(updatedTodo);
-        setErrorMessage('');
-      } catch (error) {
-        setErrorMessage(Errors.update);
-      } finally {
-        setIsSaving(false);
-      }
+      handleEdit(updatedTodo);
     } else {
       setIsEditing(false);
     }
@@ -90,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': isLoading || isSaving,
+          'is-active': isLoading,
         })}
       >
         <div className="modal-background has-background-white-ter" />
@@ -135,24 +123,17 @@ export const TodoItem: React.FC<Props> = ({
             className="todo__title"
             onDoubleClick={handleTitleDoubleClick}
           >
-            {editedTitle}
+            {todo.title}
           </span>
 
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => !(isLoading || isSaving) && removeTodo(todo.id)}
+            onClick={() => !(isLoading) && removeTodo(todo.id)}
           >
             ×
           </button>
-
-          {errorMessage && (
-            // eslint-disable-next-line max-len
-            <div className="notification is-danger is-light has-text-weight-normal">
-              {errorMessage}
-            </div>
-          )}
         </>
       )}
     </div>
