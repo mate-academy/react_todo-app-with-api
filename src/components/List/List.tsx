@@ -17,7 +17,7 @@ type ListProps = {
 export const List: React.FC<ListProps> = (
   {
     todos, tempTodo, handleDelete,
-    onStatusChange, setTodos, isLoading, isDeleting, isToggling, isTogglingAll,
+    onStatusChange, setTodos,
   },
 ) => {
   const reloadTodos = async () => {
@@ -35,10 +35,6 @@ export const List: React.FC<ListProps> = (
           handleDelete={handleDelete}
           onStatusChange={onStatusChange}
           onTodoUpdate={reloadTodos}
-          isLoading={isLoading}
-          isDeleting={isDeleting}
-          isToggling={isToggling}
-          isTogglingAll={isTogglingAll}
         />
       ))}
       {tempTodo && (
@@ -47,10 +43,6 @@ export const List: React.FC<ListProps> = (
           handleDelete={handleDelete}
           onStatusChange={onStatusChange}
           onTodoUpdate={reloadTodos}
-          isLoading={isLoading}
-          isDeleting={isDeleting}
-          isToggling={isToggling}
-          isTogglingAll={isTogglingAll}
         />
       )}
     </section>

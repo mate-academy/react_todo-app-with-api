@@ -1,3 +1,4 @@
+import React from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -5,7 +6,7 @@ import { Todo } from '../../types/Todo';
 type HeaderProps = {
   title: string;
   setTitle: (string: string) => void;
-  handleSubmit: (event: { preventDefault: () => void }) => void;
+  handleSubmit: (event: React.FormEvent) => void;
   todos: Todo[];
   isLoading: boolean;
   onToggleAll: () => void;

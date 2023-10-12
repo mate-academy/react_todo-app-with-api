@@ -1,3 +1,4 @@
+import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { Filter } from '../../types/Filter';

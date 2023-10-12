@@ -5,8 +5,8 @@ export const getTodos = (userId: number) => {
   return client.get<Todo[]>(`/todos?userId=${userId}`);
 };
 
-export const API_URL = 'https://mate.academy/students-api/todos?userId=11593';
-export const USER_ID = 11593;
+export const API_URL = 'https://mate.academy/students-api/todos?userId=11594';
+export const USER_ID = 11594;
 
 export const addTodo = (data: Todo) => {
   return client.post<Todo>('/todos', data);

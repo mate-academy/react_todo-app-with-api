@@ -11,21 +11,15 @@ type TodoItemProps = {
   handleDelete: (todoId: number) => void;
   onStatusChange: (todoId: number, completed: boolean) => void;
   onTodoUpdate: () => void;
-  isLoading: boolean;
-  isDeleting: boolean;
-  isToggling: boolean;
-  isTogglingAll: boolean;
 };
 
 export const TodoItem: React.FC<TodoItemProps> = ({
-  todo, handleDelete, onStatusChange, onTodoUpdate, isLoading, isDeleting, isToggling, isTogglingAll,
+  todo, handleDelete, onStatusChange, onTodoUpdate,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
-  const loading = todo.id === 0;
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -33,23 +27,20 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsEditing(false);
+    onStatusChange(todo.id, todo.completed);
     if (newTitle.trim() === '') {
       handleDelete(todo.id);
     } else if (newTitle !== todo.title) {
-      setIsUpdating(true);
       try {
         await updateTodo(todo.id, {
           title: newTitle.trim(),
         });
+        onStatusChange(todo.id, todo.completed);
         onTodoUpdate();
-        setIsEditing(false);
-        setIsUpdating(false);
       } catch {
         handleError(setErrorMessage, ErrorMessage.noUpdateTodo);
-        setIsUpdating(false);
       }
-    } else {
-      setIsEditing(false);
     }
   };
 
@@ -110,9 +101,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       </button>
       <div
         data-cy="TodoLoader"
-        className={cn(
-          'modal', 'overlay', { 'is-active': loading || isLoading || isUpdating || isDeleting || isToggling || isTogglingAll },
-        )}
+        className={cn('modal', 'overlay', { 'is-active': todo.editing })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
