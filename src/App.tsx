@@ -160,7 +160,10 @@ export const App: React.FC = () => {
           !== prevTodos.find((t) => t.id === updatedTodo.id)?.completed) {
           setLoadingItems((prev) => [...prev, updatedTodo.id]);
 
-          updateTodos(updatedTodo)
+          updateTodos({
+            id: updatedTodo.id,
+            completed: updatedTodo.completed,
+          })
             .then((response) => {
               setTodos((prev) => {
                 return prev.map((todo) => {
