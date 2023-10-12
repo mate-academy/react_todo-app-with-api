@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, KeyboardEvent,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
 
@@ -52,26 +54,14 @@ export const TodoItem: React.FC<Props> = ({
     handleEditSubmit();
   };
 
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        handleEditSubmit();
-      } else if (event.key === 'Escape') {
-        setEditedTitle(todo.title);
-        setIsEditing(false);
-      }
-    };
-
-    if (isEditing) {
-      window.addEventListener('keydown', handleKeyPress);
-    } else {
-      window.removeEventListener('keydown', handleKeyPress);
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleEditSubmit();
+    } else if (event.key === 'Escape') {
+      setEditedTitle(todo.title);
+      setIsEditing(false);
     }
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [isEditing, editedTitle, todo]);
+  };
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
@@ -113,6 +103,7 @@ export const TodoItem: React.FC<Props> = ({
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
             onBlur={handleTitleBlur}
+            onKeyDown={handleKeyPress}
             ref={inputRef}
           />
         </form>

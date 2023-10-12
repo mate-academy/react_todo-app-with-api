@@ -31,7 +31,7 @@ export const Header: React.FC<Props> = ({
       {todos.length > 0 && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={`todoapp__toggle-all ${todos.length > 0 && todos.every((todo) => todo.completed) ? '' : 'active'}`}
           aria-label="toggle all active"
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}

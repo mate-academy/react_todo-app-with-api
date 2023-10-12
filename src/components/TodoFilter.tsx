@@ -4,24 +4,40 @@ import { Todo } from '../types/Todo';
 type Props = {
   todos: Todo[],
   clearCompletedTodos: () => void,
-  selectedFilter: string,
-  onSelectedFilter: (val: Filters) => void,
+  selectedFilter: Filters;
+  onSelectedFilter: (val: Filters) => void;
+  errorMessage: string;
 };
+
+const filterValues: Filters[] = [
+  Filters.All,
+  Filters.Active,
+  Filters.Completed,
+];
 
 export const TodoFilter: React.FC<Props> = ({
   todos,
   clearCompletedTodos,
   selectedFilter,
   onSelectedFilter,
+  errorMessage,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
-      <span className="todo-count" data-cy="TodosCounter">
-        {`${todos.filter(({ completed }) => !completed).length} items left`}
-      </span>
+      {errorMessage ? (
+        <div data-cy="ErrorNotification">
+          Error Message:
+          {' '}
+          {errorMessage}
+        </div>
+      ) : (
+        <span className="todo-count" data-cy="TodosCounter">
+          {`${todos.filter(({ completed }) => !completed).length} items left`}
+        </span>
+      )}
 
       <nav className="filter" data-cy="Filter">
-        {Object.values(Filters).map((filterType:Filters) => (
+        {filterValues.map((filterType) => (
           <a
             key={`filter_${filterType}`}
             data-cy={`FilterLink${filterType}`}
@@ -43,7 +59,6 @@ export const TodoFilter: React.FC<Props> = ({
       >
         Clear completed
       </button>
-
     </footer>
   );
 };

@@ -148,17 +148,35 @@ export const App: React.FC = () => {
 
   const handleToggleAll = () => {
     const areAllTodosCompleted = todos.every((todo) => todo.completed);
-    const updatedTodos = todos.map((todo) => ({
-      ...todo,
-      completed: !areAllTodosCompleted,
-    }));
 
     setTodos((prevTodos) => {
+      const updatedTodos = prevTodos.map((todo) => ({
+        ...todo,
+        completed: !areAllTodosCompleted,
+      }));
+
       updatedTodos.forEach((updatedTodo) => {
-        if (updatedTodo.completed !== prevTodos.find((t) => t.id
-        === updatedTodo.id)?.completed) {
+        if (updatedTodo.completed
+          !== prevTodos.find((t) => t.id === updatedTodo.id)?.completed) {
+          setLoadingItems((prev) => [...prev, updatedTodo.id]);
+
           updateTodos(updatedTodo)
-            .catch(() => setErrorMesssage(Errors.update));
+            .then((response) => {
+              setTodos((prev) => {
+                return prev.map((todo) => {
+                  if (todo.id === response.id) {
+                    return response as Todo;
+                  }
+
+                  return todo;
+                });
+              });
+            })
+            .catch(() => setErrorMesssage(Errors.update))
+            .finally(() => {
+              setLoadingItems((current) => current.filter((id: number) => id
+              !== updatedTodo.id));
+            });
         }
       });
 
@@ -197,6 +215,7 @@ export const App: React.FC = () => {
             clearCompletedTodos={clearCompletedTodos}
             selectedFilter={filter}
             onSelectedFilter={setFilter}
+            errorMessage={errorMesssage}
           />
         )}
       </div>
