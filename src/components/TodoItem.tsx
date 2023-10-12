@@ -46,6 +46,11 @@ export const TodoItem = ({ todo }: Props) => {
         removeTodoContext(todo.id);
       }
 
+      if (!editedTodo) {
+        return;
+      };
+
+      editedTitleTodo(editedTodo);
       setIsEditing(false);
     }
   };
