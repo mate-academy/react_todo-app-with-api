@@ -137,28 +137,21 @@ export const AppProvider = ({ children }: Props) => {
       });
   }, []);
 
-  const completeAllTodosContext = useCallback((todo: Todo) => {
+  const completeAllTodosContext = (todo: Todo) => {
     if (!todo) {
       setError(getError('updateError'));
     }
 
     setIsLoading(true);
     setEditedTodo(todo);
+
     updateTodos(todo)
-      .then((data) => {
-        setTodos(
-          (prev: Todo[]) => {
-            return [...prev.filter(v => v.id !== data.id),
-              { ...data, completed: data.completed }];
-          },
-        );
-      })
       .catch(() => setError(getError('updateError')))
       .finally(() => {
         setIsLoading(false);
         setEditedTodo(null);
       });
-  }, []);
+  };
 
   const editedTitleTodo = useCallback((todo: Todo) => {
     if (!todo) {

@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { FormEventHandler, KeyboardEventHandler, useState } from 'react';
+import { KeyboardEventHandler, useState } from 'react';
 import { Todo } from '../types/Todo';
 import { Loader } from './Loader';
 import { useTodo } from '../providers/AppProvider';
@@ -23,15 +23,6 @@ export const TodoItem = ({ todo }: Props) => {
     setIsEditing(true);
   };
 
-  const handleEditSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-    if (!editedTodo) {
-      return;
-    }
-
-    editedTitleTodo(editedTodo);
-  };
-
   const handleEdit: KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (event.key === 'Escape') {
       setEditedTodo(null);
@@ -48,7 +39,7 @@ export const TodoItem = ({ todo }: Props) => {
 
       if (!editedTodo) {
         return;
-      };
+      }
 
       editedTitleTodo(editedTodo);
       setIsEditing(false);
@@ -93,7 +84,7 @@ export const TodoItem = ({ todo }: Props) => {
         </label>
         {isEditing
           ? (
-            <form onSubmit={handleEditSubmit}>
+            <form>
               <input
                 data-cy="TodoTitleField"
                 type="text"

@@ -3,6 +3,8 @@ import cn from 'classnames';
 import { useTodo } from '../providers/AppProvider';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../utils/fetchClient';
+import { getTodos, updateTodos } from '../api/todos';
+import { getError } from '../utils/error';
 
 export const HeaderTodo = () => {
   const {
@@ -12,9 +14,10 @@ export const HeaderTodo = () => {
     addTodoContext,
     setError,
     isDisabled,
-    completeAllTodosContext,
     isLoading,
-
+    setTodos,
+    setIsLoadingContext,
+    setEditedTodo,
   } = useTodo();
 
   const inputEdit = useRef<HTMLInputElement | null>(null);
@@ -28,14 +31,33 @@ export const HeaderTodo = () => {
   const completeAllTodos = (todosHeader: Todo[]) => {
     const haveNotCompleted = todosHeader.some(todo => !todo.completed);
 
-    todosHeader.forEach(todo => {
+    Promise.all(todosHeader.map((todo) => {
+      setIsLoadingContext(true);
+      setEditedTodo(todo);
       if (haveNotCompleted && !todo.completed) {
-        completeAllTodosContext({ ...todo, completed: true });
+        // completeAllTodosContext({ ...todo, completed: true });
+        return updateTodos({ ...todo, completed: true })
+          .catch(() => setError(getError('updateError')))
+          .finally(() => {
+            setIsLoadingContext(false);
+            setEditedTodo(null);
+          });
       }
 
       if (!haveNotCompleted && todo.completed) {
-        completeAllTodosContext({ ...todo, completed: false });
+        return updateTodos({ ...todo, completed: false })
+          .catch(() => setError(getError('updateError')))
+          .finally(() => {
+            setIsLoadingContext(false);
+            setEditedTodo(null);
+          });
       }
+
+      return todo;
+    })).then(() => {
+      getTodos(USER_ID).then((todosArray) => {
+        setTodos(todosArray);
+      });
     });
   };
 
