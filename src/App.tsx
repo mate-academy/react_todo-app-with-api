@@ -1,24 +1,64 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+} from 'react';
+import { TodoList } from './components/TodoList/TodoList';
+import { getTodos } from './api/todos';
+import { Filter } from './types/Filter';
+import { ErrorMessage } from './types/ErrorMessage';
+import { TodoFooter } from './components/TodoFooter/TodoFooter';
+import { TodoHeader } from './components/TodoHeader/TodoHeader';
+import { ErrorNotification }
+  from './components/ErrorNotification/ErrorNotification';
+import { getFilteredTodos } from './utils/getTodos';
+import { TodoContext } from './context/TodoContext';
+import { USER_ID } from './utils/constants';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const {
+    todos,
+    setTodos,
+    errorMessage,
+    setErrorMessage,
+  } = useContext(TodoContext);
+
+  const [filter, setFilter] = useState(Filter.All);
+
+  useEffect(() => {
+    getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => {
+        setErrorMessage(ErrorMessage.LoadingError);
+      });
+  }, []);
+
+  const renderedTodos = useMemo(() => {
+    return getFilteredTodos(todos, filter);
+  }, [todos, filter]);
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <TodoHeader />
+
+        <TodoList todos={renderedTodos} />
+
+        {!!todos.length && (
+          <TodoFooter
+            filter={filter}
+            setFilter={setFilter}
+          />
+        )}
+      </div>
+
+      <ErrorNotification
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+      />
+    </div>
   );
 };
