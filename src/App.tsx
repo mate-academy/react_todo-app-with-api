@@ -24,6 +24,13 @@ export const App: React.FC = () => {
   const [isProsessingTodoIds, setIsProsessingTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
+  function enableAndFocusInput() {
+    textInputRef.current?.removeAttribute('disabled');
+    if (textInputRef.current) {
+      textInputRef.current.focus();
+    }
+  }
+
   useEffect(() => {
     todoService.getTodos()
       .then(setTodos)
@@ -33,10 +40,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setLoadingTodos(false);
 
-        textInputRef.current?.removeAttribute('disabled');
-        if (textInputRef.current) {
-          textInputRef.current.focus();
-        }
+        enableAndFocusInput();
       });
   }, []);
 
@@ -55,24 +59,14 @@ export const App: React.FC = () => {
   }, [errorMessage]);
 
   useEffect(() => {
-    textInputRef.current?.removeAttribute('disabled');
-    if (textInputRef.current) {
-      textInputRef.current.focus();
-    }
+    enableAndFocusInput();
   }, [todos]);
-
-  function enableAndFocusInput() {
-    textInputRef.current?.removeAttribute('disabled');
-    if (textInputRef.current) {
-      textInputRef.current.focus();
-    }
-  }
 
   const handleAddTodo = (todoTitle: string) => {
     setErrorMessage('');
     setTempTodo({
       id: 0,
-      title: todoTitle,
+      title: todoTitle.trim(),
       userId: 0,
       completed: false,
     });
@@ -125,9 +119,13 @@ export const App: React.FC = () => {
       return [...prevState, todo.id];
     });
 
+    if (newTodoTitle.trim() === '') {
+      return handleDeleteTodo(todo.id);
+    }
+
     return todoService.updateTodo({
       id: todo.id,
-      title: newTodoTitle.trim(),
+      title: newTodoTitle,
       userId: todo.userId,
       completed: todo.completed,
     })
@@ -200,7 +198,7 @@ export const App: React.FC = () => {
     const isAllTodosTrueOrFalse
       = allTodos.every(todo => todo.completed);
 
-    const unCompletedTodos = allTodos.filter(todo => !todo.completed);
+    const uncompletedTodos = allTodos.filter(todo => !todo.completed);
 
     const changeAllPromises = isAllTodosTrueOrFalse
       ? allTodos.map(todo => {
@@ -211,7 +209,7 @@ export const App: React.FC = () => {
 
         return todoService.updateTodo(updateTodo);
       })
-      : unCompletedTodos.map(todo => {
+      : uncompletedTodos.map(todo => {
         const updateTodo = {
           ...todo,
           completed: true,
