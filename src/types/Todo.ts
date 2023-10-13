@@ -5,6 +5,8 @@ export interface Todo {
   completed: boolean;
 }
 
+export type PatchTodo = Partial<Todo>;
+
 export enum ErrorMessage {
   noTodos = 'Unable to load todos',
   noTitle = 'Title should not be empty',
@@ -14,3 +16,9 @@ export enum ErrorMessage {
 }
 
 export type Filter = 'All' | 'Active' | 'Completed';
+
+export enum TodoStatusFilter {
+  All = '/',
+  Active = 'active',
+  Completed = 'completed',
+}

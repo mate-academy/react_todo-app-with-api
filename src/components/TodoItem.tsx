@@ -1,16 +1,77 @@
+/* eslint-disable no-console */
 import cn from 'classnames';
-import { Todo } from '../types/Todo';
+import { ChangeEvent, KeyboardEvent, useState } from 'react';
+import { ErrorMessage, PatchTodo, Todo } from '../types/Todo';
 import { TodoLoader } from './TodoLoader';
+import { editTodo } from '../api/todos';
 
 type Props = {
   todo: Todo;
   isLoading: boolean;
+  editedTodo: PatchTodo | null;
   handleDelete: (todoId: number) => void;
+  handleEditTodo: (todo: Todo) => void;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
+  handleError: (err: ErrorMessage) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
-  todo, isLoading, handleDelete,
+  todo,
+  isLoading, handleDelete, editedTodo, handleEditTodo, setTodos, handleError,
 }) => {
+  const [isEdited, setIsEdited] = useState(false); // otwieranie edycji
+  const [editedValue, setEditedValue] = useState<string>(todo.title);
+  const [toggleOnSave, setToggleOnSave] = useState(false);
+
+  const handleDoubleClick = () => {
+    setIsEdited(true);
+  };
+
+  const handleEditChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedValue(event.target.value);
+  };
+
+  // po naciśnięciu enter i on Blur wysylamy request do api przez
+  // obsługa błędów na catch / update todos na then
+  const handleSubmit = () => {
+    console.log('here');
+
+    const updatedTodo: Todo = { ...todo, title: editedValue };
+
+    handleEditTodo(updatedTodo);
+    setIsEdited(false);
+  };
+
+  const handleKeyUp = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEdited(false);
+    } else if (event.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
+  const handleToggleStatus = (oldTodo: Todo) => {
+    const newTodo = { ...oldTodo, completed: !oldTodo.completed };
+
+    setToggleOnSave(true);
+    editTodo(newTodo)
+      .then(() => {
+        setTodos((prevTodos) => {
+          return prevTodos.map(todoItem => {
+            if (todoItem.id === newTodo.id) {
+              return newTodo;
+            }
+
+            return todoItem;
+          });
+        });
+      })
+      .catch(() => {
+        handleError(ErrorMessage.noUpdateTodo);
+      })
+      .finally(() => setToggleOnSave(false));
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -24,26 +85,51 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {}}
+          onClick={() => handleToggleStatus(todo)}
         />
       </label>
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+      {isEdited ? (
+        <form>
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={editedValue}
+            onChange={handleEditChange}
+            onKeyUp={handleKeyUp}
+            onBlur={handleSubmit}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+          />
+        </form>
+      ) : (
+        <span
+          data-cy="TodoTitle"
+          className="todo__title"
+          onDoubleClick={handleDoubleClick}
+        >
+          {todo.title}
+        </span>
+      )}
 
       {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => !isLoading && handleDelete(todo.id)}
-      >
-        ×
-      </button>
+      {!isEdited && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => !isLoading && handleDelete(todo.id)}
+        >
+          ×
+        </button>
+      )}
 
       {/* overlay will cover the todo while it is being updated */}
-      <TodoLoader isActive={isLoading} />
+      <TodoLoader
+        isActive={isLoading || editedTodo?.id === todo.id || toggleOnSave}
+      />
     </div>
   );
 };

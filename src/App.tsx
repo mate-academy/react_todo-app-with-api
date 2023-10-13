@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
+import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { TodoAddForm } from './components/TodoAddForm';
 import { TodoFilter } from './components/TodoFilter';
@@ -8,7 +9,9 @@ import { TodoList } from './components/TodoList';
 import {
   getTodos, addTodo, deleteTodo, editTodo,
 } from './api/todos';
-import { ErrorMessage, Filter, Todo } from './types/Todo';
+import {
+  ErrorMessage, Filter, Todo, PatchTodo,
+} from './types/Todo';
 import { TodoError } from './components/TodoError';
 // import { TodoLoader } from './components/TodoLoader';
 
@@ -23,6 +26,8 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isTempTodoLoading, setIsTempTodoLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
+  const [editedTodo, setEditedTodo] = useState<PatchTodo | null>(null);
 
   const handleError = (errorMsg: ErrorMessage) => {
     setError(errorMsg);
@@ -46,6 +51,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const activeTodos = todos.filter((todo) => !todo.completed);
+
+    setIsAllCompleted(todos.every(todo => todo.completed === true));
 
     setCounter(activeTodos.length);
   }, [todos]);
@@ -113,35 +120,15 @@ export const App: React.FC = () => {
       });
   };
 
-  // const handleToggleStatus = () => {
-  //   setIsLoading(true);
-
-  //   const newTodos = todos.map(todo => {
-  //     editTodo({ ...todo, completed: !todo.completed })
-  //       .then(response => {
-  //         return response;
-  //       })
-  //       .catch(() => {
-  //         handleError(ErrorMessage.noUpdateTodo);
-
-  //         return todo;
-  //       });
-
-  //     return todo;
-  //   });
-
-  //   setTodos(newTodos);
-  //   setIsLoading(false);
-  // };
-
-  const handleToggleStatus = () => {
+  const handleToggleStatus = async () => {
     setIsLoading(true);
 
     const updatedTodos = todos.map(async (todo) => {
       try {
-        const response = await editTodo(
-          { ...todo, completed: !todo.completed },
-        );
+        const response = await editTodo({
+          ...todo,
+          completed: !isAllCompleted,
+        });
 
         return response;
       } catch (er) {
@@ -161,6 +148,44 @@ export const App: React.FC = () => {
       .finally(() => setIsLoading(false));
   };
 
+  const handleEditTodo = (todo: Todo) => {
+    if (!todo.id) {
+      return;
+    }
+
+    if (!todo.title.trim()) {
+      handleDelete(todo.id);
+
+      return;
+    }
+
+    setEditedTodo({ ...todo });
+    editTodo(todo)
+      .then(() => {
+        setTodos(oldTodos => oldTodos.map(todoItem => {
+          if (todoItem.id === todo.id) {
+            return todo;
+          }
+
+          return todoItem;
+        }));
+      })
+      .catch(() => {
+        handleError(ErrorMessage.noUpdateTodo);
+      })
+      .finally(() => {
+        setEditedTodo(null);
+      });
+  };
+
+  const handleClearCompleted = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        handleDelete(todo.id);
+      }
+    });
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
@@ -172,12 +197,16 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <header className="todoapp__header">
           {/* this buttons is active only if there are some active todos */}
-          <button
-            type="button"
-            className="todoapp__toggle-all active"
-            data-cy="ToggleAllButton"
-            onClick={handleToggleStatus}
-          />
+          {todos.length > 0 && (
+            <button
+              type="button"
+              className={cn('todoapp__toggle-all', {
+                active: isAllCompleted,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={handleToggleStatus}
+            />
+          )}
 
           {/* Add a todo on form submit */}
           <TodoAddForm
@@ -195,6 +224,10 @@ export const App: React.FC = () => {
             handleDelete={handleDelete}
             isLoading={isLoading}
             isTempTodoLoading={isTempTodoLoading}
+            editedTodo={editedTodo}
+            handleEditTodo={handleEditTodo}
+            setTodos={setTodos}
+            handleError={handleError}
           />
         )}
 
@@ -208,15 +241,17 @@ export const App: React.FC = () => {
             <TodoFilter filter={filter} setFilter={setFilter} />
 
             {/* don't show this button if there are no completed todos */}
-            {todos.some((todo) => todo.completed) && (
-              <button
-                type="button"
-                className="todoapp__clear-completed"
-                data-cy="ClearCompletedButton"
-              >
-                Clear completed
-              </button>
-            )}
+            {/* {todos.some((todo) => todo.completed) && ( */}
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={handleClearCompleted}
+              disabled={!todos.some((todo) => todo.completed)}
+            >
+              Clear completed
+            </button>
+            {/* )} */}
           </footer>
         )}
       </div>
