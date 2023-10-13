@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Todo } from '../../types/Todo';
 
 interface Props {
-  activeTodos: Todo[];
   newTodoFieldRef: React.RefObject<HTMLInputElement>;
   error: string;
   onTodoAdd: (title: string) => Promise<void>;
   setError: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   onToggleAllTodos: () => void;
+  isAllCompleted: boolean;
 }
 
 export const TodoHeader: React.FC<Props> = ({
-  activeTodos,
   newTodoFieldRef,
   error,
   setError,
   onTodoAdd,
   isLoading,
   onToggleAllTodos,
+  isAllCompleted,
 }) => {
   const [title, setTitle] = useState('');
 
@@ -51,7 +50,7 @@ export const TodoHeader: React.FC<Props> = ({
       <button
         type="button"
         className={classNames('todoapp__toggle-all', {
-          active: activeTodos.length,
+          active: isAllCompleted,
         })}
         data-cy="ToggleAllButton"
         aria-label="Toggle All"

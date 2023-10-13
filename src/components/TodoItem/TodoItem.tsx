@@ -31,6 +31,12 @@ export const TodoItem: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (todo.title === todoTitle) {
+      setIsEditing(false);
+
+      return;
+    }
+
     if (todoTitle) {
       await onTodoUpdate(todoTitle);
     } else {
@@ -44,6 +50,12 @@ export const TodoItem: React.FC<Props> = ({
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setTodoTitle(event.target.value);
+  };
+
+  const onKeyUpHandle = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -67,6 +79,7 @@ export const TodoItem: React.FC<Props> = ({
         {isEditing ? (
           <form onSubmit={handleTodoSave} onBlur={handleTodoSave}>
             <input
+              onKeyUp={onKeyUpHandle}
               data-cy="TodoTitleField"
               type="text"
               ref={inputFocus}
