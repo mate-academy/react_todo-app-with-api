@@ -18,6 +18,7 @@ export const Header: React.FC<Props> = ({ toggleAllChange }) => {
   const statusAllCompleted = useAppSelector(
     state => state.status.statusAllCompleted,
   );
+  const todos = useAppSelector(state => state.todos.todos);
 
   const USER_ID = 11582;
 
@@ -57,17 +58,19 @@ export const Header: React.FC<Props> = ({ toggleAllChange }) => {
   return (
     <header className="todoapp__header">
 
-      <button
-        type="button"
-        className={classNames(
-          'todoapp__toggle-all', { active: statusAllCompleted },
-        )}
-        onClick={() => {
-          toggleAllChange();
+      {(todos.length && (
+        <button
+          type="button"
+          className={classNames(
+            'todoapp__toggle-all', { active: statusAllCompleted },
+          )}
+          onClick={() => {
+            toggleAllChange();
 
-          dispatch(statusAction.setStatusAllCompleted(!statusAllCompleted));
-        }}
-      />
+            dispatch(statusAction.setStatusAllCompleted(!statusAllCompleted));
+          }}
+        />
+      ))}
 
       {/* Add a todo on form submit */}
       <form
