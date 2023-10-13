@@ -17,8 +17,8 @@ import {
 } from './utils/constants';
 
 export const App: React.FC = () => {
-  const [filterByStatus, setFilterByStatus] = useState(TodoStatus.All);
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [filterByStatus, setFilterByStatus] = useState(TodoStatus.All);
 
   const {
     todoItems,
@@ -31,10 +31,10 @@ export const App: React.FC = () => {
     filterByStatus, todoItems,
   ), [filterByStatus, todoItems]);
 
-  const addTodo = async () => {
+  const addTodo = async (title: string) => {
     const newTodo = {
       userId: USER_ID,
-      title: newTodoTitle,
+      title,
       completed: false,
     };
 
@@ -71,11 +71,9 @@ export const App: React.FC = () => {
           setNewTodoTitle={setNewTodoTitle}
         />
 
-        {!!visibleTodos.length && (
-          <TodoList
-            todos={visibleTodos}
-          />
-        )}
+        <TodoList
+          todos={visibleTodos}
+        />
 
         {!!todoItems.length && (
           <TodoFilter

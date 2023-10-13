@@ -51,7 +51,7 @@ export const TodoItem: React.FC<Props> = ({
     setTodoTitle(event.target.value);
   };
 
-  const handleTodoSave = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTodoTitle = todoTitle.trim();
@@ -64,7 +64,8 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (trimmedTodoTitle) {
-      handleTodoUpdate(todo, trimmedTodoTitle);
+      setTodoTitle(trimmedTodoTitle);
+      await handleTodoUpdate(todo, trimmedTodoTitle);
     } else {
       handleTodoDelete();
     }

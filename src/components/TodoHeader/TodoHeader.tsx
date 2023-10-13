@@ -1,9 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { ERRORS } from '../../utils/constants';
 import { useTodoContext } from '../../TodoContext';
@@ -19,28 +15,30 @@ export const TodoHeader: React.FC<Props> = ({
   newTodoTitle,
   setNewTodoTitle,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const inputLine = useRef<HTMLInputElement>(null);
-
   const {
     todoItems,
     setErrorMessage,
     setSingleStatusForAll,
     uncompletedTodosLength,
+    isLoading,
+    setIsLoading,
+    inputLine,
   } = useTodoContext();
 
-  const handleSetStatusForAll = () => {
+  const handleSetStatusForAll = async () => {
     setIsLoading(true);
-    setSingleStatusForAll();
-    setIsLoading(false);
+    try {
+      await setSingleStatusForAll();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewTodoTitle(event.target.value);
   };
 
-  const onFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedNewTodoTitle = newTodoTitle.trim();
@@ -52,15 +50,12 @@ export const TodoHeader: React.FC<Props> = ({
     }
 
     setIsLoading(true);
-    addTodo(trimmedNewTodoTitle);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    if (!isLoading) {
-      inputLine.current?.focus();
+    try {
+      await addTodo(trimmedNewTodoTitle);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isLoading]);
+  };
 
   return (
     <header className="todoapp__header">

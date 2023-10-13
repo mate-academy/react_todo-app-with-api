@@ -1,4 +1,10 @@
-import React, { useMemo, useState, useContext } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useContext,
+  useRef,
+  useEffect,
+} from 'react';
 import * as todoService from './api/todos';
 import { Todo } from './types';
 import { ERRORS, USER_ID } from './utils/constants';
@@ -20,6 +26,9 @@ interface TodoContextType {
   handleTodoUpdate: (todo: Todo, todoTitle: string) => void;
   handleStatusChange: (todo: Todo) => void;
   setSingleStatusForAll: () => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
+  inputLine: React.LegacyRef<HTMLInputElement>;
 }
 
 const todoContext: TodoContextType = {
@@ -38,6 +47,9 @@ const todoContext: TodoContextType = {
   handleTodoUpdate: () => {},
   handleStatusChange: () => {},
   setSingleStatusForAll: () => {},
+  isLoading: false,
+  setIsLoading: () => {},
+  inputLine: null,
 };
 
 export const TodoContext = React.createContext(todoContext);
@@ -51,9 +63,20 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const inputLine = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isLoading) {
+      inputLine.current?.focus();
+    }
+  }, [isLoading]);
 
   const deleteTodo = (todoId: number) => {
     setProcessingTodoIds(prevTodoIds => [...prevTodoIds, todoId]);
+
+    setIsLoading(true);
     todoService.deleteTodo(todoId)
       .then(() => setTodoItems(currentTodos => currentTodos
         .filter(todo => todo.id !== todoId)))
@@ -63,6 +86,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       .finally(() => {
         setProcessingTodoIds(currentTodoIds => currentTodoIds
           .filter(id => id !== todoId));
+        setIsLoading(false);
       });
   };
 
@@ -85,6 +109,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
     setProcessingTodoIds(prevTodoIds => [...prevTodoIds, id]);
 
+    setIsLoading(true);
     try {
       const updatedTodo = await todoService.updateTodo({
         id,
@@ -100,20 +125,20 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       )));
     } catch (error) {
       setErrorMessage(ERRORS.UPDATE_ERROR);
-      throw error;
     } finally {
       setProcessingTodoIds(currentTodoIds => currentTodoIds
         .filter(currentTodoId => currentTodoId !== id));
+      setIsLoading(false);
     }
   };
 
-  const setSingleStatusForAll = () => {
+  const setSingleStatusForAll = async () => {
     const uncompletedTodos = todoItems.filter(todo => !todo.completed);
 
     if (!uncompletedTodosLength) {
-      Promise.all(todoItems.map(handleStatusChange));
+      await Promise.all(todoItems.map(handleStatusChange));
     } else {
-      Promise.all(uncompletedTodos.map(handleStatusChange));
+      await Promise.all(uncompletedTodos.map(handleStatusChange));
     }
   };
 
@@ -125,6 +150,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
 
     setProcessingTodoIds(prevTodoIds => [...prevTodoIds, id]);
 
+    setIsLoading(true);
     try {
       const updatedTodo = await todoService.updateTodo({
         id,
@@ -140,11 +166,11 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
       )));
     } catch (error) {
       setErrorMessage(ERRORS.UPDATE_ERROR);
-      // setTodoTitle(title);
       throw error;
     } finally {
       setProcessingTodoIds(currentTodoIds => currentTodoIds
         .filter(currentTodoId => currentTodoId !== id));
+      setIsLoading(false);
     }
   };
 
@@ -164,7 +190,11 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
     handleTodoUpdate,
     handleStatusChange,
     setSingleStatusForAll,
-  }), [todoItems, errorMessage, tempTodo, processingTodoIds]);
+    isLoading,
+    setIsLoading,
+    inputLine,
+  }), [todoItems, errorMessage, tempTodo,
+    inputLine, processingTodoIds, isLoading]);
 
   return (
     <TodoContext.Provider value={value}>
