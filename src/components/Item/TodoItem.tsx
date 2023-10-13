@@ -45,6 +45,14 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   };
 
   const handleBlur = () => {
+    if (newTitle !== todo.title) {
+      if (newTitle.trim() === '') {
+        handleDelete(todo.id);
+      } else {
+        handleSubmit({ preventDefault: () => {} } as React.FormEvent<HTMLInputElement>);
+      }
+    }
+
     setIsEditing(false);
   };
 
@@ -91,14 +99,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         </span>
       )}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleDelete(todo.id)}
-      >
-        ×
-      </button>
+      {!isEditing && (
+        <button
+          type="button"
+          className="todo__remove"
+          data-cy="TodoDelete"
+          onClick={() => handleDelete(todo.id)}
+        >
+          ×
+        </button>
+      )}
       <div
         data-cy="TodoLoader"
         className={cn('modal', 'overlay', { 'is-active': todo.editing })}
