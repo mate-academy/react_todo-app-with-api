@@ -85,7 +85,6 @@ export const TodoApp: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={completed}
           onClick={onTodoToggle}
         />
       </label>
