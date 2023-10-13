@@ -31,7 +31,7 @@ export const App: React.FC = () => {
     } else {
       dispatch(statusAction.setStatusAllCompleted(false));
     }
-  }, [completedTodos.length]);
+  }, [completedTodos.length, dispatch, todos.length]);
 
   useEffect(() => {
     if (errorMessage) {
@@ -39,11 +39,11 @@ export const App: React.FC = () => {
         dispatch(todosAction.clearErrorMessage());
       }, 3000);
     }
-  }, [errorMessage]);
+  }, [dispatch, errorMessage]);
 
   useEffect(() => {
     dispatch(todosAction.init(USER_ID));
-  }, []);
+  }, [dispatch]);
 
   if (!USER_ID) {
     return <UserWarning />;
