@@ -18,8 +18,8 @@ import { TodoHeader } from './components/TodoHeader/TodoHeader';
 import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
 import { TempTodo } from './components/TempTodo/TempTodo';
 import { TodoFilter } from './components/TodoFilter/TodoFilter';
-
-const USER_ID = 11528;
+import { USER_ID } from './utils/idConstant';
+import { ErrorMessages } from './utils/errorMessage';
 
 export const App: React.FC = () => {
   const [todos, setTodo] = useState<Todo[]>([]);
@@ -27,7 +27,6 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [request, setRequest] = useState(true);
   const [loadingId, setLoadingId] = useState<number[]>([]);
   const [isLoaderActive, setIsLoaderActive] = useState(false);
   const [todoTitle, setTitle] = useState('');
@@ -35,47 +34,36 @@ export const App: React.FC = () => {
   const activeTodosCount = todos
     .filter(({ completed }) => completed === false).length;
 
-  let isSomeTodosCompleted = todos
-    .some(({ completed }) => completed === true);
+  const hasCompletedTodosCount = todos.filter(todo => todo.completed).length;
 
   useEffect(() => {
+    setIsLoading(true);
     getTodos(USER_ID)
       .then(createdTodo => {
         setTodo(createdTodo);
-        setRequest(false);
       })
       .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setRequest(false);
+        setErrorMessage(ErrorMessages.LoadError);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
-    const timerId = setTimeout(() => {
-      setErrorMessage('');
-    }, 3000);
-
-    return () => {
-      clearInterval(timerId);
-    };
   }, []);
 
   const handleAddTodos = (newTodo: Omit<Todo, 'id'>) => {
     setLoadingId([0]);
-    setIsLoading(true);
-    setRequest(true);
     addTodos(newTodo)
       .then((createdTodo) => {
         setTodo((currentTodo) => [...currentTodo, createdTodo]);
         setTitle('');
-        setIsLoading(false);
       })
       .catch(() => {
-        setErrorMessage('Unable to add a todo');
-        setTimeout(() => setErrorMessage(''), 3000);
+        setErrorMessage(ErrorMessages.AddError);
       })
       .finally(() => {
         setTempTodo(null);
         setIsLoading(false);
-        setRequest(false);
+        setLoadingId([]);
       });
     const temp: Todo = Object.assign(newTodo, { id: 0 });
 
@@ -91,7 +79,7 @@ export const App: React.FC = () => {
         setErrorMessage('');
       })
       .catch(() => {
-        setErrorMessage('Unable to delete todo');
+        setErrorMessage(ErrorMessages.DeleteError);
       })
       .finally(() => {
         setLoadingId([]);
@@ -101,20 +89,18 @@ export const App: React.FC = () => {
   };
 
   const handleClearCompleted = () => {
-    const deletePromises = todos
-      .filter(({ completed }) => completed)
-      .map(({ id }) => deleteTodos(id));
+    const isSomeTodosCompleted = todos
+      .reduce((total: number[], current) => (current.completed
+        ? [...total, current.id]
+        : total), []);
 
-    Promise.all(deletePromises)
-      .then(() => {
-        return getTodos(USER_ID);
-      })
-      .then((updatedTodos) => {
-        setTodo(updatedTodos);
-      })
+    Promise.all(isSomeTodosCompleted)
+      .then((responses) => responses.forEach((id) => {
+        handleDelete(id);
+      }))
       .catch(() => {
-        isSomeTodosCompleted = false;
-        setErrorMessage('Unable to delete a todo');
+        setErrorMessage(ErrorMessages.UpdateError);
+        throw new Error(ErrorMessages.UpdateError);
       });
   };
 
@@ -153,10 +139,8 @@ export const App: React.FC = () => {
         )));
       })
       .catch(() => {
-        const errorMessag = 'Unable to toggle a todo';
-
-        setErrorMessage(errorMessag);
-        throw new Error(errorMessage);
+        setErrorMessage(ErrorMessages.ToggleError);
+        throw new Error(ErrorMessages.ToggleError);
       })
       .finally(() => {
         setLoadingId((prevTodoId) => prevTodoId.filter(id => id !== todo.id));
@@ -166,9 +150,8 @@ export const App: React.FC = () => {
   const isAllCompleted = todos.every(todo => todo.completed);
 
   const handleToggleAll = () => {
-    const activeTodos = todos.filter(todo => !todo.completed);
-
-    const todosForUpdate = isAllCompleted ? todos : activeTodos;
+    const todosForUpdate = isAllCompleted ? todos : todos
+      .filter(todo => !todo.completed);
 
     todosForUpdate.forEach(handleToggleTodo);
   };
@@ -193,7 +176,6 @@ export const App: React.FC = () => {
           isLoading={isLoading}
           errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
-          request={request}
           title={todoTitle}
           setTitle={setTitle}
           isAllCompleted={isAllCompleted}
@@ -228,7 +210,7 @@ export const App: React.FC = () => {
             filter={filter}
             setFilter={setFilter}
             activeTodosCount={activeTodosCount}
-            isSomeTodosCompleted={isSomeTodosCompleted}
+            hasCompletedTodosCount={hasCompletedTodosCount}
             handleClearCompleted={handleClearCompleted}
           />
         )}

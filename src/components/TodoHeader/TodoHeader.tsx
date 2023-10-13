@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { ErrorMessages } from '../../utils/errorMessage';
 
 type Props = {
   activeTodosCount: number,
@@ -9,7 +10,6 @@ type Props = {
   userId: number,
   isLoading: boolean,
   errorMessage: string,
-  request: boolean;
   setErrorMessage: (errorMessage: string) => void,
   title: string;
   setTitle: (title: string) => void,
@@ -22,9 +22,9 @@ export const TodoHeader: React.FC<Props> = ({
   onSubmit,
   todo,
   userId,
+  isLoading,
   errorMessage,
   setErrorMessage,
-  request,
   title,
   setTitle,
   isAllCompleted,
@@ -36,7 +36,7 @@ export const TodoHeader: React.FC<Props> = ({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [activeTodosCount, request]);
+  }, [activeTodosCount, isLoading]);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = event.target.value;
@@ -50,19 +50,19 @@ export const TodoHeader: React.FC<Props> = ({
     setErrorMessage('');
 
     if (!title.trimStart()) {
-      setErrorMessage('Title should not be empty');
+      setErrorMessage(ErrorMessages.EmptyTitleError);
 
       return;
     }
 
-    const id = todo?.id || 0;
-    const tempTodo: Omit<Todo, 'id'> = {
+    const newTodo: Todo = {
+      id: todo?.id || 0,
       title: title.trim(),
       completed: false,
       userId,
     };
 
-    onSubmit({ id, ...tempTodo });
+    onSubmit(newTodo);
   };
 
   return (
@@ -90,7 +90,7 @@ export const TodoHeader: React.FC<Props> = ({
             handleTitleChange(event);
           }}
           value={title}
-          disabled={request}
+          disabled={isLoading}
         />
       </form>
     </header>

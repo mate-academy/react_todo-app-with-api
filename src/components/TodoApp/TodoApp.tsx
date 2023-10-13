@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
+import { ErrorMessages } from '../../utils/errorMessage';
 
 type Props = {
   todo: Todo;
@@ -47,7 +48,7 @@ export const TodoApp: React.FC<Props> = ({
 
       setIsEditing(false);
     } catch (error) {
-      setErrorMessage('Unable to update todo');
+      setErrorMessage(ErrorMessages.UpdateError);
     }
   };
 

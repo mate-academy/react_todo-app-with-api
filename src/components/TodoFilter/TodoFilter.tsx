@@ -6,14 +6,14 @@ type Props = {
   filter: TodosFilter,
   setFilter: (filter: TodosFilter) => void,
   activeTodosCount: number,
-  isSomeTodosCompleted: boolean,
+  hasCompletedTodosCount: number,
   handleClearCompleted: () => void;
 };
 export const TodoFilter: React.FC<Props> = ({
   filter,
   setFilter,
   activeTodosCount,
-  isSomeTodosCompleted,
+  hasCompletedTodosCount,
   handleClearCompleted,
 }) => {
   const itemText = activeTodosCount === 1 ? 'item' : 'items';
@@ -63,7 +63,7 @@ export const TodoFilter: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={!isSomeTodosCompleted}
+        disabled={!hasCompletedTodosCount}
         onClick={handleClearCompleted}
       >
         Clear completed
