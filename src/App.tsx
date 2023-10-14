@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useCallback,
   useEffect,
@@ -7,7 +6,6 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 
-// import { UserWarning } from './UserWarning';
 import * as todoService from './api/todos';
 import { Todo } from './types/Todo';
 import { FilterParam } from './types/FilterParam';
@@ -29,12 +27,13 @@ export const App: React.FC = () => {
   const [isLoaderActive, setIsLoaderActive] = useState(false);
 
   useEffect(() => {
-    todoService.getTodos(USER_ID)
+    todoService
+      .getTodos(USER_ID)
       .then(createdTodo => {
         setTodos(createdTodo);
         setRequest(false);
       })
-      .catch((someError) => {
+      .catch(someError => {
         setError('Unable to load todos');
         setRequest(false);
         // eslint-disable-next-line no-console
@@ -51,9 +50,10 @@ export const App: React.FC = () => {
   const addTodo = (newTodo: Omit<Todo, 'id'>) => {
     setRequest(true);
 
-    todoService.createTodo(newTodo)
-      .then((createdTodo) => {
-        setTodos((prevTodos) => [...prevTodos, createdTodo]);
+    todoService
+      .createTodo(newTodo)
+      .then(createdTodo => {
+        setTodos(prevTodos => [...prevTodos, createdTodo]);
         setTitle('');
         setLoadingTodosIds([]);
       })
@@ -75,10 +75,10 @@ export const App: React.FC = () => {
     setLoadingTodosIds([id]);
     setIsLoaderActive(true);
 
-    todoService.deleteUserTodo(id)
+    todoService
+      .deleteUserTodo(id)
       .then(() => {
-        setTodos(currentTodos => currentTodos
-          .filter(todo => todo.id !== id));
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
         setLoadingTodosIds([]);
       })
       .catch(() => {
@@ -94,12 +94,13 @@ export const App: React.FC = () => {
   const updateTodo = (todo: Todo, newTodoTitle: string) => {
     setLoadingTodosIds([todo.id]);
     setIsLoaderActive(true);
-    todoService.updateTodo({
-      id: todo.id,
-      title: newTodoTitle,
-      userId: todo.userId,
-      completed: todo.completed,
-    })
+    todoService
+      .updateTodo({
+        id: todo.id,
+        title: newTodoTitle,
+        userId: todo.userId,
+        completed: todo.completed,
+      })
       .then(updatedTodo => {
         setTodos(prevState => prevState.map(currentTodo => (
           currentTodo.id !== updatedTodo.id
@@ -118,11 +119,13 @@ export const App: React.FC = () => {
       });
   };
 
-  let isOneTodoCompleted = useMemo(() => todos
-    .some(({ completed }) => completed), [todos]);
+  const isOneTodoCompleted = useMemo(
+    () => todos.some(({ completed }) => completed),
+    [todos],
+  );
 
-  const filterTodos = useMemo(() => todos
-    .filter(({ completed }) => {
+  const filterTodos = useMemo(() => {
+    return todos.filter(({ completed }) => {
       switch (filterParam) {
         case FilterParam.Active:
           return !completed;
@@ -131,66 +134,92 @@ export const App: React.FC = () => {
         default:
           return true;
       }
-    }), [todos, filterParam]);
+    });
+  }, [todos, filterParam]);
 
-  const handleClearCompleted = () => {
-    const deletePromises = todos
-      .filter(({ completed }) => completed)
-      .map(({ id }) => deleteTodo(id));
+  const handleClearCompleted = async () => {
+    const todoToDelete = filterTodos.filter(todo => todo.completed);
+    const deletePromises = todoToDelete.map(todo => deleteTodo(todo.id));
 
-    Promise.all(deletePromises)
-      .then(() => {
-        return todoService.getTodos(USER_ID);
-      })
-      .then((updatedTodos) => {
-        setTodos(updatedTodos);
-      })
-      .catch(() => {
-        isOneTodoCompleted = false;
-        setError('Unable to delete a todo');
-      });
+    try {
+      await Promise.all(deletePromises);
+      setTodos(prevState => prevState.filter(todo => !todo.completed));
+    } catch (errorMessage) {
+      setError('Unable to delete Todo');
+    }
   };
 
   const handleToggleTodo = async (todo: Todo) => {
-    setLoadingTodosIds((prevTodoId) => [...prevTodoId, todo.id]);
+    setLoadingTodosIds(prevTodoId => [...prevTodoId, todo.id]);
     setLoadingTodosIds([todo.id]);
     setIsLoaderActive(true);
 
     try {
-      try {
-        const updatedTodo = await todoService.updateTodo({
-          ...todo,
-          completed: !todo.completed,
-        });
+      const updatedTodo = await todoService.updateTodo({
+        ...todo,
+        completed: !todo.completed,
+      });
 
-        setTodos(prevState => prevState.map(currentTodo => (
-          currentTodo.id !== updatedTodo.id
-            ? currentTodo
-            : updatedTodo
-        )));
-      } catch (errorMessage) {
-        setError('Unable to toggle a todo');
-        setLoadingTodosIds([]);
-        setIsLoaderActive(false);
-        throw errorMessage;
-      }
+      setTodos(prevState => prevState.map(currentTodo => (
+        currentTodo.id !== updatedTodo.id
+          ? currentTodo
+          : updatedTodo
+      )));
+    } catch (errorMessage) {
+      setError('Unable to toggle a todo');
+      setLoadingTodosIds([]);
+      setIsLoaderActive(false);
+      throw errorMessage;
     } finally {
-      setLoadingTodosIds((prevTodoId_1) => prevTodoId_1
+      setLoadingTodosIds(prevTodoId_1 => prevTodoId_1
         .filter(id => id !== todo.id));
       setLoadingTodosIds([]);
       setIsLoaderActive(false);
     }
   };
 
-  const isAllCompleted = todos.every(todo => todo.completed);
+  const isAllTodosCompleted = todos.every(todo => todo.completed);
+  const handleToggleAll = async (allTodos: Todo[]) => {
+    const isAllTodosTrueOrFalse
+      = allTodos.every(todo => todo.completed);
 
-  const handleToggleAll = () => {
-    const activeTodos = todos.filter(todo => !todo.completed);
+    const uncompletedTodos = allTodos.filter(todo => !todo.completed);
 
-    if (isAllCompleted) {
-      todos.forEach(handleToggleTodo);
-    } else {
-      activeTodos.forEach(handleToggleTodo);
+    const changeAllPromises = isAllTodosTrueOrFalse
+      ? allTodos.map(todo => {
+        const updatedTodo = {
+          ...todo,
+          completed: !todo.completed,
+        };
+
+        return todoService.updateTodo(updatedTodo);
+      })
+      : uncompletedTodos.map(todo => {
+        const updatedTodo = {
+          ...todo,
+          completed: true,
+        };
+
+        return todoService.updateTodo(updatedTodo);
+      });
+
+    try {
+      const serverTodos = await Promise.all(changeAllPromises);
+
+      setTodos(prevState => {
+        return prevState.map(todo => {
+          if (serverTodos.some(({ id }) => id === todo.id)) {
+            return {
+              ...todo,
+              completed: !todo.completed,
+            };
+          }
+
+          return todo;
+        });
+      });
+    } catch (errorMessage) {
+      setError('Unable to update todo');
     }
   };
 
@@ -211,7 +240,7 @@ export const App: React.FC = () => {
           title={title}
           setLoadingTodosIds={setLoadingTodosIds}
           onTogle={handleToggleAll}
-          isAllCompleted={isAllCompleted}
+          isAllCompleted={isAllTodosCompleted}
         />
 
         <TodoList
@@ -234,8 +263,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {/* Hide the footer if there are no todos */}
-        {todos.length > 0 && (
+        {!!todos.length && (
           <TodoFooter
             todos={todos}
             isOneTodoCompleted={isOneTodoCompleted}
@@ -246,8 +274,6 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
         className={classNames(

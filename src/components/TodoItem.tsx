@@ -35,17 +35,13 @@ export const TodoItem: React.FC<Props> = React.memo((({
       return;
     }
 
-    try {
-      if (todosTitle) {
-        await onUpdate(todosTitle);
-      } else {
-        await onDelete(todo.id);
-      }
-
-      setIsEditing(false);
-    // eslint-disable-next-line no-empty
-    } catch (error) {
+    if (todosTitle) {
+      await onUpdate(todosTitle);
+    } else {
+      await onDelete(todo.id);
     }
+
+    setIsEditing(false);
   };
 
   const handleOnKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -78,11 +74,11 @@ export const TodoItem: React.FC<Props> = React.memo((({
         className="todo__status-label"
       >
         <input
+          onClick={onTodoToggle}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={onTodoToggle}
         />
       </label>
 
@@ -121,7 +117,6 @@ export const TodoItem: React.FC<Props> = React.memo((({
               className="todo__remove"
               data-cy="TodoDelete"
               onClick={() => onDelete(todo.id)}
-
             >
               ×
             </button>
@@ -130,7 +125,7 @@ export const TodoItem: React.FC<Props> = React.memo((({
         )}
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', {
+        className={classNames('modal', 'overlay', {
           'is-active': loadingTodosIds.includes(todo.id) && isLoaderActive,
         })}
       >

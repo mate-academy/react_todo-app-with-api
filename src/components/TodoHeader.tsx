@@ -13,7 +13,7 @@ type Props = {
   setTitle: (title: string) => void
   title: string
   setLoadingTodosIds: (tempTodoIds: number[]) => void
-  onTogle: () => void;
+  onTogle: (todos: Todo[]) => void;
   isAllCompleted: boolean
 };
 
@@ -67,7 +67,6 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
           type="button"
@@ -76,11 +75,10 @@ export const TodoHeader: React.FC<Props> = ({
             active: isAllCompleted,
           })}
           data-cy="ToggleAllButton"
-          onClick={onTogle}
+          onClick={() => onTogle(todos)}
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form
         action="/api/posts"
         method="POST"
