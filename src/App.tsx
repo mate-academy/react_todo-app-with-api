@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/ErrorType';
@@ -9,6 +8,8 @@ import { TodoFilter } from './components/TodoFilter';
 import { TodoItem } from './components/TodoItem';
 import * as todoService from './api/todos';
 import { getFilterTodos } from './utils/getFilterTodos';
+import { ErrorNotification } from './components/ErrorNotification';
+import { Header } from './components/Header';
 
 const USER_ID = 11465;
 
@@ -17,12 +18,10 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<StatusFilter>(StatusFilter.All);
   const [todoError, setTodoError] = useState<ErrorType | null>(null);
-  const [newTodoTitle, setNewTodoTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([0]);
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   useEffect(() => {
     setIsLoading(true);
@@ -30,29 +29,27 @@ export const App: React.FC = () => {
     todoService.getTodos(USER_ID)
       .then(todoFromServer => {
         setTodos(todoFromServer);
-        setIsLoading(false);
       })
       .catch(error => {
         // eslint-disable-next-line no-console
         console.warn(error);
         setTodoError(ErrorType.GetData);
-        setIsLoading(false);
-      });
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
+    if (!todoError) {
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       setTodoError(null);
     }, 3000);
 
+    // eslint-disable-next-line consistent-return
     return () => clearTimeout(timeoutId);
-  }, []);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [todos, tempTodo]);
+  }, [todoError]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -72,41 +69,38 @@ export const App: React.FC = () => {
 
   const showError = (error: ErrorType) => {
     setTodoError(error);
-
-    setTimeout(() => {
-      setTodoError(null);
-    }, 3000);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!newTodoTitle.trim()) {
+  const handleSubmit = (newTitle: string) => {
+    if (!newTitle.trim()) {
       showError(ErrorType.Title);
-    } else {
-      const newTodo = {
-        title: newTodoTitle.trim(),
-        userId: USER_ID,
-        completed: false,
-      };
 
-      const temp: Todo = Object.assign(newTodo, { id: 0 });
-
-      setTempTodo(temp);
-      todoService.addTodo(newTodo)
-        .then((createdTodo) => {
-          setTodos((prevState) => [...prevState, createdTodo]);
-          setNewTodoTitle('');
-        })
-        .catch(() => {
-          showError(ErrorType.Add);
-        })
-        .finally(() => {
-          setIsRequesting(false);
-          setTempTodo(null);
-        });
-
-      setIsRequesting(true);
+      return;
     }
+
+    const newTodo = {
+      title: newTitle.trim(),
+      userId: USER_ID,
+      completed: false,
+    };
+
+    const temp: Todo = Object.assign(newTodo, { id: 0 });
+
+    setTempTodo(temp);
+    todoService.addTodo(newTodo)
+      .then((createdTodo) => {
+        setTodos((prevState) => [...prevState, createdTodo]);
+        setNewTodoTitle('');
+      })
+      .catch(() => {
+        showError(ErrorType.Add);
+      })
+      .finally(() => {
+        setIsRequesting(false);
+        setTempTodo(null);
+      });
+
+    setIsRequesting(true);
   };
 
   const handleDeleteTodo = (todoId: number) => {
@@ -186,12 +180,6 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleChangeTodoTitle = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setNewTodoTitle(event.target.value);
-  };
-
   const handleToggleTodo = () => {
     if (countCompletedTodos !== todos.length) {
       const activeTodos = todos.filter(todo => !todo.completed);
@@ -207,31 +195,16 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {!!todos.length && (
-            <button
-              type="button"
-              className={classNames('todoapp__toggle-all',
-                { active: !countActiveTodos })}
-              data-cy="ToggleAllButton"
-              onClick={handleToggleTodo}
-              aria-label="ToggleAllButton"
-            />
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              ref={inputRef}
-              value={newTodoTitle}
-              onChange={handleChangeTodoTitle}
-              disabled={isRequesting}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          tempTodo={tempTodo}
+          newTodoTitle={newTodoTitle}
+          isRequesting={isRequesting}
+          countActiveTodos={countActiveTodos}
+          addNewTodo={handleSubmit}
+          handleToggleTodo={handleToggleTodo}
+          setNewTodoTitle={setNewTodoTitle}
+        />
 
         {!isLoading && (
           <>
@@ -264,26 +237,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          { hidden: !todoError },
-        )}
-      >
-
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setTodoError(null)}
-          aria-label="HideErrorButton"
-        />
-        {todoError}
-      </div>
+      <ErrorNotification todoError={todoError} setTodoError={setTodoError} />
     </div>
   );
 };

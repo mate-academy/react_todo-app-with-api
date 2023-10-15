@@ -10,6 +10,7 @@ type Props = {
   handleStatusUpdate: (todo: Todo) => void,
   handleTitleUpdate: (todo: Todo, newTitile: string) => Promise<void>,
 };
+
 export const TodoItem: React.FC<Props> = ({
   todo,
   handleDeleteTodo,
@@ -38,10 +39,12 @@ export const TodoItem: React.FC<Props> = ({
   | React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (newTitle === todo.title) {
+      setIsEditing(false);
+
       return;
     }
 
-    if (newTitle.trim() === '') {
+    if (!newTitle.trim()) {
       handleDeleteTodo(todo.id);
     } else {
       handleTitleUpdate(todo, newTitle.trim())
