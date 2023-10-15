@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import classNames from 'classnames';
 import React, {
   useEffect,
   useState,
@@ -13,6 +12,7 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import * as todoService from './api/todos';
 import { Main } from './components/Main';
+import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -28,8 +28,6 @@ export const App: React.FC = () => {
       .getTodos()
       .then(setTodos)
       .catch(() => {
-        // eslint-disable-next-line no-console
-        // console.warn(error);
         setTodosError('Unable to load todos');
       });
   }, []);
@@ -61,7 +59,7 @@ export const App: React.FC = () => {
       }
     }), [todos, filtredTodos]);
 
-  const handleAddTodo = (todoTitle: string) => {
+  const handleAddTodo = async (todoTitle: string) => {
     setTempTodo({
       id: 0,
       title: todoTitle,
@@ -69,18 +67,18 @@ export const App: React.FC = () => {
       userId: 0,
     });
 
-    return todoService
-      .addTodo(todoTitle)
-      .then((newTitle) => {
+    try {
+      try {
+        const newTitle = await todoService
+          .addTodo(todoTitle);
+
         setTodos((prevTodo) => [...prevTodo, newTitle]);
-      })
-      .catch(() => {
+      } catch {
         setTodosError('Unable to add a todo');
-        throw new Error();
-      })
-      .finally(() => {
-        setTempTodo(null);
-      });
+      }
+    } finally {
+      setTempTodo(null);
+    }
   };
 
   const handleDeleteTodo = (todoId: number) => {
@@ -107,10 +105,8 @@ export const App: React.FC = () => {
 
     todoService
       .updateTodo({
-        id: todo.id,
+        ...todo,
         title: newTitle,
-        userId: todo.userId,
-        completed: todo.completed,
       }).then(updateTodo => {
         setTodos(prevState => prevState.map(curentTodo => (
           curentTodo.id !== updateTodo.id
@@ -134,9 +130,7 @@ export const App: React.FC = () => {
 
     todoService
       .updateTodo({
-        id: todo.id,
-        title: todo.title,
-        userId: todo.userId,
+        ...todo,
         completed: !todo.completed,
       })
       .then(updateTodo => {
@@ -189,6 +183,7 @@ export const App: React.FC = () => {
           activeTodosCount={activeTodosCount}
           onAddTodoError={setTodosError}
           onToggle={handleToggleAll}
+          isOneTodoCompleted={isOneTodoCompleted}
         />
 
         <List
@@ -209,7 +204,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {isOneTodoCompleted && (
+        {!!todos.length && (
           <Footer
             isOneTodoCompleted={isOneTodoCompleted}
             todos={filterTodos}
@@ -218,36 +213,14 @@ export const App: React.FC = () => {
             handleClearCompletedTodos={handleClearCompletedTodos}
           />
         )}
-      </div>
 
-      <div
-        data-cy="ErrorNotification"
-        className={classNames(
-          'notification',
-          'is-danger',
-          'is-light',
-          'has-text-weight-normal',
-          {
-            hidden: !todosError.length,
-          },
+        {todosError && (
+          <ErrorNotification
+            todosError={todosError}
+            onAddTodoError={setTodosError}
+          />
         )}
-      >
-        <button
-          data-cy="HideErrorButton"
-          type="button"
-          className="delete"
-          onClick={() => setTodosError('')}
-        />
-        {/* show only one message at a time */}
-        {todosError}
-        {/* <br />
-          Title should not be empty
-          <br />
-          Unable to add a todo
-          <br />
-          Unable to delete a todo
-          <br />
-          Unable to update a todo */}
+
       </div>
     </div>
   );

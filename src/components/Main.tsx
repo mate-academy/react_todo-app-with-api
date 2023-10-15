@@ -48,7 +48,7 @@ export const Main: React.FC<Props> = ({
   const handleOnKeyup = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setIsEditing(false);
-      setTodoTitle(todo.title.trim());
+      setTodoTitle(title.trim());
     }
   };
 
