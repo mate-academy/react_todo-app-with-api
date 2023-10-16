@@ -13,8 +13,6 @@ type Context = {
   setCurrentFilter: React.Dispatch<Status>,
   errorMessage: string,
   setErrorMessage: React.Dispatch<string>,
-  errorId: number,
-  setErrorId: React.Dispatch<number>,
   tempTodo: Todo | null,
   setTempTodo: React.Dispatch<Todo | null>,
   clearAllIds: number[],
@@ -30,8 +28,6 @@ const initialContext: Context = {
   setCurrentFilter: () => {},
   errorMessage: '',
   setErrorMessage: () => {},
-  errorId: 0,
-  setErrorId: () => {},
   tempTodo: null,
   setTempTodo: () => {},
   clearAllIds: [],
@@ -53,7 +49,6 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [clearAllIds, setClearAllIds] = useState<number[]>([]);
   const [toggledIds, setToggledIds] = useState<number[]>([]);
-  const [errorId, setErrorId] = useState(0);
 
   return (
     <TodosContext.Provider value={{
@@ -63,8 +58,6 @@ export const GlobalStateProvider: React.FC<Props> = ({ children }) => {
       setCurrentFilter,
       errorMessage,
       setErrorMessage,
-      errorId,
-      setErrorId,
       tempTodo,
       setTempTodo,
       clearAllIds,

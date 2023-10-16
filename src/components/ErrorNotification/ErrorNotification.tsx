@@ -6,11 +6,7 @@ import './ErrorNotification.scss';
 import { TodosContext } from '../TodosContext';
 
 export const ErrorNotification: React.FC = () => {
-  const {
-    errorMessage,
-    setErrorMessage,
-    errorId,
-  } = useContext(TodosContext);
+  const { errorMessage, setErrorMessage } = useContext(TodosContext);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -18,7 +14,7 @@ export const ErrorNotification: React.FC = () => {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [errorId, setErrorMessage]);
+  }, [errorMessage, setErrorMessage]);
 
   const handleErrorClosing = () => {
     setErrorMessage('');
@@ -40,19 +36,6 @@ export const ErrorNotification: React.FC = () => {
         className="delete"
         onClick={handleErrorClosing}
       />
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-      {/* show only one message at a time */}
-      {/* Unable to load todos
-        <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
     </div>
   );
 };
