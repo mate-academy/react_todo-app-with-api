@@ -15,8 +15,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     getTodos(USER_ID)
-      .then(responce => {
-        dispatch({ type: 'get', payload: responce });
+      .then(response => {
+        dispatch({ type: 'get', payload: response });
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');

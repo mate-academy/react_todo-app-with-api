@@ -22,8 +22,7 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
     dispatch,
     tempTodo,
     setErrorMessage,
-    clearAllIds,
-    toggledIds,
+    loadingTodosIds,
   } = useContext(TodosContext);
   const editRef = useRef<HTMLInputElement | null>(null);
 
@@ -34,8 +33,7 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
   const isLoaderActive = (
     tempTodo?.id === item.id
       || isLoading
-      || clearAllIds.includes(item.id)
-      || toggledIds.includes(item.id)
+      || loadingTodosIds.includes(item.id)
   );
 
   useEffect(() => {

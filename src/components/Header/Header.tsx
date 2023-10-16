@@ -3,6 +3,7 @@ import React, {
   FormEvent,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -22,18 +23,16 @@ export const Header: React.FC = () => {
     setErrorMessage,
     tempTodo,
     setTempTodo,
-    setToggledIds,
+    setLoadingTodosIds,
   } = useContext(TodosContext);
 
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isToggleAllActive, setIsToggleAllActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const findIsAllActive = () => {
+  const isAllActive = useMemo(() => {
     return !todos.some(todo => todo.completed === false);
-  };
-
-  const isAllActive = findIsAllActive();
+  }, [todos]);
 
   useEffect(() => {
     setIsToggleAllActive(isAllActive);
@@ -46,7 +45,7 @@ export const Header: React.FC = () => {
       return isAllActive || !todo.completed;
     });
 
-    setToggledIds(toggledTodos.map(todo => todo.id));
+    setLoadingTodosIds(toggledTodos.map(todo => todo.id));
 
     todos.map(todo => {
       if (isAllActive || !todo.completed) {
@@ -63,7 +62,7 @@ export const Header: React.FC = () => {
           .catch(() => {
             setErrorMessage('Unable to delete a todo');
           })
-          .finally(() => setToggledIds([]));
+          .finally(() => setLoadingTodosIds([]));
       }
 
       return todo;

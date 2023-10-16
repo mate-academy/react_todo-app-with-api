@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
     dispatch,
     tempTodo,
     setErrorMessage,
-    setClearAllIds,
+    setLoadingTodosIds,
   } = useContext(TodosContext);
 
   const completedTodos = todos.filter(todo => todo.completed);
@@ -24,7 +24,7 @@ export const Footer: React.FC = () => {
   }
 
   const handleClearClick = () => {
-    setClearAllIds(completedTodosIds);
+    setLoadingTodosIds(completedTodosIds);
 
     completedTodos.map(completedTodo => {
       return removeTodo(completedTodo.id)
@@ -34,7 +34,8 @@ export const Footer: React.FC = () => {
         }))
         .catch(() => {
           setErrorMessage('Unable to delete a todo');
-        });
+        })
+        .finally(() => setLoadingTodosIds([]));
     });
   };
 
