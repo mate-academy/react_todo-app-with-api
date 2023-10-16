@@ -85,6 +85,10 @@
     border: 1px solid $todo-border-color;
     box-shadow: inset 0 -1px 5px 0 $app-main-shadow-color;
 
+    &:focus {
+      outline: none;
+    }
+
     &::placeholder {
       font-style: italic;
       font-weight: 300;

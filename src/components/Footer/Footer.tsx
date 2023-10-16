@@ -25,6 +25,7 @@ export const Footer: React.FC = () => {
 
   const handleClearClick = () => {
     setClearAllIds(completedTodosIds);
+
     completedTodos.map(completedTodo => {
       return removeTodo(completedTodo.id)
         .then(() => dispatch({
@@ -45,16 +46,15 @@ export const Footer: React.FC = () => {
 
       <TodosFilter />
 
-      {!!completedLength && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleClearClick}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearClick}
+        disabled={!completedLength}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };

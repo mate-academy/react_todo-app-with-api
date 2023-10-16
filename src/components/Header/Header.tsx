@@ -11,29 +11,62 @@ import classNames from 'classnames';
 
 import './Header.scss';
 import { TodosContext } from '../TodosContext';
-import { createTodo } from '../../api/todos';
+import { createTodo, updateTodo } from '../../api/todos';
 
 const USER_ID = 11677;
 
 export const Header: React.FC = () => {
   const {
+    todos,
     dispatch,
     setErrorMessage,
     tempTodo,
     setTempTodo,
+    setToggledIds,
   } = useContext(TodosContext);
 
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [isToggleAllActive, setIsToggleAllActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const findIsAllActive = () => {
+    return !todos.some(todo => todo.completed === false);
+  };
+
+  const isAllActive = findIsAllActive();
+
+  useEffect(() => {
+    setIsToggleAllActive(isAllActive);
+  }, [isAllActive]);
+
   useEffect(() => inputRef.current?.focus());
 
   const handleToggleAllClick = () => {
-    setIsToggleAllActive(!isToggleAllActive);
-    dispatch({
-      type: 'toggleAll',
-      payload: !isToggleAllActive,
+    const toggledTodos = todos.filter(todo => {
+      return isAllActive || !todo.completed;
+    });
+
+    setToggledIds(toggledTodos.map(todo => todo.id));
+
+    todos.map(todo => {
+      if (isAllActive || !todo.completed) {
+        return updateTodo(todo.id, { completed: !isAllActive })
+          .then(() => {
+            dispatch({
+              type: 'toggle',
+              payload: {
+                ...todo,
+                completed: !isAllActive,
+              },
+            });
+          })
+          .catch(() => {
+            setErrorMessage('Unable to delete a todo');
+          })
+          .finally(() => setToggledIds([]));
+      }
+
+      return todo;
     });
   };
 
@@ -88,15 +121,17 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        id="toggle-all"
-        className={classNames('todoapp__toggle-all', {
-          active: isToggleAllActive,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={handleToggleAllClick}
-      />
+      {!!todos.length && (
+        <button
+          type="button"
+          id="toggle-all"
+          className={classNames('todoapp__toggle-all', {
+            active: isToggleAllActive,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAllClick}
+        />
+      )}
 
       <form
         onSubmit={handleTodoSubmit}

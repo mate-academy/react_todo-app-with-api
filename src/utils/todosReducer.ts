@@ -23,22 +23,10 @@ export function todosReducer(state: Todo[], action: Action): Todo[] {
     case 'toggle':
       currentState = state.map(todo => {
         if (todo.id === action.payload.id) {
-          return {
-            ...todo,
-            completed: !action.payload.completed,
-          };
+          return { ...action.payload };
         }
 
         return { ...todo };
-      });
-      break;
-
-    case 'toggleAll':
-      currentState = state.map(todo => {
-        return {
-          ...todo,
-          completed: action.payload,
-        };
       });
       break;
 

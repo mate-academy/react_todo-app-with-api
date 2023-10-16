@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import './TodoItem.scss';
 import { Todo } from '../../types/Todo';
 import { TodosContext } from '../TodosContext';
-import { removeTodo } from '../../api/todos';
+import { removeTodo, updateTodo } from '../../api/todos';
 
 type Props = {
   item: Todo,
@@ -23,15 +23,19 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
     tempTodo,
     setErrorMessage,
     clearAllIds,
+    toggledIds,
   } = useContext(TodosContext);
   const editRef = useRef<HTMLInputElement | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTodoTitle, setEditedTodoTitle] = useState(item.title);
-  const [isDeleting, setIsDeleteing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isLoaderActive = (
-    tempTodo?.id === item.id || isDeleting || clearAllIds.includes(item.id)
+    tempTodo?.id === item.id
+      || isLoading
+      || clearAllIds.includes(item.id)
+      || toggledIds.includes(item.id)
   );
 
   useEffect(() => {
@@ -40,52 +44,90 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
     }
   }, [isEditing]);
 
-  const handleCompletedChange = () => dispatch({
-    type: 'toggle',
-    payload: item,
-  });
+  const handleCompletedChange = () => {
+    setIsLoading(true);
+
+    updateTodo(item.id, { completed: !item.completed })
+      .then(() => dispatch({
+        type: 'toggle',
+        payload: {
+          ...item,
+          completed: !item.completed,
+        },
+      }))
+      .catch(() => setErrorMessage('Unable to update a todo'))
+      .finally(() => setIsLoading(false));
+  };
 
   const handleDoubleClick = () => {
     setIsEditing(true);
   };
 
   const handleRemoveItem = () => {
-    setIsDeleteing(true);
+    setIsLoading(true);
 
     removeTodo(item.id)
       .then(() => dispatch({
         type: 'remove',
         payload: item.id,
       }))
-      .catch(() => setErrorMessage('Unable to delete a todo'))
-      .finally(() => setIsDeleteing(false));
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTodoTitle(event.target.value);
   };
 
-  const saveChanges = () => {
-    if (editedTodoTitle.trim().length !== 0) {
+  const saveTitleChange = () => {
+    if (editedTodoTitle === item.title) {
+      setIsEditing(false);
+
+      return;
+    }
+
+    const trimmedTitle = editedTodoTitle.trim();
+
+    if (trimmedTitle.length !== 0) {
+      setIsLoading(true);
+      const oldTodoTitle = item.title;
+
       dispatch({
         type: 'edit',
-        payload: item,
+        payload: {
+          ...item,
+          title: trimmedTitle,
+        },
       });
+
+      updateTodo(item.id, { title: trimmedTitle })
+        .then(() => setIsEditing(false))
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+          dispatch({
+            type: 'edit',
+            payload: {
+              ...item,
+              title: oldTodoTitle,
+            },
+          });
+        })
+        .finally(() => setIsLoading(false));
     } else {
       handleRemoveItem();
     }
-
-    setIsEditing(false);
   };
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleTitleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
       setEditedTodoTitle(item.title);
       setIsEditing(false);
     }
 
     if (event.key === 'Enter') {
-      saveChanges();
+      saveTitleChange();
     }
   };
 
@@ -96,10 +138,7 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
         completed: item.completed,
       })}
     >
-      <label
-        className="todo__status-label"
-        onDoubleClick={handleDoubleClick}
-      >
+      <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
@@ -111,8 +150,11 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
 
       {!isEditing ? (
         <>
-          {/* Todo is being saved now */}
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
             {item.title}
           </span>
 
@@ -134,8 +176,8 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
           placeholder="Empty todo will be deleted"
           value={editedTodoTitle}
           onChange={handleTitleChange}
-          onKeyUp={handleKeyUp}
-          onBlur={saveChanges}
+          onKeyUp={handleTitleKeyUp}
+          onBlur={saveTitleChange}
         />
       )}
 
