@@ -33,6 +33,7 @@ interface TodosContextType {
   editTitle: (updatedTodo: Todo) => Promise<void>;
   headerInputRef: React.MutableRefObject<HTMLInputElement | null>;
   countActiveTodos: () => number;
+  todoInputRef: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 const TodosContext = createContext<TodosContextType | undefined>(undefined);
@@ -57,6 +58,7 @@ export const TodosProvider: React
   const [isEditing, setIsEditingId] = useState<number | null>(null);
 
   const headerInputRef = useRef<HTMLInputElement | null>(null);
+  const todoInputRef = useRef<HTMLInputElement | null>(null);
 
   const countActiveTodos = () => {
     return todos.filter(todo => !todo.completed).length;
@@ -79,7 +81,6 @@ export const TodosProvider: React
     }
 
     if (errVisible) {
-      // Якщо помилка видима, встановлюємо таймер на 3 секунди
       timer = setTimeout(() => {
         setError('');
         setErrVisible(false);
@@ -87,7 +88,6 @@ export const TodosProvider: React
     }
   }, [errVisible]);
 
-  // eslint-disable-next-line max-len
   const handleCreateTodo = async (e: React.FormEvent) => {
     e.preventDefault();
     setDisableInput(true);
@@ -100,7 +100,7 @@ export const TodosProvider: React
     }
 
     const newTodoItem: Todo = {
-      id: 0, // Set the id to 0 for the temporary todo
+      id: 0,
       title: newTodo.trim(),
       completed: false,
       userId: USER_ID,
@@ -109,10 +109,8 @@ export const TodosProvider: React
     setTempTodo(newTodoItem);
 
     try {
-      // Your API call to create todo here
       const loadedTodo = await serviceTodo.createTodo(newTodoItem);
 
-      // Update tempTodo with the loaded todo from the API response
       setTempTodo(loadedTodo as Todo);
       setTodos([...todos, loadedTodo as Todo]);
       setNewTodo('');
@@ -194,12 +192,10 @@ export const TodosProvider: React
     setTodos(updatedTodos);
 
     try {
-      // Оновіть кожен todo в базі даних
       await Promise.all(updatedTodos
         .map(todo => serviceTodo.updateTodo(todo.id, todo)));
     } catch (error) {
       showError('Unable to update todos');
-      // Можливо, ви хочете здійснити зворотній відкликання для оновлення стану у випадку помилки
     } finally {
       setIsLoading(false);
     }
@@ -270,6 +266,7 @@ export const TodosProvider: React
     editTitle,
     headerInputRef,
     countActiveTodos,
+    todoInputRef,
   };
 
   return (

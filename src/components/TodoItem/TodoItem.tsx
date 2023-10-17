@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 import { useTodos } from '../Context';
@@ -13,11 +13,10 @@ export const TodoItem: React.FC<Todo> = (todo: Todo) => {
     setIsEditingId,
     editTitle,
     headerInputRef,
+    todoInputRef,
   } = useTodos();
 
-  const [editedTitle, setEditedTitle] = useState(todo.title);
-
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [editedTitle, setEditedTitle] = useState<string>(todo.title);
 
   const { completed, id, title } = todo;
 
@@ -34,10 +33,6 @@ export const TodoItem: React.FC<Todo> = (todo: Todo) => {
     } else {
       editTitle({ ...todo, title: editedTitle.trim() });
       setIsEditingId(null);
-
-      if (headerInputRef.current) {
-        headerInputRef.current.focus();
-      }
     }
   };
 
@@ -45,16 +40,15 @@ export const TodoItem: React.FC<Todo> = (todo: Todo) => {
     switch (e.key) {
       case 'Enter':
         handleInputBlur();
-
         break;
 
       case 'Escape':
         setEditedTitle(title);
         setIsEditingId(null);
-
         break;
 
-      default: break;
+      default:
+        break;
     }
   };
 
@@ -63,10 +57,16 @@ export const TodoItem: React.FC<Todo> = (todo: Todo) => {
   };
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (todoInputRef.current) {
+      todoInputRef.current.focus();
     }
   }, [isEditing]);
+
+  useEffect(() => {
+    if (headerInputRef.current) {
+      headerInputRef.current.focus();
+    }
+  }, [title]);
 
   return (
     <div
@@ -112,7 +112,7 @@ export const TodoItem: React.FC<Todo> = (todo: Todo) => {
           data-cy="TodoTitleField"
           type="text"
           className="todo__title-field"
-          ref={inputRef}
+          ref={todoInputRef}
           value={editedTitle}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
