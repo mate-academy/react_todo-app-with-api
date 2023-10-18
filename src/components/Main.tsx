@@ -4,7 +4,7 @@ import { TodoItem } from './TodoItem';
 type Props = {
   todos: Todo[],
   onDeleteTodo: (id: number) => Promise<void>,
-  selTodo: Todo | null,
+  tempTodo: Todo | null,
   onCheckedTodo: (todo: Todo) => Promise<void>,
   updateTitle: (todo: Todo) => Promise<void>,
   checkedLoading: boolean,
@@ -16,7 +16,7 @@ type Props = {
 export const Main:React.FC<Props> = ({
   todos,
   onDeleteTodo,
-  selTodo,
+  tempTodo,
   onCheckedTodo,
   updateTitle,
   checkedLoading,
@@ -45,9 +45,9 @@ export const Main:React.FC<Props> = ({
         );
       })}
       {
-        selTodo && (
+        tempTodo && (
           <TodoItem
-            todo={selTodo}
+            todo={tempTodo}
             onDeleteTodo={onDeleteTodo}
             onCheckedTodo={onCheckedTodo}
             updateTitle={updateTitle}

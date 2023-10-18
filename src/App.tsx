@@ -26,7 +26,7 @@ export const App: React.FC = () => {
     setSelectTodoFilteredList,
   ] = useState(StatusFilter.ALL);
 
-  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [checkedLoading, setCheckedLoading] = useState(false);
   const [checkedTRUEToogleAll, setCheckedTRUEToogleAll] = useState(false);
   const [checkedFALSEToogleAll, setCheckedFALSEToogleAll] = useState(false);
@@ -126,13 +126,12 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header
           todos={todos}
-          todo={selectedTodo}
           title={titl}
           userId={USER_ID}
           onSetTitle={setTitl}
           onTitleError={setErrorMessage}
           onAddTodo={addTodo}
-          onSelectTodo={setSelectedTodo}
+          onTempTodo={setTempTodo}
           checkedAllTodos={updateTodo}
           setCheckedTRUEToogleAll={setCheckedTRUEToogleAll}
           setCheckedFALSEToogleAll={setCheckedFALSEToogleAll}
@@ -144,7 +143,7 @@ export const App: React.FC = () => {
             <Main
               todos={filterTodos}
               onDeleteTodo={deleteTodo}
-              selTodo={selectedTodo}
+              tempTodo={tempTodo}
               onCheckedTodo={updateTodo}
               updateTitle={updateTodo}
               checkedLoading={checkedLoading}

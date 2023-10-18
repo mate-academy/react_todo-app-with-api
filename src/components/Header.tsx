@@ -3,12 +3,11 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todos: Todo[],
-  todo: Todo | null,
   title: string,
   userId: number,
   onSetTitle: (t: string) => void,
   onTitleError: (t: string) => void,
-  onSelectTodo: (t: Todo | null) => void,
+  onTempTodo: (t: Todo | null) => void,
   onAddTodo: (t: Todo) => Promise<void>,
   checkedAllTodos: (todo: Todo) => Promise<void>,
   setCheckedTRUEToogleAll: (l: boolean) => void,
@@ -22,7 +21,7 @@ export const Header:React.FC<Props> = ({
   userId,
   onSetTitle,
   onTitleError,
-  onSelectTodo,
+  onTempTodo,
   onAddTodo,
   checkedAllTodos,
   setCheckedTRUEToogleAll,
@@ -75,13 +74,13 @@ export const Header:React.FC<Props> = ({
         completed: notComplete,
       };
 
-      onSelectTodo(newTodo);
+      onTempTodo(newTodo);
 
       setDisabledField(true);
       onAddTodo(newTodo)
         .finally(() => {
           setDisabledField(false);
-          onSelectTodo(null);
+          onTempTodo(null);
         });
     }
   };

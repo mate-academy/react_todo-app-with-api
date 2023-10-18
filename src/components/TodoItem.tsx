@@ -26,6 +26,11 @@ export const TodoItem: React.FC<Props> = ({
   const [checkedLoading, setCheckedLoading] = useState(false);
   const [switchEditTodo, setSwitchEditTodo] = useState(false);
   const [newTitle, setNewTitle] = useState('' || todo.title);
+  const loaders = todo.id === 0
+  || (todo.id === todoId && checkedLoading)
+  || (todo.completed && checkedLoad)
+  || (!todo.completed && checkedTRUEToogleAll)
+  || (todo.completed && checkedFALSEToogleAll);
 
   const todoItemEditRef = useRef<HTMLInputElement | null>(null);
 
@@ -162,14 +167,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={
-          // eslint-disable-next-line
-          (todo.id === 0
-            || (todo.id === todoId && checkedLoading)
-            || (todo.completed && checkedLoad)
-            || (!todo.completed && checkedTRUEToogleAll)
-            || (todo.completed && checkedFALSEToogleAll))
-            ? 'modal overlay is-active'
-            : 'modal overlay'
+          loaders ? 'modal overlay is-active' : 'modal overlay'
         }
       >
         <div className="modal-background has-background-white-ter" />
