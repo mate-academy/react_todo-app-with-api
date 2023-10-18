@@ -25,7 +25,7 @@ export const App: React.FC = () => {
     if (errorMessage) {
       window.setTimeout(() => {
         setErrorMessage('');
-      }, 3000);
+      }, 3100);
     }
   }, [errorMessage, setErrorMessage]);
 
