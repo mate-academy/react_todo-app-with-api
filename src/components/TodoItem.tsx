@@ -16,7 +16,9 @@ type Props = {
 };
 
 const TodoItem: React.FC<Props> = ({ todo, tempIsLoading }) => {
-  const { todos, setTodos, setErrorMessage, inputRef } = useContext(
+  const {
+    todos, setTodos, setErrorMessage, inputRef,
+  } = useContext(
     AppContext,
   ) as AppContextType;
 
@@ -120,12 +122,13 @@ const TodoItem: React.FC<Props> = ({ todo, tempIsLoading }) => {
 
       const response = await client.patch<Todo>(`/todos/${updatedTodo.id}`, updatedTodo);
 
+      setIsEditing(false);
+
       setTodos((prevTodos) => {
         const restTodos = prevTodos.filter(filterById);
 
         return [...restTodos, response].sort(sortById);
       });
-      setIsEditing(false);
     } catch {
       setErrorMessage('Unable to update a todo');
     } finally {

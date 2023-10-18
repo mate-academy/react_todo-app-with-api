@@ -133,7 +133,9 @@ export const App: React.FC = () => {
   }, [setErrorMessage, setIsFetching, setTodos, todos]);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    if (errorMessage !== 'Unable to update a todo' && errorMessage) {
+      inputRef.current?.focus();
+    }
   }, [inputRef, todos, errorMessage]);
 
   useEffect(() => {
