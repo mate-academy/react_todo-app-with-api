@@ -50,10 +50,10 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     switch (queryCondition) {
-      case 'completed':
+      case Filter.completed:
         setVisibleTodos(todos.filter((todo) => todo.completed));
         break;
-      case 'active':
+      case Filter.active:
         setVisibleTodos(todos.filter((todo) => !todo.completed));
         break;
       default:
