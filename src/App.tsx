@@ -249,7 +249,12 @@ export const App: React.FC = () => {
           },
         )}
       >
-        <button data-cy="HideErrorButton" type="button" className="delete" />
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage('')}
+        />
 
         {errorMessage}
       </div>
