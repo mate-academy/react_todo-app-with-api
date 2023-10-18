@@ -28,8 +28,9 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [checkedLoading, setCheckedLoading] = useState(false);
-  const [checkedTRUEToogleAll, setCheckedTRUEToogleAll] = useState(false);
-  const [checkedFALSEToogleAll, setCheckedFALSEToogleAll] = useState(false);
+  //const [checkedTRUEToogleAll, setCheckedTRUEToogleAll] = useState(false);
+  //const [checkedFALSEToogleAll, setCheckedFALSEToogleAll] = useState(false);
+  const [toggle, setToggle] = useState('');
   const fieldTitle = useRef<HTMLInputElement | null>(null);
 
   // eslint-disable-next-line
@@ -77,6 +78,29 @@ export const App: React.FC = () => {
         }, 3000);
         throw error;
       });
+  };
+
+  const deleteAllCheckedTodos = (ids: number[]) => {
+    ids.map((id) => {
+      setCheckedLoading(true);
+
+      return todosService.deleteTodo(id)
+        .then(() => {
+          setTodos(currentTodos => currentTodos.filter((cT) => cT.id !== id));
+        })
+        .catch((error) => {
+          setCheckedLoading(false);
+          setErrorMessage('Unable to delete a todo');
+          setTimeout(() => {
+            setErrorMessage('');
+          }, 3000);
+          throw error;
+        })
+        .finally(() => {
+          fieldTitle.current?.focus();
+          setCheckedLoading(false);
+        });
+    });
   };
 
   const updateTodo = (upTodo: Todo) => {
@@ -133,8 +157,7 @@ export const App: React.FC = () => {
           onAddTodo={addTodo}
           onTempTodo={setTempTodo}
           checkedAllTodos={updateTodo}
-          setCheckedTRUEToogleAll={setCheckedTRUEToogleAll}
-          setCheckedFALSEToogleAll={setCheckedFALSEToogleAll}
+          setToggle={setToggle}
           fieldTitle={fieldTitle}
         />
 
@@ -147,8 +170,7 @@ export const App: React.FC = () => {
               onCheckedTodo={updateTodo}
               updateTitle={updateTodo}
               checkedLoading={checkedLoading}
-              checkedTRUEToogleAll={checkedTRUEToogleAll}
-              checkedFALSEToogleAll={checkedFALSEToogleAll}
+              toggle={toggle}
               fieldTitle={fieldTitle}
             />
           )
@@ -161,9 +183,7 @@ export const App: React.FC = () => {
             countTodos={count}
             selectTodoFilteredList={selectTodoFilteredList}
             setSelectTodoFilteredList={setSelectTodoFilteredList}
-            removeCompletedTodos={deleteTodo}
-            setCheckedLoading={setCheckedLoading}
-            fieldTitle={fieldTitle}
+            removeCompletedTodos={deleteAllCheckedTodos}
           />
         )}
       </div>

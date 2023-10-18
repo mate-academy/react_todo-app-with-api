@@ -10,7 +10,7 @@ export const addNewTodo = ({ userId, title, completed }: Omit<Todo, 'id'>) => {
 };
 
 export const deleteTodo = (todoId: number) => {
-  return client.delete<number>(`/todos/${todoId}`);
+  return client.delete(`/todos/${todoId}`);
 };
 
 export const updateTodo = ({

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
+import { StatusFilter } from '../services/EnumStatusFilter';
 
 type Props = {
   todos: Todo[],
@@ -10,8 +11,7 @@ type Props = {
   onTempTodo: (t: Todo | null) => void,
   onAddTodo: (t: Todo) => Promise<void>,
   checkedAllTodos: (todo: Todo) => Promise<void>,
-  setCheckedTRUEToogleAll: (l: boolean) => void,
-  setCheckedFALSEToogleAll: (l: boolean) => void,
+  setToggle: (s: string) => void,
   fieldTitle: React.MutableRefObject<HTMLInputElement | null>,
 };
 
@@ -24,8 +24,7 @@ export const Header:React.FC<Props> = ({
   onTempTodo,
   onAddTodo,
   checkedAllTodos,
-  setCheckedTRUEToogleAll,
-  setCheckedFALSEToogleAll,
+  setToggle,
   fieldTitle,
 }) => {
   const [disabledField, setDisabledField] = useState(false);
@@ -38,20 +37,26 @@ export const Header:React.FC<Props> = ({
 
   const handleAllCheckedTrue = (tods: Todo[]) => {
     tods.map((todo) => {
-      setCheckedTRUEToogleAll(true);
+      setToggle(StatusFilter.COMPLETED);
 
       return (!todo.completed) && checkedAllTodos({ ...todo, completed: true })
-        .finally(() => setCheckedTRUEToogleAll(false));
+        .finally(() => setToggle(''));
     });
   };
 
   const handleAllCheckedFalse = (tods: Todo[]) => {
     tods.map((todo) => {
-      setCheckedFALSEToogleAll(true);
+      setToggle(StatusFilter.ACTIVE);
 
       return checkedAllTodos({ ...todo, completed: false })
-        .finally(() => setCheckedFALSEToogleAll(false));
+        .finally(() => setToggle(''));
     });
+  };
+
+  const handleCheckeds = () => {
+    return todos.every((todo) => todo.completed)
+      ? handleAllCheckedFalse(todos)
+      : handleAllCheckedTrue(todos);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,19 +93,14 @@ export const Header:React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (
-        // eslint-disable-next-line
         <button
+          aria-label="toggle-all"
           type="button"
           className={todos.every((todo) => todo.completed)
             ? 'todoapp__toggle-all active'
             : 'todoapp__toggle-all'}
           data-cy="ToggleAllButton"
-          onClick={() => {
-            // eslint-disable-next-line
-            todos.every((todo) => todo.completed)
-              ? handleAllCheckedFalse(todos)
-              : handleAllCheckedTrue(todos);
-          }}
+          onClick={handleCheckeds}
         />
       )}
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../types/Todo';
+import { StatusFilter } from '../services/EnumStatusFilter';
 
 type Props = {
   todo: Todo,
@@ -7,8 +8,7 @@ type Props = {
   onCheckedTodo: (todo: Todo) => Promise<void>,
   updateTitle: (todo: Todo) => Promise<void>,
   checkedLoad: boolean,
-  checkedTRUEToogleAll: boolean,
-  checkedFALSEToogleAll: boolean,
+  toggle: string,
   fieldTitle: React.MutableRefObject<HTMLInputElement | null>,
 };
 
@@ -18,8 +18,7 @@ export const TodoItem: React.FC<Props> = ({
   onCheckedTodo,
   updateTitle,
   checkedLoad,
-  checkedTRUEToogleAll,
-  checkedFALSEToogleAll,
+  toggle,
   fieldTitle,
 }) => {
   const [todoId, setTodoId] = useState(0);
@@ -29,8 +28,8 @@ export const TodoItem: React.FC<Props> = ({
   const loaders = todo.id === 0
   || (todo.id === todoId && checkedLoading)
   || (todo.completed && checkedLoad)
-  || (!todo.completed && checkedTRUEToogleAll)
-  || (todo.completed && checkedFALSEToogleAll);
+  || (!todo.completed && toggle === StatusFilter.COMPLETED)
+  || (todo.completed && toggle === StatusFilter.ACTIVE);
 
   const todoItemEditRef = useRef<HTMLInputElement | null>(null);
 

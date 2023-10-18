@@ -6,9 +6,7 @@ type Props = {
   countTodos: number,
   selectTodoFilteredList: StatusFilter,
   setSelectTodoFilteredList: (s: StatusFilter) => void,
-  removeCompletedTodos: (ids: number) => Promise<void>,
-  setCheckedLoading: (l: boolean) => void,
-  fieldTitle: React.MutableRefObject<HTMLInputElement | null>,
+  removeCompletedTodos: (ids: number[]) => void,
 };
 
 export const Footer: React.FC<Props> = ({
@@ -17,18 +15,9 @@ export const Footer: React.FC<Props> = ({
   selectTodoFilteredList,
   setSelectTodoFilteredList,
   removeCompletedTodos,
-  setCheckedLoading,
-  fieldTitle,
 }) => {
   const handleRemoveCompletedTodos = (ids: number[]) => {
-    ids.map((id) => {
-      setCheckedLoading(true);
-
-      return removeCompletedTodos(id).finally(() => {
-        fieldTitle.current?.focus();
-        setCheckedLoading(false);
-      });
-    });
+    removeCompletedTodos(ids);
   };
 
   return (

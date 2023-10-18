@@ -8,8 +8,7 @@ type Props = {
   onCheckedTodo: (todo: Todo) => Promise<void>,
   updateTitle: (todo: Todo) => Promise<void>,
   checkedLoading: boolean,
-  checkedTRUEToogleAll: boolean,
-  checkedFALSEToogleAll: boolean,
+  toggle: string,
   fieldTitle: React.MutableRefObject<HTMLInputElement | null>,
 };
 
@@ -20,8 +19,7 @@ export const Main:React.FC<Props> = ({
   onCheckedTodo,
   updateTitle,
   checkedLoading,
-  checkedTRUEToogleAll,
-  checkedFALSEToogleAll,
+  toggle,
   fieldTitle,
 }) => {
   return (
@@ -38,8 +36,7 @@ export const Main:React.FC<Props> = ({
             onCheckedTodo={onCheckedTodo}
             updateTitle={updateTitle}
             checkedLoad={checkedLoading}
-            checkedTRUEToogleAll={checkedTRUEToogleAll}
-            checkedFALSEToogleAll={checkedFALSEToogleAll}
+            toggle={toggle}
             fieldTitle={fieldTitle}
           />
         );
@@ -52,8 +49,7 @@ export const Main:React.FC<Props> = ({
             onCheckedTodo={onCheckedTodo}
             updateTitle={updateTitle}
             checkedLoad={checkedLoading}
-            checkedTRUEToogleAll={checkedTRUEToogleAll}
-            checkedFALSEToogleAll={checkedFALSEToogleAll}
+            toggle={toggle}
             fieldTitle={fieldTitle}
           />
         )
