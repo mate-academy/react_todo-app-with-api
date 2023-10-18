@@ -33,6 +33,12 @@ export type AppContextType = {
 
 type QueryCondition = 'all' | 'completed' | 'active';
 
+export enum Filter {
+  all = 'all',
+  active = 'active',
+  completed = 'completed',
+}
+
 export const AppContextProvider: React.FC<Props> = ({ children }) => {
   const [query, setQuery] = useState('');
   const [queryCondition, setQueryCondition] = useState<QueryCondition>('all');

@@ -1,12 +1,11 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classnames from 'classnames';
-import React, {
-  useCallback, useContext, useEffect, useState,
-} from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   AppContext,
   AppContextType,
   USER_ID,
+  Filter,
 } from './Contexts/AppContextProvider';
 import { client } from './utils/fetchClient';
 import { Todo } from './types/Todo';
@@ -69,51 +68,48 @@ export const App: React.FC = () => {
     [query, setErrorMessage, setIsFetching, setQuery, setTodos, todos],
   );
 
-  const toggleAll = useCallback(
-    () => {
-      const condition: boolean = todos.some((todo) => !todo.completed);
+  const toggleAll = useCallback(() => {
+    const condition: boolean = todos.some((todo) => !todo.completed);
 
-      setIsFetching(true);
+    setIsFetching(true);
 
-      const updatedTodos: Todo[] = todos
-        .filter((todo) => todo.completed === !condition)
-        .map((todo) => {
-          return {
-            ...todo,
-            completed: condition,
-          };
-        });
-
-      updatedTodos.map(async (toggledTodo) => {
-        setTodos((prev) => {
-          const untoggledTodos = prev.filter(
-            (todo) => todo.completed === condition,
-          );
-
-          return [...untoggledTodos, toggledTodo].sort((a, b) => a.id - b.id);
-        });
-
-        try {
-          await client.patch<Todo>(`/todos/${toggledTodo.id}`, toggledTodo);
-        } catch (error) {
-          setTodos((prev) => {
-            const restTodos = prev.filter((todo) => todo.id !== toggledTodo.id);
-
-            const failedTodo: Todo = {
-              ...toggledTodo,
-              completed: !toggledTodo.completed,
-            };
-
-            return [...restTodos, failedTodo].sort((a, b) => a.id - b.id);
-          });
-          setErrorMessage('Unable to update a todo');
-        }
+    const updatedTodos: Todo[] = todos
+      .filter((todo) => todo.completed === !condition)
+      .map((todo) => {
+        return {
+          ...todo,
+          completed: condition,
+        };
       });
 
-      setIsFetching(false);
-    },
-    [setErrorMessage, setIsFetching, setTodos, todos],
-  );
+    updatedTodos.map(async (toggledTodo) => {
+      setTodos((prev) => {
+        const untoggledTodos = prev.filter(
+          (todo) => todo.completed === condition,
+        );
+
+        return [...untoggledTodos, toggledTodo].sort((a, b) => a.id - b.id);
+      });
+
+      try {
+        await client.patch<Todo>(`/todos/${toggledTodo.id}`, toggledTodo);
+      } catch (error) {
+        setTodos((prev) => {
+          const restTodos = prev.filter((todo) => todo.id !== toggledTodo.id);
+
+          const failedTodo: Todo = {
+            ...toggledTodo,
+            completed: !toggledTodo.completed,
+          };
+
+          return [...restTodos, failedTodo].sort((a, b) => a.id - b.id);
+        });
+        setErrorMessage('Unable to update a todo');
+      }
+    });
+
+    setIsFetching(false);
+  }, [setErrorMessage, setIsFetching, setTodos, todos]);
 
   const deleteAllCompleted = useCallback(() => {
     const itemsToDelete: Todo[] = todos.filter((todo) => todo.completed);
@@ -197,10 +193,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/"
                   className={classnames('filter__link', {
-                    selected: queryCondition === 'all',
+                    selected: queryCondition === Filter.all,
                   })}
                   data-cy="FilterLinkAll"
-                  onClick={() => setQueryCondition('all')}
+                  onClick={() => setQueryCondition(Filter.all)}
                 >
                   All
                 </a>
@@ -208,10 +204,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/active"
                   className={classnames('filter__link', {
-                    selected: queryCondition === 'active',
+                    selected: queryCondition === Filter.active,
                   })}
                   data-cy="FilterLinkActive"
-                  onClick={() => setQueryCondition('active')}
+                  onClick={() => setQueryCondition(Filter.active)}
                 >
                   Active
                 </a>
@@ -219,10 +215,10 @@ export const App: React.FC = () => {
                 <a
                   href="#/completed"
                   className={classnames('filter__link', {
-                    selected: queryCondition === 'completed',
+                    selected: queryCondition === Filter.completed,
                   })}
                   data-cy="FilterLinkCompleted"
-                  onClick={() => setQueryCondition('completed')}
+                  onClick={() => setQueryCondition(Filter.completed)}
                 >
                   Completed
                 </a>
