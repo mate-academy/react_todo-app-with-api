@@ -70,7 +70,9 @@ export const App: React.FC = () => {
   );
 
   const toggleAll = useCallback(
-    (condition: boolean = todos.some((todo) => !todo.completed)) => {
+    () => {
+      const condition: boolean = todos.some((todo) => !todo.completed);
+
       setIsFetching(true);
 
       const updatedTodos: Todo[] = todos
@@ -156,10 +158,10 @@ export const App: React.FC = () => {
             <button
               type="button"
               className={classnames('todoapp__toggle-all', {
-                active: !todos.some((todo) => todo.completed === false),
+                active: !todos.some((todo) => !todo.completed),
               })}
               data-cy="ToggleAllButton"
-              onClick={() => toggleAll()}
+              onClick={toggleAll}
             />
           )}
 

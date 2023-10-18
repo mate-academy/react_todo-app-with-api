@@ -69,8 +69,7 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     initialLoad();
     inputRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialLoad]);
 
   const states: AppContextType = {
     query,
