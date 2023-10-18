@@ -29,6 +29,9 @@ export type AppContextType = {
   isFetching: boolean;
   setIsFetching: React.Dispatch<React.SetStateAction<boolean>>;
   inputRef: React.RefObject<HTMLInputElement>;
+  activeItems: number;
+  tempTodo: Todo | null;
+  setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
 };
 
 type QueryCondition = 'all' | 'completed' | 'active';
@@ -46,7 +49,9 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
   const [visibleTodos, setVisibleTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isFetching, setIsFetching] = useState(false);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeItems = todos.filter((todo) => !todo.completed).length;
 
   useEffect(() => {
     switch (queryCondition) {
@@ -91,6 +96,9 @@ export const AppContextProvider: React.FC<Props> = ({ children }) => {
     isFetching,
     setIsFetching,
     inputRef,
+    activeItems,
+    tempTodo,
+    setTempTodo,
   };
 
   return <AppContext.Provider value={states}>{children}</AppContext.Provider>;
