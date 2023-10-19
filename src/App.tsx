@@ -1,5 +1,9 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect, useMemo,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import * as todoService from './api/todos';
 import { UserWarning } from './UserWarning';
@@ -35,7 +39,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const addTodo = ({ userId, title, completed }: Todo) => {
+  const addTodo = useCallback((({ userId, title, completed }: Todo) => {
     setErrorMessage('');
     setIsLoading(true);
 
@@ -60,9 +64,9 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setTempTodo(null);
       });
-  };
+  }), []);
 
-  const removeCompletedTodos = (todosId: number[]) => {
+  const removeCompletedTodos = useCallback(((todosId: number[]) => {
     setIsLoading(true);
     setDeletedTodo(todosId);
 
@@ -83,16 +87,16 @@ export const App: React.FC = () => {
           setIsLoading(false);
         });
     });
-  };
+  }), []);
 
-  const updateTodoStatus = (updatedTodo: Todo) => {
+  const updateTodoStatus = useCallback(((updatedTodo: Todo) => {
     setErrorMessage('');
     setIsLoading(true);
     setChangedTodo([updatedTodo.id]);
 
     return todoService.updateTodo(updatedTodo)
       .then(() => {
-        setTodos(todos.map(todo => (
+        setTodos(currentTodos => currentTodos.map(todo => (
           todo.id === updatedTodo.id
             ? {
               ...todo,
@@ -107,7 +111,7 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setChangedTodo([]);
       });
-  };
+  }), []);
 
   const updateTodo = async (todo: Todo) => {
     try {
@@ -121,7 +125,7 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateTodosAllStatus = (updatedTodos: Todo[]) => {
+  const updateTodosAllStatus = useCallback(((updatedTodos: Todo[]) => {
     setErrorMessage('');
     setIsLoading(true);
     const changedTodoIds = updatedTodos.map(todo => todo.id);
@@ -144,13 +148,13 @@ export const App: React.FC = () => {
         setIsLoading(false);
         setChangedTodo([]);
       });
-  };
+  }), []);
 
-  const updateTitleTodo = (updatedTodo: Todo) => {
+  const updateTitleTodo = useCallback(((updatedTodo: Todo) => {
     setErrorMessage('');
     setChangedTodo([updatedTodo.id]);
 
-    setTodos(todos.map(todo => (
+    setTodos(currentTodos => currentTodos.map(todo => (
       todo.id === updatedTodo.id
         ? {
           ...todo,
@@ -167,9 +171,9 @@ export const App: React.FC = () => {
       .finally(() => {
         setChangedTodo([]);
       });
-  };
+  }), []);
 
-  const removeTodoTitle = (todoId: number) => {
+  const removeTodoTitle = useCallback(((todoId: number) => {
     setDeletedTodo([todoId]);
 
     return todoService.deleteTodos(todoId)
@@ -186,7 +190,7 @@ export const App: React.FC = () => {
       .finally(() => {
         setDeletedTodo([]);
       });
-  };
+  }), [todos]);
 
   const visibleTodos = useMemo(() => filterTodos(todos, todosStatus),
     [todos, todosStatus]);
@@ -266,7 +270,7 @@ export const App: React.FC = () => {
           <Footer
             todosStatus={todosStatus}
             setTodosStatus={setTodosStatus}
-            todos={visibleTodos}
+            todos={filterTodos(todos, todosStatus)}
             activeTodos={activeTodos}
             removeTodo={removeCompletedTodos}
           />
