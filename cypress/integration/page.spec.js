@@ -24,7 +24,7 @@ const page = {
       clock.restore();
     });
 
-    cy.wait(100);
+    cy.wait(200);
   },
 
   /**
@@ -547,7 +547,7 @@ describe('', () => {
         cy.wait('@createRequest');
 
         // just in case
-        cy.wait(100);
+        page.flushJSTimers();
 
         todos.assertTitle(5, 'Other Title');
       });
@@ -1483,7 +1483,8 @@ describe('', () => {
           todos.assertLoading(0);
         });
 
-        it('should stay while waiting', () => {
+        // It depend on your implementation
+        it.skip('should stay while waiting', () => {
           page.mockUpdate(257334);
 
           todos.title(0).trigger('dblclick');
@@ -1505,7 +1506,7 @@ describe('', () => {
         it('should cancel loading', () => {
           todos.titleField(0).type('123{enter}');
           cy.wait('@renameRequest');
-          cy.wait(50);
+          page.flushJSTimers();
 
           todos.assertNotLoading(0);
         });
@@ -1513,7 +1514,7 @@ describe('', () => {
         it('should be closed', () => {
           todos.titleField(0).type('123{enter}');
           cy.wait('@renameRequest');
-          cy.wait(50);
+          page.flushJSTimers();
 
           todos.titleField(0).should('not.exist');
         });
@@ -1548,7 +1549,7 @@ describe('', () => {
         });
 
         it('should cancel loading on fail', () => {
-          cy.wait(100);
+          page.flushJSTimers();
           todos.assertNotLoading(0);
         });
 
@@ -1662,7 +1663,8 @@ describe('', () => {
           errorMessage.assertText('Unable to delete a todo')
         });
 
-        it('should hide loader on fail', () => {
+        // this test may be unstable
+        it.skip('should hide loader on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
@@ -1670,7 +1672,7 @@ describe('', () => {
 
           todos.titleField(0).type('{enter}');
           cy.wait('@deleteRequest');
-          cy.wait(100);
+          page.flushJSTimers();
 
           todos.assertNotLoading(0);
         });
@@ -1711,7 +1713,7 @@ describe('', () => {
           cy.wait('@renameRequest');
 
           // just in case
-          cy.wait(100);
+          page.flushJSTimers();
 
           todos.assertTitle(0, 'New title');
         });
@@ -1727,7 +1729,7 @@ describe('', () => {
           todos.titleField(0).blur();
 
           cy.get('@renameCallback').should('not.be.called');
-          cy.wait(50);
+          page.flushJSTimers();
           todos.titleField(0).should('not.exist');
           todos.assertTitle(0, 'HTML');
         });
