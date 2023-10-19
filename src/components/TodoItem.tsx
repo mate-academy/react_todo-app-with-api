@@ -36,13 +36,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     const preparedTodoTitle = todoTitle.trim();
 
-    if (preparedTodoTitle) {
-      await handleRenameTodo(todo, preparedTodoTitle);
-    } else {
-      await handleDeleteTodo(id);
-    }
+    try {
+      if (preparedTodoTitle) {
+        await handleRenameTodo(todo, preparedTodoTitle);
+      } else {
+        await handleDeleteTodo(id);
+      }
 
-    setIsEditing(false);
+      setIsEditing(false);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
   const handleTodoTitleChange = (
@@ -53,6 +58,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleTodoDoubleClick = () => {
     setIsEditing(true);
+  };
+
+  const handlePressedKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setTodoTitle(title);
+    }
   };
 
   return (
@@ -66,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
-          onChange={() => handleStatusTodoChange(todo)}
+          onClick={() => handleStatusTodoChange(todo)}
         />
       </label>
 
@@ -85,6 +97,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               ref={titleInput}
               value={todoTitle}
               onChange={handleTodoTitleChange}
+              onKeyUp={handlePressedKey}
             />
           </form>
         ) : (

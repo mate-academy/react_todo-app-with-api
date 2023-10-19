@@ -108,8 +108,9 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
             : updatedTodo
         )));
       })
-      .catch(() => {
+      .catch((error) => {
         setErrorMessage('Unable to update a todo');
+        throw error;
       })
       .finally(() => {
         setTodosIdToProcess(

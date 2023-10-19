@@ -62,10 +62,16 @@ export const TodoForm: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isAdding) {
-      titleField.current?.focus();
+    if (titleField.current) {
+      titleField.current.focus();
     }
-  }, [isAdding]);
+  });
+
+  // useEffect(() => {
+  //   if (!isAdding) {
+  //     titleField.current?.focus();
+  //   }
+  // }, [isAdding]);
 
   return (
     <header className="todoapp__header">
