@@ -75,10 +75,10 @@ export const Footer: React.FC<Props> = ({
         data-cy="ClearCompletedButton"
         onClick={() => {
           handleRemoveCompletedTodos(todos.filter(
-            (t) => t.completed === true,
-          ).map((t) => t.id));
+            (todo) => todo.completed === true,
+          ).map((todo) => todo.id));
         }}
-        disabled={!todos.some((t) => t.completed === true)}
+        disabled={!todos.some((todo) => todo.completed)}
       >
         Clear completed
       </button>

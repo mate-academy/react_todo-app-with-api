@@ -20,7 +20,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [titl, setTitl] = useState('');
-  const count = todos.filter((t) => !t.completed).length;
+  const count = todos.filter((todo) => !todo.completed).length;
   const [
     selectTodoFilteredList,
     setSelectTodoFilteredList,
@@ -28,8 +28,6 @@ export const App: React.FC = () => {
 
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [checkedLoading, setCheckedLoading] = useState(false);
-  //const [checkedTRUEToogleAll, setCheckedTRUEToogleAll] = useState(false);
-  //const [checkedFALSEToogleAll, setCheckedFALSEToogleAll] = useState(false);
   const [toggle, setToggle] = useState('');
   const fieldTitle = useRef<HTMLInputElement | null>(null);
 
@@ -68,7 +66,7 @@ export const App: React.FC = () => {
   const deleteTodo = (todoId: number) => {
     return todosService.deleteTodo(todoId)
       .then(() => {
-        setTodos(currentTodos => currentTodos.filter((cT) => cT.id !== todoId));
+        setTodos(currentTodos => currentTodos.filter((currTodo) => currTodo.id !== todoId));
       })
       .catch((error) => {
         setTodos(todos);
@@ -86,7 +84,7 @@ export const App: React.FC = () => {
 
       return todosService.deleteTodo(id)
         .then(() => {
-          setTodos(currentTodos => currentTodos.filter((cT) => cT.id !== id));
+          setTodos(currentTodos => currentTodos.filter((currTodo) => currTodo.id !== id));
         })
         .catch((error) => {
           setCheckedLoading(false);
@@ -110,7 +108,7 @@ export const App: React.FC = () => {
       .then((tod) => {
         setTodos(currentTodos => {
           const copyTodos = [...currentTodos];
-          const index = copyTodos.findIndex((t) => t.id === upTodo.id);
+          const index = copyTodos.findIndex((todo) => todo.id === upTodo.id);
 
           copyTodos.splice(index, 1, tod);
 

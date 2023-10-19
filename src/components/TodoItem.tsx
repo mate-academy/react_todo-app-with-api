@@ -32,6 +32,7 @@ export const TodoItem: React.FC<Props> = ({
   || (todo.completed && toggle === StatusFilter.ACTIVE);
 
   const todoItemEditRef = useRef<HTMLInputElement | null>(null);
+  const { id, title, completed } = todo;
 
   useEffect(() => {
     if (switchEditTodo) {
@@ -60,7 +61,7 @@ export const TodoItem: React.FC<Props> = ({
   const handleUpdateTitle = (tod: Todo) => {
     if (!newTitle.trim()) {
       setCheckedLoading(true);
-      onDeleteTodo(tod.id)
+      onDeleteTodo(id)
         .then(() => setSwitchEditTodo(false))
         .catch(() => todoItemEditRef.current?.focus())
         .finally(() => setCheckedLoading(false));
@@ -79,13 +80,13 @@ export const TodoItem: React.FC<Props> = ({
   };
 
   const handlesCurrentTitle = () => {
-    setNewTitle(todo.title);
+    setNewTitle(title);
     setSwitchEditTodo(false);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      if (newTitle === todo.title) {
+      if (newTitle === title) {
         handlesCurrentTitle();
       } else {
         handlesForUpdateTitle();
@@ -95,11 +96,24 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  const handleOnBlur = () => {
+    if (newTitle === title) {
+      handlesCurrentTitle();
+    } else {
+      handlesForUpdateTitle();
+    }
+  };
+
+  const handleDoubleClick = () => {
+    setSwitchEditTodo(true);
+    setTodoId(id);
+  };
+
   return (
     <div
       data-cy="Todo"
-      className={todo.completed ? 'todo completed' : 'todo'}
-      key={todo.id}
+      className={completed ? 'todo completed' : 'todo'}
+      key={id}
     >
       <label className="todo__status-label">
         <input
@@ -108,9 +122,9 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           onChange={(e) => {
             handleChecked(todo, e);
-            setTodoId(todo.id);
+            setTodoId(id);
           }}
-          checked={todo.completed}
+          checked={completed}
         />
       </label>
 
@@ -125,13 +139,7 @@ export const TodoItem: React.FC<Props> = ({
             onChange={(e) => {
               setNewTitle(e.target.value);
             }}
-            onBlur={() => {
-              if (newTitle === todo.title) {
-                handlesCurrentTitle();
-              } else {
-                handlesForUpdateTitle();
-              }
-            }}
+            onBlur={handleOnBlur}
             onKeyUp={handleKeyUp}
             placeholder={!newTitle ? 'Empty todo will be deleted' : ''}
           />
@@ -140,12 +148,9 @@ export const TodoItem: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => {
-                setSwitchEditTodo(true);
-                setTodoId(todo.id);
-              }}
+              onDoubleClick={handleDoubleClick}
             >
-              {todo.title}
+              {title}
             </span>
 
             <button
@@ -153,8 +158,8 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__remove"
               data-cy="TodoDelete"
               onClick={() => {
-                handleDelete(todo.id);
-                setTodoId(todo.id);
+                handleDelete(id);
+                setTodoId(id);
               }}
             >
               ×
