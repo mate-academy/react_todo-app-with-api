@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import cn from 'classnames';
 import * as todoService from './api/todos';
 import { UserWarning } from './UserWarning';
@@ -20,8 +20,8 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<Message | ''>('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [titleTodo, setTitleTodo] = useState('');
-  const [deletedTodo, setDeletedTodo] = useState<number[] | null>(null);
-  const [changedTodo, setChangedTodo] = useState<number[] | null>(null);
+  const [deletedTodo, setDeletedTodo] = useState<number[]>([]);
+  const [changedTodo, setChangedTodo] = useState<number[]>([]);
 
   const filterTodos = (listTodos: Todo[], status: Status) => {
     switch (status) {
@@ -62,29 +62,27 @@ export const App: React.FC = () => {
       });
   };
 
-  const removeComplatedTodos = (todosId: number[] | null) => {
+  const removeCompletedTodos = (todosId: number[]) => {
     setIsLoading(true);
+    setDeletedTodo(todosId);
 
-    if (todosId) {
-      setDeletedTodo(todosId);
-      todosId.map(todoId => {
-        return todoService.deleteTodos(todoId)
-          .then(() => {
-            setTodos(currentTodos => (
-              currentTodos.filter(todo => todo.id !== todoId)
-            ));
-          })
-          .catch((error) => {
-            setDeletedTodo(null);
-            setErrorMessage(Message.NoDeleteTodo);
-            throw error;
-          })
-          .finally(() => {
-            setIsLoading(false);
-            setDeletedTodo(null);
-          });
-      });
-    }
+    todosId.map(todoId => {
+      return todoService.deleteTodos(todoId)
+        .then(() => {
+          setTodos(currentTodos => (
+            currentTodos.filter(todo => todo.id !== todoId)
+          ));
+        })
+        .catch((error) => {
+          setDeletedTodo([]);
+          setErrorMessage(Message.NoDeleteTodo);
+          throw error;
+        })
+        .finally(() => {
+          setDeletedTodo([]);
+          setIsLoading(false);
+        });
+    });
   };
 
   const updateTodoStatus = (updatedTodo: Todo) => {
@@ -104,56 +102,47 @@ export const App: React.FC = () => {
             : todo
         )));
       })
-
       .catch(() => setErrorMessage(Message.NoUpdateTodo))
       .finally(() => {
         setIsLoading(false);
-        setChangedTodo(null);
+        setChangedTodo([]);
       });
+  };
+
+  const updateTodo = async (todo: Todo) => {
+    try {
+      const newTodo = await todoService.updateTodo(todo);
+
+      return newTodo;
+    } catch (error) {
+      setErrorMessage(Message.NoUpdateTodo);
+
+      return todo;
+    }
   };
 
   const updateTodosAllStatus = (updatedTodos: Todo[]) => {
     setErrorMessage('');
     setIsLoading(true);
-    const changedTodoId: number[] = [];
+    const changedTodoIds = updatedTodos.map(todo => todo.id);
 
-    updatedTodos.forEach(updatedTodo => {
-      const similarTodo = todos.find(todo => todo.id === updatedTodo.id);
+    setChangedTodo(changedTodoIds);
 
-      if (similarTodo && similarTodo.completed !== updatedTodo.completed) {
-        changedTodoId.push(similarTodo.id);
-      }
-    });
-
-    setChangedTodo(changedTodoId);
-
-    const updatedTodoSirvice = updatedTodos.map(async (todo) => {
-      try {
-        const todoChange = await todoService.updateTodo(todo);
-
-        return todoChange;
-      } catch (error) {
-        setErrorMessage(Message.NoUpdateTodo);
-
-        return todo;
-      }
-    });
-
-    Promise.all(updatedTodoSirvice)
+    Promise.all(updatedTodos.map(updatedTodo => updateTodo(updatedTodo)))
       .then((gettedTodos) => {
-        const gettedTodosId = gettedTodos.map(t => t.id);
+        const gettedTodosId = gettedTodos.map(todo => todo.id);
 
-        setTodos(curT => curT.map(
-          item => (
-            gettedTodosId.includes(item.id)
-              ? { ...item, completed: gettedTodos[0].completed }
-              : item
+        setTodos(currentTodos => currentTodos.map(
+          todo => (
+            gettedTodosId.includes(todo.id)
+              ? { ...todo, completed: gettedTodos[0].completed }
+              : todo
           ),
         ));
       })
       .finally(() => {
         setIsLoading(false);
-        setChangedTodo(null);
+        setChangedTodo([]);
       });
   };
 
@@ -176,7 +165,7 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setChangedTodo(null);
+        setChangedTodo([]);
       });
   };
 
@@ -195,12 +184,14 @@ export const App: React.FC = () => {
         throw error;
       })
       .finally(() => {
-        setDeletedTodo(null);
+        setDeletedTodo([]);
       });
   };
 
-  const visivleTodo = filterTodos(todos, todosStatus);
-  const activeTodos = todos.filter(todo => !todo.completed);
+  const visibleTodos = useMemo(() => filterTodos(todos, todosStatus),
+    [todos, todosStatus]);
+  const activeTodos = useMemo(() => todos.filter(todo => !todo.completed),
+    [todos]);
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -230,8 +221,8 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <TodoList
-            todos={visivleTodo}
-            removeComplatedTodos={removeComplatedTodos}
+            todos={visibleTodos}
+            removeCompletedTodos={removeCompletedTodos}
             removeTodoTitle={removeTodoTitle}
             deletedTodo={deletedTodo}
             updateTodoStatus={updateTodoStatus}
@@ -275,9 +266,9 @@ export const App: React.FC = () => {
           <Footer
             todosStatus={todosStatus}
             setTodosStatus={setTodosStatus}
-            todos={visivleTodo}
+            todos={visibleTodos}
             activeTodos={activeTodos}
-            removeTodo={removeComplatedTodos}
+            removeTodo={removeCompletedTodos}
           />
         )}
       </div>

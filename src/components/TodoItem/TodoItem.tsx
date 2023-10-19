@@ -4,16 +4,16 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo,
-  removeComplatedTodos: (id: number[]) => void,
+  removeCompletedTodos: (id: number[]) => void,
   removeTodoTitle: (id: number) => Promise<void | null>,
-  deletedTodo?: number[] | null,
+  deletedTodo?: number[],
   updateTodoStatus: (t: Todo) => void,
-  changedTodo?: number[] | null,
+  changedTodo?: number[],
   updateTitleTodo: (t: Todo) => Promise<void | Todo>
 };
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: React.FC<Props> = React.memo(({
   todo,
-  removeComplatedTodos,
+  removeCompletedTodos,
   removeTodoTitle,
   deletedTodo,
   updateTodoStatus,
@@ -96,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({
               className="todo__remove"
               data-cy="TodoDelete"
               onClick={() => {
-                removeComplatedTodos([todo.id]);
+                removeCompletedTodos([todo.id]);
               }}
             >
               ×
@@ -121,7 +121,6 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          // 'is-active': todo.id === 0
           'is-active': deletedTodo?.includes(todo.id)
             || changedTodo?.includes(todo.id),
         })}
@@ -131,4 +130,4 @@ export const TodoItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});

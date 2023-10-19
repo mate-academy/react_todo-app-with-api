@@ -4,17 +4,17 @@ import { TodoItem } from '../TodoItem';
 
 type Props = {
   todos: Todo[],
-  removeComplatedTodos: (id: number[]) => void,
+  removeCompletedTodos: (id: number[]) => void,
   removeTodoTitle: (id: number) => Promise<void | null>,
-  deletedTodo?: number[] | null,
+  deletedTodo?: number[],
   updateTodoStatus: (t: Todo) => void,
   updateTitleTodo: (t: Todo) => Promise<void | Todo>
-  changedTodo: number[] | null,
+  changedTodo: number[],
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: React.FC<Props> = React.memo(({
   todos,
-  removeComplatedTodos,
+  removeCompletedTodos,
   deletedTodo,
   updateTodoStatus,
   changedTodo,
@@ -28,7 +28,7 @@ export const TodoList: React.FC<Props> = ({
           updateTitleTodo={updateTitleTodo}
           key={todo.id}
           todo={todo}
-          removeComplatedTodos={removeComplatedTodos}
+          removeCompletedTodos={removeCompletedTodos}
           deletedTodo={deletedTodo}
           updateTodoStatus={updateTodoStatus}
           changedTodo={changedTodo}
@@ -37,4 +37,4 @@ export const TodoList: React.FC<Props> = ({
       ))}
     </section>
   );
-};
+});

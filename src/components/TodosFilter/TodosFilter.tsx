@@ -7,7 +7,10 @@ type Props = {
   todosStatus: Status,
 };
 
-export const Filter: React.FC<Props> = ({ setTodosStatus, todosStatus }) => {
+export const Filter: React.FC<Props> = React.memo(({
+  setTodosStatus,
+  todosStatus,
+}) => {
   return (
     <nav className="filter" data-cy="Filter">
       <a
@@ -44,4 +47,4 @@ export const Filter: React.FC<Props> = ({ setTodosStatus, todosStatus }) => {
       </a>
     </nav>
   );
-};
+});

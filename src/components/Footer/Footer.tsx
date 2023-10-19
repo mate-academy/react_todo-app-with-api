@@ -11,7 +11,7 @@ type Props = {
   removeTodo: (id: number[]) => void
 };
 
-export const Footer: React.FC<Props> = ({
+export const Footer: React.FC<Props> = React.memo(({
   todosStatus,
   setTodosStatus,
   todos,
@@ -38,4 +38,4 @@ export const Footer: React.FC<Props> = ({
       </button>
     </footer>
   );
-};
+});

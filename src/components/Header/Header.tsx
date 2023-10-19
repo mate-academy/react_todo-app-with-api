@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Message } from '../../types/Message';
 import { USER_ID } from '../../utils/fetchClient';
@@ -17,7 +17,7 @@ type Props = {
 
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: React.FC<Props> = React.memo(({
   titleTodo,
   setTitleTodo,
   setErrorMessage,
@@ -96,4 +96,4 @@ export const Header: React.FC<Props> = ({
       </form>
     </header>
   );
-};
+});

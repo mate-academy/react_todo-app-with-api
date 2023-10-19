@@ -7,7 +7,7 @@ type Props = {
   setErrorMessage: (m: Message | '') => void,
 };
 
-export const ErrorNotification: React.FC<Props> = ({
+export const ErrorNotification: React.FC<Props> = React.memo(({
   errorMessage,
   setErrorMessage,
 }) => {
@@ -32,4 +32,4 @@ export const ErrorNotification: React.FC<Props> = ({
       {errorMessage}
     </div>
   );
-};
+});
