@@ -7,7 +7,7 @@ type Props = {
   handleComplete: (id: number, completed: boolean) => void,
   handleDelete: (id: number) => void,
   isUpdatingId: number[],
-  isEditing: number,
+  isEditing: number | null,
   handleEdit: (id: number, title: string) => void,
   query: string,
   setQuery: (title: string) => void

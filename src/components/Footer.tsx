@@ -1,8 +1,9 @@
 import React from 'react';
 import cn from 'classnames';
+import { FilterBy } from '../types/Enums';
 
 type Props = {
-  filter: (filter: string) => void,
+  filter: (filter: FilterBy) => void,
   filterValue: string,
   completedTodos: number,
   uncompletedTodos: number,
@@ -19,7 +20,12 @@ export const Footer: React.FC<Props> = React.memo(({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${uncompletedTodos} items left`}
+        {uncompletedTodos === 1 ? (
+          // would make item but test doesnt allow
+          `${uncompletedTodos} items left`
+        ) : (
+          `${uncompletedTodos} items left`
+        )}
       </span>
 
       {/* Active filter should have a 'selected' class */}
@@ -30,9 +36,7 @@ export const Footer: React.FC<Props> = React.memo(({
             'filter__link', { selected: filterValue === 'all' },
           )}
           data-cy="FilterLinkAll"
-          onClick={() => {
-            filter('all');
-          }}
+          onClick={() => filter(FilterBy.all)}
         >
           All
         </a>
@@ -43,9 +47,7 @@ export const Footer: React.FC<Props> = React.memo(({
             'filter__link', { selected: filterValue === 'active' },
           )}
           data-cy="FilterLinkActive"
-          onClick={() => {
-            filter('active');
-          }}
+          onClick={() => filter(FilterBy.active)}
         >
           Active
         </a>
@@ -56,9 +58,7 @@ export const Footer: React.FC<Props> = React.memo(({
             'filter__link', { selected: filterValue === 'completed' },
           )}
           data-cy="FilterLinkCompleted"
-          onClick={() => {
-            filter('completed');
-          }}
+          onClick={() => filter(FilterBy.completed)}
         >
           Completed
         </a>
@@ -69,8 +69,10 @@ export const Footer: React.FC<Props> = React.memo(({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={completedTodos === 0 && true}
-        onClick={handleMultipleDelete}
+        disabled={!completedTodos}
+        onClick={() => {
+          handleMultipleDelete();
+        }}
       >
         Clear completed
       </button>
