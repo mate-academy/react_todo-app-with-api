@@ -54,7 +54,7 @@ export const TodoForm: React.FC = () => {
         setTitle('');
       })
       .catch(() => {
-
+        setErrorMessage('Unable to add todo');
       })
       .finally(() => {
         setIsAdding(false);
@@ -67,16 +67,8 @@ export const TodoForm: React.FC = () => {
     }
   });
 
-  // useEffect(() => {
-  //   if (!isAdding) {
-  //     titleField.current?.focus();
-  //   }
-  // }, [isAdding]);
-
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-
       {isTodosToShow && (
         <button
           type="button"
@@ -87,7 +79,6 @@ export const TodoForm: React.FC = () => {
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={handleSubmit}
       >

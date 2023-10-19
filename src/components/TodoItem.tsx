@@ -20,7 +20,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { completed, title, id } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(title);
-  // const [isCompleted, setIsCompleted] = useState(completed);
   const isProcessing = todosIdToProcess.includes(id) || id === 0;
 
   const titleInput = useRef<HTMLInputElement | null>(null);
@@ -82,7 +81,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {/* This form is shown instead of the title and remove button */}
       {isEditing
         ? (
           <form
@@ -110,7 +108,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               {title}
             </span>
 
-            {/* Remove button appears only on hover */}
             <button
               type="button"
               className="todo__remove"
@@ -122,8 +119,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
-      {/* 'is-active' class puts this modal on top of the todo */}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {

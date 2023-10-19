@@ -3,31 +3,26 @@ import cn from 'classnames';
 import { TodosFilter } from '../types/TodosFilter';
 import { TodoContext } from '../Context/TodoContext';
 
-const setFilterHref = (filter: TodosFilter) => {
+const setFilterDataCyAndHref = (filter: TodosFilter) => {
   switch (filter) {
     case TodosFilter.Active:
-      return '#/active';
+      return {
+        href: '#/active',
+        dataCy: 'FilterLinkActive',
+      };
 
     case TodosFilter.Completed:
-      return '#/completed';
+      return {
+        href: '#/completed',
+        dataCy: 'FilterLinkCompleted',
+      };
 
     case TodosFilter.All:
     default:
-      return '#/';
-  }
-};
-
-const setFilterDataCy = (filter: TodosFilter) => {
-  switch (filter) {
-    case TodosFilter.Active:
-      return 'FilterLinkActive';
-
-    case TodosFilter.Completed:
-      return 'FilterLinkCompleted';
-
-    case TodosFilter.All:
-    default:
-      return 'FilterLinkAll';
+      return {
+        href: '#/',
+        dataCy: 'FilterLinkAll',
+      };
   }
 };
 
@@ -51,29 +46,30 @@ export const TodoFilter: React.FC<Props> = ({
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
-      {/* Hide the footer if there are no todos */}
       <span className="todo-count" data-cy="TodosCounter">
         {`${uncompletedTodosAmount} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        {Object.values(TodosFilter).map((value) => (
-          <a
-            href={setFilterHref(value)}
-            className={cn('filter__link', { selected: value === filter })}
-            data-cy={setFilterDataCy(value)}
-            key={value}
-            onClick={() => {
-              onFilterChange(value as TodosFilter);
-            }}
-          >
-            {value}
-          </a>
-        ))}
+        {Object.values(TodosFilter).map((value) => {
+          const filterData = setFilterDataCyAndHref(value);
+
+          return (
+            <a
+              href={filterData.href}
+              className={cn('filter__link', { selected: value === filter })}
+              data-cy={filterData.dataCy}
+              key={value}
+              onClick={() => {
+                onFilterChange(value as TodosFilter);
+              }}
+            >
+              {value}
+            </a>
+          );
+        })}
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className={cn(
