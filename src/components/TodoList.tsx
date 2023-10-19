@@ -1,6 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import { Todo } from '../types/Todo';
+import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[],
@@ -12,6 +13,7 @@ type Props = {
   query: string,
   setQuery: (title: string) => void
   handleEditSubmit: (query: string, id: number) => void,
+  tempTodo: Todo | null,
 };
 
 export const TodoList: React.FC<Props> = React.memo(({
@@ -24,6 +26,7 @@ export const TodoList: React.FC<Props> = React.memo(({
   query,
   setQuery,
   handleEditSubmit,
+  tempTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -120,6 +123,9 @@ export const TodoList: React.FC<Props> = React.memo(({
           </div>
         );
       })}
+      {tempTodo && (
+        <TodoItem tempTodos={tempTodo} />
+      )}
     </section>
   );
 });

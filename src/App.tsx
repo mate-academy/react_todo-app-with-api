@@ -11,7 +11,6 @@ import {
 } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList';
-import { TodoItem } from './components/TodoItem';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { Error } from './components/Error';
@@ -325,10 +324,8 @@ export const App: React.FC = () => {
             query={editQuery}
             setQuery={setEditQuery}
             handleEditSubmit={handleEditSubmit}
+            tempTodo={tempTodo}
           />
-        )}
-        {tempTodo && (
-          <TodoItem tempTodos={tempTodo} />
         )}
 
         {/* Hide the footer if there are no todos */}
