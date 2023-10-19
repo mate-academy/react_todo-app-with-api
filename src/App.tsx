@@ -1,24 +1,68 @@
-/* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { UserWarning } from './UserWarning';
-
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import { TodoList } from './components/TodoList';
+import { Filters } from './types/Filters';
+import { Footer } from './components/Footer';
+import { ErrorMessage } from './components/ErrorMessage';
+import { Header } from './components/Header';
+import { TodoContext } from './utils/TodoContext';
 
 export const App: React.FC = () => {
+  const [filterTodos, setFilterTodos] = useState<Filters>('All');
+
+  const {
+    todos,
+    USER_ID,
+    isVisibleErrorMessage,
+  } = useContext(TodoContext);
+
+  const handleFilterTodos
+  = (todosArray: Todo[], option: Filters): Todo[] => {
+    return todosArray.filter((todo) => {
+      if (option === 'Active') {
+        return !todo.completed;
+      }
+
+      if (option === 'Completed') {
+        return todo.completed;
+      }
+
+      return true;
+    });
+  };
+
+  const MadeTodoList = () => {
+    return handleFilterTodos(todos, filterTodos);
+  };
+
   if (!USER_ID) {
     return <UserWarning />;
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
+
+      <div className="todoapp__content">
+        <Header />
+
+        <TodoList
+          todos={MadeTodoList()}
+        />
+
+        {todos.length !== 0 && (
+          <Footer
+            filterTodos={filterTodos}
+            setFilterTodos={setFilterTodos}
+          />
+        )}
+      </div>
+
+      {isVisibleErrorMessage && <ErrorMessage />}
+    </div>
+
   );
 };
