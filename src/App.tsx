@@ -26,15 +26,19 @@ export const App: React.FC = () => {
   const [currentTodoLoading, setCurrentTodoLoading] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredTodos = useMemo(() => [...todos].filter(({ completed }) => {
+  const filteredTodos = useMemo(() => {
     if (status === StatusFilter.ALL) {
-      return true;
+      return todos;
     }
 
-    return (status === StatusFilter.ACTIVE)
-      ? !completed
-      : completed;
-  }), [todos, status]);
+    return todos.filter(({ completed }) => {
+      if (status === StatusFilter.ACTIVE) {
+        return !completed;
+      }
+
+      return completed;
+    });
+  }, [todos, status]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -128,7 +132,7 @@ export const App: React.FC = () => {
     }
 
     const newTodos = {
-      id: todos.length + 1,
+      id: 0,
       userId: USER_ID,
       title: textTodo.trim(),
       completed: false,
@@ -196,9 +200,9 @@ export const App: React.FC = () => {
       const actualTodo = await
       postService.updateTodo(todo);
 
-      setTodos((prev) => prev.map((e) => (todo.id === e.id
+      setTodos((prev) => prev.map((event) => (todo.id === event.id
         ? actualTodo as Todo
-        : e
+        : event
       )));
     } catch (err) {
       setError(ErrorType.UnableToUpdateTodo);
@@ -208,6 +212,9 @@ export const App: React.FC = () => {
       ) => id !== todo.id));
     }
   };
+
+  const isAllCompleted = todos.length > 0
+  && todos.every((todo) => todo.completed);
 
   return (
     <div className="todoapp">
@@ -219,8 +226,7 @@ export const App: React.FC = () => {
             // eslint-disable-next-line jsx-a11y/control-has-associated-label
             <button
               type="button"
-              className={`todoapp__toggle-all ${todos.length > 0 && todos.every((todo) => todo.completed)
-                ? '' : 'active'}`}
+              className={`todoapp__toggle-all ${isAllCompleted ? '' : 'active'}`}
               data-cy="ToggleAllButton"
               aria-label="toggle all active"
               onClick={toggleAll}
