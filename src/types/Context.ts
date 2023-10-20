@@ -10,7 +10,7 @@ export type Context = {
   deleteTodo: (todoId: number) => void,
   setError: (error: ErrorMessage) => void,
   errorMessage: ErrorMessage,
-  updateTodo: (todo: Todo) => void,
+  updateTodo: (todo: Todo) => Promise<Todo | void>,
   toggleAll: () => void,
   toggleTodo: (todo: Todo) => void,
   clearCompleted: () => void,

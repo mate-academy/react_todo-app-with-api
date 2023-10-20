@@ -145,8 +145,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
             ? updatedTodo
             : todo)));
       })
-      .catch(() => {
+      .catch((error) => {
         setError(ErrorMessage.update);
+        throw error;
       })
       .finally(() => {
         setIsUpdating(current => current.filter(id => id !== updatedTodo.id));

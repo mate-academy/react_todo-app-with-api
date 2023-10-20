@@ -21,7 +21,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const { id, title, completed } = todo;
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
+  const [editTitle, setEditTitle] = useState(title);
 
   const inputField = useRef<HTMLInputElement>(null);
 
@@ -44,17 +44,21 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   function handleEdit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const trimmedTitle = title.trim();
+    const trimmedTitle = editTitle.trim();
 
     if (trimmedTitle === title) {
       handleEditCancel();
-
-      return;
-    }
-
-    if (trimmedTitle) {
-      updateTodo({ ...todo, title: trimmedTitle });
-      handleEditCancel();
+    } else if (trimmedTitle) {
+      updateTodo({
+        ...todo,
+        title: trimmedTitle,
+      })
+        .then(() => {
+          handleEditCancel();
+        })
+        .catch(() => {});
+    } else {
+      deleteTodo(id);
     }
   }
 
