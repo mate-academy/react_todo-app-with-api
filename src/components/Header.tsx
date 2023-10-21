@@ -24,7 +24,7 @@ export const Header: React.FC<Props> = React.memo(({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [inputRef, pageIsLoaded]);
+  }, [inputRef, pageIsLoaded, uncompletedTodos, todosLength]);
 
   return (
     <header className="todoapp__header">
@@ -48,6 +48,8 @@ export const Header: React.FC<Props> = React.memo(({
       >
         <input
           ref={inputRef}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          // autoFocus
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"
