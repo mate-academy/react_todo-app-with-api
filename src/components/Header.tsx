@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 
 type Props = {
@@ -9,7 +9,6 @@ type Props = {
   uncompletedTodos: number,
   toggleAll: () => void,
   pageIsLoaded: boolean,
-  inputRef: any,
 };
 
 export const Header: React.FC<Props> = React.memo(({
@@ -20,8 +19,13 @@ export const Header: React.FC<Props> = React.memo(({
   uncompletedTodos,
   toggleAll,
   pageIsLoaded,
-  inputRef,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [inputRef, pageIsLoaded]);
+
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}

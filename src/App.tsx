@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { UserWarning } from './UserWarning';
@@ -30,8 +30,6 @@ export const App: React.FC = () => {
   const [editQuery, setEditQuery] = useState('');
   const [editQueryPrev, setEditQueryPrev] = useState('');
 
-  const inputRef = useRef<HTMLBodyElement>(null);
-
   const handleErrorSet = (errMessage: string) => {
     setErrorWarning(errMessage);
     setTimeout(() => {
@@ -43,7 +41,7 @@ export const App: React.FC = () => {
     setErrorWarning('');
   };
 
-  const loadTodos = async () => {
+  const loadTodos = useCallback(async () => {
     try {
       const loadedTodos = await getTodos(USER_ID);
 
@@ -52,15 +50,11 @@ export const App: React.FC = () => {
     } catch {
       handleErrorSet(ErrMessage.loadTodo);
     }
-  };
-
-  useEffect(() => {
-    loadTodos();
   }, []);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [inputRef, pageIsLoaded, todos]);
+    loadTodos();
+  }, [loadTodos]);
 
   const visibleTodos = (filterBy: FilterBy) => {
     if (todos) {
@@ -90,21 +84,22 @@ export const App: React.FC = () => {
       return;
     }
 
-    const newTodo = {
-      id: todos.length + 10 || 10,
-      userId: USER_ID,
-      title: query.trim(),
-      completed: false,
-    };
-
-    setTempTodo({ ...newTodo, id: 0 });
-
     try {
+      const newTodo = {
+        userId: USER_ID,
+        title: query.trim(),
+        completed: false,
+      };
+
+      setTempTodo({ ...newTodo, id: 0 });
       setPageIsLoaded(false);
-      await addTodo('/todos', newTodo);
-      setTodos((state) => {
-        return [...state, newTodo];
+
+      const newTodos = await addTodo('/todos', newTodo);
+
+      setTodos(state => {
+        return [...state, newTodos as Todo];
       });
+
       setTempTodo(null);
       setPageIsLoaded(true);
       setQuery('');
@@ -158,7 +153,11 @@ export const App: React.FC = () => {
             // eslint-disable-next-line no-param-reassign
             todo.completed = false;
             setIsUpdatingId([]);
-          } else if (!todo.completed) {
+
+            return [...stateMain];
+          }
+
+          if (!todo.completed) {
             setIsUpdatingId(state => (
               [...state, todo.id]
             ));
@@ -166,19 +165,23 @@ export const App: React.FC = () => {
             // eslint-disable-next-line no-param-reassign
             todo.completed = true;
             setIsUpdatingId([]);
+
+            return [...stateMain];
           }
 
           return [...stateMain];
         } catch {
           handleErrorSet(ErrMessage.updateTodo);
           setIsUpdatingId([]);
-
-          return [...stateMain];
         }
+
+        return [...stateMain];
       });
 
       return [...stateMain];
     });
+
+    setTodos(state => [...state]);
   };
 
   const handleDelete = async (id?: number) => {
@@ -288,10 +291,12 @@ export const App: React.FC = () => {
 
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed).length;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todos, isUpdatingId]);
 
   const uncompletedTodos = useMemo(() => {
     return todos.filter(todo => !todo.completed).length;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todos, isUpdatingId]);
 
   if (!USER_ID) {
@@ -311,7 +316,6 @@ export const App: React.FC = () => {
           uncompletedTodos={uncompletedTodos}
           toggleAll={toggleAll}
           pageIsLoaded={pageIsLoaded}
-          inputRef={inputRef}
         />
         {todos && (
           <TodoList
