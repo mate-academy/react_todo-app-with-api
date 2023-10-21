@@ -19,7 +19,7 @@ const USER_ID = 11636;
 export const App: React.FC = () => {
   const [textTodo, setTextTodo] = useState('');
   const [status, setStatus] = useState<StatusFilter>(StatusFilter.ALL);
-  const [todos, setTodos] = useState<Todo[] | []>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<ErrorType | null>(null);
   const [statusResponse, setStatusResponse] = useState(false);
   const [todoItem, setTodoItem] = useState<Todo | null>(null);
@@ -32,11 +32,9 @@ export const App: React.FC = () => {
     }
 
     return todos.filter(({ completed }) => {
-      if (status === StatusFilter.ACTIVE) {
-        return !completed;
-      }
+      const isCompleted = status === StatusFilter.ACTIVE;
 
-      return completed;
+      return completed === isCompleted;
     });
   }, [todos, status]);
 
@@ -51,9 +49,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     setStatusResponse(true);
     postService.getTodos(USER_ID)
-      .then(todo => {
-        setTodos(todo);
-      })
+      .then(setTodos)
       .catch(() => {
         setError(ErrorType.UnableToLoadTodos);
       }).finally(() => {
@@ -161,37 +157,22 @@ export const App: React.FC = () => {
 
   const completedTodo = todos.filter(todo => !todo.completed);
 
-  const toggleAll = async () => {
-    setStatusResponse(true);
+  const toggleAll = () => {
+    const areAllCompleted = todos.every(todo => todo.completed);
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !areAllCompleted,
+    }));
 
-    try {
-      const allCompleted = todos.every((todo) => todo.completed);
-
-      const todosToUpdate = todos.filter((todo) => !todo.completed);
-
-      const updatedTodos = todosToUpdate.map((todo) => ({
-        ...todo,
-        completed: !allCompleted,
-      }));
-
-      await Promise.all(
-        updatedTodos.map(async (todo) => {
-          await postService.updateTodo(todo);
-        }),
-      );
-
-      const newTodos = todos.map((todo) => {
-        const updatedTodo = updatedTodos.find(
-          (updated) => updated.id === todo.id,
-        );
-
-        return updatedTodo || todo;
+    Promise.all(updatedTodos.map(todo => postService.updateTodo(todo)))
+      .then(() => {
+        setTodos(updatedTodos);
+      })
+      .catch(() => {
+        setError(ErrorType.UnableToUpdateTodo);
+      })
+      .finally(() => {
       });
-
-      setTodos(newTodos);
-    } finally {
-      setStatusResponse(false);
-    }
   };
 
   const handleEdit = async (todo: Todo) => {
@@ -213,20 +194,20 @@ export const App: React.FC = () => {
     }
   };
 
-  const isAllCompleted = todos.length > 0
-  && todos.every((todo) => todo.completed);
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length && (
-            // eslint-disable-next-line jsx-a11y/control-has-associated-label
+          {todos.length > 0 && (
             <button
               type="button"
-              className={`todoapp__toggle-all ${isAllCompleted ? '' : 'active'}`}
+              className={classNames(
+                'todoapp__toggle-all', {
+                  active: todos.every(todo => todo.completed),
+                },
+              )}
               data-cy="ToggleAllButton"
               aria-label="toggle all active"
               onClick={toggleAll}
@@ -235,7 +216,6 @@ export const App: React.FC = () => {
 
           <form onSubmit={addTodo}>
             <input
-              disabled={statusResponse}
               data-cy="NewTodoField"
               type="text"
               className="todoapp__new-todo"
@@ -244,7 +224,10 @@ export const App: React.FC = () => {
               onChange={(event) => {
                 setTextTodo(event.target.value);
               }}
+              disabled={statusResponse}
               ref={inputRef}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
             />
           </form>
         </header>
