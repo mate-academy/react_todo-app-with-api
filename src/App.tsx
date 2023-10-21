@@ -13,6 +13,7 @@ import { Header } from './components/Header';
 import * as todoService from './api/todos';
 import { Main } from './components/Main';
 import { ErrorNotification } from './components/ErrorNotification';
+import { getFilteredTodos } from './helper/filterTodos';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -44,20 +45,13 @@ export const App: React.FC = () => {
     }, 3000);
   }, [todosError]);
 
-  const isOneTodoCompleted = useMemo(() => todos
-    .some(({ completed }) => completed), [todos]);
+  const isOneTodoCompleted = useMemo(() => (
+    todos.some(({ completed }) => completed)
+  ), [todos]);
 
-  const filterTodos = useMemo(() => todos
-    .filter(({ completed }) => {
-      switch (filtredTodos) {
-        case FilterTodos.Active:
-          return !completed;
-        case FilterTodos.Completed:
-          return completed;
-        default:
-          return true;
-      }
-    }), [todos, filtredTodos]);
+  const filterTodos = useMemo(
+    () => getFilteredTodos(todos, filtredTodos), [filtredTodos, todos],
+  );
 
   const handleAddTodo = async (todoTitle: string) => {
     setTempTodo({
@@ -68,14 +62,17 @@ export const App: React.FC = () => {
     });
 
     try {
-      try {
-        const newTitle = await todoService
-          .addTodo(todoTitle);
+      const isDuplicate = todos.some((todo) => todo.title === todoTitle);
+
+      if (isDuplicate) {
+        setTodosError('Todo with this title already exists');
+      } else {
+        const newTitle = await todoService.addTodo(todoTitle);
 
         setTodos((prevTodo) => [...prevTodo, newTitle]);
-      } catch {
-        setTodosError('Unable to add a todo');
       }
+    } catch {
+      setTodosError('Unable to add a todo');
     } finally {
       setTempTodo(null);
     }
@@ -184,6 +181,7 @@ export const App: React.FC = () => {
           onAddTodoError={setTodosError}
           onToggle={handleToggleAll}
           isOneTodoCompleted={isOneTodoCompleted}
+          todos={filterTodos}
         />
 
         <List
@@ -220,7 +218,6 @@ export const App: React.FC = () => {
             onAddTodoError={setTodosError}
           />
         )}
-
       </div>
     </div>
   );

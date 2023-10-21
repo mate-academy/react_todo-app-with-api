@@ -22,6 +22,7 @@ export const Main: React.FC<Props> = ({
   const { id, title, completed } = todo || tempTodo;
   const [isEditing, setIsEditing] = useState(false);
   const [todoTitle, setTodoTitle] = useState(todo.title);
+  const [isItemLoading, setIsItemLoading] = useState(todo.id === 0);
 
   const handleDubleClick = () => {
     setIsEditing(true);
@@ -30,13 +31,24 @@ export const Main: React.FC<Props> = ({
   const handleTodoSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (todoTitle) {
-      await onTodoRename(todoTitle);
+    setIsItemLoading(true);
+    const titleOfTodo = todoTitle.trim();
+
+    if (titleOfTodo === title) {
+      setIsEditing(false);
+      setIsItemLoading(false);
+
+      return;
+    }
+
+    if (titleOfTodo) {
+      await onTodoRename(titleOfTodo);
     } else {
       await onTodoDelete(id);
     }
 
     setIsEditing(false);
+    setIsItemLoading(false);
   };
 
   const handleTodoTitleChange = (
@@ -59,6 +71,9 @@ export const Main: React.FC<Props> = ({
       titleInput.current.focus();
     }
   }, [isEditing]);
+
+  const isLoaderActive = (isProcessing.includes(todo.id))
+  || isItemLoading;
 
   return (
     <div
@@ -113,14 +128,12 @@ export const Main: React.FC<Props> = ({
             ×
           </button>
         </>
-
       )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': isProcessing.includes(todo.id),
+          'is-active': isLoaderActive,
         })}
       >
         <div className="modal-background has-background-white-ter" />

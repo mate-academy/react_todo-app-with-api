@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
+import { Todo } from '../types/Todo';
 
 type Props = {
+  todos: Todo[];
   activeTodosCount: number;
   onTodoAdd: (todoTitle: string) => Promise<void>;
   onAddTodoError: (errorMessage: string) => void;
@@ -16,6 +18,7 @@ export const Header: React.FC<Props> = ({
   onTodoAdd,
   onAddTodoError,
   onToggle,
+  todos,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -55,8 +58,7 @@ export const Header: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
-      {activeTodosCount > 0 && (
+      {!!todos && (
         <button
           type="button"
           className={classNames('todoapp__toggle-all',
@@ -66,7 +68,6 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      {/* Add a todo on form submit */}
       <form
         onSubmit={onFormSubmit}
       >
