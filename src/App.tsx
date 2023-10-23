@@ -41,24 +41,15 @@ export const App: React.FC = () => {
   }, []);
 
   const filteredTodos: Todo[] = useMemo(() => {
-    let preparedTodos = [...todos];
-
-    if (filter !== Filter.ALL) {
-      preparedTodos = preparedTodos.filter(todo => {
-        switch (filter) {
-          case Filter.ACTIVE:
-            return !todo.completed;
-
-          case Filter.COMPLETED:
-            return todo.completed;
-
-          default:
-            return true;
-        }
-      });
+    if (filter === Filter.ACTIVE) {
+      return todos.filter(todo => !todo.completed);
     }
 
-    return preparedTodos;
+    if (filter === Filter.COMPLETED) {
+      return todos.filter(todo => todo.completed);
+    }
+
+    return todos;
   }, [filter, todos]);
 
   useEffect(() => {
@@ -66,7 +57,7 @@ export const App: React.FC = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [statusResponse, activeTodoId]);
+  }, [statusResponse, isLoading]);
 
   const todoCount = todos.filter((todo: Todo) => !todo.completed).length;
 
@@ -132,15 +123,10 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
         setActiveTodoId(null);
-
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
       });
   };
 
   const toggleTodo = (todo: Todo) => {
-    setIsLoading(true);
     setActiveTodoId(todo.id);
 
     todosServices.updateTodos({
@@ -158,27 +144,28 @@ export const App: React.FC = () => {
       })
       .catch(() => setError('Unable to update a todo'))
       .finally(() => {
-        setIsLoading(false);
         setActiveTodoId(null);
       });
   };
 
   function toggleAll() {
-    const allComplated = filteredTodos.every(todo => todo.completed);
+    if (filter === Filter.ALL) {
+      const allComplated = filteredTodos.every(todo => todo.completed);
 
-    const updatedTodos = filteredTodos.map(todo => ({
-      ...todo,
-      completed: !allComplated,
-    }));
-
-    setTodos(updatedTodos);
-
-    filteredTodos.forEach(todo => {
-      todosServices.updateTodos({
+      const updatedTodos = filteredTodos.map(todo => ({
         ...todo,
         completed: !allComplated,
+      }));
+
+      setTodos(updatedTodos);
+
+      filteredTodos.forEach(todo => {
+        todosServices.updateTodos({
+          ...todo,
+          completed: !allComplated,
+        });
       });
-    });
+    }
   }
 
   function clearCompleted() {
@@ -190,14 +177,101 @@ export const App: React.FC = () => {
   }
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <header className="todoapp__header">
+          {/* this buttons is active only if there are some active todos */}
+          {!!todos.length && (
+            <button
+              type="button"
+              className={classNames(
+                'todoapp__toggle-all',
+                { active: !todoCount },
+              )}
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
+
+          {/* Add a todo on form submit */}
+          <form onSubmit={addTodo}>
+            <input
+              data-cy="NewTodoField"
+              type="text"
+              className="todoapp__new-todo"
+              placeholder="What needs to be done?"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              ref={inputRef}
+              disabled={isLoading}
+            />
+          </form>
+        </header>
+
+        <TodoList
+          todos={filteredTodos}
+          deleteTodo={deleteTodo}
+          toggleTodo={toggleTodo}
+          activeTodoId={activeTodoId}
+        />
+
+        {tempTodo && (
+          <TodoItem
+            todo={tempTodo}
+            deleteTodo={deleteTodo}
+            toggleTodo={toggleTodo}
+            activeTodoId={activeTodoId}
+          />
+        )}
+
+        {/* Hide the footer if there are no todos */}
+
+        {todos.length > 0 && (
+          <footer className="todoapp__footer" data-cy="Footer">
+            <span className="todo-count" data-cy="TodosCounter">
+              {`${activeTodos} items left`}
+            </span>
+
+            {/* Active filter should have a 'selected' class */}
+            <TodoFilter
+              filter={filter}
+              setFilter={setFilter}
+            />
+
+            {/* don't show this button if there are no completed todos */}
+            <button
+              type="button"
+              className="todoapp__clear-completed"
+              data-cy="ClearCompletedButton"
+              onClick={clearCompleted}
+              disabled={todoCount === todos.length}
+            >
+              Clear completed
+            </button>
+          </footer>
+        )}
+      </div>
+
+      {/* Notification is shown in case of any error */}
+      {/* Add the 'hidden' class to hide the message smoothly */}
+      <div
+        data-cy="ErrorNotification"
+        className={classNames(
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !errorMessage },
+        )}
+      >
+        <button
+          data-cy="HideErrorButton"
+          type="button"
+          className="delete"
+          onClick={() => setErrorMessage('')}
+        />
+        {/* show only one message at a time */}
+        {errorMessage}
+      </div>
+    </div>
   );
 };
