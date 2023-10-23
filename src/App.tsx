@@ -26,7 +26,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
@@ -39,7 +39,7 @@ export const App: React.FC = () => {
 
           <NewTodo />
         </header>
-        {todos.length > 0 && (
+        {!!todos.length && (
           <>
             <TodoList />
 
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
               <TodoItem todo={tempTodo} />
             )}
 
-            {todos.length > 0 && (
+            {!!todos.length && (
               <footer className="todoapp__footer" data-cy="Footer">
                 <span className="todo-count" data-cy="TodosCounter">
                   {`${activeTodos} items left`}
