@@ -31,6 +31,18 @@ export const TodoItem: React.FC<Props> = React.memo(({
     }
   }, [isEditing]);
 
+  function handleTitleBlur() {
+    onUpdateTitle(todo, preparedTitle);
+    setIsEditing(false);
+  }
+
+  function handleKeyUp(key: string) {
+    if (key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(title);
+    }
+  }
+
   return (
     <div
       data-cy="Todo"
@@ -54,8 +66,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         <form onSubmit={(e) => {
           e.preventDefault();
 
-          onUpdateTitle(todo, preparedTitle);
-          setIsEditing(false);
+          handleTitleBlur();
         }}
         >
           <input
@@ -67,16 +78,8 @@ export const TodoItem: React.FC<Props> = React.memo(({
               setNewTitle(target.value);
             }}
             ref={titleInputRef}
-            onBlur={() => {
-              onUpdateTitle(todo, preparedTitle);
-              setIsEditing(false);
-            }}
-            onKeyUp={({ key }) => {
-              if (key === 'Escape') {
-                setIsEditing(false);
-                setNewTitle(title);
-              }
-            }}
+            onBlur={() => handleTitleBlur()}
+            onKeyUp={({ key }) => handleKeyUp(key)}
           />
         </form>
       ) : (

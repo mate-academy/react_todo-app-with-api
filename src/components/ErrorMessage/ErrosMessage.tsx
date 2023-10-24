@@ -21,7 +21,7 @@ export const ErrorMessage: React.FC<Props> = React.memo(({
     return () => {
       clearTimeout(timeoutID);
     };
-  }, [hasError]);
+  }, [hasError, setHasError]);
 
   return (
     <div className={cn(

@@ -152,6 +152,9 @@ export const App: React.FC = () => {
 
           newTodoIds.splice(index, 1);
 
+          // eslint-disable-next-line no-console
+          console.log(newTodoIds, '2', index);
+
           return newTodoIds;
         });
       });
@@ -193,6 +196,8 @@ export const App: React.FC = () => {
 
   const handleToggleAllStatus = () => {
     if (activeTodos.length) {
+      // eslint-disable-next-line no-console
+      console.log(activeTodos.length);
       activeTodos.forEach(todo => {
         handleToggleStatus(todo);
       });
