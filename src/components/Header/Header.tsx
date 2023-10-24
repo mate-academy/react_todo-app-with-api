@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 
 export const Header: React.FC = () => {
@@ -8,6 +9,8 @@ export const Header: React.FC = () => {
     statusResponse,
     setTitle,
     addTodo,
+    activeTodos,
+    handleToggleAll,
   } = React.useContext(TodosContext);
 
   const inputField = useRef<HTMLInputElement>(null);
@@ -21,13 +24,16 @@ export const Header: React.FC = () => {
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      {todos.length > 0 && (
+      {!!todos.length && (
         <button
           type="button"
-          className="todoapp__toggle-all active"
+          className={classNames('todoapp__toggle-all', {
+            active: !activeTodos,
+          })}
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
           disabled={statusResponse}
+          onClick={handleToggleAll}
         />
       )}
 

@@ -28,6 +28,8 @@ export const TodosContext = React.createContext<TodosContextType>({
   activeTodos: 0,
   hasSomeCompletedTodos: false,
   handleClearCompleted: () => {},
+  toggleTodo: () => {},
+  handleToggleAll: () => {},
 });
 
 type Props = {
@@ -131,29 +133,26 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           (id: number) => id !== todoId,
         ),
       ));
-    // убираем todoId из массива isLoadingTodo.
   };
 
   const updateTodo = (todo: Todo) => {
-    setIsLoadingTodo((currentTodo) => [...currentTodo, todo.id]);
+    setIsLoadingTodo(currentTodo => [...currentTodo, todo.id]);
+    setStatusResponse(true);
 
-    todosServices
-      .updateTodo({
-        ...todo,
-        completed: todo.completed,
+    return todosServices.updateTodo(todo)
+      .then(() => {
+        setTodos(
+          currentTodo => currentTodo.map((item) => (
+            item.id === todo.id ? todo : item
+          )),
+        );
       })
-      .then((updatedTodo) => setTodos(
-        (currentTodo) => currentTodo.map((item) => (
-          item.id === todo.id ? updatedTodo : item
-        )),
-      ))
       .catch(() => changeErrorMessage('Unable to update a todo'))
-      .finally(() => setIsLoadingTodo(
-        (currentTodo) => currentTodo.filter(
-          (id: number) => id !== todo.id,
-        ),
-      ));
-    // убираем todoId из массива isLoadingTodo.
+      .finally(() => {
+        setIsLoadingTodo(currentTodo => currentTodo.filter(
+          id => id !== todo.id,
+        ));
+      }) 
   };
 
   const activeTodos = todos.filter(todo => !todo.completed).length;
@@ -161,6 +160,29 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
   const handleClearCompleted = () => {
     setTodos(todos.filter(todo => !todo.completed));
+  };
+
+  const toggleTodo = (todo: Todo) => {
+    const { completed } = todo;
+
+    const newTodo = {
+      ...todo,
+      completed: !completed,
+    };
+
+    updateTodo(newTodo)
+      .then(() => {})
+      .catch(() => {});
+  };
+
+  const handleToggleAll = () => {
+    const completedStatus = activeTodos > 0;
+
+    todos.forEach(todo => {
+      if (todo.completed !== completedStatus) {
+        toggleTodo(todo);
+      }
+    });
   };
 
   return (
@@ -186,6 +208,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       activeTodos,
       hasSomeCompletedTodos,
       handleClearCompleted,
+      toggleTodo,
+      handleToggleAll,
     }}
     >
       { children }

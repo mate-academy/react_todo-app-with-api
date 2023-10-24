@@ -5,8 +5,6 @@ import { TodosContext } from '../../TodosContext';
 export const TodoList: React.FC = () => {
   const {
     filtredTodos,
-    deleteTodo,
-    updateTodo,
     isLoadingTodo,
     tempTodo,
   } = React.useContext(TodosContext);
@@ -17,8 +15,6 @@ export const TodoList: React.FC = () => {
         <TodoItem
           key={todo.id}
           todo={todo}
-          deleteId={deleteTodo}
-          updateTodo={updateTodo}
           isLoading={isLoadingTodo.includes(todo.id)}
         />
       ))}
@@ -26,8 +22,6 @@ export const TodoList: React.FC = () => {
         <TodoItem
           key={tempTodo.id}
           todo={tempTodo}
-          deleteId={deleteTodo}
-          updateTodo={updateTodo}
           isLoading={isLoadingTodo.includes(tempTodo.id)}
         />
       )}
