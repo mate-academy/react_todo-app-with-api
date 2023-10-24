@@ -20,4 +20,7 @@ export type TodosContextType = {
   addTodo: (event: React.FormEvent<HTMLFormElement>) => void;
   deleteTodo: (todoId: number) => void;
   updateTodo: (todo: Todo) => void;
+  activeTodos: number;
+  hasSomeCompletedTodos: boolean;
+  handleClearCompleted : () => void;
 };

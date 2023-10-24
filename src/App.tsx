@@ -7,7 +7,6 @@ import { TodoList } from './components/TodoList/TodoList';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { Header } from './components/Header/Header';
 
-
 export const App: React.FC = () => {
   const {
     todos,

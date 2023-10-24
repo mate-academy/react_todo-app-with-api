@@ -1,4 +1,4 @@
-import React , { useState } from 'react';
+import React, { useState } from 'react';
 import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import * as todosServices from './api/todos';
@@ -7,7 +7,7 @@ import { TodosContextType } from './types/TodosContextTypes';
 export const USER_ID = 11587;
 
 export const TodosContext = React.createContext<TodosContextType>({
-  todos: [], 
+  todos: [],
   setTodos: () => {},
   filtredTodos: [],
   isLoadingTodo: [],
@@ -25,6 +25,9 @@ export const TodosContext = React.createContext<TodosContextType>({
   addTodo: () => {},
   deleteTodo: () => {},
   updateTodo: async () => {},
+  activeTodos: 0,
+  hasSomeCompletedTodos: false,
+  handleClearCompleted: () => {},
 });
 
 type Props = {
@@ -153,6 +156,13 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     // убираем todoId из массива isLoadingTodo.
   };
 
+  const activeTodos = todos.filter(todo => !todo.completed).length;
+  const hasSomeCompletedTodos = todos.some(todo => todo.completed);
+
+  const handleClearCompleted = () => {
+    setTodos(todos.filter(todo => !todo.completed));
+  };
+
   return (
     <TodosContext.Provider value={{
       todos,
@@ -173,9 +183,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       addTodo,
       deleteTodo,
       updateTodo,
-    }}>
+      activeTodos,
+      hasSomeCompletedTodos,
+      handleClearCompleted,
+    }}
+    >
       { children }
     </TodosContext.Provider>
   );
 };
-

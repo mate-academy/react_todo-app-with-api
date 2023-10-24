@@ -5,18 +5,12 @@ import { Filter } from '../../types/Filter';
 
 export const TodoFooter: React.FC = () => {
   const {
-    todos,
     setStatusFilter,
     statusFilter,
-    setTodos,
+    activeTodos,
+    hasSomeCompletedTodos,
+    handleClearCompleted,
   } = React.useContext(TodosContext);
-
-  const activeTodos = todos.filter(todo => !todo.completed).length;
-  const hasSomeCompletedTodos = todos.some(todo => todo.completed);
-
-  const handleClearCompleted = () => {
-    setTodos(todos.filter(todo => !todo.completed));
-  };
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
