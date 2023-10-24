@@ -1,28 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { Todo } from '../../types/Todo';
+import React, { useEffect, useRef } from 'react';
+import { TodosContext } from '../../TodosContext';
 
-type Props = {
-  todos: Todo[];
-  title: string,
-  setTitle: (val: string) => void;
-  onHandleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  statusResponce: boolean;
-};
+export const Header: React.FC = () => {
+  const {
+    todos,
+    title,
+    statusResponse,
+    setTitle,
+    addTodo,
+  } = React.useContext(TodosContext);
 
-export const Header: React.FC<Props> = ({
-  todos,
-  title,
-  setTitle,
-  onHandleSubmit,
-  statusResponce,
-}) => {
   const inputField = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (inputField.current) {
       inputField.current.focus();
     }
-  }, [statusResponce, todos.length]);
+  }, [statusResponse, todos.length]);
 
   return (
     <header className="todoapp__header">
@@ -33,13 +27,13 @@ export const Header: React.FC<Props> = ({
           className="todoapp__toggle-all active"
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
-          disabled={statusResponce}
+          disabled={statusResponse}
         />
       )}
 
       <form
         method="post"
-        onSubmit={onHandleSubmit}
+        onSubmit={addTodo}
       >
         <input
           data-cy="NewTodoField"
@@ -49,7 +43,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           onChange={e => setTitle(e.target.value)}
-          disabled={statusResponce}
+          disabled={statusResponse}
         />
       </form>
     </header>

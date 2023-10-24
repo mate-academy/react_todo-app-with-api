@@ -1,22 +1,16 @@
 import React from 'react';
-import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
+import { TodosContext } from '../../TodosContext';
 
-type Props = {
-  todos: Todo[];
-  deleteTodo: (id: number) => void;
-  updateTodo: (todo: Todo) => void;
-  isLoadingTodo: number[],
-  tempTodo: Todo | null,
-};
-
-export const TodoList: React.FC<Props> = ({
-  todos,
-  deleteTodo,
-  updateTodo,
-  isLoadingTodo,
-  tempTodo,
-}) => {
+export const TodoList: React.FC = () => {
+  const {
+    todos,
+    deleteTodo,
+    updateTodo,
+    isLoadingTodo,
+    tempTodo,
+  } = React.useContext(TodosContext);
+  
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todos.map(todo => (
@@ -26,11 +20,6 @@ export const TodoList: React.FC<Props> = ({
           deleteId={deleteTodo}
           updateTodo={updateTodo}
           isLoading={isLoadingTodo.includes(todo.id)}
-          // значение isLoading вычисляется как булевое,
-          // используя .includes(todo.id)
-          // для проверки, содержит ли массив isLoading конкретный todo.id.
-          // Если isLoading содержит todo.id, то условие в компоненте
-          // TodoItem будет равно true, и индикатор загрузки будет активирован.
         />
       ))}
       {tempTodo && (
