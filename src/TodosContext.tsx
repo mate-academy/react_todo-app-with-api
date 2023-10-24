@@ -152,7 +152,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
           id => id !== todo.id,
         ));
-      }) 
+      });
   };
 
   const activeTodos = todos.filter(todo => !todo.completed).length;
