@@ -112,9 +112,11 @@ export const App: React.FC = () => {
       }));
 
       updatedCompletedTodos.forEach((updatedCompletedTodo) => {
-        if (updatedCompletedTodo.completed
-          !== prevTodos.find((todo) => todo.id
-          === updatedCompletedTodo.id)?.completed) {
+        const statusChanged = updatedCompletedTodo.completed
+    !== prevTodos.find((todo) => todo.id
+    === updatedCompletedTodo.id)?.completed;
+
+        if (statusChanged) {
           setIsLoading((prev) => [...prev, updatedCompletedTodo.id]);
 
           updateTodo({

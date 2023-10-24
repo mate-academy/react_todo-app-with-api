@@ -20,12 +20,21 @@ export const Footer: React.FC<Props> = ({
     return todos.filter(todo => !todo.completed).length;
   }, [todos]);
 
+  const onFilterSelect = (fillter: Filter) => () => {
+    setFilterBy(fillter);
+  };
+
+  const isClearButtonVisible = todos.every(({ completed }) => !completed);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodosCount} items left`}
+        {activeTodosCount === 1 ? (
+          `${activeTodosCount} item left`
+        ) : (
+          `${activeTodosCount} items left`
+        )}
       </span>
-
       <nav className="filter" data-cy="Filter">
         <a
           href="#/"
@@ -33,44 +42,40 @@ export const Footer: React.FC<Props> = ({
             selected: filterBy === Filter.All,
           })}
           data-cy="FilterLinkAll"
-          onClick={() => setFilterBy(Filter.All)}
+          onClick={onFilterSelect(Filter.All)}
         >
           All
         </a>
-
         <a
           href="#/active"
           className={classNames('filter__link', {
             selected: filterBy === Filter.Active,
           })}
           data-cy="FilterLinkActive"
-          onClick={() => setFilterBy(Filter.Active)}
+          onClick={onFilterSelect(Filter.Active)}
         >
           Active
         </a>
-
         <a
           href="#/completed"
           className={classNames('filter__link', {
             selected: filterBy === Filter.Completed,
           })}
           data-cy="FilterLinkCompleted"
-          onClick={() => setFilterBy(Filter.Completed)}
+          onClick={onFilterSelect(Filter.Completed)}
         >
           Completed
         </a>
       </nav>
-
-      { activeTodosCount < todos.length && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={handleClearCompleted}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={handleClearCompleted}
+        disabled={isClearButtonVisible}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
