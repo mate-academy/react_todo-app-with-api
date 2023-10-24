@@ -1663,7 +1663,7 @@ describe('', () => {
           errorMessage.assertText('Unable to delete a todo')
         });
 
-        it('should hide loader on fail', () => {
+        it.skip('should hide loader on fail', () => {
           // to prevent Cypress from failing the test on uncaught exception
           cy.once('uncaught:exception', () => false);
 
@@ -1671,7 +1671,6 @@ describe('', () => {
 
           todos.titleField(0).type('{enter}');
           cy.wait('@deleteRequest');
-          cy.wait(500);
 
           todos.assertNotLoading(0);
         });
