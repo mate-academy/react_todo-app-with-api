@@ -9,7 +9,7 @@ type Props = {
   setQuery: (event: string) => void;
   uncompletedTodos: number,
   toggleAll: () => void,
-  pageIsLoaded: boolean,
+  isPageLoaded: boolean,
 };
 
 export const Header: React.FC<Props> = React.memo(({
@@ -19,13 +19,13 @@ export const Header: React.FC<Props> = React.memo(({
   setQuery,
   uncompletedTodos,
   toggleAll,
-  pageIsLoaded,
+  isPageLoaded,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [inputRef, pageIsLoaded, uncompletedTodos, todosLength]);
+  }, [inputRef, isPageLoaded, uncompletedTodos, todosLength]);
 
   return (
     <header className="todoapp__header">
@@ -50,7 +50,7 @@ export const Header: React.FC<Props> = React.memo(({
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          disabled={!pageIsLoaded}
+          disabled={!isPageLoaded}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);

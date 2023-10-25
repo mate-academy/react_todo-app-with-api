@@ -9,10 +9,10 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-export const addTodo = (url: string, data: any) => {
+export const addTodo = (url: string, data: Todo) => {
   return client.post(url, data);
 };
 
-export const updateTodo = (todoId: number, data: any) => {
+export const updateTodo = (todoId: number, data: Todo) => {
   return client.patch(`/todos/${todoId}`, data);
 };

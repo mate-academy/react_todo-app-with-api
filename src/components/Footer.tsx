@@ -7,7 +7,7 @@ type Props = {
   filterValue: string,
   completedTodos: number,
   uncompletedTodos: number,
-  handleMultipleDelete: () => void;
+  handleDelete: () => void;
 };
 
 export const Footer: React.FC<Props> = React.memo(({
@@ -15,8 +15,12 @@ export const Footer: React.FC<Props> = React.memo(({
   filterValue,
   completedTodos,
   uncompletedTodos,
-  handleMultipleDelete,
+  handleDelete,
 }) => {
+  const handleMultipleDelete = () => {
+    handleDelete();
+  };
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -67,9 +71,7 @@ export const Footer: React.FC<Props> = React.memo(({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         disabled={!completedTodos}
-        onClick={() => {
-          handleMultipleDelete();
-        }}
+        onClick={handleMultipleDelete}
       >
         Clear completed
       </button>

@@ -1,7 +1,6 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-import classNames from 'classnames';
 import React from 'react';
 import { Todo } from '../types/Todo';
+import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[],
@@ -30,96 +29,19 @@ export const TodoList: React.FC<Props> = React.memo(({
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todos.map(todo => {
-        const {
-          id,
-          title,
-          completed,
-        } = todo;
-
-        return (
-          <div
-            id={`${id}`}
-            key={id}
-            data-cy="Todo"
-            className={classNames('todo', { completed })}
-          >
-            <label className="todo__status-label">
-              <input
-                id={`${id}`}
-                key={id}
-                data-cy="TodoStatus"
-                type="checkbox"
-                className="todo__status"
-                checked={completed}
-                readOnly
-                onClick={() => {
-                  handleComplete(id, completed);
-                }}
-              />
-            </label>
-
-            {isEditing === id ? (
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  handleEditSubmit(query, id);
-                }}
-              >
-                <input
-                  autoFocus
-                  data-cy="TodoTitleField"
-                  type="text"
-                  className="todo__title-field"
-                  placeholder="Empty todo will be deleted"
-                  value={query}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                  }}
-                  onBlur={() => {
-                    handleEditSubmit(query, id);
-                  }}
-                />
-              </form>
-            ) : (
-              <>
-                <span
-                  data-cy="TodoTitle"
-                  className="todo__title"
-                  onDoubleClick={() => {
-                    handleEdit(id, title);
-                  }}
-                >
-                  {title}
-                </span>
-
-                <button
-                  id={`${id}`}
-                  type="button"
-                  className="todo__remove"
-                  data-cy="TodoDelete"
-                  onClick={() => {
-                    handleDelete(id);
-                  }}
-                >
-                  ×
-                </button>
-              </>
-            )}
-            <div
-              data-cy="TodoLoader"
-              className={classNames(
-                'modal',
-                'overlay',
-                { 'is-active': isUpdatingId.some(ids => ids === id) },
-              )}
-            >
-              <div className="modal-background has-background-white-ter" />
-              <div className="loader" />
-            </div>
-          </div>
-        );
-      })}
+      {todos.map(todo => (
+        <TodoItem
+          todo={todo}
+          handleComplete={handleComplete}
+          isEditing={isEditing}
+          handleEditSubmit={handleEditSubmit}
+          query={query}
+          setQuery={setQuery}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          isUpdatingId={isUpdatingId}
+        />
+      ))}
       {tempTodo && (
         <div id={`${tempTodo.id}`} data-cy="Todo" className="todo">
           <label className="todo__status-label">
