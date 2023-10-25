@@ -44,7 +44,7 @@ export const App: React.FC = () => {
   const handleToggleAll = () => {
     const targetStatus = !toggleAll;
     const todosToBeUpdated
-    = todos.filter(todo => todo.completed !== targetStatus);
+      = todos.filter(todo => todo.completed !== targetStatus);
 
     const updatePromises = todosToBeUpdated.map(todo => {
       return updateTodo({
@@ -81,7 +81,7 @@ export const App: React.FC = () => {
       };
     }
 
-    return () => {};
+    return () => { };
   }, [errorMessage]);
 
   if (!USER_ID) {
@@ -106,27 +106,27 @@ export const App: React.FC = () => {
         />
 
         {!!todos.length && (
-          <TodoList
-            filteredTodos={filteredTodos}
-            tempTodo={tempTodo}
-            setFocusedInput={setFocusedInput}
-            todos={todos}
-            setTodos={setTodos}
-            setErrorMessage={setErrorMessage}
-            USER_ID={USER_ID}
-          />
-        )}
+          <>
+            <TodoList
+              filteredTodos={filteredTodos}
+              tempTodo={tempTodo}
+              setFocusedInput={setFocusedInput}
+              todos={todos}
+              setTodos={setTodos}
+              setErrorMessage={setErrorMessage}
+              USER_ID={USER_ID}
+            />
 
-        {!!todos.length && (
-          <Footer
-            numberOfNotCompleted={numberOfNotCompleted}
-            filteredBy={filteredBy}
-            setFilteredBy={setFilteredBy}
-            todos={todos}
-            setTodos={setTodos}
-            setErrorMessage={setErrorMessage}
-            setFocusedInput={setFocusedInput}
-          />
+            <Footer
+              numberOfNotCompleted={numberOfNotCompleted}
+              filteredBy={filteredBy}
+              setFilteredBy={setFilteredBy}
+              todos={todos}
+              setTodos={setTodos}
+              setErrorMessage={setErrorMessage}
+              setFocusedInput={setFocusedInput}
+            />
+          </>
         )}
       </div>
 

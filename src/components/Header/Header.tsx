@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 import { createTodo } from '../../api/todos';
 
@@ -97,7 +98,7 @@ export const Header: React.FC<Props> = ({
         <button
           aria-label="button"
           type="button"
-          className={`todoapp__toggle-all ${toggleAll ? 'active' : ''}`}
+          className={cn('todoapp__toggle-all', { active: toggleAll })}
           data-cy="ToggleAllButton"
           onClick={handleToggleAll}
         />
@@ -111,7 +112,6 @@ export const Header: React.FC<Props> = ({
           placeholder="What needs to be done?"
           value={query}
           onChange={handleTitleChange}
-          style={{ outline: 'none' }}
           ref={inputRef}
           disabled={disabledInput}
         />
