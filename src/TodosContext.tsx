@@ -133,7 +133,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .catch(() => changeErrorMessage('Unable to delete a todo'))
       .finally(() => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
-          (id: number) => id !== todoId));
+          (id: number) => id !== todoId,
+        ));
         setStatusResponse(false);
       });
   };
