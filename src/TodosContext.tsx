@@ -119,19 +119,23 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   };
 
   const deleteTodo = (todoId: number) => {
+    setStatusResponse(true);
     setIsLoadingTodo((currentTodo) => [...currentTodo, todoId]);
 
     todosServices
       .removeTodo(todoId)
-      .then(() => setTodos(
-        (currentTodo) => currentTodo.filter((todo) => todo.id !== todoId),
-      ))
+      .then(() => {
+        setTodos(
+          (currentTodo) => currentTodo.filter((todo) => todo.id !== todoId),
+        );
+        setStatusResponse(false);
+      })
       .catch(() => changeErrorMessage('Unable to delete a todo'))
-      .finally(() => setIsLoadingTodo(
-        (currentTodo) => currentTodo.filter(
-          (id: number) => id !== todoId,
-        ),
-      ));
+      .finally(() => {
+        setIsLoadingTodo(currentTodo => currentTodo.filter(
+          (id: number) => id !== todoId));
+        setStatusResponse(false);
+      });
   };
 
   const updateTodo = (newTodo: Todo) => {
