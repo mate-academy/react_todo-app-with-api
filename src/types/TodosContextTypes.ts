@@ -24,5 +24,5 @@ export type TodosContextType = {
   hasSomeCompletedTodos: boolean;
   handlerClearCompleted : () => void;
   toggleTodo: (todo: Todo) => void;
-  handleToggleAll: () => void;
+  handlerToggleAll: () => void;
 };

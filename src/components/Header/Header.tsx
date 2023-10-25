@@ -10,7 +10,7 @@ export const Header: React.FC = () => {
     setTitle,
     addTodo,
     activeTodos,
-    handleToggleAll,
+    handlerToggleAll,
   } = React.useContext(TodosContext);
 
   const inputField = useRef<HTMLInputElement>(null);
@@ -39,7 +39,7 @@ export const Header: React.FC = () => {
           })}
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
-          onClick={handleToggleAll}
+          onClick={handlerToggleAll}
         />
       )}
 
