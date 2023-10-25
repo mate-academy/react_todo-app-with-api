@@ -40,7 +40,6 @@ export const Header: React.FC = () => {
           })}
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
-          disabled={statusResponse}
           onClick={handleToggleAll}
         />
       )}
