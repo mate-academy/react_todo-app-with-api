@@ -1,8 +1,8 @@
-import React, { 
+import React, {
   useState,
   useEffect,
-  useRef, 
-  useContext 
+  useRef,
+  useContext,
 } from 'react';
 import classNames from 'classnames';
 
@@ -17,7 +17,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const inputField = useRef<HTMLInputElement>(null);
-  
+
   const { completed, title, id } = todo;
   const {
     deleteTodo,
@@ -31,7 +31,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       inputField.current.focus();
     }
   }, [isEditing]);
-  //Если isEditing становится false, 
+  // Если isEditing становится false,
   // то фокус не будет устанавливаться
 
   const handleDoubleClick = () => {
