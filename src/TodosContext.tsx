@@ -27,7 +27,7 @@ export const TodosContext = React.createContext<TodosContextType>({
   updateTodo: async () => {},
   activeTodos: 0,
   hasSomeCompletedTodos: false,
-  handleClearCompleted: () => {},
+  handlerClearCompleted: () => {},
   toggleTodo: () => {},
   handleToggleAll: () => {},
 });
@@ -162,8 +162,9 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const hasSomeCompletedTodos = todos.some(todo => todo.completed);
 
-  const handleClearCompleted = () => {
-    setTodos(todos.filter(todo => !todo.completed));
+  const handlerClearCompleted = () => {
+    const completedTodos = todos.filter(todo => todo.completed);
+    completedTodos.forEach(todo => deleteTodo(todo.id));
   };
 
   const toggleTodo = (todo: Todo) => {
@@ -211,7 +212,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       updateTodo,
       activeTodos,
       hasSomeCompletedTodos,
-      handleClearCompleted,
+      handlerClearCompleted,
       toggleTodo,
       handleToggleAll,
     }}

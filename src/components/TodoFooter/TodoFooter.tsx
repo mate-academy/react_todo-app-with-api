@@ -9,7 +9,7 @@ export const TodoFooter: React.FC = () => {
     statusFilter,
     activeTodos,
     hasSomeCompletedTodos,
-    handleClearCompleted,
+    handlerClearCompleted,
   } = React.useContext(TodosContext);
 
   return (
@@ -57,7 +57,7 @@ export const TodoFooter: React.FC = () => {
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={handleClearCompleted}
+        onClick={handlerClearCompleted}
         disabled={!hasSomeCompletedTodos}
       >
         Clear completed

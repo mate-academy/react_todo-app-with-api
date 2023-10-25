@@ -22,7 +22,7 @@ export type TodosContextType = {
   updateTodo: (todo: Todo) => Promise<void | Todo>;
   activeTodos: number;
   hasSomeCompletedTodos: boolean;
-  handleClearCompleted : () => void;
+  handlerClearCompleted : () => void;
   toggleTodo: (todo: Todo) => void;
   handleToggleAll: () => void;
 };
