@@ -27,7 +27,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
       inputField.current.focus();
     }
   }, [isEditing]);
-  // если isEditing равно true. Если isEditing 
+  // если isEditing равно true. Если isEditing
   // становится false, то фокус не будет устанавливаться.
 
   const handleDoubleClick = () => {
@@ -73,8 +73,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
     }
   };
 
-
-    return (
+  return (
     <div
       data-cy="Todo"
       key={id}
@@ -92,14 +91,14 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
           onChange={() => !isLoading && toggleTodo(todo)}
         />
       </label>
-      
+
       {!isEditing ? (
         <>
           <span
-            data-cy="TodoTitle" 
+            data-cy="TodoTitle"
             className="todo__title"
             onDoubleClick={handleDoubleClick}
-            >
+          >
             { title }
           </span>
 
@@ -112,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
             ×
           </button>
         </>
-      ): (
+      ) : (
         <form onSubmit={handleEditSubmit} onBlur={handleEditCancel}>
           <input
             data-cy="TodoTitleField"
