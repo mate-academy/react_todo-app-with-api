@@ -151,7 +151,10 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
           )),
         );
       })
-      .catch(() => changeErrorMessage('Unable to update a todo'))
+      .catch((error) => {
+        changeErrorMessage('Unable to update a todo');
+        throw error;
+      })
       .finally(() => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
           id => id !== newTodo.id,
