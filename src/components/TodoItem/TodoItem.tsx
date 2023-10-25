@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { 
+  useState,
+  useEffect,
+  useRef, 
+  useContext 
+} from 'react';
 import classNames from 'classnames';
+
 import { TodosContext } from '../../TodosContext';
 import { Todo } from '../../types/Todo';
 
@@ -8,27 +14,25 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const inputField = useRef<HTMLInputElement>(null);
+  
+  const { completed, title, id } = todo;
   const {
     deleteTodo,
     toggleTodo,
     updateTodo,
     isLoadingTodo,
-  } = React.useContext(TodosContext);
-
-  const { completed, title, id } = todo;
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const inputField = React.useRef<HTMLInputElement>(null);
-  // useRef означает, что мы можем получить доступ к DOM-узлу,
-  // который мы передали в качестве аргумента (ссылка на текстовое поле ввода)
+  } = useContext(TodosContext);
 
   useEffect(() => {
     if (inputField.current) {
       inputField.current.focus();
     }
   }, [isEditing]);
-  // если isEditing равно true. Если isEditing
-  // становится false, то фокус не будет устанавливаться.
+  //Если isEditing становится false, 
+  // то фокус не будет устанавливаться
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -76,7 +80,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   return (
     <div
       data-cy="Todo"
-      key={id}
       className={classNames(
         'todo',
         { completed },
@@ -87,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={todo.completed}
+          checked={completed}
           onChange={() => toggleTodo(todo)}
         />
       </label>
@@ -99,20 +102,20 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             className="todo__title"
             onDoubleClick={handleDoubleClick}
           >
-            { title }
+            {title}
           </span>
 
           <button
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => deleteTodo(todo.id)}
+            onClick={() => deleteTodo(id)}
           >
             ×
           </button>
         </>
       ) : (
-        <form onSubmit={handleEditSubmit} onBlur={handleEditCancel}>
+        <form onSubmit={handleEditSubmit} onBlur={handleEditSubmit}>
           <input
             data-cy="TodoTitleField"
             ref={inputField}
