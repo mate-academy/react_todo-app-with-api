@@ -51,7 +51,7 @@ export const Header: React.FC = () => {
           placeholder="What needs to be done?"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          ref={input => input && input.focus()}          
+          ref={input => input && input.focus()}
           disabled={statusResponse}
         />
       </form>
