@@ -31,7 +31,6 @@ export const Header: React.FC = () => {
 
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {!!todos.length && (
         <button
           type="button"
@@ -44,18 +43,15 @@ export const Header: React.FC = () => {
         />
       )}
 
-      <form
-        method="post"
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
-          ref={input => input && input.focus()}
-          value={title}
           type="text"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
+          value={title}
           onChange={e => setTitle(e.target.value)}
+          ref={input => input && input.focus()}          
           disabled={statusResponse}
         />
       </form>

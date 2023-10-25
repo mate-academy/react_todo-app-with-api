@@ -6,13 +6,14 @@ import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList/TodoList';
 import { TodoFooter } from './components/TodoFooter/TodoFooter';
 import { Header } from './components/Header/Header';
+import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const {
     todos,
     errorMessage,
     setErrorMessage,
-    filtredTodos,
+    tempTodo,
   } = React.useContext(TodosContext);
 
   if (!USER_ID) {
@@ -26,12 +27,20 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <Header />
 
-        {filtredTodos.length > 0 && (
-          <TodoList />
-        )}
+        {!!todos.length && (
+          <>
+            <TodoList />
 
-        {todos.length > 0 && (
-          <TodoFooter />
+            {tempTodo && (
+              <TodoItem
+                todo={tempTodo}
+              />
+            )}
+
+            {!!todos.length && (
+              <TodoFooter />
+            )}
+          </>    
         )}
       </div>
 

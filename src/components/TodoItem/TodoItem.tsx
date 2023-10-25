@@ -5,10 +5,9 @@ import { Todo } from '../../types/Todo';
 
 type Props = {
   todo: Todo;
-  isLoading: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
+export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
     deleteTodo,
     toggleTodo,
@@ -89,7 +88,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isLoading }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => !isLoading && toggleTodo(todo)}
+          onChange={() => toggleTodo(todo)}
         />
       </label>
 
