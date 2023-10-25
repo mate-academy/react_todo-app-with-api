@@ -52,7 +52,7 @@ export const Header: React.FC = () => {
           value={title}
           onChange={e => setTitle(e.target.value)}
           ref={input => input && input.focus()}
-          disabled={statusResponse}
+          // disabled={statusResponse}
         />
       </form>
     </header>
