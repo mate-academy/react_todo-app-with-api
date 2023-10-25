@@ -31,28 +31,24 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       inputField.current.focus();
     }
   }, [isEditing]);
-  // Если isEditing становится false,
-  // то фокус не будет устанавливаться
 
-  const handleDoubleClick = () => {
+  const handlerDoubleClick = () => {
     setIsEditing(true);
     setEditTitle(title);
   };
 
-  const handleEditCancel = () => {
+  const handlerEditCancel = () => {
     setIsEditing(false);
     setEditTitle('');
-    // setEditTitle('') - не изменяет значение editTitle,
-    // если не были внесены изменения в текстовое поле ввода
   };
 
-  const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlerEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newTitle = editTitle.trim();
 
     if (newTitle === title) {
-      handleEditCancel();
+      handlerEditCancel();
 
       return;
     }
@@ -63,7 +59,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         title: newTitle,
       })
         .then(() => {
-          handleEditCancel();
+          handlerEditCancel();
         })
         .catch(() => {});
     } else {
@@ -73,7 +69,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
   const handleKeyUp = (key: React.KeyboardEvent<HTMLInputElement>) => {
     if (key.code === 'Escape') {
-      handleEditCancel();
+      handlerEditCancel();
     }
   };
 
@@ -100,7 +96,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={handlerDoubleClick}
           >
             {title}
           </span>
@@ -115,7 +111,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </button>
         </>
       ) : (
-        <form onSubmit={handleEditSubmit} onBlur={handleEditSubmit}>
+        <form onSubmit={handlerEditSubmit} onBlur={handlerEditSubmit}>
           <input
             data-cy="TodoTitleField"
             ref={inputField}

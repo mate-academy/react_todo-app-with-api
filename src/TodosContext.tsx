@@ -162,10 +162,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const activeTodos = todos.filter(todo => !todo.completed).length;
   const hasSomeCompletedTodos = todos.some(todo => todo.completed);
 
-  const handlerClearCompleted = async () => {
+  const handlerClearCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
-  
-    await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
+
+    completedTodos.forEach(todo => Promise.resolve(deleteTodo(todo.id)));
+
+    Promise.allSettled(completedTodos);
   };
 
   const toggleTodo = (todo: Todo) => {

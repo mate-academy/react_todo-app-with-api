@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
     }
   }, [statusResponse, todos.length]);
 
-  const handleSubmit = useCallback(
+  const handlerSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       addTodo();
@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
         />
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handlerSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
