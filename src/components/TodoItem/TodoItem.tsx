@@ -4,14 +4,14 @@ import { Todo } from '../../types/Todo';
 
 interface Props {
   todo: Todo;
-  todoLoaderIndex: number;
+  isUpdating: number[];
   updateTodo: (todo: Todo, editStatus: boolean) => void;
   removeTodo: (todoId: number) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  todoLoaderIndex,
+  isUpdating,
   updateTodo = () => {},
   removeTodo = () => {},
 }) => {
@@ -107,7 +107,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': todo.id === 0 || todo.id === todoLoaderIndex,
+          'is-active': todo.id === 0 || isUpdating.includes(todo.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

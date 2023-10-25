@@ -17,12 +17,11 @@ const USER_ID = 11713;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [isUpdating, setIsUpdating] = useState<number[]>([]);
 
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-
-  const [todoLoaderIndex, setTodoLoaderIndex] = useState(0);
+  const [filterStatus, setFilterStatus] = useState(Status.all);
 
   const [loader, setLoader] = useState(true);
   const [statusResponce, setStatusResponce] = useState(false);
@@ -103,7 +102,7 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (todo: Todo, editStatus: boolean) => {
-    setTodoLoaderIndex(todo.id);
+    setIsUpdating(prevState => [...prevState, todo.id]);
     setStatusResponce(true);
 
     todosService
@@ -120,8 +119,8 @@ export const App: React.FC = () => {
       })
       .catch(() => changeErrorMessage(Errors.Update))
       .finally(() => {
+        setIsUpdating(prevState => prevState.filter(id => id !== todo.id));
         setStatusResponce(false);
-        setTodoLoaderIndex(0);
       });
   };
 
@@ -146,6 +145,7 @@ export const App: React.FC = () => {
 
   const removeTodo = (todoId: number) => {
     setLoader(true);
+    setIsUpdating(prevState => [...prevState, todoId]);
 
     todosService
       .removeTodo(todoId)
@@ -153,7 +153,10 @@ export const App: React.FC = () => {
         setTodos((prevState) => prevState.filter(({ id }) => id !== todoId));
       })
       .catch(() => changeErrorMessage(Errors.Delete))
-      .finally(() => setLoader(false));
+      .finally(() => {
+        setIsUpdating(prevState => prevState.filter(id => id !== todoId));
+        setLoader(false);
+      });
   };
 
   const removeAllTodos = () => {
@@ -185,7 +188,7 @@ export const App: React.FC = () => {
         {!loader && (
           <TodoList
             todos={filteredTodos}
-            todoLoaderIndex={todoLoaderIndex}
+            isUpdating={isUpdating}
             updateTodo={updateTodo}
             removeTodo={removeTodo}
           />
@@ -194,7 +197,7 @@ export const App: React.FC = () => {
         {!loader && tempTodo && (
           <TodoItem
             todo={tempTodo}
-            todoLoaderIndex={todoLoaderIndex}
+            isUpdating={isUpdating}
             updateTodo={updateTodo}
             removeTodo={removeTodo}
           />

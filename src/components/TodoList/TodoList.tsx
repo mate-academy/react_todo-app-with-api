@@ -4,14 +4,14 @@ import { TodoItem } from '../TodoItem';
 
 interface Props {
   todos: Todo[];
-  todoLoaderIndex: number;
+  isUpdating: number[];
   updateTodo: (todo: Todo, editStatus: boolean) => void;
   removeTodo: (todoId: number) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  todoLoaderIndex,
+  isUpdating,
   updateTodo = () => {},
   removeTodo = () => {},
 }) => {
@@ -20,7 +20,7 @@ export const TodoList: React.FC<Props> = ({
       {todos.map((todo) => (
         <TodoItem
           todo={todo}
-          todoLoaderIndex={todoLoaderIndex}
+          isUpdating={isUpdating}
           updateTodo={updateTodo}
           removeTodo={removeTodo}
           key={todo.id}

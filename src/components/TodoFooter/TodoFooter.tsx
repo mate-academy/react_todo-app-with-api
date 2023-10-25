@@ -58,16 +58,15 @@ export const TodoFooter: React.FC<Props> = ({
         </a>
       </nav>
 
-      {completedTodosLength > 0 && (
-        <button
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-          onClick={removeAllTodos}
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        onClick={removeAllTodos}
+        disabled={!completedTodosLength}
+      >
+        Clear completed
+      </button>
     </footer>
   );
 };
