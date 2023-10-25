@@ -114,34 +114,13 @@ export const App: React.FC = () => {
     }
   };
 
-  // const handleComplete = async (id: number, completed: boolean) => {
-  //   try {
-  //     setIsUpdatingId((state) => [...state, id]);
-  //     await updateTodo(id, { completed: !completed });
-  //     setTodos((state) => state.map((todo) => {
-  //       if (todo.id === id) {
-  //         return {
-  //           ...todo,
-  //           completed: !completed,
-  //         };
-  //       }
-
-  //       return todo;
-  //     }));
-  //     setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
-  //   } catch {
-  //     handleErrorSet(ErrorMessage.updateTodo);
-  //     setIsUpdatingId((state) => state.filter((stateId) => stateId !== id));
-  //   }
-  // };
-
   const handleComplete = async (id: number, completed: boolean) => {
     try {
       setIsUpdatingId((state) => [...state, id]);
       const updatedData: Todo = {
         id,
-        userId: 1,
-        title: '',
+        userId: USER_ID,
+        title: query.trim(),
         completed: !completed,
       };
 
@@ -163,76 +142,6 @@ export const App: React.FC = () => {
     }
   };
 
-  // const toggleAll = () => {
-  //   const isStatus = todos.every(todo => todo.completed);
-
-  //   setTodos(stateMain => {
-  //     stateMain.map(async (todo) => {
-  //       try {
-  //         if (isStatus && todo.completed) {
-  //           setIsUpdatingId(state => (
-  //             [...state, todo.id]
-  //           ));
-  //           await updateTodo(todo.id, { completed: false });
-  //           // eslint-disable-next-line no-param-reassign
-  //           todo.completed = false;
-  //           setIsUpdatingId([]);
-
-  //           return [...stateMain];
-  //         }
-
-  //         if (!todo.completed) {
-  //           setIsUpdatingId(state => (
-  //             [...state, todo.id]
-  //           ));
-  //           await updateTodo(todo.id, { completed: true });
-  //           // eslint-disable-next-line no-param-reassign
-  //           todo.completed = true;
-  //           setIsUpdatingId([]);
-
-  //           return [...stateMain];
-  //         }
-
-  //         return [...stateMain];
-  //       } catch {
-  //         handleErrorSet(ErrorMessage.updateTodo);
-  //         setIsUpdatingId([]);
-  //       }
-
-  //       return [...stateMain];
-  //     });
-
-  //     return [...stateMain];
-  //   });
-
-  //   setTodos(state => [...state]);
-  // };
-
-  // const toggleAll = async () => {
-  //   const isStatus = todos.every((todo) => todo.completed);
-
-  //   try {
-  //     const updatedTodos = await Promise.all(
-  //       todos.map(async (todo) => {
-  //         if ((isStatus && todo.completed) || (!isStatus && !todo.completed)) {
-  //           setIsUpdatingId((state) => [...state, todo.id]);
-  //           await updateTodo(todo.id, { completed: !isStatus });
-
-  //           return { ...todo, completed: !isStatus };
-  //         }
-
-  //         return todo;
-  //       }),
-  //     );
-
-  //     setTodos(updatedTodos);
-  //     setIsUpdatingId([]);
-  //   } catch {
-  //     handleErrorSet(ErrorMessage.updateTodo);
-  //     setIsUpdatingId([]);
-  //   }
-  // };
-
   const toggleAll = async () => {
     const isStatus = todos.every((todo) => todo.completed);
 
@@ -243,8 +152,8 @@ export const App: React.FC = () => {
             setIsUpdatingId((state) => [...state, todo.id]);
             const updatedData: Todo = {
               id: todo.id,
-              userId: 1,
-              title: '',
+              userId: USER_ID,
+              title: query.trim(),
               completed: !isStatus,
             };
 
@@ -328,81 +237,6 @@ export const App: React.FC = () => {
     setEditQueryPrev(title);
   };
 
-  // const handleEditSubmit = async (queryEdit: string, id: number) => {
-  //   try {
-  //     if (!queryEdit.trim()) {
-  //       handleDelete(id);
-
-  //       return;
-  //     }
-
-  //     if (editQueryPrev === queryEdit.trim()) {
-  //       setIsEditing(null);
-
-  //       return;
-  //     }
-
-  //     setIsUpdatingId(state => (
-  //       [...state, id]
-  //     ));
-  //     await updateTodo(id, { title: queryEdit.trim() });
-  //     setTodos(stateMain => {
-  //       stateMain.map(todo => {
-  //         if (todo.id === id) {
-  //           // eslint-disable-next-line no-param-reassign
-  //           todo.title = queryEdit.trim();
-  //         }
-
-  //         return todo;
-  //       });
-
-  //       return stateMain;
-  //     });
-  //     setIsUpdatingId((state) => (
-  //       [...state.filter(stateId => stateId !== id)]
-  //     ));
-  //     setIsEditing(null);
-  //   } catch {
-  //     handleErrorSet(ErrorMessage.updateTodo);
-  //     setIsUpdatingId((state) => (
-  //       [...state.filter(stateId => stateId !== id)]
-  //     ));
-  //   }
-  // };
-
-  // const handleEditSubmit = async (queryEdit: string, id: number) => {
-  //   try {
-  //     if (!queryEdit.trim()) {
-  //       handleDelete(id);
-
-  //       return;
-  //     }
-
-  //     if (editQueryPrev === queryEdit.trim()) {
-  //       setIsEditing(null);
-
-  //       return;
-  //     }
-
-  //     setIsUpdatingId((state) => [...state, id]);
-  //     await updateTodo(id, { title: queryEdit.trim() });
-  //     setTodos((stateMain) => stateMain.map((todo) => {
-  //       if (todo.id === id) {
-  //         return { ...todo, title: queryEdit.trim() };
-  //       }
-
-  //       return todo;
-  //     }));
-  //     setIsUpdatingId((state) => [
-  //       ...state.filter((stateId) => stateId !== id)]);
-  //     setIsEditing(null);
-  //   } catch {
-  //     handleErrorSet(ErrorMessage.updateTodo);
-  //     setIsUpdatingId((state) => [
-  //       ...state.filter((stateId) => stateId !== id)]);
-  //   }
-  // };
-
   const handleEditSubmit = async (queryEdit: string, id: number) => {
     try {
       if (!queryEdit.trim()) {
@@ -419,10 +253,10 @@ export const App: React.FC = () => {
 
       setIsUpdatingId((state) => [...state, id]);
       const updatedData: Todo = {
-        id, // Збережіть існуючий id
-        userId: 1, // Збережіть існуючий userId
-        title: queryEdit.trim(), // Оновіть title
-        completed: false, // Збережіть існуючий completed
+        id,
+        userId: 1,
+        title: queryEdit.trim(),
+        completed: false,
       };
 
       await updateTodo(id, updatedData);
@@ -444,14 +278,6 @@ export const App: React.FC = () => {
       ]);
     }
   };
-
-  // const completedTodos = useMemo(() => {
-  //   return todos.filter(todo => todo.completed).length;
-  // }, [todos, isUpdatingId]);
-
-  // const uncompletedTodos = useMemo(() => {
-  //   return todos.filter(todo => !todo.completed).length;
-  // }, [todos, isUpdatingId]);
 
   const completedTodos = useMemo(() => {
     return todos.filter(todo => todo.completed).length;
