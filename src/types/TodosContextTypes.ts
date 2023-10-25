@@ -17,7 +17,7 @@ export type TodosContextType = {
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
   changeErrorMessage: (message: string) => void;
-  addTodo: (event: React.FormEvent<HTMLFormElement>) => void;
+  addTodo: () => void;
   deleteTodo: (todoId: number) => void;
   updateTodo: (todo: Todo) => Promise<void | Todo>;
   activeTodos: number;

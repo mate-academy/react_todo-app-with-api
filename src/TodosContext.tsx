@@ -81,8 +81,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return filtered;
   }, [todos, statusFilter]);
 
-  const addTodo = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const addTodo = () => {
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
@@ -135,22 +134,22 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       ));
   };
 
-  const updateTodo = (todo: Todo) => {
-    setIsLoadingTodo(currentTodo => [...currentTodo, todo.id]);
+  const updateTodo = (newTodo: Todo) => {
+    setIsLoadingTodo(currentTodo => [...currentTodo, newTodo.id]);
     setStatusResponse(true);
 
-    return todosServices.updateTodo(todo)
+    return todosServices.updateTodo(newTodo)
       .then(() => {
         setTodos(
-          currentTodo => currentTodo.map((item) => (
-            item.id === todo.id ? todo : item
+          currentTodo => currentTodo.map(curTodo => (
+            curTodo.id === newTodo.id ? newTodo : curTodo
           )),
         );
       })
       .catch(() => changeErrorMessage('Unable to update a todo'))
       .finally(() => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
-          id => id !== todo.id,
+          id => id !== newTodo.id,
         ));
       });
   };

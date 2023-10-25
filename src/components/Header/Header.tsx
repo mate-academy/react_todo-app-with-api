@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 
@@ -21,6 +21,14 @@ export const Header: React.FC = () => {
     }
   }, [statusResponse, todos.length]);
 
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      addTodo();
+    },
+    [addTodo],
+  );
+
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
@@ -39,11 +47,11 @@ export const Header: React.FC = () => {
 
       <form
         method="post"
-        onSubmit={addTodo}
+        onSubmit={handleSubmit}
       >
         <input
           data-cy="NewTodoField"
-          ref={inputField}
+          ref={input => input && input.focus()}
           value={title}
           type="text"
           className="todoapp__new-todo"
