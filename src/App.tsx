@@ -37,8 +37,7 @@ export const App: React.FC = () => {
               />
             )}
 
-           
-            <TodoFooter />    
+            <TodoFooter />
           </>
         )}
       </div>

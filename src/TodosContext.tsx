@@ -79,7 +79,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   }, [todos, statusFilter]);
 
   const addTodo = (title: string, setTitle: (title: string) => void) => {
-
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
