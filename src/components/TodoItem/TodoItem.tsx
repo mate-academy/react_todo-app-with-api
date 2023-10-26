@@ -56,9 +56,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
     if (trimmedTitle === todo.title) {
       if (hasError) {
         setError(ErrorMessage.UnableUpdate);
-        if (titleField.current) {
-          titleField.current.focus();
-        }
       } else {
         handleEditCancel();
       }
@@ -110,7 +107,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
       </label>
 
       {selectedTodo ? (
-        <form onSubmit={handleEdit}>
+        <form onSubmit={handleEdit} onBlur={handleEdit}>
           <input
             ref={titleField}
             data-cy="TodoTitleField"
@@ -120,7 +117,6 @@ export const TodoItem: React.FC<Props> = React.memo(({
             value={editTitle}
             onChange={event => setEditTitle(event.target.value)}
             onKeyUp={handleKeyUp}
-            onBlur={handleEditCancel}
           />
         </form>
       ) : (
