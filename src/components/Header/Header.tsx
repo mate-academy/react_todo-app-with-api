@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
       event.preventDefault();
       addTodo(title, setTitle);
     },
-    [addTodo],
+    [addTodo, title],
   );
 
   return (
