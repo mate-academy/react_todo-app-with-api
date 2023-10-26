@@ -147,6 +147,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
             curTodo.id === newTodo.id ? newTodo : curTodo
           )),
         );
+        setStatusResponse(false);
       })
       .catch((error) => {
         changeErrorMessage('Unable to update a todo');
@@ -156,6 +157,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
           id => id !== newTodo.id,
         ));
+        setStatusResponse(false);
       });
   };
 
