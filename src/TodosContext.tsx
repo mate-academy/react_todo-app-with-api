@@ -182,7 +182,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       .then(() => {
         setTodos(currentTodo => currentTodo.map(curTodo => (
           curTodo.id === newTodo.id ? newTodo : curTodo
-        )))})
+        )));
+      })
       .catch(() => {
         changeErrorMessage('Unable to toggle a todo');
       });
