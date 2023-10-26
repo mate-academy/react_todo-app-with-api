@@ -148,7 +148,7 @@ export const TodoItem: React.FC<Props> = React.memo(({
         data-cy="TodoLoader"
         className={cn(
           'modal overlay', {
-            'is-active': todo.id === 0 || usingUpdatesId.includes(todo.id),
+            'is-active': usingUpdatesId.includes(todo.id) || todo.id === 0,
           },
         )}
       >

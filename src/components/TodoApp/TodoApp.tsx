@@ -104,19 +104,21 @@ export const TodoApp: React.FC = () => {
   };
 
   const deleteTodo = (todoId: number) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
     setUsingUpdatesId(prev => [...prev, todoId]);
 
     const deletePromise = todosService.deleteTodo(todoId);
 
     deletePromise
+      .then(() => {
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+      })
       .catch(() => {
         setTodos(todos);
         setError(ErrorMessage.UnableDelete);
       })
-      .finally(() => setUsingUpdatesId(
-        prev => prev.filter(el => el !== todoId),
-      ));
+      .finally(() => {
+        setUsingUpdatesId(prev => prev.filter(el => el !== todoId));
+      });
   };
 
   const updateTodo = (
