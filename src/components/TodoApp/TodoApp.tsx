@@ -180,18 +180,11 @@ export const TodoApp: React.FC = () => {
   };
 
   const deleteAllCompleted = () => {
-    const copyTodo = [...todos];
+    const completedTodos = todos.filter(todo => todo.completed);
 
-    setTodos(copyTodo.filter(todo => !todo.completed));
+    completedTodos.forEach(todo => Promise.resolve(deleteTodo(todo.id)));
 
-    copyTodo.filter(({ completed }) => completed)
-      .map(({ id }) => id)
-      .forEach((id) => {
-        todosService.deleteTodo(id).catch(() => {
-          setTodos(todos);
-          setErrorMessage(ErrorMessage.UnableDelete);
-        });
-      });
+    Promise.allSettled(completedTodos);
   };
 
   if (!USER_ID) {
