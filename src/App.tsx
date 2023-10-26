@@ -37,9 +37,8 @@ export const App: React.FC = () => {
               />
             )}
 
-            {!!todos.length && (
-              <TodoFooter />
-            )}
+           
+            <TodoFooter />    
           </>
         )}
       </div>

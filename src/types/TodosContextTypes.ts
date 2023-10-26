@@ -10,14 +10,12 @@ export type TodosContextType = {
   setErrorMessage: (message: string) => void;
   statusFilter: Filter;
   setStatusFilter: (status: Filter) => void;
-  title: string;
-  setTitle: (title: string) => void;
   statusResponse: boolean;
   setStatusResponse: (status: boolean) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
   changeErrorMessage: (message: string) => void;
-  addTodo: () => void;
+  addTodo: (title: string, setTitle: (title: string) => void) => void;
   deleteTodo: (todoId: number) => void;
   updateTodo: (todo: Todo) => Promise<void | Todo>;
   activeTodos: number;

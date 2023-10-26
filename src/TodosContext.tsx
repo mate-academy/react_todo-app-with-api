@@ -15,8 +15,6 @@ export const TodosContext = React.createContext<TodosContextType>({
   setErrorMessage: () => {},
   statusFilter: Filter.ALL,
   setStatusFilter: () => {},
-  title: '',
-  setTitle: () => {},
   statusResponse: false,
   setStatusResponse: () => {},
   tempTodo: null,
@@ -41,7 +39,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isLoadingTodo, setIsLoadingTodo] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [statusFilter, setStatusFilter] = useState(Filter.ALL);
-  const [title, setTitle] = useState('');
   const [statusResponse, setStatusResponse] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
@@ -81,7 +78,8 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     return filtered;
   }, [todos, statusFilter]);
 
-  const addTodo = () => {
+  const addTodo = (title: string, setTitle: (title: string) => void) => {
+
     const trimmedTitle = title.trim();
 
     if (!trimmedTitle) {
@@ -181,9 +179,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       completed: !completed,
     };
 
-    updateTodo(newTodo)
-      .then(() => {})
-      .catch(() => {});
+    updateTodo(newTodo);
   };
 
   const handlerToggleAll = () => {
@@ -206,8 +202,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage,
       statusFilter,
       setStatusFilter,
-      title,
-      setTitle,
       statusResponse,
       setStatusResponse,
       tempTodo,

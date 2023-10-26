@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 
 export const Header: React.FC = () => {
+  const [title, setTitle] = React.useState('');
+
   const {
     todos,
-    title,
     statusResponse,
-    setTitle,
     addTodo,
     activeTodos,
     handlerToggleAll,
@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
   const handlerSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      addTodo();
+      addTodo(title, setTitle);
     },
     [addTodo],
   );
