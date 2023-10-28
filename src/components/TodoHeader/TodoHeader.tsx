@@ -5,6 +5,7 @@ import cn from 'classnames';
 interface Props {
   statusResponce: boolean;
   title: string;
+  todosLength: number;
   activeTodosLength: number;
   setTitle: React.Dispatch<React.SetStateAction<string>>;
   addTodo: () => void;
@@ -14,6 +15,7 @@ interface Props {
 export const TodoHeader: React.FC<Props> = ({
   statusResponce,
   title,
+  todosLength,
   activeTodosLength,
   setTitle = () => {},
   addTodo = () => {},
@@ -32,12 +34,14 @@ export const TodoHeader: React.FC<Props> = ({
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: !activeTodosLength })}
-        data-cy="ToggleAllButton"
-        onClick={updateAllTodos}
-      />
+      {todosLength > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: !activeTodosLength })}
+          data-cy="ToggleAllButton"
+          onClick={updateAllTodos}
+        />
+      )}
 
       <form onSubmit={(event) => submitForm(event)}>
         <input

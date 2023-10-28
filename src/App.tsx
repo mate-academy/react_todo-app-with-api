@@ -101,12 +101,19 @@ export const App: React.FC = () => {
       });
   };
 
-  const updateTodo = (todo: Todo, editStatus: boolean) => {
+  const updateTodo = (todo: Todo) => {
+    const { completed } = todo;
+
+    const newTodo = {
+      ...todo,
+      completed: !completed,
+    };
+
     setIsUpdating(prevState => [...prevState, todo.id]);
     setStatusResponce(true);
 
     todosService
-      .updateTodo(editStatus ? todo : { ...todo, completed: !todo.completed })
+      .updateTodo(newTodo)
       .then((changedTodo) => {
         setTodos((prevState) => {
           const newTodos = [...prevState];
@@ -125,27 +132,18 @@ export const App: React.FC = () => {
   };
 
   const updateAllTodos = () => {
-    const activeTodos = [...todos].map((todo) => ({
-      ...todo,
-      completed: false,
-    }));
-    const completedTodos = [...todos].map((todo) => ({
-      ...todo,
-      completed: true,
-    }));
+    const completedStatus = activeTodosLength > 0;
 
-    if (!activeTodosLength) {
-      completedTodos.forEach((todo) => updateTodo(todo, false));
-
-      return;
-    }
-
-    activeTodos.forEach((todo) => updateTodo(todo, false));
+    todos.forEach(todo => {
+      if (todo.completed !== completedStatus) {
+        updateTodo(todo);
+      }
+    });
   };
 
   const removeTodo = (todoId: number) => {
-    setLoader(true);
     setIsUpdating(prevState => [...prevState, todoId]);
+    setStatusResponce(true);
 
     todosService
       .removeTodo(todoId)
@@ -155,7 +153,7 @@ export const App: React.FC = () => {
       .catch(() => changeErrorMessage(Errors.Delete))
       .finally(() => {
         setIsUpdating(prevState => prevState.filter(id => id !== todoId));
-        setLoader(false);
+        setStatusResponce(false);
       });
   };
 
@@ -179,6 +177,7 @@ export const App: React.FC = () => {
         <TodoHeader
           statusResponce={statusResponce}
           title={title}
+          todosLength={todos.length}
           activeTodosLength={activeTodosLength}
           setTitle={setTitle}
           addTodo={addTodo}

@@ -5,7 +5,7 @@ import { TodoItem } from '../TodoItem';
 interface Props {
   todos: Todo[];
   isUpdating: number[];
-  updateTodo: (todo: Todo, editStatus: boolean) => void;
+  updateTodo: (todo: Todo) => void;
   removeTodo: (todoId: number) => void;
 }
 

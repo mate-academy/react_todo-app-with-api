@@ -5,7 +5,7 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo;
   isUpdating: number[];
-  updateTodo: (todo: Todo, editStatus: boolean) => void;
+  updateTodo: (todo: Todo) => void;
   removeTodo: (todoId: number) => void;
 }
 
@@ -20,42 +20,44 @@ export const TodoItem: React.FC<Props> = ({
   const todoInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isTodoEdit && todoInput.current) {
+    if (todoInput.current) {
       todoInput.current.focus();
     }
   }, [isTodoEdit]);
-
-  const editTodoOnSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
 
   const showEditTodoForm = () => {
     setTodoTitle(todo.title);
     setIsTodoEdit(true);
   };
 
-  const onTodoBlur = () => {
-    if (isTodoEdit) {
-      if (todoTitle.trim() !== '') {
-        if (todoTitle.trim() !== todo.title.trim()) {
-          updateTodo({ ...todo, title: todoTitle }, isTodoEdit);
-        } else {
-          setIsTodoEdit(false);
-        }
-      } else {
-        removeTodo(todo.id);
-      }
+  const hideEditTodoForm = () => {
+    setTodoTitle('');
+    setIsTodoEdit(false);
+  };
+
+  const editTodoOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmedTitle = todoTitle.trim();
+
+    if (trimmedTitle === todo.title) {
+      hideEditTodoForm();
+
+      return;
+    }
+
+    if (trimmedTitle) {
+      updateTodo({
+        ...todo,
+        title: trimmedTitle,
+      });
+    } else {
+      removeTodo(todo.id);
     }
   };
 
-  const onTodoKeyUp = (key: string) => {
-    if (key === 'Escape') {
-      setTodoTitle('');
-      setIsTodoEdit(false);
-    }
-
-    if (key === 'Enter') {
-      onTodoBlur();
+  const onTodoKeyUp = (key: React.KeyboardEvent<HTMLInputElement>) => {
+    if (key.code === 'Escape') {
+      hideEditTodoForm();
     }
   };
 
@@ -63,7 +65,6 @@ export const TodoItem: React.FC<Props> = ({
     <div
       data-cy="Todo"
       className={cn('todo', { completed: todo.completed })}
-      onDoubleClick={showEditTodoForm}
       key={todo.id}
     >
       <label className="todo__status-label">
@@ -72,25 +73,30 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => updateTodo(todo, isTodoEdit)}
+          onChange={() => updateTodo(todo)}
         />
       </label>
 
       {isTodoEdit ? (
-        <form onSubmit={editTodoOnSubmit}>
+        <form onSubmit={editTodoOnSubmit} onBlur={editTodoOnSubmit}>
           <input
             type="text"
+            data-cy="TodoTitleField"
             className="todo__title-field"
+            placeholder="Empty todo will be deleted"
             value={todoTitle}
-            onBlur={onTodoBlur}
-            onKeyUp={({ key }) => onTodoKeyUp(key)}
             onChange={({ target }) => setTodoTitle(target.value)}
+            onKeyUp={onTodoKeyUp}
             ref={todoInput}
           />
         </form>
       ) : (
         <>
-          <span data-cy="TodoTitle" className="todo__title">
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={showEditTodoForm}
+          >
             {todo.title}
           </span>
           <button
