@@ -5,14 +5,14 @@ import { TodoItem } from '../TodoItem';
 interface Props {
   todos: Todo[];
   isUpdating: number[];
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo, completedStatus: boolean) => Promise<void>;
   removeTodo: (todoId: number) => void;
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   isUpdating,
-  updateTodo = () => {},
+  updateTodo,
   removeTodo = () => {},
 }) => {
   return (

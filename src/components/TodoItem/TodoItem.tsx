@@ -5,14 +5,14 @@ import { Todo } from '../../types/Todo';
 interface Props {
   todo: Todo;
   isUpdating: number[];
-  updateTodo: (todo: Todo) => void;
+  updateTodo: (todo: Todo, completedStatus: boolean) => Promise<void>;
   removeTodo: (todoId: number) => void;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isUpdating,
-  updateTodo = () => {},
+  updateTodo,
   removeTodo = () => {},
 }) => {
   const [todoTitle, setTodoTitle] = useState(todo.title);
@@ -38,6 +38,7 @@ export const TodoItem: React.FC<Props> = ({
   const editTodoOnSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedTitle = todoTitle.trim();
+    const newTodo = { ...todo, title: trimmedTitle };
 
     if (trimmedTitle === todo.title) {
       hideEditTodoForm();
@@ -46,10 +47,7 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (trimmedTitle) {
-      updateTodo({
-        ...todo,
-        title: trimmedTitle,
-      });
+      updateTodo(newTodo, false).then(() => hideEditTodoForm());
     } else {
       removeTodo(todo.id);
     }
@@ -73,7 +71,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => updateTodo(todo)}
+          onChange={() => updateTodo(todo, true)}
         />
       </label>
 

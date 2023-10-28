@@ -101,18 +101,18 @@ export const App: React.FC = () => {
       });
   };
 
-  const updateTodo = (todo: Todo) => {
+  const updateTodo = (todo: Todo, completedStatus: boolean) => {
     const { completed } = todo;
 
     const newTodo = {
       ...todo,
-      completed: !completed,
+      completed: completedStatus ? !completed : false,
     };
 
-    setIsUpdating(prevState => [...prevState, todo.id]);
+    setIsUpdating((prevState) => [...prevState, todo.id]);
     setStatusResponce(true);
 
-    todosService
+    return todosService
       .updateTodo(newTodo)
       .then((changedTodo) => {
         setTodos((prevState) => {
@@ -126,7 +126,7 @@ export const App: React.FC = () => {
       })
       .catch(() => changeErrorMessage(Errors.Update))
       .finally(() => {
-        setIsUpdating(prevState => prevState.filter(id => id !== todo.id));
+        setIsUpdating((prevState) => prevState.filter((id) => id !== todo.id));
         setStatusResponce(false);
       });
   };
@@ -134,15 +134,15 @@ export const App: React.FC = () => {
   const updateAllTodos = () => {
     const completedStatus = activeTodosLength > 0;
 
-    todos.forEach(todo => {
+    todos.forEach((todo) => {
       if (todo.completed !== completedStatus) {
-        updateTodo(todo);
+        updateTodo(todo, true);
       }
     });
   };
 
   const removeTodo = (todoId: number) => {
-    setIsUpdating(prevState => [...prevState, todoId]);
+    setIsUpdating((prevState) => [...prevState, todoId]);
     setStatusResponce(true);
 
     todosService
@@ -152,7 +152,7 @@ export const App: React.FC = () => {
       })
       .catch(() => changeErrorMessage(Errors.Delete))
       .finally(() => {
-        setIsUpdating(prevState => prevState.filter(id => id !== todoId));
+        setIsUpdating((prevState) => prevState.filter((id) => id !== todoId));
         setStatusResponce(false);
       });
   };
