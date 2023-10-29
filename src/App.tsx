@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+/* eslint-disable object-curly-newline */
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import * as todosService from './api/todos';
 
@@ -42,11 +43,17 @@ export const App: React.FC = () => {
       .finally(() => setLoader(false));
   }, []);
 
-  const activeTodosLength = [...todos]
-    .filter(({ completed }) => !completed).length;
+  const showFooter = useMemo(() => {
+    return !loader && todos.length > 0;
+  }, [loader, todos]);
 
-  const completedTodosLength = [...todos]
-    .filter(({ completed }) => completed).length;
+  const activeTodosLength = useMemo(() => {
+    return [...todos].filter(({ completed }) => !completed).length;
+  }, [todos]);
+
+  const completedTodosLength = useMemo(() => {
+    return [...todos].filter(({ completed }) => completed).length;
+  }, [todos]);
 
   const filteredTodos = useMemo(() => {
     switch (filterStatus) {
@@ -59,7 +66,7 @@ export const App: React.FC = () => {
     }
   }, [todos, filterStatus]);
 
-  const changeTodosStatus = (status: string) => {
+  const changeTodosStatus = useCallback((status: string) => {
     switch (status) {
       case Status.active:
         return setFilterStatus(Status.active);
@@ -68,7 +75,7 @@ export const App: React.FC = () => {
       default:
         return setFilterStatus(Status.all);
     }
-  };
+  }, []);
 
   const addTodo = () => {
     const trimmedTitle = title.trim();
@@ -101,7 +108,7 @@ export const App: React.FC = () => {
       });
   };
 
-  const updateTodo = (todo: Todo, completedStatus: boolean) => {
+  const updateTodo = useCallback((todo: Todo, completedStatus: boolean) => {
     const { completed } = todo;
 
     const newTodo = {
@@ -129,7 +136,7 @@ export const App: React.FC = () => {
         setIsUpdating((prevState) => prevState.filter((id) => id !== todo.id));
         setStatusResponce(false);
       });
-  };
+  }, []);
 
   const updateAllTodos = () => {
     const completedStatus = activeTodosLength > 0;
@@ -141,7 +148,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const removeTodo = (todoId: number) => {
+  const removeTodo = useCallback((todoId: number) => {
     setIsUpdating((prevState) => [...prevState, todoId]);
     setStatusResponce(true);
 
@@ -155,7 +162,7 @@ export const App: React.FC = () => {
         setIsUpdating((prevState) => prevState.filter((id) => id !== todoId));
         setStatusResponce(false);
       });
-  };
+  }, []);
 
   const removeAllTodos = () => {
     const completedTodos = [...todos]
@@ -202,7 +209,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {!loader && todos.length > 0 && (
+        {showFooter && (
           <TodoFooter
             activeTodosLength={activeTodosLength}
             completedTodosLength={completedTodosLength}
