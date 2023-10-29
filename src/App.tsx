@@ -59,7 +59,7 @@ export const App: React.FC = () => {
           setErrorMessage('');
         }, 3000);
       });
-  });
+  }, []);
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -154,7 +154,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length && (
+          {todos.length > 0 && (
             <button
               type="button"
               className={classNames(
@@ -203,7 +203,7 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {todos.length && (
+        {todos.length > 0 && (
           <Footer
             setFilter={setFilter}
             handleClearAll={handleClearAll}
