@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import React, { useContext, useEffect, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
@@ -136,7 +134,7 @@ export const TodoItem: React.FC<Props> = ({
 
   useEffect(() => {
     setIsChecked(completed);
-  }, [todo]);
+  }, [completed]);
 
   return (
     <div

@@ -154,7 +154,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {todos.length && (
             <button
               type="button"
               className={classNames(
@@ -203,7 +203,7 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {todos.length > 0 && (
+        {todos.length && (
           <Footer
             setFilter={setFilter}
             handleClearAll={handleClearAll}
