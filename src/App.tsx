@@ -54,6 +54,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
+
         setTimeout(() => {
           setErrorMessage('');
         }, 3000);
@@ -65,6 +66,7 @@ export const App: React.FC = () => {
 
     if (!query.trim()) {
       setErrorMessage('Title should not be empty');
+
       setTimeout(() => {
         setErrorMessage('');
       }, 3000);
@@ -82,6 +84,7 @@ export const App: React.FC = () => {
       addTodo(newTodo)
         .then(response => {
           reducer({ type: ActionType.Add, payload: response });
+
           setTempTodo(null);
           setQuery('');
         })
@@ -111,6 +114,7 @@ export const App: React.FC = () => {
         deleteTodo(todo.id)
           .then(() => {
             reducer({ type: ActionType.Delete, payload: todo.id });
+
             inputRef.current?.focus();
           })
           .catch(() => {

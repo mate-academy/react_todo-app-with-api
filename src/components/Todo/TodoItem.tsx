@@ -35,6 +35,7 @@ export const TodoItem: React.FC<Props> = ({
     updateTodo(id, { completed: !isChecked, userId: 11562 })
       .then(() => {
         setIsChecked(!isChecked);
+
         reducer({ type: ActionType.SetCompleted, payload: id });
       })
       .catch(() => {
@@ -55,6 +56,7 @@ export const TodoItem: React.FC<Props> = ({
     deleteTodo(id)
       .then(() => {
         reducer({ type: ActionType.Delete, payload: id });
+
         focusMainInput();
       })
       .catch(() => {
@@ -87,10 +89,12 @@ export const TodoItem: React.FC<Props> = ({
     updateTodo(id, { title: editedTitle.trim(), userId: 11562 })
       .then(() => {
         setEditedTitle(editedTitle.trim());
+
         reducer({
           type: ActionType.EditTitle,
-          payload: { id, title: editedTitle.trim() }
+          payload: { id, title: editedTitle.trim() },
         });
+
         setIsEditing(false);
       })
       .catch(() => {
@@ -154,7 +158,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {!isEditing && (
+      {!isEditing ? (
         <>
           <span
             data-cy="TodoTitle"
@@ -173,9 +177,7 @@ export const TodoItem: React.FC<Props> = ({
             ×
           </button>
         </>
-      )}
-
-      {isEditing && (
+      ) : (
         <form onSubmit={(e) => e.preventDefault()}>
           <input
             data-cy="TodoTitleField"
