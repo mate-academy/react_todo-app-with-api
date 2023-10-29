@@ -59,7 +59,7 @@ export const App: React.FC = () => {
           setErrorMessage('');
         }, 3000);
       });
-  }, []);
+  });
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
