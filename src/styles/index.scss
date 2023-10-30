@@ -3,9 +3,15 @@ iframe {
 }
 
 body {
+  height: 100vh;
   min-width: 230px;
-  max-width: 550px;
+  display: grid;
+  place-items: center;
   margin: 0 auto;
+  background-image: url('../assets/patternpad.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
 }
 
 .notification {
