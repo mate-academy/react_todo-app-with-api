@@ -11,7 +11,7 @@ export type TodosContextType = {
   statusFilter: Filter;
   setStatusFilter: (status: Filter) => void;
   statusResponse: boolean;
-  setStatusResponse: (status: boolean) => void;
+  setIsStatusResponse: (status: boolean) => void;
   tempTodo: Todo | null;
   setTempTodo: (todo: Todo | null) => void;
   changeErrorMessage: (message: string) => void;

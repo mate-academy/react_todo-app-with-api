@@ -16,7 +16,7 @@ export const TodosContext = React.createContext<TodosContextType>({
   statusFilter: Filter.ALL,
   setStatusFilter: () => {},
   statusResponse: false,
-  setStatusResponse: () => {},
+  setIsStatusResponse: () => {},
   tempTodo: null,
   setTempTodo: () => {},
   changeErrorMessage: () => {},
@@ -39,7 +39,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isLoadingTodo, setIsLoadingTodo] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [statusFilter, setStatusFilter] = useState(Filter.ALL);
-  const [statusResponse, setStatusResponse] = useState(false);
+  const [statusResponse, setIsStatusResponse] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   function changeErrorMessage(message: string) {
@@ -68,7 +68,6 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
 
       case Filter.COMPLETED:
         filtered = filtered.filter(todo => todo.completed);
-
         break;
 
       default:
@@ -98,7 +97,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       ...data,
     });
 
-    setStatusResponse(true);
+    setIsStatusResponse(true);
 
     todosServices
       .createTodo(data)
@@ -111,12 +110,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       })
       .finally(() => {
         setTempTodo(null);
-        setStatusResponse(false);
+        setIsStatusResponse(false);
       });
   };
 
   const deleteTodo = (todoId: number) => {
-    setStatusResponse(true);
+    setIsStatusResponse(true);
     setIsLoadingTodo((currentTodo) => [...currentTodo, todoId]);
 
     todosServices
@@ -125,20 +124,20 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setTodos(
           (currentTodo) => currentTodo.filter((todo) => todo.id !== todoId),
         );
-        setStatusResponse(false);
+        setIsStatusResponse(false);
       })
       .catch(() => changeErrorMessage('Unable to delete a todo'))
       .finally(() => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
           (id: number) => id !== todoId,
         ));
-        setStatusResponse(false);
+        setIsStatusResponse(false);
       });
   };
 
   const updateTodo = (newTodo: Todo) => {
     setIsLoadingTodo(currentTodo => [...currentTodo, newTodo.id]);
-    setStatusResponse(true);
+    setIsStatusResponse(true);
 
     return todosServices.updateTodo(newTodo)
       .then(() => {
@@ -147,7 +146,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
             curTodo.id === newTodo.id ? newTodo : curTodo
           )),
         );
-        setStatusResponse(false);
+        setIsStatusResponse(false);
       })
       .catch((error) => {
         changeErrorMessage('Unable to update a todo');
@@ -157,7 +156,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
         setIsLoadingTodo(currentTodo => currentTodo.filter(
           id => id !== newTodo.id,
         ));
-        setStatusResponse(false);
+        setIsStatusResponse(false);
       });
   };
 
@@ -204,7 +203,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       statusFilter,
       setStatusFilter,
       statusResponse,
-      setStatusResponse,
+      setIsStatusResponse,
       tempTodo,
       setTempTodo,
       changeErrorMessage,
