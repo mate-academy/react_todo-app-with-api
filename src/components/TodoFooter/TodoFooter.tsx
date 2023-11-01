@@ -12,14 +12,10 @@ export const TodoFooter: React.FC = () => {
     handlerClearCompleted,
   } = React.useContext(TodosContext);
 
-  const getItemsText = (count: number) => {
-    return count === 1 ? 'item' : 'items';
-  };
-
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodos} ${getItemsText(activeTodos)} left`}
+        {`${activeTodos} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
