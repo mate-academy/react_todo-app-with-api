@@ -7,7 +7,7 @@ export const Header: React.FC = () => {
 
   const {
     todos,
-    statusResponse,
+    IsStatusResponse,
     addTodo,
     activeTodos,
     handlerToggleAll,
@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
     if (inputField.current) {
       inputField.current.focus();
     }
-  }, [statusResponse, todos.length]);
+  }, [IsStatusResponse, todos.length]);
 
   const handlerSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -52,7 +52,7 @@ export const Header: React.FC = () => {
           value={title}
           onChange={e => setTitle(e.target.value)}
           ref={input => input && input.focus()}
-          disabled={statusResponse}
+          disabled={IsStatusResponse}
         />
       </form>
     </header>

@@ -15,7 +15,7 @@ export const TodosContext = React.createContext<TodosContextType>({
   setErrorMessage: () => {},
   statusFilter: Filter.ALL,
   setStatusFilter: () => {},
-  statusResponse: false,
+  IsStatusResponse: false,
   setIsStatusResponse: () => {},
   tempTodo: null,
   setTempTodo: () => {},
@@ -39,7 +39,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [isLoadingTodo, setIsLoadingTodo] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [statusFilter, setStatusFilter] = useState(Filter.ALL);
-  const [statusResponse, setIsStatusResponse] = useState(false);
+  const [IsStatusResponse, setIsStatusResponse] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   function changeErrorMessage(message: string) {
@@ -202,7 +202,7 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       setErrorMessage,
       statusFilter,
       setStatusFilter,
-      statusResponse,
+      IsStatusResponse,
       setIsStatusResponse,
       tempTodo,
       setTempTodo,
