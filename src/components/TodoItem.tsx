@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
-import { Errors } from '../types/Error';
 
 type Props = {
   todo: Todo;
@@ -9,7 +8,6 @@ type Props = {
   deleteTodo: (id: number) => void;
   update: number[];
   updateTodo: (todo: Todo) => Promise<void | Todo>;
-  mesage: (message: string) => void;
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -18,42 +16,49 @@ export const TodoItem: React.FC<Props> = ({
   deleteTodo,
   update,
   updateTodo,
-  mesage,
 }) => {
   const { completed, title, id } = todo;
+
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(title);
+  const [editTitle, setEditTitle] = useState('');
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing && input.current) {
+    if (input.current) {
       input.current.focus();
     }
   }, [isEditing]);
 
-  const doubleClick = () => {
+  const handleDoubleClick = () => {
     setIsEditing(true);
+    setEditTitle(title);
   };
 
-  const editCancel = () => {
+  const handleEditCancel = () => {
     setIsEditing(false);
+    setEditTitle('');
   };
 
-  const edit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTitle = editTitle.trim();
 
+    if (trimmedTitle === title) {
+      handleEditCancel();
+
+      return;
+    }
+
     if (trimmedTitle) {
-      try {
-        await updateTodo({
-          ...todo,
-          title: trimmedTitle,
-        });
-        editCancel();
-      } catch (error) {
-        mesage(Errors.title);
-      }
+      updateTodo({
+        ...todo,
+        title: trimmedTitle,
+      })
+        .then(() => {
+          handleEditCancel();
+        })
+        .catch(() => {});
     } else {
       deleteTodo(id);
     }
@@ -61,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleKeyUp = (key: React.KeyboardEvent<HTMLInputElement>) => {
     if (key.code === 'Escape') {
-      editCancel();
+      handleEditCancel();
     }
   };
 
@@ -85,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={doubleClick}
+            onDoubleClick={handleDoubleClick}
           >
             {title}
           </span>
@@ -101,8 +106,8 @@ export const TodoItem: React.FC<Props> = ({
         </>
       ) : (
         <form
-          onSubmit={edit}
-          onBlur={edit}
+          onSubmit={handleEdit}
+          onBlur={handleEdit}
         >
           <input
             data-cy="TodoTitleField"

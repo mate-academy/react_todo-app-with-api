@@ -32,20 +32,13 @@ export const App: React.FC = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    const fetchTodos = async () => {
-      try {
-        const todosData = await TodoService.getTodos(USER_ID);
-
-        setTodos(todosData);
-      } catch (error) {
+    TodoService.getTodos(USER_ID)
+      .then(setTodos)
+      .catch(() => {
         setErrorMessage(Errors.loading);
         errorTimer();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTodos();
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const visibleTodos = useMemo(() => {
@@ -72,34 +65,37 @@ export const App: React.FC = () => {
 
   const activeTodos = todos.filter((todo) => !todo.completed).length;
 
-  const addTodo = async ({ title, userId, completed }: Todo) => {
-    try {
-      const newTodo = await TodoService.addTodo({ title, userId, completed });
-
-      setTodos(currentTodos => [...currentTodos, newTodo]);
-      setTitleTodo('');
-    } catch (error) {
-      setErrorMessage(Errors.add);
-      errorTimer();
-    } finally {
-      setTempTodo(null);
-      setStatus(false);
-    }
+  const addTodo = ({ title, userId, completed }: Todo) => {
+    TodoService.addTodo({ title, userId, completed })
+      .then(newTodo => {
+        setTodos(currentTodos => [...currentTodos, newTodo]);
+        setTitleTodo('');
+      })
+      .catch(() => {
+        setErrorMessage(Errors.add);
+        errorTimer();
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setStatus(false);
+      });
   };
 
-  const deleteTodo = async (todoId: number) => {
+  const deleteTodo = (todoId: number) => {
     setStatus(true);
     setUpdate(current => [...current, todoId]);
 
-    try {
-      await TodoService.deleteTodo(todoId);
-      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
-    } catch (error) {
-      setErrorMessage(Errors.delete);
-    } finally {
-      setUpdate(current => current.filter(id => id !== todoId));
-      setStatus(false);
-    }
+    TodoService.deleteTodo(todoId)
+      .then(() => {
+        setTodos(currentTodos => currentTodos
+          .filter(todo => todo.id !== todoId));
+        setStatus(false);
+      })
+      .catch(() => setErrorMessage(Errors.delete))
+      .finally(() => {
+        setUpdate(current => current
+          .filter(id => id !== todoId));
+      });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -120,21 +116,23 @@ export const App: React.FC = () => {
     }
   };
 
-  const updateTodo = async (newTodo: Todo) => {
+  const updateTodo = (newTodo: Todo) => {
     setUpdate(current => [...current, newTodo.id]);
     setStatus(true);
 
-    try {
-      await TodoService.updateTodo(newTodo);
-      setTodos(current => current.map(curTodo => (
-        curTodo.id === newTodo.id ? newTodo : curTodo)));
-    } catch (error) {
-      setErrorMessage(Errors.update);
-      throw error;
-    } finally {
-      setUpdate(current => current.filter(id => id !== newTodo.id));
-      setStatus(false);
-    }
+    return TodoService.updateTodo(newTodo)
+      .then(() => {
+        setTodos(current => current
+          .map(curTodo => (curTodo.id === newTodo.id ? newTodo : curTodo)));
+      })
+      .catch((error) => {
+        setErrorMessage(Errors.update);
+        throw error;
+      })
+      .finally(() => {
+        setUpdate(current => current.filter(id => id !== newTodo.id));
+        setStatus(false);
+      });
   };
 
   const checkboxTodo = (todo: Todo) => {
@@ -163,9 +161,9 @@ export const App: React.FC = () => {
   const clearCompletedTodos = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
-    const deletePromises = completedTodos.map(todo => deleteTodo(todo.id));
+    completedTodos.forEach(todo => Promise.resolve(deleteTodo(todo.id)));
 
-    Promise.allSettled(deletePromises);
+    Promise.allSettled(completedTodos);
   };
 
   if (!USER_ID) {
@@ -211,7 +209,6 @@ export const App: React.FC = () => {
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
               update={update}
-              mesage={setErrorMessage}
             />
 
             {tempTodo && (
@@ -221,7 +218,6 @@ export const App: React.FC = () => {
                 deleteTodo={deleteTodo}
                 update={update}
                 updateTodo={updateTodo}
-                mesage={setErrorMessage}
               />
             )}
 

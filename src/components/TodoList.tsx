@@ -8,7 +8,6 @@ type Props = {
   deleteTodo: (id: number) => void;
   update: number[];
   updateTodo: (todo: Todo) => Promise<void | Todo>;
-  mesage: (message: string) => void;
 };
 
 export const TodoList: React.FC<Props> = ({
@@ -17,7 +16,6 @@ export const TodoList: React.FC<Props> = ({
   deleteTodo,
   update,
   updateTodo,
-  mesage,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -29,7 +27,6 @@ export const TodoList: React.FC<Props> = ({
           deleteTodo={deleteTodo}
           update={update}
           updateTodo={updateTodo}
-          mesage={mesage}
         />
       ))}
     </section>
