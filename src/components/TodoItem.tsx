@@ -14,7 +14,7 @@ export const TodoItem: React.FC<Props> = ({
   todo,
   checkboxTodo,
   deleteTodo,
-  update,
+  update: isUpdating,
   updateTodo,
 }) => {
   const { completed, title, id } = todo;
@@ -39,21 +39,19 @@ export const TodoItem: React.FC<Props> = ({
     setEditTitle('');
   };
 
-  const edit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const trimmedTitle = editTitle.trim();
-
-    if (trimmedTitle === title) {
+    if (editTitle.trim() === title) {
       editCancel();
 
       return;
     }
 
-    if (trimmedTitle) {
+    if (editTitle.trim()) {
       updateTodo({
         ...todo,
-        title: trimmedTitle,
+        title: editTitle.trim(),
       })
         .then(() => {
           editCancel();
@@ -106,8 +104,8 @@ export const TodoItem: React.FC<Props> = ({
         </>
       ) : (
         <form
-          onSubmit={edit}
-          onBlur={edit}
+          onSubmit={handleEdit}
+          onBlur={handleEdit}
         >
           <input
             data-cy="TodoTitleField"
@@ -125,7 +123,7 @@ export const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
-          'is-active': update.includes(id) || id === 0,
+          'is-active': isUpdating.includes(id) || id === 0,
         })}
       >
         <div className="modal-background has-background-white-ter" />

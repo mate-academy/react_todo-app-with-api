@@ -1,9 +1,8 @@
-import React, {
-  useEffect, useMemo, useState,
-} from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { UserWarning } from './UserWarning';
 import * as TodoService from './api/todos';
+import { UserWarning } from './UserWarning';
 import { TodoList } from './components/TodoList';
 import { TodoItem } from './components/TodoItem';
 import { Footer } from './components/Footer';
@@ -11,9 +10,7 @@ import { Todo } from './types/Todo';
 import { Filter } from './types/Filter';
 import { Errors } from './types/Error';
 
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
-const USER_ID = 11706;
+const USER_ID = 11693;
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -25,21 +22,19 @@ export const App: React.FC = () => {
   const [status, setStatus] = useState(false);
   const [update, setUpdate] = useState<number[]>([]);
 
-  const errorTimer = () => {
+  function setError(message: string) {
+    setErrorMessage(message);
     setTimeout(() => {
       setErrorMessage('');
     }, 3000);
-  };
+  }
 
   useEffect(() => {
     setIsLoading(true);
 
     TodoService.getTodos(USER_ID)
       .then(setTodos)
-      .catch(() => {
-        setErrorMessage(Errors.loading);
-        errorTimer();
-      })
+      .catch(() => setError(Errors.loading))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -77,10 +72,7 @@ export const App: React.FC = () => {
           .filter(todo => todo.id !== todoId));
         setStatus(false);
       })
-      .catch(() => {
-        setErrorMessage(Errors.delete);
-        errorTimer();
-      })
+      .catch(() => setError(Errors.delete))
       .finally(() => {
         setUpdate(current => current
           .filter(id => id !== todoId));
@@ -88,16 +80,17 @@ export const App: React.FC = () => {
   };
 
   const addTodo = () => {
-    if (!titleTodo.trim()) {
-      setErrorMessage(Errors.title);
-      errorTimer();
+    const trimmedTitle = titleTodo.trim();
+
+    if (!trimmedTitle) {
+      setError(Errors.title);
 
       return;
     }
 
     const data = {
       userId: USER_ID,
-      title: titleTodo.trim(),
+      title: trimmedTitle,
       completed: false,
     };
 
@@ -113,10 +106,7 @@ export const App: React.FC = () => {
         setTitleTodo('');
         setTodos((currentTodo) => [...currentTodo, newTodo]);
       })
-      .catch(() => {
-        setErrorMessage(Errors.add);
-        errorTimer();
-      })
+      .catch(() => setError(Errors.add))
       .finally(() => {
         setTempTodo(null);
         setStatus(false);
@@ -137,9 +127,9 @@ export const App: React.FC = () => {
         setTodos(current => current
           .map(curTodo => (curTodo.id === newTodo.id ? newTodo : curTodo)));
       })
-      .catch(() => {
-        setErrorMessage(Errors.update);
-        errorTimer();
+      .catch((error) => {
+        setError(Errors.update);
+        throw error;
       })
       .finally(() => {
         setUpdate(current => current.filter(id => id !== newTodo.id));
