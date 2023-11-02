@@ -88,18 +88,6 @@ export const TodoFilter: React.FC<Props> = ({
       >
         Clear completed
       </button>
-
-      {/* {!shouldClearButtonRender
-      && (
-        <button
-          type="button"
-          data-cy="ClearCompletedButton"
-          className="todoapp__clear-completed"
-          onClick={handleDeleteComplited}
-        >
-          Clear completed
-        </button>
-      )} */}
     </footer>
   );
 };

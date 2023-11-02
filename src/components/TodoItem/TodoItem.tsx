@@ -12,16 +12,13 @@ import { Dispatchers } from '../../types/enums/Dispatchers';
 
 interface Props {
   todo: Todo;
-  // toggleStatus: (id: number, completed: boolean) => void;
   isActive: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
   const { dispatcher } = useContext(TodosContext);
-  // const [titleCurrent, setTitleCurrent] = useState('');
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [isEdited, setIsEdited] = useState(false);
-  // const [status, setStatus] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
   const input = useRef<HTMLInputElement>(null);
 
@@ -109,7 +106,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          // id={String(id)}
         />
       </label>
 
@@ -120,8 +116,6 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
               data-cy="TodoTitle"
               className="todo__title"
               onDoubleClickCapture={onSetEdited}
-              // onDoubleClick={onSetEdited}
-              // onDoubleClickCapture={}
             >
               {title}
             </span>

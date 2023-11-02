@@ -76,7 +76,6 @@ export const Header: React.FC = () => {
           value={formValue}
           ref={inputRef}
           onChange={handleValueChange}
-          // onBlur={handleCreateNewTodo}
           data-cy="NewTodoField"
           type="text"
           className="todoapp__new-todo"

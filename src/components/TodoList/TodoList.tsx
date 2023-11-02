@@ -3,7 +3,6 @@ import { TodosContext } from '../../store/store';
 import { TodoItem } from '../TodoItem';
 import { Status } from '../../types/enums/Status';
 import { Todo } from '../../types/Todo';
-// import { Dispatchers } from '../../types/enums/Dispatchers';
 
 const filter = (list: Todo[], status: Status = Status.All): Todo[] => {
   if (!status) {
@@ -29,19 +28,8 @@ interface Props {
 export const TodoList: React.FC<Props> = ({ filterParam }) => {
   const checkbox = useRef<HTMLInputElement>(null);
   const { todos, tempTodo, activeTodoIds } = useContext(TodosContext);
-  // const { dispatcher } = useContext(TodosContext);
 
   const filteredTodos = filter(todos, filterParam);
-
-  // const toggleStatus = (id, completed): void => {
-  //   dispatcher({
-  //     type: Dispatchers.ChangeStatus,
-  //     payload: {
-  //       id,
-  //       completed,
-  //     },
-  //   });
-  // };
 
   useEffect(() => {
     if (checkbox.current) {
@@ -58,7 +46,6 @@ export const TodoList: React.FC<Props> = ({ filterParam }) => {
           <TodoItem
             key={todo.id}
             todo={todo}
-            // toggleStatus={toggleStatus}
             isActive={isActive}
           />
         );
@@ -68,7 +55,6 @@ export const TodoList: React.FC<Props> = ({ filterParam }) => {
           <TodoItem
             key={tempTodo.id}
             todo={tempTodo}
-            // toggleStatus={toggleStatus}
             isActive={Boolean('isActive')}
           />
         )}

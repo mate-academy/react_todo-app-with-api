@@ -11,7 +11,7 @@ import {
 } from '../api/todos';
 import { Errors } from '../types/enums/Errors';
 import { Actions } from '../types/Actions';
-//257334
+
 const USER_ID = 11806;
 
 // #region Initials
@@ -161,40 +161,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
               inputRef.current.focus();
             }
           });
-        //   try {
-        //     await Promise
-        //       .allSettled(todosIds.map(id => deleteTodo(id)));
-
-        //     setTodos(prev => [...prev].filter(todo => !todo.completed));
-        //   } catch (err) {
-        //     newErrorTimeout(Errors.DELETE);
-        //   } finally {
-        //     setActiveTodoIds([]);
-        //     if (inputRef.current) {
-        //       inputRef.current.focus();
-        //     }
-        //   }
-        // }
-        // case Dispatchers.DeleteComplited: {
-        //   const todosIds = [...state]
-        //     .filter(todo => todo.completed)
-        //     .map(todo => todo.id);
-
-        //   setActiveTodoIds(prev => [...prev, ...todosIds]);
-
-        //   try {
-        //     await Promise
-        //       .all(todosIds.map(id => deleteTodo(id)));
-
-        //     setTodos(prev => [...prev].filter(todo => !todo.completed));
-        //   } catch (err) {
-        //     newErrorTimeout(Errors.DELETE);
-        //   } finally {
-        //     setActiveTodoIds([]);
-        //     if (inputRef.current) {
-        //       inputRef.current.focus();
-        //     }
-        //   }
       }
 
         break;
@@ -207,7 +173,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
 
           setTodos([...state].filter(todo => todo.id !== action.payload));
         } catch (error) {
-          // setErrorType(Errors.DELETE);
           newErrorTimeout(Errors.DELETE);
         } finally {
           setActiveTodoIds(
@@ -217,64 +182,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
             inputRef.current.focus();
           }
         }
-
-        break;
-
-      case Dispatchers.ChangeStatus: {
-        const { id, completed } = action.payload;
-
-        setActiveTodoIds(prev => [...prev, id]);
-
-        try {
-          const updatedTodo = await updateTodo(id, { completed: !completed });
-
-          setTodos([...state].map(todo => {
-            if (todo.id === updatedTodo.id) {
-              return updatedTodo;
-            }
-
-            return todo;
-          }));
-        } catch (error) {
-          newErrorTimeout(Errors.PATCH);
-        } finally {
-          setActiveTodoIds(
-            prev => [...prev].filter(idInList => idInList !== id),
-          );
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }
-      }
-
-        break;
-
-      case Dispatchers.UpdateTitle: {
-        const { title, id } = action.payload;
-
-        setActiveTodoIds(prev => [...prev, id]);
-
-        try {
-          const updatedTodo = await updateTodo(id, { title });
-
-          setTodos([...state].map(todo => {
-            if (todo.id === updatedTodo.id) {
-              return updatedTodo;
-            }
-
-            return todo;
-          }));
-        } catch (error) {
-          newErrorTimeout(Errors.PATCH);
-        } finally {
-          setActiveTodoIds(
-            prev => [...prev].filter(idInList => idInList !== id),
-          );
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }
-      }
 
         break;
 
@@ -311,9 +218,6 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
           setActiveTodoIds(
             prev => [...prev].filter(idInList => idInList !== id),
           );
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
         }
       }
 
