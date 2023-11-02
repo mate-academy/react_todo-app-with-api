@@ -29,23 +29,23 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  const handleDoubleClick = () => {
+  const doubleClick = () => {
     setIsEditing(true);
     setEditTitle(title);
   };
 
-  const handleEditCancel = () => {
+  const editCancel = () => {
     setIsEditing(false);
     setEditTitle('');
   };
 
-  const handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
+  const edit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTitle = editTitle.trim();
 
     if (trimmedTitle === title) {
-      handleEditCancel();
+      editCancel();
 
       return;
     }
@@ -56,7 +56,7 @@ export const TodoItem: React.FC<Props> = ({
         title: trimmedTitle,
       })
         .then(() => {
-          handleEditCancel();
+          editCancel();
         })
         .catch(() => {});
     } else {
@@ -66,7 +66,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleKeyUp = (key: React.KeyboardEvent<HTMLInputElement>) => {
     if (key.code === 'Escape') {
-      handleEditCancel();
+      editCancel();
     }
   };
 
@@ -90,7 +90,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={doubleClick}
           >
             {title}
           </span>
@@ -106,8 +106,8 @@ export const TodoItem: React.FC<Props> = ({
         </>
       ) : (
         <form
-          onSubmit={handleEdit}
-          onBlur={handleEdit}
+          onSubmit={edit}
+          onBlur={edit}
         >
           <input
             data-cy="TodoTitleField"

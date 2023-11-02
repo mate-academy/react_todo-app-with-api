@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import * as TodoService from './api/todos';
@@ -65,11 +65,50 @@ export const App: React.FC = () => {
 
   const activeTodos = todos.filter((todo) => !todo.completed).length;
 
-  const addTodo = ({ title, userId, completed }: Todo) => {
-    TodoService.addTodo({ title, userId, completed })
-      .then(newTodo => {
-        setTodos(currentTodos => [...currentTodos, newTodo]);
+  const deleteTodo = (todoId: number) => {
+    setStatus(true);
+    setUpdate(current => [...current, todoId]);
+
+    TodoService.deleteTodo(todoId)
+      .then(() => {
+        setTodos(currentTodos => currentTodos
+          .filter(todo => todo.id !== todoId));
+        setStatus(false);
+      })
+      .catch(() => {
+        setErrorMessage(Errors.delete);
+        errorTimer();
+      })
+      .finally(() => {
+        setUpdate(current => current
+          .filter(id => id !== todoId));
+      });
+  };
+
+  const addTodo = () => {
+    if (!titleTodo.trim()) {
+      setErrorMessage(Errors.title);
+      errorTimer();
+      return;
+    }
+
+    const data = {
+      userId: USER_ID,
+      title: titleTodo.trim(),
+      completed: false,
+    };
+
+    setTempTodo({
+      id: 0,
+      ...data,
+    });
+
+    setStatus(true);
+
+    TodoService.addTodo(data)
+      .then((newTodo) => {
         setTitleTodo('');
+        setTodos((currentTodo) => [...currentTodo, newTodo]);
       })
       .catch(() => {
         setErrorMessage(Errors.add);
@@ -81,40 +120,13 @@ export const App: React.FC = () => {
       });
   };
 
-  const deleteTodo = (todoId: number) => {
-    setStatus(true);
-    setUpdate(current => [...current, todoId]);
-
-    TodoService.deleteTodo(todoId)
-      .then(() => {
-        setTodos(currentTodos => currentTodos
-          .filter(todo => todo.id !== todoId));
-        setStatus(false);
-      })
-      .catch(() => setErrorMessage(Errors.delete))
-      .finally(() => {
-        setUpdate(current => current
-          .filter(id => id !== todoId));
-      });
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const newTodo = {
-      title: titleTodo.trim(),
-      completed: false,
-      id: 0,
-      userId: USER_ID,
-    };
-
-    if (!titleTodo.trim()) {
-      setErrorMessage(Errors.title);
-      errorTimer();
-    } else {
-      addTodo(newTodo);
-    }
-  };
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      addTodo();
+    },
+    [addTodo],
+  );
 
   const updateTodo = (newTodo: Todo) => {
     setUpdate(current => [...current, newTodo.id]);
@@ -125,9 +137,9 @@ export const App: React.FC = () => {
         setTodos(current => current
           .map(curTodo => (curTodo.id === newTodo.id ? newTodo : curTodo)));
       })
-      .catch((error) => {
+      .catch(() => {
         setErrorMessage(Errors.update);
-        throw error;
+        errorTimer();
       })
       .finally(() => {
         setUpdate(current => current.filter(id => id !== newTodo.id));
@@ -148,7 +160,7 @@ export const App: React.FC = () => {
       .catch(() => { });
   };
 
-  const toggleAll = () => {
+  const handleAll = () => {
     const completedStatus = activeTodos > 0;
 
     todos.forEach(todo => {
@@ -183,7 +195,7 @@ export const App: React.FC = () => {
                 active: !activeTodos,
               })}
               data-cy="ToggleAllButton"
-              onClick={toggleAll}
+              onClick={handleAll}
             />
           )}
 
