@@ -108,7 +108,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
         <input
           checked={completed}
           ref={checkbox}
-          onClick={() => toggleStatus()}
+          onChange={() => toggleStatus()}
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
