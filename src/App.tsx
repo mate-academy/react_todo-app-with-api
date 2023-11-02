@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect, useMemo, useState,
+} from 'react';
 import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import * as TodoService from './api/todos';
@@ -89,6 +91,7 @@ export const App: React.FC = () => {
     if (!titleTodo.trim()) {
       setErrorMessage(Errors.title);
       errorTimer();
+
       return;
     }
 
@@ -120,13 +123,10 @@ export const App: React.FC = () => {
       });
   };
 
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      addTodo();
-    },
-    [addTodo],
-  );
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    addTodo();
+  };
 
   const updateTodo = (newTodo: Todo) => {
     setUpdate(current => [...current, newTodo.id]);
