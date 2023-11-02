@@ -20,7 +20,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
   const [updatedTitle, setUpdatedTitle] = useState('');
   const [isEdited, setIsEdited] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
-  const input = useRef<HTMLInputElement>(null);
+  const updatedInput = useRef<HTMLInputElement>(null);
 
   const { title, completed, id } = todo;
 
@@ -86,9 +86,15 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
 
   useEffect(() => {
     if (isEdited) {
-      input.current?.focus();
+      updatedInput.current?.focus();
     }
   }, [isEdited]);
+
+  useEffect(() => {
+    if (isEdited && isActive) {
+      updatedInput.current?.focus();
+    }
+  }, [isActive, isEdited]);
 
   return (
     <div
@@ -137,7 +143,7 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
               value={updatedTitle}
               onChange={(event) => setUpdatedTitle(event.target.value)}
               onBlur={handleTitleUpdate}
-              ref={input}
+              ref={updatedInput}
               onKeyDown={onKeysHandler}
               className="todo__title-field"
               placeholder="Empty todo will be deleted"
