@@ -1,0 +1,38 @@
+import React from 'react';
+import { Todo } from '../types/Todo';
+import { NavMenu } from './NavMenu';
+import { ForComletedTodo } from '../types/enumFilter';
+
+type Props = {
+  todos: Todo[];
+  condition: ForComletedTodo;
+  setCondition: (condition: ForComletedTodo) => void;
+  handleClearCompletedTodos: () => void;
+};
+
+export const Footer: React.FC<Props> = ({
+  todos,
+  condition,
+  setCondition,
+  handleClearCompletedTodos,
+}) => {
+  const activeTodos = todos.filter(todo => !todo.completed).length;
+
+  return (
+    <footer className="todoapp__footer" data-cy="Footer">
+      <span className="todo-count" data-cy="TodosCounter">
+        {`${activeTodos} item${activeTodos !== 1 ? 's' : ''} left`}
+      </span>
+      <NavMenu condition={condition} setCondition={setCondition} />
+      <button
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        disabled={!!activeTodos}
+        onClick={handleClearCompletedTodos}
+      >
+        Clear completed
+      </button>
+    </footer>
+  );
+};

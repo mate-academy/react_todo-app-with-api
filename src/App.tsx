@@ -1,24 +1,228 @@
-/* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import { UserWarning } from './UserWarning';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 
-const USER_ID = 0;
+import { Todo } from './types/Todo';
+import * as todoService from './api/todos';
+import { ForComletedTodo } from './types/enumFilter';
+import { TodoItem } from './Components/TodoItem';
+import { Footer } from './Components/Footer';
+import { Header } from './Components/Header';
+import { ErrorNotification } from './Components/ErrorNotification';
+import { filterTodos } from './Components/helper';
 
 export const App: React.FC = () => {
-  if (!USER_ID) {
-    return <UserWarning />;
-  }
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [condition, setCondition] = useState(ForComletedTodo.All);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [inputDisabled, setInputDisabled] = useState(false);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorTimer, setErrorTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const filteredTodos = useMemo(() => filterTodos(todos, condition),
+    [condition, todos]);
+
+  useEffect(() => {
+    if (errorTimer) {
+      clearTimeout(errorTimer);
+    }
+
+    setErrorTimer(setTimeout(() => {
+      setErrorMessage(null);
+    }, 3000));
+  }, [errorMessage, errorTimer]);
+
+  const hasTodos = !!todos.length;
+
+  const isAllCompleted = todos.every(todo => todo.completed);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setErrorMessage(null);
+      const todosFetch = await todoService.getTodos();
+
+      setTodos(todosFetch);
+    } catch (err) {
+      setErrorMessage('Unable to load todos');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const hadleAddTodo = async (title: string) => {
+    try {
+      setInputDisabled(true);
+
+      const newTodo = {
+        id: 0,
+        userId: 0,
+        title: title.trim(),
+        completed: false,
+      };
+
+      setTempTodo(newTodo);
+
+      const addedTodo = await todoService.addTodo(title);
+
+      setTodos((prevTodos) => [...prevTodos, addedTodo]);
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
+      throw error;
+    } finally {
+      setInputDisabled(false);
+      setTempTodo(null);
+    }
+  };
+
+  const handleDeleteTodo = (todoId: number) => {
+    setInputDisabled(true);
+    setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todoId]);
+
+    return todoService
+      .deleteTodo(todoId)
+      .then((() => {
+        setTodos((prevTodos) => prevTodos.filter(todo => todo.id !== todoId));
+      }))
+      .catch(() => {
+        setErrorMessage('Unable to delete a todo');
+      })
+      .finally(() => {
+        setInputDisabled(false);
+        setProcessingTodoIds(
+          (prevTodoIds) => prevTodoIds.filter(id => id !== todoId),
+        );
+      });
+  };
+
+  const handleRenameTodo = async (todo: Todo, newTodoTitle: string) => {
+    setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
+
+    return todoService.updateTodo({
+      ...todo,
+      title: newTodoTitle.trim(),
+    })
+      .then(updatedTodo => {
+        setTodos(prevState => prevState.map(currentTodo => (
+          currentTodo.id !== updatedTodo.id
+            ? currentTodo
+            : updatedTodo
+        )));
+      })
+      .catch(() => {
+        setErrorMessage('Unable to update a todo');
+      })
+      .finally(() => {
+        setProcessingTodoIds(
+          (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
+        );
+      });
+  };
+
+  const handleClearCompletedTodos = () => {
+    todos.forEach(todo => {
+      if (todo.completed) {
+        handleDeleteTodo(todo.id);
+      }
+    });
+  };
+
+  const handleToggleTodo = async (todo: Todo) => {
+    try {
+      setProcessingTodoIds((prevTodoIds) => [...prevTodoIds, todo.id]);
+
+      const updatedTodo = await todoService.updateTodo({
+        ...todo,
+        completed: !todo.completed,
+      });
+
+      setTodos(prevState => prevState.map(currentTodo => (
+        currentTodo.id !== updatedTodo.id
+          ? currentTodo
+          : updatedTodo
+      )));
+    } catch (error) {
+      setErrorMessage('Unable to update a todo');
+    } finally {
+      setProcessingTodoIds(
+        (prevTodoIds) => prevTodoIds.filter(id => id !== todo.id),
+      );
+    }
+  };
+
+  const handleToggleAllTodos = () => {
+    const activeTodos = todos.filter(todo => !todo.completed);
+
+    if (isAllCompleted) {
+      todos.forEach(handleToggleTodo);
+    } else {
+      activeTodos.forEach(handleToggleTodo);
+    }
+  };
+
+  const handleDelete = async (todoId: number) => {
+    return handleDeleteTodo(todoId);
+  };
+
+  const handleRename = async (todo: Todo, todoTitle: string) => {
+    await handleRenameTodo(todo, todoTitle);
+  };
 
   return (
-    <section className="section container">
-      <p className="title is-4">
-        Copy all you need from the prev task:
-        <br />
-        <a href="https://github.com/mate-academy/react_todo-app-add-and-delete#react-todo-app-add-and-delete">React Todo App - Add and Delete</a>
-      </p>
+    <div className="todoapp">
+      <h1 className="todoapp__title">todos</h1>
 
-      <p className="subtitle">Styles are already copied</p>
-    </section>
+      <div className="todoapp__content">
+        <Header
+          onTodoAddError={setErrorMessage}
+          isAllCompleted={isAllCompleted}
+          hasTodos={hasTodos}
+          onTodoAdd={hadleAddTodo}
+          inputDisabled={inputDisabled}
+          onToggleAll={handleToggleAllTodos}
+        />
+
+        <section className="todoapp__main" data-cy="TodoList">
+          {filteredTodos.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onTodoDelete={() => handleDelete(todo.id)}
+              onRenameTodo={(todoTitle) => handleRename(todo, todoTitle)}
+              onTodoToggle={() => handleToggleTodo(todo)}
+              isProcessing={processingTodoIds.includes(todo.id)}
+            />
+          ))}
+        </section>
+
+        {tempTodo && (
+          <TodoItem
+            todo={tempTodo}
+            isProcessing
+          />
+        )}
+
+        {hasTodos && (
+          <Footer
+            todos={todos}
+            condition={condition}
+            setCondition={setCondition}
+            handleClearCompletedTodos={handleClearCompletedTodos}
+          />
+        )}
+      </div>
+
+      <ErrorNotification
+        setErrorMessage={setErrorMessage}
+        errorMessage={errorMessage}
+        errorTimer={errorTimer}
+        setErrorTimer={setErrorTimer}
+      />
+    </div>
   );
 };
