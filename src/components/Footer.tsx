@@ -18,19 +18,11 @@ export const Footer: React.FC<Props> = ({ filterBy, setFilterBy }) => {
 
   const todosCounter = unCompletedTodos.length;
 
-  const handleAllClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setFilterBy(FilterParams.All);
-  };
-
-  const handleActiveClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setFilterBy(FilterParams.Active);
-  };
-
-  const handleCompletedClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    setFilterBy(FilterParams.Completed);
+  const handleFilter = (filter: FilterParams) => {
+    return (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      setFilterBy(filter);
+    };
   };
 
   function handleDeleteCompleted() {
@@ -54,7 +46,7 @@ export const Footer: React.FC<Props> = ({ filterBy, setFilterBy }) => {
             })
           }
           data-cy="FilterLinkAll"
-          onClick={handleAllClick}
+          onClick={handleFilter(FilterParams.All)}
         >
           All
         </a>
@@ -67,7 +59,7 @@ export const Footer: React.FC<Props> = ({ filterBy, setFilterBy }) => {
             })
           }
           data-cy="FilterLinkActive"
-          onClick={handleActiveClick}
+          onClick={handleFilter(FilterParams.Active)}
         >
           Active
         </a>
@@ -80,7 +72,7 @@ export const Footer: React.FC<Props> = ({ filterBy, setFilterBy }) => {
             })
           }
           data-cy="FilterLinkCompleted"
-          onClick={handleCompletedClick}
+          onClick={handleFilter(FilterParams.Completed)}
         >
           Completed
         </a>

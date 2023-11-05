@@ -7,6 +7,8 @@ import React, {
 } from 'react';
 import { TodosContext } from '../stores/TodosContext';
 import { Todo } from '../types/Todo';
+import { ErrorMessages } from '../types/ErrorMessages';
+import * as todosAPI from '../api/todos';
 
 type Props = {
   todo: Todo,
@@ -20,6 +22,10 @@ export const TodoItem: React.FC<Props> = ({
   const {
     deleteTodo,
     updateTodo,
+    setLoading,
+    setIdsToChange,
+    setTodos,
+    showError,
   } = useContext(TodosContext);
 
   const [editing, setEditing] = useState(false);
@@ -60,8 +66,31 @@ export const TodoItem: React.FC<Props> = ({
         title: newTitle.trim(),
       };
 
-      updateTodo(newTodo);
-      input.current?.blur();
+      setLoading(true);
+      setIdsToChange(prevIds => [...prevIds, newTodo.id]);
+
+      todosAPI.updateTodo(newTodo)
+        .then(() => setTodos(prevTodos => {
+          const nextTodos = [...prevTodos];
+          const index = nextTodos.findIndex(prevTodo => {
+            return prevTodo.id === newTodo.id;
+          });
+
+          nextTodos.splice(index, 1, newTodo);
+          input.current?.blur();
+
+          return nextTodos;
+        }))
+        .catch(() => {
+          showError(ErrorMessages.Update);
+          handleDoubleClick();
+        })
+        .finally(() => {
+          setLoading(false);
+          setIdsToChange(prevIds => prevIds.filter(id => {
+            return id !== newTodo.id;
+          }));
+        });
 
       return;
     }
