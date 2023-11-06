@@ -38,13 +38,10 @@ export const Header: React.FC = () => {
   };
 
   const toggleAllStatuses = (): void => {
-    if (isAllComplited === false) {
-      dispatcher({ type: Dispatchers.ChangeAllStatuses, payload: true });
-    }
-
-    if (isAllComplited === true) {
-      dispatcher({ type: Dispatchers.ChangeAllStatuses, payload: false });
-    }
+    dispatcher({
+      type: Dispatchers.ChangeAllStatuses,
+      payload: !isAllComplited,
+    });
   };
 
   useEffect(() => {

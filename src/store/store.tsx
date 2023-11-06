@@ -50,7 +50,7 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
 
   const [activeTodoIds, setActiveTodoIds] = useState<number[]>([]);
 
-  const [errorTimeaut, setErrorTimeaut] = useState<NodeJS.Timeout | null>(null);
+  const [errorTimeout, setErrorTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -65,12 +65,12 @@ export const GlobalProvider: React.FC<Props> = ({ children }) => {
       setErrorType(null);
     }, 3000);
 
-    setErrorTimeaut(timeout);
+    setErrorTimeout(timeout);
   };
 
   const clearErrorMessage = () => {
-    if (errorTimeaut) {
-      clearTimeout(errorTimeaut);
+    if (errorTimeout) {
+      clearTimeout(errorTimeout);
       setErrorType(null);
     }
   };

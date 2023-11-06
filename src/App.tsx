@@ -8,7 +8,7 @@ import { Status } from './types/enums/Status';
 import { TodosContext } from './store/store';
 
 import { UserWarning } from './UserWarning';
-import { Errors } from './types/enums/Errors';
+import { errorHandler } from './utils/errorMessages';
 
 const USER_ID = 11806;
 
@@ -24,7 +24,7 @@ export const App: React.FC = () => {
     setFilterParam(param);
   };
 
-  const souldRenderList = Boolean(todos.length);
+  const shouldRenderList = Boolean(todos.length);
 
   return (
     <div className="todoapp">
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
 
         <Header />
 
-        {souldRenderList
+        {shouldRenderList
           && (
             <>
               <section className="todoapp__main" data-cy="TodoList">
@@ -66,16 +66,7 @@ export const App: React.FC = () => {
           onClick={clearErrorMessage}
         />
         {/* show only one message at a time */}
-        {errorType === Errors.GET
-          && 'Unable to load todos'}
-        {errorType === Errors.POST
-          && 'Unable to add a todo'}
-        {errorType === Errors.EMPTY
-          && 'Title should not be empty'}
-        {errorType === Errors.DELETE
-          && 'Unable to delete a todo'}
-        {errorType === Errors.PATCH
-          && 'Unable to update a todo'}
+        {errorType && errorHandler(errorType)}
       </div>
     </div>
   );

@@ -73,8 +73,8 @@ export const TodoItem: React.FC<Props> = ({ todo, isActive }) => {
     dispatcher({
       type: Dispatchers.UpdateTodo,
       payload: {
-        id: todo.id,
-        completed: todo.completed,
+        id,
+        completed,
       },
     });
   };

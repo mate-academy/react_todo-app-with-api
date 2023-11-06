@@ -4,11 +4,10 @@ import { TodoItem } from '../TodoItem';
 import { Status } from '../../types/enums/Status';
 import { Todo } from '../../types/Todo';
 
-const filter = (list: Todo[], status: Status = Status.All): Todo[] => {
-  if (!status) {
-    return list;
-  }
-
+const filterTodoByStatus = (
+  list: Todo[],
+  status: Status = Status.All,
+): Todo[] => {
   switch (status) {
     case Status.Active:
       return list.filter(todo => !todo.completed);
@@ -29,7 +28,7 @@ export const TodoList: React.FC<Props> = ({ filterParam }) => {
   const checkbox = useRef<HTMLInputElement>(null);
   const { todos, tempTodo, activeTodoIds } = useContext(TodosContext);
 
-  const filteredTodos = filter(todos, filterParam);
+  const filteredTodos = filterTodoByStatus(todos, filterParam);
 
   useEffect(() => {
     if (checkbox.current) {
