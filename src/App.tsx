@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-for */
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import classNames from 'classnames';
 import React, {
   useEffect, useRef, useState,
@@ -162,6 +159,7 @@ export const App: React.FC = () => {
                 active: activeTodos.length === 0,
               })}
               onClick={toggleAll}
+              aria-label="Toggle All"
             />
           )}
 
@@ -251,18 +249,17 @@ export const App: React.FC = () => {
       <div
         data-cy="ErrorNotification"
         className={classNames(
-          'notification is-danger is-light has-text-weight-normal', {
-            hidden: !errorMessage,
-          },
+          'notification is-danger is-light has-text-weight-normal',
+          { hidden: !errorMessage },
         )}
       >
         <button
+          aria-label="Toggle All"
           data-cy="HideErrorButton"
           type="button"
           className="delete"
           onClick={() => showError('')}
         />
-
         {errorMessage}
       </div>
     </div>
