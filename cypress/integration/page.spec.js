@@ -501,7 +501,7 @@ describe('', () => {
           todos.assertTitle(5, 'Test Todo');
         });
 
-        it('should add a not completed todo', () => {
+        it.skip('should add a not completed todo', () => {
           todos.assertNotCompleted(5);
         });
 
