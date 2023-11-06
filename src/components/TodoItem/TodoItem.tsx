@@ -54,6 +54,11 @@ export const TodoItem: React.FC<Props> = ({
     save();
   }
 
+  const handleStatysGhange = () => {
+    onUpdate({ ...todo, completed: !todo.completed })
+      .catch(() => {});
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -65,10 +70,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => {
-            onUpdate({ ...todo, completed: !todo.completed })
-              .catch(() => {});
-          }}
+          onChange={handleStatysGhange}
         />
       </label>
 

@@ -151,7 +151,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {!!todos.length && (
             <button
               data-cy="ToggleAllButton"
               type="button"
@@ -180,6 +180,7 @@ export const App: React.FC = () => {
         <section className="todoapp__main" data-cy="TodoList">
           {visibleTodos.map(todo => (
             <TodoItem
+              key={todo.id}
               todo={todo}
               isProcessed={processings.includes(todo.id)}
               onDelete={() => deleteTodo(todo.id)}
@@ -189,7 +190,7 @@ export const App: React.FC = () => {
 
         </section>
 
-        {(todos.length > 0 || creating) && (
+        {(!!todos.length || creating) && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
               {`${activeTodos.length} items left`}
@@ -237,7 +238,7 @@ export const App: React.FC = () => {
               data-cy="ClearCompletedButton"
               type="button"
               className="todoapp__clear-completed"
-              disabled={completedTodos.length === 0}
+              disabled={!completedTodos.length}
               onClick={clearCompleted}
             >
               Clear completed
