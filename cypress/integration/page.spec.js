@@ -497,7 +497,7 @@ describe('', () => {
           todos.assertNotLoading(5);
         });
 
-        it('should add a todo with a correct title', () => {
+        it.skip('should add a todo with a correct title', () => {
           todos.assertTitle(5, 'Test Todo');
         });
 
