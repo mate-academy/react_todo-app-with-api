@@ -13,7 +13,6 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
-    todos,
     setTodos,
     setError,
     deletingTodos,
@@ -23,19 +22,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const { title, completed } = todo;
   const [isEditing] = useState(false);
 
-  const handleTodoDelete = () => {
+  const handleTodoDelete = async () => {
     setDeletingTodos([...deletingTodos, todo.id]);
 
-    removeTodo(todo.id)
-      .then(() => {
-        setTodos(todos.filter(t => t.id !== todo.id));
-      })
-      .catch(() => {
-        setError(ErrorType.Delete);
-      })
-      .finally(() => {
-        setDeletingTodos(deletingTodos.filter(id => id !== todo.id));
-      });
+    try {
+      await removeTodo(todo.id);
+
+      setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
+    } catch {
+      setError(ErrorType.Delete);
+    } finally {
+      setDeletingTodos(deletingTodos.filter(id => id !== todo.id));
+    }
   };
 
   return (
