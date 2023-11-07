@@ -34,7 +34,7 @@ export const Header: React.FC = () => {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -48,21 +48,21 @@ export const Header: React.FC = () => {
         userId: USER_ID,
       };
 
-      addTodo(newTodo).then((todo) => {
+      try {
+        const todo = await addTodo(newTodo);
+
         setTitle('');
         setTempTodo(null);
         setTodos([...todos, todo]);
-      })
-        .catch(() => {
-          beforeResponse();
-          setError(ErrorType.Add);
-        })
-        .finally(() => {
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 0);
-          setTempTodo(null);
-        });
+      } catch {
+        beforeResponse();
+        setError(ErrorType.Add);
+      } finally {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 0);
+        setTempTodo(null);
+      }
     }
   };
 
