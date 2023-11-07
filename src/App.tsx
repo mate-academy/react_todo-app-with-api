@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   useEffect,
   useRef,
@@ -28,8 +27,9 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [deletedIds, setdeletedIds] = useState<number[]>([]);
   const [editedTodo, setEditedTodo] = useState<Todo | null>(null);
+  const [toggledTodo, setToggledTodo] = useState<Todo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [togglingAll, setTogglingAll] = useState(false);
-  const [editing, setEditing] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,7 +44,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [todos.length, errorMessage]);
+  }, [todos.length, tempTodo]);
 
   const completedTodos = todos.filter(todo => todo.completed);
   const uncompletedTodos = todos.filter(todo => !todo.completed);
@@ -61,10 +61,17 @@ export const App: React.FC = () => {
     completed: false,
   };
 
-  const onUpdateTodos = (updated: Todo) => {
-    setEditedTodo(updated);
+  const handleError = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 3000);
+  };
 
-    todoService.updateTodo(updated)
+  const onToggleTodos = (updated: Todo) => {
+    setIsLoading(true);
+    setToggledTodo(updated);
+
+    return todoService.updateTodo(updated)
+    // return Promise.reject()
       .then(receivedTodo => {
         setTodos(prevTodos => {
           const updatedTodos = [...prevTodos];
@@ -76,13 +83,36 @@ export const App: React.FC = () => {
           return updatedTodos;
         });
       })
-      .catch((error) => {
-        setErrorMessage('Unable to update a todo');
-        setTimeout(() => setErrorMessage(''), 3000);
-        throw error;
-      })
-      .finally(() => {
+      .catch(() => {
+        handleError('Unable to update a todo');
+      }).finally(() => {
+        setIsLoading(false);
+        setToggledTodo(null);
+      });
+  };
+
+  const onUpdateTodos = (updated: Todo) => {
+    setIsLoading(true);
+
+    return todoService.updateTodo(updated)
+    // return Promise.reject()
+      .then(receivedTodo => {
+        setTodos(prevTodos => {
+          const updatedTodos = [...prevTodos];
+          const index = updatedTodos
+            .findIndex(todo => todo.id === receivedTodo.id);
+
+          updatedTodos.splice(index, 1, receivedTodo);
+
+          return updatedTodos;
+        });
+
         setEditedTodo(null);
+      })
+      .catch(() => {
+        handleError('Unable to update a todo');
+      }).finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -95,36 +125,37 @@ export const App: React.FC = () => {
       setTempTodo({ ...newTodo, id: 0 });
 
       todoService.createTodo(newTodo)
+      // Promise.reject()
         .then(receivedTodo => {
           setTodos(prevTodos => [...prevTodos, receivedTodo]);
           setTitle('');
         })
-        .catch((error) => {
-          setErrorMessage('Unable to add a todo');
-          setTimeout(() => setErrorMessage(''), 3000);
-          throw error;
+        .catch(() => {
+          handleError('Unable to add a todo');
         })
         .finally(() => {
           setTempTodo(null);
           setSubmitDisabling(false);
         });
     } else {
-      setErrorMessage('Title should not be empty');
-      setTimeout(() => setErrorMessage(''), 3000);
+      handleError('Title should not be empty');
     }
   };
 
   const onDeleteTodo = (todoId: number) => {
+    setIsLoading(true);
     setdeletedIds(prevs => [...prevs, todoId]);
 
     return todoService.deleteTodo(todoId)
+    // return Promise.reject()
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
+        setEditedTodo(null);
       })
-      .catch((error) => {
-        setErrorMessage('Unable to delete a todo');
-        setTimeout(() => setErrorMessage(''), 3000);
-        throw error;
+      .catch(() => {
+        handleError('Unable to delete a todo');
+      }).finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -136,6 +167,7 @@ export const App: React.FC = () => {
 
   const onToggleAll = () => {
     setTogglingAll(true);
+    setIsLoading(true);
 
     const needToggle = completedTodos.length > 0
     && completedTodos.length < todos.length
@@ -148,14 +180,13 @@ export const App: React.FC = () => {
     }));
 
     Promise.all(togglePromises)
-      .then(() => setTogglingAll(false));
+      .then(() => {
+        setTogglingAll(false);
+        setIsLoading(false);
+      });
   };
 
   const onEditing = (todo: Todo | null) => {
-    if (!editing) {
-      setEditing(true);
-    }
-
     setEditedTodo(todo);
   };
 
@@ -163,7 +194,6 @@ export const App: React.FC = () => {
     currentId: number,
     event?: React.FormEvent<HTMLFormElement>,
   ) => {
-    setEditing(false);
     event?.preventDefault();
 
     const currentTodo = todos.find(todo => todo.id === currentId) as Todo;
@@ -176,7 +206,6 @@ export const App: React.FC = () => {
 
     if (!editedTodo?.title) {
       onDeleteTodo(currentId);
-      setEditedTodo(null);
 
       return;
     }
@@ -198,6 +227,7 @@ export const App: React.FC = () => {
           {todos.length > 0 && (
             <button
               type="button"
+              aria-label="toggle all"
               className={classNames('todoapp__toggle-all', {
                 active: todos.length === completedTodos.length,
               })}
@@ -222,13 +252,14 @@ export const App: React.FC = () => {
 
         <TodoList
           todos={renderedTodos[filterBy]}
-          onUpdateTodos={onUpdateTodos}
+          onToggleTodos={onToggleTodos}
           tempTodo={tempTodo}
           onDeleteTodo={onDeleteTodo}
           deletedIds={deletedIds}
+          toggledTodo={toggledTodo}
           editedTodo={editedTodo}
           togglingAll={togglingAll}
-          editing={editing}
+          isLoading={isLoading}
           onEditing={onEditing}
           onEditSubmit={onEditSubmit}
         />
@@ -270,6 +301,7 @@ export const App: React.FC = () => {
         <button
           data-cy="HideErrorButton"
           type="button"
+          aria-label="hide error"
           className="delete"
           onClick={() => setErrorMessage('')}
         />

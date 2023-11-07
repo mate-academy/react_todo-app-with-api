@@ -4,12 +4,13 @@ import { Todo } from '../types/Todo';
 
 type Props = {
   todo: Todo,
-  onUpdateTodos?: (todo: Todo) => void,
+  onToggleTodos?: (todo: Todo) => void,
   onDeleteTodo?: (id: number) => void,
   deletedIds?: number[],
+  toggledTodo?: Todo | null,
   editedTodo?: Todo | null,
   togglingAll?: boolean,
-  editing?: boolean,
+  isLoading?: boolean,
   onEditing?: (todo: Todo | null) => void,
   onEditSubmit?: (
     id: number,
@@ -19,12 +20,13 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  onUpdateTodos = () => {},
+  onToggleTodos = () => {},
   onDeleteTodo = () => {},
   deletedIds,
+  toggledTodo,
   editedTodo,
   togglingAll,
-  editing,
+  isLoading,
   onEditing = () => {},
   onEditSubmit = () => {},
 }) => {
@@ -56,11 +58,11 @@ export const TodoItem: React.FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          onClick={() => onUpdateTodos({ ...todo, completed: !completed })}
+          onClick={() => onToggleTodos({ ...todo, completed: !completed })}
         />
       </label>
 
-      {editing && id === editedTodo?.id
+      {id === editedTodo?.id
         ? (
           <form
             onSubmit={(event) => onEditSubmit(id, event)}
@@ -104,9 +106,10 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="TodoLoader"
         className={classNames('modal overlay', {
           'is-active': togglingAll
-          || deletedIds?.includes(id)
+          || (isLoading && deletedIds?.includes(id))
           || id === 0
-          || (id === editedTodo?.id && !editing),
+          || (isLoading && id === editedTodo?.id)
+          || (isLoading && id === toggledTodo?.id),
         })}
       >
         <div className="modal-background has-background-white-ter" />

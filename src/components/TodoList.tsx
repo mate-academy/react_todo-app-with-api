@@ -3,13 +3,14 @@ import { TodoItem } from './TodoItem';
 
 type Props = {
   todos: Todo[],
-  onUpdateTodos: (todo: Todo) => void,
+  onToggleTodos: (todo: Todo) => void,
   tempTodo: Todo | null,
   onDeleteTodo: (id: number) => void,
   deletedIds: number[],
+  toggledTodo: Todo | null,
   editedTodo: Todo | null,
   togglingAll: boolean,
-  editing: boolean,
+  isLoading: boolean,
   onEditing: (todo: Todo | null) => void,
   onEditSubmit?: (
     id: number,
@@ -19,13 +20,14 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({
   todos,
-  onUpdateTodos,
+  onToggleTodos,
   tempTodo,
   onDeleteTodo,
   deletedIds,
+  toggledTodo,
   editedTodo,
   togglingAll,
-  editing,
+  isLoading,
   onEditing,
   onEditSubmit,
 }) => {
@@ -35,12 +37,13 @@ export const TodoList: React.FC<Props> = ({
         <TodoItem
           todo={todo}
           key={todo.id}
-          onUpdateTodos={onUpdateTodos}
+          onToggleTodos={onToggleTodos}
           onDeleteTodo={onDeleteTodo}
+          toggledTodo={toggledTodo}
           deletedIds={deletedIds}
           editedTodo={editedTodo}
           togglingAll={togglingAll}
-          editing={editing}
+          isLoading={isLoading}
           onEditing={onEditing}
           onEditSubmit={onEditSubmit}
         />
