@@ -1,12 +1,12 @@
 import {
-  createContext, useEffect, useMemo, useState,
+  createContext, useEffect, useMemo, useRef, useState,
 } from 'react';
 import { Todo } from '../types/Todo';
 import { Tabs } from '../types/Tabs';
 import { ErrorType } from '../types/ErrorType';
 import { getTodos, removeTodo, updateTodo } from '../api/todos';
 
-const USER_ID = 11826;
+const USER_ID_TO_SET = 11826;
 
 type DefaultValueType = {
   todos: Todo[];
@@ -24,6 +24,8 @@ type DefaultValueType = {
   toggleStatus: (todo: Todo) => void;
   handleTodoDelete: (todoID: number) => void;
   handleClearCompleted: () => void;
+  USER_ID: number;
+  inputRef: React.RefObject<HTMLInputElement> | null;
 };
 
 export const TodosContext = createContext<DefaultValueType>({
@@ -42,6 +44,8 @@ export const TodosContext = createContext<DefaultValueType>({
   toggleStatus: () => {},
   handleTodoDelete: () => {},
   handleClearCompleted: () => {},
+  USER_ID: USER_ID_TO_SET,
+  inputRef: null,
 });
 
 export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
@@ -50,10 +54,12 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState(ErrorType.Success);
   const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
+  const USER_ID = USER_ID_TO_SET;
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const loadTodos = async () => {
     try {
-      const loadedTodos = await getTodos(USER_ID);
+      const loadedTodos = await getTodos(USER_ID_TO_SET);
 
       setTodos(loadedTodos);
     } catch {
@@ -100,6 +106,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
         await removeTodo(id);
 
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+        inputRef?.current?.focus();
       } catch {
         setError(ErrorType.Delete);
       } finally {
@@ -145,7 +152,9 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const updatedTodo = await updateTodo(
-        todo.id, { completed: !todo.completed },
+        // pass the entire object to the request because one
+        // of the tests crashes when only the update information is passed
+        todo.id, { ...todo, completed: !todo.completed },
       );
 
       const updatedTodos = todos.map(t => {
@@ -169,6 +178,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
       await removeTodo(todoID);
 
       setTodos(prevTodos => prevTodos.filter(t => t.id !== todoID));
+      inputRef?.current?.focus();
     } catch {
       setError(ErrorType.Delete);
     } finally {
@@ -194,6 +204,8 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
         toggleStatus,
         handleTodoDelete,
         handleClearCompleted,
+        USER_ID,
+        inputRef,
       }}
     >
       {children}

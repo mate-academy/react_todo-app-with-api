@@ -1,14 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
-  useContext, useEffect, useRef, useState,
+  useContext, useEffect, useState,
 } from 'react';
 import cn from 'classnames';
 import { TodosContext } from '../context/TodosContext';
 import { ErrorType } from '../types/ErrorType';
 import { addTodo } from '../api/todos';
 import { Todo } from '../types/Todo';
-
-const USER_ID = 11826;
 
 export const Header: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -19,11 +17,11 @@ export const Header: React.FC = () => {
     todos,
     tempTodo,
     handleToggleAll,
+    USER_ID,
+    inputRef,
   } = useContext(TodosContext);
 
   const isChecked = todos.every(todo => todo.completed);
-
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const beforeResponse = () => {
     return setTempTodo({
@@ -35,8 +33,8 @@ export const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    inputRef?.current?.focus();
+  }, [inputRef]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +61,7 @@ export const Header: React.FC = () => {
         setError(ErrorType.Add);
       } finally {
         setTimeout(() => {
-          inputRef.current?.focus();
+          inputRef?.current?.focus();
         }, 0);
         setTempTodo(null);
       }
@@ -73,12 +71,14 @@ export const Header: React.FC = () => {
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: isChecked })}
-        data-cy="ToggleAllButton"
-        onClick={handleToggleAll}
-      />
+      {todos.length > 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', { active: isChecked })}
+          data-cy="ToggleAllButton"
+          onClick={handleToggleAll}
+        />
+      )}
 
       {/* Add a todo on form submit */}
       <form onSubmit={handleSubmit}>

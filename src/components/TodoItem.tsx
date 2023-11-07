@@ -17,7 +17,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   } = useContext(TodosContext);
 
   const { title, completed } = todo;
-  const [isEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div
@@ -38,10 +38,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       </label>
 
       {isEditing
-        ? <EditingForm />
+        ? <EditingForm setIsEditing={setIsEditing} todo={todo} />
         : (
           <>
-            <span data-cy="TodoTitle" className="todo__title">
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => setIsEditing(true)}
+            >
               {title}
             </span>
 
