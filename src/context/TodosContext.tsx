@@ -41,12 +41,18 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState(ErrorType.Success);
   const [deletingTodos, setDeletingTodos] = useState<number[]>([]);
 
+  const loadTodos = async () => {
+    try {
+      const loadedTodos = await getTodos(USER_ID);
+
+      setTodos(loadedTodos);
+    } catch {
+      setError(ErrorType.Loading);
+    }
+  };
+
   useEffect(() => {
-    getTodos(USER_ID)
-      .then(data => setTodos(data as Todo[]))
-      .catch(() => {
-        setError(ErrorType.Loading);
-      });
+    loadTodos();
   }, []);
 
   useEffect(() => {
