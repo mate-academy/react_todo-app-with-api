@@ -17,19 +17,19 @@ export const ClearButton: React.FC = () => {
   }, [todos]);
 
   const handleClearCompleted = () => {
-    completedTodos.forEach(({ id }) => {
+    completedTodos.forEach(async ({ id }) => {
       setDeletingTodos(prevDeleting => [...prevDeleting, id]);
-      removeTodo(id)
-        .then(() => {
-          setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
-        })
-        .catch(() => {
-          setError(ErrorType.Delete);
-        })
-        .finally(() => {
-          setDeletingTodos(prevDeleting => (
-            prevDeleting.filter(todo_id => todo_id !== id)));
-        });
+
+      try {
+        await removeTodo(id);
+
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+      } catch {
+        setError(ErrorType.Delete);
+      } finally {
+        setDeletingTodos(prevDeleting => (
+          prevDeleting.filter(todo_id => todo_id !== id)));
+      }
     });
   };
 
