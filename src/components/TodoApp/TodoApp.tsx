@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { Status } from '../../types/FilterOptions';
 import { Todo } from '../../types/Todo';
 
@@ -18,18 +18,24 @@ export const TodoApp: React.FC = () => {
   const filterTodos = (currentTodos: Todo[], filterType: Status) => {
     let filteredTodos = [...currentTodos];
 
-    if (filterType !== Status.All) {
-      if (filterType === Status.Active) {
+    switch (filterType) {
+      case Status.Active:
         filteredTodos = filteredTodos.filter(item => !item.completed);
-      } else {
+
+        return filteredTodos;
+      case Status.Completed:
         filteredTodos = filteredTodos.filter(item => item.completed);
-      }
+
+        return filteredTodos;
+      default:
+        break;
     }
 
     return filteredTodos;
   };
 
-  const filteredTodos = filterTodos(todos, filter);
+  const filteredTodos = useMemo(() => filterTodos(todos, filter),
+    [todos, filter]);
 
   return (
     <div className="todoapp">

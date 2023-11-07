@@ -8,11 +8,7 @@ export const ErrorNotification: React.FC = () => {
   const [isHidden, setIsHidden] = useState(true);
 
   useEffect(() => {
-    if (errorMessage) {
-      setIsHidden(false);
-    } else {
-      setIsHidden(true);
-    }
+    setIsHidden(!errorMessage);
   }, [errorMessage]);
 
   return (

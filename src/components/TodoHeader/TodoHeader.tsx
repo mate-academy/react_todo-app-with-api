@@ -32,7 +32,7 @@ export const TodoHeader: React.FC<Props> = ({ onTodoAdd }) => {
     if (inputFocus.current) {
       inputFocus.current.focus();
     }
-  }, [isLoading, todos]);
+  }, [isLoading, todos.length]);
 
   useEffect(() => {
     const todosCompleted = todos.every(todo => todo.completed);
