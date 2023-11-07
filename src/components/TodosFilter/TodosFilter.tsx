@@ -39,41 +39,19 @@ export const TodoFilter: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          data-cy="FilterLinkAll"
-          className={cn(
-            'filter__link',
-            { selected: filterParam === Status.All },
-          )}
-          onClick={() => handleSetFilterParam(Status.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          data-cy="FilterLinkActive"
-          className={cn(
-            'filter__link',
-            { selected: filterParam === Status.Active },
-          )}
-          onClick={() => handleSetFilterParam(Status.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          data-cy="FilterLinkCompleted"
-          className={cn(
-            'filter__link',
-            { selected: filterParam === Status.Completed },
-          )}
-          onClick={() => handleSetFilterParam(Status.Completed)}
-        >
-          Completed
-        </a>
+        {(Object.keys(Status) as Array<keyof typeof Status>).map((status) => (
+          <a
+            href="#/"
+            data-cy={`FilterLink${status}`}
+            className={cn(
+              'filter__link',
+              { selected: filterParam === status },
+            )}
+            onClick={() => handleSetFilterParam(Status[status])}
+          >
+            {Status[status]}
+          </a>
+        ))}
       </nav>
 
       <button
