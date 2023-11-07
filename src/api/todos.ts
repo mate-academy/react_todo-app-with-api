@@ -12,4 +12,8 @@ export const addTodo = (todo: Omit<Todo, 'id'>) => {
 export const removeTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
+
+export const updateTodo = (todoId: number, data: any) => {
+  return client.patch<Todo>(`/todos/${todoId}`, data);
+};
 // Add more methods here

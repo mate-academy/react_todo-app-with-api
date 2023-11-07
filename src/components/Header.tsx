@@ -2,6 +2,7 @@
 import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
+import cn from 'classnames';
 import { TodosContext } from '../context/TodosContext';
 import { ErrorType } from '../types/ErrorType';
 import { addTodo } from '../api/todos';
@@ -17,7 +18,10 @@ export const Header: React.FC = () => {
     setTodos,
     todos,
     tempTodo,
+    handleToggleAll,
   } = useContext(TodosContext);
+
+  const isChecked = todos.every(todo => todo.completed);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,8 +75,9 @@ export const Header: React.FC = () => {
       {/* this buttons is active only if there are some active todos */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', { active: isChecked })}
         data-cy="ToggleAllButton"
+        onClick={handleToggleAll}
       />
 
       {/* Add a todo on form submit */}

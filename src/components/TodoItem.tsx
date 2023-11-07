@@ -3,9 +3,7 @@ import cn from 'classnames';
 import { Todo } from '../types/Todo';
 import { TodoStatus } from '../types/TodoStatus';
 import { EditingForm } from './EditingForm';
-import { removeTodo } from '../api/todos';
 import { TodosContext } from '../context/TodosContext';
-import { ErrorType } from '../types/ErrorType';
 
 type Props = {
   todo: Todo
@@ -13,28 +11,13 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const {
-    setTodos,
-    setError,
-    deletingTodos,
-    setDeletingTodos,
+    loadingTodos,
+    toggleStatus,
+    handleTodoDelete,
   } = useContext(TodosContext);
 
   const { title, completed } = todo;
   const [isEditing] = useState(false);
-
-  const handleTodoDelete = async () => {
-    setDeletingTodos([...deletingTodos, todo.id]);
-
-    try {
-      await removeTodo(todo.id);
-
-      setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
-    } catch {
-      setError(ErrorType.Delete);
-    } finally {
-      setDeletingTodos(deletingTodos.filter(id => id !== todo.id));
-    }
-  };
 
   return (
     <div
@@ -50,6 +33,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={completed}
+          onClick={() => toggleStatus(todo)}
         />
       </label>
 
@@ -65,7 +49,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={handleTodoDelete}
+              onClick={() => handleTodoDelete(todo.id)}
             >
               ×
             </button>
@@ -79,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         className={cn(
           'modal',
           'overlay',
-          { 'is-active': todo.id === 0 || deletingTodos.includes(todo.id) },
+          { 'is-active': todo.id === 0 || loadingTodos.includes(todo.id) },
         )}
       >
         <div className="modal-background has-background-white-ter" />

@@ -1,8 +1,10 @@
-import { createContext, useEffect, useState } from 'react';
+import {
+  createContext, useEffect, useMemo, useState,
+} from 'react';
 import { Todo } from '../types/Todo';
 import { Tabs } from '../types/Tabs';
 import { ErrorType } from '../types/ErrorType';
-import { getTodos } from '../api/todos';
+import { getTodos, removeTodo, updateTodo } from '../api/todos';
 
 const USER_ID = 11826;
 
@@ -16,8 +18,12 @@ type DefaultValueType = {
   setError: (errro: ErrorType) => void;
   tempTodo: Todo | null,
   setTempTodo: (todo: Todo | null) => void,
-  deletingTodos: number[],
-  setDeletingTodos: React.Dispatch<React.SetStateAction<number[]>>
+  loadingTodos: number[],
+  setLoadingTodos: React.Dispatch<React.SetStateAction<number[]>>
+  handleToggleAll: () => void;
+  toggleStatus: (todo: Todo) => void;
+  handleTodoDelete: (todoID: number) => void;
+  handleClearCompleted: () => void;
 };
 
 export const TodosContext = createContext<DefaultValueType>({
@@ -30,8 +36,12 @@ export const TodosContext = createContext<DefaultValueType>({
   setError: () => {},
   tempTodo: null,
   setTempTodo: () => {},
-  deletingTodos: [],
-  setDeletingTodos: () => {},
+  loadingTodos: [],
+  setLoadingTodos: () => {},
+  handleToggleAll: () => {},
+  toggleStatus: () => {},
+  handleTodoDelete: () => {},
+  handleClearCompleted: () => {},
 });
 
 export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
@@ -39,7 +49,7 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedFilter, setSelectedFilter] = useState<Tabs>(Tabs.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [error, setError] = useState(ErrorType.Success);
-  const [deletingTodos, setDeletingTodos] = useState<number[]>([]);
+  const [loadingTodos, setLoadingTodos] = useState<number[]>([]);
 
   const loadTodos = async () => {
     try {
@@ -78,6 +88,94 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
     }
   });
 
+  const completedTodos = useMemo(() => {
+    return todos.filter(todo => todo.completed);
+  }, [todos]);
+
+  const handleClearCompleted = () => {
+    completedTodos.forEach(async ({ id }) => {
+      setLoadingTodos(prevLoading => [...prevLoading, id]);
+
+      try {
+        await removeTodo(id);
+
+        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id));
+      } catch {
+        setError(ErrorType.Delete);
+      } finally {
+        setLoadingTodos(prevLoading => (
+          prevLoading.filter(todoId => todoId !== id)));
+      }
+    });
+  };
+
+  const handleToggleAll = () => {
+    const isAllCompleted = todos.every(todo => todo.completed);
+
+    let todosToUpdate = [...todos];
+
+    if (!isAllCompleted) {
+      todosToUpdate = [...todos].filter(todo => !todo.completed);
+    }
+
+    todosToUpdate.forEach(async ({ id }) => {
+      setLoadingTodos(prevLoading => [...prevLoading, id]);
+
+      try {
+        const updatedTodo = await updateTodo(
+          id, { completed: !isAllCompleted },
+        );
+
+        setTodos(prevTodos => prevTodos.map(todo => {
+          return todo.id === id
+            ? updatedTodo
+            : todo;
+        }));
+      } catch {
+        setError(ErrorType.Update);
+      } finally {
+        setLoadingTodos(prevLoading => (
+          prevLoading.filter(todoId => todoId !== id)));
+      }
+    });
+  };
+
+  const toggleStatus = async (todo: Todo) => {
+    setLoadingTodos([...loadingTodos, todo.id]);
+
+    try {
+      const updatedTodo = await updateTodo(
+        todo.id, { completed: !todo.completed },
+      );
+
+      const updatedTodos = todos.map(t => {
+        return t.id === todo.id
+          ? updatedTodo
+          : t;
+      });
+
+      setTodos(updatedTodos);
+    } catch {
+      setError(ErrorType.Update);
+    } finally {
+      setLoadingTodos(loadingTodos.filter(id => id !== todo.id));
+    }
+  };
+
+  const handleTodoDelete = async (todoID: number) => {
+    setLoadingTodos([...loadingTodos, todoID]);
+
+    try {
+      await removeTodo(todoID);
+
+      setTodos(prevTodos => prevTodos.filter(t => t.id !== todoID));
+    } catch {
+      setError(ErrorType.Delete);
+    } finally {
+      setLoadingTodos(loadingTodos.filter(id => id !== todoID));
+    }
+  };
+
   return (
     <TodosContext.Provider
       value={{
@@ -90,8 +188,12 @@ export const TodoProvider = ({ children }: { children: React.ReactNode }) => {
         setError,
         tempTodo,
         setTempTodo,
-        deletingTodos,
-        setDeletingTodos,
+        loadingTodos,
+        setLoadingTodos,
+        handleToggleAll,
+        toggleStatus,
+        handleTodoDelete,
+        handleClearCompleted,
       }}
     >
       {children}
