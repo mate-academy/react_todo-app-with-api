@@ -16,7 +16,6 @@ type Props = {
 
 export const TodoItem: React.FC<Props> = ({ item }) => {
   const {
-    // todos,
     setTodos,
     setErrorMessage,
     setErrorWithTimeout,
