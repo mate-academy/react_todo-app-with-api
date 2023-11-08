@@ -21,9 +21,8 @@ type Props = {
 
 type UpdatingTodoEvent =
 | React.FocusEvent<HTMLInputElement>
-| React.MouseEvent<HTMLInputElement, MouseEvent>
-// | React.FormEvent<HTMLFormElement>
-| React.KeyboardEvent<HTMLInputElement>;
+| React.FormEvent<HTMLFormElement>
+| React.ChangeEvent<HTMLInputElement>;
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
@@ -34,7 +33,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     isSubmitting,
     isUpdating,
     isDeleting,
-    selectedFilter,
   } = useContext(StateContext);
 
   const editingTodo = useRef<HTMLInputElement>(null);
@@ -53,19 +51,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     dispatch(actionCreator.clearError());
     todoService.deleteTodo(todo.id)
       .then(() => {
-        dispatch(actionCreator.updateTodos({
-          delete: todo.id, filter: selectedFilter,
-        }));
+        dispatch(actionCreator.updateTodos({ delete: todo.id }));
       })
       .catch(() => {
         dispatch(actionCreator.addError(TodoError.ErrorDelete));
       })
+      .then(() => setIsEditing(false))
       .finally(() => {
         dispatch(actionCreator.toggleDeleting());
         dispatch(actionCreator.clearLoadingItemsId());
-        setIsEditing(false);
       });
-  }, [dispatch, selectedFilter, todo.id]);
+  }, [dispatch, todo.id]);
 
   const updateTodo = useCallback(
     (event: UpdatingTodoEvent) => {
@@ -76,12 +72,13 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         completed: todo.completed,
       };
 
-      switch ((event.target as HTMLInputElement).type) {
-        case 'checkbox':
+      switch (event.type) {
+        case 'change':
           updatedTodo.completed = !todo.completed;
           break;
 
-        case 'text':
+        case 'blur':
+        case 'submit':
           updatedTodo.title = newTitle.trim();
           break;
 
@@ -94,33 +91,20 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       dispatch(actionCreator.clearError());
       todoService.updateTodo(updatedTodo)
         .then(newTodo => {
-          dispatch(actionCreator.updateTodos({
-            update: newTodo, filter: selectedFilter,
-          }));
+          dispatch(actionCreator.updateTodos({ update: newTodo }));
         })
-        .catch((error) => {
+        .catch(() => {
           dispatch(actionCreator.addError(TodoError.ErrorUpdate));
-          throw error;
         })
         .then(() => setIsEditing(false))
         .finally(() => {
           dispatch(actionCreator.toggleUpdating());
           dispatch(actionCreator.clearLoadingItemsId());
         });
-    }, [
-      dispatch,
-      newTitle,
-      selectedFilter,
-      todo.completed,
-      todo.id,
-      todo.title,
-      todo.userId,
-    ],
+    }, [dispatch, newTitle, todo.completed, todo.id, todo.title, todo.userId],
   );
 
-  const handleBlur = (
-    event: UpdatingTodoEvent,
-  ) => {
+  const editTodo = useCallback((event: UpdatingTodoEvent) => {
     if (!newTitle.trim()) {
       deleteTodo();
 
@@ -134,29 +118,23 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     updateTodo(event);
+  }, [deleteTodo, newTitle, todo.title, updateTodo]);
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    editTodo(event);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    switch (event.key) {
-      case 'Escape': {
-        setIsEditing(false);
-        setNewTitle(todo.title);
-        break;
-      }
-
-      case 'Enter':
-        handleBlur(event);
-        break;
-
-      default:
-        break;
+    if (event.key === 'Escape') {
+      setIsEditing(false);
+      setNewTitle(todo.title);
     }
   };
 
-  // const handleUpdateSubmit = (event: UpdatingTodoEvent) => {
-  //   event.preventDefault();
-  //   handleBlur(event);
-  // };
+  const handleUpdateSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    editTodo(event);
+  };
 
   return (
     <div
@@ -171,7 +149,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onClick={updateTodo}
+          onChange={updateTodo}
         />
       </label>
 
@@ -195,7 +173,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           </button>
         </>
       ) : (
-        <form onSubmit={event => event.preventDefault()}>
+        <form onSubmit={handleUpdateSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"

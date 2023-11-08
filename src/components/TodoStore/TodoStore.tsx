@@ -30,7 +30,6 @@ interface Action {
 
 interface State {
   initialTodos: Todo[];
-  visibleTodos: Todo[];
   selectedFilter: Filter;
   tempTodo: Todo | null;
   loadingItemsId: number[];
@@ -46,7 +45,6 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         initialTodos: action.payload,
-        visibleTodos: action.payload,
       };
 
     case ReducerActions.UpdateTodos: {
@@ -71,28 +69,9 @@ function reducer(state: State, action: Action): State {
           .filter(todo => action.payload.delete !== todo.id);
       }
 
-      let updatedTodos = [...initialTodos];
-
-      if (action.payload.filter) {
-        updatedTodos = updatedTodos.filter(todo => {
-          switch (action.payload.filter) {
-            case Filter.Active:
-              return !todo.completed;
-
-            case Filter.Completed:
-              return todo.completed;
-
-            case Filter.All:
-            default:
-              return true;
-          }
-        });
-      }
-
       return {
         ...state,
         initialTodos,
-        visibleTodos: updatedTodos,
       };
     }
 
@@ -159,7 +138,6 @@ interface UpdateState {
   add?: Todo,
   update?: Todo,
   delete?: number,
-  filter?: Filter,
 }
 
 export const actionCreator = {
@@ -188,7 +166,6 @@ export const actionCreator = {
 
 const initialState: State = {
   initialTodos: [],
-  visibleTodos: [],
   selectedFilter: Filter.All,
   tempTodo: null,
   loadingItemsId: [],

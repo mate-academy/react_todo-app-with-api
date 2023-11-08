@@ -19,12 +19,7 @@ import {
 import { TodoError } from '../../../types/TodoError';
 
 export const TodoHeader: React.FC = () => {
-  const {
-    initialTodos,
-    isSubmitting,
-    isDeleting,
-    selectedFilter,
-  } = useContext(StateContext);
+  const { initialTodos, isSubmitting, isDeleting } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [title, setTitle] = useState('');
   const focusedInput = useRef<HTMLInputElement>(null);
@@ -56,9 +51,7 @@ export const TodoHeader: React.FC = () => {
       title: title.trim(), userId: USER_ID, completed: false,
     })
       .then(newTodo => {
-        dispatch(actionCreator.updateTodos({
-          add: newTodo, filter: selectedFilter,
-        }));
+        dispatch(actionCreator.updateTodos({ add: newTodo }));
       })
       .catch(error => {
         dispatch(actionCreator.addError(TodoError.ErrorAdd));
@@ -70,7 +63,7 @@ export const TodoHeader: React.FC = () => {
         dispatch(actionCreator.toggleSubmitting());
         dispatch(actionCreator.clearLoadingItemsId());
       });
-  }, [dispatch, selectedFilter, title]);
+  }, [dispatch, title]);
 
   const handleCompletedAll = useCallback(() => {
     const updatedTodos = initialTodos.filter(initTodo => (
@@ -89,10 +82,7 @@ export const TodoHeader: React.FC = () => {
     Promise.all(updatePromises)
       .then(response => {
         response.forEach(todo => {
-          dispatch(actionCreator.updateTodos({
-            update: todo,
-            filter: selectedFilter,
-          }));
+          dispatch(actionCreator.updateTodos({ update: todo }));
         });
       })
       .catch(() => dispatch(actionCreator.addError(TodoError.ErrorUpdate)))
@@ -100,7 +90,7 @@ export const TodoHeader: React.FC = () => {
         dispatch(actionCreator.clearLoadingItemsId());
         dispatch(actionCreator.toggleUpdating());
       });
-  }, [dispatch, initialTodos, selectedFilter]);
+  }, [dispatch, initialTodos]);
 
   return (
     <header className="todoapp__header">

@@ -7,7 +7,7 @@ import { FilterTodo } from './FilterTodo';
 import { TodoError } from '../../../types/TodoError';
 
 export const TodoFooter: React.FC = () => {
-  const { initialTodos, selectedFilter } = useContext(StateContext);
+  const { initialTodos } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
 
   const TotalUncompletedTodos = initialTodos.filter(todo => !todo.completed);
@@ -19,25 +19,21 @@ export const TodoFooter: React.FC = () => {
       .map(todo => {
         dispatch(actionCreator.addLoadingItemId(todo.id));
 
-        return todoService.deleteTodo(todo.id);
+        return todoService.deleteTodo(todo.id)
+          .then(() => {
+            dispatch(actionCreator.updateTodos({ delete: todo.id }));
+          });
       });
 
     dispatch(actionCreator.clearError());
     dispatch(actionCreator.toggleDeleting());
     Promise.all(deletePromises)
-      .then(() => {
-        completedTodos.forEach(todo => {
-          dispatch(actionCreator.updateTodos({
-            delete: todo.id, filter: selectedFilter,
-          }));
-        });
-      })
       .catch(() => dispatch(actionCreator.addError(TodoError.ErrorDelete)))
       .finally(() => {
         dispatch(actionCreator.clearLoadingItemsId());
         dispatch(actionCreator.toggleDeleting());
       });
-  }, [dispatch, initialTodos, selectedFilter]);
+  }, [dispatch, initialTodos]);
 
   return (
     <footer className="todoapp__footer" data-cy="Footer">
