@@ -143,6 +143,14 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
   };
 
+  const handleToggleAll = (todoNewStatus: boolean) => {
+    todos.forEach(todo => {
+      if (todo.completed !== todoNewStatus) {
+        handleCompleteTodo(todo.id, todoNewStatus);
+      }
+    });
+  };
+
   const handleClearCompleted = () => {
     todos.filter(todo => todo.completed).map(todo => handleDeleteTodo(todo.id));
   };
@@ -153,6 +161,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         <section className="todoapp__main" data-cy="TodoList">
           <Header
             handleCreateTodoSubmit={handleCreateTodoSubmit}
+            handleToggleAll={handleToggleAll}
+            isAllTodoCompleted={todosQty === 0}
           />
           <TransitionGroup>
             { updatedTodos.map(todo => (

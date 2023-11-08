@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
@@ -6,10 +7,14 @@ type Props = {
     setDisabled: (value: boolean) => void,
     setTitle: (value: string) => void
   ) => void;
+  handleToggleAll: (value: boolean) => void;
+  isAllTodoCompleted: boolean;
 };
 
 export const Header: React.FC<Props> = ({
   handleCreateTodoSubmit,
+  handleToggleAll,
+  isAllTodoCompleted,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
@@ -39,7 +44,10 @@ export const Header: React.FC<Props> = ({
         type="button"
         data-cy="ToggleAllButton"
         aria-label="toggle button"
-        className="todoapp__toggle-all active"
+        className={cn('todoapp__toggle-all', {
+          active: isAllTodoCompleted,
+        })}
+        onClick={() => handleToggleAll(!isAllTodoCompleted)}
       />
 
       <form onSubmit={handleCreateTodo}>
