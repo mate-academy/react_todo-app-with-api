@@ -83,8 +83,6 @@ export const TodoItem: React.FC<Props> = ({ item }) => {
   };
 
   const handleInputBlur = (todo: Todo) => {
-    // setIsEdited(false);
-
     if (newTitle.trim() !== '' && newTitle !== todo.title) {
       handleTodoUpdate(todo, newTitle);
     }

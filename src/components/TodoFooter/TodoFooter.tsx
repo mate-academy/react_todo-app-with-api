@@ -4,6 +4,7 @@ import { Status } from '../../types/FilterOptions';
 import { ErrorMessage } from '../../types/ErrorMessages';
 import { TodosContext } from '../TodosContext';
 import { deleteTodo } from '../../api/todos';
+import { filters } from '../../utils/filters';
 
 type Props = {
   currentFilter: Status;
@@ -47,35 +48,18 @@ export const TodoFooter: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          data-cy="FilterLinkAll"
-          className={cn('filter__link',
-            { selected: currentFilter === Status.All })}
-          onClick={() => onFilterChange(Status.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          data-cy="FilterLinkActive"
-          className={cn('filter__link',
-            { selected: currentFilter === Status.Active })}
-          onClick={() => onFilterChange(Status.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          data-cy="FilterLinkCompleted"
-          className={cn('filter__link',
-            { selected: currentFilter === Status.Completed })}
-          onClick={() => onFilterChange(Status.Completed)}
-        >
-          Completed
-        </a>
+        {filters.map(filter => (
+          <a
+            key={filter.id}
+            data-cy={filter.id}
+            href={filter.href}
+            className={cn('filter__link',
+              { selected: currentFilter === filter.status })}
+            onClick={() => onFilterChange(filter.status)}
+          >
+            {filter.text}
+          </a>
+        ))}
       </nav>
 
       <button
@@ -85,12 +69,11 @@ export const TodoFooter: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        disabled={completedTodos.length === 0}
+        disabled={!completedTodos.length}
         onClick={handleClearCompleted}
       >
         Clear completed
       </button>
-
     </footer>
   );
 };
