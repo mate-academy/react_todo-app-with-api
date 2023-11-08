@@ -7,7 +7,14 @@ type Props = {
   isLoading: boolean,
   id: number
   handleDeleteTodo: (value: number) => void,
-  handleCompleteTodo: (id: number, value: boolean) => void,
+  handleCompleteTodo: (
+    id: number,
+    completed: boolean,
+  ) => void,
+  handleChangeTodoTitle: (
+    id: number,
+    newTitle: string,
+  ) => void,
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -17,30 +24,36 @@ export const TodoItem: React.FC<Props> = ({
   id,
   handleDeleteTodo,
   handleCompleteTodo,
+  handleChangeTodoTitle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(title);
+  const [editedTitle, setEditedTitle] = useState(title);
 
   const editTodo = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editTodo.current && isEditing) {
+    if (editTodo.current) {
       editTodo.current.focus();
     }
   }, [isEditing]);
 
-  const handleOnChange = () => {
-    setEditTitle(editTitle);
+  const handleEditedTitleSubmit = () => {
+    const trimmedTitle = editedTitle.trim();
+
+    if (trimmedTitle === title) {
+      setEditedTitle(trimmedTitle);
+    } else if (!trimmedTitle) {
+      handleDeleteTodo(id);
+    } else {
+      handleChangeTodoTitle(id, trimmedTitle);
+    }
+
     setIsEditing(false);
   };
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    handleOnChange();
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
+    handleEditedTitleSubmit();
   };
 
   return (
@@ -69,15 +82,15 @@ export const TodoItem: React.FC<Props> = ({
               type="text"
               className="todo__title-field"
               placeholder="What needs to be done? Deleted if empty"
-              value={editTitle}
+              value={editedTitle}
               ref={editTodo}
-              onChange={(event) => setEditTitle(event.target.value)}
+              onChange={(event) => setEditedTitle(event.target.value)}
               onKeyUp={event => {
                 if (event.key === 'Escape') {
                   setIsEditing(false);
                 }
               }}
-              onBlur={handleBlur}
+              onBlur={handleEditedTitleSubmit}
             />
           </form>
         ) : (

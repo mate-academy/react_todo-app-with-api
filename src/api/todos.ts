@@ -17,4 +17,6 @@ export const toggleCompleteTodo = (todoId: number, completed: boolean) => {
   return client.patch(`/todos/${todoId}`, { completed });
 };
 
-// Add more methods here
+export const changeTodoTitle = (todoId: number, newTitle: string) => {
+  return client.patch(`/todos/${todoId}`, { title: newTitle });
+};

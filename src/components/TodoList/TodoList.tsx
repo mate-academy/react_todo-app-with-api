@@ -4,6 +4,7 @@ import {
   TransitionGroup,
 } from 'react-transition-group';
 import {
+  changeTodoTitle,
   deleteTodo,
   getTodos,
   postTodo,
@@ -143,6 +144,23 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
   };
 
+  const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
+    changeTodoTitle(todoId, newTitle)
+      .then(() => {
+        setTodos(todos.map(todo => (todo.id === todoId
+          ? { ...todo, title: newTitle }
+          : todo
+        )));
+        setLoading(true);
+      })
+      .catch(() => {
+        setErrorMessage('Unable to edit a todo');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   const handleToggleAll = (todoNewStatus: boolean) => {
     todos.forEach(todo => {
       if (todo.completed !== todoNewStatus) {
@@ -179,6 +197,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                   id={todo.id}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
+                  handleChangeTodoTitle={handleChangeTodoTitle}
                 />
               </CSSTransition>
             ))}
@@ -197,6 +216,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                   id={tempTodo.id}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
+                  handleChangeTodoTitle={handleChangeTodoTitle}
                 />
               </CSSTransition>
             )}
