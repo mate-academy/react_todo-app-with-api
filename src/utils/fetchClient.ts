@@ -27,15 +27,14 @@ async function request<T>(
   }
 
   // DON'T change the delay it is required for tests
-  await wait(100);
+  const [response] = await Promise.all([
+    fetch(BASE_URL + url, options),
+    wait(100),
+  ]);
 
-  const response = await fetch(BASE_URL + url, options);
-
-  if (!response.ok) {
-    throw new Error();
-  }
-
-  return response.json();
+  return response.ok
+    ? response.json()
+    : Promise.reject();
 }
 
 export const client = {
