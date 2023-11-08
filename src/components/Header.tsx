@@ -90,7 +90,7 @@ export const Header: React.FC = () => {
           value={title}
           onChange={e => setTitle(e.target.value)}
           ref={inputRef}
-          disabled={tempTodo !== null}
+          disabled={!!tempTodo}
         />
       </form>
     </header>
