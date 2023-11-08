@@ -26,6 +26,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [focusToInputHeader, setFocusToInputHeader] = useState(false);
 
   const [filteredTodo, setFilteredTodo] = useState<FilterType>(FilterType.ALL);
 
@@ -114,27 +115,30 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   };
 
   const handleDeleteTodo = (id: number) => {
+    setLoading(true);
+    setFocusToInputHeader(false);
+
     deleteTodo(id)
       .then(() => {
         setTodos(todos.filter(todo => todo.id !== id));
-        setLoading(true);
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
         setLoading(false);
+        setFocusToInputHeader(true);
       });
   };
 
   const handleCompleteTodo = (todoId: number, completed: boolean) => {
+    setLoading(true);
     toggleCompleteTodo(todoId, completed)
       .then(() => {
         setTodos(todos.map(todo => (todo.id === todoId
           ? { ...todo, completed }
           : todo
         )));
-        setLoading(true);
       })
       .catch(() => {
         setErrorMessage('Unable to complete a todo');
@@ -145,13 +149,13 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   };
 
   const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
+    setLoading(true);
     changeTodoTitle(todoId, newTitle)
       .then(() => {
         setTodos(todos.map(todo => (todo.id === todoId
           ? { ...todo, title: newTitle }
           : todo
         )));
-        setLoading(true);
       })
       .catch(() => {
         setErrorMessage('Unable to edit a todo');
@@ -181,6 +185,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
             handleCreateTodoSubmit={handleCreateTodoSubmit}
             handleToggleAll={handleToggleAll}
             isAllTodoCompleted={todosQty === 0}
+            focusToInputHeader={focusToInputHeader}
           />
           <TransitionGroup>
             { updatedTodos.map(todo => (

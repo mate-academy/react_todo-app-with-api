@@ -9,12 +9,14 @@ type Props = {
   ) => void;
   handleToggleAll: (value: boolean) => void;
   isAllTodoCompleted: boolean;
+  focusToInputHeader: boolean;
 };
 
 export const Header: React.FC<Props> = ({
   handleCreateTodoSubmit,
   handleToggleAll,
   isAllTodoCompleted,
+  focusToInputHeader,
 }) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
@@ -25,7 +27,7 @@ export const Header: React.FC<Props> = ({
     if (createTodo.current) {
       createTodo.current.focus();
     }
-  }, [isInputDisabled]);
+  }, [isInputDisabled, focusToInputHeader]);
 
   const handleCreateTodo = (event: React.FormEvent) => {
     event.preventDefault();

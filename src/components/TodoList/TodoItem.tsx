@@ -78,7 +78,7 @@ export const TodoItem: React.FC<Props> = ({
         {isEditing ? (
           <form onSubmit={onSubmit}>
             <input
-              data-cy="NewTodoField"
+              data-cy="TodoTitleField"
               type="text"
               className="todo__title-field"
               placeholder="What needs to be done? Deleted if empty"
