@@ -18,7 +18,6 @@ export const FilterTodo: React.FC = () => {
     const filter = (event.target as HTMLAnchorElement).innerText as Filter;
 
     dispatch(actionCreator.selectFilter(filter));
-    dispatch(actionCreator.updateTodos({ filter }));
   };
 
   return (
