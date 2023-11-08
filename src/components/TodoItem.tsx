@@ -29,12 +29,12 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleTodoDelete = (todoId: number) => {
+  const handleTodoDelete = () => {
     setIsLoading(true);
 
-    deleteTodo(todoId)
+    deleteTodo(id)
       .then(() => {
-        const editedArray = todos.filter(task => task.id !== todoId);
+        const editedArray = todos.filter(task => task.id !== id);
 
         setTodos(editedArray);
       })
@@ -80,6 +80,16 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
       });
   };
 
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const isLoaderActive = isLoading
+                      || id === 0
+                      || (isClearing && completed)
+                      || (isUpdating && !completed && !isToggleAll)
+                      || (isUpdating && completed && isToggleAll);
+
   return (
     <div
       data-cy="Todo"
@@ -111,7 +121,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => setIsEditing(true)}
+              onDoubleClick={handleDoubleClick}
             >
               {title}
             </span>
@@ -120,7 +130,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleTodoDelete(id)}
+              onClick={handleTodoDelete}
             >
               ×
             </button>
@@ -134,11 +144,7 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
           'modal',
           'overlay',
           {
-            'is-active': isLoading
-                      || id === 0
-                      || (isClearing && completed)
-                      || (isUpdating && !completed && !isToggleAll)
-                      || (isUpdating && completed && isToggleAll),
+            'is-active': isLoaderActive,
           },
         )}
       >

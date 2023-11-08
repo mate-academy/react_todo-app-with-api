@@ -1,19 +1,5 @@
-import {
-  createContext, useState,
-} from 'react';
-
-interface FormContextType {
-  isCreating: boolean,
-  setIsCreating: (value: boolean) => void,
-  preparingTodoLabel: string,
-  setPreparingTodoLabel: (value: string) => void,
-  isUpdating: boolean,
-  setIsUpdating: (value: boolean) => void,
-  isClearing: boolean,
-  setIsClearing: (value: boolean) => void,
-  isToggleAll: boolean,
-  setIsToggleAll: (value: boolean | ((prevValue: boolean) => boolean)) => void,
-}
+import { useState, createContext } from 'react';
+import { FormContextType } from '../types/FormContextType';
 
 export const FormContext = createContext<FormContextType>({
   isCreating: false,

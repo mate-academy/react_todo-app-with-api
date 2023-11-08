@@ -24,9 +24,9 @@ export const TodoEditing: React.FC<Props> = ({
 }) => {
   const { title, id } = todoToEdit;
 
-  const [todoTitle, setTodoTitle] = useState(title);
-
   const { setTodos, setError, todos } = useContext(TodoContext);
+
+  const [todoTitle, setTodoTitle] = useState(title);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -99,6 +99,17 @@ export const TodoEditing: React.FC<Props> = ({
     }
   };
 
+  const handleFormBlur = (
+    event: React.FocusEvent<HTMLInputElement, Element>,
+  ) => {
+    handleSubmit(event);
+    setIsEditing(false);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoTitle(event.target.value);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <input
@@ -108,12 +119,9 @@ export const TodoEditing: React.FC<Props> = ({
         placeholder="Empty todo will be deleted"
         value={todoTitle}
         ref={inputRef}
-        onChange={(event) => setTodoTitle(event.target.value)}
+        onChange={handleTitleChange}
         onKeyUp={handleKeyUp}
-        onBlur={(event) => {
-          handleSubmit(event);
-          setIsEditing(false);
-        }}
+        onBlur={handleFormBlur}
 
       />
     </form>

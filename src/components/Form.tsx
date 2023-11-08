@@ -28,8 +28,15 @@ export const Form = () => {
     setIsToggleAll,
     isToggleAll,
   } = useContext(FormContext);
+
   const [todoLabel, setTodoLabel] = useState('');
   const [isBlockedInput, setIsBlockedInput] = useState(false);
+
+  const isActiveButton = todos.every(task => task.completed);
+
+  useEffect(() => {
+    setIsToggleAll(isActiveButton);
+  }, [isActiveButton, setIsToggleAll]);
 
   useEffect(() => {
     if (isBlockedInput === false) {
@@ -68,11 +75,6 @@ export const Form = () => {
       setTimeout(() => setError(TodoError.Null), 3000);
     }
   };
-
-  const isActiveButton = todos.every(task => task.completed);
-
-  useEffect(() => setIsToggleAll(isActiveButton),
-    [isActiveButton, setIsToggleAll]);
 
   const handleButtonClick = () => {
     setIsUpdating(true);
@@ -119,6 +121,10 @@ export const Form = () => {
     }
   };
 
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTodoLabel(event.target.value);
+  };
+
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
@@ -137,7 +143,7 @@ export const Form = () => {
       )}
 
       {/* Add a todo on form submit */}
-      <form onSubmit={event => handleSubmit(event)}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"
@@ -146,7 +152,7 @@ export const Form = () => {
           value={todoLabel}
           ref={inputRef}
           disabled={isBlockedInput}
-          onChange={(event) => setTodoLabel(event.target.value)}
+          onChange={handleTitleChange}
         />
       </form>
     </header>

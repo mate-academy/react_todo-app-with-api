@@ -3,7 +3,7 @@ import { Error } from './Error';
 import { Footer } from './Footer';
 import { Form } from './Form';
 import { TodoList } from './TodoList';
-import { TodoContext } from '../providers/TodoProvider';
+import { TodoContext, USER_ID } from '../providers/TodoProvider';
 import { FormContext } from '../providers/FormProvider';
 import { TodoItem } from './TodoItem';
 
@@ -23,7 +23,7 @@ export const TodoApp = () => {
             {isCreating && (
               <TodoItem todo={{
                 id: 0,
-                userId: 11810,
+                userId: USER_ID,
                 title: preparingTodoLabel,
                 completed: false,
               }}

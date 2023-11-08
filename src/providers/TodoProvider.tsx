@@ -7,7 +7,7 @@ import {
 
 import { Filter } from '../types/Filter';
 import { TodoError } from '../types/TodoError';
-import { TodoContextType } from '../types/TodoContext';
+import { TodoContextType } from '../types/TodoContextType';
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
