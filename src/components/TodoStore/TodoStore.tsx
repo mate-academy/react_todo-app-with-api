@@ -19,6 +19,7 @@ enum ReducerActions {
   ToggleSubmitting = 'toggleSubmitting',
   ToggleUpdating = 'toggleUpdating',
   ToggleDeleting = 'toggleDeleting',
+  ToggleEditing = 'toggleEditing',
   AddTodoError = 'addTodoError',
   ClearTodoErrors = 'clearTodoErrors',
 }
@@ -36,6 +37,7 @@ interface State {
   isSubmitting: boolean;
   isUpdating: boolean;
   isDeleting: boolean;
+  isEditing: boolean;
   todoError: TodoError | null;
 }
 
@@ -117,6 +119,12 @@ function reducer(state: State, action: Action): State {
         isDeleting: !state.isDeleting,
       };
 
+    case ReducerActions.ToggleEditing:
+      return {
+        ...state,
+        isEditing: action.payload,
+      };
+
     case ReducerActions.AddTodoError:
       return {
         ...state,
@@ -158,6 +166,9 @@ export const actionCreator = {
   toggleSubmitting: () => ({ type: ReducerActions.ToggleSubmitting }),
   toggleUpdating: () => ({ type: ReducerActions.ToggleUpdating }),
   toggleDeleting: () => ({ type: ReducerActions.ToggleDeleting }),
+  toggleEditing: (payload: boolean) => ({
+    type: ReducerActions.ToggleEditing, payload,
+  }),
   addError: (payload: TodoError) => ({
     type: ReducerActions.AddTodoError, payload,
   }),
@@ -172,6 +183,7 @@ const initialState: State = {
   isSubmitting: false,
   isUpdating: false,
   isDeleting: false,
+  isEditing: false,
   todoError: null,
 };
 

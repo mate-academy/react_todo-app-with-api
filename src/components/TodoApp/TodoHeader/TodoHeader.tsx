@@ -19,16 +19,21 @@ import {
 import { TodoError } from '../../../types/TodoError';
 
 export const TodoHeader: React.FC = () => {
-  const { initialTodos, isSubmitting, isDeleting } = useContext(StateContext);
+  const {
+    initialTodos,
+    isSubmitting,
+    isDeleting,
+    isEditing,
+  } = useContext(StateContext);
   const dispatch = useContext(DispatchContext);
   const [title, setTitle] = useState('');
   const focusedInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (focusedInput.current) {
+    if (focusedInput.current && !isDeleting && !isEditing) {
       focusedInput.current.focus();
     }
-  }, [isSubmitting, isDeleting]);
+  }, [isSubmitting, isDeleting, isEditing]);
 
   const handleSubmit = useCallback((
     event: React.FormEvent<HTMLFormElement>,

@@ -26,7 +26,7 @@ type UpdatingTodoEvent =
 
 export const TodoItem: React.FC<Props> = ({ todo }) => {
   const [newTitle, setNewTitle] = useState(todo.title);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isLocalEditing, setIsLocalEditing] = useState(false);
   const dispatch = useContext(DispatchContext);
   const {
     loadingItemsId,
@@ -40,10 +40,10 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     && (isSubmitting || isUpdating || isDeleting);
 
   useEffect(() => {
-    if (editingTodo.current) {
+    if (editingTodo.current && isLocalEditing) {
       editingTodo.current.focus();
     }
-  }, [isEditing]);
+  }, [isLocalEditing]);
 
   const deleteTodo = useCallback(() => {
     dispatch(actionCreator.addLoadingItemId(todo.id));
@@ -53,10 +53,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       .then(() => {
         dispatch(actionCreator.updateTodos({ delete: todo.id }));
       })
-      .catch(() => {
+      .catch(error => {
         dispatch(actionCreator.addError(TodoError.ErrorDelete));
+        throw error;
       })
-      .then(() => setIsEditing(false))
+      .then(() => {
+        setIsLocalEditing(false);
+        dispatch(actionCreator.toggleEditing(false));
+      })
       .finally(() => {
         dispatch(actionCreator.toggleDeleting());
         dispatch(actionCreator.clearLoadingItemsId());
@@ -93,10 +97,11 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         .then(newTodo => {
           dispatch(actionCreator.updateTodos({ update: newTodo }));
         })
-        .catch(() => {
+        .catch(error => {
           dispatch(actionCreator.addError(TodoError.ErrorUpdate));
+          throw error;
         })
-        .then(() => setIsEditing(false))
+        .then(() => setIsLocalEditing(false))
         .finally(() => {
           dispatch(actionCreator.toggleUpdating());
           dispatch(actionCreator.clearLoadingItemsId());
@@ -112,7 +117,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
 
     if (newTitle === todo.title) {
-      setIsEditing(false);
+      setIsLocalEditing(false);
 
       return;
     }
@@ -120,13 +125,18 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     updateTodo(event);
   }, [deleteTodo, newTitle, todo.title, updateTodo]);
 
+  const handleDoubleClick = () => {
+    dispatch(actionCreator.toggleEditing(true));
+    setIsLocalEditing(true);
+  };
+
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
     editTodo(event);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setIsEditing(false);
+      setIsLocalEditing(false);
       setNewTitle(todo.title);
     }
   };
@@ -153,12 +163,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         />
       </label>
 
-      {!isEditing ? (
+      {!isLocalEditing ? (
         <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={() => setIsEditing(true)}
+            onDoubleClick={handleDoubleClick}
           >
             {todo.title}
           </span>
