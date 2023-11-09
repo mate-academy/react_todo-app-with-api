@@ -24,12 +24,10 @@ export const Footer: React.FC<FilterProps> = ({
       </span>
       {/* Hide the footer if there are no todos */}
 
-      {/* Active filter should have a 'selected' class */}
       <TodoFilter
         filterTodo={filterTodo}
         selectedTodoFilter={selectedTodoFilter}
       />
-      {/* don't show this button if there are no completed todos */}
 
       <button
         type="button"
@@ -40,7 +38,6 @@ export const Footer: React.FC<FilterProps> = ({
       >
         Clear completed
       </button>
-
     </footer>
   );
 };

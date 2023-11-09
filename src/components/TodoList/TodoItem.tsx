@@ -48,6 +48,23 @@ export const TodoItem: React.FC<Props> = ({
     setIsEditing(false);
   };
 
+  // const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
+  //   setLoading(true);
+  //   changeTodoTitle(todoId, newTitle)
+  //     .then(() => {
+  //       setTodos(todos.map(todo => (todo.id === todoId
+  //         ? { ...todo, title: newTitle }
+  //         : todo
+  //       )));
+  //     })
+  //     .catch(() => {
+  //       setErrorMessage('Unable to update a todo');
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // };
+
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     handleEditedTitleSubmit();

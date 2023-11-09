@@ -102,7 +102,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       completed: false,
     })
       .then(newTodo => {
-        setTodos([...todos, newTodo]);
+        // setTodos([...todos, newTodo]);
+        setTodos(currentTodos => [...currentTodos, newTodo]);
         setTodoTitle('');
       })
       .catch(() => {
@@ -158,7 +159,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         )));
       })
       .catch(() => {
-        setErrorMessage('Unable to edit a todo');
+        setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
         setLoading(false);
@@ -181,25 +182,25 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
     }
   };
 
-  const handleClearCompleted = () => {
-    todos
-      .filter(todo => todo.completed)
-      .map(todo => handleDeleteTodo(todo.id));
-  };
-
-  // const handleClearCompleted = async () => {
-  //   const allCompleted = todos.filter(todo => todo.completed);
-
-  //   await Promise.allSettled(allCompleted
-  //     .map(todo => handleDeleteTodo(todo.id)));
+  // const handleClearCompleted = () => {
+  //   todos
+  //     .filter(todo => todo.completed)
+  //     .map(todo => handleDeleteTodo(todo.id));
   // };
-  // console.log(handleClearCompleted)
+
+  const handleClearCompleted = async () => {
+    const allCompleted = todos.filter(todo => todo.completed);
+
+    await Promise.allSettled(allCompleted
+      .map(todo => handleDeleteTodo(todo.id)));
+  };
 
   return (
     <>
       <div className="todoapp__content">
         <section className="todoapp__main" data-cy="TodoList">
           <Header
+            todosLength={todos.length}
             handleCreateTodoSubmit={handleCreateTodoSubmit}
             handleToggleAll={handleToggleAll}
             isAllTodoCompleted={todosQty === 0}

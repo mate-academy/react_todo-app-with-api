@@ -2,6 +2,7 @@ import cn from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
+  todosLength: number,
   handleCreateTodoSubmit: (
     title: string,
     setDisabled: (value: boolean) => void,
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
+  todosLength,
   handleCreateTodoSubmit,
   handleToggleAll,
   isAllTodoCompleted,
@@ -42,15 +44,17 @@ export const Header: React.FC<Props> = ({
   return (
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        data-cy="ToggleAllButton"
-        aria-label="toggle button"
-        className={cn('todoapp__toggle-all', {
-          active: isAllTodoCompleted,
-        })}
-        onClick={() => handleToggleAll()}
-      />
+      {todosLength > 0 && (
+        <button
+          type="button"
+          data-cy="ToggleAllButton"
+          aria-label="toggle button"
+          className={cn('todoapp__toggle-all', {
+            active: isAllTodoCompleted,
+          })}
+          onClick={() => handleToggleAll()}
+        />
+      )}
 
       <form onSubmit={handleCreateTodo}>
         <input
