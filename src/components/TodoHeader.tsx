@@ -117,7 +117,7 @@ export const TodoHeader: React.FC = React.memo(() => {
     if (!isLoading || todos.length === 0) {
       inputRef.current?.focus();
     }
-  }, [isLoading, todos]);
+  }, [isLoading, todos.length]);
 
   return (
     <header className="todoapp__header">

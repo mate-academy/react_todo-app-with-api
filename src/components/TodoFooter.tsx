@@ -29,6 +29,19 @@ export const TodoFooter: React.FC<Props> = React.memo(({
     }, 0);
   }, [todos]);
 
+  const getFilters = useCallback(() => {
+    const allFilters = Object.values(FilterBy);
+    const filtersNames = allFilters.slice(0, 3);
+    const filtersValues = allFilters.slice(3);
+
+    return filtersNames.reduce((acc, item, i) => {
+      return {
+        ...acc,
+        [item]: filtersValues[i],
+      };
+    }, {});
+  }, []);
+
   const deleteCompleted = () => {
     const requests = completedTodos.map((todo) => {
       dispatch({
@@ -55,38 +68,20 @@ export const TodoFooter: React.FC<Props> = React.memo(({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: selectedFilter === FilterBy.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => onFilterSelected(FilterBy.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: selectedFilter === FilterBy.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => onFilterSelected(FilterBy.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: selectedFilter === FilterBy.Completed,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => onFilterSelected(FilterBy.Completed)}
-        >
-          Completed
-        </a>
+        {Object.entries(getFilters())
+          .map(([name, value]) => (
+            <a
+              key={name}
+              href="#/"
+              className={classNames('filter__link', {
+                selected: selectedFilter === value,
+              })}
+              data-cy="FilterLinkAll"
+              onClick={() => onFilterSelected(value as FilterBy)}
+            >
+              {name}
+            </a>
+          ))}
       </nav>
 
       <button
@@ -94,7 +89,7 @@ export const TodoFooter: React.FC<Props> = React.memo(({
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
         onClick={deleteCompleted}
-        disabled={completedTodos.length === 0}
+        disabled={!completedTodos.length}
       >
         Clear completed
       </button>
