@@ -120,7 +120,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
 
     deleteTodo(id)
       .then(() => {
-        setTodos(todos.filter(todo => todo.id !== id));
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
@@ -135,7 +135,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
     setLoading(true);
     toggleCompleteTodo(todoId, completed)
       .then(() => {
-        setTodos(todos.map(todo => (todo.id === todoId
+        setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoId
           ? { ...todo, completed }
           : todo
         )));
@@ -165,26 +165,35 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
   };
 
-  const handleToggleAll = (todoNewStatus: boolean) => {
-    todos.forEach(todo => {
-      if (todo.completed !== todoNewStatus) {
-        handleCompleteTodo(todo.id, todoNewStatus);
-      }
-    });
+  const handleToggleAll = () => {
+    const isAllTodosCompleted = todos.every(todo => todo.completed);
+
+    if (isAllTodosCompleted) {
+      todos.forEach(todo => {
+        handleCompleteTodo(todo.id, false);
+      });
+    } else {
+      todos.forEach(todo => {
+        if (todo.completed === false) {
+          handleCompleteTodo(todo.id, true);
+        }
+      });
+    }
   };
 
-  // const handleClearCompleted = () => {
-  //   todos
-  //     .filter(todo => todo.completed)
-  //     .map(todo => handleDeleteTodo(todo.id));
+  const handleClearCompleted = () => {
+    todos
+      .filter(todo => todo.completed)
+      .map(todo => handleDeleteTodo(todo.id));
+  };
+
+  // const handleClearCompleted = async () => {
+  //   const allCompleted = todos.filter(todo => todo.completed);
+
+  //   await Promise.allSettled(allCompleted
+  //     .map(todo => handleDeleteTodo(todo.id)));
   // };
-
-  const handleClearCompleted = async () => {
-    const allCompleted = todos.filter(todo => todo.completed);
-
-    await Promise.allSettled(allCompleted
-      .map(todo => handleDeleteTodo(todo.id)));
-  };
+  // console.log(handleClearCompleted)
 
   return (
     <>
@@ -204,9 +213,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 classNames="item"
               >
                 <TodoItem
-                  // title={todo.title}
-                  // completed={todo.completed}
-                  // id={todo.id}
                   todo={todo}
                   key={todo.id}
                   isLoading={loading}
@@ -224,11 +230,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 classNames="temp-item"
               >
                 <TodoItem
-                  // title={tempTodo.title}
-                  // completed={tempTodo.completed}
-                  // id={tempTodo.id}
                   todo={tempTodo}
-                  key={tempTodo.id}
                   isLoading
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}

@@ -7,7 +7,7 @@ type Props = {
     setDisabled: (value: boolean) => void,
     setTitle: (value: string) => void
   ) => void;
-  handleToggleAll: (value: boolean) => void;
+  handleToggleAll: () => void;
   isAllTodoCompleted: boolean;
   focusToInputHeader: boolean;
 };
@@ -49,7 +49,7 @@ export const Header: React.FC<Props> = ({
         className={cn('todoapp__toggle-all', {
           active: isAllTodoCompleted,
         })}
-        onClick={() => handleToggleAll(!isAllTodoCompleted)}
+        onClick={() => handleToggleAll()}
       />
 
       <form onSubmit={handleCreateTodo}>

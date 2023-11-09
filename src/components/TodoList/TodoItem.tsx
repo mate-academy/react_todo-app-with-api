@@ -3,9 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 
 type Props = {
-  // title: string,
-  // completed: boolean,
-  // id: number
   todo: Todo,
   isLoading: boolean,
   handleDeleteTodo: (value: number) => void,
@@ -20,9 +17,6 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  // title,
-  // completed,
-  // id,
   todo,
   isLoading,
   handleDeleteTodo,
