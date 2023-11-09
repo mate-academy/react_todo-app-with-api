@@ -39,7 +39,7 @@ export const Form = () => {
   }, [isActiveButton, setIsToggleAll]);
 
   useEffect(() => {
-    if (isBlockedInput === false) {
+    if (!isBlockedInput) {
       inputRef.current?.focus();
     }
   }, [isBlockedInput, inputRef]);
@@ -76,47 +76,40 @@ export const Form = () => {
     }
   };
 
+  const handleEditTodo = (todo: Todo, status: boolean) => {
+    return editTodo({ ...todo, completed: status })
+      .then(() => {
+        setTodos(prevTodos => {
+          return prevTodos.map(prevTodo => ({
+            ...prevTodo,
+            completed: status,
+          }));
+        });
+      })
+      .catch(() => {
+        setError(TodoError.Update);
+      })
+      .finally(() => {
+        setIsUpdating(false);
+
+        if (!status) {
+          setIsToggleAll(false);
+        }
+      });
+  };
+
   const handleButtonClick = () => {
     setIsUpdating(true);
 
     if (isActiveButton) {
       todos.forEach(todo => {
-        editTodo({ ...todo, completed: false })
-          .then(() => {
-            setTodos(prevTodos => {
-              return prevTodos.map(prevTodo => ({
-                ...prevTodo,
-                completed: false,
-              }));
-            });
-          })
-          .catch(() => {
-            setError(TodoError.Update);
-          })
-          .finally(() => {
-            setIsUpdating(false);
-            setIsToggleAll(false);
-          });
+        handleEditTodo(todo, false);
       });
     } else {
       const todosToChange = todos.filter(todo => !todo.completed);
 
       todosToChange.forEach(todo => {
-        editTodo({ ...todo, completed: true })
-          .then(() => {
-            setTodos(prevTodos => {
-              return prevTodos.map(prevTodo => ({
-                ...prevTodo,
-                completed: true,
-              }));
-            });
-          })
-          .catch(() => {
-            setError(TodoError.Update);
-          })
-          .finally(() => {
-            setIsUpdating(false);
-          });
+        handleEditTodo(todo, true);
       });
     }
   };

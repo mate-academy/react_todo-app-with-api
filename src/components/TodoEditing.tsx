@@ -41,7 +41,7 @@ export const TodoEditing: React.FC<Props> = ({
 
     if (todoTitle === title) {
       setIsEditing(false);
-    } else if (todoTitle === '') {
+    } else if (!todoTitle) {
       setIsLoading(true);
 
       deleteTodo(id)
