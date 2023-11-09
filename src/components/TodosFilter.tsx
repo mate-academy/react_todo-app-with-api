@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Filters, Filter } from '../types/Filters';
+import { Filter, Filters } from '../types/Filters';
 
 type Props = {
   filters: Filter[],

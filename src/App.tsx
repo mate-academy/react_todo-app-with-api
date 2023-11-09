@@ -33,12 +33,16 @@ export const App: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const handleError = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 3000);
+  };
+
   useEffect(() => {
     todoService.getTodos(USER_ID)
       .then(setTodos)
       .catch(() => {
-        setErrorMessage('Unable to load todos');
-        setTimeout(() => setErrorMessage(''), 3000);
+        handleError('Unable to load todos');
       });
   }, []);
 
@@ -61,27 +65,25 @@ export const App: React.FC = () => {
     completed: false,
   };
 
-  const handleError = (message: string) => {
-    setErrorMessage(message);
-    setTimeout(() => setErrorMessage(''), 3000);
-  };
+  const handleUpdateTodos = (receivedTodo: Todo) => (
+    (prevTodos: Todo[]) => {
+      const updatedTodos = [...prevTodos];
+      const index = updatedTodos
+        .findIndex(todo => todo.id === receivedTodo.id);
+
+      updatedTodos.splice(index, 1, receivedTodo);
+
+      return updatedTodos;
+    }
+  );
 
   const onToggleTodos = (updated: Todo) => {
     setIsLoading(true);
     setToggledTodo(updated);
 
     return todoService.updateTodo(updated)
-    // return Promise.reject()
       .then(receivedTodo => {
-        setTodos(prevTodos => {
-          const updatedTodos = [...prevTodos];
-          const index = updatedTodos
-            .findIndex(todo => todo.id === receivedTodo.id);
-
-          updatedTodos.splice(index, 1, receivedTodo);
-
-          return updatedTodos;
-        });
+        setTodos(handleUpdateTodos(receivedTodo));
       })
       .catch(() => {
         handleError('Unable to update a todo');
@@ -95,17 +97,8 @@ export const App: React.FC = () => {
     setIsLoading(true);
 
     return todoService.updateTodo(updated)
-    // return Promise.reject()
       .then(receivedTodo => {
-        setTodos(prevTodos => {
-          const updatedTodos = [...prevTodos];
-          const index = updatedTodos
-            .findIndex(todo => todo.id === receivedTodo.id);
-
-          updatedTodos.splice(index, 1, receivedTodo);
-
-          return updatedTodos;
-        });
+        setTodos(handleUpdateTodos(receivedTodo));
 
         setEditedTodo(null);
       })
@@ -125,7 +118,6 @@ export const App: React.FC = () => {
       setTempTodo({ ...newTodo, id: 0 });
 
       todoService.createTodo(newTodo)
-      // Promise.reject()
         .then(receivedTodo => {
           setTodos(prevTodos => [...prevTodos, receivedTodo]);
           setTitle('');
@@ -147,7 +139,6 @@ export const App: React.FC = () => {
     setdeletedIds(prevs => [...prevs, todoId]);
 
     return todoService.deleteTodo(todoId)
-    // return Promise.reject()
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
         setEditedTodo(null);
@@ -264,7 +255,6 @@ export const App: React.FC = () => {
           onEditSubmit={onEditSubmit}
         />
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <footer className="todoapp__footer" data-cy="Footer">
             <span className="todo-count" data-cy="TodosCounter">
@@ -278,7 +268,7 @@ export const App: React.FC = () => {
             />
 
             <button
-              disabled={completedTodos.length === 0}
+              disabled={!completedTodos.length}
               type="button"
               className="todoapp__clear-completed"
               data-cy="ClearCompletedButton"

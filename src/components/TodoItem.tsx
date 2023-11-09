@@ -36,6 +36,7 @@ export const TodoItem: React.FC<Props> = ({
     completed,
   } = todo;
 
+  const isTodoEditing = id === editedTodo?.id;
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export const TodoItem: React.FC<Props> = ({
         />
       </label>
 
-      {id === editedTodo?.id
+      {isTodoEditing
         ? (
           <form
             onSubmit={(event) => onEditSubmit(id, event)}
@@ -108,7 +109,7 @@ export const TodoItem: React.FC<Props> = ({
           'is-active': togglingAll
           || (isLoading && deletedIds?.includes(id))
           || id === 0
-          || (isLoading && id === editedTodo?.id)
+          || (isLoading && isTodoEditing)
           || (isLoading && id === toggledTodo?.id),
         })}
       >
