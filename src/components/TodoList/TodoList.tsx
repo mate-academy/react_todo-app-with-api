@@ -173,8 +173,17 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
     });
   };
 
-  const handleClearCompleted = () => {
-    todos.filter(todo => todo.completed).map(todo => handleDeleteTodo(todo.id));
+  // const handleClearCompleted = () => {
+  //   todos
+  //     .filter(todo => todo.completed)
+  //     .map(todo => handleDeleteTodo(todo.id));
+  // };
+
+  const handleClearCompleted = async () => {
+    const allCompleted = todos.filter(todo => todo.completed);
+
+    await Promise.allSettled(allCompleted
+      .map(todo => handleDeleteTodo(todo.id)));
   };
 
   return (
@@ -195,11 +204,12 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 classNames="item"
               >
                 <TodoItem
-                  title={todo.title}
+                  // title={todo.title}
+                  // completed={todo.completed}
+                  // id={todo.id}
+                  todo={todo}
                   key={todo.id}
-                  completed={todo.completed}
                   isLoading={loading}
-                  id={todo.id}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
                   handleChangeTodoTitle={handleChangeTodoTitle}
@@ -214,11 +224,12 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 classNames="temp-item"
               >
                 <TodoItem
-                  title={tempTodo.title}
+                  // title={tempTodo.title}
+                  // completed={tempTodo.completed}
+                  // id={tempTodo.id}
+                  todo={tempTodo}
                   key={tempTodo.id}
-                  completed={tempTodo.completed}
                   isLoading
-                  id={tempTodo.id}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
                   handleChangeTodoTitle={handleChangeTodoTitle}

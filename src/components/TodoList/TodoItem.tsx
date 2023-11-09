@@ -1,11 +1,13 @@
 import cn from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
+import { Todo } from '../../types/Todo';
 
 type Props = {
-  title: string,
-  completed: boolean,
+  // title: string,
+  // completed: boolean,
+  // id: number
+  todo: Todo,
   isLoading: boolean,
-  id: number
   handleDeleteTodo: (value: number) => void,
   handleCompleteTodo: (
     id: number,
@@ -18,16 +20,17 @@ type Props = {
 };
 
 export const TodoItem: React.FC<Props> = ({
-  title,
-  completed,
+  // title,
+  // completed,
+  // id,
+  todo,
   isLoading,
-  id,
   handleDeleteTodo,
   handleCompleteTodo,
   handleChangeTodoTitle,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(title);
+  const [editedTitle, setEditedTitle] = useState(todo.title);
 
   const editTodo = useRef<HTMLInputElement>(null);
 
@@ -40,12 +43,12 @@ export const TodoItem: React.FC<Props> = ({
   const handleEditedTitleSubmit = () => {
     const trimmedTitle = editedTitle.trim();
 
-    if (trimmedTitle === title) {
+    if (trimmedTitle === todo.title) {
       setEditedTitle(trimmedTitle);
     } else if (!trimmedTitle) {
-      handleDeleteTodo(id);
+      handleDeleteTodo(todo.id);
     } else {
-      handleChangeTodoTitle(id, trimmedTitle);
+      handleChangeTodoTitle(todo.id, trimmedTitle);
     }
 
     setIsEditing(false);
@@ -62,7 +65,7 @@ export const TodoItem: React.FC<Props> = ({
         data-cy="Todo"
         className={cn('todo',
           {
-            completed,
+            completed: todo.completed,
           })}
       >
         <label className="todo__status-label">
@@ -70,8 +73,9 @@ export const TodoItem: React.FC<Props> = ({
             data-cy="TodoStatus"
             type="checkbox"
             className="todo__status"
-            defaultChecked={completed}
-            onClick={() => handleCompleteTodo(id, !completed)}
+            defaultChecked={todo.completed}
+            // checked={todo.completed}
+            onClick={() => handleCompleteTodo(todo.id, !todo.completed)}
           />
         </label>
 
@@ -100,14 +104,14 @@ export const TodoItem: React.FC<Props> = ({
               data-cy="TodoTitle"
               className="todo__title"
             >
-              {title}
+              {todo.title}
             </span>
 
             <button
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDeleteTodo(id)}
+              onClick={() => handleDeleteTodo(todo.id)}
             >
               ×
             </button>
