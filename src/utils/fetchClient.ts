@@ -28,7 +28,7 @@ async function request<T>(
 
   const [response] = await Promise.all([
     fetch(BASE_URL + url, options),
-    wait(100),
+    wait(300),
   ]);
 
   return response.ok

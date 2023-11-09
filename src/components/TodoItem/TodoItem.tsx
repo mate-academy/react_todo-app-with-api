@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -12,7 +12,7 @@ type Props = {
   isLoading: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: FC<Props> = ({
   todo,
   deleteTodo,
   updateTodo,
@@ -21,6 +21,7 @@ export const TodoItem: React.FC<Props> = ({
   const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [isEditing, setIsEditing] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
+  const input = useRef<HTMLInputElement>(null);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedTodo = { ...todo, completed: event.target.checked };
@@ -29,20 +30,14 @@ export const TodoItem: React.FC<Props> = ({
     updateTodo(updatedTodo);
   };
 
-  const handleDoubleClick = (
-    e: React.MouseEvent<HTMLSpanElement>,
-    edited: Todo,
-  ) => {
-    switch (e.detail) {
-      case 2: {
-        setIsEditing(true);
-        setNewTodoTitle(edited.title);
-        break;
-      }
-
-      default: {
-        setIsEditing(false);
-        break;
+  const handleDoubleClick = (edited: Todo) => {
+    setIsEditing(true);
+    if (!edited.title) {
+      deleteTodo(edited.id);
+    } else {
+      setNewTodoTitle(edited.title);
+      if (input.current) {
+        input.current.focus();
       }
     }
   };
@@ -89,7 +84,7 @@ export const TodoItem: React.FC<Props> = ({
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onClick={(e) => handleDoubleClick(e, todo)}
+            onDoubleClick={() => handleDoubleClick(todo)}
           >
             {todo.title}
           </span>
@@ -102,19 +97,6 @@ export const TodoItem: React.FC<Props> = ({
             ×
           </button>
         </>
-      ) : isLoading ? (
-        <div
-          data-cy="TodoLoader"
-          className={cn(
-            'modal overlay',
-            { 'is-active': isLoading },
-          )}
-        >
-          <div data-cy="TodoLoader" className="modal overlay">
-            <div className="modal-background has-background-white-ter" />
-            <div className="loader" />
-          </div>
-        </div>
       ) : (
         <form>
           <input
@@ -129,6 +111,16 @@ export const TodoItem: React.FC<Props> = ({
           />
         </form>
       )}
+      <div
+        data-cy="TodoLoader"
+        className={cn(
+          'modal overlay',
+          { 'is-active': isLoading },
+        )}
+      >
+        <div className="modal-background has-background-white-ter" />
+        <div className="loader" />
+      </div>
     </div>
   );
 };

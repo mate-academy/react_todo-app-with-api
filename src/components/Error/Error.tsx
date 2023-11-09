@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { FC } from 'react';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 interface Props {
@@ -6,7 +7,7 @@ interface Props {
   setErrorMessage: (value: string) => void;
 }
 
-export const Error: React.FC<Props> = ({
+export const Error: FC<Props> = ({
   errorMessage,
   setErrorMessage,
 }) => {

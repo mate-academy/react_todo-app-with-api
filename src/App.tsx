@@ -1,7 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { FC, useState, useEffect, useMemo } from 'react';
+import React, {
+  FC,
+  useState,
+  useEffect,
+} from 'react';
 
 import * as todosServices from './api/todos';
 import { Todo } from './types/Todo';
@@ -17,10 +21,11 @@ export const App: FC = () => {
   const [serverTodos, setServerTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [response, setResponse] = useState(false);
-  const [isloading, setIsLoading] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterBy, setFilterBy] = useState(Filters.All);
+  const [toggledTodos, setToggledTodos] = useState<Todo[]>([]);
 
   const changeErrorMessage = (message: string) => {
     setErrorMessage(message);
@@ -43,25 +48,6 @@ export const App: FC = () => {
     getTodos(USER_ID);
   }, []);
 
-  const filteredTodos: Todo[] = useMemo(() => {
-    let filteredItems = serverTodos;
-
-    switch (filterBy) {
-      case Filters.Active:
-        filteredItems = filteredItems.filter(todo => !todo.completed);
-        break;
-
-      case Filters.Completed:
-        filteredItems = filteredItems.filter(todo => todo.completed);
-        break;
-
-      default:
-        break;
-    }
-
-    return filteredItems;
-  }, [serverTodos, filterBy]);
-
   const addTodo = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const normalizedTitle = title.trim();
@@ -76,15 +62,11 @@ export const App: FC = () => {
       userId: USER_ID,
       title: normalizedTitle,
       completed: false,
+      id: 0,
     };
 
-    setTempTodo({
-      id: 0,
-      ...newTodo,
-    });
-
+    setTempTodo(newTodo);
     setResponse(true);
-
     const createdTodo = await todosServices.createTodo(newTodo);
 
     try {
@@ -92,6 +74,7 @@ export const App: FC = () => {
       setServerTodos((currentTodos) => [...currentTodos, createdTodo]);
     } catch {
       changeErrorMessage('Unable to add a todo');
+      setTempTodo(null);
     } finally {
       setTempTodo(null);
       setResponse(false);
@@ -99,17 +82,17 @@ export const App: FC = () => {
   };
 
   const deleteTodo = async (todoId: number) => {
-    setIsLoading((currentTodo) => [...currentTodo, todoId]);
+    setIsLoading((currentTodos) => [...currentTodos, todoId]);
     try {
       await todosServices.deleteTodo(todoId);
       setServerTodos(
-        (currentTodo) => currentTodo.filter((todo) => todo.id !== todoId),
+        (currentTodos) => currentTodos.filter((todo) => todo.id !== todoId),
       );
     } catch {
       changeErrorMessage('Unable to delete a todo');
     } finally {
       setIsLoading(
-        (currentTodo) => currentTodo.filter(
+        (currentTodos) => currentTodos.filter(
           (id: number) => id !== todoId,
         ),
       );
@@ -151,17 +134,20 @@ export const App: FC = () => {
           title={title}
           setTitle={setTitle}
           onHandleSubmit={addTodo}
-          setTodos={setServerTodos}
+          updateTodo={updateTodo}
           setFilterBy={setFilterBy}
+          setToggledTodos={setToggledTodos}
         />
 
-        {!!filteredTodos.length && (
+        {!!serverTodos.length && (
           <TodoList
-            todos={filteredTodos}
+            todos={serverTodos}
+            toggledTodos={toggledTodos}
             deleteTodo={deleteTodo}
             updateTodo={updateTodo}
-            isLoading={isloading}
+            isLoading={isLoading}
             tempTodo={tempTodo}
+            filterBy={filterBy}
           />
         )}
 

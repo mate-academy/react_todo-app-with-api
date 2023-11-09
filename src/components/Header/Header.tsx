@@ -2,17 +2,17 @@
 import { FC, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { updateTodo } from '../../api/todos';
 import { Filters } from '../../types/Filters';
 
 type Props = {
   todos: Todo[];
   title: string,
-  setTitle: (val: string) => void;
+  setTitle: (value: string) => void;
   onHandleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   response: boolean;
-  setTodos: (val: Todo[]) => void;
-  setFilterBy: (val: Filters) => void;
+  updateTodo: (value: Todo) => void;
+  setFilterBy: (value: Filters) => void;
+  setToggledTodos: (value: Todo[]) => void;
 };
 
 export const Header: FC<Props> = ({
@@ -21,33 +21,32 @@ export const Header: FC<Props> = ({
   setTitle,
   onHandleSubmit,
   response,
-  setTodos,
+  updateTodo,
   setFilterBy,
+  setToggledTodos,
 }) => {
   const inputField = useRef<HTMLInputElement>(null);
   const allTodosCompleted = todos.every(todo => todo.completed);
 
-  const handleToggleAll = () => {
-    if (allTodosCompleted) {
-      setFilterBy(Filters.Reversed);
-      const newFalsyTodos = todos.map(todo => ({
+  const toggleAll = async () => {
+    setFilterBy(Filters.Toggled);
+
+    const todosToUpdate = todos.filter(todo => (allTodosCompleted
+      ? todo.completed
+      : !todo.completed
+    ));
+    const preparedTodos = todosToUpdate.map(todo => (
+      { ...todo, completed: !allTodosCompleted }
+    ));
+
+    await Promise.all(todosToUpdate.map(todo => (
+      updateTodo({
         ...todo,
-        completed: false,
-      }));
+        completed: !allTodosCompleted,
+      })
+    )));
 
-      setTodos(newFalsyTodos);
-      newFalsyTodos.forEach(todo => updateTodo(todo));
-    } else {
-      setFilterBy(Filters.Reversed);
-      const newTrulyTodos = todos.map(currTodo => ({
-        ...currTodo,
-        completed: true,
-      }));
-
-      setTodos(newTrulyTodos);
-      newTrulyTodos
-        .forEach(trulyTodo => updateTodo({ ...trulyTodo, completed: true }));
-    }
+    setToggledTodos(preparedTodos);
   };
 
   useEffect(() => {
@@ -66,7 +65,7 @@ export const Header: FC<Props> = ({
           })}
           data-cy="ToggleAllButton"
           aria-label="Toggle All"
-          onClick={handleToggleAll}
+          onClick={toggleAll}
         />
       )}
 

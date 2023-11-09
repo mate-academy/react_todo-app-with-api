@@ -17,7 +17,7 @@ export const Footer: FC<Props> = ({
   filter,
   setFilterBy,
 }) => {
-  const activeTodos = todos.filter(todo => !todo.completed).length;
+  const activeTodosLenght = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed);
   const hasSomeTodos = todos.some(todo => todo.completed);
 
@@ -29,7 +29,7 @@ export const Footer: FC<Props> = ({
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {`${activeTodos} items left`}
+        {`${activeTodosLenght} items left`}
       </span>
 
       <nav className="filter" data-cy="Filter">
