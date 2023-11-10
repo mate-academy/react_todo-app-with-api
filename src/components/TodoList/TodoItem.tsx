@@ -5,15 +5,16 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   isLoading: boolean,
-  handleDeleteTodo: (value: number) => void,
-  handleCompleteTodo: (
+  handleDeleteTodo?: (id: number) => void,
+  handleCompleteTodo?: (
     id: number,
     completed: boolean,
   ) => void,
-  handleChangeTodoTitle: (
+  handleChangeTodoTitle?: (
     id: number,
     newTitle: string,
-  ) => void,
+  ) => Promise<void>,
+  setErrorMessage?: (value: string) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const TodoItem: React.FC<Props> = ({
   handleDeleteTodo,
   handleCompleteTodo,
   handleChangeTodoTitle,
+  setErrorMessage,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -29,41 +31,50 @@ export const TodoItem: React.FC<Props> = ({
   const editTodo = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editTodo.current) {
+    if (isEditing && editTodo.current) {
       editTodo.current.focus();
     }
   }, [isEditing]);
 
-  const handleEditedTitleSubmit = () => {
-    const trimmedTitle = editedTitle.trim();
+  // const handleEditedTitleSubmit = () => {
+  //   const trimmedTodoTitle = editedTitle.trim();
 
-    if (trimmedTitle === todo.title) {
-      setEditedTitle(trimmedTitle);
-    } else if (!trimmedTitle) {
-      handleDeleteTodo(todo.id);
-    } else {
-      handleChangeTodoTitle(todo.id, trimmedTitle);
+  //   if (trimmedTodoTitle === todo.title) {
+  //     setEditedTitle(trimmedTodoTitle);
+  //   } else if (!trimmedTodoTitle) {
+  //     handleDeleteTodo(todo.id);
+  //   } else {
+  //     handleChangeTodoTitle(todo.id, trimmedTodoTitle);
+  //   }
+
+  //   setIsEditing(false);
+  // };
+
+  const handleEditedTitleSubmit = async () => {
+    const trimmedTodoTitle = editedTitle.trim();
+
+    if (!trimmedTodoTitle.length) {
+      handleDeleteTodo?.(todo.id);
+
+      return;
     }
 
-    setIsEditing(false);
-  };
+    if (trimmedTodoTitle === todo.title) {
+      setIsEditing(false);
 
-  // const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
-  //   setLoading(true);
-  //   changeTodoTitle(todoId, newTitle)
-  //     .then(() => {
-  //       setTodos(todos.map(todo => (todo.id === todoId
-  //         ? { ...todo, title: newTitle }
-  //         : todo
-  //       )));
-  //     })
-  //     .catch(() => {
-  //       setErrorMessage('Unable to update a todo');
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // };
+      return;
+    }
+
+    try {
+      await handleChangeTodoTitle?.(
+        todo.id,
+        trimmedTodoTitle,
+      );
+      setIsEditing(false);
+    } catch (e) {
+      setErrorMessage?.('Unable to update a todo');
+    }
+  };
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -85,8 +96,7 @@ export const TodoItem: React.FC<Props> = ({
             type="checkbox"
             className="todo__status"
             defaultChecked={todo.completed}
-            // checked={todo.completed}
-            onClick={() => handleCompleteTodo(todo.id, !todo.completed)}
+            onClick={() => handleCompleteTodo?.(todo.id, !todo.completed)}
           />
         </label>
 
@@ -122,7 +132,7 @@ export const TodoItem: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDeleteTodo(todo.id)}
+              onClick={() => handleDeleteTodo?.(todo.id)}
             >
               ×
             </button>

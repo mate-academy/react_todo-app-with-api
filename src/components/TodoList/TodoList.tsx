@@ -151,7 +151,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
 
   const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
     setLoading(true);
-    changeTodoTitle(todoId, newTitle)
+
+    return changeTodoTitle(todoId, newTitle)
       .then(() => {
         setTodos(todos.map(todo => (todo.id === todoId
           ? { ...todo, title: newTitle }
@@ -216,7 +217,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 <TodoItem
                   todo={todo}
                   key={todo.id}
-                  isLoading={loading}
+                  isLoading={loading} // {todo.includes(todo.id)}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
                   handleChangeTodoTitle={handleChangeTodoTitle}
@@ -233,9 +234,9 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 <TodoItem
                   todo={tempTodo}
                   isLoading
-                  handleDeleteTodo={handleDeleteTodo}
-                  handleCompleteTodo={handleCompleteTodo}
-                  handleChangeTodoTitle={handleChangeTodoTitle}
+                  // handleDeleteTodo={handleDeleteTodo}
+                  // handleCompleteTodo={handleCompleteTodo}
+                  // handleChangeTodoTitle={handleChangeTodoTitle}
                 />
               </CSSTransition>
             )}
