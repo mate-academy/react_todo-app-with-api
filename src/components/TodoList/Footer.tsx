@@ -1,9 +1,10 @@
 import React from 'react';
 import { FilterType } from '../../types/FilterType';
 import { TodoFilter } from './TodoFilter';
+import { Todo } from '../../types/Todo';
 
 type FilterProps = {
-  todosQty: number,
+  todos: Todo[],
   filterTodo: (value: FilterType) => void,
   selectedTodoFilter: FilterType,
   handleClearCompleted: () => void,
@@ -11,12 +12,14 @@ type FilterProps = {
 };
 
 export const Footer: React.FC<FilterProps> = ({
-  todosQty,
+  todos,
   filterTodo,
   selectedTodoFilter,
   handleClearCompleted,
   hasCompletedTodos,
 }) => {
+  const todosQty = todos.filter(todo => todo.completed !== true).length;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">

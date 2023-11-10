@@ -124,7 +124,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
 
     return deleteTodo(id)
       .then(() => {
-        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
+        setTodos(currentTodos => currentTodos
+          .filter(currentTodo => currentTodo.id !== id));
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
@@ -244,19 +245,19 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 />
               </CSSTransition>
             )}
-
-            { todos.length > 0 && (
-              <Footer
-                todosQty={todosQty}
-                filterTodo={setFilteredTodo}
-                selectedTodoFilter={filteredTodo}
-                handleClearCompleted={handleClearCompleted}
-                hasCompletedTodos={
-                  todos.filter(todo => todo.completed).length > 0
-                }
-              />
-            )}
           </TransitionGroup>
+
+          { todos.length > 0 && (
+            <Footer
+              todos={todos}
+              filterTodo={setFilteredTodo}
+              selectedTodoFilter={filteredTodo}
+              handleClearCompleted={handleClearCompleted}
+              hasCompletedTodos={
+                todos.filter(todo => todo.completed).length > 0
+              }
+            />
+          )}
         </section>
       </div>
 
