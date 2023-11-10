@@ -1,21 +1,10 @@
 import cn from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
-
-type Props = {
-  todosLength: number,
-  handleCreateTodoSubmit: (
-    title: string,
-    setDisabled: (value: boolean) => void,
-    setTitle: (value: string) => void
-  ) => void;
-  handleToggleAll: () => void;
-  isAllTodoCompleted: boolean;
-  focusToHeaderInput: boolean;
-};
+import { Props } from '../../types/Header';
 
 export const Header: React.FC<Props> = ({
   todosLength,
-  handleCreateTodoSubmit,
+  handleCreateTodo,
   handleToggleAll,
   isAllTodoCompleted,
   focusToHeaderInput,
@@ -31,19 +20,8 @@ export const Header: React.FC<Props> = ({
     }
   }, [isInputDisabled, focusToHeaderInput]);
 
-  const handleCreateTodo = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    handleCreateTodoSubmit(
-      todoTitle,
-      setIsInputDisabled,
-      setTodoTitle,
-    );
-  };
-
   return (
     <header className="todoapp__header">
-      {/* this buttons is active only if there are some active todos */}
       {todosLength > 0 && (
         <button
           type="button"
@@ -56,7 +34,13 @@ export const Header: React.FC<Props> = ({
         />
       )}
 
-      <form onSubmit={handleCreateTodo}>
+      <form onSubmit={(event) => handleCreateTodo(
+        event,
+        todoTitle,
+        setIsInputDisabled,
+        setTodoTitle,
+      )}
+      >
         <input
           data-cy="NewTodoField"
           type="text"

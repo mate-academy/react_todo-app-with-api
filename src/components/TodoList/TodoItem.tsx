@@ -1,20 +1,6 @@
 import cn from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
-import { Todo } from '../../types/Todo';
-
-type Props = {
-  todo: Todo,
-  isLoading: boolean,
-  handleDeleteTodo?: (id: number) => Promise<void>,
-  handleCompleteTodo?: (
-    id: number,
-    completed: boolean,
-  ) => Promise<void>,
-  handleChangeTodoTitle?: (
-    id: number,
-    newTitle: string,
-  ) => Promise<void>,
-};
+import { Props } from '../../types/TodoItem';
 
 export const TodoItem: React.FC<Props> = ({
   todo,

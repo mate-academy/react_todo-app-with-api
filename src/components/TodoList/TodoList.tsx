@@ -23,13 +23,11 @@ type Props = {
 
 export const TodoList: React.FC<Props> = ({ userId }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  // const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [focusToHeaderInput, setFocusToHeaderInput] = useState(false);
-
   const [filteredTodo, setFilteredTodo] = useState<FilterType>(FilterType.ALL);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
+  const [focusToHeaderInput, setFocusToHeaderInput] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     getTodos(userId)
@@ -42,7 +40,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       })
       .finally(() => {
         setProcessingTodoIds([]);
-        // setLoading(false);
       });
   }, [userId]);
 
@@ -64,6 +61,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   const todosQty = todos.filter(todo => todo.completed !== true).length;
 
   const errorTimerId = useRef(0);
+
   const showErrorMessage = () => {
     if (errorTimerId.current) {
       clearTimeout(errorTimerId.current);
@@ -78,11 +76,13 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
     showErrorMessage();
   }, [errorMessage]);
 
-  const handleCreateTodoSubmit = (
+  const handleCreateTodo = (
+    event: React.FormEvent,
     todoTitle: string,
     setIsInputDisabled: (value: boolean) => void,
     setTodoTitle: (value: string) => void,
   ) => {
+    event.preventDefault();
     if (!todoTitle.trim()) {
       setErrorMessage('Title should not be empty');
 
@@ -104,7 +104,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       completed: false,
     })
       .then(newTodo => {
-        // setTodos([...todos, newTodo]);
         setTodos(currentTodos => [...currentTodos, newTodo]);
         setTodoTitle('');
       })
@@ -210,7 +209,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         <section className="todoapp__main" data-cy="TodoList">
           <Header
             todosLength={todos.length}
-            handleCreateTodoSubmit={handleCreateTodoSubmit}
+            handleCreateTodo={handleCreateTodo}
             handleToggleAll={handleToggleAll}
             isAllTodoCompleted={todosQty === 0}
             focusToHeaderInput={focusToHeaderInput}

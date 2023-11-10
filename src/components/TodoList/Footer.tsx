@@ -1,14 +1,6 @@
 import React from 'react';
-import { FilterType } from '../../types/FilterType';
+import { FilterProps } from '../../types/Filter';
 import { TodoFilter } from './TodoFilter';
-
-type FilterProps = {
-  todosQty: number,
-  filterTodo: (value: FilterType) => void,
-  selectedTodoFilter: FilterType,
-  handleClearCompleted: () => void,
-  hasCompletedTodos: boolean,
-};
 
 export const Footer: React.FC<FilterProps> = ({
   todosQty,

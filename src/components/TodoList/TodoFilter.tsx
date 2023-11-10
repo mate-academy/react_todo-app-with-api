@@ -6,6 +6,7 @@ type Props = {
   filterTodo: (value: FilterType) => void,
   selectedTodoFilter: FilterType,
 };
+
 export const TodoFilter: React.FC<Props> = ({
   filterTodo, selectedTodoFilter,
 }) => {
