@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React from 'react';
 import { UserWarning } from './UserWarning';
-import { TodoList } from './components/TodoList/TodoList';
+import { TodoList } from './components/TodoList';
 
 const USER_ID = 11846;
 

@@ -9,13 +9,13 @@ import {
   getTodos,
   postTodo,
   toggleCompleteTodo,
-} from '../../api/todos';
-import { Todo } from '../../types/Todo';
-import { Header } from './Header';
-import { Footer } from './Footer';
-import { TodoItem } from './TodoItem';
-import { FilterType } from '../../types/FilterType';
-import { ErrorNotification } from './ErrorNotification';
+} from '../api/todos';
+import { Todo } from '../types/Todo';
+import { Header } from './TodoList/Header';
+import { Footer } from './TodoList/Footer';
+import { TodoItem } from './TodoList/TodoItem';
+import { FilterType } from '../types/FilterType';
+import { ErrorNotification } from './TodoList/ErrorNotification';
 
 type Props = {
   userId: number;
