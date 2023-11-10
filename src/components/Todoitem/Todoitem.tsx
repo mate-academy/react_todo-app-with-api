@@ -1,7 +1,7 @@
 import cn from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
-import { deleteTodos, updateTodo } from '../../api/todos';
+import { deleteTodos, updateTodo, updateTodoTitle } from '../../api/todos';
 import { Errors } from '../../types/Error';
 import { Toggler } from '../../types/toggle';
 /* eslint-disable max-len */
@@ -10,16 +10,24 @@ interface Props {
 
   todo: Todo,
   todos: Todo[],
-  setTodos: (value: Todo[]) => void,
+  setTodos: (newTodos: Todo[] | ((prevValue: Todo[]) => Todo[])) => void
   setError: (value: string) => void,
   cleared: boolean
   toggled: string
+  titleField: React.MutableRefObject<HTMLInputElement | null>;
+
 }
 
 export const Todoitem: React.FC<Props> = ({
-  todo, todos, setTodos, setError, cleared, toggled,
+  todo, todos, setTodos, setError, cleared, toggled, titleField,
 }) => {
+  const titleField2 = useRef<HTMLInputElement>(null);
   const [loader, setloader] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(todo.title);
+
+  let editError = false;
+  let editUerror = false;
 
   const handleDelete = (id: number | undefined) => {
     if (id) {
@@ -27,9 +35,87 @@ export const Todoitem: React.FC<Props> = ({
       deleteTodos(id)
         .then(() => {
           setTodos(todos.filter(stodo => stodo.id !== id));
+          if (titleField.current) {
+            titleField.current.focus();
+          }
         })
         .catch(() => setError(Errors.unableDelete))
         .finally(() => setloader(false));
+    }
+  };
+
+  useEffect(() => {
+    if (titleField2.current) {
+      titleField2.current.focus();
+    }
+  }, [editing]);
+
+  const hadleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const check = title;
+
+    if (todo.id && check.trim() === '') {
+      setloader(true);
+
+      deleteTodos(todo.id)
+        .then(() => {
+          setTodos((prevtodos) => prevtodos.filter(stodo => stodo.id !== todo.id));
+          editError = false;
+        })
+        .catch(() => {
+          setError(Errors.unableDelete);
+          editError = true;
+        })
+        .finally(() => {
+          setloader(false);
+
+          if (editError === false) {
+            setEditing(false);
+          }
+
+          if (titleField2.current) {
+            titleField2.current.focus();
+          }
+
+          if (editError === true) {
+            setEditing(true);
+          }
+        });
+    }
+
+    if (todo.id && todo.title !== title.trim() && title.trim() !== '') {
+      setloader(true);
+      updateTodoTitle(todo.id, { userId: 11843, completed: todo.completed, title: title.trim() }).then(
+        (ttodo) => {
+          const tTodos = [...todos];
+          const index = tTodos.findIndex(tTodo => tTodo.id === todo.id);
+
+          tTodos.splice(index, 1, ttodo);
+          setTodos([...tTodos]);
+          editUerror = false;
+        },
+      ).catch(() => {
+        setError(Errors.unablechange);
+        editUerror = true;
+      }).finally(() => {
+        setloader(false);
+
+        if (editUerror === false) {
+          setEditing(false);
+        }
+
+        if (titleField2.current) {
+          titleField2.current.focus();
+        }
+
+        if (editUerror === true) {
+          setEditing(true);
+        }
+      });
+    }
+
+    if (title.trim() === todo.title) {
+      setEditing(false);
     }
   };
 
@@ -50,6 +136,13 @@ export const Todoitem: React.FC<Props> = ({
     }
   };
 
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape') {
+      setEditing(false);
+      setTitle(todo.title);
+    }
+  };
+
   return (
     <div
       data-cy="Todo"
@@ -65,21 +158,51 @@ export const Todoitem: React.FC<Props> = ({
           checked={todo.completed}
         />
       </label>
+      {!editing
 
-      <span data-cy="TodoTitle" className="todo__title">
-        {todo.title}
-      </span>
+        ? (
+          <>
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setEditing(true);
+                setTitle(todo.title);
+              }}
+            >
+              {todo.title}
+            </span>
 
-      {/* Remove button appears only on hover */}
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => handleDelete(todo.id)}
-      >
-        ×
-      </button>
+            {/* Remove button appears only on hover */}
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => handleDelete(todo.id)}
+            >
+              ×
+            </button>
+          </>
+        )
+        : (
 
+          <form onSubmit={hadleSubmit}>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={title}
+              ref={titleField2}
+              onChange={(event) => setTitle(event.target.value)}
+              // onKeyUp={handleKeyUp}
+              onBlur={(event) => {
+                hadleSubmit(event);
+              }}
+              onKeyUp={handleKeyUp}
+            />
+          </form>
+        )}
       {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"

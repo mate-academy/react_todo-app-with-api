@@ -10,9 +10,10 @@ interface Props {
   activeFilter: Filter
   displayTodos: Todo[]
   setcleared: (value: boolean) => void
-  setTodos: (value: Todo[]) => void
+  setTodos: (newTodos: Todo[] | ((prevValue: Todo[]) => Todo[])) => void
   todos: Todo[]
   setError: (value: string) => void
+  titleField: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 export const Footer: React.FC<Props> = ({
@@ -21,8 +22,8 @@ export const Footer: React.FC<Props> = ({
   displayTodos,
   setcleared,
   setTodos,
-  todos,
   setError,
+  titleField,
 
 }) => {
   const amount = displayTodos.filter(todo => !todo.completed).length;
@@ -36,7 +37,10 @@ export const Footer: React.FC<Props> = ({
         setcleared(true);
         deleteTodos(todo.id)
           .then(() => {
-            setTodos(todos.filter((todoo: Todo) => !todoo.completed));
+            setTodos((prevtodos:Todo[]) => prevtodos.filter((todoo: Todo) => todoo.id !== todo.id) as Todo[]);
+            if (titleField.current) {
+              titleField.current.focus();
+            }
           })
           .catch(() => setError(Errors.unableDelete))
           .finally(() => setcleared(false));
@@ -100,16 +104,15 @@ export const Footer: React.FC<Props> = ({
 
       {/* don't show this button if there are no completed todos */}
 
-      {completed > 0 && (
-        <button
-          onClick={clearCompleted}
-          type="button"
-          className="todoapp__clear-completed"
-          data-cy="ClearCompletedButton"
-        >
-          Clear completed
-        </button>
-      )}
+      <button
+        onClick={clearCompleted}
+        type="button"
+        className="todoapp__clear-completed"
+        data-cy="ClearCompletedButton"
+        disabled={(completed === 0)}
+      >
+        Clear completed
+      </button>
 
       {/* <button
         type="button"

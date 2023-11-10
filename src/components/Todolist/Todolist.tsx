@@ -6,11 +6,12 @@ import { Todoitem } from '../Todoitem/Todoitem';
 interface Props {
   displayTodos: Todo[],
   temptodo?: Todo | null,
-  setTodos: (value: Todo[]) => void,
+  setTodos: (newTodos: Todo[] | ((prevValue: Todo[]) => Todo[])) => void,
   todos: Todo[],
   setError: (value: string) => void
   cleared: boolean
   toggled:string
+  titleField: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 export const Todolist: React.FC<Props> = ({
@@ -21,6 +22,7 @@ export const Todolist: React.FC<Props> = ({
   setError,
   cleared,
   toggled,
+  titleField,
 }) => {
   // const [loader, setloader] = useState<boolean | number>(false);
 
@@ -37,6 +39,7 @@ export const Todolist: React.FC<Props> = ({
             setError={setError}
             cleared={cleared}
             toggled={toggled}
+            titleField={titleField}
           />
 
         );

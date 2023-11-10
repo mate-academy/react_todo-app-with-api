@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable max-len */
 import React, {
-  FormEvent, useEffect, useRef, useState,
+  FormEvent, useEffect, useState,
 } from 'react';
 import cn from 'classnames';
 import { addTodos, updateTodo } from '../../api/todos';
@@ -16,6 +16,7 @@ interface Props {
   setTempTodo: (value: Todo | null) => void,
   temptodo: Todo | null
   setToggled: (value: string) => void
+  titleField: React.MutableRefObject<HTMLInputElement | null>;
 }
 
 export const Header: React.FC<Props> = ({
@@ -25,15 +26,16 @@ export const Header: React.FC<Props> = ({
   setTempTodo,
   temptodo,
   setToggled,
+  titleField,
 }) => {
-  const titleField = useRef<HTMLInputElement>(null);
+  // const titleField = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState('');
 
   useEffect(() => {
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [temptodo]);
+  }, [temptodo, titleField]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -105,12 +107,17 @@ export const Header: React.FC<Props> = ({
 
     <header className="todoapp__header">
       {/* this buttons is active only if there are some active todos */}
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', { active: !inactive })}
-        data-cy="ToggleAllButton"
-        onClick={toggle}
-      />
+
+      {
+        todos.length > 0 && (
+          <button
+            type="button"
+            className={cn('todoapp__toggle-all', { active: !inactive })}
+            data-cy="ToggleAllButton"
+            onClick={toggle}
+          />
+        )
+      }
 
       {/* Add a todo on form submit */}
       <form

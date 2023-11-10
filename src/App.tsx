@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable max-len */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { getTodos } from './api/todos';
@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [temptodo, setTempTodo] = useState<Todo | null>(null);
   const [cleared, setcleared] = useState<boolean>(false);
   const [toggled, setToggled] = useState<string>('');
+  const titleField = useRef<HTMLInputElement | null>(null);
 
   const clickHandler = (value: Filter) => {
     switch (value) {
@@ -85,6 +86,7 @@ export const App: React.FC = () => {
           setTempTodo={setTempTodo}
           temptodo={temptodo}
           setToggled={setToggled}
+          titleField={titleField}
         />
 
         <Todolist
@@ -95,7 +97,7 @@ export const App: React.FC = () => {
           setError={setError}
           cleared={cleared}
           toggled={toggled}
-
+          titleField={titleField}
         />
 
         {/* Hide the footer if there are no todos */}
@@ -109,6 +111,7 @@ export const App: React.FC = () => {
               setTodos={setTodos}
               todos={todos}
               setError={setError}
+              titleField={titleField}
             />
           )}
       </div>
