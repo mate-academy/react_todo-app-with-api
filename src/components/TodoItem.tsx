@@ -134,7 +134,6 @@ export const TodoItem: React.FC<{ todo: Todo }> = ({ todo }) => {
             >
               ×
             </button>
-
           </>
         )}
 
