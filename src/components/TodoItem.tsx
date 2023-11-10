@@ -51,18 +51,19 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   }, [updatingTodo]);
 
-  const handleDoubleClick = (todoId: number) => {
-    setUpdatingTodo(todoId);
+  const handleDoubleClick = () => {
+    setUpdatingTodo(todo.id);
+    setUpdatedTitle(todo.title);
   };
 
-  const handleTodoToggle = useCallback((todoId: number) => {
-    setToggledTodos(todoId);
+  const handleTodoToggle = useCallback(() => {
+    setToggledTodos(todo.id);
     setIsToggled(true);
 
-    updateTodo(todoId, { completed: !todo.completed })
+    updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
         const updatedTodos = todos.map((t) => {
-          if (t.id === todoId) {
+          if (t.id === todo.id) {
             return { ...t, completed: !t.completed };
           }
 
@@ -77,57 +78,60 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   }, [setError,
     setTodos,
     todo.completed,
+    todo.id,
     setToggledTodos,
     todos]);
 
-  const handleDelete = (todoId: number) => {
-    removeTodo(todoId)
+  const handleDelete = () => {
+    removeTodo(todo.id)
       .then(() => {
-        setTodos(todos.filter(t => t.id !== todoId));
+        setTodos(todos.filter(t => t.id !== todo.id));
       })
       .catch(() => setError(ErrorMessage.DeleteTodo))
       .finally(() => {
         setDeletingTodo(undefined);
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
+        inputRef.current?.focus();
       });
 
-    setDeletingTodo(todos.find(t => t.id === todoId));
+    setDeletingTodo(todos.find(t => t.id === todo.id));
   };
 
-  const handleBlur = (todoId: number) => {
+  const handleBlur = () => {
     if (updatedTitle.trim() === '') {
-      handleDelete(todoId);
+      handleDelete();
 
       return;
     }
 
-    setIsUpdating(true);
+    if (!isEqualTitle) {
+      setIsUpdating(true);
 
-    updateTodo(todoId, { title: updatedTitle })
-      .then(() => {
-        const updatedTodos = todos.map((t) => {
-          if (t.id === todoId) {
-            return { ...t, title: updatedTitle.trim() };
-          }
+      updateTodo(todo.id, { title: updatedTitle })
+        .then(() => {
+          const updatedTodos = todos.map((t) => {
+            if (t.id === todo.id) {
+              return { ...t, title: updatedTitle.trim() };
+            }
 
-          return t;
-        });
+            return t;
+          });
 
-        setUpdatingTodo(null);
-        setTodos(updatedTodos);
-      })
-      .catch(() => setError(ErrorMessage.UpdateTodo))
-      .finally(() => setIsUpdating(false));
+          setUpdatingTodo(null);
+          setTodos(updatedTodos);
+        })
+        .catch(() => setError(ErrorMessage.UpdateTodo))
+        .finally(() => setIsUpdating(false));
+    } else {
+      setUpdatingTodo(null);
+    }
   };
 
   const handleKeyUp = (
-    event: React.KeyboardEvent<HTMLInputElement>, todoId: number,
+    event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === Key.Enter && !isEqualTitle) {
-      handleBlur(todoId);
-    } else if (event.key === Key.Escape || isEqualTitle) {
+    if (event.key === Key.Enter) {
+      handleBlur();
+    } else if (event.key === Key.Escape) {
       setUpdatedTitle(todo.title);
       setUpdatingTodo(null);
       setIsUpdating(false);
@@ -138,7 +142,6 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     <div
       data-cy="Todo"
       className={cn('todo', { completed: todo.completed })}
-      onDoubleClick={() => handleDoubleClick(todo.id)}
     >
       <label
         className="todo__status-label"
@@ -148,13 +151,17 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => handleTodoToggle(todo.id)}
+          onChange={() => handleTodoToggle()}
         />
       </label>
       {(updatingTodo !== todo.id)
         ? (
           <>
-            <span data-cy="TodoTitle" className="todo__title">
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => handleDoubleClick()}
+            >
               {todo.title.trim()}
             </span>
 
@@ -162,7 +169,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDelete(todo.id)}
+              onClick={() => handleDelete()}
             >
               ×
             </button>
@@ -177,9 +184,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
               placeholder="Empty todo will be deleted"
               value={updatedTitle}
               ref={todoInputRef}
-              onKeyUp={(event) => handleKeyUp(event, todo.id)}
+              onKeyUp={(event) => handleKeyUp(event)}
               onChange={(event) => setUpdatedTitle(event.target.value)}
-              onBlur={() => handleBlur(todo.id)}
+              onBlur={() => handleBlur()}
             />
           </form>
         )}

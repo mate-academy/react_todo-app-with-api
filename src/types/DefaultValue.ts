@@ -4,7 +4,7 @@ import { Todo } from './Todo';
 
 export interface DefaultValue {
   todos: Todo[];
-  setTodos: (value: Todo[] | ((value: Todo[]) => Todo[])) => void;
+  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   visibleTodos: Todo[];
   tempTodo: Todo | null;
   setTempTodo: (value: Todo | null) => void;

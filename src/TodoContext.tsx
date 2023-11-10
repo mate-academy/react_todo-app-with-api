@@ -62,9 +62,7 @@ export const TodoProvider: React.FC<Props> = ({ children }) => {
   });
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
 
     getTodos(USER_ID)
       .then((todosFromServer) => {
