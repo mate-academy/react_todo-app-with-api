@@ -38,7 +38,8 @@ export const Header: React.FC = () => {
       notCompletedTodos.forEach(todo => (
         updateTodo(todo.id, { completed: false })
           .then(() => {
-            setTodos(todos.map(t => ({ ...t, completed: false })));
+            setTodos(todos.map(currentTodo => (
+              { ...currentTodo, completed: false })));
           })
           .catch(() => setError(ErrorMessage.UpdateTodo))
           .finally(() => setIsToggleAllClicked(false))
@@ -51,7 +52,8 @@ export const Header: React.FC = () => {
 
         updateTodo(todo.id, { completed: true })
           .then(() => {
-            setTodos(todos.map(t => ({ ...t, completed: true })));
+            setTodos(todos.map(currentTodo => (
+              { ...currentTodo, completed: true })));
           })
           .catch(() => setError(ErrorMessage.UpdateTodo))
           .finally(() => setIsToggleAllClicked(false));

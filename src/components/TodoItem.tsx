@@ -62,12 +62,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
     updateTodo(todo.id, { completed: !todo.completed })
       .then(() => {
-        const updatedTodos = todos.map((t) => {
-          if (t.id === todo.id) {
-            return { ...t, completed: !t.completed };
+        const updatedTodos = todos.map((currentTodo) => {
+          if (currentTodo.id === todo.id) {
+            return { ...currentTodo, completed: !currentTodo.completed };
           }
 
-          return t;
+          return currentTodo;
         });
 
         setToggledTodos(null);
@@ -85,7 +85,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
   const handleDelete = () => {
     removeTodo(todo.id)
       .then(() => {
-        setTodos(todos.filter(t => t.id !== todo.id));
+        setTodos(todos.filter(currentTodo => currentTodo.id !== todo.id));
       })
       .catch(() => setError(ErrorMessage.DeleteTodo))
       .finally(() => {
@@ -93,7 +93,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         inputRef.current?.focus();
       });
 
-    setDeletingTodo(todos.find(t => t.id === todo.id));
+    setDeletingTodo(todos.find(currentTodo => currentTodo.id === todo.id));
   };
 
   const handleBlur = () => {
@@ -108,12 +108,12 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
 
       updateTodo(todo.id, { title: updatedTitle })
         .then(() => {
-          const updatedTodos = todos.map((t) => {
-            if (t.id === todo.id) {
-              return { ...t, title: updatedTitle.trim() };
+          const updatedTodos = todos.map((currentTodo) => {
+            if (currentTodo.id === todo.id) {
+              return { ...currentTodo, title: updatedTitle.trim() };
             }
 
-            return t;
+            return currentTodo;
           });
 
           setUpdatingTodo(null);
@@ -137,6 +137,14 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
       setIsUpdating(false);
     }
   };
+
+  const isLoading = todo.id === tempTodo?.id
+  || todo.id === deletingTodo?.id
+  || (isClearCompleted && todo.completed)
+  || (isUpdating && updatingTodo === todo.id)
+  || (isToggled && toggledTodos === todo.id)
+  || (isEveryTodoCompleted && isToggleAllClicked && todo.completed)
+  || (!isEveryTodoCompleted && isToggleAllClicked && !todo.completed);
 
   return (
     <div
@@ -196,13 +204,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
         className={cn(
           'modal overlay',
           {
-            'is-active': todo.id === tempTodo?.id
-            || todo.id === deletingTodo?.id
-            || (isClearCompleted && todo.completed)
-            || (isUpdating && updatingTodo === todo.id)
-            || (isToggled && toggledTodos === todo.id)
-            || (isEveryTodoCompleted && isToggleAllClicked && todo.completed)
-            || (!isEveryTodoCompleted && isToggleAllClicked && !todo.completed),
+            'is-active': isLoading,
           },
         )}
       >

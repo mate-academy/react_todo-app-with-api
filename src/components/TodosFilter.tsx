@@ -21,7 +21,9 @@ export const TodosFilter: React.FC = () => {
   const handleClearCompleted = () => {
     todos.filter(todo => todo.completed).map(
       todo => removeTodo(todo.id).then(() => {
-        setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
+        setTodos(prevTodos => prevTodos.filter(
+          currentTodo => currentTodo.id !== todo.id,
+        ));
       })
         .catch(() => setError(ErrorMessage.DeleteTodo))
         .finally(() => {
