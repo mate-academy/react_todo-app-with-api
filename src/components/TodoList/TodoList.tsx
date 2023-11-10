@@ -26,7 +26,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   const [errorMessage, setErrorMessage] = useState('');
   // const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [focusToInputHeader, setFocusToInputHeader] = useState(false);
+  const [focusToHeaderInput, setFocusToHeaderInput] = useState(false);
 
   const [filteredTodo, setFilteredTodo] = useState<FilterType>(FilterType.ALL);
   const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
@@ -120,12 +120,11 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   const handleDeleteTodo = (id: number) => {
     setProcessingTodoIds(currentTodoIds => [...currentTodoIds, id]);
 
-    setFocusToInputHeader(false);
-
     return deleteTodo(id)
       .then(() => {
         setTodos(currentTodos => currentTodos
           .filter(currentTodo => currentTodo.id !== id));
+        setFocusToHeaderInput(currentState => !currentState);
       })
       .catch(() => {
         setErrorMessage('Unable to delete a todo');
@@ -135,7 +134,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
           currentTodoIds => currentTodoIds
             .filter(currentTodoId => currentTodoId !== id),
         );
-        setFocusToInputHeader(true);
       });
   };
 
@@ -213,7 +211,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
             handleCreateTodoSubmit={handleCreateTodoSubmit}
             handleToggleAll={handleToggleAll}
             isAllTodoCompleted={todosQty === 0}
-            focusToInputHeader={focusToInputHeader}
+            focusToHeaderInput={focusToHeaderInput}
           />
           <TransitionGroup>
             { updatedTodos.map(todo => (
