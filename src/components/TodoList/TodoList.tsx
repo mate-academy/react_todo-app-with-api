@@ -249,7 +249,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
 
           { todos.length > 0 && (
             <Footer
-              todos={todos}
+              todosQty={todosQty}
               filterTodo={setFilteredTodo}
               selectedTodoFilter={filteredTodo}
               handleClearCompleted={handleClearCompleted}
