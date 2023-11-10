@@ -109,29 +109,9 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }, [dispatch, newTitle, todo.completed, todo.id, todo.title, todo.userId],
   );
 
-  const editTodo = useCallback((event: UpdatingTodoEvent) => {
-    if (!newTitle.trim()) {
-      deleteTodo();
-
-      return;
-    }
-
-    if (newTitle === todo.title) {
-      setIsLocalEditing(false);
-
-      return;
-    }
-
-    updateTodo(event);
-  }, [deleteTodo, newTitle, todo.title, updateTodo]);
-
   const handleDoubleClick = () => {
     dispatch(actionCreator.toggleEditing(true));
     setIsLocalEditing(true);
-  };
-
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    editTodo(event);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -141,9 +121,22 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
     }
   };
 
-  const handleUpdateSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateSubmit = (event: UpdatingTodoEvent) => {
     event.preventDefault();
-    editTodo(event);
+    if (!newTitle.trim()) {
+      deleteTodo();
+
+      return;
+    }
+
+    if (newTitle.trim() === todo.title) {
+      setIsLocalEditing(false);
+      setNewTitle(todo.title);
+
+      return;
+    }
+
+    updateTodo(event);
   };
 
   return (
@@ -192,7 +185,7 @@ export const TodoItem: React.FC<Props> = ({ todo }) => {
             value={newTitle}
             onChange={event => setNewTitle(event.target.value)}
             ref={editingTodo}
-            onBlur={handleBlur}
+            onBlur={handleUpdateSubmit}
             onKeyUp={handleKeyUp}
           />
         </form>
