@@ -22,7 +22,6 @@ export const Footer: React.FC<FilterProps> = ({
       <span className="todo-count" data-cy="TodosCounter">
         {`${todosQty} items left`}
       </span>
-      {/* Hide the footer if there are no todos */}
 
       <TodoFilter
         filterTodo={filterTodo}

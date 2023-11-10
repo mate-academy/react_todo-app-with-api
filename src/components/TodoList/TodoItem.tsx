@@ -14,16 +14,14 @@ type Props = {
     id: number,
     newTitle: string,
   ) => Promise<void>,
-  setErrorMessage?: (value: string) => void
 };
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   isLoading,
-  handleDeleteTodo,
-  handleCompleteTodo,
-  handleChangeTodoTitle,
-  setErrorMessage,
+  handleDeleteTodo = () => Promise.resolve(),
+  handleCompleteTodo = () => Promise.resolve(),
+  handleChangeTodoTitle = () => Promise.resolve(),
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
@@ -41,7 +39,7 @@ export const TodoItem: React.FC<Props> = ({
     const trimmedTodoTitle = editedTitle.trim();
 
     if (!trimmedTodoTitle.length) {
-      handleDeleteTodo?.(todo.id);
+      handleDeleteTodo(todo.id);
 
       return;
     }
@@ -53,13 +51,13 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     try {
-      await handleChangeTodoTitle?.(
+      await handleChangeTodoTitle(
         todo.id,
         trimmedTodoTitle,
       );
       setIsEditing(false);
     } catch (e) {
-      setErrorMessage?.('Unable to updateeeee a todo');
+      editTodo?.current?.focus();
     }
   };
 
@@ -78,7 +76,7 @@ export const TodoItem: React.FC<Props> = ({
             type="checkbox"
             className="todo__status"
             defaultChecked={todo.completed}
-            onClick={() => handleCompleteTodo?.(todo.id, !todo.completed)}
+            onClick={() => handleCompleteTodo(todo.id, !todo.completed)}
           />
         </label>
 
@@ -114,7 +112,7 @@ export const TodoItem: React.FC<Props> = ({
               type="button"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => handleDeleteTodo?.(todo.id)}
+              onClick={() => handleDeleteTodo(todo.id)}
             >
               ×
             </button>

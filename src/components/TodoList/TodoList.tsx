@@ -170,6 +170,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       })
       .catch(() => {
         setErrorMessage('Unable to update a todo');
+
+        throw new Error('Error: Unable to update a todo');
       })
       .finally(() => {
         setProcessingTodoIds(
