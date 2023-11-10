@@ -1,9 +1,7 @@
 /* eslint-disable max-len */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
   FormEvent, useEffect, useRef, useState,
 } from 'react';
-// import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { Todo } from './types/Todo';
 import {
@@ -11,7 +9,6 @@ import {
 } from './api/todos';
 import { FilterBy } from './types/FilterBy';
 import { ErrorMessage } from './types/ErrorMessage';
-// import { countActiveTodos, countCompletedTodos, filter } from './utils/helpers';
 import { filter } from './utils/helpers';
 import { FocusFiled } from './types';
 import { Header } from './components/Header';
@@ -35,11 +32,6 @@ export const App: React.FC = () => {
   const newTitleTodoRef = useRef<HTMLInputElement | null>(null);
   const editedTitleTodoRef = useRef<HTMLInputElement | null>(null);
 
-  const refs = {
-    edit: editedTitleTodoRef,
-    input: newTitleTodoRef,
-  };
-
   useEffect(() => {
     getTodos(USER_ID)
       .then(todosFromServer => {
@@ -53,6 +45,11 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const refs = {
+      edit: editedTitleTodoRef,
+      input: newTitleTodoRef,
+    };
+
     if (focus) {
       const refToFocus = refs[focus];
 
@@ -60,7 +57,7 @@ export const App: React.FC = () => {
         refToFocus.current.focus();
       }
     }
-  });
+  }, [focus, isLoading]);
 
   const handleNewTodo = async (event: FormEvent<HTMLFormElement>) => {
     try {
@@ -88,6 +85,7 @@ export const App: React.FC = () => {
 
       setTempTodo(temporaryTodo);
       setLoadingTodos([temporaryTodo]);
+      setFocus(null);
 
       const createdTodo = await createTodo(USER_ID, newTodo);
 
@@ -101,6 +99,7 @@ export const App: React.FC = () => {
       setIsLoading(false);
       setLoadingTodos([]);
       setTempTodo(null);
+      setFocus('input');
     }
   };
 
@@ -121,6 +120,7 @@ export const App: React.FC = () => {
       setErrorMessage('Unable to delete a todo');
       setTimeout(() => setErrorMessage(''), 3000);
     } finally {
+      setFocus('input');
       setIsLoading(false);
       setLoadingTodos([]);
     }
