@@ -39,7 +39,7 @@ export const TodoEditing: React.FC<Props> = ({
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (todoTitle === title) {
+    if (todoTitle.trim() === title) {
       setIsEditing(false);
     } else if (!todoTitle.trim()) {
       setIsLoading(true);
@@ -103,7 +103,6 @@ export const TodoEditing: React.FC<Props> = ({
     event: React.FocusEvent<HTMLInputElement, Element>,
   ) => {
     handleSubmit(event);
-    setIsEditing(false);
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,7 +121,6 @@ export const TodoEditing: React.FC<Props> = ({
         onChange={handleTitleChange}
         onKeyUp={handleKeyUp}
         onBlur={handleFormBlur}
-
       />
     </form>
   );
