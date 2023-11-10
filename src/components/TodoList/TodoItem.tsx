@@ -5,11 +5,11 @@ import { Todo } from '../../types/Todo';
 type Props = {
   todo: Todo,
   isLoading: boolean,
-  handleDeleteTodo?: (id: number) => void,
+  handleDeleteTodo?: (id: number) => Promise<void>,
   handleCompleteTodo?: (
     id: number,
     completed: boolean,
-  ) => void,
+  ) => Promise<void>,
   handleChangeTodoTitle?: (
     id: number,
     newTitle: string,
@@ -50,7 +50,8 @@ export const TodoItem: React.FC<Props> = ({
   //   setIsEditing(false);
   // };
 
-  const handleEditedTitleSubmit = async () => {
+  const handleEditedTitleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     const trimmedTodoTitle = editedTitle.trim();
 
     if (!trimmedTodoTitle.length) {
@@ -72,13 +73,8 @@ export const TodoItem: React.FC<Props> = ({
       );
       setIsEditing(false);
     } catch (e) {
-      setErrorMessage?.('Unable to update a todo');
+      setErrorMessage?.('Unable to updateeeee a todo');
     }
-  };
-
-  const onSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    handleEditedTitleSubmit();
   };
 
   return (
@@ -101,7 +97,7 @@ export const TodoItem: React.FC<Props> = ({
         </label>
 
         {isEditing ? (
-          <form onSubmit={onSubmit}>
+          <form onSubmit={handleEditedTitleSubmit}>
             <input
               data-cy="TodoTitleField"
               type="text"

@@ -119,7 +119,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
     setLoading(true);
     setFocusToInputHeader(false);
 
-    deleteTodo(id)
+    return deleteTodo(id)
       .then(() => {
         setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
       })
@@ -134,7 +134,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
 
   const handleCompleteTodo = (todoId: number, completed: boolean) => {
     setLoading(true);
-    toggleCompleteTodo(todoId, completed)
+
+    return toggleCompleteTodo(todoId, completed)
       .then(() => {
         setTodos(currentTodos => currentTodos.map(todo => (todo.id === todoId
           ? { ...todo, completed }
@@ -234,9 +235,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 <TodoItem
                   todo={tempTodo}
                   isLoading
-                  // handleDeleteTodo={handleDeleteTodo}
-                  // handleCompleteTodo={handleCompleteTodo}
-                  // handleChangeTodoTitle={handleChangeTodoTitle}
                 />
               </CSSTransition>
             )}
