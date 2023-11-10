@@ -75,6 +75,41 @@ export const App: React.FC = () => {
       .finally(() => setIsSubmitting(false));
   };
 
+  const toggleTodoStatus = (todoId: number) => {
+    setLoadingTodo(todoId);
+    const todo = todos.find(t => t.id === todoId);
+
+    if (!todo) {
+      return;
+    }
+
+    const updatedTodo = { ...todo, completed: !todo.completed };
+
+    TodoService.updateTodo(todoId, updatedTodo)
+      .then(() => {
+        setTodos(currentTodos => currentTodos
+          .map(t => (t.id === todoId ? updatedTodo : t)));
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.UnableToUpdate);
+        setTimeout(() => setErrorMessage(ErrorMessage.None), 3000);
+      })
+      .finally(() => setLoadingTodo(null));
+  };
+
+  const toggleAllTodos = () => {
+    const allCompleted = todos.every(todo => todo.completed);
+    const updatedTodos = todos
+      .map(todo => ({ ...todo, completed: !allCompleted }));
+
+    Promise.all(updatedTodos.map(todo => TodoService.updateTodo(todo.id, todo)))
+      .then(() => setTodos(updatedTodos))
+      .catch(() => {
+        setErrorMessage(ErrorMessage.UnableToUpdate);
+        setTimeout(() => setErrorMessage(ErrorMessage.None), 3000);
+      });
+  };
+
   const createTodo = (newTodo: Omit<Todo, 'id'>) => {
     setIsSubmitting(true);
 
@@ -155,6 +190,8 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <TodoAppContent
+        toggleTodoStatus={toggleTodoStatus}
+        toggleAllTodos={toggleAllTodos}
         filteredTodos={filteredTodos}
         tempTodo={tempTodo}
         todos={todos}

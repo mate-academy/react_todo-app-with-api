@@ -4,6 +4,7 @@ export interface TodoListProps {
   filteredTodos: Todo[];
   tempTodo: Todo | null;
   deleteTodo: (todoId: number) => void;
-  isSubmitting: boolean,
-  loadingTodo: number | null,
+  isSubmitting: boolean;
+  loadingTodo: number | null;
+  toggleTodoStatus: (todoId: number) => void;
 }

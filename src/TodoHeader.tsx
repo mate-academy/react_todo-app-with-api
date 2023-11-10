@@ -7,6 +7,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
   setTodoInput,
   handleAddTodo,
   focusRef,
+  toggleAllTodos,
 }) => {
   return (
     <header className="todoapp__header">
@@ -15,6 +16,7 @@ export const TodoHeader: React.FC<TodoHeaderProps> = ({
         className="todoapp__toggle-all active"
         data-cy="ToggleAllButton"
         aria-label="Toggle all todos"
+        onClick={toggleAllTodos}
       />
       <form onSubmit={handleAddTodo}>
         <input

@@ -16,5 +16,7 @@ export interface TodoAppContentProps {
   (filterType: FilterBy) => (event: React.MouseEvent) => void;
   clearCompletedTodos: () => void;
   focusRef: RefObject<HTMLInputElement>;
-  loadingTodo: number | null,
+  loadingTodo: number | null;
+  toggleTodoStatus: (todoId: number) => void;
+  toggleAllTodos: () => void;
 }

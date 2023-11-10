@@ -7,6 +7,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   deleteTodo,
   loadingTodo,
+  toggleTodoStatus,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -21,13 +22,11 @@ export const TodoList: React.FC<TodoListProps> = ({
               data-cy="TodoStatus"
               type="checkbox"
               className="todo__status"
-              defaultChecked={todo.completed}
+              checked={todo.completed}
+              onChange={() => toggleTodoStatus(todo.id)}
             />
           </label>
-          <span
-            data-cy="TodoTitle"
-            className="todo__title"
-          >
+          <span data-cy="TodoTitle" className="todo__title">
             {todo.title}
           </span>
           <button

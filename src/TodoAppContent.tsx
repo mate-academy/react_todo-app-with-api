@@ -18,11 +18,14 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
   clearCompletedTodos,
   loadingTodo,
   focusRef,
+  toggleTodoStatus,
+  toggleAllTodos,
 }) => {
   return (
     <div className="todoapp__content">
       <TodoHeader
         isSubmitting={isSubmitting}
+        toggleAllTodos={toggleAllTodos}
         todoInput={todoInput}
         setTodoInput={setTodoInput}
         handleAddTodo={handleAddTodo}
@@ -35,6 +38,7 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
         tempTodo={tempTodo}
         deleteTodo={deleteTodo}
         loadingTodo={loadingTodo}
+        toggleTodoStatus={toggleTodoStatus}
       />
 
       {todos.length > 0 && (

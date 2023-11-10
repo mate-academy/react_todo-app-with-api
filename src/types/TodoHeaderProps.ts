@@ -6,4 +6,5 @@ export interface TodoHeaderProps {
   setTodoInput: React.Dispatch<React.SetStateAction<string>>;
   handleAddTodo: (event: React.FormEvent) => void;
   focusRef: RefObject<HTMLInputElement>;
+  toggleAllTodos: () => void;
 }
