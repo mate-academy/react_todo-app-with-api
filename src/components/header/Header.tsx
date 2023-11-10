@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 // -------------------------- IMPORT ---------------------------------
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { TodosContext } from '../../TodosContext';
 import { Todo } from '../../types/Todo';
@@ -21,7 +21,7 @@ export const Header: React.FC<Props> = ({
     todos,
   } = useContext(TodosContext);
 
-  const handleToggleAll = () => {
+  const handleToggleAll = useCallback(() => {
     const activeTodos = todos.filter((todo) => !todo.completed);
     const completedTodos = todos.filter((todo) => todo.completed);
 
@@ -29,15 +29,17 @@ export const Header: React.FC<Props> = ({
 
     const changedTodo = isActiveInList ? completedTodos : activeTodos;
 
-    changedTodo.forEach((todo) => {
-      const newTodo = {
-        ...todo,
-        completed: !todo.completed,
-      };
+    Promise.all(
+      changedTodo.map((todo) => {
+        const newTodo = {
+          ...todo,
+          completed: !todo.completed,
+        };
 
-      onUpdate(newTodo);
-    });
-  };
+        return onUpdate(newTodo);
+      }),
+    );
+  }, [todos]);
 
   return (
     <header className="todoapp__header">

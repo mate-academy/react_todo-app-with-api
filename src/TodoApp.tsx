@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, {
+  useCallback,
   useContext,
   useState,
 } from 'react';
@@ -35,7 +36,7 @@ export const TodoApp: React.FC = () => {
     setDeletedId(prev => prev.filter(prevId => prevId !== id));
   };
 
-  const onAdd = (newtitle: string) => {
+  const onAdd = useCallback((newtitle: string) => {
     const temporaryTodo = {
       id: 0,
       title: newtitle,
@@ -64,7 +65,7 @@ export const TodoApp: React.FC = () => {
         setTempTodo(null);
         setIsSubmitting(false);
       });
-  };
+  }, []);
 
   const onDelete = (todoId: number) => {
     addId(todoId);
@@ -85,7 +86,7 @@ export const TodoApp: React.FC = () => {
       });
   };
 
-  const onUpdate = (updatedTodo: Todo) => {
+  const onUpdate = useCallback((updatedTodo: Todo) => {
     addId(updatedTodo.id);
     setErrorMessage('');
     setIsLoading(true);
@@ -100,7 +101,7 @@ export const TodoApp: React.FC = () => {
         setIsLoading(false);
         removeId(updatedTodo.id);
       });
-  };
+  }, []);
 
   if (!USER_ID) {
     return <UserWarning />;
