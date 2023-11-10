@@ -24,11 +24,12 @@ type Props = {
 export const TodoList: React.FC<Props> = ({ userId }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [focusToInputHeader, setFocusToInputHeader] = useState(false);
 
   const [filteredTodo, setFilteredTodo] = useState<FilterType>(FilterType.ALL);
+  const [processingTodoIds, setProcessingTodoIds] = useState<number[]>([]);
 
   useEffect(() => {
     getTodos(userId)
@@ -40,7 +41,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         }, 3000);
       })
       .finally(() => {
-        setLoading(false);
+        setProcessingTodoIds([]);
+        // setLoading(false);
       });
   }, [userId]);
 
@@ -116,7 +118,8 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
   };
 
   const handleDeleteTodo = (id: number) => {
-    setLoading(true);
+    setProcessingTodoIds(currentTodoIds => [...currentTodoIds, id]);
+
     setFocusToInputHeader(false);
 
     return deleteTodo(id)
@@ -127,13 +130,16 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
-        setLoading(false);
+        setProcessingTodoIds(
+          currentTodoIds => currentTodoIds
+            .filter(currentTodoId => currentTodoId !== id),
+        );
         setFocusToInputHeader(true);
       });
   };
 
   const handleCompleteTodo = (todoId: number, completed: boolean) => {
-    setLoading(true);
+    setProcessingTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
     return toggleCompleteTodo(todoId, completed)
       .then(() => {
@@ -146,12 +152,15 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         setErrorMessage('Unable to complete a todo');
       })
       .finally(() => {
-        setLoading(false);
+        setProcessingTodoIds(
+          currentTodoIds => currentTodoIds
+            .filter(currentTodoId => currentTodoId !== todoId),
+        );
       });
   };
 
   const handleChangeTodoTitle = (todoId: number, newTitle: string) => {
-    setLoading(true);
+    setProcessingTodoIds(currentTodoIds => [...currentTodoIds, todoId]);
 
     return changeTodoTitle(todoId, newTitle)
       .then(() => {
@@ -164,7 +173,10 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
         setErrorMessage('Unable to update a todo');
       })
       .finally(() => {
-        setLoading(false);
+        setProcessingTodoIds(
+          currentTodoIds => currentTodoIds
+            .filter(currentTodoId => currentTodoId !== todoId),
+        );
       });
   };
 
@@ -183,12 +195,6 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
       });
     }
   };
-
-  // const handleClearCompleted = () => {
-  //   todos
-  //     .filter(todo => todo.completed)
-  //     .map(todo => handleDeleteTodo(todo.id));
-  // };
 
   const handleClearCompleted = async () => {
     const allCompleted = todos.filter(todo => todo.completed);
@@ -218,7 +224,7 @@ export const TodoList: React.FC<Props> = ({ userId }) => {
                 <TodoItem
                   todo={todo}
                   key={todo.id}
-                  isLoading={loading} // {todo.includes(todo.id)}
+                  isLoading={processingTodoIds.includes(todo.id)}
                   handleDeleteTodo={handleDeleteTodo}
                   handleCompleteTodo={handleCompleteTodo}
                   handleChangeTodoTitle={handleChangeTodoTitle}

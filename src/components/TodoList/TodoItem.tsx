@@ -36,20 +36,6 @@ export const TodoItem: React.FC<Props> = ({
     }
   }, [isEditing]);
 
-  // const handleEditedTitleSubmit = () => {
-  //   const trimmedTodoTitle = editedTitle.trim();
-
-  //   if (trimmedTodoTitle === todo.title) {
-  //     setEditedTitle(trimmedTodoTitle);
-  //   } else if (!trimmedTodoTitle) {
-  //     handleDeleteTodo(todo.id);
-  //   } else {
-  //     handleChangeTodoTitle(todo.id, trimmedTodoTitle);
-  //   }
-
-  //   setIsEditing(false);
-  // };
-
   const handleEditedTitleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedTodoTitle = editedTitle.trim();
