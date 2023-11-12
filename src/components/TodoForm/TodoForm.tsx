@@ -26,7 +26,7 @@ export const TodoForm: React.FC<Props> = ({
     if (titleField.current) {
       titleField.current.focus();
     }
-  }, [isSubmitting]);
+  }, [isSubmitting, todos.length]);
 
   const trimedTitle = todoTitle.trim();
 

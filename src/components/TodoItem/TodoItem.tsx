@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -15,8 +15,16 @@ export const TodoItem: React.FC<Props> = ({
   onTodoDelete,
   onTodoUpdate,
 }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isEditing, setIsEditing] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState(todo.title);
+
+  const updatedTitleField = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing && updatedTitleField.current) {
+      updatedTitleField.current.focus();
+    }
+  }, [isEditing]);
 
   const handleToggle = () => {
     onTodoUpdate?.({
@@ -25,8 +33,37 @@ export const TodoItem: React.FC<Props> = ({
     });
   };
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!updatedTitle.length) {
+      await onTodoDelete?.();
+    } else if (updatedTitle !== todo.title) {
+      try {
+        await onTodoUpdate?.({
+          ...todo,
+          title: updatedTitle.trim(),
+        });
+
+        setIsEditing(false);
+      } catch (error) {
+        if (updatedTitleField.current) {
+          updatedTitleField.current.focus();
+        }
+
+        throw new Error('Some error occured');
+      }
+    } else {
+      setIsEditing(false);
+    }
+  };
+
   return (
-    <div data-cy="Todo" className={cn('todo', { completed: todo.completed })}>
+    <div
+      data-cy="Todo"
+      className={cn('todo', { completed: todo.completed })}
+      onDoubleClick={() => setIsEditing(true)}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
@@ -53,13 +90,23 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       ) : (
-        <form>
+        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value="Todo is being edited now"
+            ref={updatedTitleField}
+            value={updatedTitle}
+            onChange={(event) => {
+              setUpdatedTitle(event.target.value);
+            }}
+            onKeyUp={(event) => {
+              if (event.key === 'Escape') {
+                setIsEditing(false);
+                setUpdatedTitle(todo.title);
+              }
+            }}
           />
         </form>
       )}

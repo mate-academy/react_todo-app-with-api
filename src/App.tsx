@@ -85,6 +85,7 @@ export const App: React.FC = () => {
       }
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
+      throw error;
     } finally {
       setModifyingTodoIds((prevId) => prevId.filter((todoId) => todoId !== id));
     }
@@ -98,18 +99,19 @@ export const App: React.FC = () => {
     );
   };
 
-  const toggleTodoStatus = async (todo: Todo) => {
+  const updateTodoHandler = async (todo: Todo) => {
     setModifyingTodoIds((prevTodo) => [...prevTodo, todo.id]);
 
     try {
       const updatedTodo = await updateTodos(todo);
 
-      setTodos((currTodo) => currTodo
+      setTodos((currTodo) => (currTodo
         .map((prevTodo) => (prevTodo.id === updatedTodo.id
           ? updatedTodo
-          : prevTodo)));
+          : prevTodo))));
     } catch (error) {
       setErrorMessage('Unable to update todo');
+      throw error;
     } finally {
       setModifyingTodoIds((prev) => prev.filter((id) => id !== todo.id));
     }
@@ -124,7 +126,7 @@ export const App: React.FC = () => {
     ));
 
     await Promise.all(todosToUpdate.map(todo => (
-      toggleTodoStatus({
+      updateTodoHandler({
         ...todo,
         completed: !isAllCompleted,
       })
@@ -150,7 +152,7 @@ export const App: React.FC = () => {
               deleteTodoHandler={deleteTodoHandler}
               tempTodo={tempTodo}
               modifyingTodoIds={modifyingTodoIds}
-              onTodoUpdate={toggleTodoStatus}
+              onTodoUpdate={updateTodoHandler}
             />
 
             <TodoFilter
