@@ -2,7 +2,6 @@
 import { FC, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
-import { Filters } from '../../types/Filters';
 
 type Props = {
   todos: Todo[];
@@ -10,9 +9,7 @@ type Props = {
   setTitle: (value: string) => void;
   onHandleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   response: boolean;
-  updateTodo: (value: Todo) => void;
-  setFilterBy: (value: Filters) => void;
-  setToggledTodos: (value: Todo[]) => void;
+  toggleAll: () => void;
 };
 
 export const Header: FC<Props> = ({
@@ -21,33 +18,10 @@ export const Header: FC<Props> = ({
   setTitle,
   onHandleSubmit,
   response,
-  updateTodo,
-  setFilterBy,
-  setToggledTodos,
+  toggleAll,
 }) => {
   const inputField = useRef<HTMLInputElement>(null);
   const allTodosCompleted = todos.every(todo => todo.completed);
-
-  const toggleAll = async () => {
-    setFilterBy(Filters.Toggled);
-
-    const todosToUpdate = todos.filter(todo => (allTodosCompleted
-      ? todo.completed
-      : !todo.completed
-    ));
-    const preparedTodos = todosToUpdate.map(todo => (
-      { ...todo, completed: !allTodosCompleted }
-    ));
-
-    await Promise.all(todosToUpdate.map(todo => (
-      updateTodo({
-        ...todo,
-        completed: !allTodosCompleted,
-      })
-    )));
-
-    setToggledTodos(preparedTodos);
-  };
 
   useEffect(() => {
     if (inputField.current) {

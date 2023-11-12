@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Todo } from '../../types/Todo';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -11,7 +11,7 @@ type Props = {
   isLoading: number[],
   tempTodo: Todo | null,
   filterBy: Filters,
-  toggledTodos: Todo[],
+  changeErrorMessage: (value: string) => void,
 };
 
 export const TodoList: FC<Props> = ({
@@ -21,10 +21,12 @@ export const TodoList: FC<Props> = ({
   isLoading,
   tempTodo,
   filterBy,
-  toggledTodos,
+  changeErrorMessage,
 }) => {
-  const visibleTodos: Todo[] = useMemo(() => {
-    let filteredItems: Todo[] = todos;
+  const [visibleTodos, setVisibleTodos] = useState<Todo[]>(todos);
+
+  useEffect(() => {
+    let filteredItems = todos;
 
     switch (filterBy) {
       case Filters.Active:
@@ -36,17 +38,14 @@ export const TodoList: FC<Props> = ({
         break;
 
       case Filters.Toggled:
-        filteredItems = toggledTodos;
+        filteredItems = todos;
         break;
-
       default:
         break;
     }
 
-    return filteredItems;
-  }, [todos, filterBy, toggledTodos]);
-
-  console.log(visibleTodos);
+    setVisibleTodos(filteredItems);
+  }, [todos, filterBy]);
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -63,6 +62,7 @@ export const TodoList: FC<Props> = ({
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
               isLoading={isLoading.includes(todo.id)}
+              changeErrorMessage={changeErrorMessage}
             />
           </CSSTransition>
         ))}
@@ -79,6 +79,7 @@ export const TodoList: FC<Props> = ({
               deleteTodo={deleteTodo}
               updateTodo={updateTodo}
               isLoading={isLoading.includes(tempTodo.id)}
+              changeErrorMessage={changeErrorMessage}
             />
           </CSSTransition>
         )}

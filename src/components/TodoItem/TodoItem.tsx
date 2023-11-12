@@ -1,7 +1,12 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { FC, useRef, useState } from 'react';
+import React, {
+  FC,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types/Todo';
 
@@ -10,6 +15,7 @@ type Props = {
   deleteTodo: (id: number) => void,
   updateTodo: (todo: Todo) => void,
   isLoading: boolean;
+  changeErrorMessage: (value: string) => void,
 };
 
 export const TodoItem: FC<Props> = ({
@@ -17,47 +23,78 @@ export const TodoItem: FC<Props> = ({
   deleteTodo,
   updateTodo,
   isLoading,
+  changeErrorMessage,
 }) => {
-  const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [isEditing, setIsEditing] = useState(false);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const input = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedTodo = { ...todo, completed: event.target.checked };
 
-    setIsCompleted(updatedTodo.completed);
     updateTodo(updatedTodo);
   };
 
+  const handleTrim = (title: string) => title.replace(/\s+/g, ' ').trim();
+
   const handleDoubleClick = (edited: Todo) => {
+    inputRef.current?.focus();
     setIsEditing(true);
-    if (!edited.title) {
-      deleteTodo(edited.id);
-    } else {
-      setNewTodoTitle(edited.title);
-      if (input.current) {
-        input.current.focus();
-      }
-    }
+    setNewTodoTitle(handleTrim(edited.title));
   };
 
   const handleButtons = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const trimmedTitle = handleTrim(todo.title);
+
     if (event.key === 'Enter') {
-      const updatedItem = { ...todo, title: newTodoTitle };
+      try {
+        if (newTodoTitle === todo.title) {
+          setIsEditing(false);
 
-      if (updatedItem.title === todo.title) {
-        return;
+          return;
+        }
+
+        if (!newTodoTitle) {
+          event.preventDefault();
+          deleteTodo(todo.id);
+        }
+
+        setIsEditing(false);
+        setNewTodoTitle(trimmedTitle);
+        updateTodo({ ...todo, title: newTodoTitle });
+      } catch {
+        changeErrorMessage('Unable to update todo');
+        setNewTodoTitle(todo.title);
       }
-
-      updateTodo(updatedItem);
-      setIsEditing(false);
-      setNewTodoTitle('');
     }
 
     if (event.key === 'Escape') {
       setIsEditing(false);
+      setNewTodoTitle(trimmedTitle);
     }
+  };
+
+  const handleBlur = (editedTodo: Todo) => {
+    const trimmedTitle = handleTrim(editedTodo.title);
+
+    setNewTodoTitle(trimmedTitle);
+    setIsEditing(false);
+
+    if (newTodoTitle === trimmedTitle) {
+      return;
+    }
+
+    if (!newTodoTitle) {
+      deleteTodo(editedTodo.id);
+    }
+
+    updateTodo({ ...editedTodo, title: trimmedTitle });
   };
 
   return (
@@ -66,7 +103,7 @@ export const TodoItem: FC<Props> = ({
       key={todo.id}
       className={cn(
         'todo',
-        { completed: isCompleted },
+        { completed: todo.completed },
       )}
     >
       <label className="todo__status-label">
@@ -74,7 +111,7 @@ export const TodoItem: FC<Props> = ({
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
-          checked={isCompleted}
+          checked={todo.completed}
           onChange={handleCheckboxChange}
         />
       </label>
@@ -100,13 +137,14 @@ export const TodoItem: FC<Props> = ({
       ) : (
         <form>
           <input
+            ref={inputRef}
             data-cy="TodoTitleField"
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={newTodoTitle}
             onChange={(e) => setNewTodoTitle(e.target.value)}
-            onBlur={() => setIsEditing(false)}
+            onBlur={() => handleBlur(todo)}
             onKeyDown={handleButtons}
           />
         </form>
@@ -115,7 +153,7 @@ export const TodoItem: FC<Props> = ({
         data-cy="TodoLoader"
         className={cn(
           'modal overlay',
-          { 'is-active': isLoading },
+          { 'is-active': isLoading || todo.id === 0 },
         )}
       >
         <div className="modal-background has-background-white-ter" />

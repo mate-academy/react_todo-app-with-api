@@ -9,6 +9,7 @@ type Props = {
   setTodos: (todos: Todo[]) => void,
   filter: Filters,
   setFilterBy: (item: Filters) => void,
+  changeErrorMessage: (value: string) => void,
 };
 
 export const Footer: FC<Props> = ({
@@ -16,14 +17,19 @@ export const Footer: FC<Props> = ({
   setTodos,
   filter,
   setFilterBy,
+  changeErrorMessage,
 }) => {
   const activeTodosLenght = todos.filter(todo => !todo.completed).length;
   const completedTodos = todos.filter(todo => todo.completed);
   const hasSomeTodos = todos.some(todo => todo.completed);
 
   const handleClearCompleted = () => {
-    completedTodos.map(todo => deleteTodo(todo.id));
-    setTodos(todos.filter(todo => !todo.completed));
+    try {
+      completedTodos.map(todo => deleteTodo(todo.id));
+      setTodos(todos.filter(todo => !todo.completed));
+    } catch {
+      changeErrorMessage('Unable to delete todo');
+    }
   };
 
   return (

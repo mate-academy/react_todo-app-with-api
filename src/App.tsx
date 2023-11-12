@@ -18,14 +18,13 @@ import { Error } from './components/Error';
 const USER_ID = 11839;
 
 export const App: FC = () => {
-  const [serverTodos, setServerTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
   const [response, setResponse] = useState(false);
   const [isLoading, setIsLoading] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterBy, setFilterBy] = useState(Filters.All);
-  const [toggledTodos, setToggledTodos] = useState<Todo[]>([]);
 
   const changeErrorMessage = (message: string) => {
     setErrorMessage(message);
@@ -38,7 +37,7 @@ export const App: FC = () => {
     try {
       const todosData = await todosServices.getTodos(userId);
 
-      setServerTodos(todosData);
+      setTodos(todosData);
     } catch (err) {
       changeErrorMessage('Unable to load todos');
     }
@@ -48,54 +47,60 @@ export const App: FC = () => {
     getTodos(USER_ID);
   }, []);
 
-  const addTodo = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalizedTitle = title.trim();
-
-    if (!normalizedTitle) {
-      changeErrorMessage('Title should not be empty');
-
-      return;
-    }
-
-    const newTodo = {
-      userId: USER_ID,
-      title: normalizedTitle,
-      completed: false,
-      id: 0,
-    };
-
-    setTempTodo(newTodo);
-    setResponse(true);
-    const createdTodo = await todosServices.createTodo(newTodo);
-
-    try {
-      setTitle('');
-      setServerTodos((currentTodos) => [...currentTodos, createdTodo]);
-    } catch {
-      changeErrorMessage('Unable to add a todo');
-      setTempTodo(null);
-    } finally {
-      setTempTodo(null);
-      setResponse(false);
-    }
-  };
-
   const deleteTodo = async (todoId: number) => {
     setIsLoading((currentTodos) => [...currentTodos, todoId]);
     try {
       await todosServices.deleteTodo(todoId);
-      setServerTodos(
+      setTodos(
         (currentTodos) => currentTodos.filter((todo) => todo.id !== todoId),
       );
     } catch {
       changeErrorMessage('Unable to delete a todo');
+      setTempTodo(null);
     } finally {
+      setTempTodo(null);
+      setResponse(false);
       setIsLoading(
         (currentTodos) => currentTodos.filter(
           (id: number) => id !== todoId,
         ),
       );
+    }
+  };
+
+  const addTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const normalizedTitle = title.trim();
+
+      if (!normalizedTitle) {
+        changeErrorMessage('Title should not be empty');
+
+        return;
+      }
+
+      const newTodo = {
+        userId: USER_ID,
+        title: normalizedTitle,
+        completed: false,
+        id: 0,
+      };
+
+      setTempTodo(newTodo);
+      setResponse(true);
+      const createdTodo = await todosServices.createTodo(newTodo);
+
+      setTitle('');
+      setTodos((currentTodos) => [...currentTodos, createdTodo]);
+    } catch {
+      changeErrorMessage('Unable to add a todo');
+      setTempTodo(null);
+      setResponse(false);
+
+      return;
+    } finally {
+      setTempTodo(null);
+      setResponse(false);
     }
   };
 
@@ -107,19 +112,40 @@ export const App: FC = () => {
         completed: todo.completed,
       });
 
-      setServerTodos(
+      setTodos(
         (currentTodo) => currentTodo.map((item) => (
           item.id === todo.id ? updatedTodo : item
         )),
       );
     } catch {
       changeErrorMessage('Unable to update a todo');
+      setTempTodo(null);
     } finally {
+      setTempTodo(null);
+      setResponse(false);
       setIsLoading(
         (currentTodo) => currentTodo.filter(
           (id: number) => id !== todo.id,
         ),
       );
+    }
+  };
+
+  const toggleAll = async () => {
+    try {
+      const allTodosCompleted = todos.every(todo => todo.completed);
+
+      setFilterBy(Filters.Toggled);
+      const todosToUpdate = todos.map(todo => ({
+        ...todo,
+        completed: !allTodosCompleted,
+      }));
+
+      await Promise.all(todosToUpdate.map(todo => updateTodo(todo)));
+      setTodos(todosToUpdate);
+    } catch {
+      changeErrorMessage('Unable to toggle todos');
+      setTodos(todos);
     }
   };
 
@@ -129,34 +155,33 @@ export const App: FC = () => {
 
       <div className="todoapp__content">
         <Header
-          todos={serverTodos}
+          todos={todos}
           response={response}
           title={title}
           setTitle={setTitle}
           onHandleSubmit={addTodo}
-          updateTodo={updateTodo}
-          setFilterBy={setFilterBy}
-          setToggledTodos={setToggledTodos}
+          toggleAll={toggleAll}
         />
 
-        {!!serverTodos.length && (
+        {!!todos.length && (
           <TodoList
-            todos={serverTodos}
-            toggledTodos={toggledTodos}
+            todos={todos}
             deleteTodo={deleteTodo}
             updateTodo={updateTodo}
             isLoading={isLoading}
             tempTodo={tempTodo}
             filterBy={filterBy}
+            changeErrorMessage={changeErrorMessage}
           />
         )}
 
-        {!!serverTodos.length && (
+        {!!todos.length && (
           <Footer
-            todos={serverTodos}
-            setTodos={setServerTodos}
+            todos={todos}
+            setTodos={setTodos}
             filter={filterBy}
             setFilterBy={setFilterBy}
+            changeErrorMessage={changeErrorMessage}
           />
         )}
       </div>
