@@ -26,44 +26,26 @@ export const Footer: React.FC<Props> = ({
       </span>
 
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterValue === FilterParams.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => {
-            setFilterValue(FilterParams.All);
-          }}
-        >
-          All
-        </a>
+        {Object.values(FilterParams).map(value => {
+          const normalizeValue = value
+            .replace(value[0], value[0].toUpperCase());
 
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterValue === FilterParams.ACTIVE,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => {
-            setFilterValue(FilterParams.ACTIVE);
-          }}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterValue === FilterParams.COMPLETED,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => {
-            setFilterValue(FilterParams.COMPLETED);
-          }}
-        >
-          Completed
-        </a>
+          return (
+            <a
+              key={value}
+              href={value === FilterParams.All ? '#/' : `#/${value}`}
+              className={cn('filter__link', {
+                selected: filterValue === value,
+              })}
+              data-cy={`FilterLink${normalizeValue}`}
+              onClick={() => {
+                setFilterValue(value);
+              }}
+            >
+              {normalizeValue}
+            </a>
+          );
+        })}
       </nav>
 
       <button

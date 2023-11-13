@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 
 import { Todo } from '../../types/Todo';
@@ -30,6 +30,11 @@ export const TodoItem: React.FC<Props> = ({
   } = todo;
   const [newTodoTitle, setNewTodoTitle] = useState(title);
   const [isActiveInput, setIsActiveInput] = useState(false);
+  const textInput = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    textInput.current?.focus();
+  }, [isActiveInput]);
 
   useEffect(() => {
     const handleKeyUp = (event: KeyboardEvent) => {
@@ -49,31 +54,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const isActive = isDisableInput || selectedTodoId.includes(id);
 
-  const onBblur = () => {
-    setTimeout(() => {
-      if (newTodoTitle === title) {
-        setIsActiveInput(false);
-
-        return;
-      }
-
-      if (!newTodoTitle.trim()) {
-        onDelete(id);
-
-        return;
-      }
-
-      onUpdate({
-        todo,
-        key: 'title',
-        value: newTodoTitle.trim(),
-      }, setIsActiveInput);
-    }, 100);
-  };
-
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const submitData = () => {
     if (newTodoTitle === title) {
       setIsActiveInput(false);
 
@@ -90,6 +71,17 @@ export const TodoItem: React.FC<Props> = ({
       { todo, key: 'title', value: newTodoTitle.trim() },
       setIsActiveInput,
     );
+  };
+
+  const onBlur = () => {
+    setTimeout(() => {
+      submitData();
+    }, 100);
+  };
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitData();
   };
 
   return (
@@ -123,9 +115,8 @@ export const TodoItem: React.FC<Props> = ({
             placeholder="Empty todo will be deleted"
             value={newTodoTitle}
             onChange={(event) => setNewTodoTitle(event.target.value)}
-            onBlur={onBblur}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
+            onBlur={onBlur}
+            ref={textInput}
           />
         </form>
       ) : (

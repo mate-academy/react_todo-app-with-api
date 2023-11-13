@@ -3,6 +3,7 @@ import cn from 'classnames';
 
 import { addTodos } from '../../api/todos';
 import { Todo } from '../../types/Todo';
+import { DefaultTodo } from '../../services/DefaultTodo';
 
 type Props = {
   todos: Todo[];
@@ -36,25 +37,17 @@ export const Header: React.FC<Props> = ({
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newTodo = {
-      userId: 11853,
-      completed: false,
-      title: titleTodo.trim(),
-    };
-
     showErrorMessage('');
     isUnableAddTodo.current = true;
 
     if (titleTodo.trim()) {
       setIsDisableInput(true);
       setTempTodo({
-        userId: 11853,
-        completed: false,
-        title: titleTodo,
-        id: 0,
+        ...DefaultTodo,
+        title: titleTodo.trim(),
       });
 
-      addTodos(newTodo)
+      addTodos({ ...DefaultTodo, title: titleTodo.trim() })
         .then(data => {
           setTodos((currentTodos) => [...currentTodos, data]);
         })

@@ -8,8 +8,7 @@ import { Footer } from './Components/Footer';
 import { ErrorNotification } from './Components/ErrorNotification';
 import { FilterParams } from './types/FilteredParams';
 import { UpdatingData } from './types/UpdatingData';
-
-const USER_ID = 11853;
+import { USER_ID } from './services/DefaultTodo';
 
 function filterBy(todos: Todo[], filterValue: string) {
   let filteredTodos = todos;
