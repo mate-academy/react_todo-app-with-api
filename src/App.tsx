@@ -22,6 +22,8 @@ export const App: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState('');
 
   useEffect(() => {
     TodoService.getTodos(USER_ID)
@@ -61,6 +63,37 @@ export const App: React.FC = () => {
         setIsSubmitting(false);
         setLoadingTodo(null);
       });
+  };
+
+  const handleEdit = (todoId: number, newTitle: string) => {
+    if (!newTitle.trim()) {
+      deleteTodo(todoId);
+
+      return;
+    }
+
+    const updatedTodo = todos.find(t => t.id === todoId);
+
+    if (!updatedTodo || newTitle === updatedTodo.title) {
+      setEditingId(null);
+      setEditText('');
+
+      return;
+    }
+
+    setLoadingTodo(todoId);
+    TodoService.updateTodo(todoId, { ...updatedTodo, title: newTitle })
+      .then(() => {
+        setTodos(todos
+          .map(t => (t.id === todoId ? { ...t, title: newTitle.trim() } : t)));
+        setEditingId(null);
+        setEditText('');
+      })
+      .catch(() => {
+        setErrorMessage(ErrorMessage.UnableToUpdate);
+        setTimeout(() => setErrorMessage(ErrorMessage.None), 3000);
+      })
+      .finally(() => setLoadingTodo(null));
   };
 
   const clearCompletedTodos = () => {
@@ -195,12 +228,18 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <TodoAppContent
+        editingId={editingId}
+        setEditingId={setEditingId}
+        editText={editText}
+        setEditText={setEditText}
+        handleEdit={handleEdit}
+        todos={todos}
+        setTodos={setTodos}
         toggleTodoStatus={toggleTodoStatus}
         isUpdatingAll={isUpdatingAll}
         toggleAllTodos={toggleAllTodos}
         filteredTodos={filteredTodos}
         tempTodo={tempTodo}
-        todos={todos}
         filterBy={filterBy}
         todoInput={todoInput}
         loadingTodo={loadingTodo}

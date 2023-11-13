@@ -9,6 +9,11 @@ export const TodoList: React.FC<TodoListProps> = ({
   loadingTodo,
   toggleTodoStatus,
   isUpdatingAll,
+  editingId,
+  setEditingId,
+  editText,
+  setEditText,
+  handleEdit,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -27,17 +32,55 @@ export const TodoList: React.FC<TodoListProps> = ({
               onChange={() => toggleTodoStatus(todo.id)}
             />
           </label>
-          <span data-cy="TodoTitle" className="todo__title">
-            {todo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-            onClick={() => deleteTodo(todo.id)}
-          >
-            ×
-          </button>
+
+          {editingId === todo.id ? (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleEdit(todo.id, editText);
+            }}
+            >
+              <input
+                data-cy="TodoTitleField"
+                type="text"
+                className="todo__title-field"
+                placeholder="Empty todo will be deleted"
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onBlur={() => handleEdit(todo.id, editText)}
+                onKeyUp={(e) => {
+                  if (e.key === 'Escape') {
+                    setEditingId(null);
+                    setEditText('');
+                  }
+                }}
+              />
+            </form>
+          ) : (
+            <span
+              data-cy="TodoTitle"
+              className="todo__title"
+              onDoubleClick={() => {
+                setEditingId(todo.id);
+                setEditText(todo.title.trim());
+              }}
+            >
+              {todo.title}
+            </span>
+          )}
+
+          {editingId !== todo.id && (
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={() => deleteTodo(todo.id)}
+            >
+              ×
+            </button>
+          )}
+
           <div
             data-cy="TodoLoader"
             className={cn('modal overlay',
@@ -48,6 +91,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           </div>
         </div>
       ))}
+
       {tempTodo && (
         <div
           key={tempTodo.id}

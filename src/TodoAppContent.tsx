@@ -21,6 +21,12 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
   toggleTodoStatus,
   toggleAllTodos,
   isUpdatingAll,
+  setTodos,
+  editingId,
+  setEditingId,
+  editText,
+  setEditText,
+  handleEdit,
 }) => {
   return (
     <div className="todoapp__content">
@@ -36,6 +42,8 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
       />
 
       <TodoList
+        todos={todos}
+        setTodos={setTodos}
         isUpdatingAll={isUpdatingAll}
         filteredTodos={filteredTodos}
         isSubmitting={isSubmitting}
@@ -43,6 +51,11 @@ export const TodoAppContent: React.FC<TodoAppContentProps> = ({
         deleteTodo={deleteTodo}
         loadingTodo={loadingTodo}
         toggleTodoStatus={toggleTodoStatus}
+        editingId={editingId}
+        setEditingId={setEditingId}
+        editText={editText}
+        setEditText={setEditText}
+        handleEdit={handleEdit}
       />
 
       {todos.length > 0 && (
