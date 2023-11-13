@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import React from 'react';
+import React, { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import cn from 'classnames';
 import { AppDispatch, RootState } from '../../redux/store';
@@ -7,6 +7,7 @@ import { Todo } from '../../types/Todo';
 import {
   deleteTodo,
   setCompletion,
+  renameTodo,
 } from '../../redux/todoThunks';
 
 type TodoItemProps = {
@@ -21,6 +22,8 @@ export const TodoItem = React.memo<TodoItemProps>(
   }) => {
     console.log('item is temporary now', isTemporary);
     console.log('Rendering TodoItem');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editableTitle, setEditableTitle] = useState(todo.title);
 
     const dispatch = useDispatch<AppDispatch>();
     const updatingTodoIds = useSelector(
@@ -40,9 +43,34 @@ export const TodoItem = React.memo<TodoItemProps>(
       ));
     };
 
-    // const handleRename = () => {
+    const handleDoubleClick = () => {
+      setIsEditing(true);
+    };
 
-    // };
+    const handleBlur = () => {
+      renameTodo({
+        todoId: todo.id,
+        newName: editableTitle,
+      });
+      setIsEditing(false);
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+      setEditableTitle(e.target.value);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        renameTodo({
+          todoId: todo.id,
+          newName: editableTitle,
+        });
+        setIsEditing(false);
+      } else if (e.key === 'Escape') {
+        setEditableTitle(todo.title);
+        setIsEditing(false);
+      }
+    };
 
     const itemClasses = cn({
       todo: true,
@@ -62,20 +90,44 @@ export const TodoItem = React.memo<TodoItemProps>(
           />
         </label>
 
-        <span data-cy="TodoTitle" className="todo__title">
-          {todo.title}
-        </span>
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          onClick={handleDeleteTodo}
-        >
-          ×
-        </button>
+        {isEditing ? (
+          // Show the input field when the todo is being edited
+          <form>
+            <input
+              data-cy="TodoTitleField"
+              type="text"
+              className="todo__title-field"
+              placeholder="Empty todo will be deleted"
+              value={editableTitle}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+            />
+          </form>
+        ) : (
+          // Show the todo title and delete button when not editing
+          <>
+            <span
+              className="todo__title"
+              data-cy="TodoTitle"
+              onDoubleClick={handleDoubleClick}
+            >
+              {todo.title}
+            </span>
+            <button
+              type="button"
+              className="todo__remove"
+              data-cy="TodoDelete"
+              onClick={handleDeleteTodo}
+            >
+              ×
+            </button>
+          </>
+        )}
 
         {(isTemporary || isDeleting || updatingTodoIds.includes(todo.id)) && (
-          <div data-cy="TodoLoader" className="overlay">
+          // Show loading overlay when the todo is being processed
+          <div data-cy="TodoLoader" className="modal overlay">
             <div className="modal-background has-background-white-ter" />
             <div className="loader" />
           </div>
