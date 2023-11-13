@@ -13,7 +13,6 @@ import { deleteTodos, getTodos } from './api/todos';
 import { Header } from './components/Header';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
-import { FilterBy } from './types/FilterBy';
 import { Errors } from './types/Errors';
 
 export const USER_ID = 11914;
@@ -21,7 +20,7 @@ export const USER_ID = 11914;
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState<Errors>(Errors.Empty);
-  const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
+  const [filterBy, setFilterBy] = useState<string>('All');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [loadingItemsId, setLoadingItemsId] = useState<number[] | null>(null);
   const [loadingItemId, setLoadingItemId] = useState<number | null>(null);
@@ -32,9 +31,9 @@ export const App: React.FC = () => {
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
       switch (filterBy) {
-        case FilterBy.Active:
+        case 'Active':
           return !todo.completed;
-        case FilterBy.Complited:
+        case 'Complited':
           return todo.completed;
         default:
           return todos;
@@ -81,11 +80,6 @@ export const App: React.FC = () => {
         })
     ));
   };
-
-  // const filteredTodos = () => {
-  //   switch (filterBy) {
-
-  // };
 
   useEffect(() => {
     getTodos(USER_ID)
@@ -150,7 +144,6 @@ export const App: React.FC = () => {
                 {tempTodo.title}
               </span>
 
-              {/* Remove button appears only on hover */}
               <button
                 type="button"
                 className="todo__remove"
@@ -159,7 +152,6 @@ export const App: React.FC = () => {
                 ×
               </button>
 
-              {/* overlay will cover the todo while it is being updated */}
               <div
                 data-cy="TodoLoader"
                 className={cn('modal overlay is-active')}
@@ -171,7 +163,6 @@ export const App: React.FC = () => {
           )}
         </section>
 
-        {/* Hide the footer if there are no todos */}
         {todos.length > 0 && (
           <Footer
             todosCounter={todosCounter}
@@ -204,21 +195,8 @@ export const App: React.FC = () => {
             onClick={() => setErrorMessage(Errors.Empty)}
           />
         )}
-        {/* show only one message at a time */}
         {errorMessage}
-        {/* <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
       </div>
-
-      {/* Notification is shown in case of any error */}
-      {/* Add the 'hidden' class to hide the message smoothly */}
-
     </div>
   );
 };

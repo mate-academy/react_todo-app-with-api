@@ -90,12 +90,12 @@ export const TodoList: React.FC<Props> = ({
       completed: !todo.completed,
     })
       .then(() => {
-        const currentTodo: Todo[] = todos.map(ctodo => {
-          if (todo.id === ctodo.id) {
-            return { ...ctodo, completed: !ctodo.completed };
+        const currentTodo: Todo[] = todos.map(currtodo => {
+          if (todo.id === currtodo.id) {
+            return { ...currtodo, completed: !currtodo.completed };
           }
 
-          return ctodo;
+          return currtodo;
         });
 
         setTodos(currentTodo);
@@ -162,7 +162,6 @@ export const TodoList: React.FC<Props> = ({
           </>
         )}
 
-      {/* overlay will cover the todo while it is being updated */}
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {

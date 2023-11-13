@@ -1,18 +1,23 @@
 import cn from 'classnames';
-import { FilterBy } from '../types/FilterBy';
 import { Todo } from '../types/Todo';
 import { Errors } from '../types/Errors';
 
 interface Props {
   todosCounter: number,
-  filterBy: FilterBy,
-  setFilterBy: (value: FilterBy) => void,
+  filterBy: string,
+  setFilterBy: (value: string) => void,
   todos: Todo[],
-  setTodos:(value: Todo[]) => void,
+  setTodos: (value: Todo[]) => void,
   setErrorMessage: (value: Errors) => void,
   setLoadingItemsId: (value: number[] | null) => void,
   onCompletedDelete: () => void
 }
+
+const filterButtons = [
+  { id: 1, name: 'All' },
+  { id: 2, name: 'Active' },
+  { id: 3, name: 'Complited' },
+];
 
 export const Footer: React.FC<Props> = ({
   todosCounter,
@@ -29,43 +34,22 @@ export const Footer: React.FC<Props> = ({
         {`${todosCounter} items left`}
       </span>
 
-      {/* Active filter should have a 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.All,
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => setFilterBy(FilterBy.All)}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.Active,
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => setFilterBy(FilterBy.Active)}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={cn('filter__link', {
-            selected: filterBy === FilterBy.Complited,
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => setFilterBy(FilterBy.Complited)}
-        >
-          Completed
-        </a>
+        {filterButtons.map(button => (
+          <a
+            key={button.id}
+            href="#/"
+            className={cn('filter__link', {
+              selected: filterBy === button.name,
+            })}
+            data-cy="FilterLinkAll"
+            onClick={() => setFilterBy(button.name)}
+          >
+            {button.name}
+          </a>
+        ))}
       </nav>
 
-      {/* don't show this button if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"
